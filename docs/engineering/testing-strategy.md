@@ -3,10 +3,11 @@
 ## Purpose and current status
 
 Tests provide evidence about observable behavior and known risks; they do not
-prove correctness. This repository has no production code or test runner yet.
-The policy applies to all future behavior, and the first stack ADR must select
-test frameworks, directory conventions, exact commands, and CI enforcement
-before production code lands.
+prove correctness. ADR 0002 selects Vitest with V8 coverage for the current
+TypeScript repository tooling, and `pnpm test` plus `pnpm test:coverage` are
+enforced by the authoritative verification graph. The repository still has no
+product code; each future product phase must extend this strategy for its
+actual contracts and boundaries before that code lands.
 
 Every implementation phase must list its test matrix and exact commands in its
 execution plan before implementation. A reviewer blocks a change whose tests
@@ -35,12 +36,12 @@ do not match its behavior, contracts, boundaries, or security risk.
 
 ## Test levels
 
-| Level | Required target | Boundary and evidence |
-| --- | --- | --- |
-| Unit | Pure domain and application behavior, invariants, edge cases, error classification, ranking rules, and bounded algorithms | No network, filesystem, clock, random source, model, queue, or database unless passed as a controlled owned dependency |
-| Contract | Every versioned API, MCP, event, job, persisted record, fingerprint, evidence, outcome, configuration, and error boundary | Authoritative schema fixtures; valid, invalid, forward/backward compatibility, unknown-field, size, defaulting, and error cases |
+| Level       | Required target                                                                                                                       | Boundary and evidence                                                                                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit        | Pure domain and application behavior, invariants, edge cases, error classification, ranking rules, and bounded algorithms             | No network, filesystem, clock, random source, model, queue, or database unless passed as a controlled owned dependency                                                               |
+| Contract    | Every versioned API, MCP, event, job, persisted record, fingerprint, evidence, outcome, configuration, and error boundary             | Authoritative schema fixtures; valid, invalid, forward/backward compatibility, unknown-field, size, defaulting, and error cases                                                      |
 | Integration | Database, queue, GitHub, MCP, storage, filesystem, model-provider, identity, telemetry exporter, and package/security-source adapters | Real service or faithful supported emulator/container where feasible; verifies authentication, serialization, timeouts, pagination, retries, idempotency, and provider error mapping |
-| End to end | A small set of critical user journeys across supported components | Only journeys whose cross-component risk is not covered below; asserts user-visible result and important audit/telemetry behavior |
+| End to end  | A small set of critical user journeys across supported components                                                                     | Only journeys whose cross-component risk is not covered below; asserts user-visible result and important audit/telemetry behavior                                                    |
 
 Important external boundaries are not considered verified by mocks alone. For
 example, a mocked GitHub client can exercise application decisions, but a
@@ -52,15 +53,15 @@ not run for untrusted pull requests with secrets.
 
 ## Test matrix by responsibility
 
-| Responsibility | Minimum evidence |
-| --- | --- |
-| Deterministic local scanner | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed |
-| Skill procedure | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior |
-| MCP surface | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics |
-| Catalog ingestion | Source fixtures, provenance/freshness, webhook signature and replay checks, malformed content, rate bounds, idempotency, retries, poison items, and non-execution of source |
-| Retrieval and ranking | Unit/golden evaluations for hard constraints, evidence attribution, inference/unknown separation, deterministic tie behavior, and quality baselines |
-| Evidence and outcome storage | Integration tests for tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery |
-| Adoption workflow | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths |
+| Responsibility               | Minimum evidence                                                                                                                                                            |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Deterministic local scanner  | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                          |
+| Skill procedure              | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                     |
+| MCP surface                  | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics               |
+| Catalog ingestion            | Source fixtures, provenance/freshness, webhook signature and replay checks, malformed content, rate bounds, idempotency, retries, poison items, and non-execution of source |
+| Retrieval and ranking        | Unit/golden evaluations for hard constraints, evidence attribution, inference/unknown separation, deterministic tie behavior, and quality baselines                         |
+| Evidence and outcome storage | Integration tests for tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery                                                                |
+| Adoption workflow            | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths                                             |
 
 Each phase selects only applicable rows and records why omitted rows are
 irrelevant.

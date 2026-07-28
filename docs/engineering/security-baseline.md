@@ -185,12 +185,12 @@ tenant, access roles, storage location, retention, deletion behavior, and
 whether it reaches a model or third party. If no current purpose exists, do not
 collect it.
 
-| Class | Examples | Baseline |
-| --- | --- | --- |
-| Prohibited remote data | Secrets, credentials, `.env` values, unapproved raw source, customer database contents | Reject/redact before transmission; do not store |
+| Class                  | Examples                                                                                | Baseline                                                                                                                      |
+| ---------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Prohibited remote data | Secrets, credentials, `.env` values, unapproved raw source, customer database contents  | Reject/redact before transmission; do not store                                                                               |
 | Sensitive product data | Approved source excerpt, private repository identity, adoption outcome, user identifier | Explicit purpose and authorization, encryption in transit/at rest, tenant isolation, access audit, shortest defined retention |
-| Operational metadata | Stable error code, duration, counts, coarse runtime version | Minimize, bound cardinality, document retention, do not attach source or prompt content |
-| Public evidence | Public release/package/advisory facts | Preserve source, collection time, license/usage constraints, freshness, and correction/deletion status |
+| Operational metadata   | Stable error code, duration, counts, coarse runtime version                             | Minimize, bound cardinality, document retention, do not attach source or prompt content                                       |
+| Public evidence        | Public release/package/advisory facts                                                   | Preserve source, collection time, license/usage constraints, freshness, and correction/deletion status                        |
 
 Use identifiers instead of content in telemetry. Redaction happens before
 logging, tracing, storage, or model calls and is tested against structured and
@@ -245,8 +245,10 @@ come from an isolated, review-controlled pipeline; signing/provenance secrets
 must not be accessible to build steps. Generated code and build outputs identify
 their generator and inputs, and CI detects drift.
 
-No package manifest, dependency, CI workflow, artifact, or release pipeline is
-introduced by this foundation issue.
+ADR 0002 activates exact dependency pins, a frozen lockfile, default-denied
+lifecycle scripts, secret and dependency scans, and read-only CI for repository
+tooling. No product artifact, deployment, release pipeline, signing key, or
+production credential is introduced by Phase 1.
 
 ## Vulnerability handling
 
@@ -302,12 +304,12 @@ destructive/default-branch writes cannot be waived through a routine PR.
 This mapping supplies traceability, not certification and not a copy of the
 external standards.
 
-| GitBlocks control area | NIST SSDF 1.1 practice group | OWASP verification focus | Activation |
-| --- | --- | --- | --- |
-| Requirements, threat models, review gates, roles, exceptions | Prepare the Organization (PO) | ASVS architecture, threat modeling, and secure development lifecycle; AISVS governance | Now; automation with code |
-| Protected source, least privilege, dependency review, lockfiles, pinned CI, provenance | Protect the Software (PS) | ASVS configuration and dependency controls; SLSA source/build integrity | Source controls now; supply-chain automation with code/CI |
+| GitBlocks control area                                                                               | NIST SSDF 1.1 practice group       | OWASP verification focus                                                                                                                                                                                                                                                                                                                                                                                         | Activation                                                  |
+| ---------------------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Requirements, threat models, review gates, roles, exceptions                                         | Prepare the Organization (PO)      | ASVS architecture, threat modeling, and secure development lifecycle; AISVS governance                                                                                                                                                                                                                                                                                                                           | Now; automation with code                                   |
+| Protected source, least privilege, dependency review, lockfiles, pinned CI, provenance               | Protect the Software (PS)          | ASVS configuration and dependency controls; SLSA source/build integrity                                                                                                                                                                                                                                                                                                                                          | Source controls now; supply-chain automation with code/CI   |
 | Secure design, validation, authorization, errors, tenant isolation, tests, prompt-injection boundary | Produce Well-Secured Software (PW) | [OWASP ASVS 5.0](https://owasp.org/www-project-application-security-verification-standard/) authentication, authorization, validation, encoding, API/web service, data protection, and logging requirements; [OWASP AISVS 1.0](https://owasp.org/www-project-artificial-intelligence-security-verification-standard-aisvs-docs/) AI input, model-output, tool/action, data, privacy, and monitoring requirements | Design now; tests and runtime controls with code/deployment |
-| Reporting, triage, remediation, regression tests, disclosure, lessons learned | Respond to Vulnerabilities (RV) | ASVS control verification and regression evidence | Policy now; operational process before release |
+| Reporting, triage, remediation, regression tests, disclosure, lessons learned                        | Respond to Vulnerabilities (RV)    | ASVS control verification and regression evidence                                                                                                                                                                                                                                                                                                                                                                | Policy now; operational process before release              |
 
 The governing NIST reference is
 [SP 800-218, SSDF 1.1](https://csrc.nist.gov/pubs/sp/800/218/final).

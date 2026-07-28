@@ -1,8 +1,8 @@
 # Contributing to GitBlocks
 
 GitBlocks accepts focused, evidence-backed changes through GitHub Flow. The
-project is currently a documentation and engineering-foundation repository;
-there are no application install, build, or test commands yet.
+project currently provides repository engineering tooling but no product
+service or application implementation.
 
 ## Before starting
 
@@ -16,6 +16,30 @@ there are no application install, build, or test commands yet.
 4. For substantial work, create the issue-linked plan required by
    [PLANS.md](PLANS.md) and have it describe verifiable milestones, risks, and
    exact checks.
+
+## Bootstrap and verification
+
+Use Node.js `>=24.12.0 <25`; `.node-version` selects Node 24.18.0. Use only the
+exact pnpm version selected by `package.json`:
+
+```bash
+corepack enable pnpm
+pnpm --version
+pnpm install --frozen-lockfile
+pnpm verify
+```
+
+`pnpm --version` must report `11.17.0`. Before publication, also run the online
+audit graph:
+
+```bash
+pnpm verify:ci
+```
+
+`pnpm verify` is deterministic and requires no credentials or live provider.
+`pnpm verify:ci` adds the registry-backed dependency audit and fails if that
+audit cannot be completed. Never hand-edit `pnpm-lock.yaml` or weaken the
+workspace supply-chain policy to make installation pass.
 
 ## Issue to merge workflow
 
@@ -70,18 +94,22 @@ receive contract tests, external adapters receive realistic integration tests,
 critical journeys receive a small number of end-to-end tests, and
 security-sensitive paths receive negative and abuse tests.
 
-Do not add a production framework, dependency, or toolchain until an accepted
-stack ADR defines the formatter, linter, strict compiler/type settings,
-dependency boundaries, generated-code policy, and exact commands.
+Follow
+[ADR 0002](docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md)
+for the active formatter, linter, strict compiler settings, dependency
+boundaries, generated-code policy, and exact verification commands. A future
+product framework or production dependency still requires explicit issue and
+architecture authority.
 
 ### 6. Review and validation
 
 Run every exact command in the plan and record the outcome in the plan and PR.
-At minimum inspect status and the complete diff, run `git diff --check`, verify
-links and required files, and search for secrets, prohibited content, and
-untracked work. If a tool is unavailable, record that and use the strongest
-deterministic existing alternative; do not install an unpinned validator just
-to satisfy a checkbox.
+At minimum run `pnpm verify`, inspect status and the complete diff, run
+`git diff --check`, verify links and required files, and search for secrets,
+prohibited content, and untracked work. Run `pnpm verify:ci` before publication
+when registry access is available. If a tool is unavailable, record that and
+use the strongest deterministic existing alternative; do not install an
+unpinned validator just to satisfy a checkbox.
 
 Authors and reviewers apply the
 [definition of done](docs/engineering/definition-of-done.md). Review covers

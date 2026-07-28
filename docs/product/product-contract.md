@@ -3,8 +3,9 @@
 ## Status and authority
 
 This document defines the approved product boundary for the first private
-alpha. GitBlocks is currently in a documentation-only foundation phase: none of
-the product components or workflows below is implemented or available yet.
+alpha. GitBlocks is currently in an engineering-foundation phase with
+repository verification tooling only: none of the product components or
+workflows below is implemented or available yet.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -205,15 +206,15 @@ possible.
 
 The alpha succeeds only if all of the following are met:
 
-| Measure | Threshold | Evidence |
-| --- | --- | --- |
-| Hard-constraint safety | 100% of recommendations have no reviewer-confirmed hard-constraint violation at decision time | Constraint checklist and review outcome |
-| Evidence traceability | At least 95% of material factual claims have a resolvable source and collection date | Claim-to-evidence audit |
-| Decision usefulness | At least 70% of completed sessions result in a candidate shortlist or a reviewer-accepted “no viable candidate” conclusion | Session outcome |
-| Repository-conditioned value | At least 60% of developers rate the repository-specific comparison more useful than a generic search result, 4 or 5 on a 5-point scale | Post-session question |
-| Planning quality | At least 70% of accepted recommendations produce an adoption plan that a maintainer rates executable with no major missing work | Plan review |
-| Uncertainty calibration | At least 90% of reviewer-identified material unknowns were disclosed before selection | Unknown audit |
-| Privacy boundary | Zero confirmed transmissions of secrets, unapproved raw source, or prohibited local data | Security and audit review |
+| Measure                      | Threshold                                                                                                                              | Evidence                                |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Hard-constraint safety       | 100% of recommendations have no reviewer-confirmed hard-constraint violation at decision time                                          | Constraint checklist and review outcome |
+| Evidence traceability        | At least 95% of material factual claims have a resolvable source and collection date                                                   | Claim-to-evidence audit                 |
+| Decision usefulness          | At least 70% of completed sessions result in a candidate shortlist or a reviewer-accepted “no viable candidate” conclusion             | Session outcome                         |
+| Repository-conditioned value | At least 60% of developers rate the repository-specific comparison more useful than a generic search result, 4 or 5 on a 5-point scale | Post-session question                   |
+| Planning quality             | At least 70% of accepted recommendations produce an adoption plan that a maintainer rates executable with no major missing work        | Plan review                             |
+| Uncertainty calibration      | At least 90% of reviewer-identified material unknowns were disclosed before selection                                                  | Unknown audit                           |
+| Privacy boundary             | Zero confirmed transmissions of secrets, unapproved raw source, or prohibited local data                                               | Security and audit review               |
 
 Metrics are evaluated by capability family as well as in aggregate so one
 well-performing family cannot hide a failing one. Results must include

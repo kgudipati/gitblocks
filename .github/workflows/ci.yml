@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verification:
+    name: Verification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prove installation is reproducible
+        run: git diff --exit-code
+
+      - name: Validate pull request metadata
+        if: github.event_name == 'pull_request'
+        env:
+          PR_ACTOR: ${{ github.event.pull_request.user.login }}
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pnpm repo:pr-branch -- "$PR_ACTOR" "$PR_BRANCH"
+          pnpm repo:pr-title -- "$PR_TITLE"
+
+      - name: Run authoritative verification
+        run: pnpm verify:ci
+
+      - name: Prove verification leaves the worktree unchanged
+        run: git diff --exit-code

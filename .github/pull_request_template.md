@@ -29,8 +29,8 @@ Closes #
 <!-- Record exact commands and observed results. Include failures resolved, skipped checks, and unavailable-tool alternatives. -->
 
 | Command or review | Result |
-| --- | --- |
-|  |  |
+| ----------------- | ------ |
+|                   |        |
 
 ## Security and privacy review
 
@@ -56,14 +56,14 @@ Closes #
 
 - [ ] The issue outcome and non-goals are satisfied.
 - [ ] A required execution plan is current and contains exact validation
-  evidence, or this PR explains why `PLANS.md` does not require one.
+      evidence, or this PR explains why `PLANS.md` does not require one.
 - [ ] Appropriate tests were added before or alongside changed behavior, or
-  this PR explains why no executable behavior changed.
+      this PR explains why no executable behavior changed.
 - [ ] Security, privacy, compatibility, performance, and operational impact
-  were reviewed, with reasoned not-applicable findings where appropriate.
+      were reviewed, with reasoned not-applicable findings where appropriate.
 - [ ] Documentation and ADRs match the implemented behavior and planned status,
-  or this PR explains why they are unaffected.
+      or this PR explains why they are unaffected.
 - [ ] No secrets, debug code, commented-out code, orphan TODOs, or unrelated
-  changes are present.
+      changes are present.
 - [ ] Every changed line and its relevant context received self-review.
 - [ ] Required checks pass for the final reviewed commit.

@@ -73,18 +73,18 @@ flowchart LR
 
 ## Component responsibilities
 
-| Component | Planned responsibility | Must not own |
-| --- | --- | --- |
-| Coding-agent host | User interaction, permission prompts, local tool execution, edits, and validation | Proprietary ranking or silent expansion of GitBlocks permissions |
-| Agent Skill | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure | Proprietary ranking internals, hidden external writes, or direct production deployment |
-| Local deterministic scanner | Derive a versioned, explainable fingerprint from an approved local read scope | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking |
-| Remote MCP server | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools |
-| Application services | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries | Transport-specific rules or provider-specific persistence behavior |
-| Repository catalog and ingestion workers | Collect allowed public metadata and evidence with provenance, freshness, bounds, and source policy | Execution of ingested repository code or treating repository instructions as trusted |
-| Retrieval and ranking services | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns | Popularity-only ranking or unsupported certainty |
-| Evidence store | Preserve attributable observations, source, collection time, freshness, and tenant/access metadata | Secrets, unnecessary raw target source, or unsourced conclusions |
-| Outcome-learning loop | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals | Self-modifying policy, undeclared model training, or outcome collection without consent |
-| GitHub and package/security sources | External evidence about projects, releases, packages, licenses, and advisories | GitBlocks authorization or instructions |
+| Component                                | Planned responsibility                                                                                                   | Must not own                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                        | Proprietary ranking or silent expansion of GitBlocks permissions                                     |
+| Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure | Proprietary ranking internals, hidden external writes, or direct production deployment               |
+| Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                            | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking |
+| Remote MCP server                        | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface                                     | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools                |
+| Application services                     | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries                                    | Transport-specific rules or provider-specific persistence behavior                                   |
+| Repository catalog and ingestion workers | Collect allowed public metadata and evidence with provenance, freshness, bounds, and source policy                       | Execution of ingested repository code or treating repository instructions as trusted                 |
+| Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                             | Popularity-only ranking or unsupported certainty                                                     |
+| Evidence store                           | Preserve attributable observations, source, collection time, freshness, and tenant/access metadata                       | Secrets, unnecessary raw target source, or unsourced conclusions                                     |
+| Outcome-learning loop                    | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals                         | Self-modifying policy, undeclared model training, or outcome collection without consent              |
+| GitHub and package/security sources      | External evidence about projects, releases, packages, licenses, and advisories                                           | GitBlocks authorization or instructions                                                              |
 
 Services may initially share a deployable or module where that is simpler. These
 responsibility boundaries describe dependency and trust direction; they do not
