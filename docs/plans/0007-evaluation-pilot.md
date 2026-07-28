@@ -6,7 +6,8 @@
   [#7 — Phase 2: Establish evaluation contracts and pilot corpus](https://github.com/kgudipati/gitblocks/issues/7)
 - Branch: `test/7-evaluation-pilot`
 - Owner: GitBlocks maintainers; implementation authoring session is Codex
-- State: implementation published; independent review corrections in progress
+- State: implementation, validation, review corrections, and hosted CI complete;
+  independent final review and merge authorization pending
 - Last updated: 2026-07-28
 - Authority order: Issue #7, actual repository and Git history, the
   [product contract](../product/product-contract.md) and accepted ADRs,
@@ -585,7 +586,8 @@ Open until the applicable milestone:
 - measured coverage before correction: 87.83% statements, 80.04% branches,
   94.13% functions, and 87.83% lines; corrected coverage: 89.23% statements,
   82.22% branches, 95.98% functions, and 89.25% lines; and
-- hosted CI run/job identifiers: resolved after publication.
+- hosted CI run/job identifiers: corrected implementation run 15 and its
+  Verification job are recorded below.
 
 ## Implementation milestones
 
@@ -687,10 +689,10 @@ migrating an accepted consumer.
   correct failures only with ordinary follow-up commits.
 - Evidence: commit SHAs, PR snapshot, final CI run/job/check, clean tracked
   worktree.
-- State: branch and draft PR are published; reviewed head `e27451a` passed
-  hosted run 14. Independent-review corrections and the complete local matrix
-  pass; ordinary follow-up commits, existing-PR update, and final hosted CI
-  inspection remain.
+- State: complete for implementation, validation, review corrections, and
+  hosted CI. Ordinary follow-up commits `88ffa9b` and `f368077` were pushed
+  without rewriting history; PR #8 remains draft for independent final review
+  and merge authorization.
 
 ## Testing and validation strategy
 
@@ -895,6 +897,14 @@ unaccepted gold judgments from reviewed head `e27451a`:
 - 2026-07-28: Committed the atomic schema, harness, tests, and reauthored
   corpus correction as ordinary follow-up commit `88ffa9b`; no published
   commit was amended or rewritten.
+- 2026-07-28: Committed the documentation and correction evidence as ordinary
+  follow-up commit `f368077`, pushed both commits normally to the existing
+  topic branch without force, and updated the existing draft PR #8 description.
+- 2026-07-28: Inspected hosted CI run 15 and the full decoded Verification job
+  log for corrected head `f368077`. Every workflow step passed, including 302
+  tests, corrected corpus/fixture validation, supply-chain checks, architecture
+  checks, and the final clean-worktree proof; no hosted failure or correction
+  commit was required.
 - 2026-07-28: Read Issue #7 completely through connected GitHub access because
   `gh` is unavailable; verified PR #6 merged and Issue #5 closed.
 - 2026-07-28: Fetched/synchronized `main` at the expected
@@ -987,24 +997,25 @@ unaccepted gold judgments from reviewed head `e27451a`:
 
 ## Validation evidence
 
-| Date       | Evidence                                                           | Result                                                                                             |
-| ---------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| 2026-07-28 | `git status --short --branch` before branching                     | clean `main...origin/main`                                                                         |
-| 2026-07-28 | fetch/switch/fast-forward pull, log, rev-parse, branches           | local/remote synchronized at expected `937f35b`                                                    |
-| 2026-07-28 | connected GitHub Issue #7 and PR #6/Issue #5 reads                 | Issue #7 open and complete; PR #6 merged; Issue #5 closed                                          |
-| 2026-07-28 | `rg --files`                                                       | no evaluation schema/corpus/harness/baseline present                                               |
-| 2026-07-28 | supported `nvm use`; versions; `pnpm runtime:check`; `pnpm verify` | Node 24.18.0, pnpm 11.17.0; 161 tests pass; architecture/repository/secrets pass                   |
-| 2026-07-28 | `git switch -c test/7-evaluation-pilot`; `git rev-parse HEAD`      | required local branch created at `937f35b`                                                         |
-| 2026-07-28 | `pnpm test`; `pnpm test:coverage`                                  | 218 tests pass across 18 files; 87.83% statements/lines, 80.04% branches, 94.13% functions         |
-| 2026-07-28 | `pnpm lint`; `pnpm build`; `pnpm architecture:check`               | pass; architecture reports 158 modules/399 dependencies and no violations                          |
-| 2026-07-28 | `pnpm eval:validate`; `pnpm eval:fixtures`                         | ten cases/hashes/composition pass; weak reports are deterministic and distinct                     |
-| 2026-07-28 | runtime, frozen install, format, typecheck, repository, Secretlint | all pass under Node 24.18.0 and pnpm 11.17.0                                                       |
-| 2026-07-28 | `pnpm security:audit`; `pnpm verify`; `pnpm verify:ci`             | pass; registry reports no known vulnerabilities at the moderate threshold                          |
-| 2026-07-28 | focused correction tests                                           | 140 evaluation harness tests pass                                                                  |
-| 2026-07-28 | corrected `pnpm eval:validate`; `pnpm eval:fixtures`               | ten Next.js/PostgreSQL cases and all hashes pass; corrected fixture profiles are distinct          |
-| 2026-07-28 | corrected `pnpm test`; `pnpm test:coverage`                        | 302 tests pass across 18 files; 89.23% statements, 82.22% branches, 95.98% functions, 89.25% lines |
-| 2026-07-28 | corrected architecture/repository/security gates                   | 158 modules/401 dependencies; no architecture violations; repository, Secretlint, and audit pass   |
-| 2026-07-28 | corrected `pnpm verify`; `pnpm verify:ci`                          | both authoritative graphs pass; the audit reports no known vulnerabilities                         |
+| Date       | Evidence                                                           | Result                                                                                                                                                                      |
+| ---------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-28 | `git status --short --branch` before branching                     | clean `main...origin/main`                                                                                                                                                  |
+| 2026-07-28 | fetch/switch/fast-forward pull, log, rev-parse, branches           | local/remote synchronized at expected `937f35b`                                                                                                                             |
+| 2026-07-28 | connected GitHub Issue #7 and PR #6/Issue #5 reads                 | Issue #7 open and complete; PR #6 merged; Issue #5 closed                                                                                                                   |
+| 2026-07-28 | `rg --files`                                                       | no evaluation schema/corpus/harness/baseline present                                                                                                                        |
+| 2026-07-28 | supported `nvm use`; versions; `pnpm runtime:check`; `pnpm verify` | Node 24.18.0, pnpm 11.17.0; 161 tests pass; architecture/repository/secrets pass                                                                                            |
+| 2026-07-28 | `git switch -c test/7-evaluation-pilot`; `git rev-parse HEAD`      | required local branch created at `937f35b`                                                                                                                                  |
+| 2026-07-28 | `pnpm test`; `pnpm test:coverage`                                  | 218 tests pass across 18 files; 87.83% statements/lines, 80.04% branches, 94.13% functions                                                                                  |
+| 2026-07-28 | `pnpm lint`; `pnpm build`; `pnpm architecture:check`               | pass; architecture reports 158 modules/399 dependencies and no violations                                                                                                   |
+| 2026-07-28 | `pnpm eval:validate`; `pnpm eval:fixtures`                         | ten cases/hashes/composition pass; weak reports are deterministic and distinct                                                                                              |
+| 2026-07-28 | runtime, frozen install, format, typecheck, repository, Secretlint | all pass under Node 24.18.0 and pnpm 11.17.0                                                                                                                                |
+| 2026-07-28 | `pnpm security:audit`; `pnpm verify`; `pnpm verify:ci`             | pass; registry reports no known vulnerabilities at the moderate threshold                                                                                                   |
+| 2026-07-28 | focused correction tests                                           | 140 evaluation harness tests pass                                                                                                                                           |
+| 2026-07-28 | corrected `pnpm eval:validate`; `pnpm eval:fixtures`               | ten Next.js/PostgreSQL cases and all hashes pass; corrected fixture profiles are distinct                                                                                   |
+| 2026-07-28 | corrected `pnpm test`; `pnpm test:coverage`                        | 302 tests pass across 18 files; 89.23% statements, 82.22% branches, 95.98% functions, 89.25% lines                                                                          |
+| 2026-07-28 | corrected architecture/repository/security gates                   | 158 modules/401 dependencies; no architecture violations; repository, Secretlint, and audit pass                                                                            |
+| 2026-07-28 | corrected `pnpm verify`; `pnpm verify:ci`                          | both authoritative graphs pass; the audit reports no known vulnerabilities                                                                                                  |
+| 2026-07-28 | final correction diff/status review at `f368077`                   | `git diff --check`, status, stat, and complete diff passed review; local/remote topic SHAs matched and the tracked worktree was clean before this evidence-only plan update |
 
 ### Weak fixture evidence before independent-review corrections
 
@@ -1039,17 +1050,18 @@ baseline.
 - Draft PR:
   [#8 — test: establish OSS adoption evaluation pilot](https://github.com/kgudipati/gitblocks/pull/8);
   exact title, branch, base `main`, `Closes #7`, and draft state confirmed.
-- Implementation head: `67d38bb50b871a4f49b12e00a6f164b91acc6e81`.
-- [CI run 13](https://github.com/kgudipati/gitblocks/actions/runs/30401321192),
-  workflow run ID `30401321192`, completed `success`.
-- [Verification job](https://github.com/kgudipati/gitblocks/actions/runs/30401321192/job/90416565315),
-  job ID `90416565315`, completed `success`.
-- Full decoded log inspected: Ubuntu 24.04, Node 24.18.0, pnpm 11.17.0;
+- Corrected implementation/documentation head:
+  `f36807796a253f2a6bd0349e807d2068b9028a73`.
+- [CI run 15](https://github.com/kgudipati/gitblocks/actions/runs/30406133261),
+  workflow run ID `30406133261`, completed `success`.
+- [Verification job](https://github.com/kgudipati/gitblocks/actions/runs/30406133261/job/90431858998),
+  job ID `90431858998`, completed `success`.
+- Full decoded log inspected: Ubuntu 24.04.4, Node 24.18.0, pnpm 11.17.0;
   lockfile and all 325 entries passed supply-chain policy; PR branch/title
-  passed; 218 tests passed; dependency-cruiser reported 158 modules and 399
+  passed; 302 tests passed; dependency-cruiser reported 158 modules and 401
   dependencies with no violations; repository checks, ten-case evaluation
   validation, all weak fixtures, Secretlint, and the audit passed; final
   `git diff --exit-code` proved CI left no tracked changes.
-- No hosted failure or correction commit was required. This plan update is
-  evidence-only; its final head will be monitored before completion. The PR
-  remains draft.
+- No hosted failure or correction commit was required. This plan evidence
+  update is documentation-only; its resulting workflow will be inspected
+  before completion. The PR remains draft and unmerged.
