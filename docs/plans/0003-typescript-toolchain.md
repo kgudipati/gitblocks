@@ -5,7 +5,7 @@
 - Governing issue: [#3 — Phase 1: Establish the TypeScript workspace and verification pipeline](https://github.com/kgudipati/gitblocks/issues/3)
 - Required branch: `build/3-typescript-toolchain`
 - Owner: GitBlocks maintainers
-- State: active
+- State: complete
 - Last updated: 2026-07-28
 - Authority order: Issue #3; the repository and Git history; the product
   contract and accepted ADRs; `AGENTS.md`, `PLANS.md`, and the engineering
@@ -649,10 +649,11 @@ product contract migration. This is the first executable workspace contract.
 - [x] 2026-07-28 — M5: added self-validating read-only CI, Dependabot,
       activated documentation, completed two frozen installs, and passed the
       complete local validation matrix.
-- [ ] M6 reopened after hosted log review exposed an implicit setup-node cache
-      input and an advisory-bearing pnpm-action bootstrap path despite the green job.
-      The draft PR remains open; complete this milestone only after the ordinary
-      correction commit passes hosted CI and the evidence is synchronized.
+- [x] 2026-07-28 — M6: normally pushed the cache/bootstrap correction as
+      `fb3cd0e6dd14515cad810b81e3835c6cf112debe`; hosted run `30343163983` /
+      `Verification` passed, and full logs confirm cache disabled, exact
+      integrity-bound Corepack bootstrap, read-only permissions, 87 tests, a
+      clean audit, and clean-tree proofs.
 
 ## Decision and deviation log
 
@@ -796,3 +797,4 @@ Evidence below is current through initial publication and hosted CI.
 | Initial implementation commit                            | 2026-07-28 | `f93b50e00682a133624f720561eba2b997e37ee6`; intentional Conventional Commit on the required topic branch                                                                                                     |
 | Normal branch push and draft PR creation                 | 2026-07-28 | Branch published without force; draft PR #4 opened with the exact title and `Closes #3`, and remains unmerged                                                                                                |
 | GitHub Actions runs `30342397907`, `30342593960`         | 2026-07-28 | Jobs passed, but full logs exposed an implicit setup-node cache input and pnpm action self-installer advisory; treated as a failed policy review and corrected rather than accepted                          |
+| Corrected CI run `30343163983` / `Verification`          | 2026-07-28 | Pass on `fb3cd0e`: Node 24.18.0, pnpm 11.17.0 via Corepack, cache input false, read-only token, 325-entry supply-chain check, 87 tests, clean audit, and both worktree proofs confirmed in full logs         |
