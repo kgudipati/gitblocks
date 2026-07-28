@@ -1,0 +1,42 @@
+{
+  "name": "gitblocks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.17.0+sha512.cca3cea332ad254bb84145f966d19f4879615210346fc92c79a047f23a0d7b3cca3c3792f0076ba1f1831d277efbcf0a9119b31a9a60eca7fb3d6231f331ef72",
+  "engines": {
+    "node": ">=24.12.0 <25",
+    "pnpm": "11.17.0"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "pnpm --filter @gitblocks/repository-checks typecheck",
+    "build": "pnpm --filter @gitblocks/repository-checks build",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "architecture:check": "depcruise --config dependency-cruiser.config.mjs tools/repository-checks/src tools/repository-checks/test",
+    "repo:check": "node tools/repository-checks/src/cli.ts repository",
+    "repo:branch": "node tools/repository-checks/src/cli.ts branch",
+    "repo:pr-title": "node tools/repository-checks/src/cli.ts pr-title",
+    "security:secrets": "secretlint \"**/*\"",
+    "security:audit": "pnpm audit --audit-level=moderate",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm architecture:check && pnpm repo:check && pnpm security:secrets",
+    "verify:ci": "pnpm verify && pnpm security:audit"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@secretlint/secretlint-rule-preset-recommend": "13.0.4",
+    "@types/node": "24.13.3",
+    "@vitest/coverage-v8": "4.1.10",
+    "dependency-cruiser": "18.1.0",
+    "eslint": "10.8.0",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.9.6",
+    "secretlint": "13.0.4",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.65.0",
+    "vitest": "4.1.10"
+  }
+}

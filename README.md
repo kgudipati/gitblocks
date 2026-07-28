@@ -39,14 +39,14 @@ functionality.
 
 ## System boundary
 
-| Participant | Planned responsibility |
-| --- | --- |
-| Developer | Defines the goal and constraints; approves data sharing, candidate selection, and effects |
-| Existing coding agent | Remains the interactive runtime; performs approved local edits and validation |
-| GitBlocks Agent Skill | Owns the discovery procedure, safe orchestration, data minimization, evidence presentation, and plan structure |
-| Local deterministic scanner | Produces a versioned codebase fingerprint from approved reads; never executes ingested code |
-| GitBlocks remote MCP and backend | Own candidate discovery, catalog/evidence access, codebase-conditioned ranking, and minimized outcomes |
-| GitHub and package/security sources | Provide untrusted external evidence with provenance and freshness |
+| Participant                         | Planned responsibility                                                                                         |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Developer                           | Defines the goal and constraints; approves data sharing, candidate selection, and effects                      |
+| Existing coding agent               | Remains the interactive runtime; performs approved local edits and validation                                  |
+| GitBlocks Agent Skill               | Owns the discovery procedure, safe orchestration, data minimization, evidence presentation, and plan structure |
+| Local deterministic scanner         | Produces a versioned codebase fingerprint from approved reads; never executes ingested code                    |
+| GitBlocks remote MCP and backend    | Own candidate discovery, catalog/evidence access, codebase-conditioned ranking, and minimized outcomes         |
+| GitHub and package/security sources | Provide untrusted external evidence with provenance and freshness                                              |
 
 See the [system context](docs/architecture/system-context.md) for planned
 components, data flows, and trust boundaries.
@@ -54,44 +54,63 @@ components, data flows, and trust boundaries.
 ## Current development status
 
 GitBlocks is in its product and engineering foundation phase. This repository
-currently contains documentation and repository workflow metadata only. It has
-no application scaffold, package manifest, production dependency, Agent Skill,
-scanner, MCP server, backend, database, ranking engine, deployment, or release.
+now contains an exactly pinned TypeScript workspace and deterministic
+repository verification tooling. It has no application scaffold, production
+dependency, Agent Skill, scanner, MCP server, backend, database, ranking
+engine, deployment, or product release.
 
 The governing product scope is the
 [product contract](docs/product/product-contract.md). Engineering work follows
 the [engineering handbook](docs/engineering/repository-workflow.md) and the
-[active foundation plan](docs/plans/0001-foundation.md).
+[TypeScript workspace ADR](docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md).
 
 ## Repository map
 
-| Path | Purpose |
-| --- | --- |
-| `README.md` | Product orientation and honest project status |
-| `AGENTS.md` | Concise durable instructions for coding agents |
-| `PLANS.md` | Required structure and lifecycle for substantial execution plans |
-| `CONTRIBUTING.md` | Issue-to-merge contributor workflow |
-| `SECURITY.md` | Private vulnerability-reporting and disclosure policy |
-| `docs/product/` | Product contract, vocabulary, evaluation scope, and success criteria |
-| `docs/architecture/` | System context and architecture decisions |
-| `docs/engineering/` | Repository, development, testing, security, reliability, and completion policies |
-| `docs/plans/` | Active and historical version-controlled execution plans |
-| `.github/` | Pull-request and issue intake templates |
+| Path                       | Purpose                                                                          |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| `README.md`                | Product orientation and honest project status                                    |
+| `AGENTS.md`                | Concise durable instructions for coding agents                                   |
+| `PLANS.md`                 | Required structure and lifecycle for substantial execution plans                 |
+| `CONTRIBUTING.md`          | Issue-to-merge contributor workflow                                              |
+| `SECURITY.md`              | Private vulnerability-reporting and disclosure policy                            |
+| `docs/product/`            | Product contract, vocabulary, evaluation scope, and success criteria             |
+| `docs/architecture/`       | System context and architecture decisions                                        |
+| `docs/engineering/`        | Repository, development, testing, security, reliability, and completion policies |
+| `docs/plans/`              | Active and historical version-controlled execution plans                         |
+| `tools/repository-checks/` | Bounded repository-policy CLI and tests                                          |
+| `.github/`                 | Intake templates, read-only CI, and dependency update policy                     |
 
 ## Local development
 
-There are no local install, build, lint, type-check, test, or run commands yet.
-Do not infer commands or create a package manifest to fill this gap. A future
-stack ADR must select the toolchain and replace these placeholders before
-production code lands.
+Use Node.js `>=24.12.0 <25`; [`.node-version`](.node-version) selects the
+current pin, Node 24.18.0. Corepack reads the exact pnpm 11.17.0 pin and
+integrity digest from `package.json`.
 
-| Intended command | Current state |
-| --- | --- |
-| Install dependencies | Not implemented; no package manager or dependencies selected |
-| Run a development service | Not implemented; no service exists |
-| Format, lint, or type-check | Not implemented; the future stack ADR must define exact tools and versions |
-| Run tests | Not implemented; no test runner or production behavior exists |
-| Build or deploy | Not implemented and outside the foundation phase |
+```bash
+corepack enable pnpm
+pnpm --version
+pnpm install --frozen-lockfile
+pnpm verify
+```
 
-Documentation-only changes use the exact validation commands recorded in their
-execution plan.
+`pnpm --version` must report `11.17.0`. Do not use npm or Yarn, hand-edit
+`pnpm-lock.yaml`, or bypass the supply-chain settings in
+`pnpm-workspace.yaml`.
+
+| Command                   | Purpose                                                 |
+| ------------------------- | ------------------------------------------------------- |
+| `pnpm format:check`       | Check formatting without changing files                 |
+| `pnpm lint`               | Run typed ESLint with zero warnings                     |
+| `pnpm typecheck`          | Type-check source and tests without emitting            |
+| `pnpm build`              | Emit the private repository-checks package              |
+| `pnpm test`               | Run the deterministic Vitest suite                      |
+| `pnpm test:coverage`      | Record the V8 coverage baseline                         |
+| `pnpm architecture:check` | Enforce dependency directions                           |
+| `pnpm repo:check`         | Validate workflows, Markdown, and repository invariants |
+| `pnpm security:secrets`   | Scan tracked development content for secrets            |
+| `pnpm security:audit`     | Run the online registry dependency audit                |
+| `pnpm verify`             | Run the authoritative offline verification graph        |
+| `pnpm verify:ci`          | Run `verify` plus the online dependency audit           |
+
+There is no development service, application build, or deployment command
+because product services remain unimplemented.

@@ -1,6 +1,6 @@
 name: Development phase
 description: Propose one coherent, independently verifiable product or engineering outcome.
-title: "phase: "
+title: 'phase: '
 body:
   - type: markdown
     attributes:

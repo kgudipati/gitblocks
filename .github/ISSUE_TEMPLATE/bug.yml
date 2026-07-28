@@ -1,6 +1,6 @@
 name: Reproducible defect
 description: Report an observable GitBlocks behavior that differs from its contract.
-title: "fix: "
+title: 'fix: '
 body:
   - type: markdown
     attributes:

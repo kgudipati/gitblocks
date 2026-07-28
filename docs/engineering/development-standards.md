@@ -3,14 +3,15 @@
 ## Purpose and enforcement stages
 
 These rules define the acceptance bar for future production code. They do not
-authorize production code in the current documentation-only phase.
+authorize production code in the current engineering-foundation phase;
+repository verification tooling is not a product implementation.
 
-| Stage | Meaning | Enforcement |
-| --- | --- | --- |
-| Now | Documentation, contracts, plans, and repository metadata | Author self-review and PR review against this handbook |
-| Before code | Before the first production code for a language or stack lands | An accepted stack ADR defines formatter, linter, compiler strictness, dependency checks, generated-code policy, and exact local/CI commands |
-| With code | Whenever production or test code exists | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review |
-| With deployment | Whenever a path runs in a shared or production environment | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls |
+| Stage               | Meaning                                                                   | Enforcement                                                                                                              |
+| ------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Now                 | Documentation, contracts, plans, metadata, and repository tooling         | ADR 0002, `pnpm verify`, CI, author self-review, and PR review against this handbook                                     |
+| Before product code | Before the first product implementation for a language or framework lands | An accepted ADR extends the current toolchain with product-specific framework, contract, boundary, and runtime decisions |
+| With code           | Whenever production or test code exists                                   | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review                 |
+| With deployment     | Whenever a path runs in a shared or production environment                | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                                |
 
 Required evidence is the relevant ADR and contract diff, tests, tool output, PR
 validation record, and reviewer confirmation. A future tool may strengthen a
@@ -29,13 +30,13 @@ Use this order when priorities conflict:
 Convenience, novelty, or terseness never justifies incorrect behavior,
 unbounded work, hidden side effects, or a weakened trust boundary.
 
-| Rule | Why | Activation and evidence |
-| --- | --- | --- |
-| Implement only current issue and contract requirements; apply YAGNI | Speculative capability creates unused surfaces and migration obligations | Applies now; plan scope, diff, and review show no unrequested behavior |
-| Prefer straightforward control flow and data structures over clever compression | Reviewers must be able to verify invariants and failures | Applies with code; reviewer can explain behavior and tests cover branches |
+| Rule                                                                                                                                            | Why                                                                                | Activation and evidence                                                      |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Implement only current issue and contract requirements; apply YAGNI                                                                             | Speculative capability creates unused surfaces and migration obligations           | Applies now; plan scope, diff, and review show no unrequested behavior       |
+| Prefer straightforward control flow and data structures over clever compression                                                                 | Reviewers must be able to verify invariants and failures                           | Applies with code; reviewer can explain behavior and tests cover branches    |
 | Add an abstraction only when it protects a real boundary, removes meaningful demonstrated duplication, or serves a demonstrated extension point | Layers created “for flexibility” obscure dependency direction and failure behavior | Applies with code; PR names the boundary, duplication, or existing consumers |
-| Do not mandate a repository, service, interface, or class for every concept | Small cohesive modules are often safer than ceremonial layering | Applies with code; module structure is proportional to actual change |
-| Keep each change independently coherent and avoid unrelated cleanup | Small changes improve review quality and recovery | Applies now under the [repository workflow](repository-workflow.md) |
+| Do not mandate a repository, service, interface, or class for every concept                                                                     | Small cohesive modules are often safer than ceremonial layering                    | Applies with code; module structure is proportional to actual change         |
+| Keep each change independently coherent and avoid unrelated cleanup                                                                             | Small changes improve review quality and recovery                                  | Applies now under the [repository workflow](repository-workflow.md)          |
 
 ## Modules and dependency direction
 

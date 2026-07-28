@@ -1,0 +1,31 @@
+{
+  "name": "@gitblocks/repository-checks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.12.0 <25"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "bin": {
+    "gitblocks-repository-checks": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --project tsconfig.test.json --noEmit"
+  },
+  "devDependencies": {
+    "dependency-cruiser": "18.1.0",
+    "vitest": "4.1.10"
+  },
+  "dependencies": {
+    "github-slugger": "2.0.0",
+    "mdast-util-from-markdown": "2.0.3",
+    "yaml": "2.9.0"
+  }
+}

@@ -36,6 +36,11 @@ the active issue and execution plan.
 
 ## Implementation and validation
 
+- Use pnpm only and follow
+  [ADR 0002](docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md)
+  for the TypeScript workspace and verification toolchain.
+- Do not hand-edit `pnpm-lock.yaml`, use floating dependency versions, or
+  bypass the supply-chain controls in `pnpm-workspace.yaml`.
 - Add tests in the same change as behavior. Begin reproducible bug fixes with a
   failing regression test, and include negative/abuse tests for
   security-sensitive behavior. Follow the
@@ -47,6 +52,8 @@ the active issue and execution plan.
 - Add the structured, correlated, redacted telemetry required for every
   production path by the
   [observability policy](docs/engineering/observability-and-reliability.md).
+- Run `pnpm verify` as the authoritative local check and `pnpm verify:ci` when
+  the registry-backed audit is required.
 - Run the plan's exact validation commands and record results before completion.
   Update the plan and applicable ADR when implementation discoveries change a
   decision, scope, risk, or validation requirement.
