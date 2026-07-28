@@ -246,6 +246,36 @@ function validateUsesEntry(
     }
   }
 
+  if (entry.value.startsWith('actions/cache@')) {
+    diagnostics.push(
+      diagnostic(
+        'workflow.dependency-cache',
+        'Dependency caching is prohibited in Phase 1.',
+        file.path,
+      ),
+    );
+  }
+
+  if (entry.value.startsWith('actions/setup-node@')) {
+    const withValue = entry.container['with'];
+    const packageManagerCache = isRecord(withValue)
+      ? withValue['package-manager-cache']
+      : undefined;
+    const explicitCache = isRecord(withValue) ? withValue['cache'] : undefined;
+    if (
+      (packageManagerCache !== false && packageManagerCache !== 'false') ||
+      (explicitCache !== undefined && explicitCache !== '')
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'workflow.dependency-cache',
+          'actions/setup-node must explicitly disable package-manager caching and omit its cache input.',
+          file.path,
+        ),
+      );
+    }
+  }
+
   return diagnostics;
 }
 

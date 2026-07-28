@@ -36,6 +36,8 @@ describe('validateWorkflowFile', () => {
         with:
           persist-credentials: false
       - uses: actions/setup-node@${SETUP_NODE_SHA} # v7.0.0
+        with:
+          package-manager-cache: false
       - uses: ./.github/actions/verify
 `);
 
@@ -88,6 +90,29 @@ describe('validateWorkflowFile', () => {
           persist-credentials: true
 `),
       'workflow.checkout-credentials',
+    ],
+    [
+      'setup-node automatic package-manager caching',
+      workflow(`      - uses: actions/setup-node@${SETUP_NODE_SHA} # v7.0.0
+`),
+      'workflow.dependency-cache',
+    ],
+    [
+      'setup-node explicit dependency caching',
+      workflow(`      - uses: actions/setup-node@${SETUP_NODE_SHA} # v7.0.0
+        with:
+          package-manager-cache: false
+          cache: pnpm
+`),
+      'workflow.dependency-cache',
+    ],
+    [
+      'actions/cache',
+      workflow(
+        `      - uses: actions/cache@1111111111111111111111111111111111111111 # v5.0.3
+`,
+      ),
+      'workflow.dependency-cache',
     ],
   ])('rejects %s', (_name, content, code) => {
     expect(diagnosticCodes(content)).toContain(code);

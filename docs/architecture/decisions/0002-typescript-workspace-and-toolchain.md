@@ -176,8 +176,8 @@ and paths include negative and abuse cases. Coverage is recorded but no
 repository-wide threshold is introduced until a representative baseline and
 critical gaps are reviewed under the testing policy.
 
-The initial Phase 1 baseline is 85.17% statements, 81.63% branches, 96.82%
-functions, and 84.98% lines across the pure policy and repository boundary
+The final Phase 1 baseline is 85.42% statements, 82.33% branches, 96.82%
+functions, and 85.23% lines across the pure policy and repository boundary
 modules. The CLI and re-export entry point are exercised through subprocess
 tests and intentionally excluded from line-percentage accounting.
 
@@ -301,13 +301,15 @@ installation, a frozen lockfile, branch/PR-title validation for pull requests,
 `verify:ci`, and tracked-worktree drift checks.
 
 Every external action uses a full 40-character commit with a same-line
-human-readable release:
+human-readable release. Node 24 includes
+[Corepack](https://github.com/nodejs/corepack), which obtains pnpm from the
+exact version and SHA-512 digest in `packageManager`;
+`COREPACK_DEFAULT_TO_LATEST=0` prevents an unrelated latest-version lookup.
 
 | Action               | Release  | Commit                                     |
 | -------------------- | -------- | ------------------------------------------ |
 | `actions/checkout`   | `v7.0.1` | `3d3c42e5aac5ba805825da76410c181273ba90b1` |
 | `actions/setup-node` | `v7.0.0` | `820762786026740c76f36085b0efc47a31fe5020` |
-| `pnpm/action-setup`  | `v6.0.9` | `0ebf47130e4866e96fce0953f49152a61190b271` |
 
 GitHub's workflow permissions and immutable-action guidance are the primary
 references:
@@ -418,6 +420,15 @@ Rejected because pnpm 11 provides the approved workspace model and explicit
 release-age, trust, exotic-source, lock verification, peer, engine, and build
 controls. Supporting multiple managers would create competing lock/install
 contracts.
+
+### A separate pnpm setup action
+
+Rejected after hosted validation because the selected Node 24 line already
+includes Corepack and the repository's integrity-bound `packageManager` field
+is sufficient. The initial `pnpm/action-setup@v6.0.9` run added an unnecessary
+self-installer boundary and emitted a high-severity npm audit warning before
+switching to the selected pnpm version. Corepack removes that external action
+and its bootstrap graph.
 
 ### CommonJS for new owned code
 

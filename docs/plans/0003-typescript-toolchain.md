@@ -5,7 +5,7 @@
 - Governing issue: [#3 — Phase 1: Establish the TypeScript workspace and verification pipeline](https://github.com/kgudipati/gitblocks/issues/3)
 - Required branch: `build/3-typescript-toolchain`
 - Owner: GitBlocks maintainers
-- State: complete
+- State: active
 - Last updated: 2026-07-28
 - Authority order: Issue #3; the repository and Git history; the product
   contract and accepted ADRs; `AGENTS.md`, `PLANS.md`, and the engineering
@@ -157,14 +157,20 @@ dependency-cruiser, and Secretlint publish npm attestations. The final review
 must also cover the resolved transitive graph, licenses, prerelease absence,
 source types, advisories, and lifecycle scripts after lockfile generation.
 
-The selected GitHub Actions are official project releases resolved to immutable
-commit objects:
+The final selected GitHub Actions are official project releases resolved to
+immutable commit objects:
 
-| Action               | Release  | Full commit SHA                            | Evidence                                          |
-| -------------------- | -------- | ------------------------------------------ | ------------------------------------------------- |
-| `actions/checkout`   | `v7.0.1` | `3d3c42e5aac5ba805825da76410c181273ba90b1` | Official release API and tag ref                  |
-| `actions/setup-node` | `v7.0.0` | `820762786026740c76f36085b0efc47a31fe5020` | Official release API and tag ref                  |
-| `pnpm/action-setup`  | `v6.0.9` | `0ebf47130e4866e96fce0953f49152a61190b271` | Official annotated tag dereferenced to its commit |
+| Action               | Release  | Full commit SHA                            | Evidence                         |
+| -------------------- | -------- | ------------------------------------------ | -------------------------------- |
+| `actions/checkout`   | `v7.0.1` | `3d3c42e5aac5ba805825da76410c181273ba90b1` | Official release API and tag ref |
+| `actions/setup-node` | `v7.0.0` | `820762786026740c76f36085b0efc47a31fe5020` | Official release API and tag ref |
+
+`pnpm/action-setup@v6.0.9` was researched and initially pinned to
+`0ebf47130e4866e96fce0953f49152a61190b271`. Hosted logs then showed its
+self-installer reporting a high-severity npm advisory before switching pnpm
+versions. Node 24 already ships Corepack, so the final workflow removes this
+extra action and uses the exact integrity-bound `packageManager` pin with
+`COREPACK_DEFAULT_TO_LATEST=0`.
 
 GitHub's [workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 and [security guidance](https://docs.github.com/en/code-security/tutorials/secure-your-organization/protect-against-threats)
@@ -384,7 +390,7 @@ flowchart LR
   24-hour strict release age, missing-time failure, no-downgrade trust,
   untrusted lockfile verification, exotic subdependency blocking, and
   default-denied builds.
-- CI uses only three reviewed full-SHA actions, `contents: read`, no secrets,
+- CI uses only two reviewed full-SHA actions, `contents: read`, no secrets,
   no cache, no `pull_request_target`, no writable scope, checkout credential
   persistence disabled, bounded timeout, and cancellation.
 - Tests use inert synthetic text, controlled temporary directories, no
@@ -643,10 +649,10 @@ product contract migration. This is the first executable workspace contract.
 - [x] 2026-07-28 — M5: added self-validating read-only CI, Dependabot,
       activated documentation, completed two frozen installs, and passed the
       complete local validation matrix.
-- [x] 2026-07-28 — M6: committed and normally pushed the required branch,
-      opened draft PR #4 with the exact title and `Closes #3`, and confirmed CI
-      run `30342397907` / `Verification` passed on implementation commit
-      `f93b50e00682a133624f720561eba2b997e37ee6`.
+- [ ] M6 reopened after hosted log review exposed an implicit setup-node cache
+      input and an advisory-bearing pnpm-action bootstrap path despite the green job.
+      The draft PR remains open; complete this milestone only after the ordinary
+      correction commit passes hosted CI and the evidence is synchronized.
 
 ## Decision and deviation log
 
@@ -675,6 +681,11 @@ product contract migration. This is the first executable workspace contract.
   authenticated GitHub API/connected GitHub app for issue/PR/CI operations and
   ordinary Git for fetch/branch/commit/push. No scope or publication rule
   changes.
+- 2026-07-28 — Replace the initially selected pnpm setup action with Node 24's
+  bundled Corepack after hosted logs showed that action's self-installer
+  reporting a high-severity npm advisory. The exact `packageManager` version
+  and digest remain authoritative, and `COREPACK_DEFAULT_TO_LATEST=0` prevents
+  an unrelated latest-version lookup.
 
 ## Failed checks and corrections
 
@@ -733,6 +744,16 @@ product contract migration. This is the first executable workspace contract.
   pnpm 11.9.0 wrapper directly; engine enforcement rejected it before any
   script ran. Correction: retained strict enforcement and invoked the reviewed
   pnpm 11.17.0 bootstrap path used by the earlier validation matrix.
+- 2026-07-28 — Hosted runs `30342397907` and `30342593960` reported success,
+  but full log review exposed `actions/setup-node`'s default
+  `package-manager-cache: true` input and the pnpm setup action's self-installer
+  reporting one high-severity advisory. Correction: reopened M6, added failing
+  regression cases for automatic/explicit/direct cache paths, explicitly
+  disabled setup-node caching, and replaced the extra action with Corepack.
+- 2026-07-28 — The first focused workflow cache-policy run failed its two new
+  setup-node cases because no cache rule existed; the direct `actions/cache`
+  case was added before implementation. Correction: added a focused validator
+  for all three paths while preserving local-action handling.
 
 ## Validation evidence
 
@@ -750,15 +771,15 @@ Evidence below is current through initial publication and hosted CI.
 | Requested runtime commands                               | 2026-07-28 | PATH lacks Node/npm/Corepack; bundled pnpm reports 11.9.0                                                                                                                                                    |
 | Bundled Node direct version/signature                    | 2026-07-28 | `v24.14.0`; Node.js Foundation Developer ID signature verified                                                                                                                                               |
 | npm registry metadata review                             | 2026-07-28 | Exact selected stable versions, compatible engines/peers, permissive direct licenses, integrity, no direct install lifecycle scripts                                                                         |
-| Official action release/tag resolution                   | 2026-07-28 | Three stable releases resolved to full commit objects recorded above                                                                                                                                         |
+| Official action release/tag resolution                   | 2026-07-28 | Final checkout/setup-node releases resolved to full commit objects; researched pnpm action rejected after hosted bootstrap evidence                                                                          |
 | Focused test-first Vitest runs                           | 2026-07-28 | Expected missing-module/config failures followed by passing branch/title, workflow, Markdown, invariant, CLI, and architecture slices                                                                        |
 | `pnpm install --no-frozen-lockfile`                      | 2026-07-28 | Resolved 325 package records under all committed supply-chain controls; empty build allowlist                                                                                                                |
 | Lockfile source/integrity/prerelease review              | 2026-07-28 | 325/325 integrity records; no exotic source, prerelease, or build-required record                                                                                                                            |
 | Installed manifest lifecycle review                      | 2026-07-28 | 295 package versions reviewed; no preinstall/install/postinstall script                                                                                                                                      |
 | `pnpm licenses list --json`                              | 2026-07-28 | 295 installed package versions; all licenses reviewed and compatible with development-only use                                                                                                               |
 | `pnpm lint`; `pnpm typecheck`                            | 2026-07-28 | Pass after recorded configuration/type corrections                                                                                                                                                           |
-| `pnpm test`                                              | 2026-07-28 | 8 files, 84 tests pass                                                                                                                                                                                       |
-| `pnpm test:coverage`                                     | 2026-07-28 | 85.17% statements, 81.63% branches, 96.82% functions, 84.98% lines; no threshold                                                                                                                             |
+| `pnpm test`                                              | 2026-07-28 | Final correction baseline: 8 files, 87 tests pass                                                                                                                                                            |
+| `pnpm test:coverage`                                     | 2026-07-28 | 85.42% statements, 82.33% branches, 96.82% functions, 85.23% lines; no threshold                                                                                                                             |
 | `pnpm architecture:check`                                | 2026-07-28 | Pass: 125 modules and 304 dependencies; seven negative fixtures also pass                                                                                                                                    |
 | `pnpm build`; emitted CLI smoke                          | 2026-07-28 | TypeScript emit succeeds and built JavaScript validates the required branch                                                                                                                                  |
 | Direct workflow-policy validation of `ci.yml`            | 2026-07-28 | Pass before staging/commit; immutable pins, comments, permissions, and checkout policy accepted                                                                                                              |
@@ -766,10 +787,12 @@ Evidence below is current through initial publication and hosted CI.
 | `pnpm security:audit`                                    | 2026-07-28 | Pass: no known vulnerabilities                                                                                                                                                                               |
 | Two `pnpm install --frozen-lockfile` runs                | 2026-07-28 | Both pass in 159/157 ms; lock hash unchanged and no unstaged tracked diff                                                                                                                                    |
 | `pnpm verify`                                            | 2026-07-28 | Pass without credentials, providers, network-backed tests, or duplicate test execution                                                                                                                       |
-| `pnpm verify:ci`                                         | 2026-07-28 | Pass on final 84-test implementation, including the visible online audit                                                                                                                                     |
+| `pnpm verify:ci`                                         | 2026-07-28 | Pass locally on the final 87-test correction, including the visible online audit                                                                                                                             |
 | `git diff --check`; `git diff --cached --check`          | 2026-07-28 | Pass; no whitespace errors                                                                                                                                                                                   |
 | Full local command matrix                                | 2026-07-28 | All required install, format, lint, type, build, test, coverage, architecture, repository, secret, audit, and verification commands pass                                                                     |
 | Final acceptance/security/diff review                    | 2026-07-28 | Pass before publication: every criterion reconciled; semantic and formatted-baseline diffs reviewed; no product service, mutable action, secret fixture, unsupported source, or undocumented exception found |
+| Focused hosted-log regression                            | 2026-07-28 | Two setup-node cache cases failed before implementation; final focused suite passes 18 cases including direct `actions/cache` rejection                                                                      |
+| Corrected local `pnpm verify:ci`                         | 2026-07-28 | Pass with 87 tests, cache-free workflow policy, Corepack bootstrap configuration, and no known repository dependency vulnerability                                                                           |
 | Initial implementation commit                            | 2026-07-28 | `f93b50e00682a133624f720561eba2b997e37ee6`; intentional Conventional Commit on the required topic branch                                                                                                     |
 | Normal branch push and draft PR creation                 | 2026-07-28 | Branch published without force; draft PR #4 opened with the exact title and `Closes #3`, and remains unmerged                                                                                                |
-| GitHub Actions run `30342397907` / `Verification`        | 2026-07-28 | Pass on the implementation commit; setup, frozen install, clean-tree proofs, PR metadata validation, `verify:ci`, and every post step succeeded                                                              |
+| GitHub Actions runs `30342397907`, `30342593960`         | 2026-07-28 | Jobs passed, but full logs exposed an implicit setup-node cache input and pnpm action self-installer advisory; treated as a failed policy review and corrected rather than accepted                          |
