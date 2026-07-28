@@ -6,8 +6,8 @@
   [#7 — Phase 2: Establish evaluation contracts and pilot corpus](https://github.com/kgudipati/gitblocks/issues/7)
 - Branch: `test/7-evaluation-pilot`
 - Owner: GitBlocks maintainers; implementation authoring session is Codex
-- State: implementation and local validation complete; publication/hosted CI
-  in progress
+- State: implementation, publication, and initial hosted CI complete; final
+  evidence-only head validation in progress
 - Last updated: 2026-07-28
 - Authority order: Issue #7, actual repository and Git history, the
   [product contract](../product/product-contract.md) and accepted ADRs,
@@ -610,7 +610,9 @@ Open until the applicable milestone:
   correct failures only with ordinary follow-up commits.
 - Evidence: commit SHAs, PR snapshot, final CI run/job/check, clean tracked
   worktree.
-- State: all exact local commands pass; publication and hosted CI remain.
+- State: all exact local commands pass; branch and draft PR are published;
+  hosted run 13 passes on the implementation head. The final evidence-only
+  follow-up commit remains to be checked.
 
 ## Testing and validation strategy
 
@@ -752,6 +754,12 @@ candidates in lexical ID order.
   formatting, lint, typecheck, build, coverage, repository/evaluation/security
   checks, `verify`, and `verify:ci` all pass; the audit reports no known
   vulnerabilities.
+- 2026-07-28: Committed the plan as `a58faf6` and the implementation as
+  `67d38bb`, pushed the exact branch without rewriting history, and opened
+  draft PR #8 with the exact title and `Closes #7`.
+- 2026-07-28: Inspected hosted CI run 13 and its full Verification job log for
+  implementation head `67d38bb`. Every workflow step passed, including the
+  final clean-worktree proof.
 
 ## Decision and deviation log
 
@@ -786,6 +794,7 @@ candidates in lexical ID order.
 | 2026-07-28 | first two `pnpm lint` runs                                      | Harness test-project config, array-style policy, imports, and matcher safety produced 17 then 8 errors | Added the harness test tsconfig and corrected the reported source/test issues; lint passes with zero warnings        |
 | 2026-07-28 | corpus formatting/hash refresh                                  | macOS `shasum` failed with a `C.UTF-8` locale panic after formatting                                   | Used system `openssl dgst -sha256` for the manifest refresh; `eval:validate` confirms every hash                     |
 | 2026-07-28 | `pnpm format:write`                                             | The repository's write script is named `pnpm format`, so the guessed alias did not exist               | Ran `pnpm exec prettier --write .`; the exact final `pnpm format:check` passes                                       |
+| 2026-07-28 | connected GitHub combined-status query                          | The GitHub App lacks permission for the legacy combined-status endpoint and returned HTTP 403          | Used workflow-run, job, and decoded-log endpoints; run 13 and its Verification job completed successfully            |
 
 ## Validation evidence
 
@@ -818,5 +827,20 @@ performance baselines.
 
 ### Hosted CI evidence
 
-Pending publication. Record workflow/run/job URLs, final head SHA, conclusion,
-and any failure/correction commits here. The PR must remain draft.
+- Draft PR:
+  [#8 — test: establish OSS adoption evaluation pilot](https://github.com/kgudipati/gitblocks/pull/8);
+  exact title, branch, base `main`, `Closes #7`, and draft state confirmed.
+- Implementation head: `67d38bb50b871a4f49b12e00a6f164b91acc6e81`.
+- [CI run 13](https://github.com/kgudipati/gitblocks/actions/runs/30401321192),
+  workflow run ID `30401321192`, completed `success`.
+- [Verification job](https://github.com/kgudipati/gitblocks/actions/runs/30401321192/job/90416565315),
+  job ID `90416565315`, completed `success`.
+- Full decoded log inspected: Ubuntu 24.04, Node 24.18.0, pnpm 11.17.0;
+  lockfile and all 325 entries passed supply-chain policy; PR branch/title
+  passed; 218 tests passed; dependency-cruiser reported 158 modules and 399
+  dependencies with no violations; repository checks, ten-case evaluation
+  validation, all weak fixtures, Secretlint, and the audit passed; final
+  `git diff --exit-code` proved CI left no tracked changes.
+- No hosted failure or correction commit was required. This plan update is
+  evidence-only; its final head will be monitored before completion. The PR
+  remains draft.
