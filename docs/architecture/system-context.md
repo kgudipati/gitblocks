@@ -1,0 +1,215 @@
+# System context
+
+## Status
+
+This document describes the approved direction for future GitBlocks
+components. The repository currently contains no implemented product
+components, runtime, deployment, data store, or network service. Technology
+choices remain open unless a later architecture decision record (ADR) approves
+them.
+
+The [product contract](../product/product-contract.md) owns the user,
+vocabulary, data-locality rules, and private-alpha boundary.
+[ADR 0001](decisions/0001-agent-native-delivery.md) owns the headless,
+agent-native delivery decision.
+
+## Context and ownership
+
+The developer interacts with an existing coding-agent host. A future GitBlocks
+Agent Skill will guide that agent through local fingerprinting, remote
+discovery, evidence review, adoption planning, and outcome capture. A future
+remote Model Context Protocol (MCP) server will expose a small set of
+user-goal-oriented operations backed by application services, catalog
+ingestion, evidence, and codebase-conditioned retrieval and ranking.
+
+The coding agent remains responsible for local repository reads authorized by
+the user, local code edits, and local validation. GitBlocks does not replace the
+agent runtime and does not receive blanket permission to change a repository.
+
+## Planned system context
+
+All GitBlocks nodes in this diagram are planned, not implemented.
+
+```mermaid
+flowchart LR
+    Developer["Developer"]
+    Agent["Existing coding-agent host"]
+    GitHub["GitHub"]
+    Sources["Package and security data sources"]
+
+    subgraph Local["User-controlled local trust boundary"]
+        Skill["GitBlocks Agent Skill (planned)"]
+        Scanner["Deterministic codebase scanner (planned)"]
+        Repo["Target repository"]
+    end
+
+    subgraph Remote["GitBlocks remote trust boundary (planned)"]
+        MCP["Remote MCP server"]
+        App["Application services"]
+        Ranking["Retrieval and ranking services"]
+        Catalog["Repository catalog and ingestion workers"]
+        Evidence["Evidence store"]
+        Outcomes["Outcome-learning loop"]
+    end
+
+    Developer -->|"request, constraints, approvals"| Agent
+    Agent -->|"invokes procedure"| Skill
+    Skill -->|"approved read scope"| Scanner
+    Repo -->|"approved read-only facts; no code execution"| Scanner
+    Skill -->|"minimized fingerprint and goal"| MCP
+    MCP --> App
+    App --> Ranking
+    Ranking --> Evidence
+    Catalog --> Evidence
+    Catalog -->|"rate-limited collection"| GitHub
+    Catalog -->|"metadata and advisories"| Sources
+    App --> Outcomes
+    Outcomes -->|"quality signals"| Ranking
+    MCP -->|"evidence-backed result"| Skill
+    Skill -->|"recommendation and adoption plan"| Agent
+    Agent -->|"local edits and validation after approval"| Repo
+    Agent -->|"decision and results"| Developer
+```
+
+## Component responsibilities
+
+| Component | Planned responsibility | Must not own |
+| --- | --- | --- |
+| Coding-agent host | User interaction, permission prompts, local tool execution, edits, and validation | Proprietary ranking or silent expansion of GitBlocks permissions |
+| Agent Skill | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure | Proprietary ranking internals, hidden external writes, or direct production deployment |
+| Local deterministic scanner | Derive a versioned, explainable fingerprint from an approved local read scope | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking |
+| Remote MCP server | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools |
+| Application services | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries | Transport-specific rules or provider-specific persistence behavior |
+| Repository catalog and ingestion workers | Collect allowed public metadata and evidence with provenance, freshness, bounds, and source policy | Execution of ingested repository code or treating repository instructions as trusted |
+| Retrieval and ranking services | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns | Popularity-only ranking or unsupported certainty |
+| Evidence store | Preserve attributable observations, source, collection time, freshness, and tenant/access metadata | Secrets, unnecessary raw target source, or unsourced conclusions |
+| Outcome-learning loop | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals | Self-modifying policy, undeclared model training, or outcome collection without consent |
+| GitHub and package/security sources | External evidence about projects, releases, packages, licenses, and advisories | GitBlocks authorization or instructions |
+
+Services may initially share a deployable or module where that is simpler. These
+responsibility boundaries describe dependency and trust direction; they do not
+mandate microservices.
+
+## Primary discovery and adoption data flow
+
+All remote calls and stored data shown here are future behavior.
+
+```mermaid
+sequenceDiagram
+    actor D as Developer
+    participant A as Coding agent
+    participant S as Agent Skill
+    participant L as Local scanner
+    participant M as Remote MCP
+    participant R as Application and ranking
+    participant E as Evidence store
+
+    D->>A: State capability, constraints, and approvals
+    A->>S: Start GitBlocks discovery procedure
+    S->>L: Scan approved files deterministically
+    L-->>S: Versioned minimized fingerprint
+    S->>D: Preview data allowed to leave local boundary
+    D-->>S: Approve or reduce transmission
+    S->>M: Goal, hard constraints, fingerprint
+    M->>R: Validated authenticated use case
+    R->>E: Retrieve candidates and sourced evidence
+    E-->>R: Evidence with source and freshness
+    R-->>M: Viability, fit, tradeoffs, unknowns
+    M-->>S: Versioned evidence-backed response
+    S-->>A: Explain recommendation and adoption plan
+    A->>D: Request selection and edit approval
+    D-->>A: Approve, reject, or stop
+    A->>A: Edit and validate locally
+    A->>S: Minimized structured outcome
+    S->>D: Preview optional outcome transmission
+    D-->>S: Approve or decline
+    S->>M: Approved outcome only
+```
+
+Declining optional evidence or outcome transmission must not grant broader
+permissions or trigger hidden collection. When required data is withheld, the
+result may contain more unknowns or no recommendation.
+
+## Trust boundaries and controls
+
+### Local repository to scanner
+
+Repository source, documentation, issues copied into the repository, package
+metadata, and local profiles are untrusted data. They cannot become agent
+instructions. The scanner will use allowlisted, bounded reads; validate paths
+and formats; avoid symlink or traversal escape; redact sensitive values; and
+never execute repository code. The scanner output will declare its schema
+version and the observations that produced each fingerprint fact.
+
+### Local environment to remote MCP
+
+Only data allowed by the
+[product transmission contract](../product/product-contract.md#data-locality-and-transmission-contract)
+may cross this boundary. The Skill will preview optional excerpts, minimize
+payloads, remove secrets, and require explicit approval where source content,
+external writes, privileged actions, destructive operations, or material cost
+is involved. Transport authentication does not replace per-object
+authorization or tenant isolation.
+
+### MCP to application services
+
+MCP arguments and model-produced fields are untrusted. The server will
+authenticate the caller, authorize the requested operation and resource,
+validate versioned schemas, apply rate and concurrency bounds, propagate
+deadlines and cancellation, use stable safe errors, and create audit records
+without sensitive payloads.
+
+### External sources to ingestion
+
+GitHub, package registries, security feeds, retrieved web pages, repositories,
+READMEs, issues, and pull requests are untrusted evidence sources. Workers will
+verify source identity where possible, enforce size/time/rate limits, record
+provenance and collection time, reject instruction-following behavior, and
+never run ingested code. Webhook-driven ingestion will require signature,
+timestamp, and replay verification before processing.
+
+### Remote data and model boundary
+
+Evidence access will be tenant- and purpose-scoped. Model input will be
+minimized; model output will be validated and treated as inference until tied
+to evidence. Secrets, proprietary raw source, and unnecessary personal data
+must not enter prompts, telemetry, or the evidence store.
+
+## Contract direction
+
+The future dependency direction is inward:
+
+```text
+transports and providers -> application use cases -> domain rules
+```
+
+HTTP/MCP, GitHub, database, queue, filesystem, model-provider, and framework
+adapters may depend on owned application contracts. Domain and application
+rules must not depend on those adapters. Versioned request, response, event,
+error, evidence, fingerprint, and outcome contracts each have one authoritative
+definition; transports may encode them but must not recreate competing shapes.
+
+## Failure and operational posture
+
+Remote operations will be bounded by pagination, deadlines, cancellation,
+concurrency limits, and backpressure. Retries will apply only to classified
+transient and idempotent work, use exponential backoff with jitter, and stop at
+a configured bound. Partial evidence, stale evidence, source unavailability,
+and ranking uncertainty will be explicit response states rather than silent
+success.
+
+Future production paths will emit correlated, structured telemetry with stable
+operation and error names. Telemetry will describe timing, counts, outcomes,
+and evidence identifiers without recording prompts, raw source, credentials,
+or sensitive excerpts. Detailed rules are in the
+[observability and reliability policy](../engineering/observability-and-reliability.md).
+
+## Open technology decisions
+
+Later ADRs must select, at minimum, the implementation language and runtime,
+MCP and transport libraries, contract schema mechanism, storage, queue,
+identity and tenant model, deployment topology, model providers, telemetry
+backend, retention implementation, and software-supply-chain controls. A stack
+ADR must also establish formatter, linter, compiler strictness, dependency
+rules, generated-code policy, and validation commands before production code
+lands.

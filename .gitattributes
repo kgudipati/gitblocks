@@ -1,0 +1,25 @@
+# Normalize text deterministically across contributor platforms.
+* text=auto eol=lf
+
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.sh text eol=lf
+
+# Preserve common binary assets without text conversion or textual diffs.
+*.gif binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.png binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+
+# Files placed in an explicit generated directory are identified for review.
+# A future stack ADR must define generation, commit, and drift-check policy.
+**/generated/** linguist-generated=true

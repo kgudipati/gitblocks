@@ -1,0 +1,96 @@
+name: Reproducible defect
+description: Report an observable GitBlocks behavior that differs from its contract.
+title: "fix: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report vulnerabilities, credentials, tenant data, prompt-injection payloads with live secrets, or unpublished exploit details here. Follow SECURITY.md for private reporting.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary and impact
+      description: State the observable defect, affected user, severity, and frequency.
+    validations:
+      required: true
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Actual behavior
+      description: What happened? Include stable error codes and redacted evidence when available.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: Link the contract, documentation, or prior behavior that defines the expectation.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal deterministic reproduction
+      description: Give the smallest authorized sequence, fixture, and input. Remove secrets, proprietary source, personal data, and arbitrary sleeps.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and versions
+      description: Include GitBlocks commit/version, coding-agent host, runtime, OS, relevant providers, contract versions, and deployment model.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Include safe logs, trace/correlation references, screenshots, or output. Explain omissions. Never paste credentials or sensitive payloads.
+    validations:
+      required: false
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Regression status
+      description: Did this work in a known earlier version?
+      options:
+        - Unknown
+        - Yes
+        - No
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround and recovery
+      description: Describe any safe workaround, rollback, forward recovery, or affected data. Do not recommend bypassing validation or authorization.
+    validations:
+      required: false
+  - type: textarea
+    id: test
+    attributes:
+      label: Suggested regression coverage
+      description: >-
+        Optionally suggest behavior the fix should protect. Maintainers and the
+        implementation plan remain responsible for selecting unit, contract,
+        integration, end-to-end, negative, abuse, property, fuzz, load, or
+        resilience coverage.
+    validations:
+      required: false
+  - type: checkboxes
+    id: submission
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched for an existing report.
+          required: true
+        - label: I reproduced this against a supported or current commit.
+          required: true
+        - label: This report contains no secret, proprietary source, personal data, or unpublished exploit detail.
+          required: true
+        - label: This is not a security vulnerability requiring private disclosure.
+          required: true
