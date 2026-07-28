@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/evidence/1.0.0",
+  "title": "GitBlocks evaluation evidence set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "caseId", "evidenceCutoff", "observations"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "caseId": { "$ref": "#/$defs/id" },
+    "evidenceCutoff": { "$ref": "#/$defs/date" },
+    "observations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/observation" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^20[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+    },
+    "dateTime": {
+      "type": "string",
+      "pattern": "^20[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceId",
+        "subjectType",
+        "candidateId",
+        "sourceType",
+        "sourceUrl",
+        "sourceRevision",
+        "collectedAt",
+        "publishedAt",
+        "observation",
+        "freshnessScope",
+        "directness",
+        "limitation"
+      ],
+      "properties": {
+        "evidenceId": { "$ref": "#/$defs/id" },
+        "subjectType": { "enum": ["candidate", "case"] },
+        "candidateId": {
+          "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }]
+        },
+        "sourceType": {
+          "enum": [
+            "official-documentation",
+            "official-repository",
+            "official-release",
+            "package-registry",
+            "security-advisory",
+            "license",
+            "case-local-fact"
+          ]
+        },
+        "sourceUrl": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 500,
+          "pattern": "^(?:https://|case://)[^\\u0000-\\u0020\\u007f]+$"
+        },
+        "sourceRevision": { "$ref": "#/$defs/sourceRevision" },
+        "collectedAt": { "$ref": "#/$defs/dateTime" },
+        "publishedAt": {
+          "oneOf": [{ "$ref": "#/$defs/dateTime" }, { "type": "null" }]
+        },
+        "observation": { "$ref": "#/$defs/text" },
+        "freshnessScope": { "$ref": "#/$defs/text" },
+        "directness": { "enum": ["direct", "case-local"] },
+        "limitation": { "$ref": "#/$defs/text" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "sourceType": {
+                "enum": ["official-repository", "license"]
+              }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "enum": ["git-commit", "tag", "release"] }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": { "const": "official-documentation" }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "git-commit",
+                      "tag",
+                      "release",
+                      "version",
+                      "mutable-documentation"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": { "const": "official-release" }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "enum": ["tag", "release"] }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": {
+                "const": "package-registry"
+              }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "version" },
+                  "value": { "$ref": "#/$defs/packageVersion" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": {
+                "const": "security-advisory"
+              }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "enum": ["release", "version"] }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": { "const": "case-local-fact" }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "case-version" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "sourceRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value", "immutableUrl"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "git-commit",
+            "tag",
+            "release",
+            "version",
+            "mutable-documentation",
+            "case-version"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+        },
+        "immutableUrl": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 500,
+              "pattern": "^https://[^\\u0000-\\u0020\\u007f]+$"
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "packageVersion": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 80,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    }
+  }
+}

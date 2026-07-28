@@ -54,10 +54,12 @@ components, data flows, and trust boundaries.
 ## Current development status
 
 GitBlocks is in its product and engineering foundation phase. This repository
-now contains an exactly pinned TypeScript workspace and deterministic
-repository verification tooling. It has no application scaffold, production
-dependency, Agent Skill, scanner, MCP server, backend, database, ranking
-engine, deployment, or product release.
+now contains an exactly pinned TypeScript workspace, deterministic repository
+verification tooling, and a proposed ten-case evaluation pilot for
+repository-conditioned adoption fit over fixed candidate sets. It has no
+application scaffold, production dependency, Agent Skill, scanner, MCP server,
+backend, database, discovery or product ranking engine, deployment, or product
+release. The pilot gold is authored and proposed, not independently accepted.
 
 The governing product scope is the
 [product contract](docs/product/product-contract.md). Engineering work follows
@@ -66,19 +68,23 @@ the [engineering handbook](docs/engineering/repository-workflow.md) and the
 
 ## Repository map
 
-| Path                       | Purpose                                                                          |
-| -------------------------- | -------------------------------------------------------------------------------- |
-| `README.md`                | Product orientation and honest project status                                    |
-| `AGENTS.md`                | Concise durable instructions for coding agents                                   |
-| `PLANS.md`                 | Required structure and lifecycle for substantial execution plans                 |
-| `CONTRIBUTING.md`          | Issue-to-merge contributor workflow                                              |
-| `SECURITY.md`              | Private vulnerability-reporting and disclosure policy                            |
-| `docs/product/`            | Product contract, vocabulary, evaluation scope, and success criteria             |
-| `docs/architecture/`       | System context and architecture decisions                                        |
-| `docs/engineering/`        | Repository, development, testing, security, reliability, and completion policies |
-| `docs/plans/`              | Active and historical version-controlled execution plans                         |
-| `tools/repository-checks/` | Bounded repository-policy CLI and tests                                          |
-| `.github/`                 | Intake templates, read-only CI, and dependency update policy                     |
+| Path                        | Purpose                                                                          |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| `README.md`                 | Product orientation and honest project status                                    |
+| `AGENTS.md`                 | Concise durable instructions for coding agents                                   |
+| `PLANS.md`                  | Required structure and lifecycle for substantial execution plans                 |
+| `CONTRIBUTING.md`           | Issue-to-merge contributor workflow                                              |
+| `SECURITY.md`               | Private vulnerability-reporting and disclosure policy                            |
+| `docs/product/`             | Product contract, vocabulary, evaluation scope, and success criteria             |
+| `docs/architecture/`        | System context and architecture decisions                                        |
+| `docs/engineering/`         | Repository, development, testing, security, reliability, and completion policies |
+| `docs/evaluation/`          | Case authoring, deterministic scoring, and future baseline protocols             |
+| `docs/plans/`               | Active and historical version-controlled execution plans                         |
+| `evals/pilot-v1/`           | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
+| `schemas/evaluation/`       | Versioned JSON Schema 2020-12 evaluation contracts                               |
+| `tools/evaluation-harness/` | Private bounded validator, deterministic scorer, CLI, and tests                  |
+| `tools/repository-checks/`  | Bounded repository-policy CLI and tests                                          |
+| `.github/`                  | Intake templates, read-only CI, and dependency update policy                     |
 
 ## Local development
 
@@ -105,21 +111,25 @@ Corepack reads the exact pnpm 11.17.0 pin and integrity digest from
 `package.json`; `pnpm --version` must report `11.17.0`. Do not use npm or Yarn,
 hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 
-| Command                   | Purpose                                                     |
-| ------------------------- | ----------------------------------------------------------- |
-| `pnpm runtime:check`      | Quietly validate the active Node process and repository pin |
-| `pnpm format:check`       | Check formatting without changing files                     |
-| `pnpm lint`               | Run typed ESLint with zero warnings                         |
-| `pnpm typecheck`          | Type-check source and tests without emitting                |
-| `pnpm build`              | Emit the private repository-checks package                  |
-| `pnpm test`               | Run the protected deterministic Vitest suite                |
-| `pnpm test:coverage`      | Record the V8 coverage baseline                             |
-| `pnpm architecture:check` | Enforce dependency directions                               |
-| `pnpm repo:check`         | Validate workflows, Markdown, and repository invariants     |
-| `pnpm security:secrets`   | Scan tracked development content for secrets                |
-| `pnpm security:audit`     | Run the online registry dependency audit                    |
-| `pnpm verify`             | Run one preflight plus authoritative offline verification   |
-| `pnpm verify:ci`          | Run `verify` plus the online dependency audit               |
+| Command                               | Purpose                                                     |
+| ------------------------------------- | ----------------------------------------------------------- |
+| `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin |
+| `pnpm format:check`                   | Check formatting without changing files                     |
+| `pnpm lint`                           | Run typed ESLint with zero warnings                         |
+| `pnpm typecheck`                      | Type-check repository and evaluation tooling plus tests     |
+| `pnpm build`                          | Emit both private tooling packages                          |
+| `pnpm test`                           | Run the protected deterministic Vitest suite                |
+| `pnpm test:coverage`                  | Record the V8 coverage baseline                             |
+| `pnpm architecture:check`             | Enforce dependency directions                               |
+| `pnpm repo:check`                     | Validate workflows, Markdown, and repository invariants     |
+| `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity      |
+| `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory           |
+| `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                |
+| `pnpm security:secrets`               | Scan tracked development content for secrets                |
+| `pnpm security:audit`                 | Run the online registry dependency audit                    |
+| `pnpm verify`                         | Run one preflight plus authoritative offline verification   |
+| `pnpm verify:ci`                      | Run `verify` plus the online dependency audit               |
 
-There is no development service, application build, or deployment command
-because product services remain unimplemented.
+Evaluation commands are offline and do not execute candidate code or call a
+model. There is no development service, application build, or deployment
+command because product services remain unimplemented.

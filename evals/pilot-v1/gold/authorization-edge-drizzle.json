@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "authorization-edge-drizzle",
+  "outcome": "insufficient-evidence",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "casbin",
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["attribute-policy-fit", "edge-runtime-unproven"],
+      "evidenceIds": ["auth-edge-casbin"]
+    },
+    {
+      "candidateId": "casl",
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["attribute-policy-fit", "edge-runtime-unproven"],
+      "evidenceIds": ["auth-edge-casl"]
+    },
+    {
+      "candidateId": "cerbos",
+      "disposition": "rejected",
+      "reasonCodes": ["external-service-disallowed"],
+      "evidenceIds": ["auth-edge-cerbos"]
+    },
+    {
+      "candidateId": "openfga",
+      "disposition": "rejected",
+      "reasonCodes": ["external-service-disallowed"],
+      "evidenceIds": ["auth-edge-openfga"]
+    }
+  ],
+  "rankGroups": [],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "cerbos",
+      "constraintId": "external-service-runtime",
+      "reasonCode": "external-service-disallowed",
+      "evidenceIds": ["auth-edge-cerbos"]
+    },
+    {
+      "candidateId": "openfga",
+      "constraintId": "external-service-runtime",
+      "reasonCode": "external-service-disallowed",
+      "evidenceIds": ["auth-edge-openfga"]
+    }
+  ],
+  "requiredUnknownIds": ["edge-runtime-proof"],
+  "rationaleNotes": [
+    "The proposed outcome abstains because node-casbin and CASL document Node.js or browser use without proving compatibility with Next.js Edge restrictions; Cerbos and OpenFGA conflict with the no-service constraint. This judgment is not independently accepted."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null,
+    "reviewReference": null
+  }
+}

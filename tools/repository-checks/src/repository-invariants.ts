@@ -18,6 +18,7 @@ const PACKAGE_MANAGER_PATTERN =
   /^pnpm@[0-9]+\.[0-9]+\.[0-9]+\+sha512\.[0-9a-f]{128}$/;
 const APPROVED_PACKAGE_MANIFESTS = new Set([
   'package.json',
+  'tools/evaluation-harness/package.json',
   'tools/repository-checks/package.json',
 ]);
 const REQUIRED_PATHS = [
@@ -51,14 +52,30 @@ const REQUIRED_PATHS = [
   'docs/engineering/repository-workflow.md',
   'docs/engineering/security-baseline.md',
   'docs/engineering/testing-strategy.md',
+  'docs/evaluation/baseline-protocol.md',
+  'docs/evaluation/case-authoring-protocol.md',
+  'docs/evaluation/scoring.md',
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
   'docs/plans/0005-node-runtime-preflight.md',
   'docs/product/product-contract.md',
+  'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
   'package.json',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
+  'schemas/evaluation/case.schema.json',
+  'schemas/evaluation/evidence.schema.json',
+  'schemas/evaluation/gold.schema.json',
+  'schemas/evaluation/manifest.schema.json',
+  'schemas/evaluation/prediction.schema.json',
+  'schemas/evaluation/score.schema.json',
+  'tools/evaluation-harness/package.json',
+  'tools/evaluation-harness/src/cli.ts',
+  'tools/evaluation-harness/src/index.ts',
+  'tools/evaluation-harness/test/tsconfig.json',
+  'tools/evaluation-harness/tsconfig.json',
+  'tools/evaluation-harness/tsconfig.test.json',
   'tools/repository-checks/package.json',
   'tools/repository-checks/src/cli.ts',
   'tools/repository-checks/src/index.ts',
@@ -293,6 +310,9 @@ function validateRuntimeScripts(
     diagnostics.push(runtimeScriptDiagnostic('runtime:check', manifestPath));
   }
   for (const scriptName of [
+    'eval:fixtures',
+    'eval:score',
+    'eval:validate',
     'test',
     'test:coverage',
     'repo:check',
@@ -598,6 +618,7 @@ function isProhibitedArtifact(trackedPath: string): boolean {
     trackedPath.startsWith('src/') ||
     (trackedPath.startsWith('tools/') &&
       trackedPath !== 'tools/runtime-preflight.mjs' &&
+      !trackedPath.startsWith('tools/evaluation-harness/') &&
       !trackedPath.startsWith('tools/repository-checks/'))
   );
 }

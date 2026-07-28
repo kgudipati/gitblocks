@@ -5,10 +5,13 @@ export default defineConfig({
     coverage: {
       enabled: false,
       exclude: [
+        'tools/evaluation-harness/src/cli.ts',
+        'tools/evaluation-harness/src/index.ts',
         'tools/repository-checks/src/cli.ts',
         'tools/repository-checks/src/index.ts',
       ],
       include: [
+        'tools/evaluation-harness/src/**/*.ts',
         'tools/repository-checks/src/**/*.ts',
         'tools/runtime-preflight.mjs',
       ],
@@ -16,7 +19,10 @@ export default defineConfig({
       reporter: ['text', 'json-summary'],
       reportsDirectory: 'coverage',
     },
-    include: ['tools/repository-checks/test/**/*.test.{mjs,ts}'],
+    include: [
+      'tools/evaluation-harness/test/**/*.test.ts',
+      'tools/repository-checks/test/**/*.test.{mjs,ts}',
+    ],
     passWithNoTests: false,
     restoreMocks: true,
   },

@@ -8,6 +8,9 @@
   "references": [
     {
       "path": "./tools/repository-checks"
+    },
+    {
+      "path": "./tools/evaluation-harness"
     }
   ]
 }

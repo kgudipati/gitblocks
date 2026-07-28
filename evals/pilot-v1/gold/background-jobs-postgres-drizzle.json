@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "background-jobs-postgres-drizzle",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "bree",
+      "disposition": "rejected",
+      "reasonCodes": ["durable-shared-queue-required"],
+      "evidenceIds": ["jobs-postgres-bree"]
+    },
+    {
+      "candidateId": "bullmq",
+      "disposition": "rejected",
+      "reasonCodes": ["redis-unavailable"],
+      "evidenceIds": ["jobs-postgres-bullmq"]
+    },
+    {
+      "candidateId": "graphile-worker",
+      "disposition": "recommended",
+      "reasonCodes": ["automatic-retry-required", "postgres-queue-fit"],
+      "evidenceIds": ["jobs-postgres-graphile"]
+    },
+    {
+      "candidateId": "pg-boss",
+      "disposition": "recommended",
+      "reasonCodes": ["automatic-retry-required", "postgres-queue-fit"],
+      "evidenceIds": ["jobs-postgres-pgboss"]
+    }
+  ],
+  "rankGroups": [["graphile-worker", "pg-boss"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "bree",
+      "constraintId": "durable-worker-runtime",
+      "reasonCode": "durable-shared-queue-required",
+      "evidenceIds": ["jobs-postgres-bree"]
+    },
+    {
+      "candidateId": "bullmq",
+      "constraintId": "no-new-redis",
+      "reasonCode": "redis-unavailable",
+      "evidenceIds": ["jobs-postgres-bullmq"]
+    }
+  ],
+  "requiredUnknownIds": ["worker-throughput-headroom"],
+  "rationaleNotes": [
+    "Graphile Worker and pg-boss are tied proposed leaders because both reuse the only available shared queue infrastructure, PostgreSQL, and directly document durable workers with automatic retries; the bounded evidence does not justify ordering them."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null,
+    "reviewReference": null
+  }
+}

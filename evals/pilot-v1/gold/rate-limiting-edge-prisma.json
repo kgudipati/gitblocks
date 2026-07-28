@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-edge-prisma",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "bottleneck",
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["distributed-counter-required", "edge-runtime-unproven"],
+      "evidenceIds": ["rate-edge-bottleneck"]
+    },
+    {
+      "candidateId": "express-rate-limit",
+      "disposition": "rejected",
+      "reasonCodes": ["edge-runtime-required"],
+      "evidenceIds": ["rate-edge-express"]
+    },
+    {
+      "candidateId": "rate-limiter-flexible",
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["distributed-counter-required", "edge-runtime-unproven"],
+      "evidenceIds": ["rate-edge-flexible"]
+    },
+    {
+      "candidateId": "upstash-ratelimit",
+      "disposition": "recommended",
+      "reasonCodes": [
+        "distributed-counter-required",
+        "edge-redis-fit",
+        "edge-runtime-fit"
+      ],
+      "evidenceIds": ["rate-edge-upstash"]
+    }
+  ],
+  "rankGroups": [["upstash-ratelimit"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "express-rate-limit",
+      "constraintId": "runtime-edge-compatible",
+      "reasonCode": "edge-runtime-required",
+      "evidenceIds": ["rate-edge-express"]
+    }
+  ],
+  "requiredUnknownIds": ["global-consistency-tolerance"],
+  "rationaleNotes": [
+    "Upstash Ratelimit is the proposed leader because its documented fetch-based edge path matches the existing Upstash service; the consistency tolerance remains material."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null,
+    "reviewReference": null
+  }
+}

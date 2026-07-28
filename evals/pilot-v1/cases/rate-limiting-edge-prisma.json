@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-edge-prisma",
+  "capabilityFamily": "rate-limiting",
+  "decisionObjective": "select-rate-limiter-fit",
+  "comparisonPairId": "rate-limiting-topology",
+  "userRequest": "Choose a rate limiter for login and API request throttling in the existing Next.js application.",
+  "successConditions": [
+    "The application limits login and API requests using stable keys already derived by repository code.",
+    "The limiter reports remaining quota and retry timing from every protected route."
+  ],
+  "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
+    "runtime": { "name": "edge-fetch", "version": "2026-07" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "prisma", "version": "7.2.0" },
+    "deployment": {
+      "topology": "serverless",
+      "workerCapability": "incapable",
+      "replicas": 50,
+      "region": "global-edge"
+    },
+    "dependencies": [
+      { "name": "@prisma/client", "version": "7.2.0" },
+      { "name": "@upstash/redis", "version": "1.35.6" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": true,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "Authenticated API requests contain stable tenant and route identifiers, and the login route derives normalized account and source keys."
+    ],
+    "dataFacts": [
+      "The existing Upstash Redis database stores only operational counters."
+    ],
+    "operationalFacts": [
+      "The edge runtime supports fetch but not long-lived TCP sockets, Node worker threads, or a durable in-process singleton."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "distributed-counter-runtime",
+      "reasonCode": "distributed-counter-required",
+      "statement": "Quota state must be shared across independently scaled edge isolates."
+    },
+    {
+      "constraintId": "runtime-edge-compatible",
+      "reasonCode": "edge-runtime-required",
+      "statement": "The candidate must use the edge fetch runtime without Express or Node-only worker facilities."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "reuse-upstash",
+      "statement": "Prefer the already provisioned HTTP-accessible Redis database."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "bottleneck",
+      "project": "Bottleneck",
+      "package": "bottleneck",
+      "repository": "SGrondin/bottleneck"
+    },
+    {
+      "candidateId": "express-rate-limit",
+      "project": "express-rate-limit",
+      "package": "express-rate-limit",
+      "repository": "express-rate-limit/express-rate-limit"
+    },
+    {
+      "candidateId": "rate-limiter-flexible",
+      "project": "rate-limiter-flexible",
+      "package": "rate-limiter-flexible",
+      "repository": "animir/node-rate-limiter-flexible"
+    },
+    {
+      "candidateId": "upstash-ratelimit",
+      "project": "Upstash Ratelimit",
+      "package": "@upstash/ratelimit",
+      "repository": "upstash/ratelimit-js"
+    }
+  ],
+  "evidenceIds": [
+    "rate-edge-bottleneck",
+    "rate-edge-express",
+    "rate-edge-flexible",
+    "rate-edge-upstash"
+  ],
+  "reasonCodes": [
+    {
+      "id": "distributed-counter-required",
+      "description": "Quota state must be shared by every isolate."
+    },
+    {
+      "id": "edge-redis-fit",
+      "description": "The candidate directly supports HTTP-accessible Redis from edge handlers."
+    },
+    {
+      "id": "edge-runtime-fit",
+      "description": "The candidate documents a fetch-based Next.js or Vercel Edge integration."
+    },
+    {
+      "id": "edge-runtime-required",
+      "description": "The candidate must satisfy the fetch-only Next.js Edge runtime constraint."
+    },
+    {
+      "id": "edge-runtime-unproven",
+      "description": "The supplied evidence does not establish compatibility with Next.js Edge restrictions."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "global-consistency-tolerance",
+      "description": "The accepted over-limit margin under multi-region replication has not been specified."
+    }
+  ],
+  "difficulty": "hard",
+  "failureModes": ["popular-hard-constraint", "popularity-over-fit"],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

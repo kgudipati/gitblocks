@@ -4,10 +4,10 @@
 
 Tests provide evidence about observable behavior and known risks; they do not
 prove correctness. ADR 0002 selects Vitest with V8 coverage for the current
-TypeScript repository tooling, and `pnpm test` plus `pnpm test:coverage` are
-enforced by the authoritative verification graph. The repository still has no
-product code; each future product phase must extend this strategy for its
-actual contracts and boundaries before that code lands.
+TypeScript repository and evaluation tooling, and `pnpm test` plus
+`pnpm test:coverage` are enforced by the authoritative verification graph. The
+repository still has no product code; each future product phase must extend
+this strategy for its actual contracts and boundaries before that code lands.
 
 Every implementation phase must list its test matrix and exact commands in its
 execution plan before implementation. A reviewer blocks a change whose tests
@@ -53,15 +53,16 @@ not run for untrusted pull requests with secrets.
 
 ## Test matrix by responsibility
 
-| Responsibility               | Minimum evidence                                                                                                                                                            |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Deterministic local scanner  | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                          |
-| Skill procedure              | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                     |
-| MCP surface                  | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics               |
-| Catalog ingestion            | Source fixtures, provenance/freshness, webhook signature and replay checks, malformed content, rate bounds, idempotency, retries, poison items, and non-execution of source |
-| Retrieval and ranking        | Unit/golden evaluations for hard constraints, evidence attribution, inference/unknown separation, deterministic tie behavior, and quality baselines                         |
-| Evidence and outcome storage | Integration tests for tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery                                                                |
-| Adoption workflow            | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths                                             |
+| Responsibility               | Minimum evidence                                                                                                                                                              |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Deterministic local scanner  | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                            |
+| Skill procedure              | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                       |
+| MCP surface                  | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics                 |
+| Catalog ingestion            | Source fixtures, provenance/freshness, webhook signature and replay checks, malformed content, rate bounds, idempotency, retries, poison items, and non-execution of source   |
+| Retrieval and ranking        | Unit/golden evaluations for hard constraints, evidence attribution, inference/unknown separation, deterministic tie behavior, and quality baselines                           |
+| Evidence and outcome storage | Integration tests for tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery                                                                  |
+| Adoption workflow            | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths                                               |
+| Fixed-candidate evaluation   | Schema valid/invalid forms, bounded and inert JSON, manifest hashes, reference integrity, hard-safety gate, deterministic metrics, blind inputs, weak fixtures, and CLI exits |
 
 Each phase selects only applicable rows and records why omitted rows are
 irrelevant.
@@ -132,6 +133,12 @@ threshold is not a test plan.
 Model output is untrusted and nondeterministic. Deterministic application code
 must validate its schema, evidence references, authorization scope, and bounds
 before use.
+
+The Phase 2 pilot is a fixed-candidate evaluation, not discovery. Its committed
+tests and weak fixtures are completely offline and do not call a model. Proposed
+gold remains separate from inputs and is not independently accepted. Any future
+model or generic-agent baseline must follow the
+[independent baseline protocol](../evaluation/baseline-protocol.md).
 
 - Separate deterministic contract/security tests from quality evaluations.
 - Pin the model/configuration for a recorded evaluation baseline; record model,

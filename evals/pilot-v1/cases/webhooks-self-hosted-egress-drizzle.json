@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "webhooks-self-hosted-egress-drizzle",
+  "capabilityFamily": "webhooks",
+  "decisionObjective": "select-webhook-fit",
+  "comparisonPairId": null,
+  "userRequest": "Choose a self-hosted outbound webhook service with retries, signing, and delivery history.",
+  "successConditions": [
+    "Workers persist deliveries, sign payloads, retry failures, and expose delivery history.",
+    "All webhook payload and delivery data remains in the existing EU deployment."
+  ],
+  "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
+    "runtime": { "name": "node", "version": "24.18.0" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "18" },
+    "orm": { "name": "drizzle", "version": "0.44.7" },
+    "deployment": {
+      "topology": "long-running-container",
+      "workerCapability": "capable",
+      "replicas": 4,
+      "region": "eu-central-1"
+    },
+    "dependencies": [
+      { "name": "drizzle-orm", "version": "0.44.7" },
+      { "name": "ioredis", "version": "5.7.0" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": true,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "Each tenant owns independently rotatable endpoint secrets."
+    ],
+    "dataFacts": [
+      "Webhook payloads may contain regulated customer data that must remain in eu-central-1."
+    ],
+    "operationalFacts": [
+      "The team can operate a containerized service using the existing PostgreSQL and Redis clusters."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "license-permissive",
+      "reasonCode": "permissive-license-required",
+      "statement": "The deployed service must use an OSI-style permissive license accepted by policy: MIT, BSD, or Apache-2.0."
+    },
+    {
+      "constraintId": "residency-self-hosted",
+      "reasonCode": "data-residency-required",
+      "statement": "Payloads and delivery metadata must stay in the self-hosted eu-central-1 environment."
+    },
+    {
+      "constraintId": "durable-delivery-runtime",
+      "reasonCode": "delivery-service-required",
+      "statement": "A signing helper alone is insufficient; the candidate must persist, retry, and report delivery attempts."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "reuse-services",
+      "statement": "Prefer reuse of the existing PostgreSQL and Redis services."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "convoy",
+      "project": "Convoy",
+      "package": null,
+      "repository": "frain-dev/convoy"
+    },
+    {
+      "candidateId": "hook0",
+      "project": "Hook0",
+      "package": null,
+      "repository": "hook0/hook0"
+    },
+    {
+      "candidateId": "standard-webhooks",
+      "project": "Standard Webhooks",
+      "package": "standardwebhooks",
+      "repository": "standard-webhooks/standard-webhooks"
+    },
+    {
+      "candidateId": "svix",
+      "project": "Svix",
+      "package": "svix",
+      "repository": "svix/svix-webhooks"
+    }
+  ],
+  "evidenceIds": [
+    "webhook-egress-convoy",
+    "webhook-egress-hook0",
+    "webhook-egress-standard",
+    "webhook-egress-svix"
+  ],
+  "reasonCodes": [
+    {
+      "id": "data-residency-required",
+      "description": "Webhook content must remain within the self-hosted EU environment."
+    },
+    {
+      "id": "delivery-service-required",
+      "description": "The case requires persistence, retries, signing, and delivery history."
+    },
+    {
+      "id": "permissive-license-required",
+      "description": "Repository policy accepts only MIT, BSD, or Apache-2.0 for the service."
+    },
+    {
+      "id": "self-hosted-service-fit",
+      "description": "The candidate can operate inside the supplied PostgreSQL and Redis environment."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "svix-capacity-sizing",
+      "description": "Required worker, PostgreSQL, and Redis capacity has not been load-tested."
+    }
+  ],
+  "difficulty": "hard",
+  "failureModes": [
+    "license-blindness",
+    "popular-hard-constraint",
+    "popularity-over-fit"
+  ],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

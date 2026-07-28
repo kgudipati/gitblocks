@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "authorization-relationship-prisma",
+  "capabilityFamily": "authorization",
+  "decisionObjective": "select-authorization-fit",
+  "comparisonPairId": null,
+  "userRequest": "Choose an authorization system for nested teams, shared projects, and inherited document access.",
+  "successConditions": [
+    "A user can inherit document access through team and project relationships.",
+    "Authorization decisions remain consistent across four application replicas."
+  ],
+  "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
+    "runtime": { "name": "node", "version": "24.18.0" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "prisma", "version": "7.2.0" },
+    "deployment": {
+      "topology": "long-running-container",
+      "workerCapability": "capable",
+      "replicas": 4,
+      "region": "us-west-2"
+    },
+    "dependencies": [
+      { "name": "@prisma/client", "version": "7.2.0" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": false,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "The verified access token supplies actor and organization identifiers."
+    ],
+    "dataFacts": [
+      "Projects can be shared with teams, teams can be nested, and documents belong to projects."
+    ],
+    "operationalFacts": [
+      "The platform team can operate one additional self-hosted service backed by PostgreSQL."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "relationship-model-runtime",
+      "reasonCode": "relationship-model-fit",
+      "statement": "The solution must represent nested team and shared-resource relationships without copying all inherited permissions into application rows."
+    },
+    {
+      "constraintId": "runtime-node-compatible",
+      "reasonCode": "runtime-compatible",
+      "statement": "The integration path must support Node.js 24."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "central-consistency",
+      "statement": "Prefer one consistent relationship model across all replicas."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "casbin",
+      "project": "node-casbin",
+      "package": "casbin",
+      "repository": "apache/casbin-node-casbin"
+    },
+    {
+      "candidateId": "casl",
+      "project": "CASL",
+      "package": "@casl/ability",
+      "repository": "stalniy/casl"
+    },
+    {
+      "candidateId": "cerbos",
+      "project": "Cerbos PDP",
+      "package": null,
+      "repository": "cerbos/cerbos"
+    },
+    {
+      "candidateId": "openfga",
+      "project": "OpenFGA",
+      "package": null,
+      "repository": "openfga/openfga"
+    }
+  ],
+  "evidenceIds": [
+    "auth-relationship-casbin",
+    "auth-relationship-casl",
+    "auth-relationship-cerbos",
+    "auth-relationship-openfga"
+  ],
+  "reasonCodes": [
+    {
+      "id": "embedded-policy-fit",
+      "description": "The candidate can express decisions inside application code or an embedded model."
+    },
+    {
+      "id": "operational-overhead",
+      "description": "The candidate adds a separately operated policy service."
+    },
+    {
+      "id": "relationship-model-fit",
+      "description": "The candidate directly models resource relationships and inheritance."
+    },
+    {
+      "id": "runtime-compatible",
+      "description": "The candidate supports the repository runtime."
+    },
+    {
+      "id": "runtime-proof-unproven",
+      "description": "The bounded evidence does not establish compatibility with the repository runtime."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "relationship-migration-effort",
+      "description": "The effort to migrate existing membership rows into a relationship model is not measured."
+    },
+    {
+      "id": "casbin-node24-runtime-proof",
+      "description": "The bounded node-casbin evidence does not establish Node.js 24 compatibility."
+    }
+  ],
+  "difficulty": "hard",
+  "failureModes": ["popularity-over-fit"],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

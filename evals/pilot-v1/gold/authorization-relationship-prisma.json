@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "authorization-relationship-prisma",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "casbin",
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["embedded-policy-fit", "runtime-proof-unproven"],
+      "evidenceIds": ["auth-relationship-casbin"]
+    },
+    {
+      "candidateId": "casl",
+      "disposition": "viable",
+      "reasonCodes": ["embedded-policy-fit", "runtime-compatible"],
+      "evidenceIds": ["auth-relationship-casl"]
+    },
+    {
+      "candidateId": "cerbos",
+      "disposition": "viable",
+      "reasonCodes": ["operational-overhead", "runtime-compatible"],
+      "evidenceIds": ["auth-relationship-cerbos"]
+    },
+    {
+      "candidateId": "openfga",
+      "disposition": "recommended",
+      "reasonCodes": [
+        "operational-overhead",
+        "relationship-model-fit",
+        "runtime-compatible"
+      ],
+      "evidenceIds": ["auth-relationship-openfga"]
+    }
+  ],
+  "rankGroups": [["openfga"], ["cerbos"], ["casl"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [],
+  "requiredUnknownIds": [
+    "casbin-node24-runtime-proof",
+    "relationship-migration-effort"
+  ],
+  "rationaleNotes": [
+    "OpenFGA is the proposed leader because the repository can operate its service and the request is explicitly relationship-shaped; CASL remains a plausible embedded alternative, while node-casbin needs direct Node.js 24 compatibility evidence."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null,
+    "reviewReference": null
+  }
+}

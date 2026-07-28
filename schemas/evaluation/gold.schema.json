@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/gold/1.0.0",
+  "title": "GitBlocks evaluation gold result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "caseId",
+    "outcome",
+    "allowedAlternativeOutcomes",
+    "dispositions",
+    "rankGroups",
+    "rankRelations",
+    "incomparablePairs",
+    "hardConstraintConflicts",
+    "requiredUnknownIds",
+    "rationaleNotes",
+    "evidenceCutoff",
+    "provenance"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "caseId": { "$ref": "#/$defs/id" },
+    "outcome": { "$ref": "#/$defs/outcome" },
+    "allowedAlternativeOutcomes": {
+      "type": "array",
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/outcome" }
+    },
+    "dispositions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/disposition" }
+    },
+    "rankGroups": { "$ref": "#/$defs/rankGroups" },
+    "rankRelations": {
+      "type": "array",
+      "maxItems": 20,
+      "items": { "$ref": "#/$defs/rankRelation" }
+    },
+    "incomparablePairs": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "uniqueItems": true,
+        "items": { "$ref": "#/$defs/id" }
+      }
+    },
+    "hardConstraintConflicts": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/conflict" }
+    },
+    "requiredUnknownIds": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "rationaleNotes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": { "$ref": "#/$defs/text" }
+    },
+    "evidenceCutoff": { "$ref": "#/$defs/date" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "authoringSession",
+        "independentReviewStatus",
+        "independentReviewer",
+        "reviewedAt",
+        "reviewReference"
+      ],
+      "properties": {
+        "status": { "enum": ["proposed", "accepted"] },
+        "authoringSession": { "$ref": "#/$defs/text" },
+        "independentReviewStatus": {
+          "enum": ["not-reviewed", "reviewed", "accepted"]
+        },
+        "independentReviewer": {
+          "oneOf": [{ "$ref": "#/$defs/reviewerId" }, { "type": "null" }]
+        },
+        "reviewedAt": {
+          "oneOf": [{ "$ref": "#/$defs/dateTime" }, { "type": "null" }]
+        },
+        "reviewReference": {
+          "oneOf": [{ "$ref": "#/$defs/reviewReference" }, { "type": "null" }]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "proposed" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "independentReviewStatus": { "const": "not-reviewed" },
+              "independentReviewer": { "type": "null" },
+              "reviewedAt": { "type": "null" },
+              "reviewReference": { "type": "null" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "accepted" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "independentReviewStatus": {
+                "enum": ["reviewed", "accepted"]
+              },
+              "independentReviewer": { "$ref": "#/$defs/reviewerId" },
+              "reviewedAt": { "$ref": "#/$defs/dateTime" },
+              "reviewReference": { "$ref": "#/$defs/reviewReference" }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^20[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+    },
+    "dateTime": {
+      "type": "string",
+      "pattern": "^20[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "reviewerId": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"
+    },
+    "reviewReference": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 240,
+      "pattern": "^(?=.*[^\\u0000-\\u0020\\u007f])[^\\u0000-\\u001f\\u007f]+$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+    },
+    "outcome": {
+      "enum": ["recommend", "no-viable-candidate", "insufficient-evidence"]
+    },
+    "label": {
+      "enum": ["recommended", "viable", "rejected", "insufficient-evidence"]
+    },
+    "disposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateId", "disposition", "reasonCodes", "evidenceIds"],
+      "properties": {
+        "candidateId": { "$ref": "#/$defs/id" },
+        "disposition": { "$ref": "#/$defs/label" },
+        "reasonCodes": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "rankGroups": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 5,
+        "uniqueItems": true,
+        "items": { "$ref": "#/$defs/id" }
+      }
+    },
+    "rankRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["higherCandidateId", "lowerCandidateId"],
+      "properties": {
+        "higherCandidateId": { "$ref": "#/$defs/id" },
+        "lowerCandidateId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateId", "constraintId", "reasonCode", "evidenceIds"],
+      "properties": {
+        "candidateId": { "$ref": "#/$defs/id" },
+        "constraintId": { "$ref": "#/$defs/id" },
+        "reasonCode": { "$ref": "#/$defs/id" },
+        "evidenceIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    }
+  }
+}

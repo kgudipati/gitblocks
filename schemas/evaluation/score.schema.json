@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/score/1.0.0",
+  "title": "GitBlocks evaluation score report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "predictionSetId",
+    "caseCount",
+    "safety",
+    "aggregate",
+    "byFamily",
+    "byFailureMode"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "corpusId": { "$ref": "#/$defs/id" },
+    "predictionSetId": { "$ref": "#/$defs/id" },
+    "caseCount": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["safe", "unsafeCount", "violations"],
+      "properties": {
+        "safe": { "type": "boolean" },
+        "unsafeCount": { "type": "integer", "minimum": 0, "maximum": 500 },
+        "violations": {
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["caseId", "candidateId", "reasonCodes"],
+            "properties": {
+              "caseId": { "$ref": "#/$defs/id" },
+              "candidateId": { "$ref": "#/$defs/id" },
+              "reasonCodes": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 16,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "aggregate": { "$ref": "#/$defs/metricSet" },
+    "byFamily": {
+      "type": "object",
+      "maxProperties": 5,
+      "additionalProperties": { "$ref": "#/$defs/metricSet" }
+    },
+    "byFailureMode": {
+      "type": "object",
+      "maxProperties": 64,
+      "additionalProperties": { "$ref": "#/$defs/metricSet" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["truePositive", "falsePositive", "falseNegative"],
+      "properties": {
+        "truePositive": { "type": "integer", "minimum": 0 },
+        "falsePositive": { "type": "integer", "minimum": 0 },
+        "falseNegative": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "labelMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["counts", "precision", "recall", "f1"],
+      "properties": {
+        "counts": { "$ref": "#/$defs/counts" },
+        "precision": { "$ref": "#/$defs/ratio" },
+        "recall": { "$ref": "#/$defs/ratio" },
+        "f1": { "$ref": "#/$defs/ratio" }
+      }
+    },
+    "metricSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseCount",
+        "dispositions",
+        "macroDisposition",
+        "rankingAgreement",
+        "outcomeAccuracy",
+        "outcomeByLabel",
+        "unknownRecall",
+        "evidenceRecall",
+        "reasonRecall"
+      ],
+      "properties": {
+        "caseCount": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "dispositions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "recommended",
+            "viable",
+            "rejected",
+            "insufficient-evidence"
+          ],
+          "properties": {
+            "recommended": { "$ref": "#/$defs/labelMetric" },
+            "viable": { "$ref": "#/$defs/labelMetric" },
+            "rejected": { "$ref": "#/$defs/labelMetric" },
+            "insufficient-evidence": { "$ref": "#/$defs/labelMetric" }
+          }
+        },
+        "macroDisposition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["precision", "recall", "f1"],
+          "properties": {
+            "precision": { "$ref": "#/$defs/ratio" },
+            "recall": { "$ref": "#/$defs/ratio" },
+            "f1": { "$ref": "#/$defs/ratio" }
+          }
+        },
+        "rankingAgreement": { "$ref": "#/$defs/ratio" },
+        "outcomeAccuracy": { "$ref": "#/$defs/ratio" },
+        "outcomeByLabel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "recommend",
+            "no-viable-candidate",
+            "insufficient-evidence"
+          ],
+          "properties": {
+            "recommend": { "$ref": "#/$defs/ratio" },
+            "no-viable-candidate": { "$ref": "#/$defs/ratio" },
+            "insufficient-evidence": { "$ref": "#/$defs/ratio" }
+          }
+        },
+        "unknownRecall": { "$ref": "#/$defs/ratio" },
+        "evidenceRecall": { "$ref": "#/$defs/ratio" },
+        "reasonRecall": { "$ref": "#/$defs/ratio" }
+      }
+    }
+  }
+}

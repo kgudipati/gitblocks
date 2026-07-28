@@ -100,6 +100,14 @@ receive contract tests, external adapters receive realistic integration tests,
 critical journeys receive a small number of end-to-end tests, and
 security-sensitive paths receive negative and abuse tests.
 
+Evaluation corpus changes also follow the
+[case-authoring protocol](docs/evaluation/case-authoring-protocol.md). Keep
+fixed-candidate inputs blind, proposed gold separate, evidence dated and
+attributable, and manifest hashes current. Do not install or execute candidate
+code. Run `pnpm eval:validate` and `pnpm eval:fixtures`; weak fixtures are
+harness checks, not performance baselines. A real baseline must follow the
+[independent baseline protocol](docs/evaluation/baseline-protocol.md).
+
 Follow
 [ADR 0002](docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md)
 for the active formatter, linter, strict compiler settings, dependency

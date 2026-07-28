@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-edge-prisma",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "rate-edge-bottleneck",
+      "subjectType": "candidate",
+      "candidateId": "bottleneck",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/SGrondin/bottleneck",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "b83528333ba4d27cf70b81cc2be12e09d7ff692f",
+        "immutableUrl": "https://github.com/SGrondin/bottleneck/blob/b83528333ba4d27cf70b81cc2be12e09d7ff692f/README.md"
+      },
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": "2020-07-21T14:30:21Z",
+      "observation": "Bottleneck provides local scheduling and an optional Redis clustering mode intended for JavaScript processes.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The pinned source does not establish a fetch-only Upstash REST datastore path or compatibility with Next.js Edge restrictions."
+    },
+    {
+      "evidenceId": "rate-edge-express",
+      "subjectType": "candidate",
+      "candidateId": "express-rate-limit",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/express-rate-limit/express-rate-limit",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "d2370f62147e1de7cd8df9d74bc6264b7f0e330e",
+        "immutableUrl": "https://github.com/express-rate-limit/express-rate-limit/blob/d2370f62147e1de7cd8df9d74bc6264b7f0e330e/readme.md"
+      },
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": "2026-07-27T21:10:04Z",
+      "observation": "express-rate-limit is middleware for the Express web server rather than a fetch-handler API.",
+      "freshnessScope": "Official repository description and README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Custom adaptation outside the documented integration is not assumed."
+    },
+    {
+      "evidenceId": "rate-edge-flexible",
+      "subjectType": "candidate",
+      "candidateId": "rate-limiter-flexible",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/animir/node-rate-limiter-flexible",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "97fd58a2f463b6ebfa79d31344f054806bb88805",
+        "immutableUrl": "https://github.com/animir/node-rate-limiter-flexible/tree/97fd58a2f463b6ebfa79d31344f054806bb88805"
+      },
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": "2026-06-08T17:55:13Z",
+      "observation": "rate-limiter-flexible supports memory and multiple distributed store clients and notes Deno compatibility, but the bounded evidence does not establish compatibility with the repository's Upstash REST client.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The pinned source does not establish the exact Upstash REST adapter path or compatibility with Next.js Edge restrictions."
+    },
+    {
+      "evidenceId": "rate-edge-upstash",
+      "subjectType": "candidate",
+      "candidateId": "upstash-ratelimit",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://upstash.com/docs/redis/sdks/ratelimit-ts/overview",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "d12cb47d0a022974d7bbff13996e8e5927379669",
+        "immutableUrl": "https://github.com/upstash/docs/blob/d12cb47d0a022974d7bbff13996e8e5927379669/redis/sdks/ratelimit-ts/overview.mdx"
+      },
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": "2026-07-28T07:47:28Z",
+      "observation": "Upstash Ratelimit is an HTTP-based library designed for serverless functions, Cloudflare Workers, Vercel Edge, and Next.js, with fixed, sliding-window, and token-bucket limiters.",
+      "freshnessScope": "Official overview and algorithms documentation at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Multi-region limits can trade strict consistency for latency and require an explicit case-level tolerance."
+    }
+  ]
+}

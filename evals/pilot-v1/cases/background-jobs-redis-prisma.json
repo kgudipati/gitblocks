@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "background-jobs-redis-prisma",
+  "capabilityFamily": "background-jobs",
+  "decisionObjective": "select-durable-job-queue-fit",
+  "comparisonPairId": "background-jobs-infrastructure",
+  "userRequest": "Choose a durable background job library for asynchronous processing with scheduled retries.",
+  "successConditions": [
+    "Multiple workers can claim durable jobs without duplicate concurrent processing.",
+    "Failed jobs retry with configurable backoff and survive application or worker restarts."
+  ],
+  "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
+    "runtime": { "name": "node", "version": "24.18.0" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "prisma", "version": "7.2.0" },
+    "deployment": {
+      "topology": "long-running-container",
+      "workerCapability": "capable",
+      "replicas": 6,
+      "region": "us-west-2"
+    },
+    "dependencies": [
+      { "name": "@prisma/client", "version": "7.2.0" },
+      { "name": "ioredis", "version": "5.7.0" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": true,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "Job payloads carry tenant-scoped media identifiers but no credentials."
+    ],
+    "dataFacts": [
+      "Media metadata is stored in PostgreSQL and persistent shared queue state may use the existing durable Redis cluster."
+    ],
+    "operationalFacts": [
+      "The team already operates persistent Redis and long-running worker containers."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "durable-shared-queue-runtime",
+      "reasonCode": "durable-shared-queue-required",
+      "statement": "Queue state must be shared across workers and survive process restarts."
+    },
+    {
+      "constraintId": "retry-runtime",
+      "reasonCode": "automatic-retry-required",
+      "statement": "The candidate must provide automatic retries with configurable backoff."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "reuse-redis",
+      "statement": "Prefer reuse of the existing Redis service and client expertise."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "bree",
+      "project": "Bree",
+      "package": "bree",
+      "repository": "breejs/bree"
+    },
+    {
+      "candidateId": "bullmq",
+      "project": "BullMQ",
+      "package": "bullmq",
+      "repository": "taskforcesh/bullmq"
+    },
+    {
+      "candidateId": "graphile-worker",
+      "project": "Graphile Worker",
+      "package": "graphile-worker",
+      "repository": "graphile/worker"
+    },
+    {
+      "candidateId": "pg-boss",
+      "project": "pg-boss",
+      "package": "pg-boss",
+      "repository": "timgit/pg-boss"
+    }
+  ],
+  "evidenceIds": [
+    "jobs-redis-bree",
+    "jobs-redis-bullmq",
+    "jobs-redis-graphile",
+    "jobs-redis-pgboss"
+  ],
+  "reasonCodes": [
+    {
+      "id": "automatic-retry-required",
+      "description": "The case requires built-in retry and backoff behavior."
+    },
+    {
+      "id": "durable-shared-queue-required",
+      "description": "The case requires persistent queue state shared by multiple workers."
+    },
+    {
+      "id": "postgres-queue-fit",
+      "description": "The candidate can use the existing PostgreSQL service."
+    },
+    {
+      "id": "redis-queue-fit",
+      "description": "The candidate directly uses the repository's existing Redis service."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "redis-capacity-headroom",
+      "description": "Capacity impact on the shared Redis cluster has not been load-tested."
+    }
+  ],
+  "difficulty": "medium",
+  "failureModes": ["popularity-over-fit"],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

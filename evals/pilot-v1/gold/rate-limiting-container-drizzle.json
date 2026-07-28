@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-container-drizzle",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "bottleneck",
+      "disposition": "viable",
+      "reasonCodes": ["framework-compatible", "in-memory-fit"],
+      "evidenceIds": ["rate-container-bottleneck"]
+    },
+    {
+      "candidateId": "express-rate-limit",
+      "disposition": "rejected",
+      "reasonCodes": ["framework-mismatch"],
+      "evidenceIds": ["rate-container-express"]
+    },
+    {
+      "candidateId": "rate-limiter-flexible",
+      "disposition": "recommended",
+      "reasonCodes": [
+        "framework-compatible",
+        "in-memory-fit",
+        "login-limiter-fit"
+      ],
+      "evidenceIds": ["rate-container-flexible"]
+    },
+    {
+      "candidateId": "upstash-ratelimit",
+      "disposition": "rejected",
+      "reasonCodes": ["external-service-disallowed"],
+      "evidenceIds": ["rate-container-upstash"]
+    }
+  ],
+  "rankGroups": [["rate-limiter-flexible"], ["bottleneck"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "express-rate-limit",
+      "constraintId": "framework-nextjs-runtime",
+      "reasonCode": "framework-mismatch",
+      "evidenceIds": ["rate-container-express"]
+    },
+    {
+      "candidateId": "upstash-ratelimit",
+      "constraintId": "external-service-residency",
+      "reasonCode": "external-service-disallowed",
+      "evidenceIds": ["rate-container-upstash"]
+    }
+  ],
+  "requiredUnknownIds": ["restart-reset-acceptance"],
+  "rationaleNotes": [
+    "rate-limiter-flexible is the proposed leader because its atomic memory limiter and quota response fit the current one-process Next.js repository while preserving future store options."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null,
+    "reviewReference": null
+  }
+}

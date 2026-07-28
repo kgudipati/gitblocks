@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "background-jobs-postgres-drizzle",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "jobs-postgres-bree",
+      "subjectType": "candidate",
+      "candidateId": "bree",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/breejs/bree",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "465a5e2f452048c99790229ba813bed795b9f366",
+        "immutableUrl": "https://github.com/breejs/bree/blob/465a5e2f452048c99790229ba813bed795b9f366/README.md"
+      },
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": "2026-02-17T22:08:16Z",
+      "observation": "Bree schedules Node.js worker-thread jobs and explicitly leaves persistent job state and duplicate prevention to application-managed database queries.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Application-managed persistence is not the requested durable shared queue contract."
+    },
+    {
+      "evidenceId": "jobs-postgres-bullmq",
+      "subjectType": "candidate",
+      "candidateId": "bullmq",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://docs.bullmq.io/",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "de28f3f49e5b50ebe7d84479f16b0bebf162b764",
+        "immutableUrl": "https://github.com/taskforcesh/bullmq/tree/de28f3f49e5b50ebe7d84479f16b0bebf162b764/docs/gitbook/guide"
+      },
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": "2026-07-28T08:22:35Z",
+      "observation": "BullMQ is a distributed Node.js queue built on Redis with workers, retries, delayed jobs, concurrency, and crash recovery.",
+      "freshnessScope": "Official BullMQ overview and architecture at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Redis is a required architecture component and is absent from this repository."
+    },
+    {
+      "evidenceId": "jobs-postgres-graphile",
+      "subjectType": "candidate",
+      "candidateId": "graphile-worker",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://worker.graphile.org/docs",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "abfb4cff30747ad423046d117dfb88470f03ae00",
+        "immutableUrl": "https://github.com/graphile/worker/blob/abfb4cff30747ad423046d117dfb88470f03ae00/website/docs/index.md"
+      },
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": "2026-07-08T08:00:10Z",
+      "observation": "Graphile Worker stores jobs in PostgreSQL, executes Node.js tasks in standalone or embedded workers, and automatically retries failures with exponential backoff.",
+      "freshnessScope": "Official Graphile Worker introduction and requirements at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The bounded source does not document a Drizzle transaction adapter."
+    },
+    {
+      "evidenceId": "jobs-postgres-pgboss",
+      "subjectType": "candidate",
+      "candidateId": "pg-boss",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/timgit/pg-boss",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "b98853bf67032ccca996edfa675d0c07c6182369",
+        "immutableUrl": "https://github.com/timgit/pg-boss/tree/b98853bf67032ccca996edfa675d0c07c6182369"
+      },
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": "2026-07-24T19:47:26Z",
+      "observation": "pg-boss is a PostgreSQL-backed Node.js queue with retries, serverless-compatible producers, separate workers, and an official Drizzle adapter for sending jobs within an existing transaction.",
+      "freshnessScope": "Official repository README, requirements, and Drizzle example at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Production throughput for the synthetic workload is not established."
+    }
+  ]
+}

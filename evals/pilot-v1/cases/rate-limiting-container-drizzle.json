@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-container-drizzle",
+  "capabilityFamily": "rate-limiting",
+  "decisionObjective": "select-rate-limiter-fit",
+  "comparisonPairId": "rate-limiting-topology",
+  "userRequest": "Choose a rate limiter for login and API request throttling in the existing Next.js application.",
+  "successConditions": [
+    "The application limits login and API requests using stable keys already derived by repository code.",
+    "The limiter reports remaining quota and retry timing from every protected route."
+  ],
+  "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
+    "runtime": { "name": "node", "version": "24.18.0" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "drizzle", "version": "0.44.7" },
+    "deployment": {
+      "topology": "long-running-server",
+      "workerCapability": "capable",
+      "replicas": 1,
+      "region": "customer-premises"
+    },
+    "dependencies": [
+      { "name": "drizzle-orm", "version": "0.44.7" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": false,
+    "tenantModel": "single-tenant",
+    "identityFacts": [
+      "The login route normalizes account and source identifiers, and API routes derive stable client and route keys before rate-limit evaluation."
+    ],
+    "dataFacts": [
+      "Rate-limit counters are operational data and may reset on a planned process restart."
+    ],
+    "operationalFacts": [
+      "The customer-controlled installation has one API process and no external network dependency is allowed."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "external-service-residency",
+      "reasonCode": "external-service-disallowed",
+      "statement": "The limiter must run locally without a hosted or separately operated data service."
+    },
+    {
+      "constraintId": "framework-nextjs-runtime",
+      "reasonCode": "framework-mismatch",
+      "statement": "The integration must work in Next.js route handlers without requiring an Express application."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "migration-path",
+      "statement": "Prefer a library with a future shared-store path if the deployment later gains replicas."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "bottleneck",
+      "project": "Bottleneck",
+      "package": "bottleneck",
+      "repository": "SGrondin/bottleneck"
+    },
+    {
+      "candidateId": "express-rate-limit",
+      "project": "express-rate-limit",
+      "package": "express-rate-limit",
+      "repository": "express-rate-limit/express-rate-limit"
+    },
+    {
+      "candidateId": "rate-limiter-flexible",
+      "project": "rate-limiter-flexible",
+      "package": "rate-limiter-flexible",
+      "repository": "animir/node-rate-limiter-flexible"
+    },
+    {
+      "candidateId": "upstash-ratelimit",
+      "project": "Upstash Ratelimit",
+      "package": "@upstash/ratelimit",
+      "repository": "upstash/ratelimit-js"
+    }
+  ],
+  "evidenceIds": [
+    "rate-container-bottleneck",
+    "rate-container-express",
+    "rate-container-flexible",
+    "rate-container-upstash"
+  ],
+  "reasonCodes": [
+    {
+      "id": "external-service-disallowed",
+      "description": "The installation cannot send counter data to an external service."
+    },
+    {
+      "id": "framework-compatible",
+      "description": "The candidate exposes a framework-independent API usable from a Next.js route handler."
+    },
+    {
+      "id": "framework-mismatch",
+      "description": "An Express-only middleware integration does not satisfy the Next.js route-handler constraint."
+    },
+    {
+      "id": "in-memory-fit",
+      "description": "An atomic in-memory limiter meets the single-process topology."
+    },
+    {
+      "id": "login-limiter-fit",
+      "description": "The candidate exposes key-based quota and retry state for login protection."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "restart-reset-acceptance",
+      "description": "Security review has not independently accepted counter reset during planned restart."
+    }
+  ],
+  "difficulty": "medium",
+  "failureModes": ["topology-over-popularity"],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

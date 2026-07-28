@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "webhooks-mixed-ingress-prisma",
+  "capabilityFamily": "webhooks",
+  "decisionObjective": "select-webhook-fit",
+  "comparisonPairId": null,
+  "userRequest": "Choose one verification package for incoming GitHub, Stripe, and Standard Webhooks requests.",
+  "successConditions": [
+    "The package verifies each provider's documented signature scheme against the raw request body.",
+    "Timestamp or delivery identifier checks prevent replay according to each scheme."
+  ],
+  "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
+    "runtime": { "name": "node", "version": "24.18.0" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "prisma", "version": "7.2.0" },
+    "deployment": {
+      "topology": "long-running-container",
+      "workerCapability": "capable",
+      "replicas": 2,
+      "region": "us-east-2"
+    },
+    "dependencies": [
+      { "name": "@prisma/client", "version": "7.2.0" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": false,
+    "tenantModel": "single-tenant",
+    "identityFacts": [
+      "Each webhook endpoint has a separately stored provider secret."
+    ],
+    "dataFacts": [
+      "The server retains the raw body bytes until signature verification completes."
+    ],
+    "operationalFacts": [
+      "The team wants one maintained verifier rather than three provider-specific packages."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "multi-scheme-verification-runtime",
+      "reasonCode": "multi-scheme-required",
+      "statement": "One candidate must document verification for GitHub, Stripe, and Standard Webhooks signatures."
+    },
+    {
+      "constraintId": "replay-protection-runtime",
+      "reasonCode": "replay-protection-required",
+      "statement": "Verification must expose the timestamp or delivery metadata needed for replay rejection."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "single-api",
+      "statement": "Prefer one typed verification API shared by all three routes."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "octokit-webhooks",
+      "project": "Octokit Webhooks",
+      "package": "@octokit/webhooks",
+      "repository": "octokit/webhooks.js"
+    },
+    {
+      "candidateId": "standard-webhooks",
+      "project": "Standard Webhooks JavaScript",
+      "package": "standardwebhooks",
+      "repository": "standard-webhooks/standard-webhooks"
+    },
+    {
+      "candidateId": "stripe-node",
+      "project": "Stripe Node.js",
+      "package": "stripe",
+      "repository": "stripe/stripe-node"
+    },
+    {
+      "candidateId": "svix",
+      "project": "Svix JavaScript",
+      "package": "svix",
+      "repository": "svix/svix-webhooks"
+    }
+  ],
+  "evidenceIds": [
+    "webhook-ingress-octokit",
+    "webhook-ingress-standard",
+    "webhook-ingress-stripe",
+    "webhook-ingress-svix"
+  ],
+  "reasonCodes": [
+    {
+      "id": "multi-scheme-required",
+      "description": "The request requires one candidate to verify all three supplied schemes."
+    },
+    {
+      "id": "provider-specific-only",
+      "description": "The candidate documents verification for only its provider or protocol."
+    },
+    {
+      "id": "replay-protection-required",
+      "description": "The verifier must surface the scheme's replay-protection inputs."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "unified-verifier-maintenance",
+      "description": "No candidate evidence establishes ongoing support for all three evolving provider schemes."
+    }
+  ],
+  "difficulty": "hard",
+  "failureModes": ["forced-choice", "provider-scope-overclaim"],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

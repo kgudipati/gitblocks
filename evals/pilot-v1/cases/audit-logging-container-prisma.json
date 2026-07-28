@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "audit-logging-container-prisma",
+  "capabilityFamily": "audit-logging",
+  "decisionObjective": "select-audit-logging-fit",
+  "comparisonPairId": null,
+  "userRequest": "Choose an audit logging component for structured authorization and administrative events.",
+  "successConditions": [
+    "Events include actor, tenant, action, resource, outcome, request correlation, and timestamp fields.",
+    "Secrets and configured personal fields can be redacted before JSON is written to standard output."
+  ],
+  "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
+    "runtime": { "name": "node", "version": "24.18.0" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "prisma", "version": "7.2.0" },
+    "deployment": {
+      "topology": "long-running-container",
+      "workerCapability": "capable",
+      "replicas": 3,
+      "region": "us-east-1"
+    },
+    "dependencies": [
+      { "name": "@prisma/client", "version": "7.2.0" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": false,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "Request context already contains actor, tenant, and correlation identifiers."
+    ],
+    "dataFacts": [
+      "Audit payloads must exclude access tokens, cookies, and customer email addresses."
+    ],
+    "operationalFacts": [
+      "The container platform collects newline-delimited JSON from standard output into an existing regional archive."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "application-event-schema",
+      "reasonCode": "application-events-required",
+      "statement": "The component must accept application-defined audit events rather than only database statements."
+    },
+    {
+      "constraintId": "redaction-before-output",
+      "reasonCode": "redaction-required",
+      "statement": "Configured secret and personal fields must be removed before the event leaves the process."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "stdout-json",
+      "statement": "Prefer direct newline-delimited JSON output with low application overhead."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "logtape",
+      "project": "LogTape",
+      "package": "@logtape/logtape",
+      "repository": "dahlia/logtape"
+    },
+    {
+      "candidateId": "pgaudit",
+      "project": "pgAudit",
+      "package": null,
+      "repository": "pgaudit/pgaudit"
+    },
+    {
+      "candidateId": "pino",
+      "project": "Pino",
+      "package": "pino",
+      "repository": "pinojs/pino"
+    },
+    {
+      "candidateId": "winston",
+      "project": "Winston",
+      "package": "winston",
+      "repository": "winstonjs/winston"
+    }
+  ],
+  "evidenceIds": [
+    "audit-container-logtape",
+    "audit-container-pgaudit",
+    "audit-container-pino",
+    "audit-container-winston"
+  ],
+  "reasonCodes": [
+    {
+      "id": "application-events-required",
+      "description": "The case requires application-defined decision and administration events."
+    },
+    {
+      "id": "redaction-required",
+      "description": "Sensitive fields must be removed before output."
+    },
+    {
+      "id": "structured-output-fit",
+      "description": "The candidate can emit structured application events to an available sink."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "archive-delivery-loss",
+      "description": "The platform collector's loss behavior during abrupt container termination is not measured."
+    }
+  ],
+  "difficulty": "medium",
+  "failureModes": ["database-audit-substitution", "popularity-over-fit"],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

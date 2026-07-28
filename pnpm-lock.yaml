@@ -45,6 +45,19 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(yaml@2.9.0)
 
+  tools/evaluation-harness:
+    dependencies:
+      ajv:
+        specifier: 8.20.0
+        version: 8.20.0
+    devDependencies:
+      dependency-cruiser:
+        specifier: 18.1.0
+        version: 18.1.0
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(yaml@2.9.0)
+
   tools/repository-checks:
     dependencies:
       github-slugger:

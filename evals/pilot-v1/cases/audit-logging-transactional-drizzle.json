@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "audit-logging-transactional-drizzle",
+  "capabilityFamily": "audit-logging",
+  "decisionObjective": "select-audit-logging-fit",
+  "comparisonPairId": null,
+  "userRequest": "Choose an audit component that guarantees a durable audit row in the same transaction as every billing mutation.",
+  "successConditions": [
+    "A committed billing mutation always has a committed audit record.",
+    "A rolled-back billing mutation never leaves a committed audit record."
+  ],
+  "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
+    "runtime": { "name": "node-serverless", "version": "24.18.0" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "drizzle", "version": "0.44.7" },
+    "deployment": {
+      "topology": "serverless",
+      "workerCapability": "incapable",
+      "replicas": 30,
+      "region": "eu-central-1"
+    },
+    "dependencies": [
+      { "name": "drizzle-orm", "version": "0.44.7" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": false,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "Billing mutations carry verified actor and tenant identifiers."
+    ],
+    "dataFacts": [
+      "Billing and audit data must remain in the existing EU PostgreSQL database."
+    ],
+    "operationalFacts": [
+      "The managed database plan does not permit shared_preload_libraries or custom extensions."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "transactional-atomicity-runtime",
+      "reasonCode": "transactional-atomicity-required",
+      "statement": "The candidate must document participation in the caller's Drizzle PostgreSQL transaction."
+    },
+    {
+      "constraintId": "residency-no-external-service",
+      "reasonCode": "data-residency-required",
+      "statement": "Audit data may not be sent to an external service or a region outside eu-central-1."
+    },
+    {
+      "constraintId": "database-extension-runtime",
+      "reasonCode": "database-extension-unavailable",
+      "statement": "The solution cannot require a PostgreSQL preload extension."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "typed-event-schema",
+      "statement": "Prefer a typed audit event schema enforced in application code."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "logtape",
+      "project": "LogTape",
+      "package": "@logtape/logtape",
+      "repository": "dahlia/logtape"
+    },
+    {
+      "candidateId": "pgaudit",
+      "project": "pgAudit",
+      "package": null,
+      "repository": "pgaudit/pgaudit"
+    },
+    {
+      "candidateId": "pino",
+      "project": "Pino",
+      "package": "pino",
+      "repository": "pinojs/pino"
+    },
+    {
+      "candidateId": "winston",
+      "project": "Winston",
+      "package": "winston",
+      "repository": "winstonjs/winston"
+    }
+  ],
+  "evidenceIds": [
+    "audit-transactional-logtape",
+    "audit-transactional-pgaudit",
+    "audit-transactional-pino",
+    "audit-transactional-winston"
+  ],
+  "reasonCodes": [
+    {
+      "id": "data-residency-required",
+      "description": "Audit data must remain inside the existing regional database boundary."
+    },
+    {
+      "id": "database-extension-unavailable",
+      "description": "The managed database cannot load a required extension."
+    },
+    {
+      "id": "transactional-atomicity-required",
+      "description": "Audit persistence must commit and roll back with the business transaction."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "transaction-adapter-proof",
+      "description": "No supplied evidence establishes a Drizzle transaction adapter for the application loggers."
+    }
+  ],
+  "difficulty": "hard",
+  "failureModes": [
+    "evidence-insufficiency",
+    "popular-hard-constraint",
+    "transactionality-overclaim"
+  ],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

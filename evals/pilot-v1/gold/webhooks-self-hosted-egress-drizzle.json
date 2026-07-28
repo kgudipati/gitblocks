@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "webhooks-self-hosted-egress-drizzle",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "convoy",
+      "disposition": "rejected",
+      "reasonCodes": ["permissive-license-required"],
+      "evidenceIds": ["webhook-egress-convoy"]
+    },
+    {
+      "candidateId": "hook0",
+      "disposition": "rejected",
+      "reasonCodes": ["permissive-license-required"],
+      "evidenceIds": ["webhook-egress-hook0"]
+    },
+    {
+      "candidateId": "standard-webhooks",
+      "disposition": "rejected",
+      "reasonCodes": ["delivery-service-required"],
+      "evidenceIds": ["webhook-egress-standard"]
+    },
+    {
+      "candidateId": "svix",
+      "disposition": "recommended",
+      "reasonCodes": [
+        "data-residency-required",
+        "delivery-service-required",
+        "permissive-license-required",
+        "self-hosted-service-fit"
+      ],
+      "evidenceIds": ["webhook-egress-svix"]
+    }
+  ],
+  "rankGroups": [["svix"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "convoy",
+      "constraintId": "license-permissive",
+      "reasonCode": "permissive-license-required",
+      "evidenceIds": ["webhook-egress-convoy"]
+    },
+    {
+      "candidateId": "hook0",
+      "constraintId": "license-permissive",
+      "reasonCode": "permissive-license-required",
+      "evidenceIds": ["webhook-egress-hook0"]
+    },
+    {
+      "candidateId": "standard-webhooks",
+      "constraintId": "durable-delivery-runtime",
+      "reasonCode": "delivery-service-required",
+      "evidenceIds": ["webhook-egress-standard"]
+    }
+  ],
+  "requiredUnknownIds": ["svix-capacity-sizing"],
+  "rationaleNotes": [
+    "Svix is the proposed leader because it is the only supplied complete delivery service whose documented MIT license and self-hosted dependencies satisfy this repository's explicit policy and residency boundary."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null,
+    "reviewReference": null
+  }
+}
