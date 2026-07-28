@@ -6,8 +6,8 @@
   [#5 — Fix local Node runtime detection and CLI diagnostics](https://github.com/kgudipati/gitblocks/issues/5)
 - Required branch: `fix/5-node-runtime-preflight`
 - Owner: GitBlocks maintainers
-- State: implementation and local validation complete; publication and hosted
-  CI pending
+- State: implementation, validation, publication, and hosted CI complete;
+  independent final review and merge authorization pending
 - Last updated: 2026-07-28
 - Authority order: Issue #5; current `main`; ADR 0002; the engineering
   handbook and `AGENTS.md`; the implementation prompt
@@ -353,7 +353,12 @@ irreversible.
 - [x] M4 — Bounded CLI subprocess diagnostics.
 - [x] M5 — Durable policy and documentation.
 - [x] M6 — Full local validation and reconciliation.
-- [ ] M7 — Draft PR publication and hosted CI.
+- [x] 2026-07-28 — Published implementation commit
+      `39f13827080b5d5e1e08e9edc9ef59285591a67c` with an ordinary push and
+      opened draft PR
+      [#6](https://github.com/kgudipati/gitblocks/pull/6) with the exact
+      required title.
+- [x] M7 — Draft PR publication and hosted CI.
 
 ## Decision and deviation log
 
@@ -392,25 +397,28 @@ No deviations from Issue #5 are currently known.
 
 ## Validation evidence
 
-| Command or review                                       | Date       | Observed result                                                                                                                 |
-| ------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `git status --short --branch`                           | 2026-07-28 | Clean `main`, then clean new `fix/5-node-runtime-preflight` branch                                                              |
-| `git fetch origin`; `git pull --ff-only origin main`    | 2026-07-28 | Local `main` already matched `origin/main`                                                                                      |
-| `git rev-parse HEAD`; `git log --oneline --decorate -8` | 2026-07-28 | `main` at required squash commit `3219848239cba980e20782a1580845fbbd901bb7`                                                     |
-| Issue #5 authenticated read                             | 2026-07-28 | Open; authoritative requirements read completely; no comments                                                                   |
-| `nvm ls`; `nvm use 24.18.0`; version commands           | 2026-07-28 | Node 22.14.0 default and Node 24.18.0 installed; supported runtime reports Node `v24.18.0`, npm `11.16.0`, pnpm `11.17.0`       |
-| Node 22.14.0 direct CLI reproduction                    | 2026-07-28 | Expected incident reproduced: `ERR_UNKNOWN_FILE_EXTENSION` for the `.ts` CLI entry before CLI code ran                          |
-| Focused test-first Vitest run                           | 2026-07-28 | Expected failure: two missing implementation modules plus five failing repository-invariant cases                               |
-| Corrected focused Vitest run                            | 2026-07-28 | Pass: runtime, CLI, and invariant slices; 3 files and 65 tests                                                                  |
-| Node 22 preflight, `pnpm test`, and `pnpm repo:branch`  | 2026-07-28 | Exit `1` at preflight with actual/range/pin/remediation before Vitest or `.ts` CLI execution                                    |
-| Node 24 preflight and success flag                      | 2026-07-28 | Quiet protected pass; explicit flag reports 24.18.0 after real inert TypeScript capability execution                            |
-| Corrected format, lint, and typecheck                   | 2026-07-28 | Pass after recorded formatting/lint corrections; no rule disabled                                                               |
-| Two `pnpm install --frozen-lockfile` runs               | 2026-07-28 | Pass in 158/157 ms; already up to date; lockfile blob remains `4afa910428e83e3494ed9abd25e79d1b8e94111e`                        |
-| `pnpm format:check`; `pnpm lint`; `pnpm typecheck`      | 2026-07-28 | Pass under Node 24.18.0 with pinned tools and zero lint warnings                                                                |
-| `pnpm build`; `pnpm test`                               | 2026-07-28 | Pass: emitted private tooling package; 10 files and 159 tests                                                                   |
-| `pnpm test:coverage`                                    | 2026-07-28 | Pass: 85.75% statements, 82.98% branches, 95.34% functions, 85.59% lines; no threshold                                          |
-| `pnpm architecture:check`                               | 2026-07-28 | Pass: no violations across 135 modules and 329 dependencies                                                                     |
-| `pnpm repo:check`; `pnpm security:secrets`              | 2026-07-28 | Pass: pin, preflight, command graph, repository/Markdown policy, and secret scan                                                |
-| `pnpm security:audit`                                   | 2026-07-28 | Pass: registry-backed audit completed; no known vulnerabilities                                                                 |
-| `pnpm verify`; `pnpm verify:ci`                         | 2026-07-28 | Pass: one aggregate preflight, full offline graph, then visible online audit                                                    |
-| Pin, lockfile, worktree, and complete diff review       | 2026-07-28 | Pins byte-identical; no dependency/lockfile/product path; verification created no unstaged tracked change; staged diff reviewed |
+| Command or review                                       | Date       | Observed result                                                                                                                  |
+| ------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `git status --short --branch`                           | 2026-07-28 | Clean `main`, then clean new `fix/5-node-runtime-preflight` branch                                                               |
+| `git fetch origin`; `git pull --ff-only origin main`    | 2026-07-28 | Local `main` already matched `origin/main`                                                                                       |
+| `git rev-parse HEAD`; `git log --oneline --decorate -8` | 2026-07-28 | `main` at required squash commit `3219848239cba980e20782a1580845fbbd901bb7`                                                      |
+| Issue #5 authenticated read                             | 2026-07-28 | Open; authoritative requirements read completely; no comments                                                                    |
+| `nvm ls`; `nvm use 24.18.0`; version commands           | 2026-07-28 | Node 22.14.0 default and Node 24.18.0 installed; supported runtime reports Node `v24.18.0`, npm `11.16.0`, pnpm `11.17.0`        |
+| Node 22.14.0 direct CLI reproduction                    | 2026-07-28 | Expected incident reproduced: `ERR_UNKNOWN_FILE_EXTENSION` for the `.ts` CLI entry before CLI code ran                           |
+| Focused test-first Vitest run                           | 2026-07-28 | Expected failure: two missing implementation modules plus five failing repository-invariant cases                                |
+| Corrected focused Vitest run                            | 2026-07-28 | Pass: runtime, CLI, and invariant slices; 3 files and 65 tests                                                                   |
+| Node 22 preflight, `pnpm test`, and `pnpm repo:branch`  | 2026-07-28 | Exit `1` at preflight with actual/range/pin/remediation before Vitest or `.ts` CLI execution                                     |
+| Node 24 preflight and success flag                      | 2026-07-28 | Quiet protected pass; explicit flag reports 24.18.0 after real inert TypeScript capability execution                             |
+| Corrected format, lint, and typecheck                   | 2026-07-28 | Pass after recorded formatting/lint corrections; no rule disabled                                                                |
+| Two `pnpm install --frozen-lockfile` runs               | 2026-07-28 | Pass in 158/157 ms; already up to date; lockfile blob remains `4afa910428e83e3494ed9abd25e79d1b8e94111e`                         |
+| `pnpm format:check`; `pnpm lint`; `pnpm typecheck`      | 2026-07-28 | Pass under Node 24.18.0 with pinned tools and zero lint warnings                                                                 |
+| `pnpm build`; `pnpm test`                               | 2026-07-28 | Pass: emitted private tooling package; 10 files and 159 tests                                                                    |
+| `pnpm test:coverage`                                    | 2026-07-28 | Pass: 85.75% statements, 82.98% branches, 95.34% functions, 85.59% lines; no threshold                                           |
+| `pnpm architecture:check`                               | 2026-07-28 | Pass: no violations across 135 modules and 329 dependencies                                                                      |
+| `pnpm repo:check`; `pnpm security:secrets`              | 2026-07-28 | Pass: pin, preflight, command graph, repository/Markdown policy, and secret scan                                                 |
+| `pnpm security:audit`                                   | 2026-07-28 | Pass: registry-backed audit completed; no known vulnerabilities                                                                  |
+| `pnpm verify`; `pnpm verify:ci`                         | 2026-07-28 | Pass: one aggregate preflight, full offline graph, then visible online audit                                                     |
+| Pin, lockfile, worktree, and complete diff review       | 2026-07-28 | Pins byte-identical; no dependency/lockfile/product path; verification created no unstaged tracked change; staged diff reviewed  |
+| Ordinary commit and non-forced push                     | 2026-07-28 | Implementation commit `39f13827080b5d5e1e08e9edc9ef59285591a67c` published on `fix/5-node-runtime-preflight`                     |
+| Draft PR #6                                             | 2026-07-28 | Open, draft, unmerged, exact required title and `Closes #5`: <https://github.com/kgudipati/gitblocks/pull/6>                     |
+| Hosted CI run `30394069517`, job `90392571325`          | 2026-07-28 | Pass in 61 seconds: Node 24.18.0, pnpm 11.17.0, install/reproducibility, metadata, 159 tests, verification/audit, clean worktree |
