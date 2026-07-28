@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-container-drizzle",
+  "capabilityFamily": "rate-limiting",
+  "userRequest": "Choose an in-process rate limiter for login attempts on the existing single-replica API.",
+  "successConditions": [
+    "The API limits attempts by normalized account identifier and source address.",
+    "The limiter returns remaining quota and retry timing without adding a network service."
+  ],
+  "repositoryProfile": {
+    "runtime": { "name": "node", "version": "24.18.0" },
+    "framework": { "name": "fastify", "version": "5.6.2" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "sqlite", "version": "3.50" },
+    "orm": { "name": "drizzle", "version": "0.44.7" },
+    "deployment": {
+      "topology": "long-running-server",
+      "workerCapability": "capable",
+      "replicas": 1,
+      "region": "customer-premises"
+    },
+    "dependencies": [
+      { "name": "drizzle-orm", "version": "0.44.7" },
+      { "name": "fastify", "version": "5.6.2" }
+    ],
+    "hasRedis": false,
+    "tenantModel": "single-tenant",
+    "identityFacts": [
+      "The login route normalizes account identifiers before rate-limit evaluation."
+    ],
+    "dataFacts": [
+      "Rate-limit counters are operational data and may reset on a planned process restart."
+    ],
+    "operationalFacts": [
+      "The customer-controlled installation has one API process and no external network dependency is allowed."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "external-service-residency",
+      "reasonCode": "external-service-disallowed",
+      "statement": "The limiter must run locally without a hosted or separately operated data service."
+    },
+    {
+      "constraintId": "framework-fastify-runtime",
+      "reasonCode": "framework-compatible",
+      "statement": "The integration must work in Fastify without adapting Express middleware."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "migration-path",
+      "statement": "Prefer a library with a future shared-store path if the deployment later gains replicas."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "bottleneck",
+      "project": "Bottleneck",
+      "package": "bottleneck",
+      "repository": "SGrondin/bottleneck"
+    },
+    {
+      "candidateId": "express-rate-limit",
+      "project": "express-rate-limit",
+      "package": "express-rate-limit",
+      "repository": "express-rate-limit/express-rate-limit"
+    },
+    {
+      "candidateId": "rate-limiter-flexible",
+      "project": "rate-limiter-flexible",
+      "package": "rate-limiter-flexible",
+      "repository": "animir/node-rate-limiter-flexible"
+    },
+    {
+      "candidateId": "upstash-ratelimit",
+      "project": "Upstash Ratelimit",
+      "package": "@upstash/ratelimit",
+      "repository": "upstash/ratelimit-js"
+    }
+  ],
+  "evidenceIds": [
+    "rate-container-bottleneck",
+    "rate-container-express",
+    "rate-container-flexible",
+    "rate-container-upstash"
+  ],
+  "reasonCodes": [
+    {
+      "id": "external-service-disallowed",
+      "description": "The installation cannot send counter data to an external service."
+    },
+    {
+      "id": "framework-compatible",
+      "description": "The candidate integrates without an Express middleware dependency."
+    },
+    {
+      "id": "in-memory-fit",
+      "description": "An atomic in-memory limiter meets the single-process topology."
+    },
+    {
+      "id": "login-limiter-fit",
+      "description": "The candidate exposes key-based quota and retry state for login protection."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "restart-reset-acceptance",
+      "description": "Security review has not independently accepted counter reset during planned restart."
+    }
+  ],
+  "difficulty": "medium",
+  "failureModes": ["paired-rate-limiting-request", "topology-over-popularity"],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

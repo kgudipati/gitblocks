@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "audit-logging-transactional-drizzle",
+  "outcome": "insufficient-evidence",
+  "allowedAlternativeOutcomes": ["no-viable-candidate"],
+  "dispositions": [
+    {
+      "candidateId": "logtape",
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["transactional-atomicity-required"],
+      "evidenceIds": ["audit-transactional-logtape"]
+    },
+    {
+      "candidateId": "pgaudit",
+      "disposition": "rejected",
+      "reasonCodes": [
+        "database-extension-unavailable",
+        "transactional-atomicity-required"
+      ],
+      "evidenceIds": ["audit-transactional-pgaudit"]
+    },
+    {
+      "candidateId": "pino",
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["transactional-atomicity-required"],
+      "evidenceIds": ["audit-transactional-pino"]
+    },
+    {
+      "candidateId": "winston",
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["transactional-atomicity-required"],
+      "evidenceIds": ["audit-transactional-winston"]
+    }
+  ],
+  "rankGroups": [],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "pgaudit",
+      "constraintId": "database-extension-runtime",
+      "reasonCode": "database-extension-unavailable",
+      "evidenceIds": ["audit-transactional-pgaudit"]
+    },
+    {
+      "candidateId": "pgaudit",
+      "constraintId": "transactional-atomicity-runtime",
+      "reasonCode": "transactional-atomicity-required",
+      "evidenceIds": ["audit-transactional-pgaudit"]
+    }
+  ],
+  "requiredUnknownIds": ["transaction-adapter-proof"],
+  "requiredEvidenceIds": [
+    "audit-transactional-logtape",
+    "audit-transactional-pgaudit",
+    "audit-transactional-pino",
+    "audit-transactional-winston"
+  ],
+  "requiredReasonCodes": [
+    "database-extension-unavailable",
+    "transactional-atomicity-required"
+  ],
+  "rationaleNotes": [
+    "The responsible proposed result abstains: pgAudit explicitly conflicts, while the bounded evidence does not prove that any application logger can join the existing Drizzle transaction."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null
+  }
+}

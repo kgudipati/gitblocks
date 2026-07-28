@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "audit-logging-transactional-drizzle",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "audit-transactional-logtape",
+      "subjectType": "candidate",
+      "candidateId": "logtape",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://logtape.org/",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "LogTape documents structured logging through synchronous and asynchronous sinks, but the bounded official evidence does not establish a Drizzle transaction-participating audit sink.",
+      "freshnessScope": "Official documentation available at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Absence from the bounded documentation is treated as an unknown, not proof of impossibility."
+    },
+    {
+      "evidenceId": "audit-transactional-pgaudit",
+      "subjectType": "candidate",
+      "candidateId": "pgaudit",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/pgaudit/pgaudit#caveats",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "pgAudit explicitly describes its audit logging as best-effort and non-transactional, with possible missing entries after commit and entries for transactions that later roll back; it also requires shared_preload_libraries.",
+      "freshnessScope": "Official README caveats and installation requirements at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The finding concerns pgAudit's documented standard logging path."
+    },
+    {
+      "evidenceId": "audit-transactional-pino",
+      "subjectType": "candidate",
+      "candidateId": "pino",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://getpino.io/",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Pino documents JSON logging, transports, and asynchronous logging, but the bounded official evidence does not establish participation in a caller-owned Drizzle database transaction.",
+      "freshnessScope": "Official documentation available at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Absence from the bounded documentation is treated as an unknown, not proof of impossibility."
+    },
+    {
+      "evidenceId": "audit-transactional-winston",
+      "subjectType": "candidate",
+      "candidateId": "winston",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/winstonjs/winston",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Winston documents console, file, HTTP, and custom transports, but the bounded official evidence does not establish a Drizzle transaction-participating audit transport.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Absence from the bounded documentation is treated as an unknown, not proof of impossibility."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "audit-logging-container-prisma",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "audit-container-logtape",
+      "subjectType": "candidate",
+      "candidateId": "logtape",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://logtape.org/",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "LogTape is a zero-dependency TypeScript logging library with structured records, configurable sinks, and synchronous or ordered asynchronous sink adapters across Node.js and edge runtimes.",
+      "freshnessScope": "Official documentation landing page at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "A repository-specific redaction policy still has to be implemented and reviewed."
+    },
+    {
+      "evidenceId": "audit-container-pgaudit",
+      "subjectType": "candidate",
+      "candidateId": "pgaudit",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/pgaudit/pgaudit",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "pgAudit writes detailed PostgreSQL session and object statement audit entries through the standard PostgreSQL logging facility and requires shared_preload_libraries configuration.",
+      "freshnessScope": "Official pgAudit README for PostgreSQL 14 through 19 at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Database statement logs do not by themselves supply the requested application authorization outcome schema."
+    },
+    {
+      "evidenceId": "audit-container-pino",
+      "subjectType": "candidate",
+      "candidateId": "pino",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://getpino.io/",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Pino is a Node.js JSON logger whose official documentation includes redaction, child loggers, transports, and asynchronous logging.",
+      "freshnessScope": "Official Pino documentation index and runtime statement at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Retention durability remains the responsibility of the existing container log collector."
+    },
+    {
+      "evidenceId": "audit-container-winston",
+      "subjectType": "candidate",
+      "candidateId": "winston",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/winstonjs/winston",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Winston accepts structured info objects and provides JSON formatting plus console, file, and HTTP transports with per-transport formats.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Redaction requires a deliberately configured format rather than a case-specific built-in policy."
+    }
+  ]
+}

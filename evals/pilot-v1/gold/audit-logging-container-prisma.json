@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "audit-logging-container-prisma",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "logtape",
+      "disposition": "viable",
+      "reasonCodes": ["redaction-required", "structured-output-fit"],
+      "evidenceIds": ["audit-container-logtape"]
+    },
+    {
+      "candidateId": "pgaudit",
+      "disposition": "rejected",
+      "reasonCodes": ["application-events-required"],
+      "evidenceIds": ["audit-container-pgaudit"]
+    },
+    {
+      "candidateId": "pino",
+      "disposition": "recommended",
+      "reasonCodes": ["redaction-required", "structured-output-fit"],
+      "evidenceIds": ["audit-container-pino"]
+    },
+    {
+      "candidateId": "winston",
+      "disposition": "viable",
+      "reasonCodes": ["redaction-required", "structured-output-fit"],
+      "evidenceIds": ["audit-container-winston"]
+    }
+  ],
+  "rankGroups": [["pino"], ["logtape", "winston"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "pgaudit",
+      "constraintId": "application-event-schema",
+      "reasonCode": "application-events-required",
+      "evidenceIds": ["audit-container-pgaudit"]
+    }
+  ],
+  "requiredUnknownIds": ["archive-delivery-loss"],
+  "requiredEvidenceIds": [
+    "audit-container-logtape",
+    "audit-container-pgaudit",
+    "audit-container-pino",
+    "audit-container-winston"
+  ],
+  "requiredReasonCodes": [
+    "application-events-required",
+    "redaction-required",
+    "structured-output-fit"
+  ],
+  "rationaleNotes": [
+    "Pino is the proposed leader for the existing Node container and JSON collector; LogTape and Winston remain viable pending implementation-level redaction review."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-container-drizzle",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "rate-container-bottleneck",
+      "subjectType": "candidate",
+      "candidateId": "bottleneck",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/SGrondin/bottleneck",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Bottleneck is a JavaScript job scheduler and rate limiter with local controls and an optional Redis-backed clustering mode.",
+      "freshnessScope": "Official repository README and MIT license at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Its queue-oriented API needs repository-specific login-route integration."
+    },
+    {
+      "evidenceId": "rate-container-express",
+      "subjectType": "candidate",
+      "candidateId": "express-rate-limit",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/express-rate-limit/express-rate-limit",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "express-rate-limit describes itself as rate-limiting middleware for the Express web server and supports external stores through its store interface.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The bounded evidence does not describe a native Fastify integration."
+    },
+    {
+      "evidenceId": "rate-container-flexible",
+      "subjectType": "candidate",
+      "candidateId": "rate-limiter-flexible",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/animir/node-rate-limiter-flexible",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "rate-limiter-flexible provides atomic key-based counters, an in-memory limiter, retry timing, bundled TypeScript declarations, and optional Redis, SQL, Prisma, and other stores.",
+      "freshnessScope": "Official repository README and ISC license at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The security effect of planned counter resets remains a case-level review item."
+    },
+    {
+      "evidenceId": "rate-container-upstash",
+      "subjectType": "candidate",
+      "candidateId": "upstash-ratelimit",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://upstash.com/docs/redis/sdks/ratelimit-ts/overview",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Upstash Ratelimit is a connectionless HTTP library designed around Upstash Redis for serverless and edge environments.",
+      "freshnessScope": "Official Upstash Ratelimit overview at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Its managed Redis dependency conflicts with this customer-premises no-network boundary."
+    }
+  ]
+}

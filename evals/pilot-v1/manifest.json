@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "pilot-v1",
+  "corpusVersion": "1.0.0",
+  "evidenceCutoff": "2026-07-28",
+  "status": "development-proposed",
+  "cases": [
+    {
+      "caseId": "audit-logging-container-prisma",
+      "capabilityFamily": "audit-logging",
+      "casePath": "cases/audit-logging-container-prisma.json",
+      "caseSha256": "6bc45477992cdee258a9feb2598c27c1991197fbf689167040e1aa5c00470308",
+      "evidencePath": "evidence/audit-logging-container-prisma.json",
+      "evidenceSha256": "f7299b85de543595c42602602be585545f19afeaba5341f598c7c393b418beb8",
+      "goldPath": "gold/audit-logging-container-prisma.json",
+      "goldSha256": "ac978971fc3dc58cf1f7b259a8e80ea4bd36f6185d54fa0ac2bcb1a6d68c5832"
+    },
+    {
+      "caseId": "audit-logging-transactional-drizzle",
+      "capabilityFamily": "audit-logging",
+      "casePath": "cases/audit-logging-transactional-drizzle.json",
+      "caseSha256": "5944b027aba3b9d10d993c4d68d2217bc0be8ad3961af532b99ddeb64e92c247",
+      "evidencePath": "evidence/audit-logging-transactional-drizzle.json",
+      "evidenceSha256": "7b10f93e25b498b4bb32ae72da0ccafff22ceae6074d63a686272e226f8cd2bc",
+      "goldPath": "gold/audit-logging-transactional-drizzle.json",
+      "goldSha256": "e72911e19daaa04046ca034df86b91ebb0a60170d612dfb9f4835cb2bcdbe35b"
+    },
+    {
+      "caseId": "authorization-edge-drizzle",
+      "capabilityFamily": "authorization",
+      "casePath": "cases/authorization-edge-drizzle.json",
+      "caseSha256": "90578cd631e8c5e51b63dbdbe532914001e1df88a90045d27ada9e2ecf55f2b0",
+      "evidencePath": "evidence/authorization-edge-drizzle.json",
+      "evidenceSha256": "9d04f52988671e8d1e672ecf1ce9abbdfe9287ada41d0e6b64a93eae3af13efb",
+      "goldPath": "gold/authorization-edge-drizzle.json",
+      "goldSha256": "0f5f499e1714f6be6c3faf129fbaf39e9b941dc4928df36101fc314b4c3a1487"
+    },
+    {
+      "caseId": "authorization-relationship-prisma",
+      "capabilityFamily": "authorization",
+      "casePath": "cases/authorization-relationship-prisma.json",
+      "caseSha256": "850b6912cee390714e2d5220d0c3eeaa4266744f5d8b569eea9aa42e5a102b7b",
+      "evidencePath": "evidence/authorization-relationship-prisma.json",
+      "evidenceSha256": "4a8302b27ee65dd35c59584a50e7cb8dec05ca22243e0a4cb9b94dd0ec1380d4",
+      "goldPath": "gold/authorization-relationship-prisma.json",
+      "goldSha256": "0a297b8843bff78d40336696a4675c671d9b9839091fd391b8ecfbc130acbf37"
+    },
+    {
+      "caseId": "background-jobs-postgres-drizzle",
+      "capabilityFamily": "background-jobs",
+      "casePath": "cases/background-jobs-postgres-drizzle.json",
+      "caseSha256": "0df826745442e5dee384b589285c9e468171da0be170eacd940b7374f3009315",
+      "evidencePath": "evidence/background-jobs-postgres-drizzle.json",
+      "evidenceSha256": "04f44f3791949ac19c9ece19071e5b4f21795dcb01e60496a3279f22ec6bca26",
+      "goldPath": "gold/background-jobs-postgres-drizzle.json",
+      "goldSha256": "feea37b8c61c85d7e96d3965323a5c0aabfe9bf3a004b81d40d99cca7ed9b296"
+    },
+    {
+      "caseId": "background-jobs-redis-prisma",
+      "capabilityFamily": "background-jobs",
+      "casePath": "cases/background-jobs-redis-prisma.json",
+      "caseSha256": "96f2fc5f4987ca418f816aec20ce11be1ff8c892061f456c7cdf166ca9c009fa",
+      "evidencePath": "evidence/background-jobs-redis-prisma.json",
+      "evidenceSha256": "be9a4494454573d6a861b87b9407383ec56858580122a9b764a0d4758b3210ea",
+      "goldPath": "gold/background-jobs-redis-prisma.json",
+      "goldSha256": "327544081a4a6fcf603b53c88ade3f1bdb4babf4467ec722c0bc3b98b1c7cd8f"
+    },
+    {
+      "caseId": "rate-limiting-container-drizzle",
+      "capabilityFamily": "rate-limiting",
+      "casePath": "cases/rate-limiting-container-drizzle.json",
+      "caseSha256": "b758c02be5055d2c1565bb70b3c529b09cb97d6c167f52d3fcac57436bcd0a29",
+      "evidencePath": "evidence/rate-limiting-container-drizzle.json",
+      "evidenceSha256": "3c7c88b968d04de9abafbf9a18f8f1024a2c52abe3b6087cdf9b24f7629d6d51",
+      "goldPath": "gold/rate-limiting-container-drizzle.json",
+      "goldSha256": "5ec4d4a345533bc6841c9be9e3473d8f31f37c94e99f042897823652085e84ee"
+    },
+    {
+      "caseId": "rate-limiting-edge-prisma",
+      "capabilityFamily": "rate-limiting",
+      "casePath": "cases/rate-limiting-edge-prisma.json",
+      "caseSha256": "b0e1cd84608b08cfe6600e2eb4131da3961954e475eb98ae059cd1dc4b7a7f4e",
+      "evidencePath": "evidence/rate-limiting-edge-prisma.json",
+      "evidenceSha256": "15b7819972776d55f4fd6fd3c271e28e42abb1f5eae718f087a538cf5fae9a21",
+      "goldPath": "gold/rate-limiting-edge-prisma.json",
+      "goldSha256": "dad061902e9c3f5c756ba4ef0fd34e04329ed8b54d5b119bf7a015397c62914b"
+    },
+    {
+      "caseId": "webhooks-mixed-ingress-prisma",
+      "capabilityFamily": "webhooks",
+      "casePath": "cases/webhooks-mixed-ingress-prisma.json",
+      "caseSha256": "e5add1037a7c81d068a3566a3e456d882764f430f84b88df54469155b7047e7f",
+      "evidencePath": "evidence/webhooks-mixed-ingress-prisma.json",
+      "evidenceSha256": "9ada1a83ee901ecc6dd9d7fcbe86f30c9a4670674bd0d5cbe33201dad10ab1ab",
+      "goldPath": "gold/webhooks-mixed-ingress-prisma.json",
+      "goldSha256": "3658a2cd7f09ce5f1d45bdc12af9f6f73d4e8fe35c0ce65db54742758fd289d0"
+    },
+    {
+      "caseId": "webhooks-self-hosted-egress-drizzle",
+      "capabilityFamily": "webhooks",
+      "casePath": "cases/webhooks-self-hosted-egress-drizzle.json",
+      "caseSha256": "18dec753a808d884902efccda1924c33c555ac2a76df87b66fcd6c58bd87e8fe",
+      "evidencePath": "evidence/webhooks-self-hosted-egress-drizzle.json",
+      "evidenceSha256": "43be15c397d563d48a33f2201e788db99bd7e3df3960d55e710d18782a7d0c11",
+      "goldPath": "gold/webhooks-self-hosted-egress-drizzle.json",
+      "goldSha256": "81a48edfecde4ab1c7493a2dd2aef5d2732233242a55164a4b2a0bd00ca53164"
+    }
+  ],
+  "familyCounts": {
+    "authorization": 2,
+    "audit-logging": 2,
+    "background-jobs": 2,
+    "rate-limiting": 2,
+    "webhooks": 2
+  },
+  "diversity": {
+    "pairedDifferentWinners": 3,
+    "responsibleAbstentions": 2,
+    "popularHardConstraintRejections": 4,
+    "includesPrisma": true,
+    "includesDrizzle": true,
+    "includesServerless": true,
+    "includesLongRunning": true,
+    "includesWorkerCapable": true,
+    "includesWorkerIncapable": true,
+    "includesRedis": true,
+    "includesNoRedis": true,
+    "includesSingleTenant": true,
+    "includesMultiTenant": true,
+    "includesLicenseConstraint": true,
+    "includesRuntimeConstraint": true,
+    "includesResidencyConstraint": true,
+    "includesEvidenceInsufficiency": true,
+    "includesTieOrPartialOrder": true,
+    "popularityDiffersFromFit": true
+  },
+  "provenance": {
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "goldStatus": "proposed",
+    "independentReviewStatus": "not-reviewed"
+  }
+}

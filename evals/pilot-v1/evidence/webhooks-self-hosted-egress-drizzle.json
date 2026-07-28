@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "webhooks-self-hosted-egress-drizzle",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "webhook-egress-convoy",
+      "subjectType": "candidate",
+      "candidateId": "convoy",
+      "sourceType": "license",
+      "sourceUrl": "https://github.com/frain-dev/convoy",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Convoy is a self-hostable webhook gateway with workers, signing, retries, and delivery management, and its repository identifies the license as Elastic License 2.0.",
+      "freshnessScope": "Official repository README and license at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "No legal conclusion is offered beyond comparison with the case's explicit license allowlist."
+    },
+    {
+      "evidenceId": "webhook-egress-hook0",
+      "subjectType": "candidate",
+      "candidateId": "hook0",
+      "sourceType": "license",
+      "sourceUrl": "https://github.com/hook0/hook0",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Hook0 provides self-hosted webhook subscriptions, automatic retries, and event and response persistence, and its repository identifies the license as Server Side Public License v1.",
+      "freshnessScope": "Official repository README and license at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "No legal conclusion is offered beyond comparison with the case's explicit license allowlist."
+    },
+    {
+      "evidenceId": "webhook-egress-standard",
+      "subjectType": "candidate",
+      "candidateId": "standard-webhooks",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/standard-webhooks/standard-webhooks",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Standard Webhooks supplies a specification and MIT-licensed signing and verification reference libraries, not a persistent delivery service with workers and retry history.",
+      "freshnessScope": "Official specification repository and reference-library scope at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The project remains useful as a protocol component but not as the complete requested service."
+    },
+    {
+      "evidenceId": "webhook-egress-svix",
+      "subjectType": "candidate",
+      "candidateId": "svix",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/svix/svix-webhooks",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Svix is an MIT-licensed self-hostable webhook service that handles delivery, retries, and signing; its server uses PostgreSQL and can use Redis for the task queue and cache.",
+      "freshnessScope": "Official repository README, deployment dependencies, and license at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Capacity and operational effort for this synthetic repository are not measured."
+    }
+  ]
+}

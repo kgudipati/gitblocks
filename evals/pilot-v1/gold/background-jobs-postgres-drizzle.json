@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "background-jobs-postgres-drizzle",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "bree",
+      "disposition": "rejected",
+      "reasonCodes": [
+        "durable-shared-queue-required",
+        "transactional-enqueue-required"
+      ],
+      "evidenceIds": ["jobs-postgres-bree"]
+    },
+    {
+      "candidateId": "bullmq",
+      "disposition": "rejected",
+      "reasonCodes": ["redis-unavailable"],
+      "evidenceIds": ["jobs-postgres-bullmq"]
+    },
+    {
+      "candidateId": "graphile-worker",
+      "disposition": "viable",
+      "reasonCodes": ["postgres-queue-fit"],
+      "evidenceIds": ["jobs-postgres-graphile"]
+    },
+    {
+      "candidateId": "pg-boss",
+      "disposition": "recommended",
+      "reasonCodes": ["postgres-queue-fit", "transactional-enqueue-required"],
+      "evidenceIds": ["jobs-postgres-pgboss"]
+    }
+  ],
+  "rankGroups": [["pg-boss"], ["graphile-worker"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "bree",
+      "constraintId": "durable-worker-runtime",
+      "reasonCode": "durable-shared-queue-required",
+      "evidenceIds": ["jobs-postgres-bree"]
+    },
+    {
+      "candidateId": "bullmq",
+      "constraintId": "no-new-redis",
+      "reasonCode": "redis-unavailable",
+      "evidenceIds": ["jobs-postgres-bullmq"]
+    }
+  ],
+  "requiredUnknownIds": ["worker-throughput-headroom"],
+  "requiredEvidenceIds": [
+    "jobs-postgres-bree",
+    "jobs-postgres-bullmq",
+    "jobs-postgres-graphile",
+    "jobs-postgres-pgboss"
+  ],
+  "requiredReasonCodes": [
+    "durable-shared-queue-required",
+    "postgres-queue-fit",
+    "redis-unavailable",
+    "transactional-enqueue-required"
+  ],
+  "rationaleNotes": [
+    "pg-boss is the proposed winner because the Drizzle transaction adapter directly addresses the atomic enqueue constraint; Graphile Worker remains viable with integration work."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null
+  }
+}

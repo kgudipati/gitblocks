@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "webhooks-mixed-ingress-prisma",
+  "outcome": "no-viable-candidate",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "octokit-webhooks",
+      "disposition": "rejected",
+      "reasonCodes": ["multi-scheme-required", "provider-specific-only"],
+      "evidenceIds": ["webhook-ingress-octokit"]
+    },
+    {
+      "candidateId": "standard-webhooks",
+      "disposition": "rejected",
+      "reasonCodes": ["multi-scheme-required", "provider-specific-only"],
+      "evidenceIds": ["webhook-ingress-standard"]
+    },
+    {
+      "candidateId": "stripe-node",
+      "disposition": "rejected",
+      "reasonCodes": ["multi-scheme-required", "provider-specific-only"],
+      "evidenceIds": ["webhook-ingress-stripe"]
+    },
+    {
+      "candidateId": "svix",
+      "disposition": "rejected",
+      "reasonCodes": ["multi-scheme-required", "provider-specific-only"],
+      "evidenceIds": ["webhook-ingress-svix"]
+    }
+  ],
+  "rankGroups": [],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "octokit-webhooks",
+      "constraintId": "multi-scheme-verification-runtime",
+      "reasonCode": "multi-scheme-required",
+      "evidenceIds": ["webhook-ingress-octokit"]
+    },
+    {
+      "candidateId": "standard-webhooks",
+      "constraintId": "multi-scheme-verification-runtime",
+      "reasonCode": "multi-scheme-required",
+      "evidenceIds": ["webhook-ingress-standard"]
+    },
+    {
+      "candidateId": "stripe-node",
+      "constraintId": "multi-scheme-verification-runtime",
+      "reasonCode": "multi-scheme-required",
+      "evidenceIds": ["webhook-ingress-stripe"]
+    },
+    {
+      "candidateId": "svix",
+      "constraintId": "multi-scheme-verification-runtime",
+      "reasonCode": "multi-scheme-required",
+      "evidenceIds": ["webhook-ingress-svix"]
+    }
+  ],
+  "requiredUnknownIds": ["unified-verifier-maintenance"],
+  "requiredEvidenceIds": [
+    "webhook-ingress-octokit",
+    "webhook-ingress-standard",
+    "webhook-ingress-stripe",
+    "webhook-ingress-svix"
+  ],
+  "requiredReasonCodes": ["multi-scheme-required", "provider-specific-only"],
+  "rationaleNotes": [
+    "The responsible proposed result is no viable candidate: each bounded candidate is protocol-specific, so the request should be split across maintained provider verifiers or reframed."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "background-jobs-redis-prisma",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "bree",
+      "disposition": "rejected",
+      "reasonCodes": ["durable-shared-queue-required"],
+      "evidenceIds": ["jobs-redis-bree"]
+    },
+    {
+      "candidateId": "bullmq",
+      "disposition": "recommended",
+      "reasonCodes": ["automatic-retry-required", "redis-queue-fit"],
+      "evidenceIds": ["jobs-redis-bullmq"]
+    },
+    {
+      "candidateId": "graphile-worker",
+      "disposition": "viable",
+      "reasonCodes": ["automatic-retry-required", "postgres-queue-fit"],
+      "evidenceIds": ["jobs-redis-graphile"]
+    },
+    {
+      "candidateId": "pg-boss",
+      "disposition": "viable",
+      "reasonCodes": ["automatic-retry-required", "postgres-queue-fit"],
+      "evidenceIds": ["jobs-redis-pgboss"]
+    }
+  ],
+  "rankGroups": [["bullmq"], ["graphile-worker", "pg-boss"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "bree",
+      "constraintId": "durable-shared-queue-runtime",
+      "reasonCode": "durable-shared-queue-required",
+      "evidenceIds": ["jobs-redis-bree"]
+    }
+  ],
+  "requiredUnknownIds": ["redis-capacity-headroom"],
+  "requiredEvidenceIds": [
+    "jobs-redis-bree",
+    "jobs-redis-bullmq",
+    "jobs-redis-graphile",
+    "jobs-redis-pgboss"
+  ],
+  "requiredReasonCodes": [
+    "automatic-retry-required",
+    "durable-shared-queue-required",
+    "postgres-queue-fit",
+    "redis-queue-fit"
+  ],
+  "rationaleNotes": [
+    "BullMQ is the proposed leader because Redis and workers already exist; the PostgreSQL queues remain technically viable but are a weaker repository-conditioned operational fit."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null
+  }
+}

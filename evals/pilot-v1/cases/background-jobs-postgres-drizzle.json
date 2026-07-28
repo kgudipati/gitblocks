@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "background-jobs-postgres-drizzle",
+  "capabilityFamily": "background-jobs",
+  "userRequest": "Choose a durable background job library for invoice generation from serverless request handlers.",
+  "successConditions": [
+    "A request can enqueue an invoice job atomically with its Drizzle business transaction.",
+    "A separately deployed worker retries failed jobs without requiring Redis."
+  ],
+  "repositoryProfile": {
+    "runtime": { "name": "node", "version": "24.18.0" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "drizzle", "version": "0.44.7" },
+    "deployment": {
+      "topology": "serverless",
+      "workerCapability": "capable",
+      "replicas": 25,
+      "region": "eu-west-1"
+    },
+    "dependencies": [
+      { "name": "drizzle-orm", "version": "0.44.7" },
+      { "name": "next", "version": "16.4.0" }
+    ],
+    "hasRedis": false,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "Every invoice job payload contains a tenant-scoped invoice identifier."
+    ],
+    "dataFacts": [
+      "Invoice state and job state must remain in the existing PostgreSQL region."
+    ],
+    "operationalFacts": [
+      "The platform provides a long-running Node worker deployment but will not add Redis."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "no-new-redis",
+      "reasonCode": "redis-unavailable",
+      "statement": "The solution must use the existing PostgreSQL service and cannot require Redis."
+    },
+    {
+      "constraintId": "transactional-enqueue-runtime",
+      "reasonCode": "transactional-enqueue-required",
+      "statement": "The enqueue operation must participate in the caller's Drizzle transaction."
+    },
+    {
+      "constraintId": "durable-worker-runtime",
+      "reasonCode": "durable-shared-queue-required",
+      "statement": "Job state must survive request termination and be claimable by a separate worker."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "fewer-services",
+      "statement": "Prefer the smallest operational footprint that meets the delivery guarantees."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "bree",
+      "project": "Bree",
+      "package": "bree",
+      "repository": "breejs/bree"
+    },
+    {
+      "candidateId": "bullmq",
+      "project": "BullMQ",
+      "package": "bullmq",
+      "repository": "taskforcesh/bullmq"
+    },
+    {
+      "candidateId": "graphile-worker",
+      "project": "Graphile Worker",
+      "package": "graphile-worker",
+      "repository": "graphile/worker"
+    },
+    {
+      "candidateId": "pg-boss",
+      "project": "pg-boss",
+      "package": "pg-boss",
+      "repository": "timgit/pg-boss"
+    }
+  ],
+  "evidenceIds": [
+    "jobs-postgres-bree",
+    "jobs-postgres-bullmq",
+    "jobs-postgres-graphile",
+    "jobs-postgres-pgboss"
+  ],
+  "reasonCodes": [
+    {
+      "id": "durable-shared-queue-required",
+      "description": "The case requires persistent shared job state and a separate worker."
+    },
+    {
+      "id": "postgres-queue-fit",
+      "description": "The candidate uses the repository's existing PostgreSQL service."
+    },
+    {
+      "id": "redis-unavailable",
+      "description": "The repository will not operate Redis."
+    },
+    {
+      "id": "transactional-enqueue-required",
+      "description": "Enqueue must share the application's Drizzle transaction."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "worker-throughput-headroom",
+      "description": "Production invoice throughput and worker sizing have not been benchmarked."
+    }
+  ],
+  "difficulty": "hard",
+  "failureModes": ["paired-background-jobs-request", "popularity-over-fit"],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

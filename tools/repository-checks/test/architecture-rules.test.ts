@@ -25,6 +25,7 @@ describe('dependency-cruiser architecture rules', () => {
     ['production-to-dev', 'no-production-to-dev-dependency'],
     ['domain-outward', 'no-domain-outward-dependency'],
     ['product-to-tools', 'no-product-to-tools'],
+    ['production-to-evaluation-gold', 'no-production-to-evaluation-gold'],
     ['deep-workspace-import', 'no-deep-workspace-import'],
   ] as const)('rejects the %s fixture with %s', (fixture, ruleName) => {
     const fixturePath = join(

@@ -33,14 +33,30 @@ const REQUIRED_PATHS = [
   'docs/engineering/repository-workflow.md',
   'docs/engineering/security-baseline.md',
   'docs/engineering/testing-strategy.md',
+  'docs/evaluation/baseline-protocol.md',
+  'docs/evaluation/case-authoring-protocol.md',
+  'docs/evaluation/scoring.md',
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
   'docs/plans/0005-node-runtime-preflight.md',
   'docs/product/product-contract.md',
+  'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
   'package.json',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
+  'schemas/evaluation/case.schema.json',
+  'schemas/evaluation/evidence.schema.json',
+  'schemas/evaluation/gold.schema.json',
+  'schemas/evaluation/manifest.schema.json',
+  'schemas/evaluation/prediction.schema.json',
+  'schemas/evaluation/score.schema.json',
+  'tools/evaluation-harness/package.json',
+  'tools/evaluation-harness/src/cli.ts',
+  'tools/evaluation-harness/src/index.ts',
+  'tools/evaluation-harness/test/tsconfig.json',
+  'tools/evaluation-harness/tsconfig.json',
+  'tools/evaluation-harness/tsconfig.test.json',
   'tools/repository-checks/package.json',
   'tools/repository-checks/src/cli.ts',
   'tools/repository-checks/src/index.ts',
@@ -63,6 +79,12 @@ const ROOT_MANIFEST = JSON.stringify({
     pnpm: '11.17.0',
   },
   scripts: {
+    'eval:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures',
+    'eval:score':
+      'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score',
+    'eval:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts validate',
     'repo:branch':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts branch',
     'repo:check':
@@ -88,6 +110,14 @@ const TOOL_MANIFEST = JSON.stringify({
   private: true,
   dependencies: {
     yaml: '2.9.0',
+  },
+});
+
+const EVALUATION_MANIFEST = JSON.stringify({
+  name: '@gitblocks/evaluation-harness',
+  private: true,
+  dependencies: {
+    ajv: '8.20.0',
   },
 });
 
@@ -137,6 +167,7 @@ function validRepository() {
     ['.node-version', '24.18.0\n'],
     ['.nvmrc', '24.18.0\n'],
     ['package.json', ROOT_MANIFEST],
+    ['tools/evaluation-harness/package.json', EVALUATION_MANIFEST],
     ['tools/repository-checks/package.json', TOOL_MANIFEST],
     ['pnpm-workspace.yaml', WORKSPACE_POLICY],
   ]);

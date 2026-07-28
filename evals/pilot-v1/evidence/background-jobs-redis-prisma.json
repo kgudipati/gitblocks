@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "background-jobs-redis-prisma",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "jobs-redis-bree",
+      "subjectType": "candidate",
+      "candidateId": "bree",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/breejs/bree",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Bree schedules Node.js worker-thread jobs and recommends that applications manage persistent completion state themselves.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "It does not provide the requested shared durable queue state by itself."
+    },
+    {
+      "evidenceId": "jobs-redis-bullmq",
+      "subjectType": "candidate",
+      "candidateId": "bullmq",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://docs.bullmq.io/",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "BullMQ is a Redis-backed distributed queue with horizontally scalable workers, automatic crash recovery, delayed jobs, and configurable retries with fixed or exponential backoff.",
+      "freshnessScope": "Official overview, worker, retry, and production documentation at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Redis persistence and capacity still require repository-specific operational validation."
+    },
+    {
+      "evidenceId": "jobs-redis-graphile",
+      "subjectType": "candidate",
+      "candidateId": "graphile-worker",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://worker.graphile.org/docs",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Graphile Worker provides a reliable PostgreSQL-backed Node.js job queue with parallel workers and automatic exponential-backoff retries.",
+      "freshnessScope": "Official documentation and MIT license statement at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "It would add queue workload to PostgreSQL instead of reusing the existing Redis queue service."
+    },
+    {
+      "evidenceId": "jobs-redis-pgboss",
+      "subjectType": "candidate",
+      "candidateId": "pg-boss",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/timgit/pg-boss",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "pg-boss is a PostgreSQL-backed Node.js queue with polling workers, dead-letter queues, automatic retries, and exponential backoff.",
+      "freshnessScope": "Official repository README and MIT license at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "It would add queue workload to PostgreSQL rather than use the already operated Redis queue."
+    }
+  ]
+}

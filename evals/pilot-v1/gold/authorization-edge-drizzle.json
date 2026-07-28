@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "authorization-edge-drizzle",
+  "outcome": "recommend",
+  "allowedAlternativeOutcomes": [],
+  "dispositions": [
+    {
+      "candidateId": "casbin",
+      "disposition": "viable",
+      "reasonCodes": ["attribute-policy-fit", "runtime-compatible"],
+      "evidenceIds": ["auth-edge-casbin"]
+    },
+    {
+      "candidateId": "casl",
+      "disposition": "recommended",
+      "reasonCodes": ["attribute-policy-fit", "runtime-compatible"],
+      "evidenceIds": ["auth-edge-casl"]
+    },
+    {
+      "candidateId": "cerbos",
+      "disposition": "rejected",
+      "reasonCodes": ["external-service-disallowed"],
+      "evidenceIds": ["auth-edge-cerbos"]
+    },
+    {
+      "candidateId": "openfga",
+      "disposition": "rejected",
+      "reasonCodes": ["external-service-disallowed"],
+      "evidenceIds": ["auth-edge-openfga"]
+    }
+  ],
+  "rankGroups": [["casl"], ["casbin"]],
+  "rankRelations": [],
+  "incomparablePairs": [],
+  "hardConstraintConflicts": [
+    {
+      "candidateId": "cerbos",
+      "constraintId": "external-service-runtime",
+      "reasonCode": "external-service-disallowed",
+      "evidenceIds": ["auth-edge-cerbos"]
+    },
+    {
+      "candidateId": "openfga",
+      "constraintId": "external-service-runtime",
+      "reasonCode": "external-service-disallowed",
+      "evidenceIds": ["auth-edge-openfga"]
+    }
+  ],
+  "requiredUnknownIds": ["edge-bundle-cost"],
+  "requiredEvidenceIds": [
+    "auth-edge-casbin",
+    "auth-edge-casl",
+    "auth-edge-cerbos",
+    "auth-edge-openfga"
+  ],
+  "requiredReasonCodes": [
+    "attribute-policy-fit",
+    "external-service-disallowed",
+    "runtime-compatible"
+  ],
+  "rationaleNotes": [
+    "CASL is the proposed fit because it keeps attribute decisions inside the constrained edge request path; this gold is authored, proposed, and not independently accepted."
+  ],
+  "evidenceCutoff": "2026-07-28",
+  "provenance": {
+    "status": "proposed",
+    "authoringSession": "phase-2-issue-7-authoring-session",
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null
+  }
+}

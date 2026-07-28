@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "webhooks-mixed-ingress-prisma",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "webhook-ingress-octokit",
+      "subjectType": "candidate",
+      "candidateId": "octokit-webhooks",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/octokit/webhooks.js",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Octokit Webhooks documents receiving, verifying, and handling GitHub webhook events and types for GitHub payloads.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The project evidence does not claim Stripe or Standard Webhooks verification."
+    },
+    {
+      "evidenceId": "webhook-ingress-standard",
+      "subjectType": "candidate",
+      "candidateId": "standard-webhooks",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://www.standardwebhooks.com/",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Standard Webhooks publishes a JavaScript reference library for its HMAC-SHA256 signature format over webhook ID, timestamp, and payload.",
+      "freshnessScope": "Official specification and reference library index at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The specification does not claim GitHub- or Stripe-specific signature verification."
+    },
+    {
+      "evidenceId": "webhook-ingress-stripe",
+      "subjectType": "candidate",
+      "candidateId": "stripe-node",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/stripe/stripe-node",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Stripe's official Node.js library documents constructing and verifying Stripe webhook events from the raw payload, Stripe-Signature header, and endpoint secret.",
+      "freshnessScope": "Official repository webhook signing documentation at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The library does not claim GitHub or Standard Webhooks verification."
+    },
+    {
+      "evidenceId": "webhook-ingress-svix",
+      "subjectType": "candidate",
+      "candidateId": "svix",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/svix/svix-webhooks",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "The Svix JavaScript client supports verification of Svix webhook signatures and the Svix server signs outbound messages using its documented scheme.",
+      "freshnessScope": "Official repository client feature table and signature documentation at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The bounded evidence does not establish a generic verifier for GitHub and Stripe schemes."
+    }
+  ]
+}

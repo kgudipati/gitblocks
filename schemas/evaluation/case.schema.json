@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/case/1.0.0",
+  "title": "GitBlocks evaluation case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "caseId",
+    "capabilityFamily",
+    "userRequest",
+    "successConditions",
+    "repositoryProfile",
+    "hardConstraints",
+    "preferences",
+    "candidates",
+    "evidenceIds",
+    "reasonCodes",
+    "unknowns",
+    "difficulty",
+    "failureModes",
+    "authoredAt",
+    "evidenceCutoff"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "caseId": { "$ref": "#/$defs/id" },
+    "capabilityFamily": {
+      "enum": [
+        "authorization",
+        "audit-logging",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ]
+    },
+    "userRequest": { "$ref": "#/$defs/text" },
+    "successConditions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/text" }
+    },
+    "repositoryProfile": { "$ref": "#/$defs/repositoryProfile" },
+    "hardConstraints": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": { "$ref": "#/$defs/hardConstraint" }
+    },
+    "preferences": {
+      "type": "array",
+      "maxItems": 16,
+      "items": { "$ref": "#/$defs/preference" }
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/candidate" }
+    },
+    "evidenceIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "reasonCodes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/catalogItem" }
+    },
+    "unknowns": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/catalogItem" }
+    },
+    "difficulty": { "enum": ["medium", "hard"] },
+    "failureModes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "authoredAt": { "$ref": "#/$defs/date" },
+    "evidenceCutoff": { "$ref": "#/$defs/date" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^20[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+    },
+    "namedVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 80 }
+      }
+    },
+    "repositoryProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime",
+        "framework",
+        "packageManager",
+        "database",
+        "orm",
+        "deployment",
+        "dependencies",
+        "hasRedis",
+        "tenantModel",
+        "identityFacts",
+        "dataFacts",
+        "operationalFacts"
+      ],
+      "properties": {
+        "runtime": { "$ref": "#/$defs/namedVersion" },
+        "framework": { "$ref": "#/$defs/namedVersion" },
+        "packageManager": { "$ref": "#/$defs/namedVersion" },
+        "database": { "$ref": "#/$defs/namedVersion" },
+        "orm": {
+          "allOf": [
+            { "$ref": "#/$defs/namedVersion" },
+            {
+              "type": "object",
+              "properties": {
+                "name": { "enum": ["prisma", "drizzle"] }
+              }
+            }
+          ]
+        },
+        "deployment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["topology", "workerCapability", "replicas", "region"],
+          "properties": {
+            "topology": {
+              "enum": [
+                "serverless",
+                "long-running-container",
+                "long-running-server"
+              ]
+            },
+            "workerCapability": { "enum": ["capable", "incapable"] },
+            "replicas": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "region": { "type": "string", "minLength": 2, "maxLength": 80 }
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/namedVersion" }
+        },
+        "hasRedis": { "type": "boolean" },
+        "tenantModel": { "enum": ["single-tenant", "multi-tenant"] },
+        "identityFacts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/text" }
+        },
+        "dataFacts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/text" }
+        },
+        "operationalFacts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "hardConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraintId", "reasonCode", "statement"],
+      "properties": {
+        "constraintId": { "$ref": "#/$defs/id" },
+        "reasonCode": { "$ref": "#/$defs/id" },
+        "statement": { "$ref": "#/$defs/text" }
+      }
+    },
+    "preference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preferenceId", "statement"],
+      "properties": {
+        "preferenceId": { "$ref": "#/$defs/id" },
+        "statement": { "$ref": "#/$defs/text" }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateId", "project", "package", "repository"],
+      "properties": {
+        "candidateId": { "$ref": "#/$defs/id" },
+        "project": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "package": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 160,
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        }
+      }
+    },
+    "catalogItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "description": { "$ref": "#/$defs/text" }
+      }
+    }
+  }
+}

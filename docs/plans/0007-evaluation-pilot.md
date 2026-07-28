@@ -6,7 +6,8 @@
   [#7 — Phase 2: Establish evaluation contracts and pilot corpus](https://github.com/kgudipati/gitblocks/issues/7)
 - Branch: `test/7-evaluation-pilot`
 - Owner: GitBlocks maintainers; implementation authoring session is Codex
-- State: in progress
+- State: implementation and local validation complete; publication/hosted CI
+  in progress
 - Last updated: 2026-07-28
 - Authority order: Issue #7, actual repository and Git history, the
   [product contract](../product/product-contract.md) and accepted ADRs,
@@ -210,21 +211,23 @@ evals/pilot-v1/
   cases/<case-id>.json
   evidence/<case-id>.json
   gold/<case-id>.json
-  fixtures/weak-baselines/<fixture-name>/<case-id>.json
 tools/evaluation-harness/
   package.json
-  src/
+  src/weak-fixtures.ts
+  src/<boundary-validation-scoring-cli modules>
   test/
 docs/evaluation/
-  authoring-guide.md
+  case-authoring-protocol.md
   baseline-protocol.md
-  scoring-and-metrics.md
+  scoring.md
 ```
 
 The manifest protects schema-independent corpus membership and hashes all
 case/evidence/gold files. Repository invariants protect directory contracts,
 schemas, manifest, protocols, and harness entry points without enumerating all
-ten case filenames forever.
+ten case filenames forever. Weak prediction sets are generated from the
+validated corpus by pure deterministic strategies rather than stored as a
+second set of mutable corpus files.
 
 ## Case-authoring protocol
 
@@ -319,9 +322,11 @@ pairwise_agreement =
 A missing or contradictory prediction relation scores as disagreement. When
 gold has zero scorable relations, agreement is `1` only when prediction makes
 no scorable claim, otherwise `0`. Predictions are not punished merely for
-ordering a gold-incomparable pair. Validation rejects duplicate candidates,
-duplicate/inconsistent pairs, non-viable ranked candidates, and directed rank
-cycles.
+ordering a gold-incomparable pair. Validation rejects unknown or duplicate
+rank-group candidates, incomplete gold classifications, conflicting relations,
+and directed cycles. Gold may classify a viable candidate through an ordered
+group, relation, or incomparable pair; predictions may intentionally make only
+the ordering claims they can support.
 
 ### Abstention, unknowns, evidence, and reasons
 
@@ -440,6 +445,9 @@ Pre-install review on 2026-07-28:
   `postinstall` lifecycle;
 - integrity:
   `sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==`;
+- publication age at review: Ajv 8.20.0 was 95 days old; every resolved
+  transitive exceeded the repository's 24-hour minimum, with the newest,
+  `fast-uri@3.1.4`, published nine days before review;
 - supply-chain controls remain unchanged: exact direct pin, pnpm-generated
   lockfile, 24-hour minimum age, strict peers/engines, trust no-downgrade,
   default-denied builds, and no trust exception;
@@ -449,11 +457,23 @@ Pre-install review on 2026-07-28:
   under-specified security boundary, duplicate a standard, and require far more
   negative tests.
 
-Pending before implementation completion: resolve through pnpm, record exact
-transitive versions/integrities and lockfile delta, inspect installed published
-manifests for lifecycle scripts, run the registry audit, and record advisories.
-This choice is evaluation-tooling-only and does not select a future product
-API schema library.
+`pnpm install --no-frozen-lockfile` resolved only four transitive packages and
+updated the lockfile through pnpm:
+
+| Package                      | Published  | License      | Consumer lifecycle | Integrity                                                                                         |
+| ---------------------------- | ---------- | ------------ | ------------------ | ------------------------------------------------------------------------------------------------- |
+| `fast-deep-equal@3.1.3`      | 2020-06-08 | MIT          | none               | `sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==` |
+| `fast-uri@3.1.4`             | 2026-07-19 | BSD-3-Clause | none               | `sha512-8JnbkQ4juDyvYs4mgFGQqg4yCYtFDtUtmp2QIQq11ZZe5CFQ5wcqm1rqDgAh/QdMySuBnPzMUiJUNZG5N/AiQw==` |
+| `json-schema-traverse@1.0.0` | 2020-12-13 | MIT          | none               | `sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==` |
+| `require-from-string@2.0.2`  | 2018-04-09 | MIT          | none               | `sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==` |
+
+The published manifests contain only maintainer test/build/prepublish scripts
+where present and no `preinstall`, `install`, or `postinstall` hooks. The graph
+adds no peer dependencies and `require-from-string`'s declared Node floor is
+compatible. `pnpm security:audit` and `pnpm verify:ci` report no known
+vulnerabilities at the configured moderate threshold. This choice is
+evaluation-tooling-only and does not select a future product API schema
+library.
 
 Primary references:
 
@@ -478,9 +498,10 @@ source may import `evals/**/gold`.
 
 Initial budgets subject to tests:
 
-- at most 256 KiB per JSON file, 32 MiB aggregate read, 500 JSON files, 10
-  pilot cases, 5 candidates per case, 256 IDs per case, 64 levels, 50,000 JSON
-  nodes, 500 diagnostics, and 4 MiB serialized report;
+- at most 256 KiB per JSON file, 500 files per generic directory and 100 per
+  corpus-owned directory, 10 pilot cases, 5 candidates per case, 256 IDs per
+  case, 64 levels, 50,000 JSON nodes, 500 diagnostics, and 4 MiB serialized
+  report;
 - synchronous local reads are acceptable for this fixed private tool because
   bounds are small and no concurrent/shared server exists;
 - SHA-256 uses Node crypto over exact file bytes;
@@ -516,11 +537,11 @@ registration from fixed paths, and independent case review.
 
 Open until the applicable milestone:
 
-- exact case candidates and dispositions: resolved only after primary-source
-  research in Milestone 5;
-- exact resolved Ajv transitives/advisories: resolved in Milestone 1 after
-  pnpm lock generation;
-- measured coverage baseline: resolved in Milestone 7; and
+- exact case candidates and proposed dispositions: resolved by the ten-case
+  primary-source review in Milestone 5;
+- exact resolved Ajv transitives and advisory state: resolved above;
+- measured coverage baseline: 87.83% statements, 80.04% branches, 94.13%
+  functions, and 87.83% lines; and
 - hosted CI run/job identifiers: resolved after publication.
 
 ## Implementation milestones
@@ -532,6 +553,7 @@ Open until the applicable milestone:
 - Add `ajv@8.20.0` with pnpm only and complete the dependency review.
 - Evidence: focused schema tests, frozen install, lock/lifecycle/integrity
   review.
+- State: complete; frozen install and advisory audit pass.
 
 ### Milestone 2 — Bounded loading and integrity
 
@@ -541,6 +563,7 @@ Open until the applicable milestone:
   strings.
 - Implement the filesystem adapter and pure referential validation.
 - Evidence: focused unit/integration tests and manifest validation.
+- State: implemented.
 
 ### Milestone 3 — Pure scorer
 
@@ -550,6 +573,7 @@ Open until the applicable milestone:
 - Implement deterministic single-case and corpus scoring plus stable
   serialization.
 - Evidence: exact expected metric objects and repeatability tests.
+- State: implemented.
 
 ### Milestone 4 — CLI and weak fixtures
 
@@ -558,6 +582,7 @@ Open until the applicable milestone:
   `perfect` prediction sets.
 - Prove distinct, explainable report profiles and visible unsafe output.
 - Evidence: `eval:score` and `eval:fixtures` integration tests.
+- State: implemented.
 
 ### Milestone 5 — Ten-case pilot
 
@@ -565,6 +590,8 @@ Open until the applicable milestone:
   separate evidence/proposed gold, required diversity, and a single cutoff.
 - Generate the manifest hashes using the reviewed harness command.
 - Evidence: automated composition validation and case-by-case manual review.
+- State: implemented as proposed development data; independent review remains
+  intentionally absent.
 
 ### Milestone 6 — Repository integration and documentation
 
@@ -573,6 +600,7 @@ Open until the applicable milestone:
   authoring/scoring/baseline documentation, and this plan.
 - Add architecture negatives for product-to-harness and production-to-gold.
 - Evidence: repository/architecture/Markdown checks and complete crosswalk.
+- State: complete; repository and architecture validations pass.
 
 ### Milestone 7 — Validation and publication
 
@@ -582,6 +610,7 @@ Open until the applicable milestone:
   correct failures only with ordinary follow-up commits.
 - Evidence: commit SHAs, PR snapshot, final CI run/job/check, clean tracked
   worktree.
+- State: all exact local commands pass; publication and hosted CI remain.
 
 ## Testing and validation strategy
 
@@ -667,21 +696,29 @@ regenerates hashes; post-unblinding correction cannot be silent.
 
 ## Case-by-case evidence review state
 
-All rows are pending primary-source research. Status `proposed` means authored
-by this session and never independently accepted.
+Status `authored` means the authoring session inspected current primary
+sources, bounded each observation to the 2026-07-28 cutoff, traced the proposed
+gold, and ran automated corpus integrity checks. It does not mean the evidence
+or gold was independently reviewed or accepted.
 
-| Planned case ID               | Family          | Research | Evidence/gold review | Independent acceptance |
-| ----------------------------- | --------------- | -------- | -------------------- | ---------------------- |
-| `authorization-edge-drizzle`  | authorization   | pending  | pending              | no                     |
-| `authorization-tenant-prisma` | authorization   | pending  | pending              | no                     |
-| `audit-append-only-prisma`    | audit logging   | pending  | pending              | no                     |
-| `audit-residency-drizzle`     | audit logging   | pending  | pending              | no                     |
-| `jobs-container-redis`        | background jobs | pending  | pending              | no                     |
-| `jobs-serverless-postgres`    | background jobs | pending  | pending              | no                     |
-| `rate-limit-container-local`  | rate limiting   | pending  | pending              | no                     |
-| `rate-limit-serverless-redis` | rate limiting   | pending  | pending              | no                     |
-| `webhooks-inbound-edge`       | webhooks        | pending  | pending              | no                     |
-| `webhooks-outbound-residency` | webhooks        | pending  | pending              | no                     |
+| Case ID                               | Family          | Candidates                                                     | Authoring review | Independent acceptance |
+| ------------------------------------- | --------------- | -------------------------------------------------------------- | ---------------- | ---------------------- |
+| `authorization-edge-drizzle`          | authorization   | Casbin, CASL, Cerbos, OpenFGA                                  | authored         | no                     |
+| `authorization-relationship-prisma`   | authorization   | Casbin, CASL, Cerbos, OpenFGA                                  | authored         | no                     |
+| `audit-logging-container-prisma`      | audit logging   | LogTape, pgAudit, Pino, Winston                                | authored         | no                     |
+| `audit-logging-transactional-drizzle` | audit logging   | LogTape, pgAudit, Pino, Winston                                | authored         | no                     |
+| `background-jobs-postgres-drizzle`    | background jobs | Bree, BullMQ, Graphile Worker, pg-boss                         | authored         | no                     |
+| `background-jobs-redis-prisma`        | background jobs | Bree, BullMQ, Graphile Worker, pg-boss                         | authored         | no                     |
+| `rate-limiting-container-drizzle`     | rate limiting   | Bottleneck, express-rate-limit, rate-limiter-flexible, Upstash | authored         | no                     |
+| `rate-limiting-edge-prisma`           | rate limiting   | Bottleneck, express-rate-limit, rate-limiter-flexible, Upstash | authored         | no                     |
+| `webhooks-mixed-ingress-prisma`       | webhooks        | Octokit Webhooks, Standard Webhooks, Stripe SDK, Svix          | authored         | no                     |
+| `webhooks-self-hosted-egress-drizzle` | webhooks        | Convoy, Hook0, Standard Webhooks, Svix                         | authored         | no                     |
+
+The corpus contains 40 candidate observations: 26 official-repository, 12
+official-documentation, and two license observations. Source domains are
+GitHub (28), LogTape (2), Pino (2), BullMQ (2), Graphile Worker (2), Upstash
+(2), Casbin (1), and Standard Webhooks (1). Each case has exactly four
+candidates in lexical ID order.
 
 ## Progress log
 
@@ -699,6 +736,22 @@ by this session and never independently accepted.
 - 2026-07-28: Researched Ajv 8.20.0 through official documentation, GitHub, and
   npm registry metadata; recorded the pre-install review.
 - 2026-07-28: Created this plan before implementation.
+- 2026-07-28: Added six closed JSON Schema 2020-12 contracts at version
+  `1.0.0`, the private `@gitblocks/evaluation-harness`, Ajv 8.20.0 and its
+  pnpm-generated lock delta, bounded loaders, referential validation, pure
+  scoring, stable serialization, CLI, and deterministic weak strategies.
+- 2026-07-28: Authored and hash-pinned exactly ten proposed pilot cases, two
+  per family with four lexical candidates each, from 40 bounded primary-source
+  observations at one cutoff. Corpus validation and all five weak fixture
+  reports pass.
+- 2026-07-28: Integrated root commands, offline verification, TypeScript,
+  Vitest, dependency-cruiser, repository invariants, and evaluation
+  documentation. The final expanded graph passes 218 tests in 18 files;
+  dependency-cruiser passes with 158 modules and 399 dependencies.
+- 2026-07-28: Completed the exact local validation matrix. Frozen installation,
+  formatting, lint, typecheck, build, coverage, repository/evaluation/security
+  checks, `verify`, and `verify:ci` all pass; the audit reports no known
+  vulnerabilities.
 
 ## Decision and deviation log
 
@@ -706,34 +759,62 @@ by this session and never independently accepted.
   meets the issue, and supports strict closed shapes. Draft-07 was rejected
   because using the requested current contract now avoids a later representational
   migration; multi-draft support is unnecessary.
-- 2026-07-28 — Select Ajv 8.20.0 for the private harness, pending final resolved
-  graph review. A custom validator was rejected as partial and riskier. This is
-  not a future product schema-library decision.
+- 2026-07-28 — Select Ajv 8.20.0 for the private harness after resolving and
+  reviewing its four-package transitive graph. A custom validator was rejected
+  as partial and riskier. This is not a future product schema-library decision.
 - 2026-07-28 — Use exact ID recall and pairwise partial-order agreement without
   a convenience aggregate. This keeps the pilot deterministic, reviewable, and
   unable to hide unsafe output.
 - 2026-07-28 — The shell-path runtime failure is an environment activation
   issue, not a repository contradiction. The existing supported runtime was
   activated; no preflight or supply-chain rule was bypassed.
+- 2026-07-28 — Generate weak prediction sets deterministically from the
+  validated corpus rather than committing redundant fixture JSON. This keeps
+  the strategies inspectable, avoids hash drift in duplicate data, and still
+  exercises the same prediction validator/scorer paths in tests and
+  `eval:fixtures`.
 
 ## Failed checks and corrections
 
-| Date       | Command/check                                                   | Failure                                                                                  | Correction/evidence                                                                                            |
-| ---------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| 2026-07-28 | `nvm use`; `node --version`; `pnpm --version`; preflight/verify | Login shell did not expose nvm/Node; fallback pnpm 11.9.0 failed the exact engine policy | Sourced the existing `/Users/karthikgudipati/.nvm/nvm.sh`; rerun selected Node 24.18.0/pnpm 11.17.0 and passed |
-
-Implementation failures will be appended here rather than overwritten.
+| Date       | Command/check                                                   | Failure                                                                                                | Correction/evidence                                                                                                  |
+| ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-28 | `nvm use`; `node --version`; `pnpm --version`; preflight/verify | Login shell did not expose nvm/Node; fallback pnpm 11.9.0 failed the exact engine policy               | Sourced the existing `/Users/karthikgudipati/.nvm/nvm.sh`; rerun selected Node 24.18.0/pnpm 11.17.0 and passed       |
+| 2026-07-28 | initial focused schema tests                                    | Harness schema module did not exist, then Ajv strict mode rejected an under-specified test schema      | Added the fixed schema registry and completed the test schema shape; valid/invalid contract tests passed             |
+| 2026-07-28 | first `pnpm install` after manifest edit                        | Frozen lockfile correctly rejected the new Ajv manifest dependency                                     | Ran `pnpm install --no-frozen-lockfile` once through pnpm, reviewed the five-package delta, and retained frozen mode |
+| 2026-07-28 | focused scoring test                                            | Expected `2 / 3` did not match the documented six-place report rounding                                | Corrected the assertion to the stable serialized value `0.666667`; scorer behavior was unchanged                     |
+| 2026-07-28 | first integrated `pnpm test`                                    | Four existing temporary-repository tests lacked newly required evaluation paths/scripts                | Extended the shared temp-repository fixture and added positive/negative invariant coverage; 213 tests passed         |
+| 2026-07-28 | first two `pnpm lint` runs                                      | Harness test-project config, array-style policy, imports, and matcher safety produced 17 then 8 errors | Added the harness test tsconfig and corrected the reported source/test issues; lint passes with zero warnings        |
+| 2026-07-28 | corpus formatting/hash refresh                                  | macOS `shasum` failed with a `C.UTF-8` locale panic after formatting                                   | Used system `openssl dgst -sha256` for the manifest refresh; `eval:validate` confirms every hash                     |
+| 2026-07-28 | `pnpm format:write`                                             | The repository's write script is named `pnpm format`, so the guessed alias did not exist               | Ran `pnpm exec prettier --write .`; the exact final `pnpm format:check` passes                                       |
 
 ## Validation evidence
 
-| Date       | Evidence                                                           | Result                                                                           |
-| ---------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| 2026-07-28 | `git status --short --branch` before branching                     | clean `main...origin/main`                                                       |
-| 2026-07-28 | fetch/switch/fast-forward pull, log, rev-parse, branches           | local/remote synchronized at expected `937f35b`                                  |
-| 2026-07-28 | connected GitHub Issue #7 and PR #6/Issue #5 reads                 | Issue #7 open and complete; PR #6 merged; Issue #5 closed                        |
-| 2026-07-28 | `rg --files`                                                       | no evaluation schema/corpus/harness/baseline present                             |
-| 2026-07-28 | supported `nvm use`; versions; `pnpm runtime:check`; `pnpm verify` | Node 24.18.0, pnpm 11.17.0; 161 tests pass; architecture/repository/secrets pass |
-| 2026-07-28 | `git switch -c test/7-evaluation-pilot`; `git rev-parse HEAD`      | required local branch created at `937f35b`                                       |
+| Date       | Evidence                                                           | Result                                                                                     |
+| ---------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| 2026-07-28 | `git status --short --branch` before branching                     | clean `main...origin/main`                                                                 |
+| 2026-07-28 | fetch/switch/fast-forward pull, log, rev-parse, branches           | local/remote synchronized at expected `937f35b`                                            |
+| 2026-07-28 | connected GitHub Issue #7 and PR #6/Issue #5 reads                 | Issue #7 open and complete; PR #6 merged; Issue #5 closed                                  |
+| 2026-07-28 | `rg --files`                                                       | no evaluation schema/corpus/harness/baseline present                                       |
+| 2026-07-28 | supported `nvm use`; versions; `pnpm runtime:check`; `pnpm verify` | Node 24.18.0, pnpm 11.17.0; 161 tests pass; architecture/repository/secrets pass           |
+| 2026-07-28 | `git switch -c test/7-evaluation-pilot`; `git rev-parse HEAD`      | required local branch created at `937f35b`                                                 |
+| 2026-07-28 | `pnpm test`; `pnpm test:coverage`                                  | 218 tests pass across 18 files; 87.83% statements/lines, 80.04% branches, 94.13% functions |
+| 2026-07-28 | `pnpm lint`; `pnpm build`; `pnpm architecture:check`               | pass; architecture reports 158 modules/399 dependencies and no violations                  |
+| 2026-07-28 | `pnpm eval:validate`; `pnpm eval:fixtures`                         | ten cases/hashes/composition pass; weak reports are deterministic and distinct             |
+| 2026-07-28 | runtime, frozen install, format, typecheck, repository, Secretlint | all pass under Node 24.18.0 and pnpm 11.17.0                                               |
+| 2026-07-28 | `pnpm security:audit`; `pnpm verify`; `pnpm verify:ci`             | pass; registry reports no known vulnerabilities at the moderate threshold                  |
+
+### Weak fixture evidence
+
+| Strategy          | Safe | Unsafe | Macro F1 | Outcome | Ranking  | Unknown | Evidence | Reason |
+| ----------------- | ---- | ------ | -------- | ------- | -------- | ------- | -------- | ------ |
+| `first-candidate` | no   | 4      | 0.138298 | 0.8     | 0.210526 | 0       | 0        | 0      |
+| `all-viable`      | no   | 17     | 0.1      | 0.8     | 0.157895 | 0       | 0        | 0      |
+| `always-abstain`  | yes  | 0      | 0.055556 | 0.1     | 0.210526 | 1       | 0        | 0      |
+| `omit-unknowns`   | yes  | 0      | 1        | 1       | 1        | 0       | 1        | 1      |
+| `perfect`         | yes  | 0      | 1        | 1       | 1        | 1       | 1        | 1      |
+
+These are weak deterministic harness profiles, not generic-agent or GitBlocks
+performance baselines.
 
 ### Hosted CI evidence
 

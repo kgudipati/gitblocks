@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "authorization-edge-drizzle",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "auth-edge-casbin",
+      "subjectType": "candidate",
+      "candidateId": "casbin",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/apache/casbin-node-casbin",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "The official project describes node-casbin as an authorization library for ACL, RBAC, and ABAC in Node.js and browsers.",
+      "freshnessScope": "Official repository README and license at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The source does not quantify this repository's edge bundle or cold-start cost."
+    },
+    {
+      "evidenceId": "auth-edge-casl",
+      "subjectType": "candidate",
+      "candidateId": "casl",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/stalniy/casl",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "CASL is an isomorphic TypeScript authorization library with declarative action, subject, condition, and field rules; its core supports Node.js 18+ and browsers and is MIT-licensed.",
+      "freshnessScope": "Official repository README and license at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Drizzle-specific query translation is not claimed by this source."
+    },
+    {
+      "evidenceId": "auth-edge-cerbos",
+      "subjectType": "candidate",
+      "candidateId": "cerbos",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/cerbos/cerbos",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Cerbos documents a language-agnostic policy decision point deployed as a separate binary, container, sidecar, or service and queried by applications.",
+      "freshnessScope": "Official repository deployment model at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Managed offerings are outside this bounded self-operated case."
+    },
+    {
+      "evidenceId": "auth-edge-openfga",
+      "subjectType": "candidate",
+      "candidateId": "openfga",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/openfga/openfga",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "OpenFGA is a separately operated authorization server exposing HTTP and gRPC APIs with persistent storage options.",
+      "freshnessScope": "Official repository architecture and deployment documentation at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The observation does not assess a hosted OpenFGA service because external services are disallowed."
+    }
+  ]
+}

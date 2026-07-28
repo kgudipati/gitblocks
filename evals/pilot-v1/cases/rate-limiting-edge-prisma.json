@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-edge-prisma",
+  "capabilityFamily": "rate-limiting",
+  "userRequest": "Choose a distributed per-tenant API rate limiter for globally deployed edge handlers.",
+  "successConditions": [
+    "All edge isolates share quota state by tenant and route.",
+    "The handler can apply sliding-window limits without a TCP connection pool."
+  ],
+  "repositoryProfile": {
+    "runtime": { "name": "edge-fetch", "version": "2026-07" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "prisma", "version": "7.2.0" },
+    "deployment": {
+      "topology": "serverless",
+      "workerCapability": "incapable",
+      "replicas": 50,
+      "region": "global-edge"
+    },
+    "dependencies": [
+      { "name": "@prisma/client", "version": "7.2.0" },
+      { "name": "@upstash/redis", "version": "1.35.6" }
+    ],
+    "hasRedis": true,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "Every authenticated request contains a stable tenant identifier."
+    ],
+    "dataFacts": [
+      "The existing Upstash Redis database stores only operational counters."
+    ],
+    "operationalFacts": [
+      "The edge runtime supports fetch but not long-lived TCP sockets, Node worker threads, or a durable in-process singleton."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "distributed-counter-runtime",
+      "reasonCode": "distributed-counter-required",
+      "statement": "Quota state must be shared across independently scaled edge isolates."
+    },
+    {
+      "constraintId": "runtime-edge-compatible",
+      "reasonCode": "runtime-compatible",
+      "statement": "The candidate must use the edge fetch runtime without Express or Node-only worker facilities."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "reuse-upstash",
+      "statement": "Prefer the already provisioned HTTP-accessible Redis database."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "bottleneck",
+      "project": "Bottleneck",
+      "package": "bottleneck",
+      "repository": "SGrondin/bottleneck"
+    },
+    {
+      "candidateId": "express-rate-limit",
+      "project": "express-rate-limit",
+      "package": "express-rate-limit",
+      "repository": "express-rate-limit/express-rate-limit"
+    },
+    {
+      "candidateId": "rate-limiter-flexible",
+      "project": "rate-limiter-flexible",
+      "package": "rate-limiter-flexible",
+      "repository": "animir/node-rate-limiter-flexible"
+    },
+    {
+      "candidateId": "upstash-ratelimit",
+      "project": "Upstash Ratelimit",
+      "package": "@upstash/ratelimit",
+      "repository": "upstash/ratelimit-js"
+    }
+  ],
+  "evidenceIds": [
+    "rate-edge-bottleneck",
+    "rate-edge-express",
+    "rate-edge-flexible",
+    "rate-edge-upstash"
+  ],
+  "reasonCodes": [
+    {
+      "id": "distributed-counter-required",
+      "description": "Quota state must be shared by every isolate."
+    },
+    {
+      "id": "edge-redis-fit",
+      "description": "The candidate directly supports HTTP-accessible Redis from edge handlers."
+    },
+    {
+      "id": "runtime-compatible",
+      "description": "The candidate supports the repository's fetch-based edge runtime."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "global-consistency-tolerance",
+      "description": "The accepted over-limit margin under multi-region replication has not been specified."
+    }
+  ],
+  "difficulty": "hard",
+  "failureModes": [
+    "paired-rate-limiting-request",
+    "popular-hard-constraint",
+    "popularity-over-fit"
+  ],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

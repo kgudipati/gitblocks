@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "authorization-edge-drizzle",
+  "capabilityFamily": "authorization",
+  "userRequest": "Choose an authorization library for tenant-scoped document actions in the existing edge application.",
+  "successConditions": [
+    "Authorization decisions use actor, tenant, action, and document attributes.",
+    "The application can reject cross-tenant access before a database mutation."
+  ],
+  "repositoryProfile": {
+    "runtime": { "name": "node-edge", "version": "24-compatible subset" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
+    "packageManager": { "name": "pnpm", "version": "11.17.0" },
+    "database": { "name": "postgresql", "version": "17" },
+    "orm": { "name": "drizzle", "version": "0.44.7" },
+    "deployment": {
+      "topology": "serverless",
+      "workerCapability": "incapable",
+      "replicas": 20,
+      "region": "global-edge"
+    },
+    "dependencies": [
+      { "name": "next", "version": "16.4.0" },
+      { "name": "drizzle-orm", "version": "0.44.7" }
+    ],
+    "hasRedis": false,
+    "tenantModel": "multi-tenant",
+    "identityFacts": [
+      "The verified session contains actor and tenant identifiers."
+    ],
+    "dataFacts": [
+      "Every document row contains tenantId, ownerId, and classification."
+    ],
+    "operationalFacts": [
+      "The edge platform cannot run sidecars, persistent policy services, or background workers."
+    ]
+  },
+  "hardConstraints": [
+    {
+      "constraintId": "external-service-runtime",
+      "reasonCode": "external-service-disallowed",
+      "statement": "Authorization must execute in the request isolate without a separately deployed service."
+    },
+    {
+      "constraintId": "runtime-edge-compatible",
+      "reasonCode": "runtime-compatible",
+      "statement": "The library must support an edge-compatible JavaScript execution path."
+    }
+  ],
+  "preferences": [
+    {
+      "preferenceId": "attribute-rules",
+      "statement": "Prefer declarative attribute conditions that can be reviewed with application code."
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "casbin",
+      "project": "node-casbin",
+      "package": "casbin",
+      "repository": "apache/casbin-node-casbin"
+    },
+    {
+      "candidateId": "casl",
+      "project": "CASL",
+      "package": "@casl/ability",
+      "repository": "stalniy/casl"
+    },
+    {
+      "candidateId": "cerbos",
+      "project": "Cerbos PDP",
+      "package": null,
+      "repository": "cerbos/cerbos"
+    },
+    {
+      "candidateId": "openfga",
+      "project": "OpenFGA",
+      "package": null,
+      "repository": "openfga/openfga"
+    }
+  ],
+  "evidenceIds": [
+    "auth-edge-casbin",
+    "auth-edge-casl",
+    "auth-edge-cerbos",
+    "auth-edge-openfga"
+  ],
+  "reasonCodes": [
+    {
+      "id": "attribute-policy-fit",
+      "description": "The candidate supports the required attribute-conditioned decision."
+    },
+    {
+      "id": "external-service-disallowed",
+      "description": "The repository cannot operate a separate authorization service."
+    },
+    {
+      "id": "runtime-compatible",
+      "description": "The candidate has a compatible execution path for the repository runtime."
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "edge-bundle-cost",
+      "description": "Production bundle and cold-start impact has not been measured."
+    }
+  ],
+  "difficulty": "hard",
+  "failureModes": [
+    "paired-authorization-request",
+    "popular-hard-constraint",
+    "popularity-over-fit"
+  ],
+  "authoredAt": "2026-07-28",
+  "evidenceCutoff": "2026-07-28"
+}

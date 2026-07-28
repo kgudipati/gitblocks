@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseId": "rate-limiting-edge-prisma",
+  "evidenceCutoff": "2026-07-28",
+  "observations": [
+    {
+      "evidenceId": "rate-edge-bottleneck",
+      "subjectType": "candidate",
+      "candidateId": "bottleneck",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/SGrondin/bottleneck",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Bottleneck provides local scheduling and an optional Redis clustering mode intended for JavaScript processes.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The bounded evidence does not establish a fetch-only Upstash REST datastore path."
+    },
+    {
+      "evidenceId": "rate-edge-express",
+      "subjectType": "candidate",
+      "candidateId": "express-rate-limit",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/express-rate-limit/express-rate-limit",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "express-rate-limit is middleware for the Express web server rather than a fetch-handler API.",
+      "freshnessScope": "Official repository description and README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Custom adaptation outside the documented integration is not assumed."
+    },
+    {
+      "evidenceId": "rate-edge-flexible",
+      "subjectType": "candidate",
+      "candidateId": "rate-limiter-flexible",
+      "sourceType": "official-repository",
+      "sourceUrl": "https://github.com/animir/node-rate-limiter-flexible",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "rate-limiter-flexible supports memory and multiple distributed store clients and notes Deno compatibility, but the bounded evidence does not establish compatibility with the repository's Upstash REST client.",
+      "freshnessScope": "Official repository README at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "The candidate remains insufficiently evidenced rather than treated as an established runtime conflict."
+    },
+    {
+      "evidenceId": "rate-edge-upstash",
+      "subjectType": "candidate",
+      "candidateId": "upstash-ratelimit",
+      "sourceType": "official-documentation",
+      "sourceUrl": "https://upstash.com/docs/redis/sdks/ratelimit-ts/overview",
+      "collectedAt": "2026-07-28T21:00:00Z",
+      "publishedAt": null,
+      "observation": "Upstash Ratelimit is an HTTP-based library designed for serverless functions, Cloudflare Workers, Vercel Edge, and Next.js, with fixed, sliding-window, and token-bucket limiters.",
+      "freshnessScope": "Official overview and algorithms documentation at the evidence cutoff.",
+      "directness": "direct",
+      "limitation": "Multi-region limits can trade strict consistency for latency and require an explicit case-level tolerance."
+    }
+  ]
+}

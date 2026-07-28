@@ -94,6 +94,18 @@ const configuration = {
         path: '(^|/)tools/',
       },
     },
+    {
+      name: 'no-production-to-evaluation-gold',
+      severity: 'error',
+      comment:
+        'Production modules must not import proposed evaluation gold answers.',
+      from: {
+        path: '(^|/)src/',
+      },
+      to: {
+        path: '(^|/)evals/[^/]+/gold/',
+      },
+    },
   ],
   options: {
     exclude: {
