@@ -5,9 +5,8 @@
 - Issue: GitHub Issue #1, “Phase 0: Establish the GitBlocks product and
   engineering operating system”
 - Branch: `docs/1-project-foundation`
-- State: foundation implementation, validation, initial commit, push, draft
-  publication, and review-correction validation complete; the correction
-  commit and PR-description update are next, and PR review is pending
+- State: implementation, validation, publication, and review corrections
+  complete; independent/final PR review and merge authorization pending
 - Last updated: 2026-07-27
 
 ## Purpose and user-visible outcome
@@ -314,8 +313,9 @@ rollout, and recovery evidence defined in `PLANS.md`.
   force, and open draft PR #2.
 - [x] Correct the review findings and rerun deterministic validation without
   changing product or architecture decisions.
-- [ ] Create the follow-up correction commit, push it without force, and update
-  the existing draft PR description without rewriting shared history.
+- [x] Create substantive correction commit
+  `d32ec087ae773ee22df0c58eccc00064177326be`, push it without force, and
+  update the existing draft PR description without rewriting shared history.
 
 ## Exact exit criteria
 
@@ -353,6 +353,8 @@ This plan may be marked complete only when:
 | 2026-07-27 | Initial foundation published | Created commit `1d9c286a2a75b6de27b882909dfa1b138c7b85e0`, pushed `docs/1-project-foundation` successfully, and opened draft PR #2 against `main` |
 | 2026-07-27 | Review correction started | Re-read Issue #1 and verified a clean local/remote topic branch, open draft PR #2, and unchanged `main`; began the six requested documentation/template corrections |
 | 2026-07-27 | Review correction implementation and validation complete | Corrected plan/publication state, shared-history updates, private-repository security reporting, conditional PR checks, active-plan selection, and optional bug coverage; deterministic and full-diff review passed without product, architecture, code, or dependency changes |
+| 2026-07-27 | Review correction published | Created substantive correction commit `d32ec087ae773ee22df0c58eccc00064177326be`; normal fast-forward push advanced `docs/1-project-foundation` from `1d9c286` to `d32ec087` without force; draft PR #2 remained open and unmerged from `docs/1-project-foundation` to `main`; its description was updated; remote `main` remained `a5b04b614b6a7a2609dc5e900422a64d6eaf5fd6` |
+| 2026-07-27 | Plan state synchronized | Reconciled durable status and milestones with the published branch and PR state; focused validation passed; this administrative synchronization does not require its own commit SHA |
 
 ## Decision and deviation log
 
@@ -463,6 +465,16 @@ All commands ran from the repository root unless stated otherwise.
 | `find` for package manifests and application-toolchain files | Passed: no output |
 | Security and privacy self-review | Passed: private-stage reporting requires an established private contact and confirmed secure channel; future public reporting verification remains an explicit incomplete release gate; no secret or reporting address was invented |
 | PR-template applicability review | Passed: documentation, test-only, and maintenance changes can explain why a plan, executable tests, or affected impact areas are not applicable without making a false assertion |
+
+### Plan-state synchronization validation
+
+| Command or operation | Result |
+| --- | --- |
+| `git status --short --branch`; `git fetch origin`; `git rev-parse HEAD origin/docs/1-project-foundation main origin/main`; `git log --oneline --decorate -5` | Passed: clean topic branch; local and remote topic refs were `d32ec087ae773ee22df0c58eccc00064177326be`; local and remote `main` remained `a5b04b614b6a7a2609dc5e900422a64d6eaf5fd6` |
+| Connected GitHub PR #2 lookup | Passed: PR #2 remained open, draft, and unmerged from `docs/1-project-foundation` to `main`; its head was the substantive correction commit and its description contained the correction history |
+| `git diff --check`; `git status --short --branch`; `git diff --stat`; `git diff -- docs/plans/0001-foundation.md` | Passed: only this execution plan changed; complete synchronization diff reviewed |
+| Focused Python standard-library plan-state validator | Passed: no unchecked implementation/publication milestone or stale correction-publication wording; 3 relative links resolve; prior validation history remains; no credential, placeholder, prohibited file, dependency, scaffold, product, or architecture change |
+| `git merge-base --is-ancestor origin/main HEAD` and capability-family check | Passed: branch remains based on `main`; exactly 5 private-alpha capability families remain selected |
 
 No executable behavior exists, so unit, integration, end-to-end, load, or
 runtime observability tests are not applicable. The strongest deterministic
