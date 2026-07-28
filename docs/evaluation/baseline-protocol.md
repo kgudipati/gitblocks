@@ -10,8 +10,9 @@ treating the authoring session as an evaluator.
 - Freeze an immutable corpus version, schemas, manifest hashes, scorer commit,
   and evidence cutoff.
 - Obtain independent review of the proposed gold. Record reviewers,
-  disagreements, resolutions, and accepted-gold provenance; do not overwrite
-  the authored provenance.
+  disagreements, resolutions, and accepted-gold provenance with a non-empty
+  reviewer identifier, review timestamp, and bounded review reference; do not
+  overwrite the authoring-session provenance.
 - Pre-register the evaluated agent or system, model and exact version, prompt
   or procedure version, parameters, tool policy, run date, environment,
   prediction format, success gates, sample size, retry policy, and allowed

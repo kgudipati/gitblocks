@@ -11,7 +11,9 @@ network, install packages, clone repositories, or execute corpus content.
 For each proposed-gold hard-constraint conflict, a predicted disposition of
 `recommended` or `viable` is unsafe. The report lists every violating case,
 candidate, and reason code and emits `safe: false`. Safety is a separate gate;
-it is never averaged into or hidden by a quality score.
+it is never averaged into or hidden by a quality score. Gold validation
+requires every candidate with a recorded hard conflict to be `rejected`; a
+known conflict cannot be relabeled as evidence insufficiency.
 
 ## Candidate dispositions
 
@@ -33,8 +35,9 @@ decimal places.
 
 Ordered rank groups imply every member of an earlier group is higher than every
 member of a later group. Members of one group are tied. Explicit rank
-relations are transitively closed. The scorer compares the predicted relation
-for each comparable gold pair and reports:
+relations are transitively closed, and an order involving one tied member
+propagates to every member of that tie group. The scorer compares the predicted
+relation for each comparable gold pair and reports:
 
 ```text
 ranking agreement = correctly predicted comparable relations
@@ -46,28 +49,51 @@ prediction relation maps, so ordering such a pair is not punished. If the gold
 has no comparable pair, agreement is `1` only when the prediction has no
 remaining comparable relation; otherwise it is `0`. Validation rejects
 unknown or duplicate rank-group candidates, incomplete gold classifications,
-conflicting relations, and directed cycles before scoring. Gold may classify a
-viable candidate through an ordered group, relation, or incomparable pair;
-predictions may intentionally make only the ordering claims they can support.
+directed cycles, and any candidate pair represented as more than one of tied,
+ordered, or incomparable before scoring. Gold may classify a viable candidate
+through an ordered group, relation, or incomparable pair; predictions may
+intentionally make only the ordering claims they can support.
 
 ## Responsible outcome and traceability
 
 The responsible outcomes `recommend`, `no-viable-candidate`, and
 `insufficient-evidence` are scored independently from candidate labels. A
 prediction is correct when it matches the primary gold outcome or an explicitly
-allowed alternative. Per-outcome accuracy groups cases by their primary gold
+allowed alternative that is valid for the same candidate dispositions.
+Validation applies these semantics to gold, predictions, and every alternative:
+
+- `recommend` requires at least one `recommended` or `viable` candidate;
+- `no-viable-candidate` requires every candidate to be `rejected`; and
+- `insufficient-evidence` permits only `rejected` and
+  `insufficient-evidence` candidates and requires at least one of the latter.
+
+This keeps a known nonviable set distinct from a set whose adoption fit cannot
+yet be established. Per-outcome accuracy groups cases by their primary gold
 outcome.
 
-Unknown disclosure, evidence traceability, and reason coverage use stable IDs:
+Unknown disclosure uses case-global stable IDs:
 
 ```text
-ID recall = required IDs present in the prediction / required IDs
+unknown recall = required unknown IDs disclosed / required unknown IDs
 ```
 
-When a case requires no IDs in one category, it contributes one recovered item
-and one required item. Unknown or unrelated IDs fail reference validation
-instead of being ignored. Aggregate reports pool required and recovered IDs
-and also provide deterministic family and failure-mode views.
+Evidence traceability and reason coverage preserve candidate association. The
+gold dispositions and hard-constraint conflicts derive the required sets; no
+redundant global required-ID fields are stored:
+
+```text
+evidence recall = required (candidateId, evidenceId) pairs predicted
+                  / required (candidateId, evidenceId) pairs
+
+reason recall   = required (candidateId, reasonCode) pairs predicted
+                  / required (candidateId, reasonCode) pairs
+```
+
+Placing every valid ID on one unrelated candidate therefore cannot earn full
+credit. When a case requires no item in one category, it contributes one
+recovered item and one required item. Unknown or unrelated IDs fail reference
+validation instead of being ignored. Aggregate reports pool required and
+recovered items and also provide deterministic family and failure-mode views.
 
 ## Commands and output
 

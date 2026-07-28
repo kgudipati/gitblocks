@@ -6,8 +6,7 @@
   [#7 — Phase 2: Establish evaluation contracts and pilot corpus](https://github.com/kgudipati/gitblocks/issues/7)
 - Branch: `test/7-evaluation-pilot`
 - Owner: GitBlocks maintainers; implementation authoring session is Codex
-- State: implementation, publication, and initial hosted CI complete; final
-  evidence-only head validation in progress
+- State: implementation published; independent review corrections in progress
 - Last updated: 2026-07-28
 - Authority order: Issue #7, actual repository and Git history, the
   [product contract](../product/product-contract.md) and accepted ADRs,
@@ -164,15 +163,19 @@ explicit string/array/object bounds.
 The authoritative contracts are:
 
 1. `case.schema.json`: blind case input, profile, request, constraints,
-   candidates, available evidence IDs, unknown/reason catalogs, author/cutoff
-   dates, difficulty, and failure-mode tags.
+   decision objective, optional controlled-comparison pair ID, candidates,
+   available evidence IDs, unknown/reason catalogs, author/cutoff dates,
+   difficulty, and failure-mode tags.
 2. `evidence.schema.json`: per-case bounded source observations, candidate/case
-   subject, source type/URL, collection/publication time, observation,
-   freshness scope, direct/local classification, and limitation.
-3. `gold.schema.json`: proposed outcome, every candidate disposition, rank
-   groups plus incomparable pairs, hard conflicts, required unknown/evidence/
-   reason IDs, allowed outcomes, review rationale, cutoff, and honest
-   provenance.
+   subject, source type/URL, immutable revision/version locator,
+   collection/publication time, observation, freshness scope, direct/local
+   classification, and limitation.
+3. `gold.schema.json`: proposed or future accepted outcome, every candidate
+   disposition, rank groups plus incomparable pairs, hard conflicts, required
+   case-global unknown IDs, allowed outcomes, review rationale, cutoff, and
+   conditionally valid lifecycle provenance. Candidate evidence/reason
+   obligations are derived from dispositions and conflicts rather than stored
+   twice.
 4. `prediction.schema.json`: case ID, outcome, every disposition, rank groups,
    reason/evidence references per candidate, disclosed unknowns, bounded
    rationale, and run metadata.
@@ -181,20 +184,24 @@ The authoritative contracts are:
    breakdowns.
 6. `manifest.schema.json`: corpus/version/cutoff/status, sorted case entries,
    relative paths, SHA-256 hashes, family counts, declared diversity, and
-   authoring provenance.
+   conditionally valid proposed/accepted provenance.
 
 Schemas validate local shape. Pure referential validation owns cross-file and
 graph rules that JSON Schema cannot clearly express: complete/disjoint
 candidate sets, stable ID resolution, conflict consistency, rank membership,
-duplicate pairs, cycle detection, cutoff equality, and prediction/gold
-semantics. TypeScript types are centralized in the harness for internal
-behavior but do not replace the JSON Schemas as the persisted contract.
+duplicate/contradictory pair relations, cycle detection, controlled-comparison
+invariants, pilot ecosystem scope, source-revision consistency, derived
+diversity, cutoff equality, and prediction/gold outcome semantics. TypeScript
+types are centralized in the harness for internal behavior but do not replace
+the JSON Schemas as the persisted contract.
 
 Compatibility policy: `1.x` schemas reject unknown fields and accept only the
 exact `1.0.0` document version in this pilot. A future compatible schema
 revision requires fixtures and an explicit migration policy; an incompatible
 shape uses a new schema/corpus major. No deployed mixed-version consumer
-exists.
+exists. The independent-review corrections retain `1.0.0` because neither the
+contract nor corpus has merged or been released; this is correction of the
+initial pre-release contract, not migration of an accepted consumer.
 
 ## Corpus directory design
 
@@ -239,8 +246,9 @@ second set of mutable corpus files.
    stable and stored in lexical order, never recommendation or popularity
    order.
 4. Use primary sources at a single explicit evidence cutoff. Record concise
-   paraphrases, timestamps, version/freshness scope, and limitations; never
-   copy source bodies.
+   paraphrases, timestamps, version/freshness scope, immutable commit/tag/
+   release locators where available, and limitations; never copy source
+   bodies.
 5. Review every material decision against local case facts and evidence IDs.
    Record missing maintenance/security/compatibility facts as unknowns rather
    than favorable assumptions.
@@ -251,6 +259,14 @@ second set of mutable corpus files.
 8. Require PR review of every case and evidence source before any later
    acceptance. Gold changes after baseline unblinding require a separately
    recorded reason and cannot silently replace the original.
+
+Declared comparison pairs use explicit non-gold `comparisonPairId` metadata.
+Each pair contains exactly two cases and holds capability family, decision
+objective, user request, success conditions, and normalized candidate projects
+constant. Repository profile, deployment, available infrastructure, ORM,
+constraints, and preferences are the permitted conditioning variables. Corpus
+validation rejects a pair unless conditions differ and the proposed
+recommended candidate sets differ.
 
 Case inputs prohibit outcome/disposition/rank/reviewer fields, recommended
 candidate naming, gold-only conflict collections, and rationale that states a
@@ -265,13 +281,21 @@ winner. Candidate lexical order is deterministic and neutral.
   instructions. No candidate repository is cloned and no candidate package is
   installed or executed.
 - Evidence observations are manually minimized and paraphrased. URLs,
-  collection timestamps, publication/release timestamps where available,
-  version scope, directness, and limitations are retained.
+  collection timestamps, publication/release timestamps, version scope,
+  directness, and limitations are retained.
+- Each of the 40 current observations carries the full source commit SHA, a
+  commit-pinned official GitHub blob/tree locator, and that commit's timestamp.
+  Future package-registry evidence must use an exact package version, official
+  release evidence must use an immutable tag/release, and mutable aliases such
+  as `latest` are invalid. Mutable official documentation must record an
+  available page/product version or explicitly disclose mutability in its
+  limitation.
 - License, runtime/framework compatibility, deployment, persistence,
   maintenance, security, database/ORM support, package status, and hosted
   service requirements are never supplied from memory.
 - Each case has a single `2026-07-28` cutoff. Later evidence requires a new
-  case/corpus version rather than silent mixing.
+  case/corpus version rather than silent mixing. Referential validation rejects
+  collection or publication after the cutoff and publication after collection.
 - Manual review records source distribution and a case-by-case evidence state
   below. Every material gold claim must cite case facts and/or evidence IDs.
 
@@ -312,7 +336,7 @@ missing labels remain visible rather than being omitted.
 Gold ordered groups create scorable pair relations: candidates in the same
 group are tied; candidates in earlier groups outrank later groups. Gold
 incomparable pairs are excluded. Predictions create the same relation from
-their rank groups.
+their rank groups and explicit relations.
 
 ```text
 pairwise_agreement =
@@ -323,27 +347,44 @@ A missing or contradictory prediction relation scores as disagreement. When
 gold has zero scorable relations, agreement is `1` only when prediction makes
 no scorable claim, otherwise `0`. Predictions are not punished merely for
 ordering a gold-incomparable pair. Validation rejects unknown or duplicate
-rank-group candidates, incomplete gold classifications, conflicting relations,
-and directed cycles. Gold may classify a viable candidate through an ordered
-group, relation, or incomparable pair; predictions may intentionally make only
-the ordering claims they can support.
+rank-group candidates, incomplete gold classifications, directed cycles, and
+every tied-plus-ordered, ordered-plus-incomparable, or
+tied-plus-incomparable pair. Ties form equivalence classes, so an explicit
+order involving one tied member propagates to all members before validation and
+scoring. Gold may classify a viable candidate through an ordered group,
+relation, or incomparable pair; predictions may intentionally make only the
+ordering claims they can support.
 
 ### Abstention, unknowns, evidence, and reasons
 
-Outcome correctness is exact membership in gold primary plus allowed outcomes.
-Reports provide exact accuracy for `recommend`, `no-viable-candidate`, and
-`insufficient-evidence` separately; absent classes use zero.
+Outcome correctness is exact membership in gold primary plus disposition-
+compatible allowed outcomes. Validation applies the same semantics to gold,
+predictions, and alternatives:
+
+- `recommend` requires at least one `recommended` or `viable` disposition;
+- `no-viable-candidate` requires every supplied candidate to be `rejected`;
+  and
+- `insufficient-evidence` forbids `recommended`/`viable`, requires at least one
+  `insufficient-evidence`, and permits other candidates to be `rejected`.
+
+Reports provide exact accuracy for all three outcomes separately; absent
+classes use zero.
 
 ```text
 unknown_recall  = disclosed required unknown IDs / required unknown IDs
-evidence_recall = recovered required evidence IDs / required evidence IDs
-reason_recall   = recovered required reason IDs / required reason IDs
+evidence_recall =
+  predicted required (candidateId, evidenceId) pairs
+  / gold required (candidateId, evidenceId) pairs
+reason_recall =
+  predicted required (candidateId, reasonCode) pairs
+  / gold required (candidateId, reasonCode) pairs
 ```
 
 An empty required set yields `1` because there is no omitted obligation.
 Unknown/unrelated IDs fail referential validation and never disappear from a
-denominator. Candidate claim evidence is unioned only after subject
-relationship validation.
+denominator. Gold dispositions and hard conflicts are the single source for
+candidate evidence/reason obligations; the pre-review redundant global fields
+were removed. Unknown disclosure remains case-global.
 
 ### Aggregation
 
@@ -516,7 +557,8 @@ assumptions:
 
 - one corpus-wide cutoff date simplifies freshness consistency;
 - lexical candidate IDs are neutral enough for blind pilot input;
-- exact ID recall is appropriate for this structural pilot; and
+- exact stable-ID pair recall is appropriate for candidate-conditioned
+  evidence/reasons in this structural pilot; and
 - pairwise partial-order agreement is easier to review than a convenience rank
   correlation with ties/incomparability.
 
@@ -540,11 +582,46 @@ Open until the applicable milestone:
 - exact case candidates and proposed dispositions: resolved by the ten-case
   primary-source review in Milestone 5;
 - exact resolved Ajv transitives and advisory state: resolved above;
-- measured coverage baseline: 87.83% statements, 80.04% branches, 94.13%
-  functions, and 87.83% lines; and
+- measured coverage before correction: 87.83% statements, 80.04% branches,
+  94.13% functions, and 87.83% lines; corrected coverage: 89.23% statements,
+  82.22% branches, 95.98% functions, and 89.25% lines; and
 - hosted CI run/job identifiers: resolved after publication.
 
 ## Implementation milestones
+
+### Independent-review correction pass
+
+PR #8 remains draft. The reviewed head `e27451a` passed hosted CI, but an
+independent review found nine pre-merge correctness gaps that must be resolved
+without changing the approved fixed-candidate boundary:
+
+1. reauthor every pilot profile inside the approved Next.js/PostgreSQL
+   ecosystem and enforce that scope at corpus validation;
+2. replace loose `paired-*` tags with at least two controlled comparison pairs
+   that hold the request, success conditions, candidate projects, family, and
+   objective constant while repository conditions change the proposed winner;
+3. enforce distinct disposition semantics for `recommend`,
+   `no-viable-candidate`, and `insufficient-evidence`, including compatible
+   alternative outcomes;
+4. reject every tied/ordered/incomparable contradiction;
+5. score reason and evidence obligations as candidate-associated stable-ID
+   pairs and remove or exactly reconcile redundant gold truth;
+6. represent both honest proposed gold and future independently accepted gold
+   through conditional provenance rules while leaving this corpus proposed;
+7. add bounded source revision/version provenance to every evidence
+   observation and require source-type-appropriate metadata;
+8. revisit all runtime-compatibility judgments, especially Next.js Edge claims,
+   without treating broad Node/browser support as Edge proof; and
+9. add exploit-oriented regression coverage for each identified failure mode.
+
+The correction sequence is test-first: add targeted tests and record their
+initial failures; update schemas, pure validation/scoring, corpus data and
+hashes; refresh documentation and weak-fixture/coverage evidence; run the full
+local matrix; publish only ordinary follow-up commits; update the existing
+draft PR; then inspect the actual new hosted Verification job and decoded log.
+Schema version `1.0.0` remains appropriate because the contract is unpublished
+and unreleased; this pass corrects its pre-merge semantics rather than
+migrating an accepted consumer.
 
 ### Milestone 1 — Contracts and dependency
 
@@ -610,9 +687,10 @@ Open until the applicable milestone:
   correct failures only with ordinary follow-up commits.
 - Evidence: commit SHAs, PR snapshot, final CI run/job/check, clean tracked
   worktree.
-- State: all exact local commands pass; branch and draft PR are published;
-  hosted run 13 passes on the implementation head. The final evidence-only
-  follow-up commit remains to be checked.
+- State: branch and draft PR are published; reviewed head `e27451a` passed
+  hosted run 14. Independent-review corrections and the complete local matrix
+  pass; ordinary follow-up commits, existing-PR update, and final hosted CI
+  inspection remain.
 
 ## Testing and validation strategy
 
@@ -676,7 +754,12 @@ ordinary PR reversion. After merge, a faulty harness/corpus can be reverted as
 one coherent change without data loss. Future schema changes require explicit
 compatibility fixtures and either a compatible minor contract revision or a
 new major/corpus directory. Gold correction preserves audit rationale and
-regenerates hashes; post-unblinding correction cannot be silent.
+regenerates hashes; post-unblinding correction cannot be silent. The
+independent-review pass changes the still-unreleased initial contract without
+incrementing `1.0.0`; there is no accepted artifact or external consumer to
+migrate. Accepted lifecycle states are representable, but moving this corpus
+to them requires actual independent reviewer identity, time, and bounded review
+reference.
 
 ## Exact exit criteria
 
@@ -698,32 +781,120 @@ regenerates hashes; post-unblinding correction cannot be silent.
 
 ## Case-by-case evidence review state
 
-Status `authored` means the authoring session inspected current primary
-sources, bounded each observation to the 2026-07-28 cutoff, traced the proposed
-gold, and ran automated corpus integrity checks. It does not mean the evidence
-or gold was independently reviewed or accepted.
+Status `reauthored` means the authoring session re-evaluated the case inside the
+approved Next.js/PostgreSQL ecosystem, inspected current primary sources,
+bounded each observation to the 2026-07-28 cutoff, traced the proposed gold,
+and ran automated corpus integrity checks. It does not mean the evidence or
+gold was independently reviewed or accepted.
 
 | Case ID                               | Family          | Candidates                                                     | Authoring review | Independent acceptance |
 | ------------------------------------- | --------------- | -------------------------------------------------------------- | ---------------- | ---------------------- |
-| `authorization-edge-drizzle`          | authorization   | Casbin, CASL, Cerbos, OpenFGA                                  | authored         | no                     |
-| `authorization-relationship-prisma`   | authorization   | Casbin, CASL, Cerbos, OpenFGA                                  | authored         | no                     |
-| `audit-logging-container-prisma`      | audit logging   | LogTape, pgAudit, Pino, Winston                                | authored         | no                     |
-| `audit-logging-transactional-drizzle` | audit logging   | LogTape, pgAudit, Pino, Winston                                | authored         | no                     |
-| `background-jobs-postgres-drizzle`    | background jobs | Bree, BullMQ, Graphile Worker, pg-boss                         | authored         | no                     |
-| `background-jobs-redis-prisma`        | background jobs | Bree, BullMQ, Graphile Worker, pg-boss                         | authored         | no                     |
-| `rate-limiting-container-drizzle`     | rate limiting   | Bottleneck, express-rate-limit, rate-limiter-flexible, Upstash | authored         | no                     |
-| `rate-limiting-edge-prisma`           | rate limiting   | Bottleneck, express-rate-limit, rate-limiter-flexible, Upstash | authored         | no                     |
-| `webhooks-mixed-ingress-prisma`       | webhooks        | Octokit Webhooks, Standard Webhooks, Stripe SDK, Svix          | authored         | no                     |
-| `webhooks-self-hosted-egress-drizzle` | webhooks        | Convoy, Hook0, Standard Webhooks, Svix                         | authored         | no                     |
+| `authorization-edge-drizzle`          | authorization   | Casbin, CASL, Cerbos, OpenFGA                                  | reauthored       | no                     |
+| `authorization-relationship-prisma`   | authorization   | Casbin, CASL, Cerbos, OpenFGA                                  | reauthored       | no                     |
+| `audit-logging-container-prisma`      | audit logging   | LogTape, pgAudit, Pino, Winston                                | reauthored       | no                     |
+| `audit-logging-transactional-drizzle` | audit logging   | LogTape, pgAudit, Pino, Winston                                | reauthored       | no                     |
+| `background-jobs-postgres-drizzle`    | background jobs | Bree, BullMQ, Graphile Worker, pg-boss                         | reauthored       | no                     |
+| `background-jobs-redis-prisma`        | background jobs | Bree, BullMQ, Graphile Worker, pg-boss                         | reauthored       | no                     |
+| `rate-limiting-container-drizzle`     | rate limiting   | Bottleneck, express-rate-limit, rate-limiter-flexible, Upstash | reauthored       | no                     |
+| `rate-limiting-edge-prisma`           | rate limiting   | Bottleneck, express-rate-limit, rate-limiter-flexible, Upstash | reauthored       | no                     |
+| `webhooks-mixed-ingress-prisma`       | webhooks        | Octokit Webhooks, Standard Webhooks, Stripe SDK, Svix          | reauthored       | no                     |
+| `webhooks-self-hosted-egress-drizzle` | webhooks        | Convoy, Hook0, Standard Webhooks, Svix                         | reauthored       | no                     |
 
 The corpus contains 40 candidate observations: 26 official-repository, 12
 official-documentation, and two license observations. Source domains are
 GitHub (28), LogTape (2), Pino (2), BullMQ (2), Graphile Worker (2), Upstash
 (2), Casbin (1), and Standard Webhooks (1). Each case has exactly four
-candidates in lexical ID order.
+candidates in lexical ID order. All 40 observations also carry a full primary-
+source commit SHA, matching commit-pinned blob/tree URL, and commit timestamp;
+no mutable landing page is the sole reproducibility locator.
+
+The final ecosystem distribution is 10 TypeScript/Next.js/PostgreSQL cases,
+split five Prisma and five Drizzle. The two controlled comparison pairs are
+`background-jobs-infrastructure` and `rate-limiting-topology`; each holds its
+request, success conditions, decision objective, family, and four normalized
+candidate projects constant while deployment/infrastructure/ORM/constraints
+change the proposed winner.
+
+| Pair                             | Invariant decision fields                                                                                                                                                                                                                                          | Conditioning change                                                                                  | Proposed recommended sets                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `background-jobs-infrastructure` | family `background-jobs`; objective `select-durable-job-queue-fit`; durable asynchronous work with scheduled retries request; identical multi-worker durability and retry/backoff success conditions; Bree, BullMQ, Graphile Worker, pg-boss                       | PostgreSQL/Drizzle/serverless producer/no Redis versus PostgreSQL/Prisma/long-running/existing Redis | Graphile Worker + pg-boss tie versus BullMQ    |
+| `rate-limiting-topology`         | family `rate-limiting`; objective `select-rate-limiter-fit`; identical Next.js login/API throttling request; stable repository-derived keys plus quota/retry response success conditions; Bottleneck, express-rate-limit, rate-limiter-flexible, Upstash Ratelimit | one local replica/no external service versus global Edge isolates/existing HTTP Redis                | rate-limiter-flexible versus Upstash Ratelimit |
+
+The independent-review correction changes four proposed, independently
+unaccepted gold judgments from reviewed head `e27451a`:
+
+1. `audit-logging-transactional-drizzle` removes the disposition-incompatible
+   `no-viable-candidate` alternative.
+2. `authorization-edge-drizzle` changes the outcome from `recommend` to
+   `insufficient-evidence`; CASL and node-casbin both become
+   `insufficient-evidence`, leave the ranking, lose the unsupported positive
+   Edge-runtime reason, and require `edge-runtime-proof`.
+3. `authorization-relationship-prisma` changes node-casbin from `viable` to
+   `insufficient-evidence`, removes it from the ranking, and requires direct
+   Node.js 24 compatibility proof. Pinned CASL evidence now explicitly records
+   its documented Node.js 18+ support.
+4. `background-jobs-postgres-drizzle` removes the transaction-only confound
+   and changes pg-boss as sole recommendation plus Graphile Worker as viable to
+   a tied recommendation for both PostgreSQL-backed queues. This makes the
+   controlled pair turn on available queue infrastructure.
 
 ## Progress log
 
+- 2026-07-28: Began the focused independent-review correction pass on clean,
+  synchronized topic head `e27451a`; confirmed `main` remains `937f35b`, PR #8
+  remains open/draft/unmerged, and hosted run 14 passed on the reviewed head.
+- 2026-07-28: Re-read Issue #7, the product contract, accepted ADRs,
+  engineering policy, the active plan, PR state, and current evaluation
+  implementation. Recorded all nine review findings above before correction
+  implementation.
+- 2026-07-28: Added exploit-oriented regression tests first. The focused run
+  failed 13 tests across outcome semantics, alternative outcomes, ranking
+  contradictions, candidate-conditioned traceability, pilot ecosystem/pairs,
+  and provenance/revision metadata, establishing the pre-correction defects.
+- 2026-07-28: Corrected schema and pure referential contracts for responsible
+  outcomes, all rank-pair contradictions, proposed/accepted provenance, and
+  source-type-aware evidence revisions. Removed redundant global evidence and
+  reason obligations from proposed gold.
+- 2026-07-28: Changed evidence/reason scoring keys to stable
+  `(candidateId, itemId)` pairs and retained case-global unknown disclosure.
+  The focused evaluation suite now passes 140 tests, including wrong-candidate
+  exploits and valid/invalid outcome combinations.
+- 2026-07-28: Reauthored all ten profiles as synthetic
+  TypeScript/Next.js/PostgreSQL repositories (five Prisma, five Drizzle);
+  introduced the controlled `background-jobs-infrastructure` and
+  `rate-limiting-topology` pairs; and machine-enforced exact scope, pair
+  invariants, derived diversity, and corpus-wide lifecycle consistency.
+- 2026-07-28: Re-reviewed every runtime judgment. In
+  `authorization-edge-drizzle`, Casbin and CASL changed from viable/recommended
+  to `insufficient-evidence`, positive Edge-compatibility reasons were removed,
+  and `edge-runtime-proof` became a material unknown. Bottleneck and
+  rate-limiter-flexible likewise retain no unsupported positive Edge claim;
+  pinned Upstash evidence continues to support the proposed Edge recommendation.
+- 2026-07-28: Applied the same runtime-proof standard to the non-Edge
+  relationship case: node-casbin became `insufficient-evidence` because the
+  bounded source does not prove Node.js 24, while CASL's pinned observation now
+  records its documented Node.js 18+ support.
+- 2026-07-28: Added full commit SHA, commit-pinned primary-source locator, and
+  commit timestamp to all 40 observations, refreshed every manifest SHA-256
+  hash, and passed the ten-case offline corpus validator.
+- 2026-07-28: Hardened revision validation by source type, exact non-mutable
+  revision locator, publication/collection cutoff, and chronology. Schema and
+  referential matrices now exercise all seven source types.
+- 2026-07-28: Removed the PostgreSQL-pair transaction confound, retained a
+  responsible Graphile Worker/pg-boss tie, made the shared rate-limit request
+  topology-neutral, and added matching repository facts. Pair comparison now
+  canonicalizes unordered catalogs and JSON object keys, so reordering alone
+  cannot masquerade as repository conditioning.
+- 2026-07-28: Propagated ties as equivalence classes through explicit rank
+  relations before contradiction checks and scoring. Direct, transitive, and
+  tie-implied ordered/incomparable conflicts now fail.
+- 2026-07-28: Completed the corrected local validation matrix under Node
+  24.18.0/pnpm 11.17.0. Frozen install, format, lint, typecheck, build, 302
+  tests, coverage, architecture, repository/corpus/fixture, secret, audit,
+  `verify`, and `verify:ci` all pass.
+- 2026-07-28: Committed the atomic schema, harness, tests, and reauthored
+  corpus correction as ordinary follow-up commit `88ffa9b`; no published
+  commit was amended or rewritten.
 - 2026-07-28: Read Issue #7 completely through connected GitHub access because
   `gh` is unavailable; verified PR #6 merged and Issue #5 closed.
 - 2026-07-28: Fetched/synchronized `main` at the expected
@@ -781,38 +952,61 @@ candidates in lexical ID order.
   the strategies inspectable, avoids hash drift in duplicate data, and still
   exercises the same prediction validator/scorer paths in tests and
   `eval:fixtures`.
+- 2026-07-28 — Retain evaluation schema version `1.0.0` during review
+  correction. The contract is not merged, released, accepted, or consumed
+  outside this draft PR, so correcting the initial shape is more truthful than
+  implying a migration.
+- 2026-07-28 — Remove `requiredEvidenceIds` and `requiredReasonCodes` from gold.
+  Candidate dispositions and hard conflicts already provide the authoritative
+  association, and deriving scored pairs prevents drift between two sources of
+  truth.
+- 2026-07-28 — Treat broad Node/browser support as insufficient proof of
+  Next.js Edge compatibility. The affected proposed dispositions abstain and
+  disclose a runtime-proof unknown rather than infer compatibility.
 
 ## Failed checks and corrections
 
-| Date       | Command/check                                                   | Failure                                                                                                | Correction/evidence                                                                                                  |
-| ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-28 | `nvm use`; `node --version`; `pnpm --version`; preflight/verify | Login shell did not expose nvm/Node; fallback pnpm 11.9.0 failed the exact engine policy               | Sourced the existing `/Users/karthikgudipati/.nvm/nvm.sh`; rerun selected Node 24.18.0/pnpm 11.17.0 and passed       |
-| 2026-07-28 | initial focused schema tests                                    | Harness schema module did not exist, then Ajv strict mode rejected an under-specified test schema      | Added the fixed schema registry and completed the test schema shape; valid/invalid contract tests passed             |
-| 2026-07-28 | first `pnpm install` after manifest edit                        | Frozen lockfile correctly rejected the new Ajv manifest dependency                                     | Ran `pnpm install --no-frozen-lockfile` once through pnpm, reviewed the five-package delta, and retained frozen mode |
-| 2026-07-28 | focused scoring test                                            | Expected `2 / 3` did not match the documented six-place report rounding                                | Corrected the assertion to the stable serialized value `0.666667`; scorer behavior was unchanged                     |
-| 2026-07-28 | first integrated `pnpm test`                                    | Four existing temporary-repository tests lacked newly required evaluation paths/scripts                | Extended the shared temp-repository fixture and added positive/negative invariant coverage; 213 tests passed         |
-| 2026-07-28 | first two `pnpm lint` runs                                      | Harness test-project config, array-style policy, imports, and matcher safety produced 17 then 8 errors | Added the harness test tsconfig and corrected the reported source/test issues; lint passes with zero warnings        |
-| 2026-07-28 | corpus formatting/hash refresh                                  | macOS `shasum` failed with a `C.UTF-8` locale panic after formatting                                   | Used system `openssl dgst -sha256` for the manifest refresh; `eval:validate` confirms every hash                     |
-| 2026-07-28 | `pnpm format:write`                                             | The repository's write script is named `pnpm format`, so the guessed alias did not exist               | Ran `pnpm exec prettier --write .`; the exact final `pnpm format:check` passes                                       |
-| 2026-07-28 | connected GitHub combined-status query                          | The GitHub App lacks permission for the legacy combined-status endpoint and returned HTTP 403          | Used workflow-run, job, and decoded-log endpoints; run 13 and its Verification job completed successfully            |
+| Date       | Command/check                                                   | Failure                                                                                                                                                                           | Correction/evidence                                                                                                    |
+| ---------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-28 | `nvm use`; `node --version`; `pnpm --version`; preflight/verify | Login shell did not expose nvm/Node; fallback pnpm 11.9.0 failed the exact engine policy                                                                                          | Sourced the existing `/Users/karthikgudipati/.nvm/nvm.sh`; rerun selected Node 24.18.0/pnpm 11.17.0 and passed         |
+| 2026-07-28 | initial focused schema tests                                    | Harness schema module did not exist, then Ajv strict mode rejected an under-specified test schema                                                                                 | Added the fixed schema registry and completed the test schema shape; valid/invalid contract tests passed               |
+| 2026-07-28 | first `pnpm install` after manifest edit                        | Frozen lockfile correctly rejected the new Ajv manifest dependency                                                                                                                | Ran `pnpm install --no-frozen-lockfile` once through pnpm, reviewed the five-package delta, and retained frozen mode   |
+| 2026-07-28 | focused scoring test                                            | Expected `2 / 3` did not match the documented six-place report rounding                                                                                                           | Corrected the assertion to the stable serialized value `0.666667`; scorer behavior was unchanged                       |
+| 2026-07-28 | first integrated `pnpm test`                                    | Four existing temporary-repository tests lacked newly required evaluation paths/scripts                                                                                           | Extended the shared temp-repository fixture and added positive/negative invariant coverage; 213 tests passed           |
+| 2026-07-28 | first two `pnpm lint` runs                                      | Harness test-project config, array-style policy, imports, and matcher safety produced 17 then 8 errors                                                                            | Added the harness test tsconfig and corrected the reported source/test issues; lint passes with zero warnings          |
+| 2026-07-28 | corpus formatting/hash refresh                                  | macOS `shasum` failed with a `C.UTF-8` locale panic after formatting                                                                                                              | Used system `openssl dgst -sha256` for the manifest refresh; `eval:validate` confirms every hash                       |
+| 2026-07-28 | `pnpm format:write`                                             | The repository's write script is named `pnpm format`, so the guessed alias did not exist                                                                                          | Ran `pnpm exec prettier --write .`; the exact final `pnpm format:check` passes                                         |
+| 2026-07-28 | connected GitHub combined-status query                          | The GitHub App lacks permission for the legacy combined-status endpoint and returned HTTP 403                                                                                     | Used workflow-run, job, and decoded-log endpoints; run 13 and its Verification job completed successfully              |
+| 2026-07-28 | focused correction regression run                               | 13 tests failed against the reviewed implementation: six responsible-outcome/ranking, three candidate-conditioned coverage, two ecosystem/pair, and two provenance/revision cases | Implemented the reviewed contracts and reauthored the corpus; focused evaluation tests pass                            |
+| 2026-07-28 | first corrected schema run                                      | Ajv strict mode rejected a nested evidence conditional without an explicit object type                                                                                            | Added the missing nested `type: object`; schema compilation and tests pass                                             |
+| 2026-07-28 | first revision-integrity rerun                                  | A test fixture used stale revision kind `commit` instead of the contract value `git-commit`                                                                                       | Corrected the fixture to the exact stable enum; focused tests and corpus validation pass                               |
+| 2026-07-28 | correction harness typecheck                                    | Derived diversity returned ordinary booleans while the internal manifest type still declared literal `true`, producing 16 type errors                                             | Widened the internal derived diversity fields to boolean while the committed manifest schema continues to require true |
+| 2026-07-28 | focused formatting gate                                         | The non-login shell again lacked Node, so Prettier could not start                                                                                                                | Activated the already-installed pinned nvm runtime; no tool was installed and the rerun passed                         |
+| 2026-07-28 | focused corpus/CLI tests after final case edits                 | Eight tests failed because the manifest correctly detected changed case/evidence/gold bytes                                                                                       | Recomputed the affected SHA-256 values with `openssl`; all 30 hashes and corpus tests pass                             |
+| 2026-07-28 | correction lint gate                                            | New pair/source-type tests and transitional type assertions produced 17 lint errors                                                                                               | Simplified pair checks, used typed mutable schema fixtures, and removed unnecessary assertions; lint passes cleanly    |
 
 ## Validation evidence
 
-| Date       | Evidence                                                           | Result                                                                                     |
-| ---------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| 2026-07-28 | `git status --short --branch` before branching                     | clean `main...origin/main`                                                                 |
-| 2026-07-28 | fetch/switch/fast-forward pull, log, rev-parse, branches           | local/remote synchronized at expected `937f35b`                                            |
-| 2026-07-28 | connected GitHub Issue #7 and PR #6/Issue #5 reads                 | Issue #7 open and complete; PR #6 merged; Issue #5 closed                                  |
-| 2026-07-28 | `rg --files`                                                       | no evaluation schema/corpus/harness/baseline present                                       |
-| 2026-07-28 | supported `nvm use`; versions; `pnpm runtime:check`; `pnpm verify` | Node 24.18.0, pnpm 11.17.0; 161 tests pass; architecture/repository/secrets pass           |
-| 2026-07-28 | `git switch -c test/7-evaluation-pilot`; `git rev-parse HEAD`      | required local branch created at `937f35b`                                                 |
-| 2026-07-28 | `pnpm test`; `pnpm test:coverage`                                  | 218 tests pass across 18 files; 87.83% statements/lines, 80.04% branches, 94.13% functions |
-| 2026-07-28 | `pnpm lint`; `pnpm build`; `pnpm architecture:check`               | pass; architecture reports 158 modules/399 dependencies and no violations                  |
-| 2026-07-28 | `pnpm eval:validate`; `pnpm eval:fixtures`                         | ten cases/hashes/composition pass; weak reports are deterministic and distinct             |
-| 2026-07-28 | runtime, frozen install, format, typecheck, repository, Secretlint | all pass under Node 24.18.0 and pnpm 11.17.0                                               |
-| 2026-07-28 | `pnpm security:audit`; `pnpm verify`; `pnpm verify:ci`             | pass; registry reports no known vulnerabilities at the moderate threshold                  |
+| Date       | Evidence                                                           | Result                                                                                             |
+| ---------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| 2026-07-28 | `git status --short --branch` before branching                     | clean `main...origin/main`                                                                         |
+| 2026-07-28 | fetch/switch/fast-forward pull, log, rev-parse, branches           | local/remote synchronized at expected `937f35b`                                                    |
+| 2026-07-28 | connected GitHub Issue #7 and PR #6/Issue #5 reads                 | Issue #7 open and complete; PR #6 merged; Issue #5 closed                                          |
+| 2026-07-28 | `rg --files`                                                       | no evaluation schema/corpus/harness/baseline present                                               |
+| 2026-07-28 | supported `nvm use`; versions; `pnpm runtime:check`; `pnpm verify` | Node 24.18.0, pnpm 11.17.0; 161 tests pass; architecture/repository/secrets pass                   |
+| 2026-07-28 | `git switch -c test/7-evaluation-pilot`; `git rev-parse HEAD`      | required local branch created at `937f35b`                                                         |
+| 2026-07-28 | `pnpm test`; `pnpm test:coverage`                                  | 218 tests pass across 18 files; 87.83% statements/lines, 80.04% branches, 94.13% functions         |
+| 2026-07-28 | `pnpm lint`; `pnpm build`; `pnpm architecture:check`               | pass; architecture reports 158 modules/399 dependencies and no violations                          |
+| 2026-07-28 | `pnpm eval:validate`; `pnpm eval:fixtures`                         | ten cases/hashes/composition pass; weak reports are deterministic and distinct                     |
+| 2026-07-28 | runtime, frozen install, format, typecheck, repository, Secretlint | all pass under Node 24.18.0 and pnpm 11.17.0                                                       |
+| 2026-07-28 | `pnpm security:audit`; `pnpm verify`; `pnpm verify:ci`             | pass; registry reports no known vulnerabilities at the moderate threshold                          |
+| 2026-07-28 | focused correction tests                                           | 140 evaluation harness tests pass                                                                  |
+| 2026-07-28 | corrected `pnpm eval:validate`; `pnpm eval:fixtures`               | ten Next.js/PostgreSQL cases and all hashes pass; corrected fixture profiles are distinct          |
+| 2026-07-28 | corrected `pnpm test`; `pnpm test:coverage`                        | 302 tests pass across 18 files; 89.23% statements, 82.22% branches, 95.98% functions, 89.25% lines |
+| 2026-07-28 | corrected architecture/repository/security gates                   | 158 modules/401 dependencies; no architecture violations; repository, Secretlint, and audit pass   |
+| 2026-07-28 | corrected `pnpm verify`; `pnpm verify:ci`                          | both authoritative graphs pass; the audit reports no known vulnerabilities                         |
 
-### Weak fixture evidence
+### Weak fixture evidence before independent-review corrections
 
 | Strategy          | Safe | Unsafe | Macro F1 | Outcome | Ranking  | Unknown | Evidence | Reason |
 | ----------------- | ---- | ------ | -------- | ------- | -------- | ------- | -------- | ------ |
@@ -824,6 +1018,21 @@ candidates in lexical ID order.
 
 These are weak deterministic harness profiles, not generic-agent or GitBlocks
 performance baselines.
+
+### Weak fixture evidence after independent-review corrections
+
+| Strategy          | Safe | Unsafe | Macro F1 | Outcome | Ranking | Unknown | Evidence | Reason |
+| ----------------- | ---- | ------ | -------- | ------- | ------- | ------- | -------- | ------ |
+| `first-candidate` | no   | 4      | 0.138298 | 0.7     | 0.3125  | 0       | 0        | 0      |
+| `all-viable`      | no   | 17     | 0.074468 | 0.7     | 0.1875  | 0       | 0        | 0      |
+| `always-abstain`  | yes  | 0      | 0.083333 | 0.2     | 0.3125  | 1       | 0        | 0      |
+| `omit-unknowns`   | yes  | 0      | 1        | 1       | 1       | 0       | 1        | 1      |
+| `perfect`         | yes  | 0      | 1        | 1       | 1       | 1       | 1        | 1      |
+
+The changed profiles are expected consequences of the corrected outcome,
+disposition, controlled-pair ranking, and candidate-conditioned traceability
+contracts. They remain weak deterministic harness fixtures, not a live
+baseline.
 
 ### Hosted CI evidence
 
