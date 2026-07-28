@@ -6,8 +6,8 @@
   [#5 — Fix local Node runtime detection and CLI diagnostics](https://github.com/kgudipati/gitblocks/issues/5)
 - Required branch: `fix/5-node-runtime-preflight`
 - Owner: GitBlocks maintainers
-- State: independent review correction in progress; merge authorization
-  pending
+- State: implementation, validation, review correction, and hosted CI complete;
+  independent final review and merge authorization pending
 - Last updated: 2026-07-28
 - Authority order: Issue #5; current `main`; ADR 0002; the engineering
   handbook and `AGENTS.md`; the implementation prompt
@@ -372,7 +372,9 @@ irreversible.
 - [x] 2026-07-28 — Corrected and locally validated the independent-review
       finding that the capability child sanitized its environment and
       therefore did not model the effective options inherited by the subsequent
-      TypeScript CLI. Ordinary publication and hosted CI remain pending.
+      TypeScript CLI. Published correction commit
+      `a9bec29b5fc9ef59756d1c4e8191b6846f32e7ea` with an ordinary non-forced
+      push; hosted CI passed and its actual logs were inspected.
 
 ## Decision and deviation log
 
@@ -458,3 +460,5 @@ No deviations from Issue #5 are currently known.
 | Correction architecture, repository, and security       | 2026-07-28 | Pass: 135 modules/330 dependencies, repository, secrets, and audit                                                               |
 | Correction `pnpm verify`; `pnpm verify:ci`              | 2026-07-28 | Pass: effective probe, offline graph, and online audit                                                                           |
 | Correction pin, diff, and generated-state review        | 2026-07-28 | Pins equal; intended diff stable; no dependency, lockfile, lifecycle, product, or generated change                               |
+| Correction commit and ordinary push                     | 2026-07-28 | `a9bec29b5fc9ef59756d1c4e8191b6846f32e7ea` published normally; no amend, rebase, history rewrite, or force-push                  |
+| Correction CI run `30395773445`, job `90398166829`      | 2026-07-28 | Pass in 58 seconds: Node/pnpm pins, frozen install, metadata, 161 tests, verification/audit, and clean-worktree proofs           |
