@@ -17,7 +17,8 @@ not waive design, contract, security, or operational review.
   engineering outcome.
 - [ ] A current version-controlled execution plan exists when required by
   [PLANS.md](../../PLANS.md), and its progress, decisions, deviations, and
-  evidence reflect the final change.
+  evidence reflect the final change. It is the plan explicitly linked from the
+  governing issue or PR, not one inferred from file recency.
 - [ ] The implementation matches the issue scope and explicit non-goals; the
   diff contains no unrelated refactoring, experiments, generated churn,
   dependencies, or scaffolding.
@@ -145,8 +146,11 @@ not waive design, contract, security, or operational review.
   where appropriate, not hidden in comments, review conversation, or plan
   prose.
 - [ ] Required approvals and final checks apply to the final reviewed commit.
-  Merge occurs by squash through GitHub; the `main` ruleset is enforced once
-  configured. Nobody pushes directly or bypasses checks.
+  An unpublished branch may be rebased; a pushed or PR-attached branch is
+  updated only by merging `main` or GitHub's merge-based update, without rebase
+  or force-push, and checks are rerun. Merge occurs by squash through GitHub;
+  the `main` ruleset is enforced once configured. Nobody pushes directly or
+  bypasses checks.
 
 ## Evidence rule
 

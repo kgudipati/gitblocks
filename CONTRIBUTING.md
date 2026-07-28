@@ -30,7 +30,9 @@ rather than expanding scope.
 Write the plan before implementation when required. Keep it current as
 repository evidence changes assumptions, architecture, security, milestones,
 or validation. Product requirements stay in the issue or product contract;
-the plan maps them to implementation and evidence.
+the plan maps them to implementation and evidence. Use the plan explicitly
+linked from the governing issue or PR; do not infer the active plan from file
+recency.
 
 ### 3. Branch
 
@@ -89,10 +91,16 @@ documentation—not only whether checks pass.
 
 ### 7. Merge
 
+An unpublished local topic branch may be rebased onto current `main`. After a
+branch is pushed or attached to a PR, treat it as shared history: do not rebase
+or force-push it. Bring a shared branch current with a normal merge from `main`
+or GitHub's merge-based branch-update operation, then rerun every required
+check and update the recorded evidence.
+
 After required review and final checks, squash merge through GitHub using the
 approved Conventional Commit PR title, then delete the topic branch. Keep
-`main` releasable. Never push directly to `main`, force-push shared history,
-bypass required checks, or merge unresolved material findings.
+`main` releasable. Never push directly to `main`, bypass required checks, or
+merge unresolved material findings.
 
 ## Communication
 

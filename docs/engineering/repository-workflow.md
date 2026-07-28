@@ -150,16 +150,20 @@ conversation.
 
 ## Validation and merge
 
-Before merge, the author rebases or updates from `main` without rewriting
-shared history, runs the plan's exact local checks, records results in the PR,
-and resolves review threads. Once CI exists, required checks must pass for the
-final reviewed commit.
+An unpublished local topic branch may be rebased onto current `main`. Once a
+branch is pushed or attached to a PR, treat it as shared history: do not rebase
+or force-push it. Update a shared branch using a normal merge from `main` or
+GitHub's merge-based branch-update operation.
+
+After either update method, rerun the plan's exact local checks, record results
+in the PR, and resolve review threads. Once CI exists, required checks must pass
+for the final reviewed commit.
 
 Merge into `main` by squash after required approvals and checks pass. The squash
 message uses the approved Conventional Commit PR title. Delete the source
-branch after merge. Never push directly to `main`, force-push a shared branch,
-bypass required checks, self-approve where independent approval is required,
-or merge with unresolved material findings.
+branch after merge. Never push directly to `main`, bypass required checks,
+self-approve where independent approval is required, or merge with unresolved
+material findings.
 
 An emergency exception must be authorized by a maintainer, limited to the
 smallest risk-reducing change, retain audit history, and create a follow-up

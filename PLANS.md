@@ -30,7 +30,10 @@ docs/plans/<zero-padded-issue-number>-<short-kebab-description>.md
 
 For example, Issue #24 uses
 `docs/plans/0024-repository-profiler.md`. One active issue has one authoritative
-plan; supporting design documents are linked, not competing plans.
+plan, explicitly linked from the governing issue or pull request; supporting
+design documents are linked, not competing plans. Never select a plan merely
+because it is the newest file in `docs/plans/`, and do not load unrelated
+historical plans unless the task needs them as evidence.
 
 ## Required sections
 

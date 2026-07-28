@@ -254,6 +254,14 @@ Follow [SECURITY.md](../../SECURITY.md) for private reporting. Do not place
 secrets, exploit details, private-repository content, or unredacted logs in a
 public issue.
 
+While the repository remains private, authorized collaborators use the
+existing private access or project-communication channel described in
+`SECURITY.md`, with no sensitive detail in the initial message. Before the
+repository becomes public or has a public release, maintainers must configure
+and verify GitHub private vulnerability reporting after publication or a
+dedicated security contact channel. That readiness check is an incomplete,
+release-blocking control.
+
 Maintainers must:
 
 1. acknowledge through the private channel;

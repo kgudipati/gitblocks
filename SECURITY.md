@@ -5,24 +5,35 @@
 GitBlocks has no released application, service, package, or supported production
 version yet. Security reports about this repository's documentation, planned
 design, repository workflow, or exposed credentials are still welcome.
-Supported-version details will be added before the first release.
+The repository is currently private. Supported-version details and a verified
+public reporting channel will be added before the first release.
 
 ## Report a vulnerability privately
 
-Use GitHub's **Security** tab and select **Report a vulnerability** to open a
-private vulnerability report for `kgudipati/gitblocks` when that option is
-available.
+While GitBlocks remains private, an authorized collaborator should contact the
+repository owner through the existing private channel by which repository
+access or project communication was established.
 
-If private vulnerability reporting is unavailable, do not open a public issue.
-Use the repository owner's GitHub profile to request a private reporting channel
-without including exploit details, secrets, private-repository content, or
-personal data in the initial message.
+The initial message must not contain exploit details, secrets, proprietary
+source, personal data, credentials, tokens, private keys, `.env` values, live
+customer data, or sensitive payloads. A maintainer must confirm a secure,
+least-privilege channel before detailed evidence is exchanged.
 
-Do not include credentials, tokens, private keys, `.env` values, live customer
-data, proprietary source, or unnecessary personal data in any report. Use
-minimal redacted evidence and offer encrypted or access-controlled details only
-after a maintainer confirms the private channel. Never test against systems or
-data you do not own or have explicit authorization to assess.
+After that confirmation, use minimal redacted evidence and an encrypted or
+access-controlled exchange appropriate to the report. Never test against
+systems or data you do not own or have explicit authorization to assess.
+
+## Public reporting readiness
+
+Before GitBlocks becomes public or has a public release, maintainers must
+configure and verify one of these reporting paths:
+
+- GitHub private vulnerability reporting after the repository is public; or
+- a dedicated security contact channel.
+
+This configuration and end-to-end verification is release-blocking follow-up
+work. It is not complete today, and this policy does not claim that an
+unverified reporting mechanism exists.
 
 ## What to include
 

@@ -5,7 +5,9 @@
 - Issue: GitHub Issue #1, “Phase 0: Establish the GitBlocks product and
   engineering operating system”
 - Branch: `docs/1-project-foundation`
-- State: implementation and validation complete; publication pending
+- State: foundation implementation, validation, initial commit, push, draft
+  publication, and review-correction validation complete; the correction
+  commit and PR-description update are next, and PR review is pending
 - Last updated: 2026-07-27
 
 ## Purpose and user-visible outcome
@@ -92,7 +94,7 @@ was found to preserve or reconcile.
 | Reviewable completion gate | `docs/engineering/definition-of-done.md` |
 | Current execution plan and evidence | `docs/plans/0001-foundation.md` |
 | Contributor workflow | `CONTRIBUTING.md` |
-| Private vulnerability reporting | `SECURITY.md` |
+| Stage-aware private vulnerability reporting and public-release readiness | `SECURITY.md` |
 | Editor defaults | `.editorconfig` |
 | Git text normalization and generated/binary foundations | `.gitattributes` |
 | Evidence-backed PR questionnaire | `.github/pull_request_template.md` |
@@ -117,7 +119,7 @@ was found to preserve or reconcile.
 | Templates elicit actionable evidence | Passed: YAML parsed and issue-form root/body/id structure was checked; PR fields match the definition of done |
 | Markdown links resolve | Passed: standard-library check validated every local path and heading anchor |
 | Deterministic documentation validation runs | Passed: UTF-8, LF, final newline, whitespace, fence, link, anchor, schema-shape, naming, placeholder, secret, and prohibited-file checks |
-| A draft PR is open with no direct `main` push | Pending publication; branch and base integrity are verified and no commit exists on `main` |
+| A draft PR is open with no direct `main` push | Passed: draft PR #2 is open from `docs/1-project-foundation` to unchanged `main`; it is unmerged |
 
 ## Assumptions and unresolved questions
 
@@ -142,9 +144,12 @@ was found to preserve or reconcile.
 - Numeric production SLOs, retention periods, deletion latency, coverage gates,
   and performance budgets require measured baselines and are not invented in
   this phase.
-- The private security contact mechanism available to repository maintainers
-  must be confirmed before accepting vulnerability reports; `SECURITY.md` will
-  prefer GitHub private vulnerability reporting when enabled.
+- While the repository is private, authorized collaborators use the existing
+  private channel through which access or project communication was
+  established, and exchange details only after a secure channel is confirmed.
+  The public-release reporting mechanism remains an open release-blocking
+  choice: verified GitHub private vulnerability reporting after publication or
+  a verified dedicated security contact.
 - The initially supported coding-agent host matrix and the exact catalog,
   package, and security evidence providers remain open for later issues and
   ADRs.
@@ -228,8 +233,9 @@ stay concise and link to authoritative detail instead of copying it.
 - State the required evidence for compliance and when review, local tooling,
   CI, a repository ruleset, or deployment controls will enforce it.
 - Keep Markdown relative links portable and diagrams aligned to the prose.
-- Keep this issue as one documentation-only commit on its issue-linked branch,
-  then open the required draft PR for review.
+- Keep the branch documentation-only and issue-scoped. Preserve published
+  shared history with follow-up commits, update the existing draft PR, and
+  never rebase or force-push the shared branch.
 
 ## Testing and validation strategy
 
@@ -261,8 +267,10 @@ evidence for this repository-foundation behavior.
 8. Review all changed lines for product accuracy, architecture, simplicity,
    naming, comments, security/privacy, testing, performance, observability,
    operability, compatibility, and link correctness.
-9. Record commands and outcomes below, update this plan, commit, push only the
-   topic branch, and create the exact-title draft PR.
+9. Search for stale publication state, contradictory branch-update policy, and
+   visibility-independent vulnerability-reporting claims.
+10. Record commands and outcomes below, update this plan, commit, push only the
+    topic branch without force, and keep the exact-title draft PR current.
 
 ## Observability and operations
 
@@ -301,7 +309,13 @@ rollout, and recovery evidence defined in `PLANS.md`.
 - [x] Add editor and Git normalization foundations and expand the README.
 - [x] Validate, self-review, reconcile every acceptance criterion, and record
   evidence.
-- [ ] Commit, push the topic branch, and open the required draft PR.
+- [x] Create initial commit
+  `1d9c286a2a75b6de27b882909dfa1b138c7b85e0`, push the topic branch without
+  force, and open draft PR #2.
+- [x] Correct the review findings and rerun deterministic validation without
+  changing product or architecture decisions.
+- [ ] Create the follow-up correction commit, push it without force, and update
+  the existing draft PR description without rewriting shared history.
 
 ## Exact exit criteria
 
@@ -336,8 +350,11 @@ This plan may be marked complete only when:
 | 2026-07-27 | Engineering handbook complete | Repository workflow, development standards, testing, security, reliability, and definition-of-done policies state activation, enforcement, and evidence |
 | 2026-07-27 | Repository entry points complete | README, AGENTS, PLANS, contribution/security guidance, templates, EditorConfig, and Git attributes added |
 | 2026-07-27 | Validation and self-review complete | All 21 files, 16 Markdown documents, 2 Mermaid diagrams, 3 YAML files, 5 capability families, links, status claims, policies, and the complete 3,135-line insertion diff reviewed |
+| 2026-07-27 | Initial foundation published | Created commit `1d9c286a2a75b6de27b882909dfa1b138c7b85e0`, pushed `docs/1-project-foundation` successfully, and opened draft PR #2 against `main` |
+| 2026-07-27 | Review correction started | Re-read Issue #1 and verified a clean local/remote topic branch, open draft PR #2, and unchanged `main`; began the six requested documentation/template corrections |
+| 2026-07-27 | Review correction implementation and validation complete | Corrected plan/publication state, shared-history updates, private-repository security reporting, conditional PR checks, active-plan selection, and optional bug coverage; deterministic and full-diff review passed without product, architecture, code, or dependency changes |
 
-## Decision log
+## Decision and deviation log
 
 | Date | Decision | Reason and consequence |
 | --- | --- | --- |
@@ -349,6 +366,9 @@ This plan may be marked complete only when:
 | 2026-07-27 | Keep the coding agent as execution runtime; Skill owns procedure; remote services own evidence/ranking | Preserves the existing workflow, local permissions, privacy-default fingerprinting, and server-side proprietary intelligence |
 | 2026-07-27 | Use staged policy enforcement | Manual review applies now; stack/CI controls begin before and with code; runtime/SLO controls begin before deployment |
 | 2026-07-27 | Map AI controls to OWASP AISVS 1.0 alongside ASVS 5.0 | Current OWASP guidance provides testable AI input, output, tool/action, privacy, and monitoring requirements without copying the standards |
+| 2026-07-27 | Treat the published topic branch as shared history | Review corrections use a normal follow-up commit and non-forced push; no amend, rebase, squash, or force-push is permitted |
+| 2026-07-27 | Make vulnerability reporting depend on repository visibility | Authorized collaborators use the established private project channel now; a verified GitHub private-report path after publication or dedicated security contact is a release-blocking future control |
+| 2026-07-27 | Limit this review pass to policy accuracy and truthful templates | Product scope, capability selection, architecture, and technology decisions remain unchanged; corrections affect plan state, workflow, security reporting, agent plan selection, and issue/PR intake wording |
 
 ## Validation evidence
 
@@ -369,6 +389,22 @@ This plan may be marked complete only when:
 | `git fetch origin main` | Passed |
 | `git merge --ff-only origin/main` | Passed: already up to date |
 | `git switch -c docs/1-project-foundation` | Passed |
+
+### Initial publication and correction orientation
+
+| Command or operation | Result |
+| --- | --- |
+| `git commit -m "docs: establish GitBlocks product and engineering foundations"` | Passed: created `1d9c286a2a75b6de27b882909dfa1b138c7b85e0` |
+| Initial normal push of `docs/1-project-foundation` | Passed: remote topic branch created without force |
+| Connected GitHub draft PR creation | Passed: opened PR #2, `https://github.com/kgudipati/gitblocks/pull/2`, against `main` |
+| `git status --short --branch` before correction editing | Passed: clean `docs/1-project-foundation...origin/docs/1-project-foundation` |
+| `git log --oneline --decorate -5` | Passed: local and remote topic refs pointed to initial commit `1d9c286`; `main` and `origin/main` pointed to `a5b04b6` |
+| `git fetch origin` | Passed |
+| `git rev-parse HEAD` and `git rev-parse origin/docs/1-project-foundation` | Passed: both were `1d9c286a2a75b6de27b882909dfa1b138c7b85e0` |
+| `git rev-parse origin/main` | Passed: remained `a5b04b614b6a7a2609dc5e900422a64d6eaf5fd6`, the initial commit |
+| Connected GitHub Issue #1 retrieval | Passed: re-read in full; issue remains open and authoritative |
+| Connected GitHub PR #2 lookup | Passed: open, draft, unmerged; base `main` at `a5b04b614b6a7a2609dc5e900422a64d6eaf5fd6`; head `docs/1-project-foundation` at `1d9c286a2a75b6de27b882909dfa1b138c7b85e0` |
+| Publication integrity review | Passed: remote branch matches the published commit; `main` remained unchanged; no direct push or merge to `main` occurred |
 
 ### Final validation
 
@@ -400,12 +436,35 @@ All commands ran from the repository root unless stated otherwise.
 | `find` prohibited manifest/scaffold/deployment names | Passed: no output |
 | `rg 'phase/0001-'` and `rg '\b(T[B]D\|T[B]C\|X[X]X)\b\|lorem[ ]ipsum'` | Passed: no obsolete branch or placeholder marker found |
 | `rg -n 'TODO|FIXME'` | Passed by review: hits are policy prohibitions/required format only; no deferred work comment exists |
-| `rg -n -i 'gitblocks'` and planned/current status review | Passed: product capitalization is consistent; lowercase instances are repository URLs/slugs; unimplemented components are explicitly planned |
+| `rg -n -i '[g]itblocks'` and planned/current status review | Passed: product capitalization is consistent; lowercase instances are repository URLs/slugs; unimplemented components are explicitly planned |
 | Initial post-plan final document validator | Failed usefully: the validation-evidence row itself echoed prohibited search needles |
 | Post-plan final document validator after evidence correction | Passed: 22 total worktree files, all 21 required files, 16 Markdown files, exactly 5 families, and no prohibited markers |
+
+### Review-correction validation
+
+| Command or operation | Result |
+| --- | --- |
+| `git diff --check` | Passed before and after the correction review; no whitespace errors |
+| `git status --short --branch`, `git diff --stat`, `git diff --shortstat`, and `git diff --numstat` | Passed: only the 10 intended correction files differ on `docs/1-project-foundation`; 166 insertions and 56 deletions |
+| Complete `git diff` and context review of every modified file | Passed: all six corrections are present; core standards remain enforceable; product contract, system context, ADR 0001, capability selection, and technology decisions are unchanged |
+| Initial inline Python required-file, format, Markdown, content, credential-pattern, and capability validator | Failed usefully: the historical validation row contained a literal lowercase search term that the capitalization rule treated as product prose |
+| Corrected inline Python repository validator | Passed: 21/21 required files; 22 UTF-8/LF/final-newline files; no trailing whitespace; 16 Markdown files; 50 relative links/anchors; balanced fences; no placeholder, credential, or prohibited file; exactly 5 capability families |
+| Ruby standard-library YAML parsing and issue-form shape validator | Passed: all 3 YAML files are mappings; roots, body entries, IDs, required defect/security fields, and optional suggested-coverage field are valid |
+| Initial exact-string branch/security/template consistency probe | Failed usefully: the probe did not normalize Markdown line wrapping; no repository policy defect was found |
+| Whitespace-normalized branch/security/template consistency validator | Passed: unpublished-only rebase, merge-based shared updates, check reruns, squash merge, explicit active-plan selection, stage-aware security reporting, conditional PR checks, current publication state, and unchanged architecture scope all verified |
+| Initial post-evidence policy validator | Failed usefully: the evidence row echoed the obsolete branch name; the row was made self-safe before the passing rerun |
+| Initial Mermaid edge parser | Failed usefully: its edge expression did not support labeled Mermaid arrows |
+| Corrected Mermaid structure and identifier validator | Passed: 2 blocks, 13 unique context nodes, 17 declared edges, 7 declared sequence participants, and 20 sequence messages; planned-status language remains explicit |
+| Inline Python branch-convention check | Passed: `docs/1-project-foundation` matches the allowed pattern and is 25 characters |
+| `git merge-base --is-ancestor origin/main HEAD`; `git rev-parse HEAD origin/docs/1-project-foundation main origin/main` | Passed: local/remote topic refs remained at `1d9c286a2a75b6de27b882909dfa1b138c7b85e0` before the correction commit; local/remote `main` remained at `a5b04b614b6a7a2609dc5e900422a64d6eaf5fd6` |
+| `git check-attr text eol diff linguist-generated -- .editorconfig .gitattributes README.md docs/architecture/system-context.md` | Passed: text files resolve to LF normalization as intended |
+| `rg -n 'TODO\|FIXME' --glob '!.git/**' .` and manual hit review | Passed: hits are policy text and the required tracked format only; no deferred-work comment exists |
+| Obfuscated `rg` stale-publication and obsolete-branch searches | Passed: no stale publication state or `[p]hase/0001-foundation` reference |
+| `find` for package manifests and application-toolchain files | Passed: no output |
+| Security and privacy self-review | Passed: private-stage reporting requires an established private contact and confirmed secure channel; future public reporting verification remains an explicit incomplete release gate; no secret or reporting address was invented |
+| PR-template applicability review | Passed: documentation, test-only, and maintenance changes can explain why a plan, executable tests, or affected impact areas are not applicable without making a false assertion |
 
 No executable behavior exists, so unit, integration, end-to-end, load, or
 runtime observability tests are not applicable. The strongest deterministic
 documentation alternatives passed without adding a dependency. Publication
-evidence will be the exact commit, topic-branch push, and draft PR; it is not
-available until the remaining milestone runs.
+evidence is recorded above; review remains pending in draft PR #2.

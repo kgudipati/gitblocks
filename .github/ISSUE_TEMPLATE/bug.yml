@@ -73,10 +73,14 @@ body:
   - type: textarea
     id: test
     attributes:
-      label: Proposed regression evidence
-      description: Identify the failing test level and negative/abuse cases that should protect the fix.
+      label: Suggested regression coverage
+      description: >-
+        Optionally suggest behavior the fix should protect. Maintainers and the
+        implementation plan remain responsible for selecting unit, contract,
+        integration, end-to-end, negative, abuse, property, fuzz, load, or
+        resilience coverage.
     validations:
-      required: true
+      required: false
   - type: checkboxes
     id: submission
     attributes:

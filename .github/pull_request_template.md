@@ -55,10 +55,15 @@ Closes #
 ## Definition of done
 
 - [ ] The issue outcome and non-goals are satisfied.
-- [ ] The plan is current and contains exact validation evidence.
-- [ ] Tests were added before or alongside behavior at the required levels.
-- [ ] Security, privacy, compatibility, performance, and operational impact were reviewed.
-- [ ] Documentation and ADRs match the implemented behavior and planned status.
-- [ ] No secrets, debug code, commented-out code, orphan TODOs, or unrelated changes are present.
+- [ ] A required execution plan is current and contains exact validation
+  evidence, or this PR explains why `PLANS.md` does not require one.
+- [ ] Appropriate tests were added before or alongside changed behavior, or
+  this PR explains why no executable behavior changed.
+- [ ] Security, privacy, compatibility, performance, and operational impact
+  were reviewed, with reasoned not-applicable findings where appropriate.
+- [ ] Documentation and ADRs match the implemented behavior and planned status,
+  or this PR explains why they are unaffected.
+- [ ] No secrets, debug code, commented-out code, orphan TODOs, or unrelated
+  changes are present.
 - [ ] Every changed line and its relevant context received self-review.
 - [ ] Required checks pass for the final reviewed commit.

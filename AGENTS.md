@@ -5,10 +5,12 @@ the active issue and execution plan.
 
 ## Before editing
 
-- Read the active issue, applicable
-  [ADRs](docs/architecture/decisions/), the relevant
-  [engineering standards](docs/engineering/), and the current
-  [execution plan](docs/plans/).
+- Read the governing issue and pull request, applicable
+  [ADRs](docs/architecture/decisions/), relevant
+  [engineering standards](docs/engineering/), and the execution plan
+  explicitly linked from that issue or pull request.
+- Never infer the active plan from the newest file in `docs/plans/`. Load
+  unrelated historical plans only when the task needs them as evidence.
 - Inspect the actual repository, history, and existing implementation before
   proposing or changing anything. Do not describe planned behavior as present.
 - Keep the task within its stated scope and non-goals. Prefer the smallest
@@ -53,5 +55,7 @@ the active issue and execution plan.
 
 - Follow the [repository workflow](docs/engineering/repository-workflow.md) and
   [definition of done](docs/engineering/definition-of-done.md).
-- Never push directly to `main`, force-push shared history, bypass required
-  checks, or merge with unresolved material findings.
+- An unpublished local branch may be rebased onto current `main`. Once pushed
+  or attached to a PR, it is shared history: do not rebase or force-push it.
+  Never push directly to `main`, bypass required checks, or merge with
+  unresolved material findings.
