@@ -41,6 +41,9 @@ the active issue and execution plan.
   for the TypeScript workspace and verification toolchain.
 - Do not hand-edit `pnpm-lock.yaml`, use floating dependency versions, or
   bypass the supply-chain controls in `pnpm-workspace.yaml`.
+- Keep `.nvmrc` synchronized with the authoritative `.node-version` pin. Run
+  the repository runtime preflight and never bypass or automate runtime
+  installation to make a check pass.
 - Add tests in the same change as behavior. Begin reproducible bug fixes with a
   failing regression test, and include negative/abuse tests for
   security-sensitive behavior. Follow the

@@ -34,10 +34,24 @@ TypeScript type stripping became stable there. Production applications should
 use an LTS release, and Node 24 is the issue-approved LTS line.
 
 The current repository pin is Node `24.18.0`, the latest Node 24 LTS patch
-verified on 2026-07-28. `.node-version` and CI use that patch. The root engine
-contract is `>=24.12.0 <25`, and pnpm checks dependency engines against the
-minimum supported runtime so a contributor on 24.12.x is not given a graph that
-only works on a later patch.
+verified on 2026-07-28. `.node-version` is the authoritative cross-tool and CI
+pin. `.nvmrc` is a mechanically checked mirror so explicit `nvm install` and
+`nvm use` commands consume the same patch; nvm remains optional and no shell
+auto-switch hook is installed.
+
+The dependency-free `tools/runtime-preflight.mjs` command is authoritative for
+the actual Node process running repository tooling. It reads
+`process.versions.node`, requires `>=24.12.0 <25`, validates both fixed pin
+files, and proves direct TypeScript execution using one exact-content inert
+repository fixture. Success is quiet unless `--show-success` is supplied.
+Runtime, pin, or capability failure exits `1` with one bounded actionable
+message; invalid preflight usage exits `2`.
+
+The root engine contract is `>=24.12.0 <25`. pnpm's
+`nodeVersion: 24.12.0` checks dependency engines against the minimum supported
+runtime so a contributor on 24.12.x is not given a graph that only works on a
+later patch. It does not select or validate the Node executable in the
+contributor's shell; the runtime preflight owns that boundary.
 
 The major-line/minimum policy is durable. The exact patch pin is replaceable
 through an ordinary reviewed dependency/toolchain update and is not an eternal
@@ -136,6 +150,14 @@ The repository-check CLI may run its TypeScript source directly for local
 checks and tests. Type checking remains a separate required command because
 Node strips types without checking them.
 
+Public root commands that start Vitest or the direct-source repository CLI run
+the JavaScript runtime preflight first. Aggregate verification runs the
+preflight once before its internal core graph, avoiding repeated capability
+subprocesses while retaining protection for direct `test`, `test:coverage`, and
+`repo:*` use. The capability fixture is fixed, inert, size-bounded, and compared
+to its expected bytes before `process.execPath` may execute it; scanned or
+variable repository content is never spawned.
+
 TypeScript also emits ESM JavaScript, declarations, and source maps for the
 private workspace package. Any future package or service that is executed or
 distributed through a workspace package boundary must consume emitted
@@ -190,10 +212,19 @@ and paths include negative and abuse cases. Coverage is recorded but no
 repository-wide threshold is introduced until a representative baseline and
 critical gaps are reviewed under the testing policy.
 
-The review-corrected Phase 1 baseline is 86.17% statements, 83.77% branches,
-98.48% functions, and 85.98% lines across the pure policy and repository
-boundary modules. The CLI and re-export entry point are exercised through
-subprocess tests and intentionally excluded from line-percentage accounting.
+Runtime-preflight tests inject version, repository-root, and capability
+boundaries so Node 22, lower Node 24 patches, the supported boundary/current
+pin, Node 25, malformed input, pin failures, and simulated incapability are
+verified without downloading or switching runtimes. A real Node 24 test also
+executes the exact inert TypeScript fixture. CLI subprocess assertions include
+independently bounded status, signal, stdout, stderr, executable path, and
+active Node version when an exit differs.
+
+The Issue #5 runtime-preflight baseline is 85.75% statements, 82.98% branches,
+95.34% functions, and 85.59% lines across the runtime preflight plus pure
+policy and repository boundary modules. The CLI and re-export entry point are
+exercised through subprocess tests and intentionally excluded from
+line-percentage accounting.
 
 Primary references:
 
@@ -242,6 +273,11 @@ output are untrusted data. The tool never runs or constructs a shell command
 from them; never installs, builds, evaluates, or dynamically imports them; and
 never uses `eval`, `Function`, executable YAML schemas, or active Markdown
 rendering. Diagnostics do not print file bodies or matched secret values.
+
+The root JavaScript runtime preflight is a separate dependency-free boundary
+because it must run before Node can load the TypeScript package. Repository
+invariants require the preflight, both synchronized pin files, the fixed
+capability fixture, and the protected root command graph.
 
 ### Secret and dependency security
 
@@ -409,6 +445,8 @@ method, resolved footprint, failures, corrections, and final command evidence.
   repository checks add development dependencies and CI duration.
 - Native-strip-compatible source cannot use transform-required TypeScript
   syntax or runtime path aliases.
+- Contributors must activate a supported Node process; repository tooling now
+  fails early rather than installing or changing that process automatically.
 - Supporting the minimum Node 24.12 patch constrains dependencies even when a
   contributor uses a newer Node 24 patch.
 - GitHub-compatible Markdown anchors have edge cases that require maintained

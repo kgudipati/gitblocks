@@ -12,6 +12,8 @@ import { diagnostic, type Diagnostic } from './types.ts';
 
 const MAX_CONFIGURATION_BYTES = 256 * 1024;
 const EXACT_VERSION_PATTERN = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+const NODE_VERSION_PATTERN =
+  /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
 const PACKAGE_MANAGER_PATTERN =
   /^pnpm@[0-9]+\.[0-9]+\.[0-9]+\+sha512\.[0-9a-f]{128}$/;
 const APPROVED_PACKAGE_MANIFESTS = new Set([
@@ -23,6 +25,7 @@ const REQUIRED_PATHS = [
   '.gitattributes',
   '.gitignore',
   '.node-version',
+  '.nvmrc',
   '.prettierignore',
   '.prettierrc.json',
   '.secretlintignore',
@@ -50,6 +53,7 @@ const REQUIRED_PATHS = [
   'docs/engineering/testing-strategy.md',
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
+  'docs/plans/0005-node-runtime-preflight.md',
   'docs/product/product-contract.md',
   'eslint.config.mjs',
   'package.json',
@@ -58,9 +62,11 @@ const REQUIRED_PATHS = [
   'tools/repository-checks/package.json',
   'tools/repository-checks/src/cli.ts',
   'tools/repository-checks/src/index.ts',
+  'tools/repository-checks/test/fixtures/runtime-capability.ts',
   'tools/repository-checks/test/tsconfig.json',
   'tools/repository-checks/tsconfig.json',
   'tools/repository-checks/tsconfig.test.json',
+  'tools/runtime-preflight.mjs',
   'tsconfig.base.json',
   'tsconfig.json',
   'vitest.config.ts',
@@ -104,6 +110,7 @@ export function validateRepositoryInvariants(
   diagnostics.push(...validatePackageManifests(repository));
   diagnostics.push(...validateWorkspacePolicy(repository.textFiles));
   diagnostics.push(...validateDependabotPolicy(repository.textFiles));
+  diagnostics.push(...validateNodePinPolicy(repository.textFiles));
 
   const markdownInspection =
     repository.markdownInspection ??
@@ -210,6 +217,7 @@ function validatePackageManifests(
           ),
         );
       }
+      diagnostics.push(...validateRuntimeScripts(manifest, manifestPath));
       const engines = manifest['engines'];
       if (
         !isRecord(engines) ||
@@ -263,6 +271,126 @@ function validatePackageManifests(
   }
 
   return diagnostics;
+}
+
+function validateRuntimeScripts(
+  manifest: Readonly<Record<string, unknown>>,
+  manifestPath: string,
+): Diagnostic[] {
+  const scripts = manifest['scripts'];
+  if (!isRecord(scripts)) {
+    return [
+      diagnostic(
+        'repository.runtime-script',
+        'Root package scripts must protect TypeScript-backed commands with the runtime preflight.',
+        manifestPath,
+      ),
+    ];
+  }
+
+  const diagnostics: Diagnostic[] = [];
+  if (scripts['runtime:check'] !== 'node tools/runtime-preflight.mjs') {
+    diagnostics.push(runtimeScriptDiagnostic('runtime:check', manifestPath));
+  }
+  for (const scriptName of [
+    'test',
+    'test:coverage',
+    'repo:check',
+    'repo:branch',
+    'repo:pr-branch',
+    'repo:pr-title',
+    'verify',
+  ]) {
+    const script = scripts[scriptName];
+    if (
+      typeof script !== 'string' ||
+      !script.startsWith('pnpm runtime:check && ')
+    ) {
+      diagnostics.push(runtimeScriptDiagnostic(scriptName, manifestPath));
+    }
+  }
+  if (
+    typeof scripts['verify:core'] !== 'string' ||
+    scripts['verify:core'].includes('runtime:check')
+  ) {
+    diagnostics.push(runtimeScriptDiagnostic('verify:core', manifestPath));
+  }
+  if (scripts['verify:ci'] !== 'pnpm verify && pnpm security:audit') {
+    diagnostics.push(runtimeScriptDiagnostic('verify:ci', manifestPath));
+  }
+  return diagnostics;
+}
+
+function runtimeScriptDiagnostic(
+  scriptName: string,
+  manifestPath: string,
+): Diagnostic {
+  return diagnostic(
+    'repository.runtime-script',
+    `Root script ${scriptName} must preserve the protected runtime-preflight graph.`,
+    manifestPath,
+  );
+}
+
+function validateNodePinPolicy(
+  textFiles: ReadonlyMap<string, string>,
+): Diagnostic[] {
+  const pins = new Map<string, string>();
+  const diagnostics: Diagnostic[] = [];
+  for (const versionPath of ['.node-version', '.nvmrc']) {
+    const content = textFiles.get(versionPath);
+    if (content === undefined) {
+      diagnostics.push(
+        diagnostic(
+          'repository.required-content',
+          'Node version pin was not available for policy validation.',
+          versionPath,
+        ),
+      );
+      continue;
+    }
+    const version = normalizeNodePin(content);
+    if (version === undefined) {
+      diagnostics.push(
+        diagnostic(
+          'repository.node-pin',
+          'Node version pin must contain one exact decimal version.',
+          versionPath,
+        ),
+      );
+      continue;
+    }
+    pins.set(versionPath, version);
+  }
+
+  const nodeVersion = pins.get('.node-version');
+  const nvmVersion = pins.get('.nvmrc');
+  if (
+    nodeVersion !== undefined &&
+    nvmVersion !== undefined &&
+    nodeVersion !== nvmVersion
+  ) {
+    diagnostics.push(
+      diagnostic(
+        'repository.node-pin-mismatch',
+        '.node-version and .nvmrc must contain the same normalized Node version.',
+      ),
+    );
+  }
+  return diagnostics;
+}
+
+function normalizeNodePin(content: string): string | undefined {
+  const version = content.trim();
+  if (
+    (content !== version &&
+      content !== `${version}\n` &&
+      content !== `${version}\r\n`) ||
+    !NODE_VERSION_PATTERN.test(version)
+  ) {
+    return undefined;
+  }
+  return version;
 }
 
 function validateWorkspacePolicy(
@@ -469,6 +597,7 @@ function isProhibitedArtifact(trackedPath: string): boolean {
     trackedPath.startsWith('packages/') ||
     trackedPath.startsWith('src/') ||
     (trackedPath.startsWith('tools/') &&
+      trackedPath !== 'tools/runtime-preflight.mjs' &&
       !trackedPath.startsWith('tools/repository-checks/'))
   );
 }

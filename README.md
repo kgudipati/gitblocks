@@ -82,35 +82,44 @@ the [engineering handbook](docs/engineering/repository-workflow.md) and the
 
 ## Local development
 
-Use Node.js `>=24.12.0 <25`; [`.node-version`](.node-version) selects the
-current pin, Node 24.18.0. Corepack reads the exact pnpm 11.17.0 pin and
-integrity digest from `package.json`.
+Use Node.js `>=24.12.0 <25`; [`.node-version`](.node-version) is the
+cross-tool and CI pin, and [`.nvmrc`](.nvmrc) mirrors it for nvm. Both select
+Node 24.18.0. With nvm, use:
 
 ```bash
+nvm install
+nvm use
 corepack enable pnpm
-pnpm --version
 pnpm install --frozen-lockfile
 pnpm verify
 ```
 
-`pnpm --version` must report `11.17.0`. Do not use npm or Yarn, hand-edit
-`pnpm-lock.yaml`, or bypass the supply-chain settings in
-`pnpm-workspace.yaml`.
+nvm is optional. Another version manager is acceptable when the active Node
+process satisfies the supported range. `pnpm verify` starts with the
+dependency-free runtime preflight, which checks the actual process, both pin
+files, and direct TypeScript execution before other verification. Run
+`node tools/runtime-preflight.mjs --show-success` when an explicit success
+message is useful.
 
-| Command                   | Purpose                                                 |
-| ------------------------- | ------------------------------------------------------- |
-| `pnpm format:check`       | Check formatting without changing files                 |
-| `pnpm lint`               | Run typed ESLint with zero warnings                     |
-| `pnpm typecheck`          | Type-check source and tests without emitting            |
-| `pnpm build`              | Emit the private repository-checks package              |
-| `pnpm test`               | Run the deterministic Vitest suite                      |
-| `pnpm test:coverage`      | Record the V8 coverage baseline                         |
-| `pnpm architecture:check` | Enforce dependency directions                           |
-| `pnpm repo:check`         | Validate workflows, Markdown, and repository invariants |
-| `pnpm security:secrets`   | Scan tracked development content for secrets            |
-| `pnpm security:audit`     | Run the online registry dependency audit                |
-| `pnpm verify`             | Run the authoritative offline verification graph        |
-| `pnpm verify:ci`          | Run `verify` plus the online dependency audit           |
+Corepack reads the exact pnpm 11.17.0 pin and integrity digest from
+`package.json`; `pnpm --version` must report `11.17.0`. Do not use npm or Yarn,
+hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
+
+| Command                   | Purpose                                                     |
+| ------------------------- | ----------------------------------------------------------- |
+| `pnpm runtime:check`      | Quietly validate the active Node process and repository pin |
+| `pnpm format:check`       | Check formatting without changing files                     |
+| `pnpm lint`               | Run typed ESLint with zero warnings                         |
+| `pnpm typecheck`          | Type-check source and tests without emitting                |
+| `pnpm build`              | Emit the private repository-checks package                  |
+| `pnpm test`               | Run the protected deterministic Vitest suite                |
+| `pnpm test:coverage`      | Record the V8 coverage baseline                             |
+| `pnpm architecture:check` | Enforce dependency directions                               |
+| `pnpm repo:check`         | Validate workflows, Markdown, and repository invariants     |
+| `pnpm security:secrets`   | Scan tracked development content for secrets                |
+| `pnpm security:audit`     | Run the online registry dependency audit                    |
+| `pnpm verify`             | Run one preflight plus authoritative offline verification   |
+| `pnpm verify:ci`          | Run `verify` plus the online dependency audit               |
 
 There is no development service, application build, or deployment command
 because product services remain unimplemented.

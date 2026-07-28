@@ -7,6 +7,7 @@ import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { EXIT_CODES } from '../src/cli.ts';
+import { assertChildExit } from './child-process-assertion.ts';
 import {
   createValidTemporaryRepository,
   removeTemporaryRepository,
@@ -15,6 +16,9 @@ import {
 } from './temp-repository.ts';
 
 const CLI_PATH = fileURLToPath(new URL('../src/cli.ts', import.meta.url));
+const FAILING_CHILD_PATH = fileURLToPath(
+  new URL('./fixtures/failing-child.mjs', import.meta.url),
+);
 const temporaryDirectories: string[] = [];
 
 afterEach(() => {
@@ -78,7 +82,7 @@ describe('repository-checks CLI', () => {
   ] as const)('returns a stable exit code for %j', (arguments_, exitCode) => {
     const repositoryRoot = track(createValidTemporaryRepository());
 
-    expect(runCli(arguments_, repositoryRoot).status).toBe(exitCode);
+    assertChildExit(runCli(arguments_, repositoryRoot), exitCode);
   });
 
   it('runs repository checks from a subdirectory', () => {
@@ -88,7 +92,7 @@ describe('repository-checks CLI', () => {
 
     const result = runCli(['repository'], nestedDirectory);
 
-    expect(result.status).toBe(EXIT_CODES.success);
+    assertChildExit(result, EXIT_CODES.success);
     expect(result.stdout).toContain('Repository checks passed.');
   });
 
@@ -99,7 +103,7 @@ describe('repository-checks CLI', () => {
 
     const result = runCli(['repository'], temporaryDirectory);
 
-    expect(result.status).toBe(EXIT_CODES.internalError);
+    assertChildExit(result, EXIT_CODES.internalError);
     expect(result.stderr).toContain('repository.root');
     expect(result.stderr).not.toContain('at ');
   });
@@ -116,8 +120,31 @@ describe('repository-checks CLI', () => {
 
     const result = runCli(['repository'], repositoryRoot);
 
-    expect(result.status).toBe(EXIT_CODES.success);
+    assertChildExit(result, EXIT_CODES.success);
     expect(result.stderr).not.toContain(markerPath);
     expect(existsSync(markerPath)).toBe(false);
+  });
+
+  it('includes bounded child diagnostics when an expected exit status differs', () => {
+    const result = spawnSync(process.execPath, [FAILING_CHILD_PATH], {
+      encoding: 'utf8',
+    });
+    let diagnosticMessage = '';
+    try {
+      assertChildExit(result, EXIT_CODES.success);
+    } catch (error: unknown) {
+      expect(error).toBeInstanceOf(Error);
+      if (error instanceof Error) {
+        diagnosticMessage = error.message;
+      }
+    }
+
+    expect(diagnosticMessage).toMatch(
+      /status: 7[\s\S]*signal: none[\s\S]*fixture stdout:[\s\S]*fixture stderr:/,
+    );
+    expect(diagnosticMessage).toContain(process.execPath);
+    expect(diagnosticMessage).toContain(process.versions.node);
+    expect(diagnosticMessage).toContain('…[truncated]');
+    expect(diagnosticMessage.length).toBeLessThan(5_000);
   });
 });
