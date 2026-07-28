@@ -2,14 +2,17 @@
   "schemaVersion": "1.0.0",
   "caseId": "background-jobs-redis-prisma",
   "capabilityFamily": "background-jobs",
-  "userRequest": "Choose a durable distributed job queue for media processing and scheduled retries.",
+  "decisionObjective": "select-durable-job-queue-fit",
+  "comparisonPairId": "background-jobs-infrastructure",
+  "userRequest": "Choose a durable background job library for asynchronous processing with scheduled retries.",
   "successConditions": [
-    "Multiple workers can claim jobs without duplicate concurrent processing.",
-    "Failed jobs retry with backoff and survive application restarts."
+    "Multiple workers can claim durable jobs without duplicate concurrent processing.",
+    "Failed jobs retry with configurable backoff and survive application or worker restarts."
   ],
   "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
     "runtime": { "name": "node", "version": "24.18.0" },
-    "framework": { "name": "fastify", "version": "5.6.2" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
     "packageManager": { "name": "pnpm", "version": "11.17.0" },
     "database": { "name": "postgresql", "version": "17" },
     "orm": { "name": "prisma", "version": "7.2.0" },
@@ -21,7 +24,8 @@
     },
     "dependencies": [
       { "name": "@prisma/client", "version": "7.2.0" },
-      { "name": "ioredis", "version": "5.7.0" }
+      { "name": "ioredis", "version": "5.7.0" },
+      { "name": "next", "version": "16.4.0" }
     ],
     "hasRedis": true,
     "tenantModel": "multi-tenant",
@@ -29,7 +33,7 @@
       "Job payloads carry tenant-scoped media identifiers but no credentials."
     ],
     "dataFacts": [
-      "Media metadata is stored in PostgreSQL and ephemeral queue state may use the existing durable Redis cluster."
+      "Media metadata is stored in PostgreSQL and persistent shared queue state may use the existing durable Redis cluster."
     ],
     "operationalFacts": [
       "The team already operates persistent Redis and long-running worker containers."
@@ -110,7 +114,7 @@
     }
   ],
   "difficulty": "medium",
-  "failureModes": ["paired-background-jobs-request", "popularity-over-fit"],
+  "failureModes": ["popularity-over-fit"],
   "authoredAt": "2026-07-28",
   "evidenceCutoff": "2026-07-28"
 }

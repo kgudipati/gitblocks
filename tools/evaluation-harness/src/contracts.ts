@@ -32,14 +32,17 @@ export interface EvaluationCase {
   schemaVersion: '1.0.0';
   caseId: string;
   capabilityFamily: CapabilityFamily;
+  decisionObjective: string;
+  comparisonPairId: string | null;
   userRequest: string;
   successConditions: string[];
   repositoryProfile: {
+    language: NamedVersion;
     runtime: NamedVersion;
     framework: NamedVersion;
     packageManager: NamedVersion;
     database: NamedVersion;
-    orm: NamedVersion & { name: 'prisma' | 'drizzle' };
+    orm: NamedVersion;
     deployment: {
       topology: 'serverless' | 'long-running-container' | 'long-running-server';
       workerCapability: 'capable' | 'incapable';
@@ -82,6 +85,17 @@ export interface EvidenceObservation {
     | 'license'
     | 'case-local-fact';
   sourceUrl: string;
+  sourceRevision: {
+    kind:
+      | 'git-commit'
+      | 'tag'
+      | 'release'
+      | 'version'
+      | 'mutable-documentation'
+      | 'case-version';
+    value: string;
+    immutableUrl: string | null;
+  };
   collectedAt: string;
   publishedAt: string | null;
   observation: string;
@@ -126,18 +140,28 @@ export interface GoldResult {
     evidenceIds: string[];
   }[];
   requiredUnknownIds: string[];
-  requiredEvidenceIds: string[];
-  requiredReasonCodes: string[];
   rationaleNotes: string[];
   evidenceCutoff: string;
-  provenance: {
-    status: 'proposed';
-    authoringSession: string;
-    independentReviewStatus: 'not-reviewed';
-    independentReviewer: null;
-    reviewedAt: null;
-  };
+  provenance: GoldProvenance;
 }
+
+export type GoldProvenance =
+  | {
+      status: 'proposed';
+      authoringSession: string;
+      independentReviewStatus: 'not-reviewed';
+      independentReviewer: null;
+      reviewedAt: null;
+      reviewReference: null;
+    }
+  | {
+      status: 'accepted';
+      authoringSession: string;
+      independentReviewStatus: 'reviewed' | 'accepted';
+      independentReviewer: string;
+      reviewedAt: string;
+      reviewReference: string;
+    };
 
 export interface Prediction {
   schemaVersion: '1.0.0';
@@ -170,36 +194,50 @@ export interface CorpusManifest {
   corpusId: string;
   corpusVersion: '1.0.0';
   evidenceCutoff: string;
-  status: 'development-proposed';
+  status: 'development-proposed' | 'development-accepted';
   cases: CorpusManifestEntry[];
   familyCounts: Record<CapabilityFamily, number>;
   diversity: {
     pairedDifferentWinners: number;
     responsibleAbstentions: number;
     popularHardConstraintRejections: number;
-    includesPrisma: true;
-    includesDrizzle: true;
-    includesServerless: true;
-    includesLongRunning: true;
-    includesWorkerCapable: true;
-    includesWorkerIncapable: true;
-    includesRedis: true;
-    includesNoRedis: true;
-    includesSingleTenant: true;
-    includesMultiTenant: true;
-    includesLicenseConstraint: true;
-    includesRuntimeConstraint: true;
-    includesResidencyConstraint: true;
-    includesEvidenceInsufficiency: true;
-    includesTieOrPartialOrder: true;
-    popularityDiffersFromFit: true;
+    includesPrisma: boolean;
+    includesDrizzle: boolean;
+    includesServerless: boolean;
+    includesLongRunning: boolean;
+    includesWorkerCapable: boolean;
+    includesWorkerIncapable: boolean;
+    includesRedis: boolean;
+    includesNoRedis: boolean;
+    includesSingleTenant: boolean;
+    includesMultiTenant: boolean;
+    includesLicenseConstraint: boolean;
+    includesRuntimeConstraint: boolean;
+    includesResidencyConstraint: boolean;
+    includesEvidenceInsufficiency: boolean;
+    includesTieOrPartialOrder: boolean;
+    popularityDiffersFromFit: boolean;
   };
-  provenance: {
-    authoringSession: string;
-    goldStatus: 'proposed';
-    independentReviewStatus: 'not-reviewed';
-  };
+  provenance: ManifestProvenance;
 }
+
+export type ManifestProvenance =
+  | {
+      authoringSession: string;
+      goldStatus: 'proposed';
+      independentReviewStatus: 'not-reviewed';
+      independentReviewer: null;
+      reviewedAt: null;
+      reviewReference: null;
+    }
+  | {
+      authoringSession: string;
+      goldStatus: 'accepted';
+      independentReviewStatus: 'reviewed' | 'accepted';
+      independentReviewer: string;
+      reviewedAt: string;
+      reviewReference: string;
+    };
 
 export interface CaseBundle {
   caseDocument: EvaluationCase;

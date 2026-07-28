@@ -46,6 +46,7 @@
         "candidateId",
         "sourceType",
         "sourceUrl",
+        "sourceRevision",
         "collectedAt",
         "publishedAt",
         "observation",
@@ -76,6 +77,7 @@
           "maxLength": 500,
           "pattern": "^(?:https://|case://)[^\\u0000-\\u0020\\u007f]+$"
         },
+        "sourceRevision": { "$ref": "#/$defs/sourceRevision" },
         "collectedAt": { "$ref": "#/$defs/dateTime" },
         "publishedAt": {
           "oneOf": [{ "$ref": "#/$defs/dateTime" }, { "type": "null" }]
@@ -84,7 +86,172 @@
         "freshnessScope": { "$ref": "#/$defs/text" },
         "directness": { "enum": ["direct", "case-local"] },
         "limitation": { "$ref": "#/$defs/text" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "sourceType": {
+                "enum": ["official-repository", "license"]
+              }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "enum": ["git-commit", "tag", "release"] }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": { "const": "official-documentation" }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "git-commit",
+                      "tag",
+                      "release",
+                      "version",
+                      "mutable-documentation"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": { "const": "official-release" }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "enum": ["tag", "release"] }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": {
+                "const": "package-registry"
+              }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "version" },
+                  "value": { "$ref": "#/$defs/packageVersion" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": {
+                "const": "security-advisory"
+              }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "enum": ["release", "version"] }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "sourceType": { "const": "case-local-fact" }
+            },
+            "required": ["sourceType"]
+          },
+          "then": {
+            "properties": {
+              "sourceRevision": {
+                "type": "object",
+                "properties": {
+                  "kind": { "const": "case-version" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "sourceRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value", "immutableUrl"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "git-commit",
+            "tag",
+            "release",
+            "version",
+            "mutable-documentation",
+            "case-version"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+        },
+        "immutableUrl": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 500,
+              "pattern": "^https://[^\\u0000-\\u0020\\u007f]+$"
+            },
+            { "type": "null" }
+          ]
+        }
       }
+    },
+    "packageVersion": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 80,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
     }
   }
 }

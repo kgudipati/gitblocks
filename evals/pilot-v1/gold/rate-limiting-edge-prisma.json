@@ -7,19 +7,19 @@
     {
       "candidateId": "bottleneck",
       "disposition": "insufficient-evidence",
-      "reasonCodes": ["distributed-counter-required", "runtime-compatible"],
+      "reasonCodes": ["distributed-counter-required", "edge-runtime-unproven"],
       "evidenceIds": ["rate-edge-bottleneck"]
     },
     {
       "candidateId": "express-rate-limit",
       "disposition": "rejected",
-      "reasonCodes": ["runtime-compatible"],
+      "reasonCodes": ["edge-runtime-required"],
       "evidenceIds": ["rate-edge-express"]
     },
     {
       "candidateId": "rate-limiter-flexible",
       "disposition": "insufficient-evidence",
-      "reasonCodes": ["distributed-counter-required", "runtime-compatible"],
+      "reasonCodes": ["distributed-counter-required", "edge-runtime-unproven"],
       "evidenceIds": ["rate-edge-flexible"]
     },
     {
@@ -28,7 +28,7 @@
       "reasonCodes": [
         "distributed-counter-required",
         "edge-redis-fit",
-        "runtime-compatible"
+        "edge-runtime-fit"
       ],
       "evidenceIds": ["rate-edge-upstash"]
     }
@@ -40,22 +40,11 @@
     {
       "candidateId": "express-rate-limit",
       "constraintId": "runtime-edge-compatible",
-      "reasonCode": "runtime-compatible",
+      "reasonCode": "edge-runtime-required",
       "evidenceIds": ["rate-edge-express"]
     }
   ],
   "requiredUnknownIds": ["global-consistency-tolerance"],
-  "requiredEvidenceIds": [
-    "rate-edge-bottleneck",
-    "rate-edge-express",
-    "rate-edge-flexible",
-    "rate-edge-upstash"
-  ],
-  "requiredReasonCodes": [
-    "distributed-counter-required",
-    "edge-redis-fit",
-    "runtime-compatible"
-  ],
   "rationaleNotes": [
     "Upstash Ratelimit is the proposed leader because its documented fetch-based edge path matches the existing Upstash service; the consistency tolerance remains material."
   ],
@@ -65,6 +54,7 @@
     "authoringSession": "phase-2-issue-7-authoring-session",
     "independentReviewStatus": "not-reviewed",
     "independentReviewer": null,
-    "reviewedAt": null
+    "reviewedAt": null,
+    "reviewReference": null
   }
 }

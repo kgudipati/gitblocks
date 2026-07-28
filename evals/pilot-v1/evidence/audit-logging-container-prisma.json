@@ -9,8 +9,13 @@
       "candidateId": "logtape",
       "sourceType": "official-documentation",
       "sourceUrl": "https://logtape.org/",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "d8ef44ba97427ae7a271b957e07e38c9f182b388",
+        "immutableUrl": "https://github.com/dahlia/logtape/tree/d8ef44ba97427ae7a271b957e07e38c9f182b388/docs"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-09T07:49:42Z",
       "observation": "LogTape is a zero-dependency TypeScript logging library with structured records, configurable sinks, and synchronous or ordered asynchronous sink adapters across Node.js and edge runtimes.",
       "freshnessScope": "Official documentation landing page at the evidence cutoff.",
       "directness": "direct",
@@ -22,8 +27,13 @@
       "candidateId": "pgaudit",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/pgaudit/pgaudit",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "ba7dac181024ee5fb5e6dd50b1ac8315df212d86",
+        "immutableUrl": "https://github.com/pgaudit/pgaudit/blob/ba7dac181024ee5fb5e6dd50b1ac8315df212d86/README.md"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-27T05:04:50Z",
       "observation": "pgAudit writes detailed PostgreSQL session and object statement audit entries through the standard PostgreSQL logging facility and requires shared_preload_libraries configuration.",
       "freshnessScope": "Official pgAudit README for PostgreSQL 14 through 19 at the evidence cutoff.",
       "directness": "direct",
@@ -35,8 +45,13 @@
       "candidateId": "pino",
       "sourceType": "official-documentation",
       "sourceUrl": "https://getpino.io/",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "d514a8a1119fd4fa1d55d80022336c1329f9b292",
+        "immutableUrl": "https://github.com/pinojs/pino/tree/d514a8a1119fd4fa1d55d80022336c1329f9b292/docs"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-18T18:22:36Z",
       "observation": "Pino is a Node.js JSON logger whose official documentation includes redaction, child loggers, transports, and asynchronous logging.",
       "freshnessScope": "Official Pino documentation index and runtime statement at the evidence cutoff.",
       "directness": "direct",
@@ -48,8 +63,13 @@
       "candidateId": "winston",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/winstonjs/winston",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "ff0b79de8562bb322c390fbc82fe71c11f373428",
+        "immutableUrl": "https://github.com/winstonjs/winston/blob/ff0b79de8562bb322c390fbc82fe71c11f373428/README.md"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-16T01:01:13Z",
       "observation": "Winston accepts structured info objects and provides JSON formatting plus console, file, and HTTP transports with per-transport formats.",
       "freshnessScope": "Official repository README at the evidence cutoff.",
       "directness": "direct",

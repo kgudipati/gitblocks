@@ -9,101 +9,101 @@
       "caseId": "audit-logging-container-prisma",
       "capabilityFamily": "audit-logging",
       "casePath": "cases/audit-logging-container-prisma.json",
-      "caseSha256": "6bc45477992cdee258a9feb2598c27c1991197fbf689167040e1aa5c00470308",
+      "caseSha256": "8cf6f4efcc68eb1057fbe84c24f5ea00e4a083d38859c0b53711db61684f4d04",
       "evidencePath": "evidence/audit-logging-container-prisma.json",
-      "evidenceSha256": "f7299b85de543595c42602602be585545f19afeaba5341f598c7c393b418beb8",
+      "evidenceSha256": "27711af5fa6a357564024342673b2b54bb3bbeda701ab5d0146fbdcd7337cbb8",
       "goldPath": "gold/audit-logging-container-prisma.json",
-      "goldSha256": "ac978971fc3dc58cf1f7b259a8e80ea4bd36f6185d54fa0ac2bcb1a6d68c5832"
+      "goldSha256": "32f3f73d306338cba0b8c302e702ce6566690fb837dca44befc76175bf96e9ff"
     },
     {
       "caseId": "audit-logging-transactional-drizzle",
       "capabilityFamily": "audit-logging",
       "casePath": "cases/audit-logging-transactional-drizzle.json",
-      "caseSha256": "5944b027aba3b9d10d993c4d68d2217bc0be8ad3961af532b99ddeb64e92c247",
+      "caseSha256": "5c2d355a6e1312095f979aef5000d0fc8376499201abeee44b507017035b63cf",
       "evidencePath": "evidence/audit-logging-transactional-drizzle.json",
-      "evidenceSha256": "7b10f93e25b498b4bb32ae72da0ccafff22ceae6074d63a686272e226f8cd2bc",
+      "evidenceSha256": "1814fd62576e2133388475f795b8131a93fee2252942772c59cb50cedbaffcb9",
       "goldPath": "gold/audit-logging-transactional-drizzle.json",
-      "goldSha256": "e72911e19daaa04046ca034df86b91ebb0a60170d612dfb9f4835cb2bcdbe35b"
+      "goldSha256": "90b73b3ad13a9a5070975cfbd22d0abde46b69f0f5ad660d151b9186e94fda65"
     },
     {
       "caseId": "authorization-edge-drizzle",
       "capabilityFamily": "authorization",
       "casePath": "cases/authorization-edge-drizzle.json",
-      "caseSha256": "90578cd631e8c5e51b63dbdbe532914001e1df88a90045d27ada9e2ecf55f2b0",
+      "caseSha256": "376ed171464269971c39f9967b14efaf014b40456ed3f0d1062ea6a96bd3e486",
       "evidencePath": "evidence/authorization-edge-drizzle.json",
-      "evidenceSha256": "9d04f52988671e8d1e672ecf1ce9abbdfe9287ada41d0e6b64a93eae3af13efb",
+      "evidenceSha256": "1b5effa689461cf2471478c43b628ad92ee34e2fe25e92bbb57ade03b4423f08",
       "goldPath": "gold/authorization-edge-drizzle.json",
-      "goldSha256": "0f5f499e1714f6be6c3faf129fbaf39e9b941dc4928df36101fc314b4c3a1487"
+      "goldSha256": "98fd831d7461ce3ff7c8cf02c7d6d61c0ffbf4bd714c22e3d6b2d592fd219ce4"
     },
     {
       "caseId": "authorization-relationship-prisma",
       "capabilityFamily": "authorization",
       "casePath": "cases/authorization-relationship-prisma.json",
-      "caseSha256": "850b6912cee390714e2d5220d0c3eeaa4266744f5d8b569eea9aa42e5a102b7b",
+      "caseSha256": "67ee80605060e5a1d50309daa3f7186edba38bf27132588b0f5c7d351f2b4b0f",
       "evidencePath": "evidence/authorization-relationship-prisma.json",
-      "evidenceSha256": "4a8302b27ee65dd35c59584a50e7cb8dec05ca22243e0a4cb9b94dd0ec1380d4",
+      "evidenceSha256": "36c0bb9c87054c9cfc0dbc629b7b2a56c6de262bc54ab2df1262ef73b3dd83cc",
       "goldPath": "gold/authorization-relationship-prisma.json",
-      "goldSha256": "0a297b8843bff78d40336696a4675c671d9b9839091fd391b8ecfbc130acbf37"
+      "goldSha256": "cde24e5397c4253af24cfe0913358f6716019f89ba7e7d3afa9ecedb3f595d72"
     },
     {
       "caseId": "background-jobs-postgres-drizzle",
       "capabilityFamily": "background-jobs",
       "casePath": "cases/background-jobs-postgres-drizzle.json",
-      "caseSha256": "0df826745442e5dee384b589285c9e468171da0be170eacd940b7374f3009315",
+      "caseSha256": "fd056f66648955105f3a5914fb553ffd9a1777f09a5ebd9a4e5c48dccbae62e2",
       "evidencePath": "evidence/background-jobs-postgres-drizzle.json",
-      "evidenceSha256": "04f44f3791949ac19c9ece19071e5b4f21795dcb01e60496a3279f22ec6bca26",
+      "evidenceSha256": "4cb2d0766638e7d980b37df2944fddbe40d8d46a31d1150a60261a5d06cf9c51",
       "goldPath": "gold/background-jobs-postgres-drizzle.json",
-      "goldSha256": "feea37b8c61c85d7e96d3965323a5c0aabfe9bf3a004b81d40d99cca7ed9b296"
+      "goldSha256": "d25e92f3b7d85658ada717099beecd423b78c6eac11d0f4df6883851237e98ce"
     },
     {
       "caseId": "background-jobs-redis-prisma",
       "capabilityFamily": "background-jobs",
       "casePath": "cases/background-jobs-redis-prisma.json",
-      "caseSha256": "96f2fc5f4987ca418f816aec20ce11be1ff8c892061f456c7cdf166ca9c009fa",
+      "caseSha256": "f551f25c7ba71b13129b6268e2e5147341f8c4c957668b50a1d52e72bbdfc396",
       "evidencePath": "evidence/background-jobs-redis-prisma.json",
-      "evidenceSha256": "be9a4494454573d6a861b87b9407383ec56858580122a9b764a0d4758b3210ea",
+      "evidenceSha256": "a8f5feb2953ca98461c4cc46bc9a53fbbcfa4d253090cda2281734412fb68598",
       "goldPath": "gold/background-jobs-redis-prisma.json",
-      "goldSha256": "327544081a4a6fcf603b53c88ade3f1bdb4babf4467ec722c0bc3b98b1c7cd8f"
+      "goldSha256": "ab8b5bdb0de3450cb8a8d842579e05307b96583cb7dc2c96ef1042c9c237cb6e"
     },
     {
       "caseId": "rate-limiting-container-drizzle",
       "capabilityFamily": "rate-limiting",
       "casePath": "cases/rate-limiting-container-drizzle.json",
-      "caseSha256": "b758c02be5055d2c1565bb70b3c529b09cb97d6c167f52d3fcac57436bcd0a29",
+      "caseSha256": "f789d88972e3508f77d9dc8262934be3d1f58d88039c379c01fdfb87909416fd",
       "evidencePath": "evidence/rate-limiting-container-drizzle.json",
-      "evidenceSha256": "3c7c88b968d04de9abafbf9a18f8f1024a2c52abe3b6087cdf9b24f7629d6d51",
+      "evidenceSha256": "3c6aa27462a0226c873e12581df8b5947b89b4d35045e0e3d868e16159c8796f",
       "goldPath": "gold/rate-limiting-container-drizzle.json",
-      "goldSha256": "5ec4d4a345533bc6841c9be9e3473d8f31f37c94e99f042897823652085e84ee"
+      "goldSha256": "e240bd6f4b8108d3b6e34adad2731dcf0bb0c30fe01755da0974211fcfaa3579"
     },
     {
       "caseId": "rate-limiting-edge-prisma",
       "capabilityFamily": "rate-limiting",
       "casePath": "cases/rate-limiting-edge-prisma.json",
-      "caseSha256": "b0e1cd84608b08cfe6600e2eb4131da3961954e475eb98ae059cd1dc4b7a7f4e",
+      "caseSha256": "08b0d8f7c529846e82eb49e61d26efa0323e7141b6287fdd4dba6a1481cf2dc7",
       "evidencePath": "evidence/rate-limiting-edge-prisma.json",
-      "evidenceSha256": "15b7819972776d55f4fd6fd3c271e28e42abb1f5eae718f087a538cf5fae9a21",
+      "evidenceSha256": "cf29c1e5ad76218678e04b8deae677ac074c44d693c5c8bbe1c9c5c1e136d1c9",
       "goldPath": "gold/rate-limiting-edge-prisma.json",
-      "goldSha256": "dad061902e9c3f5c756ba4ef0fd34e04329ed8b54d5b119bf7a015397c62914b"
+      "goldSha256": "711b53f715b7a3b7e3d0b13f9a11a9d6070a4e712cf7abc68091ee98e8d5e43d"
     },
     {
       "caseId": "webhooks-mixed-ingress-prisma",
       "capabilityFamily": "webhooks",
       "casePath": "cases/webhooks-mixed-ingress-prisma.json",
-      "caseSha256": "e5add1037a7c81d068a3566a3e456d882764f430f84b88df54469155b7047e7f",
+      "caseSha256": "fa1b1d842a4c956f9b93385740e56fa4c60b87ada430f108e64bce8bdd1a6db7",
       "evidencePath": "evidence/webhooks-mixed-ingress-prisma.json",
-      "evidenceSha256": "9ada1a83ee901ecc6dd9d7fcbe86f30c9a4670674bd0d5cbe33201dad10ab1ab",
+      "evidenceSha256": "d239db3747bed76db8eca0a88227b4a5a17ee0e1568879ec70ad94a7288d0382",
       "goldPath": "gold/webhooks-mixed-ingress-prisma.json",
-      "goldSha256": "3658a2cd7f09ce5f1d45bdc12af9f6f73d4e8fe35c0ce65db54742758fd289d0"
+      "goldSha256": "43750e32d1195ffa25d0ca30e69d4dd96c00cece5b77ba7696d236f905e6a7ea"
     },
     {
       "caseId": "webhooks-self-hosted-egress-drizzle",
       "capabilityFamily": "webhooks",
       "casePath": "cases/webhooks-self-hosted-egress-drizzle.json",
-      "caseSha256": "18dec753a808d884902efccda1924c33c555ac2a76df87b66fcd6c58bd87e8fe",
+      "caseSha256": "07ae99ddffb22e888bd551abd543042ab52103d87ee1596ab830c5afe0210413",
       "evidencePath": "evidence/webhooks-self-hosted-egress-drizzle.json",
-      "evidenceSha256": "43be15c397d563d48a33f2201e788db99bd7e3df3960d55e710d18782a7d0c11",
+      "evidenceSha256": "6c94467b95a508c0445d873ce450b159acb2dc99071896ca94d282c95a91ae79",
       "goldPath": "gold/webhooks-self-hosted-egress-drizzle.json",
-      "goldSha256": "81a48edfecde4ab1c7493a2dd2aef5d2732233242a55164a4b2a0bd00ca53164"
+      "goldSha256": "fe8cc8759270a9d969df5bde8377ce45fdcdc4145281224ba91096f3def982ae"
     }
   ],
   "familyCounts": {
@@ -114,8 +114,8 @@
     "webhooks": 2
   },
   "diversity": {
-    "pairedDifferentWinners": 3,
-    "responsibleAbstentions": 2,
+    "pairedDifferentWinners": 2,
+    "responsibleAbstentions": 3,
     "popularHardConstraintRejections": 4,
     "includesPrisma": true,
     "includesDrizzle": true,
@@ -137,6 +137,9 @@
   "provenance": {
     "authoringSession": "phase-2-issue-7-authoring-session",
     "goldStatus": "proposed",
-    "independentReviewStatus": "not-reviewed"
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null,
+    "reviewedAt": null,
+    "reviewReference": null
   }
 }

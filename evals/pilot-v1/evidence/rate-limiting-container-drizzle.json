@@ -9,8 +9,13 @@
       "candidateId": "bottleneck",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/SGrondin/bottleneck",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "b83528333ba4d27cf70b81cc2be12e09d7ff692f",
+        "immutableUrl": "https://github.com/SGrondin/bottleneck/blob/b83528333ba4d27cf70b81cc2be12e09d7ff692f/README.md"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2020-07-21T14:30:21Z",
       "observation": "Bottleneck is a JavaScript job scheduler and rate limiter with local controls and an optional Redis-backed clustering mode.",
       "freshnessScope": "Official repository README and MIT license at the evidence cutoff.",
       "directness": "direct",
@@ -22,12 +27,17 @@
       "candidateId": "express-rate-limit",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/express-rate-limit/express-rate-limit",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "d2370f62147e1de7cd8df9d74bc6264b7f0e330e",
+        "immutableUrl": "https://github.com/express-rate-limit/express-rate-limit/blob/d2370f62147e1de7cd8df9d74bc6264b7f0e330e/readme.md"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-27T21:10:04Z",
       "observation": "express-rate-limit describes itself as rate-limiting middleware for the Express web server and supports external stores through its store interface.",
       "freshnessScope": "Official repository README at the evidence cutoff.",
       "directness": "direct",
-      "limitation": "The bounded evidence does not describe a native Fastify integration."
+      "limitation": "The bounded evidence documents Express middleware rather than a native Next.js route-handler integration."
     },
     {
       "evidenceId": "rate-container-flexible",
@@ -35,8 +45,13 @@
       "candidateId": "rate-limiter-flexible",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/animir/node-rate-limiter-flexible",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "97fd58a2f463b6ebfa79d31344f054806bb88805",
+        "immutableUrl": "https://github.com/animir/node-rate-limiter-flexible/tree/97fd58a2f463b6ebfa79d31344f054806bb88805"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-06-08T17:55:13Z",
       "observation": "rate-limiter-flexible provides atomic key-based counters, an in-memory limiter, retry timing, bundled TypeScript declarations, and optional Redis, SQL, Prisma, and other stores.",
       "freshnessScope": "Official repository README and ISC license at the evidence cutoff.",
       "directness": "direct",
@@ -48,8 +63,13 @@
       "candidateId": "upstash-ratelimit",
       "sourceType": "official-documentation",
       "sourceUrl": "https://upstash.com/docs/redis/sdks/ratelimit-ts/overview",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "d12cb47d0a022974d7bbff13996e8e5927379669",
+        "immutableUrl": "https://github.com/upstash/docs/blob/d12cb47d0a022974d7bbff13996e8e5927379669/redis/sdks/ratelimit-ts/overview.mdx"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-28T07:47:28Z",
       "observation": "Upstash Ratelimit is a connectionless HTTP library designed around Upstash Redis for serverless and edge environments.",
       "freshnessScope": "Official Upstash Ratelimit overview at the evidence cutoff.",
       "directness": "direct",

@@ -58,18 +58,6 @@
     }
   ],
   "requiredUnknownIds": ["svix-capacity-sizing"],
-  "requiredEvidenceIds": [
-    "webhook-egress-convoy",
-    "webhook-egress-hook0",
-    "webhook-egress-standard",
-    "webhook-egress-svix"
-  ],
-  "requiredReasonCodes": [
-    "data-residency-required",
-    "delivery-service-required",
-    "permissive-license-required",
-    "self-hosted-service-fit"
-  ],
   "rationaleNotes": [
     "Svix is the proposed leader because it is the only supplied complete delivery service whose documented MIT license and self-hosted dependencies satisfy this repository's explicit policy and residency boundary."
   ],
@@ -79,6 +67,7 @@
     "authoringSession": "phase-2-issue-7-authoring-session",
     "independentReviewStatus": "not-reviewed",
     "independentReviewer": null,
-    "reviewedAt": null
+    "reviewedAt": null,
+    "reviewReference": null
   }
 }

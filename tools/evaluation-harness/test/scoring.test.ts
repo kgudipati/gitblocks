@@ -65,9 +65,57 @@ describe('deterministic evaluation scoring', () => {
     });
   });
 
-  it('handles ties, partial order, and incomparable pairs', () => {
+  it('scores a valid tie', () => {
     const gold = createGold();
     gold.rankGroups = [['alpha', 'beta']];
+    const prediction = createPrediction();
+    prediction.rankGroups = [['beta', 'alpha']];
+
+    expect(
+      scoreSingleCase(createCase(), gold, prediction).metrics.rankingAgreement,
+    ).toBe(1);
+  });
+
+  it('scores a valid explicit partial ordering', () => {
+    const gold = createGold();
+    gold.rankGroups = [];
+    gold.rankRelations = [
+      { higherCandidateId: 'alpha', lowerCandidateId: 'beta' },
+    ];
+    const prediction = createPrediction();
+    prediction.rankGroups = [];
+    prediction.rankRelations = [
+      { higherCandidateId: 'alpha', lowerCandidateId: 'beta' },
+    ];
+
+    expect(
+      scoreSingleCase(createCase(), gold, prediction).metrics.rankingAgreement,
+    ).toBe(1);
+  });
+
+  it('propagates explicit ordering across tied candidates', () => {
+    const gold = createGold();
+    gold.dispositions[2]!.disposition = 'viable';
+    gold.hardConstraintConflicts = [];
+    gold.rankGroups = [['alpha', 'beta']];
+    gold.rankRelations = [
+      { higherCandidateId: 'alpha', lowerCandidateId: 'gamma' },
+    ];
+    const prediction = createPrediction();
+    prediction.candidates[2]!.disposition = 'viable';
+    prediction.rankGroups = [['alpha', 'beta']];
+    prediction.rankRelations = [
+      { higherCandidateId: 'beta', lowerCandidateId: 'gamma' },
+    ];
+
+    expect(
+      scoreSingleCase(createCase(), gold, prediction).metrics.rankingAgreement,
+    ).toBe(1);
+  });
+
+  it('does not punish ordering a valid incomparable pair', () => {
+    const gold = createGold();
+    gold.rankGroups = [];
     gold.incomparablePairs = [['alpha', 'beta']];
     const prediction = createPrediction();
     prediction.rankGroups = [['beta'], ['alpha']];
@@ -75,23 +123,25 @@ describe('deterministic evaluation scoring', () => {
     expect(
       scoreSingleCase(createCase(), gold, prediction).metrics.rankingAgreement,
     ).toBe(1);
-
-    gold.incomparablePairs = [];
-    expect(
-      scoreSingleCase(createCase(), gold, prediction).metrics.rankingAgreement,
-    ).toBe(0);
   });
 
   it('scores abstention independently of dispositions', () => {
     const gold = createGold();
     gold.outcome = 'insufficient-evidence';
-    gold.allowedAlternativeOutcomes = ['no-viable-candidate'];
+    gold.rankGroups = [];
+    gold.dispositions[0]!.disposition = 'insufficient-evidence';
+    gold.dispositions[1]!.disposition = 'rejected';
+    gold.dispositions[2]!.disposition = 'rejected';
     const prediction = createPrediction();
     prediction.outcome = 'no-viable-candidate';
+    prediction.rankGroups = [];
+    prediction.candidates.forEach((candidate) => {
+      candidate.disposition = 'rejected';
+    });
 
     const metrics = scoreSingleCase(createCase(), gold, prediction).metrics;
-    expect(metrics.outcomeAccuracy).toBe(1);
-    expect(metrics.outcomeByLabel['insufficient-evidence']).toBe(1);
+    expect(metrics.outcomeAccuracy).toBe(0);
+    expect(metrics.outcomeByLabel['insufficient-evidence']).toBe(0);
     expect(metrics.outcomeByLabel['no-viable-candidate']).toBe(0);
   });
 
@@ -109,6 +159,38 @@ describe('deterministic evaluation scoring', () => {
     expect(metrics.unknownRecall).toBe(0);
     expect(metrics.evidenceRecall).toBe(0.666667);
     expect(metrics.reasonRecall).toBe(0);
+  });
+
+  it('conditions required reasons on their gold candidate', () => {
+    const prediction = createPrediction();
+    prediction.candidates[0]!.reasonCodes = ['tenant-isolation-required'];
+    prediction.candidates[2]!.reasonCodes = [];
+
+    expect(
+      scoreSingleCase(createCase(), createGold(), prediction).metrics
+        .reasonRecall,
+    ).toBe(0);
+  });
+
+  it('counts each required candidate-reason pair separately', () => {
+    const gold = createGold();
+    gold.dispositions[0]!.reasonCodes = ['tenant-isolation-required'];
+    const prediction = createPrediction();
+
+    expect(
+      scoreSingleCase(createCase(), gold, prediction).metrics.reasonRecall,
+    ).toBe(0.5);
+  });
+
+  it('does not let one candidate evidence satisfy another candidate claim', () => {
+    const prediction = createPrediction();
+    prediction.candidates[0]!.evidenceIds.push('beta-license');
+    prediction.candidates[1]!.evidenceIds = [];
+
+    expect(
+      scoreSingleCase(createCase(), createGold(), prediction).metrics
+        .evidenceRecall,
+    ).toBe(0.666667);
   });
 
   it('aggregates by family and failure mode with stable serialization', () => {

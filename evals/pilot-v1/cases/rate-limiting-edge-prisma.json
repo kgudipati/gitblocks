@@ -2,12 +2,15 @@
   "schemaVersion": "1.0.0",
   "caseId": "rate-limiting-edge-prisma",
   "capabilityFamily": "rate-limiting",
-  "userRequest": "Choose a distributed per-tenant API rate limiter for globally deployed edge handlers.",
+  "decisionObjective": "select-rate-limiter-fit",
+  "comparisonPairId": "rate-limiting-topology",
+  "userRequest": "Choose a rate limiter for login and API request throttling in the existing Next.js application.",
   "successConditions": [
-    "All edge isolates share quota state by tenant and route.",
-    "The handler can apply sliding-window limits without a TCP connection pool."
+    "The application limits login and API requests using stable keys already derived by repository code.",
+    "The limiter reports remaining quota and retry timing from every protected route."
   ],
   "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
     "runtime": { "name": "edge-fetch", "version": "2026-07" },
     "framework": { "name": "nextjs", "version": "16.4.0" },
     "packageManager": { "name": "pnpm", "version": "11.17.0" },
@@ -21,12 +24,13 @@
     },
     "dependencies": [
       { "name": "@prisma/client", "version": "7.2.0" },
-      { "name": "@upstash/redis", "version": "1.35.6" }
+      { "name": "@upstash/redis", "version": "1.35.6" },
+      { "name": "next", "version": "16.4.0" }
     ],
     "hasRedis": true,
     "tenantModel": "multi-tenant",
     "identityFacts": [
-      "Every authenticated request contains a stable tenant identifier."
+      "Authenticated API requests contain stable tenant and route identifiers, and the login route derives normalized account and source keys."
     ],
     "dataFacts": [
       "The existing Upstash Redis database stores only operational counters."
@@ -43,7 +47,7 @@
     },
     {
       "constraintId": "runtime-edge-compatible",
-      "reasonCode": "runtime-compatible",
+      "reasonCode": "edge-runtime-required",
       "statement": "The candidate must use the edge fetch runtime without Express or Node-only worker facilities."
     }
   ],
@@ -95,8 +99,16 @@
       "description": "The candidate directly supports HTTP-accessible Redis from edge handlers."
     },
     {
-      "id": "runtime-compatible",
-      "description": "The candidate supports the repository's fetch-based edge runtime."
+      "id": "edge-runtime-fit",
+      "description": "The candidate documents a fetch-based Next.js or Vercel Edge integration."
+    },
+    {
+      "id": "edge-runtime-required",
+      "description": "The candidate must satisfy the fetch-only Next.js Edge runtime constraint."
+    },
+    {
+      "id": "edge-runtime-unproven",
+      "description": "The supplied evidence does not establish compatibility with Next.js Edge restrictions."
     }
   ],
   "unknowns": [
@@ -106,11 +118,7 @@
     }
   ],
   "difficulty": "hard",
-  "failureModes": [
-    "paired-rate-limiting-request",
-    "popular-hard-constraint",
-    "popularity-over-fit"
-  ],
+  "failureModes": ["popular-hard-constraint", "popularity-over-fit"],
   "authoredAt": "2026-07-28",
   "evidenceCutoff": "2026-07-28"
 }

@@ -9,12 +9,17 @@
       "candidateId": "casbin",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/apache/casbin-node-casbin",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "2d90c7d8c3b522415605cf3d25481e763e73381e",
+        "immutableUrl": "https://github.com/apache/casbin-node-casbin/blob/2d90c7d8c3b522415605cf3d25481e763e73381e/README.md"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-06-25T15:56:06Z",
       "observation": "The official project describes node-casbin as an authorization library for ACL, RBAC, and ABAC in Node.js and browsers.",
       "freshnessScope": "Official repository README and license at the evidence cutoff.",
       "directness": "direct",
-      "limitation": "The source does not quantify this repository's edge bundle or cold-start cost."
+      "limitation": "The pinned README claims Node.js and browser use but does not establish an ESM-only, native-Node-API-free path compatible with Next.js Edge."
     },
     {
       "evidenceId": "auth-edge-casl",
@@ -22,12 +27,17 @@
       "candidateId": "casl",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/stalniy/casl",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "4b27c7dfa77bbf210499bdef90bca02aaba3ba3d",
+        "immutableUrl": "https://github.com/stalniy/casl/tree/4b27c7dfa77bbf210499bdef90bca02aaba3ba3d"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-28T02:01:46Z",
       "observation": "CASL is an isomorphic TypeScript authorization library with declarative action, subject, condition, and field rules; its core supports Node.js 18+ and browsers and is MIT-licensed.",
       "freshnessScope": "Official repository README and license at the evidence cutoff.",
       "directness": "direct",
-      "limitation": "Drizzle-specific query translation is not claimed by this source."
+      "limitation": "The pinned source claims Node.js 18+ and browser support but does not establish Next.js Edge compatibility or Drizzle-specific query translation."
     },
     {
       "evidenceId": "auth-edge-cerbos",
@@ -35,8 +45,13 @@
       "candidateId": "cerbos",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/cerbos/cerbos",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "85b6551a00404a76bf5c82299495113b701338f2",
+        "immutableUrl": "https://github.com/cerbos/cerbos/tree/85b6551a00404a76bf5c82299495113b701338f2"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-28T18:22:39Z",
       "observation": "Cerbos documents a language-agnostic policy decision point deployed as a separate binary, container, sidecar, or service and queried by applications.",
       "freshnessScope": "Official repository deployment model at the evidence cutoff.",
       "directness": "direct",
@@ -48,8 +63,13 @@
       "candidateId": "openfga",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/openfga/openfga",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "1586caae409045a87c1c9894114417daa27ef0f8",
+        "immutableUrl": "https://github.com/openfga/openfga/tree/1586caae409045a87c1c9894114417daa27ef0f8"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-27T16:32:21Z",
       "observation": "OpenFGA is a separately operated authorization server exposing HTTP and gRPC APIs with persistent storage options.",
       "freshnessScope": "Official repository architecture and deployment documentation at the evidence cutoff.",
       "directness": "direct",

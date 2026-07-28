@@ -7,10 +7,7 @@
     {
       "candidateId": "bree",
       "disposition": "rejected",
-      "reasonCodes": [
-        "durable-shared-queue-required",
-        "transactional-enqueue-required"
-      ],
+      "reasonCodes": ["durable-shared-queue-required"],
       "evidenceIds": ["jobs-postgres-bree"]
     },
     {
@@ -21,18 +18,18 @@
     },
     {
       "candidateId": "graphile-worker",
-      "disposition": "viable",
-      "reasonCodes": ["postgres-queue-fit"],
+      "disposition": "recommended",
+      "reasonCodes": ["automatic-retry-required", "postgres-queue-fit"],
       "evidenceIds": ["jobs-postgres-graphile"]
     },
     {
       "candidateId": "pg-boss",
       "disposition": "recommended",
-      "reasonCodes": ["postgres-queue-fit", "transactional-enqueue-required"],
+      "reasonCodes": ["automatic-retry-required", "postgres-queue-fit"],
       "evidenceIds": ["jobs-postgres-pgboss"]
     }
   ],
-  "rankGroups": [["pg-boss"], ["graphile-worker"]],
+  "rankGroups": [["graphile-worker", "pg-boss"]],
   "rankRelations": [],
   "incomparablePairs": [],
   "hardConstraintConflicts": [
@@ -50,20 +47,8 @@
     }
   ],
   "requiredUnknownIds": ["worker-throughput-headroom"],
-  "requiredEvidenceIds": [
-    "jobs-postgres-bree",
-    "jobs-postgres-bullmq",
-    "jobs-postgres-graphile",
-    "jobs-postgres-pgboss"
-  ],
-  "requiredReasonCodes": [
-    "durable-shared-queue-required",
-    "postgres-queue-fit",
-    "redis-unavailable",
-    "transactional-enqueue-required"
-  ],
   "rationaleNotes": [
-    "pg-boss is the proposed winner because the Drizzle transaction adapter directly addresses the atomic enqueue constraint; Graphile Worker remains viable with integration work."
+    "Graphile Worker and pg-boss are tied proposed leaders because both reuse the only available shared queue infrastructure, PostgreSQL, and directly document durable workers with automatic retries; the bounded evidence does not justify ordering them."
   ],
   "evidenceCutoff": "2026-07-28",
   "provenance": {
@@ -71,6 +56,7 @@
     "authoringSession": "phase-2-issue-7-authoring-session",
     "independentReviewStatus": "not-reviewed",
     "independentReviewer": null,
-    "reviewedAt": null
+    "reviewedAt": null,
+    "reviewReference": null
   }
 }

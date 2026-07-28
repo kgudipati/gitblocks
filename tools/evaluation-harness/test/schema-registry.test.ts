@@ -2,13 +2,30 @@ import { describe, expect, it } from 'vitest';
 
 import { createSchemaRegistry } from '../src/schema-registry.ts';
 
+interface MutableEvidenceObservation {
+  subjectType: string;
+  candidateId: string | null;
+  sourceType: string;
+  sourceUrl: string;
+  sourceRevision: {
+    kind: string;
+    value: string;
+    immutableUrl: string | null;
+  };
+  publishedAt: string | null;
+  directness: string;
+}
+
 const caseDocument = {
   schemaVersion: '1.0.0',
   caseId: 'authorization-example',
   capabilityFamily: 'authorization',
+  decisionObjective: 'select-authorization-fit',
+  comparisonPairId: null,
   userRequest: 'Select an authorization library.',
   successConditions: ['Enforce record access.'],
   repositoryProfile: {
+    language: { name: 'typescript', version: '6.0.3' },
     runtime: { name: 'node', version: '24.18.0' },
     framework: { name: 'nextjs', version: '16.4.0' },
     packageManager: { name: 'pnpm', version: '11.17.0' },
@@ -85,8 +102,14 @@ const evidenceDocument = {
       candidateId: 'alpha',
       sourceType: 'license',
       sourceUrl: 'https://example.com/license',
+      sourceRevision: {
+        kind: 'git-commit',
+        value: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        immutableUrl:
+          'https://github.com/example/alpha/blob/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/LICENSE',
+      },
       collectedAt: '2026-07-28T20:00:00Z',
-      publishedAt: null,
+      publishedAt: '2026-07-27T20:00:00Z',
       observation: 'The project uses the MIT license.',
       freshnessScope: 'Repository license at the cutoff.',
       directness: 'direct',
@@ -132,8 +155,6 @@ const goldDocument = {
     },
   ],
   requiredUnknownIds: ['migration-effort'],
-  requiredEvidenceIds: ['alpha-license'],
-  requiredReasonCodes: ['tenant-isolation-required'],
   rationaleNotes: ['Proposed for review.'],
   evidenceCutoff: '2026-07-28',
   provenance: {
@@ -142,6 +163,7 @@ const goldDocument = {
     independentReviewStatus: 'not-reviewed',
     independentReviewer: null,
     reviewedAt: null,
+    reviewReference: null,
   },
 };
 
@@ -229,6 +251,9 @@ const manifestDocument = {
     authoringSession: 'phase-2-authoring-session',
     goldStatus: 'proposed',
     independentReviewStatus: 'not-reviewed',
+    independentReviewer: null,
+    reviewedAt: null,
+    reviewReference: null,
   },
 };
 
@@ -318,5 +343,279 @@ describe('evaluation JSON Schemas', () => {
     }));
 
     expect(registry.validate('case', invalidCase)).not.toEqual([]);
+  });
+
+  it('represents independently accepted gold with bounded review evidence', () => {
+    const registry = createSchemaRegistry();
+    const acceptedGold = structuredClone(goldDocument);
+    acceptedGold.provenance = {
+      status: 'accepted',
+      authoringSession: 'phase-2-authoring-session',
+      independentReviewStatus: 'accepted',
+      independentReviewer: 'reviewer-example',
+      reviewedAt: '2026-07-29T20:00:00Z',
+      reviewReference: 'review-record-7',
+    } as never;
+
+    expect(registry.validate('gold', acceptedGold)).toEqual([]);
+  });
+
+  it('rejects accepted provenance without independent reviewer evidence', () => {
+    const registry = createSchemaRegistry();
+    const acceptedGold = structuredClone(goldDocument);
+    acceptedGold.provenance = {
+      status: 'accepted',
+      authoringSession: 'phase-2-authoring-session',
+      independentReviewStatus: 'accepted',
+      independentReviewer: null,
+      reviewedAt: null,
+      reviewReference: null,
+    };
+
+    expect(registry.validate('gold', acceptedGold)).not.toEqual([]);
+  });
+
+  it('rejects accepted provenance with a whitespace-only review reference', () => {
+    const registry = createSchemaRegistry();
+    const acceptedGold = structuredClone(goldDocument);
+    acceptedGold.provenance = {
+      status: 'accepted',
+      authoringSession: 'phase-2-authoring-session',
+      independentReviewStatus: 'accepted',
+      independentReviewer: 'reviewer-example',
+      reviewedAt: '2026-07-29T20:00:00Z',
+      reviewReference: '  ',
+    } as never;
+
+    expect(registry.validate('gold', acceptedGold)).not.toEqual([]);
+  });
+
+  it('rejects proposed provenance that falsely carries a review timestamp', () => {
+    const registry = createSchemaRegistry();
+    const proposedGold = structuredClone(goldDocument);
+    proposedGold.provenance.reviewedAt = '2026-07-29T20:00:00Z' as never;
+
+    expect(registry.validate('gold', proposedGold)).not.toEqual([]);
+  });
+
+  it('represents an independently accepted corpus manifest', () => {
+    const registry = createSchemaRegistry();
+    const acceptedManifest = structuredClone(manifestDocument);
+    acceptedManifest.status = 'development-accepted';
+    acceptedManifest.provenance = {
+      authoringSession: 'phase-2-authoring-session',
+      goldStatus: 'accepted',
+      independentReviewStatus: 'reviewed',
+      independentReviewer: 'reviewer-example',
+      reviewedAt: '2026-07-29T20:00:00Z',
+      reviewReference: 'review-record-7',
+    } as never;
+
+    expect(registry.validate('manifest', acceptedManifest)).toEqual([]);
+  });
+
+  it('rejects accepted manifest provenance without reviewer evidence', () => {
+    const registry = createSchemaRegistry();
+    const acceptedManifest = structuredClone(manifestDocument);
+    acceptedManifest.status = 'development-accepted';
+    acceptedManifest.provenance = {
+      authoringSession: 'phase-2-authoring-session',
+      goldStatus: 'accepted',
+      independentReviewStatus: 'accepted',
+      independentReviewer: null,
+      reviewedAt: null,
+      reviewReference: null,
+    };
+
+    expect(registry.validate('manifest', acceptedManifest)).not.toEqual([]);
+  });
+
+  it('rejects an accepted manifest with a whitespace-only review reference', () => {
+    const registry = createSchemaRegistry();
+    const acceptedManifest = structuredClone(manifestDocument);
+    acceptedManifest.status = 'development-accepted';
+    acceptedManifest.provenance = {
+      authoringSession: 'phase-2-authoring-session',
+      goldStatus: 'accepted',
+      independentReviewStatus: 'accepted',
+      independentReviewer: 'reviewer-example',
+      reviewedAt: '2026-07-29T20:00:00Z',
+      reviewReference: '  ',
+    } as never;
+
+    expect(registry.validate('manifest', acceptedManifest)).not.toEqual([]);
+  });
+
+  it('rejects proposed manifest provenance that falsely carries a review timestamp', () => {
+    const registry = createSchemaRegistry();
+    const proposedManifest = structuredClone(manifestDocument);
+    proposedManifest.provenance.reviewedAt = '2026-07-29T20:00:00Z' as never;
+
+    expect(registry.validate('manifest', proposedManifest)).not.toEqual([]);
+  });
+
+  it('rejects manifest status and gold lifecycle mismatches in both directions', () => {
+    const registry = createSchemaRegistry();
+    const proposedWithAcceptedGold = structuredClone(manifestDocument);
+    proposedWithAcceptedGold.provenance = {
+      authoringSession: 'phase-2-authoring-session',
+      goldStatus: 'accepted',
+      independentReviewStatus: 'accepted',
+      independentReviewer: 'reviewer-example',
+      reviewedAt: '2026-07-29T20:00:00Z',
+      reviewReference: 'review-record-7',
+    } as never;
+    expect(registry.validate('manifest', proposedWithAcceptedGold)).not.toEqual(
+      [],
+    );
+
+    const acceptedWithProposedGold = structuredClone(manifestDocument);
+    acceptedWithProposedGold.status = 'development-accepted';
+    expect(registry.validate('manifest', acceptedWithProposedGold)).not.toEqual(
+      [],
+    );
+  });
+
+  it('requires bounded source revision metadata', () => {
+    const registry = createSchemaRegistry();
+    const unrevisedEvidence = structuredClone(evidenceDocument);
+    delete (
+      unrevisedEvidence.observations[0] as Partial<
+        (typeof unrevisedEvidence.observations)[number]
+      >
+    ).sourceRevision;
+
+    expect(registry.validate('evidence', unrevisedEvidence)).not.toEqual([]);
+  });
+
+  it.each([
+    {
+      sourceType: 'official-documentation',
+      revision: {
+        kind: 'git-commit',
+        value: 'a'.repeat(40),
+        immutableUrl: `https://github.com/example/alpha/tree/${'a'.repeat(40)}/docs`,
+      },
+    },
+    {
+      sourceType: 'official-repository',
+      revision: {
+        kind: 'git-commit',
+        value: 'a'.repeat(40),
+        immutableUrl: `https://github.com/example/alpha/tree/${'a'.repeat(40)}`,
+      },
+    },
+    {
+      sourceType: 'official-release',
+      revision: {
+        kind: 'release',
+        value: 'v1.2.3',
+        immutableUrl: 'https://github.com/example/alpha/releases/tag/v1.2.3',
+      },
+    },
+    {
+      sourceType: 'package-registry',
+      revision: {
+        kind: 'version',
+        value: '1.2.3',
+        immutableUrl: 'https://www.npmjs.com/package/alpha/v/1.2.3',
+      },
+    },
+    {
+      sourceType: 'security-advisory',
+      revision: {
+        kind: 'version',
+        value: 'GHSA-abcd-efgh-ijkl',
+        immutableUrl: 'https://github.com/advisories/GHSA-abcd-efgh-ijkl',
+      },
+    },
+    {
+      sourceType: 'license',
+      revision: {
+        kind: 'git-commit',
+        value: 'a'.repeat(40),
+        immutableUrl: `https://github.com/example/alpha/blob/${'a'.repeat(40)}/LICENSE`,
+      },
+    },
+    {
+      sourceType: 'case-local-fact',
+      revision: {
+        kind: 'case-version',
+        value: '1.0.0',
+        immutableUrl: null,
+      },
+      caseLocal: true,
+    },
+  ])(
+    'accepts appropriate $sourceType revision metadata',
+    ({ sourceType, revision, caseLocal }) => {
+      const registry = createSchemaRegistry();
+      const evidence = structuredClone(evidenceDocument);
+      const observation: MutableEvidenceObservation = evidence.observations[0]!;
+      observation.sourceType = sourceType;
+      observation.sourceRevision = revision;
+      if (caseLocal === true) {
+        observation.subjectType = 'case';
+        observation.candidateId = null;
+        observation.sourceUrl =
+          'case://authorization-example/repository-runtime';
+        observation.publishedAt = null;
+        observation.directness = 'case-local';
+      }
+
+      expect(registry.validate('evidence', evidence)).toEqual([]);
+    },
+  );
+
+  it.each([
+    ['official-documentation', 'case-version'],
+    ['official-repository', 'version'],
+    ['official-release', 'git-commit'],
+    ['package-registry', 'release'],
+    ['security-advisory', 'git-commit'],
+    ['license', 'version'],
+    ['case-local-fact', 'release'],
+  ] as const)(
+    'rejects %s evidence with revision kind %s',
+    (sourceType, kind) => {
+      const registry = createSchemaRegistry();
+      const evidence = structuredClone(evidenceDocument);
+      const observation: MutableEvidenceObservation = evidence.observations[0]!;
+      observation.sourceType = sourceType;
+      observation.sourceRevision = {
+        kind,
+        value: kind === 'git-commit' ? 'a'.repeat(40) : 'v1.2.3',
+        immutableUrl:
+          kind === 'case-version'
+            ? null
+            : 'https://github.com/example/alpha/releases/tag/v1.2.3',
+      };
+      if (sourceType === 'case-local-fact') {
+        observation.subjectType = 'case';
+        observation.candidateId = null;
+        observation.sourceUrl =
+          'case://authorization-example/repository-runtime';
+        observation.publishedAt = null;
+        observation.directness = 'case-local';
+      }
+
+      expect(registry.validate('evidence', evidence)).not.toEqual([]);
+    },
+  );
+
+  it('rejects mutable package aliases and release/source revision mismatches', () => {
+    const registry = createSchemaRegistry();
+    const mutablePackage = structuredClone(evidenceDocument);
+    mutablePackage.observations[0]!.sourceType = 'package-registry';
+    mutablePackage.observations[0]!.sourceRevision = {
+      kind: 'version',
+      value: 'latest',
+      immutableUrl: 'https://registry.example.com/alpha/latest',
+    };
+    expect(registry.validate('evidence', mutablePackage)).not.toEqual([]);
+
+    const mismatchedRelease = structuredClone(evidenceDocument);
+    mismatchedRelease.observations[0]!.sourceType = 'official-release';
+    expect(registry.validate('evidence', mismatchedRelease)).not.toEqual([]);
   });
 });

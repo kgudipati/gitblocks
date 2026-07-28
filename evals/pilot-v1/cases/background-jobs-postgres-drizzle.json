@@ -2,12 +2,15 @@
   "schemaVersion": "1.0.0",
   "caseId": "background-jobs-postgres-drizzle",
   "capabilityFamily": "background-jobs",
-  "userRequest": "Choose a durable background job library for invoice generation from serverless request handlers.",
+  "decisionObjective": "select-durable-job-queue-fit",
+  "comparisonPairId": "background-jobs-infrastructure",
+  "userRequest": "Choose a durable background job library for asynchronous processing with scheduled retries.",
   "successConditions": [
-    "A request can enqueue an invoice job atomically with its Drizzle business transaction.",
-    "A separately deployed worker retries failed jobs without requiring Redis."
+    "Multiple workers can claim durable jobs without duplicate concurrent processing.",
+    "Failed jobs retry with configurable backoff and survive application or worker restarts."
   ],
   "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
     "runtime": { "name": "node", "version": "24.18.0" },
     "framework": { "name": "nextjs", "version": "16.4.0" },
     "packageManager": { "name": "pnpm", "version": "11.17.0" },
@@ -42,14 +45,14 @@
       "statement": "The solution must use the existing PostgreSQL service and cannot require Redis."
     },
     {
-      "constraintId": "transactional-enqueue-runtime",
-      "reasonCode": "transactional-enqueue-required",
-      "statement": "The enqueue operation must participate in the caller's Drizzle transaction."
-    },
-    {
       "constraintId": "durable-worker-runtime",
       "reasonCode": "durable-shared-queue-required",
       "statement": "Job state must survive request termination and be claimable by a separate worker."
+    },
+    {
+      "constraintId": "retry-runtime",
+      "reasonCode": "automatic-retry-required",
+      "statement": "The candidate must provide automatic retries with configurable backoff."
     }
   ],
   "preferences": [
@@ -92,6 +95,10 @@
   ],
   "reasonCodes": [
     {
+      "id": "automatic-retry-required",
+      "description": "The case requires built-in retry and backoff behavior."
+    },
+    {
       "id": "durable-shared-queue-required",
       "description": "The case requires persistent shared job state and a separate worker."
     },
@@ -102,10 +109,6 @@
     {
       "id": "redis-unavailable",
       "description": "The repository will not operate Redis."
-    },
-    {
-      "id": "transactional-enqueue-required",
-      "description": "Enqueue must share the application's Drizzle transaction."
     }
   ],
   "unknowns": [
@@ -115,7 +118,7 @@
     }
   ],
   "difficulty": "hard",
-  "failureModes": ["paired-background-jobs-request", "popularity-over-fit"],
+  "failureModes": ["popularity-over-fit"],
   "authoredAt": "2026-07-28",
   "evidenceCutoff": "2026-07-28"
 }

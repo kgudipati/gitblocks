@@ -15,6 +15,7 @@ import {
 } from './json-boundary.ts';
 import { validateCaseBundle } from './referential-integrity.ts';
 import { createSchemaRegistry } from './schema-registry.ts';
+import { stableJson } from './stable-json.ts';
 
 export interface ManifestHashReference {
   readonly path: string;
@@ -202,8 +203,11 @@ export function loadCorpus(
 
   validateFamilyCounts(diagnostics, manifest, bundles);
   if (enforcePilotDiversity && bundles.length === expectedCaseCount) {
-    validatePilotDiversity(diagnostics, bundles);
+    diagnostics.push(...validatePilotScope(bundles));
+    diagnostics.push(...validateComparisonPairs(bundles));
+    validatePilotDiversity(diagnostics, manifest, bundles);
   }
+  diagnostics.push(...validateCorpusProvenance(manifest, bundles));
 
   if (diagnostics.length > 0) {
     return { ok: false, diagnostics: finalize(diagnostics) };
@@ -277,157 +281,408 @@ function validateFamilyCounts(
   }
 }
 
+export function validatePilotScope(
+  bundles: readonly CaseBundle[],
+): readonly ReferenceDiagnostic[] {
+  const diagnostics: ReferenceDiagnostic[] = [];
+  for (const bundle of bundles) {
+    const { caseDocument } = bundle;
+    const { repositoryProfile } = caseDocument;
+    const fields = [
+      ['language', repositoryProfile.language.name, 'typescript'],
+      ['framework', repositoryProfile.framework.name, 'nextjs'],
+      ['database', repositoryProfile.database.name, 'postgresql'],
+    ] as const;
+    for (const [field, actual, expected] of fields) {
+      if (actual !== expected) {
+        diagnostics.push(
+          diagnostic(
+            'manifest.pilot-scope',
+            `Pilot ${field} must be ${expected}.`,
+            `${caseDocument.caseId}.repositoryProfile.${field}.name`,
+          ),
+        );
+      }
+    }
+    if (
+      !['node', 'node-serverless', 'node-edge', 'edge-fetch'].includes(
+        repositoryProfile.runtime.name,
+      )
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'manifest.pilot-scope',
+          'Pilot runtime must be a supported Node.js or Next.js Edge execution topology.',
+          `${caseDocument.caseId}.repositoryProfile.runtime.name`,
+        ),
+      );
+    }
+    if (
+      repositoryProfile.orm.name !== 'prisma' &&
+      repositoryProfile.orm.name !== 'drizzle'
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'manifest.pilot-scope',
+          'Pilot ORM must be Prisma or Drizzle.',
+          `${caseDocument.caseId}.repositoryProfile.orm.name`,
+        ),
+      );
+    }
+  }
+  return finalize(diagnostics);
+}
+
+export function validateComparisonPairs(
+  bundles: readonly CaseBundle[],
+): readonly ReferenceDiagnostic[] {
+  return analyzeComparisonPairs(bundles).diagnostics;
+}
+
+function analyzeComparisonPairs(bundles: readonly CaseBundle[]): {
+  readonly validPairCount: number;
+  readonly diagnostics: readonly ReferenceDiagnostic[];
+} {
+  const diagnostics: ReferenceDiagnostic[] = [];
+  const pairs = new Map<string, CaseBundle[]>();
+  for (const bundle of bundles) {
+    const pairId = bundle.caseDocument.comparisonPairId;
+    if (pairId === null) {
+      continue;
+    }
+    const members = pairs.get(pairId) ?? [];
+    members.push(bundle);
+    pairs.set(pairId, members);
+  }
+
+  let validPairCount = 0;
+  for (const [pairId, members] of [...pairs.entries()].sort(([left], [right]) =>
+    compareText(left, right),
+  )) {
+    const path = `comparisonPair.${pairId}`;
+    if (members.length !== 2) {
+      diagnostics.push(
+        diagnostic(
+          'manifest.comparison-pair-size',
+          'A declared comparison pair must contain exactly two cases.',
+          path,
+        ),
+      );
+      continue;
+    }
+    const [left, right] = members as [CaseBundle, CaseBundle];
+    const conditioningVariablesDiffer = !sameJson(
+      normalizedConditioning(left.caseDocument),
+      normalizedConditioning(right.caseDocument),
+    );
+    const checks = [
+      {
+        condition:
+          left.caseDocument.capabilityFamily ===
+          right.caseDocument.capabilityFamily,
+        code: 'manifest.comparison-pair-family',
+        message: 'Comparison pair cases must use the same capability family.',
+      },
+      {
+        condition:
+          left.caseDocument.decisionObjective ===
+          right.caseDocument.decisionObjective,
+        code: 'manifest.comparison-pair-objective',
+        message: 'Comparison pair cases must use the same decision objective.',
+      },
+      {
+        condition:
+          left.caseDocument.userRequest === right.caseDocument.userRequest,
+        code: 'manifest.comparison-pair-request',
+        message: 'Comparison pair cases must use the identical user request.',
+      },
+      {
+        condition: sameJson(
+          left.caseDocument.successConditions,
+          right.caseDocument.successConditions,
+        ),
+        code: 'manifest.comparison-pair-success',
+        message: 'Comparison pair cases must use identical success conditions.',
+      },
+      {
+        condition: sameJson(
+          normalizedCandidates(left.caseDocument),
+          normalizedCandidates(right.caseDocument),
+        ),
+        code: 'manifest.comparison-pair-candidates',
+        message:
+          'Comparison pair cases must use the same candidate IDs and normalized projects.',
+      },
+      {
+        condition: conditioningVariablesDiffer,
+        code: 'manifest.comparison-pair-conditioning',
+        message:
+          'Comparison pair cases must differ in repository profile or hard constraints.',
+      },
+      {
+        condition: !sameSet(
+          recommendedCandidates(left.gold),
+          recommendedCandidates(right.gold),
+        ),
+        code: 'manifest.comparison-pair-winner',
+        message:
+          'Comparison pair cases must have different proposed recommended candidate sets.',
+      },
+    ] as const;
+    for (const check of checks) {
+      if (!check.condition) {
+        diagnostics.push(diagnostic(check.code, check.message, path));
+      }
+    }
+    if (checks.every((check) => check.condition)) {
+      validPairCount += 1;
+    }
+  }
+  if (validPairCount < 2) {
+    diagnostics.push(
+      diagnostic(
+        'manifest.diversity',
+        'Pilot diversity check failed: includes two controlled comparison pairs.',
+        'manifest.diversity',
+      ),
+    );
+  }
+  return { validPairCount, diagnostics: finalize(diagnostics) };
+}
+
 function validatePilotDiversity(
   diagnostics: ReferenceDiagnostic[],
+  manifest: CorpusManifest,
   bundles: readonly CaseBundle[],
 ): void {
-  const profiles = bundles.map(
-    (bundle) => bundle.caseDocument.repositoryProfile,
-  );
-  const outcomes = bundles.map((bundle) => bundle.gold.outcome);
+  const derived = derivePilotDiversity(bundles);
+  requireDiversity(diagnostics, derived.includesPrisma, 'includes Prisma');
+  requireDiversity(diagnostics, derived.includesDrizzle, 'includes Drizzle');
   requireDiversity(
     diagnostics,
-    profiles.some((profile) => profile.orm.name === 'prisma'),
-    'includes Prisma',
-  );
-  requireDiversity(
-    diagnostics,
-    profiles.some((profile) => profile.orm.name === 'drizzle'),
-    'includes Drizzle',
-  );
-  requireDiversity(
-    diagnostics,
-    profiles.some((profile) => profile.deployment.topology === 'serverless'),
+    derived.includesServerless,
     'includes serverless deployment',
   );
   requireDiversity(
     diagnostics,
-    profiles.some((profile) =>
-      profile.deployment.topology.startsWith('long-running'),
-    ),
+    derived.includesLongRunning,
     'includes long-running deployment',
   );
   requireDiversity(
     diagnostics,
-    profiles.some(
-      (profile) => profile.deployment.workerCapability === 'capable',
-    ),
+    derived.includesWorkerCapable,
     'includes worker-capable deployment',
   );
   requireDiversity(
     diagnostics,
-    profiles.some(
-      (profile) => profile.deployment.workerCapability === 'incapable',
-    ),
+    derived.includesWorkerIncapable,
     'includes worker-incapable deployment',
   );
+  requireDiversity(diagnostics, derived.includesRedis, 'includes Redis');
   requireDiversity(
     diagnostics,
-    profiles.some((profile) => profile.hasRedis),
-    'includes Redis',
-  );
-  requireDiversity(
-    diagnostics,
-    profiles.some((profile) => !profile.hasRedis),
+    derived.includesNoRedis,
     'includes repository without Redis',
   );
   requireDiversity(
     diagnostics,
-    profiles.some((profile) => profile.tenantModel === 'single-tenant'),
+    derived.includesSingleTenant,
     'includes single-tenant case',
   );
   requireDiversity(
     diagnostics,
-    profiles.some((profile) => profile.tenantModel === 'multi-tenant'),
+    derived.includesMultiTenant,
     'includes multi-tenant case',
   );
   requireDiversity(
     diagnostics,
-    outcomes.filter((outcome) => outcome !== 'recommend').length >= 2,
+    derived.responsibleAbstentions >= 2,
     'includes at least two responsible abstentions',
   );
   requireDiversity(
     diagnostics,
-    hasConstraintToken(bundles, 'license'),
+    derived.includesLicenseConstraint,
     'includes a license constraint',
   );
   requireDiversity(
     diagnostics,
-    hasConstraintToken(bundles, 'runtime'),
+    derived.includesRuntimeConstraint,
     'includes a runtime constraint',
   );
   requireDiversity(
     diagnostics,
-    hasConstraintToken(bundles, 'residency') ||
-      hasConstraintToken(bundles, 'external-service'),
+    derived.includesResidencyConstraint,
     'includes a residency or external-service constraint',
   );
   requireDiversity(
     diagnostics,
-    bundles.some(
+    derived.includesEvidenceInsufficiency,
+    'includes evidence insufficiency',
+  );
+  requireDiversity(
+    diagnostics,
+    derived.includesTieOrPartialOrder,
+    'includes a tie or partial order',
+  );
+  requireDiversity(
+    diagnostics,
+    derived.popularHardConstraintRejections >= 3,
+    'includes three popular hard-constraint rejections',
+  );
+  requireDiversity(
+    diagnostics,
+    derived.popularityDiffersFromFit,
+    'includes popularity order differing from fit',
+  );
+  requireDiversity(
+    diagnostics,
+    derived.pairedDifferentWinners >= 2,
+    'includes two controlled comparisons with different winners',
+  );
+
+  for (const key of Object.keys(derived) as (keyof typeof derived)[]) {
+    if (manifest.diversity[key] !== derived[key]) {
+      diagnostics.push(
+        diagnostic(
+          'manifest.diversity-drift',
+          'Stored manifest diversity must exactly match derived corpus data.',
+          `manifest.diversity.${key}`,
+        ),
+      );
+    }
+  }
+}
+
+export function derivePilotDiversity(
+  bundles: readonly CaseBundle[],
+): CorpusManifest['diversity'] {
+  const profiles = bundles.map(
+    (bundle) => bundle.caseDocument.repositoryProfile,
+  );
+  const outcomes = bundles.map((bundle) => bundle.gold.outcome);
+  return {
+    pairedDifferentWinners: analyzeComparisonPairs(bundles).validPairCount,
+    responsibleAbstentions: outcomes.filter(
+      (outcome) => outcome !== 'recommend',
+    ).length,
+    popularHardConstraintRejections: bundles.filter(
+      (bundle) =>
+        bundle.caseDocument.failureModes.includes('popular-hard-constraint') &&
+        bundle.gold.hardConstraintConflicts.length > 0,
+    ).length,
+    includesPrisma: profiles.some((profile) => profile.orm.name === 'prisma'),
+    includesDrizzle: profiles.some((profile) => profile.orm.name === 'drizzle'),
+    includesServerless: profiles.some(
+      (profile) => profile.deployment.topology === 'serverless',
+    ),
+    includesLongRunning: profiles.some((profile) =>
+      profile.deployment.topology.startsWith('long-running'),
+    ),
+    includesWorkerCapable: profiles.some(
+      (profile) => profile.deployment.workerCapability === 'capable',
+    ),
+    includesWorkerIncapable: profiles.some(
+      (profile) => profile.deployment.workerCapability === 'incapable',
+    ),
+    includesRedis: profiles.some((profile) => profile.hasRedis),
+    includesNoRedis: profiles.some((profile) => !profile.hasRedis),
+    includesSingleTenant: profiles.some(
+      (profile) => profile.tenantModel === 'single-tenant',
+    ),
+    includesMultiTenant: profiles.some(
+      (profile) => profile.tenantModel === 'multi-tenant',
+    ),
+    includesLicenseConstraint: hasConstraintToken(bundles, 'license'),
+    includesRuntimeConstraint: hasConstraintToken(bundles, 'runtime'),
+    includesResidencyConstraint:
+      hasConstraintToken(bundles, 'residency') ||
+      hasConstraintToken(bundles, 'external-service'),
+    includesEvidenceInsufficiency: bundles.some(
       (bundle) =>
         bundle.gold.outcome === 'insufficient-evidence' ||
         bundle.gold.dispositions.some(
           (disposition) => disposition.disposition === 'insufficient-evidence',
         ),
     ),
-    'includes evidence insufficiency',
-  );
-  requireDiversity(
-    diagnostics,
-    bundles.some(
+    includesTieOrPartialOrder: bundles.some(
       (bundle) =>
         bundle.gold.rankGroups.some((group) => group.length > 1) ||
         bundle.gold.rankRelations.length > 0 ||
         bundle.gold.incomparablePairs.length > 0,
     ),
-    'includes a tie or partial order',
-  );
-  requireDiversity(
-    diagnostics,
-    bundles.filter(
-      (bundle) =>
-        bundle.caseDocument.failureModes.includes('popular-hard-constraint') &&
-        bundle.gold.hardConstraintConflicts.length > 0,
-    ).length >= 3,
-    'includes three popular hard-constraint rejections',
-  );
-  requireDiversity(
-    diagnostics,
-    bundles.some((bundle) =>
+    popularityDiffersFromFit: bundles.some((bundle) =>
       bundle.caseDocument.failureModes.includes('popularity-over-fit'),
     ),
-    'includes popularity order differing from fit',
-  );
+  };
+}
 
-  const pairedTags = new Map<string, CaseBundle[]>();
+export function validateCorpusProvenance(
+  manifest: CorpusManifest,
+  bundles: readonly CaseBundle[],
+): readonly ReferenceDiagnostic[] {
+  const diagnostics: ReferenceDiagnostic[] = [];
   for (const bundle of bundles) {
-    for (const tag of bundle.caseDocument.failureModes.filter((failureMode) =>
-      failureMode.startsWith('paired-'),
-    )) {
-      const paired = pairedTags.get(tag) ?? [];
-      paired.push(bundle);
-      pairedTags.set(tag, paired);
+    if (
+      bundle.gold.provenance.status !== manifest.provenance.goldStatus ||
+      bundle.gold.provenance.authoringSession !==
+        manifest.provenance.authoringSession
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'manifest.provenance',
+          'Every gold provenance status and authoring session must agree with the manifest.',
+          bundle.caseDocument.caseId,
+        ),
+      );
     }
   }
-  const validPairs = [...pairedTags.values()].filter((pair) => {
-    if (pair.length !== 2) {
-      return false;
-    }
-    const winners = pair.map((bundle) =>
-      bundle.gold.dispositions
-        .filter((disposition) => disposition.disposition === 'recommended')
-        .map((disposition) => disposition.candidateId)
-        .sort(compareText)
-        .join(','),
-    );
-    return winners[0] !== winners[1];
-  });
-  requireDiversity(
-    diagnostics,
-    validPairs.length >= 2,
-    'includes two paired requests with different winners',
-  );
+  return finalize(diagnostics);
+}
+
+function normalizedCandidates(caseDocument: EvaluationCase): readonly {
+  readonly candidateId: string;
+  readonly project: string;
+  readonly package: string | null;
+  readonly repository: string;
+}[] {
+  return caseDocument.candidates.map((candidate) => ({
+    candidateId: candidate.candidateId,
+    project: candidate.project,
+    package: candidate.package,
+    repository: candidate.repository,
+  }));
+}
+
+function normalizedConditioning(caseDocument: EvaluationCase): unknown {
+  const profile = caseDocument.repositoryProfile;
+  return {
+    repositoryProfile: {
+      ...profile,
+      dependencies: [...profile.dependencies].sort((left, right) =>
+        compareText(
+          `${left.name}\0${left.version}`,
+          `${right.name}\0${right.version}`,
+        ),
+      ),
+      identityFacts: [...profile.identityFacts].sort(compareText),
+      dataFacts: [...profile.dataFacts].sort(compareText),
+      operationalFacts: [...profile.operationalFacts].sort(compareText),
+    },
+    hardConstraints: [...caseDocument.hardConstraints].sort((left, right) =>
+      compareText(left.constraintId, right.constraintId),
+    ),
+  };
+}
+
+function recommendedCandidates(gold: GoldResult): string[] {
+  return gold.dispositions
+    .filter((disposition) => disposition.disposition === 'recommended')
+    .map((disposition) => disposition.candidateId)
+    .sort(compareText);
+}
+
+function sameJson(left: unknown, right: unknown): boolean {
+  return stableJson(left) === stableJson(right);
 }
 
 function hasConstraintToken(

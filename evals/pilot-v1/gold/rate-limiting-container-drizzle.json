@@ -13,7 +13,7 @@
     {
       "candidateId": "express-rate-limit",
       "disposition": "rejected",
-      "reasonCodes": ["framework-compatible"],
+      "reasonCodes": ["framework-mismatch"],
       "evidenceIds": ["rate-container-express"]
     },
     {
@@ -39,8 +39,8 @@
   "hardConstraintConflicts": [
     {
       "candidateId": "express-rate-limit",
-      "constraintId": "framework-fastify-runtime",
-      "reasonCode": "framework-compatible",
+      "constraintId": "framework-nextjs-runtime",
+      "reasonCode": "framework-mismatch",
       "evidenceIds": ["rate-container-express"]
     },
     {
@@ -51,20 +51,8 @@
     }
   ],
   "requiredUnknownIds": ["restart-reset-acceptance"],
-  "requiredEvidenceIds": [
-    "rate-container-bottleneck",
-    "rate-container-express",
-    "rate-container-flexible",
-    "rate-container-upstash"
-  ],
-  "requiredReasonCodes": [
-    "external-service-disallowed",
-    "framework-compatible",
-    "in-memory-fit",
-    "login-limiter-fit"
-  ],
   "rationaleNotes": [
-    "rate-limiter-flexible is the proposed leader because its atomic memory limiter and quota response fit the current one-process Fastify repository while preserving future store options."
+    "rate-limiter-flexible is the proposed leader because its atomic memory limiter and quota response fit the current one-process Next.js repository while preserving future store options."
   ],
   "evidenceCutoff": "2026-07-28",
   "provenance": {
@@ -72,6 +60,7 @@
     "authoringSession": "phase-2-issue-7-authoring-session",
     "independentReviewStatus": "not-reviewed",
     "independentReviewer": null,
-    "reviewedAt": null
+    "reviewedAt": null,
+    "reviewReference": null
   }
 }

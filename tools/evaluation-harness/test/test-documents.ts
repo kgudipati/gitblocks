@@ -10,9 +10,12 @@ export function createCase(): EvaluationCase {
     schemaVersion: '1.0.0',
     caseId: 'authorization-example',
     capabilityFamily: 'authorization',
+    decisionObjective: 'select-authorization-fit',
+    comparisonPairId: null,
     userRequest: 'Select an authorization library.',
     successConditions: ['Enforce record access.'],
     repositoryProfile: {
+      language: { name: 'typescript', version: '6.0.3' },
       runtime: { name: 'node', version: '24.18.0' },
       framework: { name: 'nextjs', version: '16.4.0' },
       packageManager: { name: 'pnpm', version: '11.17.0' },
@@ -97,6 +100,12 @@ export function createEvidence(): EvidenceSet {
         subjectType: 'case',
         sourceType: 'case-local-fact',
         sourceUrl: 'case://authorization-example/tenant-fact',
+        sourceRevision: {
+          kind: 'case-version',
+          value: '1.0.0',
+          immutableUrl: null,
+        },
+        publishedAt: null,
         directness: 'case-local',
       },
       observation('gamma-conflict', 'gamma'),
@@ -132,8 +141,6 @@ export function createGold(): GoldResult {
       },
     ],
     requiredUnknownIds: ['migration-effort'],
-    requiredEvidenceIds: ['alpha-license', 'beta-license', 'gamma-conflict'],
-    requiredReasonCodes: ['tenant-isolation-required'],
     rationaleNotes: ['Proposed for review.'],
     evidenceCutoff: '2026-07-28',
     provenance: {
@@ -142,6 +149,7 @@ export function createGold(): GoldResult {
       independentReviewStatus: 'not-reviewed',
       independentReviewer: null,
       reviewedAt: null,
+      reviewReference: null,
     },
   };
 }
@@ -179,8 +187,14 @@ function observation(evidenceId: string, candidateId: string | null) {
     candidateId,
     sourceType: 'license' as const,
     sourceUrl: 'https://example.com/license',
+    sourceRevision: {
+      kind: 'git-commit' as const,
+      value: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      immutableUrl:
+        'https://github.com/example/project/blob/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/LICENSE',
+    },
     collectedAt: '2026-07-28T20:00:00Z',
-    publishedAt: null,
+    publishedAt: '2026-07-27T20:00:00Z',
     observation: 'The project uses a reviewed license.',
     freshnessScope: 'Repository license at the cutoff.',
     directness: 'direct' as const,

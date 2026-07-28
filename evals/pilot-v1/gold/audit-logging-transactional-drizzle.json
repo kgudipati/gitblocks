@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "caseId": "audit-logging-transactional-drizzle",
   "outcome": "insufficient-evidence",
-  "allowedAlternativeOutcomes": ["no-viable-candidate"],
+  "allowedAlternativeOutcomes": [],
   "dispositions": [
     {
       "candidateId": "logtape",
@@ -50,16 +50,6 @@
     }
   ],
   "requiredUnknownIds": ["transaction-adapter-proof"],
-  "requiredEvidenceIds": [
-    "audit-transactional-logtape",
-    "audit-transactional-pgaudit",
-    "audit-transactional-pino",
-    "audit-transactional-winston"
-  ],
-  "requiredReasonCodes": [
-    "database-extension-unavailable",
-    "transactional-atomicity-required"
-  ],
   "rationaleNotes": [
     "The responsible proposed result abstains: pgAudit explicitly conflicts, while the bounded evidence does not prove that any application logger can join the existing Drizzle transaction."
   ],
@@ -69,6 +59,7 @@
     "authoringSession": "phase-2-issue-7-authoring-session",
     "independentReviewStatus": "not-reviewed",
     "independentReviewer": null,
-    "reviewedAt": null
+    "reviewedAt": null,
+    "reviewReference": null
   }
 }

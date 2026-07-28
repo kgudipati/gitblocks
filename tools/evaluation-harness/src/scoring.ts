@@ -190,22 +190,54 @@ function accumulateCase(
     gold.requiredUnknownIds,
     disclosedUnknowns,
   );
+  const requiredEvidence = new Set(
+    gold.dispositions.flatMap((candidate) =>
+      candidate.evidenceIds.map((evidenceId) =>
+        associationKey(candidate.candidateId, evidenceId),
+      ),
+    ),
+  );
+  for (const conflict of gold.hardConstraintConflicts) {
+    for (const evidenceId of conflict.evidenceIds) {
+      requiredEvidence.add(associationKey(conflict.candidateId, evidenceId));
+    }
+  }
   const predictedEvidence = new Set(
-    prediction.candidates.flatMap((candidate) => candidate.evidenceIds),
+    prediction.candidates.flatMap((candidate) =>
+      candidate.evidenceIds.map((evidenceId) =>
+        associationKey(candidate.candidateId, evidenceId),
+      ),
+    ),
   );
   accumulateRecall(
     accumulator,
     'evidence',
-    gold.requiredEvidenceIds,
+    [...requiredEvidence],
     predictedEvidence,
   );
+  const requiredReasons = new Set(
+    gold.dispositions.flatMap((candidate) =>
+      candidate.reasonCodes.map((reasonCode) =>
+        associationKey(candidate.candidateId, reasonCode),
+      ),
+    ),
+  );
+  for (const conflict of gold.hardConstraintConflicts) {
+    requiredReasons.add(
+      associationKey(conflict.candidateId, conflict.reasonCode),
+    );
+  }
   const predictedReasons = new Set(
-    prediction.candidates.flatMap((candidate) => candidate.reasonCodes),
+    prediction.candidates.flatMap((candidate) =>
+      candidate.reasonCodes.map((reasonCode) =>
+        associationKey(candidate.candidateId, reasonCode),
+      ),
+    ),
   );
   accumulateRecall(
     accumulator,
     'reason',
-    gold.requiredReasonCodes,
+    [...requiredReasons],
     predictedReasons,
   );
 }
@@ -283,8 +315,12 @@ function pairRelations(
     viable.map((candidateId) => [candidateId, new Set()]),
   );
   const ties = new Set<string>();
+  const tiedMembersByCandidate = new Map<string, readonly string[]>();
   for (let index = 0; index < rankGroups.length; index += 1) {
     const group = rankGroups[index] ?? [];
+    for (const candidateId of group) {
+      tiedMembersByCandidate.set(candidateId, group);
+    }
     for (let leftIndex = 0; leftIndex < group.length; leftIndex += 1) {
       for (
         let rightIndex = leftIndex + 1;
@@ -307,7 +343,17 @@ function pairRelations(
     }
   }
   for (const relation of explicitRelations) {
-    adjacency.get(relation.higherCandidateId)?.add(relation.lowerCandidateId);
+    const higherMembers = tiedMembersByCandidate.get(
+      relation.higherCandidateId,
+    ) ?? [relation.higherCandidateId];
+    const lowerMembers = tiedMembersByCandidate.get(
+      relation.lowerCandidateId,
+    ) ?? [relation.lowerCandidateId];
+    for (const higher of higherMembers) {
+      for (const lower of lowerMembers) {
+        adjacency.get(higher)?.add(lower);
+      }
+    }
   }
 
   const relations = new Map<string, 'left-higher' | 'right-higher' | 'tie'>();
@@ -522,6 +568,10 @@ function round(value: number): number {
 
 function pairKey(left: string, right: string): string {
   return left < right ? `${left}\0${right}` : `${right}\0${left}`;
+}
+
+function associationKey(candidateId: string, itemId: string): string {
+  return `${candidateId}\0${itemId}`;
 }
 
 function compareText(left: string, right: string): number {

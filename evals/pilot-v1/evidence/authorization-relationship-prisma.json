@@ -9,12 +9,17 @@
       "candidateId": "casbin",
       "sourceType": "official-documentation",
       "sourceUrl": "https://www.casbin.org/docs/rbac",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "0ce8e9b26f13e5014caad222db0f2a334164c9b3",
+        "immutableUrl": "https://github.com/apache/casbin-website/tree/0ce8e9b26f13e5014caad222db0f2a334164c9b3/docs"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-04-18T08:14:32Z",
       "observation": "Casbin documents configurable RBAC and role hierarchies, including domains for tenant-scoped roles.",
       "freshnessScope": "Official Casbin model documentation at the evidence cutoff.",
       "directness": "direct",
-      "limitation": "The evidence does not establish the repository-specific persistence and synchronization design."
+      "limitation": "The evidence does not establish Node.js 24 compatibility or the repository-specific persistence and synchronization design."
     },
     {
       "evidenceId": "auth-relationship-casl",
@@ -22,9 +27,14 @@
       "candidateId": "casl",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/stalniy/casl",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "4b27c7dfa77bbf210499bdef90bca02aaba3ba3d",
+        "immutableUrl": "https://github.com/stalniy/casl/tree/4b27c7dfa77bbf210499bdef90bca02aaba3ba3d"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
-      "observation": "CASL provides declarative subject and attribute rules and an official Prisma integration for filtering database records.",
+      "publishedAt": "2026-07-28T02:01:46Z",
+      "observation": "CASL documents support for Node.js 18 and later, declarative subject and attribute rules, and an official Prisma integration for filtering database records.",
       "freshnessScope": "Official repository ecosystem table and authorization model at the evidence cutoff.",
       "directness": "direct",
       "limitation": "The source does not claim a persistent Zanzibar-style relationship graph."
@@ -35,8 +45,13 @@
       "candidateId": "cerbos",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/cerbos/cerbos",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "85b6551a00404a76bf5c82299495113b701338f2",
+        "immutableUrl": "https://github.com/cerbos/cerbos/tree/85b6551a00404a76bf5c82299495113b701338f2"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-28T18:22:39Z",
       "observation": "Cerbos is a self-hostable policy decision point for context-aware resource policies and exposes language-agnostic APIs.",
       "freshnessScope": "Official repository capabilities and deployment model at the evidence cutoff.",
       "directness": "direct",
@@ -48,8 +63,13 @@
       "candidateId": "openfga",
       "sourceType": "official-repository",
       "sourceUrl": "https://github.com/openfga/openfga",
+      "sourceRevision": {
+        "kind": "git-commit",
+        "value": "1586caae409045a87c1c9894114417daa27ef0f8",
+        "immutableUrl": "https://github.com/openfga/openfga/tree/1586caae409045a87c1c9894114417daa27ef0f8"
+      },
       "collectedAt": "2026-07-28T21:00:00Z",
-      "publishedAt": null,
+      "publishedAt": "2026-07-27T16:32:21Z",
       "observation": "OpenFGA is a Zanzibar-inspired fine-grained authorization server for relationship-based access and supports PostgreSQL persistence plus HTTP and gRPC APIs.",
       "freshnessScope": "Official repository README and storage documentation at the evidence cutoff.",
       "directness": "direct",

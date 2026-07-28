@@ -1,19 +1,19 @@
 {
   "schemaVersion": "1.0.0",
   "caseId": "authorization-edge-drizzle",
-  "outcome": "recommend",
+  "outcome": "insufficient-evidence",
   "allowedAlternativeOutcomes": [],
   "dispositions": [
     {
       "candidateId": "casbin",
-      "disposition": "viable",
-      "reasonCodes": ["attribute-policy-fit", "runtime-compatible"],
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["attribute-policy-fit", "edge-runtime-unproven"],
       "evidenceIds": ["auth-edge-casbin"]
     },
     {
       "candidateId": "casl",
-      "disposition": "recommended",
-      "reasonCodes": ["attribute-policy-fit", "runtime-compatible"],
+      "disposition": "insufficient-evidence",
+      "reasonCodes": ["attribute-policy-fit", "edge-runtime-unproven"],
       "evidenceIds": ["auth-edge-casl"]
     },
     {
@@ -29,7 +29,7 @@
       "evidenceIds": ["auth-edge-openfga"]
     }
   ],
-  "rankGroups": [["casl"], ["casbin"]],
+  "rankGroups": [],
   "rankRelations": [],
   "incomparablePairs": [],
   "hardConstraintConflicts": [
@@ -46,20 +46,9 @@
       "evidenceIds": ["auth-edge-openfga"]
     }
   ],
-  "requiredUnknownIds": ["edge-bundle-cost"],
-  "requiredEvidenceIds": [
-    "auth-edge-casbin",
-    "auth-edge-casl",
-    "auth-edge-cerbos",
-    "auth-edge-openfga"
-  ],
-  "requiredReasonCodes": [
-    "attribute-policy-fit",
-    "external-service-disallowed",
-    "runtime-compatible"
-  ],
+  "requiredUnknownIds": ["edge-runtime-proof"],
   "rationaleNotes": [
-    "CASL is the proposed fit because it keeps attribute decisions inside the constrained edge request path; this gold is authored, proposed, and not independently accepted."
+    "The proposed outcome abstains because node-casbin and CASL document Node.js or browser use without proving compatibility with Next.js Edge restrictions; Cerbos and OpenFGA conflict with the no-service constraint. This judgment is not independently accepted."
   ],
   "evidenceCutoff": "2026-07-28",
   "provenance": {
@@ -67,6 +56,7 @@
     "authoringSession": "phase-2-issue-7-authoring-session",
     "independentReviewStatus": "not-reviewed",
     "independentReviewer": null,
-    "reviewedAt": null
+    "reviewedAt": null,
+    "reviewReference": null
   }
 }

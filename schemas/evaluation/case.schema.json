@@ -8,6 +8,8 @@
     "schemaVersion",
     "caseId",
     "capabilityFamily",
+    "decisionObjective",
+    "comparisonPairId",
     "userRequest",
     "successConditions",
     "repositoryProfile",
@@ -33,6 +35,10 @@
         "rate-limiting",
         "webhooks"
       ]
+    },
+    "decisionObjective": { "$ref": "#/$defs/id" },
+    "comparisonPairId": {
+      "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }]
     },
     "userRequest": { "$ref": "#/$defs/text" },
     "successConditions": {
@@ -120,6 +126,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "language",
         "runtime",
         "framework",
         "packageManager",
@@ -134,21 +141,12 @@
         "operationalFacts"
       ],
       "properties": {
+        "language": { "$ref": "#/$defs/namedVersion" },
         "runtime": { "$ref": "#/$defs/namedVersion" },
         "framework": { "$ref": "#/$defs/namedVersion" },
         "packageManager": { "$ref": "#/$defs/namedVersion" },
         "database": { "$ref": "#/$defs/namedVersion" },
-        "orm": {
-          "allOf": [
-            { "$ref": "#/$defs/namedVersion" },
-            {
-              "type": "object",
-              "properties": {
-                "name": { "enum": ["prisma", "drizzle"] }
-              }
-            }
-          ]
-        },
+        "orm": { "$ref": "#/$defs/namedVersion" },
         "deployment": {
           "type": "object",
           "additionalProperties": false,

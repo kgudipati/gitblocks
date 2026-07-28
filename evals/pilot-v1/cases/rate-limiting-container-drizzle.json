@@ -2,16 +2,19 @@
   "schemaVersion": "1.0.0",
   "caseId": "rate-limiting-container-drizzle",
   "capabilityFamily": "rate-limiting",
-  "userRequest": "Choose an in-process rate limiter for login attempts on the existing single-replica API.",
+  "decisionObjective": "select-rate-limiter-fit",
+  "comparisonPairId": "rate-limiting-topology",
+  "userRequest": "Choose a rate limiter for login and API request throttling in the existing Next.js application.",
   "successConditions": [
-    "The API limits attempts by normalized account identifier and source address.",
-    "The limiter returns remaining quota and retry timing without adding a network service."
+    "The application limits login and API requests using stable keys already derived by repository code.",
+    "The limiter reports remaining quota and retry timing from every protected route."
   ],
   "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
     "runtime": { "name": "node", "version": "24.18.0" },
-    "framework": { "name": "fastify", "version": "5.6.2" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
     "packageManager": { "name": "pnpm", "version": "11.17.0" },
-    "database": { "name": "sqlite", "version": "3.50" },
+    "database": { "name": "postgresql", "version": "17" },
     "orm": { "name": "drizzle", "version": "0.44.7" },
     "deployment": {
       "topology": "long-running-server",
@@ -21,12 +24,12 @@
     },
     "dependencies": [
       { "name": "drizzle-orm", "version": "0.44.7" },
-      { "name": "fastify", "version": "5.6.2" }
+      { "name": "next", "version": "16.4.0" }
     ],
     "hasRedis": false,
     "tenantModel": "single-tenant",
     "identityFacts": [
-      "The login route normalizes account identifiers before rate-limit evaluation."
+      "The login route normalizes account and source identifiers, and API routes derive stable client and route keys before rate-limit evaluation."
     ],
     "dataFacts": [
       "Rate-limit counters are operational data and may reset on a planned process restart."
@@ -42,9 +45,9 @@
       "statement": "The limiter must run locally without a hosted or separately operated data service."
     },
     {
-      "constraintId": "framework-fastify-runtime",
-      "reasonCode": "framework-compatible",
-      "statement": "The integration must work in Fastify without adapting Express middleware."
+      "constraintId": "framework-nextjs-runtime",
+      "reasonCode": "framework-mismatch",
+      "statement": "The integration must work in Next.js route handlers without requiring an Express application."
     }
   ],
   "preferences": [
@@ -92,7 +95,11 @@
     },
     {
       "id": "framework-compatible",
-      "description": "The candidate integrates without an Express middleware dependency."
+      "description": "The candidate exposes a framework-independent API usable from a Next.js route handler."
+    },
+    {
+      "id": "framework-mismatch",
+      "description": "An Express-only middleware integration does not satisfy the Next.js route-handler constraint."
     },
     {
       "id": "in-memory-fit",
@@ -110,7 +117,7 @@
     }
   ],
   "difficulty": "medium",
-  "failureModes": ["paired-rate-limiting-request", "topology-over-popularity"],
+  "failureModes": ["topology-over-popularity"],
   "authoredAt": "2026-07-28",
   "evidenceCutoff": "2026-07-28"
 }

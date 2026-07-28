@@ -41,18 +41,6 @@
     }
   ],
   "requiredUnknownIds": ["redis-capacity-headroom"],
-  "requiredEvidenceIds": [
-    "jobs-redis-bree",
-    "jobs-redis-bullmq",
-    "jobs-redis-graphile",
-    "jobs-redis-pgboss"
-  ],
-  "requiredReasonCodes": [
-    "automatic-retry-required",
-    "durable-shared-queue-required",
-    "postgres-queue-fit",
-    "redis-queue-fit"
-  ],
   "rationaleNotes": [
     "BullMQ is the proposed leader because Redis and workers already exist; the PostgreSQL queues remain technically viable but are a weaker repository-conditioned operational fit."
   ],
@@ -62,6 +50,7 @@
     "authoringSession": "phase-2-issue-7-authoring-session",
     "independentReviewStatus": "not-reviewed",
     "independentReviewer": null,
-    "reviewedAt": null
+    "reviewedAt": null,
+    "reviewReference": null
   }
 }

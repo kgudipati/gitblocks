@@ -2,14 +2,17 @@
   "schemaVersion": "1.0.0",
   "caseId": "webhooks-self-hosted-egress-drizzle",
   "capabilityFamily": "webhooks",
+  "decisionObjective": "select-webhook-fit",
+  "comparisonPairId": null,
   "userRequest": "Choose a self-hosted outbound webhook service with retries, signing, and delivery history.",
   "successConditions": [
     "Workers persist deliveries, sign payloads, retry failures, and expose delivery history.",
     "All webhook payload and delivery data remains in the existing EU deployment."
   ],
   "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
     "runtime": { "name": "node", "version": "24.18.0" },
-    "framework": { "name": "fastify", "version": "5.6.2" },
+    "framework": { "name": "nextjs", "version": "16.4.0" },
     "packageManager": { "name": "pnpm", "version": "11.17.0" },
     "database": { "name": "postgresql", "version": "18" },
     "orm": { "name": "drizzle", "version": "0.44.7" },
@@ -21,7 +24,8 @@
     },
     "dependencies": [
       { "name": "drizzle-orm", "version": "0.44.7" },
-      { "name": "ioredis", "version": "5.7.0" }
+      { "name": "ioredis", "version": "5.7.0" },
+      { "name": "next", "version": "16.4.0" }
     ],
     "hasRedis": true,
     "tenantModel": "multi-tenant",

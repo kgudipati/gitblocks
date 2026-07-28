@@ -2,12 +2,15 @@
   "schemaVersion": "1.0.0",
   "caseId": "authorization-edge-drizzle",
   "capabilityFamily": "authorization",
+  "decisionObjective": "select-authorization-fit",
+  "comparisonPairId": null,
   "userRequest": "Choose an authorization library for tenant-scoped document actions in the existing edge application.",
   "successConditions": [
     "Authorization decisions use actor, tenant, action, and document attributes.",
     "The application can reject cross-tenant access before a database mutation."
   ],
   "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
     "runtime": { "name": "node-edge", "version": "24-compatible subset" },
     "framework": { "name": "nextjs", "version": "16.4.0" },
     "packageManager": { "name": "pnpm", "version": "11.17.0" },
@@ -43,7 +46,7 @@
     },
     {
       "constraintId": "runtime-edge-compatible",
-      "reasonCode": "runtime-compatible",
+      "reasonCode": "edge-runtime-required",
       "statement": "The library must support an edge-compatible JavaScript execution path."
     }
   ],
@@ -95,22 +98,22 @@
       "description": "The repository cannot operate a separate authorization service."
     },
     {
-      "id": "runtime-compatible",
-      "description": "The candidate has a compatible execution path for the repository runtime."
+      "id": "edge-runtime-required",
+      "description": "The candidate must have a proven Next.js Edge-compatible execution path."
+    },
+    {
+      "id": "edge-runtime-unproven",
+      "description": "The supplied evidence does not establish compatibility with Next.js Edge restrictions."
     }
   ],
   "unknowns": [
     {
-      "id": "edge-bundle-cost",
-      "description": "Production bundle and cold-start impact has not been measured."
+      "id": "edge-runtime-proof",
+      "description": "Candidate-specific ESM, native-API, build, and runtime compatibility with Next.js Edge has not been established."
     }
   ],
   "difficulty": "hard",
-  "failureModes": [
-    "paired-authorization-request",
-    "popular-hard-constraint",
-    "popularity-over-fit"
-  ],
+  "failureModes": ["popular-hard-constraint", "popularity-over-fit"],
   "authoredAt": "2026-07-28",
   "evidenceCutoff": "2026-07-28"
 }

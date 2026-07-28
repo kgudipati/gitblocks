@@ -103,6 +103,12 @@ export function validateCaseBundle(
   }
   for (const observation of evidence.observations) {
     validateEvidenceSubject(diagnostics, observation, candidateSet);
+    validateEvidenceRevision(diagnostics, observation);
+    validateEvidenceCutoff(
+      diagnostics,
+      observation,
+      caseDocument.evidenceCutoff,
+    );
   }
 
   const dispositionIds = gold.dispositions.map(
@@ -136,6 +142,17 @@ export function validateCaseBundle(
       ),
     );
   }
+  for (const [
+    index,
+    alternative,
+  ] of gold.allowedAlternativeOutcomes.entries()) {
+    validateOutcome(
+      diagnostics,
+      alternative,
+      gold.dispositions,
+      `gold.allowedAlternativeOutcomes.${String(index)}`,
+    );
+  }
 
   validateRanking(
     diagnostics,
@@ -148,6 +165,18 @@ export function validateCaseBundle(
   );
 
   const constraintSet = new Set(constraintIds);
+  const constraintsById = new Map(
+    caseDocument.hardConstraints.map((constraint) => [
+      constraint.constraintId,
+      constraint,
+    ]),
+  );
+  const dispositionsByCandidate = new Map(
+    gold.dispositions.map((disposition) => [
+      disposition.candidateId,
+      disposition,
+    ]),
+  );
   for (const [index, conflict] of gold.hardConstraintConflicts.entries()) {
     const path = `gold.hardConstraintConflicts.${String(index)}`;
     if (!candidateSet.has(conflict.candidateId)) {
@@ -177,6 +206,19 @@ export function validateCaseBundle(
         ),
       );
     }
+    const constraint = constraintsById.get(conflict.constraintId);
+    if (
+      constraint !== undefined &&
+      constraint.reasonCode !== conflict.reasonCode
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'reference.conflict-reason',
+          'Hard conflict reason must match its referenced constraint.',
+          path,
+        ),
+      );
+    }
     validateEvidenceReferences(
       diagnostics,
       conflict.candidateId,
@@ -184,6 +226,31 @@ export function validateCaseBundle(
       evidenceById,
       path,
     );
+    const disposition = dispositionsByCandidate.get(conflict.candidateId);
+    if (
+      disposition !== undefined &&
+      (!disposition.reasonCodes.includes(conflict.reasonCode) ||
+        conflict.evidenceIds.some(
+          (evidenceId) => !disposition.evidenceIds.includes(evidenceId),
+        ))
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'reference.conflict-disposition',
+          'Hard conflict reason and evidence must be retained on the candidate disposition.',
+          path,
+        ),
+      );
+    }
+    if (disposition !== undefined && disposition.disposition !== 'rejected') {
+      diagnostics.push(
+        diagnostic(
+          'reference.conflict-disposition',
+          'A candidate with a recorded hard-constraint conflict must be rejected.',
+          path,
+        ),
+      );
+    }
   }
 
   const conflictingCandidates = new Set(
@@ -211,20 +278,6 @@ export function validateCaseBundle(
     unknownSet,
     'reference.unknown-unknown',
     'gold.requiredUnknownIds',
-  );
-  validateCatalogReferences(
-    diagnostics,
-    gold.requiredReasonCodes,
-    reasonSet,
-    'reference.unknown-reason',
-    'gold.requiredReasonCodes',
-  );
-  validateCatalogReferences(
-    diagnostics,
-    gold.requiredEvidenceIds,
-    new Set(evidenceIds),
-    'reference.unknown-evidence',
-    'gold.requiredEvidenceIds',
   );
 
   return finalize(diagnostics);
@@ -351,6 +404,158 @@ function validateEvidenceSubject(
   }
 }
 
+function validateEvidenceRevision(
+  diagnostics: ReferenceDiagnostic[],
+  observation: EvidenceObservation,
+): void {
+  const path = `evidence.observations.${observation.evidenceId}.sourceRevision`;
+  const { kind, value, immutableUrl } = observation.sourceRevision;
+  const allowedKinds: Record<
+    EvidenceObservation['sourceType'],
+    readonly EvidenceObservation['sourceRevision']['kind'][]
+  > = {
+    'official-documentation': [
+      'git-commit',
+      'tag',
+      'release',
+      'version',
+      'mutable-documentation',
+    ],
+    'official-repository': ['git-commit', 'tag', 'release'],
+    'official-release': ['tag', 'release'],
+    'package-registry': ['version'],
+    'security-advisory': ['release', 'version'],
+    license: ['git-commit', 'tag', 'release'],
+    'case-local-fact': ['case-version'],
+  };
+  if (!allowedKinds[observation.sourceType].includes(kind)) {
+    diagnostics.push(
+      diagnostic(
+        'reference.evidence-revision-kind',
+        'Evidence revision kind is not valid for the source type.',
+        path,
+      ),
+    );
+  }
+
+  if (kind === 'git-commit') {
+    const commitPattern = /^[a-f0-9]{40}$/u;
+    const pinnedUrlPattern = new RegExp(
+      `/(?:blob|tree|commit)/${escapeRegExp(value)}(?:/|$|#)`,
+      'u',
+    );
+    if (
+      !commitPattern.test(value) ||
+      immutableUrl === null ||
+      !pinnedUrlPattern.test(immutableUrl) ||
+      observation.publishedAt === null
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'reference.evidence-revision',
+          'Git commit evidence requires a full SHA, matching immutable URL, and commit timestamp.',
+          path,
+        ),
+      );
+    }
+  } else if (kind === 'mutable-documentation') {
+    if (
+      immutableUrl !== null ||
+      !observation.limitation.toLowerCase().includes('mutable')
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'reference.evidence-revision',
+          'Mutable documentation requires a null immutable URL and an explicit mutable-source limitation.',
+          path,
+        ),
+      );
+    }
+  } else if (kind === 'case-version') {
+    if (
+      immutableUrl !== null ||
+      observation.publishedAt !== null ||
+      observation.sourceType !== 'case-local-fact'
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'reference.evidence-revision',
+          'Case-version evidence is local, unlinked, and has no publication timestamp.',
+          path,
+        ),
+      );
+    }
+  } else if (immutableUrl === null) {
+    diagnostics.push(
+      diagnostic(
+        'reference.evidence-revision',
+        'Versioned, tagged, or released evidence requires an immutable locator.',
+        path,
+      ),
+    );
+  } else {
+    const mutableAliasPattern =
+      /^(?:canary|current|head|latest|main|master|next|stable)$/iu;
+    if (
+      mutableAliasPattern.test(value) ||
+      !hasExactRevisionLocator(immutableUrl, value)
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'reference.evidence-revision',
+          'Versioned, tagged, or released evidence requires an exact non-mutable value present in its immutable locator.',
+          path,
+        ),
+      );
+    }
+  }
+}
+
+function hasExactRevisionLocator(
+  immutableUrl: string,
+  revision: string,
+): boolean {
+  return [revision, encodeURIComponent(revision)].some((candidate) => {
+    const escaped = escapeRegExp(candidate);
+    return new RegExp(`(?:^|[/=?#&@])${escaped}(?:$|[/#?&])`, 'u').test(
+      immutableUrl,
+    );
+  });
+}
+
+function validateEvidenceCutoff(
+  diagnostics: ReferenceDiagnostic[],
+  observation: EvidenceObservation,
+  evidenceCutoff: string,
+): void {
+  const path = `evidence.observations.${observation.evidenceId}`;
+  if (
+    observation.collectedAt.slice(0, 10) > evidenceCutoff ||
+    (observation.publishedAt !== null &&
+      observation.publishedAt.slice(0, 10) > evidenceCutoff)
+  ) {
+    diagnostics.push(
+      diagnostic(
+        'reference.evidence-cutoff',
+        'Evidence collection and publication dates must not be after the case cutoff.',
+        path,
+      ),
+    );
+  }
+  if (
+    observation.publishedAt !== null &&
+    observation.publishedAt > observation.collectedAt
+  ) {
+    diagnostics.push(
+      diagnostic(
+        'reference.evidence-chronology',
+        'Evidence publication time must not be after its collection time.',
+        path,
+      ),
+    );
+  }
+}
+
 function validateDispositionReferences(
   diagnostics: ReferenceDiagnostic[],
   dispositions: readonly CandidateDisposition[],
@@ -425,16 +630,23 @@ function validateOutcome(
   dispositions: readonly CandidateDisposition[],
   path: string,
 ): void {
-  const recommended = dispositions.filter(
-    (disposition) => disposition.disposition === 'recommended',
-  ).length;
   const viable = dispositions.filter(
-    (disposition) => disposition.disposition === 'viable',
+    (disposition) =>
+      disposition.disposition === 'recommended' ||
+      disposition.disposition === 'viable',
+  ).length;
+  const rejected = dispositions.filter(
+    (disposition) => disposition.disposition === 'rejected',
+  ).length;
+  const insufficientEvidence = dispositions.filter(
+    (disposition) => disposition.disposition === 'insufficient-evidence',
   ).length;
   const valid =
     outcome === 'recommend'
-      ? recommended + viable > 0
-      : recommended === 0 && viable === 0;
+      ? viable > 0
+      : outcome === 'no-viable-candidate'
+        ? rejected === dispositions.length
+        : viable === 0 && insufficientEvidence > 0;
   if (!valid) {
     diagnostics.push(
       diagnostic(
@@ -492,17 +704,25 @@ function validateRanking(
   );
   const directedEdges: (readonly [string, string])[] = [];
   const tieKeys = new Set<string>();
+  const tiePairs: (readonly [string, string])[] = [];
+  const tiedMembersByCandidate = new Map<string, readonly string[]>();
   for (let higherIndex = 0; higherIndex < rankGroups.length; higherIndex += 1) {
     const higherGroup = rankGroups[higherIndex] ?? [];
+    for (const candidateId of higherGroup) {
+      tiedMembersByCandidate.set(candidateId, higherGroup);
+    }
     for (let leftIndex = 0; leftIndex < higherGroup.length; leftIndex += 1) {
       for (
         let rightIndex = leftIndex + 1;
         rightIndex < higherGroup.length;
         rightIndex += 1
       ) {
-        tieKeys.add(
-          pairKey(higherGroup[leftIndex] ?? '', higherGroup[rightIndex] ?? ''),
-        );
+        const tiePair = [
+          higherGroup[leftIndex] ?? '',
+          higherGroup[rightIndex] ?? '',
+        ] as const;
+        tieKeys.add(pairKey(...tiePair));
+        tiePairs.push(tiePair);
       }
     }
     for (
@@ -519,14 +739,28 @@ function validateRanking(
     }
   }
   for (const relation of rankRelations) {
-    directedEdges.push([relation.higherCandidateId, relation.lowerCandidateId]);
+    const higherMembers = tiedMembersByCandidate.get(
+      relation.higherCandidateId,
+    ) ?? [relation.higherCandidateId];
+    const lowerMembers = tiedMembersByCandidate.get(
+      relation.lowerCandidateId,
+    ) ?? [relation.lowerCandidateId];
+    for (const higher of higherMembers) {
+      for (const lower of lowerMembers) {
+        directedEdges.push([higher, lower]);
+      }
+    }
   }
   const edgeKeys = directedEdges.map(
     ([higher, lower]) => `${higher}\0${lower}`,
   );
   reportDuplicates(diagnostics, edgeKeys, `${pathPrefix}.rankRelations`, true);
   if (
-    directedEdges.some(([higher, lower]) => tieKeys.has(pairKey(higher, lower)))
+    tiePairs.some(
+      ([left, right]) =>
+        hasDirectedPath(directedEdges, left, right) ||
+        hasDirectedPath(directedEdges, right, left),
+    )
   ) {
     diagnostics.push(
       diagnostic(
@@ -569,6 +803,15 @@ function validateRanking(
     coveredCandidates.add(right);
     const key = pairKey(left, right);
     incomparableKeys.push(key);
+    if (tieKeys.has(key)) {
+      diagnostics.push(
+        diagnostic(
+          'reference.rank-contradiction',
+          'A pair cannot be both tied and incomparable.',
+          `${pathPrefix}.incomparablePairs`,
+        ),
+      );
+    }
     if (
       hasDirectedPath(directedEdges, left, right) ||
       hasDirectedPath(directedEdges, right, left)
@@ -719,6 +962,10 @@ function isSorted(values: readonly string[]): boolean {
 
 function pairKey(left: string, right: string): string {
   return left < right ? `${left}\0${right}` : `${right}\0${left}`;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
 
 function diagnostic(

@@ -2,16 +2,19 @@
   "schemaVersion": "1.0.0",
   "caseId": "audit-logging-transactional-drizzle",
   "capabilityFamily": "audit-logging",
+  "decisionObjective": "select-audit-logging-fit",
+  "comparisonPairId": null,
   "userRequest": "Choose an audit component that guarantees a durable audit row in the same transaction as every billing mutation.",
   "successConditions": [
     "A committed billing mutation always has a committed audit record.",
     "A rolled-back billing mutation never leaves a committed audit record."
   ],
   "repositoryProfile": {
+    "language": { "name": "typescript", "version": "6.0.3" },
     "runtime": { "name": "node-serverless", "version": "24.18.0" },
     "framework": { "name": "nextjs", "version": "16.4.0" },
     "packageManager": { "name": "pnpm", "version": "11.17.0" },
-    "database": { "name": "managed-postgresql", "version": "17" },
+    "database": { "name": "postgresql", "version": "17" },
     "orm": { "name": "drizzle", "version": "0.44.7" },
     "deployment": {
       "topology": "serverless",
