@@ -1,6 +1,13 @@
-import { fromMarkdown } from 'mdast-util-from-markdown';
-import { parseDocument } from 'yaml';
-
+import {
+  parseBoundedYaml,
+  YAML_LIMITS,
+  type BoundedYamlFailure,
+} from './bounded-yaml.ts';
+import {
+  inspectMarkdownFiles,
+  MARKDOWN_LIMITS,
+  type MarkdownRepositoryInspection,
+} from './markdown-inspection.ts';
 import { diagnostic, type Diagnostic } from './types.ts';
 
 const MAX_CONFIGURATION_BYTES = 256 * 1024;
@@ -20,7 +27,11 @@ const REQUIRED_PATHS = [
   '.prettierrc.json',
   '.secretlintignore',
   '.secretlintrc.json',
+  '.github/ISSUE_TEMPLATE/bug.yml',
+  '.github/ISSUE_TEMPLATE/config.yml',
+  '.github/ISSUE_TEMPLATE/phase.yml',
   '.github/dependabot.yml',
+  '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
   'CONTRIBUTING.md',
@@ -37,6 +48,7 @@ const REQUIRED_PATHS = [
   'docs/engineering/repository-workflow.md',
   'docs/engineering/security-baseline.md',
   'docs/engineering/testing-strategy.md',
+  'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
   'docs/product/product-contract.md',
   'eslint.config.mjs',
@@ -55,6 +67,7 @@ const REQUIRED_PATHS = [
 ] as const;
 
 export interface RepositoryInvariantInput {
+  readonly markdownInspection?: MarkdownRepositoryInspection;
   readonly textFiles: ReadonlyMap<string, string>;
   readonly trackedPaths: ReadonlySet<string>;
 }
@@ -90,7 +103,21 @@ export function validateRepositoryInvariants(
 
   diagnostics.push(...validatePackageManifests(repository));
   diagnostics.push(...validateWorkspacePolicy(repository.textFiles));
-  diagnostics.push(...validateProductCapitalization(repository.textFiles));
+  diagnostics.push(...validateDependabotPolicy(repository.textFiles));
+
+  const markdownInspection =
+    repository.markdownInspection ??
+    inspectMarkdownFiles(
+      new Map(
+        [...repository.textFiles].filter(([filePath]) =>
+          filePath.endsWith('.md'),
+        ),
+      ),
+    );
+  if (repository.markdownInspection === undefined) {
+    diagnostics.push(...markdownInspection.diagnostics);
+  }
+  diagnostics.push(...validateProductCapitalization(markdownInspection));
   return diagnostics;
 }
 
@@ -252,43 +279,12 @@ function validateWorkspacePolicy(
       ),
     ];
   }
-  if (Buffer.byteLength(content, 'utf8') > MAX_CONFIGURATION_BYTES) {
-    return [
-      diagnostic(
-        'repository.configuration-size',
-        'pnpm workspace policy exceeds the configuration size limit.',
-        workspacePath,
-      ),
-    ];
+  const parsed = parseBoundedYaml(content);
+  if (!parsed.ok) {
+    return [configurationYamlDiagnostic('workspace', parsed.failure)];
   }
 
-  const document = parseDocument(content, {
-    prettyErrors: false,
-    uniqueKeys: true,
-    version: '1.2',
-  });
-  if (document.errors.length > 0) {
-    return [
-      diagnostic(
-        'repository.workspace-yaml',
-        'pnpm workspace policy must be valid YAML with unique keys.',
-        workspacePath,
-      ),
-    ];
-  }
-
-  let policy: unknown;
-  try {
-    policy = document.toJS({ maxAliasCount: 0 }) as unknown;
-  } catch {
-    return [
-      diagnostic(
-        'repository.workspace-yaml',
-        'pnpm workspace policy must not use YAML aliases.',
-        workspacePath,
-      ),
-    ];
-  }
+  const policy = parsed.value;
   if (!isRecord(policy)) {
     return [
       diagnostic(
@@ -370,55 +366,98 @@ function validateWorkspacePolicy(
   return diagnostics;
 }
 
-function validateProductCapitalization(
+function validateDependabotPolicy(
   textFiles: ReadonlyMap<string, string>,
 ): Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
-  const markdownPaths = [...textFiles.keys()]
-    .filter((filePath) => filePath.endsWith('.md'))
-    .sort(compareText);
+  const dependabotPath = '.github/dependabot.yml';
+  const content = textFiles.get(dependabotPath);
+  if (content === undefined) {
+    return [
+      diagnostic(
+        'repository.required-content',
+        'Dependabot policy was not available for validation.',
+        dependabotPath,
+      ),
+    ];
+  }
 
-  for (const markdownPath of markdownPaths) {
-    const content = textFiles.get(markdownPath);
-    if (content === undefined) {
+  const parsed = parseBoundedYaml(content);
+  if (!parsed.ok) {
+    return [configurationYamlDiagnostic('dependabot', parsed.failure)];
+  }
+  if (!isRecord(parsed.value)) {
+    return [
+      diagnostic(
+        'repository.dependabot-yaml',
+        'Dependabot policy must contain an updates sequence.',
+        dependabotPath,
+      ),
+    ];
+  }
+  const rawUpdates = parsed.value['updates'];
+  if (!Array.isArray(rawUpdates)) {
+    return [
+      diagnostic(
+        'repository.dependabot-yaml',
+        'Dependabot policy must contain an updates sequence.',
+        dependabotPath,
+      ),
+    ];
+  }
+  const updates: readonly unknown[] = rawUpdates;
+
+  const diagnostics: Diagnostic[] = [];
+  for (const ecosystem of ['npm', 'github-actions']) {
+    const entries: readonly unknown[] = updates.filter(
+      (entry) =>
+        isRecord(entry) &&
+        entry['package-ecosystem'] === ecosystem &&
+        entry['directory'] === '/',
+    );
+    if (entries.length !== 1) {
+      diagnostics.push(
+        diagnostic(
+          'repository.dependabot-ecosystem',
+          `Dependabot must configure exactly one ${ecosystem} update entry at the repository root.`,
+          dependabotPath,
+        ),
+      );
       continue;
     }
-    const root = fromMarkdown(content) as unknown;
-
-    function visit(node: unknown, insideLink: boolean): void {
-      if (!isRecord(node)) {
-        return;
-      }
-      const nextInsideLink =
-        insideLink ||
-        node['type'] === 'link' ||
-        node['type'] === 'linkReference' ||
-        node['type'] === 'definition';
-      if (
-        node['type'] === 'text' &&
-        !nextInsideLink &&
-        typeof node['value'] === 'string'
-      ) {
-        const matches = node['value'].match(/\bgitblocks\b/gi) ?? [];
-        if (matches.some((match) => match !== 'GitBlocks')) {
-          diagnostics.push(
-            diagnostic(
-              'repository.product-capitalization',
-              'Product prose must capitalize GitBlocks exactly; code and link slugs are exempt.',
-              markdownPath,
-            ),
-          );
-          return;
-        }
-      }
-      if (Array.isArray(node['children'])) {
-        for (const child of node['children']) {
-          visit(child, nextInsideLink);
-        }
-      }
+    const entry: unknown = entries[0];
+    if (!isRecord(entry) || entry['rebase-strategy'] !== 'disabled') {
+      diagnostics.push(
+        diagnostic(
+          'repository.dependabot-rebase',
+          `Dependabot ${ecosystem} updates must disable automatic rebasing.`,
+          dependabotPath,
+        ),
+      );
     }
+  }
 
-    visit(root, false);
+  return diagnostics;
+}
+
+function validateProductCapitalization(
+  inspection: MarkdownRepositoryInspection,
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  for (const [markdownPath, fileInspection] of [...inspection.files].sort(
+    ([left], [right]) => compareText(left, right),
+  )) {
+    if (fileInspection.hasProductCapitalizationViolation) {
+      diagnostics.push(
+        diagnostic(
+          'repository.product-capitalization',
+          'Product prose must capitalize GitBlocks exactly; code and link slugs are exempt.',
+          markdownPath,
+        ),
+      );
+    }
+    if (diagnostics.length >= MARKDOWN_LIMITS.diagnostics) {
+      break;
+    }
   }
 
   return diagnostics;
@@ -426,13 +465,50 @@ function validateProductCapitalization(
 
 function isProhibitedArtifact(trackedPath: string): boolean {
   return (
-    trackedPath === '__nonexistent__' ||
     trackedPath.startsWith('apps/') ||
     trackedPath.startsWith('packages/') ||
     trackedPath.startsWith('src/') ||
     (trackedPath.startsWith('tools/') &&
       !trackedPath.startsWith('tools/repository-checks/'))
   );
+}
+
+function configurationYamlDiagnostic(
+  configuration: 'dependabot' | 'workspace',
+  failure: BoundedYamlFailure,
+): Diagnostic {
+  const path =
+    configuration === 'workspace'
+      ? 'pnpm-workspace.yaml'
+      : '.github/dependabot.yml';
+  const subject =
+    configuration === 'workspace' ? 'pnpm workspace' : 'Dependabot';
+  switch (failure) {
+    case 'alias':
+      return diagnostic(
+        `repository.${configuration}-yaml-alias`,
+        `${subject} policy must not use YAML aliases.`,
+        path,
+      );
+    case 'file-size':
+      return diagnostic(
+        'repository.configuration-size',
+        `${subject} policy exceeds the ${String(YAML_LIMITS.bytes)}-byte configuration size limit.`,
+        path,
+      );
+    case 'structure':
+      return diagnostic(
+        `repository.${configuration}-structure-limit`,
+        `${subject} policy exceeds the allowed YAML node count or nesting depth.`,
+        path,
+      );
+    case 'syntax':
+      return diagnostic(
+        `repository.${configuration}-yaml`,
+        `${subject} policy must be valid YAML with unique keys and supported tags.`,
+        path,
+      );
+  }
 }
 
 function compareText(left: string, right: string): number {

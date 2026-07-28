@@ -92,4 +92,54 @@ describe('validateMarkdownLinks', () => {
   it('does not interpret Markdown code as a link', () => {
     expect(validate('`[Not a link](missing.md)`\n')).toEqual([]);
   });
+
+  it('rejects excessive Markdown nesting', () => {
+    const diagnostics = validate(`${'> '.repeat(70)}nested\n`);
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'markdown.structure-limit' }),
+      ]),
+    );
+  });
+
+  it('rejects excessive Markdown node count', () => {
+    const diagnostics = validate('# Heading\n'.repeat(20_001));
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'markdown.structure-limit' }),
+      ]),
+    );
+  });
+
+  it('bounds heading-text extraction by the Markdown depth limit', () => {
+    const nestedStrong = '**'.repeat(80);
+    const diagnostics = validate(`# ${nestedStrong}heading${nestedStrong}\n`);
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'markdown.structure-limit' }),
+      ]),
+    );
+  });
+
+  it('rejects oversized Markdown before parsing', () => {
+    const diagnostics = validate(`\n${'x'.repeat(512 * 1024 + 1)}`);
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'markdown.file-size' }),
+      ]),
+    );
+  });
+
+  it('bounds emitted Markdown diagnostics', () => {
+    const source = Array.from(
+      { length: 250 },
+      (_, index) => `[Missing](missing-${String(index)}.md)`,
+    ).join('\n');
+
+    expect(validate(source)).toHaveLength(200);
+  });
 });

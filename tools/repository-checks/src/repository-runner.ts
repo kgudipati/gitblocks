@@ -1,3 +1,4 @@
+import { inspectMarkdownFiles } from './markdown-inspection.ts';
 import { validateMarkdownLinks } from './markdown-links.ts';
 import { readRepository } from './repository-reader.ts';
 import { validateRepositoryInvariants } from './repository-invariants.ts';
@@ -12,13 +13,16 @@ export function runRepositoryChecks(startDirectory: string): Diagnostic[] {
   const markdownFiles = new Map(
     [...repository.textFiles].filter(([filePath]) => filePath.endsWith('.md')),
   );
+  const markdownInspection = inspectMarkdownFiles(markdownFiles);
 
   diagnostics.push(
     ...validateMarkdownLinks({
+      inspection: markdownInspection,
       markdownFiles,
       trackedPaths: repository.trackedPaths,
     }),
     ...validateRepositoryInvariants({
+      markdownInspection,
       textFiles: repository.textFiles,
       trackedPaths: repository.trackedPaths,
     }),

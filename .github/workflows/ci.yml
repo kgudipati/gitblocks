@@ -48,10 +48,11 @@ jobs:
       - name: Validate pull request metadata
         if: github.event_name == 'pull_request'
         env:
+          PR_ACTOR: ${{ github.event.pull_request.user.login }}
           PR_BRANCH: ${{ github.head_ref }}
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          pnpm repo:branch -- "$PR_BRANCH"
+          pnpm repo:pr-branch -- "$PR_ACTOR" "$PR_BRANCH"
           pnpm repo:pr-title -- "$PR_TITLE"
 
       - name: Run authoritative verification

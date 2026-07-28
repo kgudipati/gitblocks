@@ -77,7 +77,17 @@ Primary references:
 
 ### Language and module semantics
 
-Owned TypeScript uses stable TypeScript 6.0.x; the current pin is `6.0.3`.
+Owned TypeScript intentionally uses the stable TypeScript 6.0 compatibility
+and compiler-API line; the current pin is `6.0.3`. TypeScript 7.0 is now stable,
+but it does not currently ship a compiler API. The current stable
+`typescript-eslint` line officially supports TypeScript `>=4.8.4 <6.1.0`, and
+GitBlocks requires its compiler API for typed ESLint rules. TypeScript documents
+a side-by-side transition using TypeScript 7 plus a TypeScript 6
+compatibility/API package, but two compiler toolchains and package aliases
+would add install, configuration, diagnosis, and update complexity without
+current product value. GitBlocks therefore remains on TypeScript 6.0.3 for this
+phase.
+
 Owned JavaScript and TypeScript are ECMAScript modules with NodeNext module and
 resolution semantics. Relative import specifiers include extensions. Runtime
 path aliases that require rewriting are prohibited; workspace package exports
@@ -109,6 +119,8 @@ that Node's type stripper would need to transform.
 Primary reference:
 
 - [TypeScript 6.0 release notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html)
+- [TypeScript 7.0 announcement and compiler-API transition](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/)
+- [typescript-eslint supported dependency versions](https://typescript-eslint.io/users/dependency-versions/)
 
 ### Native TypeScript stripping and emitted output
 
@@ -149,7 +161,9 @@ ESLint uses the flat configuration format with:
 type-checked rules. Promise safety, safe error handling, exhaustive switches,
 and unused-disable reporting are errors. Scoped test/config rules address their
 different environment without globally weakening production/tool source
-rules. CI permits zero warnings.
+rules. `onUnsupportedTypeScriptVersion: 'error'` makes lint fail if a future
+TypeScript update leaves the officially supported range instead of emitting
+only a warning. CI permits zero warnings.
 
 Prettier owns formatting; ESLint owns correctness and semantic rules.
 `eslint-config-prettier` disables rule conflicts rather than duplicating
@@ -176,10 +190,10 @@ and paths include negative and abuse cases. Coverage is recorded but no
 repository-wide threshold is introduced until a representative baseline and
 critical gaps are reviewed under the testing policy.
 
-The final Phase 1 baseline is 85.42% statements, 82.33% branches, 96.82%
-functions, and 85.23% lines across the pure policy and repository boundary
-modules. The CLI and re-export entry point are exercised through subprocess
-tests and intentionally excluded from line-percentage accounting.
+The review-corrected Phase 1 baseline is 86.17% statements, 83.77% branches,
+98.48% functions, and 85.98% lines across the pure policy and repository
+boundary modules. The CLI and re-export entry point are exercised through
+subprocess tests and intentionally excluded from line-percentage accounting.
 
 Primary references:
 
@@ -409,10 +423,21 @@ method, resolved footprint, failures, corrections, and final command evidence.
 Rejected because Issue #3 selects Node 24 LTS and production workloads should
 use the approved LTS line. Node 26 also falls outside the engine contract.
 
-### TypeScript preview, nightly, beta, RC, or TypeScript 7 preview
+### TypeScript preview, nightly, beta, or RC releases
 
 Rejected because the phase requires stable TypeScript 6.0.x and reproducible
-tool compatibility. Preview compiler behavior is not a support policy.
+tool compatibility. Prerelease compiler behavior is not a support policy.
+
+### TypeScript 7 or a dual TypeScript 7/6 toolchain in Phase 1
+
+TypeScript 7 is stable and materially faster for many workloads, but 7.0 does
+not ship a compiler API. Typed ESLint currently supports the TypeScript 6 API
+line through `<6.1.0`. Running TypeScript 7 beside the TypeScript 6
+compatibility/API package would preserve typed linting, but the extra compiler,
+aliases, commands, and failure modes have no measured value for this single
+tooling package. The repository remains on TypeScript 6.0.3 until the API and
+tooling transition is supportable or measured compiler performance justifies a
+dual-toolchain migration.
 
 ### npm or Yarn as the initial package manager
 
@@ -493,6 +518,14 @@ Revisit through a new or superseding ADR when a measurable condition occurs:
 - TypeScript, typescript-eslint, Vitest, dependency-cruiser, Secretlint, or
   another required tool drops compatibility with the supported Node/TypeScript
   line and no maintained patch exists.
+- `typescript-eslint` officially supports the TypeScript 7 toolchain and its
+  required compiler API.
+- TypeScript 7.1 or later provides the compiler API required by GitBlocks'
+  typed linting and related tooling.
+- In 20 comparable local or CI runs, TypeScript compilation is at least 30% of
+  the verification critical path and a reviewed TypeScript 7 or dual-toolchain
+  prototype reduces that path by at least 25% without weakening typed linting,
+  reproducibility, or supply-chain controls.
 - Native TypeScript tooling requires non-erasable syntax or its direct-source
   startup/diagnostic cost exceeds emitted-tool execution by at least 20% in
   repeatable CI measurements.

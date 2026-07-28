@@ -4,7 +4,6 @@ import { diagnostic, type Diagnostic } from './types.ts';
 const BRANCH_PATTERN = /^([a-z]+)\/([1-9][0-9]*)-([a-z0-9]+(?:-[a-z0-9]+)*)$/;
 const DATE_TOKEN_PATTERN =
   /(?:^|-)(?:19|20)[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])(?:-|$)/;
-const PERSONAL_NAME_TOKENS = new Set(['karthik']);
 const VAGUE_TOKENS = new Set(['changes', 'misc', 'updates', 'work']);
 
 export function validateBranchName(branchName: string): Diagnostic[] {
@@ -48,15 +47,6 @@ export function validateBranchName(branchName: string): Diagnostic[] {
   }
 
   const descriptionTokens = description.split('-');
-  if (descriptionTokens.length < 2) {
-    diagnostics.push(
-      diagnostic(
-        'branch.description',
-        'Branch description must be a specific hyphenated slug with at least two words.',
-      ),
-    );
-  }
-
   if (descriptionTokens.some((token) => VAGUE_TOKENS.has(token))) {
     diagnostics.push(
       diagnostic(
@@ -71,15 +61,6 @@ export function validateBranchName(branchName: string): Diagnostic[] {
       diagnostic(
         'branch.date',
         'Branch description must not contain a calendar date.',
-      ),
-    );
-  }
-
-  if (descriptionTokens.some((token) => PERSONAL_NAME_TOKENS.has(token))) {
-    diagnostics.push(
-      diagnostic(
-        'branch.personal-name',
-        'Branch description must not contain a personal name.',
       ),
     );
   }

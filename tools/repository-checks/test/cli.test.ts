@@ -47,6 +47,31 @@ describe('repository-checks CLI', () => {
   it.each([
     [['branch', 'build/3-typescript-toolchain'], EXIT_CODES.success],
     [['branch', 'feature/3-vague'], EXIT_CODES.policyViolation],
+    [['pr-branch', 'maintainer', 'fix/42-timeout'], EXIT_CODES.success],
+    [
+      [
+        'pr-branch',
+        'dependabot[bot]',
+        'dependabot/npm_and_yarn/typescript-6.0.4',
+      ],
+      EXIT_CODES.success,
+    ],
+    [
+      ['pr-branch', 'dependabot[bot]', 'dependabot/npm_and_yarn/../typescript'],
+      EXIT_CODES.policyViolation,
+    ],
+    [
+      ['pr-branch', 'maintainer', 'dependabot/npm_and_yarn/typescript-6.0.4'],
+      EXIT_CODES.policyViolation,
+    ],
+    [
+      [
+        'pr-branch',
+        'dependabot-bot',
+        'dependabot/npm_and_yarn/typescript-6.0.4',
+      ],
+      EXIT_CODES.policyViolation,
+    ],
     [['pr-title', 'build: establish TypeScript workspace'], EXIT_CODES.success],
     [['pr-title', 'Build everything'], EXIT_CODES.policyViolation],
     [[], EXIT_CODES.usage],

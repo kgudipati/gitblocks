@@ -11,7 +11,11 @@ const REQUIRED_PATHS = [
   '.prettierrc.json',
   '.secretlintignore',
   '.secretlintrc.json',
+  '.github/ISSUE_TEMPLATE/bug.yml',
+  '.github/ISSUE_TEMPLATE/config.yml',
+  '.github/ISSUE_TEMPLATE/phase.yml',
   '.github/dependabot.yml',
+  '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
   'CONTRIBUTING.md',
@@ -28,6 +32,7 @@ const REQUIRED_PATHS = [
   'docs/engineering/repository-workflow.md',
   'docs/engineering/security-baseline.md',
   'docs/engineering/testing-strategy.md',
+  'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
   'docs/product/product-contract.md',
   'eslint.config.mjs',
@@ -87,10 +92,28 @@ trustPolicy: no-downgrade
 trustLockfile: false
 `;
 
+function dependabotPolicy(
+  npmRebaseStrategy = true,
+  actionsRebaseStrategy = true,
+): string {
+  return `version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+${npmRebaseStrategy ? '    rebase-strategy: disabled\n' : ''}    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+${actionsRebaseStrategy ? '    rebase-strategy: disabled\n' : ''}    schedule:
+      interval: weekly
+`;
+}
+
 function validRepository() {
   const trackedPaths = new Set<string>(REQUIRED_PATHS);
   const textFiles = new Map<string, string>([
     ['README.md', '# GitBlocks\n\nUse `gitblocks` as the repository slug.\n'],
+    ['.github/dependabot.yml', dependabotPolicy()],
     ['package.json', ROOT_MANIFEST],
     ['tools/repository-checks/package.json', TOOL_MANIFEST],
     ['pnpm-workspace.yaml', WORKSPACE_POLICY],
@@ -103,15 +126,28 @@ describe('validateRepositoryInvariants', () => {
     expect(validateRepositoryInvariants(validRepository())).toEqual([]);
   });
 
-  it('reports a missing required foundation file', () => {
+  it.each([
+    ['contributor or agent entry point', 'AGENTS.md'],
+    ['issue or pull request template', '.github/ISSUE_TEMPLATE/bug.yml'],
+    ['historical execution plan', 'docs/plans/0001-foundation.md'],
+    ['engineering policy', 'docs/engineering/security-baseline.md'],
+    [
+      'architecture decision',
+      'docs/architecture/decisions/0001-agent-native-delivery.md',
+    ],
+    ['active toolchain configuration', 'eslint.config.mjs'],
+  ])('reports a missing %s', (_category, requiredPath) => {
     const repository = validRepository();
-    repository.trackedPaths.delete('AGENTS.md');
+    repository.trackedPaths.delete(requiredPath);
 
-    expect(
-      validateRepositoryInvariants(repository).map(
-        (diagnostic) => diagnostic.code,
-      ),
-    ).toContain('repository.required-file');
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.required-file',
+          path: requiredPath,
+        }),
+      ]),
+    );
   });
 
   it.each([
@@ -119,7 +155,6 @@ describe('validateRepositoryInvariants', () => {
     'packages/domain/package.json',
     'tools/unapproved/package.json',
     'src/server.ts',
-    '__nonexistent__',
   ])('rejects prohibited Phase 1 artifact %s', (artifact) => {
     const repository = validRepository();
     repository.trackedPaths.add(artifact);
@@ -174,6 +209,97 @@ describe('validateRepositoryInvariants', () => {
         (diagnostic) => diagnostic.code,
       ),
     ).toContain('repository.supply-chain-policy');
+  });
+
+  it.each([
+    ['npm', false, true],
+    ['github-actions', true, false],
+  ])(
+    'requires disabled Dependabot rebasing for %s',
+    (_ecosystem, npmEnabled, actionsEnabled) => {
+      const repository = validRepository();
+      repository.textFiles.set(
+        '.github/dependabot.yml',
+        dependabotPolicy(npmEnabled, actionsEnabled),
+      );
+
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'repository.dependabot-rebase',
+            path: '.github/dependabot.yml',
+          }),
+        ]),
+      );
+    },
+  );
+
+  it('rejects YAML aliases in workspace policy', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'pnpm-workspace.yaml',
+      `${WORKSPACE_POLICY}\nshared: &shared\n  value: inert\ncopy: *shared\n`,
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'repository.workspace-yaml-alias' }),
+      ]),
+    );
+  });
+
+  it('rejects excessive YAML nesting in workspace policy', () => {
+    const repository = validRepository();
+    const nested = Array.from(
+      { length: 70 },
+      (_, index) => `${'  '.repeat(index)}level${String(index)}:`,
+    ).join('\n');
+    repository.textFiles.set(
+      'pnpm-workspace.yaml',
+      `${WORKSPACE_POLICY}\nextra:\n${nested}\n${'  '.repeat(70)}value: true\n`,
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.workspace-structure-limit',
+        }),
+      ]),
+    );
+  });
+
+  it('rejects YAML aliases in Dependabot policy', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      '.github/dependabot.yml',
+      `${dependabotPolicy()}\nshared: &shared\n  value: inert\ncopy: *shared\n`,
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'repository.dependabot-yaml-alias' }),
+      ]),
+    );
+  });
+
+  it('rejects excessive YAML nesting in Dependabot policy', () => {
+    const repository = validRepository();
+    const nested = Array.from(
+      { length: 70 },
+      (_, index) => `${'  '.repeat(index)}level${String(index)}:`,
+    ).join('\n');
+    repository.textFiles.set(
+      '.github/dependabot.yml',
+      `${dependabotPolicy()}\nextra:\n${nested}\n${'  '.repeat(70)}value: true\n`,
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.dependabot-structure-limit',
+        }),
+      ]),
+    );
   });
 
   it('enforces GitBlocks capitalization in prose but permits code slugs', () => {

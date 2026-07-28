@@ -19,6 +19,7 @@
     "architecture:check": "depcruise --config dependency-cruiser.config.mjs tools/repository-checks/src tools/repository-checks/test",
     "repo:check": "node tools/repository-checks/src/cli.ts repository",
     "repo:branch": "node tools/repository-checks/src/cli.ts branch",
+    "repo:pr-branch": "node tools/repository-checks/src/cli.ts pr-branch",
     "repo:pr-title": "node tools/repository-checks/src/cli.ts pr-title",
     "security:secrets": "secretlint \"**/*\"",
     "security:audit": "pnpm audit --audit-level=moderate",

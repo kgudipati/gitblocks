@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
 import { validateBranchName } from './branch-name.ts';
+import { validatePullRequestBranch } from './pr-branch.ts';
 import { validatePullRequestTitle } from './pr-title.ts';
 import { RepositoryBoundaryError } from './repository-reader.ts';
 import { runRepositoryChecks } from './repository-runner.ts';
@@ -43,6 +44,9 @@ export function runCli(
         output,
       );
     }
+    if (command === 'pr-branch') {
+      return runPullRequestBranchCheck(values, output);
+    }
     if (command === 'repository' && values.length === 0) {
       const diagnostics = runRepositoryChecks(workingDirectory);
       return reportDiagnostics(
@@ -53,7 +57,7 @@ export function runCli(
     }
 
     output.error(
-      'usage: repository-checks <branch|pr-title|repository> [value]',
+      'usage: repository-checks <branch|pr-branch|pr-title|repository> [value]',
     );
     return EXIT_CODES.usage;
   } catch (error: unknown) {
@@ -64,6 +68,23 @@ export function runCli(
     }
     return EXIT_CODES.internalError;
   }
+}
+
+function runPullRequestBranchCheck(
+  values: readonly string[],
+  output: Output,
+): number {
+  const [actor, branchName] = values;
+  if (values.length !== 2 || actor === undefined || branchName === undefined) {
+    output.error('usage: repository-checks pr-branch <actor> <branch>');
+    return EXIT_CODES.usage;
+  }
+
+  return reportDiagnostics(
+    validatePullRequestBranch(actor, branchName),
+    'Pull request branch check passed.',
+    output,
+  );
 }
 
 function runValueCheck(

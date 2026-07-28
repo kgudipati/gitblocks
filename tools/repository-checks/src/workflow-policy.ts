@@ -1,11 +1,8 @@
-import { parseDocument, visit } from 'yaml';
-
+import { parseBoundedYaml, YAML_LIMITS } from './bounded-yaml.ts';
 import { diagnostic, type Diagnostic } from './types.ts';
 
-const MAX_WORKFLOW_BYTES = 256 * 1024;
-const MAX_WORKFLOW_DEPTH = 64;
-const MAX_WORKFLOW_NODES = 10_000;
 const FULL_COMMIT_PATTERN = /^[^@\s]+@[0-9a-f]{40}$/;
+const MAX_WORKFLOW_DIAGNOSTICS = 200;
 const VERSION_COMMENT_PATTERN = /\bv?[0-9]+\.[0-9]+(?:\.[0-9]+)?\b/i;
 
 export interface WorkflowFile {
@@ -19,73 +16,12 @@ interface UsesEntry {
 }
 
 export function validateWorkflowFile(file: WorkflowFile): Diagnostic[] {
-  if (Buffer.byteLength(file.content, 'utf8') > MAX_WORKFLOW_BYTES) {
-    return [
-      diagnostic(
-        'workflow.file-size',
-        `Workflow exceeds the ${String(MAX_WORKFLOW_BYTES)}-byte parsing limit.`,
-        file.path,
-      ),
-    ];
+  const parsed = parseBoundedYaml(file.content);
+  if (!parsed.ok) {
+    return [workflowYamlDiagnostic(parsed.failure, file.path)];
   }
 
-  const document = parseDocument(file.content, {
-    prettyErrors: false,
-    uniqueKeys: true,
-    version: '1.2',
-  });
-  if (document.errors.length > 0) {
-    return [
-      diagnostic(
-        'workflow.yaml',
-        'Workflow must be valid YAML with unique mapping keys.',
-        file.path,
-      ),
-    ];
-  }
-
-  const traversalState = {
-    aliasFound: false,
-    nodeCount: 0,
-    structureExceeded: false,
-  };
-  visit(document, {
-    Alias() {
-      traversalState.aliasFound = true;
-    },
-    Node(_key, _node, path) {
-      traversalState.nodeCount += 1;
-      if (
-        traversalState.nodeCount > MAX_WORKFLOW_NODES ||
-        path.length > MAX_WORKFLOW_DEPTH
-      ) {
-        traversalState.structureExceeded = true;
-        return visit.BREAK;
-      }
-      return undefined;
-    },
-  });
-
-  if (traversalState.aliasFound) {
-    return [
-      diagnostic(
-        'workflow.yaml-alias',
-        'Workflow YAML aliases are prohibited to keep parsing bounded and explicit.',
-        file.path,
-      ),
-    ];
-  }
-  if (traversalState.structureExceeded) {
-    return [
-      diagnostic(
-        'workflow.structure-limit',
-        'Workflow exceeds the allowed YAML node count or nesting depth.',
-        file.path,
-      ),
-    ];
-  }
-
-  const root = document.toJS({ maxAliasCount: 0 }) as unknown;
+  const root = parsed.value;
   if (!isRecord(root)) {
     return [
       diagnostic(
@@ -108,14 +44,29 @@ export function validateWorkflowFile(file: WorkflowFile): Diagnostic[] {
   }
 
   diagnostics.push(...validateWorkflowPermissions(root, file.path));
+  if (diagnostics.length >= MAX_WORKFLOW_DIAGNOSTICS) {
+    return diagnostics.slice(0, MAX_WORKFLOW_DIAGNOSTICS);
+  }
 
-  const usesEntries: UsesEntry[] = [];
-  collectUsesEntries(root, usesEntries);
+  const usesEntries = collectUsesEntries(root);
+  if (usesEntries === undefined) {
+    diagnostics.push(
+      diagnostic(
+        'workflow.structure-limit',
+        'Workflow exceeds the allowed YAML node count or nesting depth.',
+        file.path,
+      ),
+    );
+    return diagnostics;
+  }
   const usesOccurrences = new Map<string, number>();
   for (const entry of usesEntries) {
     const occurrence = usesOccurrences.get(entry.value) ?? 0;
     usesOccurrences.set(entry.value, occurrence + 1);
     diagnostics.push(...validateUsesEntry(entry, file, occurrence));
+    if (diagnostics.length >= MAX_WORKFLOW_DIAGNOSTICS) {
+      return diagnostics.slice(0, MAX_WORKFLOW_DIAGNOSTICS);
+    }
   }
 
   return diagnostics;
@@ -125,38 +76,56 @@ function validateWorkflowPermissions(
   root: Readonly<Record<string, unknown>>,
   path: string,
 ): Diagnostic[] {
-  if (root['permissions'] !== undefined) {
-    return validatePermissionValue(root['permissions'], path);
+  const diagnostics: Diagnostic[] = [];
+  const hasWorkflowPermissions = root['permissions'] !== undefined;
+  if (hasWorkflowPermissions) {
+    diagnostics.push(...validatePermissionValue(root['permissions'], path));
   }
-
   const jobs = root['jobs'];
   if (!isRecord(jobs)) {
-    return [
-      diagnostic(
-        'workflow.permissions-missing',
-        'Workflow must declare explicit least-privilege permissions.',
-        path,
-      ),
-    ];
+    if (!hasWorkflowPermissions) {
+      diagnostics.push(
+        diagnostic(
+          'workflow.permissions-missing',
+          'Workflow must declare explicit least-privilege permissions.',
+          path,
+        ),
+      );
+    }
+    return diagnostics;
   }
 
-  const jobValues = Object.values(jobs).filter(isRecord);
-  if (
-    jobValues.length === 0 ||
-    jobValues.some((job) => job['permissions'] === undefined)
-  ) {
-    return [
+  const jobValues = Object.values(jobs);
+  if (jobValues.length === 0 && !hasWorkflowPermissions) {
+    diagnostics.push(
       diagnostic(
         'workflow.permissions-missing',
         'Workflow or every job must declare explicit least-privilege permissions.',
         path,
       ),
-    ];
+    );
   }
 
-  return jobValues.flatMap((job) =>
-    validatePermissionValue(job['permissions'], path),
-  );
+  for (const job of jobValues) {
+    if (!isRecord(job) || job['permissions'] === undefined) {
+      if (!hasWorkflowPermissions) {
+        diagnostics.push(
+          diagnostic(
+            'workflow.permissions-missing',
+            'Workflow or every job must declare explicit least-privilege permissions.',
+            path,
+          ),
+        );
+      }
+      continue;
+    }
+    diagnostics.push(...validatePermissionValue(job['permissions'], path));
+    if (diagnostics.length >= MAX_WORKFLOW_DIAGNOSTICS) {
+      return diagnostics.slice(0, MAX_WORKFLOW_DIAGNOSTICS);
+    }
+  }
+
+  return diagnostics;
 }
 
 function validatePermissionValue(value: unknown, path: string): Diagnostic[] {
@@ -188,15 +157,30 @@ function validatePermissionValue(value: unknown, path: string): Diagnostic[] {
     ];
   }
 
-  return Object.entries(value)
-    .filter(([, access]) => access === 'write')
-    .map(([permission]) =>
-      diagnostic(
-        'workflow.permissions-writable',
-        `Workflow permission ${permission} must not grant write access.`,
-        path,
-      ),
-    );
+  const diagnostics: Diagnostic[] = [];
+  for (const [permission, access] of Object.entries(value)) {
+    if (access === 'write') {
+      diagnostics.push(
+        diagnostic(
+          'workflow.permissions-writable',
+          `Workflow permission ${permission} must not grant write access.`,
+          path,
+        ),
+      );
+    } else if (access !== 'read' && access !== 'none') {
+      diagnostics.push(
+        diagnostic(
+          'workflow.permissions-invalid',
+          `Workflow permission ${permission} must use read or none access.`,
+          path,
+        ),
+      );
+    }
+    if (diagnostics.length >= MAX_WORKFLOW_DIAGNOSTICS) {
+      break;
+    }
+  }
+  return diagnostics;
 }
 
 function validateUsesEntry(
@@ -279,22 +263,68 @@ function validateUsesEntry(
   return diagnostics;
 }
 
-function collectUsesEntries(value: unknown, entries: UsesEntry[]): void {
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      collectUsesEntries(item, entries);
+function collectUsesEntries(value: unknown): UsesEntry[] | undefined {
+  const entries: UsesEntry[] = [];
+  const pending: unknown[] = [value];
+  let visitedValues = 0;
+
+  while (pending.length > 0) {
+    const current = pending.pop();
+    visitedValues += 1;
+    if (visitedValues > YAML_LIMITS.nodes) {
+      return undefined;
     }
-    return;
-  }
-  if (!isRecord(value)) {
-    return;
+    if (Array.isArray(current)) {
+      for (let index = current.length - 1; index >= 0; index -= 1) {
+        pending.push(current[index]);
+      }
+      continue;
+    }
+    if (!isRecord(current)) {
+      continue;
+    }
+
+    if (typeof current['uses'] === 'string') {
+      entries.push({ container: current, value: current['uses'] });
+    }
+    const children = Object.values(current);
+    for (let index = children.length - 1; index >= 0; index -= 1) {
+      pending.push(children[index]);
+    }
   }
 
-  if (typeof value['uses'] === 'string') {
-    entries.push({ container: value, value: value['uses'] });
-  }
-  for (const child of Object.values(value)) {
-    collectUsesEntries(child, entries);
+  return entries;
+}
+
+function workflowYamlDiagnostic(
+  failure: 'alias' | 'file-size' | 'structure' | 'syntax',
+  path: string,
+): Diagnostic {
+  switch (failure) {
+    case 'alias':
+      return diagnostic(
+        'workflow.yaml-alias',
+        'Workflow YAML aliases are prohibited to keep parsing bounded and explicit.',
+        path,
+      );
+    case 'file-size':
+      return diagnostic(
+        'workflow.file-size',
+        `Workflow exceeds the ${String(YAML_LIMITS.bytes)}-byte parsing limit.`,
+        path,
+      );
+    case 'structure':
+      return diagnostic(
+        'workflow.structure-limit',
+        'Workflow exceeds the allowed YAML node count or nesting depth.',
+        path,
+      );
+    case 'syntax':
+      return diagnostic(
+        'workflow.yaml',
+        'Workflow must be valid YAML with unique mapping keys and supported tags.',
+        path,
+      );
   }
 }
 

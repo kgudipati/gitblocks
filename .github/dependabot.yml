@@ -8,6 +8,7 @@ updates:
       time: '09:00'
       timezone: Etc/UTC
     open-pull-requests-limit: 5
+    rebase-strategy: disabled
     commit-message:
       prefix: 'build(deps)'
     groups:
@@ -25,6 +26,7 @@ updates:
       time: '09:30'
       timezone: Etc/UTC
     open-pull-requests-limit: 5
+    rebase-strategy: disabled
     commit-message:
       prefix: 'build(actions)'
     groups:

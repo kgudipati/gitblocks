@@ -1,92 +1,51 @@
 import { posix as path } from 'node:path';
 
-import GithubSlugger from 'github-slugger';
-import { fromMarkdown } from 'mdast-util-from-markdown';
-
+import {
+  inspectMarkdownFiles,
+  MARKDOWN_LIMITS,
+  type MarkdownFileInspection,
+  type MarkdownRepositoryInspection,
+} from './markdown-inspection.ts';
 import { diagnostic, type Diagnostic } from './types.ts';
 
-const MAX_MARKDOWN_BYTES = 512 * 1024;
-const MAX_MARKDOWN_DEPTH = 64;
-const MAX_MARKDOWN_FILES = 2_000;
-const MAX_MARKDOWN_NODES = 20_000;
-const MAX_DIAGNOSTICS = 200;
 const EXTERNAL_LINK_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
 
 export interface MarkdownRepository {
+  readonly inspection?: MarkdownRepositoryInspection;
   readonly markdownFiles: ReadonlyMap<string, string>;
   readonly trackedPaths: ReadonlySet<string>;
-}
-
-interface MarkdownInspection {
-  readonly headingSlugs: ReadonlySet<string>;
-  readonly links: readonly string[];
 }
 
 export function validateMarkdownLinks(
   repository: MarkdownRepository,
 ): Diagnostic[] {
-  if (repository.markdownFiles.size > MAX_MARKDOWN_FILES) {
-    return [
-      diagnostic(
-        'markdown.file-count',
-        `Repository exceeds the ${String(MAX_MARKDOWN_FILES)}-file Markdown limit.`,
-      ),
-    ];
+  const inspection =
+    repository.inspection ?? inspectMarkdownFiles(repository.markdownFiles);
+  const diagnostics: Diagnostic[] = [...inspection.diagnostics];
+  if (diagnostics.length >= MARKDOWN_LIMITS.diagnostics) {
+    return diagnostics.slice(0, MARKDOWN_LIMITS.diagnostics);
   }
-
-  const diagnostics: Diagnostic[] = [];
-  const inspections = new Map<string, MarkdownInspection>();
   const markdownPaths = [...repository.markdownFiles.keys()].sort(compareText);
-
-  for (const markdownPath of markdownPaths) {
-    const content = repository.markdownFiles.get(markdownPath);
-    if (content === undefined) {
-      continue;
-    }
-    if (Buffer.byteLength(content, 'utf8') > MAX_MARKDOWN_BYTES) {
-      diagnostics.push(
-        diagnostic(
-          'markdown.file-size',
-          `Markdown file exceeds the ${String(MAX_MARKDOWN_BYTES)}-byte parsing limit.`,
-          markdownPath,
-        ),
-      );
-      continue;
-    }
-
-    const inspection = inspectMarkdown(content);
-    if (inspection === undefined) {
-      diagnostics.push(
-        diagnostic(
-          'markdown.structure-limit',
-          'Markdown exceeds the allowed node count or nesting depth.',
-          markdownPath,
-        ),
-      );
-      continue;
-    }
-    inspections.set(markdownPath, inspection);
-  }
 
   const trackedDirectories = collectTrackedDirectories(repository.trackedPaths);
   for (const markdownPath of markdownPaths) {
-    const inspection = inspections.get(markdownPath);
-    if (inspection === undefined) {
+    const fileInspection = inspection.files.get(markdownPath);
+    if (fileInspection === undefined) {
       continue;
     }
-    for (const link of inspection.links) {
+    for (const link of fileInspection.links) {
       const linkDiagnostic = validateLocalLink(
         markdownPath,
         link,
         repository.trackedPaths,
         trackedDirectories,
-        inspections,
+        inspection.files,
       );
       if (linkDiagnostic !== undefined) {
         diagnostics.push(linkDiagnostic);
       }
-      if (diagnostics.length >= MAX_DIAGNOSTICS) {
-        return diagnostics;
+      if (diagnostics.length >= MARKDOWN_LIMITS.diagnostics) {
+        return diagnostics.slice(0, MARKDOWN_LIMITS.diagnostics);
       }
     }
   }
@@ -94,56 +53,12 @@ export function validateMarkdownLinks(
   return diagnostics;
 }
 
-function inspectMarkdown(content: string): MarkdownInspection | undefined {
-  const root = fromMarkdown(content) as unknown;
-  const slugger = new GithubSlugger();
-  const headingSlugs = new Set<string>();
-  const links: string[] = [];
-  let nodeCount = 0;
-  const traversalState = { exceeded: false };
-
-  function visit(node: unknown, depth: number): void {
-    if (traversalState.exceeded) {
-      return;
-    }
-    nodeCount += 1;
-    if (nodeCount > MAX_MARKDOWN_NODES || depth > MAX_MARKDOWN_DEPTH) {
-      traversalState.exceeded = true;
-      return;
-    }
-    if (!isRecord(node)) {
-      return;
-    }
-
-    if (node['type'] === 'heading') {
-      headingSlugs.add(slugger.slug(plainText(node)));
-    }
-    if (
-      (node['type'] === 'link' ||
-        node['type'] === 'image' ||
-        node['type'] === 'definition') &&
-      typeof node['url'] === 'string'
-    ) {
-      links.push(node['url']);
-    }
-
-    if (Array.isArray(node['children'])) {
-      for (const child of node['children']) {
-        visit(child, depth + 1);
-      }
-    }
-  }
-
-  visit(root, 0);
-  return traversalState.exceeded ? undefined : { headingSlugs, links };
-}
-
 function validateLocalLink(
   sourcePath: string,
   link: string,
   trackedPaths: ReadonlySet<string>,
   trackedDirectories: ReadonlySet<string>,
-  inspections: ReadonlyMap<string, MarkdownInspection>,
+  inspections: ReadonlyMap<string, MarkdownFileInspection>,
 ): Diagnostic | undefined {
   if (EXTERNAL_LINK_PATTERN.test(link) || link.startsWith('//')) {
     return undefined;
@@ -241,21 +156,6 @@ function collectTrackedDirectories(
   return directories;
 }
 
-function plainText(node: Readonly<Record<string, unknown>>): string {
-  if (
-    (node['type'] === 'text' || node['type'] === 'inlineCode') &&
-    typeof node['value'] === 'string'
-  ) {
-    return node['value'];
-  }
-  if (!Array.isArray(node['children'])) {
-    return '';
-  }
-  return node['children']
-    .map((child) => (isRecord(child) ? plainText(child) : ''))
-    .join('');
-}
-
 function displayLink(link: string): string {
   const withoutQuery = link.split('?', 1)[0] ?? '';
   const escaped = Array.from(withoutQuery)
@@ -277,8 +177,4 @@ function compareText(left: string, right: string): number {
     return -1;
   }
   return left > right ? 1 : 0;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

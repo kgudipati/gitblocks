@@ -26,6 +26,7 @@ export default tseslint.config(
     files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
+        onUnsupportedTypeScriptVersion: 'error',
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },

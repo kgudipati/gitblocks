@@ -272,6 +272,7 @@ function shouldReadText(trackedPath: string): boolean {
   return (
     trackedPath.endsWith('.md') ||
     trackedPath.endsWith('package.json') ||
+    trackedPath === '.github/dependabot.yml' ||
     trackedPath === 'pnpm-workspace.yaml' ||
     (/^\.github\/workflows\/.+\.ya?ml$/u.test(trackedPath) &&
       !trackedPath.endsWith('/'))

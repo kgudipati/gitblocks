@@ -1,5 +1,6 @@
 export { validateBranchName } from './branch-name.ts';
 export { validateMarkdownLinks } from './markdown-links.ts';
+export { validatePullRequestBranch } from './pr-branch.ts';
 export { validatePullRequestTitle } from './pr-title.ts';
 export {
   RepositoryBoundaryError,

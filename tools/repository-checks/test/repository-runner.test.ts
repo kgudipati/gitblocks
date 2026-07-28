@@ -79,4 +79,29 @@ describe('runRepositoryChecks', () => {
     expect(runRepositoryChecks(repositoryRoot)).toEqual([]);
     expect(existsSync(markerPath)).toBe(false);
   });
+
+  it('fails capitalization inspection safely when Markdown limits are exceeded', () => {
+    const repositoryRoot = track(createValidTemporaryRepository());
+    const nestedStrong = '**'.repeat(80);
+    writeRepositoryFile(
+      repositoryRoot,
+      'README.md',
+      `# ${nestedStrong}Gitblocks${nestedStrong}\n`,
+    );
+    stageRepository(repositoryRoot);
+
+    const diagnostics = runRepositoryChecks(repositoryRoot);
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'markdown.structure-limit',
+          path: 'README.md',
+        }),
+      ]),
+    );
+    expect(
+      diagnostics.map((repositoryDiagnostic) => repositoryDiagnostic.code),
+    ).not.toContain('repository.product-capitalization');
+  });
 });

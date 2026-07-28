@@ -41,8 +41,14 @@ Branch names must:
 - describe the outcome with a specific hyphenated slug;
 - contain no spaces, personal names, dates, or vague terms such as `changes`,
   `updates`, `misc`, or `work`; and
-- normally remain under 60 characters. A longer name needs a reviewer-visible
-  reason and must still be unambiguous.
+- remain at most 60 characters.
+
+The repository checker enforces the objective structure, type, decimal issue
+number, lowercase ASCII/kebab syntax, one-slash, maximum-length, calendar-date,
+and documented vague-token rules. A specific one-word description such as
+`fix/42-timeout` is valid. The prohibition on personal names is a semantic
+author/reviewer responsibility: executable policy does not maintain a name
+dictionary.
 
 Valid examples:
 
@@ -60,6 +66,18 @@ Branches must be based on a fast-forward-current `main`; they must not become
 long-lived integration branches. GitBlocks has no `develop` branch. Introducing
 one requires a future ADR demonstrating why short-lived branches and stacked
 PRs cannot meet the need.
+
+GitHub-managed dependency pull requests receive one actor-bound exception in
+CI. Only a pull request authored exactly by `dependabot[bot]` may use a bounded
+`dependabot/<configured-ecosystem>/<update>` branch, and the configured
+ecosystems are `npm_and_yarn` and `github_actions`. Humans and differently
+named bots remain subject to the issue-linked branch convention. Every pull
+request, including Dependabot pull requests, still uses the normal PR-title
+policy. This exception does not authorize other automation branch formats.
+Automation branches are limited to 120 characters and one to eight update-path
+segments of at most 64 characters each. Segments use lowercase ASCII letters,
+digits, and the package/action punctuation `.`, `_`, `+`, `@`, and `-`;
+empty, traversal-like, trailing-punctuation, and `.lock` segments are rejected.
 
 `spike` branches may produce measurements, disposable prototypes, and a
 decision record. They must not merge experimental production code directly.
@@ -154,6 +172,9 @@ An unpublished local topic branch may be rebased onto current `main`. Once a
 branch is pushed or attached to a PR, treat it as shared history: do not rebase
 or force-push it. Update a shared branch using a normal merge from `main` or
 GitHub's merge-based branch-update operation.
+
+Dependabot automatic rebasing is disabled for every configured ecosystem so
+its published PR branches follow the same shared-history rule.
 
 After either update method, rerun the plan's exact local checks, record results
 in the PR, and resolve review threads. Once CI exists, required checks must pass

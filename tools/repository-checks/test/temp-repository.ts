@@ -12,7 +12,11 @@ const REQUIRED_PATHS = [
   '.prettierrc.json',
   '.secretlintignore',
   '.secretlintrc.json',
+  '.github/ISSUE_TEMPLATE/bug.yml',
+  '.github/ISSUE_TEMPLATE/config.yml',
+  '.github/ISSUE_TEMPLATE/phase.yml',
   '.github/dependabot.yml',
+  '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
   'CONTRIBUTING.md',
@@ -29,6 +33,7 @@ const REQUIRED_PATHS = [
   'docs/engineering/repository-workflow.md',
   'docs/engineering/security-baseline.md',
   'docs/engineering/testing-strategy.md',
+  'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
   'docs/product/product-contract.md',
   'eslint.config.mjs',
@@ -162,6 +167,21 @@ function defaultContent(relativePath: string): string {
   }
   if (relativePath === 'pnpm-workspace.yaml') {
     return WORKSPACE_POLICY;
+  }
+  if (relativePath === '.github/dependabot.yml') {
+    return `version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    rebase-strategy: disabled
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    rebase-strategy: disabled
+    schedule:
+      interval: weekly
+`;
   }
   if (relativePath === '.github/workflows/ci.yml') {
     return `name: CI

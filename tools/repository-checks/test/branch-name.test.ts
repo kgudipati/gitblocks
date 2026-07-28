@@ -7,6 +7,7 @@ describe('validateBranchName', () => {
     'build/3-typescript-toolchain',
     'docs/1-project-foundation',
     'feat/24-repository-profiler',
+    'fix/42-timeout',
     'security/112-webhook-signature-validation',
     'spike/90-package-resolution-benchmark',
   ])('accepts %s', (branchName) => {
@@ -21,8 +22,6 @@ describe('validateBranchName', () => {
     ['feat/24/repository-profiler', 'branch.format'],
     ['feat/24-work', 'branch.vague'],
     ['feat/24-2026-07-28-profiler', 'branch.date'],
-    ['feat/24-karthik-profiler', 'branch.personal-name'],
-    ['feat/24-profiler', 'branch.description'],
     [
       'security/112-webhook-signature-validation-with-an-excessively-long-name',
       'branch.length',

@@ -5,7 +5,8 @@
 - Governing issue: [#3 — Phase 1: Establish the TypeScript workspace and verification pipeline](https://github.com/kgudipati/gitblocks/issues/3)
 - Required branch: `build/3-typescript-toolchain`
 - Owner: GitBlocks maintainers
-- State: complete
+- State: implementation, local validation, publication, and hosted CI complete;
+  independent review corrections in progress; merge authorization pending
 - Last updated: 2026-07-28
 - Authority order: Issue #3; the repository and Git history; the product
   contract and accepted ADRs; `AGENTS.md`, `PLANS.md`, and the engineering
@@ -126,28 +127,40 @@ mandatory Git hooks, live-provider tests, or placeholder product directories.
 
 Research was performed on 2026-07-28 using primary project documentation,
 official GitHub release/tag data, and npm registry metadata. Stable releases
-were selected; prerelease, beta, RC, nightly, canary, preview, and floating tags
-were rejected.
+were selected within the issue-approved and officially compatible lines;
+prerelease, beta, RC, nightly, canary, preview, and floating tags were
+rejected. TypeScript 6.0.3 is an intentional compatibility/API choice rather
+than the newest TypeScript major.
 
-| Component                     | Durable policy                                             | Exact selected pin               | Primary evidence                                                                                                                                                                                              |
-| ----------------------------- | ---------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node.js                       | Node 24 LTS, minimum 24.12.0, exclude 25/26                | `24.18.0`                        | [Node release status](https://nodejs.org/en/about/previous-releases), [24.18.0 LTS release](https://nodejs.org/en/blog/release/v24.18.0), [native TypeScript support](https://nodejs.org/api/typescript.html) |
-| TypeScript                    | Stable 6.0.x                                               | `6.0.3`                          | [TypeScript 6.0 notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html), npm registry                                                                                          |
-| pnpm                          | Stable 11.x, exact `packageManager`                        | `11.17.0`                        | [installation](https://pnpm.io/installation), [settings](https://pnpm.io/settings), [supply-chain guidance](https://pnpm.io/supply-chain-security), npm registry                                              |
-| ESLint                        | Current stable flat-config release compatible with Node 24 | `10.8.0`                         | [ESLint](https://eslint.org/docs/latest/use/configure/configuration-files), npm registry                                                                                                                      |
-| `@eslint/js`                  | ESLint 10-compatible current stable package                | `10.0.1`                         | ESLint repository and npm peer metadata (`eslint: ^10.0.0`)                                                                                                                                                   |
-| `typescript-eslint`           | Stable release supporting ESLint 10 and TypeScript 6.0     | `8.65.0`                         | [dependency support](https://typescript-eslint.io/users/dependency-versions/), [typed linting](https://typescript-eslint.io/getting-started/typed-linting/), npm registry                                     |
-| `eslint-config-prettier`      | Disable conflicting stylistic lint rules                   | `10.1.8`                         | [project repository](https://github.com/prettier/eslint-config-prettier), npm registry                                                                                                                        |
-| Prettier                      | Current stable 3.x                                         | `3.9.6`                          | [Prettier documentation](https://prettier.io/docs/), npm registry                                                                                                                                             |
-| Vitest                        | Stable 4.x; reject Vitest 5 beta                           | `4.1.10`                         | [Vitest guide](https://vitest.dev/guide/), npm registry                                                                                                                                                       |
-| V8 coverage                   | Match Vitest exactly                                       | `@vitest/coverage-v8@4.1.10`     | [Vitest coverage guide](https://vitest.dev/guide/coverage), npm peer metadata                                                                                                                                 |
-| dependency-cruiser            | Current stable, Node 24-compatible                         | `18.1.0`                         | [rules reference](https://github.com/sverweij/dependency-cruiser/blob/main/doc/rules-reference.md), npm registry                                                                                              |
-| Secretlint                    | Current stable, Node 24-compatible                         | `13.0.4`                         | [Secretlint documentation](https://github.com/secretlint/secretlint), [13.0.4 release](https://github.com/secretlint/secretlint/releases/tag/v13.0.4), npm registry                                           |
-| Secretlint recommended preset | Match Secretlint exactly                                   | `13.0.4`                         | [recommended preset](https://github.com/secretlint/secretlint/tree/master/packages/%40secretlint/secretlint-rule-preset-recommend), npm registry                                                              |
-| YAML parser                   | Current stable, safe non-executing YAML parser             | `yaml@2.9.0`                     | [yaml documentation](https://eemeli.org/yaml/), npm registry                                                                                                                                                  |
-| Markdown parser               | Current stable CommonMark/mdast parser                     | `mdast-util-from-markdown@2.0.3` | [project repository](https://github.com/syntax-tree/mdast-util-from-markdown), npm registry                                                                                                                   |
-| GitHub heading slugger        | GitHub-compatible duplicate heading slugs                  | `github-slugger@2.0.0`           | [project repository](https://github.com/Flet/github-slugger), npm registry                                                                                                                                    |
-| Node type declarations        | Match supported Node major                                 | `@types/node@24.13.3`            | DefinitelyTyped/npm registry                                                                                                                                                                                  |
+| Component                     | Durable policy                                             | Exact selected pin               | Primary evidence                                                                                                                                                                                                      |
+| ----------------------------- | ---------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node.js                       | Node 24 LTS, minimum 24.12.0, exclude 25/26                | `24.18.0`                        | [Node release status](https://nodejs.org/en/about/previous-releases), [24.18.0 LTS release](https://nodejs.org/en/blog/release/v24.18.0), [native TypeScript support](https://nodejs.org/api/typescript.html)         |
+| TypeScript                    | Stable 6.0 compiler/API line required by typed linting     | `6.0.3`                          | [TypeScript 6.0 notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html), [TypeScript 7 transition](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/), npm registry |
+| pnpm                          | Stable 11.x, exact `packageManager`                        | `11.17.0`                        | [installation](https://pnpm.io/installation), [settings](https://pnpm.io/settings), [supply-chain guidance](https://pnpm.io/supply-chain-security), npm registry                                                      |
+| ESLint                        | Current stable flat-config release compatible with Node 24 | `10.8.0`                         | [ESLint](https://eslint.org/docs/latest/use/configure/configuration-files), npm registry                                                                                                                              |
+| `@eslint/js`                  | ESLint 10-compatible current stable package                | `10.0.1`                         | ESLint repository and npm peer metadata (`eslint: ^10.0.0`)                                                                                                                                                           |
+| `typescript-eslint`           | Stable release supporting ESLint 10 and TypeScript 6.0     | `8.65.0`                         | [dependency support](https://typescript-eslint.io/users/dependency-versions/), [typed linting](https://typescript-eslint.io/getting-started/typed-linting/), npm registry                                             |
+| `eslint-config-prettier`      | Disable conflicting stylistic lint rules                   | `10.1.8`                         | [project repository](https://github.com/prettier/eslint-config-prettier), npm registry                                                                                                                                |
+| Prettier                      | Current stable 3.x                                         | `3.9.6`                          | [Prettier documentation](https://prettier.io/docs/), npm registry                                                                                                                                                     |
+| Vitest                        | Stable 4.x; reject Vitest 5 beta                           | `4.1.10`                         | [Vitest guide](https://vitest.dev/guide/), npm registry                                                                                                                                                               |
+| V8 coverage                   | Match Vitest exactly                                       | `@vitest/coverage-v8@4.1.10`     | [Vitest coverage guide](https://vitest.dev/guide/coverage), npm peer metadata                                                                                                                                         |
+| dependency-cruiser            | Current stable, Node 24-compatible                         | `18.1.0`                         | [rules reference](https://github.com/sverweij/dependency-cruiser/blob/main/doc/rules-reference.md), npm registry                                                                                                      |
+| Secretlint                    | Current stable, Node 24-compatible                         | `13.0.4`                         | [Secretlint documentation](https://github.com/secretlint/secretlint), [13.0.4 release](https://github.com/secretlint/secretlint/releases/tag/v13.0.4), npm registry                                                   |
+| Secretlint recommended preset | Match Secretlint exactly                                   | `13.0.4`                         | [recommended preset](https://github.com/secretlint/secretlint/tree/master/packages/%40secretlint/secretlint-rule-preset-recommend), npm registry                                                                      |
+| YAML parser                   | Current stable, safe non-executing YAML parser             | `yaml@2.9.0`                     | [yaml documentation](https://eemeli.org/yaml/), npm registry                                                                                                                                                          |
+| Markdown parser               | Current stable CommonMark/mdast parser                     | `mdast-util-from-markdown@2.0.3` | [project repository](https://github.com/syntax-tree/mdast-util-from-markdown), npm registry                                                                                                                           |
+| GitHub heading slugger        | GitHub-compatible duplicate heading slugs                  | `github-slugger@2.0.0`           | [project repository](https://github.com/Flet/github-slugger), npm registry                                                                                                                                            |
+| Node type declarations        | Match supported Node major                                 | `@types/node@24.13.3`            | DefinitelyTyped/npm registry                                                                                                                                                                                          |
+
+The correction review verified that TypeScript 7.0 is stable, but it does not
+currently ship a compiler API. The current stable `typescript-eslint` line
+officially supports TypeScript `>=4.8.4 <6.1.0`, and GitBlocks requires typed
+ESLint rules. TypeScript's official transition guidance allows TypeScript 7 to
+run beside a TypeScript 6 compatibility/API package, but a dual compiler,
+aliases, commands, and update path add complexity without current product or
+measured performance value. The repository therefore retains TypeScript 6.0.3
+and configures `onUnsupportedTypeScriptVersion: 'error'` so a future
+unsupported update fails linting.
 
 The direct packages above report Apache-2.0, MIT, or ISC licenses and official
 project repositories. Their published manifests contain no `preinstall`,
@@ -243,7 +256,7 @@ audit reports no known vulnerability.
 | Dependency boundaries                       | dependency-cruiser config and fixtures; M4                                   | Required rules, positive/negative fixture evidence, architecture command                     |
 | Root command graph                          | Root/package scripts; M4                                                     | Every required command, deterministic offline `verify`, online `verify:ci`                   |
 | GitHub Actions CI                           | `.github/workflows/ci.yml`; M5                                               | Self-validation, full pins/comments, read-only token, frozen install, clean tree, stable job |
-| Dependabot                                  | `.github/dependabot.yml`; M5                                                 | npm and Actions weekly configuration, grouping, no automerge                                 |
+| Dependabot                                  | `.github/dependabot.yml`; M5                                                 | npm and Actions weekly configuration, grouping, no automerge/rebase                          |
 | Documentation                               | README, AGENTS, CONTRIBUTING, activated handbook text; M5                    | Commands and status agree with ADR/configuration; Markdown links pass                        |
 | Publication                                 | Intentional commits, normal push, draft PR; M6                               | Branch/commit list, exact title/body, final workflow run and job results                     |
 
@@ -481,13 +494,16 @@ reduce but do not eliminate those risks.
 
 ### Test-first sequence
 
-1. Branch name tables: valid allowed types/issue/slug/length and invalid
-   separators, case, dates, names, vague terms, lengths.
+1. Branch name tables: valid allowed types/issue/slug/length, including a
+   specific one-word slug, and invalid separators, case, dates, vague terms,
+   and lengths. Actor-aware PR branch cases cover the exact Dependabot actor,
+   bounded automation format, malformed branches, humans, and lookalike bots.
 2. PR title tables: allowed types/scopes/breaking marker and invalid vague,
    malformed, uppercase-description, period, unsupported type, excessive size.
 3. Workflow fixtures: pinned/commented external action, unpinned/short/missing
-   comment, local action, permissions, writable permissions,
-   `pull_request_target`, checkout credential persistence, oversized/deep YAML.
+   comment, local action, independently evaluated workflow/job permissions,
+   writable/malformed/unsupported permissions, `pull_request_target`, checkout
+   credential persistence, aliases, and oversized/deep/high-node-count YAML.
 4. Markdown fixtures: valid relative file, fragments, duplicate headings,
    encoded fragments, missing file/fragment, malformed encoding, external URLs,
    anchors, images where applicable.
@@ -563,9 +579,13 @@ It declares `permissions: contents: read`, concurrency cancellation, one
 bounded job with a stable human-readable required-check name, and no secrets or
 cache. It checks out with `persist-credentials: false`, installs Node from
 `.node-version`, installs the exact pnpm version, performs a frozen install,
-proves tracked files are unchanged, validates pull-request branch/title values
-only on PR events, and runs `pnpm verify:ci`. A final diff check proves
-installation and verification did not change tracked files.
+proves tracked files are unchanged, passes the pull-request author and branch
+as separate environment values to the actor-aware branch operation, validates
+the title for every pull request, and runs `pnpm verify:ci`. A final diff check
+proves installation and verification did not change tracked files. Only the
+exact `dependabot[bot]` actor receives the bounded GitHub-managed automation
+branch exception; ordinary and lookalike actors retain the human issue-linked
+policy.
 
 External actions use the full researched commit with a same-line release
 comment. The repository workflow validator must pass against `ci.yml` before it
@@ -654,6 +674,23 @@ product contract migration. This is the first executable workspace contract.
       `Verification` passed, and full logs confirm cache disabled, exact
       integrity-bound Corepack bootstrap, read-only permissions, 87 tests, a
       clean audit, and clean-tree proofs.
+- [ ] 2026-07-28 — Independent review correction pass began at published head
+      `72b954cc598ecb117026227ad4f5009d99acf9e9`. Local and remote topic heads
+      match, the worktree is clean, draft PR #4 remains open and unmerged, and
+      hosted run `30343298748` / `Verification` passed on that reviewed head.
+      Corrections are in progress for effective job permissions, actor-bound
+      Dependabot branches, Dependabot rebase policy, objective branch rules,
+      foundation coverage, parser bounds, and the TypeScript 6/7 rationale.
+- [x] 2026-07-28 — Review corrections implemented test-first without dependency
+      or lockfile changes. The intended regression run failed 17 cases; the
+      corrected focused run passed 123 tests, the full suite passed 128 tests,
+      and V8 measured 86.17% statements, 83.77% branches, 98.48% functions, and
+      85.98% lines without adding a threshold.
+- [x] 2026-07-28 — Review-corrected local validation matrix passed, including
+      two frozen installs, 128 tests, coverage, typed lint/typecheck, build,
+      architecture, repository/workflow policy, Secretlint, registry audit,
+      `verify`, and `verify:ci`. The lockfile hash remained `4afa9104...` and no
+      dependency, lockfile, or lifecycle allowlist changed.
 
 ## Decision and deviation log
 
@@ -687,6 +724,25 @@ product contract migration. This is the first executable workspace contract.
   reporting a high-severity npm advisory. The exact `packageManager` version
   and digest remain authoritative, and `COREPACK_DEFAULT_TO_LATEST=0` prevents
   an unrelated latest-version lookup.
+- 2026-07-28 — Keep the human branch validator issue-linked and introduce a
+  separate actor-aware PR branch rule. Only exact actor `dependabot[bot]` may
+  use a bounded `dependabot/(npm_and_yarn|github_actions)/<update>` branch;
+  humans and lookalike bots receive no exception. CI passes actor and branch as
+  separate environment/argument values and still validates every PR title.
+- 2026-07-28 — Disable Dependabot rebasing for both configured ecosystems and
+  enforce the setting through repository invariants. Published dependency PR
+  branches are shared history under the same no-rebase/no-force-push rule as
+  human PR branches.
+- 2026-07-28 — Replace duplicate Markdown parsing and recursive capitalization
+  traversal with one bounded inert inspection per repository run. Markdown and
+  every security-relevant YAML configuration now share explicit byte,
+  node/depth, alias, and diagnostic limits; excessive input fails closed with
+  stable diagnostics.
+- 2026-07-28 — Retain TypeScript 6.0.3 because TypeScript 7.0, while stable,
+  does not ship a compiler API and `typescript-eslint` officially supports
+  `>=4.8.4 <6.1.0`. Typed rules are required; the documented dual-toolchain
+  compatibility route adds complexity without measured value. Lint now errors
+  rather than warns on an unsupported TypeScript version.
 
 ## Failed checks and corrections
 
@@ -755,6 +811,24 @@ product contract migration. This is the first executable workspace contract.
   setup-node cases because no cache rule existed; the direct `actions/cache`
   case was added before implementation. Correction: added a focused validator
   for all three paths while preserving local-action handling.
+- 2026-07-28 — The independent review regression run failed as intended: 17 of
+  115 executed tests failed and the new actor-aware suite could not import its
+  not-yet-created module. The failures reproduced the one-word branch
+  rejection, top-level workflow-permission early return, unsupported access
+  acceptance, missing Dependabot/foundation enforcement, unbounded duplicate
+  capitalization traversal, absent actor-aware CLI operation, and missing YAML
+  structure diagnostics. Correction: implemented the pure actor-aware rule,
+  independent effective-permission checks, Dependabot/foundation invariants,
+  and shared bounded parsers; the focused suite then passed 123 tests and the
+  expanded full suite passed 128.
+- 2026-07-28 — The first correction `pnpm typecheck` wrapper invocation failed
+  before TypeScript ran because the exact pnpm executable directory was absent
+  from the restricted command `PATH`. Correction: added the already reviewed
+  pnpm 11.17.0 executable directory to `PATH`; strict typecheck then passed.
+- 2026-07-28 — The first correction `pnpm lint` run found an unnecessary mdast
+  result assertion and an unsafe inferred `any` from YAML array narrowing.
+  Correction: retained the parsed value's real type and narrowed the untrusted
+  updates sequence through `unknown`; no lint rule was disabled.
 
 ## Validation evidence
 
@@ -798,3 +872,18 @@ Evidence below is current through initial publication and hosted CI.
 | Normal branch push and draft PR creation                 | 2026-07-28 | Branch published without force; draft PR #4 opened with the exact title and `Closes #3`, and remains unmerged                                                                                                |
 | GitHub Actions runs `30342397907`, `30342593960`         | 2026-07-28 | Jobs passed, but full logs exposed an implicit setup-node cache input and pnpm action self-installer advisory; treated as a failed policy review and corrected rather than accepted                          |
 | Corrected CI run `30343163983` / `Verification`          | 2026-07-28 | Pass on `fb3cd0e`: Node 24.18.0, pnpm 11.17.0 via Corepack, cache input false, read-only token, 325-entry supply-chain check, 87 tests, clean audit, and both worktree proofs confirmed in full logs         |
+| Review-correction starting-state verification            | 2026-07-28 | Clean worktree; local/remote topic head `72b954cc598ecb117026227ad4f5009d99acf9e9`; draft PR #4 open/unmerged; run `30343298748` / `Verification` passed on that head                                        |
+| Review-correction failing regression run                 | 2026-07-28 | Expected failure: 17 of 115 executed tests failed and the new actor-aware module was absent, reproducing every targeted policy/parser gap before implementation                                              |
+| Corrected focused regression run                         | 2026-07-28 | Pass: 9 files and 123 tests, covering job-level permission overrides, actor-bound Dependabot branches, rebase policy, durable files, and parser abuse                                                        |
+| Corrected `pnpm test`                                    | 2026-07-28 | Pass: 9 files and 128 tests                                                                                                                                                                                  |
+| Corrected `pnpm test:coverage`                           | 2026-07-28 | Pass: 86.17% statements, 83.77% branches, 98.48% functions, 85.98% lines; no threshold                                                                                                                       |
+| Corrected `pnpm lint`; `pnpm typecheck`                  | 2026-07-28 | Pass after the recorded typed-narrowing and exact-pnpm `PATH` corrections; TypeScript 6.0.3 is inside the official supported range and unsupported versions are configured to error                          |
+| Two corrected `pnpm install --frozen-lockfile` runs      | 2026-07-28 | Pass in 163/162 ms with pnpm 11.17.0; already up to date; `pnpm-lock.yaml` unchanged at Git blob `4afa910428e83e3494ed9abd25e79d1b8e94111e`                                                                  |
+| Corrected `pnpm format:check`                            | 2026-07-28 | Pass: all matched files use the committed Prettier style                                                                                                                                                     |
+| Corrected `pnpm build`                                   | 2026-07-28 | Pass: strict TypeScript project build emitted the private tooling package                                                                                                                                    |
+| Corrected `pnpm architecture:check`                      | 2026-07-28 | Pass: no dependency violations across 129 modules and 315 dependencies                                                                                                                                       |
+| Corrected `pnpm repo:check`                              | 2026-07-28 | Pass: actual CI workflow, Dependabot policy, durable foundation set, Markdown, manifests, workspace policy, and repository shape accepted                                                                    |
+| Corrected `pnpm security:secrets`                        | 2026-07-28 | Pass with masked-output configuration; no secret finding                                                                                                                                                     |
+| Corrected `pnpm security:audit`                          | 2026-07-28 | Pass: no known vulnerabilities; registry-backed audit completed visibly                                                                                                                                      |
+| Corrected `pnpm verify`                                  | 2026-07-28 | Pass: formatting, typed lint, typecheck, build, 128 tests, architecture, repository policy, and Secretlint                                                                                                   |
+| Corrected `pnpm verify:ci`                               | 2026-07-28 | Pass: full authoritative graph plus online audit; no failure suppression                                                                                                                                     |
