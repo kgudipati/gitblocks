@@ -5,7 +5,7 @@
 - Governing issue: [#3 — Phase 1: Establish the TypeScript workspace and verification pipeline](https://github.com/kgudipati/gitblocks/issues/3)
 - Required branch: `build/3-typescript-toolchain`
 - Owner: GitBlocks maintainers
-- State: active
+- State: complete
 - Last updated: 2026-07-28
 - Authority order: Issue #3; the repository and Git history; the product
   contract and accepted ADRs; `AGENTS.md`, `PLANS.md`, and the engineering
@@ -272,15 +272,14 @@ audit reports no known vulnerability.
 - Exact stable releases exist for every approved tool major line.
 - The repository contains no existing implementation to migrate.
 
-### Working assumptions to verify
+### Verified implementation resolutions
 
-- The exact graph resolves under every committed pnpm control with no build or
-  trust exception; this is verified locally and remains to be reproduced in
-  Linux CI.
+- The exact graph resolves locally and in Linux CI under every committed pnpm
+  control with no build or trust exception.
 - All lockfile sources are registry/workspace sources with integrity, all
   installed licenses are compatible with development-only use, and the graph
-  has no prerelease. Cross-platform CI remains to verify Linux optional package
-  selection.
+  has no prerelease. Linux CI successfully resolved its applicable optional
+  package selection.
 
 ### Risks and latest resolution milestone
 
@@ -644,13 +643,16 @@ product contract migration. This is the first executable workspace contract.
 - [x] 2026-07-28 — M5: added self-validating read-only CI, Dependabot,
       activated documentation, completed two frozen installs, and passed the
       complete local validation matrix.
-- [ ] M6 — Commits, draft PR, and known CI result.
+- [x] 2026-07-28 — M6: committed and normally pushed the required branch,
+      opened draft PR #4 with the exact title and `Closes #3`, and confirmed CI
+      run `30342397907` / `Verification` passed on implementation commit
+      `f93b50e00682a133624f720561eba2b997e37ee6`.
 
 ## Decision and deviation log
 
 - 2026-07-28 — Use Node 24.18.0 as the committed current pin while supporting
   `>=24.12.0 <25`. The local signed 24.14.0 runtime validates the minimum-major
-  policy; CI will validate the exact current pin.
+  policy; hosted CI validated the exact current pin.
 - 2026-07-28 — Use Node native type stripping for erasable repository-tool
   source execution and TypeScript emit for package output. `rewriteRelativeImportExtensions`,
   `erasableSyntaxOnly`, and explicit extensions keep both paths coherent.
@@ -734,8 +736,7 @@ product contract migration. This is the first executable workspace contract.
 
 ## Validation evidence
 
-Evidence below is current through local prepublication validation; publication
-and hosted CI results remain pending.
+Evidence below is current through initial publication and hosted CI.
 
 | Command or review                                        | Date       | Observed result                                                                                                                                                                                              |
 | -------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -769,3 +770,6 @@ and hosted CI results remain pending.
 | `git diff --check`; `git diff --cached --check`          | 2026-07-28 | Pass; no whitespace errors                                                                                                                                                                                   |
 | Full local command matrix                                | 2026-07-28 | All required install, format, lint, type, build, test, coverage, architecture, repository, secret, audit, and verification commands pass                                                                     |
 | Final acceptance/security/diff review                    | 2026-07-28 | Pass before publication: every criterion reconciled; semantic and formatted-baseline diffs reviewed; no product service, mutable action, secret fixture, unsupported source, or undocumented exception found |
+| Initial implementation commit                            | 2026-07-28 | `f93b50e00682a133624f720561eba2b997e37ee6`; intentional Conventional Commit on the required topic branch                                                                                                     |
+| Normal branch push and draft PR creation                 | 2026-07-28 | Branch published without force; draft PR #4 opened with the exact title and `Closes #3`, and remains unmerged                                                                                                |
+| GitHub Actions run `30342397907` / `Verification`        | 2026-07-28 | Pass on the implementation commit; setup, frozen install, clean-tree proofs, PR metadata validation, `verify:ci`, and every post step succeeded                                                              |
