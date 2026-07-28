@@ -7,6 +7,7 @@ const REQUIRED_PATHS = [
   '.gitattributes',
   '.gitignore',
   '.node-version',
+  '.nvmrc',
   '.prettierignore',
   '.prettierrc.json',
   '.secretlintignore',
@@ -34,6 +35,7 @@ const REQUIRED_PATHS = [
   'docs/engineering/testing-strategy.md',
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
+  'docs/plans/0005-node-runtime-preflight.md',
   'docs/product/product-contract.md',
   'eslint.config.mjs',
   'package.json',
@@ -42,9 +44,11 @@ const REQUIRED_PATHS = [
   'tools/repository-checks/package.json',
   'tools/repository-checks/src/cli.ts',
   'tools/repository-checks/src/index.ts',
+  'tools/repository-checks/test/fixtures/runtime-capability.ts',
   'tools/repository-checks/test/tsconfig.json',
   'tools/repository-checks/tsconfig.json',
   'tools/repository-checks/tsconfig.test.json',
+  'tools/runtime-preflight.mjs',
   'tsconfig.base.json',
   'tsconfig.json',
   'vitest.config.ts',
@@ -57,6 +61,22 @@ const ROOT_MANIFEST = JSON.stringify({
   engines: {
     node: '>=24.12.0 <25',
     pnpm: '11.17.0',
+  },
+  scripts: {
+    'repo:branch':
+      'pnpm runtime:check && node tools/repository-checks/src/cli.ts branch',
+    'repo:check':
+      'pnpm runtime:check && node tools/repository-checks/src/cli.ts repository',
+    'repo:pr-branch':
+      'pnpm runtime:check && node tools/repository-checks/src/cli.ts pr-branch',
+    'repo:pr-title':
+      'pnpm runtime:check && node tools/repository-checks/src/cli.ts pr-title',
+    'runtime:check': 'node tools/runtime-preflight.mjs',
+    test: 'pnpm runtime:check && vitest run',
+    'test:coverage': 'pnpm runtime:check && vitest run --coverage',
+    verify: 'pnpm runtime:check && pnpm verify:core',
+    'verify:ci': 'pnpm verify && pnpm security:audit',
+    'verify:core': 'vitest run',
   },
   devDependencies: {
     typescript: '6.0.3',
@@ -114,6 +134,8 @@ function validRepository() {
   const textFiles = new Map<string, string>([
     ['README.md', '# GitBlocks\n\nUse `gitblocks` as the repository slug.\n'],
     ['.github/dependabot.yml', dependabotPolicy()],
+    ['.node-version', '24.18.0\n'],
+    ['.nvmrc', '24.18.0\n'],
     ['package.json', ROOT_MANIFEST],
     ['tools/repository-checks/package.json', TOOL_MANIFEST],
     ['pnpm-workspace.yaml', WORKSPACE_POLICY],
@@ -150,6 +172,23 @@ describe('validateRepositoryInvariants', () => {
     );
   });
 
+  it.each(['.nvmrc', 'tools/runtime-preflight.mjs'])(
+    'reports a missing runtime foundation file %s',
+    (requiredPath) => {
+      const repository = validRepository();
+      repository.trackedPaths.delete(requiredPath);
+
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'repository.required-file',
+            path: requiredPath,
+          }),
+        ]),
+      );
+    },
+  );
+
   it.each([
     'apps/api/package.json',
     'packages/domain/package.json',
@@ -178,6 +217,48 @@ describe('validateRepositoryInvariants', () => {
         (diagnostic) => diagnostic.code,
       ),
     ).toContain('repository.dependency-version');
+  });
+
+  it('requires .node-version and .nvmrc to agree', () => {
+    const repository = validRepository();
+    repository.textFiles.set('.nvmrc', '24.17.1\n');
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'repository.node-pin-mismatch' }),
+      ]),
+    );
+  });
+
+  it.each(['.node-version', '.nvmrc'])(
+    'requires readable content for %s',
+    (versionPath) => {
+      const repository = validRepository();
+      repository.textFiles.delete(versionPath);
+
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'repository.required-content',
+            path: versionPath,
+          }),
+        ]),
+      );
+    },
+  );
+
+  it('requires the protected runtime command graph', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'package.json',
+      ROOT_MANIFEST.replace('pnpm runtime:check && vitest run', 'vitest run'),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'repository.runtime-script' }),
+      ]),
+    );
   });
 
   it('requires private package manifests', () => {

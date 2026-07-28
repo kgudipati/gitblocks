@@ -19,18 +19,24 @@ service or application implementation.
 
 ## Bootstrap and verification
 
-Use Node.js `>=24.12.0 <25`; `.node-version` selects Node 24.18.0. Use only the
-exact pnpm version selected by `package.json`:
+Use Node.js `>=24.12.0 <25`. `.node-version` is the cross-tool and CI pin;
+`.nvmrc` mirrors it for nvm. The preferred nvm flow is:
 
 ```bash
+nvm install
+nvm use
 corepack enable pnpm
-pnpm --version
 pnpm install --frozen-lockfile
 pnpm verify
 ```
 
-`pnpm --version` must report `11.17.0`. Before publication, also run the online
-audit graph:
+nvm is not mandatory. Another version manager is valid when the active process
+matches the repository requirement. `pnpm verify` begins with
+`pnpm runtime:check`, which validates the actual Node process, pin agreement,
+and direct TypeScript capability before TypeScript-backed tooling starts.
+
+The selected Node pin is 24.18.0 and `pnpm --version` must report `11.17.0`.
+Before publication, also run the online audit graph:
 
 ```bash
 pnpm verify:ci
@@ -39,7 +45,7 @@ pnpm verify:ci
 `pnpm verify` is deterministic and requires no credentials or live provider.
 `pnpm verify:ci` adds the registry-backed dependency audit and fails if that
 audit cannot be completed. Never hand-edit `pnpm-lock.yaml` or weaken the
-workspace supply-chain policy to make installation pass.
+runtime preflight or workspace supply-chain policy to make installation pass.
 
 ## Issue to merge workflow
 
