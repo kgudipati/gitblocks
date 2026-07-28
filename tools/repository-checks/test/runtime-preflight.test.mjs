@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import {
   mkdtempSync,
   mkdirSync,
@@ -8,7 +9,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import process from 'node:process';
-import { URL } from 'node:url';
+import { fileURLToPath, URL } from 'node:url';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -20,6 +21,11 @@ import {
   runRuntimePreflight,
 } from '../../runtime-preflight.mjs';
 
+const PREFLIGHT_PATH = fileURLToPath(
+  new URL('../../runtime-preflight.mjs', import.meta.url),
+);
+const REPOSITORY_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const SECRET_SENTINEL = 'must-not-appear-in-preflight-diagnostics';
 const temporaryDirectories = [];
 
 afterEach(() => {
@@ -58,6 +64,22 @@ function writeRepositoryFile(repositoryRoot, relativePath, content) {
   const absolutePath = join(repositoryRoot, relativePath);
   mkdirSync(dirname(absolutePath), { recursive: true });
   writeFileSync(absolutePath, content, 'utf8');
+}
+
+function runPreflightWithNodeOptions(nodeOptions) {
+  return spawnSync(process.execPath, [PREFLIGHT_PATH], {
+    cwd: REPOSITORY_ROOT,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GITBLOCKS_RUNTIME_PREFLIGHT_SECRET: SECRET_SENTINEL,
+      NODE_OPTIONS: nodeOptions,
+    },
+    maxBuffer: 8 * 1024,
+    shell: false,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 5_000,
+  });
 }
 
 describe('runtime version policy', () => {
@@ -252,6 +274,36 @@ describe('runtime preflight policy', () => {
     expect(stderr[0]).toContain('nvm install && nvm use');
     expect(stderr[0].length).toBeLessThanOrEqual(512);
     expect(executeCapability).not.toHaveBeenCalled();
+  });
+});
+
+describe('runtime preflight effective environment', () => {
+  it('passes when the inherited Node options preserve TypeScript execution', () => {
+    const result = runPreflightWithNodeOptions('--no-warnings');
+
+    expect(result.error).toBeUndefined();
+    expect(result.signal).toBeNull();
+    expect(result.status).toBe(PREFLIGHT_EXIT_CODES.success);
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toBe('');
+  });
+
+  it('fails inside the preflight when inherited options disable TypeScript stripping', () => {
+    const result = runPreflightWithNodeOptions('--no-strip-types');
+
+    expect(result.error).toBeUndefined();
+    expect(result.signal).toBeNull();
+    expect(result.status).toBe(PREFLIGHT_EXIT_CODES.failure);
+    expect(result.status).not.toBe(PREFLIGHT_EXIT_CODES.usage);
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toContain(
+      'The active runtime cannot execute the repository-owned direct TypeScript capability fixture.',
+    );
+    expect(result.stderr).not.toContain('ERR_UNKNOWN_FILE_EXTENSION');
+    expect(result.stderr).not.toContain('--no-strip-types');
+    expect(result.stderr).not.toContain(SECRET_SENTINEL);
+    expect(result.stderr.trim().split(/\r?\n/u)).toHaveLength(1);
+    expect(result.stderr.length).toBeLessThanOrEqual(513);
   });
 });
 

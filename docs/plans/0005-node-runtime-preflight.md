@@ -6,8 +6,8 @@
   [#5 — Fix local Node runtime detection and CLI diagnostics](https://github.com/kgudipati/gitblocks/issues/5)
 - Required branch: `fix/5-node-runtime-preflight`
 - Owner: GitBlocks maintainers
-- State: implementation, validation, publication, and hosted CI complete;
-  independent final review and merge authorization pending
+- State: independent review correction in progress; merge authorization
+  pending
 - Last updated: 2026-07-28
 - Authority order: Issue #5; current `main`; ADR 0002; the engineering
   handbook and `AGENTS.md`; the implementation prompt
@@ -102,18 +102,18 @@ Non-goals:
 
 ## Requirements crosswalk
 
-| Issue #5 requirement or acceptance criterion        | Destination                                             | Milestone and evidence                                                   |
-| --------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------ |
-| nvm-compatible pin mirrors cross-tool pin           | `.nvmrc`; invariant tests                               | M1; byte-normalized equality and repository check                        |
-| dependency-free actual-process preflight            | `tools/runtime-preflight.mjs`                           | M2; version/file/exit/diagnostic unit and subprocess tests               |
-| direct TypeScript capability proof                  | fixed inert `.ts` fixture and exact-source verification | M2; real Node 24 execution and simulated failure tests                   |
-| unsupported runtime fails before TS-backed commands | root scripts                                            | M3; package-script contract tests and Node 22 manual demonstration       |
-| no redundant aggregate preflight                    | `runtime:check`, `verify:core`, `verify`, `verify:ci`   | M3; script graph review and command output                               |
-| actionable CLI child diagnostics                    | reusable test assertion helper and `cli.test.ts`        | M4; failing fixture includes bounded status/signal/stdout/stderr/runtime |
-| durable documentation and policy                    | README, CONTRIBUTING, AGENTS, ADR 0002, invariants      | M5; Markdown/repository checks and diff review                           |
-| existing and new checks pass                        | root verification graph                                 | M6; local matrix, coverage, clean-tree evidence                          |
-| draft PR and hosted CI pass                         | GitHub PR and Actions                                   | M7; PR URL, run/job/log evidence                                         |
-| no product or dependency change                     | complete diff and lockfile review                       | M6/M7; path, manifest, and lockfile comparison                           |
+| Issue #5 requirement or acceptance criterion        | Destination                                           | Milestone and evidence                                                   |
+| --------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| nvm-compatible pin mirrors cross-tool pin           | `.nvmrc`; invariant tests                             | M1; byte-normalized equality and repository check                        |
+| dependency-free actual-process preflight            | `tools/runtime-preflight.mjs`                         | M2; version/file/exit/diagnostic unit and subprocess tests               |
+| direct TypeScript capability proof                  | fixed inert `.ts` fixture and inherited environment   | M2; real, inherited-option, and simulated-failure tests                  |
+| unsupported runtime fails before TS-backed commands | root scripts                                          | M3; package-script contract tests and Node 22 manual demonstration       |
+| no redundant aggregate preflight                    | `runtime:check`, `verify:core`, `verify`, `verify:ci` | M3; script graph review and command output                               |
+| actionable CLI child diagnostics                    | reusable test assertion helper and `cli.test.ts`      | M4; failing fixture includes bounded status/signal/stdout/stderr/runtime |
+| durable documentation and policy                    | README, CONTRIBUTING, AGENTS, ADR 0002, invariants    | M5; Markdown/repository checks and diff review                           |
+| existing and new checks pass                        | root verification graph                               | M6; local matrix, coverage, clean-tree evidence                          |
+| draft PR and hosted CI pass                         | GitHub PR and Actions                                 | M7; PR URL, run/job/log evidence                                         |
+| no product or dependency change                     | complete diff and lockfile review                     | M6/M7; path, manifest, and lockfile comparison                           |
 
 ## Assumptions, risks, and unresolved decisions
 
@@ -131,7 +131,9 @@ Implementation decisions:
   adding a semver dependency.
 - the capability check may spawn only `process.execPath` with one fixed,
   repository-owned inert fixture whose exact content is verified before
-  execution. It will not execute scanned or variable repository content.
+  execution. It inherits the effective process environment so Node execution
+  options match the subsequent repository CLI. It will not execute scanned or
+  variable repository content.
 - one stable preflight failure exit code covers unsupported runtime,
   missing/malformed/mismatched pins, and missing/incapable TypeScript support;
   an optional documented success flag may print confirmation.
@@ -145,6 +147,10 @@ Risks and controls:
 - A capability fixture could become executable arbitrary content. The preflight
   compares its bytes to a fixed inert source before spawning it and uses
   `spawnSync` with `shell: false`.
+- Sanitizing the capability child's environment could hide effective
+  `NODE_OPTIONS` and produce a false-positive preflight. The fixed child
+  inherits the current process environment; regression tests exercise benign
+  and TypeScript-disabling options without mutating the test runner.
 - Diagnostics could disclose child output or grow without bound. The preflight
   prints no child output, and the test assertion helper truncates each captured
   field independently.
@@ -178,12 +184,13 @@ root command
   -> existing Vitest or repository-check command
 ```
 
-Inputs are the active Node version, two fixed version files of at most 64 bytes,
-one fixed capability fixture of bounded size and exact content, and the
-optional success flag. There is no network, retry, concurrency, pagination, or
-mutable state. The capability subprocess runs once per directly invoked public
-command and once per aggregate verification graph. Expected time is below one
-second and memory is bounded by one Node child plus small fixed buffers.
+Inputs are the active Node version, effective Node execution environment, two
+fixed version files of at most 64 bytes, one fixed capability fixture of
+bounded size and exact content, and the optional success flag. There is no
+network, retry, concurrency, pagination, or mutable state. The capability
+subprocess runs once per directly invoked public command and once per aggregate
+verification graph. Expected time is below one second and memory is bounded by
+one Node child plus small fixed buffers.
 
 ## Security, privacy, abuse, and supply-chain considerations
 
@@ -196,7 +203,10 @@ strict syntax, type, size, regular-file, equality, and exact-content checks.
 The implementation uses no shell, `eval`, `Function`, dynamic import, arbitrary
 path, environment dump, automatic installation, or repository scan. Failure
 messages include only bounded version/policy facts and an example nvm command.
-The nvm example does not detect, invoke, or require nvm.
+The capability child inherits the effective environment but executes only the
+verified inert fixture, which does not inspect the environment; child output is
+discarded and diagnostics never print environment values. The nvm example does
+not detect, invoke, or require nvm.
 
 Authentication, authorization, tenant isolation, personal data, persistence,
 retention, webhooks, prompt injection, and model-provider transfer are not
@@ -359,6 +369,10 @@ irreversible.
       [#6](https://github.com/kgudipati/gitblocks/pull/6) with the exact
       required title.
 - [x] M7 — Draft PR publication and hosted CI.
+- [x] 2026-07-28 — Corrected and locally validated the independent-review
+      finding that the capability child sanitized its environment and
+      therefore did not model the effective options inherited by the subsequent
+      TypeScript CLI. Ordinary publication and hosted CI remain pending.
 
 ## Decision and deviation log
 
@@ -372,6 +386,11 @@ irreversible.
   exact-content inert fixture with the current Node executable after the
   version and pin checks pass. Reason: this tests capability without executing
   arbitrary repository content or dynamic code.
+- 2026-07-28 — Inherit the effective environment in the capability child.
+  Reason: the probe must answer whether the same executable and Node options
+  used by the following repository CLI can execute the verified TypeScript
+  fixture. Omitting `spawnSync`'s `env` option preserves normal inheritance
+  without copying, inspecting, logging, or interpolating environment values.
 
 No deviations from Issue #5 are currently known.
 
@@ -394,6 +413,13 @@ No deviations from Issue #5 are currently known.
   Node `URL` import, then applied pinned Prettier. A follow-up lint run requested
   an interface instead of a type alias; the fixture and exact expected source
   were corrected without disabling a rule.
+- 2026-07-28 — Independent review found that `env: {}` removed effective Node
+  options from the capability child, allowing a false-positive preflight before
+  the real TypeScript CLI. The new real-entry-point regression failed as
+  intended: 25 cases passed and the `--no-strip-types` case received exit `0`
+  instead of failure `1`. Correction: omitted the `env` option so the fixed
+  capability child inherits the effective environment; the focused suite then
+  passed all 26 cases.
 
 ## Validation evidence
 
@@ -422,3 +448,13 @@ No deviations from Issue #5 are currently known.
 | Ordinary commit and non-forced push                     | 2026-07-28 | Implementation commit `39f13827080b5d5e1e08e9edc9ef59285591a67c` published on `fix/5-node-runtime-preflight`                     |
 | Draft PR #6                                             | 2026-07-28 | Open, draft, unmerged, exact required title and `Closes #5`: <https://github.com/kgudipati/gitblocks/pull/6>                     |
 | Hosted CI run `30394069517`, job `90392571325`          | 2026-07-28 | Pass in 61 seconds: Node 24.18.0, pnpm 11.17.0, install/reproducibility, metadata, 159 tests, verification/audit, clean worktree |
+| Node 24.18 CLI documentation and local `node --help`    | 2026-07-28 | Stable flags and `NODE_OPTIONS` support confirmed                                                                                |
+| Review-correction test-first focused run                | 2026-07-28 | Expected failure: sanitized child returned `0`; 25 of 26 cases passed                                                            |
+| Corrected effective-environment focused run             | 2026-07-28 | Pass: 26 tests; normal/benign pass and stripping-disabled fails safely                                                           |
+| Protected `repo:check` with stripping disabled          | 2026-07-28 | Exit `1` at preflight; no repository CLI success or loader error                                                                 |
+| Correction frozen install                               | 2026-07-28 | Pass in 155 ms; dependency, policy, allowlist, and lockfile unchanged                                                            |
+| Correction format, lint, typecheck, build, and test     | 2026-07-28 | Pass under Node 24.18.0/pnpm 11.17.0; 10 files and 161 tests                                                                     |
+| Correction `pnpm test:coverage`                         | 2026-07-28 | Pass: 85.75% statements, 82.98% branches, 95.34% functions, 85.59% lines                                                         |
+| Correction architecture, repository, and security       | 2026-07-28 | Pass: 135 modules/330 dependencies, repository, secrets, and audit                                                               |
+| Correction `pnpm verify`; `pnpm verify:ci`              | 2026-07-28 | Pass: effective probe, offline graph, and online audit                                                                           |
+| Correction pin, diff, and generated-state review        | 2026-07-28 | Pins equal; intended diff stable; no dependency, lockfile, lifecycle, product, or generated change                               |

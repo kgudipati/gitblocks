@@ -252,7 +252,6 @@ function executeRuntimeCapability(fixturePath, repositoryRoot) {
   const result = spawnSync(process.execPath, [fixturePath], {
     cwd: repositoryRoot,
     encoding: 'utf8',
-    env: {},
     maxBuffer: 1_024,
     shell: false,
     stdio: ['ignore', 'pipe', 'pipe'],
