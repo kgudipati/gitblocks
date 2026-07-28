@@ -1,0 +1,102 @@
+name: Development phase
+description: Propose one coherent, independently verifiable product or engineering outcome.
+title: "phase: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for a scoped development phase. Keep authoritative requirements here and link supporting documents instead of duplicating them. Report vulnerabilities privately through SECURITY.md.
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose and user-visible outcome
+      description: Identify the user, the observable result, and why the change is needed now.
+      placeholder: A developer can...
+    validations:
+      required: true
+  - type: textarea
+    id: current-state
+    attributes:
+      label: Verified current state
+      description: Cite repository files, behavior, commands, or other evidence. Distinguish facts from assumptions.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: List the behavior, contracts, components, data, and documentation this issue may change.
+    validations:
+      required: true
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: Explicit non-goals
+      description: Name adjacent work that must not be absorbed into this issue.
+    validations:
+      required: true
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Deliverables and acceptance criteria
+      description: Use observable, testable criteria. Link authoritative contracts and ADRs.
+      placeholder: |
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: architecture
+    attributes:
+      label: Architecture, contracts, and data flow
+      description: Identify affected boundaries, ownership, dependency direction, versioning, migrations, and open decisions.
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security, privacy, abuse, and supply chain
+      description: Cover trust boundaries, untrusted/model input, authorization, tenancy, approvals, data handling, dependencies, and residual risk.
+    validations:
+      required: true
+  - type: textarea
+    id: testing
+    attributes:
+      label: Test strategy
+      description: Name applicable unit, contract, integration, end-to-end, negative/abuse, property, fuzz, load, resilience, and model evaluations.
+    validations:
+      required: true
+  - type: textarea
+    id: operations
+    attributes:
+      label: Observability and reliability
+      description: Identify bounds, telemetry, workers, health/readiness, SLO, alert, runbook, and recovery impact, or justify why none applies.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Exact validation
+      description: List commands, environment, and expected evidence. Do not write only "tests pass."
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies, risks, and unresolved questions
+      description: Link blocking issues and name decision owners or evidence needed.
+    validations:
+      required: true
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Submission checks
+      options:
+        - label: This issue describes one coherent outcome.
+          required: true
+        - label: Current behavior, planned behavior, and open decisions are distinguished.
+          required: true
+        - label: I checked for an existing issue and linked related work.
+          required: true
+        - label: This report contains no secrets, exploit details, or unnecessary sensitive data.
+          required: true
