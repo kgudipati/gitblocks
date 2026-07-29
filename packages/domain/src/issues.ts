@@ -12,9 +12,14 @@ export type DomainIssueCode =
   | 'constraint.preservation'
   | 'constraint.ranking'
   | 'disposition.support'
+  | 'disposition.uncertainty'
   | 'evidence.inference-empty'
   | 'evidence.kind-conflict'
+  | 'evidence.locator'
+  | 'evidence.revision'
+  | 'evidence.source-compatibility'
   | 'evidence.temporal-order'
+  | 'evidence.url'
   | 'exchange.candidate-set'
   | 'exchange.constraint-reference'
   | 'exchange.evidence-cutoff'
@@ -22,13 +27,22 @@ export type DomainIssueCode =
   | 'exchange.evidence-preservation'
   | 'exchange.evidence-reference'
   | 'exchange.maximum-results'
+  | 'exchange.limitation-ownership'
+  | 'exchange.limitation-preservation'
+  | 'exchange.limitation-reference'
   | 'exchange.request-link'
   | 'exchange.unknown-preservation'
   | 'fact.contradictory'
+  | 'fact.code-unknown'
   | 'fact.duplicate'
+  | 'fact.provenance'
+  | 'fact.semantics-unsupported'
+  | 'fact.vocabulary-version'
   | 'id.format'
   | 'id.length'
   | 'id.normalization'
+  | 'limitation.contradictory'
+  | 'limitation.duplicate'
   | 'outcome.disposition'
   | 'ranking.candidate'
   | 'ranking.contradiction'
@@ -46,13 +60,15 @@ export type DomainIssueCode =
   | 'reference.unknown-conflict'
   | 'reference.unknown-evidence'
   | 'reference.unknown-inference'
+  | 'reference.unknown-limitation'
   | 'reference.unknown-unknown'
+  | 'reason.traceability'
   | 'request.candidate-count'
   | 'request.candidate-family'
   | 'request.evidence-cutoff'
   | 'request.maximum-results'
   | 'request.transmission-approval'
-  | 'result.completeness'
+  | 'result.processing-state'
   | 'result.temporal-order'
   | 'timestamp.invalid';
 
@@ -89,12 +105,21 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
   'constraint.ranking': 'A hard-conflicting candidate cannot be ranked.',
   'disposition.support':
     'A recommended or viable candidate requires a favorable attributable claim.',
+  'disposition.uncertainty':
+    'An insufficient-evidence candidate must disclose applicable uncertainty.',
   'evidence.inference-empty':
     'An inference must reference at least one evidence observation.',
   'evidence.kind-conflict':
     'Evidence and inference identifiers must remain distinct.',
+  'evidence.locator':
+    'Immutable evidence locator must contain the exact pinned revision.',
+  'evidence.revision':
+    'Evidence revision must be exact, immutable, and source-compatible.',
+  'evidence.source-compatibility':
+    'Evidence provenance kind and source classification are incompatible.',
   'evidence.temporal-order':
     'Evidence publication, collection, and freshness times are inconsistent.',
+  'evidence.url': 'Evidence URL is not a safe bounded HTTPS locator.',
   'exchange.candidate-set':
     'The result candidate set must equal the request candidate set.',
   'exchange.constraint-reference':
@@ -108,16 +133,34 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'Result evidence must have been supplied in a candidate dossier.',
   'exchange.maximum-results':
     'The result ranking exceeds the requested maximum result count.',
+  'exchange.limitation-ownership':
+    'Result limitation must retain its supplied candidate owner.',
+  'exchange.limitation-preservation':
+    'Result limitation must preserve the complete supplied limitation.',
+  'exchange.limitation-reference':
+    'Result limitation must have been supplied in a candidate dossier.',
   'exchange.request-link':
     'The result request and correlation identifiers must match the request.',
   'exchange.unknown-preservation':
     'A supplied material unknown must remain explicit for its candidate.',
   'fact.contradictory':
     'Facts with one semantic key must not assert contradictory values.',
+  'fact.code-unknown':
+    'Repository fact code is not in the negotiated controlled vocabulary.',
   'fact.duplicate': 'A semantic repository fact must appear only once.',
+  'fact.provenance':
+    'Repository fact source and epistemic status are incoherent.',
+  'fact.semantics-unsupported':
+    'Repository fact uses unsupported controlled-vocabulary semantics.',
+  'fact.vocabulary-version':
+    'Repository fact vocabulary version is not supported.',
   'id.format': 'Stable identifier has an invalid format.',
   'id.length': 'Stable identifier is outside the allowed length.',
   'id.normalization': 'Stable identifier is not in normalized form.',
+  'limitation.contradictory':
+    'One candidate limitation code must not assert contradictory content.',
+  'limitation.duplicate':
+    'A semantic candidate limitation must appear only once.',
   'outcome.disposition':
     'Responsible outcome contradicts the candidate dispositions.',
   'ranking.candidate':
@@ -150,8 +193,12 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'Evidence reference does not resolve in the evidence catalog.',
   'reference.unknown-inference':
     'Inference reference does not resolve in the inference catalog.',
+  'reference.unknown-limitation':
+    'Limitation reference does not resolve in the candidate catalog.',
   'reference.unknown-unknown':
     'Unknown reference does not resolve in the unknown catalog.',
+  'reason.traceability':
+    'Every candidate reason requires attributable candidate support.',
   'request.candidate-count':
     'A fit-assessment request requires between one and twenty candidates.',
   'request.candidate-family':
@@ -162,8 +209,8 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'Requested result count must fit within the supplied candidate set.',
   'request.transmission-approval':
     'Transmission approval must cover every included product fact category.',
-  'result.completeness':
-    'A complete result cannot retain material evidence uncertainty.',
+  'result.processing-state':
+    'Assessment processing state must disclose bounded incompleteness reasons.',
   'result.temporal-order':
     'Assessment production must not precede its evidence cutoff.',
   'timestamp.invalid': 'Timestamp is not a real canonical UTC date and time.',

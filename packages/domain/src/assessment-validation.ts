@@ -2,6 +2,7 @@ import {
   canonicalizeFitAssessmentRequest,
   canonicalizeFitAssessmentResult,
 } from './canonicalize.ts';
+import { addEvidenceProvenanceIssues } from './evidence-validation.ts';
 import {
   addIssue,
   addStableIdIssues,
@@ -13,6 +14,7 @@ import {
 import type {
   CandidateAssessment,
   CandidateId,
+  CandidateLimitation,
   EvidenceId,
   EvidenceObservation,
   EvidenceReference,
@@ -23,6 +25,7 @@ import type {
   HardConstraintConflictId,
   Inference,
   InferenceId,
+  LimitationId,
   MaterialClaim,
   MaterialClaimId,
   MaterialUnknown,
@@ -80,19 +83,81 @@ function sameEvidenceObservation(
     left.topic === right.topic &&
     left.dimension === right.dimension &&
     left.observation === right.observation &&
-    left.provenance.sourceType === right.provenance.sourceType &&
-    left.provenance.sourceUrl === right.provenance.sourceUrl &&
-    left.provenance.revision.kind === right.provenance.revision.kind &&
-    left.provenance.revision.value === right.provenance.revision.value &&
-    left.provenance.revision.immutableUrl ===
-      right.provenance.revision.immutableUrl &&
-    left.provenance.collectedAt === right.provenance.collectedAt &&
-    left.provenance.publishedAt === right.provenance.publishedAt &&
+    sameEvidenceProvenance(left.provenance, right.provenance) &&
     left.freshness.status === right.freshness.status &&
     left.freshness.asOf === right.freshness.asOf &&
     left.freshness.scope === right.freshness.scope &&
     left.limitation === right.limitation
   );
+}
+
+function sameEvidenceProvenance(
+  left: EvidenceObservation['provenance'],
+  right: EvidenceObservation['provenance'],
+): boolean {
+  if (left.kind !== right.kind || left.sourceType !== right.sourceType) {
+    return false;
+  }
+  switch (left.kind) {
+    case 'git-commit':
+      return (
+        right.kind === 'git-commit' &&
+        left.sourceUrl === right.sourceUrl &&
+        left.commitSha === right.commitSha &&
+        left.immutableUrl === right.immutableUrl &&
+        left.publishedAt === right.publishedAt &&
+        left.collectedAt === right.collectedAt
+      );
+    case 'tag':
+      return (
+        right.kind === 'tag' &&
+        left.sourceUrl === right.sourceUrl &&
+        left.tag === right.tag &&
+        left.immutableUrl === right.immutableUrl &&
+        left.publishedAt === right.publishedAt &&
+        left.collectedAt === right.collectedAt
+      );
+    case 'release':
+      return (
+        right.kind === 'release' &&
+        left.sourceUrl === right.sourceUrl &&
+        left.release === right.release &&
+        left.immutableUrl === right.immutableUrl &&
+        left.publishedAt === right.publishedAt &&
+        left.collectedAt === right.collectedAt
+      );
+    case 'package-version':
+      return (
+        right.kind === 'package-version' &&
+        left.sourceUrl === right.sourceUrl &&
+        left.packageVersion === right.packageVersion &&
+        left.immutableUrl === right.immutableUrl &&
+        left.publishedAt === right.publishedAt &&
+        left.collectedAt === right.collectedAt
+      );
+    case 'security-advisory':
+      return (
+        right.kind === 'security-advisory' &&
+        left.sourceUrl === right.sourceUrl &&
+        left.advisoryId === right.advisoryId &&
+        left.immutableUrl === right.immutableUrl &&
+        left.publishedAt === right.publishedAt &&
+        left.collectedAt === right.collectedAt
+      );
+    case 'mutable-documentation':
+      return (
+        right.kind === 'mutable-documentation' &&
+        left.sourceUrl === right.sourceUrl &&
+        left.collectedAt === right.collectedAt
+      );
+    case 'approved-validation':
+      return (
+        right.kind === 'approved-validation' &&
+        left.validationReferenceId === right.validationReferenceId &&
+        left.scope === right.scope &&
+        left.validatedAt === right.validatedAt
+      );
+  }
 }
 
 function sameCandidateUnknown(
@@ -103,6 +168,19 @@ function sameCandidateUnknown(
     left.unknownId === right.unknownId &&
     left.candidateId === right.candidateId &&
     left.topic === right.topic &&
+    left.statement === right.statement &&
+    sameEvidenceReferences(left.evidenceReferences, right.evidenceReferences)
+  );
+}
+
+function sameCandidateLimitation(
+  left: CandidateLimitation,
+  right: CandidateLimitation,
+): boolean {
+  return (
+    left.limitationId === right.limitationId &&
+    left.limitationCode === right.limitationCode &&
+    left.candidateId === right.candidateId &&
     left.statement === right.statement &&
     sameEvidenceReferences(left.evidenceReferences, right.evidenceReferences)
   );
@@ -193,6 +271,23 @@ function addConflictReferenceIssues(
   );
 }
 
+function addLimitationReferenceIssues(
+  issues: DomainIssue[],
+  references: readonly LimitationId[],
+  limitationsById: ReadonlyMap<LimitationId, CandidateLimitation>,
+  candidateId: CandidateId,
+  path: string,
+): void {
+  addOwnedReferenceIssues(
+    issues,
+    references,
+    limitationsById,
+    candidateId,
+    'reference.unknown-limitation',
+    path,
+  );
+}
+
 function validateOutcome(
   issues: DomainIssue[],
   result: FitAssessmentResult,
@@ -227,6 +322,7 @@ function validateCandidateReason(
   evidenceById: ReadonlyMap<EvidenceId, EvidenceObservation>,
   inferencesById: ReadonlyMap<InferenceId, Inference>,
   unknownsById: ReadonlyMap<MaterialUnknownId, MaterialUnknown>,
+  conflicts: readonly HardConstraintConflict[],
 ): void {
   const reason = assessment.reasons[reasonIndex];
   if (reason === undefined) {
@@ -259,16 +355,68 @@ function validateCandidateReason(
     assessment.candidateId,
     `${path}.unknownIds`,
   );
+  const hasCandidateEvidence = reason.evidenceReferences.some(
+    (reference) =>
+      reference.candidateId === assessment.candidateId &&
+      evidenceById.get(reference.evidenceId)?.candidateId ===
+        assessment.candidateId,
+  );
+  const hasCandidateInference = reason.inferenceIds.some(
+    (inferenceId) =>
+      inferencesById.get(inferenceId)?.candidateId === assessment.candidateId,
+  );
+  const hasDisclosedUnknown = reason.unknownIds.some((unknownId) => {
+    const unknown = unknownsById.get(unknownId);
+    return (
+      unknown?.scope === 'assessment' ||
+      (unknown?.scope === 'candidate' &&
+        unknown.candidateId === assessment.candidateId)
+    );
+  });
+  const reasonEvidence = new Set(
+    reason.evidenceReferences.map(evidenceReferenceKey),
+  );
+  const assessmentEvidence = new Set(
+    assessment.evidenceReferences.map(evidenceReferenceKey),
+  );
+  const hasPreservedHardConflict = conflicts.some(
+    (conflict) =>
+      conflict.candidateId === assessment.candidateId &&
+      conflict.reasonCode === reason.reasonCode &&
+      conflict.evidenceReferences.length > 0 &&
+      conflict.evidenceReferences.every((reference) => {
+        const key = evidenceReferenceKey(reference);
+        return reasonEvidence.has(key) && assessmentEvidence.has(key);
+      }),
+  );
+  if (
+    !hasCandidateEvidence &&
+    !hasCandidateInference &&
+    !hasDisclosedUnknown &&
+    !hasPreservedHardConflict
+  ) {
+    addIssue(issues, 'reason.traceability', path);
+  }
 }
 
 function validateCatalogCoverage(
   issues: DomainIssue[],
   assessmentByCandidate: ReadonlyMap<CandidateId, CandidateAssessment>,
+  limitations: readonly CandidateLimitation[],
   inferences: readonly Inference[],
   unknowns: readonly MaterialUnknown[],
   claims: readonly MaterialClaim[],
   conflicts: readonly HardConstraintConflict[],
 ): void {
+  for (const limitation of limitations) {
+    if (
+      !assessmentByCandidate
+        .get(limitation.candidateId)
+        ?.limitationIds.includes(limitation.limitationId)
+    ) {
+      addIssue(issues, 'reference.catalog-coverage', 'candidateLimitations');
+    }
+  }
   for (const inference of inferences) {
     if (
       !assessmentByCandidate
@@ -382,6 +530,7 @@ function validateHardConflictPreservation(
       matchingReason?.evidenceReferences.map(evidenceReferenceKey) ?? [],
     );
     if (
+      conflict.evidenceReferences.length === 0 ||
       matchingReason === undefined ||
       [...conflictReferences].some(
         (reference) =>
@@ -447,34 +596,13 @@ export function validateFitAssessmentResult(
       path,
     );
     addStableIdIssues(issues, observation.topic, `${path}.topic`);
-    const collectedAt = timestampAt(
+    addEvidenceProvenanceIssues(
       issues,
-      observation.provenance.collectedAt,
-      `${path}.provenance.collectedAt`,
+      observation.provenance,
+      observation.freshness,
+      result.evidenceCutoff,
+      path,
     );
-    const publishedAt =
-      observation.provenance.publishedAt === null
-        ? null
-        : timestampAt(
-            issues,
-            observation.provenance.publishedAt,
-            `${path}.provenance.publishedAt`,
-          );
-    const freshnessAsOf = timestampAt(
-      issues,
-      observation.freshness.asOf,
-      `${path}.freshness.asOf`,
-    );
-    if (
-      (collectedAt !== null &&
-        publishedAt !== null &&
-        publishedAt > collectedAt) ||
-      (evidenceCutoff !== null &&
-        ((collectedAt !== null && collectedAt > evidenceCutoff) ||
-          (freshnessAsOf !== null && freshnessAsOf > evidenceCutoff)))
-    ) {
-      addIssue(issues, 'evidence.temporal-order', path);
-    }
     evidenceById.set(observation.evidenceId, observation);
   }
   const evidenceIdentifierValues = new Set<string>(evidenceById.keys());
@@ -509,6 +637,61 @@ export function validateFitAssessmentResult(
       `${path}.evidenceReferences`,
     );
     inferencesById.set(inference.inferenceId, inference);
+  }
+
+  addDuplicateIdIssues(
+    issues,
+    result.candidateLimitations.map((limitation) => limitation.limitationId),
+    'candidateLimitations',
+  );
+  const limitationsById = new Map<LimitationId, CandidateLimitation>();
+  const limitationAssertions = new Map<string, string>();
+  const limitationContent = new Set<string>();
+  for (const [index, limitation] of result.candidateLimitations.entries()) {
+    const path = `candidateLimitations[${String(index)}]`;
+    addStableIdIssues(issues, limitation.limitationId, `${path}.limitationId`);
+    addStableIdIssues(
+      issues,
+      limitation.limitationCode,
+      `${path}.limitationCode`,
+    );
+    addCandidateCatalogOwnerIssue(
+      issues,
+      limitation.candidateId,
+      suppliedCandidates,
+      path,
+    );
+    addEvidenceReferenceIssues(
+      issues,
+      limitation.evidenceReferences,
+      evidenceById,
+      limitation.candidateId,
+      `${path}.evidenceReferences`,
+    );
+    const semanticKey = `${limitation.candidateId}\u0000${limitation.limitationCode}`;
+    const assertion = `${limitation.statement}\u0000${limitation.evidenceReferences
+      .map(evidenceReferenceKey)
+      .join('\u0001')}`;
+    const previous = limitationAssertions.get(semanticKey);
+    const duplicateByCode = previous === assertion;
+    if (previous !== undefined) {
+      addIssue(
+        issues,
+        duplicateByCode ? 'limitation.duplicate' : 'limitation.contradictory',
+        'candidateLimitations',
+      );
+    } else {
+      limitationAssertions.set(semanticKey, assertion);
+    }
+    const contentKey = `${limitation.candidateId}\u0000${limitation.statement}`;
+    if (limitationContent.has(contentKey)) {
+      if (!duplicateByCode) {
+        addIssue(issues, 'limitation.duplicate', 'candidateLimitations');
+      }
+    } else {
+      limitationContent.add(contentKey);
+    }
+    limitationsById.set(limitation.limitationId, limitation);
   }
 
   addDuplicateIdIssues(
@@ -661,6 +844,7 @@ export function validateFitAssessmentResult(
         evidenceById,
         inferencesById,
         unknownsById,
+        result.hardConstraintConflicts,
       );
     }
     addEvidenceReferenceIssues(
@@ -684,6 +868,19 @@ export function validateFitAssessmentResult(
       assessment.candidateId,
       `${path}.unknownIds`,
     );
+    if (
+      assessment.disposition === 'insufficient-evidence' &&
+      !assessment.unknownIds.some((unknownId) => {
+        const unknown = unknownsById.get(unknownId);
+        return (
+          unknown?.scope === 'assessment' ||
+          (unknown?.scope === 'candidate' &&
+            unknown.candidateId === assessment.candidateId)
+        );
+      })
+    ) {
+      addIssue(issues, 'disposition.uncertainty', path);
+    }
     addClaimReferenceIssues(
       issues,
       assessment.claimIds,
@@ -697,6 +894,13 @@ export function validateFitAssessmentResult(
       conflictsById,
       assessment.candidateId,
       `${path}.hardConflictIds`,
+    );
+    addLimitationReferenceIssues(
+      issues,
+      assessment.limitationIds,
+      limitationsById,
+      assessment.candidateId,
+      `${path}.limitationIds`,
     );
     if (!assessmentByCandidate.has(assessment.candidateId)) {
       assessmentByCandidate.set(assessment.candidateId, assessment);
@@ -715,6 +919,7 @@ export function validateFitAssessmentResult(
     validateCatalogCoverage(
       issues,
       assessmentByCandidate,
+      result.candidateLimitations,
       result.inferences,
       result.unknowns,
       result.claims,
@@ -728,15 +933,29 @@ export function validateFitAssessmentResult(
     validateHardConflictPreservation(issues, result, assessmentByCandidate);
   }
   validateOutcome(issues, result);
+  addDuplicateIdIssues(
+    issues,
+    result.assessmentProcessing.incompleteReasonCodes,
+    'assessmentProcessing.incompleteReasonCodes',
+  );
+  for (const [
+    index,
+    code,
+  ] of result.assessmentProcessing.incompleteReasonCodes.entries()) {
+    addStableIdIssues(
+      issues,
+      code,
+      `assessmentProcessing.incompleteReasonCodes[${String(index)}]`,
+    );
+  }
   if (
-    result.completeness === 'complete' &&
-    (result.unknowns.length > 0 ||
-      result.outcome === 'insufficient-evidence' ||
-      result.assessments.some(
-        (assessment) => assessment.disposition === 'insufficient-evidence',
-      ))
+    (result.assessmentProcessing.state === 'complete' &&
+      result.assessmentProcessing.incompleteReasonCodes.length !== 0) ||
+    (result.assessmentProcessing.state === 'partial-evidence' &&
+      (result.assessmentProcessing.incompleteReasonCodes.length < 1 ||
+        result.assessmentProcessing.incompleteReasonCodes.length > 20))
   ) {
-    addIssue(issues, 'result.completeness', 'completeness');
+    addIssue(issues, 'result.processing-state', 'assessmentProcessing');
   }
   addRankingIssues(issues, result);
   return resultFromIssues(result, issues);
@@ -775,6 +994,7 @@ export function validateFitAssessmentExchange(
   }
 
   const suppliedEvidence = new Map<EvidenceId, EvidenceObservation>();
+  const suppliedLimitations = new Map<LimitationId, CandidateLimitation>();
   const suppliedUnknowns = new Map<
     MaterialUnknownId,
     Extract<MaterialUnknown, { readonly scope: 'candidate' }>
@@ -782,6 +1002,9 @@ export function validateFitAssessmentExchange(
   for (const dossier of request.candidateDossiers) {
     for (const observation of dossier.evidence) {
       suppliedEvidence.set(observation.evidenceId, observation);
+    }
+    for (const limitation of dossier.limitations) {
+      suppliedLimitations.set(limitation.limitationId, limitation);
     }
     for (const unknown of dossier.unknowns) {
       suppliedUnknowns.set(unknown.unknownId, unknown);
@@ -804,6 +1027,47 @@ export function validateFitAssessmentExchange(
     const retained = resultEvidence.get(supplied.evidenceId);
     if (retained === undefined) {
       addIssue(issues, 'exchange.evidence-preservation', 'result.evidence');
+    }
+  }
+  for (const limitation of result.candidateLimitations) {
+    const supplied = suppliedLimitations.get(limitation.limitationId);
+    if (supplied === undefined) {
+      addIssue(
+        issues,
+        'exchange.limitation-reference',
+        'result.candidateLimitations',
+      );
+    } else if (supplied.candidateId !== limitation.candidateId) {
+      addIssue(
+        issues,
+        'exchange.limitation-ownership',
+        'result.candidateLimitations',
+      );
+    } else if (!sameCandidateLimitation(supplied, limitation)) {
+      addIssue(
+        issues,
+        'exchange.limitation-preservation',
+        'result.candidateLimitations',
+      );
+    }
+  }
+  const resultLimitations = new Map(
+    result.candidateLimitations.map((limitation) => [
+      limitation.limitationId,
+      limitation,
+    ]),
+  );
+  for (const supplied of suppliedLimitations.values()) {
+    const retained = resultLimitations.get(supplied.limitationId);
+    if (
+      retained === undefined ||
+      !sameCandidateLimitation(supplied, retained)
+    ) {
+      addIssue(
+        issues,
+        'exchange.limitation-preservation',
+        'result.candidateLimitations',
+      );
     }
   }
   const resultUnknowns = new Map(

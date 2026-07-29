@@ -5,6 +5,7 @@ import type {
   CandidateMaterialUnknown,
   CapabilityRequest,
   EvidenceObservation,
+  EvidenceProvenance,
   EvidenceReference,
   ExplicitRankRelation,
   FitAssessmentRequest,
@@ -60,17 +61,26 @@ function canonicalizeEvidenceObservation(
     topic: observation.topic,
     dimension: observation.dimension,
     observation: observation.observation,
-    provenance: {
-      sourceType: observation.provenance.sourceType,
-      sourceUrl: observation.provenance.sourceUrl,
-      revision: { ...observation.provenance.revision },
-      collectedAt: observation.provenance.collectedAt,
-      publishedAt: observation.provenance.publishedAt,
-    },
+    provenance: canonicalizeEvidenceProvenance(observation.provenance),
     directness: observation.directness,
     freshness: { ...observation.freshness },
     limitation: observation.limitation,
   };
+}
+
+function canonicalizeEvidenceProvenance(
+  provenance: EvidenceProvenance,
+): EvidenceProvenance {
+  switch (provenance.kind) {
+    case 'git-commit':
+    case 'tag':
+    case 'release':
+    case 'package-version':
+    case 'security-advisory':
+    case 'mutable-documentation':
+    case 'approved-validation':
+      return { ...provenance };
+  }
 }
 
 function canonicalizeInference(inference: Inference): Inference {
@@ -142,6 +152,7 @@ function canonicalizeLimitation(
 ): CandidateLimitation {
   return {
     limitationId: limitation.limitationId,
+    limitationCode: limitation.limitationCode,
     candidateId: limitation.candidateId,
     statement: limitation.statement,
     evidenceReferences: canonicalizeEvidenceReferences(
@@ -154,87 +165,27 @@ function canonicalizeRepositoryFact(fact: RepositoryFact): RepositoryFact {
   const provenance = {
     kind: 'repository-local' as const,
     source: fact.provenance.source,
-    directness: fact.provenance.directness,
+    epistemicStatus: fact.provenance.epistemicStatus,
     confidence: fact.provenance.confidence,
     collectedAt: fact.provenance.collectedAt,
   };
   switch (fact.kind) {
-    case 'capability':
+    case 'coded':
       return {
-        kind: 'capability',
+        kind: 'coded',
         repositoryFactId: fact.repositoryFactId,
-        capability: fact.capability,
-        present: fact.present,
+        category: fact.category,
+        code: fact.code,
+        subjectCode: fact.subjectCode,
+        value:
+          fact.value.kind === 'code-set'
+            ? {
+                kind: 'code-set',
+                codes: [...fact.value.codes].sort(compareText),
+              }
+            : { ...fact.value },
         provenance,
       };
-    case 'credential-policy':
-      return {
-        kind: 'credential-policy',
-        repositoryFactId: fact.repositoryFactId,
-        owner: fact.owner,
-        scope: fact.scope,
-        isolation: fact.isolation,
-        rotation: fact.rotation,
-        provenance,
-      };
-    case 'data-exclusion':
-      return {
-        kind: 'data-exclusion',
-        repositoryFactId: fact.repositoryFactId,
-        destination: fact.destination,
-        categories: [...fact.categories].sort(compareText),
-        provenance,
-      };
-    case 'data-lifecycle':
-      return fact.category === 'rate-limit-counter'
-        ? {
-            kind: 'data-lifecycle',
-            repositoryFactId: fact.repositoryFactId,
-            category: 'rate-limit-counter',
-            policy: 'reset-on-planned-restart-allowed',
-            provenance,
-          }
-        : {
-            kind: 'data-lifecycle',
-            repositoryFactId: fact.repositoryFactId,
-            category: 'raw-webhook-body',
-            policy: 'retain-until-signature-verification',
-            provenance,
-          };
-    case 'data-residency':
-      return {
-        kind: 'data-residency',
-        repositoryFactId: fact.repositoryFactId,
-        categories: [...fact.categories].sort(compareText),
-        storage: fact.storage,
-        region: fact.region,
-        provenance,
-      };
-    case 'data-shape':
-      return {
-        kind: 'data-shape',
-        repositoryFactId: fact.repositoryFactId,
-        shape: fact.shape,
-        provenance,
-      };
-    case 'data-store':
-      return fact.category === 'rate-limit-counter'
-        ? {
-            kind: 'data-store',
-            repositoryFactId: fact.repositoryFactId,
-            category: 'rate-limit-counter',
-            stores: [...fact.stores].sort(compareText),
-            contents: 'operational-counters-only',
-            provenance,
-          }
-        : {
-            kind: 'data-store',
-            repositoryFactId: fact.repositoryFactId,
-            category: 'media-and-queue-state',
-            stores: [...fact.stores].sort(compareText),
-            contents: 'repository-declared',
-            provenance,
-          };
     case 'deployment':
       return {
         kind: 'deployment',
@@ -245,36 +196,6 @@ function canonicalizeRepositoryFact(fact: RepositoryFact): RepositoryFact {
         region: fact.region,
         provenance,
       };
-    case 'identity-context':
-      return {
-        kind: 'identity-context',
-        repositoryFactId: fact.repositoryFactId,
-        sourceContext: fact.sourceContext,
-        identifiers: [...fact.identifiers].sort(compareText),
-        normalization: fact.normalization,
-        credentials: fact.credentials,
-        provenance,
-      };
-    case 'infrastructure':
-      return fact.resource === 'additional-self-hosted-service'
-        ? {
-            kind: 'infrastructure',
-            repositoryFactId: fact.repositoryFactId,
-            resource: 'additional-self-hosted-service',
-            availability: 'available',
-            backingStore: 'postgresql',
-            maximumAdditionalInstances: 1,
-            provenance,
-          }
-        : {
-            kind: 'infrastructure',
-            repositoryFactId: fact.repositoryFactId,
-            resource: fact.resource,
-            availability: fact.availability,
-            backingStore: 'none',
-            maximumAdditionalInstances: null,
-            provenance,
-          };
     case 'named-version':
       return {
         kind: 'named-version',
@@ -282,13 +203,6 @@ function canonicalizeRepositoryFact(fact: RepositoryFact): RepositoryFact {
         category: fact.category,
         name: fact.name,
         version: fact.version,
-        provenance,
-      };
-    case 'tenant':
-      return {
-        kind: 'tenant',
-        repositoryFactId: fact.repositoryFactId,
-        tenantModel: fact.tenantModel,
         provenance,
       };
   }
@@ -331,6 +245,7 @@ export function canonicalizeRepositoryFingerprint(
 ): RepositoryFingerprint {
   return {
     fingerprintId: fingerprint.fingerprintId,
+    factVocabularyVersion: fingerprint.factVocabularyVersion,
     facts: sortBy(
       fingerprint.facts.map(canonicalizeRepositoryFact),
       (fact) => fact.repositoryFactId,
@@ -385,6 +300,7 @@ function canonicalizeAssessment(
     unknownIds: [...assessment.unknownIds].sort(compareText),
     claimIds: [...assessment.claimIds].sort(compareText),
     hardConflictIds: [...assessment.hardConflictIds].sort(compareText),
+    limitationIds: [...assessment.limitationIds].sort(compareText),
   };
 }
 
@@ -465,6 +381,10 @@ export function canonicalizeFitAssessmentResult(
       result.inferences.map(canonicalizeInference),
       (inference) => inference.inferenceId,
     ),
+    candidateLimitations: sortBy(
+      result.candidateLimitations.map(canonicalizeLimitation),
+      (limitation) => limitation.limitationId,
+    ),
     unknowns: sortBy(
       result.unknowns.map(canonicalizeUnknown),
       (unknown) => unknown.unknownId,
@@ -491,6 +411,11 @@ export function canonicalizeFitAssessmentResult(
     ),
     evidenceCutoff: result.evidenceCutoff,
     producedAt: result.producedAt,
-    completeness: result.completeness,
+    assessmentProcessing: {
+      state: result.assessmentProcessing.state,
+      incompleteReasonCodes: [
+        ...result.assessmentProcessing.incompleteReasonCodes,
+      ].sort(compareText),
+    },
   };
 }

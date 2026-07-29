@@ -7,12 +7,16 @@ import {
   componentVersionSchema,
   contractVersionSchema,
   dispositionSchema,
+  exactPackageVersionSchema,
+  exactRevisionSchema,
+  gitCommitShaSchema,
   httpsUrlSchema,
   packageNameSchema,
   reasonCodeSchema,
   regionSchema,
   repositoryNameSchema,
   responsibleOutcomeSchema,
+  semanticVersionSchema,
   shortNameSchema,
   shortTextSchema,
   stableIdSchema,
@@ -31,9 +35,14 @@ const repositoryFactProvenanceSchema = closedObject({
     Type.Literal('lockfile'),
     Type.Literal('configuration-shape'),
     Type.Literal('repository-structure'),
+    Type.Literal('scanner-analysis'),
     Type.Literal('supplied-declaration'),
   ]),
-  directness: Type.Union([Type.Literal('direct'), Type.Literal('declared')]),
+  epistemicStatus: Type.Union([
+    Type.Literal('direct'),
+    Type.Literal('declared'),
+    Type.Literal('derived'),
+  ]),
   confidence: Type.Union([
     Type.Literal('high'),
     Type.Literal('medium'),
@@ -140,183 +149,48 @@ const deploymentFactSchema = closedObject({
   provenance: repositoryFactProvenanceSchema,
 });
 
-const capabilityFactSchema = closedObject({
-  kind: Type.Literal('capability'),
-  factId: stableIdSchema,
-  capabilityCode: stableIdSchema,
-  state: Type.Union([Type.Literal('supported'), Type.Literal('unsupported')]),
-  provenance: repositoryFactProvenanceSchema,
-});
-
-const tenantFactSchema = closedObject({
-  kind: Type.Literal('tenant'),
-  factId: stableIdSchema,
-  tenantModel: Type.Union([
-    Type.Literal('single-tenant'),
-    Type.Literal('multi-tenant'),
-    Type.Literal('unknown'),
-  ]),
-  provenance: repositoryFactProvenanceSchema,
-});
-
-const identityContextFactSchema = closedObject({
-  kind: Type.Literal('identity-context'),
-  factId: stableIdSchema,
-  sourceContext: Type.Enum([
-    'access-token',
-    'job-payload',
-    'request',
-    'route-key',
-    'session',
-  ] as const),
-  identifiers: Type.Array(
-    Type.Enum([
-      'account',
-      'actor',
-      'client',
-      'correlation',
-      'invoice',
-      'media',
-      'organization',
-      'route',
-      'source',
-      'tenant',
-    ] as const),
-    { minItems: 1, maxItems: 6, uniqueItems: true },
-  ),
-  normalization: Type.Enum(['none', 'normalized'] as const),
-  credentials: Type.Enum(['excluded', 'not-stated'] as const),
-  provenance: repositoryFactProvenanceSchema,
-});
-
-const credentialPolicyFactSchema = closedObject({
-  kind: Type.Literal('credential-policy'),
-  factId: stableIdSchema,
-  owner: Type.Enum(['provider', 'tenant'] as const),
-  scope: Type.Literal('webhook-endpoint'),
-  isolation: Type.Enum(['per-provider-endpoint', 'per-tenant'] as const),
-  rotation: Type.Enum(['independently-rotatable', 'not-stated'] as const),
-  provenance: repositoryFactProvenanceSchema,
-});
-
-const dataExclusionFactSchema = closedObject({
-  kind: Type.Literal('data-exclusion'),
-  factId: stableIdSchema,
-  destination: Type.Literal('audit-payload'),
-  categories: Type.Array(
-    Type.Enum(['access-token', 'cookie', 'customer-email'] as const),
-    { minItems: 1, maxItems: 3, uniqueItems: true },
-  ),
-  provenance: repositoryFactProvenanceSchema,
-});
-
-const dataResidencyFactSchema = closedObject({
-  kind: Type.Literal('data-residency'),
-  factId: stableIdSchema,
-  categories: Type.Array(
-    Type.Enum([
-      'audit-data',
-      'billing-data',
-      'invoice-state',
-      'job-state',
-      'regulated-customer-data',
-    ] as const),
-    { minItems: 1, maxItems: 5, uniqueItems: true },
-  ),
-  storage: Type.Enum(['existing-postgresql', 'unspecified'] as const),
-  region: Type.Enum(['eu', 'eu-central-1', 'existing-region'] as const),
-  provenance: repositoryFactProvenanceSchema,
-});
-
-const dataShapeFactSchema = closedObject({
-  kind: Type.Literal('data-shape'),
-  factId: stableIdSchema,
-  shape: Type.Enum([
-    'document-tenant-owner-classification',
-    'team-project-document-relationships',
-  ] as const),
-  provenance: repositoryFactProvenanceSchema,
-});
-
-const dataLifecycleFactSchema = Type.Union([
+const codedFactValueSchema = Type.Union([
   closedObject({
-    kind: Type.Literal('data-lifecycle'),
-    factId: stableIdSchema,
-    category: Type.Literal('rate-limit-counter'),
-    policy: Type.Literal('reset-on-planned-restart-allowed'),
-    provenance: repositoryFactProvenanceSchema,
+    kind: Type.Literal('presence'),
+    state: Type.Union([
+      Type.Literal('present'),
+      Type.Literal('absent'),
+      Type.Literal('unknown'),
+    ]),
   }),
   closedObject({
-    kind: Type.Literal('data-lifecycle'),
-    factId: stableIdSchema,
-    category: Type.Literal('raw-webhook-body'),
-    policy: Type.Literal('retain-until-signature-verification'),
-    provenance: repositoryFactProvenanceSchema,
-  }),
-]);
-
-const dataStoreFactSchema = Type.Union([
-  closedObject({
-    kind: Type.Literal('data-store'),
-    factId: stableIdSchema,
-    category: Type.Literal('media-and-queue-state'),
-    stores: Type.Array(
-      Type.Enum(['existing-postgresql', 'existing-redis'] as const),
-      { minItems: 1, maxItems: 2, uniqueItems: true },
-    ),
-    contents: Type.Literal('repository-declared'),
-    provenance: repositoryFactProvenanceSchema,
+    kind: Type.Literal('classification'),
+    code: stableIdSchema,
   }),
   closedObject({
-    kind: Type.Literal('data-store'),
-    factId: stableIdSchema,
-    category: Type.Literal('rate-limit-counter'),
-    stores: Type.Array(Type.Literal('upstash-redis'), {
+    kind: Type.Literal('code-set'),
+    codes: Type.Array(stableIdSchema, {
       minItems: 1,
-      maxItems: 1,
+      maxItems: 20,
       uniqueItems: true,
     }),
-    contents: Type.Literal('operational-counters-only'),
-    provenance: repositoryFactProvenanceSchema,
+  }),
+  closedObject({
+    kind: Type.Literal('integer'),
+    value: Type.Integer({ minimum: 0, maximum: 10_000 }),
   }),
 ]);
 
-const infrastructureFactSchema = Type.Union([
-  closedObject({
-    kind: Type.Literal('infrastructure'),
-    factId: stableIdSchema,
-    resource: Type.Literal('additional-self-hosted-service'),
-    availability: Type.Literal('available'),
-    backingStore: Type.Literal('postgresql'),
-    maximumAdditionalInstances: Type.Literal(1),
-    provenance: repositoryFactProvenanceSchema,
-  }),
-  closedObject({
-    kind: Type.Literal('infrastructure'),
-    factId: stableIdSchema,
-    resource: Type.Enum([
-      'background-worker',
-      'container-service',
-      'database-custom-extensions',
-      'database-shared-preload-libraries',
-      'durable-process-singleton',
-      'external-network',
-      'fetch',
-      'long-lived-tcp',
-      'long-running-node-worker',
-      'node-worker-thread',
-      'persistent-policy-service',
-      'persistent-redis',
-      'sidecar',
-      'stdout-json-regional-archive',
-      'worker-container',
-    ] as const),
-    availability: Type.Enum(['available', 'unavailable'] as const),
-    backingStore: Type.Literal('none'),
-    maximumAdditionalInstances: Type.Null(),
-    provenance: repositoryFactProvenanceSchema,
-  }),
-]);
+const codedFactSchema = closedObject({
+  kind: Type.Literal('coded'),
+  factId: stableIdSchema,
+  category: Type.Union([
+    Type.Literal('repository-capability'),
+    Type.Literal('repository-structure'),
+    Type.Literal('identity'),
+    Type.Literal('data-policy'),
+    Type.Literal('operations'),
+  ]),
+  code: stableIdSchema,
+  subjectCode: Type.Union([stableIdSchema, Type.Null()]),
+  value: codedFactValueSchema,
+  provenance: repositoryFactProvenanceSchema,
+});
 
 const withheldCategorySchema = Type.Union([
   Type.Literal('raw-source'),
@@ -335,22 +209,10 @@ const withheldCategorySchema = Type.Union([
 
 const repositoryFingerprintV1Properties = {
   contractVersion: contractVersionSchema,
+  factVocabularyVersion: semanticVersionSchema,
   fingerprintId: stableIdSchema,
   facts: Type.Array(
-    Type.Union([
-      componentFactSchema,
-      deploymentFactSchema,
-      capabilityFactSchema,
-      tenantFactSchema,
-      credentialPolicyFactSchema,
-      dataExclusionFactSchema,
-      dataLifecycleFactSchema,
-      dataResidencyFactSchema,
-      dataShapeFactSchema,
-      dataStoreFactSchema,
-      identityContextFactSchema,
-      infrastructureFactSchema,
-    ]),
+    Type.Union([componentFactSchema, deploymentFactSchema, codedFactSchema]),
     { maxItems: 200 },
   ),
   withheldCategories: Type.Array(withheldCategorySchema, {
@@ -388,31 +250,73 @@ const candidateIdentitySchema = closedObject({
   ]),
 });
 
-const evidenceSourceSchema = closedObject({
-  sourceType: Type.Union([
-    Type.Literal('official-documentation'),
-    Type.Literal('official-repository'),
-    Type.Literal('official-release'),
-    Type.Literal('package-registry'),
-    Type.Literal('security-advisory'),
-    Type.Literal('license'),
-    Type.Literal('approved-validation'),
-  ]),
-  sourceUrl: httpsUrlSchema,
-  revision: closedObject({
-    kind: Type.Union([
-      Type.Literal('git-commit'),
-      Type.Literal('tag'),
-      Type.Literal('release'),
-      Type.Literal('version'),
-      Type.Literal('mutable-documentation'),
-    ]),
-    value: versionTextSchema,
-    immutableUrl: Type.Union([httpsUrlSchema, Type.Null()]),
+const repositoryOrDocumentationSourceTypeSchema = Type.Union([
+  Type.Literal('official-repository'),
+  Type.Literal('official-documentation'),
+  Type.Literal('license'),
+]);
+
+const evidenceSourceSchema = Type.Union([
+  closedObject({
+    kind: Type.Literal('git-commit'),
+    sourceType: repositoryOrDocumentationSourceTypeSchema,
+    sourceUrl: httpsUrlSchema,
+    commitSha: gitCommitShaSchema,
+    immutableUrl: httpsUrlSchema,
+    publishedAt: timestampSchema,
+    collectedAt: timestampSchema,
   }),
-  collectedAt: timestampSchema,
-  publishedAt: Type.Union([timestampSchema, Type.Null()]),
-});
+  closedObject({
+    kind: Type.Literal('tag'),
+    sourceType: repositoryOrDocumentationSourceTypeSchema,
+    sourceUrl: httpsUrlSchema,
+    tag: exactRevisionSchema,
+    immutableUrl: httpsUrlSchema,
+    publishedAt: timestampSchema,
+    collectedAt: timestampSchema,
+  }),
+  closedObject({
+    kind: Type.Literal('release'),
+    sourceType: Type.Literal('official-release'),
+    sourceUrl: httpsUrlSchema,
+    release: exactRevisionSchema,
+    immutableUrl: httpsUrlSchema,
+    publishedAt: timestampSchema,
+    collectedAt: timestampSchema,
+  }),
+  closedObject({
+    kind: Type.Literal('package-version'),
+    sourceType: Type.Literal('package-registry'),
+    sourceUrl: httpsUrlSchema,
+    packageVersion: exactPackageVersionSchema,
+    immutableUrl: httpsUrlSchema,
+    publishedAt: timestampSchema,
+    collectedAt: timestampSchema,
+  }),
+  closedObject({
+    kind: Type.Literal('security-advisory'),
+    sourceType: Type.Literal('security-advisory'),
+    sourceUrl: httpsUrlSchema,
+    advisoryId: stableIdSchema,
+    immutableUrl: httpsUrlSchema,
+    publishedAt: timestampSchema,
+    collectedAt: timestampSchema,
+  }),
+  closedObject({
+    kind: Type.Literal('mutable-documentation'),
+    sourceType: Type.Literal('official-documentation'),
+    sourceUrl: httpsUrlSchema,
+    limitationCode: Type.Literal('source-is-mutable'),
+    collectedAt: timestampSchema,
+  }),
+  closedObject({
+    kind: Type.Literal('approved-validation'),
+    sourceType: Type.Literal('approved-validation'),
+    validationReferenceId: stableIdSchema,
+    scope: stableIdSchema,
+    validatedAt: timestampSchema,
+  }),
+]);
 
 export const evidenceObservationV1Schema = closedObject({
   kind: Type.Literal('evidence'),
@@ -448,6 +352,7 @@ export const evidenceObservationV1Schema = closedObject({
 
 const candidateLimitationSchema = closedObject({
   limitationId: stableIdSchema,
+  limitationCode: stableIdSchema,
   candidateId: stableIdSchema,
   statement: statementSchema,
   evidenceIds: Type.Array(stableIdSchema, {
@@ -618,6 +523,10 @@ const candidateAssessmentSchema = closedObject({
     maxItems: 20,
     uniqueItems: true,
   }),
+  limitationIds: Type.Array(stableIdSchema, {
+    maxItems: 40,
+    uniqueItems: true,
+  }),
 });
 
 const rankGroupSchema = closedObject({
@@ -656,6 +565,9 @@ export const fitAssessmentResponseV1Schema = Type.Object(
     }),
     evidence: Type.Array(evidenceObservationV1Schema, { maxItems: 2_000 }),
     inferences: Type.Array(inferenceV1Schema, { maxItems: 400 }),
+    candidateLimitations: Type.Array(candidateLimitationSchema, {
+      maxItems: 800,
+    }),
     materialClaims: Type.Array(materialClaimV1Schema, { maxItems: 800 }),
     materialUnknowns: Type.Array(materialUnknownV1Schema, { maxItems: 800 }),
     hardConstraintConflicts: Type.Array(hardConstraintConflictV1Schema, {
@@ -666,9 +578,22 @@ export const fitAssessmentResponseV1Schema = Type.Object(
     incomparablePairs: Type.Array(incomparablePairSchema, { maxItems: 190 }),
     evidenceCutoff: timestampSchema,
     producedAt: timestampSchema,
-    completeness: Type.Union([
-      Type.Literal('complete'),
-      Type.Literal('partial-evidence'),
+    assessmentProcessing: Type.Union([
+      closedObject({
+        state: Type.Literal('complete'),
+        incompleteReasonCodes: Type.Array(stableIdSchema, {
+          maxItems: 0,
+          uniqueItems: true,
+        }),
+      }),
+      closedObject({
+        state: Type.Literal('partial-evidence'),
+        incompleteReasonCodes: Type.Array(stableIdSchema, {
+          minItems: 1,
+          maxItems: 20,
+          uniqueItems: true,
+        }),
+      }),
     ]),
   },
   {
@@ -714,12 +639,13 @@ const errorIssueCodeSchema = Type.Union([
 const errorIssuePathSchema = Type.Enum([
   'assessment',
   'assessment-id',
+  'assessment-processing',
   'assessment-request-id',
   'candidate-assessments',
   'candidate-dossiers',
   'candidate-identity',
+  'candidate-limitations',
   'capability-family',
-  'completeness',
   'contract',
   'contract-version',
   'correlation-id',

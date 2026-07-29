@@ -15,17 +15,17 @@ import { createFitAssessmentResponse } from './fixtures.ts';
 
 const EXPECTED_SCHEMA_DIGESTS = {
   'candidate-dossier':
-    '0f7444c2776d4fefb9c0a68b97c33b12b48753b4c50f5ef528926ee735bc6837',
+    'd16d0424ed45edcf61d8084cbd21ebbb396366522d1b1a425b6cf8405e0680af',
   'capability-request':
     '3d1f213efdacd6ff550a66a74703b94abc56aead59cdcb08b7a2769b5a5a1ab9',
   'error-envelope':
-    '1e4f2f837c0b084db8059d4867bfde9ab8af787d52ff19540b5d7a40ee0af15c',
+    '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
-    'b256b7a29af2cbf1f9f28a566ab84c2a0d7b0fa001f5d4e88199557991c56bd5',
+    'c130a56044cbb043fac97e66db4c372d48990d672784b4abfde9ab9e78c9e504',
   'fit-assessment-response':
-    '34712886b3d6adec2847077f15a8f9cf96e36167c1f846417d45981aca92c2bb',
+    '330b5b3940858428b1881701774bac785a7c93cf2d50e6dcb4ec37091a696a4d',
   'repository-fingerprint':
-    'c7d5c4315e62cd47bd7afdcce2a31145803e85c8c4426cdcdaac73649d3a517f',
+    '73f42c7a7cd20de24372ecddb7afa33925ca1f4d67cb1f9598cd9d56ea87477c',
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {

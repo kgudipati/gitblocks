@@ -4,6 +4,7 @@ import {
   canonicalizeFitAssessmentRequest,
   canonicalizeRepositoryFingerprint,
 } from './canonicalize.ts';
+import { addEvidenceProvenanceIssues } from './evidence-validation.ts';
 import {
   addIssue,
   addStableIdIssues,
@@ -19,6 +20,7 @@ import {
   type EvidenceId,
   type EvidenceObservation,
   type FitAssessmentRequest,
+  type LimitationId,
   type MaterialUnknownId,
   type RepositoryFact,
   type RepositoryFingerprint,
@@ -29,6 +31,12 @@ import {
   addDuplicateTextIssues,
   addEvidenceReferenceIssues,
 } from './reference-validation.ts';
+import {
+  isSupportedRepositoryFactVocabularyVersion,
+  repositoryFactSemanticAssertion,
+  repositoryFactSemanticKey,
+  validateRepositoryFactSemantics,
+} from './repository-fact-vocabulary.ts';
 import { parseUtcTimestamp } from './temporal.ts';
 
 function timestampAt(
@@ -119,39 +127,11 @@ function factSemanticAssertions(
   fact: RepositoryFact,
 ): readonly (readonly [key: string, value: string])[] {
   switch (fact.kind) {
-    case 'capability':
+    case 'coded':
       return [
         [
-          `capability\u0000${fact.capability}`,
-          fact.present ? 'present' : 'absent',
-        ],
-      ];
-    case 'credential-policy':
-      return [
-        [
-          `credential-policy\u0000${fact.owner}\u0000${fact.scope}`,
-          `${fact.isolation}\u0000${fact.rotation}`,
-        ],
-      ];
-    case 'data-exclusion':
-      return fact.categories.map((category) => [
-        `data-exclusion\u0000${fact.destination}\u0000${category}`,
-        'excluded',
-      ]);
-    case 'data-lifecycle':
-      return [[`data-lifecycle\u0000${fact.category}`, fact.policy]];
-    case 'data-residency':
-      return fact.categories.map((category) => [
-        `data-residency\u0000${category}`,
-        `${fact.storage}\u0000${fact.region}`,
-      ]);
-    case 'data-shape':
-      return [[`data-shape\u0000${fact.shape}`, 'present']];
-    case 'data-store':
-      return [
-        [
-          `data-store\u0000${fact.category}`,
-          `${fact.stores.join('\u0000')}\u0000${fact.contents}`,
+          repositoryFactSemanticKey(fact),
+          repositoryFactSemanticAssertion(fact),
         ],
       ];
     case 'deployment':
@@ -166,24 +146,6 @@ function factSemanticAssertions(
           ].join('\u0000'),
         ],
       ];
-    case 'identity-context':
-      return fact.identifiers.map((identifier) => [
-        `identity-context\u0000${fact.sourceContext}\u0000${identifier}`,
-        `${fact.normalization}\u0000${fact.credentials}`,
-      ]);
-    case 'infrastructure':
-      return [
-        [
-          `infrastructure\u0000${fact.resource}`,
-          [
-            fact.availability,
-            fact.backingStore,
-            fact.maximumAdditionalInstances === null
-              ? 'null'
-              : String(fact.maximumAdditionalInstances),
-          ].join('\u0000'),
-        ],
-      ];
     case 'named-version':
       return [
         [
@@ -193,8 +155,20 @@ function factSemanticAssertions(
           `${fact.name}\u0000${fact.version ?? 'null'}`,
         ],
       ];
-    case 'tenant':
-      return [['tenant', fact.tenantModel]];
+  }
+}
+
+function hasCoherentRepositoryFactProvenance(fact: RepositoryFact): boolean {
+  switch (fact.provenance.source) {
+    case 'configuration-shape':
+    case 'lockfile':
+    case 'manifest':
+    case 'repository-structure':
+      return fact.provenance.epistemicStatus === 'direct';
+    case 'supplied-declaration':
+      return fact.provenance.epistemicStatus === 'declared';
+    case 'scanner-analysis':
+      return fact.provenance.epistemicStatus === 'derived';
   }
 }
 
@@ -204,6 +178,13 @@ export function validateRepositoryFingerprint(
   const fingerprint = canonicalizeRepositoryFingerprint(input);
   const issues: DomainIssue[] = [];
   addStableIdIssues(issues, fingerprint.fingerprintId, 'fingerprintId');
+  if (
+    !isSupportedRepositoryFactVocabularyVersion(
+      fingerprint.factVocabularyVersion,
+    )
+  ) {
+    addIssue(issues, 'fact.vocabulary-version', 'factVocabularyVersion');
+  }
   addDuplicateIdIssues(
     issues,
     fingerprint.facts.map((fact) => fact.repositoryFactId),
@@ -228,16 +209,36 @@ export function validateRepositoryFingerprint(
       fact.provenance.collectedAt,
       `${path}.provenance.collectedAt`,
     );
-    if (fact.kind === 'capability') {
-      addStableIdIssues(issues, fact.capability, `${path}.capability`);
-    } else if (fact.kind === 'data-exclusion') {
-      addDuplicateTextIssues(issues, fact.categories, `${path}.categories`);
-    } else if (fact.kind === 'data-residency') {
-      addDuplicateTextIssues(issues, fact.categories, `${path}.categories`);
-    } else if (fact.kind === 'data-store') {
-      addDuplicateTextIssues(issues, fact.stores, `${path}.stores`);
-    } else if (fact.kind === 'identity-context') {
-      addDuplicateTextIssues(issues, fact.identifiers, `${path}.identifiers`);
+    if (!hasCoherentRepositoryFactProvenance(fact)) {
+      addIssue(issues, 'fact.provenance', `${path}.provenance`);
+    }
+    if (fact.kind === 'coded') {
+      addStableIdIssues(issues, fact.code, `${path}.code`);
+      if (fact.subjectCode !== null) {
+        addStableIdIssues(issues, fact.subjectCode, `${path}.subjectCode`);
+      }
+      if (fact.value.kind === 'classification') {
+        addStableIdIssues(issues, fact.value.code, `${path}.value.code`);
+      } else if (fact.value.kind === 'code-set') {
+        addDuplicateTextIssues(issues, fact.value.codes, `${path}.value.codes`);
+        for (const [valueIndex, code] of fact.value.codes.entries()) {
+          addStableIdIssues(
+            issues,
+            code,
+            `${path}.value.codes[${String(valueIndex)}]`,
+          );
+        }
+      }
+      const semanticValidation = validateRepositoryFactSemantics(fact);
+      if (!semanticValidation.ok) {
+        addIssue(
+          issues,
+          semanticValidation.kind === 'unknown-code'
+            ? 'fact.code-unknown'
+            : 'fact.semantics-unsupported',
+          path,
+        );
+      }
     }
     for (const [key, value] of factSemanticAssertions(fact)) {
       const previous = semanticFacts.get(key);
@@ -275,27 +276,13 @@ function validateCandidateDossierValue(
     addStableIdIssues(issues, observation.evidenceId, `${path}.evidenceId`);
     addStableIdIssues(issues, observation.candidateId, `${path}.candidateId`);
     addStableIdIssues(issues, observation.topic, `${path}.topic`);
-    const collectedAt = timestampAt(
+    addEvidenceProvenanceIssues(
       issues,
-      observation.provenance.collectedAt,
-      `${path}.provenance.collectedAt`,
+      observation.provenance,
+      observation.freshness,
+      null,
+      path,
     );
-    const publishedAt =
-      observation.provenance.publishedAt === null
-        ? null
-        : timestampAt(
-            issues,
-            observation.provenance.publishedAt,
-            `${path}.provenance.publishedAt`,
-          );
-    timestampAt(issues, observation.freshness.asOf, `${path}.freshness.asOf`);
-    if (
-      collectedAt !== null &&
-      publishedAt !== null &&
-      publishedAt > collectedAt
-    ) {
-      addIssue(issues, 'evidence.temporal-order', path);
-    }
     if (observation.candidateId !== candidateId) {
       addIssue(issues, 'reference.candidate-ownership', path);
     }
@@ -329,9 +316,16 @@ function validateCandidateDossierValue(
     dossier.limitations.map((limitation) => limitation.limitationId),
     'limitations',
   );
+  const limitationAssertions = new Map<string, string>();
+  const limitationContent = new Set<string>();
   for (const [index, limitation] of dossier.limitations.entries()) {
     const path = `limitations[${String(index)}]`;
     addStableIdIssues(issues, limitation.limitationId, `${path}.limitationId`);
+    addStableIdIssues(
+      issues,
+      limitation.limitationCode,
+      `${path}.limitationCode`,
+    );
     addStableIdIssues(issues, limitation.candidateId, `${path}.candidateId`);
     if (limitation.candidateId !== candidateId) {
       addIssue(issues, 'reference.candidate-ownership', path);
@@ -343,6 +337,31 @@ function validateCandidateDossierValue(
       candidateId,
       `${path}.evidenceReferences`,
     );
+    const semanticKey = `${limitation.candidateId}\u0000${limitation.limitationCode}`;
+    const assertion = `${limitation.statement}\u0000${limitation.evidenceReferences
+      .map(
+        (reference) => `${reference.candidateId}\u0000${reference.evidenceId}`,
+      )
+      .join('\u0001')}`;
+    const previous = limitationAssertions.get(semanticKey);
+    const duplicateByCode = previous === assertion;
+    if (previous !== undefined) {
+      addIssue(
+        issues,
+        duplicateByCode ? 'limitation.duplicate' : 'limitation.contradictory',
+        'limitations',
+      );
+    } else {
+      limitationAssertions.set(semanticKey, assertion);
+    }
+    const contentKey = `${limitation.candidateId}\u0000${limitation.statement}`;
+    if (limitationContent.has(contentKey)) {
+      if (!duplicateByCode) {
+        addIssue(issues, 'limitation.duplicate', 'limitations');
+      }
+    } else {
+      limitationContent.add(contentKey);
+    }
   }
 }
 
@@ -405,6 +424,7 @@ export function validateFitAssessmentRequest(
   );
   addDuplicateIdIssues(issues, candidateIds, 'candidateDossiers');
   const allEvidenceIds: EvidenceId[] = [];
+  const allLimitationIds: LimitationId[] = [];
   const allUnknownIds: MaterialUnknownId[] = [];
   for (const [index, dossier] of request.candidateDossiers.entries()) {
     const path = `candidateDossiers[${String(index)}]`;
@@ -420,23 +440,40 @@ export function validateFitAssessmentRequest(
     allEvidenceIds.push(
       ...dossier.evidence.map((observation) => observation.evidenceId),
     );
-    if (evidenceCutoff !== null) {
-      for (const observation of dossier.evidence) {
-        const collectedAt = parseUtcTimestamp(
-          observation.provenance.collectedAt,
+    for (const [observationIndex, observation] of dossier.evidence.entries()) {
+      addEvidenceProvenanceIssues(
+        issues,
+        observation.provenance,
+        observation.freshness,
+        request.evidenceCutoff,
+        `${path}.evidence[${String(observationIndex)}]`,
+      );
+      if (evidenceCutoff !== null) {
+        const eventTime = parseUtcTimestamp(
+          observation.provenance.kind === 'approved-validation'
+            ? observation.provenance.validatedAt
+            : observation.provenance.collectedAt,
         );
         const freshnessAsOf = parseUtcTimestamp(observation.freshness.asOf);
         if (
-          (collectedAt !== null && collectedAt > evidenceCutoff) ||
+          (eventTime !== null && eventTime > evidenceCutoff) ||
           (freshnessAsOf !== null && freshnessAsOf > evidenceCutoff)
         ) {
           addIssue(issues, 'request.evidence-cutoff', path);
         }
       }
     }
+    allLimitationIds.push(
+      ...dossier.limitations.map((limitation) => limitation.limitationId),
+    );
     allUnknownIds.push(...dossier.unknowns.map((unknown) => unknown.unknownId));
   }
   addDuplicateIdIssues(issues, allEvidenceIds, 'candidateDossiers.evidence');
+  addDuplicateIdIssues(
+    issues,
+    allLimitationIds,
+    'candidateDossiers.limitations',
+  );
   addDuplicateIdIssues(issues, allUnknownIds, 'candidateDossiers.unknowns');
   const approvedCategories = new Set(
     request.capabilityRequest.transmissionApproval.approvedFactCategories,

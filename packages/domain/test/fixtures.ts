@@ -91,12 +91,13 @@ export function createRepositoryFingerprint(): Mutable<RepositoryFingerprint> {
   const provenance = {
     kind: 'repository-local' as const,
     source: 'manifest' as const,
-    directness: 'direct' as const,
+    epistemicStatus: 'direct' as const,
     confidence: 'high' as const,
     collectedAt: '2026-07-28T18:00:00Z',
   };
   return {
     fingerprintId: stableId<'fingerprint'>('fingerprint-1'),
+    factVocabularyVersion: '1.0.0',
     facts: [
       {
         kind: 'named-version' as const,
@@ -115,13 +116,19 @@ export function createRepositoryFingerprint(): Mutable<RepositoryFingerprint> {
         provenance,
       },
       {
-        kind: 'tenant' as const,
+        kind: 'coded' as const,
         repositoryFactId: stableId<'repository-fact'>('tenant-model'),
-        tenantModel: 'multi-tenant',
+        category: 'identity',
+        code: stableId<'fact-code'>('tenant-model'),
+        subjectCode: null,
+        value: {
+          kind: 'classification',
+          code: stableId<'fact-value'>('multi-tenant'),
+        },
         provenance: {
           ...provenance,
-          source: 'configuration-shape' as const,
-          directness: 'derived' as const,
+          source: 'scanner-analysis' as const,
+          epistemicStatus: 'derived' as const,
         },
       },
     ],
@@ -153,13 +160,11 @@ export function createEvidence(
     dimension: 'license',
     observation: 'The published license metadata identifies the MIT license.',
     provenance: {
+      kind: 'package-version',
       sourceType: 'package-registry',
       sourceUrl: `https://registry.example/${rawCandidateId}`,
-      revision: {
-        kind: 'version',
-        value: '1.0.0',
-        immutableUrl: `https://registry.example/${rawCandidateId}/1.0.0`,
-      },
+      packageVersion: '1.0.0',
+      immutableUrl: `https://registry.example/${rawCandidateId}/1.0.0`,
       collectedAt: '2026-07-28T18:00:00Z',
       publishedAt: '2026-07-20T18:00:00Z',
     },
@@ -241,6 +246,7 @@ function createAssessment(
     unknownIds: rawUnknownIds.map((value) => stableId<'unknown'>(value)),
     claimIds: [stableId<'claim'>(rawClaimId)],
     hardConflictIds: [],
+    limitationIds: [],
   };
 }
 
@@ -282,6 +288,7 @@ export function createFitAssessmentResult(): Mutable<FitAssessmentResult> {
     ],
     evidence: [alphaEvidence, betaEvidence],
     inferences: [],
+    candidateLimitations: [],
     unknowns: [betaUnknown],
     claims: [
       createClaim('alpha', 'alpha-license-fit', 'alpha-license'),
@@ -296,7 +303,10 @@ export function createFitAssessmentResult(): Mutable<FitAssessmentResult> {
     incomparablePairs: [],
     evidenceCutoff: '2026-07-28T18:00:00Z',
     producedAt: '2026-07-28T19:00:00Z',
-    completeness: 'partial-evidence',
+    assessmentProcessing: {
+      state: 'complete',
+      incompleteReasonCodes: [],
+    },
   };
 }
 

@@ -17,11 +17,17 @@ const REPOSITORY_NAME_PATTERN = '^[A-Za-z0-9_.-]{1,100}$';
 const PACKAGE_NAME_PATTERN =
   '^(?:@[a-z0-9][a-z0-9._-]{0,99}/)?[a-z0-9][a-z0-9._-]{0,99}$';
 const COMPONENT_VERSION_PATTERN = '^[A-Za-z0-9][A-Za-z0-9._+ -]{0,99}$';
+const EXACT_REVISION_PATTERN = '^[A-Za-z0-9][A-Za-z0-9._+/@-]{0,99}$';
+const EXACT_PACKAGE_VERSION_PATTERN =
+  '^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$';
+const GIT_COMMIT_SHA_PATTERN = '^[0-9a-f]{40}$';
+const SEMANTIC_VERSION_PATTERN =
+  '^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$';
 const REGION_PATTERN = '^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$';
 const ISO_TIMESTAMP_PATTERN =
   '^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,3})?Z$';
 const HTTPS_URL_PATTERN =
-  '^https://(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,62}[A-Za-z0-9])?\\.)+[A-Za-z]{2,63}(?::[0-9]{1,5})?(?:/[A-Za-z0-9._~!$&()*+,;=:@%/-]*)?(?:#[A-Za-z0-9._~!$&()*+,;=:@%/?-]*)?$';
+  '^https://(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,62}[A-Za-z0-9])?\\.)+[A-Za-z]{2,63}(?::[0-9]{1,5})?(?:/[A-Za-z0-9._~!$&()*+,;=:@%/-]*)?(?:#[A-Za-z0-9._~!$()*+,;:@%/-]*)?$';
 
 export function closedObject<T extends Readonly<Record<string, TSchema>>>(
   properties: T,
@@ -89,6 +95,30 @@ export const componentVersionSchema = Type.String({
   minLength: 1,
   maxLength: 100,
   pattern: COMPONENT_VERSION_PATTERN,
+});
+
+export const exactRevisionSchema = Type.String({
+  minLength: 1,
+  maxLength: 100,
+  pattern: EXACT_REVISION_PATTERN,
+});
+
+export const exactPackageVersionSchema = Type.String({
+  minLength: 5,
+  maxLength: 100,
+  pattern: EXACT_PACKAGE_VERSION_PATTERN,
+});
+
+export const gitCommitShaSchema = Type.String({
+  minLength: 40,
+  maxLength: 40,
+  pattern: GIT_COMMIT_SHA_PATTERN,
+});
+
+export const semanticVersionSchema = Type.String({
+  minLength: 5,
+  maxLength: 32,
+  pattern: SEMANTIC_VERSION_PATTERN,
 });
 
 export const regionSchema = Type.String({

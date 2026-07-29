@@ -1,6 +1,7 @@
 import {
   createStableId,
   type AssessmentId,
+  type AssessmentProcessingReasonCode,
   type AssessmentRequestId,
   type CandidateAssessment,
   type CandidateDossier,
@@ -10,6 +11,7 @@ import {
   type CapabilityRequest,
   type EvidenceId,
   type EvidenceObservation,
+  type EvidenceProvenance,
   type EvidenceReference,
   type FingerprintId,
   type FitAssessmentRequest,
@@ -20,6 +22,7 @@ import {
   type Inference,
   type InferenceId,
   type LimitationId,
+  type LimitationCode,
   type MaterialClaim,
   type MaterialClaimId,
   type MaterialUnknown,
@@ -27,13 +30,17 @@ import {
   type PreferenceId,
   type ReasonCode,
   type RepositoryFact,
+  type RepositoryFactCode,
   type RepositoryFactId,
+  type RepositoryFactSubjectCode,
+  type RepositoryFactValueCode,
   type RepositoryFingerprint,
   type RequestId,
   type StableId,
   type StableIdKind,
   type SuccessConditionId,
   type TopicId,
+  type ValidationReferenceId,
 } from '@gitblocks/domain';
 
 import type {
@@ -100,6 +107,7 @@ export function mapRepositoryFingerprintV1ToDomain(
 ): RepositoryFingerprint {
   return {
     fingerprintId: fingerprintIdAt(value.fingerprintId, 'fingerprintId'),
+    factVocabularyVersion: value.factVocabularyVersion,
     facts: value.facts.map((fact, index) => mapRepositoryFact(fact, index)),
     omittedCategories: value.withheldCategories,
   };
@@ -191,6 +199,9 @@ export function mapFitAssessmentResponseV1ToDomain(
     inferences: value.inferences.map((inference, index) =>
       mapInference(inference, index),
     ),
+    candidateLimitations: value.candidateLimitations.map((limitation, index) =>
+      mapCandidateLimitation(limitation, index),
+    ),
     unknowns: value.materialUnknowns.map((unknown, index) =>
       mapMaterialUnknown(
         unknown,
@@ -235,7 +246,20 @@ export function mapFitAssessmentResponseV1ToDomain(
     })),
     evidenceCutoff: value.evidenceCutoff,
     producedAt: value.producedAt,
-    completeness: value.completeness,
+    assessmentProcessing:
+      value.assessmentProcessing.state === 'complete'
+        ? { state: 'complete', incompleteReasonCodes: [] }
+        : {
+            state: 'partial-evidence',
+            incompleteReasonCodes:
+              value.assessmentProcessing.incompleteReasonCodes.map(
+                (code, index) =>
+                  assessmentProcessingReasonCodeAt(
+                    code,
+                    `assessmentProcessing.incompleteReasonCodes[${String(index)}]`,
+                  ),
+              ),
+          },
   };
 }
 
@@ -250,10 +274,7 @@ function mapRepositoryFact(
   const provenance = {
     kind: 'repository-local' as const,
     source: fact.provenance.origin,
-    directness:
-      fact.provenance.directness === 'direct'
-        ? ('direct' as const)
-        : ('derived' as const),
+    epistemicStatus: fact.provenance.epistemicStatus,
     confidence: fact.provenance.confidence,
     collectedAt: fact.provenance.observedAt,
   };
@@ -277,120 +298,39 @@ function mapRepositoryFact(
         region: fact.region,
         provenance,
       };
-    case 'capability':
+    case 'coded':
       return {
-        kind: 'capability',
+        kind: 'coded',
         repositoryFactId,
-        capability: topicIdAt(
-          fact.capabilityCode,
-          `facts[${String(index)}].capabilityCode`,
-        ),
-        present: fact.state === 'supported',
-        provenance,
-      };
-    case 'credential-policy':
-      return {
-        kind: 'credential-policy',
-        repositoryFactId,
-        owner: fact.owner,
-        scope: fact.scope,
-        isolation: fact.isolation,
-        rotation: fact.rotation,
-        provenance,
-      };
-    case 'data-exclusion':
-      return {
-        kind: 'data-exclusion',
-        repositoryFactId,
-        destination: fact.destination,
-        categories: fact.categories,
-        provenance,
-      };
-    case 'data-lifecycle':
-      return fact.category === 'rate-limit-counter'
-        ? {
-            kind: 'data-lifecycle',
-            repositoryFactId,
-            category: 'rate-limit-counter',
-            policy: 'reset-on-planned-restart-allowed',
-            provenance,
-          }
-        : {
-            kind: 'data-lifecycle',
-            repositoryFactId,
-            category: 'raw-webhook-body',
-            policy: 'retain-until-signature-verification',
-            provenance,
-          };
-    case 'data-residency':
-      return {
-        kind: 'data-residency',
-        repositoryFactId,
-        categories: fact.categories,
-        storage: fact.storage,
-        region: fact.region,
-        provenance,
-      };
-    case 'data-shape':
-      return {
-        kind: 'data-shape',
-        repositoryFactId,
-        shape: fact.shape,
-        provenance,
-      };
-    case 'data-store':
-      return fact.category === 'rate-limit-counter'
-        ? {
-            kind: 'data-store',
-            repositoryFactId,
-            category: 'rate-limit-counter',
-            stores: fact.stores,
-            contents: 'operational-counters-only',
-            provenance,
-          }
-        : {
-            kind: 'data-store',
-            repositoryFactId,
-            category: 'media-and-queue-state',
-            stores: fact.stores,
-            contents: 'repository-declared',
-            provenance,
-          };
-    case 'identity-context':
-      return {
-        kind: 'identity-context',
-        repositoryFactId,
-        sourceContext: fact.sourceContext,
-        identifiers: fact.identifiers,
-        normalization: fact.normalization,
-        credentials: fact.credentials,
-        provenance,
-      };
-    case 'infrastructure':
-      return fact.resource === 'additional-self-hosted-service'
-        ? {
-            kind: 'infrastructure',
-            repositoryFactId,
-            resource: 'additional-self-hosted-service',
-            availability: 'available',
-            backingStore: 'postgresql',
-            maximumAdditionalInstances: 1,
-            provenance,
-          }
-        : {
-            kind: 'infrastructure',
-            repositoryFactId,
-            resource: fact.resource,
-            availability: fact.availability,
-            backingStore: 'none',
-            maximumAdditionalInstances: null,
-            provenance,
-          };
-    case 'tenant':
-      return {
-        kind: 'tenant',
-        repositoryFactId,
-        tenantModel: fact.tenantModel,
+        category: fact.category,
+        code: repositoryFactCodeAt(fact.code, `facts[${String(index)}].code`),
+        subjectCode:
+          fact.subjectCode === null
+            ? null
+            : repositoryFactSubjectCodeAt(
+                fact.subjectCode,
+                `facts[${String(index)}].subjectCode`,
+              ),
+        value:
+          fact.value.kind === 'classification'
+            ? {
+                kind: 'classification',
+                code: repositoryFactValueCodeAt(
+                  fact.value.code,
+                  `facts[${String(index)}].value.code`,
+                ),
+              }
+            : fact.value.kind === 'code-set'
+              ? {
+                  kind: 'code-set',
+                  codes: fact.value.codes.map((code, valueIndex) =>
+                    repositoryFactValueCodeAt(
+                      code,
+                      `facts[${String(index)}].value.codes[${String(valueIndex)}]`,
+                    ),
+                  ),
+                }
+              : { ...fact.value },
         provenance,
       };
   }
@@ -408,17 +348,40 @@ function mapEvidenceObservation(
     topic: topicIdAt(observation.topic, `${base}.topic`),
     dimension: observation.dimension,
     observation: observation.observation,
-    provenance: {
-      sourceType: observation.source.sourceType,
-      sourceUrl: observation.source.sourceUrl,
-      revision: { ...observation.source.revision },
-      collectedAt: observation.source.collectedAt,
-      publishedAt: observation.source.publishedAt,
-    },
+    provenance: mapEvidenceProvenance(observation.source, base),
     directness: observation.directness,
     freshness: { ...observation.freshness },
     limitation: observation.limitation,
   };
+}
+
+function mapEvidenceProvenance(
+  source: EvidenceObservationV1['source'],
+  base: string,
+): EvidenceProvenance {
+  switch (source.kind) {
+    case 'git-commit':
+      return { ...source };
+    case 'tag':
+      return { ...source };
+    case 'release':
+      return { ...source };
+    case 'package-version':
+      return { ...source };
+    case 'security-advisory':
+      return { ...source };
+    case 'mutable-documentation':
+      return { ...source };
+    case 'approved-validation':
+      return {
+        ...source,
+        validationReferenceId: validationReferenceIdAt(
+          source.validationReferenceId,
+          `${base}.source.validationReferenceId`,
+        ),
+        scope: topicIdAt(source.scope, `${base}.source.scope`),
+      };
+  }
 }
 
 function mapCandidateLimitation(
@@ -433,6 +396,10 @@ function mapCandidateLimitation(
     limitationId: limitationIdAt(
       limitation.limitationId,
       `limitations[${String(index)}].limitationId`,
+    ),
+    limitationCode: limitationCodeAt(
+      limitation.limitationCode,
+      `limitations[${String(index)}].limitationCode`,
     ),
     candidateId,
     statement: limitation.statement,
@@ -659,6 +626,12 @@ function mapCandidateAssessment(
           `candidateAssessments[${String(index)}].hardConstraintConflictIds[${String(refIndex)}]`,
         ),
     ),
+    limitationIds: assessment.limitationIds.map((limitationId, refIndex) =>
+      limitationIdAt(
+        limitationId,
+        `candidateAssessments[${String(index)}].limitationIds[${String(refIndex)}]`,
+      ),
+    ),
   };
 }
 
@@ -724,6 +697,13 @@ function assessmentIdAt(value: string, path: string): AssessmentId {
   return ownedId('assessment', value, path);
 }
 
+function assessmentProcessingReasonCodeAt(
+  value: string,
+  path: string,
+): AssessmentProcessingReasonCode {
+  return ownedId('assessment-processing-reason', value, path);
+}
+
 function assessmentRequestIdAt(
   value: string,
   path: string,
@@ -762,6 +742,10 @@ function limitationIdAt(value: string, path: string): LimitationId {
   return ownedId('limitation', value, path);
 }
 
+function limitationCodeAt(value: string, path: string): LimitationCode {
+  return ownedId('limitation-code', value, path);
+}
+
 function claimIdAt(value: string, path: string): MaterialClaimId {
   return ownedId('claim', value, path);
 }
@@ -778,6 +762,24 @@ function repositoryFactIdAt(value: string, path: string): RepositoryFactId {
   return ownedId('repository-fact', value, path);
 }
 
+function repositoryFactCodeAt(value: string, path: string): RepositoryFactCode {
+  return ownedId('fact-code', value, path);
+}
+
+function repositoryFactSubjectCodeAt(
+  value: string,
+  path: string,
+): RepositoryFactSubjectCode {
+  return ownedId('fact-subject', value, path);
+}
+
+function repositoryFactValueCodeAt(
+  value: string,
+  path: string,
+): RepositoryFactValueCode {
+  return ownedId('fact-value', value, path);
+}
+
 function requestIdAt(value: string, path: string): RequestId {
   return ownedId('request', value, path);
 }
@@ -792,4 +794,11 @@ function preferenceIdAt(value: string, path: string): PreferenceId {
 
 function topicIdAt(value: string, path: string): TopicId {
   return ownedId('topic', value, path);
+}
+
+function validationReferenceIdAt(
+  value: string,
+  path: string,
+): ValidationReferenceId {
+  return ownedId('validation-reference', value, path);
 }

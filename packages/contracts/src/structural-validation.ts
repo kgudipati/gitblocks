@@ -73,20 +73,51 @@ export function structurallyValidate<T>(
   if (preflightIssues.length > 0) {
     return { ok: false, issues: preflightIssues };
   }
-  if (validator(value)) {
-    return { ok: true, value, issues: [] };
+  try {
+    if (validator(value)) {
+      return { ok: true, value, issues: [] };
+    }
+    return {
+      ok: false,
+      issues: formatAjvErrors(validator.errors),
+    };
+  } catch {
+    return {
+      ok: false,
+      issues: [
+        contractIssue(
+          'contract.input-shape',
+          '',
+          'Contract input has an unsupported object shape.',
+        ),
+      ],
+    };
   }
-  return {
-    ok: false,
-    issues: formatAjvErrors(validator.errors),
-  };
 }
 
 function formatAjvErrors(
   errors: readonly ErrorObject[] | null | undefined,
 ): readonly ContractIssue[] {
+  const candidates = errors ?? [];
+  const withoutVariantSummary = candidates.some(
+    (error) => error.keyword !== 'anyOf' && error.keyword !== 'oneOf',
+  )
+    ? candidates.filter(
+        (error) => error.keyword !== 'anyOf' && error.keyword !== 'oneOf',
+      )
+    : candidates;
+  const relevant = withoutVariantSummary.filter(
+    (error) =>
+      error.keyword !== 'required' ||
+      !withoutVariantSummary.some(
+        (other) =>
+          other !== error &&
+          other.keyword !== 'required' &&
+          other.instancePath.startsWith(`${error.instancePath}/`),
+      ),
+  );
   return finalizeContractIssues(
-    (errors ?? []).map((error) => {
+    relevant.map((error) => {
       const mapping = mapAjvKeyword(error);
       return contractIssue(mapping.code, error.instancePath, mapping.message);
     }),

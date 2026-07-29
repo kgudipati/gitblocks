@@ -42,6 +42,7 @@ function addGamma(result: ReturnType<typeof createFitAssessmentResult>): void {
     unknownIds: [],
     claimIds: [stableId<'claim'>('gamma-license-fit')],
     hardConflictIds: [],
+    limitationIds: [],
   });
 }
 

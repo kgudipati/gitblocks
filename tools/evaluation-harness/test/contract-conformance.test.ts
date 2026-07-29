@@ -44,6 +44,19 @@ describe('product contract conformance', () => {
     expect(
       stableJson({ manifest: corpus.manifest, bundles: corpus.bundles }),
     ).toBe(before);
+    for (const bundle of corpus.bundles) {
+      const mapped = mapBundleForContractConformance(bundle);
+      expect(mapped.assessmentResponse.candidateLimitations).toHaveLength(
+        mapped.candidateDossiers.reduce(
+          (count, dossier) => count + dossier.limitations.length,
+          0,
+        ),
+      );
+      expect(mapped.assessmentResponse.assessmentProcessing).toEqual({
+        state: 'complete',
+        incompleteReasonCodes: [],
+      });
+    }
   });
 
   it('fails when a decision-relevant case field is lost or unaccounted', () => {

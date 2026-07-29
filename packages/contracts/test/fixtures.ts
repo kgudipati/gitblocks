@@ -60,12 +60,13 @@ export function createCapabilityRequest(): MutableValue<CapabilityRequestV1> {
 export function createRepositoryFingerprint(): MutableValue<RepositoryFingerprintV1> {
   const provenance = {
     origin: 'supplied-declaration' as const,
-    directness: 'declared' as const,
+    epistemicStatus: 'declared' as const,
     confidence: 'high' as const,
     observedAt: '2026-07-28T20:00:00Z',
   };
   return {
     contractVersion: '1.0.0',
+    factVocabularyVersion: '1.0.0',
     fingerprintId: 'fingerprint-alpha',
     facts: [
       {
@@ -86,25 +87,48 @@ export function createRepositoryFingerprint(): MutableValue<RepositoryFingerprin
         provenance,
       },
       {
-        kind: 'capability',
+        kind: 'coded',
         factId: 'fact-redis',
-        capabilityCode: 'redis',
-        state: 'supported',
+        category: 'repository-capability',
+        code: 'redis',
+        subjectCode: null,
+        value: { kind: 'presence', state: 'present' },
         provenance,
       },
       {
-        kind: 'tenant',
+        kind: 'coded',
         factId: 'fact-tenant',
-        tenantModel: 'multi-tenant',
+        category: 'identity',
+        code: 'tenant-model',
+        subjectCode: null,
+        value: { kind: 'classification', code: 'multi-tenant' },
         provenance,
       },
       {
-        kind: 'identity-context',
-        factId: 'fact-identity',
-        sourceContext: 'session',
-        identifiers: ['actor', 'tenant'],
-        normalization: 'none',
-        credentials: 'not-stated',
+        kind: 'coded',
+        factId: 'fact-identity-identifiers',
+        category: 'identity',
+        code: 'context-identifiers',
+        subjectCode: 'session',
+        value: { kind: 'code-set', codes: ['actor', 'tenant'] },
+        provenance,
+      },
+      {
+        kind: 'coded',
+        factId: 'fact-identity-normalization',
+        category: 'identity',
+        code: 'identifier-normalization',
+        subjectCode: 'session',
+        value: { kind: 'classification', code: 'none' },
+        provenance,
+      },
+      {
+        kind: 'coded',
+        factId: 'fact-identity-credentials',
+        category: 'identity',
+        code: 'credential-presence',
+        subjectCode: 'session',
+        value: { kind: 'classification', code: 'not-stated' },
         provenance,
       },
     ],
@@ -125,6 +149,10 @@ export function createEvidence(
   candidateId: 'candidate-alpha' | 'candidate-beta',
 ): MutableValue<EvidenceObservationV1> {
   const suffix = candidateId === 'candidate-alpha' ? 'alpha' : 'beta';
+  const commitSha =
+    candidateId === 'candidate-alpha'
+      ? '0123456789abcdef0123456789abcdef01234567'
+      : '89abcdef0123456789abcdef0123456789abcdef';
   return {
     kind: 'evidence',
     evidenceId: `evidence-${suffix}`,
@@ -136,15 +164,13 @@ export function createEvidence(
         ? 'Official evidence establishes support for the supplied runtime.'
         : 'Official evidence establishes a conflicting runtime requirement.',
     source: {
+      kind: 'git-commit',
       sourceType: 'official-repository',
       sourceUrl: `https://github.com/example/${suffix}`,
-      revision: {
-        kind: 'git-commit',
-        value: candidateId === 'candidate-alpha' ? 'abc123' : 'def456',
-        immutableUrl: `https://github.com/example/${suffix}/tree/abc123`,
-      },
+      commitSha,
+      immutableUrl: `https://github.com/example/${suffix}/tree/${commitSha}`,
       collectedAt: '2026-07-28T20:30:00Z',
-      publishedAt: null,
+      publishedAt: '2026-07-28T19:00:00Z',
     },
     freshness: {
       status: 'current',
@@ -182,6 +208,7 @@ export function createCandidateDossier(
     limitations: [
       {
         limitationId: `limitation-${suffix}`,
+        limitationCode: 'live-validation-not-performed',
         candidateId,
         statement:
           evidence.limitation ?? 'No separate candidate limitation is known.',
@@ -237,6 +264,7 @@ export function createFitAssessmentResponse(): MutableValue<FitAssessmentRespons
         claimIds: ['claim-alpha'],
         unknownIds: [],
         hardConstraintConflictIds: [],
+        limitationIds: ['limitation-alpha'],
       },
       {
         candidateId: 'candidate-beta',
@@ -256,10 +284,27 @@ export function createFitAssessmentResponse(): MutableValue<FitAssessmentRespons
         claimIds: ['claim-beta'],
         unknownIds: [],
         hardConstraintConflictIds: ['conflict-beta'],
+        limitationIds: ['limitation-beta'],
       },
     ],
     evidence: [alphaEvidence, betaEvidence],
     inferences: [],
+    candidateLimitations: [
+      {
+        limitationId: 'limitation-alpha',
+        limitationCode: 'live-validation-not-performed',
+        candidateId: 'candidate-alpha',
+        statement: 'No live candidate code was installed or executed.',
+        evidenceIds: ['evidence-alpha'],
+      },
+      {
+        limitationId: 'limitation-beta',
+        limitationCode: 'live-validation-not-performed',
+        candidateId: 'candidate-beta',
+        statement: 'No live candidate code was installed or executed.',
+        evidenceIds: ['evidence-beta'],
+      },
+    ],
     materialClaims: [
       {
         claimId: 'claim-alpha',
@@ -295,7 +340,10 @@ export function createFitAssessmentResponse(): MutableValue<FitAssessmentRespons
     incomparablePairs: [],
     evidenceCutoff: EVIDENCE_CUTOFF,
     producedAt: PRODUCED_AT,
-    completeness: 'partial-evidence',
+    assessmentProcessing: {
+      state: 'complete',
+      incompleteReasonCodes: [],
+    },
   };
 }
 

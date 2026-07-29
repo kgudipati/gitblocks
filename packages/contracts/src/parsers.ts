@@ -113,17 +113,21 @@ export function parseErrorEnvelopeV1(
   if (!structural.ok) {
     return structural;
   }
-  const semanticIssues = validateErrorEnvelopeSemantics(structural.value);
-  if (semanticIssues.length > 0) {
-    return { ok: false, issues: semanticIssues };
+  try {
+    const semanticIssues = validateErrorEnvelopeSemantics(structural.value);
+    if (semanticIssues.length > 0) {
+      return { ok: false, issues: semanticIssues };
+    }
+    const domain = canonicalizeErrorEnvelope(structural.value);
+    return {
+      ok: true,
+      value: structural.value,
+      domain,
+      issues: [],
+    };
+  } catch {
+    return unsafeJavaScriptValueRejection();
   }
-  const domain = canonicalizeErrorEnvelope(structural.value);
-  return {
-    ok: true,
-    value: structural.value,
-    domain,
-    issues: [],
-  };
 }
 
 export type FitAssessmentExchangeValidationResult =
@@ -189,15 +193,35 @@ function parseOwnedContract<Dto, Domain>(
   if (!structural.ok) {
     return structural;
   }
-  const domain = validateDomain(mapToDomain(structural.value));
-  if (!domain.ok) {
-    return { ok: false, issues: mapDomainIssues(domain.issues) };
+  try {
+    const domain = validateDomain(mapToDomain(structural.value));
+    if (!domain.ok) {
+      return { ok: false, issues: mapDomainIssues(domain.issues) };
+    }
+    return {
+      ok: true,
+      value: structural.value,
+      domain: domain.value,
+      issues: [],
+    };
+  } catch {
+    return unsafeJavaScriptValueRejection();
   }
+}
+
+function unsafeJavaScriptValueRejection(): {
+  readonly ok: false;
+  readonly issues: readonly ContractIssue[];
+} {
   return {
-    ok: true,
-    value: structural.value,
-    domain: domain.value,
-    issues: [],
+    ok: false,
+    issues: [
+      contractIssue(
+        'contract.input-shape',
+        '',
+        'Contract input has an unsupported object shape.',
+      ),
+    ],
   };
 }
 

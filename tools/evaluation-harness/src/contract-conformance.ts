@@ -40,18 +40,9 @@ const SINGLE_VERIFIER_PREFERENCE =
   'The team wants one maintained verifier rather than three provider-specific packages.';
 
 type RepositoryContextCategory = 'data' | 'identity' | 'operational';
-type RepositoryContextKind =
-  | 'credential-policy'
-  | 'data-exclusion'
-  | 'data-lifecycle'
-  | 'data-residency'
-  | 'data-shape'
-  | 'data-store'
-  | 'identity-context'
-  | 'infrastructure';
 type RepositoryContextFactV1 = Extract<
   RepositoryFingerprintV1['facts'][number],
-  { readonly kind: RepositoryContextKind }
+  { readonly kind: 'coded' }
 >;
 type RepositoryContextTemplateV1 = RepositoryContextFactV1 extends infer Fact
   ? Fact extends RepositoryContextFactV1
@@ -67,231 +58,151 @@ type RepositoryContextMapping =
 const REPOSITORY_CONTEXT_FACTS_BY_STATEMENT = {
   identity: {
     'Request context already contains actor, tenant, and correlation identifiers.':
-      [
-        {
-          kind: 'identity-context',
-          sourceContext: 'request',
-          identifiers: ['actor', 'tenant', 'correlation'],
-          normalization: 'none',
-          credentials: 'not-stated',
-        },
-      ],
-    'Billing mutations carry verified actor and tenant identifiers.': [
-      {
-        kind: 'identity-context',
-        sourceContext: 'request',
-        identifiers: ['actor', 'tenant'],
-        normalization: 'none',
-        credentials: 'not-stated',
-      },
-    ],
-    'The verified session contains actor and tenant identifiers.': [
-      {
-        kind: 'identity-context',
-        sourceContext: 'session',
-        identifiers: ['actor', 'tenant'],
-        normalization: 'none',
-        credentials: 'not-stated',
-      },
-    ],
-    'The verified access token supplies actor and organization identifiers.': [
-      {
-        kind: 'identity-context',
-        sourceContext: 'access-token',
-        identifiers: ['actor', 'organization'],
-        normalization: 'none',
-        credentials: 'not-stated',
-      },
-    ],
-    'Every invoice job payload contains a tenant-scoped invoice identifier.': [
-      {
-        kind: 'identity-context',
-        sourceContext: 'job-payload',
-        identifiers: ['tenant', 'invoice'],
-        normalization: 'none',
-        credentials: 'not-stated',
-      },
-    ],
-    'Job payloads carry tenant-scoped media identifiers but no credentials.': [
-      {
-        kind: 'identity-context',
-        sourceContext: 'job-payload',
-        identifiers: ['tenant', 'media'],
-        normalization: 'none',
-        credentials: 'excluded',
-      },
-    ],
+      identityContext('request', ['actor', 'tenant', 'correlation']),
+    'Billing mutations carry verified actor and tenant identifiers.':
+      identityContext('request', ['actor', 'tenant']),
+    'The verified session contains actor and tenant identifiers.':
+      identityContext('session', ['actor', 'tenant']),
+    'The verified access token supplies actor and organization identifiers.':
+      identityContext('access-token', ['actor', 'organization']),
+    'Every invoice job payload contains a tenant-scoped invoice identifier.':
+      identityContext('job-payload', ['tenant', 'invoice']),
+    'Job payloads carry tenant-scoped media identifiers but no credentials.':
+      identityContext('job-payload', ['tenant', 'media'], 'none', 'excluded'),
     'The login route normalizes account and source identifiers, and API routes derive stable client and route keys before rate-limit evaluation.':
-      [
-        {
-          kind: 'identity-context',
-          sourceContext: 'route-key',
-          identifiers: ['account', 'source', 'client', 'route'],
-          normalization: 'normalized',
-          credentials: 'not-stated',
-        },
-      ],
+      identityContext(
+        'route-key',
+        ['account', 'source', 'client', 'route'],
+        'normalized',
+      ),
     'Authenticated API requests contain stable tenant and route identifiers, and the login route derives normalized account and source keys.':
-      [
-        {
-          kind: 'identity-context',
-          sourceContext: 'route-key',
-          identifiers: ['tenant', 'route', 'account', 'source'],
-          normalization: 'normalized',
-          credentials: 'not-stated',
-        },
-      ],
-    'Each webhook endpoint has a separately stored provider secret.': [
-      {
-        kind: 'credential-policy',
-        owner: 'provider',
-        scope: 'webhook-endpoint',
-        isolation: 'per-provider-endpoint',
-        rotation: 'not-stated',
-      },
-    ],
-    'Each tenant owns independently rotatable endpoint secrets.': [
-      {
-        kind: 'credential-policy',
-        owner: 'tenant',
-        scope: 'webhook-endpoint',
-        isolation: 'per-tenant',
-        rotation: 'independently-rotatable',
-      },
-    ],
+      identityContext(
+        'route-key',
+        ['tenant', 'route', 'account', 'source'],
+        'normalized',
+      ),
+    'Each webhook endpoint has a separately stored provider secret.':
+      credentialPolicy('provider', 'per-provider-endpoint', 'not-stated'),
+    'Each tenant owns independently rotatable endpoint secrets.':
+      credentialPolicy('tenant', 'per-tenant', 'independently-rotatable'),
   },
   data: {
     'Audit payloads must exclude access tokens, cookies, and customer email addresses.':
       [
-        {
-          kind: 'data-exclusion',
-          destination: 'audit-payload',
-          categories: ['access-token', 'cookie', 'customer-email'],
-        },
+        codeSetFact(
+          'data-policy',
+          'excluded-data-categories',
+          'audit-payload',
+          ['access-token', 'cookie', 'customer-email'],
+        ),
       ],
     'Billing and audit data must remain in the existing EU PostgreSQL database.':
-      [
-        {
-          kind: 'data-residency',
-          categories: ['billing-data', 'audit-data'],
-          storage: 'existing-postgresql',
-          region: 'eu',
-        },
-      ],
+      dataLocation(['billing-data', 'audit-data'], 'existing-postgresql', 'eu'),
     'Every document row contains tenantId, ownerId, and classification.': [
-      {
-        kind: 'data-shape',
-        shape: 'document-tenant-owner-classification',
-      },
+      codeSetFact('data-policy', 'data-shape-characteristics', null, [
+        'document-tenant-owner-classification',
+      ]),
     ],
     'Projects can be shared with teams, teams can be nested, and documents belong to projects.':
       [
-        {
-          kind: 'data-shape',
-          shape: 'team-project-document-relationships',
-        },
+        codeSetFact('data-policy', 'data-shape-characteristics', null, [
+          'team-project-document-relationships',
+        ]),
       ],
     'Invoice state and job state must remain in the existing PostgreSQL region.':
-      [
-        {
-          kind: 'data-residency',
-          categories: ['invoice-state', 'job-state'],
-          storage: 'existing-postgresql',
-          region: 'existing-region',
-        },
-      ],
+      dataLocation(
+        ['invoice-state', 'job-state'],
+        'existing-postgresql',
+        'existing-region',
+      ),
     'Media metadata is stored in PostgreSQL and persistent shared queue state may use the existing durable Redis cluster.':
-      [
-        {
-          kind: 'data-store',
-          category: 'media-and-queue-state',
-          stores: ['existing-postgresql', 'existing-redis'],
-          contents: 'repository-declared',
-        },
-      ],
+      dataStore(
+        'media-and-queue-state',
+        ['existing-postgresql', 'existing-redis'],
+        'repository-declared',
+      ),
     'Rate-limit counters are operational data and may reset on a planned process restart.':
       [
-        {
-          kind: 'data-lifecycle',
-          category: 'rate-limit-counter',
-          policy: 'reset-on-planned-restart-allowed',
-        },
+        classificationFact(
+          'data-policy',
+          'data-lifecycle-policy',
+          'rate-limit-counter',
+          'reset-on-planned-restart-allowed',
+        ),
       ],
-    'The existing Upstash Redis database stores only operational counters.': [
-      {
-        kind: 'data-store',
-        category: 'rate-limit-counter',
-        stores: ['upstash-redis'],
-        contents: 'operational-counters-only',
-      },
-    ],
+    'The existing Upstash Redis database stores only operational counters.':
+      dataStore(
+        'rate-limit-counter',
+        ['upstash-redis'],
+        'operational-counters-only',
+      ),
     'The server retains the raw body bytes until signature verification completes.':
       [
-        {
-          kind: 'data-lifecycle',
-          category: 'raw-webhook-body',
-          policy: 'retain-until-signature-verification',
-        },
+        classificationFact(
+          'data-policy',
+          'data-lifecycle-policy',
+          'raw-webhook-body',
+          'retain-until-signature-verification',
+        ),
       ],
     'Webhook payloads may contain regulated customer data that must remain in eu-central-1.':
-      [
-        {
-          kind: 'data-residency',
-          categories: ['regulated-customer-data'],
-          storage: 'unspecified',
-          region: 'eu-central-1',
-        },
-      ],
+      dataLocation(['regulated-customer-data'], 'unspecified', 'eu-central-1'),
   },
   operational: {
     'The container platform collects newline-delimited JSON from standard output into an existing regional archive.':
-      [infrastructure('stdout-json-regional-archive', 'available')],
+      [resourceAvailability('stdout-json-regional-archive', 'present')],
     'The managed database plan does not permit shared_preload_libraries or custom extensions.':
       [
-        infrastructure('database-shared-preload-libraries', 'unavailable'),
-        infrastructure('database-custom-extensions', 'unavailable'),
+        resourceAvailability('database-shared-preload-libraries', 'absent'),
+        resourceAvailability('database-custom-extensions', 'absent'),
       ],
     'The edge platform cannot run sidecars, persistent policy services, or background workers.':
       [
-        infrastructure('sidecar', 'unavailable'),
-        infrastructure('persistent-policy-service', 'unavailable'),
-        infrastructure('background-worker', 'unavailable'),
+        resourceAvailability('sidecar', 'absent'),
+        resourceAvailability('persistent-policy-service', 'absent'),
+        resourceAvailability('background-worker', 'absent'),
       ],
     'The platform team can operate one additional self-hosted service backed by PostgreSQL.':
       [
-        {
-          kind: 'infrastructure',
-          resource: 'additional-self-hosted-service',
-          availability: 'available',
-          backingStore: 'postgresql',
-          maximumAdditionalInstances: 1,
-        },
+        resourceAvailability('additional-self-hosted-service', 'present'),
+        classificationFact(
+          'operations',
+          'resource-backing-store',
+          'additional-self-hosted-service',
+          'postgresql',
+        ),
+        integerFact(
+          'operations',
+          'resource-instance-capacity',
+          'additional-self-hosted-service',
+          1,
+        ),
       ],
     'The platform provides a long-running Node worker deployment but will not add Redis.':
       [
-        infrastructure('long-running-node-worker', 'available'),
-        infrastructure('persistent-redis', 'unavailable'),
+        resourceAvailability('long-running-node-worker', 'present'),
+        resourceAvailability('persistent-redis', 'absent'),
       ],
     'The team already operates persistent Redis and long-running worker containers.':
       [
-        infrastructure('persistent-redis', 'available'),
-        infrastructure('worker-container', 'available'),
+        resourceAvailability('persistent-redis', 'present'),
+        resourceAvailability('worker-container', 'present'),
       ],
     'The customer-controlled installation has one API process and no external network dependency is allowed.':
-      [infrastructure('external-network', 'unavailable')],
+      [resourceAvailability('external-network', 'absent')],
     'The edge runtime supports fetch but not long-lived TCP sockets, Node worker threads, or a durable in-process singleton.':
       [
-        infrastructure('fetch', 'available'),
-        infrastructure('long-lived-tcp', 'unavailable'),
-        infrastructure('node-worker-thread', 'unavailable'),
-        infrastructure('durable-process-singleton', 'unavailable'),
+        resourceAvailability('fetch', 'present'),
+        resourceAvailability('long-lived-tcp', 'absent'),
+        resourceAvailability('node-worker-thread', 'absent'),
+        resourceAvailability('durable-process-singleton', 'absent'),
       ],
     'The team wants one maintained verifier rather than three provider-specific packages.':
       'capability-preference',
     'The team can operate a containerized service using the existing PostgreSQL and Redis clusters.':
       [
-        infrastructure('container-service', 'available'),
-        infrastructure('persistent-redis', 'available'),
+        resourceAvailability('container-service', 'present'),
+        resourceAvailability('persistent-redis', 'present'),
       ],
   },
 } as const satisfies Readonly<
@@ -301,20 +212,151 @@ const REPOSITORY_CONTEXT_FACTS_BY_STATEMENT = {
   >
 >;
 
-function infrastructure(
-  resource: Exclude<
-    Extract<RepositoryContextTemplateV1, { readonly kind: 'infrastructure' }>,
-    { readonly resource: 'additional-self-hosted-service' }
-  >['resource'],
-  availability: 'available' | 'unavailable',
+function codedFact(
+  category: RepositoryContextTemplateV1['category'],
+  code: string,
+  subjectCode: string | null,
+  value: RepositoryContextTemplateV1['value'],
 ): RepositoryContextTemplateV1 {
   return {
-    kind: 'infrastructure',
-    resource,
-    availability,
-    backingStore: 'none',
-    maximumAdditionalInstances: null,
+    kind: 'coded',
+    category,
+    code,
+    subjectCode,
+    value,
   };
+}
+
+function classificationFact(
+  category: RepositoryContextTemplateV1['category'],
+  code: string,
+  subjectCode: string | null,
+  valueCode: string,
+): RepositoryContextTemplateV1 {
+  return codedFact(category, code, subjectCode, {
+    kind: 'classification',
+    code: valueCode,
+  });
+}
+
+function codeSetFact(
+  category: RepositoryContextTemplateV1['category'],
+  code: string,
+  subjectCode: string | null,
+  codes: readonly string[],
+): RepositoryContextTemplateV1 {
+  return codedFact(category, code, subjectCode, {
+    kind: 'code-set',
+    codes: [...codes],
+  });
+}
+
+function presenceFact(
+  category: RepositoryContextTemplateV1['category'],
+  code: string,
+  subjectCode: string | null,
+  state: 'absent' | 'present' | 'unknown',
+): RepositoryContextTemplateV1 {
+  return codedFact(category, code, subjectCode, {
+    kind: 'presence',
+    state,
+  });
+}
+
+function integerFact(
+  category: RepositoryContextTemplateV1['category'],
+  code: string,
+  subjectCode: string | null,
+  value: number,
+): RepositoryContextTemplateV1 {
+  return codedFact(category, code, subjectCode, {
+    kind: 'integer',
+    value,
+  });
+}
+
+function identityContext(
+  sourceContext: string,
+  identifiers: readonly string[],
+  normalization: 'none' | 'normalized' = 'none',
+  credentials: 'excluded' | 'not-stated' = 'not-stated',
+): readonly RepositoryContextTemplateV1[] {
+  return [
+    codeSetFact('identity', 'context-identifiers', sourceContext, identifiers),
+    classificationFact(
+      'identity',
+      'identifier-normalization',
+      sourceContext,
+      normalization,
+    ),
+    classificationFact(
+      'identity',
+      'credential-presence',
+      sourceContext,
+      credentials,
+    ),
+  ];
+}
+
+function credentialPolicy(
+  owner: 'provider' | 'tenant',
+  isolation: 'per-provider-endpoint' | 'per-tenant',
+  rotation: 'independently-rotatable' | 'not-stated',
+): readonly RepositoryContextTemplateV1[] {
+  return [
+    classificationFact(
+      'identity',
+      'credential-owner',
+      'webhook-endpoint',
+      owner,
+    ),
+    classificationFact(
+      'identity',
+      'credential-isolation',
+      'webhook-endpoint',
+      isolation,
+    ),
+    classificationFact(
+      'identity',
+      'credential-rotation',
+      'webhook-endpoint',
+      rotation,
+    ),
+  ];
+}
+
+function dataLocation(
+  categories: readonly string[],
+  storage: string,
+  region: string,
+): readonly RepositoryContextTemplateV1[] {
+  return categories.flatMap((category) => [
+    classificationFact('data-policy', 'data-storage', category, storage),
+    classificationFact('data-policy', 'data-residency', category, region),
+  ]);
+}
+
+function dataStore(
+  subjectCode: string,
+  stores: readonly string[],
+  contentPolicy: string,
+): readonly RepositoryContextTemplateV1[] {
+  return [
+    codeSetFact('data-policy', 'data-store', subjectCode, stores),
+    classificationFact(
+      'data-policy',
+      'data-store-content-policy',
+      subjectCode,
+      contentPolicy,
+    ),
+  ];
+}
+
+function resourceAvailability(
+  resource: string,
+  state: 'absent' | 'present',
+): RepositoryContextTemplateV1 {
+  return presenceFact('operations', 'resource-availability', resource, state);
 }
 
 type FieldDisposition =
@@ -931,6 +973,7 @@ function mapRepositoryFingerprint(
   ];
   return {
     contractVersion: CONTRACT_VERSION,
+    factVocabularyVersion: '1.0.0',
     fingerprintId: `${caseDocument.caseId}-fingerprint`,
     facts: [
       ...components,
@@ -945,16 +988,27 @@ function mapRepositoryFingerprint(
         provenance: repositoryFactProvenance(caseDocument.authoredAt),
       },
       {
-        kind: 'capability',
+        kind: 'coded',
         factId: `${caseDocument.caseId}-redis`,
-        capabilityCode: 'redis',
-        state: repositoryProfile.hasRedis ? 'supported' : 'unsupported',
+        category: 'repository-capability',
+        code: 'redis',
+        subjectCode: null,
+        value: {
+          kind: 'presence',
+          state: repositoryProfile.hasRedis ? 'present' : 'absent',
+        },
         provenance: repositoryFactProvenance(caseDocument.authoredAt),
       },
       {
-        kind: 'tenant',
+        kind: 'coded',
         factId: `${caseDocument.caseId}-tenant`,
-        tenantModel: repositoryProfile.tenantModel,
+        category: 'identity',
+        code: 'tenant-model',
+        subjectCode: null,
+        value: {
+          kind: 'classification',
+          code: repositoryProfile.tenantModel,
+        },
         provenance: repositoryFactProvenance(caseDocument.authoredAt),
       },
       ...contextFacts,
@@ -1006,7 +1060,7 @@ function repositoryContextFact(
 function repositoryFactProvenance(authoredAt: string) {
   return {
     origin: 'supplied-declaration' as const,
-    directness: 'declared' as const,
+    epistemicStatus: 'declared' as const,
     confidence: 'unknown' as const,
     observedAt: authoredTimestamp(authoredAt),
   };
@@ -1016,9 +1070,12 @@ function mapCandidateDossier(
   bundle: CaseBundle,
   candidate: Candidate,
 ): CandidateDossierV1 {
-  const observations = bundle.evidence.observations
-    .filter((observation) => observation.candidateId === candidate.candidateId)
-    .map((observation) => mapEvidenceObservation(observation));
+  const candidateObservations = bundle.evidence.observations.filter(
+    (observation) => observation.candidateId === candidate.candidateId,
+  );
+  const observations = candidateObservations.map((observation) =>
+    mapEvidenceObservation(observation),
+  );
   const repository = splitRepository(candidate.repository);
   return {
     contractVersion: CONTRACT_VERSION,
@@ -1042,20 +1099,28 @@ function mapCandidateDossier(
     // The evaluation candidate identity has no version or release scope.
     versionScope: null,
     observations,
-    limitations: observations.flatMap((observation) =>
-      observation.limitation === null
-        ? []
-        : [
-            {
-              limitationId: `${observation.evidenceId}-limitation`,
-              candidateId: candidate.candidateId,
-              statement: observation.limitation,
-              evidenceIds: [observation.evidenceId],
-            },
-          ],
+    limitations: candidateObservations.flatMap((observation) =>
+      mapCandidateLimitation(observation),
     ),
     unknowns: [],
   };
+}
+
+function mapCandidateLimitation(
+  observation: EvidenceObservation,
+): CandidateDossierV1['limitations'] {
+  if (observation.candidateId === null) {
+    return [];
+  }
+  return [
+    {
+      limitationId: limitationId(observation.evidenceId),
+      limitationCode: observation.evidenceId,
+      candidateId: observation.candidateId,
+      statement: observation.limitation,
+      evidenceIds: [observation.evidenceId],
+    },
+  ];
 }
 
 function mapEvidenceObservation(
@@ -1064,9 +1129,14 @@ function mapEvidenceObservation(
   if (
     observation.candidateId === null ||
     observation.sourceType === 'case-local-fact' ||
-    observation.directness !== 'direct'
+    observation.directness !== 'direct' ||
+    observation.sourceRevision.kind !== 'git-commit' ||
+    observation.sourceRevision.immutableUrl === null ||
+    observation.publishedAt === null
   ) {
-    throw new Error('Candidate dossiers require direct candidate evidence.');
+    throw new Error(
+      'Candidate dossiers require direct, immutable Git commit evidence.',
+    );
   }
   const dimension = evidenceDimension(observation.sourceType);
   return {
@@ -1077,13 +1147,11 @@ function mapEvidenceObservation(
     dimension,
     observation: observation.observation,
     source: {
-      sourceType: productEvidenceSourceType(observation.sourceType),
+      kind: 'git-commit',
+      sourceType: productGitCommitSourceType(observation.sourceType),
       sourceUrl: observation.sourceUrl,
-      revision: {
-        kind: productEvidenceRevisionKind(observation.sourceRevision.kind),
-        value: observation.sourceRevision.value,
-        immutableUrl: observation.sourceRevision.immutableUrl,
-      },
+      commitSha: observation.sourceRevision.value,
+      immutableUrl: observation.sourceRevision.immutableUrl,
       collectedAt: observation.collectedAt,
       publishedAt: observation.publishedAt,
     },
@@ -1098,22 +1166,27 @@ function mapEvidenceObservation(
   };
 }
 
-function productEvidenceRevisionKind(
-  kind: EvidenceObservation['sourceRevision']['kind'],
-): EvidenceObservationV1['source']['revision']['kind'] {
-  if (kind === 'case-version') {
-    throw new Error('Case versions are not product evidence revisions.');
-  }
-  return kind;
-}
+type ProductGitCommitSource = Extract<
+  EvidenceObservationV1['source'],
+  { readonly kind: 'git-commit' }
+>;
 
-function productEvidenceSourceType(
+function productGitCommitSourceType(
   sourceType: EvidenceObservation['sourceType'],
-): EvidenceObservationV1['source']['sourceType'] {
-  if (sourceType === 'case-local-fact') {
-    throw new Error('Case-local evidence is not a candidate dossier source.');
+): ProductGitCommitSource['sourceType'] {
+  switch (sourceType) {
+    case 'license':
+    case 'official-documentation':
+    case 'official-repository':
+      return sourceType;
+    case 'case-local-fact':
+    case 'official-release':
+    case 'package-registry':
+    case 'security-advisory':
+      throw new Error(
+        'Evaluation evidence source is incompatible with a Git commit.',
+      );
   }
-  return sourceType;
 }
 
 function evidenceDimension(
@@ -1153,6 +1226,9 @@ function mapAssessmentResponse(bundle: CaseBundle): FitAssessmentResponseV1 {
     reasonCode: conflict.reasonCode,
     evidenceIds: [...conflict.evidenceIds],
   }));
+  const candidateLimitations = evidence.observations.flatMap((observation) =>
+    mapCandidateLimitation(observation),
+  );
   const materialClaims = gold.dispositions.map((disposition) => ({
     claimId: fitClaimId(disposition.candidateId),
     candidateId: disposition.candidateId,
@@ -1164,24 +1240,46 @@ function mapAssessmentResponse(bundle: CaseBundle): FitAssessmentResponseV1 {
   }));
   const candidateAssessments = caseDocument.candidates.map((candidate) => {
     const disposition = requireMapValue(dispositions, candidate.candidateId);
+    const candidateConflicts = hardConflicts.filter(
+      (conflict) => conflict.candidateId === candidate.candidateId,
+    );
     return {
       candidateId: candidate.candidateId,
       disposition: disposition.disposition,
-      reasons: disposition.reasonCodes.map((reasonCode) => ({
-        candidateId: candidate.candidateId,
-        reasonCode,
-        statement: requireMapValue(reasonDescriptions, reasonCode),
-        evidenceIds: [...disposition.evidenceIds],
-        inferenceIds: [],
-        unknownIds: [],
-      })),
-      evidenceIds: [...disposition.evidenceIds],
+      reasons: disposition.reasonCodes.map((reasonCode) => {
+        const matchingConflictEvidence = candidateConflicts
+          .filter((conflict) => conflict.reasonCode === reasonCode)
+          .flatMap((conflict) => conflict.evidenceIds);
+        return {
+          candidateId: candidate.candidateId,
+          reasonCode,
+          statement: requireMapValue(reasonDescriptions, reasonCode),
+          evidenceIds: uniqueSorted([
+            ...disposition.evidenceIds,
+            ...matchingConflictEvidence,
+          ]),
+          inferenceIds: [],
+          unknownIds: [],
+        };
+      }),
+      evidenceIds: uniqueSorted([
+        ...disposition.evidenceIds,
+        ...candidateConflicts.flatMap((conflict) => conflict.evidenceIds),
+      ]),
       inferenceIds: [],
       claimIds: [fitClaimId(candidate.candidateId)],
-      unknownIds: [],
-      hardConstraintConflictIds: hardConflicts
-        .filter((conflict) => conflict.candidateId === candidate.candidateId)
-        .map((conflict) => conflict.conflictId),
+      unknownIds:
+        disposition.disposition === 'insufficient-evidence'
+          ? [...gold.requiredUnknownIds]
+          : [],
+      hardConstraintConflictIds: candidateConflicts.map(
+        (conflict) => conflict.conflictId,
+      ),
+      limitationIds: candidateLimitations
+        .filter(
+          (limitation) => limitation.candidateId === candidate.candidateId,
+        )
+        .map((limitation) => limitation.limitationId),
     };
   });
   const unknownDescriptions = new Map(
@@ -1201,6 +1299,7 @@ function mapAssessmentResponse(bundle: CaseBundle): FitAssessmentResponseV1 {
       mapEvidenceObservation(observation),
     ),
     inferences: [],
+    candidateLimitations,
     materialClaims,
     materialUnknowns: gold.requiredUnknownIds.map((unknownId) => ({
       scope: 'assessment',
@@ -1226,7 +1325,10 @@ function mapAssessmentResponse(bundle: CaseBundle): FitAssessmentResponseV1 {
     }),
     evidenceCutoff: conformanceCutoffTimestamp(bundle),
     producedAt: latestCollectedAt(evidence.observations),
-    completeness: 'partial-evidence',
+    assessmentProcessing: {
+      state: 'complete',
+      incompleteReasonCodes: [],
+    },
   };
 }
 
@@ -1248,8 +1350,16 @@ function fitClaimId(candidateId: string): string {
   return `${candidateId}-fit-claim`;
 }
 
+function limitationId(evidenceId: string): string {
+  return `${evidenceId}-limitation`;
+}
+
 function hardConflictId(candidateId: string, constraintId: string): string {
   return `${candidateId}-${constraintId}-conflict`;
+}
+
+function uniqueSorted(values: readonly string[]): string[] {
+  return [...new Set(values)].sort(compareText);
 }
 
 function splitRepository(repository: string): {

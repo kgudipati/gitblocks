@@ -347,7 +347,7 @@ describe('structural trust boundary', () => {
   it('rejects text and secret carriers inside a structured fingerprint fact', () => {
     const fingerprint = createRepositoryFingerprint();
     const identityFact = fingerprint.facts.find(
-      (fact) => fact.kind === 'identity-context',
+      (fact) => fact.kind === 'coded' && fact.category === 'identity',
     );
     expect(identityFact).toBeDefined();
     if (identityFact === undefined) {
@@ -387,23 +387,23 @@ describe('structural trust boundary', () => {
     expect(JSON.stringify(result.issues)).not.toContain('private-sentinel');
   });
 
-  it('rejects incoherent infrastructure field combinations', () => {
+  it('rejects incoherent controlled fact semantics', () => {
     const fingerprint = createRepositoryFingerprint();
     (fingerprint.facts as unknown[]).push({
-      kind: 'infrastructure',
+      kind: 'coded',
       factId: 'fact-incoherent-fetch',
-      resource: 'fetch',
-      availability: 'unavailable',
-      backingStore: 'postgresql',
-      maximumAdditionalInstances: 1,
+      category: 'operations',
+      code: 'resource-availability',
+      subjectCode: 'fetch',
+      value: { kind: 'classification', code: 'postgresql' },
       provenance: { ...fingerprint.facts[0]!.provenance },
     });
 
     const result = parseRepositoryFingerprintV1(fingerprint);
 
     expect(result.ok).toBe(false);
-    expect(result.issues.map((issue) => issue.code)).toEqual(
-      expect.arrayContaining(['contract.literal', 'contract.variant']),
+    expect(result.issues.map((issue) => issue.code)).toContain(
+      'domain.fact.semantics-unsupported',
     );
   });
 

@@ -85,27 +85,41 @@ describe('valid minimum forms', () => {
               statement: 'No bounded evidence establishes fit.',
               evidenceIds: [],
               inferenceIds: [],
-              unknownIds: [],
+              unknownIds: ['unknown-no-evidence'],
             },
           ],
           evidenceIds: [],
           inferenceIds: [],
           claimIds: [],
-          unknownIds: [],
+          unknownIds: ['unknown-no-evidence'],
           hardConstraintConflictIds: [],
+          limitationIds: [],
         },
       ],
       evidence: [],
       inferences: [],
+      candidateLimitations: [],
       materialClaims: [],
-      materialUnknowns: [],
+      materialUnknowns: [
+        {
+          scope: 'candidate',
+          unknownId: 'unknown-no-evidence',
+          candidateId: 'candidate-alpha',
+          topic: 'evidence-availability',
+          statement: 'No bounded evidence was supplied for the candidate.',
+          evidenceIds: [],
+        },
+      ],
       hardConstraintConflicts: [],
       rankGroups: [],
       rankRelations: [],
       incomparablePairs: [],
       evidenceCutoff: EVIDENCE_CUTOFF,
       producedAt: PRODUCED_AT,
-      completeness: 'partial-evidence',
+      assessmentProcessing: {
+        state: 'partial-evidence',
+        incompleteReasonCodes: ['no-supplied-evidence'],
+      },
     };
 
     expect(parseFitAssessmentResponseV1(response).ok).toBe(true);
@@ -172,19 +186,13 @@ describe('valid maximum forms', () => {
   it('accepts maximum dossier evidence, limitations, and unknowns', () => {
     const dossier = createCandidateDossier('candidate-alpha');
     dossier.observations = Array.from({ length: 100 }, (_, index) => ({
-      ...createEvidence('candidate-alpha'),
+      ...createGitEvidence('candidate-alpha'),
       evidenceId: numberedId('evidence', index),
       topic: numberedId('topic', index),
-      source: {
-        ...createEvidence('candidate-alpha').source,
-        revision: {
-          ...createEvidence('candidate-alpha').source.revision,
-          value: numberedId('revision', index),
-        },
-      },
     }));
     dossier.limitations = Array.from({ length: 40 }, (_, index) => ({
       limitationId: numberedId('limitation', index),
+      limitationCode: numberedId('limitation-code', index),
       candidateId: 'candidate-alpha',
       statement: `Bounded limitation ${String(index + 1)}.`,
       evidenceIds: [numberedId('evidence', index)],
@@ -297,7 +305,7 @@ describe('valid maximum forms', () => {
       'candidate-dossiers',
       'candidate-identity',
       'capability-family',
-      'completeness',
+      'assessment-processing',
       'contract',
       'contract-version',
       'correlation-id',
@@ -374,15 +382,22 @@ describe('resource and text bounds', () => {
 
   it('rejects evidence collected or assessed after its request cutoff', () => {
     const request = createFitAssessmentRequest();
-    request.candidates[0]!.observations[0]!.source.collectedAt =
-      '2026-07-28T22:00:00Z';
+    const source = request.candidates[0]!.observations[0]!.source;
+    if (source.kind !== 'git-commit') {
+      throw new Error('The standard fixture must use Git commit evidence.');
+    }
+    source.collectedAt = '2026-07-28T22:00:00Z';
     request.candidates[0]!.observations[0]!.freshness.asOf =
       '2026-07-28T22:00:00Z';
 
-    expect(parseFitAssessmentRequestV1(request)).toMatchObject({
-      ok: false,
-      issues: [{ code: 'domain.request.evidence-cutoff' }],
-    });
+    const parsed = parseFitAssessmentRequestV1(request);
+    expect(parsed.ok).toBe(false);
+    expect(parsed.issues.map((issue) => issue.code)).toEqual(
+      expect.arrayContaining([
+        'domain.evidence.temporal-order',
+        'domain.request.evidence-cutoff',
+      ]),
+    );
   });
 
   it('rejects repository facts observed after the assessment cutoff', () => {
@@ -398,7 +413,11 @@ describe('resource and text bounds', () => {
 
   it('rejects publication after collection and production before cutoff', () => {
     const dossier = createCandidateDossier('candidate-alpha');
-    dossier.observations[0]!.source.publishedAt = '2026-07-28T20:45:00Z';
+    const source = dossier.observations[0]!.source;
+    if (source.kind !== 'git-commit') {
+      throw new Error('The standard fixture must use Git commit evidence.');
+    }
+    source.publishedAt = '2026-07-28T20:45:00Z';
     expect(parseCandidateDossierV1(dossier)).toMatchObject({
       ok: false,
       issues: [{ code: 'domain.evidence.temporal-order' }],
@@ -417,7 +436,11 @@ describe('resource and text bounds', () => {
     'https://example.com/repository?access_token=private-sentinel',
   ])('rejects potentially secret-bearing evidence URL forms', (sourceUrl) => {
     const dossier = createCandidateDossier('candidate-alpha');
-    dossier.observations[0]!.source.sourceUrl = sourceUrl;
+    const source = dossier.observations[0]!.source;
+    if (source.kind !== 'git-commit') {
+      throw new Error('The standard fixture must use Git commit evidence.');
+    }
+    source.sourceUrl = sourceUrl;
 
     const result = parseCandidateDossierV1(dossier);
 
@@ -623,7 +646,7 @@ function maximumCandidateResponse(): MutableValue<FitAssessmentResponseV1> {
     numberedId('candidate', index),
   );
   const evidence = candidateIds.map((candidateId, index) => {
-    const observation = createEvidence('candidate-alpha');
+    const observation = createGitEvidence('candidate-alpha');
     return {
       ...observation,
       evidenceId: numberedId('evidence', index),
@@ -666,9 +689,11 @@ function maximumCandidateResponse(): MutableValue<FitAssessmentResponseV1> {
       claimIds: [numberedId('claim', index)],
       unknownIds: [],
       hardConstraintConflictIds: [],
+      limitationIds: [],
     })),
     evidence,
     inferences: [],
+    candidateLimitations: [],
     materialClaims,
     materialUnknowns: [],
     hardConstraintConflicts: [],
@@ -677,7 +702,10 @@ function maximumCandidateResponse(): MutableValue<FitAssessmentResponseV1> {
     incomparablePairs: [],
     evidenceCutoff: EVIDENCE_CUTOFF,
     producedAt: PRODUCED_AT,
-    completeness: 'partial-evidence',
+    assessmentProcessing: {
+      state: 'complete',
+      incompleteReasonCodes: [],
+    },
   };
 }
 
@@ -716,20 +744,14 @@ function composedMaximumResponse(): MutableValue<FitAssessmentResponseV1> {
 
     response.evidence.push(
       ...evidenceIds.map((evidenceId, index) => {
-        const observation = createEvidence('candidate-alpha');
+        const observation = createGitEvidence('candidate-alpha');
         return {
           ...observation,
           evidenceId,
           candidateId,
           topic: numberedId('evidence-topic', index),
           observation: 'Direct bounded evidence for the supplied candidate.',
-          source: {
-            ...observation.source,
-            revision: {
-              ...observation.source.revision,
-              value: numberedId(`revision-${suffix}`, index),
-            },
-          },
+          source: { ...observation.source },
         };
       }),
     );
@@ -790,6 +812,7 @@ function composedMaximumResponse(): MutableValue<FitAssessmentResponseV1> {
       claimIds,
       unknownIds,
       hardConstraintConflictIds: conflictIds,
+      limitationIds: [],
     });
   }
 
@@ -803,6 +826,23 @@ function allCandidatePairs(): readonly (readonly [string, string])[] {
   return ids.flatMap((higher, higherIndex) =>
     ids.slice(higherIndex + 1).map((lower) => [higher, lower] as const),
   );
+}
+
+type GitEvidence = Omit<ReturnType<typeof createEvidence>, 'source'> & {
+  source: Extract<
+    ReturnType<typeof createEvidence>['source'],
+    { kind: 'git-commit' }
+  >;
+};
+
+function createGitEvidence(
+  candidateId: 'candidate-alpha' | 'candidate-beta',
+): GitEvidence {
+  const observation = createEvidence(candidateId);
+  if (observation.source.kind !== 'git-commit') {
+    throw new Error('The standard fixture must use Git commit evidence.');
+  }
+  return observation as GitEvidence;
 }
 
 function numberedId(prefix: string, index: number): string {

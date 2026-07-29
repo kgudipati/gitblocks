@@ -234,7 +234,10 @@ describe('hard constraints and responsible outcomes', () => {
     response.materialUnknowns = [];
     response.hardConstraintConflicts = [];
     response.rankGroups = [{ candidateIds: ['candidate-alpha'] }];
-    response.completeness = 'complete';
+    response.assessmentProcessing = {
+      state: 'complete',
+      incompleteReasonCodes: [],
+    };
 
     expectFailureCode(
       parseFitAssessmentResponseV1(response),
@@ -285,8 +288,16 @@ describe('hard constraints and responsible outcomes', () => {
     const insufficient = createFitAssessmentResponse();
     insufficient.outcome = 'insufficient-evidence';
     insufficient.candidateAssessments[0]!.disposition = 'insufficient-evidence';
+    insufficient.candidateAssessments[0]!.unknownIds = ['unknown-evidence-gap'];
     insufficient.rankGroups = [];
     insufficient.materialClaims[0]!.direction = 'neutral';
+    insufficient.materialUnknowns.push({
+      scope: 'assessment',
+      unknownId: 'unknown-evidence-gap',
+      topic: 'evidence-availability',
+      statement: 'Available evidence does not establish candidate fit.',
+      evidenceIds: [],
+    });
 
     expect(parseFitAssessmentResponseV1(recommend).ok).toBe(true);
     expect(parseFitAssessmentResponseV1(noViable).ok).toBe(true);
@@ -334,6 +345,28 @@ describe('hard constraints and responsible outcomes', () => {
           response.candidateAssessments[0]!.disposition = left;
           response.candidateAssessments[1]!.disposition = right;
           response.rankGroups = [];
+          if (
+            left === 'insufficient-evidence' ||
+            right === 'insufficient-evidence'
+          ) {
+            response.materialUnknowns.push({
+              scope: 'assessment',
+              unknownId: 'unknown-evidence-gap',
+              topic: 'evidence-availability',
+              statement: 'Available evidence does not establish candidate fit.',
+              evidenceIds: [],
+            });
+            if (left === 'insufficient-evidence') {
+              response.candidateAssessments[0]!.unknownIds = [
+                'unknown-evidence-gap',
+              ];
+            }
+            if (right === 'insufficient-evidence') {
+              response.candidateAssessments[1]!.unknownIds = [
+                'unknown-evidence-gap',
+              ];
+            }
+          }
           const viableCount = [left, right].filter(
             (value) => value === 'recommended' || value === 'viable',
           ).length;
@@ -494,7 +527,7 @@ describe('repository fact consistency', () => {
       version: '22.0.0',
       provenance: {
         origin: 'supplied-declaration',
-        directness: 'declared',
+        epistemicStatus: 'declared',
         confidence: 'high',
         observedAt: '2026-07-28T20:00:00Z',
       },

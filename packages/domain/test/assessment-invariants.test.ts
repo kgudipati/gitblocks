@@ -282,8 +282,6 @@ describe('hard constraints and responsible outcomes', () => {
     result.unknowns = [];
     result.claims = [];
     result.rankGroups = [{ candidateIds: [candidateId('alpha')] }];
-    result.completeness = 'complete';
-
     expect(codes(validateFitAssessmentResult(result))).toContain(
       'disposition.support',
     );
@@ -335,6 +333,16 @@ describe('hard constraints and responsible outcomes', () => {
     addHardConflict(result, 'rejected');
     result.assessments[0]!.reasons = [];
     result.assessments[0]!.evidenceReferences = [];
+
+    expect(codes(validateFitAssessmentResult(result))).toContain(
+      'constraint.preservation',
+    );
+  });
+
+  it('rejects a hard conflict with no preserved evidence', () => {
+    const result = createFitAssessmentResult();
+    addHardConflict(result, 'rejected');
+    result.hardConstraintConflicts[0]!.evidenceReferences = [];
 
     expect(codes(validateFitAssessmentResult(result))).toContain(
       'constraint.preservation',
@@ -427,12 +435,38 @@ describe('hard constraints and responsible outcomes', () => {
     }
   });
 
-  it('rejects complete status while uncertainty remains material', () => {
+  it('accepts complete processing while uncertainty remains material', () => {
     const result = createFitAssessmentResult();
-    result.completeness = 'complete';
+
+    expect(codes(validateFitAssessmentResult(result))).not.toContain(
+      'result.processing-state',
+    );
+  });
+
+  it('requires disclosed uncertainty for an insufficient-evidence candidate', () => {
+    const result = createFitAssessmentResult();
+    result.outcome = 'insufficient-evidence';
+    result.assessments[0]!.disposition = 'insufficient-evidence';
+    result.assessments[1]!.disposition = 'rejected';
+    result.assessments[0]!.unknownIds = [];
+    result.rankGroups = [];
 
     expect(codes(validateFitAssessmentResult(result))).toContain(
-      'result.completeness',
+      'disposition.uncertainty',
+    );
+  });
+
+  it('rejects incomplete reason codes on a complete processing state', () => {
+    const result = createFitAssessmentResult();
+    result.assessmentProcessing = {
+      state: 'complete',
+      incompleteReasonCodes: [
+        stableId<'assessment-processing-reason'>('upstream-source-unavailable'),
+      ],
+    };
+
+    expect(codes(validateFitAssessmentResult(result))).toContain(
+      'result.processing-state',
     );
   });
 

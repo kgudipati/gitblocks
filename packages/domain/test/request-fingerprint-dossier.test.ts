@@ -129,30 +129,44 @@ describe('repository fingerprint invariants', () => {
     const provenance = fingerprint.facts[0]!.provenance;
     fingerprint.facts.push(
       {
-        kind: 'data-residency',
+        kind: 'coded',
         repositoryFactId: stableId<'repository-fact'>('audit-residency-eu'),
-        categories: ['audit-data'],
-        storage: 'existing-postgresql',
-        region: 'eu',
+        category: 'data-policy',
+        code: stableId<'fact-code'>('data-residency'),
+        subjectCode: stableId<'fact-subject'>('audit-data'),
+        value: {
+          kind: 'classification',
+          code: stableId<'fact-value'>('eu'),
+        },
         provenance,
       },
       {
-        kind: 'data-residency',
+        kind: 'coded',
         repositoryFactId: stableId<'repository-fact'>(
           'audit-billing-residency-existing',
         ),
-        categories: ['audit-data', 'billing-data'],
-        storage: 'existing-postgresql',
-        region: 'existing-region',
+        category: 'data-policy',
+        code: stableId<'fact-code'>('data-residency'),
+        subjectCode: stableId<'fact-subject'>('audit-data'),
+        value: {
+          kind: 'classification',
+          code: stableId<'fact-value'>('existing-region'),
+        },
         provenance,
       },
       {
-        kind: 'identity-context',
+        kind: 'coded',
         repositoryFactId: stableId<'repository-fact'>('duplicate-identifiers'),
-        sourceContext: 'request',
-        identifiers: ['actor', 'actor'],
-        normalization: 'none',
-        credentials: 'not-stated',
+        category: 'identity',
+        code: stableId<'fact-code'>('context-identifiers'),
+        subjectCode: stableId<'fact-subject'>('request'),
+        value: {
+          kind: 'code-set',
+          codes: [
+            stableId<'fact-value'>('actor'),
+            stableId<'fact-value'>('actor'),
+          ],
+        },
         provenance,
       },
     );
@@ -194,6 +208,7 @@ describe('candidate dossier and fit request invariants', () => {
     };
     dossier.limitations.push({
       limitationId: stableId<'limitation'>('limited-api'),
+      limitationCode: stableId<'limitation-code'>('limited-api-surface'),
       candidateId: candidateId('alpha'),
       statement: 'The API surface is incomplete.',
       evidenceReferences: [evidenceReference('alpha', 'beta-license')],
