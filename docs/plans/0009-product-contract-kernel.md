@@ -6,9 +6,8 @@
   [#9 — Phase 3: Establish the product domain and contract kernel](https://github.com/kgudipati/gitblocks/issues/9)
 - Branch: `feat/9-product-contract-kernel`
 - Owner: GitBlocks maintainers
-- State: independent-review correction implementation and full local validation
-  are complete on the published topic branch; ordinary follow-up publication,
-  PR-description reconciliation, and corrected hosted Verification remain
+- State: implementation, validation, independent-review corrections, and
+  hosted CI are complete; independent final review and merge authorization are
   pending; draft PR #10 remains open, draft, and unmerged
 - Last updated: 2026-07-28
 - Authority order:
@@ -222,9 +221,10 @@ The change will not:
 
 ### Unresolved decisions
 
-None remain for local implementation. Independent review reconciliation and the
-complete pinned-runtime validation matrix are complete. Publication metadata
-and corrected hosted CI evidence remain required work, not design decisions.
+None remain for this execution. Independent review reconciliation, the complete
+pinned-runtime validation matrix, publication metadata, and corrected hosted CI
+evidence are complete. Independent final review and merge authorization remain
+outside this execution.
 
 ## Applicable ADRs and contracts
 
@@ -1158,6 +1158,27 @@ The plan may leave implementation status only when:
   depends only on domain, `typebox@1.3.8`, and `ajv@8.20.0`; manifests,
   lockfile, lifecycle policy, runtime pins, evaluation scoring, and prohibited
   product components are unchanged by this correction.
+- 2026-07-28: Created ordinary follow-up commits
+  `487577d6063bcc355527e1cfcba412574e5f8717`
+  (`fix(contracts): correct product kernel review findings`) and
+  `5c4884a41d187d50997900366d256191858b8b04`
+  (`docs: record product kernel review corrections`) without amending,
+  rebasing, squashing, or rewriting the three reviewed commits. Fetched the
+  unchanged remote topic head, then pushed both commits normally and without
+  force to `feat/9-product-contract-kernel`. Updated existing draft PR #10; no
+  branch or PR was created.
+- 2026-07-28: Hosted CI run
+  [30420056706](https://github.com/kgudipati/gitblocks/actions/runs/30420056706)
+  (CI run 21) completed successfully for corrected head
+  `5c4884a41d187d50997900366d256191858b8b04`. The actual `Verification` job
+  `90474826793` and its decoded logs were inspected. Ubuntu 24.04 selected Node
+  24.18.0 and pnpm 11.17.0; the 326-entry lockfile passed supply-chain policy;
+  frozen installation and PR metadata checks passed; `pnpm verify:ci` passed
+  all 628 tests, 588-module/1,891-dependency architecture validation,
+  repository checks, 10-case evaluation validation, 10-case/40-candidate
+  proposed/not-reviewed representability-only conformance, secret scanning,
+  and the no-known-vulnerability audit; the terminal `git diff --exit-code`
+  worktree proof passed.
 - 2026-07-28: Began the independent-review correction pass on existing draft PR
   #10. Verified a clean local/remote topic head at
   `1336a069397b2a8d10a7b73d4597cf6ab0bf1229`; verified local and remote `main`
@@ -1441,6 +1462,10 @@ The plan may leave implementation status only when:
 | 2026-07-28 | Corrected security and complete aggregate validation                                | Exit 0; secret scanning and audit passed with no known vulnerabilities; both `pnpm verify` and `pnpm verify:ci` passed under Node 24.18.0/pnpm 11.17.0                                                                                            |
 | 2026-07-28 | Corrected frozen-install/verification drift and final diff proof                    | Tracked diff hash `69ce1963ece28401777e7746530a51492714f584` was unchanged; `git diff --check`, status, stat, complete tracked diff, and all four new-file diffs were reviewed                                                                    |
 | 2026-07-28 | Final independent correction review                                                 | No unresolved material finding; package/dependency direction, root versions, closed-object/no-mutation parser policy, source-aware provenance, epistemic preservation, traceability, limitations, processing, conformance, and non-goals all held |
+| 2026-07-28 | Correction commits and ordinary branch push                                         | `487577d6063bcc355527e1cfcba412574e5f8717` and `5c4884a41d187d50997900366d256191858b8b04`; existing topic branch pushed normally without force, rebase, amend, squash, or history rewrite                                                         |
+| 2026-07-28 | Hosted CI run 30420056706 / Verification job 90474826793 decoded-log inspection     | Success on corrected head; Ubuntu 24.04, Node 24.18.0, pnpm 11.17.0, 326-entry frozen lockfile policy, 628 tests, 588/1,891 clean architecture, repository/evaluation/conformance checks, secrets/audit, and terminal clean diff all passed       |
 
-The previously reviewed head has complete hosted evidence. Corrected follow-up
-commits and their hosted Verification evidence remain pending publication.
+The corrected implementation and documentation head has complete hosted
+Verification evidence. The draft PR description remains the terminal
+hosted-status record after the final evidence-only plan commit to avoid an
+unbounded self-referential commit chain.
