@@ -6,7 +6,7 @@
   [#11 — Phase 4: Establish durable catalog and evidence persistence](https://github.com/kgudipati/gitblocks/issues/11)
 - Required branch: `feat/11-evidence-persistence`
 - Owner: GitBlocks maintainers
-- State: full local validation passed; publication and hosted CI pending
+- State: implementation published in draft PR #12; hosted verification passed
 - Last updated: 2026-07-28
 - Required draft PR title:
   `feat: establish catalog and evidence persistence`
@@ -653,7 +653,9 @@ Status: complete.
 
 ### Milestone 7 — Publication and hosted evidence
 
-Status: in progress.
+Status: complete. The implementation commit was pushed normally, the exact-title
+draft PR was opened, and its PostgreSQL-enabled Verification job passed with
+decoded logs inspected.
 
 - Review complete diff and scope.
 - Create intentional Conventional Commits.
@@ -822,6 +824,18 @@ Phase 4 is complete only when:
 - 2026-07-28: Ordinary tests pass at 32 files / 650 tests; V8 coverage is
   78.45% statements, 71.48% branches, 84.34% functions, and 78.39% lines.
   The separate PostgreSQL graph passes 2 files / 15 tests with no skips.
+- 2026-07-28: Created ordinary commit
+  `1eb80e185d8423df3f4c07788d6ef9c9cbf97410`, pushed it normally to
+  `feat/11-evidence-persistence`, and opened exact-title draft PR
+  [#12](https://github.com/kgudipati/gitblocks/pull/12) with `Closes #11`.
+- 2026-07-28: GitHub Actions run
+  [30428692978](https://github.com/kgudipati/gitblocks/actions/runs/30428692978),
+  Verification job `90500722393`, passed. Decoded logs confirmed the exact
+  PostgreSQL digest, healthy service, frozen installation, PR metadata, 650
+  ordinary tests, 15 database tests, one migration, 15 forced-RLS tables,
+  ten-case/40-candidate proposed/not-reviewed conformance, dependency and
+  repository checks, audit, no skipped integration tests, and unchanged
+  worktree.
 
 ## Decision and deviation log
 
@@ -893,6 +907,7 @@ Phase 4 is complete only when:
 | 2026-07-28 | final local `pnpm verify:ci`                                                                                                                                                           | exit 0; offline graph, exact-digest PostgreSQL graph, and registry audit all passed                                                                                                                                                    |
 | 2026-07-28 | first `pnpm repo:branch` audit call                                                                                                                                                    | usage error because the branch value was omitted; reran with `-- feat/11-evidence-persistence`, then branch and exact PR-title checks passed                                                                                           |
 | 2026-07-28 | final scope/static review                                                                                                                                                              | exactly three product packages (one new); domain/contracts direction unchanged; no product-to-tool/eval/prohibited import; gold/manifest/scoring unchanged; no skipped database tests; `main` and `origin/main` remain at expected SHA |
+| 2026-07-28 | first decoded-log request while the hosted job was active                                                                                                                              | GitHub's temporary log blob returned not found; waited for completion and then fetched/decoded the complete job log successfully                                                                                                       |
+| 2026-07-28 | GitHub Actions run `30428692978`, Verification job `90500722393`                                                                                                                       | success; every step passed, including exact PostgreSQL service, authoritative verification, final worktree check, and container cleanup                                                                                                |
 
-Hosted CI run/job/log evidence and publication SHAs will be appended after the
-draft PR exists.
+No hosted failure required a code correction.
