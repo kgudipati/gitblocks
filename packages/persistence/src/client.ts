@@ -10,16 +10,8 @@ import {
   persistenceError,
   type PersistenceError,
 } from './errors.ts';
-import type {
-  OperationControl,
-  PersistenceClientConfig,
-  StorageScope,
-} from './types.ts';
-import {
-  validateControl,
-  validateIntegerBound,
-  validateScope,
-} from './validation.ts';
+import type { OperationControl, PersistenceClientConfig } from './types.ts';
+import { validateControl, validateIntegerBound } from './validation.ts';
 
 const CLIENT_STATE = new WeakMap<
   PersistenceClient,
@@ -101,7 +93,6 @@ export function getMigrationSql(client: PersistenceClient): Sql {
 
 export async function withTransaction<Value>(
   client: PersistenceClient,
-  scope: StorageScope | undefined,
   control: OperationControl | undefined,
   mode: 'read-write' | 'read-only',
   operation: (
@@ -114,7 +105,6 @@ export async function withTransaction<Value>(
   if (validatedControl.signal?.aborted === true) {
     throw persistenceError('persistence.deadline');
   }
-  const validatedScope = scope === undefined ? undefined : validateScope(scope);
   try {
     const options =
       mode === 'read-only'
@@ -132,11 +122,6 @@ export async function withTransaction<Value>(
             pg_catalog.set_config(
               'lock_timeout',
               ${String(validatedControl.lockTimeoutMilliseconds)},
-              true
-            ),
-            pg_catalog.set_config(
-              'gitblocks.tenant_id',
-              ${validatedScope?.tenantId ?? ''},
               true
             )
         `,

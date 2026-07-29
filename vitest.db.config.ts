@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     fileParallelism: false,
+    globalSetup: ['packages/persistence/test/database-setup.ts'],
     include: [
       'packages/persistence/test/integration/**/*.integration.ts',
       'tools/evaluation-harness/test/**/*.persistence-integration.ts',

@@ -19,7 +19,7 @@ if (command === 'migrate') {
 } else if (command === 'check') {
   const result = await checkDatabase(config);
   process.stdout.write(
-    `Database check passed (${result.verification.postgresqlVersion}; ${String(result.verification.migrations.length)} migration; ${String(result.forcedRlsTables)} forced-RLS tables).\n`,
+    `Database check passed (${result.verification.postgresqlVersion}; ${String(result.verification.migrations.length)} migration; ${String(result.productTables)} public product tables; ${String(result.rowSecurityPolicies)} RLS policies).\n`,
   );
 } else {
   throw new Error('Database command is invalid.');

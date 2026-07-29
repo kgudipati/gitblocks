@@ -11,7 +11,6 @@ import {
   putCatalogCandidate,
   selectActiveDossierMaterial,
   type PersistenceClientConfig,
-  type StorageScope,
 } from '../src/index.ts';
 import { createCandidateDossier } from './fixtures.ts';
 
@@ -54,20 +53,15 @@ describe('persistence package boundary', () => {
     expect(JSON.stringify(caught)).not.toContain('password-sentinel');
   });
 
-  it('requires explicit tenant expiry before attempting database I/O', async () => {
+  it('rejects malformed immutable creation metadata before database I/O', async () => {
     const client = createPersistenceClient(UNREACHABLE_CONFIG);
     const dossier = createCandidateDossier('candidate-alpha');
-    const malformedScope = {
-      kind: 'tenant',
-      tenantId: '11111111-1111-4111-8111-111111111111',
-    } as unknown as StorageScope;
 
     try {
       await expect(
         putCatalogCandidate(client, {
-          scope: malformedScope,
           identity: dossier.identity,
-          createdAt: '2026-07-28T22:00:00Z',
+          createdAt: 'malformed-timestamp',
         }),
       ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
     } finally {
@@ -75,16 +69,14 @@ describe('persistence package boundary', () => {
     }
   });
 
-  it('rejects an unbounded active-material page before database I/O', async () => {
+  it('rejects a malformed evidence cutoff before database I/O', async () => {
     const client = createPersistenceClient(UNREACHABLE_CONFIG);
 
     try {
       await expect(
         selectActiveDossierMaterial(client, {
-          scope: { kind: 'public' },
           candidateId: 'candidate-alpha',
-          evidenceCutoff: '2026-07-28T21:00:00Z',
-          limit: 101,
+          evidenceCutoff: 'malformed-timestamp',
         }),
       ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
     } finally {
@@ -131,8 +123,9 @@ describe('persistence package boundary', () => {
   });
 
   it('contains no environment reads, runtime raw SQL, or logging calls', async () => {
-    const [clientSource, operationsSource] = await Promise.all([
+    const [clientSource, indexSource, operationsSource] = await Promise.all([
       readFile(new URL('../src/client.ts', import.meta.url), 'utf8'),
+      readFile(new URL('../src/index.ts', import.meta.url), 'utf8'),
       readFile(new URL('../src/operations.ts', import.meta.url), 'utf8'),
     ]);
 
@@ -140,5 +133,8 @@ describe('persistence package boundary', () => {
     expect(operationsSource).not.toContain('.unsafe(');
     expect(operationsSource).not.toMatch(/\bconsole\./u);
     expect(operationsSource).not.toMatch(/\b(?:eval|Function)\s*\(/u);
+    expect(indexSource).not.toMatch(
+      /\b(?:tenant|expiry|purge|tombstone|StorageScope)\b/iu,
+    );
   });
 });

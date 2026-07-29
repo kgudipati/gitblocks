@@ -15,11 +15,8 @@ import {
   closePersistenceClient,
   createCandidateDossierSnapshot,
   createPersistenceClient,
-  createTenant,
-  deleteTenantData,
   loadCandidateDossierSnapshot,
   PersistenceError,
-  purgeExpiredTenantData,
   putCatalogCandidate,
   recordEvidenceInvalidation,
   recordEvidenceSupersession,
@@ -28,168 +25,97 @@ import {
   verifyMigrations,
   type PersistenceClient,
   type PersistenceClientConfig,
-  type StorageScope,
 } from '../../src/index.ts';
 import { createCandidateDossier, type MutableValue } from '../fixtures.ts';
 
 const OWNER_CONFIG = readOwnerConfig();
 const RUNTIME_CONFIG: PersistenceClientConfig = {
   ...OWNER_CONFIG,
-  username: 'gitblocks_runtime_test',
-  password: 'runtime-test-only',
+  username: 'gitblocks_persistence_test',
+  password: 'persistence-test-only',
   maximumConnections: 5,
 };
-const PUBLIC_WRITER_CONFIG: PersistenceClientConfig = {
-  ...OWNER_CONFIG,
-  username: 'gitblocks_public_test',
-  password: 'public-test-only',
-  maximumConnections: 5,
-};
-const TENANT_A = '11111111-1111-4111-8111-111111111111';
-const TENANT_B = '22222222-2222-4222-8222-222222222222';
 const CREATED_AT = '2026-07-28T22:00:00Z';
 const EVIDENCE_CUTOFF = '2026-07-28T21:00:00Z';
-const TENANT_EXPIRY = '2026-08-28T22:00:00Z';
-
-const TENANT_A_SCOPE: StorageScope = {
-  kind: 'tenant',
-  tenantId: TENANT_A,
-  expiresAt: TENANT_EXPIRY,
-};
-const TENANT_B_SCOPE: StorageScope = {
-  kind: 'tenant',
-  tenantId: TENANT_B,
-  expiresAt: TENANT_EXPIRY,
-};
-const PUBLIC_SCOPE: StorageScope = { kind: 'public' };
+const CANDIDATE_LOCK_SEED = 44392817;
 
 let ownerSql: Sql;
 
-describe('PostgreSQL persistence integration', { concurrent: false }, () => {
-  beforeAll(async () => {
-    ownerSql = postgres({
-      host: OWNER_CONFIG.host,
-      port: OWNER_CONFIG.port,
-      database: OWNER_CONFIG.database,
-      user: OWNER_CONFIG.username,
-      password: OWNER_CONFIG.password,
-      ssl: OWNER_CONFIG.ssl,
-      max: 5,
-      connect_timeout: 5,
-      idle_timeout: 5,
-      onnotice: () => undefined,
-      debug: false,
+describe(
+  'PostgreSQL public evidence persistence',
+  { concurrent: false },
+  () => {
+    beforeAll(async () => {
+      ownerSql = directSql(OWNER_CONFIG);
+      await resetDatabase();
     });
-    await resetDatabase();
-    await ensureRuntimeLogins();
-  });
 
-  beforeEach(async () => {
-    await resetDatabase();
-    await ensureRuntimeLogins();
-  });
+    beforeEach(async () => {
+      await resetDatabase();
+    });
 
-  afterAll(async () => {
-    await ownerSql.end({ timeout: 5 });
-  });
+    afterAll(async () => {
+      await ownerSql.end({ timeout: 5 });
+    });
 
-  it('applies cleanly, repeats safely, verifies checksums, and serializes concurrent migrators', async () => {
-    await dropGitBlocksSchema();
-    const first = createPersistenceClient(OWNER_CONFIG);
-    const second = createPersistenceClient(OWNER_CONFIG);
+    it('applies cleanly, repeats safely, verifies checksums, and serializes concurrent migrators', async () => {
+      await dropGitBlocksSchema();
+      const first = createPersistenceClient(OWNER_CONFIG);
+      const second = createPersistenceClient(OWNER_CONFIG);
+      try {
+        const concurrent = await Promise.all([
+          applyMigrations(first),
+          applyMigrations(second),
+        ]);
+        const repeated = await applyMigrations(first);
+        const verified = await verifyMigrations(second);
 
-    try {
-      const results = await Promise.all([
-        applyMigrations(first),
-        applyMigrations(second),
-      ]);
-      const repeated = await applyMigrations(first);
-      const verified = await verifyMigrations(second);
-
-      expect(results).toHaveLength(2);
-      expect(repeated).toEqual(verified);
-      expect(verified.postgresqlVersion).toMatch(/^18\.4\b/u);
-      expect(verified.migrations).toHaveLength(1);
-      expect(firstOrThrow(verified.migrations)).toMatchObject({
-        version: 1,
-        name: 'evidence-persistence',
-      });
-      expect(firstOrThrow(verified.migrations).checksum).toMatch(
-        /^[0-9a-f]{64}$/u,
-      );
-      const history = await ownerSql<readonly { readonly count: number }[]>`
+        expect(concurrent).toHaveLength(2);
+        expect(repeated).toEqual(verified);
+        expect(verified.postgresqlVersion).toMatch(/^18\.4\b/u);
+        expect(verified.migrations).toHaveLength(1);
+        expect(firstOrThrow(verified.migrations)).toMatchObject({
+          version: 1,
+          name: 'evidence-persistence',
+        });
+        expect(firstOrThrow(verified.migrations).checksum).toMatch(
+          /^[0-9a-f]{64}$/u,
+        );
+        const history = await ownerSql<readonly { readonly count: number }[]>`
         select pg_catalog.count(*)::integer as count
         from gitblocks.schema_migrations
       `;
-      expect(history[0]?.count).toBe(1);
-    } finally {
-      await Promise.all([
-        closePersistenceClient(first),
-        closePersistenceClient(second),
-      ]);
-    }
-  });
+        expect(history[0]?.count).toBe(1);
+      } finally {
+        await Promise.all([
+          closePersistenceClient(first),
+          closePersistenceClient(second),
+        ]);
+      }
+    });
 
-  it('detects checksum drift, unknown history, and absent implicit migrations', async () => {
-    await ownerSql`
+    it('detects migration drift, rolls failure back, and never migrates implicitly', async () => {
+      await ownerSql`
       update gitblocks.schema_migrations
       set checksum =
         'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
       where version = 1
     `;
-    const owner = createPersistenceClient(OWNER_CONFIG);
-    try {
-      await expect(verifyMigrations(owner)).rejects.toMatchObject({
+      const driftClient = createPersistenceClient(OWNER_CONFIG);
+      await expect(verifyMigrations(driftClient)).rejects.toMatchObject({
         code: 'persistence.migration-drift',
       });
-    } finally {
-      await closePersistenceClient(owner);
-    }
+      await closePersistenceClient(driftClient);
 
-    await resetDatabase();
-    await ownerSql`
-      insert into gitblocks.schema_migrations (
-        version,
-        name,
-        checksum,
-        applied_at
-      )
-      values (
-        2,
-        'unknown-migration',
-        'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-        pg_catalog.clock_timestamp()
-      )
-    `;
-    const unknownOwner = createPersistenceClient(OWNER_CONFIG);
-    try {
-      await expect(applyMigrations(unknownOwner)).rejects.toMatchObject({
-        code: 'persistence.migration-drift',
-      });
-    } finally {
-      await closePersistenceClient(unknownOwner);
-    }
-
-    await dropGitBlocksSchema();
-    const lazyClient = createPersistenceClient(OWNER_CONFIG);
-    await closePersistenceClient(lazyClient);
-    const schemas = await ownerSql<readonly { readonly count: number }[]>`
-      select pg_catalog.count(*)::integer as count
-      from pg_catalog.pg_namespace
-      where nspname = 'gitblocks'
-    `;
-    expect(schemas[0]?.count).toBe(0);
-  });
-
-  it('rolls a failed migration and its history back transactionally', async () => {
-    await dropGitBlocksSchema();
-    await ownerSql.unsafe(`
+      await dropGitBlocksSchema();
+      await ownerSql.unsafe(`
       create or replace function public.gitblocks_test_reject_migration()
       returns event_trigger
       language plpgsql
       as $$
       begin
-        if pg_catalog.current_query() like '%create table gitblocks.tenants%' then
+        if pg_catalog.current_query()
+          like '%create table gitblocks.catalog_candidates%' then
           raise exception using errcode = 'P0001', message = 'test failure';
         end if;
       end
@@ -198,46 +124,47 @@ describe('PostgreSQL persistence integration', { concurrent: false }, () => {
       on ddl_command_start
       execute function public.gitblocks_test_reject_migration();
     `);
-    const owner = createPersistenceClient(OWNER_CONFIG);
-    try {
-      await expect(applyMigrations(owner)).rejects.toBeInstanceOf(
-        PersistenceError,
-      );
-    } finally {
-      await closePersistenceClient(owner);
-      await ownerSql.unsafe(`
+      const failingClient = createPersistenceClient(OWNER_CONFIG);
+      try {
+        await expect(applyMigrations(failingClient)).rejects.toBeInstanceOf(
+          PersistenceError,
+        );
+      } finally {
+        await closePersistenceClient(failingClient);
+        await ownerSql.unsafe(`
         drop event trigger if exists gitblocks_test_reject_migration;
         drop function if exists public.gitblocks_test_reject_migration();
       `);
-    }
-    const schemas = await ownerSql<readonly { readonly count: number }[]>`
+      }
+      const failedSchemas = await ownerSql<
+        readonly { readonly count: number }[]
+      >`
       select pg_catalog.count(*)::integer as count
       from pg_catalog.pg_namespace
       where nspname = 'gitblocks'
     `;
-    expect(schemas[0]?.count).toBe(0);
-  });
+      expect(failedSchemas[0]?.count).toBe(0);
 
-  it('uses explicit schema objects, PostgreSQL 18, forced RLS, and non-owner runtime roles', async () => {
-    const owner = createPersistenceClient(OWNER_CONFIG);
-    try {
-      const verified = await verifyMigrations(owner);
-      expect(verified.postgresqlVersion).toMatch(/^18\.4\b/u);
-    } finally {
-      await closePersistenceClient(owner);
-    }
+      const lazyClient = createPersistenceClient(OWNER_CONFIG);
+      await closePersistenceClient(lazyClient);
+      const lazySchemas = await ownerSql<readonly { readonly count: number }[]>`
+      select pg_catalog.count(*)::integer as count
+      from pg_catalog.pg_namespace
+      where nspname = 'gitblocks'
+    `;
+      expect(lazySchemas[0]?.count).toBe(0);
+    });
 
-    const tables = await ownerSql<
-      readonly {
-        readonly tablename: string;
-        readonly rowsecurity: boolean;
-        readonly forcerowsecurity: boolean;
-      }[]
-    >`
+    it('creates only the public schema and one least-privilege non-owner role', async () => {
+      const tables = await ownerSql<
+        readonly {
+          readonly tablename: string;
+          readonly rowsecurity: boolean;
+        }[]
+      >`
       select
         class.relname as tablename,
-        class.relrowsecurity as rowsecurity,
-        class.relforcerowsecurity as forcerowsecurity
+        class.relrowsecurity as rowsecurity
       from pg_catalog.pg_class as class
       join pg_catalog.pg_namespace as namespace
         on namespace.oid = class.relnamespace
@@ -246,882 +173,802 @@ describe('PostgreSQL persistence integration', { concurrent: false }, () => {
         and class.relname <> 'schema_migrations'
       order by class.relname
     `;
-    expect(tables).toHaveLength(15);
-    expect(tables.every((table) => table.rowsecurity)).toBe(true);
-    expect(tables.every((table) => table.forcerowsecurity)).toBe(true);
+      expect(tables).toHaveLength(13);
+      expect(tables.every((table) => !table.rowsecurity)).toBe(true);
+      expect(tables.map((table) => table.tablename)).not.toEqual(
+        expect.arrayContaining([
+          'tenants',
+          'tenant_tombstones',
+          'organizations',
+          'organization_dossier_refs',
+        ]),
+      );
 
-    const roles = await ownerSql<
-      readonly {
-        readonly rolname: string;
-        readonly rolsuper: boolean;
-        readonly rolbypassrls: boolean;
-      }[]
-    >`
+      const policies = await ownerSql<readonly { readonly count: number }[]>`
+      select pg_catalog.count(*)::integer as count
+      from pg_catalog.pg_policy as policy
+      join pg_catalog.pg_class as class
+        on class.oid = policy.polrelid
+      join pg_catalog.pg_namespace as namespace
+        on namespace.oid = class.relnamespace
+      where namespace.nspname = 'gitblocks'
+    `;
+      expect(policies[0]?.count).toBe(0);
+
+      const role = await ownerSql<
+        readonly {
+          readonly rolname: string;
+          readonly rolsuper: boolean;
+          readonly rolbypassrls: boolean;
+        }[]
+      >`
       select rolname, rolsuper, rolbypassrls
       from pg_catalog.pg_roles
-      where rolname in (
-        'gitblocks_runtime_test',
-        'gitblocks_public_test'
-      )
-      order by rolname
+      where rolname = 'gitblocks_persistence_test'
     `;
-    expect(roles).toEqual([
-      {
-        rolname: 'gitblocks_public_test',
-        rolsuper: false,
-        rolbypassrls: false,
-      },
-      {
-        rolname: 'gitblocks_runtime_test',
-        rolsuper: false,
-        rolbypassrls: false,
-      },
-    ]);
+      expect(role).toEqual([
+        {
+          rolname: 'gitblocks_persistence_test',
+          rolsuper: false,
+          rolbypassrls: false,
+        },
+      ]);
 
-    const migrationSql = await readFile(
-      new URL(
-        '../../migrations/0001_evidence_persistence.sql',
-        import.meta.url,
-      ),
-      'utf8',
-    );
-    expect(migrationSql).not.toMatch(/\bcreate table (?!gitblocks\.)/iu);
-    expect(migrationSql).not.toMatch(/\breferences (?!gitblocks\.)/iu);
-  });
+      const migrationSql = await readFile(
+        new URL(
+          '../../migrations/0001_evidence_persistence.sql',
+          import.meta.url,
+        ),
+        'utf8',
+      );
+      expect(migrationSql).not.toMatch(/\btenant\b|\bexpiry\b|\bpurge\b/iu);
+      expect(migrationSql).not.toMatch(
+        /\brow level security\b|\bcreate policy\b/iu,
+      );
+      expect(migrationSql).not.toMatch(/\bcreate table (?!gitblocks\.)/iu);
+      expect(migrationSql).not.toMatch(/\breferences (?!gitblocks\.)/iu);
+    });
 
-  it('enforces tenant isolation, public policy, missing context, malformed context, and cross-tenant references', async () => {
-    const runtime = createPersistenceClient(RUNTIME_CONFIG);
-    const publicWriter = createPersistenceClient(PUBLIC_WRITER_CONFIG);
-    const dossierA = createCandidateDossier('candidate-alpha');
-    const dossierB = createCandidateDossier('candidate-beta');
-    const publicDossier = withCandidateId(
-      createCandidateDossier('candidate-alpha'),
-      'candidate-public',
-      'public',
-    );
-    try {
-      await createTenant(runtime, {
-        tenantId: TENANT_A,
-        createdAt: CREATED_AT,
-      });
-      await createTenant(runtime, {
-        tenantId: TENANT_B,
-        createdAt: CREATED_AT,
-      });
-      await seedDossier(runtime, TENANT_A_SCOPE, dossierA);
-      await seedDossier(runtime, TENANT_B_SCOPE, dossierB);
-      await seedDossier(publicWriter, PUBLIC_SCOPE, publicDossier);
-
-      const directRuntime = directSql(RUNTIME_CONFIG);
+    it('enforces candidate identity uniqueness and complete candidate idempotency', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
       try {
-        const missing = await directRuntime<
-          readonly { readonly candidate_id: string }[]
-        >`
-          select candidate_id
-          from gitblocks.catalog_candidates
-          order by candidate_id
-        `;
-        expect(missing.map((row) => row.candidate_id)).toEqual([
-          'candidate-public',
-        ]);
+        await expect(
+          Promise.all([
+            putCatalogCandidate(runtime, {
+              identity: dossier.identity,
+              createdAt: CREATED_AT,
+            }),
+            putCatalogCandidate(runtime, {
+              identity: dossier.identity,
+              createdAt: CREATED_AT,
+            }),
+          ]),
+        ).resolves.toEqual([undefined, undefined]);
+        await expect(
+          putCatalogCandidate(runtime, {
+            identity: dossier.identity,
+            createdAt: '2026-07-28T22:00:01Z',
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
 
-        const malformed = await directRuntime.begin(async (transaction) => {
-          await transaction`
-            select pg_catalog.set_config(
-              'gitblocks.tenant_id',
-              'malformed-context',
-              true
-            )
-          `;
-          return transaction<readonly { readonly candidate_id: string }[]>`
-            select candidate_id
-            from gitblocks.catalog_candidates
-            order by candidate_id
-          `;
-        });
-        expect(malformed.map((row) => row.candidate_id)).toEqual([
-          'candidate-public',
-        ]);
-
-        const tenantAVisible = await directRuntime.begin(
-          async (transaction) => {
-            await transaction`
-              select pg_catalog.set_config(
-                'gitblocks.tenant_id',
-                ${TENANT_A},
-                true
-              )
-            `;
-            return transaction<readonly { readonly candidate_id: string }[]>`
-              select candidate_id
-              from gitblocks.catalog_candidates
-              order by candidate_id
-            `;
-          },
+        const repositoryConflict = withCandidateId(
+          createCandidateDossier('candidate-beta'),
+          'repository-conflict',
+          'ALPHA',
         );
-        expect(tenantAVisible.map((row) => row.candidate_id)).toEqual([
-          'candidate-alpha',
-          'candidate-public',
-        ]);
+        repositoryConflict.identity.repository.owner =
+          dossier.identity.repository.owner.toUpperCase();
+        repositoryConflict.identity.package = {
+          registry: 'npm',
+          name: 'repository-conflict',
+        };
+        await expect(
+          putCatalogCandidate(runtime, {
+            identity: repositoryConflict.identity,
+            createdAt: CREATED_AT,
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+
+        const packageConflict = withCandidateId(
+          createCandidateDossier('candidate-beta'),
+          'package-conflict',
+          'package-conflict',
+        );
+        packageConflict.identity.package = {
+          registry: 'npm',
+          name: 'example-alpha',
+        };
+        await expect(
+          putCatalogCandidate(runtime, {
+            identity: packageConflict.identity,
+            createdAt: CREATED_AT,
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+
+        await expect(
+          ownerSql`
+          update gitblocks.catalog_candidates
+          set display_name = 'forbidden'
+          where candidate_id = ${dossier.identity.candidateId}
+        `,
+        ).rejects.toMatchObject({ code: 'P0001' });
       } finally {
-        await directRuntime.end({ timeout: 5 });
+        await closePersistenceClient(runtime);
       }
+    });
 
-      await expect(
-        putCatalogCandidate(runtime, {
-          scope: PUBLIC_SCOPE,
-          identity: withCandidateId(
-            dossierA,
-            'runtime-public-write',
-            'runtime-public',
-          ).identity,
+    it('round-trips all seven provenance variants and enforces complete immutable-record conflicts', async () => {
+      const first = createPersistenceClient(RUNTIME_CONFIG);
+      const second = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createProvenanceDossier();
+      try {
+        await putCatalogCandidate(first, {
+          identity: dossier.identity,
           createdAt: CREATED_AT,
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.isolation' });
-      await expect(
-        putCatalogCandidate(publicWriter, {
-          scope: TENANT_A_SCOPE,
-          identity: withCandidateId(
-            dossierA,
-            'public-tenant-write',
-            'public-tenant',
-          ).identity,
-          createdAt: CREATED_AT,
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.isolation' });
+        });
+        await setCandidateCapabilityFamilies(first, {
+          candidateId: dossier.identity.candidateId,
+          capabilityFamilies: [dossier.capabilityFamily],
+        });
+        for (const observation of dossier.observations) {
+          await appendEvidenceObservation(first, {
+            observation,
+            createdAt: CREATED_AT,
+          });
+        }
 
-      await expect(
-        appendCandidateLimitation(runtime, {
-          scope: TENANT_A_SCOPE,
-          createdAt: CREATED_AT,
-          limitation: {
-            limitationId: 'cross-tenant-limitation',
-            limitationCode: 'cross-tenant-reference',
-            candidateId: 'candidate-alpha',
-            statement: 'This reference must remain rejected.',
-            evidenceIds: ['evidence-beta'],
-          },
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.conflict' });
-    } finally {
-      await Promise.all([
-        closePersistenceClient(runtime),
-        closePersistenceClient(publicWriter),
-      ]);
-    }
-  });
+        const concurrent = structuredClone(firstOrThrow(dossier.observations));
+        concurrent.evidenceId = 'evidence-concurrent';
+        await expect(
+          Promise.all([
+            appendEvidenceObservation(first, {
+              observation: concurrent,
+              createdAt: CREATED_AT,
+            }),
+            appendEvidenceObservation(second, {
+              observation: concurrent,
+              createdAt: CREATED_AT,
+            }),
+          ]),
+        ).resolves.toEqual([undefined, undefined]);
+        await expect(
+          appendEvidenceObservation(first, {
+            observation: concurrent,
+            createdAt: '2026-07-28T22:00:01Z',
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
 
-  it('round-trips every evidence provenance variant with exact immutable snapshot membership', async () => {
-    const runtime = createPersistenceClient(RUNTIME_CONFIG);
-    const dossier = createProvenanceDossier();
-    try {
-      await createTenant(runtime, {
-        tenantId: TENANT_A,
-        createdAt: CREATED_AT,
-      });
-      await seedDossier(runtime, TENANT_A_SCOPE, dossier);
-      await createCandidateDossierSnapshot(runtime, {
-        scope: TENANT_A_SCOPE,
-        snapshotId: 'snapshot-provenance',
-        dossier,
-        evidenceCutoff: EVIDENCE_CUTOFF,
-        createdAt: CREATED_AT,
-      });
+        const changed = structuredClone(concurrent);
+        changed.observation = 'Changed immutable payload.';
+        const conflictBase = structuredClone(concurrent);
+        conflictBase.evidenceId = 'evidence-concurrent-conflict';
+        changed.evidenceId = conflictBase.evidenceId;
+        const outcomes = await Promise.allSettled([
+          appendEvidenceObservation(first, {
+            observation: conflictBase,
+            createdAt: CREATED_AT,
+          }),
+          appendEvidenceObservation(second, {
+            observation: changed,
+            createdAt: CREATED_AT,
+          }),
+        ]);
+        expect(
+          outcomes.filter((outcome) => outcome.status === 'fulfilled'),
+        ).toHaveLength(1);
+        expect(
+          outcomes.filter((outcome) => outcome.status === 'rejected'),
+        ).toHaveLength(1);
 
-      const loaded = await loadCandidateDossierSnapshot(runtime, {
-        scope: TENANT_A_SCOPE,
-        snapshotId: 'snapshot-provenance',
-      });
-      expect(loaded).toEqual(dossier);
-      expect(loaded.observations.map((item) => item.source.kind)).toEqual([
-        'git-commit',
-        'tag',
-        'release',
-        'package-version',
-        'security-advisory',
-        'mutable-documentation',
-        'approved-validation',
-      ]);
-    } finally {
-      await closePersistenceClient(runtime);
-    }
-  });
-
-  it('stores separate non-pilot fixtures across every capability family', async () => {
-    const publicWriter = createPersistenceClient(PUBLIC_WRITER_CONFIG);
-    const families = [
-      'authorization',
-      'audit-logging',
-      'background-jobs',
-      'rate-limiting',
-      'webhooks',
-    ] as const;
-    try {
-      for (const [index, family] of families.entries()) {
-        const dossier = withCandidateId(
-          createCandidateDossier('candidate-alpha'),
-          `nonpilot-${String(index + 1)}`,
-          `nonpilot-${String(index + 1)}`,
-        );
-        dossier.capabilityFamily = family;
-        await seedDossier(publicWriter, PUBLIC_SCOPE, dossier);
-        const snapshotId = `nonpilot-${String(index + 1)}-snapshot`;
-        await createCandidateDossierSnapshot(publicWriter, {
-          scope: PUBLIC_SCOPE,
-          snapshotId,
+        for (const limitation of dossier.limitations) {
+          await appendCandidateLimitation(first, {
+            limitation,
+            createdAt: CREATED_AT,
+          });
+          await expect(
+            appendCandidateLimitation(first, {
+              limitation,
+              createdAt: CREATED_AT,
+            }),
+          ).resolves.toBeUndefined();
+          await expect(
+            appendCandidateLimitation(first, {
+              limitation,
+              createdAt: '2026-07-28T22:00:01Z',
+            }),
+          ).rejects.toMatchObject({ code: 'persistence.conflict' });
+        }
+        for (const unknown of dossier.unknowns) {
+          await appendCandidateUnknown(first, {
+            unknown,
+            createdAt: CREATED_AT,
+          });
+          await expect(
+            appendCandidateUnknown(first, {
+              unknown,
+              createdAt: CREATED_AT,
+            }),
+          ).resolves.toBeUndefined();
+          const changedUnknown = structuredClone(unknown);
+          changedUnknown.statement = 'Changed immutable unknown statement.';
+          await expect(
+            appendCandidateUnknown(first, {
+              unknown: changedUnknown,
+              createdAt: CREATED_AT,
+            }),
+          ).rejects.toMatchObject({ code: 'persistence.conflict' });
+        }
+        await createCandidateDossierSnapshot(first, {
+          snapshotId: 'snapshot-provenance',
           dossier,
           evidenceCutoff: EVIDENCE_CUTOFF,
           createdAt: CREATED_AT,
         });
         await expect(
-          loadCandidateDossierSnapshot(publicWriter, {
-            scope: PUBLIC_SCOPE,
-            snapshotId,
+          loadCandidateDossierSnapshot(first, {
+            snapshotId: 'snapshot-provenance',
           }),
         ).resolves.toEqual(dossier);
-      }
-    } finally {
-      await closePersistenceClient(publicWriter);
-    }
-  });
 
-  it('enforces immutable idempotency, concurrent inserts, conflicts, update denial, and rollback', async () => {
-    const runtimeA = createPersistenceClient(RUNTIME_CONFIG);
-    const runtimeB = createPersistenceClient(RUNTIME_CONFIG);
-    const dossier = createCandidateDossier('candidate-alpha');
-    try {
-      await createTenant(runtimeA, {
-        tenantId: TENANT_A,
-        createdAt: CREATED_AT,
-      });
-      await putCatalogCandidate(runtimeA, {
-        scope: TENANT_A_SCOPE,
-        identity: dossier.identity,
-        createdAt: CREATED_AT,
-      });
-      await setCandidateCapabilityFamilies(runtimeA, {
-        scope: TENANT_A_SCOPE,
-        candidateId: dossier.identity.candidateId,
-        capabilityFamilies: [dossier.capabilityFamily],
-      });
+        const normalized = await ownerSql<
+          readonly {
+            readonly provenance_kind: string;
+            readonly published: boolean;
+            readonly collected: boolean;
+            readonly validated: boolean;
+          }[]
+        >`
+        select
+          provenance_kind,
+          published_at is not null as published,
+          collected_at is not null as collected,
+          validated_at is not null as validated
+        from gitblocks.evidence_observations
+        where evidence_id like 'evidence-%'
+          and evidence_id <> 'evidence-concurrent'
+          and evidence_id <> 'evidence-concurrent-conflict'
+        order by provenance_kind
+      `;
+        expect(normalized).toHaveLength(7);
+        expect(
+          normalized.find(
+            (row) => row.provenance_kind === 'approved-validation',
+          ),
+        ).toMatchObject({
+          published: false,
+          collected: false,
+          validated: true,
+        });
+        expect(
+          normalized.find(
+            (row) => row.provenance_kind === 'mutable-documentation',
+          ),
+        ).toMatchObject({
+          published: false,
+          collected: true,
+          validated: false,
+        });
 
-      const observation = firstOrThrow(dossier.observations);
-      await expect(
-        Promise.all([
-          appendEvidenceObservation(runtimeA, {
-            scope: TENANT_A_SCOPE,
-            observation,
+        await expect(
+          appendCandidateLimitation(first, {
             createdAt: CREATED_AT,
+            limitation: {
+              limitationId: 'partial-limitation',
+              limitationCode: 'missing-reference',
+              candidateId: dossier.identity.candidateId,
+              statement: 'A failed reference must roll the root row back.',
+              evidenceIds: ['missing-evidence'],
+            },
           }),
-          appendEvidenceObservation(runtimeB, {
-            scope: TENANT_A_SCOPE,
-            observation,
-            createdAt: CREATED_AT,
-          }),
-        ]),
-      ).resolves.toEqual([undefined, undefined]);
-      await expect(
-        appendEvidenceObservation(runtimeA, {
-          scope: TENANT_A_SCOPE,
-          observation,
-          createdAt: CREATED_AT,
-        }),
-      ).resolves.toBeUndefined();
-
-      const conflict = structuredClone(observation);
-      conflict.observation = 'Conflicting content for the same stable ID.';
-      await expect(
-        appendEvidenceObservation(runtimeA, {
-          scope: TENANT_A_SCOPE,
-          observation: conflict,
-          createdAt: CREATED_AT,
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.conflict' });
-
-      const concurrentBase = structuredClone(observation);
-      concurrentBase.evidenceId = 'concurrent-conflict';
-      const concurrentChanged = structuredClone(concurrentBase);
-      concurrentChanged.observation =
-        'A different writer supplied different immutable content.';
-      const outcomes = await Promise.allSettled([
-        appendEvidenceObservation(runtimeA, {
-          scope: TENANT_A_SCOPE,
-          observation: concurrentBase,
-          createdAt: CREATED_AT,
-        }),
-        appendEvidenceObservation(runtimeB, {
-          scope: TENANT_A_SCOPE,
-          observation: concurrentChanged,
-          createdAt: CREATED_AT,
-        }),
-      ]);
-      expect(
-        outcomes.filter((outcome) => outcome.status === 'fulfilled'),
-      ).toHaveLength(1);
-      const rejected = outcomes.filter(
-        (outcome) => outcome.status === 'rejected',
-      );
-      expect(rejected).toHaveLength(1);
-      expect(firstOrThrow(rejected).reason).toMatchObject({
-        code: 'persistence.conflict',
-      });
-
-      await expect(
-        ownerSql`
-          update gitblocks.evidence_observations
-          set topic = 'forbidden-update'
-          where evidence_id = ${observation.evidenceId}
-        `,
-      ).rejects.toMatchObject({ code: 'P0001' });
-
-      await expect(
-        appendCandidateLimitation(runtimeA, {
-          scope: TENANT_A_SCOPE,
-          createdAt: CREATED_AT,
-          limitation: {
-            limitationId: 'partial-limitation',
-            limitationCode: 'missing-reference',
-            candidateId: dossier.identity.candidateId,
-            statement: 'A failed reference must roll the root row back.',
-            evidenceIds: ['missing-evidence'],
-          },
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.conflict' });
-      const partial = await ownerSql<readonly { readonly count: number }[]>`
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+        const partial = await ownerSql<readonly { readonly count: number }[]>`
         select pg_catalog.count(*)::integer as count
         from gitblocks.candidate_limitations
         where limitation_id = 'partial-limitation'
       `;
-      expect(partial[0]?.count).toBe(0);
-    } finally {
-      await Promise.all([
-        closePersistenceClient(runtimeA),
-        closePersistenceClient(runtimeB),
-      ]);
-    }
-  });
+        expect(partial[0]?.count).toBe(0);
+      } finally {
+        await Promise.all([
+          closePersistenceClient(first),
+          closePersistenceClient(second),
+        ]);
+      }
+    });
 
-  it('keeps historical snapshots stable across new evidence, supersession, invalidation, and active cutoffs', async () => {
-    const runtime = createPersistenceClient(RUNTIME_CONFIG);
-    const dossier = createCandidateDossier('candidate-alpha');
-    const original = firstOrThrow(dossier.observations);
-    const correction = structuredClone(original);
-    correction.evidenceId = 'evidence-alpha-corrected';
-    correction.observation =
-      'Corrected immutable evidence confirms the supported runtime.';
-    const additional = structuredClone(original);
-    additional.evidenceId = 'evidence-alpha-additional';
-    additional.observation =
-      'Additional immutable evidence supplies a separate detail.';
-    try {
-      await createTenant(runtime, {
-        tenantId: TENANT_A,
-        createdAt: CREATED_AT,
-      });
-      await seedDossier(runtime, TENANT_A_SCOPE, dossier);
-      await createCandidateDossierSnapshot(runtime, {
-        scope: TENANT_A_SCOPE,
-        snapshotId: 'snapshot-history',
-        dossier,
-        evidenceCutoff: EVIDENCE_CUTOFF,
-        createdAt: CREATED_AT,
-      });
-      await appendEvidenceObservation(runtime, {
-        scope: TENANT_A_SCOPE,
-        observation: correction,
-        createdAt: '2026-07-28T22:05:00Z',
-      });
-      await appendEvidenceObservation(runtime, {
-        scope: TENANT_A_SCOPE,
-        observation: additional,
-        createdAt: '2026-07-28T22:06:00Z',
-      });
-      await recordEvidenceSupersession(runtime, {
-        scope: TENANT_A_SCOPE,
-        candidateId: dossier.identity.candidateId,
-        supersessionId: 'supersession-alpha',
-        supersededEvidenceId: original.evidenceId,
-        supersedingEvidenceId: correction.evidenceId,
-        reasonCode: 'corrected-observation',
-        createdAt: '2026-07-28T22:10:00Z',
-        effectiveAt: '2026-07-28T22:10:00Z',
-      });
-      await recordEvidenceInvalidation(runtime, {
-        scope: TENANT_A_SCOPE,
-        candidateId: dossier.identity.candidateId,
-        invalidationId: 'invalidation-alpha',
-        evidenceId: correction.evidenceId,
-        reasonCode: 'withdrawn-source',
-        createdAt: '2026-07-28T22:20:00Z',
-        effectiveAt: '2026-07-28T22:20:00Z',
-      });
+    it('uses evidence-world timestamps rather than insertion time for every provenance variant', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createProvenanceDossier();
+      try {
+        await putCatalogCandidate(runtime, {
+          identity: dossier.identity,
+          createdAt: '2026-07-28T18:00:00Z',
+        });
+        for (const observation of dossier.observations) {
+          await appendEvidenceObservation(runtime, {
+            observation,
+            createdAt: '2026-07-28T18:00:00Z',
+          });
+        }
+        for (const limitation of dossier.limitations) {
+          await appendCandidateLimitation(runtime, {
+            limitation,
+            createdAt: CREATED_AT,
+          });
+        }
+        for (const unknown of dossier.unknowns) {
+          await appendCandidateUnknown(runtime, {
+            unknown,
+            createdAt: CREATED_AT,
+          });
+        }
 
-      const before = await selectActiveDossierMaterial(runtime, {
-        scope: TENANT_A_SCOPE,
-        candidateId: dossier.identity.candidateId,
-        evidenceCutoff: '2026-07-28T22:09:00Z',
-        limit: 100,
-      });
-      const superseded = await selectActiveDossierMaterial(runtime, {
-        scope: TENANT_A_SCOPE,
-        candidateId: dossier.identity.candidateId,
-        evidenceCutoff: '2026-07-28T22:15:00Z',
-        limit: 100,
-      });
-      const invalidated = await selectActiveDossierMaterial(runtime, {
-        scope: TENANT_A_SCOPE,
-        candidateId: dossier.identity.candidateId,
-        evidenceCutoff: '2026-07-28T22:21:00Z',
-        limit: 100,
-      });
-      expect(before.observations.map((value) => value.evidenceId)).toEqual([
-        'evidence-alpha',
-        'evidence-alpha-additional',
-        'evidence-alpha-corrected',
-      ]);
-      expect(superseded.observations.map((value) => value.evidenceId)).toEqual([
-        'evidence-alpha-additional',
-        'evidence-alpha-corrected',
-      ]);
-      expect(invalidated.observations.map((value) => value.evidenceId)).toEqual(
-        ['evidence-alpha-additional'],
-      );
-
-      const historical = await loadCandidateDossierSnapshot(runtime, {
-        scope: TENANT_A_SCOPE,
-        snapshotId: 'snapshot-history',
-      });
-      expect(historical).toEqual(dossier);
-      await expect(
-        recordEvidenceSupersession(runtime, {
-          scope: TENANT_A_SCOPE,
+        const beforeCollection = await selectActiveDossierMaterial(runtime, {
           candidateId: dossier.identity.candidateId,
-          supersessionId: 'supersession-cycle',
-          supersededEvidenceId: correction.evidenceId,
-          supersedingEvidenceId: original.evidenceId,
-          reasonCode: 'cycle-attempt',
-          createdAt: '2026-07-28T22:30:00Z',
-          effectiveAt: '2026-07-28T22:30:00Z',
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.conflict' });
-      await expect(
-        recordEvidenceSupersession(runtime, {
-          scope: TENANT_A_SCOPE,
+          evidenceCutoff: '2026-07-28T20:00:00Z',
+        });
+        expect(beforeCollection.observations).toEqual([]);
+
+        const afterAllEvidenceTimes = await selectActiveDossierMaterial(
+          runtime,
+          {
+            candidateId: dossier.identity.candidateId,
+            evidenceCutoff: EVIDENCE_CUTOFF,
+          },
+        );
+        expect(afterAllEvidenceTimes.observations).toHaveLength(7);
+        expect(afterAllEvidenceTimes.limitations).toHaveLength(1);
+        expect(afterAllEvidenceTimes.unknowns).toHaveLength(1);
+
+        const futureCollection = structuredClone(
+          firstOrThrow(dossier.observations),
+        );
+        futureCollection.evidenceId = 'future-collection';
+        if (futureCollection.source.kind !== 'git-commit') {
+          throw new Error('Fixture source kind changed.');
+        }
+        futureCollection.source.collectedAt = '2026-07-28T22:00:00Z';
+        futureCollection.freshness.asOf = '2026-07-28T22:00:00Z';
+        await appendEvidenceObservation(runtime, {
+          observation: futureCollection,
+          createdAt: '2026-07-28T18:00:00Z',
+        });
+
+        const futureFreshness = structuredClone(
+          firstOrThrow(dossier.observations),
+        );
+        futureFreshness.evidenceId = 'future-freshness';
+        futureFreshness.freshness.asOf = '2026-07-28T22:00:00Z';
+        await appendEvidenceObservation(runtime, {
+          observation: futureFreshness,
+          createdAt: '2026-07-28T18:00:00Z',
+        });
+
+        const cutoff = await selectActiveDossierMaterial(runtime, {
           candidateId: dossier.identity.candidateId,
-          supersessionId: 'supersession-self',
-          supersededEvidenceId: original.evidenceId,
-          supersedingEvidenceId: original.evidenceId,
-          reasonCode: 'self-attempt',
-          createdAt: '2026-07-28T22:30:00Z',
-          effectiveAt: '2026-07-28T22:30:00Z',
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
-    } finally {
-      await closePersistenceClient(runtime);
-    }
-  });
+          evidenceCutoff: '2026-07-28T21:30:00Z',
+        });
+        expect(cutoff.observations.map((item) => item.evidenceId)).not.toEqual(
+          expect.arrayContaining(['future-collection', 'future-freshness']),
+        );
 
-  it('rejects missing, duplicate, cross-candidate, cross-scope, and conflicting snapshot material atomically', async () => {
-    const runtime = createPersistenceClient(RUNTIME_CONFIG);
-    const publicWriter = createPersistenceClient(PUBLIC_WRITER_CONFIG);
-    const dossierA = createCandidateDossier('candidate-alpha');
-    const dossierB = createCandidateDossier('candidate-beta');
-    try {
-      await createTenant(runtime, {
-        tenantId: TENANT_A,
-        createdAt: CREATED_AT,
-      });
-      await seedDossier(runtime, TENANT_A_SCOPE, dossierA);
-      await seedDossier(runtime, TENANT_A_SCOPE, dossierB);
-      await seedDossier(publicWriter, PUBLIC_SCOPE, dossierA);
+        const futureDossier = structuredClone(dossier);
+        futureDossier.observations = [futureCollection];
+        futureDossier.limitations = [];
+        futureDossier.unknowns = [];
+        await expect(
+          createCandidateDossierSnapshot(runtime, {
+            snapshotId: 'future-evidence-snapshot',
+            dossier: futureDossier,
+            evidenceCutoff: '2026-07-28T21:30:00Z',
+            createdAt: CREATED_AT,
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
 
-      const missing = structuredClone(dossierA);
-      firstOrThrow(missing.observations).evidenceId = 'missing-evidence';
-      await expect(
-        createCandidateDossierSnapshot(runtime, {
-          scope: TENANT_A_SCOPE,
-          snapshotId: 'snapshot-missing',
-          dossier: missing,
+    it('uses a serialized set diff and keeps snapshots independent of current capability membership', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      try {
+        await seedDossier(runtime, dossier);
+        const before = await membershipVersions(dossier.identity.candidateId);
+        await setCandidateCapabilityFamilies(runtime, {
+          candidateId: dossier.identity.candidateId,
+          capabilityFamilies: ['authorization'],
+        });
+        expect(await membershipVersions(dossier.identity.candidateId)).toEqual(
+          before,
+        );
+
+        await createCandidateDossierSnapshot(runtime, {
+          snapshotId: 'snapshot-capability-history',
+          dossier,
           evidenceCutoff: EVIDENCE_CUTOFF,
           createdAt: CREATED_AT,
-        }),
-      ).rejects.toBeInstanceOf(PersistenceError);
+        });
+        await setCandidateCapabilityFamilies(runtime, {
+          candidateId: dossier.identity.candidateId,
+          capabilityFamilies: ['authorization'],
+        });
+        expect(await membershipVersions(dossier.identity.candidateId)).toEqual(
+          before,
+        );
 
-      const duplicate = structuredClone(dossierA);
-      duplicate.observations.push(
-        structuredClone(firstOrThrow(duplicate.observations)),
-      );
-      await expect(
-        createCandidateDossierSnapshot(runtime, {
-          scope: TENANT_A_SCOPE,
-          snapshotId: 'snapshot-duplicate',
-          dossier: duplicate,
+        await setCandidateCapabilityFamilies(runtime, {
+          candidateId: dossier.identity.candidateId,
+          capabilityFamilies: ['authorization', 'webhooks'],
+        });
+        expect(
+          (await membershipVersions(dossier.identity.candidateId))[
+            'authorization'
+          ],
+        ).toBe(before['authorization']);
+        await setCandidateCapabilityFamilies(runtime, {
+          candidateId: dossier.identity.candidateId,
+          capabilityFamilies: ['webhooks'],
+        });
+        await expect(
+          loadCandidateDossierSnapshot(runtime, {
+            snapshotId: 'snapshot-capability-history',
+          }),
+        ).resolves.toEqual(dossier);
+
+        await expect(
+          createCandidateDossierSnapshot(runtime, {
+            snapshotId: 'snapshot-current-membership-rejected',
+            dossier,
+            evidenceCutoff: EVIDENCE_CUTOFF,
+            createdAt: CREATED_AT,
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
+
+    it('keeps historical snapshots exact and detects retry changes in cutoff or ordered membership', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      try {
+        await seedDossier(runtime, dossier);
+        const command = {
+          snapshotId: 'snapshot-retry',
+          dossier,
           evidenceCutoff: EVIDENCE_CUTOFF,
           createdAt: CREATED_AT,
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+        } as const;
+        await createCandidateDossierSnapshot(runtime, command);
+        await expect(
+          createCandidateDossierSnapshot(runtime, command),
+        ).resolves.toBeUndefined();
+        await expect(
+          createCandidateDossierSnapshot(runtime, {
+            ...command,
+            evidenceCutoff: '2026-07-28T21:30:00Z',
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
 
-      const crossCandidate = structuredClone(dossierA);
-      crossCandidate.observations = [
-        structuredClone(firstOrThrow(dossierB.observations)),
-      ];
-      await expect(
-        createCandidateDossierSnapshot(runtime, {
-          scope: TENANT_A_SCOPE,
-          snapshotId: 'snapshot-cross-candidate',
-          dossier: crossCandidate,
-          evidenceCutoff: EVIDENCE_CUTOFF,
+        const additional = structuredClone(firstOrThrow(dossier.observations));
+        additional.evidenceId = 'evidence-additional';
+        additional.observation = 'Additional public evidence.';
+        await appendEvidenceObservation(runtime, {
+          observation: additional,
           createdAt: CREATED_AT,
-        }),
-      ).rejects.toBeInstanceOf(PersistenceError);
+        });
+        const changedMembership = structuredClone(dossier);
+        changedMembership.observations.push(additional);
+        await expect(
+          createCandidateDossierSnapshot(runtime, {
+            ...command,
+            dossier: changedMembership,
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
 
-      await expect(
-        createCandidateDossierSnapshot(publicWriter, {
-          scope: PUBLIC_SCOPE,
-          snapshotId: 'snapshot-cross-scope',
-          dossier: dossierB,
-          evidenceCutoff: EVIDENCE_CUTOFF,
-          createdAt: CREATED_AT,
-        }),
-      ).rejects.toBeInstanceOf(PersistenceError);
+        const other = createCandidateDossier('candidate-beta');
+        await seedDossier(runtime, other);
+        const crossCandidate = structuredClone(dossier);
+        crossCandidate.observations = [
+          structuredClone(firstOrThrow(other.observations)),
+        ];
+        await expect(
+          createCandidateDossierSnapshot(runtime, {
+            snapshotId: 'snapshot-cross-candidate',
+            dossier: crossCandidate,
+            evidenceCutoff: EVIDENCE_CUTOFF,
+            createdAt: CREATED_AT,
+          }),
+        ).rejects.toBeInstanceOf(PersistenceError);
 
-      const conflicting = structuredClone(dossierA);
-      firstOrThrow(conflicting.observations).observation =
-        'Conflicting material must not replace the stored observation.';
-      await expect(
-        createCandidateDossierSnapshot(runtime, {
-          scope: TENANT_A_SCOPE,
-          snapshotId: 'snapshot-conflicting',
-          dossier: conflicting,
-          evidenceCutoff: EVIDENCE_CUTOFF,
-          createdAt: CREATED_AT,
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.conflict' });
+        await expect(
+          loadCandidateDossierSnapshot(runtime, {
+            snapshotId: 'snapshot-retry',
+          }),
+        ).resolves.toEqual(dossier);
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
 
-      const snapshots = await ownerSql<readonly { readonly count: number }[]>`
-        select pg_catalog.count(*)::integer as count
-        from gitblocks.candidate_dossier_snapshots
-      `;
-      expect(snapshots[0]?.count).toBe(0);
-    } finally {
-      await Promise.all([
-        closePersistenceClient(runtime),
-        closePersistenceClient(publicWriter),
-      ]);
-    }
-  });
-
-  it('purges bounded expiry roots, preserves live/public/other-tenant data, and deletes one tenant with a safe tombstone', async () => {
-    const runtime = createPersistenceClient(RUNTIME_CONFIG);
-    const publicWriter = createPersistenceClient(PUBLIC_WRITER_CONFIG);
-    const dossierA = createCandidateDossier('candidate-alpha');
-    const dossierB = createCandidateDossier('candidate-beta');
-    const publicDossier = withCandidateId(
-      createCandidateDossier('candidate-alpha'),
-      'candidate-public',
-      'public-retained',
-    );
-    const candidateExpiryScope: StorageScope = {
-      kind: 'tenant',
-      tenantId: TENANT_A,
-      expiresAt: '2026-07-31T00:00:00Z',
-    };
-    const snapshotExpiryScope: StorageScope = {
-      kind: 'tenant',
-      tenantId: TENANT_A,
-      expiresAt: '2026-07-30T00:00:00Z',
-    };
-    try {
-      await createTenant(runtime, {
-        tenantId: TENANT_A,
-        createdAt: CREATED_AT,
-      });
-      await createTenant(runtime, {
-        tenantId: TENANT_B,
-        createdAt: CREATED_AT,
-      });
-      await seedDossier(runtime, candidateExpiryScope, dossierA);
-      await seedDossier(runtime, TENANT_B_SCOPE, dossierB);
-      await seedDossier(publicWriter, PUBLIC_SCOPE, publicDossier);
-      await createCandidateDossierSnapshot(runtime, {
-        scope: snapshotExpiryScope,
-        snapshotId: 'snapshot-expiring',
-        dossier: dossierA,
-        evidenceCutoff: EVIDENCE_CUTOFF,
-        createdAt: CREATED_AT,
-      });
-
-      const firstPurge = await purgeExpiredTenantData(runtime, {
-        tenantId: TENANT_A,
-        expiresBeforeOrAt: '2026-07-30T12:00:00Z',
-        batchSize: 1,
-      });
-      expect(firstPurge).toEqual({
-        deletedSnapshots: 1,
-        deletedCandidates: 0,
-      });
-      const activeBeforeCandidateExpiry = await selectActiveDossierMaterial(
-        runtime,
+    it('applies lifecycle timing, rejects cycles, and returns reference-closed active material', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const original = firstOrThrow(dossier.observations);
+      dossier.unknowns = [
         {
-          scope: candidateExpiryScope,
-          candidateId: dossierA.identity.candidateId,
-          evidenceCutoff: '2026-07-30T12:00:00Z',
-          limit: 100,
+          scope: 'candidate',
+          unknownId: 'unknown-original-support',
+          candidateId: dossier.identity.candidateId,
+          topic: 'runtime-uncertainty',
+          statement: 'The original evidence leaves one bounded unknown.',
+          evidenceIds: [original.evidenceId],
         },
-      );
-      expect(Array.isArray(activeBeforeCandidateExpiry.observations)).toBe(
-        true,
-      );
+      ];
+      const correction = structuredClone(original);
+      correction.evidenceId = 'evidence-correction';
+      correction.observation = 'Corrected immutable public evidence.';
+      try {
+        await seedDossier(runtime, dossier);
+        await createCandidateDossierSnapshot(runtime, {
+          snapshotId: 'snapshot-lifecycle-history',
+          dossier,
+          evidenceCutoff: EVIDENCE_CUTOFF,
+          createdAt: CREATED_AT,
+        });
+        await appendEvidenceObservation(runtime, {
+          observation: correction,
+          createdAt: '2026-07-28T22:01:00Z',
+        });
+        const supersession = {
+          candidateId: dossier.identity.candidateId,
+          supersessionId: 'supersession-correction',
+          supersededEvidenceId: original.evidenceId,
+          supersedingEvidenceId: correction.evidenceId,
+          reasonCode: 'corrected-observation',
+          createdAt: '2026-07-28T22:10:00Z',
+          effectiveAt: '2026-07-28T22:10:00Z',
+        } as const;
+        await recordEvidenceSupersession(runtime, supersession);
+        await expect(
+          recordEvidenceSupersession(runtime, supersession),
+        ).resolves.toBeUndefined();
+        await expect(
+          recordEvidenceSupersession(runtime, {
+            ...supersession,
+            reasonCode: 'changed-reason',
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
 
-      const secondPurge = await purgeExpiredTenantData(runtime, {
-        tenantId: TENANT_A,
-        expiresBeforeOrAt: '2026-08-01T00:00:00Z',
-        batchSize: 1,
-      });
-      expect(secondPurge).toEqual({
-        deletedSnapshots: 0,
-        deletedCandidates: 1,
-      });
+        const before = await selectActiveDossierMaterial(runtime, {
+          candidateId: dossier.identity.candidateId,
+          evidenceCutoff: '2026-07-28T22:09:00Z',
+        });
+        expect(before.observations.map((item) => item.evidenceId)).toEqual([
+          'evidence-alpha',
+          'evidence-correction',
+        ]);
+        expect(before.limitations).toHaveLength(1);
+        expect(before.unknowns).toHaveLength(1);
 
-      const publicRows = await selectActiveDossierMaterial(runtime, {
-        scope: PUBLIC_SCOPE,
-        candidateId: publicDossier.identity.candidateId,
-        evidenceCutoff: '2026-08-01T00:00:00Z',
-        limit: 100,
-      });
-      expect(publicRows.observations).toHaveLength(1);
-      const tenantBRows = await selectActiveDossierMaterial(runtime, {
-        scope: TENANT_B_SCOPE,
-        candidateId: dossierB.identity.candidateId,
-        evidenceCutoff: '2026-08-01T00:00:00Z',
-        limit: 100,
-      });
-      expect(tenantBRows.observations).toHaveLength(1);
+        const afterSupersession = await selectActiveDossierMaterial(runtime, {
+          candidateId: dossier.identity.candidateId,
+          evidenceCutoff: '2026-07-28T22:10:00Z',
+        });
+        expect(
+          afterSupersession.observations.map((item) => item.evidenceId),
+        ).toEqual(['evidence-correction']);
+        expect(afterSupersession.limitations).toEqual([]);
+        expect(afterSupersession.unknowns).toEqual([]);
 
-      await deleteTenantData(runtime, {
-        tenantId: TENANT_B,
-        deletedAt: '2026-08-01T00:01:00Z',
-        reasonCode: 'tenant-request',
-      });
-      await expect(
-        selectActiveDossierMaterial(runtime, {
-          scope: TENANT_B_SCOPE,
-          candidateId: dossierB.identity.candidateId,
-          evidenceCutoff: '2026-08-01T00:02:00Z',
-          limit: 100,
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.not-found' });
-      const activePublic = await selectActiveDossierMaterial(runtime, {
-        scope: PUBLIC_SCOPE,
-        candidateId: publicDossier.identity.candidateId,
-        evidenceCutoff: '2026-08-01T00:02:00Z',
-        limit: 100,
-      });
-      expect(Array.isArray(activePublic.observations)).toBe(true);
+        await recordEvidenceInvalidation(runtime, {
+          candidateId: dossier.identity.candidateId,
+          invalidationId: 'invalidation-correction',
+          evidenceId: correction.evidenceId,
+          reasonCode: 'withdrawn-source',
+          createdAt: '2026-07-28T22:20:00Z',
+          effectiveAt: '2026-07-28T22:20:00Z',
+        });
+        const afterInvalidation = await selectActiveDossierMaterial(runtime, {
+          candidateId: dossier.identity.candidateId,
+          evidenceCutoff: '2026-07-28T22:20:00Z',
+        });
+        expect(afterInvalidation).toEqual({
+          observations: [],
+          limitations: [],
+          unknowns: [],
+        });
 
-      const tombstoneColumns = await ownerSql<
-        readonly { readonly column_name: string }[]
-      >`
-        select column_name
-        from information_schema.columns
-        where table_schema = 'gitblocks'
-          and table_name = 'tenant_tombstones'
-        order by ordinal_position
-      `;
-      expect(tombstoneColumns.map((column) => column.column_name)).toEqual([
-        'tenant_id',
-        'deleted_at',
-        'reason_code',
-      ]);
-      const tombstones = await ownerSql<
-        readonly {
-          readonly tenant_id: string;
-          readonly reason_code: string;
-        }[]
-      >`
-        select tenant_id::text, reason_code
-        from gitblocks.tenant_tombstones
-      `;
-      expect(tombstones).toEqual([
-        { tenant_id: TENANT_B, reason_code: 'tenant-request' },
-      ]);
-    } finally {
-      await Promise.all([
-        closePersistenceClient(runtime),
-        closePersistenceClient(publicWriter),
-      ]);
-    }
-  });
+        await expect(
+          recordEvidenceSupersession(runtime, {
+            candidateId: dossier.identity.candidateId,
+            supersessionId: 'supersession-cycle',
+            supersededEvidenceId: correction.evidenceId,
+            supersedingEvidenceId: original.evidenceId,
+            reasonCode: 'cycle-attempt',
+            createdAt: '2026-07-28T22:30:00Z',
+            effectiveAt: '2026-07-28T22:30:00Z',
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+        await expect(
+          recordEvidenceSupersession(runtime, {
+            candidateId: dossier.identity.candidateId,
+            supersessionId: 'supersession-self',
+            supersededEvidenceId: original.evidenceId,
+            supersedingEvidenceId: original.evidenceId,
+            reasonCode: 'self-attempt',
+            createdAt: '2026-07-28T22:30:00Z',
+            effectiveAt: '2026-07-28T22:30:00Z',
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+        await expect(
+          loadCandidateDossierSnapshot(runtime, {
+            snapshotId: 'snapshot-lifecycle-history',
+          }),
+        ).resolves.toEqual(dossier);
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
 
-  it('keeps SQL-injection sentinels inert and errors free of credentials, SQL, parameters, URLs, payloads, and stacks', async () => {
-    const runtime = createPersistenceClient(RUNTIME_CONFIG);
-    const dossier = createCandidateDossier('candidate-alpha');
-    const sentinel = `inert'); drop schema gitblocks cascade; --`;
-    firstOrThrow(dossier.observations).observation = sentinel;
-    try {
-      await createTenant(runtime, {
-        tenantId: TENANT_A,
-        createdAt: CREATED_AT,
-      });
-      await seedDossier(runtime, TENANT_A_SCOPE, dossier);
-      const active = await selectActiveDossierMaterial(runtime, {
-        scope: TENANT_A_SCOPE,
-        candidateId: dossier.identity.candidateId,
-        evidenceCutoff: CREATED_AT,
-        limit: 100,
-      });
-      expect(active.observations[0]?.observation).toBe(sentinel);
-      const schema = await ownerSql<readonly { readonly count: number }[]>`
+    it('stores five non-pilot public dossiers across every capability family', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const families = [
+        'authorization',
+        'audit-logging',
+        'background-jobs',
+        'rate-limiting',
+        'webhooks',
+      ] as const;
+      try {
+        for (const [index, family] of families.entries()) {
+          const dossier = withCandidateId(
+            createCandidateDossier('candidate-alpha'),
+            `nonpilot-${String(index + 1)}`,
+            `nonpilot-${String(index + 1)}`,
+          );
+          dossier.capabilityFamily = family;
+          await seedDossier(runtime, dossier);
+          const snapshotId = `nonpilot-${String(index + 1)}-snapshot`;
+          await createCandidateDossierSnapshot(runtime, {
+            snapshotId,
+            dossier,
+            evidenceCutoff: EVIDENCE_CUTOFF,
+            createdAt: CREATED_AT,
+          });
+          await expect(
+            loadCandidateDossierSnapshot(runtime, { snapshotId }),
+          ).resolves.toEqual(dossier);
+        }
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
+
+    it('keeps injection inert and maps deadlines, cancellation, and connection failures to safe errors', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const sentinel = `inert'); drop schema gitblocks cascade; --`;
+      firstOrThrow(dossier.observations).observation = sentinel;
+      try {
+        await seedDossier(runtime, dossier);
+        const active = await selectActiveDossierMaterial(runtime, {
+          candidateId: dossier.identity.candidateId,
+          evidenceCutoff: CREATED_AT,
+        });
+        expect(active.observations[0]?.observation).toBe(sentinel);
+        const schema = await ownerSql<readonly { readonly count: number }[]>`
         select pg_catalog.count(*)::integer as count
         from pg_catalog.pg_namespace
         where nspname = 'gitblocks'
       `;
-      expect(schema[0]?.count).toBe(1);
+        expect(schema[0]?.count).toBe(1);
 
-      const badClient = createPersistenceClient({
-        ...RUNTIME_CONFIG,
-        password: 'credential-sentinel',
-        connectTimeoutMilliseconds: 250,
-      });
-      let caught: unknown;
-      try {
-        await selectActiveDossierMaterial(badClient, {
-          scope: {
-            kind: 'tenant',
-            tenantId: TENANT_A,
-            expiresAt: TENANT_EXPIRY,
-          },
-          candidateId: dossier.identity.candidateId,
-          evidenceCutoff: CREATED_AT,
-          limit: 100,
+        let releaseLock: (() => void) | undefined;
+        let announceLock: (() => void) | undefined;
+        const locked = new Promise<void>((resolve) => {
+          announceLock = resolve;
         });
-      } catch (error) {
-        caught = error;
-      } finally {
-        await closePersistenceClient(badClient);
-      }
-      expect(caught).toMatchObject({
-        code: 'persistence.connection',
-        stack: undefined,
-      });
-      const serialized = JSON.stringify(caught);
-      expect(serialized).not.toContain('credential-sentinel');
-      expect(serialized).not.toContain(sentinel);
-      expect(serialized).not.toContain('https://');
-      expect(serialized).not.toContain('select ');
-    } finally {
-      await closePersistenceClient(runtime);
-    }
-  });
-
-  it('maps server lock deadlines and caller cancellation to one safe deadline error', async () => {
-    const runtime = createPersistenceClient(RUNTIME_CONFIG);
-    const dossier = createCandidateDossier('candidate-alpha');
-    try {
-      await createTenant(runtime, {
-        tenantId: TENANT_A,
-        createdAt: CREATED_AT,
-      });
-      await putCatalogCandidate(runtime, {
-        scope: TENANT_A_SCOPE,
-        identity: dossier.identity,
-        createdAt: CREATED_AT,
-      });
-
-      let releaseLock: (() => void) | undefined;
-      let announceLock: (() => void) | undefined;
-      const locked = new Promise<void>((resolve) => {
-        announceLock = resolve;
-      });
-      const released = new Promise<void>((resolve) => {
-        releaseLock = resolve;
-      });
-      const lockHolder = ownerSql.begin(async (transaction) => {
-        await transaction`
-          select 1
-          from gitblocks.catalog_candidates
-          where scope_key = ${`tenant:${TENANT_A}`}
-            and candidate_id = ${dossier.identity.candidateId}
-          for update
+        const released = new Promise<void>((resolve) => {
+          releaseLock = resolve;
+        });
+        const lockHolder = ownerSql.begin(async (transaction) => {
+          await transaction`
+          select pg_catalog.pg_advisory_xact_lock(
+            pg_catalog.hashtextextended(
+              ${dossier.identity.candidateId},
+              ${CANDIDATE_LOCK_SEED}
+            )
+          )
         `;
-        announceLock?.();
-        await released;
-      });
-      await locked;
+          announceLock?.();
+          await released;
+        });
+        await locked;
+        await expect(
+          setCandidateCapabilityFamilies(
+            runtime,
+            {
+              candidateId: dossier.identity.candidateId,
+              capabilityFamilies: ['authorization'],
+            },
+            { lockTimeoutMilliseconds: 25 },
+          ),
+        ).rejects.toMatchObject({ code: 'persistence.deadline' });
 
-      await expect(
-        setCandidateCapabilityFamilies(
+        const cancellationController = new AbortController();
+        const cancellation = setCandidateCapabilityFamilies(
           runtime,
           {
-            scope: TENANT_A_SCOPE,
             candidateId: dossier.identity.candidateId,
             capabilityFamilies: ['authorization'],
           },
-          { lockTimeoutMilliseconds: 25 },
-        ),
-      ).rejects.toMatchObject({ code: 'persistence.deadline' });
-
-      const controller = new AbortController();
-      controller.abort();
-      await expect(
-        setCandidateCapabilityFamilies(
-          runtime,
           {
-            scope: TENANT_A_SCOPE,
-            candidateId: dossier.identity.candidateId,
-            capabilityFamilies: ['authorization'],
+            signal: cancellationController.signal,
+            lockTimeoutMilliseconds: 5_000,
           },
-          { signal: controller.signal },
-        ),
-      ).rejects.toMatchObject({ code: 'persistence.deadline' });
+        );
+        await new Promise((resolve) => setTimeout(resolve, 25));
+        cancellationController.abort();
+        await expect(cancellation).rejects.toMatchObject({
+          code: 'persistence.deadline',
+        });
+        releaseLock?.();
+        await lockHolder;
 
-      releaseLock?.();
-      await lockHolder;
-    } finally {
-      await closePersistenceClient(runtime);
-    }
-  });
+        const preAbortedController = new AbortController();
+        preAbortedController.abort();
+        await expect(
+          selectActiveDossierMaterial(
+            runtime,
+            {
+              candidateId: dossier.identity.candidateId,
+              evidenceCutoff: CREATED_AT,
+            },
+            { signal: preAbortedController.signal },
+          ),
+        ).rejects.toMatchObject({ code: 'persistence.deadline' });
 
-  it('uses indexes for active-as-of and expiry paths without unbounded batches', async () => {
-    const indexNames = await ownerSql<
-      readonly { readonly indexname: string }[]
-    >`
-      select indexname
-      from pg_catalog.pg_indexes
-      where schemaname = 'gitblocks'
-      order by indexname
-    `;
-    expect(indexNames.map((index) => index.indexname)).toEqual(
-      expect.arrayContaining([
-        'evidence_observations_active_page',
-        'evidence_observations_tenant_expiry',
-        'candidate_dossier_snapshots_tenant_expiry',
-        'catalog_candidates_tenant_expiry',
-      ]),
-    );
+        const badClient = createPersistenceClient({
+          ...RUNTIME_CONFIG,
+          password: 'credential-sentinel',
+          connectTimeoutMilliseconds: 250,
+        });
+        let caught: unknown;
+        try {
+          await selectActiveDossierMaterial(badClient, {
+            candidateId: dossier.identity.candidateId,
+            evidenceCutoff: CREATED_AT,
+          });
+        } catch (error) {
+          caught = error;
+        } finally {
+          await closePersistenceClient(badClient);
+        }
+        expect(caught).toMatchObject({
+          code: 'persistence.connection',
+          stack: undefined,
+        });
+        const serialized = JSON.stringify(caught);
+        expect(serialized).not.toContain('credential-sentinel');
+        expect(serialized).not.toContain(sentinel);
+        expect(serialized).not.toContain('https://');
+        expect(serialized).not.toContain('select ');
 
-    const runtime = createPersistenceClient(RUNTIME_CONFIG);
-    try {
-      await expect(
-        purgeExpiredTenantData(runtime, {
-          tenantId: TENANT_A,
-          expiresBeforeOrAt: CREATED_AT,
-          batchSize: 501,
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
-      await expect(
-        selectActiveDossierMaterial(runtime, {
-          scope: TENANT_A_SCOPE,
-          candidateId: 'candidate-alpha',
-          evidenceCutoff: CREATED_AT,
-          limit: 101,
-        }),
-      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
-    } finally {
-      await closePersistenceClient(runtime);
-    }
-  });
-});
+        const operationsSource = await readFile(
+          new URL('../../src/operations.ts', import.meta.url),
+          'utf8',
+        );
+        expect(operationsSource).not.toMatch(
+          /\bexec\b|\bspawn\b|\bdynamic import\b|\.unsafe\b/iu,
+        );
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
+  },
+);
 
 async function resetDatabase(): Promise<void> {
   await dropGitBlocksSchema();
@@ -1137,81 +984,32 @@ async function dropGitBlocksSchema(): Promise<void> {
   await ownerSql.unsafe('drop schema if exists gitblocks cascade');
 }
 
-async function ensureRuntimeLogins(): Promise<void> {
-  await ownerSql.unsafe(`
-    do $gitblocks_test_roles$
-    begin
-      if not exists (
-        select 1
-        from pg_catalog.pg_roles
-        where rolname = 'gitblocks_runtime_test'
-      ) then
-        create role gitblocks_runtime_test
-          login
-          password 'runtime-test-only'
-          nosuperuser
-          nocreatedb
-          nocreaterole
-          noreplication
-          nobypassrls
-          in role gitblocks_runtime;
-      else
-        grant gitblocks_runtime to gitblocks_runtime_test;
-      end if;
-      if not exists (
-        select 1
-        from pg_catalog.pg_roles
-        where rolname = 'gitblocks_public_test'
-      ) then
-        create role gitblocks_public_test
-          login
-          password 'public-test-only'
-          nosuperuser
-          nocreatedb
-          nocreaterole
-          noreplication
-          nobypassrls
-          in role gitblocks_public_writer;
-      else
-        grant gitblocks_public_writer to gitblocks_public_test;
-      end if;
-    end
-    $gitblocks_test_roles$;
-  `);
-}
-
 async function seedDossier(
   client: PersistenceClient,
-  scope: StorageScope,
   dossier: CandidateDossierV1,
 ): Promise<void> {
   await putCatalogCandidate(client, {
-    scope,
     identity: dossier.identity,
     createdAt: CREATED_AT,
   });
   await setCandidateCapabilityFamilies(client, {
-    scope,
     candidateId: dossier.identity.candidateId,
     capabilityFamilies: [dossier.capabilityFamily],
   });
   for (const observation of dossier.observations) {
     await appendEvidenceObservation(client, {
-      scope,
       observation,
       createdAt: CREATED_AT,
     });
   }
   for (const limitation of dossier.limitations) {
     await appendCandidateLimitation(client, {
-      scope,
       limitation,
       createdAt: CREATED_AT,
     });
   }
   for (const unknown of dossier.unknowns) {
     await appendCandidateUnknown(client, {
-      scope,
       unknown,
       createdAt: CREATED_AT,
     });
@@ -1270,7 +1068,7 @@ function createProvenanceDossier(): MutableValue<CandidateDossierV1> {
       kind: 'approved-validation',
       sourceType: 'approved-validation',
       validationReferenceId: 'validation-alpha',
-      scope: 'tenant-validation',
+      scope: 'bounded-validation',
       validatedAt: '2026-07-28T20:30:00Z',
     }),
   ];
@@ -1341,6 +1139,25 @@ function withCandidateId(
     );
   }
   return dossier;
+}
+
+async function membershipVersions(
+  candidateId: string,
+): Promise<Readonly<Record<string, string>>> {
+  const rows = await ownerSql<
+    readonly {
+      readonly capability_family: string;
+      readonly version: string;
+    }[]
+  >`
+    select capability_family, xmin::text as version
+    from gitblocks.candidate_capability_families
+    where candidate_id = ${candidateId}
+    order by capability_family
+  `;
+  return Object.fromEntries(
+    rows.map((row) => [row.capability_family, row.version]),
+  );
 }
 
 function directSql(config: PersistenceClientConfig): Sql {

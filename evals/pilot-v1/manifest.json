@@ -89,7 +89,7 @@
       "caseId": "webhooks-mixed-ingress-prisma",
       "capabilityFamily": "webhooks",
       "casePath": "cases/webhooks-mixed-ingress-prisma.json",
-      "caseSha256": "fa1b1d842a4c956f9b93385740e56fa4c60b87ada430f108e64bce8bdd1a6db7",
+      "caseSha256": "917626f5e1ab0ad19b6378ac03f537a0ab5ad9e74171d7dacd4ae580a132c252",
       "evidencePath": "evidence/webhooks-mixed-ingress-prisma.json",
       "evidenceSha256": "d239db3747bed76db8eca0a88227b4a5a17ee0e1568879ec70ad94a7288d0382",
       "goldPath": "gold/webhooks-mixed-ingress-prisma.json",

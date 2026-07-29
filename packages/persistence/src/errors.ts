@@ -5,9 +5,9 @@ export type PersistenceErrorCode =
   | 'persistence.corrupt-record'
   | 'persistence.deadline'
   | 'persistence.invalid-input'
-  | 'persistence.isolation'
   | 'persistence.migration-drift'
   | 'persistence.not-found'
+  | 'persistence.result-limit'
   | 'persistence.unsupported-version';
 
 const ERROR_MESSAGES: Readonly<Record<PersistenceErrorCode, string>> = {
@@ -17,10 +17,10 @@ const ERROR_MESSAGES: Readonly<Record<PersistenceErrorCode, string>> = {
   'persistence.corrupt-record': 'Persisted state failed validation.',
   'persistence.deadline': 'Persistence operation exceeded its deadline.',
   'persistence.invalid-input': 'Persistence input is invalid.',
-  'persistence.isolation': 'Persistence scope is not permitted.',
   'persistence.migration-drift':
     'Persistence migration history does not match.',
   'persistence.not-found': 'Persistence record was not found.',
+  'persistence.result-limit': 'Persistence result exceeds its supported bound.',
   'persistence.unsupported-version':
     'PostgreSQL server version is not supported.',
 };
@@ -62,7 +62,7 @@ export function normalizePersistenceError(error: unknown): PersistenceError {
     case '22023':
       return persistenceError('persistence.invalid-input');
     case '42501':
-      return persistenceError('persistence.isolation');
+      return persistenceError('persistence.connection');
     case '55P03':
     case '57014':
       return persistenceError('persistence.deadline');

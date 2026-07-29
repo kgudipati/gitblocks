@@ -164,7 +164,11 @@ export async function migrateDatabase(
 
 export async function checkDatabase(config: PersistenceClientConfig): Promise<{
   readonly verification: MigrationVerification;
-  readonly forcedRlsTables: number;
+  readonly productTables: number;
+  readonly rowSecurityPolicies: number;
+  readonly schemaFunctions: number;
+  readonly triggers: number;
+  readonly requiredIndexes: number;
 }> {
   const client = createPersistenceClient(config);
   let verification: MigrationVerification;
@@ -189,13 +193,13 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
   try {
     const tables = await sql<
       readonly {
+        readonly relname: string;
         readonly rowsecurity: boolean;
-        readonly forcerowsecurity: boolean;
       }[]
     >`
       select
-        class.relrowsecurity as rowsecurity,
-        class.relforcerowsecurity as forcerowsecurity
+        class.relname,
+        class.relrowsecurity as rowsecurity
       from pg_catalog.pg_class as class
       join pg_catalog.pg_namespace as namespace
         on namespace.oid = class.relnamespace
@@ -203,30 +207,108 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
         and class.relkind = 'r'
         and class.relname <> 'schema_migrations'
     `;
-    if (
-      tables.length !== 15 ||
-      tables.some((table) => !table.rowsecurity || !table.forcerowsecurity)
-    ) {
-      throw new Error('PostgreSQL row-isolation catalog check failed.');
+    if (tables.length !== 13 || tables.some((table) => table.rowsecurity)) {
+      throw new Error('PostgreSQL public-table catalog check failed.');
     }
     const roles = await sql<
       readonly {
         readonly rolname: string;
         readonly rolsuper: boolean;
         readonly rolbypassrls: boolean;
+        readonly rolcanlogin: boolean;
+        readonly rolcreatedb: boolean;
+        readonly rolcreaterole: boolean;
+        readonly rolreplication: boolean;
       }[]
     >`
-      select rolname, rolsuper, rolbypassrls
+      select
+        rolname,
+        rolsuper,
+        rolbypassrls,
+        rolcanlogin,
+        rolcreatedb,
+        rolcreaterole,
+        rolreplication
       from pg_catalog.pg_roles
-      where rolname in ('gitblocks_runtime', 'gitblocks_public_writer')
+      where rolname = 'gitblocks_persistence'
     `;
     if (
-      roles.length !== 2 ||
-      roles.some((role) => role.rolsuper || role.rolbypassrls)
+      roles.length !== 1 ||
+      roles.some(
+        (role) =>
+          role.rolsuper ||
+          role.rolbypassrls ||
+          role.rolcanlogin ||
+          role.rolcreatedb ||
+          role.rolcreaterole ||
+          role.rolreplication,
+      )
     ) {
       throw new Error('PostgreSQL runtime-role catalog check failed.');
     }
-    return { verification, forcedRlsTables: tables.length };
+    const policies = await sql<readonly { readonly count: number }[]>`
+      select pg_catalog.count(*)::integer as count
+      from pg_catalog.pg_policy as policy
+      join pg_catalog.pg_class as class
+        on class.oid = policy.polrelid
+      join pg_catalog.pg_namespace as namespace
+        on namespace.oid = class.relnamespace
+      where namespace.nspname = 'gitblocks'
+    `;
+    const functions = await sql<readonly { readonly count: number }[]>`
+      select pg_catalog.count(*)::integer as count
+      from pg_catalog.pg_proc as procedure
+      join pg_catalog.pg_namespace as namespace
+        on namespace.oid = procedure.pronamespace
+      where namespace.nspname = 'gitblocks'
+    `;
+    const triggers = await sql<readonly { readonly count: number }[]>`
+      select pg_catalog.count(*)::integer as count
+      from pg_catalog.pg_trigger as trigger
+      join pg_catalog.pg_class as class
+        on class.oid = trigger.tgrelid
+      join pg_catalog.pg_namespace as namespace
+        on namespace.oid = class.relnamespace
+      where namespace.nspname = 'gitblocks'
+        and not trigger.tgisinternal
+    `;
+    const requiredIndexNames = [
+      'catalog_candidates_repository_identity',
+      'catalog_candidates_package_identity',
+      'evidence_observations_active_world',
+      'candidate_limitations_active_world',
+      'candidate_material_unknowns_active_world',
+      'evidence_supersessions_active',
+      'evidence_supersessions_cycle',
+      'evidence_invalidations_active',
+      'candidate_dossier_snapshots_history',
+    ] as const;
+    const indexes = await sql<readonly { readonly indexname: string }[]>`
+      select indexname
+      from pg_catalog.pg_indexes
+      where schemaname = 'gitblocks'
+        and indexname =
+          any(${sql.array([...requiredIndexNames])}::text[])
+    `;
+    const policyCount = policies[0]?.count;
+    const functionCount = functions[0]?.count;
+    const triggerCount = triggers[0]?.count;
+    if (
+      policyCount !== 0 ||
+      functionCount !== 2 ||
+      triggerCount !== 13 ||
+      indexes.length !== requiredIndexNames.length
+    ) {
+      throw new Error('PostgreSQL public-schema invariant check failed.');
+    }
+    return {
+      verification,
+      productTables: tables.length,
+      rowSecurityPolicies: policyCount,
+      schemaFunctions: functionCount,
+      triggers: triggerCount,
+      requiredIndexes: indexes.length,
+    };
   } finally {
     await sql.end({ timeout: 5 });
   }

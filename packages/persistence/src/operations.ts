@@ -21,75 +21,45 @@ import type {
   CandidateLimitationV1,
   CandidateUnknownV1,
   CreateCandidateDossierSnapshotCommand,
-  CreateTenantCommand,
-  DeleteTenantDataCommand,
   LoadCandidateDossierSnapshotCommand,
   OperationControl,
-  PurgeExpiredTenantDataCommand,
-  PurgeExpiredTenantDataResult,
   PutCatalogCandidateCommand,
   RecordEvidenceInvalidationCommand,
   RecordEvidenceSupersessionCommand,
   SelectActiveDossierMaterialCommand,
   SetCandidateCapabilityFamiliesCommand,
-  StorageScope,
 } from './types.ts';
 import {
+  normalizeStoredTimestamp,
+  normalizeTimestamp,
   validateCapabilityFamilies,
-  validateChronology,
   validateDossier,
   validateIdentity,
-  validateIntegerBound,
   validateReasonCode,
-  validateScope,
   validateStableId,
   validateStoredDossier,
-  validateTimestamp,
-  validateUuid,
 } from './validation.ts';
 
+const MAX_ACTIVE_OBSERVATIONS = 100;
+const MAX_ACTIVE_LIMITATIONS = 40;
+const MAX_ACTIVE_UNKNOWNS = 40;
+const CANDIDATE_LOCK_SEED = 44392817;
+
 interface DigestRow {
-  readonly canonical_digest: string;
+  readonly record_digest: string;
 }
 
-interface CandidateRow {
-  readonly canonical_payload: unknown;
-  readonly canonical_digest: string;
-}
-
-interface PayloadRow<Value = unknown> {
+interface StoredRecordRow<Value = unknown> {
   readonly canonical_payload: Value;
-  readonly canonical_digest: string;
+  readonly record_digest: string;
+  readonly created_at: unknown;
 }
 
-export async function createTenant(
-  client: PersistenceClient,
-  command: CreateTenantCommand,
-  control?: OperationControl,
-): Promise<void> {
-  validateUuid(command.tenantId);
-  validateTimestamp(command.createdAt);
-  const scope: StorageScope = {
-    kind: 'tenant',
-    tenantId: command.tenantId,
-    expiresAt: new Date(Date.parse(command.createdAt) + 1).toISOString(),
-  };
-  await withTransaction(
-    client,
-    scope,
-    control,
-    'read-write',
-    async (transaction, signal) => {
-      await executePending(
-        transaction`
-          insert into gitblocks.tenants (tenant_id, created_at)
-          values (${command.tenantId}::uuid, ${command.createdAt}::timestamptz)
-          on conflict (tenant_id) do nothing
-        `,
-        signal,
-      );
-    },
-  );
+interface EvidenceTimestampColumns {
+  readonly publishedAt: string | null;
+  readonly collectedAt: string | null;
+  readonly validatedAt: string | null;
+  readonly freshnessAsOf: string;
 }
 
 export async function putCatalogCandidate(
@@ -98,44 +68,38 @@ export async function putCatalogCandidate(
   control?: OperationControl,
 ): Promise<void> {
   const identity = validateIdentity(command.identity);
-  const scope = validateScopeWithCreation(command.scope, command.createdAt);
-  const canonical = canonicalizeJson(identity);
+  const createdAt = normalizeTimestamp(command.createdAt);
+  const payload = canonicalizeJson(identity);
+  const recordDigest = digestRecord({ createdAt, identity });
   await withTransaction(
     client,
-    command.scope,
     control,
     'read-write',
     async (transaction, signal) => {
       const inserted = await executePending<readonly DigestRow[]>(
         transaction`
           insert into gitblocks.catalog_candidates (
-            scope,
-            tenant_id,
             candidate_id,
             display_name,
             repository_owner,
             repository_name,
             package_name,
             canonical_payload,
-            canonical_digest,
-            created_at,
-            expires_at
+            record_digest,
+            created_at
           )
           values (
-            ${scope.scope},
-            ${scope.tenantId}::uuid,
             ${identity.candidateId},
             ${identity.displayName},
             ${identity.repository.owner},
             ${identity.repository.name},
             ${identity.package?.name ?? null},
-            ${transaction.json(canonical.value as JSONValue)},
-            ${canonical.digest},
-            ${command.createdAt}::timestamptz,
-            ${scope.expiresAt}::timestamptz
+            ${transaction.json(payload.value as JSONValue)},
+            ${recordDigest},
+            ${createdAt}::timestamptz
           )
           on conflict do nothing
-          returning canonical_digest
+          returning record_digest
         `,
         signal,
       );
@@ -144,14 +108,13 @@ export async function putCatalogCandidate(
       }
       const existing = await executePending<readonly DigestRow[]>(
         transaction`
-          select canonical_digest
+          select record_digest
           from gitblocks.catalog_candidates
-          where scope_key = ${scope.scopeKey}
-            and candidate_id = ${identity.candidateId}
+          where candidate_id = ${identity.candidateId}
         `,
         signal,
       );
-      requireSameDigest(existing, canonical.digest);
+      requireSameDigest(existing, recordDigest);
     },
   );
 }
@@ -162,19 +125,16 @@ export async function setCandidateCapabilityFamilies(
   control?: OperationControl,
 ): Promise<void> {
   validateStableId(command.candidateId);
-  const scope = validateScope(command.scope);
   await withTransaction(
     client,
-    command.scope,
     control,
     'read-write',
     async (transaction, signal) => {
+      await serializeCandidate(transaction, command.candidateId, signal);
       const identity = await loadCandidateIdentity(
         transaction,
-        scope.scopeKey,
         command.candidateId,
         signal,
-        'update',
       );
       const families = validateCapabilityFamilies(
         identity,
@@ -182,33 +142,31 @@ export async function setCandidateCapabilityFamilies(
       );
       await executePending(
         transaction`
-          delete from gitblocks.candidate_capability_families
-          where scope_key = ${scope.scopeKey}
-            and candidate_id = ${command.candidateId}
+          insert into gitblocks.candidate_capability_families (
+            candidate_id,
+            capability_family
+          )
+          select
+            ${command.candidateId},
+            requested.capability_family
+          from unnest(
+            ${transaction.array([...families])}::text[]
+          ) as requested(capability_family)
+          on conflict (candidate_id, capability_family) do nothing
         `,
         signal,
       );
-      for (const family of families) {
-        await executePending(
-          transaction`
-            insert into gitblocks.candidate_capability_families (
-              scope,
-              tenant_id,
-              candidate_id,
-              capability_family,
-              expires_at
+      await executePending(
+        transaction`
+          delete from gitblocks.candidate_capability_families
+          where candidate_id = ${command.candidateId}
+            and not (
+              capability_family =
+                any(${transaction.array([...families])}::text[])
             )
-            values (
-              ${scope.scope},
-              ${scope.tenantId}::uuid,
-              ${command.candidateId},
-              ${family},
-              ${scope.expiresAt}::timestamptz
-            )
-          `,
-          signal,
-        );
-      }
+        `,
+        signal,
+      );
     },
   );
 }
@@ -218,68 +176,58 @@ export async function appendEvidenceObservation(
   command: AppendEvidenceObservationCommand,
   control?: OperationControl,
 ): Promise<void> {
-  const scope = validateScopeWithCreation(command.scope, command.createdAt);
-  const observation = command.observation;
-  validateStableId(observation.evidenceId);
-  validateStableId(observation.candidateId);
+  const createdAt = normalizeTimestamp(command.createdAt);
+  validateStableId(command.observation.evidenceId);
+  validateStableId(command.observation.candidateId);
   await withTransaction(
     client,
-    command.scope,
     control,
     'read-write',
     async (transaction, signal) => {
       const identity = await loadCandidateIdentity(
         transaction,
-        scope.scopeKey,
-        observation.candidateId,
+        command.observation.candidateId,
         signal,
-        'share',
       );
-      const validated = validateDossier({
-        contractVersion: '1.0.0',
+      const observation = validateSingleObservation(
         identity,
-        capabilityFamily: 'authorization',
-        versionScope: null,
-        observations: [observation],
-        limitations: [],
-        unknowns: [],
-      }).observations[0];
-      if (validated === undefined) {
-        throw persistenceError('persistence.invalid-input');
-      }
-      const canonical = canonicalizeJson(validated);
+        command.observation,
+      );
+      const timestamps = evidenceTimestamps(observation);
+      const payload = canonicalizeJson(observation);
+      const recordDigest = digestRecord({ createdAt, observation });
       const inserted = await executePending<readonly DigestRow[]>(
         transaction`
           insert into gitblocks.evidence_observations (
-            scope,
-            tenant_id,
-            candidate_id,
             evidence_id,
+            candidate_id,
             topic,
             dimension,
             provenance_kind,
+            published_at,
+            collected_at,
+            validated_at,
             freshness_as_of,
             canonical_payload,
-            canonical_digest,
-            created_at,
-            expires_at
+            record_digest,
+            created_at
           )
           values (
-            ${scope.scope},
-            ${scope.tenantId}::uuid,
-            ${validated.candidateId},
-            ${validated.evidenceId},
-            ${validated.topic},
-            ${validated.dimension},
-            ${validated.source.kind},
-            ${validated.freshness.asOf}::timestamptz,
-            ${transaction.json(canonical.value as JSONValue)},
-            ${canonical.digest},
-            ${command.createdAt}::timestamptz,
-            ${scope.expiresAt}::timestamptz
+            ${observation.evidenceId},
+            ${observation.candidateId},
+            ${observation.topic},
+            ${observation.dimension},
+            ${observation.source.kind},
+            ${timestamps.publishedAt}::timestamptz,
+            ${timestamps.collectedAt}::timestamptz,
+            ${timestamps.validatedAt}::timestamptz,
+            ${timestamps.freshnessAsOf}::timestamptz,
+            ${transaction.json(payload.value as JSONValue)},
+            ${recordDigest},
+            ${createdAt}::timestamptz
           )
           on conflict do nothing
-          returning canonical_digest
+          returning record_digest
         `,
         signal,
       );
@@ -288,14 +236,13 @@ export async function appendEvidenceObservation(
       }
       const existing = await executePending<readonly DigestRow[]>(
         transaction`
-          select canonical_digest
+          select record_digest
           from gitblocks.evidence_observations
-          where scope_key = ${scope.scopeKey}
-            and evidence_id = ${validated.evidenceId}
+          where evidence_id = ${observation.evidenceId}
         `,
         signal,
       );
-      requireSameDigest(existing, canonical.digest);
+      requireSameDigest(existing, recordDigest);
     },
   );
 }
@@ -305,102 +252,81 @@ export async function appendCandidateLimitation(
   command: AppendCandidateLimitationCommand,
   control?: OperationControl,
 ): Promise<void> {
-  const scope = validateScopeWithCreation(command.scope, command.createdAt);
+  const createdAt = normalizeTimestamp(command.createdAt);
   validateStableId(command.limitation.limitationId);
   validateStableId(command.limitation.candidateId);
   await withTransaction(
     client,
-    command.scope,
     control,
     'read-write',
     async (transaction, signal) => {
       const identity = await loadCandidateIdentity(
         transaction,
-        scope.scopeKey,
         command.limitation.candidateId,
         signal,
-        'share',
       );
       const observations = await loadEvidenceByIds(
         transaction,
-        scope.scopeKey,
         command.limitation.candidateId,
         command.limitation.evidenceIds,
         signal,
       );
-      const limitation = validateDossier({
-        contractVersion: '1.0.0',
+      const limitation = validateSingleLimitation(
         identity,
-        capabilityFamily: 'authorization',
-        versionScope: null,
         observations,
-        limitations: [command.limitation],
-        unknowns: [],
-      }).limitations[0];
-      if (limitation === undefined) {
-        throw persistenceError('persistence.invalid-input');
-      }
-      const canonical = canonicalizeJson(limitation);
+        command.limitation,
+      );
+      const payload = canonicalizeJson(limitation);
+      const recordDigest = digestRecord({ createdAt, limitation });
       const inserted = await executePending<readonly DigestRow[]>(
         transaction`
           insert into gitblocks.candidate_limitations (
-            scope,
-            tenant_id,
-            candidate_id,
             limitation_id,
+            candidate_id,
             limitation_code,
             canonical_payload,
-            canonical_digest,
-            created_at,
-            expires_at
+            record_digest,
+            created_at
           )
           values (
-            ${scope.scope},
-            ${scope.tenantId}::uuid,
-            ${limitation.candidateId},
             ${limitation.limitationId},
+            ${limitation.candidateId},
             ${limitation.limitationCode},
-            ${transaction.json(canonical.value as JSONValue)},
-            ${canonical.digest},
-            ${command.createdAt}::timestamptz,
-            ${scope.expiresAt}::timestamptz
+            ${transaction.json(payload.value as JSONValue)},
+            ${recordDigest},
+            ${createdAt}::timestamptz
           )
           on conflict do nothing
-          returning canonical_digest
+          returning record_digest
         `,
         signal,
       );
       if (inserted.length === 0) {
         const existing = await executePending<readonly DigestRow[]>(
           transaction`
-            select canonical_digest
+            select record_digest
             from gitblocks.candidate_limitations
-            where scope_key = ${scope.scopeKey}
-              and limitation_id = ${limitation.limitationId}
+            where limitation_id = ${limitation.limitationId}
           `,
           signal,
         );
-        requireSameDigest(existing, canonical.digest);
+        requireSameDigest(existing, recordDigest);
         return;
       }
-      for (const evidenceId of limitation.evidenceIds) {
+      for (const [ordinal, evidenceId] of limitation.evidenceIds.entries()) {
         await executePending(
           transaction`
             insert into gitblocks.candidate_limitation_evidence (
-              scope,
-              tenant_id,
-              candidate_id,
               limitation_id,
+              candidate_id,
               evidence_id,
-              expires_at
+              ordinal
             )
             values (
-              ${scope.scope},
-              ${scope.tenantId}::uuid,
-              ${limitation.candidateId},
               ${limitation.limitationId},
+              ${limitation.candidateId},
               ${evidenceId},
-              ${scope.expiresAt}::timestamptz
+              ${ordinal}
             )
           `,
           signal,
@@ -415,102 +341,81 @@ export async function appendCandidateUnknown(
   command: AppendCandidateUnknownCommand,
   control?: OperationControl,
 ): Promise<void> {
-  const scope = validateScopeWithCreation(command.scope, command.createdAt);
+  const createdAt = normalizeTimestamp(command.createdAt);
   validateStableId(command.unknown.unknownId);
   validateStableId(command.unknown.candidateId);
   await withTransaction(
     client,
-    command.scope,
     control,
     'read-write',
     async (transaction, signal) => {
       const identity = await loadCandidateIdentity(
         transaction,
-        scope.scopeKey,
         command.unknown.candidateId,
         signal,
-        'share',
       );
       const observations = await loadEvidenceByIds(
         transaction,
-        scope.scopeKey,
         command.unknown.candidateId,
         command.unknown.evidenceIds,
         signal,
       );
-      const unknown = validateDossier({
-        contractVersion: '1.0.0',
+      const unknown = validateSingleUnknown(
         identity,
-        capabilityFamily: 'authorization',
-        versionScope: null,
         observations,
-        limitations: [],
-        unknowns: [command.unknown],
-      }).unknowns[0];
-      if (unknown === undefined) {
-        throw persistenceError('persistence.invalid-input');
-      }
-      const canonical = canonicalizeJson(unknown);
+        command.unknown,
+      );
+      const payload = canonicalizeJson(unknown);
+      const recordDigest = digestRecord({ createdAt, unknown });
       const inserted = await executePending<readonly DigestRow[]>(
         transaction`
           insert into gitblocks.candidate_material_unknowns (
-            scope,
-            tenant_id,
-            candidate_id,
             unknown_id,
+            candidate_id,
             topic,
             canonical_payload,
-            canonical_digest,
-            created_at,
-            expires_at
+            record_digest,
+            created_at
           )
           values (
-            ${scope.scope},
-            ${scope.tenantId}::uuid,
-            ${unknown.candidateId},
             ${unknown.unknownId},
+            ${unknown.candidateId},
             ${unknown.topic},
-            ${transaction.json(canonical.value as JSONValue)},
-            ${canonical.digest},
-            ${command.createdAt}::timestamptz,
-            ${scope.expiresAt}::timestamptz
+            ${transaction.json(payload.value as JSONValue)},
+            ${recordDigest},
+            ${createdAt}::timestamptz
           )
           on conflict do nothing
-          returning canonical_digest
+          returning record_digest
         `,
         signal,
       );
       if (inserted.length === 0) {
         const existing = await executePending<readonly DigestRow[]>(
           transaction`
-            select canonical_digest
+            select record_digest
             from gitblocks.candidate_material_unknowns
-            where scope_key = ${scope.scopeKey}
-              and unknown_id = ${unknown.unknownId}
+            where unknown_id = ${unknown.unknownId}
           `,
           signal,
         );
-        requireSameDigest(existing, canonical.digest);
+        requireSameDigest(existing, recordDigest);
         return;
       }
-      for (const evidenceId of unknown.evidenceIds) {
+      for (const [ordinal, evidenceId] of unknown.evidenceIds.entries()) {
         await executePending(
           transaction`
             insert into gitblocks.candidate_unknown_evidence (
-              scope,
-              tenant_id,
-              candidate_id,
               unknown_id,
+              candidate_id,
               evidence_id,
-              expires_at
+              ordinal
             )
             values (
-              ${scope.scope},
-              ${scope.tenantId}::uuid,
-              ${unknown.candidateId},
               ${unknown.unknownId},
+              ${unknown.candidateId},
               ${evidenceId},
-              ${scope.expiresAt}::timestamptz
+              ${ordinal}
             )
           `,
           signal,
@@ -525,64 +430,54 @@ export async function recordEvidenceSupersession(
   command: RecordEvidenceSupersessionCommand,
   control?: OperationControl,
 ): Promise<void> {
-  const scope = validateLifecycleCommand(command);
+  const normalized = validateLifecycleCommand(command);
   validateStableId(command.supersessionId);
   validateStableId(command.supersededEvidenceId);
   validateStableId(command.supersedingEvidenceId);
   if (command.supersededEvidenceId === command.supersedingEvidenceId) {
     throw persistenceError('persistence.invalid-input');
   }
-  const canonical = canonicalizeJson({
+  const record = {
     candidateId: command.candidateId,
-    createdAt: command.createdAt,
-    effectiveAt: command.effectiveAt,
+    createdAt: normalized.createdAt,
+    effectiveAt: normalized.effectiveAt,
     reasonCode: command.reasonCode,
     supersededEvidenceId: command.supersededEvidenceId,
     supersedingEvidenceId: command.supersedingEvidenceId,
     supersessionId: command.supersessionId,
-  });
+  };
   await withTransaction(
     client,
-    command.scope,
     control,
     'read-write',
     async (transaction, signal) => {
-      await lockCandidate(
-        transaction,
-        scope.scopeKey,
-        command.candidateId,
-        signal,
-      );
+      await serializeCandidate(transaction, command.candidateId, signal);
+      await loadCandidateIdentity(transaction, command.candidateId, signal);
+      const recordDigest = digestRecord(record);
       const inserted = await executePending<readonly DigestRow[]>(
         transaction`
           insert into gitblocks.evidence_supersessions (
-            scope,
-            tenant_id,
-            candidate_id,
             supersession_id,
+            candidate_id,
             superseded_evidence_id,
             superseding_evidence_id,
             reason_code,
             effective_at,
-            canonical_digest,
-            created_at,
-            expires_at
+            record_digest,
+            created_at
           )
           values (
-            ${scope.scope},
-            ${scope.tenantId}::uuid,
-            ${command.candidateId},
             ${command.supersessionId},
+            ${command.candidateId},
             ${command.supersededEvidenceId},
             ${command.supersedingEvidenceId},
             ${command.reasonCode},
-            ${command.effectiveAt}::timestamptz,
-            ${canonical.digest},
-            ${command.createdAt}::timestamptz,
-            ${scope.expiresAt}::timestamptz
+            ${normalized.effectiveAt}::timestamptz,
+            ${recordDigest},
+            ${normalized.createdAt}::timestamptz
           )
           on conflict do nothing
-          returning canonical_digest
+          returning record_digest
         `,
         signal,
       );
@@ -591,14 +486,13 @@ export async function recordEvidenceSupersession(
       }
       const existing = await executePending<readonly DigestRow[]>(
         transaction`
-          select canonical_digest
+          select record_digest
           from gitblocks.evidence_supersessions
-          where scope_key = ${scope.scopeKey}
-            and supersession_id = ${command.supersessionId}
+          where supersession_id = ${command.supersessionId}
         `,
         signal,
       );
-      requireSameDigest(existing, canonical.digest);
+      requireSameDigest(existing, recordDigest);
     },
   );
 }
@@ -608,57 +502,47 @@ export async function recordEvidenceInvalidation(
   command: RecordEvidenceInvalidationCommand,
   control?: OperationControl,
 ): Promise<void> {
-  const scope = validateLifecycleCommand(command);
+  const normalized = validateLifecycleCommand(command);
   validateStableId(command.invalidationId);
   validateStableId(command.evidenceId);
-  const canonical = canonicalizeJson({
+  const record = {
     candidateId: command.candidateId,
-    createdAt: command.createdAt,
-    effectiveAt: command.effectiveAt,
+    createdAt: normalized.createdAt,
+    effectiveAt: normalized.effectiveAt,
     evidenceId: command.evidenceId,
     invalidationId: command.invalidationId,
     reasonCode: command.reasonCode,
-  });
+  };
   await withTransaction(
     client,
-    command.scope,
     control,
     'read-write',
     async (transaction, signal) => {
-      await lockCandidate(
-        transaction,
-        scope.scopeKey,
-        command.candidateId,
-        signal,
-      );
+      await serializeCandidate(transaction, command.candidateId, signal);
+      await loadCandidateIdentity(transaction, command.candidateId, signal);
+      const recordDigest = digestRecord(record);
       const inserted = await executePending<readonly DigestRow[]>(
         transaction`
           insert into gitblocks.evidence_invalidations (
-            scope,
-            tenant_id,
-            candidate_id,
             invalidation_id,
+            candidate_id,
             evidence_id,
             reason_code,
             effective_at,
-            canonical_digest,
-            created_at,
-            expires_at
+            record_digest,
+            created_at
           )
           values (
-            ${scope.scope},
-            ${scope.tenantId}::uuid,
-            ${command.candidateId},
             ${command.invalidationId},
+            ${command.candidateId},
             ${command.evidenceId},
             ${command.reasonCode},
-            ${command.effectiveAt}::timestamptz,
-            ${canonical.digest},
-            ${command.createdAt}::timestamptz,
-            ${scope.expiresAt}::timestamptz
+            ${normalized.effectiveAt}::timestamptz,
+            ${recordDigest},
+            ${normalized.createdAt}::timestamptz
           )
           on conflict do nothing
-          returning canonical_digest
+          returning record_digest
         `,
         signal,
       );
@@ -667,14 +551,13 @@ export async function recordEvidenceInvalidation(
       }
       const existing = await executePending<readonly DigestRow[]>(
         transaction`
-          select canonical_digest
+          select record_digest
           from gitblocks.evidence_invalidations
-          where scope_key = ${scope.scopeKey}
-            and invalidation_id = ${command.invalidationId}
+          where invalidation_id = ${command.invalidationId}
         `,
         signal,
       );
-      requireSameDigest(existing, canonical.digest);
+      requireSameDigest(existing, recordDigest);
     },
   );
 }
@@ -686,169 +569,99 @@ export async function createCandidateDossierSnapshot(
 ): Promise<void> {
   validateStableId(command.snapshotId);
   const dossier = validateDossier(command.dossier);
-  validateTimestamp(command.evidenceCutoff);
-  validateTimestamp(command.createdAt);
-  if (Date.parse(command.evidenceCutoff) > Date.parse(command.createdAt)) {
+  const evidenceCutoff = normalizeTimestamp(command.evidenceCutoff);
+  const createdAt = normalizeTimestamp(command.createdAt);
+  if (Date.parse(evidenceCutoff) > Date.parse(createdAt)) {
     throw persistenceError('persistence.invalid-input');
   }
-  validateDossierEvidenceCutoff(dossier, command.evidenceCutoff);
-  const scope = validateScopeWithCreation(command.scope, command.createdAt);
-  const canonical = canonicalizeJson(dossier);
-  const identityCanonical = canonicalizeJson(dossier.identity);
+  validateDossierEvidenceCutoff(dossier, evidenceCutoff);
+  const dossierCanonical = canonicalizeJson(dossier);
+  const snapshotRecord = snapshotRecordFor(
+    command.snapshotId,
+    dossier,
+    evidenceCutoff,
+    createdAt,
+    dossierCanonical.digest,
+  );
+  const recordDigest = digestRecord(snapshotRecord);
+
   await withTransaction(
     client,
-    command.scope,
     control,
     'read-write',
     async (transaction, signal) => {
-      const identity = await loadCandidateIdentity(
+      await serializeCandidate(
         transaction,
-        scope.scopeKey,
         dossier.identity.candidateId,
         signal,
-        'update',
       );
-      if (canonicalizeJson(identity).digest !== identityCanonical.digest) {
+      const identity = await loadCandidateIdentity(
+        transaction,
+        dossier.identity.candidateId,
+        signal,
+      );
+      if (
+        canonicalizeJson(identity).digest !==
+        canonicalizeJson(dossier.identity).digest
+      ) {
         throw persistenceError('persistence.conflict');
       }
       await assertCapabilityMembership(
         transaction,
-        scope.scopeKey,
         dossier.identity.candidateId,
         dossier.capabilityFamily,
         signal,
       );
-      await assertExactSnapshotMaterial(
-        transaction,
-        scope.scopeKey,
-        dossier,
-        signal,
-      );
+      await assertExactSnapshotMaterial(transaction, dossier, signal);
 
       const inserted = await executePending<readonly DigestRow[]>(
         transaction`
           insert into gitblocks.candidate_dossier_snapshots (
-            scope,
-            tenant_id,
             snapshot_id,
             candidate_id,
             capability_family,
             version_scope,
             contract_version,
             evidence_cutoff,
-            identity_payload,
             canonical_dossier_digest,
-            created_at,
-            expires_at
+            record_digest,
+            created_at
           )
           values (
-            ${scope.scope},
-            ${scope.tenantId}::uuid,
             ${command.snapshotId},
             ${dossier.identity.candidateId},
             ${dossier.capabilityFamily},
             ${dossier.versionScope},
             ${dossier.contractVersion},
-            ${command.evidenceCutoff}::timestamptz,
-            ${transaction.json(identityCanonical.value as JSONValue)},
-            ${canonical.digest},
-            ${command.createdAt}::timestamptz,
-            ${scope.expiresAt}::timestamptz
+            ${evidenceCutoff}::timestamptz,
+            ${dossierCanonical.digest},
+            ${recordDigest},
+            ${createdAt}::timestamptz
           )
           on conflict do nothing
-          returning canonical_dossier_digest as canonical_digest
+          returning record_digest
         `,
         signal,
       );
       if (inserted.length === 0) {
         const existing = await executePending<readonly DigestRow[]>(
           transaction`
-            select canonical_dossier_digest as canonical_digest
+            select record_digest
             from gitblocks.candidate_dossier_snapshots
-            where scope_key = ${scope.scopeKey}
-              and snapshot_id = ${command.snapshotId}
+            where snapshot_id = ${command.snapshotId}
           `,
           signal,
         );
-        requireSameDigest(existing, canonical.digest);
+        requireSameDigest(existing, recordDigest);
         return;
       }
 
-      for (const [ordinal, observation] of dossier.observations.entries()) {
-        await executePending(
-          transaction`
-            insert into gitblocks.snapshot_evidence_members (
-              scope,
-              tenant_id,
-              snapshot_id,
-              candidate_id,
-              evidence_id,
-              ordinal,
-              expires_at
-            )
-            values (
-              ${scope.scope},
-              ${scope.tenantId}::uuid,
-              ${command.snapshotId},
-              ${dossier.identity.candidateId},
-              ${observation.evidenceId},
-              ${ordinal},
-              ${scope.expiresAt}::timestamptz
-            )
-          `,
-          signal,
-        );
-      }
-      for (const [ordinal, limitation] of dossier.limitations.entries()) {
-        await executePending(
-          transaction`
-            insert into gitblocks.snapshot_limitation_members (
-              scope,
-              tenant_id,
-              snapshot_id,
-              candidate_id,
-              limitation_id,
-              ordinal,
-              expires_at
-            )
-            values (
-              ${scope.scope},
-              ${scope.tenantId}::uuid,
-              ${command.snapshotId},
-              ${dossier.identity.candidateId},
-              ${limitation.limitationId},
-              ${ordinal},
-              ${scope.expiresAt}::timestamptz
-            )
-          `,
-          signal,
-        );
-      }
-      for (const [ordinal, unknown] of dossier.unknowns.entries()) {
-        await executePending(
-          transaction`
-            insert into gitblocks.snapshot_unknown_members (
-              scope,
-              tenant_id,
-              snapshot_id,
-              candidate_id,
-              unknown_id,
-              ordinal,
-              expires_at
-            )
-            values (
-              ${scope.scope},
-              ${scope.tenantId}::uuid,
-              ${command.snapshotId},
-              ${dossier.identity.candidateId},
-              ${unknown.unknownId},
-              ${ordinal},
-              ${scope.expiresAt}::timestamptz
-            )
-          `,
-          signal,
-        );
-      }
+      await insertSnapshotMembers(
+        transaction,
+        command.snapshotId,
+        dossier,
+        signal,
+      );
     },
   );
 }
@@ -859,32 +672,43 @@ export async function loadCandidateDossierSnapshot(
   control?: OperationControl,
 ): Promise<CandidateDossierV1> {
   validateStableId(command.snapshotId);
-  const scope = validateScope(command.scope);
   return withTransaction(
     client,
-    command.scope,
     control,
     'read-only',
     async (transaction, signal) => {
       const rows = await executePending<
         readonly {
-          readonly identity_payload: unknown;
+          readonly candidate_id: string;
           readonly capability_family: CandidateDossierV1['capabilityFamily'];
           readonly version_scope: string | null;
           readonly contract_version: '1.0.0';
+          readonly evidence_cutoff: unknown;
           readonly canonical_dossier_digest: string;
+          readonly record_digest: string;
+          readonly created_at: unknown;
+          readonly identity_payload: unknown;
+          readonly identity_record_digest: string;
+          readonly identity_created_at: unknown;
         }[]
       >(
         transaction`
           select
-            identity_payload,
-            capability_family,
-            version_scope,
-            contract_version,
-            canonical_dossier_digest
-          from gitblocks.candidate_dossier_snapshots
-          where scope_key = ${scope.scopeKey}
-            and snapshot_id = ${command.snapshotId}
+            snapshot.candidate_id,
+            snapshot.capability_family,
+            snapshot.version_scope,
+            snapshot.contract_version,
+            snapshot.evidence_cutoff,
+            snapshot.canonical_dossier_digest,
+            snapshot.record_digest,
+            snapshot.created_at,
+            candidate.canonical_payload as identity_payload,
+            candidate.record_digest as identity_record_digest,
+            candidate.created_at as identity_created_at
+          from gitblocks.candidate_dossier_snapshots as snapshot
+          join gitblocks.catalog_candidates as candidate
+            on candidate.candidate_id = snapshot.candidate_id
+          where snapshot.snapshot_id = ${command.snapshotId}
         `,
         signal,
       );
@@ -892,27 +716,29 @@ export async function loadCandidateDossierSnapshot(
       if (snapshot === undefined) {
         throw persistenceError('persistence.not-found');
       }
+      const identity = validateStoredIdentityRecord({
+        canonical_payload: snapshot.identity_payload,
+        record_digest: snapshot.identity_record_digest,
+        created_at: snapshot.identity_created_at,
+      });
       const observations = await loadSnapshotObservations(
         transaction,
-        scope.scopeKey,
         command.snapshotId,
         signal,
       );
       const limitations = await loadSnapshotLimitations(
         transaction,
-        scope.scopeKey,
         command.snapshotId,
         signal,
       );
       const unknowns = await loadSnapshotUnknowns(
         transaction,
-        scope.scopeKey,
         command.snapshotId,
         signal,
       );
       const dossier = validateStoredDossier({
         contractVersion: snapshot.contract_version,
-        identity: snapshot.identity_payload,
+        identity,
         capabilityFamily: snapshot.capability_family,
         versionScope: snapshot.version_scope,
         observations,
@@ -922,6 +748,18 @@ export async function loadCandidateDossierSnapshot(
       if (
         canonicalizeJson(dossier).digest !== snapshot.canonical_dossier_digest
       ) {
+        throw persistenceError('persistence.corrupt-record');
+      }
+      const evidenceCutoff = normalizeStoredTimestamp(snapshot.evidence_cutoff);
+      const createdAt = normalizeStoredTimestamp(snapshot.created_at);
+      const expectedRecord = snapshotRecordFor(
+        command.snapshotId,
+        dossier,
+        evidenceCutoff,
+        createdAt,
+        snapshot.canonical_dossier_digest,
+      );
+      if (digestRecord(expectedRecord) !== snapshot.record_digest) {
         throw persistenceError('persistence.corrupt-record');
       }
       return dossier;
@@ -935,203 +773,236 @@ export async function selectActiveDossierMaterial(
   control?: OperationControl,
 ): Promise<ActiveDossierMaterial> {
   validateStableId(command.candidateId);
-  validateTimestamp(command.evidenceCutoff);
-  validateIntegerBound(command.limit, 1, 100);
-  if (command.afterEvidenceId !== undefined) {
-    validateStableId(command.afterEvidenceId);
-  }
-  const scope = validateScope(command.scope);
+  const evidenceCutoff = normalizeTimestamp(command.evidenceCutoff);
   return withTransaction(
     client,
-    command.scope,
     control,
     'read-only',
     async (transaction, signal) => {
-      await loadCandidateIdentity(
+      const identity = await loadCandidateIdentity(
         transaction,
-        scope.scopeKey,
         command.candidateId,
         signal,
-        'none',
       );
-      const observations = await executePending<
-        readonly {
-          readonly canonical_payload: EvidenceObservationV1;
-          readonly canonical_digest: string;
-        }[]
+      const observationRows = await executePending<
+        readonly StoredRecordRow<EvidenceObservationV1>[]
       >(
         transaction`
-          select observation.canonical_payload, observation.canonical_digest
+          select
+            observation.canonical_payload,
+            observation.record_digest,
+            observation.created_at
           from gitblocks.evidence_observations as observation
-          where observation.scope_key = ${scope.scopeKey}
-            and observation.candidate_id = ${command.candidateId}
-            and observation.created_at <=
-              ${command.evidenceCutoff}::timestamptz
-            and observation.evidence_id >
-              ${command.afterEvidenceId ?? ''}
+          where observation.candidate_id = ${command.candidateId}
+            and (
+              observation.published_at is null
+              or observation.published_at <= ${evidenceCutoff}::timestamptz
+            )
+            and (
+              observation.collected_at is null
+              or observation.collected_at <= ${evidenceCutoff}::timestamptz
+            )
+            and (
+              observation.validated_at is null
+              or observation.validated_at <= ${evidenceCutoff}::timestamptz
+            )
+            and observation.freshness_as_of <=
+              ${evidenceCutoff}::timestamptz
             and not exists (
               select 1
               from gitblocks.evidence_supersessions as supersession
-              where supersession.scope_key = observation.scope_key
-                and supersession.candidate_id = observation.candidate_id
+              where supersession.candidate_id = observation.candidate_id
                 and supersession.superseded_evidence_id =
                   observation.evidence_id
                 and supersession.effective_at <=
-                  ${command.evidenceCutoff}::timestamptz
+                  ${evidenceCutoff}::timestamptz
             )
             and not exists (
               select 1
               from gitblocks.evidence_invalidations as invalidation
-              where invalidation.scope_key = observation.scope_key
-                and invalidation.candidate_id = observation.candidate_id
+              where invalidation.candidate_id = observation.candidate_id
                 and invalidation.evidence_id = observation.evidence_id
                 and invalidation.effective_at <=
-                  ${command.evidenceCutoff}::timestamptz
+                  ${evidenceCutoff}::timestamptz
             )
           order by observation.evidence_id
-          limit ${command.limit}
+          limit ${MAX_ACTIVE_OBSERVATIONS + 1}
         `,
         signal,
       );
-      const limitations = await executePending<
-        readonly {
-          readonly canonical_payload: CandidateLimitationV1;
-          readonly canonical_digest: string;
-        }[]
+      requireResultBound(observationRows, MAX_ACTIVE_OBSERVATIONS);
+      const observations = observationRows.map(validateStoredEvidenceRecord);
+      const activeEvidenceIds = new Set(
+        observations.map((observation) => observation.evidenceId),
+      );
+
+      const limitationRows = await executePending<
+        readonly StoredRecordRow<CandidateLimitationV1>[]
       >(
         transaction`
-          select canonical_payload, canonical_digest
+          select canonical_payload, record_digest, created_at
           from gitblocks.candidate_limitations
-          where scope_key = ${scope.scopeKey}
-            and candidate_id = ${command.candidateId}
-            and created_at <= ${command.evidenceCutoff}::timestamptz
+          where candidate_id = ${command.candidateId}
           order by limitation_id
-          limit 40
+          limit ${MAX_ACTIVE_LIMITATIONS + 1}
         `,
         signal,
       );
-      const unknowns = await executePending<
-        readonly {
-          readonly canonical_payload: CandidateUnknownV1;
-          readonly canonical_digest: string;
-        }[]
+      requireResultBound(limitationRows, MAX_ACTIVE_LIMITATIONS);
+      const limitations = limitationRows
+        .map(validateStoredLimitationRecord)
+        .filter((limitation) =>
+          limitation.evidenceIds.every((evidenceId) =>
+            activeEvidenceIds.has(evidenceId),
+          ),
+        );
+
+      const unknownRows = await executePending<
+        readonly StoredRecordRow<CandidateUnknownV1>[]
       >(
         transaction`
-          select canonical_payload, canonical_digest
+          select canonical_payload, record_digest, created_at
           from gitblocks.candidate_material_unknowns
-          where scope_key = ${scope.scopeKey}
-            and candidate_id = ${command.candidateId}
-            and created_at <= ${command.evidenceCutoff}::timestamptz
+          where candidate_id = ${command.candidateId}
           order by unknown_id
-          limit 40
+          limit ${MAX_ACTIVE_UNKNOWNS + 1}
         `,
         signal,
       );
+      requireResultBound(unknownRows, MAX_ACTIVE_UNKNOWNS);
+      const unknowns = unknownRows
+        .map(validateStoredUnknownRecord)
+        .filter((unknown) =>
+          unknown.evidenceIds.every((evidenceId) =>
+            activeEvidenceIds.has(evidenceId),
+          ),
+        );
+
+      const validated = validateStoredDossier({
+        contractVersion: '1.0.0',
+        identity,
+        capabilityFamily: 'authorization',
+        versionScope: null,
+        observations,
+        limitations,
+        unknowns,
+      });
       return {
-        observations: observations.map((row) => validatePayloadDigest(row)),
-        limitations: limitations.map((row) => validatePayloadDigest(row)),
-        unknowns: unknowns.map((row) => validatePayloadDigest(row)),
+        observations: validated.observations,
+        limitations: validated.limitations,
+        unknowns: validated.unknowns,
       };
     },
   );
 }
 
-export async function purgeExpiredTenantData(
-  client: PersistenceClient,
-  command: PurgeExpiredTenantDataCommand,
-  control?: OperationControl,
-): Promise<PurgeExpiredTenantDataResult> {
-  validateUuid(command.tenantId);
-  validateTimestamp(command.expiresBeforeOrAt);
-  validateIntegerBound(command.batchSize, 1, 500);
-  const scope: StorageScope = {
-    kind: 'tenant',
-    tenantId: command.tenantId,
-    expiresAt: new Date(
-      Date.parse(command.expiresBeforeOrAt) + 1,
-    ).toISOString(),
-  };
-  return withTransaction(
-    client,
-    scope,
-    control,
-    'read-write',
-    async (transaction, signal) => {
-      const rows = await executePending<
-        readonly {
-          readonly deleted_snapshots: number;
-          readonly deleted_candidates: number;
-        }[]
-      >(
-        transaction`
-          select deleted_snapshots, deleted_candidates
-          from gitblocks.purge_expired_tenant_data(
-            ${command.tenantId}::uuid,
-            ${command.expiresBeforeOrAt}::timestamptz,
-            ${command.batchSize}::integer
-          )
-        `,
-        signal,
-      );
-      const result = rows[0];
-      if (
-        result === undefined ||
-        typeof result.deleted_snapshots !== 'number' ||
-        typeof result.deleted_candidates !== 'number'
-      ) {
-        throw persistenceError('persistence.corrupt-record');
-      }
-      return {
-        deletedSnapshots: result.deleted_snapshots,
-        deletedCandidates: result.deleted_candidates,
-      };
-    },
-  );
-}
-
-export async function deleteTenantData(
-  client: PersistenceClient,
-  command: DeleteTenantDataCommand,
-  control?: OperationControl,
-): Promise<void> {
-  validateUuid(command.tenantId);
-  validateTimestamp(command.deletedAt);
-  validateReasonCode(command.reasonCode);
-  const scope: StorageScope = {
-    kind: 'tenant',
-    tenantId: command.tenantId,
-    expiresAt: new Date(Date.parse(command.deletedAt) + 1).toISOString(),
-  };
-  await withTransaction(
-    client,
-    scope,
-    control,
-    'read-write',
-    async (transaction, signal) => {
-      await executePending(
-        transaction`
-          select gitblocks.delete_tenant_data(
-            ${command.tenantId}::uuid,
-            ${command.deletedAt}::timestamptz,
-            ${command.reasonCode}
-          )
-        `,
-        signal,
-      );
-    },
-  );
-}
-
-function validateScopeWithCreation(
-  rawScope: StorageScope,
-  createdAt: string,
-): ReturnType<typeof validateScope> {
-  validateTimestamp(createdAt);
-  const scope = validateScope(rawScope);
-  if (scope.expiresAt !== null) {
-    validateChronology(createdAt, scope.expiresAt);
+function validateSingleObservation(
+  identity: CandidateIdentityV1,
+  observation: EvidenceObservationV1,
+): EvidenceObservationV1 {
+  const validated = validateDossier({
+    contractVersion: '1.0.0',
+    identity,
+    capabilityFamily: 'authorization',
+    versionScope: null,
+    observations: [observation],
+    limitations: [],
+    unknowns: [],
+  }).observations[0];
+  if (validated === undefined) {
+    throw persistenceError('persistence.invalid-input');
   }
-  return scope;
+  return validated;
+}
+
+function validateSingleLimitation(
+  identity: CandidateIdentityV1,
+  observations: readonly EvidenceObservationV1[],
+  limitation: CandidateLimitationV1,
+): CandidateLimitationV1 {
+  const validated = validateDossier({
+    contractVersion: '1.0.0',
+    identity,
+    capabilityFamily: 'authorization',
+    versionScope: null,
+    observations,
+    limitations: [limitation],
+    unknowns: [],
+  }).limitations[0];
+  if (validated === undefined) {
+    throw persistenceError('persistence.invalid-input');
+  }
+  return validated;
+}
+
+function validateSingleUnknown(
+  identity: CandidateIdentityV1,
+  observations: readonly EvidenceObservationV1[],
+  unknown: CandidateUnknownV1,
+): CandidateUnknownV1 {
+  const validated = validateDossier({
+    contractVersion: '1.0.0',
+    identity,
+    capabilityFamily: 'authorization',
+    versionScope: null,
+    observations,
+    limitations: [],
+    unknowns: [unknown],
+  }).unknowns[0];
+  if (validated === undefined) {
+    throw persistenceError('persistence.invalid-input');
+  }
+  return validated;
+}
+
+function evidenceTimestamps(
+  observation: EvidenceObservationV1,
+): EvidenceTimestampColumns {
+  const freshnessAsOf = normalizeTimestamp(observation.freshness.asOf);
+  switch (observation.source.kind) {
+    case 'approved-validation':
+      return {
+        publishedAt: null,
+        collectedAt: null,
+        validatedAt: normalizeTimestamp(observation.source.validatedAt),
+        freshnessAsOf,
+      };
+    case 'mutable-documentation':
+      return {
+        publishedAt: null,
+        collectedAt: normalizeTimestamp(observation.source.collectedAt),
+        validatedAt: null,
+        freshnessAsOf,
+      };
+    case 'git-commit':
+    case 'tag':
+    case 'release':
+    case 'package-version':
+    case 'security-advisory':
+      return {
+        publishedAt: normalizeTimestamp(observation.source.publishedAt),
+        collectedAt: normalizeTimestamp(observation.source.collectedAt),
+        validatedAt: null,
+        freshnessAsOf,
+      };
+  }
+}
+
+function validateLifecycleCommand(
+  command:
+    RecordEvidenceSupersessionCommand | RecordEvidenceInvalidationCommand,
+): {
+  readonly createdAt: string;
+  readonly effectiveAt: string;
+} {
+  validateStableId(command.candidateId);
+  validateReasonCode(command.reasonCode);
+  const createdAt = normalizeTimestamp(command.createdAt);
+  const effectiveAt = normalizeTimestamp(command.effectiveAt);
+  if (Date.parse(effectiveAt) < Date.parse(createdAt)) {
+    throw persistenceError('persistence.invalid-input');
+  }
+  return { createdAt, effectiveAt };
 }
 
 function validateDossierEvidenceCutoff(
@@ -1140,105 +1011,107 @@ function validateDossierEvidenceCutoff(
 ): void {
   const cutoff = Date.parse(evidenceCutoff);
   for (const observation of dossier.observations) {
-    const sourceTimestamp =
-      observation.source.kind === 'approved-validation'
-        ? observation.source.validatedAt
-        : observation.source.collectedAt;
+    const timestamps = evidenceTimestamps(observation);
     if (
-      Date.parse(observation.freshness.asOf) > cutoff ||
-      Date.parse(sourceTimestamp) > cutoff ||
-      ('publishedAt' in observation.source &&
-        Date.parse(observation.source.publishedAt) > cutoff)
+      Date.parse(timestamps.freshnessAsOf) > cutoff ||
+      (timestamps.publishedAt !== null &&
+        Date.parse(timestamps.publishedAt) > cutoff) ||
+      (timestamps.collectedAt !== null &&
+        Date.parse(timestamps.collectedAt) > cutoff) ||
+      (timestamps.validatedAt !== null &&
+        Date.parse(timestamps.validatedAt) > cutoff)
     ) {
       throw persistenceError('persistence.invalid-input');
     }
   }
 }
 
-function validateLifecycleCommand(
-  command:
-    RecordEvidenceSupersessionCommand | RecordEvidenceInvalidationCommand,
-): ReturnType<typeof validateScope> {
-  validateStableId(command.candidateId);
-  validateReasonCode(command.reasonCode);
-  validateTimestamp(command.createdAt);
-  validateTimestamp(command.effectiveAt);
-  if (Date.parse(command.effectiveAt) < Date.parse(command.createdAt)) {
-    throw persistenceError('persistence.invalid-input');
-  }
-  return validateScopeWithCreation(command.scope, command.createdAt);
+async function serializeCandidate(
+  transaction: PersistenceTransaction,
+  candidateId: string,
+  signal: AbortSignal | undefined,
+): Promise<void> {
+  await executePending(
+    transaction`
+      select pg_catalog.pg_advisory_xact_lock(
+        pg_catalog.hashtextextended(
+          ${candidateId},
+          ${CANDIDATE_LOCK_SEED}
+        )
+      )
+    `,
+    signal,
+  );
 }
 
 async function loadCandidateIdentity(
   transaction: PersistenceTransaction,
-  scopeKey: string,
   candidateId: string,
   signal: AbortSignal | undefined,
-  lock: 'none' | 'share' | 'update',
 ): Promise<CandidateIdentityV1> {
-  const rows =
-    lock === 'update'
-      ? await executePending<readonly CandidateRow[]>(
-          transaction`
-            select canonical_payload, canonical_digest
-            from gitblocks.catalog_candidates
-            where scope_key = ${scopeKey}
-              and candidate_id = ${candidateId}
-            for update
-          `,
-          signal,
-        )
-      : lock === 'share'
-        ? await executePending<readonly CandidateRow[]>(
-            transaction`
-              select canonical_payload, canonical_digest
-              from gitblocks.catalog_candidates
-              where scope_key = ${scopeKey}
-                and candidate_id = ${candidateId}
-              for share
-            `,
-            signal,
-          )
-        : await executePending<readonly CandidateRow[]>(
-            transaction`
-              select canonical_payload, canonical_digest
-              from gitblocks.catalog_candidates
-              where scope_key = ${scopeKey}
-                and candidate_id = ${candidateId}
-            `,
-            signal,
-          );
+  const rows = await executePending<
+    readonly StoredRecordRow<CandidateIdentityV1>[]
+  >(
+    transaction`
+      select canonical_payload, record_digest, created_at
+      from gitblocks.catalog_candidates
+      where candidate_id = ${candidateId}
+    `,
+    signal,
+  );
   const row = rows[0];
   if (row === undefined) {
     throw persistenceError('persistence.not-found');
   }
-  const identity = validateIdentity(
-    row.canonical_payload as CandidateIdentityV1,
-  );
-  if (canonicalizeJson(identity).digest !== row.canonical_digest) {
+  return validateStoredIdentityRecord(row);
+}
+
+function validateStoredIdentityRecord(
+  row: StoredRecordRow,
+): CandidateIdentityV1 {
+  const identity = validateIdentity(row.canonical_payload);
+  const createdAt = normalizeStoredTimestamp(row.created_at);
+  if (digestRecord({ createdAt, identity }) !== row.record_digest) {
     throw persistenceError('persistence.corrupt-record');
   }
   return identity;
 }
 
-async function lockCandidate(
-  transaction: PersistenceTransaction,
-  scopeKey: string,
-  candidateId: string,
-  signal: AbortSignal | undefined,
-): Promise<void> {
-  await loadCandidateIdentity(
-    transaction,
-    scopeKey,
-    candidateId,
-    signal,
-    'update',
-  );
+function validateStoredEvidenceRecord(
+  row: StoredRecordRow<EvidenceObservationV1>,
+): EvidenceObservationV1 {
+  const observation = row.canonical_payload;
+  const createdAt = normalizeStoredTimestamp(row.created_at);
+  if (digestRecord({ createdAt, observation }) !== row.record_digest) {
+    throw persistenceError('persistence.corrupt-record');
+  }
+  return observation;
+}
+
+function validateStoredLimitationRecord(
+  row: StoredRecordRow<CandidateLimitationV1>,
+): CandidateLimitationV1 {
+  const limitation = row.canonical_payload;
+  const createdAt = normalizeStoredTimestamp(row.created_at);
+  if (digestRecord({ createdAt, limitation }) !== row.record_digest) {
+    throw persistenceError('persistence.corrupt-record');
+  }
+  return limitation;
+}
+
+function validateStoredUnknownRecord(
+  row: StoredRecordRow<CandidateUnknownV1>,
+): CandidateUnknownV1 {
+  const unknown = row.canonical_payload;
+  const createdAt = normalizeStoredTimestamp(row.created_at);
+  if (digestRecord({ createdAt, unknown }) !== row.record_digest) {
+    throw persistenceError('persistence.corrupt-record');
+  }
+  return unknown;
 }
 
 async function assertCapabilityMembership(
   transaction: PersistenceTransaction,
-  scopeKey: string,
   candidateId: string,
   family: CandidateDossierV1['capabilityFamily'],
   signal: AbortSignal | undefined,
@@ -1247,8 +1120,7 @@ async function assertCapabilityMembership(
     transaction`
       select 1 as present
       from gitblocks.candidate_capability_families
-      where scope_key = ${scopeKey}
-        and candidate_id = ${candidateId}
+      where candidate_id = ${candidateId}
         and capability_family = ${family}
     `,
     signal,
@@ -1260,31 +1132,25 @@ async function assertCapabilityMembership(
 
 async function assertExactSnapshotMaterial(
   transaction: PersistenceTransaction,
-  scopeKey: string,
   dossier: CandidateDossierV1,
   signal: AbortSignal | undefined,
 ): Promise<void> {
   const observations = await loadEvidenceByIds(
     transaction,
-    scopeKey,
     dossier.identity.candidateId,
     dossier.observations.map((observation) => observation.evidenceId),
     signal,
   );
   assertPayloadListsMatch(dossier.observations, observations);
-
   const limitations = await loadLimitationByIds(
     transaction,
-    scopeKey,
     dossier.identity.candidateId,
     dossier.limitations.map((limitation) => limitation.limitationId),
     signal,
   );
   assertPayloadListsMatch(dossier.limitations, limitations);
-
   const unknowns = await loadUnknownByIds(
     transaction,
-    scopeKey,
     dossier.identity.candidateId,
     dossier.unknowns.map((unknown) => unknown.unknownId),
     signal,
@@ -1294,28 +1160,23 @@ async function assertExactSnapshotMaterial(
 
 async function loadEvidenceByIds(
   transaction: PersistenceTransaction,
-  scopeKey: string,
   candidateId: string,
   evidenceIds: readonly string[],
   signal: AbortSignal | undefined,
 ): Promise<readonly EvidenceObservationV1[]> {
+  validateUniqueIds(evidenceIds);
   if (evidenceIds.length === 0) {
     return [];
   }
-  for (const evidenceId of evidenceIds) {
-    validateStableId(evidenceId);
-  }
-  if (new Set(evidenceIds).size !== evidenceIds.length) {
-    throw persistenceError('persistence.invalid-input');
-  }
   const rows = await executePending<
-    readonly PayloadRow<EvidenceObservationV1>[]
+    readonly (StoredRecordRow<EvidenceObservationV1> & {
+      readonly evidence_id: string;
+    })[]
   >(
     transaction`
-      select canonical_payload, canonical_digest
+      select evidence_id, canonical_payload, record_digest, created_at
       from gitblocks.evidence_observations
-      where scope_key = ${scopeKey}
-        and candidate_id = ${candidateId}
+      where candidate_id = ${candidateId}
         and evidence_id =
           any(${transaction.array([...evidenceIds])}::text[])
       order by evidence_id
@@ -1325,44 +1186,31 @@ async function loadEvidenceByIds(
   if (rows.length !== evidenceIds.length) {
     throw persistenceError('persistence.conflict');
   }
-  const byId = new Map<string, EvidenceObservationV1>();
-  for (const row of rows) {
-    const value = validatePayloadDigest(row);
-    byId.set(value.evidenceId, value);
-  }
-  return evidenceIds.map((evidenceId) => {
-    const value = byId.get(evidenceId);
-    if (value === undefined) {
-      throw persistenceError('persistence.conflict');
-    }
-    return value;
-  });
+  const byId = new Map(
+    rows.map((row) => [row.evidence_id, validateStoredEvidenceRecord(row)]),
+  );
+  return mapIds(evidenceIds, byId);
 }
 
 async function loadLimitationByIds(
   transaction: PersistenceTransaction,
-  scopeKey: string,
   candidateId: string,
   limitationIds: readonly string[],
   signal: AbortSignal | undefined,
 ): Promise<readonly CandidateLimitationV1[]> {
+  validateUniqueIds(limitationIds);
   if (limitationIds.length === 0) {
     return [];
   }
-  for (const limitationId of limitationIds) {
-    validateStableId(limitationId);
-  }
-  if (new Set(limitationIds).size !== limitationIds.length) {
-    throw persistenceError('persistence.invalid-input');
-  }
   const rows = await executePending<
-    readonly PayloadRow<CandidateLimitationV1>[]
+    readonly (StoredRecordRow<CandidateLimitationV1> & {
+      readonly limitation_id: string;
+    })[]
   >(
     transaction`
-      select canonical_payload, canonical_digest
+      select limitation_id, canonical_payload, record_digest, created_at
       from gitblocks.candidate_limitations
-      where scope_key = ${scopeKey}
-        and candidate_id = ${candidateId}
+      where candidate_id = ${candidateId}
         and limitation_id =
           any(${transaction.array([...limitationIds])}::text[])
       order by limitation_id
@@ -1372,42 +1220,31 @@ async function loadLimitationByIds(
   if (rows.length !== limitationIds.length) {
     throw persistenceError('persistence.conflict');
   }
-  const byId = new Map<string, CandidateLimitationV1>();
-  for (const row of rows) {
-    const value = validatePayloadDigest(row);
-    byId.set(value.limitationId, value);
-  }
-  return limitationIds.map((limitationId) => {
-    const value = byId.get(limitationId);
-    if (value === undefined) {
-      throw persistenceError('persistence.conflict');
-    }
-    return value;
-  });
+  const byId = new Map(
+    rows.map((row) => [row.limitation_id, validateStoredLimitationRecord(row)]),
+  );
+  return mapIds(limitationIds, byId);
 }
 
 async function loadUnknownByIds(
   transaction: PersistenceTransaction,
-  scopeKey: string,
   candidateId: string,
   unknownIds: readonly string[],
   signal: AbortSignal | undefined,
 ): Promise<readonly CandidateUnknownV1[]> {
+  validateUniqueIds(unknownIds);
   if (unknownIds.length === 0) {
     return [];
   }
-  for (const unknownId of unknownIds) {
-    validateStableId(unknownId);
-  }
-  if (new Set(unknownIds).size !== unknownIds.length) {
-    throw persistenceError('persistence.invalid-input');
-  }
-  const rows = await executePending<readonly PayloadRow<CandidateUnknownV1>[]>(
+  const rows = await executePending<
+    readonly (StoredRecordRow<CandidateUnknownV1> & {
+      readonly unknown_id: string;
+    })[]
+  >(
     transaction`
-      select canonical_payload, canonical_digest
+      select unknown_id, canonical_payload, record_digest, created_at
       from gitblocks.candidate_material_unknowns
-      where scope_key = ${scopeKey}
-        and candidate_id = ${candidateId}
+      where candidate_id = ${candidateId}
         and unknown_id =
           any(${transaction.array([...unknownIds])}::text[])
       order by unknown_id
@@ -1417,101 +1254,202 @@ async function loadUnknownByIds(
   if (rows.length !== unknownIds.length) {
     throw persistenceError('persistence.conflict');
   }
-  const byId = new Map<string, CandidateUnknownV1>();
-  for (const row of rows) {
-    const value = validatePayloadDigest(row);
-    byId.set(value.unknownId, value);
+  const byId = new Map(
+    rows.map((row) => [row.unknown_id, validateStoredUnknownRecord(row)]),
+  );
+  return mapIds(unknownIds, byId);
+}
+
+async function insertSnapshotMembers(
+  transaction: PersistenceTransaction,
+  snapshotId: string,
+  dossier: CandidateDossierV1,
+  signal: AbortSignal | undefined,
+): Promise<void> {
+  for (const [ordinal, observation] of dossier.observations.entries()) {
+    await executePending(
+      transaction`
+        insert into gitblocks.snapshot_evidence_members (
+          snapshot_id,
+          candidate_id,
+          evidence_id,
+          ordinal
+        )
+        values (
+          ${snapshotId},
+          ${dossier.identity.candidateId},
+          ${observation.evidenceId},
+          ${ordinal}
+        )
+      `,
+      signal,
+    );
   }
-  return unknownIds.map((unknownId) => {
-    const value = byId.get(unknownId);
+  for (const [ordinal, limitation] of dossier.limitations.entries()) {
+    await executePending(
+      transaction`
+        insert into gitblocks.snapshot_limitation_members (
+          snapshot_id,
+          candidate_id,
+          limitation_id,
+          ordinal
+        )
+        values (
+          ${snapshotId},
+          ${dossier.identity.candidateId},
+          ${limitation.limitationId},
+          ${ordinal}
+        )
+      `,
+      signal,
+    );
+  }
+  for (const [ordinal, unknown] of dossier.unknowns.entries()) {
+    await executePending(
+      transaction`
+        insert into gitblocks.snapshot_unknown_members (
+          snapshot_id,
+          candidate_id,
+          unknown_id,
+          ordinal
+        )
+        values (
+          ${snapshotId},
+          ${dossier.identity.candidateId},
+          ${unknown.unknownId},
+          ${ordinal}
+        )
+      `,
+      signal,
+    );
+  }
+}
+
+async function loadSnapshotObservations(
+  transaction: PersistenceTransaction,
+  snapshotId: string,
+  signal: AbortSignal | undefined,
+): Promise<readonly EvidenceObservationV1[]> {
+  const rows = await executePending<
+    readonly StoredRecordRow<EvidenceObservationV1>[]
+  >(
+    transaction`
+      select
+        observation.canonical_payload,
+        observation.record_digest,
+        observation.created_at
+      from gitblocks.snapshot_evidence_members as member
+      join gitblocks.evidence_observations as observation
+        on observation.candidate_id = member.candidate_id
+        and observation.evidence_id = member.evidence_id
+      where member.snapshot_id = ${snapshotId}
+      order by member.ordinal
+    `,
+    signal,
+  );
+  return rows.map(validateStoredEvidenceRecord);
+}
+
+async function loadSnapshotLimitations(
+  transaction: PersistenceTransaction,
+  snapshotId: string,
+  signal: AbortSignal | undefined,
+): Promise<readonly CandidateLimitationV1[]> {
+  const rows = await executePending<
+    readonly StoredRecordRow<CandidateLimitationV1>[]
+  >(
+    transaction`
+      select
+        limitation.canonical_payload,
+        limitation.record_digest,
+        limitation.created_at
+      from gitblocks.snapshot_limitation_members as member
+      join gitblocks.candidate_limitations as limitation
+        on limitation.candidate_id = member.candidate_id
+        and limitation.limitation_id = member.limitation_id
+      where member.snapshot_id = ${snapshotId}
+      order by member.ordinal
+    `,
+    signal,
+  );
+  return rows.map(validateStoredLimitationRecord);
+}
+
+async function loadSnapshotUnknowns(
+  transaction: PersistenceTransaction,
+  snapshotId: string,
+  signal: AbortSignal | undefined,
+): Promise<readonly CandidateUnknownV1[]> {
+  const rows = await executePending<
+    readonly StoredRecordRow<CandidateUnknownV1>[]
+  >(
+    transaction`
+      select
+        unknown_value.canonical_payload,
+        unknown_value.record_digest,
+        unknown_value.created_at
+      from gitblocks.snapshot_unknown_members as member
+      join gitblocks.candidate_material_unknowns as unknown_value
+        on unknown_value.candidate_id = member.candidate_id
+        and unknown_value.unknown_id = member.unknown_id
+      where member.snapshot_id = ${snapshotId}
+      order by member.ordinal
+    `,
+    signal,
+  );
+  return rows.map(validateStoredUnknownRecord);
+}
+
+function snapshotRecordFor(
+  snapshotId: string,
+  dossier: CandidateDossierV1,
+  evidenceCutoff: string,
+  createdAt: string,
+  dossierDigest: string,
+): Readonly<Record<string, unknown>> {
+  return {
+    candidateId: dossier.identity.candidateId,
+    capabilityFamily: dossier.capabilityFamily,
+    contractVersion: dossier.contractVersion,
+    createdAt,
+    dossierDigest,
+    evidenceCutoff,
+    evidenceIds: dossier.observations.map(
+      (observation) => observation.evidenceId,
+    ),
+    limitationIds: dossier.limitations.map(
+      (limitation) => limitation.limitationId,
+    ),
+    snapshotId,
+    unknownIds: dossier.unknowns.map((unknown) => unknown.unknownId),
+    versionScope: dossier.versionScope,
+  };
+}
+
+function digestRecord(value: unknown): string {
+  return canonicalizeJson(value).digest;
+}
+
+function validateUniqueIds(values: readonly string[]): void {
+  for (const value of values) {
+    validateStableId(value);
+  }
+  if (new Set(values).size !== values.length) {
+    throw persistenceError('persistence.invalid-input');
+  }
+}
+
+function mapIds<Value>(
+  ids: readonly string[],
+  values: ReadonlyMap<string, Value>,
+): readonly Value[] {
+  return ids.map((id) => {
+    const value = values.get(id);
     if (value === undefined) {
       throw persistenceError('persistence.conflict');
     }
     return value;
   });
-}
-
-async function loadSnapshotObservations(
-  transaction: PersistenceTransaction,
-  scopeKey: string,
-  snapshotId: string,
-  signal: AbortSignal | undefined,
-): Promise<readonly EvidenceObservationV1[]> {
-  const rows = await executePending<
-    readonly PayloadRow<EvidenceObservationV1>[]
-  >(
-    transaction`
-      select observation.canonical_payload, observation.canonical_digest
-      from gitblocks.snapshot_evidence_members as member
-      join gitblocks.evidence_observations as observation
-        on observation.scope_key = member.scope_key
-        and observation.candidate_id = member.candidate_id
-        and observation.evidence_id = member.evidence_id
-      where member.scope_key = ${scopeKey}
-        and member.snapshot_id = ${snapshotId}
-      order by member.ordinal
-    `,
-    signal,
-  );
-  return rows.map((row) => validatePayloadDigest(row));
-}
-
-async function loadSnapshotLimitations(
-  transaction: PersistenceTransaction,
-  scopeKey: string,
-  snapshotId: string,
-  signal: AbortSignal | undefined,
-): Promise<readonly CandidateLimitationV1[]> {
-  const rows = await executePending<
-    readonly PayloadRow<CandidateLimitationV1>[]
-  >(
-    transaction`
-      select limitation.canonical_payload, limitation.canonical_digest
-      from gitblocks.snapshot_limitation_members as member
-      join gitblocks.candidate_limitations as limitation
-        on limitation.scope_key = member.scope_key
-        and limitation.candidate_id = member.candidate_id
-        and limitation.limitation_id = member.limitation_id
-      where member.scope_key = ${scopeKey}
-        and member.snapshot_id = ${snapshotId}
-      order by member.ordinal
-    `,
-    signal,
-  );
-  return rows.map((row) => validatePayloadDigest(row));
-}
-
-async function loadSnapshotUnknowns(
-  transaction: PersistenceTransaction,
-  scopeKey: string,
-  snapshotId: string,
-  signal: AbortSignal | undefined,
-): Promise<readonly CandidateUnknownV1[]> {
-  const rows = await executePending<readonly PayloadRow<CandidateUnknownV1>[]>(
-    transaction`
-      select unknown_value.canonical_payload, unknown_value.canonical_digest
-      from gitblocks.snapshot_unknown_members as member
-      join gitblocks.candidate_material_unknowns as unknown_value
-        on unknown_value.scope_key = member.scope_key
-        and unknown_value.candidate_id = member.candidate_id
-        and unknown_value.unknown_id = member.unknown_id
-      where member.scope_key = ${scopeKey}
-        and member.snapshot_id = ${snapshotId}
-      order by member.ordinal
-    `,
-    signal,
-  );
-  return rows.map((row) => validatePayloadDigest(row));
-}
-
-function validatePayloadDigest<Value>(row: PayloadRow<Value>): Value {
-  if (
-    typeof row.canonical_digest !== 'string' ||
-    canonicalizeJson(row.canonical_payload).digest !== row.canonical_digest
-  ) {
-    throw persistenceError('persistence.corrupt-record');
-  }
-  return row.canonical_payload;
 }
 
 function assertPayloadListsMatch(
@@ -1536,7 +1474,13 @@ function requireSameDigest(
   expectedDigest: string,
 ): void {
   const row = rows[0];
-  if (rows.length !== 1 || row?.canonical_digest !== expectedDigest) {
+  if (rows.length !== 1 || row?.record_digest !== expectedDigest) {
     throw persistenceError('persistence.conflict');
+  }
+}
+
+function requireResultBound(rows: readonly unknown[], maximum: number): void {
+  if (rows.length > maximum) {
+    throw persistenceError('persistence.result-limit');
   }
 }
