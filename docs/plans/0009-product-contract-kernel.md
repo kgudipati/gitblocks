@@ -8,7 +8,8 @@
 - Owner: GitBlocks maintainers
 - State: local implementation and the full pinned-runtime validation matrix
   complete; independent review found no remaining material blocker;
-  publication and hosted CI pending
+  draft PR published and first hosted Verification successful; final
+  evidence-documentation commit and its hosted Verification pending
 - Last updated: 2026-07-28
 - Authority order:
   1. Issue #9.
@@ -1119,8 +1120,29 @@ The plan may leave implementation status only when:
   conformance provenance.
 - 2026-07-28: After staging the intended Phase 3 tree, a frozen install and
   `pnpm verify:ci` left the complete porcelain-v2 status byte-for-byte
-  unchanged. Publication, the exact draft PR, hosted Verification, and
-  decoded-log inspection remain pending.
+  unchanged.
+- 2026-07-28: Created ordinary commit
+  `0090e6c0868d8841fecc051f4df76acbbb7fadfe`
+  (`feat: establish product contract kernel`) and pushed the required branch
+  without force. Opened draft PR
+  [#10](https://github.com/kgudipati/gitblocks/pull/10) with exact title
+  `feat: establish product contract kernel` and `Closes #9`; it remains draft
+  and unmerged.
+- 2026-07-28: Hosted CI run
+  [30414832786](https://github.com/kgudipati/gitblocks/actions/runs/30414832786)
+  (CI run 18) completed successfully for head
+  `0090e6c0868d8841fecc051f4df76acbbb7fadfe`. The actual `Verification` job
+  `90458949190` and its decoded logs were inspected. Ubuntu 24.04 selected Node
+  24.18.0 and pnpm 11.17.0; the 326-entry lockfile passed supply-chain policy;
+  frozen installation and PR branch/title checks passed; `pnpm verify:ci`
+  passed 522 tests, 584-module/1,879-dependency architecture validation,
+  10-case evaluation validation, 10-case/40-candidate proposed/not-reviewed
+  conformance, secret scanning, and the no-known-vulnerability audit; the
+  final `git diff --exit-code` worktree proof passed.
+- 2026-07-28: This hosted-evidence plan update will be committed and pushed as
+  an ordinary follow-up. Its final hosted Verification and decoded-log
+  inspection remain pending; no implementation correction was required by the
+  first hosted run.
 
 ## Decision and deviation log
 
@@ -1213,7 +1235,11 @@ The plan may leave implementation status only when:
 | 2026-07-28 | Product dependency-list proof under the pinned runtime                              | Exit 0; domain has no package dependency, while contracts resolves only domain, `ajv@8.20.0`, `typebox@1.3.8`, and Ajv's four documented transitives                                                    |
 | 2026-07-28 | Final independent security and Issue #9 acceptance audits                           | No remaining material blocker; 188 focused product tests and scoped diff checks passed, dependency and prohibited-import rules held, and all six contract/domain/conformance boundaries matched scope   |
 | 2026-07-28 | Frozen install plus `pnpm verify:ci` staged-state drift proof                       | Exit 0; the complete porcelain-v2 staged/untracked status was identical before and after installation and verification, proving no tracked or untracked artifact drift                                  |
+| 2026-07-28 | Ordinary implementation commit and first branch push                                | Commit `0090e6c0868d8841fecc051f4df76acbbb7fadfe`; pushed `feat/9-product-contract-kernel` with upstream tracking and no force/history rewrite                                                          |
+| 2026-07-28 | Draft PR creation                                                                   | Draft PR #10 opened at `https://github.com/kgudipati/gitblocks/pull/10` with exact required title and `Closes #9`; base `main` remained `27eb7d6585c30fd0f78f238543a764ca7b3c4f76`                      |
+| 2026-07-28 | Hosted CI run 30414832786 / Verification job 90458949190 decoded-log inspection     | Success; exact runtime/package manager, lockfile policy, metadata checks, `pnpm verify:ci`, 522 tests, architecture, evaluation/conformance, secrets/audit, and final worktree-clean proof all passed   |
 
-Hosted CI evidence is pending publication and cannot be recorded as complete
-until the final branch head has an actual successful Verification job whose
-decoded logs were inspected.
+The first published implementation head has complete hosted evidence. The
+ordinary evidence-documentation follow-up must receive the same successful
+Verification result at the final branch head before Phase 3 execution is
+reported complete.
