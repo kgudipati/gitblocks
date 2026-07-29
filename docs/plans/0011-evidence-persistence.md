@@ -433,7 +433,7 @@ Status: complete.
 
 ### 4. Documentation/repository policy
 
-Status: complete locally; PR description publication pending.
+Status: complete.
 
 - Rewrite ADR, plan, package/root README, system context, testing, security,
   reliability, contributor/agent guidance, and PR description.
@@ -441,7 +441,7 @@ Status: complete locally; PR description publication pending.
 
 ### 5. Full validation/publication/hosted evidence
 
-Status: local validation complete; publication and hosted evidence pending.
+Status: implementation and documentation published; hosted evidence complete.
 
 - Run every required local command and static acceptance review.
 - Record checksum/counts/coverage/failures.
@@ -550,6 +550,22 @@ forward migration or authorized restore.
 - 2026-07-29: Created ordinary implementation commit
   `6b1bc848f89c0e858bb0eef999045b82ae3a7e5d` without amend, rebase,
   squash, or history rewrite.
+- 2026-07-29: Created ordinary documentation commit
+  `dc7ecaea6acc36380e84fd7c9b0515b1cb41c422` and pushed both follow-up
+  commits normally to the existing branch without force.
+- 2026-07-29: Updated existing draft PR #12 in place. It remains open, draft,
+  unmerged, and based on unchanged `main`.
+- 2026-07-29: Hosted CI run
+  [30435057026](https://github.com/kgudipati/gitblocks/actions/runs/30435057026),
+  Verification job
+  [90520736938](https://github.com/kgudipati/gitblocks/actions/runs/30435057026/job/90520736938),
+  completed successfully on `dc7ecaea6acc36380e84fd7c9b0515b1cb41c422`.
+  Full decoded logs contained 1,528 lines and no Actions error/warning
+  annotations. Every step passed, including the exact PostgreSQL 18.4
+  service, frozen-install/worktree proofs, 650 offline tests, 12/12 database
+  tests without skips, proposed/not-reviewed conformance, secret scan, and
+  registry audit. The service tail's bad-password entry is the intentional
+  safe-error negative test.
 
 ## Decision and deviation log
 
@@ -598,7 +614,8 @@ forward migration or authorized restore.
 | 2026-07-29 | line/test reduction                   | key lines 5,119→3,804; migration 1,851→773; DB tests 15→12; 28 files have one setup file added, 27 modified, and none deleted |
 | 2026-07-29 | migration checksum                    | `569d7a6d6db70b1b04cadfa8798516ce4239b1179bb2f7cdd84b27641e33755f`                                                            |
 | 2026-07-29 | local Git review                      | Topic/main heads unchanged; `git diff --check` passed; 27 modified files plus one deterministic DB setup file                 |
+| 2026-07-29 | hosted Verification                   | Run 30435057026 / job 90520736938 passed all steps on `dc7ecaea`; 1,528 decoded lines; no Actions errors/warnings             |
 
-The documentation commit, ordinary push, updated draft PR description, and
-hosted run/job evidence remain pending and will be appended rather than
-reconstructed.
+This hosted-evidence plan update is the only remaining follow-up commit. Its
+ordinary push and final documentation-only hosted check are recorded in the PR
+and completion report.
