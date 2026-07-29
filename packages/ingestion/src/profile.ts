@@ -146,7 +146,7 @@ export function profileCandidate(
     },
   );
 
-  const currentRelease = bundle.releases.find((release) => !release.isDraft);
+  const currentRelease = selectedRelease(bundle);
   if (currentRelease !== undefined) {
     add(
       { topic: 'release-current', tag: currentRelease.tag },
@@ -163,7 +163,7 @@ export function profileCandidate(
           sourceType: 'official-release',
           sourceUrl: currentRelease.htmlUrl,
           release: currentRelease.tag,
-          immutableUrl: currentRelease.htmlUrl,
+          immutableUrl: immutableReleaseUrl(bundle, currentRelease.tag),
           publishedAt: currentRelease.publishedAt,
           collectedAt: bundle.collectedAt,
         },
@@ -524,6 +524,17 @@ function immutableBlobUrl(bundle: CandidateSourceBundle, path: string): string {
     .join('/')}`;
 }
 
+function immutableReleaseUrl(
+  bundle: CandidateSourceBundle,
+  release: string,
+): string {
+  return `https://github.com/${encodeURIComponent(
+    bundle.repository.canonicalOwner,
+  )}/${encodeURIComponent(
+    bundle.repository.canonicalRepository,
+  )}/releases/tag/${encodeURIComponent(release)}`;
+}
+
 function buildLimitations(
   bundle: CandidateSourceBundle,
   observations: readonly EvidenceObservationV1[],
@@ -701,7 +712,7 @@ function buildUnknowns(
   }
   if (
     expects(bundle, 'github-release') &&
-    bundle.releases.every((release) => release.isDraft)
+    selectedRelease(bundle) === undefined
   ) {
     add(
       'release-state-unknown',
@@ -803,6 +814,19 @@ function tagTopic(tag: string): string {
     .replaceAll(/[^a-z0-9]+/gu, '-')
     .replaceAll(/^-|-$/gu, '')
     .slice(0, 40)}`;
+}
+
+function selectedRelease(
+  bundle: CandidateSourceBundle,
+): CandidateSourceBundle['releases'][number] | undefined {
+  return bundle.releases.find(
+    (release) =>
+      !release.isDraft &&
+      /^[A-Za-z0-9][A-Za-z0-9._+/@-]{0,99}$/u.test(release.tag) &&
+      !/(?:^|[._+/@-])(?:canary|current|head|latest|main|master|next|stable)(?:$|[._+/@-])/iu.test(
+        release.tag,
+      ),
+  );
 }
 
 function packageRepositoryLinkage(

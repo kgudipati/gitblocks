@@ -19,6 +19,15 @@ optional release, tag, exact-commit license, community, allowlisted-file, npm,
 and reviewed-advisory requests. The maximum logical budget remains 12 requests
 per candidate, including two advisory pages.
 
+GitHub Contents base64 accepts provider line wrapping only as CR/LF and removes
+that wrapping before strict validation and decoding. Full npm packuments retain
+the 16 MiB body limit and use a 400,000-node package-specific parse budget
+inside the transport's 500,000-node hard maximum. Optional repository homepage
+metadata is retained only when it is a credential-free HTTPS URL; a valid
+non-HTTPS homepage is treated as absent, while malformed metadata remains
+fatal. Release evidence selects only immutable tags representable by the
+product contract and percent-encodes the exact tag path segment.
+
 Provider outcomes are closed and value-free. Only approved optional absence
 becomes a normal missing value. Temporary optional unavailability returns a
 partial candidate receipt without profiling or persistence. Cancellation,

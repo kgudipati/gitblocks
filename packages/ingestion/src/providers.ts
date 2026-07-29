@@ -28,6 +28,7 @@ import type {
 
 const GITHUB_BODY_BYTES = 2 * 1_024 * 1_024;
 const NPM_BODY_BYTES = 16 * 1_024 * 1_024;
+const NPM_JSON_NODES = 400_000;
 const FILE_RESPONSE_BYTES = 256 * 1_024;
 const FILE_DECODED_BYTES = 64 * 1_024;
 const TOTAL_FILE_DECODED_BYTES = 128 * 1_024;
@@ -466,8 +467,8 @@ async function getRepositoryFile(
   if (value['type'] !== 'file' || value['encoding'] !== 'base64') {
     throw ingestionError('ingestion.provider-response');
   }
-  const content = requireString(value['content'], FILE_RESPONSE_BYTES);
-  const normalizedContent = content.replaceAll('\n', '');
+  const content = requireBase64Content(value['content']);
+  const normalizedContent = content.replaceAll(/[\r\n]/gu, '');
   if (
     !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/u.test(
       normalizedContent,
@@ -537,6 +538,7 @@ async function getNpmPackage(
     provider: 'npm',
     operation: 'package-metadata',
     maximumBytes: NPM_BODY_BYTES,
+    maximumNodes: NPM_JSON_NODES,
     correlationId: config.correlationId,
     candidateId: candidate.candidateId,
     ...(config.signal === undefined ? {} : { signal: config.signal }),
@@ -550,11 +552,18 @@ async function getNpmPackage(
     throw ingestionError('ingestion.provider-identity');
   }
   const distTagsRecord = requireRecord(value['dist-tags']);
+  const latestVersion = requireString(distTagsRecord['latest'], 100);
   const distTags: Record<string, string> = {};
-  for (const key of Object.keys(distTagsRecord).sort().slice(0, 20)) {
+  const selectedDistTags = [
+    'latest',
+    ...Object.keys(distTagsRecord)
+      .filter((key) => key !== 'latest')
+      .sort()
+      .slice(0, 19),
+  ];
+  for (const key of selectedDistTags) {
     distTags[key] = requireString(distTagsRecord[key], 100);
   }
-  const latestVersion = requireString(distTags['latest'], 100);
   const versions = requireRecord(value['versions']);
   const selectedVersion = requireRecord(versions[latestVersion]);
   const times = requireRecord(value['time']);
@@ -740,6 +749,23 @@ function requireBoolean(value: unknown): boolean {
   return value;
 }
 
+function requireBase64Content(value: unknown): string {
+  if (
+    typeof value !== 'string' ||
+    value.length === 0 ||
+    value.length > FILE_RESPONSE_BYTES
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if ((code <= 31 || code === 127) && code !== 10 && code !== 13) {
+      throw ingestionError('ingestion.provider-response');
+    }
+  }
+  return value;
+}
+
 function requireStringArray(
   value: unknown,
   maximumItems: number,
@@ -774,7 +800,16 @@ function optionalHttpsUrl(value: unknown): string | null {
   if (value === null || value === '') {
     return null;
   }
-  return requireHttpsUrl(value);
+  const text = requireString(value);
+  let url: URL;
+  try {
+    url = new URL(text);
+  } catch {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return url.protocol === 'https:' && url.username === '' && url.password === ''
+    ? url.toString()
+    : null;
 }
 
 function nextLink(header: string | null): URL | null {

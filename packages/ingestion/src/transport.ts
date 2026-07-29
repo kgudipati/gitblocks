@@ -6,12 +6,15 @@ import { parseBoundedJson } from './json-boundary.ts';
 import type { IngestionObserver, TransportMetrics } from './types.ts';
 
 const RETRYABLE_STATUS = new Set([408, 500, 502, 503, 504]);
+const DEFAULT_JSON_NODES = 100_000;
+const MAXIMUM_JSON_NODES = 500_000;
 
 export interface TransportRequest {
   readonly url: URL;
   readonly provider: 'github' | 'npm';
   readonly operation: string;
   readonly maximumBytes: number;
+  readonly maximumNodes?: number;
   readonly authorizationToken?: string;
   readonly correlationId: string;
   readonly candidateId: string;
@@ -289,7 +292,7 @@ async function requestOnce(
         {
           maximumBytes: request.maximumBytes,
           maximumDepth: 32,
-          maximumNodes: 100_000,
+          maximumNodes: request.maximumNodes ?? DEFAULT_JSON_NODES,
         },
         'ingestion.provider-response',
       ),
@@ -319,6 +322,10 @@ function requestHeaders(request: TransportRequest): Headers {
 
 function validateRequest(request: TransportRequest): void {
   validatePositiveBound(request.maximumBytes, 16 * 1_024 * 1_024);
+  validatePositiveBound(
+    request.maximumNodes ?? DEFAULT_JSON_NODES,
+    MAXIMUM_JSON_NODES,
+  );
   validateProviderUrl(request.url, request.provider);
   if (
     request.authorizationToken !== undefined &&

@@ -176,7 +176,9 @@ can otherwise resolve symlinks:
 GitBlocks therefore requires an object response whose type is exactly `file`,
 encoding is supported, reported SHA/content is bounded, and requested `ref` is
 the already collected exact head commit. It never follows returned download
-URLs.
+URLs. GitHub may line-wrap base64 content; only CR/LF wrapping is accepted and
+removed before strict alphabet/padding validation and decoding. Every other
+control character remains fatal.
 
 The license response's detected path, optional name, and optional Git object
 SHA are validated. License evidence uses an immutable URL constructed from the
@@ -215,7 +217,10 @@ The client parses only:
 It discards author/maintainer/contributor personal data, README text, scripts,
 dependency graphs, tarball URLs, attachments, and every unselected version
 field after validation. It never requests a search endpoint or tarball and
-never installs a package.
+never installs a package. The general JSON node budget is 100,000. A declared
+npm packument may use 400,000 nodes within the transport's closed 500,000-node
+hard maximum because the registry repeats historical selected-version
+metadata; the 16 MiB decoded-body bound remains unchanged.
 
 #### Security advisories
 
@@ -296,7 +301,10 @@ identity.
 
 Repository responses must prove `private: false` and public visibility. A
 private, internal, ambiguous, missing, or unauthorized identity fails the
-candidate before persistence.
+candidate before persistence. Optional homepage metadata is retained only as a
+credential-free HTTPS URL. A syntactically valid non-HTTPS homepage establishes
+absence for this field; malformed URL metadata remains a fatal provider
+response.
 
 ### Content type, body, JSON, file, and timeout bounds
 
@@ -309,7 +317,9 @@ candidate before persistence.
 | decoded allowlisted total/candidate |         128 KiB |
 | allowlisted files/candidate         |               3 |
 | JSON depth                          |              32 |
-| JSON object/array nodes             |         100,000 |
+| JSON object/array nodes, default    |         100,000 |
+| JSON object/array nodes, npm        |         400,000 |
+| JSON object/array nodes, hard max   |         500,000 |
 | object properties                   |          20,000 |
 | scalar string                       |           1 MiB |
 | redirects                           |               2 |
@@ -351,6 +361,13 @@ sources; repository-only negative controls declare no optional source. This
 keeps declaration semantics reviewable instead of assigning identical optional
 requests to every candidate. The final manifest's highest logical budget is
 eight.
+
+Release collection retains up to five bounded provider records, but profile
+evidence selects the first non-draft immutable tag that is representable by the
+product contract and is not a mutable channel alias. The exact tag is
+percent-encoded as one GitHub release path segment. An established response
+with no representable immutable tag creates the deterministic release-state
+unknown instead of malformed evidence.
 
 Candidate concurrency defaults to three and is configurable only from one to
 three. Requests inside one candidate are serial. GitHub recommends serial
@@ -680,8 +697,9 @@ proved first and Issue #13 prohibits them:
 ### Costs and limitations
 
 - Catalog curation and source identity review are manual, bounded product work.
-- Full npm packuments can be large, requiring a 16 MiB bound and selective
-  extraction.
+- Full npm packuments can be large, requiring a 16 MiB body bound, a bounded
+  npm-specific node budget, selective extraction, and catalog removal of an
+  optional mapping when the current packument exceeds the hard body limit.
 - GitHub's advisory database cannot prove absence of vulnerabilities; every
   zero-result profile retains that material unknown.
 - Fixed endpoints and closed normalized fields omit semantic README/source

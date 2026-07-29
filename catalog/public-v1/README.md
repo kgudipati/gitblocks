@@ -24,11 +24,31 @@ claiming direct family coverage.
 The independent-review pass examined all 150 entries for plausible stable
 GitHub/npm identity, deliberate family and status, classification rationale,
 specific official selection source, negative-control adjacency, and justified
-file allowlist. It made no candidate removal, replacement, alias, or primary
-family correction. It corrected `logform` from active to negative control
-because the selected source describes record formatting rather than log
-production, collection, or transport. Provider-current accuracy remains
-unclaimed until the required live run.
+file allowlist. It corrected `logform` from active to negative control because
+the selected source describes record formatting rather than log production,
+collection, or transport.
+
+Bounded live diagnostics then established these curator corrections before the
+reviewed runs:
+
+- mark `casbin/casbin`, `casbin/casbin.js`, and `casbin/node-casbin` as moved
+  while preserving those stable catalog identities and allowing their current
+  Apache canonical locations to remain evidence;
+- correct `ladjs/koa-roles` to `koajs/koa-roles`;
+- correct `dodopayments/dodopayments-node` to
+  `dodopayments/dodopayments-typescript`;
+- replace the nonexistent `hookdeck/hookdeck` entry with the relevant
+  `hookdeck/outpost` project;
+- correct the Octokit repository/package aliases to
+  `octokit/webhooks-methods.js` and `@octokit/webhooks-methods`;
+- correct the PayPal repository alias to
+  `paypal/PayPal-TypeScript-Server-SDK`; and
+- remove the optional Clerk npm mapping because its current full packument
+  exceeds the reviewed 16 MiB body bound; the official Clerk repository README
+  remains sufficient negative-control classification evidence.
+
+No primary-family assignment changed. Provider-current accuracy remains
+unclaimed until both required clean live runs succeed.
 
 The review retained zero additional-family assignments. That is a deliberate
 V1 conclusion: none was strong enough to add without broadening a repository's
@@ -44,11 +64,11 @@ Final deterministic distribution:
 | background-jobs primary |    30 |
 | rate-limiting primary   |    30 |
 | webhooks primary        |    30 |
-| npm-backed              |    81 |
-| repository-only         |    69 |
-| active                  |   102 |
+| npm-backed              |    80 |
+| repository-only         |    70 |
+| active                  |    99 |
 | archived                |     3 |
-| moved                   |     1 |
+| moved                   |     4 |
 | negative control        |    44 |
 | multi-family            |     0 |
 
@@ -65,12 +85,12 @@ The reviewed source policy has four deliberate combinations:
 
 This gives 99 entries with no file and 51 with an exact-commit `package.json`
 allowlist. Declaration counts are 150 repository, 106 release, 55 tag, 106
-license, 55 community, 51 file, 81 npm, and 81 advisory. The highest
+license, 55 community, 51 file, 80 npm, and 80 advisory. The highest
 per-candidate logical request budget in this manifest is eight; the
 schema/runtime hard maximum remains 12.
 
 The generated manifest digest is
-`371df1d677284466f7b29f3aaef0b15641e09cf3792a3badc64c45004161dfb7`.
+`4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`.
 The catalog release time is release metadata; each candidate's
 `introducedAt` controls immutable candidate creation time.
 

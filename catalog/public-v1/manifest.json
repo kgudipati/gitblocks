@@ -1,7 +1,7 @@
 {
   "catalogVersion": "public-v1",
   "publishedAt": "2026-07-29T00:00:00.000Z",
-  "manifestDigest": "371df1d677284466f7b29f3aaef0b15641e09cf3792a3badc64c45004161dfb7",
+  "manifestDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
   "candidates": [
     {
       "candidateId": "audit-bunyan",
@@ -872,7 +872,7 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Casbin evaluates configurable access-control models and policies, covering reusable authorization enforcement across several policy styles.",
+      "rationale": "Casbin evaluates configurable access-control models and policies, covering reusable authorization enforcement across several policy styles; its stable catalog locator now resolves to the Apache-hosted canonical repository.",
       "selectionSources": [
         "https://github.com/casbin/casbin/blob/HEAD/README.md"
       ],
@@ -883,7 +883,7 @@
         "github-repository",
         "github-tag"
       ],
-      "status": "active",
+      "status": "moved",
       "allowlistedFiles": []
     },
     {
@@ -897,7 +897,7 @@
       "npmPackage": "casbin.js",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Casbin.js brings Casbin model-and-policy authorization to JavaScript runtimes. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
+      "rationale": "Casbin.js brings Casbin model-and-policy authorization to JavaScript runtimes; its stable catalog locator now resolves to the Apache-hosted canonical repository. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
         "https://github.com/casbin/casbin.js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/casbin.js"
@@ -910,7 +910,7 @@
         "github-repository",
         "npm-package"
       ],
-      "status": "active",
+      "status": "moved",
       "allowlistedFiles": ["package.json"]
     },
     {
@@ -924,7 +924,7 @@
       "npmPackage": "casbin",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "node-casbin is the Node.js Casbin enforcement library for model-driven access checks. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
+      "rationale": "node-casbin is the Node.js Casbin enforcement library for model-driven access checks; its stable catalog locator now resolves to the Apache-hosted canonical repository. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
         "https://github.com/casbin/node-casbin/blob/HEAD/README.md",
         "https://www.npmjs.com/package/casbin"
@@ -937,7 +937,7 @@
         "github-repository",
         "npm-package"
       ],
-      "status": "active",
+      "status": "moved",
       "allowlistedFiles": ["package.json"]
     },
     {
@@ -1081,7 +1081,7 @@
       "displayName": "koa-roles",
       "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
-        "owner": "ladjs",
+        "owner": "koajs",
         "repository": "koa-roles"
       },
       "npmPackage": "koa-roles",
@@ -1089,7 +1089,7 @@
       "additionalCapabilityFamilies": [],
       "rationale": "koa-roles provides role-based permission checks for Koa request handling. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/ladjs/koa-roles/blob/HEAD/README.md",
+        "https://github.com/koajs/koa-roles/blob/HEAD/README.md",
         "https://www.npmjs.com/package/koa-roles"
       ],
       "expectedSourceTypes": [
@@ -3021,19 +3021,14 @@
         "owner": "clerk",
         "repository": "javascript"
       },
-      "npmPackage": "@clerk/backend",
+      "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
       "rationale": "Clerk JavaScript is an adjacent negative control because it is a broad authentication and user-management SDK, not dedicated webhook infrastructure.",
       "selectionSources": [
-        "https://github.com/clerk/javascript/blob/HEAD/README.md",
-        "https://www.npmjs.com/package/%40clerk%2Fbackend"
+        "https://github.com/clerk/javascript/blob/HEAD/README.md"
       ],
-      "expectedSourceTypes": [
-        "github-advisory",
-        "github-repository",
-        "npm-package"
-      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
@@ -3092,14 +3087,14 @@
       "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "dodopayments",
-        "repository": "dodopayments-node"
+        "repository": "dodopayments-typescript"
       },
       "npmPackage": "dodopayments",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
       "rationale": "Dodo Payments Node is an adjacent negative control selected as a payment-provider SDK that may expose webhook helpers but is not webhook infrastructure.",
       "selectionSources": [
-        "https://github.com/dodopayments/dodopayments-node/blob/HEAD/README.md",
+        "https://github.com/dodopayments/dodopayments-typescript/blob/HEAD/README.md",
         "https://www.npmjs.com/package/dodopayments"
       ],
       "expectedSourceTypes": [
@@ -3186,18 +3181,18 @@
     },
     {
       "candidateId": "webhook-hookdeck",
-      "displayName": "Hookdeck",
+      "displayName": "Hookdeck Outpost",
       "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "hookdeck",
-        "repository": "hookdeck"
+        "repository": "outpost"
       },
       "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Hookdeck acts as a webhook gateway with routing, retries, observability, and request management for inbound event traffic.",
+      "rationale": "Hookdeck Outpost is an open-source event-delivery engine that accepts, routes, retries, and rate-limits webhook traffic.",
       "selectionSources": [
-        "https://github.com/hookdeck/hookdeck/blob/HEAD/README.md"
+        "https://github.com/hookdeck/outpost/blob/HEAD/README.md"
       ],
       "expectedSourceTypes": [
         "github-community",
@@ -3358,19 +3353,19 @@
     },
     {
       "candidateId": "webhook-octokit-methods",
-      "displayName": "Octokit Webhook Methods",
+      "displayName": "Octokit Webhooks Methods",
       "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "octokit",
-        "repository": "webhook-methods.js"
+        "repository": "webhooks-methods.js"
       },
-      "npmPackage": "@octokit/webhook-methods",
+      "npmPackage": "@octokit/webhooks-methods",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Octokit Webhook Methods signs, verifies, and identifies GitHub webhook payloads as focused protocol helpers. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
+      "rationale": "Octokit Webhooks Methods signs, verifies, and identifies GitHub webhook payloads as focused protocol helpers. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/octokit/webhook-methods.js/blob/HEAD/README.md",
-        "https://www.npmjs.com/package/%40octokit%2Fwebhook-methods"
+        "https://github.com/octokit/webhooks-methods.js/blob/HEAD/README.md",
+        "https://www.npmjs.com/package/%40octokit%2Fwebhooks-methods"
       ],
       "expectedSourceTypes": [
         "github-advisory",
@@ -3440,14 +3435,14 @@
       "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "paypal",
-        "repository": "paypal-server-sdk-nodejs"
+        "repository": "PayPal-TypeScript-Server-SDK"
       },
       "npmPackage": "@paypal/paypal-server-sdk",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
       "rationale": "PayPal Server SDK Node is an adjacent negative control selected as a payment API client, not dedicated webhook delivery or verification infrastructure.",
       "selectionSources": [
-        "https://github.com/paypal/paypal-server-sdk-nodejs/blob/HEAD/README.md",
+        "https://github.com/paypal/PayPal-TypeScript-Server-SDK/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40paypal%2Fpaypal-server-sdk"
       ],
       "expectedSourceTypes": [

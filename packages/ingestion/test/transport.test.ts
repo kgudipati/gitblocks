@@ -213,6 +213,34 @@ describe('bounded provider transport', () => {
     });
   });
 
+  it('allows an explicitly raised bounded node budget for large npm packuments', async () => {
+    const value = Array.from({ length: 100_001 }, () => 0);
+    const responseText = JSON.stringify(value);
+    const defaultTransport = createTransport({
+      fetch: () => Promise.resolve(jsonResponse(value)),
+      sleep: () => Promise.resolve(),
+    });
+    const npmRequest: TransportRequest = {
+      ...REQUEST,
+      provider: 'npm',
+      url: new URL('https://registry.npmjs.org/example'),
+      maximumBytes: Buffer.byteLength(responseText),
+    };
+    await expect(
+      defaultTransport.requestJson(npmRequest),
+    ).rejects.toMatchObject({
+      code: 'ingestion.provider-response',
+    });
+
+    const raisedTransport = createTransport({
+      fetch: () => Promise.resolve(jsonResponse(value)),
+      sleep: () => Promise.resolve(),
+    });
+    await expect(
+      raisedTransport.requestJson({ ...npmRequest, maximumNodes: 400_000 }),
+    ).resolves.toMatchObject({ value });
+  });
+
   it('preserves caller cancellation separately from an internal deadline', async () => {
     const controller = new AbortController();
     const transport = createTransport({

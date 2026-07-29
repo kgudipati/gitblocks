@@ -125,6 +125,10 @@ describe('public provider mapping', () => {
           request.url.hostname === 'registry.npmjs.org',
       ),
     ).toBe(true);
+    expect(
+      requests.find((request) => request.operation === 'package-metadata')
+        ?.maximumNodes,
+    ).toBe(400_000);
   });
 
   it('rejects a private or canonically mismatched required repository', async () => {
@@ -261,6 +265,177 @@ describe('public provider mapping', () => {
       'repository',
       'head-commit',
     ]);
+  });
+
+  it('normalizes a non-HTTPS optional repository homepage to absence', async () => {
+    const transport: ProviderTransport = {
+      requestJson: (request) => {
+        const result = providerResponse(request);
+        if (
+          request.provider !== 'github' ||
+          request.url.pathname !== '/repos/gitblocks-test/candidate'
+        ) {
+          return Promise.resolve(result);
+        }
+        return Promise.resolve({
+          ...result,
+          value: {
+            ...(result.value as Record<string, unknown>),
+            homepage: 'http://example.com/project',
+          },
+        });
+      },
+    };
+    const collection = await collectCandidateSources(
+      TEST_CANDIDATE,
+      '2026-07-29T12:00:00.000Z',
+      {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      },
+    );
+    expect(collection.outcome).toBe('complete');
+    if (collection.outcome !== 'complete') {
+      return;
+    }
+    expect(collection.bundle.repository.homepage).toBeNull();
+  });
+
+  it('preserves latest while bounding many npm dist-tags', async () => {
+    const transport: ProviderTransport = {
+      requestJson: (request) => {
+        const result = providerResponse(request);
+        if (request.provider !== 'npm') {
+          return Promise.resolve(result);
+        }
+        const distTags = Object.fromEntries([
+          ...Array.from(
+            { length: 25 },
+            (_, index): readonly [string, string] => [
+              `channel-${String(index).padStart(2, '0')}`,
+              '1.2.3',
+            ],
+          ),
+          ['latest', '1.2.3'] as const,
+        ]);
+        return Promise.resolve({
+          ...result,
+          value: {
+            ...(result.value as Record<string, unknown>),
+            'dist-tags': distTags,
+          },
+        });
+      },
+    };
+    const collection = await collectCandidateSources(
+      TEST_CANDIDATE,
+      '2026-07-29T12:00:00.000Z',
+      {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      },
+    );
+    expect(collection.outcome).toBe('complete');
+    if (collection.outcome !== 'complete') {
+      return;
+    }
+    expect(collection.bundle.npm?.latestVersion).toBe('1.2.3');
+    expect(collection.bundle.npm?.distTags['latest']).toBe('1.2.3');
+    expect(Object.keys(collection.bundle.npm?.distTags ?? {})).toHaveLength(20);
+  });
+
+  it('constructs an exact release locator when a tag contains a slash', async () => {
+    const transport: ProviderTransport = {
+      requestJson: (request) => {
+        const result = providerResponse(request);
+        if (request.operation !== 'releases') {
+          return Promise.resolve(result);
+        }
+        return Promise.resolve({
+          ...result,
+          value: [
+            {
+              tag_name: 'java-sdk/1.0.0-beta1',
+              html_url:
+                'https://github.com/gitblocks-test/candidate/releases/tag/java-sdk/1.0.0-beta1',
+              published_at: '2026-07-27T12:00:00.000Z',
+              draft: false,
+              prerelease: true,
+            },
+          ],
+        });
+      },
+    };
+    const collection = await collectCandidateSources(
+      TEST_CANDIDATE,
+      '2026-07-29T12:00:00.000Z',
+      {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      },
+    );
+    expect(collection.outcome).toBe('complete');
+    if (collection.outcome !== 'complete') {
+      return;
+    }
+    const release = profileCandidate(collection.bundle).observations.find(
+      (observation) => observation.topic === 'release-current',
+    );
+    expect(release?.source).toMatchObject({
+      kind: 'release',
+      release: 'java-sdk/1.0.0-beta1',
+      immutableUrl:
+        'https://github.com/gitblocks-test/candidate/releases/tag/java-sdk%2F1.0.0-beta1',
+    });
+  });
+
+  it('treats an unrepresentable release tag as an established release unknown', async () => {
+    const transport: ProviderTransport = {
+      requestJson: (request) => {
+        const result = providerResponse(request);
+        if (request.operation !== 'releases') {
+          return Promise.resolve(result);
+        }
+        return Promise.resolve({
+          ...result,
+          value: [
+            {
+              tag_name: '@scope/package@1.0.0',
+              html_url:
+                'https://github.com/gitblocks-test/candidate/releases/tag/%40scope%2Fpackage%401.0.0',
+              published_at: '2026-07-27T12:00:00.000Z',
+              draft: false,
+              prerelease: false,
+            },
+          ],
+        });
+      },
+    };
+    const collection = await collectCandidateSources(
+      TEST_CANDIDATE,
+      '2026-07-29T12:00:00.000Z',
+      {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      },
+    );
+    expect(collection.outcome).toBe('complete');
+    if (collection.outcome !== 'complete') {
+      return;
+    }
+    const profile = profileCandidate(collection.bundle);
+    expect(
+      profile.observations.some(
+        (observation) => observation.topic === 'release-current',
+      ),
+    ).toBe(false);
+    expect(profile.unknowns.map((unknown) => unknown.topic)).toContain(
+      'release-state-unknown',
+    );
   });
 
   it('allows an approved optional absence to produce a complete profile', async () => {
@@ -439,10 +614,13 @@ function providerResponse(request: TransportRequest): JsonResponse {
     });
   }
   if (path.endsWith('/contents/package.json')) {
+    const encodedContent = Buffer.from('{"name":"untrusted"}').toString(
+      'base64',
+    );
     return response({
       type: 'file',
       encoding: 'base64',
-      content: Buffer.from('{"name":"untrusted"}').toString('base64'),
+      content: `${encodedContent.slice(0, 8)}\n${encodedContent.slice(8)}\n`,
       size: Buffer.byteLength('{"name":"untrusted"}'),
       sha: '2222222222222222222222222222222222222222',
       html_url:

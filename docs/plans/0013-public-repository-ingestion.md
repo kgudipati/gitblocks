@@ -8,10 +8,10 @@
 - Planned draft PR title: `feat: ingest curated public repository catalog`
 - Owner: GitBlocks maintainers
 - State:
-  `independent-review corrections are committed and host-validated; a
-least-privilege migration-verification correction is in progress after the
-first live attempt stopped before provider access; both reviewed live runs
-remain incomplete`
+  `runtime migration verification is committed and host-validated; bounded
+live diagnostics found catalog and provider-mapper corrections; their full
+deterministic matrix, publication, and both reviewed live runs remain
+incomplete`
 - Last updated: 2026-07-29
 - Authority order: Issue #13; actual repository and Git history; product
   contract; accepted ADRs and system context; `AGENTS.md`, `PLANS.md`, and the
@@ -645,8 +645,9 @@ Status: complete.
 
 ### 6. Live run and publication
 
-Status: prior draft publication exists; correction publication, final hosted
-verification, and both live executions remain incomplete.
+Status: prior draft publication and the migration correction exist; live
+catalog/mapper correction publication, final hosted verification, and both
+reviewed live executions remain incomplete.
 
 - Run the full final manifest only with explicitly injected credentials,
   approved non-production PostgreSQL, and acknowledgement.
@@ -657,8 +658,9 @@ verification, and both live executions remain incomplete.
 
 ### 7. Independent-review corrections
 
-Status: implementation and focused local regressions complete; full matrix and
-publication pending.
+Status: implementation, focused local regressions, and bounded all-candidate
+live mapper diagnostics complete; full correction matrix and publication
+pending.
 
 - Make all curator decisions explicit in `candidates.json` and reject generic
   rationale or repository-homepage-only classification.
@@ -929,6 +931,29 @@ new issue.
   coverage, architecture, repository, evaluation, contracts, catalog, 44
   ingestion tests, 23 PostgreSQL tests, secret scanning, registry audit,
   `verify`, and `verify:ci`.
+- 2026-07-29: Created and normally pushed follow-up commit `c794880` for
+  runtime migration verification. Hosted run `30476762296`, Verification job
+  `90660300464`, passed; all 1,550 decoded lines were inspected, including 695
+  offline tests, 23 PostgreSQL tests with two migrations, the exact catalog
+  digest, dependency audit, and clean-worktree proof.
+- 2026-07-29: Restarted on a fresh pinned no-volume PostgreSQL 18.4 database.
+  Migration apply/check and non-owner runtime verification passed. The full
+  live run was stopped without a receipt after deterministic candidate
+  failures exposed provider/catalog incompatibilities; the run was not
+  retried blindly.
+- 2026-07-29: Bounded diagnostics across every failed or not-yet-reached
+  candidate established GitHub Contents CR/LF base64 wrapping, large npm JSON
+  trees, exact release-locator constraints, optional HTTP homepage metadata,
+  three Casbin moves, and five bad or unsupported catalog mappings. Focused
+  correction checks then completed every affected candidate with zero failed
+  or partial outcomes. The reviewed full runs remain pending on a clean
+  database after deterministic publication.
+- 2026-07-29: The complete live-discovery correction matrix passed: frozen
+  installation, formatting, lint, typecheck, build, 700 offline tests,
+  coverage, architecture, repository, evaluation, contracts, corrected
+  catalog, 49 ingestion tests, 23 PostgreSQL tests with two migrations, secret
+  scanning, registry audit, `verify`, and `verify:ci`. Coverage was 77.19%
+  statements, 70.04% branches, 83.67% functions, and 77.03% lines.
 
 ## Decision and deviation log
 
@@ -970,40 +995,49 @@ new issue.
 | Required live provider/database run                           | No ingestion token, GitHub CLI, `GH_TOKEN`, or `GITHUB_TOKEN` is available; a pinned no-volume local PostgreSQL 18.4 target is available | Stop before provider calls, keep the PR draft, record Phase 5 live completion as incomplete, and request no secret in Git or chat                    |
 | Final generated-manifest format check                         | Regenerating after the 150-entry rationale review restored the generator's expanded JSON layout                                          | Run repository formatting, revalidate the same canonical digest, and restart the complete deterministic matrix                                       |
 | First credentialed live database gate                         | The runtime login connected but could not read migration history, so live CLI verification failed with `42501` before provider access    | Add forward migration 0002 granting read-only history access, prove runtime verification through PostgreSQL, discard the database, and restart clean |
+| First provider-backed full run                                | Provider data exposed wrapped base64, a 330,631-node npm packument, HTTP homepages, unrepresentable release tags, moves, and bad aliases | Stop without a receipt; add bounded mapper regressions, correct curator input, revalidate all affected candidates, and restart from a clean database |
+| Clerk optional npm source                                     | Its current full packument is 25,207,671 decoded bytes, above the retained 16 MiB hard body bound                                        | Remove the optional npm mapping/source declarations; retain repository-specific negative-control evidence                                            |
+| First live-correction lint pass                               | The many-dist-tags fixture inferred an unsafe tuple union                                                                                | Give the synthetic dist-tag entries explicit readonly string tuple types and restart the complete matrix                                             |
 
 ## Validation evidence
 
-| Date       | Command or review                      | Result                                                                                                                                                                                  |
-| ---------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-29 | Git/GitHub authority checks            | Clean synchronized expected main; PR #12 merged; Issue #11 closed; Issue #13 open                                                                                                       |
-| 2026-07-29 | Runtime/frozen install baseline        | Node 24.18.0; pnpm 11.17.0; frozen install unchanged                                                                                                                                    |
-| 2026-07-29 | `pnpm verify` / `pnpm verify:ci`       | 650 offline tests; architecture/repository/contracts/eval/secret/audit passed                                                                                                           |
-| 2026-07-29 | `pnpm db:verify`                       | PostgreSQL 18.4; one migration; 13 public product tables; zero RLS; 12 tests, no skips                                                                                                  |
-| 2026-07-29 | Provider primary-source review         | Endpoint, API version, authentication, rate-limit, npm packument, and advisory choices recorded                                                                                         |
-| 2026-07-29 | `pnpm catalog:validate`                | 150 unique candidates; 30 authorization, 30 audit logging, 30 background jobs, 30 rate limiting, 30 webhooks; digest `d9d61d8b07f7e638ceaa102f4145388b59d1d537aac6203006d98c020b70697d` |
-| 2026-07-29 | Ingestion deterministic tests          | Manifest, fixed transport, rate limits, provider mapping, all-family profiles, limitations, refresh, and receipt tests passed                                                           |
-| 2026-07-29 | Final offline/coverage suite           | 37 files / 670 tests; 76.93% statements, 69.46% branches, 83.50% functions, 76.76% lines                                                                                                |
-| 2026-07-29 | Updated `pnpm db:verify`               | PostgreSQL 18.4; one migration; 13 public tables; zero RLS; 15 DB tests including ingestion round trip, rerun, changed lifecycle, concurrency, and independent failure; no skips        |
-| 2026-07-29 | `db:migrate` / `db:check` / `db:test`  | Individually passed against one explicitly provisioned ephemeral PostgreSQL 18.4 target; 15 tests, no skips                                                                             |
-| 2026-07-29 | Ingestion architecture graph           | 625 modules / 1,988 dependencies; no violations                                                                                                                                         |
-| 2026-07-29 | Final `pnpm verify`                    | Formatting, build, lint, typecheck, 670 tests, architecture, repository, evaluation, contracts, catalog, and secret scan passed                                                         |
-| 2026-07-29 | Final `pnpm verify:ci`                 | Final `verify`, PostgreSQL verification, and registry-backed moderate dependency audit passed; no known vulnerabilities                                                                 |
-| 2026-07-29 | Hosted CI run/job                      | Run `30445222539`, Verification job `90553802670`: success; all 1,547 decoded log lines inspected, 668 offline and 15 PostgreSQL tests, clean-worktree proof, no warnings/errors        |
-| 2026-07-29 | Hosted evidence-head rerun             | Run `30445683262`, Verification job `90555328238`: success on commit `9231e96`; all 1,547 decoded lines inspected, no warning/error or nonzero-exit markers                             |
-| 2026-07-29 | Live configuration gate                | Required GitHub and database variables unset; no provider request made and no receipt claimed                                                                                           |
-| 2026-07-29 | Corrected `pnpm catalog:validate`      | 150 unique candidates; 30 per family; 102 active / 3 archived / 1 moved / 44 negative controls; digest `371df1d677284466f7b29f3aaef0b15641e09cf3792a3badc64c45004161dfb7`               |
-| 2026-07-29 | Corrected offline/coverage suite       | 37 files / 695 tests; 77.14% statements, 69.95% branches, 83.62% functions, 76.98% lines                                                                                                |
-| 2026-07-29 | Corrected ingestion suite              | 5 files / 44 tests, including fatal outcome propagation, declaration/request agreement, exact license provenance, and rationale rejection                                               |
-| 2026-07-29 | Corrected PostgreSQL matrix            | Individual migrate/check/test commands passed on one no-volume PostgreSQL 18.4 container; 1 migration, 13 tables, 0 RLS, 23 tests; independent `db:verify` passed without skips         |
-| 2026-07-29 | Corrected local `verify` / `verify:ci` | Full deterministic verification and registry-backed moderate audit passed; 625 modules / 1,988 dependencies, no architecture violations, no known vulnerabilities                       |
-| 2026-07-29 | Corrected live configuration gate      | GitHub CLI and all eligible token variables absent; local pinned ephemeral PostgreSQL is available; no provider request made and no receipt claimed                                     |
-| 2026-07-29 | Corrected hosted Verification          | Run `30471964637`, job `90644174655`: success on `59a681d`; 695 offline and 23 PostgreSQL tests, exact catalog digest, audit, and clean-worktree proof; 1,543 log lines reviewed        |
-| 2026-07-29 | Pre-live deterministic baseline        | Frozen install, catalog validation, 44 ingestion tests, 23 PostgreSQL tests, complete `verify`, and registry-backed `verify:ci` passed before credentialed provider access              |
-| 2026-07-29 | First credentialed live attempt        | Stopped before provider access; no receipt; runtime migration-history read failed with `42501`; no-volume database and temporary telemetry removed                                      |
-| 2026-07-29 | Runtime migration verification fix     | PostgreSQL 18.4 applied two forward migrations; 23 database tests passed without skips, including non-owner runtime verification of the exact applied inventory                         |
-| 2026-07-29 | Post-live-discovery local matrix       | 695 offline tests; 77.14% statements / 69.95% branches / 83.62% functions / 76.98% lines; 44 ingestion and 23 PostgreSQL tests; all deterministic gates passed                          |
+| Date       | Command or review                      | Result                                                                                                                                                                                                       |
+| ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-07-29 | Git/GitHub authority checks            | Clean synchronized expected main; PR #12 merged; Issue #11 closed; Issue #13 open                                                                                                                            |
+| 2026-07-29 | Runtime/frozen install baseline        | Node 24.18.0; pnpm 11.17.0; frozen install unchanged                                                                                                                                                         |
+| 2026-07-29 | `pnpm verify` / `pnpm verify:ci`       | 650 offline tests; architecture/repository/contracts/eval/secret/audit passed                                                                                                                                |
+| 2026-07-29 | `pnpm db:verify`                       | PostgreSQL 18.4; one migration; 13 public product tables; zero RLS; 12 tests, no skips                                                                                                                       |
+| 2026-07-29 | Provider primary-source review         | Endpoint, API version, authentication, rate-limit, npm packument, and advisory choices recorded                                                                                                              |
+| 2026-07-29 | `pnpm catalog:validate`                | 150 unique candidates; 30 authorization, 30 audit logging, 30 background jobs, 30 rate limiting, 30 webhooks; digest `d9d61d8b07f7e638ceaa102f4145388b59d1d537aac6203006d98c020b70697d`                      |
+| 2026-07-29 | Ingestion deterministic tests          | Manifest, fixed transport, rate limits, provider mapping, all-family profiles, limitations, refresh, and receipt tests passed                                                                                |
+| 2026-07-29 | Final offline/coverage suite           | 37 files / 670 tests; 76.93% statements, 69.46% branches, 83.50% functions, 76.76% lines                                                                                                                     |
+| 2026-07-29 | Updated `pnpm db:verify`               | PostgreSQL 18.4; one migration; 13 public tables; zero RLS; 15 DB tests including ingestion round trip, rerun, changed lifecycle, concurrency, and independent failure; no skips                             |
+| 2026-07-29 | `db:migrate` / `db:check` / `db:test`  | Individually passed against one explicitly provisioned ephemeral PostgreSQL 18.4 target; 15 tests, no skips                                                                                                  |
+| 2026-07-29 | Ingestion architecture graph           | 625 modules / 1,988 dependencies; no violations                                                                                                                                                              |
+| 2026-07-29 | Final `pnpm verify`                    | Formatting, build, lint, typecheck, 670 tests, architecture, repository, evaluation, contracts, catalog, and secret scan passed                                                                              |
+| 2026-07-29 | Final `pnpm verify:ci`                 | Final `verify`, PostgreSQL verification, and registry-backed moderate dependency audit passed; no known vulnerabilities                                                                                      |
+| 2026-07-29 | Hosted CI run/job                      | Run `30445222539`, Verification job `90553802670`: success; all 1,547 decoded log lines inspected, 668 offline and 15 PostgreSQL tests, clean-worktree proof, no warnings/errors                             |
+| 2026-07-29 | Hosted evidence-head rerun             | Run `30445683262`, Verification job `90555328238`: success on commit `9231e96`; all 1,547 decoded lines inspected, no warning/error or nonzero-exit markers                                                  |
+| 2026-07-29 | Live configuration gate                | Required GitHub and database variables unset; no provider request made and no receipt claimed                                                                                                                |
+| 2026-07-29 | Corrected `pnpm catalog:validate`      | 150 unique candidates; 30 per family; 102 active / 3 archived / 1 moved / 44 negative controls; digest `371df1d677284466f7b29f3aaef0b15641e09cf3792a3badc64c45004161dfb7`                                    |
+| 2026-07-29 | Corrected offline/coverage suite       | 37 files / 695 tests; 77.14% statements, 69.95% branches, 83.62% functions, 76.98% lines                                                                                                                     |
+| 2026-07-29 | Corrected ingestion suite              | 5 files / 44 tests, including fatal outcome propagation, declaration/request agreement, exact license provenance, and rationale rejection                                                                    |
+| 2026-07-29 | Corrected PostgreSQL matrix            | Individual migrate/check/test commands passed on one no-volume PostgreSQL 18.4 container; 1 migration, 13 tables, 0 RLS, 23 tests; independent `db:verify` passed without skips                              |
+| 2026-07-29 | Corrected local `verify` / `verify:ci` | Full deterministic verification and registry-backed moderate audit passed; 625 modules / 1,988 dependencies, no architecture violations, no known vulnerabilities                                            |
+| 2026-07-29 | Corrected live configuration gate      | GitHub CLI and all eligible token variables absent; local pinned ephemeral PostgreSQL is available; no provider request made and no receipt claimed                                                          |
+| 2026-07-29 | Corrected hosted Verification          | Run `30471964637`, job `90644174655`: success on `59a681d`; 695 offline and 23 PostgreSQL tests, exact catalog digest, audit, and clean-worktree proof; 1,543 log lines reviewed                             |
+| 2026-07-29 | Pre-live deterministic baseline        | Frozen install, catalog validation, 44 ingestion tests, 23 PostgreSQL tests, complete `verify`, and registry-backed `verify:ci` passed before credentialed provider access                                   |
+| 2026-07-29 | First credentialed live attempt        | Stopped before provider access; no receipt; runtime migration-history read failed with `42501`; no-volume database and temporary telemetry removed                                                           |
+| 2026-07-29 | Runtime migration verification fix     | PostgreSQL 18.4 applied two forward migrations; 23 database tests passed without skips, including non-owner runtime verification of the exact applied inventory                                              |
+| 2026-07-29 | Post-live-discovery local matrix       | 695 offline tests; 77.14% statements / 69.95% branches / 83.62% functions / 76.98% lines; 44 ingestion and 23 PostgreSQL tests; all deterministic gates passed                                               |
+| 2026-07-29 | Migration-fix hosted Verification      | Run `30476762296`, job `90660300464`: success on `c794880`; 695 offline and 23 PostgreSQL tests with two migrations; all 1,550 decoded lines inspected                                                       |
+| 2026-07-29 | Bounded all-candidate live diagnostics | Every catalog entry reached provider mapping; all discovered failures were reproduced with safe metadata only, corrected, and focused-rechecked with zero failures/partials                                  |
+| 2026-07-29 | Live-corrected `catalog:validate`      | 150 unique candidates; 30 per family; 99 active / 3 archived / 4 moved / 44 negative controls; 80 npm-backed / 70 repository-only; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634` |
+| 2026-07-29 | Live-correction deterministic matrix   | 700 offline and 49 ingestion tests; coverage 77.19% / 70.04% / 83.67% / 77.03%; 23 PostgreSQL tests with two migrations; all local deterministic and audit gates passed                                      |
 
 The independent-review implementation and documentation are published on the
 existing draft branch with successful deterministic hosted evidence. The
-runtime migration-verification correction has passed the complete local matrix
-and still requires hosted confirmation before both reviewed live runs restart.
+runtime migration-verification correction is also published and host-validated.
+The live-discovered catalog/mapper corrections passed the complete local matrix
+and require ordinary publication plus hosted verification before both reviewed
+live runs restart.
