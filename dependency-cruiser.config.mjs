@@ -87,6 +87,19 @@ const configuration = {
       },
     },
     {
+      name: 'no-persistence-outward-dependency',
+      severity: 'error',
+      comment:
+        'Persistence may depend only on its own source, contracts/domain, Postgres.js, and approved Node APIs.',
+      from: {
+        path: '^packages/persistence/src/',
+      },
+      to: {
+        pathNot:
+          '^(?:packages/persistence/src/|packages/(?:contracts|domain)/|node:|crypto$|fs/promises$)|node_modules/(?:@gitblocks/(?:contracts|domain)|postgres)(?:/|$)',
+      },
+    },
+    {
       name: 'no-application-outward-dependency',
       severity: 'error',
       comment:
@@ -103,7 +116,7 @@ const configuration = {
       severity: 'error',
       comment: 'Product workspaces must not depend on repository tooling.',
       from: {
-        path: '^packages/(?:contracts|domain)/',
+        path: '^packages/(?:contracts|domain|persistence)/',
       },
       to: {
         path: '^tools/',
@@ -115,7 +128,7 @@ const configuration = {
       comment:
         'Product packages must not depend on evaluation corpus files, schemas, or implementation.',
       from: {
-        path: '^packages/(?:contracts|domain)/',
+        path: '^packages/(?:contracts|domain|persistence)/',
       },
       to: {
         path: '^(?:evals|schemas/evaluation)(?:/|$)',
@@ -131,6 +144,18 @@ const configuration = {
       },
       to: {
         path: '(^|/)(?:adapters?|database|delivery|frameworks?|http|infrastructure|interfaces?|mcp|orm|providers?|queues?|storage)(/|$)',
+      },
+    },
+    {
+      name: 'no-persistence-to-prohibited-layer',
+      severity: 'error',
+      comment:
+        'Persistence cannot depend on application, transport, provider, framework, queue, worker, model, or deployment layers.',
+      from: {
+        path: '^packages/persistence/',
+      },
+      to: {
+        path: '(^|/)(?:application|delivery|deployments?|frameworks?|github|http|interfaces?|mcp|models?|providers?|queues?|workers?)(/|$)',
       },
     },
     {

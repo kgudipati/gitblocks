@@ -4,13 +4,16 @@
     "noEmit": true,
     "tsBuildInfoFile": "node_modules/.cache/tsconfig.root.tsbuildinfo"
   },
-  "files": ["vitest.config.ts"],
+  "files": ["vitest.config.ts", "vitest.db.config.ts"],
   "references": [
     {
       "path": "./packages/domain"
     },
     {
       "path": "./packages/contracts"
+    },
+    {
+      "path": "./packages/persistence"
     },
     {
       "path": "./tools/repository-checks"

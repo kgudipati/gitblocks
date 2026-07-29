@@ -199,6 +199,25 @@ outcome-learning data follow the same deletion and retention policy as their
 source. Production collection cannot begin until retention and deletion are
 implemented and a user can understand what leaves the local boundary.
 
+## Persistence isolation and deletion
+
+PostgreSQL tenant isolation is a database invariant, not only a query-filter
+convention. Every tenant-capable table enables and forces row-level security.
+Runtime access uses non-owner, non-superuser roles, with the tenant context set
+transaction-locally from a validated UUID; absent or malformed context fails
+closed. Public writes use a distinct least-privilege role. Composite foreign
+keys and triggers reject cross-scope, cross-candidate, and cross-tenant
+references.
+
+Tenant payload insertion requires a caller-supplied expiry. Purge and tenant
+deletion are bounded, transactional, tenant-scoped operations that cannot
+remove public or other-tenant data. A deletion tombstone may retain only the
+tenant identifier, deletion time, and stable reason code; it cannot retain
+statements, URLs, excerpts, dossier payloads, limitations, unknowns, or
+credentials. Evidence and snapshots are immutable, and lifecycle corrections
+append rather than overwrite. Tests exercise these guarantees through runtime
+roles, including missing and malformed context.
+
 ## Auditability and security telemetry
 
 Create structured audit events for authentication, authorization decisions,

@@ -7,8 +7,9 @@ prove correctness. ADR 0002 selects Vitest with V8 coverage for the current
 TypeScript repository, product kernel, and evaluation tooling, and `pnpm test`
 plus `pnpm test:coverage` are enforced by the authoritative verification
 graph. The repository's only production-owned code is the pure domain and
-contract kernel; each future product phase must extend this strategy for its
-actual services and boundaries before that code lands.
+contract kernel plus the concrete PostgreSQL persistence adapter; each future
+product phase must extend this strategy for its actual services and boundaries
+before that code lands.
 
 Every implementation phase must list its test matrix and exact commands in its
 execution plan before implementation. A reviewer blocks a change whose tests
@@ -57,6 +58,16 @@ compatibility, branch references, exact package versions including concrete
 prereleases, and publication, collection, validation, and freshness chronology.
 Mapping tests inspect the exact `direct`, `declared`, or `derived` domain value.
 
+Persistence integration uses PostgreSQL 18 at the exact image digest recorded
+by ADR 0004. `pnpm db:verify` provisions an ephemeral no-volume container by
+default; an injected database requires an explicit ephemeral acknowledgment
+and a `_test` database name. Hosted `pnpm verify:ci` runs the same integration
+suite and may not skip it. SQLite, mocks, and compatibility layers do not
+substitute for PostgreSQL semantics. Migration tests cover clean/repeat apply,
+checksum drift, serialization, transactional failure, qualification, and the
+supported major version. Isolation tests connect as non-owner,
+non-superuser roles.
+
 Response-invariant tests require traceability for every reason and exact
 candidate ownership for its evidence and inference support. They prove that
 supplied limitations cannot disappear, move candidates, change statements, or
@@ -80,6 +91,7 @@ not run for untrusted pull requests with secrets.
 | Responsibility               | Minimum evidence                                                                                                                                                                                                                                                                |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Product contract kernel      | Pure domain-invariant tests; non-corpus representability fixtures; source-aware provenance matrices; traceability and preservation invariants; valid and exploit-oriented parser cases; schema closure and deterministic-export checks; package dependency-boundary enforcement |
+| PostgreSQL persistence       | Unit tests for bounds and stable errors; real PostgreSQL migration, forced-RLS, immutable insertion, concurrency, lifecycle, snapshot, retention, deletion, cancellation, and conformance integration tests using non-owner roles                                               |
 | Deterministic local scanner  | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                                                                                                                              |
 | Skill procedure              | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                                                                                                                         |
 | MCP surface                  | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics                                                                                                                   |

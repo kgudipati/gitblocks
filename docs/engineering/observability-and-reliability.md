@@ -5,9 +5,10 @@
 Every future production execution path must be diagnosable from deployed
 telemetry and durable audit evidence without adding emergency instrumentation
 or reproducing the user's sensitive content. GitBlocks currently has no
-services, workers, deployments, SLOs, or telemetry pipeline; this document sets
-the policy that must be implemented before those paths handle production
-traffic.
+services, workers, deployments, SLOs, or telemetry pipeline. Its persistence
+adapter returns stable value-free errors and emits no logs; a future
+application/composition layer must instrument it before handling production
+traffic. This document sets the policy for those paths.
 
 The first stack and deployment ADRs must select instrumentation libraries,
 export path, sampling, retention, access, redaction, dashboards, and runbook
@@ -122,6 +123,14 @@ authorization, freshness, and error semantics.
 Partial evidence, source unavailability, stale evidence, and timeouts are
 visible results. The system must not convert them into a complete successful
 recommendation.
+
+Database callers provide deadlines and cancellation signals. The adapter
+applies bounded statement and lock timeouts inside explicit transactions and
+maps failures to stable error categories without exposing SQL, parameters,
+payloads, connection strings, URLs, driver details, or stack traces. Migration
+commands report only version, name, checksum, and PostgreSQL version.
+Application telemetry may record bounded operation/result categories,
+durations, and counts, but never SQL statements or persisted evidence content.
 
 ## Worker and job observability
 

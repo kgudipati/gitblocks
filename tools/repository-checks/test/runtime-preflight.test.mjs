@@ -316,6 +316,10 @@ describe('root command graph', () => {
 
     expect(scripts['runtime:check']).toBe('node tools/runtime-preflight.mjs');
     for (const scriptName of [
+      'db:check',
+      'db:migrate',
+      'db:test',
+      'db:verify',
       'test',
       'test:coverage',
       'repo:check',
@@ -327,6 +331,8 @@ describe('root command graph', () => {
       expect(scripts[scriptName]).toMatch(/^pnpm runtime:check && /);
     }
     expect(scripts['verify:core']).not.toContain('runtime:check');
-    expect(scripts['verify:ci']).toBe('pnpm verify && pnpm security:audit');
+    expect(scripts['verify:ci']).toBe(
+      'pnpm verify && pnpm db:verify && pnpm security:audit',
+    );
   });
 });

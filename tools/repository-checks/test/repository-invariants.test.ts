@@ -27,6 +27,7 @@ const REQUIRED_PATHS = [
   'docs/architecture/decisions/0001-agent-native-delivery.md',
   'docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md',
   'docs/architecture/decisions/0003-product-contract-kernel.md',
+  'docs/architecture/decisions/0004-postgresql-evidence-persistence.md',
   'docs/architecture/system-context.md',
   'docs/engineering/definition-of-done.md',
   'docs/engineering/development-standards.md',
@@ -41,6 +42,7 @@ const REQUIRED_PATHS = [
   'docs/plans/0003-typescript-toolchain.md',
   'docs/plans/0005-node-runtime-preflight.md',
   'docs/plans/0009-product-contract-kernel.md',
+  'docs/plans/0011-evidence-persistence.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
@@ -51,6 +53,18 @@ const REQUIRED_PATHS = [
   'packages/domain/README.md',
   'packages/domain/package.json',
   'packages/domain/src/index.ts',
+  'packages/persistence/README.md',
+  'packages/persistence/migrations/0001_evidence_persistence.sql',
+  'packages/persistence/package.json',
+  'packages/persistence/scripts/database-support.ts',
+  'packages/persistence/scripts/db-cli.ts',
+  'packages/persistence/scripts/db-verify.ts',
+  'packages/persistence/scripts/tsconfig.json',
+  'packages/persistence/src/index.ts',
+  'packages/persistence/test/integration/persistence.integration.ts',
+  'packages/persistence/test/tsconfig.json',
+  'packages/persistence/tsconfig.json',
+  'packages/persistence/tsconfig.test.json',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
@@ -63,6 +77,7 @@ const REQUIRED_PATHS = [
   'tools/evaluation-harness/src/cli.ts',
   'tools/evaluation-harness/src/contract-conformance-cli.ts',
   'tools/evaluation-harness/src/index.ts',
+  'tools/evaluation-harness/test/persistence-conformance.persistence-integration.ts',
   'tools/evaluation-harness/test/tsconfig.json',
   'tools/evaluation-harness/tsconfig.json',
   'tools/evaluation-harness/tsconfig.test.json',
@@ -77,6 +92,7 @@ const REQUIRED_PATHS = [
   'tsconfig.base.json',
   'tsconfig.json',
   'vitest.config.ts',
+  'vitest.db.config.ts',
 ] as const;
 
 const ROOT_MANIFEST = JSON.stringify({
@@ -89,11 +105,19 @@ const ROOT_MANIFEST = JSON.stringify({
   },
   scripts: {
     build: 'pnpm build:product && pnpm build:tools',
-    'build:product': 'pnpm --filter @gitblocks/contracts... build',
+    'build:product': 'pnpm --filter @gitblocks/persistence... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'db:check':
+      'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
+    'db:migrate':
+      'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts migrate',
+    'db:test':
+      'pnpm runtime:check && pnpm build && vitest run --config vitest.db.config.ts',
+    'db:verify':
+      'pnpm runtime:check && pnpm build && node packages/persistence/scripts/db-verify.ts',
     'eval:fixtures':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures',
     'eval:score':
@@ -115,9 +139,9 @@ const ROOT_MANIFEST = JSON.stringify({
     'test:coverage': 'pnpm runtime:check && vitest run --coverage',
     typecheck: 'pnpm build:product && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
-    'verify:ci': 'pnpm verify && pnpm security:audit',
+    'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
       'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm typecheck:internal && pnpm build:tools && vitest run',
   },
@@ -139,6 +163,7 @@ const EVALUATION_MANIFEST = JSON.stringify({
   private: true,
   dependencies: {
     '@gitblocks/contracts': 'workspace:0.0.0',
+    '@gitblocks/persistence': 'workspace:0.0.0',
     ajv: '8.20.0',
   },
 });
@@ -174,6 +199,23 @@ const CONTRACTS_MANIFEST = JSON.stringify({
   },
 });
 
+const PERSISTENCE_MANIFEST = JSON.stringify({
+  name: '@gitblocks/persistence',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    postgres: '3.4.9',
+  },
+});
+
 const WORKSPACE_POLICY = `packages:
   - apps/*
   - packages/*
@@ -193,6 +235,19 @@ minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
 trustPolicy: no-downgrade
 trustLockfile: false
+`;
+
+const CI_POLICY = `jobs:
+  verification:
+    services:
+      postgres:
+        image: postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296
+    env:
+      GITBLOCKS_DB_TEST_ACK: ephemeral
+      GITBLOCKS_TEST_DB_DATABASE: gitblocks_test
+      GITBLOCKS_TEST_DB_OWNER: postgres
+    steps:
+      - run: pnpm verify:ci
 `;
 
 function dependabotPolicy(
@@ -216,12 +271,14 @@ function validRepository() {
   const trackedPaths = new Set<string>(REQUIRED_PATHS);
   const textFiles = new Map<string, string>([
     ['README.md', '# GitBlocks\n\nUse `gitblocks` as the repository slug.\n'],
+    ['.github/workflows/ci.yml', CI_POLICY],
     ['.github/dependabot.yml', dependabotPolicy()],
     ['.node-version', '24.18.0\n'],
     ['.nvmrc', '24.18.0\n'],
     ['package.json', ROOT_MANIFEST],
     ['packages/contracts/package.json', CONTRACTS_MANIFEST],
     ['packages/domain/package.json', DOMAIN_MANIFEST],
+    ['packages/persistence/package.json', PERSISTENCE_MANIFEST],
     ['tools/evaluation-harness/package.json', EVALUATION_MANIFEST],
     ['tools/repository-checks/package.json', TOOL_MANIFEST],
     ['pnpm-workspace.yaml', WORKSPACE_POLICY],
@@ -230,8 +287,28 @@ function validRepository() {
 }
 
 describe('validateRepositoryInvariants', () => {
-  it('accepts the explicit Phase 3 repository shape', () => {
+  it('accepts the explicit Phase 4 repository shape', () => {
     expect(validateRepositoryInvariants(validRepository())).toEqual([]);
+  });
+
+  it('requires the pinned PostgreSQL service in hosted verification', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      '.github/workflows/ci.yml',
+      CI_POLICY.replace(
+        'postgres:18.4-bookworm@sha256:',
+        'postgres:18.4@sha256:',
+      ),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.ci-postgresql',
+          path: '.github/workflows/ci.yml',
+        }),
+      ]),
+    );
   });
 
   it.each([
@@ -289,7 +366,7 @@ describe('validateRepositoryInvariants', () => {
     'packages/domain-adapter/src/index.ts',
     'tools/unapproved/package.json',
     'src/server.ts',
-  ])('rejects prohibited Phase 3 artifact %s', (artifact) => {
+  ])('rejects prohibited Phase 4 artifact %s', (artifact) => {
     const repository = validRepository();
     repository.trackedPaths.add(artifact);
 
@@ -351,10 +428,31 @@ describe('validateRepositoryInvariants', () => {
     );
   });
 
+  it('requires the persistence runtime dependency allowlist exactly', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'packages/persistence/package.json',
+      PERSISTENCE_MANIFEST.replace('"postgres":"3.4.9"', '"pg":"8.22.0"'),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.product-dependency',
+          path: 'packages/persistence/package.json',
+        }),
+      ]),
+    );
+  });
+
   it.each([
     [
       'packages/contracts/package.json',
       CONTRACTS_MANIFEST.replace('workspace:0.0.0', '0.0.0'),
+    ],
+    [
+      'packages/persistence/package.json',
+      PERSISTENCE_MANIFEST.replace('workspace:0.0.0', 'workspace:*'),
     ],
     [
       'tools/evaluation-harness/package.json',
