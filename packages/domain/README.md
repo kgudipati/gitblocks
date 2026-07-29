@@ -25,6 +25,16 @@ results, and produce deterministic value-safe issues.
   validates category/code/subject/value coherence. Unknown codes and unsupported
   semantics fail closed; no arbitrary metadata or raw scanner payload is
   accepted.
+- Repository-fact validation selects a private, deeply frozen registry by the
+  supplied vocabulary version. `getRepositoryFactVocabularySnapshot(version)`
+  returns a fresh deterministic data-only deep snapshot for inspection, and
+  explicitly rejects unsupported versions; mutating any returned array or
+  nested definition cannot affect later validation.
+- `serializeRepositoryFactVocabulary(version)` returns the deterministic
+  newline-terminated snapshot representation. Tests bind vocabulary `1.0.0` to
+  an exact SHA-256 digest. A vocabulary release adds a new immutable versioned
+  registry, digest, negotiation support, and compatibility-window retention
+  rather than silently changing `1.0.0`.
 - Fact provenance preserves `epistemicStatus` exactly: `direct` means parsed
   from an approved source, `declared` means supplied as a declaration, and
   `derived` means concluded from observations. Canonicalization never silently
@@ -53,6 +63,8 @@ results, and produce deterministic value-safe issues.
 - Catalog-like collections are returned in canonical identifier order. Rank
   group order is preserved, while members inside a tie group are
   canonicalized.
+- Capability-family inspection also returns a fresh array; live membership
+  authority is never exported.
 
 Every successful validator returns a fresh canonical value; callers' objects
 and arrays are never mutated.

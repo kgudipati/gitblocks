@@ -6,9 +6,10 @@
   [#9 — Phase 3: Establish the product domain and contract kernel](https://github.com/kgudipati/gitblocks/issues/9)
 - Branch: `feat/9-product-contract-kernel`
 - Owner: GitBlocks maintainers
-- State: implementation, validation, independent-review corrections, and
-  hosted CI are complete; independent final review and merge authorization are
-  pending; draft PR #10 remains open, draft, and unmerged
+- State: final authority-immutability correction is in progress on the
+  published topic branch; implementation, complete validation, ordinary
+  follow-up publication, PR-description reconciliation, and corrected hosted
+  Verification remain pending; draft PR #10 remains open, draft, and unmerged
 - Last updated: 2026-07-28
 - Authority order:
   1. Issue #9.
@@ -1059,6 +1060,36 @@ The plan may leave implementation status only when:
 
 ## Progress log
 
+- 2026-07-28: Began the focused final authority-immutability correction on
+  reviewed head `62ca7a519e07a3ceff02456cbe99686e22979fc1`. Confirmed a clean,
+  aligned topic branch; unchanged local/remote `main` at
+  `27eb7d6585c30fd0f78f238543a764ca7b3c4f76`; draft, open, unmerged PR
+  #10; and successful hosted run `30420263788`, Verification job
+  `90475439247`. An isolated-process red regression proved both exploit paths:
+  top-level mutation appended an otherwise unknown fact definition and changed
+  parsing from rejected to accepted (`before=false;after=true;length=28`);
+  nested mutation appended a controlled value code and likewise changed parsing
+  from rejected to accepted. The focused run failed 2 of 2 tests before the
+  correction without contaminating shared module state.
+- 2026-07-28: Replaced the public live vocabulary with a private version-to-
+  deeply-frozen-registry mapping. Semantic validation now requires and selects
+  the supplied vocabulary version. Public inspection returns a fresh deep
+  snapshot; successful validation returns no internal definition reference.
+  Repository-fact categories, presence states, and capability families use
+  private frozen membership authority, and the public schema-name catalog is
+  runtime frozen. Canonical vocabulary `1.0.0` serialization is bound to
+  SHA-256
+  `7f5823b8140bcc92f2e8b05ee811493effb0af3a644233f1eb3e070a6eaf56c8`.
+- 2026-07-28: Completed the required local matrix under Node `24.18.0` and pnpm
+  `11.17.0`. All 31 files/637 tests passed; coverage was 87.73% statements,
+  77.39% branches, 93.67% functions, and 87.71% lines. Architecture passed for
+  589 modules/1,896 dependencies, repository checks passed, evaluation remained
+  10 cases, and conformance remained exactly 10 cases/40 supplied candidates
+  with proposed/not-reviewed, representability-only provenance. Secret
+  scanning, the no-known-vulnerability audit, `pnpm verify`, and
+  `pnpm verify:ci` passed. Root schema inputs/digests, dependencies, lifecycle
+  policy, and the lockfile are unchanged; publication and corrected hosted CI
+  remain pending.
 - 2026-07-28: Converted the eight independent-review findings into failing
   regressions before correcting production behavior. The initial
   `review-corrections` run had 15 failures and 9 passes across 24 tests; the
@@ -1375,6 +1406,12 @@ The plan may leave implementation status only when:
   first-alpha vocabulary additions negotiate a vocabulary release without
   changing root object shape; unknown codes fail closed and semantics that need
   a new value kind require schema-shape evolution.
+- 2026-07-28 — Keep every validation-authority collection private and runtime
+  immutable. Repository-fact validation selects a deeply frozen registry by
+  the supplied vocabulary version; public inspection returns fresh data-only
+  deep snapshots. Deterministic serialization and a committed per-version
+  SHA-256 digest make controlled vocabulary drift independently reviewable
+  without placing fact codes into the root JSON Schema.
 - 2026-07-28 — Use source-aware evidence variants rather than an independent
   source/revision pair. Package versions are exact SemVer values; tag and
   release revisions reject mutable aliases and branch references while

@@ -282,6 +282,23 @@ fails closed. A registered code used with the wrong category, subject, value
 variant, or controlled value is an unsupported fact semantic and also fails
 closed. Neither case is converted into an arbitrary metadata escape hatch.
 
+Validation authority is private runtime state, not a public JavaScript
+collection. Each supported vocabulary version maps to its own deeply frozen
+registry, including every nested subject, policy, state, and controlled-code
+array. Semantic validation selects that registry from the fingerprint's
+supplied `factVocabularyVersion`; it never searches an implicitly mutable
+"current" registry. Repository-fact categories, presence states, and
+capability families likewise use private frozen membership authority.
+
+Public vocabulary inspection uses
+`getRepositoryFactVocabularySnapshot(version)`, which either returns a fresh,
+deterministically ordered, data-only deep snapshot or explicitly reports an
+unsupported version. Mutating a returned array, definition, or nested code
+array cannot reach internal validation authority. Capability-family inspection
+also returns a fresh array. No live authoritative collection is exported.
+`serializeRepositoryFactVocabulary(version)` provides the deterministic
+newline-terminated representation used by exact SHA-256 drift tests.
+
 `factVocabularyVersion` negotiates that registry separately from the root
 contract version. Adding an ordinary first-alpha fact whose meaning fits the
 existing categories and typed value variants extends the controlled vocabulary
@@ -480,6 +497,13 @@ Version negotiation therefore covers both root schema support and repository
 fact-vocabulary support. A producer does not emit a newly registered code to a
 consumer that negotiated only the earlier vocabulary, even though both
 consumers can parse the same coded-fact object shape.
+
+A controlled-vocabulary release requires a new vocabulary version, a new
+private immutable registry entry, a reviewed expected serialization digest,
+explicit negotiation support, and retention of prior registry definitions for
+the documented compatibility window. Changing a fact definition, controlled
+subject or value, registry membership, or semantic ordering changes that
+version's digest. Once merged, the `1.0.0` registry is not silently edited.
 
 Because V1 shapes are closed, even an optional field addition is not
 operationally backward compatible with an exact V1 consumer. A changed shape
@@ -808,6 +832,8 @@ updated only through pnpm.
   artifacts with stable identifiers.
 - Ordinary supported repository facts evolve through a controlled vocabulary
   without adding a DTO union branch for each scanner observation.
+- Version-selected private deeply frozen authority and fresh public snapshots
+  prevent consumer mutation from changing accepted vocabulary semantics.
 - Evidence provenance, epistemic status, candidate reasons, supplied
   limitations, and processing state retain their decision-relevant meaning
   through mapping and exchange validation.
@@ -825,8 +851,8 @@ updated only through pnpm.
 - Exact-version closed consumers require explicit new parsers and negotiated
   transitions for shape additions.
 - Fact producers and consumers must negotiate a controlled vocabulary version,
-  and registry additions require semantic review even when schema shape is
-  unchanged.
+  and registry additions require a new immutable entry, digest, negotiation
+  support, and semantic review even when schema shape is unchanged.
 - Already-executable hostile proxies are not inert data; production adapters
   must provide JSON-parsed or otherwise data-only values.
 - Runtime-exported artifacts require stable serialization tests rather than a

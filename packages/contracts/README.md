@@ -61,6 +61,14 @@ record, arbitrary JSON value, raw source/configuration/environment carrier,
 secret, log, command output, or scanner metadata escape hatch. Withheld
 categories remain explicitly represented.
 
+Consumers inspect a negotiated vocabulary through the domain package's
+`getRepositoryFactVocabularySnapshot(version)` accessor, not a live exported
+registry. Each call returns fresh deterministic data only; unsupported versions
+fail explicitly, and consumer mutation cannot change parser acceptance.
+`serializeRepositoryFactVocabulary(version)` supplies the digest-bound
+canonical representation. Validation always selects private immutable
+authority using the fingerprint's `factVocabularyVersion`.
+
 Fact provenance uses `epistemicStatus: direct | declared | derived`, and mapping
 preserves the supplied meaning exactly. Evidence observations use
 source-aware discriminated variants for `git-commit`, `tag`, `release`,
@@ -88,8 +96,10 @@ from uncertainty: `complete` may coexist with material unknowns, while
 
 `getContractSchemaV1(name)` returns a fresh canonically ordered JSON-compatible
 schema value. `serializeContractSchemaV1(name)` returns its deterministic
-newline-terminated representation. Every root has an explicit `1.0.0` `$id`,
-uses Draft 2020-12, and is closed at every untrusted object shape. All six
+newline-terminated representation. The public schema-name catalog is runtime
+frozen and cannot be widened through consumer mutation. Every root has an
+explicit `1.0.0` `$id`, uses Draft 2020-12, and is closed at every untrusted
+object shape. All six
 corrected roots remain `1.0.0` because they are unpublished, unmerged, and have
 no public or deployed consumer. A root shape change after publication requires
 a separately versioned schema/parser and explicit negotiation; controlled
