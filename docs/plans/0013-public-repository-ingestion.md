@@ -8,8 +8,10 @@
 - Planned draft PR title: `feat: ingest curated public repository catalog`
 - Owner: GitBlocks maintainers
 - State:
-  `independent-review corrections are committed, normally pushed, and locally
-and host-validated; both reviewed live runs remain incomplete`
+  `independent-review corrections are committed and host-validated; a
+least-privilege migration-verification correction is in progress after the
+first live attempt stopped before provider access; both reviewed live runs
+remain incomplete`
 - Last updated: 2026-07-29
 - Authority order: Issue #13; actual repository and Git history; product
   contract; accepted ADRs and system context; `AGENTS.md`, `PLANS.md`, and the
@@ -908,6 +910,25 @@ new issue.
   the registry audit, and the clean-worktree proof. All 1,543 decoded log lines
   were reviewed; warning/error-looking PostgreSQL lines were the deliberate
   negative integration cases, not failed steps or annotations.
+- 2026-07-29: Loaded the explicitly provided ignored `.env.local` into an
+  ephemeral shell without printing or inspecting its value, verified only that
+  the required GitHub variable was non-empty, and reran the pre-live baseline.
+  Frozen install, catalog, ingestion, PostgreSQL, `verify`, and `verify:ci`
+  passed before provider access.
+- 2026-07-29: The first live attempt stopped before any provider request and
+  wrote no receipt. The non-owner runtime login connected, but live CLI
+  migration verification failed with SQLSTATE `42501` because the runtime
+  group role could not read `gitblocks.schema_migrations`. The no-volume
+  database and failed-attempt telemetry were removed.
+- 2026-07-29: Added forward migration
+  `0002_runtime_migration_verification.sql` and a PostgreSQL regression proving
+  the non-owner runtime client can verify the exact two-migration inventory.
+  Focused PostgreSQL 18.4 verification passed with 23 tests and no skips.
+- 2026-07-29: The complete post-correction deterministic matrix passed:
+  frozen installation, formatting, lint, typecheck, build, 695 offline tests,
+  coverage, architecture, repository, evaluation, contracts, catalog, 44
+  ingestion tests, 23 PostgreSQL tests, secret scanning, registry audit,
+  `verify`, and `verify:ci`.
 
 ## Decision and deviation log
 
@@ -932,22 +953,23 @@ new issue.
 
 ## Failures and corrections
 
-| Check or approach                                             | Failure or risk                                                                                                                          | Correction                                                                                                                                        |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Initial mandated `nvm use`                                    | Codex shell did not auto-load NVM                                                                                                        | Source the existing NVM script explicitly; record the environment correction                                                                      |
-| Treat every refresh collection time as a new immutable record | Unchanged sources would conflict on stable evidence IDs and change snapshot cutoffs                                                      | Reuse the exact prior observation when normalized source identity is unchanged                                                                    |
-| Use an advisory zero-result as clean evidence                 | Provider coverage cannot prove absence                                                                                                   | Emit a bounded coverage unknown and no favorable evidence                                                                                         |
-| First lockfile-only update under the repository frozen policy | pnpm correctly rejected the new workspace manifest as an outdated frozen lockfile                                                        | Run the authorized pnpm non-frozen lockfile update once, then restore and verify frozen installation                                              |
-| First architecture check after adding the package             | Approved Node built-ins resolved to their bare dependency-cruiser names                                                                  | Add only `crypto`, `stream/web`, and `util` to the ingestion Node-API allowlist; the graph then passed                                            |
-| First ingestion PostgreSQL changed-refresh test               | Re-appending unchanged limitation/unknown IDs with a later command timestamp conflicted with Phase 4 complete-record idempotency         | Reuse active limitation/unknown records by stable ID and append only new material                                                                 |
-| First final secret-scan command                               | Used the nonexistent shorthand `pnpm secrets:scan`                                                                                       | Run the repository's actual `pnpm security:secrets` command; it passed                                                                            |
-| Final prompt/ADR/code trace after the first hosted pass       | ADR required moved canonical identity evidence, but the provider rejected every canonical mismatch                                       | Add failing moved/negative-control regressions; accept mismatch only for explicit `moved` entries and emit deterministic limitations              |
-| Independent review of optional-source handling                | Catch-all fallback swallowed cancellation, rate, auth, identity, malformed, size, content-type, redirect, and invariant outcomes         | Add the closed outcome taxonomy; only approved absence is missing, temporary unavailability is partial, and every fatal outcome propagates        |
-| Independent review of transient dossiers                      | Temporary optional failure still created a snapshot and persisted empty-reference failure material                                       | Complete all declared collection before the first write; partial receipt has no snapshot or durable material; add five PostgreSQL recovery cycles |
-| Independent review of catalog curation                        | `candidates.json` was shallow and the generator manufactured generic decisions                                                           | Store every curator field explicitly, reject generic rationale/homepages, vary source/file policy, and recompute the digest                       |
-| Independent review of identity/time/provenance                | Provider canonical move rewrote identity, publication time drove creation, and license used an unpinned branch request                   | Keep stable manifest identity, use `introducedAt`, pass license commit `ref`, validate file identity/SHA, and construct exact immutable URL       |
-| Required live provider/database run                           | No ingestion token, GitHub CLI, `GH_TOKEN`, or `GITHUB_TOKEN` is available; a pinned no-volume local PostgreSQL 18.4 target is available | Stop before provider calls, keep the PR draft, record Phase 5 live completion as incomplete, and request no secret in Git or chat                 |
-| Final generated-manifest format check                         | Regenerating after the 150-entry rationale review restored the generator's expanded JSON layout                                          | Run repository formatting, revalidate the same canonical digest, and restart the complete deterministic matrix                                    |
+| Check or approach                                             | Failure or risk                                                                                                                          | Correction                                                                                                                                           |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Initial mandated `nvm use`                                    | Codex shell did not auto-load NVM                                                                                                        | Source the existing NVM script explicitly; record the environment correction                                                                         |
+| Treat every refresh collection time as a new immutable record | Unchanged sources would conflict on stable evidence IDs and change snapshot cutoffs                                                      | Reuse the exact prior observation when normalized source identity is unchanged                                                                       |
+| Use an advisory zero-result as clean evidence                 | Provider coverage cannot prove absence                                                                                                   | Emit a bounded coverage unknown and no favorable evidence                                                                                            |
+| First lockfile-only update under the repository frozen policy | pnpm correctly rejected the new workspace manifest as an outdated frozen lockfile                                                        | Run the authorized pnpm non-frozen lockfile update once, then restore and verify frozen installation                                                 |
+| First architecture check after adding the package             | Approved Node built-ins resolved to their bare dependency-cruiser names                                                                  | Add only `crypto`, `stream/web`, and `util` to the ingestion Node-API allowlist; the graph then passed                                               |
+| First ingestion PostgreSQL changed-refresh test               | Re-appending unchanged limitation/unknown IDs with a later command timestamp conflicted with Phase 4 complete-record idempotency         | Reuse active limitation/unknown records by stable ID and append only new material                                                                    |
+| First final secret-scan command                               | Used the nonexistent shorthand `pnpm secrets:scan`                                                                                       | Run the repository's actual `pnpm security:secrets` command; it passed                                                                               |
+| Final prompt/ADR/code trace after the first hosted pass       | ADR required moved canonical identity evidence, but the provider rejected every canonical mismatch                                       | Add failing moved/negative-control regressions; accept mismatch only for explicit `moved` entries and emit deterministic limitations                 |
+| Independent review of optional-source handling                | Catch-all fallback swallowed cancellation, rate, auth, identity, malformed, size, content-type, redirect, and invariant outcomes         | Add the closed outcome taxonomy; only approved absence is missing, temporary unavailability is partial, and every fatal outcome propagates           |
+| Independent review of transient dossiers                      | Temporary optional failure still created a snapshot and persisted empty-reference failure material                                       | Complete all declared collection before the first write; partial receipt has no snapshot or durable material; add five PostgreSQL recovery cycles    |
+| Independent review of catalog curation                        | `candidates.json` was shallow and the generator manufactured generic decisions                                                           | Store every curator field explicitly, reject generic rationale/homepages, vary source/file policy, and recompute the digest                          |
+| Independent review of identity/time/provenance                | Provider canonical move rewrote identity, publication time drove creation, and license used an unpinned branch request                   | Keep stable manifest identity, use `introducedAt`, pass license commit `ref`, validate file identity/SHA, and construct exact immutable URL          |
+| Required live provider/database run                           | No ingestion token, GitHub CLI, `GH_TOKEN`, or `GITHUB_TOKEN` is available; a pinned no-volume local PostgreSQL 18.4 target is available | Stop before provider calls, keep the PR draft, record Phase 5 live completion as incomplete, and request no secret in Git or chat                    |
+| Final generated-manifest format check                         | Regenerating after the 150-entry rationale review restored the generator's expanded JSON layout                                          | Run repository formatting, revalidate the same canonical digest, and restart the complete deterministic matrix                                       |
+| First credentialed live database gate                         | The runtime login connected but could not read migration history, so live CLI verification failed with `42501` before provider access    | Add forward migration 0002 granting read-only history access, prove runtime verification through PostgreSQL, discard the database, and restart clean |
 
 ## Validation evidence
 
@@ -976,9 +998,12 @@ new issue.
 | 2026-07-29 | Corrected local `verify` / `verify:ci` | Full deterministic verification and registry-backed moderate audit passed; 625 modules / 1,988 dependencies, no architecture violations, no known vulnerabilities                       |
 | 2026-07-29 | Corrected live configuration gate      | GitHub CLI and all eligible token variables absent; local pinned ephemeral PostgreSQL is available; no provider request made and no receipt claimed                                     |
 | 2026-07-29 | Corrected hosted Verification          | Run `30471964637`, job `90644174655`: success on `59a681d`; 695 offline and 23 PostgreSQL tests, exact catalog digest, audit, and clean-worktree proof; 1,543 log lines reviewed        |
+| 2026-07-29 | Pre-live deterministic baseline        | Frozen install, catalog validation, 44 ingestion tests, 23 PostgreSQL tests, complete `verify`, and registry-backed `verify:ci` passed before credentialed provider access              |
+| 2026-07-29 | First credentialed live attempt        | Stopped before provider access; no receipt; runtime migration-history read failed with `42501`; no-volume database and temporary telemetry removed                                      |
+| 2026-07-29 | Runtime migration verification fix     | PostgreSQL 18.4 applied two forward migrations; 23 database tests passed without skips, including non-owner runtime verification of the exact applied inventory                         |
+| 2026-07-29 | Post-live-discovery local matrix       | 695 offline tests; 77.14% statements / 69.95% branches / 83.62% functions / 76.98% lines; 44 ingestion and 23 PostgreSQL tests; all deterministic gates passed                          |
 
 The independent-review implementation and documentation are published on the
 existing draft branch with successful deterministic hosted evidence. The
-evidence-recording commit still requires its final hosted confirmation. Both
-live-run receipts remain blocked on existing GitHub authentication; the
-approved local ephemeral database path is available.
+runtime migration-verification correction has passed the complete local matrix
+and still requires hosted confirmation before both reviewed live runs restart.

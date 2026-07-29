@@ -17,5 +17,7 @@ deletion, tombstone, RLS policy, transport, provider, worker, model, or
 deployment behavior.
 
 Use `pnpm db:verify` for the exact PostgreSQL 18.4 no-volume verification path.
+The non-owner runtime role may read, but cannot mutate, migration history so
+runtime composition roots can verify the exact applied inventory.
 ADR 0004 and `docs/plans/0011-evidence-persistence.md` own the schema,
 concurrency, migration, security, and forward-recovery decisions.

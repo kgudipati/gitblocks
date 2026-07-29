@@ -70,6 +70,7 @@ const REQUIRED_PATHS = [
   'packages/ingestion/tsconfig.test.json',
   'packages/persistence/README.md',
   'packages/persistence/migrations/0001_evidence_persistence.sql',
+  'packages/persistence/migrations/0002_runtime_migration_verification.sql',
   'packages/persistence/package.json',
   'packages/persistence/scripts/database-support.ts',
   'packages/persistence/scripts/db-cli.ts',

@@ -112,6 +112,7 @@ Use one repository-owned forward-only migration inventory:
 
 ```text
 0001_evidence_persistence.sql
+0002_runtime_migration_verification.sql
 ```
 
 Apply:
@@ -127,11 +128,12 @@ Apply:
 9. commits or rolls back the migration and history atomically.
 
 Repeat apply is a verified no-op and concurrent migrators serialize. There are
-no down migrations. Because schema version 1 is unpublished and has no
-production data, this public-first correction rewrites migration 0001 in place.
-After merge, corrections use new forward migrations. Recovery is a compatible
-code rollback, corrective forward migration, or authorized restore; no
-destructive operation is implemented in this phase.
+no down migrations. Schema version 1 was rewritten only while its Phase 4
+history was unpublished. Once that history was shared, the Phase 5 live-path
+correction added migration 0002 to grant the runtime role read-only migration
+verification without changing migration 0001. Recovery is a compatible code
+rollback, corrective forward migration, or authorized restore; no destructive
+operation is implemented in this phase.
 
 ### Record model
 
@@ -290,7 +292,9 @@ gitblocks_persistence
 
 It receives schema usage and only the select/insert privileges required for
 public immutable records plus insert/delete on mutable capability membership.
-It cannot mutate migration history, create schema objects, disable triggers,
+It also receives read-only access to migration history so a runtime composition
+can verify the exact applied inventory without migration-owner credentials. It
+cannot mutate migration history, create schema objects, disable triggers,
 truncate, or update immutable records. Integration behavior runs through a
 non-owner login granted this role. RLS is intentionally absent because every
 Phase 4 record is public shared data and there is no authenticated service.
