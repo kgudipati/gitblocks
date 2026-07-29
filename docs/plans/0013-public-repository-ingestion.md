@@ -622,9 +622,9 @@ Status: complete.
 
 ### 6. Live run and publication
 
-Status: blocked before execution because no explicit live GitHub or ingestion
-database configuration is injected. Publication may proceed only as a draft
-with this limitation recorded.
+Status: draft publication and hosted verification complete; live execution
+blocked because no explicit live GitHub or ingestion database configuration is
+injected.
 
 - Run the full final manifest only with explicitly injected credentials,
   approved non-production PostgreSQL, and acknowledgement.
@@ -800,6 +800,15 @@ new issue.
   PostgreSQL tests passed without skips; coverage, architecture, repository,
   contract, evaluation, secret, dependency-audit, catalog, ingestion, and
   frozen-install checks passed.
+- 2026-07-29: Created implementation commit `b7326c9`, pushed it normally to
+  the required branch, and opened draft PR #14 with the exact required title
+  and `Closes #13`.
+- 2026-07-29: Inspected all 1,547 lines of the decoded hosted Verification log
+  for run `30445222539`, job `90553802670`. Every step passed on the
+  implementation head, including frozen installation, 668 offline tests, 15
+  PostgreSQL tests without skips, catalog/contracts/evaluation/architecture,
+  dependency audit, and the clean-worktree proof; there were no warning/error
+  annotations or nonzero exit markers.
 - 2026-07-29: Inspected live-operation configuration without reading values.
   The GitHub token and all ingestion database variables are unset; Docker is
   not available as an operator target. Per Issue #13, no live run was
@@ -856,8 +865,10 @@ new issue.
 | 2026-07-29 | Ingestion architecture graph          | 625 modules / 1,988 dependencies; no violations                                                                                                                                         |
 | 2026-07-29 | Final `pnpm verify`                   | Formatting, build, lint, typecheck, 668 tests, architecture, repository, evaluation, contracts, catalog, and secret scan passed                                                         |
 | 2026-07-29 | Final `pnpm verify:ci`                | Final `verify`, PostgreSQL verification, and registry-backed moderate dependency audit passed; no known vulnerabilities                                                                 |
+| 2026-07-29 | Hosted CI run/job                     | Run `30445222539`, Verification job `90553802670`: success; all 1,547 decoded log lines inspected, 668 offline and 15 PostgreSQL tests, clean-worktree proof, no warnings/errors        |
 | 2026-07-29 | Live configuration gate               | Required GitHub and database variables unset; no provider request made and no receipt claimed                                                                                           |
 
-Hosted run/job evidence and publication remain pending. Live-run and second-run
-evidence remain blocked on explicit credentials and an approved
+Draft publication and hosted implementation-head evidence are complete. The
+documentation-only evidence commit requires the final hosted rerun. Live-run
+and second-run evidence remain blocked on explicit credentials and an approved
 non-production target.
