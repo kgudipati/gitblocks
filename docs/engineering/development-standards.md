@@ -98,10 +98,23 @@ behavior and compatibility boundary.
 - Product DTOs are defined once as closed TypeBox schemas. Their static
   TypeScript types and deterministic JSON Schema 2020-12 runtime artifacts come
   from those definitions; Ajv performs private structural validation.
+- A controlled stable-code vocabulary may be versioned independently of its
+  closed serialized shape only when every value uses an existing bounded,
+  explicitly typed variant. Unknown codes and unsupported semantic
+  combinations fail closed. Arbitrary metadata, raw JSON, source text,
+  configuration values, environment values, logs, and provider payloads are
+  not vocabulary extensions.
 - Structural parsing accepts `unknown`, rejects unknown fields, coercion,
   defaults, malformed versions, and bounded-resource violations, and never
   echoes rejected values. Pure domain validation then owns cross-field
   reference, evidence, disposition, outcome, and partial-ranking invariants.
+- Network, HTTP, and MCP adapters pass JSON-parsed or otherwise data-only
+  JavaScript values to product parsers. They own byte, content-type,
+  decompression, and bounded JSON-text parsing checks. Product preflight rejects
+  accessors, exotic prototypes, cycles, and unsupported object forms; an
+  already-executable hostile `Proxy` is outside the inert-data guarantee, so
+  parser failure remains bounded and value-free without claiming traps cannot
+  run.
 - Validate data when it crosses every trust boundary, even when an upstream
   system claims validation. Repository content, model output, MCP arguments,
   webhooks, stored records, queue messages, environment configuration, and
@@ -109,6 +122,19 @@ behavior and compatibility boundary.
 - Validation must reject unknown or malformed security-sensitive fields when
   permissive parsing would hide intent. Size, count, range, path, encoding, and
   semantic constraints are part of validation, not only field types.
+- Provenance variants must be coherent with their source. Immutable evidence
+  uses an exact non-mutable revision, matching locator, and chronological
+  publication, collection, and freshness times; mutable documentation states
+  its limitation; approved validation uses bounded references, scope, and time
+  rather than raw output. Local facts preserve `direct`, `declared`, and
+  `derived` epistemic status through mapping and canonicalization.
+- Material candidate reasons resolve to candidate-owned evidence or inference,
+  a disclosed unknown, or a matching hard-constraint conflict with preserved
+  evidence. Supplied candidate limitations retain candidate ownership,
+  statement, and evidence across an exchange. Processing completeness is
+  independent from material uncertainty, and partial-evidence processing names
+  bounded stable reasons. An insufficient-evidence candidate references an
+  applicable disclosed unknown.
 - A contract documents behavior, invariants, constraints, version negotiation,
   defaulting, side effects, idempotency, ordering, compatibility, and failure
   modes. Examples supplement but do not replace normative behavior.

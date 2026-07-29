@@ -127,8 +127,14 @@ that coercion, default insertion, additional-property removal, verbose input
 detail, and all-error collection are independently controllable.
 
 The validator compiles only trusted, checked-in TypeBox schema objects during
-module initialization. Parsers never load, compile, dynamically import, or
-execute caller-supplied schemas or values. Contract input remains inert data.
+module initialization. Parsers never load, compile, or dynamically import
+caller-supplied schemas. Production adapters must supply JSON-parsed or
+otherwise data-only values. The parser rejects accessors, exotic prototypes,
+cycles, and unsupported object forms, but reflective JavaScript inspection
+cannot guarantee that an arbitrary hostile in-process `Proxy` has no executable
+traps. Such already-executable proxy objects are outside the inert-data
+guarantee; a trap may run while the parser safely converts a thrown value into
+one bounded, value-free rejection.
 
 Ajv is an explicit product decision here, not accidental reuse of evaluation
 tooling. TypeBox stays the schema/type authority; Ajv is a replaceable private
@@ -194,12 +200,18 @@ Domain validation owns:
 
 - normalized and locally unique stable identifiers;
 - reference resolution and candidate ownership;
-- evidence, inference, claim, and unknown semantics;
-- favorable attributable-claim support for every recommended or viable
-  disposition;
+- evidence, inference, claim, unknown, limitation, and epistemic semantics;
+- source-aware evidence provenance, immutable-locator/revision coherence, and
+  publication, collection, validation, and freshness chronology;
+- attributable support for every candidate reason, independent of candidate
+  disposition, plus favorable attributable-claim support for every recommended
+  or viable disposition;
+- exact preservation of supplied candidate limitations through the response
+  catalog and candidate-owned assessment references;
 - contradictory facts;
 - hard-conflict disposition and ranking safety;
 - responsible outcome/disposition combinations;
+- assessment-processing state independently of material unknowns;
 - exact candidate-assessment coverage;
 - rank ties, partial order, incomparability, contradictions, tie propagation,
   and cycle detection; and
@@ -240,6 +252,115 @@ envelope follows the same result shape; its `domain` member is a fresh
 canonical copy of the validated DTO because it has no separate business-domain
 representation.
 
+### Durable repository-fact vocabulary
+
+Repository fingerprints retain typed universal facts for component/version and
+deployment observations. All other supported first-ecosystem facts use one
+closed `coded` fact shape:
+
+```text
+kind: coded
+category: repository-capability | repository-structure | identity |
+          data-policy | operations
+code: bounded stable code
+subjectCode: bounded stable code or null
+value: closed presence | classification | code-set | integer variant
+provenance: origin plus epistemicStatus
+```
+
+The value variants are explicitly typed and bounded. Presence records a finite
+state, classifications and code sets use stable codes, and integers carry
+contract bounds. The shape cannot carry a generic record, arbitrary JSON,
+source excerpts, raw configuration or environment values, secrets, logs,
+command output, or scanner/provider payloads. Withheld-category disclosure
+remains a separate bounded catalog rather than a disguised fact value.
+
+The domain owns a controlled registry that defines the allowed category, code,
+optional subject, value variant, and bounded value vocabulary for each fact
+code. A structurally valid but unregistered code is an unknown fact code and
+fails closed. A registered code used with the wrong category, subject, value
+variant, or controlled value is an unsupported fact semantic and also fails
+closed. Neither case is converted into an arbitrary metadata escape hatch.
+
+`factVocabularyVersion` negotiates that registry separately from the root
+contract version. Adding an ordinary first-alpha fact whose meaning fits the
+existing categories and typed value variants extends the controlled vocabulary
+without changing the serialized object shape or root JSON Schema. Producers
+must negotiate a vocabulary version that the consumer supports before using a
+new code. A fact that cannot be represented truthfully by the existing closed
+categories and value variants requires schema-shape evolution instead of
+overloading a code or value.
+
+### Evidence provenance and epistemic status
+
+An evidence observation does not combine an unconstrained source type with an
+independent revision. Its `source` is a closed discriminated variant:
+
+- `git-commit` uses a compatible repository/documentation/license source type,
+  a full lowercase 40-character commit SHA, an immutable locator containing
+  that exact SHA, and non-null publication and collection times;
+- `tag`, `release`, `package-version`, and `security-advisory` use compatible
+  source types, exact non-mutable revision identifiers, immutable locators
+  containing those identifiers, and publication and collection times;
+- `mutable-documentation` has explicit mutable classification, a bounded
+  `source-is-mutable` limitation, collection time, and freshness scope, with no
+  false immutable locator;
+- `approved-validation` uses a bounded validation reference, scope, and
+  validation time rather than pretending that an approved internal result is a
+  public URL or Git revision.
+
+Mutable aliases such as `latest`, `current`, `stable`, `next`, `main`,
+`master`, `head`, and `canary` are not revisions. Immutable evidence requires
+an exact locator/revision match. Package versions are exact semantic versions,
+so partial versions, ranges, and dist-tags fail while concrete prereleases such
+as `2.0.0-canary.123` remain reproducible. Tag and release values reject branch
+references and mutable alias forms while retaining concrete versioned
+prerelease identifiers. Publication cannot follow collection, and collection
+or validation cannot follow the declared freshness time or request cutoff.
+Source URLs are bounded HTTPS locators without user information or query
+values. No variant carries an arbitrary source body, provider result,
+validation output, or raw evidence payload.
+
+Repository-fact provenance records `epistemicStatus` as one of `direct`,
+`declared`, or `derived`. A fact parsed directly from an approved manifest,
+lockfile, configuration shape, or repository structure remains `direct`; a
+supplied declaration remains `declared`; and a scanner conclusion combining
+observations remains `derived`. Domain mapping and canonicalization preserve
+the supplied status exactly, and domain validation rejects incoherent
+origin/status combinations. In particular, a declaration is never silently
+renamed to a derived conclusion.
+
+### Candidate explanation, limitation, and processing integrity
+
+Every candidate reason is a material explanatory statement. Each reason must
+resolve to at least one support path: candidate-owned evidence,
+candidate-owned inference, a disclosed material unknown applicable to the
+candidate or assessment, or a matching candidate hard-constraint conflict
+whose reason code and evidence are preserved. A favorable claim elsewhere does
+not support unrelated prose. The rule applies equally to recommended, viable,
+rejected, and insufficient-evidence candidates, and diagnostics never echo an
+unsupported statement.
+
+Responses carry a `candidateLimitations` catalog and each candidate assessment
+uses `limitationIds` to retain candidate-owned limitations. Exchange validation
+requires exact preservation of every supplied decision-relevant limitation,
+including its owner, bounded statement, and candidate-owned evidence
+references. Unknown, moved, altered, duplicate, or contradictory limitations
+fail deterministically. Retaining a material limitation describes a tradeoff;
+it does not by itself reject an otherwise viable candidate.
+
+`assessmentProcessing` describes processing coverage, not epistemic certainty.
+`complete` means every supplied input and all available evidence were
+processed, and therefore has no incomplete-reason codes.
+`partial-evidence` requires one or more stable bounded
+`incompleteReasonCodes`. Material unknowns remain an independent catalog: a
+complete assessment may disclose unknowns, and a responsible
+`insufficient-evidence` outcome may follow after complete processing of every
+available source. Every insufficient candidate references an applicable
+disclosed material unknown, so the outcome remains grounded in epistemic state
+rather than processing status. Processing state cannot suppress or silently
+consume an unknown.
+
 ### Evaluation, storage, and transport distinctions
 
 Evaluation contracts remain private, independently versioned test-instrument
@@ -271,8 +392,9 @@ and MCP error code do not enter the neutral product error envelope.
 
 ### Resource preflight and diagnostics
 
-The contract package accepts an already-materialized JavaScript `unknown`.
-Before Ajv traversal, a pure iterative preflight rejects:
+The contract package accepts an already-materialized JavaScript `unknown`, but
+the supported production boundary is JSON-parsed or otherwise data-only.
+Before Ajv traversal, an iterative preflight rejects:
 
 - cycles;
 - depth greater than the named contract bound;
@@ -282,10 +404,17 @@ Before Ajv traversal, a pure iterative preflight rejects:
 - aggregate string value/name work beyond the named total UTF-16 code-unit
   bound;
 - more than the named per-object property bound; and
-- unsupported non-JSON object forms.
+- accessors, exotic prototypes, and other unsupported non-JSON object forms.
 
 Transport/file byte, content-type, JSON-text, decompression, and parse limits
-remain adapter responsibilities and are not falsely claimed here.
+remain adapter responsibilities and are not falsely claimed here. A hostile
+in-process `Proxy` is already executable JavaScript: standard reflective
+inspection can invoke its traps, and cross-runtime JavaScript provides no
+general inert-proxy detector. Proxy values are therefore outside the
+inert-data guarantee. The structural and mapping boundary catches thrown values
+and returns one bounded safe rejection without trap text or a stack trace, but
+does not claim the trap was never invoked. Node-specific detection is not added
+to manufacture a stronger cross-runtime guarantee.
 
 GitBlocks owns every returned diagnostic. Validator error messages, schemas,
 params, rejected keys, and rejected values never leave the package. The mapper
@@ -325,9 +454,32 @@ registry or its canonical serializer. They do not recreate shapes.
 
 ### Versioning and compatibility
 
-The first six contract families are exactly `1.0.0`. V1 parsers accept only
-that literal. Missing, malformed, prerelease, or later versions fail with a
-stable version issue.
+The first six contract families are exactly `1.0.0`, and the initial controlled
+repository-fact vocabulary is `1.0.0`. V1 parsers accept only the supported
+root literal, and fingerprint validation separately accepts only a negotiated
+fact-vocabulary version. Missing, malformed, prerelease, later, or otherwise
+unsupported versions fail with stable version issues.
+
+Versioning distinguishes four cases:
+
+1. **Schema-shape evolution** changes the accepted serialized object structure
+   or meaning and requires a separately versioned root schema/parser with
+   explicit producer/consumer negotiation.
+2. **Controlled fact-vocabulary evolution** adds a registered fact code whose
+   semantics fit the existing closed category, subject, and typed value
+   variants. It changes the vocabulary version and registry, not the root
+   object shape or schema digest.
+3. **Unknown fact codes** are codes absent from the negotiated registry. They
+   fail closed so an older consumer cannot guess their meaning.
+4. **Unsupported fact semantics** use a known code with an incoherent category,
+   subject, value variant, or controlled value, or require meaning the existing
+   shape cannot state. Incoherent values fail; genuinely new semantics require
+   schema-shape evolution rather than code reinterpretation.
+
+Version negotiation therefore covers both root schema support and repository
+fact-vocabulary support. A producer does not emit a newly registered code to a
+consumer that negotiated only the earlier vocabulary, even though both
+consumers can parse the same coded-fact object shape.
 
 Because V1 shapes are closed, even an optional field addition is not
 operationally backward compatible with an exact V1 consumer. A changed shape
@@ -346,7 +498,11 @@ and mixed-version plan. Before the first public/deployed consumer, Issue #9 may
 correct the unpublished V1 design under review.
 
 Contract version `1.0.0` is distinct from the private workspace package
-version. Neither private package is published by this decision.
+version. Neither private package is published by this decision. The six
+corrected roots remain `1.0.0` because the contracts are still unpublished,
+unmerged, and have no public or deployed consumer; these corrections replace
+the reviewed draft instead of creating a compatibility promise. After
+publication, the normal compatibility rules above apply.
 
 ## Research and dependency review
 
@@ -650,6 +806,11 @@ updated only through pnpm.
 - The domain stays independent and testable without schema or Node APIs.
 - Future transports and SDK generation receive standard closed Draft 2020-12
   artifacts with stable identifiers.
+- Ordinary supported repository facts evolve through a controlled vocabulary
+  without adding a DTO union branch for each scanner observation.
+- Evidence provenance, epistemic status, candidate reasons, supplied
+  limitations, and processing state retain their decision-relevant meaning
+  through mapping and exchange validation.
 - Diagnostics, version behavior, and cross-field safety are owned by GitBlocks
   rather than exposed library objects.
 
@@ -663,6 +824,11 @@ updated only through pnpm.
   structural and business rules reviewable and independently testable.
 - Exact-version closed consumers require explicit new parsers and negotiated
   transitions for shape additions.
+- Fact producers and consumers must negotiate a controlled vocabulary version,
+  and registry additions require semantic review even when schema shape is
+  unchanged.
+- Already-executable hostile proxies are not inert data; production adapters
+  must provide JSON-parsed or otherwise data-only values.
 - Runtime-exported artifacts require stable serialization tests rather than a
   browsable committed schema directory.
 

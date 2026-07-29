@@ -144,7 +144,26 @@ metadata, and local profiles are untrusted data. They cannot become agent
 instructions. The scanner will use allowlisted, bounded reads; validate paths
 and formats; avoid symlink or traversal escape; redact sensitive values; and
 never execute repository code. The scanner output will declare its schema
-version and the observations that produced each fingerprint fact.
+version, its controlled fact-vocabulary version, and the observations that
+produced each fingerprint fact.
+
+Repository fingerprints use closed, bounded objects. Universal facts such as a
+named component and version or a deployment topology retain dedicated typed
+forms. Coarse repository capabilities, structure, identity, data policy, and
+operational characteristics use stable fact, subject, and value codes with
+explicit presence, classification, code-set, or integer value variants. The
+controlled code registry is versioned independently of the serialized object
+shape: an ordinary supported-ecosystem fact may extend that registry without
+creating another DTO variant, while an unknown code or unsupported semantic
+combination fails closed. A new value kind or other structural requirement is
+a schema-shape change and follows contract-version negotiation.
+
+Each fact preserves confidence, collection time, and epistemic status. A fact
+parsed from an approved manifest, lockfile, configuration shape, or repository
+structure is `direct`; an input supplied as a declaration remains `declared`;
+and a scanner conclusion from multiple observations is `derived`. A source and
+epistemic-status combination that cannot coherently produce the asserted fact
+is rejected.
 
 ### Local environment to remote MCP
 
@@ -170,8 +189,15 @@ GitHub, package registries, security feeds, retrieved web pages, repositories,
 READMEs, issues, and pull requests are untrusted evidence sources. Workers will
 verify source identity where possible, enforce size/time/rate limits, record
 provenance and collection time, reject instruction-following behavior, and
-never run ingested code. Webhook-driven ingestion will require signature,
-timestamp, and replay verification before processing.
+never run ingested code. Evidence provenance is source-aware: Git commits,
+tags, releases, package versions, and advisories carry a compatible immutable
+revision and locator; mutable official documentation is explicitly classified
+as mutable; and approved validation uses a bounded validation reference, scope,
+and validation time rather than masquerading as public documentation.
+Publication, collection, validation, and freshness times remain chronologically
+coherent, and immutable locators identify their exact revisions.
+Webhook-driven ingestion will require signature, timestamp, and replay
+verification before processing.
 
 ### Remote data and model boundary
 
@@ -209,6 +235,26 @@ exports. Structural parsing handles untrusted shape, version, size, and
 diagnostic bounds; pure domain validation handles cross-field references,
 evidence and inference semantics, hard conflicts, responsible outcomes, and
 partial ranking.
+
+Production network, HTTP, and MCP adapters must provide JSON-parsed or
+otherwise data-only JavaScript values to these parsers. Byte limits, content
+type, decompression, and bounded JSON-text parsing belong to the adapter.
+Contract preflight rejects accessors, exotic prototypes, cycles, and
+unsupported object forms. An arbitrary already-executable in-process
+JavaScript `Proxy` is outside the inert-data guarantee: reflective inspection
+or later property access can invoke its traps, so the parser guarantees only a
+bounded, value-free rejection when such access fails, not that a hostile trap
+was never invoked.
+
+Response integrity also remains a domain concern. Every candidate reason must
+resolve to candidate-owned evidence, candidate-owned inference, a disclosed
+material unknown, or a matching hard-constraint conflict with preserved
+evidence. Candidate limitations supplied in dossiers are retained in a
+response catalog and referenced by the owning assessment without changing
+viability by themselves. Assessment processing state says whether supplied
+inputs and available evidence were completely processed; it is independent of
+epistemic uncertainty, so a completely processed assessment may still disclose
+material unknowns or responsibly return `insufficient-evidence`.
 
 ## Failure and operational posture
 

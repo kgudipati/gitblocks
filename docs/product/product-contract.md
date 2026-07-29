@@ -91,7 +91,8 @@ The planned workflow is:
    capability, success conditions, explicit hard constraints, and which local
    facts may be shared.
 2. **Fingerprint locally.** A deterministic local scanner observes approved
-   manifests, configuration, structure, and dependency facts. It does not
+   manifests, configuration shapes, structure, and dependency facts. It emits
+   closed, bounded facts from a controlled, versioned vocabulary and does not
    execute target or dependency code.
 3. **Review and minimize.** The Skill shows or summarizes the fingerprint,
    removes unnecessary source content and secrets, and obtains approval for
@@ -102,8 +103,11 @@ The planned workflow is:
 5. **Assess adoption fit.** Ranking combines repository facts with sourced
    compatibility, maintenance, security, licensing, and integration evidence.
 6. **Explain the result.** The coding agent receives candidates with evidence
-   references, tradeoffs, material unknowns, and the reasons for exclusion or
-   ranking. Inference and fact remain visibly distinct.
+   references, preserved candidate limitations, tradeoffs, material unknowns,
+   and the reasons for exclusion or ranking. Every reason is traceable to
+   candidate-owned evidence or inference, a disclosed material unknown, or a
+   matching hard-constraint conflict. Direct observations, supplied
+   declarations, and derived conclusions remain visibly distinct.
 7. **Choose and plan.** The developer approves a candidate. The coding agent
    produces a structured adoption plan covering changes, tests, migration,
    rollout, rollback or forward recovery, and open risks.
@@ -144,13 +148,34 @@ must not substitute popularity for compatibility.
   residency, or maintenance constraints.
 - **Evidence:** a dated, attributable observation from a repository, release,
   package registry, advisory source, documentation page, local deterministic
-  scan, or approved validation result. Evidence records its source and
-  collection time.
+  scan, or approved validation result. Public immutable evidence names an
+  exact source-compatible revision and matching immutable locator; mutable
+  official documentation discloses that limitation; approved validation uses
+  a bounded validation reference, scope, and time without embedding provider
+  output. Evidence records coherent publication or validation, collection, and
+  freshness times.
+- **Direct fact:** a fact observed directly from an approved manifest,
+  lockfile, configuration shape, repository structure, or other authoritative
+  data form without a reasoning step.
+- **Declared fact:** a bounded assertion supplied by the developer or another
+  approved declarative input. A declaration is not silently relabeled as a
+  direct observation or derived conclusion.
+- **Derived fact:** a scanner conclusion produced by applying a stated,
+  deterministic rule to one or more observations. Its provenance remains
+  distinct from direct and declared facts.
 - **Inference:** a conclusion derived from one or more evidence items using a
   stated rationale. An inference is never presented as direct evidence.
 - **Unknown:** a decision-relevant fact that cannot be established from current
   evidence with sufficient confidence. Unknowns are preserved, not silently
   scored as favorable.
+- **Candidate limitation:** a candidate-owned, bounded decision-relevant
+  drawback or constraint whose statement and evidence references are retained
+  from the supplied dossier into the assessment response. Retaining a
+  limitation does not by itself reject the candidate.
+- **Assessment processing state:** whether all supplied inputs and available
+  evidence were processed. Complete processing can still disclose material
+  unknowns or conclude `insufficient-evidence`; partial-evidence processing
+  carries stable reason codes for what was incomplete.
 - **Recommendation:** a ranked, repository-conditioned assessment of one or
   more viable candidates, including evidence, inferences, unknowns, tradeoffs,
   and reasons. It is decision support, not an autonomous selection.
@@ -185,7 +210,9 @@ the underlying content merely because it was read.
 - dependency names and versions;
 - runtime, framework, package-manager, database-library, and deployment-model
   identifiers;
-- coarse repository structure and feature flags produced by the scanner;
+- coarse repository capability, structure, identity, data-policy, and
+  operational facts expressed through bounded stable codes and explicitly
+  typed values;
 - one-way identifiers or user-approved repository identifiers when needed for
   continuity;
 - user-approved, bounded evidence excerpts required to resolve a material
@@ -197,6 +224,15 @@ source excerpts require a clear preview and affirmative approval. Collection,
 retention, deletion, tenant isolation, and redaction controls must be defined
 before remote storage is enabled. Model output and retrieved content follow the
 same trust-boundary rules as user input.
+
+Repository fact shape and fact vocabulary evolve separately. Adding an
+ordinary first-ecosystem code that uses an existing category, subject policy,
+and explicit value variant updates the controlled vocabulary version and does
+not require another serialized DTO form. Unknown codes and known codes with
+unsupported semantics fail closed. Adding an arbitrary JSON carrier, free-form
+scanner payload, source excerpt, configuration value, or a new structural value
+kind is not a vocabulary extension and requires explicit contract review and,
+when structural, schema-version negotiation.
 
 ## Private-alpha success measures
 

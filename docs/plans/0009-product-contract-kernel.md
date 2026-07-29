@@ -6,9 +6,10 @@
   [#9 — Phase 3: Establish the product domain and contract kernel](https://github.com/kgudipati/gitblocks/issues/9)
 - Branch: `feat/9-product-contract-kernel`
 - Owner: GitBlocks maintainers
-- State: implementation, the full pinned-runtime validation matrix,
-  independent review, publication, and hosted Verification are complete;
-  draft PR #10 remains open, draft, unmerged, and awaiting maintainer review
+- State: independent-review correction implementation and full local validation
+  are complete on the published topic branch; ordinary follow-up publication,
+  PR-description reconciliation, and corrected hosted Verification remain
+  pending; draft PR #10 remains open, draft, and unmerged
 - Last updated: 2026-07-28
 - Authority order:
   1. Issue #9.
@@ -206,26 +207,29 @@ The change will not:
 - Each response is self-consistent against its declared supplied candidate set.
   The public `validateFitAssessmentExchangeV1` function additionally parses
   both values and proves request linkage, exact candidate/evidence/unknown
-  preservation, cutoff equality, requested-result limits, and hard-constraint
-  identity.
+  and candidate-limitation preservation, cutoff equality, requested-result
+  limits, and hard-constraint identity.
 - Evaluation conformance does not invent evidence-derived inferences from
   proposed narrative. It maps direct observations as evidence, preserves
   explicit unknowns, and uses the proposed dispositions/ranking only to test
   response representability.
-- Repository fingerprints use finite purpose-specific structured fact
-  variants. Evaluation context sentences are exact matching keys at the
-  harness boundary only and cannot enter the product DTO as free text.
+- Repository fingerprints retain typed component/version and deployment facts
+  plus one closed coded shape for coarse capability, structure, identity,
+  data-policy, and operations facts. A separately negotiated controlled
+  vocabulary owns code semantics. Evaluation context sentences are exact
+  matching keys at the harness boundary only and cannot enter the product DTO
+  as free text.
 
 ### Unresolved decisions
 
-None remain for local implementation. Independent review reconciliation, the
-complete pinned-runtime validation matrix, publication metadata, and hosted CI
-evidence remain required work, not design decisions.
+None remain for local implementation. Independent review reconciliation and the
+complete pinned-runtime validation matrix are complete. Publication metadata
+and corrected hosted CI evidence remain required work, not design decisions.
 
 ## Applicable ADRs and contracts
 
 - The [product contract](../product/product-contract.md) keeps its approved
-  product semantics and owns the five families, vocabulary,
+  product semantics and owns the six families, vocabulary,
   data-locality/transmission boundary, responsible abstention,
   hard-constraint safety, and first-release non-goals. Its status/current-state
   prose is updated to acknowledge the locally implemented kernel without
@@ -267,44 +271,44 @@ evidence remain required work, not design decisions.
 
 ### Exact version `1.0.0` contract inventory
 
-| Contract family               | Required V1 fields and constraints                                                                                                                                                                                                                                                                                                                                                                                       | Destination                                                             | Evidence                                                                                                                                    |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Capability request            | `contractVersion`, `requestId`, `capabilityFamily`, bounded `summary`, non-empty `successConditions`, `hardConstraints` with stable `reasonCode`, `preferences`, and bounded `transmissionApproval` containing `approvalId`, `approvedAt`, fixed approver/scope, and unique approved categories                                                                                                                          | TypeBox capability-request root and domain mapper                       | Minimum/maximum forms; family, ID, approval, timestamp, hidden-field, source/prompt/token negatives                                         |
-| Repository fingerprint        | `contractVersion`, `fingerprintId`, bounded purpose-specific `facts`, and bounded unique `withheldCategories`; facts are finite structured component, deployment, capability, tenant, identity, credential-policy, data, and infrastructure variants with repository-local provenance                                                                                                                                    | TypeBox repository-fingerprint root and domain mapper                   | All ten mappings; structured-fact correlation, duplicate/contradiction, minimization, secret/source/config/log/command-output negatives     |
-| Candidate dossier             | `contractVersion`, candidate `identity` with GitHub repository and optional npm package, `capabilityFamily`, nullable `versionScope`, bounded direct `observations`, `limitations`, and `unknowns`; observation provenance carries source/revision/collection/publication and freshness/limitation explicitly                                                                                                            | TypeBox candidate-dossier root and domain mapper                        | Required dimension coverage through root/observations; ownership, freshness, absent-value, 40-unknown, and bound tests                      |
-| Fit-assessment request        | `contractVersion`, `assessmentRequestId`, nested capability request and repository fingerprint values, 1–20 supplied `candidates`, `evidenceCutoff`, `requestedMaximumResults`, and `correlationId`; no discovery/search flag                                                                                                                                                                                            | TypeBox fit-assessment-request root and domain mapper                   | Candidate-count, family, cutoff, exact approval scope, requested-maximum, nested-version, unknown discovery-field tests                     |
-| Fit-assessment response       | `contractVersion`, `assessmentId`, `assessmentRequestId`, `correlationId`, responsible `outcome`, exact `suppliedCandidateIds`, exactly one entry in `candidateAssessments` per supplied candidate, separate `evidence`, `inferences`, `materialClaims`, `materialUnknowns`, preserved `hardConstraintConflicts`, `rankGroups`, `rankRelations`, `incomparablePairs`, `evidenceCutoff`, `producedAt`, and `completeness` | TypeBox fit-assessment-response root, domain result, exchange validator | Exact candidate/evidence/unknown preservation, disposition/outcome, partial ranking, temporal, completeness, and 20-candidate maximum tests |
-| Stable neutral error envelope | `contractVersion`, finite safe `code`, matching finite safe `message`, bounded value-free `issues` with finite `code` and semantic `path`, finite `retry`, and optional `correlationId`; no transport status/code                                                                                                                                                                                                        | TypeBox error-envelope root and semantic validator                      | Every safe path/category, code/message/retry correlation, and stack/input/provider/database/path/queue rejection tests                      |
-| All six roots                 | Stable versioned `$id`, Draft 2020-12 `$schema`, closed nested shapes, bounded strings/arrays, no defaults, no coercion, no evaluation-only fields                                                                                                                                                                                                                                                                       | TypeBox source and schema catalog                                       | Exactly-six registry test, strict Ajv compilation, keyword/closure checks, canonical serialization digests                                  |
+| Contract family               | Required V1 fields and constraints                                                                                                                                                                                                                                                                                                                                                                                       | Destination                                                             | Evidence                                                                                                                                                                                                            |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Capability request            | `contractVersion`, `requestId`, `capabilityFamily`, bounded `summary`, non-empty `successConditions`, `hardConstraints` with stable `reasonCode`, `preferences`, and bounded `transmissionApproval` containing `approvalId`, `approvedAt`, fixed approver/scope, and unique approved categories                                                                                                                          | TypeBox capability-request root and domain mapper                       | Minimum/maximum forms; family, ID, approval, timestamp, hidden-field, source/prompt/token negatives                                                                                                                 |
+| Repository fingerprint        | `contractVersion`, independently negotiated `factVocabularyVersion`, `fingerprintId`, bounded typed component/deployment plus closed coded `facts`, and bounded unique `withheldCategories`; coded facts use coarse categories, stable code/subject identifiers, explicit bounded value variants, and repository-local provenance with preserved epistemic status                                                        | TypeBox repository-fingerprint root and domain mapper                   | Ten pilot mappings plus six non-pilot fixtures; vocabulary/semantic negotiation, structured-fact correlation, direct/declared/derived preservation, minimization, secret/source/config/log/command-output negatives |
+| Candidate dossier             | `contractVersion`, candidate `identity` with GitHub repository and optional npm package, `capabilityFamily`, nullable `versionScope`, bounded direct `observations`, candidate-owned coded `limitations`, and `unknowns`; observation provenance is a source-aware discriminated variant with exact revision/locator, chronology, freshness, and limitation semantics                                                    | TypeBox candidate-dossier root and domain mapper                        | Valid/invalid source matrix, ownership, exact revisions, aliases/branch references, chronology/freshness, limitation integrity, absent-value, 40-unknown, and bound tests                                           |
+| Fit-assessment request        | `contractVersion`, `assessmentRequestId`, nested capability request and repository fingerprint values, 1–20 supplied `candidates`, `evidenceCutoff`, `requestedMaximumResults`, and `correlationId`; no discovery/search flag                                                                                                                                                                                            | TypeBox fit-assessment-request root and domain mapper                   | Candidate-count, family, cutoff, exact approval scope, requested-maximum, nested-version, unknown discovery-field tests                                                                                             |
+| Fit-assessment response       | `contractVersion`, `assessmentId`, `assessmentRequestId`, `correlationId`, responsible `outcome`, exact `suppliedCandidateIds`, exactly one entry in `candidateAssessments` per supplied candidate, separate `evidence`, `inferences`, `candidateLimitations`, `materialClaims`, `materialUnknowns`, preserved `hardConstraintConflicts`, ranking structures, `evidenceCutoff`, `producedAt`, and `assessmentProcessing` | TypeBox fit-assessment-response root, domain result, exchange validator | Exact candidate/evidence/unknown/limitation preservation, reason traceability, disposition/outcome, partial ranking, temporal/processing semantics, and 20-candidate maximum tests                                  |
+| Stable neutral error envelope | `contractVersion`, finite safe `code`, matching finite safe `message`, bounded value-free `issues` with finite `code` and semantic `path`, finite `retry`, and optional `correlationId`; no transport status/code                                                                                                                                                                                                        | TypeBox error-envelope root and semantic validator                      | Every safe path/category, code/message/retry correlation, and stack/input/provider/database/path/queue rejection tests                                                                                              |
+| All six roots                 | Stable versioned `$id`, Draft 2020-12 `$schema`, closed nested shapes, bounded strings/arrays, no defaults, no coercion, no evaluation-only fields                                                                                                                                                                                                                                                                       | TypeBox source and schema catalog                                       | Exactly-six registry test, strict Ajv compilation, keyword/closure checks, canonical serialization digests                                                                                                          |
 
 ### Parser, invariant, and exploit-test guarantees
 
-| Issue #9 requirement                                                                                                                                              | Destination                                           | Milestone | Required evidence                                                                                                                                                       |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Each of the six named parsers accepts `unknown` and returns an explicit typed success/failure result                                                              | Contract parser exports                               | 3         | Public API/typecheck tests; no unchecked final cast                                                                                                                     |
-| Reject missing, wrong, future, prerelease, and nested wrong contract versions                                                                                     | Structural validator and parser diagnostics           | 3         | Root and nested version regression table                                                                                                                                |
-| Reject unknown fields on every untrusted object, with no coercion, default insertion, or property removal                                                         | Closed TypeBox helper and private Ajv options         | 3         | Extra-hidden-field, coercion, absent-value, and schema inspection tests                                                                                                 |
-| Do not mutate caller input                                                                                                                                        | Structural validation and fresh DTO-to-domain mapping | 3         | Frozen/readonly and deliberate mutation-attempt tests                                                                                                                   |
-| Run structural validation, then explicit mapping, then pure domain validation                                                                                     | Contract parsers and domain validators                | 2–3       | Focused structural/domain failure cases and parser result assertions                                                                                                    |
-| Bound object-value and string work before Ajv                                                                                                                     | Iterative preflight                                   | 3         | Cycle, depth, composed node, object-property, array-breadth, per-string/aggregate-string, sparse/hidden array property, accessor, prototype, and diagnostic-flood tests |
-| Return stable, deterministic, value-free diagnostics                                                                                                              | Diagnostics module                                    | 3         | Maximum 20 issues, 256-character path, 160-character message, stable sort, no rejected key/value/validator-param echoes                                                 |
-| Perform no I/O, dynamic import, schema loading, candidate execution, or interpretation of malicious text                                                          | Product packages and architecture rules               | 2–4       | Source audit, architecture checks, inert malicious-text tests                                                                                                           |
-| Normalize and bound IDs; reject duplicate IDs/facts and contradictory semantic facts                                                                              | Domain identifiers and request/fingerprint validation | 2         | Malformed/duplicate catalogs, semantic structured-fact correlation, canonical ordering tests                                                                            |
-| Assess every supplied candidate exactly once and preserve candidate ownership                                                                                     | Result and exchange validation                        | 2–3       | Omitted/duplicate/unknown assessment, moved reason, moved evidence, request-link tests                                                                                  |
-| Resolve every evidence, inference, claim, unknown, conflict, and candidate reference                                                                              | Domain reference validators                           | 2         | Unresolved and cross-candidate reference tests                                                                                                                          |
-| Keep evidence and inference separate; require inference evidence; prevent shared evidence/inference identity                                                      | Domain result validation                              | 2         | Empty-inference and disguised-variant/identity-collision tests                                                                                                          |
-| Require every material claim to reference evidence, inference, or both; do not turn an unknown into a favorable claim                                             | Domain result validation                              | 2         | Traceability and unresolved-unknown tests                                                                                                                               |
-| Require every recommended or viable disposition to expose a same-candidate favorable attributable claim                                                           | Domain result validation                              | 2         | Zero-evidence positive-disposition and claim-direction regressions                                                                                                      |
-| Preserve request evidence and candidate unknowns exactly across the exchange                                                                                      | Exchange validator                                    | 2–3       | Missing, reassigned, or modified evidence/unknown regression tests                                                                                                      |
-| Reject known hard conflicts unless the candidate is rejected; preserve matching constraint reason/evidence; exclude rejected/insufficient candidates from ranking | Domain result/exchange validation                     | 2         | Viable/recommended/ranked conflict and preservation tests                                                                                                               |
-| Enforce all three responsible outcome/disposition combinations                                                                                                    | Domain result validation                              | 2         | Exhaustive valid/invalid outcome matrix                                                                                                                                 |
-| Support ties, partial orders, and incomparable pairs while rejecting duplicates, cycles, and overlapping relation kinds                                           | Ranking validator                                     | 2         | Tie/ordered/incomparable pair matrix, cycle and tie-propagation tests                                                                                                   |
-| Bound ranking relations deterministically for 20 candidates                                                                                                       | Response schema and ranking validator                 | 2–3       | Accepted maximum 190 ordered relations and 190 incomparable pairs; stable canonical diagnostics                                                                         |
-| Enforce timestamp validity/order, evidence cutoff, request/response linkage, completeness semantics, approval coverage, and requested result maximum              | Request, result, and exchange validators              | 2–3       | Calendar-invalid/future evidence, cutoff/production order, completeness, approval-category, and requested-maximum tests                                                 |
-| Detect schema artifact drift without a second schema authority                                                                                                    | Runtime schema catalog and canonical serializer       | 3         | Six exact digest tests and fresh-clone isolation                                                                                                                        |
-| Reject evaluation-only gold/corpus fields at product boundaries                                                                                                   | Closed product schemas                                | 3–4       | Product parser negatives for evaluation gold fields                                                                                                                     |
-| Fail evaluation conformance when a source field or semantic mapping is lost                                                                                       | Harness mapping/accounting                            | 4         | Field-disposition tables, exact context matching, intentional field-loss regression                                                                                     |
-| Prevent product imports from `evals/`, gold, or `tools/`, and prevent product imports of adapters/providers/storage                                               | Architecture and repository checks                    | 4         | Positive/negative fixtures plus production source inventory                                                                                                             |
+| Issue #9 requirement                                                                                                                                                             | Destination                                           | Milestone | Required evidence                                                                                                                                                       |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Each of the six named parsers accepts `unknown` and returns an explicit typed success/failure result                                                                             | Contract parser exports                               | 3         | Public API/typecheck tests; no unchecked final cast                                                                                                                     |
+| Reject missing, wrong, future, prerelease, and nested wrong contract versions                                                                                                    | Structural validator and parser diagnostics           | 3         | Root and nested version regression table                                                                                                                                |
+| Reject unknown fields on every untrusted object, with no coercion, default insertion, or property removal                                                                        | Closed TypeBox helper and private Ajv options         | 3         | Extra-hidden-field, coercion, absent-value, and schema inspection tests                                                                                                 |
+| Do not mutate caller input                                                                                                                                                       | Structural validation and fresh DTO-to-domain mapping | 3         | Frozen/readonly and deliberate mutation-attempt tests                                                                                                                   |
+| Run structural validation, then explicit mapping, then pure domain validation                                                                                                    | Contract parsers and domain validators                | 2–3       | Focused structural/domain failure cases and parser result assertions                                                                                                    |
+| Bound object-value and string work before Ajv                                                                                                                                    | Iterative preflight                                   | 3         | Cycle, depth, composed node, object-property, array-breadth, per-string/aggregate-string, sparse/hidden array property, accessor, prototype, and diagnostic-flood tests |
+| Return stable, deterministic, value-free diagnostics                                                                                                                             | Diagnostics module                                    | 3         | Maximum 20 issues, 256-character path, 160-character message, stable sort, no rejected key/value/validator-param echoes                                                 |
+| Perform no I/O, dynamic import, schema loading, candidate execution, or interpretation of malicious text                                                                         | Product packages and architecture rules               | 2–4       | Source audit, architecture checks, inert malicious-text tests                                                                                                           |
+| Normalize and bound IDs; reject duplicate IDs/facts and contradictory semantic facts                                                                                             | Domain identifiers and request/fingerprint validation | 2         | Malformed/duplicate catalogs, semantic structured-fact correlation, canonical ordering tests                                                                            |
+| Assess every supplied candidate exactly once and preserve candidate ownership                                                                                                    | Result and exchange validation                        | 2–3       | Omitted/duplicate/unknown assessment, moved reason, moved evidence, request-link tests                                                                                  |
+| Resolve every evidence, inference, claim, unknown, conflict, and candidate reference                                                                                             | Domain reference validators                           | 2         | Unresolved and cross-candidate reference tests                                                                                                                          |
+| Keep evidence and inference separate; require inference evidence; prevent shared evidence/inference identity                                                                     | Domain result validation                              | 2         | Empty-inference and disguised-variant/identity-collision tests                                                                                                          |
+| Require every material claim to reference evidence, inference, or both; do not turn an unknown into a favorable claim                                                            | Domain result validation                              | 2         | Traceability and unresolved-unknown tests                                                                                                                               |
+| Require every recommended or viable disposition to expose a same-candidate favorable attributable claim                                                                          | Domain result validation                              | 2         | Zero-evidence positive-disposition and claim-direction regressions                                                                                                      |
+| Preserve request evidence and candidate unknowns exactly across the exchange                                                                                                     | Exchange validator                                    | 2–3       | Missing, reassigned, or modified evidence/unknown regression tests                                                                                                      |
+| Reject known hard conflicts unless the candidate is rejected; preserve matching constraint reason/evidence; exclude rejected/insufficient candidates from ranking                | Domain result/exchange validation                     | 2         | Viable/recommended/ranked conflict and preservation tests                                                                                                               |
+| Enforce all three responsible outcome/disposition combinations                                                                                                                   | Domain result validation                              | 2         | Exhaustive valid/invalid outcome matrix                                                                                                                                 |
+| Support ties, partial orders, and incomparable pairs while rejecting duplicates, cycles, and overlapping relation kinds                                                          | Ranking validator                                     | 2         | Tie/ordered/incomparable pair matrix, cycle and tie-propagation tests                                                                                                   |
+| Bound ranking relations deterministically for 20 candidates                                                                                                                      | Response schema and ranking validator                 | 2–3       | Accepted maximum 190 ordered relations and 190 incomparable pairs; stable canonical diagnostics                                                                         |
+| Enforce timestamp validity/order, evidence cutoff, request/response linkage, processing-state semantics independent of unknowns, approval coverage, and requested result maximum | Request, result, and exchange validators              | 2–3       | Calendar-invalid/future evidence, cutoff/production order, complete-with-unknown, partial-without-reason, approval-category, and requested-maximum tests                |
+| Detect schema artifact drift without a second schema authority                                                                                                                   | Runtime schema catalog and canonical serializer       | 3         | Six exact digest tests and fresh-clone isolation                                                                                                                        |
+| Reject evaluation-only gold/corpus fields at product boundaries                                                                                                                  | Closed product schemas                                | 3–4       | Product parser negatives for evaluation gold fields                                                                                                                     |
+| Fail evaluation conformance when a source field or semantic mapping is lost                                                                                                      | Harness mapping/accounting                            | 4         | Field-disposition tables, exact context matching, intentional field-loss regression                                                                                     |
+| Prevent product imports from `evals/`, gold, or `tools/`, and prevent product imports of adapters/providers/storage                                                              | Architecture and repository checks                    | 4         | Positive/negative fixtures plus production source inventory                                                                                                             |
 
 The exploit suite explicitly covers wrong versions, hidden fields, coercion,
 input mutation, duplicate IDs, unresolved references, inference without
@@ -313,38 +317,46 @@ ranking, invalid outcomes, candidate omission/duplication/reassignment,
 ranking cycles and relation collisions, control and bidirectional characters,
 oversized and aggregate-flood strings/arrays, deep/broad/diagnostic-flood
 inputs, composed maximum legal responses, accessor and non-plain objects,
-secret/raw-source-like fields, inert malicious narrative, unsupported positive
+throwing proxies, secret/raw-source-like fields, source/revision mismatch and
+mutable alias forms, inert malicious narrative, unsupported candidate reasons,
+disappearing limitations, unknown suppression, unsupported positive
 dispositions, unsafe error internals, schema drift, prohibited imports,
 evaluation field loss, and accidental product acceptance of gold-only fields.
 
 ### Required exploit and regression crosswalk
 
-| Required negative or abuse case                                                                                                                  | Boundary under test                                | Required evidence                                                                                                           |
-| ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Wrong root contract version and wrong nested capability/fingerprint/dossier version                                                              | Structural/version diagnostics                     | Parser version tables assert stable version classification                                                                  |
-| Extra hidden field, including prompt/message/discovery and evaluation-gold fields                                                                | Every closed object and union branch               | Parser unknown-field regressions across all six roots                                                                       |
-| String/number/boolean coercion attempt and missing value that a default might favor                                                              | Ajv structural stage                               | Non-coercion/non-default tests preserve the original input                                                                  |
-| Caller input mutation                                                                                                                            | Parser and DTO-to-domain mapper                    | Before/after deep equality and frozen-input tests                                                                           |
-| Duplicate stable IDs and contradictory duplicate facts                                                                                           | Domain catalogs and structured fact semantic keys  | Duplicate-ID, duplicate-fact, and contradictory-fact tests                                                                  |
-| Unresolved candidate, evidence, inference, unknown, claim, and conflict references                                                               | Domain reference validation                        | Per-reference stable issue-code tests                                                                                       |
-| Inference without evidence; evidence disguised as inference or inference sharing an evidence ID                                                  | Structural variants and domain semantics           | Empty-evidence and variant/identity-conflict tests                                                                          |
-| Recommended or viable candidate with no favorable attributable claim                                                                             | Positive-disposition support                       | Zero-evidence recommendation rejection at domain and parser layers                                                          |
-| Hard-conflicting candidate marked viable/recommended or included in any ranking form                                                             | Disposition, conflict preservation, and ranking    | Viable/recommended/ranked hard-conflict regressions                                                                         |
-| Invalid responsible outcome/disposition combination                                                                                              | Result semantics                                   | Exhaustive outcome/disposition table                                                                                        |
-| Candidate omitted, duplicated, or not supplied                                                                                                   | Response-local and exchange candidate sets         | Omission, duplicate, unknown, and different-request-set tests                                                               |
-| Candidate reason moved to another candidate                                                                                                      | Candidate reason ownership                         | Cross-candidate reason reassignment test                                                                                    |
-| Candidate evidence moved, omitted, or changed while retaining its ID                                                                             | Evidence ownership and exact exchange preservation | Reassignment, omission, and modified-observation tests                                                                      |
-| Candidate unknown omitted or changed while retaining its ID                                                                                      | Exact exchange preservation                        | Omitted and modified statement/reference tests                                                                              |
-| Ranking cycle, duplicate membership/relation, tied plus ordered, tied plus incomparable, ordered plus incomparable, and tie-propagation conflict | Partial-order validation                           | Focused ranking matrix and maximum 190-pair tests                                                                           |
-| Control, C1, bidirectional, line-separator, and other unsafe display characters                                                                  | Bounded string patterns and safe diagnostics       | String-policy rejection tests without sentinel echo                                                                         |
-| Oversized scalar, aggregate string work, schema array, object, sparse/extended array, array breadth, depth, total nodes, and diagnostic flood    | Schema bounds and iterative preflight              | Multi-megabyte scalar, aggregate flood, composed-maximum, limit-edge, and one-over tests; accessor getters remain uninvoked |
-| Attempted secret-like, credential/userinfo/query-token, raw-source/config/manifest/log/database/untracked/command-output field                   | Fingerprint, URL, and all closed DTOs              | Prohibited-carrier parser tests with no rejected-value echo                                                                 |
-| Arbitrary malicious narrative that fits an allowed text field                                                                                    | Inert-data boundary                                | Accepted parse with byte-for-byte inert text and no execution                                                               |
-| Error envelope stack, rejected input, provider payload, database error, internal path, table name, or queue name                                 | Neutral error structural/semantic validation       | Unknown-field and finite code/message/retry/path rejection tests                                                            |
-| Schema artifact drift or mutation of a returned artifact                                                                                         | Runtime schema registry/serializer                 | Exact digests, clone isolation, strict meta-schema compilation                                                              |
-| Product source/test importing `evals/`, evaluation gold, `tools/`, or outward layers                                                             | Dependency-cruiser and repository invariants       | Positive/negative architecture fixtures and source inventory                                                                |
-| Evaluation mapping loses a source field or accepts an unknown context sentence                                                                   | Harness field accounting and exact context map     | Intentional field-removal/unmapped-context regressions                                                                      |
-| Product validation accepts evaluation-only rationale, scoring, lifecycle, or gold fields                                                         | Product schema closure                             | Gold-only field injection regressions                                                                                       |
+| Required negative or abuse case                                                                                                                  | Boundary under test                                 | Required evidence                                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Wrong root contract version and wrong nested capability/fingerprint/dossier version                                                              | Structural/version diagnostics                      | Parser version tables assert stable version classification                                                                  |
+| Extra hidden field, including prompt/message/discovery and evaluation-gold fields                                                                | Every closed object and union branch                | Parser unknown-field regressions across all six roots                                                                       |
+| String/number/boolean coercion attempt and missing value that a default might favor                                                              | Ajv structural stage                                | Non-coercion/non-default tests preserve the original input                                                                  |
+| Caller input mutation                                                                                                                            | Parser and DTO-to-domain mapper                     | Before/after deep equality and frozen-input tests                                                                           |
+| Duplicate stable IDs and contradictory duplicate facts                                                                                           | Domain catalogs and structured fact semantic keys   | Duplicate-ID, duplicate-fact, and contradictory-fact tests                                                                  |
+| Unknown/unsupported coded fact, or raw source/configuration/environment/secret/log/command-output/arbitrary metadata carrier                     | Fingerprint structural and vocabulary validation    | Six non-pilot positives plus unknown-code, semantic-mismatch, closure, and non-echoing carrier negatives                    |
+| Incoherent source/revision, mutable alias or branch reference, partial package version, locator mismatch, or invalid chronology                  | Evidence structural and domain validation           | Exhaustive source compatibility table, exact revisions, immutable locator, timestamp order, and safe diagnostic tests       |
+| Unresolved candidate, evidence, inference, unknown, claim, and conflict references                                                               | Domain reference validation                         | Per-reference stable issue-code tests                                                                                       |
+| Inference without evidence; evidence disguised as inference or inference sharing an evidence ID                                                  | Structural variants and domain semantics            | Empty-evidence and variant/identity-conflict tests                                                                          |
+| Recommended or viable candidate with no favorable attributable claim                                                                             | Positive-disposition support                        | Zero-evidence recommendation rejection at domain and parser layers                                                          |
+| Hard-conflicting candidate marked viable/recommended or included in any ranking form                                                             | Disposition, conflict preservation, and ranking     | Viable/recommended/ranked hard-conflict regressions                                                                         |
+| Invalid responsible outcome/disposition combination                                                                                              | Result semantics                                    | Exhaustive outcome/disposition table                                                                                        |
+| Candidate omitted, duplicated, or not supplied                                                                                                   | Response-local and exchange candidate sets          | Omission, duplicate, unknown, and different-request-set tests                                                               |
+| Candidate reason moved to another candidate                                                                                                      | Candidate reason ownership                          | Cross-candidate reason reassignment test                                                                                    |
+| Candidate reason has no candidate-owned evidence/inference, disclosed unknown, or matching evidenced hard conflict                               | Reason-local traceability                           | Unsupported reason/tradeoff and every-disposition regressions; hard-conflict reason/evidence preservation tests             |
+| Candidate evidence moved, omitted, or changed while retaining its ID                                                                             | Evidence ownership and exact exchange preservation  | Reassignment, omission, and modified-observation tests                                                                      |
+| Candidate unknown omitted or changed while retaining its ID                                                                                      | Exact exchange preservation                         | Omitted and modified statement/reference tests                                                                              |
+| Candidate limitation omitted, moved, altered, contradicted, or duplicated under the same or a relabeled code                                     | Limitation catalogs and exact exchange preservation | Request/result ownership, canonical content, assessment reference, and viable-tradeoff tests                                |
+| Complete processing suppresses an unknown, or partial-evidence processing omits a bounded reason code                                            | Processing-state and exchange validation            | Complete-with-unknown, complete-insufficient, partial-with/without-reason, and unknown-preservation tests                   |
+| Ranking cycle, duplicate membership/relation, tied plus ordered, tied plus incomparable, ordered plus incomparable, and tie-propagation conflict | Partial-order validation                            | Focused ranking matrix and maximum 190-pair tests                                                                           |
+| Control, C1, bidirectional, line-separator, and other unsafe display characters                                                                  | Bounded string patterns and safe diagnostics        | String-policy rejection tests without sentinel echo                                                                         |
+| Oversized scalar, aggregate string work, schema array, object, sparse/extended array, array breadth, depth, total nodes, and diagnostic flood    | Schema bounds and iterative preflight               | Multi-megabyte scalar, aggregate flood, composed-maximum, limit-edge, and one-over tests; accessor getters remain uninvoked |
+| Attempted secret-like, credential/userinfo/query-token, raw-source/config/manifest/log/database/untracked/command-output field                   | Fingerprint, URL, and all closed DTOs               | Prohibited-carrier parser tests with no rejected-value echo                                                                 |
+| Arbitrary malicious narrative that fits an allowed text field                                                                                    | Inert-data boundary                                 | Accepted parse with byte-for-byte inert text and no execution                                                               |
+| Already-executable throwing JavaScript `Proxy`                                                                                                   | Preflight/validator/mapping containment             | Trap invocation is acknowledged; parser returns exactly one bounded value-free issue with no trap text or stack             |
+| Error envelope stack, rejected input, provider payload, database error, internal path, table name, or queue name                                 | Neutral error structural/semantic validation        | Unknown-field and finite code/message/retry/path rejection tests                                                            |
+| Schema artifact drift or mutation of a returned artifact                                                                                         | Runtime schema registry/serializer                  | Exact digests, clone isolation, strict meta-schema compilation                                                              |
+| Product source/test importing `evals/`, evaluation gold, `tools/`, or outward layers                                                             | Dependency-cruiser and repository invariants        | Positive/negative architecture fixtures and source inventory                                                                |
+| Evaluation mapping loses a source field or accepts an unknown context sentence                                                                   | Harness field accounting and exact context map      | Intentional field-removal/unmapped-context regressions                                                                      |
+| Product validation accepts evaluation-only rationale, scoring, lifecycle, or gold fields                                                         | Product schema closure                              | Gold-only field injection regressions                                                                                       |
 
 ### Integration, documentation, dependency, completion, and non-goal proof
 
@@ -501,12 +513,12 @@ Abuse cases include:
 - evaluation gold fields leaking into public product DTOs; and
 - a dependency or lifecycle-script change weakening the supply-chain baseline.
 
-Controls are closed purpose-specific variants, no coercion/default insertion,
-preflight graph bounds, inert-text handling, stable normalized identifiers,
-pure reference/invariant checks, value-free bounded issues, negative and abuse
-tests, exact dependency pins, default-denied lifecycle scripts, frozen install,
-secret scanning, registry audit, architecture checks, and complete diff
-review.
+Controls are closed typed variants plus controlled coded vocabularies, no
+coercion/default insertion, preflight graph bounds, inert-text handling, stable
+normalized identifiers, pure reference/invariant checks, value-free bounded
+issues, negative and abuse tests, exact dependency pins, default-denied
+lifecycle scripts, frozen install, secret scanning, registry audit,
+architecture checks, and complete diff review.
 
 Authentication, tenant authorization, retention, deletion, encryption,
 webhook verification, transport byte limits, and audit logging are not
@@ -522,8 +534,9 @@ The domain package owns readonly plain-object/discriminated-union values for:
 - stable identifiers and stable reason codes;
 - `SuccessCondition`, `HardConstraint`, and `Preference`;
 - `CapabilityRequest`;
-- minimized `RepositoryFingerprint` facts and repository-local provenance;
-- `CandidateIdentity` and `CandidateDossier`;
+- minimized typed/coded `RepositoryFingerprint` facts, controlled vocabulary,
+  and direct/declared/derived repository-local provenance;
+- `CandidateIdentity`, `CandidateDossier`, and `CandidateLimitation`;
 - direct `EvidenceObservation` and `EvidenceReference`;
 - evidence-derived `Inference`;
 - `MaterialUnknown`;
@@ -532,7 +545,7 @@ The domain package owns readonly plain-object/discriminated-union values for:
 - `HardConstraintConflict`;
 - one `CandidateAssessment` per supplied candidate;
 - `RankGroup`, `ExplicitRankRelation`, and `IncomparablePair`;
-- `ResponsibleOutcome`; and
+- `ResponsibleOutcome` and `assessmentProcessing`; and
 - `FitAssessmentResult`.
 
 Domain values avoid transport naming, persistence layout, mutable entities,
@@ -548,24 +561,31 @@ Pure domain validation enforces and independently tests:
 - Stable IDs use one documented normalized bounded grammar.
 - IDs are unique within their local catalog.
 - Every supplied candidate is assessed exactly once.
-- Evidence, inference, claim, unknown, conflict, and candidate references
-  resolve.
+- Evidence, inference, limitation, claim, unknown, conflict, and candidate
+  references resolve.
 - Candidate-conditioned reasons and evidence cannot migrate between
   candidates.
 - The exchange preserves every supplied evidence observation and
   candidate-scoped unknown exactly, not merely its ID and owner.
+- The exchange preserves every supplied candidate limitation exactly and every
+  retained limitation remains referenced by its owning assessment.
 - Duplicate or contradictory facts fail instead of being merged.
-- Structured fact variants use semantic correlation keys so two fact IDs
+- Typed universal and coded facts use semantic correlation keys so two fact IDs
   cannot disguise the same or contradictory repository assertion.
 
 ### Evidence, inference, claims, and unknowns
 
 - Direct evidence and inference are separate variants.
+- Public evidence provenance uses a source-compatible discriminated variant,
+  exact immutable revision/locator where applicable, and chronological
+  publication/collection/validation/freshness values.
 - Every inference references at least one evidence item.
 - An inference cannot identify itself as evidence.
 - Every material claim references evidence, inference, or both.
 - Unknowns remain explicit and cannot become favorable claims by omission or
   default.
+- Every candidate reason resolves to candidate-owned evidence or inference, an
+  applicable disclosed unknown, or a matching evidenced hard conflict.
 - Conformance never promotes proposed rationale notes into an inference.
 
 ### Hard constraints and responsible outcomes
@@ -577,9 +597,13 @@ Pure domain validation enforces and independently tests:
 - `recommend` requires a recommended or viable candidate.
 - `no-viable-candidate` requires every candidate to be rejected.
 - `insufficient-evidence` requires no recommended/viable candidate and at
-  least one insufficient-evidence candidate.
-- `complete` is invalid while material unknowns or an insufficient-evidence
-  result/disposition remains.
+  least one insufficient-evidence candidate; each insufficient candidate
+  references an applicable disclosed material unknown.
+- `assessmentProcessing.state: complete` means all supplied inputs and
+  available evidence were processed, not that uncertainty vanished. It can
+  coexist with material unknowns and `insufficient-evidence`.
+- `partial-evidence` requires one or more bounded stable
+  `incompleteReasonCodes`. Processing state cannot suppress a supplied unknown.
 
 ### Partial ranking
 
@@ -774,9 +798,11 @@ or interpolates them into a command.
 
 ### Future transport boundary
 
-HTTP/MCP authentication, tenant authorization, byte limits, transport error
-mapping, and version negotiation remain future adapter responsibilities.
-Transport status codes will not become domain or neutral-error truth.
+HTTP/MCP authentication, tenant authorization, byte/content-type/decompression
+and JSON-text limits, data-only object construction, transport error mapping,
+and version negotiation remain future adapter responsibilities. Transport
+status codes will not become domain or neutral-error truth. Already-executable
+hostile proxies are outside the parser's inert-data guarantee.
 
 ## Privacy and prohibited-field analysis
 
@@ -880,6 +906,29 @@ and secret sentinel output.
 ### Unit and contract matrix
 
 - Valid minimum and maximum forms for all six families.
+- Six synthetic non-pilot TypeScript/Next.js/PostgreSQL fingerprints covering
+  mixed Node/Edge execution, a transactional outbox, a connection-pooling
+  restriction, an idempotency-key mechanism, row-level security, and existing
+  queue/scheduler/gateway capabilities without changing the root schema shape.
+- Controlled fact-vocabulary version negotiation, unknown-code rejection,
+  unsupported-semantic rejection, closed value variants, and rejection of raw
+  source/configuration/environment/secret/log/command-output/metadata carriers.
+- Table-driven valid and invalid evidence provenance for Git commits, tags,
+  releases, exact package versions, security advisories, mutable
+  documentation, and approved validation, including source compatibility,
+  mutable aliases and branch references, immutable-locator matching, and
+  chronology.
+- Exact DTO-to-domain and canonical direct/declared/derived preservation.
+- Reason-local candidate ownership and traceability for every disposition,
+  including disclosed-unknown and hard-conflict support.
+- Exact candidate-limitation preservation across the exchange, including
+  ownership, statement, evidence, duplicate, contradiction, omission, and
+  viable-tradeoff cases.
+- Complete processing with explicit unknowns, partial-evidence reason codes,
+  responsible insufficient-evidence after complete processing, and unknown
+  suppression rejection.
+- Throwing-Proxy handling that proves one bounded value-free rejection without
+  claiming that reflective traps did not execute.
 - Wrong/missing versions, wrong types, coercion, defaults, and unknown fields.
 - Input immutability.
 - Duplicate/malformed IDs and contradictory facts.
@@ -1010,6 +1059,114 @@ The plan may leave implementation status only when:
 
 ## Progress log
 
+- 2026-07-28: Converted the eight independent-review findings into failing
+  regressions before correcting production behavior. The initial
+  `review-corrections` run had 15 failures and 9 passes across 24 tests; the
+  initial source-aware `evidence-provenance` run had 24 failures and 19 passes
+  across 43 tests. Failures covered the pilot-shaped fingerprint vocabulary,
+  independent source/revision combinations, declaration renaming, unsupported
+  reasons, disappearing limitations, completeness/unknown conflation, and the
+  missing Proxy safety regression. Expected failing output was retained in this
+  plan rather than weakening assertions.
+- 2026-07-28: Replaced the pilot-shaped production fact union with one closed
+  coded shape for coarse repository capability, structure, identity,
+  data-policy, and operations facts, while retaining typed component/version
+  and deployment facts. The domain-controlled vocabulary is independently
+  negotiated, rejects unknown codes and unsupported semantics, and can add an
+  ordinary code using existing value variants without changing any root
+  contract shape. Six non-pilot fingerprints now prove mixed Node/Edge routes,
+  transactional outbox, pooler restriction, idempotency keys, row-level
+  security, and queue/scheduler/gateway representation.
+- 2026-07-28: Replaced generic evidence source/revision fields with
+  source-aware Git commit, tag, release, package-version, security-advisory,
+  mutable-documentation, and approved-validation variants. Exact revision,
+  locator, source compatibility, chronology, safe URL, and closed-output rules
+  are enforced structurally and in the domain. Exploit review additionally
+  found and closed partial package-version, branch/ref, embedded-alias, and
+  empty hard-conflict-evidence bypasses while retaining concrete immutable
+  `canary`/`next` prerelease versions. A final SemVer scan found that numeric
+  prerelease identifiers with leading zeroes were accepted; both structural
+  and domain patterns now reject `-01` and `alpha.01` while accepting `-0`,
+  `alpha.0`, concrete prereleases, and build metadata.
+- 2026-07-28: Preserved `direct`, `declared`, and `derived` fact status exactly
+  through mapping and canonicalization; added source/status coherence rules;
+  required local support for every candidate reason; retained supplied
+  limitations in a candidate-owned response catalog plus assessment
+  references; and replaced uncertainty-based `completeness` with independent
+  `assessmentProcessing`. A consolidation review also found and corrected
+  canonicalization that could erase invalid incomplete-reason codes from a
+  `complete` domain value before validation. Further exploit review found that
+  identical limitation prose could evade duplicate detection by changing its
+  code and evidence references; duplicate identity is now candidate plus
+  canonical statement, while evidence from every source is preserved on the
+  one retained limitation. Insufficient-evidence candidates also must reference
+  an applicable disclosed unknown, keeping the outcome epistemically grounded
+  even after complete processing.
+- 2026-07-28: Clarified the JavaScript object-value boundary in ADR 0003,
+  package documentation, system context, and durable engineering guidance.
+  Production adapters supply JSON-parsed or otherwise data-only values and own
+  byte/content-type/decompression/JSON-text bounds. Preflight rejects
+  accessors, exotic prototypes, cycles, and unsupported forms; arbitrary
+  already-executable proxies remain outside the inert-data guarantee, and a
+  throwing trap produces one safe bounded rejection without its text or stack.
+- 2026-07-28: Updated the evaluation conformance bridge without changing the
+  evaluation schemas, prediction validation, or scorer. Exact corpus sentences
+  remain harness-side matching keys only; all ten cases and forty supplied
+  candidates map to coded product facts, source-aware provenance, declared
+  status, preserved limitations, and complete processing with independent
+  unknowns. The bridge remains proposed/not-reviewed and
+  representability-only; no non-pilot fixture entered the corpus or gold.
+- 2026-07-28: Updated deterministic schema digests after reviewing the
+  intentional closed-shape changes. Reviewed-head to corrected values are:
+  candidate dossier
+  `0f7444c2776d4fefb9c0a68b97c33b12b48753b4c50f5ef528926ee735bc6837`
+  to `d16d0424ed45edcf61d8084cbd21ebbb396366522d1b1a425b6cf8405e0680af`;
+  capability request unchanged at
+  `3d1f213efdacd6ff550a66a74703b94abc56aead59cdcb08b7a2769b5a5a1ab9`;
+  error envelope
+  `1e4f2f837c0b084db8059d4867bfde9ab8af787d52ff19540b5d7a40ee0af15c`
+  to `7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0`;
+  fit request
+  `b256b7a29af2cbf1f9f28a566ab84c2a0d7b0fa001f5d4e88199557991c56bd5`
+  to `c130a56044cbb043fac97e66db4c372d48990d672784b4abfde9ab9e78c9e504`;
+  fit response
+  `34712886b3d6adec2847077f15a8f9cf96e36167c1f846417d45981aca92c2bb`
+  to `330b5b3940858428b1881701774bac785a7c93cf2d50e6dcb4ec37091a696a4d`;
+  and repository fingerprint
+  `c7d5c4315e62cd47bd7afdcce2a31145803e85c8c4426cdcdaac73649d3a517f`
+  to `73f42c7a7cd20de24372ecddb7afa33925ca1f4d67cb1f9598cd9d56ea87477c`.
+  All six roots remain unpublished version `1.0.0`; the independently
+  negotiated initial fact vocabulary is also `1.0.0`.
+- 2026-07-28: Completed the corrected pinned-runtime local matrix under Node
+  24.18.0 and pnpm 11.17.0. Frozen installation, format, lint, typecheck, build,
+  all 628 tests, coverage, architecture, repository invariants, evaluation
+  validation/fixtures, product conformance, secret scanning, zero-advisory
+  audit, `pnpm verify`, `pnpm verify:ci`, whitespace checks, status/stat review,
+  and the complete tracked plus new-file diff review passed. Coverage is 88.17%
+  statements, 77.86% branches, 94.60% functions, and 88.16% lines.
+  Architecture cruised 588 modules and 1,891 dependencies without a violation.
+  Conformance remains exactly 10 cases and 40 supplied candidates with
+  proposed/not-reviewed, representability-only provenance. The tracked diff
+  hash was
+  `69ce1963ece28401777e7746530a51492714f584` before and after frozen
+  installation and verification.
+- 2026-07-28: Independent consolidation, contract, exploit, architecture, and
+  evaluation reviews found no remaining material correction after the final
+  alias, exact-SemVer, hard-conflict evidence, processing canonicalization,
+  insufficient-evidence unknown, and limitation-identity fixes. Exactly two
+  production packages remain; domain has no dependencies; contracts still
+  depends only on domain, `typebox@1.3.8`, and `ajv@8.20.0`; manifests,
+  lockfile, lifecycle policy, runtime pins, evaluation scoring, and prohibited
+  product components are unchanged by this correction.
+- 2026-07-28: Began the independent-review correction pass on existing draft PR
+  #10. Verified a clean local/remote topic head at
+  `1336a069397b2a8d10a7b73d4597cf6ab0bf1229`; verified local and remote `main`
+  remain `27eb7d6585c30fd0f78f238543a764ca7b3c4f76`; confirmed PR #10 is open,
+  draft, and unmerged; and inspected successful hosted run `30415345411`,
+  Verification job `90460534105`, and its decoded logs. Correction design,
+  failing regressions, implementation, complete local validation, ordinary
+  follow-up commits, PR-description reconciliation, and new hosted evidence
+  remain in progress.
 - 2026-07-28: Loaded Issue #9 completely through connected GitHub access;
   confirmed it is open. Confirmed PR #8 merged and Issue #7 closed.
 - 2026-07-28: Verified clean local/remote `main` at
@@ -1191,69 +1348,99 @@ The plan may leave implementation status only when:
 - 2026-07-28 — Validate RFC 3339-shaped UTC timestamps structurally and
   calendar/temporal meaning in the pure domain layer. Evaluation mapping derives
   deterministic conformance timestamps only from bounded case/evidence values.
+- 2026-07-28 — Supersede the initial purpose-specific repository-fact union
+  with a small closed coded fact shape plus a domain-controlled vocabulary.
+  Component/version and deployment remain universal typed variants. Ordinary
+  first-alpha vocabulary additions negotiate a vocabulary release without
+  changing root object shape; unknown codes fail closed and semantics that need
+  a new value kind require schema-shape evolution.
+- 2026-07-28 — Use source-aware evidence variants rather than an independent
+  source/revision pair. Package versions are exact SemVer values; tag and
+  release revisions reject mutable aliases and branch references while
+  retaining concrete immutable prerelease identifiers; mutable documentation
+  and approved validation have dedicated safe representations.
+- 2026-07-28 — Retain supplied candidate limitations in a response catalog with
+  candidate-owned assessment references. Exact exchange preservation is
+  clearer and more deterministic than attempting to infer an exact limitation
+  mapping into arbitrary reason or claim prose.
+- 2026-07-28 — Define `assessmentProcessing` only as processing coverage.
+  Material uncertainty remains in the unknown catalog, so complete processing
+  may responsibly retain unknowns or produce `insufficient-evidence`.
+- 2026-07-28 — Keep all corrected root contracts at `1.0.0`. They remain
+  unpublished, unmerged, and without a public or deployed consumer, so the
+  corrected draft does not create a compatibility transition. The initial
+  independently negotiated fact vocabulary is also `1.0.0`.
+- 2026-07-28 — State the JavaScript boundary honestly: production adapters pass
+  data-only values; already-executable hostile proxies are outside the inert
+  guarantee. Parser containment guarantees bounded value-free failure when a
+  trap throws, not non-execution of arbitrary proxy traps.
 
 ## Validation evidence
 
-| Date       | Command or review                                                                   | Result                                                                                                                                                                                                  |
-| ---------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-28 | Required Git state commands through `git branch --all`                              | Exit 0; clean aligned `main`, expected SHA                                                                                                                                                              |
-| 2026-07-28 | `gh issue view 9 --repo kgudipati/gitblocks`                                        | Unavailable: `gh` not installed                                                                                                                                                                         |
-| 2026-07-28 | Connected GitHub Issue #9, Issue #7, and PR #8 reads                                | Issue #9 open; Issue #7 closed; PR #8 merged                                                                                                                                                            |
-| 2026-07-28 | First unsourced-shell baseline attempt                                              | Failed before checks: `nvm`/`node` unavailable and pnpm 11.9.0 rejected by engine policy                                                                                                                |
-| 2026-07-28 | `nvm use`; runtime/version checks                                                   | Node 24.18.0; pnpm 11.17.0                                                                                                                                                                              |
-| 2026-07-28 | `pnpm runtime:check`                                                                | Exit 0                                                                                                                                                                                                  |
-| 2026-07-28 | `pnpm install --frozen-lockfile`                                                    | Exit 0; already up to date                                                                                                                                                                              |
-| 2026-07-28 | `pnpm verify`                                                                       | Exit 0; 302 tests; no architecture/repository/evaluation/secret failures                                                                                                                                |
-| 2026-07-28 | `pnpm eval:validate`                                                                | Exit 0; 10 cases                                                                                                                                                                                        |
-| 2026-07-28 | `pnpm eval:fixtures`                                                                | Exit 0; five distinct deterministic fixture profiles                                                                                                                                                    |
-| 2026-07-28 | First post-manifest `pnpm install`                                                  | Expected failure: frozen default rejected an intentionally stale lockfile                                                                                                                               |
-| 2026-07-28 | `pnpm install --no-frozen-lockfile`                                                 | Exit 0; supply-chain policy passed; one package added                                                                                                                                                   |
-| 2026-07-28 | First contracts-package typecheck during parallel construction                      | Failed because the domain package entry point was not yet present; contracts compilation is deferred until the domain slice publishes its source                                                        |
-| 2026-07-28 | First ad hoc Ajv schema compilation from the workspace root                         | Failed because strict pnpm isolation does not expose the contracts package dependency at the root; reran from `packages/contracts`                                                                      |
-| 2026-07-28 | Strict Ajv2020 compilation of all six root schemas from the owning package          | Exit 0; every root schema compiled with its stable versioned `$id`                                                                                                                                      |
-| 2026-07-28 | First shared-Ajv compilation of all roots                                           | Failed on a duplicate nested fingerprint `$id` because request composition embedded reusable root metadata                                                                                              |
-| 2026-07-28 | Shared-Ajv compilation after separating reusable value schemas from versioned roots | Exit 0; one private strict validator instance compiles all six schemas without duplicate identifiers                                                                                                    |
-| 2026-07-28 | First integrated `pnpm build:product`                                               | Domain built; contracts failed because the exchange mapper passed one object to the domain's two-argument API                                                                                           |
-| 2026-07-28 | Exchange-call correction                                                            | Passed the canonical request and result as the domain validator's two explicit arguments; subsequent product build passed, with final post-review matrix still pending                                  |
-| 2026-07-28 | First integrated contracts ESLint pass                                              | Typecheck passed; lint found one non-null assertion and one unsafe standard-library prototype assignment                                                                                                |
-| 2026-07-28 | Contracts lint correction                                                           | Replaced the assertion with an explicit impossible-state guard and used typed `Reflect.getPrototypeOf`; subsequent lint passed, with final post-review matrix still pending                             |
-| 2026-07-28 | Corrected contracts typecheck and lint plus first Prettier check                    | Typecheck/lint passed; Prettier identified nine new contract files requiring mechanical formatting                                                                                                      |
-| 2026-07-28 | First contracts parser suite                                                        | 15/25 passed; valid fingerprints exposed that the graph preflight incorrectly treated shared plain-object references as cycles                                                                          |
-| 2026-07-28 | Corrected graph preflight                                                           | Replaced global object de-duplication with iterative ancestor enter/leave tracking; true cycles still fail while harmless shared references pass; 25/25 parser tests passed                             |
-| 2026-07-28 | Harness-triggered root typecheck during test construction                           | Reached the new contracts tests and failed on intentional mutation of a readonly TypeBox-derived fixture                                                                                                |
-| 2026-07-28 | First response-invariant suite                                                      | 28/29 passed; the disguised-variant case received the stable early `required` issue rather than the later literal issue expected by the test                                                            |
-| 2026-07-28 | Contracts test corrections                                                          | Added a test-only recursive mutable view without weakening readonly production DTO types and asserted the actual bounded early structural issue; contracts typecheck and all 29 response tests pass     |
-| 2026-07-28 | Harness-triggered root lint during test construction                                | Failed because the typed ESLint project service did not yet own the new contracts test files                                                                                                            |
-| 2026-07-28 | Contracts ESLint project correction                                                 | Added the package-local test project using the existing workspace convention; subsequent root lint passed, with final post-review matrix still pending                                                  |
-| 2026-07-28 | First schema-artifact test typecheck                                                | Failed on the intentionally broad JSON-value export type passed to Ajv and a test mutation of a readonly artifact view                                                                                  |
-| 2026-07-28 | Schema test type correction                                                         | Narrowed each root to an object before compiling a shallow test copy and used `Reflect.set` to verify runtime clone isolation without weakening the readonly public type                                |
-| 2026-07-28 | First focused schema-artifact run after intentional schema changes                  | Failed because expected digests still represented the prior serialization; reviewed the actual schema diff and updated every affected digest instead of weakening drift detection                       |
-| 2026-07-28 | First `pnpm repo:check` after adding the conformance CLI                            | Failed because the inventory consumes Git's staged production-path view and intentional new CLI/product paths were not staged; staged the intended paths and the check passed                           |
-| 2026-07-28 | Concurrent compile/test attempt during shared implementation                        | Failed transiently while one command rebuilt package output another command was resolving; stopped concurrent compilation and reran the affected checks serially without a code or policy bypass        |
-| 2026-07-28 | Focused domain, contract, and conformance regressions after review corrections      | Passed at the then-current local tree for corrected fingerprint, preflight, exchange, mapping, bounds, versions, approval, completeness, timestamps, and ranking; the final full matrix remains pending |
-| 2026-07-28 | Independent-style security and privacy review                                       | Found the generic free-text fingerprint carrier; replaced it with finite structured variants and exact harness-side mapping, with prohibited-carrier regressions                                        |
-| 2026-07-28 | Independent-style architecture and evaluation review                                | Found legacy CLI coupling and case-version leakage; split the conformance CLI, preserved scorer isolation, set unavailable candidate version scope to null, and kept rationale out of inferences        |
-| 2026-07-28 | Independent-style domain and contract review                                        | Found gaps in safe error paths, exact evidence/unknown preservation, preflight array/accessor bounds, completeness, requested maximum, timestamps, and maximum cardinalities; corrections added         |
-| 2026-07-28 | First build after adding string-work preflight                                      | Failed typecheck because a cached `typeof` variable did not narrow `unknown` for `.length`; used an explicit string cast after the branch check, then product build and all focused tests passed        |
-| 2026-07-28 | Composed-maximum and positive-disposition adversarial review                        | Found the 100,000-node valid-maximum mismatch and unsupported zero-evidence recommendation; raised the coherent resource budget and added favorable attributable-claim support with regressions         |
-| 2026-07-28 | Scalar and aggregate string-work adversarial review                                 | Found unbounded pre-Ajv string work; added 4,096 per-scalar and 64,000,000 aggregate UTF-16 code-unit limits plus multi-megabyte and aggregate-flood tests                                              |
-| 2026-07-28 | Property-name string-work adversarial review                                        | Found that unknown keys bypassed value-only string budgets; charged every array/object string key to the same bounds and added non-echoing oversized-key plus aggregate-key regressions                 |
-| 2026-07-28 | Focused product build and domain/contract suites after final corrections            | Exit 0; 8 files and 188 tests passed                                                                                                                                                                    |
-| 2026-07-28 | `pnpm contracts:validate`; architecture and repository checks                       | Exit 0; 10 cases/40 candidates, proposed/not-reviewed and representability-only; 584 modules/1,879 dependencies, no violations; repository checks passed                                                |
-| 2026-07-28 | Required full local validation matrix through `pnpm verify:ci`                      | Exit 0 under Node 24.18.0/pnpm 11.17.0; 28 files/522 tests; coverage 90.12% statements, 81.43% branches, 95.44% functions, 90.13% lines; security audit found no known vulnerabilities                  |
-| 2026-07-28 | `git diff --check`, status, stat, and full diff review after validation             | Exit 0 for whitespace check; only the intended Phase 3 branch changes are present; final staging and unchanged-state proof remain pending                                                               |
-| 2026-07-28 | First post-validation dependency-list proof in a fresh shell                        | Failed before inspection because the shell again exposed pnpm 11.9.0; sourced the existing NVM environment and reran without installation or policy bypass                                              |
-| 2026-07-28 | Product dependency-list proof under the pinned runtime                              | Exit 0; domain has no package dependency, while contracts resolves only domain, `ajv@8.20.0`, `typebox@1.3.8`, and Ajv's four documented transitives                                                    |
-| 2026-07-28 | Final independent security and Issue #9 acceptance audits                           | No remaining material blocker; 188 focused product tests and scoped diff checks passed, dependency and prohibited-import rules held, and all six contract/domain/conformance boundaries matched scope   |
-| 2026-07-28 | Frozen install plus `pnpm verify:ci` staged-state drift proof                       | Exit 0; the complete porcelain-v2 staged/untracked status was identical before and after installation and verification, proving no tracked or untracked artifact drift                                  |
-| 2026-07-28 | Ordinary implementation commit and first branch push                                | Commit `0090e6c0868d8841fecc051f4df76acbbb7fadfe`; pushed `feat/9-product-contract-kernel` with upstream tracking and no force/history rewrite                                                          |
-| 2026-07-28 | Draft PR creation                                                                   | Draft PR #10 opened at `https://github.com/kgudipati/gitblocks/pull/10` with exact required title and `Closes #9`; base `main` remained `27eb7d6585c30fd0f78f238543a764ca7b3c4f76`                      |
-| 2026-07-28 | Hosted CI run 30414832786 / Verification job 90458949190 decoded-log inspection     | Success; exact runtime/package manager, lockfile policy, metadata checks, `pnpm verify:ci`, 522 tests, architecture, evaluation/conformance, secrets/audit, and final worktree-clean proof all passed   |
-| 2026-07-28 | Evidence-documentation commit `d5211cf4af53db5663808011cb23e91b345a0112`            | Ordinary follow-up commit and push; no amend, rebase, force-push, or product-code change                                                                                                                |
-| 2026-07-28 | Hosted CI run 30415034487 / Verification job 90459574407 decoded-log inspection     | Success; final evidence-documentation head passed the same pinned runtime, frozen install, metadata, 522-test, architecture, evaluation/conformance, secrets/audit, and clean-diff checks               |
-| 2026-07-28 | First format check for terminal plan-status correction                              | Failed only on Markdown formatting in this plan; ran the repository-pinned Prettier writer and repeated the format and whitespace checks before committing                                              |
+| Date       | Command or review                                                                   | Result                                                                                                                                                                                                                                            |
+| ---------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-28 | Required Git state commands through `git branch --all`                              | Exit 0; clean aligned `main`, expected SHA                                                                                                                                                                                                        |
+| 2026-07-28 | `gh issue view 9 --repo kgudipati/gitblocks`                                        | Unavailable: `gh` not installed                                                                                                                                                                                                                   |
+| 2026-07-28 | Connected GitHub Issue #9, Issue #7, and PR #8 reads                                | Issue #9 open; Issue #7 closed; PR #8 merged                                                                                                                                                                                                      |
+| 2026-07-28 | First unsourced-shell baseline attempt                                              | Failed before checks: `nvm`/`node` unavailable and pnpm 11.9.0 rejected by engine policy                                                                                                                                                          |
+| 2026-07-28 | `nvm use`; runtime/version checks                                                   | Node 24.18.0; pnpm 11.17.0                                                                                                                                                                                                                        |
+| 2026-07-28 | `pnpm runtime:check`                                                                | Exit 0                                                                                                                                                                                                                                            |
+| 2026-07-28 | `pnpm install --frozen-lockfile`                                                    | Exit 0; already up to date                                                                                                                                                                                                                        |
+| 2026-07-28 | `pnpm verify`                                                                       | Exit 0; 302 tests; no architecture/repository/evaluation/secret failures                                                                                                                                                                          |
+| 2026-07-28 | `pnpm eval:validate`                                                                | Exit 0; 10 cases                                                                                                                                                                                                                                  |
+| 2026-07-28 | `pnpm eval:fixtures`                                                                | Exit 0; five distinct deterministic fixture profiles                                                                                                                                                                                              |
+| 2026-07-28 | First post-manifest `pnpm install`                                                  | Expected failure: frozen default rejected an intentionally stale lockfile                                                                                                                                                                         |
+| 2026-07-28 | `pnpm install --no-frozen-lockfile`                                                 | Exit 0; supply-chain policy passed; one package added                                                                                                                                                                                             |
+| 2026-07-28 | First contracts-package typecheck during parallel construction                      | Failed because the domain package entry point was not yet present; contracts compilation is deferred until the domain slice publishes its source                                                                                                  |
+| 2026-07-28 | First ad hoc Ajv schema compilation from the workspace root                         | Failed because strict pnpm isolation does not expose the contracts package dependency at the root; reran from `packages/contracts`                                                                                                                |
+| 2026-07-28 | Strict Ajv2020 compilation of all six root schemas from the owning package          | Exit 0; every root schema compiled with its stable versioned `$id`                                                                                                                                                                                |
+| 2026-07-28 | First shared-Ajv compilation of all roots                                           | Failed on a duplicate nested fingerprint `$id` because request composition embedded reusable root metadata                                                                                                                                        |
+| 2026-07-28 | Shared-Ajv compilation after separating reusable value schemas from versioned roots | Exit 0; one private strict validator instance compiles all six schemas without duplicate identifiers                                                                                                                                              |
+| 2026-07-28 | First integrated `pnpm build:product`                                               | Domain built; contracts failed because the exchange mapper passed one object to the domain's two-argument API                                                                                                                                     |
+| 2026-07-28 | Exchange-call correction                                                            | Passed the canonical request and result as the domain validator's two explicit arguments; subsequent product build passed, with final post-review matrix still pending                                                                            |
+| 2026-07-28 | First integrated contracts ESLint pass                                              | Typecheck passed; lint found one non-null assertion and one unsafe standard-library prototype assignment                                                                                                                                          |
+| 2026-07-28 | Contracts lint correction                                                           | Replaced the assertion with an explicit impossible-state guard and used typed `Reflect.getPrototypeOf`; subsequent lint passed, with final post-review matrix still pending                                                                       |
+| 2026-07-28 | Corrected contracts typecheck and lint plus first Prettier check                    | Typecheck/lint passed; Prettier identified nine new contract files requiring mechanical formatting                                                                                                                                                |
+| 2026-07-28 | First contracts parser suite                                                        | 15/25 passed; valid fingerprints exposed that the graph preflight incorrectly treated shared plain-object references as cycles                                                                                                                    |
+| 2026-07-28 | Corrected graph preflight                                                           | Replaced global object de-duplication with iterative ancestor enter/leave tracking; true cycles still fail while harmless shared references pass; 25/25 parser tests passed                                                                       |
+| 2026-07-28 | Harness-triggered root typecheck during test construction                           | Reached the new contracts tests and failed on intentional mutation of a readonly TypeBox-derived fixture                                                                                                                                          |
+| 2026-07-28 | First response-invariant suite                                                      | 28/29 passed; the disguised-variant case received the stable early `required` issue rather than the later literal issue expected by the test                                                                                                      |
+| 2026-07-28 | Contracts test corrections                                                          | Added a test-only recursive mutable view without weakening readonly production DTO types and asserted the actual bounded early structural issue; contracts typecheck and all 29 response tests pass                                               |
+| 2026-07-28 | Harness-triggered root lint during test construction                                | Failed because the typed ESLint project service did not yet own the new contracts test files                                                                                                                                                      |
+| 2026-07-28 | Contracts ESLint project correction                                                 | Added the package-local test project using the existing workspace convention; subsequent root lint passed, with final post-review matrix still pending                                                                                            |
+| 2026-07-28 | First schema-artifact test typecheck                                                | Failed on the intentionally broad JSON-value export type passed to Ajv and a test mutation of a readonly artifact view                                                                                                                            |
+| 2026-07-28 | Schema test type correction                                                         | Narrowed each root to an object before compiling a shallow test copy and used `Reflect.set` to verify runtime clone isolation without weakening the readonly public type                                                                          |
+| 2026-07-28 | First focused schema-artifact run after intentional schema changes                  | Failed because expected digests still represented the prior serialization; reviewed the actual schema diff and updated every affected digest instead of weakening drift detection                                                                 |
+| 2026-07-28 | First `pnpm repo:check` after adding the conformance CLI                            | Failed because the inventory consumes Git's staged production-path view and intentional new CLI/product paths were not staged; staged the intended paths and the check passed                                                                     |
+| 2026-07-28 | Concurrent compile/test attempt during shared implementation                        | Failed transiently while one command rebuilt package output another command was resolving; stopped concurrent compilation and reran the affected checks serially without a code or policy bypass                                                  |
+| 2026-07-28 | Focused domain, contract, and conformance regressions after review corrections      | Passed at the then-current local tree for corrected fingerprint, preflight, exchange, mapping, bounds, versions, approval, completeness, timestamps, and ranking; the final full matrix remains pending                                           |
+| 2026-07-28 | Independent-style security and privacy review                                       | Found the generic free-text fingerprint carrier; replaced it with finite structured variants and exact harness-side mapping, with prohibited-carrier regressions                                                                                  |
+| 2026-07-28 | Independent-style architecture and evaluation review                                | Found legacy CLI coupling and case-version leakage; split the conformance CLI, preserved scorer isolation, set unavailable candidate version scope to null, and kept rationale out of inferences                                                  |
+| 2026-07-28 | Independent-style domain and contract review                                        | Found gaps in safe error paths, exact evidence/unknown preservation, preflight array/accessor bounds, completeness, requested maximum, timestamps, and maximum cardinalities; corrections added                                                   |
+| 2026-07-28 | First build after adding string-work preflight                                      | Failed typecheck because a cached `typeof` variable did not narrow `unknown` for `.length`; used an explicit string cast after the branch check, then product build and all focused tests passed                                                  |
+| 2026-07-28 | Composed-maximum and positive-disposition adversarial review                        | Found the 100,000-node valid-maximum mismatch and unsupported zero-evidence recommendation; raised the coherent resource budget and added favorable attributable-claim support with regressions                                                   |
+| 2026-07-28 | Scalar and aggregate string-work adversarial review                                 | Found unbounded pre-Ajv string work; added 4,096 per-scalar and 64,000,000 aggregate UTF-16 code-unit limits plus multi-megabyte and aggregate-flood tests                                                                                        |
+| 2026-07-28 | Property-name string-work adversarial review                                        | Found that unknown keys bypassed value-only string budgets; charged every array/object string key to the same bounds and added non-echoing oversized-key plus aggregate-key regressions                                                           |
+| 2026-07-28 | Focused product build and domain/contract suites after final corrections            | Exit 0; 8 files and 188 tests passed                                                                                                                                                                                                              |
+| 2026-07-28 | `pnpm contracts:validate`; architecture and repository checks                       | Exit 0; 10 cases/40 candidates, proposed/not-reviewed and representability-only; 584 modules/1,879 dependencies, no violations; repository checks passed                                                                                          |
+| 2026-07-28 | Required full local validation matrix through `pnpm verify:ci`                      | Exit 0 under Node 24.18.0/pnpm 11.17.0; 28 files/522 tests; coverage 90.12% statements, 81.43% branches, 95.44% functions, 90.13% lines; security audit found no known vulnerabilities                                                            |
+| 2026-07-28 | `git diff --check`, status, stat, and full diff review after validation             | Exit 0 for whitespace check; only the intended Phase 3 branch changes are present; final staging and unchanged-state proof remain pending                                                                                                         |
+| 2026-07-28 | First post-validation dependency-list proof in a fresh shell                        | Failed before inspection because the shell again exposed pnpm 11.9.0; sourced the existing NVM environment and reran without installation or policy bypass                                                                                        |
+| 2026-07-28 | Product dependency-list proof under the pinned runtime                              | Exit 0; domain has no package dependency, while contracts resolves only domain, `ajv@8.20.0`, `typebox@1.3.8`, and Ajv's four documented transitives                                                                                              |
+| 2026-07-28 | Final independent security and Issue #9 acceptance audits                           | No remaining material blocker; 188 focused product tests and scoped diff checks passed, dependency and prohibited-import rules held, and all six contract/domain/conformance boundaries matched scope                                             |
+| 2026-07-28 | Frozen install plus `pnpm verify:ci` staged-state drift proof                       | Exit 0; the complete porcelain-v2 staged/untracked status was identical before and after installation and verification, proving no tracked or untracked artifact drift                                                                            |
+| 2026-07-28 | Ordinary implementation commit and first branch push                                | Commit `0090e6c0868d8841fecc051f4df76acbbb7fadfe`; pushed `feat/9-product-contract-kernel` with upstream tracking and no force/history rewrite                                                                                                    |
+| 2026-07-28 | Draft PR creation                                                                   | Draft PR #10 opened at `https://github.com/kgudipati/gitblocks/pull/10` with exact required title and `Closes #9`; base `main` remained `27eb7d6585c30fd0f78f238543a764ca7b3c4f76`                                                                |
+| 2026-07-28 | Hosted CI run 30414832786 / Verification job 90458949190 decoded-log inspection     | Success; exact runtime/package manager, lockfile policy, metadata checks, `pnpm verify:ci`, 522 tests, architecture, evaluation/conformance, secrets/audit, and final worktree-clean proof all passed                                             |
+| 2026-07-28 | Evidence-documentation commit `d5211cf4af53db5663808011cb23e91b345a0112`            | Ordinary follow-up commit and push; no amend, rebase, force-push, or product-code change                                                                                                                                                          |
+| 2026-07-28 | Hosted CI run 30415034487 / Verification job 90459574407 decoded-log inspection     | Success; final evidence-documentation head passed the same pinned runtime, frozen install, metadata, 522-test, architecture, evaluation/conformance, secrets/audit, and clean-diff checks                                                         |
+| 2026-07-28 | First format check for terminal plan-status correction                              | Failed only on Markdown formatting in this plan; ran the repository-pinned Prettier writer and repeated the format and whitespace checks before committing                                                                                        |
+| 2026-07-28 | Independent-review regression red phase                                             | Expected failures before correction: `review-corrections` 15 failed/9 passed of 24; `evidence-provenance` 24 failed/19 passed of 43; no assertion was weakened                                                                                    |
+| 2026-07-28 | Corrected `pnpm test` and `pnpm test:coverage`                                      | Exit 0; 30 files/628 tests; 88.17% statements, 77.86% branches, 94.60% functions, and 88.16% lines                                                                                                                                                |
+| 2026-07-28 | Corrected architecture, repository, evaluation, and contract checks                 | Exit 0; 588 modules/1,891 dependencies and no violations; repository checks passed; 10 evaluation cases; 10 cases/40 candidates with proposed/not-reviewed representability-only conformance                                                      |
+| 2026-07-28 | Corrected security and complete aggregate validation                                | Exit 0; secret scanning and audit passed with no known vulnerabilities; both `pnpm verify` and `pnpm verify:ci` passed under Node 24.18.0/pnpm 11.17.0                                                                                            |
+| 2026-07-28 | Corrected frozen-install/verification drift and final diff proof                    | Tracked diff hash `69ce1963ece28401777e7746530a51492714f584` was unchanged; `git diff --check`, status, stat, complete tracked diff, and all four new-file diffs were reviewed                                                                    |
+| 2026-07-28 | Final independent correction review                                                 | No unresolved material finding; package/dependency direction, root versions, closed-object/no-mutation parser policy, source-aware provenance, epistemic preservation, traceability, limitations, processing, conformance, and non-goals all held |
 
-The implementation and evidence-documentation heads have complete hosted
-evidence. To avoid an unbounded self-referential commit chain, the draft PR
-description records the terminal hosted run for the current documentation-only
-plan correction.
+The previously reviewed head has complete hosted evidence. Corrected follow-up
+commits and their hosted Verification evidence remain pending publication.

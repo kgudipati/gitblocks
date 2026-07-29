@@ -49,7 +49,23 @@ canonicalization, reference integrity, hard-constraint and responsible-outcome
 rules, and partial-order ranking. Contract tests cover all six `1.0.0`
 families, closed shapes, version rejection, non-coercion, non-mutation,
 bounded/redacted diagnostics, domain mapping, and deterministic schema
-exports.
+exports. Synthetic non-corpus repositories prove that the controlled
+repository-fact vocabulary represents routine supported-ecosystem facts
+without changing the serialized shape. Valid and invalid evidence-source
+tables cover exact revisions, mutable aliases, locator matching, source
+compatibility, branch references, exact package versions including concrete
+prereleases, and publication, collection, validation, and freshness chronology.
+Mapping tests inspect the exact `direct`, `declared`, or `derived` domain value.
+
+Response-invariant tests require traceability for every reason and exact
+candidate ownership for its evidence and inference support. They prove that
+supplied limitations cannot disappear, move candidates, change statements, or
+change evidence references; complete processing can retain explicit unknowns;
+and partial-evidence processing cannot omit its bounded reason codes.
+Exploit-oriented parser tests include throwing JavaScript proxies and require
+one bounded value-free rejection without leaking trap text or a stack trace.
+Those tests do not claim that reflective inspection avoided invoking a hostile
+trap; production adapters are responsible for supplying data-only values.
 
 Important external boundaries are not considered verified by mocks alone. For
 example, a mocked GitHub client can exercise application decisions, but a
@@ -61,17 +77,17 @@ not run for untrusted pull requests with secrets.
 
 ## Test matrix by responsibility
 
-| Responsibility               | Minimum evidence                                                                                                                                                              |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product contract kernel      | Pure domain-invariant tests; valid and exploit-oriented parser cases; schema closure and deterministic-export checks; package dependency-boundary enforcement                 |
-| Deterministic local scanner  | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                            |
-| Skill procedure              | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                       |
-| MCP surface                  | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics                 |
-| Catalog ingestion            | Source fixtures, provenance/freshness, webhook signature and replay checks, malformed content, rate bounds, idempotency, retries, poison items, and non-execution of source   |
-| Retrieval and ranking        | Unit/golden evaluations for hard constraints, evidence attribution, inference/unknown separation, deterministic tie behavior, and quality baselines                           |
-| Evidence and outcome storage | Integration tests for tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery                                                                  |
-| Adoption workflow            | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths                                               |
-| Fixed-candidate evaluation   | Schema valid/invalid forms, bounded and inert JSON, manifest hashes, reference integrity, hard-safety gate, deterministic metrics, blind inputs, weak fixtures, and CLI exits |
+| Responsibility               | Minimum evidence                                                                                                                                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product contract kernel      | Pure domain-invariant tests; non-corpus representability fixtures; source-aware provenance matrices; traceability and preservation invariants; valid and exploit-oriented parser cases; schema closure and deterministic-export checks; package dependency-boundary enforcement |
+| Deterministic local scanner  | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                                                                                                                              |
+| Skill procedure              | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                                                                                                                         |
+| MCP surface                  | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics                                                                                                                   |
+| Catalog ingestion            | Source fixtures, provenance/freshness, webhook signature and replay checks, malformed content, rate bounds, idempotency, retries, poison items, and non-execution of source                                                                                                     |
+| Retrieval and ranking        | Unit/golden evaluations for hard constraints, evidence attribution, inference/unknown separation, deterministic tie behavior, and quality baselines                                                                                                                             |
+| Evidence and outcome storage | Integration tests for tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery                                                                                                                                                                    |
+| Adoption workflow            | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths                                                                                                                                                 |
+| Fixed-candidate evaluation   | Schema valid/invalid forms, bounded and inert JSON, manifest hashes, reference integrity, hard-safety gate, deterministic metrics, blind inputs, weak fixtures, and CLI exits                                                                                                   |
 
 Each phase selects only applicable rows and records why omitted rows are
 irrelevant.
