@@ -23,6 +23,7 @@ const APPROVED_PACKAGE_MANIFESTS = new Set([
   'package.json',
   'packages/contracts/package.json',
   'packages/domain/package.json',
+  'packages/ingestion/package.json',
   'packages/persistence/package.json',
   'tools/evaluation-harness/package.json',
   'tools/repository-checks/package.json',
@@ -53,6 +54,16 @@ const PRODUCT_PACKAGE_POLICIES: ReadonlyMap<string, ProductPackagePolicy> =
       },
     ],
     [
+      'packages/ingestion/package.json',
+      {
+        dependencies: new Map([
+          ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+          ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+        ]),
+        name: '@gitblocks/ingestion',
+      },
+    ],
+    [
       'packages/persistence/package.json',
       {
         dependencies: new Map([
@@ -70,6 +81,13 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
   [
     'packages/contracts/package.json',
     new Map([['@gitblocks/domain', EXACT_WORKSPACE_VERSION]]),
+  ],
+  [
+    'packages/ingestion/package.json',
+    new Map([
+      ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+    ]),
   ],
   [
     'packages/persistence/package.json',
@@ -100,6 +118,8 @@ const REQUIRED_PATHS = [
   '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
+  'catalog/public-v1/candidates.json',
+  'catalog/public-v1/manifest.json',
   'CONTRIBUTING.md',
   'PLANS.md',
   'README.md',
@@ -109,6 +129,7 @@ const REQUIRED_PATHS = [
   'docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md',
   'docs/architecture/decisions/0003-product-contract-kernel.md',
   'docs/architecture/decisions/0004-postgresql-evidence-persistence.md',
+  'docs/architecture/decisions/0005-public-repository-ingestion.md',
   'docs/architecture/system-context.md',
   'docs/engineering/definition-of-done.md',
   'docs/engineering/development-standards.md',
@@ -124,6 +145,7 @@ const REQUIRED_PATHS = [
   'docs/plans/0005-node-runtime-preflight.md',
   'docs/plans/0009-product-contract-kernel.md',
   'docs/plans/0011-evidence-persistence.md',
+  'docs/plans/0013-public-repository-ingestion.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
@@ -134,6 +156,16 @@ const REQUIRED_PATHS = [
   'packages/domain/README.md',
   'packages/domain/package.json',
   'packages/domain/src/index.ts',
+  'packages/ingestion/README.md',
+  'packages/ingestion/package.json',
+  'packages/ingestion/scripts/catalog-cli.ts',
+  'packages/ingestion/scripts/live-cli.ts',
+  'packages/ingestion/scripts/receipt-cli.ts',
+  'packages/ingestion/scripts/tsconfig.json',
+  'packages/ingestion/src/index.ts',
+  'packages/ingestion/test/tsconfig.json',
+  'packages/ingestion/tsconfig.json',
+  'packages/ingestion/tsconfig.test.json',
   'packages/persistence/README.md',
   'packages/persistence/migrations/0001_evidence_persistence.sql',
   'packages/persistence/package.json',
@@ -411,11 +443,16 @@ function validateRuntimeScripts(
   }
   for (const scriptName of [
     'contracts:validate',
+    'catalog:validate',
     'eval:fixtures',
     'eval:score',
     'eval:validate',
     'test',
     'test:coverage',
+    'ingest:live',
+    'ingest:receipt',
+    'ingestion:test',
+    'ingestion:verify',
     'repo:check',
     'repo:branch',
     'repo:pr-branch',
@@ -438,11 +475,17 @@ function validateRuntimeScripts(
   }
   const requiredWorkspaceScripts = {
     build: 'pnpm build:product && pnpm build:tools',
-    'build:product': 'pnpm --filter @gitblocks/persistence... build',
+    'build:product': 'pnpm --filter @gitblocks/ingestion... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'catalog:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
+    'ingestion:test':
+      'pnpm runtime:check && pnpm build:product && vitest run packages/ingestion/test --config vitest.config.ts',
+    'ingestion:verify':
+      'pnpm runtime:check && pnpm catalog:validate && pnpm ingestion:test && pnpm --filter @gitblocks/ingestion typecheck',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':
@@ -455,7 +498,7 @@ function validateRuntimeScripts(
     'lint:internal': 'eslint . --max-warnings 0',
     typecheck: 'pnpm build:product && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
   } as const;
   for (const [scriptName, expected] of Object.entries(
     requiredWorkspaceScripts,
@@ -792,6 +835,7 @@ function isProhibitedArtifact(trackedPath: string): boolean {
     (trackedPath.startsWith('packages/') &&
       !trackedPath.startsWith('packages/contracts/') &&
       !trackedPath.startsWith('packages/domain/') &&
+      !trackedPath.startsWith('packages/ingestion/') &&
       !trackedPath.startsWith('packages/persistence/')) ||
     trackedPath.startsWith('src/') ||
     (trackedPath.startsWith('tools/') &&

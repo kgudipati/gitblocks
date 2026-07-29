@@ -220,6 +220,15 @@ supporting evidence is no longer active. Tests exercise operations through a
 non-owner role and verify that the schema contains no private-scope or RLS
 surface.
 
+Phase 5 public ingestion accepts only curator-owned GitHub/npm identities,
+fixed HTTPS provider hosts, closed bounded JSON, and up to three explicitly
+allowlisted files at an exact commit. The reusable core receives credentials
+and database configuration by injection and emits value-free errors and
+allowlisted telemetry. It does not retain raw responses, follow cross-host
+redirects, clone repositories, fetch tarballs, or execute candidate content.
+The operator requires an explicit approved non-production database
+acknowledgement.
+
 ## Auditability and security telemetry
 
 Create structured audit events for authentication, authorization decisions,

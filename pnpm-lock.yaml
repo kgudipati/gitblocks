@@ -59,6 +59,15 @@ importers:
 
   packages/domain: {}
 
+  packages/ingestion:
+    dependencies:
+      '@gitblocks/contracts':
+        specifier: workspace:0.0.0
+        version: link:../contracts
+      '@gitblocks/persistence':
+        specifier: workspace:0.0.0
+        version: link:../persistence
+
   packages/persistence:
     dependencies:
       '@gitblocks/contracts':

@@ -86,6 +86,12 @@ before release. Live-provider tests must use dedicated least-privilege test
 accounts, deterministic cleanup, bounded spend, and explicit opt-in; they do
 not run for untrusted pull requests with secrets.
 
+The Phase 5 ordinary suite never calls a live provider. It validates the full
+150-repository manifest structurally, uses reviewed synthetic provider
+responses, and composes exact profiles through PostgreSQL 18.4. A live receipt
+is operational evidence only when the explicit opt-in command completes;
+fixtures are not current-source validation.
+
 ## Test matrix by responsibility
 
 | Responsibility              | Minimum evidence                                                                                                                                                                                                                                                                         |
@@ -95,7 +101,7 @@ not run for untrusted pull requests with secrets.
 | Deterministic local scanner | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                                                                                                                                       |
 | Skill procedure             | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                                                                                                                                  |
 | MCP surface                 | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics                                                                                                                            |
-| Catalog ingestion           | Source fixtures, provenance/freshness, webhook signature and replay checks, malformed content, rate bounds, idempotency, retries, poison items, and non-execution of source                                                                                                              |
+| Catalog ingestion           | Closed manifest/receipt tests; injected provider fixtures; host, redirect, content, rate, deadline and byte bounds; deterministic profile/refresh tests; real PostgreSQL idempotency/lifecycle reconstruction; source non-execution                                                      |
 | Retrieval and ranking       | Unit/golden evaluations for hard constraints, evidence attribution, inference/unknown separation, deterministic tie behavior, and quality baselines                                                                                                                                      |
 | Future private data storage | Integration tests for authorization, tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery after a concrete private-data design exists                                                                                                                  |
 | Adoption workflow           | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths                                                                                                                                                          |

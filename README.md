@@ -61,10 +61,14 @@ production-owned packages: a pure domain, versioned contracts, and a
 PostgreSQL persistence adapter for durable catalog identities, immutable
 public evidence, append-only lifecycle events, and reproducible public dossier
 snapshots. These packages do not implement a use case or service. Full tenant
-and organization persistence is intentionally deferred. The repository still
+and organization persistence is intentionally deferred. The repository also
+contains a curated 150-repository public catalog and a bounded deterministic
+operator-run GitHub/npm/advisory ingestion package. The repository still
 has no application scaffold, Agent Skill, scanner, MCP server, operational
-backend, ingestion, discovery or product ranking engine, deployment,
-production database, or product release. The pilot gold is authored and
+backend, discovery or product ranking engine, continuous crawler, deployment,
+production database, or product release. Full live catalog ingestion is not
+claimed without injected credentials and a reviewed receipt. The pilot gold is
+authored and
 proposed, not independently accepted.
 
 The governing product scope is the
@@ -75,6 +79,8 @@ the [engineering handbook](docs/engineering/repository-workflow.md) and the
 product contract mechanism and package boundaries.
 [ADR 0004](docs/architecture/decisions/0004-postgresql-evidence-persistence.md)
 owns the PostgreSQL public-evidence storage and migration decisions.
+[ADR 0005](docs/architecture/decisions/0005-public-repository-ingestion.md)
+owns the curated catalog, provider, profiling, refresh, and receipt decisions.
 
 ## Repository map
 
@@ -93,6 +99,8 @@ owns the PostgreSQL public-evidence storage and migration decisions.
 | `packages/domain/`          | Pure product vocabulary, constructors, canonicalization, and invariants          |
 | `packages/contracts/`       | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
 | `packages/persistence/`     | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
+| `packages/ingestion/`       | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
+| `catalog/public-v1/`        | Curator-owned repository source and deterministically digested public manifest   |
 | `evals/pilot-v1/`           | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
 | `schemas/evaluation/`       | Versioned JSON Schema 2020-12 evaluation contracts                               |
 | `tools/evaluation-harness/` | Private bounded validator, deterministic scorer, CLI, and tests                  |
@@ -124,29 +132,32 @@ Corepack reads the exact pnpm 11.17.0 pin and integrity digest from
 `package.json`; `pnpm --version` must report `11.17.0`. Do not use npm or Yarn,
 hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 
-| Command                               | Purpose                                                     |
-| ------------------------------------- | ----------------------------------------------------------- |
-| `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin |
-| `pnpm format:check`                   | Check formatting without changing files                     |
-| `pnpm lint`                           | Run typed ESLint with zero warnings                         |
-| `pnpm typecheck`                      | Type-check product packages, tooling, and tests             |
-| `pnpm build`                          | Emit the private product and tooling packages               |
-| `pnpm test`                           | Run the protected deterministic Vitest suite                |
-| `pnpm test:coverage`                  | Record the V8 coverage baseline                             |
-| `pnpm architecture:check`             | Enforce dependency directions                               |
-| `pnpm repo:check`                     | Validate workflows, Markdown, and repository invariants     |
-| `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity      |
-| `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory           |
-| `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                |
-| `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings     |
-| `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB |
-| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes |
-| `pnpm db:test`                        | Run PostgreSQL integration and conformance tests            |
-| `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks     |
-| `pnpm security:secrets`               | Scan tracked development content for secrets                |
-| `pnpm security:audit`                 | Run the online registry dependency audit                    |
-| `pnpm verify`                         | Run one preflight plus authoritative offline verification   |
-| `pnpm verify:ci`                      | Run `verify`, audit, and real PostgreSQL verification       |
+| Command                               | Purpose                                                       |
+| ------------------------------------- | ------------------------------------------------------------- |
+| `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin   |
+| `pnpm format:check`                   | Check formatting without changing files                       |
+| `pnpm lint`                           | Run typed ESLint with zero warnings                           |
+| `pnpm typecheck`                      | Type-check product packages, tooling, and tests               |
+| `pnpm build`                          | Emit the private product and tooling packages                 |
+| `pnpm test`                           | Run the protected deterministic Vitest suite                  |
+| `pnpm test:coverage`                  | Record the V8 coverage baseline                               |
+| `pnpm architecture:check`             | Enforce dependency directions                                 |
+| `pnpm repo:check`                     | Validate workflows, Markdown, and repository invariants       |
+| `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity        |
+| `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory             |
+| `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                  |
+| `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings       |
+| `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB   |
+| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes   |
+| `pnpm db:test`                        | Run PostgreSQL integration and conformance tests              |
+| `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks       |
+| `pnpm catalog:validate`               | Validate catalog bounds, balance, identity, paths, and digest |
+| `pnpm ingestion:test`                 | Run deterministic ingestion adapter and profile tests         |
+| `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                |
+| `pnpm security:secrets`               | Scan tracked development content for secrets                  |
+| `pnpm security:audit`                 | Run the online registry dependency audit                      |
+| `pnpm verify`                         | Run one preflight plus authoritative offline verification     |
+| `pnpm verify:ci`                      | Run `verify`, audit, and real PostgreSQL verification         |
 
 Contract and evaluation commands are offline and do not execute candidate code
 or call a model. Product schemas are deterministic JSON Schema 2020-12 runtime
@@ -157,4 +168,6 @@ injected; it uses the exact image recorded by ADR 0004, creates no persistent
 volume, and cleans up the container. Ordinary `pnpm verify` remains
 database-independent, while hosted `verify:ci` cannot skip PostgreSQL
 verification. There is no development service or deployment command because
-product services remain unimplemented.
+product services remain unimplemented. `pnpm ingest:live` is a separate
+credential-injected operator command requiring explicit manifest, receipt,
+database configuration, and non-production acknowledgement.

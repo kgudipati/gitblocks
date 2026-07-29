@@ -1,0 +1,675 @@
+import { TextDecoder } from 'node:util';
+
+import { ingestionError } from './errors.ts';
+import {
+  isRecord,
+  optionalString,
+  parseBoundedJson,
+  requireRecord,
+  requireString,
+  requireTimestamp,
+} from './json-boundary.ts';
+import type { JsonResponse, TransportRequest } from './transport.ts';
+import type {
+  AdvisoryCollection,
+  AdvisorySource,
+  CandidateSourceBundle,
+  CatalogCandidate,
+  GitHubCommitSource,
+  GitHubCommunitySource,
+  GitHubLicenseSource,
+  GitHubReleaseSource,
+  GitHubRepositorySource,
+  GitHubTagSource,
+  NpmPackageSource,
+  RepositoryFileSource,
+  TransportMetrics,
+} from './types.ts';
+
+const GITHUB_BODY_BYTES = 2 * 1_024 * 1_024;
+const NPM_BODY_BYTES = 16 * 1_024 * 1_024;
+const FILE_RESPONSE_BYTES = 256 * 1_024;
+const FILE_DECODED_BYTES = 64 * 1_024;
+const TOTAL_FILE_DECODED_BYTES = 128 * 1_024;
+
+export interface ProviderTransport {
+  requestJson(request: TransportRequest): Promise<JsonResponse>;
+  getMetrics?(): TransportMetrics;
+}
+
+export interface PublicProviderConfig {
+  readonly transport: ProviderTransport;
+  readonly githubToken: string;
+  readonly correlationId: string;
+  readonly signal?: AbortSignal;
+}
+
+export async function collectCandidateSources(
+  candidate: CatalogCandidate,
+  collectedAt: string,
+  config: PublicProviderConfig,
+): Promise<CandidateSourceBundle> {
+  const repository = await getRepository(candidate, config);
+  assertRepositoryIdentity(candidate, repository);
+  if (!repository.isPublic) {
+    throw ingestionError('ingestion.provider-identity');
+  }
+  const commit = await getCommit(candidate, repository.defaultBranch, config);
+  const incompleteSourceCodes: string[] = [];
+  const releases = await optionalSource(
+    () => getReleases(candidate, config),
+    'github-releases-unavailable',
+    incompleteSourceCodes,
+    [],
+  );
+  const tags = await optionalSource(
+    () => getTags(candidate, config),
+    'github-tags-unavailable',
+    incompleteSourceCodes,
+    [],
+  );
+  const license = await optionalSource(
+    () => getLicense(candidate, config),
+    'github-license-unavailable',
+    incompleteSourceCodes,
+    null,
+  );
+  const community = await optionalSource(
+    () => getCommunity(candidate, config),
+    'github-community-unavailable',
+    incompleteSourceCodes,
+    null,
+  );
+
+  const files: RepositoryFileSource[] = [];
+  let totalFileBytes = 0;
+  for (const path of candidate.allowlistedFiles) {
+    const file = await optionalSource(
+      () => getRepositoryFile(candidate, path, commit.sha, config),
+      `github-file-unavailable-${safeCode(path)}`,
+      incompleteSourceCodes,
+      null,
+    );
+    if (file !== null) {
+      totalFileBytes += Buffer.byteLength(file.text, 'utf8');
+      if (totalFileBytes > TOTAL_FILE_DECODED_BYTES) {
+        incompleteSourceCodes.push('github-files-total-bound');
+        break;
+      }
+      files.push(file);
+    }
+  }
+
+  const npm =
+    candidate.npmPackage === null
+      ? null
+      : await optionalSource(
+          () => getNpmPackage(candidate, config),
+          'npm-package-unavailable',
+          incompleteSourceCodes,
+          null,
+        );
+  if (candidate.npmPackage !== null && npm === null) {
+    throw ingestionError('ingestion.provider-identity');
+  }
+
+  const advisories =
+    npm === null
+      ? {
+          advisories: [],
+          complete: false,
+          limitationCode: 'advisory-requires-npm-version',
+        }
+      : await optionalSource(
+          () => getAdvisories(candidate, npm, config),
+          'github-advisories-unavailable',
+          incompleteSourceCodes,
+          {
+            advisories: [],
+            complete: false,
+            limitationCode: 'advisory-provider-unavailable',
+          },
+        );
+
+  return {
+    candidate,
+    collectedAt,
+    repository,
+    commit,
+    releases,
+    tags,
+    license,
+    community,
+    files,
+    npm,
+    advisories,
+    incompleteSourceCodes: uniqueSorted(incompleteSourceCodes),
+  };
+}
+
+async function getRepository(
+  candidate: CatalogCandidate,
+  config: PublicProviderConfig,
+): Promise<GitHubRepositorySource> {
+  const response = await githubRequest(
+    candidate,
+    config,
+    'repository',
+    `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(
+      candidate.github.repository,
+    )}`,
+  );
+  const value = requireRecord(response.value);
+  const owner = requireRecord(value['owner']);
+  return {
+    canonicalOwner: requireString(owner['login'], 100),
+    canonicalRepository: requireString(value['name'], 100),
+    htmlUrl: requireHttpsUrl(value['html_url'], 'github.com'),
+    description: optionalString(value['description'], 500),
+    homepage: optionalHttpsUrl(value['homepage']),
+    topics: requireStringArray(value['topics'], 20, 100),
+    defaultBranch: requireString(value['default_branch'], 255),
+    isPublic: value['private'] === false,
+    isFork: requireBoolean(value['fork']),
+    isArchived: requireBoolean(value['archived']),
+    pushedAt: requireTimestamp(value['pushed_at']),
+    updatedAt: requireTimestamp(value['updated_at']),
+    licenseSpdxId: parseRepositoryLicense(value['license']),
+  };
+}
+
+async function getCommit(
+  candidate: CatalogCandidate,
+  revision: string,
+  config: PublicProviderConfig,
+): Promise<GitHubCommitSource> {
+  const response = await githubRequest(
+    candidate,
+    config,
+    'head-commit',
+    `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(
+      candidate.github.repository,
+    )}/commits/${encodeURIComponent(revision)}`,
+  );
+  const value = requireRecord(response.value);
+  const commit = requireRecord(value['commit']);
+  const committer = requireRecord(commit['committer']);
+  const sha = requireString(value['sha'], 40);
+  if (!/^[a-f0-9]{40}$/u.test(sha)) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return {
+    sha,
+    htmlUrl: requireHttpsUrl(value['html_url'], 'github.com'),
+    committedAt: requireTimestamp(committer['date']),
+  };
+}
+
+async function getReleases(
+  candidate: CatalogCandidate,
+  config: PublicProviderConfig,
+): Promise<readonly GitHubReleaseSource[]> {
+  const response = await githubRequest(
+    candidate,
+    config,
+    'releases',
+    `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(
+      candidate.github.repository,
+    )}/releases?per_page=5&page=1`,
+  );
+  if (!Array.isArray(response.value) || response.value.length > 5) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return response.value.map((entry) => {
+    const value = requireRecord(entry);
+    return {
+      tag: requireString(value['tag_name'], 255),
+      htmlUrl: requireHttpsUrl(value['html_url'], 'github.com'),
+      publishedAt: requireTimestamp(value['published_at']),
+      isDraft: requireBoolean(value['draft']),
+      isPrerelease: requireBoolean(value['prerelease']),
+    };
+  });
+}
+
+async function getTags(
+  candidate: CatalogCandidate,
+  config: PublicProviderConfig,
+): Promise<readonly GitHubTagSource[]> {
+  const response = await githubRequest(
+    candidate,
+    config,
+    'tags',
+    `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(
+      candidate.github.repository,
+    )}/tags?per_page=5&page=1`,
+  );
+  if (!Array.isArray(response.value) || response.value.length > 5) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return response.value.map((entry) => {
+    const value = requireRecord(entry);
+    const commit = requireRecord(value['commit']);
+    const commitSha = requireString(commit['sha'], 40);
+    if (!/^[a-f0-9]{40}$/u.test(commitSha)) {
+      throw ingestionError('ingestion.provider-response');
+    }
+    return {
+      name: requireString(value['name'], 255),
+      commitSha,
+    };
+  });
+}
+
+async function getLicense(
+  candidate: CatalogCandidate,
+  config: PublicProviderConfig,
+): Promise<GitHubLicenseSource> {
+  const response = await githubRequest(
+    candidate,
+    config,
+    'license',
+    `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(
+      candidate.github.repository,
+    )}/license`,
+  );
+  const value = requireRecord(response.value);
+  const license = requireRecord(value['license']);
+  return {
+    spdxId: normalizeSpdx(license['spdx_id']),
+    htmlUrl:
+      value['html_url'] === null
+        ? null
+        : requireHttpsUrl(value['html_url'], 'github.com'),
+  };
+}
+
+async function getCommunity(
+  candidate: CatalogCandidate,
+  config: PublicProviderConfig,
+): Promise<GitHubCommunitySource> {
+  const response = await githubRequest(
+    candidate,
+    config,
+    'community',
+    `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(
+      candidate.github.repository,
+    )}/community/profile`,
+  );
+  const value = requireRecord(response.value);
+  const files = requireRecord(value['files']);
+  const health = value['health_percentage'];
+  if (!Number.isInteger(health) || Number(health) < 0 || Number(health) > 100) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return {
+    healthPercentage: Number(health),
+    hasSecurityPolicy: files['security'] !== null,
+  };
+}
+
+async function getRepositoryFile(
+  candidate: CatalogCandidate,
+  path: string,
+  commitSha: string,
+  config: PublicProviderConfig,
+): Promise<RepositoryFileSource> {
+  const response = await githubRequest(
+    candidate,
+    config,
+    `file-${safeCode(path)}`,
+    `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(
+      candidate.github.repository,
+    )}/contents/${path
+      .split('/')
+      .map((segment) => encodeURIComponent(segment))
+      .join('/')}?ref=${encodeURIComponent(commitSha)}`,
+    FILE_RESPONSE_BYTES,
+  );
+  const value = requireRecord(response.value);
+  if (value['type'] !== 'file' || value['encoding'] !== 'base64') {
+    throw ingestionError('ingestion.provider-response');
+  }
+  const content = requireString(value['content'], FILE_RESPONSE_BYTES);
+  const normalizedContent = content.replaceAll('\n', '');
+  if (
+    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/u.test(
+      normalizedContent,
+    )
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  let decoded: Uint8Array;
+  try {
+    decoded = Buffer.from(normalizedContent, 'base64');
+  } catch {
+    throw ingestionError('ingestion.provider-response');
+  }
+  if (decoded.byteLength > FILE_DECODED_BYTES) {
+    throw ingestionError('ingestion.body-too-large');
+  }
+  if (
+    !Number.isInteger(value['size']) ||
+    Number(value['size']) !== decoded.byteLength
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  let text: string;
+  try {
+    text = new TextDecoder('utf-8', { fatal: true }).decode(decoded);
+  } catch {
+    throw ingestionError('ingestion.provider-response');
+  }
+  if (text.includes('\u0000')) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  if (path.endsWith('package.json')) {
+    parseBoundedJson(
+      text,
+      {
+        maximumBytes: FILE_DECODED_BYTES,
+        maximumDepth: 32,
+        maximumNodes: 10_000,
+      },
+      'ingestion.provider-response',
+    );
+  }
+  const sha = requireString(value['sha'], 40);
+  if (!/^[a-f0-9]{40}$/u.test(sha)) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return {
+    path,
+    sha,
+    htmlUrl: requireHttpsUrl(value['html_url'], 'github.com'),
+    text,
+  };
+}
+
+async function getNpmPackage(
+  candidate: CatalogCandidate,
+  config: PublicProviderConfig,
+): Promise<NpmPackageSource> {
+  const packageName = candidate.npmPackage;
+  if (packageName === null) {
+    throw ingestionError('ingestion.invalid-input');
+  }
+  const response = await config.transport.requestJson({
+    url: new URL(
+      `https://registry.npmjs.org/${encodeURIComponent(packageName)}`,
+    ),
+    provider: 'npm',
+    operation: 'package-metadata',
+    maximumBytes: NPM_BODY_BYTES,
+    correlationId: config.correlationId,
+    candidateId: candidate.candidateId,
+    ...(config.signal === undefined ? {} : { signal: config.signal }),
+  });
+  const value = requireRecord(response.value);
+  const name = requireString(value['name'], 201);
+  if (name.toLowerCase() !== packageName.toLowerCase()) {
+    throw ingestionError('ingestion.provider-identity');
+  }
+  const distTagsRecord = requireRecord(value['dist-tags']);
+  const distTags: Record<string, string> = {};
+  for (const key of Object.keys(distTagsRecord).sort().slice(0, 20)) {
+    distTags[key] = requireString(distTagsRecord[key], 100);
+  }
+  const latestVersion = requireString(distTags['latest'], 100);
+  const versions = requireRecord(value['versions']);
+  const selectedVersion = requireRecord(versions[latestVersion]);
+  const times = requireRecord(value['time']);
+  const repositoryUrl = parseNpmRepository(selectedVersion['repository']);
+  const engines = isRecord(selectedVersion['engines'])
+    ? optionalString(selectedVersion['engines']['node'], 100)
+    : null;
+  return {
+    name,
+    latestVersion,
+    publishedAt: requireTimestamp(times[latestVersion]),
+    registryUrl: `https://www.npmjs.com/package/${encodeURIComponent(name)}/v/${encodeURIComponent(latestVersion)}`,
+    repositoryUrl,
+    license: parseNpmLicense(selectedVersion['license']),
+    nodeEngine: engines,
+    moduleType: optionalString(selectedVersion['type'], 40),
+    exportShape:
+      selectedVersion['exports'] === undefined ? 'not-declared' : 'declared',
+    deprecated: selectedVersion['deprecated'] !== undefined,
+    distTags,
+  };
+}
+
+async function getAdvisories(
+  candidate: CatalogCandidate,
+  npm: NpmPackageSource,
+  config: PublicProviderConfig,
+): Promise<AdvisoryCollection> {
+  const advisories: AdvisorySource[] = [];
+  let url = new URL('https://api.github.com/advisories');
+  url.searchParams.set('type', 'reviewed');
+  url.searchParams.set('ecosystem', 'npm');
+  url.searchParams.set('affects', `${npm.name}@${npm.latestVersion}`);
+  url.searchParams.set('sort', 'updated');
+  url.searchParams.set('direction', 'asc');
+  url.searchParams.set('per_page', '100');
+  for (let page = 1; page <= 2; page += 1) {
+    const response = await config.transport.requestJson({
+      url,
+      provider: 'github',
+      operation: 'advisories',
+      maximumBytes: GITHUB_BODY_BYTES,
+      authorizationToken: config.githubToken,
+      correlationId: config.correlationId,
+      candidateId: candidate.candidateId,
+      ...(config.signal === undefined ? {} : { signal: config.signal }),
+    });
+    if (!Array.isArray(response.value) || response.value.length > 100) {
+      throw ingestionError('ingestion.provider-response');
+    }
+    advisories.push(...response.value.map(parseAdvisory));
+    const next = nextLink(response.headers.get('link'));
+    if (next === null) {
+      return { advisories, complete: true, limitationCode: null };
+    }
+    if (page === 2) {
+      return {
+        advisories,
+        complete: false,
+        limitationCode: 'advisory-pagination-bound',
+      };
+    }
+    url = next;
+  }
+  throw ingestionError('ingestion.provider-response');
+}
+
+function parseAdvisory(value: unknown): AdvisorySource {
+  const advisory = requireRecord(value);
+  const advisoryId = requireString(advisory['ghsa_id'], 64);
+  if (
+    !/^GHSA-[23456789cfghjmpqrvwx]{4}-[23456789cfghjmpqrvwx]{4}-[23456789cfghjmpqrvwx]{4}$/iu.test(
+      advisoryId,
+    )
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return {
+    advisoryId: advisoryId.toLowerCase(),
+    htmlUrl: requireHttpsUrl(advisory['html_url'], 'github.com'),
+    publishedAt: requireTimestamp(advisory['published_at']),
+    updatedAt: requireTimestamp(advisory['updated_at']),
+    withdrawnAt:
+      advisory['withdrawn_at'] === null
+        ? null
+        : requireTimestamp(advisory['withdrawn_at']),
+    severity: requireString(advisory['severity'], 32),
+  };
+}
+
+async function githubRequest(
+  candidate: CatalogCandidate,
+  config: PublicProviderConfig,
+  operation: string,
+  path: string,
+  maximumBytes = GITHUB_BODY_BYTES,
+): Promise<JsonResponse> {
+  return config.transport.requestJson({
+    url: new URL(path, 'https://api.github.com'),
+    provider: 'github',
+    operation,
+    maximumBytes,
+    authorizationToken: config.githubToken,
+    correlationId: config.correlationId,
+    candidateId: candidate.candidateId,
+    ...(config.signal === undefined ? {} : { signal: config.signal }),
+  });
+}
+
+function assertRepositoryIdentity(
+  candidate: CatalogCandidate,
+  repository: GitHubRepositorySource,
+): void {
+  if (
+    repository.canonicalOwner.toLowerCase() !==
+      candidate.github.owner.toLowerCase() ||
+    repository.canonicalRepository.toLowerCase() !==
+      candidate.github.repository.toLowerCase()
+  ) {
+    throw ingestionError('ingestion.provider-identity');
+  }
+}
+
+function parseRepositoryLicense(value: unknown): string | null {
+  if (value === null) {
+    return null;
+  }
+  return normalizeSpdx(requireRecord(value)['spdx_id']);
+}
+
+function normalizeSpdx(value: unknown): string | null {
+  const identifier = optionalString(value, 100);
+  return identifier === null || identifier === 'NOASSERTION'
+    ? null
+    : identifier;
+}
+
+function parseNpmRepository(value: unknown): string | null {
+  const raw =
+    typeof value === 'string'
+      ? value
+      : isRecord(value)
+        ? optionalString(value['url'])
+        : null;
+  if (raw === null) {
+    return null;
+  }
+  const normalized = raw
+    .replace(/^git\+/u, '')
+    .replace(/^git:\/\/github\.com\//u, 'https://github.com/')
+    .replace(/^git@github\.com:/u, 'https://github.com/')
+    .replace(/\.git$/u, '');
+  try {
+    const url = new URL(normalized);
+    return url.protocol === 'https:' && url.hostname === 'github.com'
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function parseNpmLicense(value: unknown): string | null {
+  if (typeof value === 'string') {
+    return value.slice(0, 100);
+  }
+  if (isRecord(value) && typeof value['type'] === 'string') {
+    return value['type'].slice(0, 100);
+  }
+  return null;
+}
+
+function requireBoolean(value: unknown): boolean {
+  if (typeof value !== 'boolean') {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return value;
+}
+
+function requireStringArray(
+  value: unknown,
+  maximumItems: number,
+  maximumLength: number,
+): readonly string[] {
+  if (!Array.isArray(value) || value.length > maximumItems) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return value.map((entry) => requireString(entry, maximumLength)).sort();
+}
+
+function requireHttpsUrl(value: unknown, hostname?: string): string {
+  const text = requireString(value);
+  let url: URL;
+  try {
+    url = new URL(text);
+  } catch {
+    throw ingestionError('ingestion.provider-response');
+  }
+  if (
+    url.protocol !== 'https:' ||
+    url.username !== '' ||
+    url.password !== '' ||
+    (hostname !== undefined && url.hostname !== hostname)
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return url.toString();
+}
+
+function optionalHttpsUrl(value: unknown): string | null {
+  if (value === null || value === '') {
+    return null;
+  }
+  return requireHttpsUrl(value);
+}
+
+async function optionalSource<T>(
+  collect: () => Promise<T>,
+  incompleteCode: string,
+  incompleteCodes: string[],
+  fallback: T,
+): Promise<T> {
+  try {
+    return await collect();
+  } catch {
+    incompleteCodes.push(incompleteCode);
+    return fallback;
+  }
+}
+
+function nextLink(header: string | null): URL | null {
+  if (header === null || header.length > 4_096) {
+    return null;
+  }
+  for (const part of header.split(',')) {
+    const match = /^\s*<([^>]+)>;\s*rel="([^"]+)"\s*$/u.exec(part);
+    if (match?.[2] === 'next' && match[1] !== undefined) {
+      try {
+        return new URL(match[1]);
+      } catch {
+        throw ingestionError('ingestion.provider-response');
+      }
+    }
+  }
+  return null;
+}
+
+function safeCode(value: string): string {
+  return value
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/gu, '-')
+    .slice(0, 48);
+}
+
+function uniqueSorted(values: readonly string[]): readonly string[] {
+  return [...new Set(values)].sort();
+}

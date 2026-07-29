@@ -16,6 +16,9 @@
       "path": "./packages/persistence"
     },
     {
+      "path": "./packages/ingestion"
+    },
+    {
       "path": "./tools/repository-checks"
     },
     {

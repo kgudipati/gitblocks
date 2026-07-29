@@ -3,10 +3,11 @@
 ## Status
 
 This document describes the approved direction for GitBlocks components. The
-repository now contains two implemented, non-operational product components:
-the pure domain/contract kernel and a concrete PostgreSQL persistence adapter.
-It contains no application use case, runtime service, deployed data store,
-ingestion path, or network service. Technology choices remain open unless an
+repository now contains three implemented, non-operational product components:
+the pure domain/contract kernel, a concrete PostgreSQL persistence adapter, and
+an operator-run curated public-source ingestion adapter. It contains no
+application use case, runtime service, deployed data store, continuous
+ingestion worker, or network service. Technology choices remain open unless an
 architecture decision record (ADR) approves them.
 
 The [product contract](../product/product-contract.md) owns the user,
@@ -17,6 +18,9 @@ agent-native delivery decision.
 package boundaries, contract mechanism, and validation split.
 [ADR 0004](decisions/0004-postgresql-evidence-persistence.md) owns the concrete
 PostgreSQL public-evidence storage and migration decisions.
+[ADR 0005](decisions/0005-public-repository-ingestion.md) owns the curated
+manifest, fixed public providers, deterministic profiles/refresh, and operator
+receipt.
 
 ## Context and ownership
 
@@ -189,19 +193,22 @@ without sensitive payloads.
 
 ### External sources to ingestion
 
-GitHub, package registries, security feeds, retrieved web pages, repositories,
-READMEs, issues, and pull requests are untrusted evidence sources. Workers will
-verify source identity where possible, enforce size/time/rate limits, record
-provenance and collection time, reject instruction-following behavior, and
-never run ingested code. Evidence provenance is source-aware: Git commits,
+Phase 5 implements only fixed GitHub REST, npm registry, and GitHub reviewed
+advisory reads selected by the curator-owned manifest. Repository metadata,
+package metadata, advisories, and exact-commit allowlisted files are untrusted
+evidence. The operator verifies source identity, enforces size/time/rate
+limits, records provenance and collection time, rejects instruction-following
+behavior, and never runs ingested code. Evidence provenance is source-aware:
+Git commits,
 tags, releases, package versions, and advisories carry a compatible immutable
 revision and locator; mutable official documentation is explicitly classified
 as mutable; and approved validation uses a bounded validation reference, scope,
 and validation time rather than masquerading as public documentation.
 Publication, collection, validation, and freshness times remain chronologically
 coherent, and immutable locators identify their exact revisions.
-Webhook-driven ingestion will require signature, timestamp, and replay
-verification before processing.
+READMEs, issues, pull requests, broad discovery, and webhook-driven ingestion
+remain unimplemented. A future webhook path will require signature, timestamp,
+and replay verification before processing.
 
 ### Remote data and model boundary
 
@@ -218,7 +225,8 @@ must not enter prompts, telemetry, or the evidence store.
 The implemented product dependency direction is:
 
 ```text
-tools/evaluation-harness -> packages/persistence -> packages/contracts -> packages/domain
+packages/ingestion -> packages/persistence -> packages/contracts -> packages/domain
+tools/evaluation-harness -> packages/persistence
 ```
 
 The harness-to-persistence dependency exists only for storage representability
