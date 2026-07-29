@@ -84,6 +84,49 @@ describe('public provider mapping', () => {
       }),
     ).rejects.toMatchObject({ code: 'ingestion.provider-identity' });
   });
+
+  it('accepts a canonical identity change only for an explicitly moved candidate', async () => {
+    const transport: ProviderTransport = {
+      requestJson: (request) => {
+        const result = providerResponse(request);
+        if (
+          request.provider === 'github' &&
+          request.url.pathname === '/repos/gitblocks-test/candidate'
+        ) {
+          return Promise.resolve({
+            ...result,
+            value: {
+              ...(result.value as Record<string, unknown>),
+              owner: { login: 'gitblocks-moved' },
+              name: 'candidate-current',
+              html_url: 'https://github.com/gitblocks-moved/candidate-current',
+            },
+          });
+        }
+        return Promise.resolve(result);
+      },
+    };
+    const moved = await collectCandidateSources(
+      { ...TEST_CANDIDATE, status: 'moved' },
+      '2026-07-29T12:00:00.000Z',
+      {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      },
+    );
+    expect(moved.repository).toMatchObject({
+      canonicalOwner: 'gitblocks-moved',
+      canonicalRepository: 'candidate-current',
+    });
+    await expect(
+      collectCandidateSources(TEST_CANDIDATE, '2026-07-29T12:00:00.000Z', {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      }),
+    ).rejects.toMatchObject({ code: 'ingestion.provider-identity' });
+  });
 });
 
 function providerResponse(request: TransportRequest): JsonResponse {

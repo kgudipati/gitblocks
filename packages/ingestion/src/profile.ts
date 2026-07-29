@@ -44,6 +44,7 @@ export function profileCandidate(
     ]),
   );
   const observations: EvidenceObservationV1[] = [];
+  const repositoryMoved = repositoryIdentityChanged(bundle);
   const add = (
     logicalIdentity: unknown,
     observation: Omit<EvidenceObservationV1, 'evidenceId'>,
@@ -72,7 +73,9 @@ export function profileCandidate(
       candidateId: identity.candidateId,
       topic: 'repository-identity',
       dimension: 'identity',
-      observation: `GitHub identifies the public repository as ${identity.repository.owner}/${identity.repository.name}.`,
+      observation: repositoryMoved
+        ? `GitHub reports that catalog identity ${bundle.candidate.github.owner}/${bundle.candidate.github.repository} now resolves to ${identity.repository.owner}/${identity.repository.name}.`
+        : `GitHub identifies the public repository as ${identity.repository.owner}/${identity.repository.name}.`,
       source: {
         kind: 'mutable-documentation',
         sourceType: 'official-documentation',
@@ -529,6 +532,25 @@ function buildLimitations(
       stateEvidence === undefined ? [] : [stateEvidence.evidenceId],
     );
   }
+  if (bundle.candidate.status === 'moved') {
+    const evidence = observations.find(
+      (observation) => observation.topic === 'repository-identity',
+    );
+    add(
+      'repository-moved',
+      repositoryIdentityChanged(bundle)
+        ? `GitHub resolves the catalog repository ${bundle.candidate.github.owner}/${bundle.candidate.github.repository} to canonical identity ${bundle.repository.canonicalOwner}/${bundle.repository.canonicalRepository}.`
+        : 'The curated catalog retains this candidate as a moved-repository control.',
+      evidence === undefined ? [] : [evidence.evidenceId],
+    );
+  }
+  if (bundle.candidate.status === 'negative-control') {
+    add(
+      'catalog-negative-control',
+      'The curated catalog includes this candidate as an explicit negative control.',
+      [],
+    );
+  }
   if (bundle.community?.hasSecurityPolicy === false) {
     const evidence = observations.find(
       (observation) => observation.topic === 'security-policy',
@@ -732,6 +754,15 @@ function packageRepositoryLinkage(
     actualPath === expectedPath
     ? 'matched'
     : 'mismatched';
+}
+
+function repositoryIdentityChanged(bundle: CandidateSourceBundle): boolean {
+  return (
+    bundle.repository.canonicalOwner.toLowerCase() !==
+      bundle.candidate.github.owner.toLowerCase() ||
+    bundle.repository.canonicalRepository.toLowerCase() !==
+      bundle.candidate.github.repository.toLowerCase()
+  );
 }
 
 function evidenceSourceIdentity(

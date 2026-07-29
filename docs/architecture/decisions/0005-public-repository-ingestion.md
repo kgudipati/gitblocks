@@ -425,11 +425,14 @@ downloads, topics, generic descriptions, or marketing text. It does not create
 a ranking, score, viability decision, or model call.
 
 Missing decision-relevant facts become bounded unknowns. Directly established
-drawbacks become limitations, including archive/deprecation, identity mismatch,
-ambiguous license, declared unsupported runtime, applicable advisory, stale
-release state, move, negative-control status, and missing security policy. A
-limitation is descriptive and never automatically rejects or ranks a
-candidate.
+drawbacks become limitations, including archive/fork state, move and
+negative-control catalog state, deprecation, repository/package mismatch,
+applicable advisory, missing security policy, and incomplete bounded source
+coverage. Missing or ambiguous license/linkage, undeclared runtime, unavailable
+release state, advisory coverage, and unproven capability fit remain unknowns.
+V1 defines neither a supported-runtime target nor a stale-release threshold, so
+it does not reinterpret declared ranges or age as a drawback. A limitation is
+descriptive and never automatically rejects or ranks a candidate.
 
 ### Deterministic IDs and canonical inputs
 

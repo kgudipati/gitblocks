@@ -529,12 +529,12 @@ function assertRepositoryIdentity(
   candidate: CatalogCandidate,
   repository: GitHubRepositorySource,
 ): void {
-  if (
+  const identityChanged =
     repository.canonicalOwner.toLowerCase() !==
       candidate.github.owner.toLowerCase() ||
     repository.canonicalRepository.toLowerCase() !==
-      candidate.github.repository.toLowerCase()
-  ) {
+      candidate.github.repository.toLowerCase();
+  if (identityChanged && candidate.status !== 'moved') {
     throw ingestionError('ingestion.provider-identity');
   }
 }

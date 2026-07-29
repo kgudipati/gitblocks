@@ -430,16 +430,17 @@ produce compatibility, fit, viability, or quality evidence. Topics may be
 retained in the normalized source bundle only to support identity review, not
 profiling.
 
-Limitations include archived, moved, negative-control, deprecated package,
-missing/ambiguous license, repository/package mismatch, declared unsupported
-runtime when directly established, known applicable reviewed advisory, stale
-release state under the documented deterministic threshold, and missing
-security policy.
+Limitations include archived or forked repository, moved and negative-control
+catalog states, deprecated package, repository/package mismatch, known
+applicable reviewed advisory, missing security policy, and incomplete bounded
+source/advisory coverage.
 
 Decision-relevant absent or inconclusive facts become bounded unknowns,
 including undeclared runtime, ambiguous license/linkage, missing release state,
 advisory coverage limits, unproven deployment compatibility, and absent
-structured integration proof. A limitation never rejects or ranks a candidate.
+structured integration proof. V1 defines no supported-runtime target or stale
+release threshold, so it does not misclassify declared ranges or age as a
+drawback. A limitation never rejects or ranks a candidate.
 
 ## Deterministic identifiers and collision handling
 
@@ -796,7 +797,7 @@ new issue.
 - 2026-07-29: Added deterministic provider/manifest/profile/refresh/receipt
   tests and real PostgreSQL ingestion reconstruction, unchanged rerun, and
   changed-evidence lifecycle coverage.
-- 2026-07-29: Completed the local validation matrix: 668 offline tests and 15
+- 2026-07-29: Completed the local validation matrix: 670 offline tests and 15
   PostgreSQL tests passed without skips; coverage, architecture, repository,
   contract, evaluation, secret, dependency-audit, catalog, ingestion, and
   frozen-install checks passed.
@@ -809,6 +810,11 @@ new issue.
   PostgreSQL tests without skips, catalog/contracts/evaluation/architecture,
   dependency audit, and the clean-worktree proof; there were no warning/error
   annotations or nonzero exit markers.
+- 2026-07-29: A final prompt-to-ADR-to-code trace review found that moved
+  repository identity was documented but every canonical mismatch still
+  failed. Added failing provider/profile regressions, then limited canonical
+  mismatch acceptance to manifest entries explicitly marked `moved` and
+  emitted moved/negative-control limitations.
 - 2026-07-29: Inspected live-operation configuration without reading values.
   The GitHub token and all ingestion database variables are unset; Docker is
   not available as an operator target. Per Issue #13, no live run was
@@ -836,17 +842,17 @@ new issue.
 
 ## Failures and corrections
 
-| Check or approach                                             | Failure or risk                                                                                                                  | Correction                                                                                                                        |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Initial mandated `nvm use`                                    | Codex shell did not auto-load NVM                                                                                                | Source the existing NVM script explicitly; record the environment correction                                                      |
-| Treat every refresh collection time as a new immutable record | Unchanged sources would conflict on stable evidence IDs and change snapshot cutoffs                                              | Reuse the exact prior observation when normalized source identity is unchanged                                                    |
-| Use an advisory zero-result as clean evidence                 | Provider coverage cannot prove absence                                                                                           | Emit a bounded coverage unknown and no favorable evidence                                                                         |
-| Use GitHub/npm search for catalog construction                | Search relevance is not curated capability evidence                                                                              | Require per-entry official source and curator rationale; provider data verifies identity                                          |
-| First lockfile-only update under the repository frozen policy | pnpm correctly rejected the new workspace manifest as an outdated frozen lockfile                                                | Run the authorized pnpm non-frozen lockfile update once, then restore and verify frozen installation                              |
-| First architecture check after adding the package             | Approved Node built-ins resolved to their bare dependency-cruiser names                                                          | Add only `crypto`, `stream/web`, and `util` to the ingestion Node-API allowlist; the graph then passed                            |
-| First ingestion PostgreSQL changed-refresh test               | Re-appending unchanged limitation/unknown IDs with a later command timestamp conflicted with Phase 4 complete-record idempotency | Reuse active limitation/unknown records by stable ID and append only new material                                                 |
-| First final secret-scan command                               | Used the nonexistent shorthand `pnpm secrets:scan`                                                                               | Run the repository's actual `pnpm security:secrets` command; it passed                                                            |
-| Required live provider/database run                           | `GITBLOCKS_INGEST_GITHUB_TOKEN` and every `GITBLOCKS_INGEST_DB_*` variable are unset; no approved target was supplied            | Stop before provider calls, keep the PR draft, record Phase 5 live completion as incomplete, and request no secret in Git or chat |
+| Check or approach                                             | Failure or risk                                                                                                                  | Correction                                                                                                                           |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Initial mandated `nvm use`                                    | Codex shell did not auto-load NVM                                                                                                | Source the existing NVM script explicitly; record the environment correction                                                         |
+| Treat every refresh collection time as a new immutable record | Unchanged sources would conflict on stable evidence IDs and change snapshot cutoffs                                              | Reuse the exact prior observation when normalized source identity is unchanged                                                       |
+| Use an advisory zero-result as clean evidence                 | Provider coverage cannot prove absence                                                                                           | Emit a bounded coverage unknown and no favorable evidence                                                                            |
+| First lockfile-only update under the repository frozen policy | pnpm correctly rejected the new workspace manifest as an outdated frozen lockfile                                                | Run the authorized pnpm non-frozen lockfile update once, then restore and verify frozen installation                                 |
+| First architecture check after adding the package             | Approved Node built-ins resolved to their bare dependency-cruiser names                                                          | Add only `crypto`, `stream/web`, and `util` to the ingestion Node-API allowlist; the graph then passed                               |
+| First ingestion PostgreSQL changed-refresh test               | Re-appending unchanged limitation/unknown IDs with a later command timestamp conflicted with Phase 4 complete-record idempotency | Reuse active limitation/unknown records by stable ID and append only new material                                                    |
+| First final secret-scan command                               | Used the nonexistent shorthand `pnpm secrets:scan`                                                                               | Run the repository's actual `pnpm security:secrets` command; it passed                                                               |
+| Final prompt/ADR/code trace after the first hosted pass       | ADR required moved canonical identity evidence, but the provider rejected every canonical mismatch                               | Add failing moved/negative-control regressions; accept mismatch only for explicit `moved` entries and emit deterministic limitations |
+| Required live provider/database run                           | `GITBLOCKS_INGEST_GITHUB_TOKEN` and every `GITBLOCKS_INGEST_DB_*` variable are unset; no approved target was supplied            | Stop before provider calls, keep the PR draft, record Phase 5 live completion as incomplete, and request no secret in Git or chat    |
 
 ## Validation evidence
 
@@ -859,16 +865,17 @@ new issue.
 | 2026-07-29 | Provider primary-source review        | Endpoint, API version, authentication, rate-limit, npm packument, and advisory choices recorded                                                                                         |
 | 2026-07-29 | `pnpm catalog:validate`               | 150 unique candidates; 30 authorization, 30 audit logging, 30 background jobs, 30 rate limiting, 30 webhooks; digest `d9d61d8b07f7e638ceaa102f4145388b59d1d537aac6203006d98c020b70697d` |
 | 2026-07-29 | Ingestion deterministic tests         | Manifest, fixed transport, rate limits, provider mapping, all-family profiles, limitations, refresh, and receipt tests passed                                                           |
-| 2026-07-29 | Final offline/coverage suite          | 37 files / 668 tests; 76.86% statements, 69.36% branches, 83.46% functions, 76.70% lines                                                                                                |
+| 2026-07-29 | Final offline/coverage suite          | 37 files / 670 tests; 76.93% statements, 69.46% branches, 83.50% functions, 76.76% lines                                                                                                |
 | 2026-07-29 | Updated `pnpm db:verify`              | PostgreSQL 18.4; one migration; 13 public tables; zero RLS; 15 DB tests including ingestion round trip, rerun, changed lifecycle, concurrency, and independent failure; no skips        |
 | 2026-07-29 | `db:migrate` / `db:check` / `db:test` | Individually passed against one explicitly provisioned ephemeral PostgreSQL 18.4 target; 15 tests, no skips                                                                             |
 | 2026-07-29 | Ingestion architecture graph          | 625 modules / 1,988 dependencies; no violations                                                                                                                                         |
-| 2026-07-29 | Final `pnpm verify`                   | Formatting, build, lint, typecheck, 668 tests, architecture, repository, evaluation, contracts, catalog, and secret scan passed                                                         |
+| 2026-07-29 | Final `pnpm verify`                   | Formatting, build, lint, typecheck, 670 tests, architecture, repository, evaluation, contracts, catalog, and secret scan passed                                                         |
 | 2026-07-29 | Final `pnpm verify:ci`                | Final `verify`, PostgreSQL verification, and registry-backed moderate dependency audit passed; no known vulnerabilities                                                                 |
 | 2026-07-29 | Hosted CI run/job                     | Run `30445222539`, Verification job `90553802670`: success; all 1,547 decoded log lines inspected, 668 offline and 15 PostgreSQL tests, clean-worktree proof, no warnings/errors        |
+| 2026-07-29 | Hosted evidence-head rerun            | Run `30445683262`, Verification job `90555328238`: success on commit `9231e96`; all 1,547 decoded lines inspected, no warning/error or nonzero-exit markers                             |
 | 2026-07-29 | Live configuration gate               | Required GitHub and database variables unset; no provider request made and no receipt claimed                                                                                           |
 
-Draft publication and hosted implementation-head evidence are complete. The
-documentation-only evidence commit requires the final hosted rerun. Live-run
-and second-run evidence remain blocked on explicit credentials and an approved
+Draft publication and hosted evidence are complete through `9231e96`. The
+moved-state correction requires the final hosted rerun. Live-run and second-run
+evidence remain blocked on explicit credentials and an approved
 non-production target.

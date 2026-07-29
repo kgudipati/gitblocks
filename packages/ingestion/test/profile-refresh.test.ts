@@ -80,6 +80,40 @@ describe('deterministic candidate profiling and refresh', () => {
     );
   });
 
+  it('preserves moved and negative-control catalog states as limitations', () => {
+    const base = testBundle();
+    const moved = profileCandidate(
+      testBundle({
+        candidate: { ...base.candidate, status: 'moved' },
+        repository: {
+          ...base.repository,
+          canonicalOwner: 'gitblocks-moved',
+          canonicalRepository: 'candidate-current',
+          htmlUrl: 'https://github.com/gitblocks-moved/candidate-current',
+        },
+      }),
+    );
+    expect(moved.limitations.map((entry) => entry.limitationCode)).toContain(
+      'repository-moved',
+    );
+    expect(
+      moved.observations.find(
+        (observation) => observation.topic === 'repository-identity',
+      )?.observation,
+    ).toContain(
+      'catalog identity gitblocks-test/candidate now resolves to gitblocks-moved/candidate-current',
+    );
+
+    const negativeControl = profileCandidate(
+      testBundle({
+        candidate: { ...base.candidate, status: 'negative-control' },
+      }),
+    );
+    expect(
+      negativeControl.limitations.map((entry) => entry.limitationCode),
+    ).toContain('catalog-negative-control');
+  });
+
   it('reuses exact prior evidence and keeps the snapshot stable on an unchanged rerun', () => {
     const first = profileCandidate(testBundle());
     const second = profileCandidate(
