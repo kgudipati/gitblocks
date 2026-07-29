@@ -6,10 +6,9 @@
   [#9 — Phase 3: Establish the product domain and contract kernel](https://github.com/kgudipati/gitblocks/issues/9)
 - Branch: `feat/9-product-contract-kernel`
 - Owner: GitBlocks maintainers
-- State: local implementation and the full pinned-runtime validation matrix
-  complete; independent review found no remaining material blocker;
-  draft PR published and first hosted Verification successful; final
-  evidence-documentation commit and its hosted Verification pending
+- State: implementation, the full pinned-runtime validation matrix,
+  independent review, publication, and hosted Verification are complete;
+  draft PR #10 remains open, draft, unmerged, and awaiting maintainer review
 - Last updated: 2026-07-28
 - Authority order:
   1. Issue #9.
@@ -1139,10 +1138,22 @@ The plan may leave implementation status only when:
   10-case evaluation validation, 10-case/40-candidate proposed/not-reviewed
   conformance, secret scanning, and the no-known-vulnerability audit; the
   final `git diff --exit-code` worktree proof passed.
-- 2026-07-28: This hosted-evidence plan update will be committed and pushed as
-  an ordinary follow-up. Its final hosted Verification and decoded-log
-  inspection remain pending; no implementation correction was required by the
-  first hosted run.
+- 2026-07-28: Created and ordinarily pushed evidence-documentation commit
+  `d5211cf4af53db5663808011cb23e91b345a0112`
+  (`docs: record product contract validation`).
+- 2026-07-28: Hosted CI run
+  [30415034487](https://github.com/kgudipati/gitblocks/actions/runs/30415034487)
+  (CI run 19) completed successfully for evidence-documentation head
+  `d5211cf4af53db5663808011cb23e91b345a0112`. The actual `Verification` job
+  `90459574407` and its decoded logs were inspected. They confirmed the pinned
+  runtime, frozen installation and supply-chain policies, all 522 tests,
+  architecture and repository invariants, evaluation and contract-conformance
+  checks, secret scanning, no-known-vulnerability audit, and clean final diff.
+- 2026-07-28: The draft PR description is the terminal hosted-status record
+  for the current documentation-only plan correction. Recording that newest
+  run in another commit would recursively create another unverified head; no
+  product, contract, harness, or verification behavior changed after the
+  successfully verified implementation head.
 
 ## Decision and deviation log
 
@@ -1238,8 +1249,11 @@ The plan may leave implementation status only when:
 | 2026-07-28 | Ordinary implementation commit and first branch push                                | Commit `0090e6c0868d8841fecc051f4df76acbbb7fadfe`; pushed `feat/9-product-contract-kernel` with upstream tracking and no force/history rewrite                                                          |
 | 2026-07-28 | Draft PR creation                                                                   | Draft PR #10 opened at `https://github.com/kgudipati/gitblocks/pull/10` with exact required title and `Closes #9`; base `main` remained `27eb7d6585c30fd0f78f238543a764ca7b3c4f76`                      |
 | 2026-07-28 | Hosted CI run 30414832786 / Verification job 90458949190 decoded-log inspection     | Success; exact runtime/package manager, lockfile policy, metadata checks, `pnpm verify:ci`, 522 tests, architecture, evaluation/conformance, secrets/audit, and final worktree-clean proof all passed   |
+| 2026-07-28 | Evidence-documentation commit `d5211cf4af53db5663808011cb23e91b345a0112`            | Ordinary follow-up commit and push; no amend, rebase, force-push, or product-code change                                                                                                                |
+| 2026-07-28 | Hosted CI run 30415034487 / Verification job 90459574407 decoded-log inspection     | Success; final evidence-documentation head passed the same pinned runtime, frozen install, metadata, 522-test, architecture, evaluation/conformance, secrets/audit, and clean-diff checks               |
+| 2026-07-28 | First format check for terminal plan-status correction                              | Failed only on Markdown formatting in this plan; ran the repository-pinned Prettier writer and repeated the format and whitespace checks before committing                                              |
 
-The first published implementation head has complete hosted evidence. The
-ordinary evidence-documentation follow-up must receive the same successful
-Verification result at the final branch head before Phase 3 execution is
-reported complete.
+The implementation and evidence-documentation heads have complete hosted
+evidence. To avoid an unbounded self-referential commit chain, the draft PR
+description records the terminal hosted run for the current documentation-only
+plan correction.
