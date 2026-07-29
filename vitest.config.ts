@@ -5,12 +5,17 @@ export default defineConfig({
     coverage: {
       enabled: false,
       exclude: [
+        'packages/contracts/src/index.ts',
+        'packages/domain/src/index.ts',
         'tools/evaluation-harness/src/cli.ts',
+        'tools/evaluation-harness/src/contract-conformance-cli.ts',
         'tools/evaluation-harness/src/index.ts',
         'tools/repository-checks/src/cli.ts',
         'tools/repository-checks/src/index.ts',
       ],
       include: [
+        'packages/contracts/src/**/*.ts',
+        'packages/domain/src/**/*.ts',
         'tools/evaluation-harness/src/**/*.ts',
         'tools/repository-checks/src/**/*.ts',
         'tools/runtime-preflight.mjs',
@@ -20,6 +25,8 @@ export default defineConfig({
       reportsDirectory: 'coverage',
     },
     include: [
+      'packages/contracts/test/**/*.test.ts',
+      'packages/domain/test/**/*.test.ts',
       'tools/evaluation-harness/test/**/*.test.ts',
       'tools/repository-checks/test/**/*.test.{mjs,ts}',
     ],

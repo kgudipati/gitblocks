@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2024", "DOM"],
+    "noEmit": true,
+    "rootDir": ".",
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.test.tsbuildinfo",
+    "types": []
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}

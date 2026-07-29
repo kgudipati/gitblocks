@@ -1,8 +1,8 @@
 # Contributing to GitBlocks
 
 GitBlocks accepts focused, evidence-backed changes through GitHub Flow. The
-project currently provides repository engineering tooling but no product
-service or application implementation.
+project currently provides repository engineering tooling and a pure product
+domain/contract kernel, but no product service or application implementation.
 
 ## Before starting
 
@@ -112,8 +112,18 @@ Follow
 [ADR 0002](docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md)
 for the active formatter, linter, strict compiler settings, dependency
 boundaries, generated-code policy, and exact verification commands. A future
-product framework or production dependency still requires explicit issue and
-architecture authority.
+product framework or additional production dependency still requires explicit
+issue and architecture authority. Product contract work must also follow
+[ADR 0003](docs/architecture/decisions/0003-product-contract-kernel.md):
+`tools/evaluation-harness` may depend on `packages/contracts`, contracts may
+depend on the pure domain, and neither product package may import evaluation
+records or tooling.
+
+Run `pnpm contracts:validate` when changing a product contract, its runtime
+JSON Schema export, or the evaluation-to-product mapping. This conformance
+check proves that all ten pilot cases map without losing decision-relevant
+fields and that proposed gold is representable; it neither scores quality nor
+changes the gold's proposed/not-reviewed status.
 
 ### 6. Review and validation
 

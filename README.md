@@ -55,16 +55,21 @@ components, data flows, and trust boundaries.
 
 GitBlocks is in its product and engineering foundation phase. This repository
 now contains an exactly pinned TypeScript workspace, deterministic repository
-verification tooling, and a proposed ten-case evaluation pilot for
-repository-conditioned adoption fit over fixed candidate sets. It has no
-application scaffold, production dependency, Agent Skill, scanner, MCP server,
-backend, database, discovery or product ranking engine, deployment, or product
-release. The pilot gold is authored and proposed, not independently accepted.
+verification tooling, a proposed ten-case evaluation pilot for
+repository-conditioned adoption fit over fixed candidate sets, and the first
+production-owned code: a pure domain package and a versioned contract package.
+These packages define and validate product vocabulary; they do not implement a
+use case or service. The repository still has no application scaffold, Agent
+Skill, scanner, MCP server, backend, database, discovery or product ranking
+engine, deployment, or product release. The pilot gold is authored and
+proposed, not independently accepted.
 
 The governing product scope is the
 [product contract](docs/product/product-contract.md). Engineering work follows
 the [engineering handbook](docs/engineering/repository-workflow.md) and the
 [TypeScript workspace ADR](docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md).
+[ADR 0003](docs/architecture/decisions/0003-product-contract-kernel.md) owns the
+product contract mechanism and package boundaries.
 
 ## Repository map
 
@@ -80,6 +85,8 @@ the [engineering handbook](docs/engineering/repository-workflow.md) and the
 | `docs/engineering/`         | Repository, development, testing, security, reliability, and completion policies |
 | `docs/evaluation/`          | Case authoring, deterministic scoring, and future baseline protocols             |
 | `docs/plans/`               | Active and historical version-controlled execution plans                         |
+| `packages/domain/`          | Pure product vocabulary, constructors, canonicalization, and invariants          |
+| `packages/contracts/`       | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
 | `evals/pilot-v1/`           | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
 | `schemas/evaluation/`       | Versioned JSON Schema 2020-12 evaluation contracts                               |
 | `tools/evaluation-harness/` | Private bounded validator, deterministic scorer, CLI, and tests                  |
@@ -116,8 +123,8 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin |
 | `pnpm format:check`                   | Check formatting without changing files                     |
 | `pnpm lint`                           | Run typed ESLint with zero warnings                         |
-| `pnpm typecheck`                      | Type-check repository and evaluation tooling plus tests     |
-| `pnpm build`                          | Emit both private tooling packages                          |
+| `pnpm typecheck`                      | Type-check product packages, tooling, and tests             |
+| `pnpm build`                          | Emit the private product and tooling packages               |
 | `pnpm test`                           | Run the protected deterministic Vitest suite                |
 | `pnpm test:coverage`                  | Record the V8 coverage baseline                             |
 | `pnpm architecture:check`             | Enforce dependency directions                               |
@@ -125,11 +132,14 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity      |
 | `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory           |
 | `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                |
+| `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings     |
 | `pnpm security:secrets`               | Scan tracked development content for secrets                |
 | `pnpm security:audit`                 | Run the online registry dependency audit                    |
 | `pnpm verify`                         | Run one preflight plus authoritative offline verification   |
 | `pnpm verify:ci`                      | Run `verify` plus the online dependency audit               |
 
-Evaluation commands are offline and do not execute candidate code or call a
-model. There is no development service, application build, or deployment
-command because product services remain unimplemented.
+Contract and evaluation commands are offline and do not execute candidate code
+or call a model. Product schemas are deterministic JSON Schema 2020-12 runtime
+exports derived from the same TypeBox definitions as their TypeScript DTO
+types; they are not a second handwritten artifact. There is no development
+service or deployment command because product services remain unimplemented.

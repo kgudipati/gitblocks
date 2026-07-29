@@ -2,16 +2,18 @@
 
 ## Status
 
-This document describes the approved direction for future GitBlocks
-components. The repository currently contains no implemented product
-components, runtime, deployment, data store, or network service. Technology
-choices remain open unless a later architecture decision record (ADR) approves
-them.
+This document describes the approved direction for GitBlocks components. The
+repository now contains one implemented, non-operational product component: the
+pure domain and contract kernel. It contains no application use case, adapter,
+runtime service, deployment, data store, or network service. Technology choices
+remain open unless an architecture decision record (ADR) approves them.
 
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
 [ADR 0001](decisions/0001-agent-native-delivery.md) owns the headless,
 agent-native delivery decision.
+[ADR 0003](decisions/0003-product-contract-kernel.md) owns the current product
+package boundaries, contract mechanism, and validation split.
 
 ## Context and ownership
 
@@ -28,7 +30,9 @@ agent runtime and does not receive blanket permission to change a repository.
 
 ## Planned system context
 
-All GitBlocks nodes in this diagram are planned, not implemented.
+All operational GitBlocks nodes in this diagram are planned, not implemented.
+The shared contract kernel is omitted because it is a code dependency, not a
+separately running node.
 
 ```mermaid
 flowchart LR
@@ -73,8 +77,9 @@ flowchart LR
 
 ## Component responsibilities
 
-| Component                                | Planned responsibility                                                                                                   | Must not own                                                                                         |
+| Component                                | Responsibility or approved direction                                                                                     | Must not own                                                                                         |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Product domain and contract kernel       | Define pure domain invariants plus versioned DTO parsing and deterministic JSON Schema exports                           | Transport, storage, provider, evaluation-gold, discovery, ranking-engine, or service behavior        |
 | Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                        | Proprietary ranking or silent expansion of GitBlocks permissions                                     |
 | Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure | Proprietary ranking internals, hidden external writes, or direct production deployment               |
 | Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                            | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking |
@@ -139,7 +144,26 @@ metadata, and local profiles are untrusted data. They cannot become agent
 instructions. The scanner will use allowlisted, bounded reads; validate paths
 and formats; avoid symlink or traversal escape; redact sensitive values; and
 never execute repository code. The scanner output will declare its schema
-version and the observations that produced each fingerprint fact.
+version, its controlled fact-vocabulary version, and the observations that
+produced each fingerprint fact.
+
+Repository fingerprints use closed, bounded objects. Universal facts such as a
+named component and version or a deployment topology retain dedicated typed
+forms. Coarse repository capabilities, structure, identity, data policy, and
+operational characteristics use stable fact, subject, and value codes with
+explicit presence, classification, code-set, or integer value variants. The
+controlled code registry is versioned independently of the serialized object
+shape: an ordinary supported-ecosystem fact may extend that registry without
+creating another DTO variant, while an unknown code or unsupported semantic
+combination fails closed. A new value kind or other structural requirement is
+a schema-shape change and follows contract-version negotiation.
+
+Each fact preserves confidence, collection time, and epistemic status. A fact
+parsed from an approved manifest, lockfile, configuration shape, or repository
+structure is `direct`; an input supplied as a declaration remains `declared`;
+and a scanner conclusion from multiple observations is `derived`. A source and
+epistemic-status combination that cannot coherently produce the asserted fact
+is rejected.
 
 ### Local environment to remote MCP
 
@@ -165,8 +189,15 @@ GitHub, package registries, security feeds, retrieved web pages, repositories,
 READMEs, issues, and pull requests are untrusted evidence sources. Workers will
 verify source identity where possible, enforce size/time/rate limits, record
 provenance and collection time, reject instruction-following behavior, and
-never run ingested code. Webhook-driven ingestion will require signature,
-timestamp, and replay verification before processing.
+never run ingested code. Evidence provenance is source-aware: Git commits,
+tags, releases, package versions, and advisories carry a compatible immutable
+revision and locator; mutable official documentation is explicitly classified
+as mutable; and approved validation uses a bounded validation reference, scope,
+and validation time rather than masquerading as public documentation.
+Publication, collection, validation, and freshness times remain chronologically
+coherent, and immutable locators identify their exact revisions.
+Webhook-driven ingestion will require signature, timestamp, and replay
+verification before processing.
 
 ### Remote data and model boundary
 
@@ -177,10 +208,19 @@ must not enter prompts, telemetry, or the evidence store.
 
 ## Contract direction
 
-The future dependency direction is inward:
+The implemented product-kernel dependency direction is:
 
 ```text
-transports and providers -> application use cases -> domain rules
+tools/evaluation-harness -> packages/contracts -> packages/domain
+```
+
+The harness dependency exists only for corpus conformance. Product packages do
+not import evaluation schemas, corpus records, gold, or tool internals.
+
+The future operational dependency direction remains inward:
+
+```text
+transports and providers -> application use cases -> contracts and domain
 ```
 
 HTTP/MCP, GitHub, database, queue, filesystem, model-provider, and framework
@@ -188,6 +228,33 @@ adapters may depend on owned application contracts. Domain and application
 rules must not depend on those adapters. Versioned request, response, event,
 error, evidence, fingerprint, and outcome contracts each have one authoritative
 definition; transports may encode them but must not recreate competing shapes.
+
+For the six current `1.0.0` contract families, closed TypeBox definitions are
+the single source for DTO types and deterministic JSON Schema 2020-12 runtime
+exports. Structural parsing handles untrusted shape, version, size, and
+diagnostic bounds; pure domain validation handles cross-field references,
+evidence and inference semantics, hard conflicts, responsible outcomes, and
+partial ranking.
+
+Production network, HTTP, and MCP adapters must provide JSON-parsed or
+otherwise data-only JavaScript values to these parsers. Byte limits, content
+type, decompression, and bounded JSON-text parsing belong to the adapter.
+Contract preflight rejects accessors, exotic prototypes, cycles, and
+unsupported object forms. An arbitrary already-executable in-process
+JavaScript `Proxy` is outside the inert-data guarantee: reflective inspection
+or later property access can invoke its traps, so the parser guarantees only a
+bounded, value-free rejection when such access fails, not that a hostile trap
+was never invoked.
+
+Response integrity also remains a domain concern. Every candidate reason must
+resolve to candidate-owned evidence, candidate-owned inference, a disclosed
+material unknown, or a matching hard-constraint conflict with preserved
+evidence. Candidate limitations supplied in dossiers are retained in a
+response catalog and referenced by the owning assessment without changing
+viability by themselves. Assessment processing state says whether supplied
+inputs and available evidence were completely processed; it is independent of
+epistemic uncertainty, so a completely processed assessment may still disclose
+material unknowns or responsibly return `insufficient-evidence`.
 
 ## Failure and operational posture
 
@@ -206,10 +273,9 @@ or sensitive excerpts. Detailed rules are in the
 
 ## Open technology decisions
 
-Later ADRs must select, at minimum, the implementation language and runtime,
-MCP and transport libraries, contract schema mechanism, storage, queue,
-identity and tenant model, deployment topology, model providers, telemetry
-backend, retention implementation, and software-supply-chain controls. A stack
-ADR must also establish formatter, linter, compiler strictness, dependency
-rules, generated-code policy, and validation commands before production code
-lands.
+Later ADRs must select, at minimum, application architecture, MCP and transport
+libraries, storage, queue, identity and tenant model, deployment topology,
+model providers, telemetry backend, and retention implementation. They must
+extend the accepted TypeScript toolchain, software-supply-chain controls,
+dependency rules, generated-code policy, and validation commands before the
+corresponding product layer lands.

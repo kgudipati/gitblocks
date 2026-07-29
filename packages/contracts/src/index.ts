@@ -1,0 +1,47 @@
+export {
+  CONTRACT_SCHEMA_NAMES,
+  getContractSchemaV1,
+  serializeContractSchemaV1,
+  type ContractSchemaName,
+  type JsonSchemaValue,
+} from './schema-catalog.ts';
+export {
+  CONTRACT_VERSION,
+  MAX_DIAGNOSTIC_ISSUES,
+  MAX_DIAGNOSTIC_MESSAGE_LENGTH,
+  MAX_DIAGNOSTIC_PATH_LENGTH,
+  MAX_INPUT_DEPTH,
+  MAX_INPUT_NODES,
+  MAX_INPUT_STRING_CODE_UNITS,
+  MAX_INPUT_TOTAL_STRING_CODE_UNITS,
+  MAX_OBJECT_PROPERTIES,
+} from './schema-builders.ts';
+export {
+  parseCandidateDossierV1,
+  parseCapabilityRequestV1,
+  parseErrorEnvelopeV1,
+  parseFitAssessmentRequestV1,
+  parseFitAssessmentResponseV1,
+  parseRepositoryFingerprintV1,
+  validateFitAssessmentExchangeV1,
+  type FitAssessmentExchangeValidationResult,
+} from './parsers.ts';
+export type {
+  ContractIssue,
+  ContractIssueCode,
+  ContractIssueMessage,
+  ContractParseResult,
+} from './diagnostics.ts';
+export type {
+  CandidateDossierV1,
+  CapabilityRequestV1,
+  ErrorEnvelopeV1,
+  EvidenceObservationV1,
+  FitAssessmentRequestV1,
+  FitAssessmentResponseV1,
+  HardConstraintConflictV1,
+  InferenceV1,
+  MaterialClaimV1,
+  MaterialUnknownV1,
+  RepositoryFingerprintV1,
+} from './schemas.ts';

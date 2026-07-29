@@ -2,16 +2,19 @@
 
 ## Purpose and enforcement stages
 
-These rules define the acceptance bar for future production code. They do not
-authorize production code in the current engineering-foundation phase;
-repository verification tooling is not a product implementation.
+These rules define the acceptance bar for production code. The current
+production surface is deliberately limited to the pure product domain and
+contract kernel approved by
+[ADR 0003](../architecture/decisions/0003-product-contract-kernel.md).
+Repository verification and evaluation tooling are not product
+implementations, and the kernel does not authorize a service or adapter.
 
-| Stage               | Meaning                                                                   | Enforcement                                                                                                              |
-| ------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Now                 | Documentation, contracts, plans, metadata, and repository tooling         | ADR 0002, `pnpm verify`, CI, author self-review, and PR review against this handbook                                     |
-| Before product code | Before the first product implementation for a language or framework lands | An accepted ADR extends the current toolchain with product-specific framework, contract, boundary, and runtime decisions |
-| With code           | Whenever production or test code exists                                   | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review                 |
-| With deployment     | Whenever a path runs in a shared or production environment                | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                                |
+| Stage           | Meaning                                                                    | Enforcement                                                                                              |
+| --------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Now             | Pure domain and contract code, documentation, plans, metadata, and tooling | ADRs 0002 and 0003, `pnpm verify`, CI, author self-review, and PR review against this handbook           |
+| Before services | Before an application, adapter, framework, or deployed product path lands  | An accepted ADR extends the kernel with required application, framework, boundary, and runtime decisions |
+| With code       | Whenever production or test code exists                                    | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review |
+| With deployment | Whenever a path runs in a shared or production environment                 | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                |
 
 Required evidence is the relevant ADR and contract diff, tests, tool output, PR
 validation record, and reviewer confirmation. A future tool may strengthen a
@@ -47,15 +50,25 @@ through them to provider internals.
 The allowed dependency direction is:
 
 ```text
+tools/evaluation-harness -> packages/contracts -> packages/domain
+```
+
+The future operational direction is:
+
+```text
 HTTP, MCP, database, queue, GitHub, filesystem, model-provider, and framework adapters
                                       |
                                       v
                          application use cases
                                       |
                                       v
-                              domain rules
+                         contracts and domain
 ```
 
+- `packages/domain` is pure and has no outward workspace or runtime dependency.
+  `packages/contracts` may depend only on the domain and the schema
+  dependencies accepted by ADR 0003. Product packages never import tools or
+  evaluation data.
 - Domain and application rules must not import transport, framework,
   persistence, queue, GitHub, filesystem, or model-provider adapters.
 - Application ports describe capabilities owned by the use case. Provider
@@ -69,9 +82,8 @@ HTTP, MCP, database, queue, GitHub, filesystem, model-provider, and framework ad
 - A single deployable may contain all layers. This direction does not require
   microservices, dependency-injection frameworks, or one interface per class.
 
-The stack ADR must select an automated dependency-boundary check before code
-lands. Until then, import review and architecture tests where supported provide
-evidence.
+The workspace dependency check enforces the current kernel boundary. A future
+stack ADR must extend that check before adding application or adapter layers.
 
 ## Contracts and validation
 
@@ -83,6 +95,26 @@ behavior and compatibility boundary.
 - Define each owned contract once in a versioned authoritative module or schema.
   Encoders and adapters reuse or generate from it; they must not maintain
   competing handwritten shapes.
+- Product DTOs are defined once as closed TypeBox schemas. Their static
+  TypeScript types and deterministic JSON Schema 2020-12 runtime artifacts come
+  from those definitions; Ajv performs private structural validation.
+- A controlled stable-code vocabulary may be versioned independently of its
+  closed serialized shape only when every value uses an existing bounded,
+  explicitly typed variant. Unknown codes and unsupported semantic
+  combinations fail closed. Arbitrary metadata, raw JSON, source text,
+  configuration values, environment values, logs, and provider payloads are
+  not vocabulary extensions.
+- Structural parsing accepts `unknown`, rejects unknown fields, coercion,
+  defaults, malformed versions, and bounded-resource violations, and never
+  echoes rejected values. Pure domain validation then owns cross-field
+  reference, evidence, disposition, outcome, and partial-ranking invariants.
+- Network, HTTP, and MCP adapters pass JSON-parsed or otherwise data-only
+  JavaScript values to product parsers. They own byte, content-type,
+  decompression, and bounded JSON-text parsing checks. Product preflight rejects
+  accessors, exotic prototypes, cycles, and unsupported object forms; an
+  already-executable hostile `Proxy` is outside the inert-data guarantee, so
+  parser failure remains bounded and value-free without claiming traps cannot
+  run.
 - Validate data when it crosses every trust boundary, even when an upstream
   system claims validation. Repository content, model output, MCP arguments,
   webhooks, stored records, queue messages, environment configuration, and
@@ -90,6 +122,19 @@ behavior and compatibility boundary.
 - Validation must reject unknown or malformed security-sensitive fields when
   permissive parsing would hide intent. Size, count, range, path, encoding, and
   semantic constraints are part of validation, not only field types.
+- Provenance variants must be coherent with their source. Immutable evidence
+  uses an exact non-mutable revision, matching locator, and chronological
+  publication, collection, and freshness times; mutable documentation states
+  its limitation; approved validation uses bounded references, scope, and time
+  rather than raw output. Local facts preserve `direct`, `declared`, and
+  `derived` epistemic status through mapping and canonicalization.
+- Material candidate reasons resolve to candidate-owned evidence or inference,
+  a disclosed unknown, or a matching hard-constraint conflict with preserved
+  evidence. Supplied candidate limitations retain candidate ownership,
+  statement, and evidence across an exchange. Processing completeness is
+  independent from material uncertainty, and partial-evidence processing names
+  bounded stable reasons. An insufficient-evidence candidate references an
+  applicable disclosed unknown.
 - A contract documents behavior, invariants, constraints, version negotiation,
   defaulting, side effects, idempotency, ordering, compatibility, and failure
   modes. Examples supplement but do not replace normative behavior.
@@ -204,7 +249,7 @@ accuracy.
 
 ## Generated code and dependencies
 
-Before production code lands, the stack ADR must define:
+Before a new product layer lands, its applicable stack ADR must define:
 
 - the formatter and version;
 - linter rules and version;
@@ -222,6 +267,11 @@ not a reason to omit security or licensing review. Production dependencies
 require a demonstrated need, license and maintenance review, pinned resolution
 through the approved lockfile, and minimal permission/surface. A convenience
 library is not justified when the owned implementation is smaller and safer.
+
+The current product schemas are runtime exports rather than committed generated
+files. Their canonical serialization and digest tests provide drift evidence;
+future adapters and SDK generators consume those exports instead of recreating
+the schemas.
 
 ## Review evidence
 
