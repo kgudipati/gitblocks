@@ -6,10 +6,10 @@
   [#9 — Phase 3: Establish the product domain and contract kernel](https://github.com/kgudipati/gitblocks/issues/9)
 - Branch: `feat/9-product-contract-kernel`
 - Owner: GitBlocks maintainers
-- State: final authority-immutability correction is in progress on the
-  published topic branch; implementation, complete validation, ordinary
-  follow-up publication, PR-description reconciliation, and corrected hosted
-  Verification remain pending; draft PR #10 remains open, draft, and unmerged
+- State: implementation, validation, independent-review corrections, authority
+  immutability correction, and hosted CI are complete; independent final review
+  and merge authorization are pending; draft PR #10 remains open, draft, and
+  unmerged
 - Last updated: 2026-07-28
 - Authority order:
   1. Issue #9.
@@ -1089,7 +1089,18 @@ The plan may leave implementation status only when:
   scanning, the no-known-vulnerability audit, `pnpm verify`, and
   `pnpm verify:ci` passed. Root schema inputs/digests, dependencies, lifecycle
   policy, and the lockfile are unchanged; publication and corrected hosted CI
-  remain pending.
+  remained pending at that checkpoint.
+- 2026-07-28: Published ordinary non-forced commits
+  `0dcf5a42065b37bcfa68a087814246694dc17686` and
+  `1cced85044dd3ba48d23dcc36f2c42e2c36fa3c4` to the existing topic branch and
+  updated existing draft PR #10. Hosted run `30422055331`, Verification job
+  `90480722184`, passed on the corrected head. Decoded logs confirmed Ubuntu
+  24.04, Node `24.18.0`, pnpm `11.17.0`, the 326-entry frozen supply-chain
+  policy, PR metadata, all 31 files/637 tests, 589 modules/1,896 dependencies
+  with no architecture violations, repository/evaluation/conformance checks,
+  secret scanning, no known vulnerabilities, and final clean-worktree proof.
+  Phase 2 gold remains proposed/not-reviewed and independently unaccepted; no
+  live baseline ran.
 - 2026-07-28: Converted the eight independent-review findings into failing
   regressions before correcting production behavior. The initial
   `review-corrections` run had 15 failures and 9 passes across 24 tests; the
@@ -1502,7 +1513,7 @@ The plan may leave implementation status only when:
 | 2026-07-28 | Correction commits and ordinary branch push                                         | `487577d6063bcc355527e1cfcba412574e5f8717` and `5c4884a41d187d50997900366d256191858b8b04`; existing topic branch pushed normally without force, rebase, amend, squash, or history rewrite                                                         |
 | 2026-07-28 | Hosted CI run 30420056706 / Verification job 90474826793 decoded-log inspection     | Success on corrected head; Ubuntu 24.04, Node 24.18.0, pnpm 11.17.0, 326-entry frozen lockfile policy, 628 tests, 588/1,891 clean architecture, repository/evaluation/conformance checks, secrets/audit, and terminal clean diff all passed       |
 
-The corrected implementation and documentation head has complete hosted
-Verification evidence. The draft PR description remains the terminal
+The authority-immutability implementation and documentation head has complete
+hosted Verification evidence. The draft PR description remains the terminal
 hosted-status record after the final evidence-only plan commit to avoid an
 unbounded self-referential commit chain.
