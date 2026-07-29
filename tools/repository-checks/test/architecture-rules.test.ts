@@ -28,6 +28,8 @@ describe('dependency-cruiser architecture rules', () => {
     ['domain-outward', 'no-domain-outward-dependency'],
     ['contracts-outward', 'no-contracts-outward-dependency'],
     ['contracts-disallowed-package', 'no-contracts-outward-dependency'],
+    ['persistence-disallowed-package', 'no-persistence-outward-dependency'],
+    ['persistence-prohibited-layer', 'no-persistence-to-prohibited-layer'],
     ['product-to-tools', 'no-product-to-tools'],
     ['product-test-to-tools', 'no-product-to-tools'],
     ['product-to-evaluation', 'no-product-to-evaluation'],
@@ -82,6 +84,11 @@ describe('dependency-cruiser architecture rules', () => {
       );
       writeFixturePackage(
         fixturePath,
+        'postgres',
+        'export default function postgres() {}\n',
+      );
+      writeFixturePackage(
+        fixturePath,
         'vitest',
         'export function describe() {}\n',
       );
@@ -120,7 +127,12 @@ function writeFixturePackage(
     join(packagePath, 'package.json'),
     JSON.stringify({
       name: packageName,
-      version: packageName === 'ajv' ? '8.20.0' : '1.3.8',
+      version:
+        packageName === 'ajv'
+          ? '8.20.0'
+          : packageName === 'postgres'
+            ? '3.4.9'
+            : '1.3.8',
       type: 'module',
       module: './build/index.mjs',
       exports: {

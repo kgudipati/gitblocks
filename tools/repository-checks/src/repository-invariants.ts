@@ -17,10 +17,13 @@ const NODE_VERSION_PATTERN =
   /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
 const PACKAGE_MANAGER_PATTERN =
   /^pnpm@[0-9]+\.[0-9]+\.[0-9]+\+sha512\.[0-9a-f]{128}$/;
+const POSTGRES_TEST_IMAGE =
+  'postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296';
 const APPROVED_PACKAGE_MANIFESTS = new Set([
   'package.json',
   'packages/contracts/package.json',
   'packages/domain/package.json',
+  'packages/persistence/package.json',
   'tools/evaluation-harness/package.json',
   'tools/repository-checks/package.json',
 ]);
@@ -49,6 +52,16 @@ const PRODUCT_PACKAGE_POLICIES: ReadonlyMap<string, ProductPackagePolicy> =
         name: '@gitblocks/domain',
       },
     ],
+    [
+      'packages/persistence/package.json',
+      {
+        dependencies: new Map([
+          ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+          ['postgres', '3.4.9'],
+        ]),
+        name: '@gitblocks/persistence',
+      },
+    ],
   ] as const);
 const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
   string,
@@ -59,8 +72,15 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
     new Map([['@gitblocks/domain', EXACT_WORKSPACE_VERSION]]),
   ],
   [
-    'tools/evaluation-harness/package.json',
+    'packages/persistence/package.json',
     new Map([['@gitblocks/contracts', EXACT_WORKSPACE_VERSION]]),
+  ],
+  [
+    'tools/evaluation-harness/package.json',
+    new Map([
+      ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+    ]),
   ],
 ] as const);
 const REQUIRED_PATHS = [
@@ -88,6 +108,7 @@ const REQUIRED_PATHS = [
   'docs/architecture/decisions/0001-agent-native-delivery.md',
   'docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md',
   'docs/architecture/decisions/0003-product-contract-kernel.md',
+  'docs/architecture/decisions/0004-postgresql-evidence-persistence.md',
   'docs/architecture/system-context.md',
   'docs/engineering/definition-of-done.md',
   'docs/engineering/development-standards.md',
@@ -102,6 +123,7 @@ const REQUIRED_PATHS = [
   'docs/plans/0003-typescript-toolchain.md',
   'docs/plans/0005-node-runtime-preflight.md',
   'docs/plans/0009-product-contract-kernel.md',
+  'docs/plans/0011-evidence-persistence.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
@@ -112,6 +134,18 @@ const REQUIRED_PATHS = [
   'packages/domain/README.md',
   'packages/domain/package.json',
   'packages/domain/src/index.ts',
+  'packages/persistence/README.md',
+  'packages/persistence/migrations/0001_evidence_persistence.sql',
+  'packages/persistence/package.json',
+  'packages/persistence/scripts/database-support.ts',
+  'packages/persistence/scripts/db-cli.ts',
+  'packages/persistence/scripts/db-verify.ts',
+  'packages/persistence/scripts/tsconfig.json',
+  'packages/persistence/src/index.ts',
+  'packages/persistence/test/integration/persistence.integration.ts',
+  'packages/persistence/test/tsconfig.json',
+  'packages/persistence/tsconfig.json',
+  'packages/persistence/tsconfig.test.json',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
@@ -124,6 +158,7 @@ const REQUIRED_PATHS = [
   'tools/evaluation-harness/src/cli.ts',
   'tools/evaluation-harness/src/contract-conformance-cli.ts',
   'tools/evaluation-harness/src/index.ts',
+  'tools/evaluation-harness/test/persistence-conformance.persistence-integration.ts',
   'tools/evaluation-harness/test/tsconfig.json',
   'tools/evaluation-harness/tsconfig.json',
   'tools/evaluation-harness/tsconfig.test.json',
@@ -138,6 +173,7 @@ const REQUIRED_PATHS = [
   'tsconfig.base.json',
   'tsconfig.json',
   'vitest.config.ts',
+  'vitest.db.config.ts',
 ] as const;
 
 export interface RepositoryInvariantInput {
@@ -168,7 +204,7 @@ export function validateRepositoryInvariants(
       diagnostics.push(
         diagnostic(
           'repository.prohibited-artifact',
-          'Artifact is outside the approved Phase 3 workspace shape.',
+          'Artifact is outside the approved Phase 4 workspace shape.',
           trackedPath,
         ),
       );
@@ -178,6 +214,7 @@ export function validateRepositoryInvariants(
   diagnostics.push(...validatePackageManifests(repository));
   diagnostics.push(...validateWorkspacePolicy(repository.textFiles));
   diagnostics.push(...validateDependabotPolicy(repository.textFiles));
+  diagnostics.push(...validateCiPolicy(repository.textFiles));
   diagnostics.push(...validateNodePinPolicy(repository.textFiles));
 
   const markdownInspection =
@@ -209,7 +246,7 @@ function validatePackageManifests(
       diagnostics.push(
         diagnostic(
           'repository.prohibited-artifact',
-          'Package manifest is not approved in the Phase 3 workspace.',
+          'Package manifest is not approved in the Phase 4 workspace.',
           manifestPath,
         ),
       );
@@ -401,16 +438,24 @@ function validateRuntimeScripts(
   }
   const requiredWorkspaceScripts = {
     build: 'pnpm build:product && pnpm build:tools',
-    'build:product': 'pnpm --filter @gitblocks/contracts... build',
+    'build:product': 'pnpm --filter @gitblocks/persistence... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'db:check':
+      'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
+    'db:migrate':
+      'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts migrate',
+    'db:test':
+      'pnpm runtime:check && pnpm build && vitest run --config vitest.db.config.ts',
+    'db:verify':
+      'pnpm runtime:check && pnpm build && node packages/persistence/scripts/db-verify.ts',
     lint: 'pnpm build:product && pnpm lint:internal',
     'lint:internal': 'eslint . --max-warnings 0',
     typecheck: 'pnpm build:product && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
   } as const;
   for (const [scriptName, expected] of Object.entries(
     requiredWorkspaceScripts,
@@ -429,7 +474,10 @@ function validateRuntimeScripts(
   ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:core', manifestPath));
   }
-  if (scripts['verify:ci'] !== 'pnpm verify && pnpm security:audit') {
+  if (
+    scripts['verify:ci'] !==
+    'pnpm verify && pnpm db:verify && pnpm security:audit'
+  ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:ci', manifestPath));
   }
   return diagnostics;
@@ -681,6 +729,39 @@ function validateDependabotPolicy(
   return diagnostics;
 }
 
+function validateCiPolicy(
+  textFiles: ReadonlyMap<string, string>,
+): Diagnostic[] {
+  const workflowPath = '.github/workflows/ci.yml';
+  const content = textFiles.get(workflowPath);
+  if (content === undefined) {
+    return [
+      diagnostic(
+        'repository.required-content',
+        'CI workflow was not available for policy validation.',
+        workflowPath,
+      ),
+    ];
+  }
+  const requiredFragments = [
+    `image: ${POSTGRES_TEST_IMAGE}`,
+    'GITBLOCKS_DB_TEST_ACK: ephemeral',
+    'GITBLOCKS_TEST_DB_DATABASE: gitblocks_test',
+    'GITBLOCKS_TEST_DB_OWNER: postgres',
+    'run: pnpm verify:ci',
+  ] as const;
+  if (requiredFragments.every((fragment) => content.includes(fragment))) {
+    return [];
+  }
+  return [
+    diagnostic(
+      'repository.ci-postgresql',
+      'CI must run verify:ci against the exact pinned ephemeral PostgreSQL service.',
+      workflowPath,
+    ),
+  ];
+}
+
 function validateProductCapitalization(
   inspection: MarkdownRepositoryInspection,
 ): Diagnostic[] {
@@ -710,7 +791,8 @@ function isProhibitedArtifact(trackedPath: string): boolean {
     trackedPath.startsWith('apps/') ||
     (trackedPath.startsWith('packages/') &&
       !trackedPath.startsWith('packages/contracts/') &&
-      !trackedPath.startsWith('packages/domain/')) ||
+      !trackedPath.startsWith('packages/domain/') &&
+      !trackedPath.startsWith('packages/persistence/')) ||
     trackedPath.startsWith('src/') ||
     (trackedPath.startsWith('tools/') &&
       trackedPath !== 'tools/runtime-preflight.mjs' &&
@@ -800,7 +882,7 @@ function validateProductRuntimeDependencies(
   return [
     diagnostic(
       'repository.product-dependency',
-      'Product runtime dependencies must match the Phase 3 package allowlist exactly.',
+      'Product runtime dependencies must match the Phase 4 package allowlist exactly.',
       manifestPath,
     ),
   ];

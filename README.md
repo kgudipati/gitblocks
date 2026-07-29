@@ -57,11 +57,14 @@ GitBlocks is in its product and engineering foundation phase. This repository
 now contains an exactly pinned TypeScript workspace, deterministic repository
 verification tooling, a proposed ten-case evaluation pilot for
 repository-conditioned adoption fit over fixed candidate sets, and the first
-production-owned code: a pure domain package and a versioned contract package.
-These packages define and validate product vocabulary; they do not implement a
-use case or service. The repository still has no application scaffold, Agent
-Skill, scanner, MCP server, backend, database, discovery or product ranking
-engine, deployment, or product release. The pilot gold is authored and
+production-owned packages: a pure domain, versioned contracts, and a
+PostgreSQL persistence adapter for durable catalog identities, immutable
+public evidence, append-only lifecycle events, and reproducible public dossier
+snapshots. These packages do not implement a use case or service. Full tenant
+and organization persistence is intentionally deferred. The repository still
+has no application scaffold, Agent Skill, scanner, MCP server, operational
+backend, ingestion, discovery or product ranking engine, deployment,
+production database, or product release. The pilot gold is authored and
 proposed, not independently accepted.
 
 The governing product scope is the
@@ -70,6 +73,8 @@ the [engineering handbook](docs/engineering/repository-workflow.md) and the
 [TypeScript workspace ADR](docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md).
 [ADR 0003](docs/architecture/decisions/0003-product-contract-kernel.md) owns the
 product contract mechanism and package boundaries.
+[ADR 0004](docs/architecture/decisions/0004-postgresql-evidence-persistence.md)
+owns the PostgreSQL public-evidence storage and migration decisions.
 
 ## Repository map
 
@@ -87,6 +92,7 @@ product contract mechanism and package boundaries.
 | `docs/plans/`               | Active and historical version-controlled execution plans                         |
 | `packages/domain/`          | Pure product vocabulary, constructors, canonicalization, and invariants          |
 | `packages/contracts/`       | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
+| `packages/persistence/`     | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
 | `evals/pilot-v1/`           | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
 | `schemas/evaluation/`       | Versioned JSON Schema 2020-12 evaluation contracts                               |
 | `tools/evaluation-harness/` | Private bounded validator, deterministic scorer, CLI, and tests                  |
@@ -133,13 +139,22 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory           |
 | `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                |
 | `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings     |
+| `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB |
+| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes |
+| `pnpm db:test`                        | Run PostgreSQL integration and conformance tests            |
+| `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks     |
 | `pnpm security:secrets`               | Scan tracked development content for secrets                |
 | `pnpm security:audit`                 | Run the online registry dependency audit                    |
 | `pnpm verify`                         | Run one preflight plus authoritative offline verification   |
-| `pnpm verify:ci`                      | Run `verify` plus the online dependency audit               |
+| `pnpm verify:ci`                      | Run `verify`, audit, and real PostgreSQL verification       |
 
 Contract and evaluation commands are offline and do not execute candidate code
 or call a model. Product schemas are deterministic JSON Schema 2020-12 runtime
 exports derived from the same TypeBox definitions as their TypeScript DTO
-types; they are not a second handwritten artifact. There is no development
-service or deployment command because product services remain unimplemented.
+types; they are not a second handwritten artifact. `pnpm db:verify` requires
+Docker when no explicitly acknowledged ephemeral PostgreSQL test database is
+injected; it uses the exact image recorded by ADR 0004, creates no persistent
+volume, and cleans up the container. Ordinary `pnpm verify` remains
+database-independent, while hosted `verify:ci` cannot skip PostgreSQL
+verification. There is no development service or deployment command because
+product services remain unimplemented.

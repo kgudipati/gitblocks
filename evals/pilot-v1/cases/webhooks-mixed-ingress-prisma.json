@@ -65,7 +65,7 @@
     },
     {
       "candidateId": "standard-webhooks",
-      "project": "Standard Webhooks JavaScript",
+      "project": "Standard Webhooks",
       "package": "standardwebhooks",
       "repository": "standard-webhooks/standard-webhooks"
     },
@@ -77,7 +77,7 @@
     },
     {
       "candidateId": "svix",
-      "project": "Svix JavaScript",
+      "project": "Svix",
       "package": "svix",
       "repository": "svix/svix-webhooks"
     }

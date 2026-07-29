@@ -5,9 +5,10 @@
 Every future production execution path must be diagnosable from deployed
 telemetry and durable audit evidence without adding emergency instrumentation
 or reproducing the user's sensitive content. GitBlocks currently has no
-services, workers, deployments, SLOs, or telemetry pipeline; this document sets
-the policy that must be implemented before those paths handle production
-traffic.
+services, workers, deployments, SLOs, or telemetry pipeline. Its persistence
+adapter returns stable value-free errors and emits no logs; a future
+application/composition layer must instrument it before handling production
+traffic. This document sets the policy for those paths.
 
 The first stack and deployment ADRs must select instrumentation libraries,
 export path, sampling, retention, access, redaction, dashboards, and runbook
@@ -123,6 +124,14 @@ Partial evidence, source unavailability, stale evidence, and timeouts are
 visible results. The system must not convert them into a complete successful
 recommendation.
 
+Database callers provide deadlines and cancellation signals. The adapter
+applies bounded statement and lock timeouts inside explicit transactions and
+maps failures to stable error categories without exposing SQL, parameters,
+payloads, connection strings, URLs, driver details, or stack traces. Migration
+commands report only version, name, checksum, and PostgreSQL version.
+Application telemetry may record bounded operation/result categories,
+durations, and counts, but never SQL statements or persisted evidence content.
+
 ## Worker and job observability
 
 Each job type defines a versioned payload, owner, idempotency key, maximum
@@ -145,7 +154,7 @@ Dashboards show accepted, started, completed, failed, retried, saturated, stale,
 and dead-letter work; queue depth/age; concurrency utilization; and provider
 limiting. Alerts target sustained user-impacting symptoms and dead-letter
 growth, not every individual retry. Runbooks describe safe replay, quarantine,
-and forward recovery without bypassing tenant or approval controls.
+and forward recovery without bypassing authorization or approval controls.
 
 ## Health, readiness, and graceful lifecycle
 
@@ -198,7 +207,7 @@ A responder must be able to determine, without a code change:
 
 - which stable operation and version failed;
 - start, duration, dependency path, and final state;
-- validated tenant-safe object references involved;
+- validated authorization-safe object references involved;
 - authorization and approval decision category;
 - evidence/source freshness state;
 - timeout, retry, cancellation, saturation, and queue/dead-letter history;

@@ -1,8 +1,9 @@
 # Contributing to GitBlocks
 
 GitBlocks accepts focused, evidence-backed changes through GitHub Flow. The
-project currently provides repository engineering tooling and a pure product
-domain/contract kernel, but no product service or application implementation.
+project currently provides repository engineering tooling, a pure product
+domain/contract kernel, and a concrete PostgreSQL persistence adapter, but no
+product service or application implementation.
 
 ## Before starting
 
@@ -43,9 +44,13 @@ pnpm verify:ci
 ```
 
 `pnpm verify` is deterministic and requires no credentials or live provider.
-`pnpm verify:ci` adds the registry-backed dependency audit and fails if that
-audit cannot be completed. Never hand-edit `pnpm-lock.yaml` or weaken the
-runtime preflight or workspace supply-chain policy to make installation pass.
+`pnpm verify:ci` adds the registry-backed dependency audit and the real
+PostgreSQL verification graph, and fails if either cannot be completed. Run
+`pnpm db:verify` directly for persistence or migration work; it provisions the
+pinned ephemeral database unless an acknowledged test database is injected.
+Never aim these commands at a production database. Never hand-edit
+`pnpm-lock.yaml` or weaken the runtime preflight or workspace supply-chain
+policy to make installation pass.
 
 ## Issue to merge workflow
 
@@ -119,6 +124,17 @@ issue and architecture authority. Product contract work must also follow
 depend on the pure domain, and neither product package may import evaluation
 records or tooling.
 
+Persistence work must follow
+[ADR 0004](docs/architecture/decisions/0004-postgresql-evidence-persistence.md).
+The adapter depends inward on contracts and domain; future application-owned
+ports must not import the concrete adapter. Migrations are deterministic,
+checksummed, forward-only SQL and are never applied implicitly. PostgreSQL
+integration tests use a non-owner runtime role and prove immutable public
+insertion, evidence-world cutoffs, append-only lifecycle behavior, active
+reference closure, and exact historical snapshot reconstruction. Phase 4 does
+not implement tenant-private storage, expiry, purge, deletion, tombstones, or
+RLS.
+
 Run `pnpm contracts:validate` when changing a product contract, its runtime
 JSON Schema export, or the evaluation-to-product mapping. This conformance
 check proves that all ten pilot cases map without losing decision-relevant
@@ -130,10 +146,12 @@ changes the gold's proposed/not-reviewed status.
 Run every exact command in the plan and record the outcome in the plan and PR.
 At minimum run `pnpm verify`, inspect status and the complete diff, run
 `git diff --check`, verify links and required files, and search for secrets,
-prohibited content, and untracked work. Run `pnpm verify:ci` before publication
-when registry access is available. If a tool is unavailable, record that and
-use the strongest deterministic existing alternative; do not install an
-unpinned validator just to satisfy a checkbox.
+prohibited content, and untracked work. Persistence changes additionally
+require `pnpm db:verify`. Run `pnpm verify:ci` before publication when registry
+and PostgreSQL infrastructure are available. Hosted CI must exercise its
+pinned PostgreSQL service without skipping. If a tool is unavailable, record
+that and use the strongest deterministic existing alternative; do not install
+an unpinned validator just to satisfy a checkbox.
 
 Authors and reviewers apply the
 [definition of done](docs/engineering/definition-of-done.md). Review covers

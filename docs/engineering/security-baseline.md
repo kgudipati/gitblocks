@@ -196,8 +196,29 @@ Use identifiers instead of content in telemetry. Redaction happens before
 logging, tracing, storage, or model calls and is tested against structured and
 free-text fields. Backups, caches, derived indexes, evaluation corpora, and
 outcome-learning data follow the same deletion and retention policy as their
-source. Production collection cannot begin until retention and deletion are
-implemented and a user can understand what leaves the local boundary.
+source. Production collection of sensitive, private, or user-derived content
+cannot begin until retention and deletion are implemented and a user can
+understand what leaves the local boundary. Shared public catalog evidence uses
+the immutable correction/invalidation lifecycle defined by ADR 0004.
+
+## Public evidence persistence boundary
+
+Phase 4 PostgreSQL records are a shared public catalog. The runtime uses one
+non-owner, non-superuser group role with explicit schema/table/sequence
+grants. There is no tenant context, tenant-private row, expiry, purge, tenant
+deletion, tombstone, organization model, or row-level-security policy. Adding
+any private or organization-scoped record requires a named application
+consumer, authorization model, threat model, retention/deletion decision, and
+architecture review.
+
+Database ownership constraints preserve candidate and reference integrity.
+Evidence, limitations, unknowns, lifecycle events, snapshots, and snapshot
+membership are immutable. Lifecycle corrections append rather than overwrite.
+Every applicable evidence timestamp must satisfy the requested evidence-world
+cutoff, and active dossier material excludes a limitation or unknown when its
+supporting evidence is no longer active. Tests exercise operations through a
+non-owner role and verify that the schema contains no private-scope or RLS
+surface.
 
 ## Auditability and security telemetry
 
