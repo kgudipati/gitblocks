@@ -3,9 +3,11 @@
 ## Status and authority
 
 This document defines the approved product boundary for the first private
-alpha. GitBlocks is currently in an engineering-foundation phase with
-repository verification tooling only: none of the product components or
-workflows below is implemented or available yet.
+alpha. GitBlocks remains in an engineering-foundation phase. The repository
+now contains the first private production-owned product code: a pure domain
+package and a versioned contract package for fixed-candidate fit assessment.
+No API, MCP service, scanner, discovery service, model integration, database,
+deployment, or end-to-end adoption workflow is implemented or available yet.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 

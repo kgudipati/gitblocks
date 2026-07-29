@@ -21,6 +21,13 @@ the active issue and execution plan.
 - Follow the [development standards](docs/engineering/development-standards.md).
   Do not duplicate domain, persistence, API, MCP, event, job, evidence,
   fingerprint, or outcome contracts.
+- Preserve the product-kernel direction:
+  `tools/evaluation-harness -> packages/contracts -> packages/domain`.
+  `packages/domain` has no outward workspace dependency; product packages must
+  never import evaluation records, gold, or tool internals.
+- Define external DTO shape once in the contract schema source. Use the
+  TypeBox-derived static type, safe parser, and deterministic JSON Schema export
+  rather than maintaining parallel interfaces or schemas.
 - Keep business rules out of HTTP, MCP, database, queue, GitHub, filesystem,
   model-provider, and framework adapters.
 - Validate all external, persisted, repository-derived, and model-generated
@@ -64,6 +71,10 @@ the active issue and execution plan.
 - For evaluation changes, run `pnpm eval:validate` and `pnpm eval:fixtures`;
   never present weak fixtures or the corpus-authoring session as an independent
   baseline.
+- For product contract or evaluation-mapping changes, run
+  `pnpm contracts:validate`. Product conformance proves representability and
+  mapping completeness; it does not score product quality or accept proposed
+  gold.
 - Run the plan's exact validation commands and record results before completion.
   Update the plan and applicable ADR when implementation discoveries change a
   decision, scope, risk, or validation requirement.

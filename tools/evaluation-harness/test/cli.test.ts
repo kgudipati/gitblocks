@@ -1,6 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { basename, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -9,6 +10,7 @@ import { loadCorpus } from '../src/corpus.ts';
 import { createWeakPredictionSet } from '../src/weak-fixtures.ts';
 
 const REPOSITORY_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const CLI_PATH = fileURLToPath(new URL('../src/cli.ts', import.meta.url));
 const temporaryDirectories: string[] = [];
 
 afterEach(() => {
@@ -137,5 +139,46 @@ describe('evaluation CLI', () => {
     expect(missing.errors).toEqual([
       'json.unreadable: JSON file could not be inspected.',
     ]);
+  });
+
+  it('loads every legacy command without resolving product contracts', () => {
+    const program = `
+      import { registerHooks } from 'node:module';
+      registerHooks({
+        resolve(specifier, context, nextResolve) {
+          if (
+            specifier === '@gitblocks/contracts' ||
+            specifier.startsWith('@gitblocks/contracts/')
+          ) {
+            throw new Error('Legacy CLI resolved product contracts.');
+          }
+          return nextResolve(specifier, context);
+        },
+      });
+      const { EXIT_CODES, runCli } = await import(${JSON.stringify(pathToFileURL(CLI_PATH).href)});
+      const output = { error() {}, log() {} };
+      const results = [
+        runCli(['validate'], ${JSON.stringify(REPOSITORY_ROOT)}, output),
+        runCli(['fixtures'], ${JSON.stringify(REPOSITORY_ROOT)}, output),
+        runCli(['score'], ${JSON.stringify(REPOSITORY_ROOT)}, output),
+      ];
+      if (
+        results[0] !== EXIT_CODES.success ||
+        results[1] !== EXIT_CODES.success ||
+        results[2] !== EXIT_CODES.usage
+      ) {
+        process.exitCode = 1;
+      }
+    `;
+    const result = spawnSync(
+      process.execPath,
+      ['--input-type=module', '--eval', program],
+      {
+        cwd: REPOSITORY_ROOT,
+        encoding: 'utf8',
+      },
+    );
+
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
   });
 });

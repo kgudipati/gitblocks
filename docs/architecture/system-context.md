@@ -2,16 +2,18 @@
 
 ## Status
 
-This document describes the approved direction for future GitBlocks
-components. The repository currently contains no implemented product
-components, runtime, deployment, data store, or network service. Technology
-choices remain open unless a later architecture decision record (ADR) approves
-them.
+This document describes the approved direction for GitBlocks components. The
+repository now contains one implemented, non-operational product component: the
+pure domain and contract kernel. It contains no application use case, adapter,
+runtime service, deployment, data store, or network service. Technology choices
+remain open unless an architecture decision record (ADR) approves them.
 
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
 [ADR 0001](decisions/0001-agent-native-delivery.md) owns the headless,
 agent-native delivery decision.
+[ADR 0003](decisions/0003-product-contract-kernel.md) owns the current product
+package boundaries, contract mechanism, and validation split.
 
 ## Context and ownership
 
@@ -28,7 +30,9 @@ agent runtime and does not receive blanket permission to change a repository.
 
 ## Planned system context
 
-All GitBlocks nodes in this diagram are planned, not implemented.
+All operational GitBlocks nodes in this diagram are planned, not implemented.
+The shared contract kernel is omitted because it is a code dependency, not a
+separately running node.
 
 ```mermaid
 flowchart LR
@@ -73,8 +77,9 @@ flowchart LR
 
 ## Component responsibilities
 
-| Component                                | Planned responsibility                                                                                                   | Must not own                                                                                         |
+| Component                                | Responsibility or approved direction                                                                                     | Must not own                                                                                         |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Product domain and contract kernel       | Define pure domain invariants plus versioned DTO parsing and deterministic JSON Schema exports                           | Transport, storage, provider, evaluation-gold, discovery, ranking-engine, or service behavior        |
 | Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                        | Proprietary ranking or silent expansion of GitBlocks permissions                                     |
 | Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure | Proprietary ranking internals, hidden external writes, or direct production deployment               |
 | Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                            | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking |
@@ -177,10 +182,19 @@ must not enter prompts, telemetry, or the evidence store.
 
 ## Contract direction
 
-The future dependency direction is inward:
+The implemented product-kernel dependency direction is:
 
 ```text
-transports and providers -> application use cases -> domain rules
+tools/evaluation-harness -> packages/contracts -> packages/domain
+```
+
+The harness dependency exists only for corpus conformance. Product packages do
+not import evaluation schemas, corpus records, gold, or tool internals.
+
+The future operational dependency direction remains inward:
+
+```text
+transports and providers -> application use cases -> contracts and domain
 ```
 
 HTTP/MCP, GitHub, database, queue, filesystem, model-provider, and framework
@@ -188,6 +202,13 @@ adapters may depend on owned application contracts. Domain and application
 rules must not depend on those adapters. Versioned request, response, event,
 error, evidence, fingerprint, and outcome contracts each have one authoritative
 definition; transports may encode them but must not recreate competing shapes.
+
+For the six current `1.0.0` contract families, closed TypeBox definitions are
+the single source for DTO types and deterministic JSON Schema 2020-12 runtime
+exports. Structural parsing handles untrusted shape, version, size, and
+diagnostic bounds; pure domain validation handles cross-field references,
+evidence and inference semantics, hard conflicts, responsible outcomes, and
+partial ranking.
 
 ## Failure and operational posture
 
@@ -206,10 +227,9 @@ or sensitive excerpts. Detailed rules are in the
 
 ## Open technology decisions
 
-Later ADRs must select, at minimum, the implementation language and runtime,
-MCP and transport libraries, contract schema mechanism, storage, queue,
-identity and tenant model, deployment topology, model providers, telemetry
-backend, retention implementation, and software-supply-chain controls. A stack
-ADR must also establish formatter, linter, compiler strictness, dependency
-rules, generated-code policy, and validation commands before production code
-lands.
+Later ADRs must select, at minimum, application architecture, MCP and transport
+libraries, storage, queue, identity and tenant model, deployment topology,
+model providers, telemetry backend, and retention implementation. They must
+extend the accepted TypeScript toolchain, software-supply-chain controls,
+dependency rules, generated-code policy, and validation commands before the
+corresponding product layer lands.

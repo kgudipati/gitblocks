@@ -27,6 +27,7 @@ const REQUIRED_PATHS = [
   'dependency-cruiser.config.mjs',
   'docs/architecture/decisions/0001-agent-native-delivery.md',
   'docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md',
+  'docs/architecture/decisions/0003-product-contract-kernel.md',
   'docs/architecture/system-context.md',
   'docs/engineering/definition-of-done.md',
   'docs/engineering/development-standards.md',
@@ -40,10 +41,17 @@ const REQUIRED_PATHS = [
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
   'docs/plans/0005-node-runtime-preflight.md',
+  'docs/plans/0009-product-contract-kernel.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
   'package.json',
+  'packages/contracts/README.md',
+  'packages/contracts/package.json',
+  'packages/contracts/src/index.ts',
+  'packages/domain/README.md',
+  'packages/domain/package.json',
+  'packages/domain/src/index.ts',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
@@ -54,6 +62,7 @@ const REQUIRED_PATHS = [
   'schemas/evaluation/score.schema.json',
   'tools/evaluation-harness/package.json',
   'tools/evaluation-harness/src/cli.ts',
+  'tools/evaluation-harness/src/contract-conformance-cli.ts',
   'tools/evaluation-harness/src/index.ts',
   'tools/evaluation-harness/test/tsconfig.json',
   'tools/evaluation-harness/tsconfig.json',
@@ -80,6 +89,12 @@ const ROOT_MANIFEST = JSON.stringify({
     pnpm: '11.17.0',
   },
   scripts: {
+    build: 'pnpm build:product && pnpm build:tools',
+    'build:product': 'pnpm --filter @gitblocks/contracts... build',
+    'build:tools':
+      'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
+    'contracts:validate':
+      'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
     'eval:fixtures':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures',
     'eval:score':
@@ -95,11 +110,17 @@ const ROOT_MANIFEST = JSON.stringify({
     'repo:pr-title':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts pr-title',
     'runtime:check': 'node tools/runtime-preflight.mjs',
+    lint: 'pnpm build:product && pnpm lint:internal',
+    'lint:internal': 'eslint . --max-warnings 0',
     test: 'pnpm runtime:check && vitest run',
     'test:coverage': 'pnpm runtime:check && vitest run --coverage',
+    typecheck: 'pnpm build:product && pnpm typecheck:internal',
+    'typecheck:internal':
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm security:audit',
-    'verify:core': 'vitest run',
+    'verify:core':
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm typecheck:internal && pnpm build:tools && vitest run',
   },
   devDependencies: {
     typescript: '6.0.3',
@@ -118,7 +139,39 @@ const EVALUATION_MANIFEST = JSON.stringify({
   name: '@gitblocks/evaluation-harness',
   private: true,
   dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
     ajv: '8.20.0',
+  },
+});
+
+const DOMAIN_MANIFEST = JSON.stringify({
+  name: '@gitblocks/domain',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+});
+
+const CONTRACTS_MANIFEST = JSON.stringify({
+  name: '@gitblocks/contracts',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/domain': 'workspace:0.0.0',
+    ajv: '8.20.0',
+    typebox: '1.3.8',
   },
 });
 
@@ -217,6 +270,12 @@ function defaultContent(relativePath: string): string {
   }
   if (relativePath === 'tools/evaluation-harness/package.json') {
     return EVALUATION_MANIFEST;
+  }
+  if (relativePath === 'packages/domain/package.json') {
+    return DOMAIN_MANIFEST;
+  }
+  if (relativePath === 'packages/contracts/package.json') {
+    return CONTRACTS_MANIFEST;
   }
   if (relativePath === 'pnpm-workspace.yaml') {
     return WORKSPACE_POLICY;

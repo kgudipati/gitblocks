@@ -6,6 +6,13 @@ scores only the fixed candidates supplied by each case. It does not discover
 candidates, call a model, use embeddings, compare free-form text, access the
 network, install packages, clone repositories, or execute corpus content.
 
+The harness also owns a separate mapping into the product contract kernel.
+`pnpm contracts:validate` checks that all ten cases, evidence sets, and
+proposed-gold responses are representable without losing decision-relevant
+fields. This is contract conformance only: it does not score product quality,
+change proposed/not-reviewed gold provenance, expose gold to prediction
+workflows, or replace the evaluator and scorer described below.
+
 ## Safety gate
 
 For each proposed-gold hard-constraint conflict, a predicted disposition of
@@ -102,6 +109,7 @@ pnpm eval:validate
 pnpm eval:score --prediction path/to/prediction.json
 pnpm eval:score --prediction path/to/prediction-directory
 pnpm eval:fixtures
+pnpm contracts:validate
 ```
 
 A prediction directory must contain exactly one prediction per corpus case. A

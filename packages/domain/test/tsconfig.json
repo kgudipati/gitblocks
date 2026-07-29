@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.test.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "tsBuildInfoFile": "../../../node_modules/.cache/tsconfig.domain-eslint.test.tsbuildinfo",
+    "types": []
+  },
+  "include": ["../src/**/*.ts", "./**/*.ts"]
+}

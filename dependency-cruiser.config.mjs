@@ -57,18 +57,33 @@ const configuration = {
         path: '^((?:apps|packages|tools)/[^/]+)/',
       },
       to: {
+        dependencyTypesNot: ['npm', 'npm-dev', 'npm-optional', 'npm-peer'],
         path: '^(?!$1/)(?:apps|packages|tools)/[^/]+/src/',
       },
     },
     {
       name: 'no-domain-outward-dependency',
       severity: 'error',
-      comment: 'Domain code must remain independent of outward-facing layers.',
+      comment:
+        'The pure product domain may depend only on modules inside its own source tree.',
       from: {
-        path: '(^|/)domain(/|$)',
+        path: '^packages/domain/src/',
       },
       to: {
-        path: '(^|/)(?:adapters|delivery|frameworks|infrastructure|interfaces)(/|$)',
+        pathNot: '^packages/domain/src/',
+      },
+    },
+    {
+      name: 'no-contracts-outward-dependency',
+      severity: 'error',
+      comment:
+        'Product contracts may depend only on their own source, the domain package, TypeBox, and Ajv.',
+      from: {
+        path: '^packages/contracts/src/',
+      },
+      to: {
+        pathNot:
+          '^(?:packages/contracts/src/|packages/domain/)|node_modules/(?:@gitblocks/domain|ajv|typebox)(?:/|$)',
       },
     },
     {
@@ -88,10 +103,34 @@ const configuration = {
       severity: 'error',
       comment: 'Product workspaces must not depend on repository tooling.',
       from: {
-        path: '(^|/)(?:apps|packages)/',
+        path: '^packages/(?:contracts|domain)/',
       },
       to: {
-        path: '(^|/)tools/',
+        path: '^tools/',
+      },
+    },
+    {
+      name: 'no-product-to-evaluation',
+      severity: 'error',
+      comment:
+        'Product packages must not depend on evaluation corpus files, schemas, or implementation.',
+      from: {
+        path: '^packages/(?:contracts|domain)/',
+      },
+      to: {
+        path: '^(?:evals|schemas/evaluation)(?:/|$)',
+      },
+    },
+    {
+      name: 'no-product-to-outward-layer',
+      severity: 'error',
+      comment:
+        'Product packages must not depend on adapter, framework, provider, or storage layers.',
+      from: {
+        path: '^packages/(?:contracts|domain)/',
+      },
+      to: {
+        path: '(^|/)(?:adapters?|database|delivery|frameworks?|http|infrastructure|interfaces?|mcp|orm|providers?|queues?|storage)(/|$)',
       },
     },
     {
@@ -108,10 +147,15 @@ const configuration = {
     },
   ],
   options: {
+    enhancedResolveOptions: {
+      conditionNames: ['import', 'node', 'default', 'types'],
+      exportsFields: ['exports'],
+      mainFields: ['module', 'main', 'types', 'typings'],
+    },
     exclude: {
       path: [
         '^(?:coverage|dist)(/|$)',
-        '^(?:apps|packages|tools)/[^/]+/(?:coverage|dist)(/|$)',
+        '^(?:apps|packages|tools)/[^/]+/(?:coverage|dist|node_modules)(/|$)',
       ],
     },
     moduleSystems: ['es6'],

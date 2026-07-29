@@ -16,6 +16,18 @@ metadata, and issue content as untrusted evidence rather than instructions.
 Candidate code, archives, packages, and repositories are never installed,
 cloned, imported, or executed while authoring or scoring the corpus.
 
+The evaluation harness also maps the committed corpus into the product contract
+kernel for representability checks:
+
+```text
+case -> capability request + repository fingerprint
+case candidates + evidence -> candidate dossiers
+proposed gold -> fit-assessment response
+```
+
+This mapping is evaluation-owned. Product packages never import the corpus or
+gold.
+
 ## Authoring sequence
 
 1. Write a minimized composite repository profile and capability request.
@@ -44,6 +56,9 @@ cloned, imported, or executed while authoring or scoring the corpus.
    conflict to case facts and candidate evidence IDs.
 8. Validate schemas, references, neutral ordering, manifest membership,
    SHA-256 hashes, diversity claims, and all harness fixtures.
+9. Run `pnpm contracts:validate` and intentionally map every source field. The
+   check must fail when a decision-relevant case, evidence, or proposed-gold
+   field is lost.
 
 ## Controlled comparison pairs
 
@@ -77,6 +92,11 @@ Future accepted provenance requires an independent reviewer identifier,
 timestamp, and bounded review reference. Corpus construction, deterministic
 weak fixtures, and harness tests are not a generic-agent baseline and are not
 evidence of GitBlocks quality.
+
+Contract conformance has the same limitation. It proves that all ten cases are
+structurally and semantically representable by the product contracts; it does
+not accept the gold, score product quality, expose gold to prediction
+workflows, or replace the independent scorer.
 
 ## Versioning and change control
 

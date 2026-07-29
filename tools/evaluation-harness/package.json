@@ -13,13 +13,16 @@
     }
   },
   "bin": {
+    "gitblocks-contract-conformance": "./dist/src/contract-conformance-cli.js",
     "gitblocks-evaluation": "./dist/src/cli.js"
   },
   "scripts": {
     "build": "tsc --build",
+    "contracts:validate": "node dist/src/contract-conformance-cli.js",
     "typecheck": "tsc --project tsconfig.test.json --noEmit"
   },
   "dependencies": {
+    "@gitblocks/contracts": "workspace:0.0.0",
     "ajv": "8.20.0"
   },
   "devDependencies": {

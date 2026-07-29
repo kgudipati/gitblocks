@@ -5,6 +5,11 @@ committed weak fixtures are deterministic harness tests only. This protocol
 defines how a later issue may produce a defensible independent baseline without
 treating the authoring session as an evaluator.
 
+Phase 3 product-contract conformance is also not a baseline. Its mapping of all
+ten cases and proposed gold checks representability and field coverage only;
+the proposed/not-reviewed provenance remains unchanged, and the mapping must
+not be exposed to a prediction producer.
+
 ## Preconditions
 
 - Freeze an immutable corpus version, schemas, manifest hashes, scorer commit,
@@ -35,6 +40,10 @@ treating the authoring session as an evaluator.
 5. Run the deterministic schema/reference validator and scorer once under the
    registered policy. Invalid output is evidence, not a reason for an
    unregistered favorable retry.
+
+The product contract parser may validate a prediction only when a future
+registered protocol explicitly adopts that wire contract. Product conformance
+must not replace the independent evaluation validator or scorer.
 
 ## Reporting and review
 

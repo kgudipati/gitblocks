@@ -4,10 +4,11 @@
 
 Tests provide evidence about observable behavior and known risks; they do not
 prove correctness. ADR 0002 selects Vitest with V8 coverage for the current
-TypeScript repository and evaluation tooling, and `pnpm test` plus
-`pnpm test:coverage` are enforced by the authoritative verification graph. The
-repository still has no product code; each future product phase must extend
-this strategy for its actual contracts and boundaries before that code lands.
+TypeScript repository, product kernel, and evaluation tooling, and `pnpm test`
+plus `pnpm test:coverage` are enforced by the authoritative verification
+graph. The repository's only production-owned code is the pure domain and
+contract kernel; each future product phase must extend this strategy for its
+actual services and boundaries before that code lands.
 
 Every implementation phase must list its test matrix and exact commands in its
 execution plan before implementation. A reviewer blocks a change whose tests
@@ -43,6 +44,13 @@ do not match its behavior, contracts, boundaries, or security risk.
 | Integration | Database, queue, GitHub, MCP, storage, filesystem, model-provider, identity, telemetry exporter, and package/security-source adapters | Real service or faithful supported emulator/container where feasible; verifies authentication, serialization, timeouts, pagination, retries, idempotency, and provider error mapping |
 | End to end  | A small set of critical user journeys across supported components                                                                     | Only journeys whose cross-component risk is not covered below; asserts user-visible result and important audit/telemetry behavior                                                    |
 
+For the current kernel, domain tests cover pure constructors,
+canonicalization, reference integrity, hard-constraint and responsible-outcome
+rules, and partial-order ranking. Contract tests cover all six `1.0.0`
+families, closed shapes, version rejection, non-coercion, non-mutation,
+bounded/redacted diagnostics, domain mapping, and deterministic schema
+exports.
+
 Important external boundaries are not considered verified by mocks alone. For
 example, a mocked GitHub client can exercise application decisions, but a
 realistic integration suite must verify the actual supported request,
@@ -55,6 +63,7 @@ not run for untrusted pull requests with secrets.
 
 | Responsibility               | Minimum evidence                                                                                                                                                              |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product contract kernel      | Pure domain-invariant tests; valid and exploit-oriented parser cases; schema closure and deterministic-export checks; package dependency-boundary enforcement                 |
 | Deterministic local scanner  | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                            |
 | Skill procedure              | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                       |
 | MCP surface                  | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics                 |
@@ -141,6 +150,10 @@ model or generic-agent baseline must follow the
 [independent baseline protocol](../evaluation/baseline-protocol.md).
 
 - Separate deterministic contract/security tests from quality evaluations.
+- `pnpm contracts:validate` checks intentional mapping of all ten cases into
+  product requests, fingerprints, dossiers, and response representability. It
+  is a conformance check, not a quality score, independent baseline, prediction
+  workflow, or gold review.
 - Pin the model/configuration for a recorded evaluation baseline; record model,
   prompt/procedure version, corpus version, parameters, and evaluation date.
 - Use representative and adversarial examples, including indirect prompt

@@ -26,6 +26,7 @@ const REQUIRED_PATHS = [
   'dependency-cruiser.config.mjs',
   'docs/architecture/decisions/0001-agent-native-delivery.md',
   'docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md',
+  'docs/architecture/decisions/0003-product-contract-kernel.md',
   'docs/architecture/system-context.md',
   'docs/engineering/definition-of-done.md',
   'docs/engineering/development-standards.md',
@@ -39,10 +40,17 @@ const REQUIRED_PATHS = [
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
   'docs/plans/0005-node-runtime-preflight.md',
+  'docs/plans/0009-product-contract-kernel.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
   'package.json',
+  'packages/contracts/README.md',
+  'packages/contracts/package.json',
+  'packages/contracts/src/index.ts',
+  'packages/domain/README.md',
+  'packages/domain/package.json',
+  'packages/domain/src/index.ts',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
@@ -53,6 +61,7 @@ const REQUIRED_PATHS = [
   'schemas/evaluation/score.schema.json',
   'tools/evaluation-harness/package.json',
   'tools/evaluation-harness/src/cli.ts',
+  'tools/evaluation-harness/src/contract-conformance-cli.ts',
   'tools/evaluation-harness/src/index.ts',
   'tools/evaluation-harness/test/tsconfig.json',
   'tools/evaluation-harness/tsconfig.json',
@@ -79,6 +88,12 @@ const ROOT_MANIFEST = JSON.stringify({
     pnpm: '11.17.0',
   },
   scripts: {
+    build: 'pnpm build:product && pnpm build:tools',
+    'build:product': 'pnpm --filter @gitblocks/contracts... build',
+    'build:tools':
+      'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
+    'contracts:validate':
+      'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
     'eval:fixtures':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures',
     'eval:score':
@@ -94,11 +109,17 @@ const ROOT_MANIFEST = JSON.stringify({
     'repo:pr-title':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts pr-title',
     'runtime:check': 'node tools/runtime-preflight.mjs',
+    lint: 'pnpm build:product && pnpm lint:internal',
+    'lint:internal': 'eslint . --max-warnings 0',
     test: 'pnpm runtime:check && vitest run',
     'test:coverage': 'pnpm runtime:check && vitest run --coverage',
+    typecheck: 'pnpm build:product && pnpm typecheck:internal',
+    'typecheck:internal':
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm security:audit',
-    'verify:core': 'vitest run',
+    'verify:core':
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm typecheck:internal && pnpm build:tools && vitest run',
   },
   devDependencies: {
     typescript: '6.0.3',
@@ -117,7 +138,39 @@ const EVALUATION_MANIFEST = JSON.stringify({
   name: '@gitblocks/evaluation-harness',
   private: true,
   dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
     ajv: '8.20.0',
+  },
+});
+
+const DOMAIN_MANIFEST = JSON.stringify({
+  name: '@gitblocks/domain',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+});
+
+const CONTRACTS_MANIFEST = JSON.stringify({
+  name: '@gitblocks/contracts',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/domain': 'workspace:0.0.0',
+    ajv: '8.20.0',
+    typebox: '1.3.8',
   },
 });
 
@@ -167,6 +220,8 @@ function validRepository() {
     ['.node-version', '24.18.0\n'],
     ['.nvmrc', '24.18.0\n'],
     ['package.json', ROOT_MANIFEST],
+    ['packages/contracts/package.json', CONTRACTS_MANIFEST],
+    ['packages/domain/package.json', DOMAIN_MANIFEST],
     ['tools/evaluation-harness/package.json', EVALUATION_MANIFEST],
     ['tools/repository-checks/package.json', TOOL_MANIFEST],
     ['pnpm-workspace.yaml', WORKSPACE_POLICY],
@@ -175,7 +230,7 @@ function validRepository() {
 }
 
 describe('validateRepositoryInvariants', () => {
-  it('accepts the explicit Phase 1 repository shape', () => {
+  it('accepts the explicit Phase 3 repository shape', () => {
     expect(validateRepositoryInvariants(validRepository())).toEqual([]);
   });
 
@@ -186,7 +241,15 @@ describe('validateRepositoryInvariants', () => {
     ['engineering policy', 'docs/engineering/security-baseline.md'],
     [
       'architecture decision',
-      'docs/architecture/decisions/0001-agent-native-delivery.md',
+      'docs/architecture/decisions/0003-product-contract-kernel.md',
+    ],
+    ['active execution plan', 'docs/plans/0009-product-contract-kernel.md'],
+    ['product package manifest', 'packages/domain/package.json'],
+    ['product package README', 'packages/contracts/README.md'],
+    ['product package entry point', 'packages/contracts/src/index.ts'],
+    [
+      'contract conformance entry point',
+      'tools/evaluation-harness/src/contract-conformance-cli.ts',
     ],
     ['active toolchain configuration', 'eslint.config.mjs'],
   ])('reports a missing %s', (_category, requiredPath) => {
@@ -222,10 +285,11 @@ describe('validateRepositoryInvariants', () => {
 
   it.each([
     'apps/api/package.json',
-    'packages/domain/package.json',
+    'packages/application/package.json',
+    'packages/domain-adapter/src/index.ts',
     'tools/unapproved/package.json',
     'src/server.ts',
-  ])('rejects prohibited Phase 1 artifact %s', (artifact) => {
+  ])('rejects prohibited Phase 3 artifact %s', (artifact) => {
     const repository = validRepository();
     repository.trackedPaths.add(artifact);
 
@@ -248,6 +312,96 @@ describe('validateRepositoryInvariants', () => {
         (diagnostic) => diagnostic.code,
       ),
     ).toContain('repository.dependency-version');
+  });
+
+  it('requires the domain package to have zero runtime dependencies', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'packages/domain/package.json',
+      DOMAIN_MANIFEST.replace(
+        '"exports":',
+        '"dependencies":{"left-pad":"1.3.0"},"exports":',
+      ),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.product-dependency',
+          path: 'packages/domain/package.json',
+        }),
+      ]),
+    );
+  });
+
+  it('requires the contracts runtime dependency allowlist exactly', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'packages/contracts/package.json',
+      CONTRACTS_MANIFEST.replace('"typebox":"1.3.8"', '"zod":"4.4.3"'),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.product-dependency',
+          path: 'packages/contracts/package.json',
+        }),
+      ]),
+    );
+  });
+
+  it.each([
+    [
+      'packages/contracts/package.json',
+      CONTRACTS_MANIFEST.replace('workspace:0.0.0', '0.0.0'),
+    ],
+    [
+      'tools/evaluation-harness/package.json',
+      EVALUATION_MANIFEST.replace('workspace:0.0.0', 'workspace:*'),
+    ],
+    [
+      'tools/repository-checks/package.json',
+      TOOL_MANIFEST.replace(
+        '"dependencies":{',
+        '"dependencies":{"@gitblocks/domain":"workspace:0.0.0",',
+      ),
+    ],
+  ])(
+    'rejects a non-allowlisted workspace dependency in %s',
+    (manifestPath, manifest) => {
+      const repository = validRepository();
+      repository.textFiles.set(manifestPath, manifest);
+
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'repository.dependency-version',
+            path: manifestPath,
+          }),
+        ]),
+      );
+    },
+  );
+
+  it('requires product packages to expose only their root entry point', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'packages/contracts/package.json',
+      CONTRACTS_MANIFEST.replace(
+        '"exports":{',
+        '"exports":{"./internal":"./dist/src/internal.js",',
+      ),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.product-exports',
+          path: 'packages/contracts/package.json',
+        }),
+      ]),
+    );
   });
 
   it('requires .node-version and .nvmrc to agree', () => {
@@ -283,6 +437,23 @@ describe('validateRepositoryInvariants', () => {
     repository.textFiles.set(
       'package.json',
       ROOT_MANIFEST.replace('pnpm runtime:check && vitest run', 'vitest run'),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'repository.runtime-script' }),
+      ]),
+    );
+  });
+
+  it('requires one product build before typed lint and internal typecheck', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'package.json',
+      ROOT_MANIFEST.replace(
+        'pnpm build:product && pnpm lint:internal && pnpm typecheck:internal',
+        'pnpm lint:internal && pnpm build:product && pnpm typecheck:internal',
+      ),
     );
 
     expect(validateRepositoryInvariants(repository)).toEqual(

@@ -12,15 +12,57 @@ import { diagnostic, type Diagnostic } from './types.ts';
 
 const MAX_CONFIGURATION_BYTES = 256 * 1024;
 const EXACT_VERSION_PATTERN = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+const EXACT_WORKSPACE_VERSION = 'workspace:0.0.0';
 const NODE_VERSION_PATTERN =
   /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$/;
 const PACKAGE_MANAGER_PATTERN =
   /^pnpm@[0-9]+\.[0-9]+\.[0-9]+\+sha512\.[0-9a-f]{128}$/;
 const APPROVED_PACKAGE_MANIFESTS = new Set([
   'package.json',
+  'packages/contracts/package.json',
+  'packages/domain/package.json',
   'tools/evaluation-harness/package.json',
   'tools/repository-checks/package.json',
 ]);
+interface ProductPackagePolicy {
+  readonly dependencies: ReadonlyMap<string, string>;
+  readonly name: string;
+}
+
+const PRODUCT_PACKAGE_POLICIES: ReadonlyMap<string, ProductPackagePolicy> =
+  new Map([
+    [
+      'packages/contracts/package.json',
+      {
+        dependencies: new Map([
+          ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
+          ['ajv', '8.20.0'],
+          ['typebox', '1.3.8'],
+        ]),
+        name: '@gitblocks/contracts',
+      },
+    ],
+    [
+      'packages/domain/package.json',
+      {
+        dependencies: new Map<string, string>(),
+        name: '@gitblocks/domain',
+      },
+    ],
+  ] as const);
+const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
+  string,
+  ReadonlyMap<string, string>
+> = new Map([
+  [
+    'packages/contracts/package.json',
+    new Map([['@gitblocks/domain', EXACT_WORKSPACE_VERSION]]),
+  ],
+  [
+    'tools/evaluation-harness/package.json',
+    new Map([['@gitblocks/contracts', EXACT_WORKSPACE_VERSION]]),
+  ],
+] as const);
 const REQUIRED_PATHS = [
   '.editorconfig',
   '.gitattributes',
@@ -45,6 +87,7 @@ const REQUIRED_PATHS = [
   'dependency-cruiser.config.mjs',
   'docs/architecture/decisions/0001-agent-native-delivery.md',
   'docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md',
+  'docs/architecture/decisions/0003-product-contract-kernel.md',
   'docs/architecture/system-context.md',
   'docs/engineering/definition-of-done.md',
   'docs/engineering/development-standards.md',
@@ -58,10 +101,17 @@ const REQUIRED_PATHS = [
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
   'docs/plans/0005-node-runtime-preflight.md',
+  'docs/plans/0009-product-contract-kernel.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
   'package.json',
+  'packages/contracts/README.md',
+  'packages/contracts/package.json',
+  'packages/contracts/src/index.ts',
+  'packages/domain/README.md',
+  'packages/domain/package.json',
+  'packages/domain/src/index.ts',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
@@ -72,6 +122,7 @@ const REQUIRED_PATHS = [
   'schemas/evaluation/score.schema.json',
   'tools/evaluation-harness/package.json',
   'tools/evaluation-harness/src/cli.ts',
+  'tools/evaluation-harness/src/contract-conformance-cli.ts',
   'tools/evaluation-harness/src/index.ts',
   'tools/evaluation-harness/test/tsconfig.json',
   'tools/evaluation-harness/tsconfig.json',
@@ -117,7 +168,7 @@ export function validateRepositoryInvariants(
       diagnostics.push(
         diagnostic(
           'repository.prohibited-artifact',
-          'Artifact is outside the approved Phase 1 workspace shape.',
+          'Artifact is outside the approved Phase 3 workspace shape.',
           trackedPath,
         ),
       );
@@ -158,7 +209,7 @@ function validatePackageManifests(
       diagnostics.push(
         diagnostic(
           'repository.prohibited-artifact',
-          'Package manifest is not approved in the Phase 1 workspace.',
+          'Package manifest is not approved in the Phase 3 workspace.',
           manifestPath,
         ),
       );
@@ -215,11 +266,13 @@ function validatePackageManifests(
       diagnostics.push(
         diagnostic(
           'repository.package-private',
-          'Every Phase 1 package must be private and non-publishable.',
+          'Every workspace package must be private and non-publishable.',
           manifestPath,
         ),
       );
     }
+
+    diagnostics.push(...validateProductPackage(manifest, manifestPath));
 
     if (manifestPath === 'package.json') {
       if (
@@ -255,6 +308,7 @@ function validatePackageManifests(
       'dependencies',
       'devDependencies',
       'optionalDependencies',
+      'peerDependencies',
     ]) {
       const dependencies = manifest[dependencyField];
       if (dependencies === undefined) {
@@ -273,18 +327,27 @@ function validatePackageManifests(
       for (const [dependencyName, version] of Object.entries(dependencies)) {
         if (
           typeof version !== 'string' ||
-          !EXACT_VERSION_PATTERN.test(version)
+          !isApprovedDependencyVersion(
+            manifestPath,
+            dependencyField,
+            dependencyName,
+            version,
+          )
         ) {
           diagnostics.push(
             diagnostic(
               'repository.dependency-version',
-              `${dependencyName} in ${dependencyField} must use an exact stable version.`,
+              `${dependencyName} in ${dependencyField} must use an exact stable version or its allowlisted exact workspace specifier.`,
               manifestPath,
             ),
           );
         }
       }
     }
+
+    diagnostics.push(
+      ...validateProductRuntimeDependencies(manifest, manifestPath),
+    );
   }
 
   return diagnostics;
@@ -310,6 +373,7 @@ function validateRuntimeScripts(
     diagnostics.push(runtimeScriptDiagnostic('runtime:check', manifestPath));
   }
   for (const scriptName of [
+    'contracts:validate',
     'eval:fixtures',
     'eval:score',
     'eval:validate',
@@ -332,6 +396,36 @@ function validateRuntimeScripts(
   if (
     typeof scripts['verify:core'] !== 'string' ||
     scripts['verify:core'].includes('runtime:check')
+  ) {
+    diagnostics.push(runtimeScriptDiagnostic('verify:core', manifestPath));
+  }
+  const requiredWorkspaceScripts = {
+    build: 'pnpm build:product && pnpm build:tools',
+    'build:product': 'pnpm --filter @gitblocks/contracts... build',
+    'build:tools':
+      'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
+    'contracts:validate':
+      'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    lint: 'pnpm build:product && pnpm lint:internal',
+    'lint:internal': 'eslint . --max-warnings 0',
+    typecheck: 'pnpm build:product && pnpm typecheck:internal',
+    'typecheck:internal':
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+  } as const;
+  for (const [scriptName, expected] of Object.entries(
+    requiredWorkspaceScripts,
+  )) {
+    if (scripts[scriptName] !== expected) {
+      diagnostics.push(runtimeScriptDiagnostic(scriptName, manifestPath));
+    }
+  }
+  const verifyCore = scripts['verify:core'];
+  if (
+    typeof verifyCore !== 'string' ||
+    (verifyCore.match(/pnpm build:product/gu)?.length ?? 0) !== 1 ||
+    !verifyCore.includes(
+      'pnpm build:product && pnpm lint:internal && pnpm typecheck:internal && pnpm build:tools',
+    )
   ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:core', manifestPath));
   }
@@ -614,12 +708,117 @@ function validateProductCapitalization(
 function isProhibitedArtifact(trackedPath: string): boolean {
   return (
     trackedPath.startsWith('apps/') ||
-    trackedPath.startsWith('packages/') ||
+    (trackedPath.startsWith('packages/') &&
+      !trackedPath.startsWith('packages/contracts/') &&
+      !trackedPath.startsWith('packages/domain/')) ||
     trackedPath.startsWith('src/') ||
     (trackedPath.startsWith('tools/') &&
       trackedPath !== 'tools/runtime-preflight.mjs' &&
       !trackedPath.startsWith('tools/evaluation-harness/') &&
       !trackedPath.startsWith('tools/repository-checks/'))
+  );
+}
+
+function validateProductPackage(
+  manifest: Readonly<Record<string, unknown>>,
+  manifestPath: string,
+): Diagnostic[] {
+  const policy = PRODUCT_PACKAGE_POLICIES.get(manifestPath);
+  if (policy === undefined) {
+    return [];
+  }
+
+  const diagnostics: Diagnostic[] = [];
+  if (
+    manifest['name'] !== policy.name ||
+    manifest['version'] !== '0.0.0' ||
+    manifest['type'] !== 'module'
+  ) {
+    diagnostics.push(
+      diagnostic(
+        'repository.product-package',
+        'Product packages must preserve their approved name, private workspace version, and ESM module type.',
+        manifestPath,
+      ),
+    );
+  }
+
+  const exports = manifest['exports'];
+  if (
+    !isRecord(exports) ||
+    Object.keys(exports).length !== 1 ||
+    !isRecord(exports['.']) ||
+    Object.keys(exports['.']).length !== 2 ||
+    exports['.']['types'] !== './dist/src/index.d.ts' ||
+    exports['.']['import'] !== './dist/src/index.js'
+  ) {
+    diagnostics.push(
+      diagnostic(
+        'repository.product-exports',
+        'Product packages must expose only the public root entry point.',
+        manifestPath,
+      ),
+    );
+  }
+
+  return diagnostics;
+}
+
+function validateProductRuntimeDependencies(
+  manifest: Readonly<Record<string, unknown>>,
+  manifestPath: string,
+): Diagnostic[] {
+  const policy = PRODUCT_PACKAGE_POLICIES.get(manifestPath);
+  if (policy === undefined) {
+    return [];
+  }
+
+  const dependencies = manifest['dependencies'];
+  const actualDependencies = isRecord(dependencies)
+    ? new Map(Object.entries(dependencies))
+    : new Map<string, unknown>();
+  const hasExpectedDependencies =
+    actualDependencies.size === policy.dependencies.size &&
+    [...policy.dependencies].every(
+      ([dependencyName, expectedVersion]) =>
+        actualDependencies.get(dependencyName) === expectedVersion,
+    );
+  const hasNoAlternateRuntimeDependencies = [
+    'optionalDependencies',
+    'peerDependencies',
+  ].every((field) => {
+    const value = manifest[field];
+    return (
+      value === undefined ||
+      (isRecord(value) && Object.keys(value).length === 0)
+    );
+  });
+
+  if (hasExpectedDependencies && hasNoAlternateRuntimeDependencies) {
+    return [];
+  }
+  return [
+    diagnostic(
+      'repository.product-dependency',
+      'Product runtime dependencies must match the Phase 3 package allowlist exactly.',
+      manifestPath,
+    ),
+  ];
+}
+
+function isApprovedDependencyVersion(
+  manifestPath: string,
+  dependencyField: string,
+  dependencyName: string,
+  version: string,
+): boolean {
+  if (!dependencyName.startsWith('@gitblocks/')) {
+    return EXACT_VERSION_PATTERN.test(version);
+  }
+  return (
+    dependencyField === 'dependencies' &&
+    APPROVED_WORKSPACE_DEPENDENCIES.get(manifestPath)?.get(dependencyName) ===
+      version
   );
 }
 
