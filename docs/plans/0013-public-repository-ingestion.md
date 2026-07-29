@@ -8,9 +8,8 @@
 - Planned draft PR title: `feat: ingest curated public repository catalog`
 - Owner: GitBlocks maintainers
 - State:
-  `independent-review corrections and full local deterministic validation
-complete; correction commits, hosted CI, and both reviewed live runs remain
-incomplete`
+  `independent-review corrections are committed, normally pushed, and locally
+and host-validated; both reviewed live runs remain incomplete`
 - Last updated: 2026-07-29
 - Authority order: Issue #13; actual repository and Git history; product
   contract; accepted ADRs and system context; `AGENTS.md`, `PLANS.md`, and the
@@ -900,6 +899,15 @@ new issue.
   A pinned no-volume local PostgreSQL 18.4 container is now an available
   approved database path, but no provider request or live receipt can be
   produced without existing GitHub authentication.
+- 2026-07-29: Created ordinary follow-up commits `58d3312` (implementation,
+  catalog, and tests) and `59a681d` (documentation), then pushed the existing
+  branch by normal fast-forward without rewriting shared history.
+- 2026-07-29: Hosted CI run `30471964637`, Verification job `90644174655`,
+  succeeded on `59a681d`. All steps passed, including frozen installation,
+  reproducibility, PR metadata, authoritative verification, PostgreSQL 18.4,
+  the registry audit, and the clean-worktree proof. All 1,543 decoded log lines
+  were reviewed; warning/error-looking PostgreSQL lines were the deliberate
+  negative integration cases, not failed steps or annotations.
 
 ## Decision and deviation log
 
@@ -967,9 +975,10 @@ new issue.
 | 2026-07-29 | Corrected PostgreSQL matrix            | Individual migrate/check/test commands passed on one no-volume PostgreSQL 18.4 container; 1 migration, 13 tables, 0 RLS, 23 tests; independent `db:verify` passed without skips         |
 | 2026-07-29 | Corrected local `verify` / `verify:ci` | Full deterministic verification and registry-backed moderate audit passed; 625 modules / 1,988 dependencies, no architecture violations, no known vulnerabilities                       |
 | 2026-07-29 | Corrected live configuration gate      | GitHub CLI and all eligible token variables absent; local pinned ephemeral PostgreSQL is available; no provider request made and no receipt claimed                                     |
+| 2026-07-29 | Corrected hosted Verification          | Run `30471964637`, job `90644174655`: success on `59a681d`; 695 offline and 23 PostgreSQL tests, exact catalog digest, audit, and clean-worktree proof; 1,543 log lines reviewed        |
 
-Draft publication and hosted evidence are complete only through `9231e96`.
-The independent-review correction still requires ordinary commits, a normal
-push, and final hosted CI inspection. Both live-run receipts remain blocked on
-existing GitHub authentication; the approved local ephemeral database path is
-available.
+The independent-review implementation and documentation are published on the
+existing draft branch with successful deterministic hosted evidence. The
+evidence-recording commit still requires its final hosted confirmation. Both
+live-run receipts remain blocked on existing GitHub authentication; the
+approved local ephemeral database path is available.
