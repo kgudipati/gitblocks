@@ -1,0 +1,335 @@
+{
+  "artifactManifestVersion": "public-artifacts-v1",
+  "candidates": [
+    {
+      "candidateId": "audit-fluent-bit",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Fluent Bit's repository security policy records its official vulnerability-reporting and disclosure boundary."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-grafana-loki",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.md",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "Loki's contribution guide adds repository-specific development and validation expectations beyond its root overview."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-openobserve",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "OpenObserve's security policy supplies the project's official vulnerability-reporting instructions and scope."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-pino",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Pino's security policy records the logging project's supported security-reporting process and expectations."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-vector",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Vector's security policy provides official reporting and disclosure guidance for the observability data pipeline."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-winston",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Winston's security policy adds the project's maintained vulnerability-reporting boundary to its logging overview."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-authzed-spicedb",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "SpiceDB's security policy records the authorization database's official vulnerability-reporting process."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-casdoor-casdoor",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Casdoor's security policy provides its maintained reporting channel and disclosure expectations for security issues."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-cerbos-cerbos",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.md",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "Cerbos's contribution guide adds repository-specific build, test, and change guidance beyond the root README."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-open-policy-agent",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "OPA's security policy records the policy engine's official vulnerability-reporting and disclosure boundary."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-openfga",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.md",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "OpenFGA's contribution guide provides repository-specific development and verification instructions for the authorization server."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-permify",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Permify's security policy adds the project's official vulnerability-reporting process to its authorization documentation."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-airflow",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.rst",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "Airflow's contribution guide records repository-specific development, testing, and change-management expectations."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-asynq",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.md",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "Asynq's contribution guide adds maintained development and verification practices beyond the queue's root overview."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-bullmq",
+      "selections": [
+        {
+          "path": "CHANGELOG.md",
+          "artifactKind": "changelog",
+          "requirement": "required",
+          "rationale": "BullMQ's changelog provides maintained release-transition context for the Redis-backed job queue."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-celery",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Celery's security policy records the task queue's supported vulnerability-reporting and disclosure process."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-dagster",
+      "selections": [
+        {
+          "path": "CHANGES.md",
+          "artifactKind": "changelog",
+          "requirement": "required",
+          "rationale": "Dagster's maintained changes document adds release and compatibility context beyond the orchestration overview."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-temporal-typescript",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.md",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "Temporal's TypeScript SDK contribution guide records repository-specific development and validation expectations."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-apisix",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Apache APISIX's security policy provides official reporting and disclosure guidance for gateway vulnerabilities."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-envoy",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Envoy's security policy records the proxy project's official vulnerability-handling and reporting boundary."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-gravitee",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Gravitee API Management's security policy adds its maintained reporting process for gateway security issues."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-kong",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Kong's security policy supplies the gateway project's official vulnerability-reporting and disclosure expectations."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-traefik",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Traefik's security policy records the proxy's supported vulnerability-reporting process and security scope."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-tyk",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.md",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "Tyk's contribution guide adds repository-specific development and verification practices for the API gateway."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-convoy",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.md",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "Convoy's contribution guide records repository-specific development and testing expectations for webhook delivery."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-octokit-webhooks",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Octokit's webhooks security policy provides its official vulnerability-reporting and disclosure guidance."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-standard-webhooks",
+      "selections": [
+        {
+          "path": "CONTRIBUTING.md",
+          "artifactKind": "contributing",
+          "requirement": "required",
+          "rationale": "Standard Webhooks' contribution guide adds maintained development and verification context for the specification."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-svix",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Svix's security policy records the webhook service's official vulnerability-reporting and disclosure process."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-webhook-site",
+      "selections": [
+        {
+          "path": "SECURITY.md",
+          "artifactKind": "security-policy",
+          "requirement": "required",
+          "rationale": "Webhook.site's security policy adds its maintained vulnerability-reporting boundary to the service overview."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-webhookx",
+      "selections": [
+        {
+          "path": "CHANGELOG.md",
+          "artifactKind": "changelog",
+          "requirement": "required",
+          "rationale": "WebhookX's changelog provides maintained release-transition context for the webhook gateway implementation."
+        }
+      ]
+    }
+  ]
+}

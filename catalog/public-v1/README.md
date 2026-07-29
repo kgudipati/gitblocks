@@ -104,3 +104,26 @@ bad alias, package mapping, moved location, provider incompatibility, or other
 current-source correction. Such a finding must be corrected in
 `candidates.json`, deterministically revalidated, and reviewed from a clean
 ephemeral database; receipt values are never edited.
+
+## Proposed Phase 6 artifact selections
+
+`artifact-selections.json` is the review-focused curator source for additional
+official documents. `artifact-manifest.json` is the closed, deterministically
+generated `public-artifacts-v1` authority. It binds to the exact catalog
+version and digest, adds one optional provider-discovered root README attempt
+for every candidate, and contains the proposed explicit paths.
+
+The current proposal contains 30 additional-path candidates: exactly 6 from
+each primary capability family. Its 180 total selections comprise 150 optional
+root READMEs and 30 required proposed paths. Artifact-kind counts are 150
+`readme`, 18 `security-policy`, 9 `contributing`, and 3 `changelog`.
+
+The additional paths and rationales are pending maintainer review in draft PR
+#16. They were checked through bounded path metadata only; no candidate body is
+committed. Do not run the full artifact operation before the review gate is
+explicitly cleared.
+
+Run `pnpm artifacts:validate` after either artifact file changes. The command
+regenerates the authority in memory, validates catalog binding, selection IDs,
+root coverage, safe paths, ordering, family coverage, and the manifest digest,
+then compares it with the committed manifest.

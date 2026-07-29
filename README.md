@@ -154,6 +154,7 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm db:test`                        | Run PostgreSQL integration and conformance tests              |
 | `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks       |
 | `pnpm catalog:validate`               | Validate catalog bounds, balance, identity, paths, and digest |
+| `pnpm artifacts:validate`             | Validate public artifact selections, coverage, and digest     |
 | `pnpm ingestion:test`                 | Run deterministic ingestion adapter and profile tests         |
 | `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                |
 | `pnpm security:secrets`               | Scan tracked development content for secrets                  |

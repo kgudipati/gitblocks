@@ -14,6 +14,14 @@ manifest. Every entry supplies stable GitHub identity, stable `introducedAt`,
 candidate-specific rationale and selection sources, source declarations,
 status, capability families, and its own file allowlist.
 
+Phase 6 adds a separate `public-artifacts-v1` selection authority without
+changing Phase 5 file allowlists. `artifact-selections.json` contains the
+review-focused proposed additional paths and rationales;
+`artifact-manifest.json` binds them to the exact catalog and adds one optional
+root README attempt per candidate. `artifact-manifest-cli.ts` validates the
+closed shapes, deterministic selection IDs, safe paths, coverage, ordering, and
+digest. It imports no evaluation records or gold.
+
 Repository identity and head are universal. `expectedSourceTypes` controls
 optional release, tag, exact-commit license, community, allowlisted-file, npm,
 and reviewed-advisory requests. The maximum logical budget remains 12 requests
@@ -46,3 +54,7 @@ See [ADR 0005](../../docs/architecture/decisions/0005-public-repository-ingestio
 and the
 [Phase 5 execution plan](../../docs/plans/0013-public-repository-ingestion.md)
 for source policy, bounds, refresh semantics, and operator procedures.
+Artifact selection and collection are governed separately by
+[ADR 0006](../../docs/architecture/decisions/0006-immutable-repository-artifacts.md)
+and the
+[Phase 6 execution plan](../../docs/plans/0015-immutable-repository-artifacts.md).

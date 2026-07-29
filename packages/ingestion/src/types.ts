@@ -53,6 +53,57 @@ export interface PublicCatalog {
   readonly candidates: readonly CatalogCandidate[];
 }
 
+export type ArtifactKind =
+  | 'readme'
+  | 'documentation'
+  | 'security-policy'
+  | 'changelog'
+  | 'license'
+  | 'contributing';
+
+export type ArtifactRequirement = 'required' | 'optional';
+
+export interface RootReadmeArtifactSelection {
+  readonly selectionId: string;
+  readonly selector: 'root-readme';
+  readonly artifactKind: 'readme';
+  readonly requirement: 'optional';
+}
+
+export interface PathArtifactSelection {
+  readonly selectionId: string;
+  readonly selector: 'path';
+  readonly path: string;
+  readonly artifactKind: Exclude<ArtifactKind, 'readme'>;
+  readonly requirement: ArtifactRequirement;
+  readonly rationale: string;
+}
+
+export type ArtifactSelection =
+  RootReadmeArtifactSelection | PathArtifactSelection;
+
+export interface PublicArtifactManifest {
+  readonly artifactManifestVersion: 'public-artifacts-v1';
+  readonly catalogVersion: 'public-v1';
+  readonly catalogDigest: string;
+  readonly candidates: readonly {
+    readonly candidateId: string;
+    readonly selections: readonly ArtifactSelection[];
+  }[];
+  readonly manifestDigest: string;
+}
+
+export interface ArtifactSelectionSource {
+  readonly artifactManifestVersion: 'public-artifacts-v1';
+  readonly candidates: readonly {
+    readonly candidateId: string;
+    readonly selections: readonly Omit<
+      PathArtifactSelection,
+      'selectionId' | 'selector'
+    >[];
+  }[];
+}
+
 export interface GitHubRepositorySource {
   readonly canonicalOwner: string;
   readonly canonicalRepository: string;

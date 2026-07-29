@@ -31,6 +31,7 @@
     "eval:fixtures": "pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures",
     "contracts:validate": "pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts",
     "catalog:validate": "pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts",
+    "artifacts:validate": "pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/artifact-manifest-cli.ts",
     "ingestion:test": "pnpm runtime:check && pnpm build:product && vitest run packages/ingestion/test --config vitest.config.ts",
     "ingestion:verify": "pnpm runtime:check && pnpm catalog:validate && pnpm ingestion:test && pnpm --filter @gitblocks/ingestion typecheck",
     "ingest:live": "pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/live-cli.ts",

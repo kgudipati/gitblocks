@@ -15,6 +15,15 @@ export {
   manifestWithDigest,
   parsePublicCatalog,
 } from './manifest.ts';
+export {
+  artifactManifestDigest,
+  artifactManifestWithDigest,
+  buildArtifactManifest,
+  isSafeArtifactPath,
+  parseArtifactSelectionSource,
+  parsePublicArtifactManifest,
+  selectionId,
+} from './artifact-manifest.ts';
 export { persistCandidateProfile, loadPriorMaterial } from './persist.ts';
 export { profileCandidate } from './profile.ts';
 export {
@@ -38,6 +47,10 @@ export {
   SYSTEM_CLOCK,
   type AdvisoryCollection,
   type AdvisorySource,
+  type ArtifactKind,
+  type ArtifactRequirement,
+  type ArtifactSelection,
+  type ArtifactSelectionSource,
   type CandidateSourceBundle,
   type CandidateCollectionResult,
   type CatalogCandidate,
@@ -53,6 +66,7 @@ export {
   type IngestionReceiptCandidate,
   type NpmPackageSource,
   type ProfileResult,
+  type PublicArtifactManifest,
   type PublicCatalog,
   type RefreshPlan,
   type RepositoryFileSource,

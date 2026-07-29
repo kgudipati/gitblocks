@@ -287,10 +287,10 @@ Buffer, URL, and cryptography cover the operation.
 
 - [x] **Baseline:** fast-forward main, create the correct branch, run the full
       pinned clean baseline, and record results.
-- [ ] **Milestone 1 — Plan and ADR:** add this plan and ADR 0006; update the
+- [x] **Milestone 1 — Plan and ADR:** add this plan and ADR 0006; update the
       minimum product, architecture, security, and testing documents; validate,
       commit, push, and open a draft PR.
-- [ ] **Milestone 2 — Manifest:** red tests, closed parser/digest/selection IDs,
+- [x] **Milestone 2 — Manifest:** red tests, closed parser/digest/selection IDs,
       proposed reviewed paths, `artifacts:validate`, commit and PR review summary.
 - [ ] **Milestone 3 — Contracts:** red tests, three roots, artifact preflight,
       parsers, IDs/digests, exports, mutation/compatibility tests, commit.
@@ -425,6 +425,15 @@ Phase 6 itself is not complete at this checkpoint.
   passed; worktree and lockfile remained unchanged.
 - **2026-07-29:** Began Milestone 1 documentation. No product code or live
   provider operation had been performed.
+- **2026-07-29:** Milestone 1 passed formatting, repository links/invariants,
+  contract conformance, the 700-test offline suite, and architecture checks.
+  Commit `005bf4d` was pushed and draft PR #16 opened.
+- **2026-07-29:** Wrote artifact-manifest tests first; all 20 failed before the
+  manifest files and implementation existed. Added the closed source/manifest
+  parsers, deterministic IDs/digest, catalog/coverage/path validation,
+  generator command, and a proposed 30-candidate additional-path cohort. The
+  focused suite then passed all 20 tests. Manifest digest:
+  `2ba28512832f149a3f4068d789004c07f3d6773ec2cc32859555aac1be3fdc43`.
 
 ## Decision and deviation log
 
@@ -450,3 +459,21 @@ milestone appends exact commands, results, failures, and resolutions here
 before its next publication point.
 
 No live provider collection has been run.
+
+Milestone 1 evidence:
+
+```text
+pnpm format:check        passed
+pnpm repo:check          passed
+pnpm contracts:validate passed
+pnpm verify              passed; 37 files / 700 tests
+```
+
+Milestone 2 focused evidence:
+
+```text
+artifact manifest red run  1 file / 20 failures before implementation
+pnpm artifacts:validate    passed; 150 roots, 30 additional candidates,
+                           6 per family, digest 2ba28512832f...
+artifact manifest tests    passed; 1 file / 20 tests
+```
