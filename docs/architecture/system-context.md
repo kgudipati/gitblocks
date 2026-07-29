@@ -21,6 +21,9 @@ PostgreSQL public-evidence storage and migration decisions.
 [ADR 0005](decisions/0005-public-repository-ingestion.md) owns the curated
 manifest, fixed public providers, deterministic profiles/refresh, and operator
 receipt.
+[ADR 0006](decisions/0006-immutable-repository-artifacts.md) owns the reviewed
+public artifact selection boundary, source identity, exact collection,
+lossless chunking, immutable artifact sets, and artifact operator receipt.
 
 ## Context and ownership
 
@@ -84,20 +87,20 @@ flowchart LR
 
 ## Component responsibilities
 
-| Component                                | Responsibility or approved direction                                                                                                                    | Must not own                                                                                                                                     |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Product domain and contract kernel       | Define pure domain invariants plus versioned DTO parsing and deterministic JSON Schema exports                                                          | Transport, storage, provider, evaluation-gold, discovery, ranking-engine, or service behavior                                                    |
-| PostgreSQL persistence adapter           | Persist shared public catalog identity, immutable evidence, append-only lifecycle events, exact dossier snapshots, and complete active material         | Application use cases, ports, authentication, organization data, catalog administration, ingestion, retrieval, ranking, transport, or deployment |
-| Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                                                       | Proprietary ranking or silent expansion of GitBlocks permissions                                                                                 |
-| Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure                                | Proprietary ranking internals, hidden external writes, or direct production deployment                                                           |
-| Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                                                           | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking                                             |
-| Remote MCP server                        | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface                                                                    | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools                                                            |
-| Application services                     | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries                                                                   | Transport-specific rules or provider-specific persistence behavior                                                                               |
-| Repository catalog and ingestion workers | Collect allowed public metadata and evidence with provenance, freshness, bounds, and source policy                                                      | Execution of ingested repository code or treating repository instructions as trusted                                                             |
-| Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                                                            | Popularity-only ranking or unsupported certainty                                                                                                 |
-| Evidence store                           | Preserve shared public observations, exact provenance, normalized evidence times, freshness, limitations, unknowns, and reproducible dossier membership | Private organization evidence, secrets, unnecessary raw target source, or unsourced conclusions                                                  |
-| Outcome-learning loop                    | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals                                                        | Self-modifying policy, undeclared model training, or outcome collection without consent                                                          |
-| GitHub and package/security sources      | External evidence about projects, releases, packages, licenses, and advisories                                                                          | GitBlocks authorization or instructions                                                                                                          |
+| Component                                | Responsibility or approved direction                                                                                                                                                       | Must not own                                                                                                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Product domain and contract kernel       | Define pure domain invariants plus versioned DTO parsing and deterministic JSON Schema exports                                                                                             | Transport, storage, provider, evaluation-gold, discovery, ranking-engine, or service behavior                                                    |
+| PostgreSQL persistence adapter           | Persist shared public catalog identity, immutable evidence and approved public artifacts, append-only lifecycle events, exact dossier/artifact-set snapshots, and complete active material | Application use cases, ports, authentication, organization data, catalog administration, ingestion, retrieval, ranking, transport, or deployment |
+| Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                                                                                          | Proprietary ranking or silent expansion of GitBlocks permissions                                                                                 |
+| Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure                                                                   | Proprietary ranking internals, hidden external writes, or direct production deployment                                                           |
+| Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                                                                                              | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking                                             |
+| Remote MCP server                        | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface                                                                                                       | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools                                                            |
+| Application services                     | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries                                                                                                      | Transport-specific rules or provider-specific persistence behavior                                                                               |
+| Repository catalog and ingestion workers | Collect allowed public metadata, evidence, and manifest-selected exact public artifacts with provenance, freshness, bounds, and source policy                                              | Execution/rendering of ingested content, following repository-authored links, or treating repository instructions as trusted                     |
+| Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                                                                                               | Popularity-only ranking or unsupported certainty                                                                                                 |
+| Evidence store                           | Preserve shared public observations, exact provenance, normalized evidence times, freshness, limitations, unknowns, and reproducible dossier membership                                    | Private organization evidence, secrets, unnecessary raw target source, or unsourced conclusions                                                  |
+| Outcome-learning loop                    | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals                                                                                           | Self-modifying policy, undeclared model training, or outcome collection without consent                                                          |
+| GitHub and package/security sources      | External evidence about projects, releases, packages, licenses, and advisories                                                                                                             | GitBlocks authorization or instructions                                                                                                          |
 
 Services may initially share a deployable or module where that is simpler. These
 responsibility boundaries describe dependency and trust direction; they do not
@@ -206,13 +209,20 @@ as mutable; and approved validation uses a bounded validation reference, scope,
 and validation time rather than masquerading as public documentation.
 Publication, collection, validation, and freshness times remain chronologically
 coherent, and immutable locators identify their exact revisions.
-READMEs, issues, pull requests, broad discovery, and webhook-driven ingestion
-remain unimplemented. A future webhook path will require signature, timestamp,
-and replay verification before processing.
+Phase 6 adds a separate reviewed artifact path for exact-commit root READMEs and
+explicit additional official documents. It persists only strict UTF-8 ordinary
+Git blobs selected by `public-artifacts-v1`, verifies the repository object
+algorithm and object IDs, traverses trees only along the selected bounded path,
+and chunks content losslessly without semantic interpretation. Issues, pull
+requests, broad discovery, link crawling, rendered documentation, recursive
+trees, and webhook-driven ingestion remain unimplemented. A future webhook path
+will require signature, timestamp, and replay verification before processing.
 
 ### Remote data and model boundary
 
-Phase 4 stores only shared public catalog evidence and dossiers. A future
+Phase 4 stores shared public catalog evidence and dossiers; Phase 6 additionally
+stores exact curator-approved public catalog artifacts and closed artifact-set
+snapshots. A future
 private or organization-scoped store requires its own application consumer,
 authorization model, threat model, retention/deletion decision, and ADR; it
 must not copy public evidence merely to create scope. Model input will be

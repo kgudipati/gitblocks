@@ -236,6 +236,18 @@ requests include the captured commit `ref`; returned path/name/SHA are bounded,
 and the evidence URL is constructed from current canonical location, exact
 commit, and exact path.
 
+Phase 6 public artifact collection is separately declaration-driven by the
+closed `public-artifacts-v1` manifest. It accepts only exact-commit ordinary Git
+blobs after explicit repository hash-algorithm discovery, bounded
+non-recursive tree verification, strict base64 and UTF-8 validation, NUL and
+binary rejection, provider-object recomputation, and independent content
+hashing. Artifact content is hostile inert data: it must not be rendered,
+executed, followed as links, interpreted as instruction, sent to a model,
+logged, emitted to a terminal, copied into receipts, or committed in fixtures
+or completion evidence. Only curator-approved public catalog artifacts may be
+stored centrally; target-repository bodies and unapproved material remain local
+by default.
+
 Only an explicitly approved optional 404 is normal absence. Temporary optional
 unavailability creates a partial receipt but no dossier or durable transient
 material. Caller cancellation, deadline, rate limit,
