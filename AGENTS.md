@@ -82,8 +82,8 @@ packages/domain`.
   mapping completeness; it does not score product quality or accept proposed
   gold.
 - For persistence or migration changes, use the pinned PostgreSQL path and run
-  `pnpm db:verify`. Integration isolation tests must use non-owner,
-  non-superuser roles; no PostgreSQL test may silently skip.
+  `pnpm db:verify`. Runtime-operation integration tests must use a non-owner,
+  non-superuser role; no PostgreSQL test may silently skip.
 - Run the plan's exact validation commands and record results before completion.
   Update the plan and applicable ADR when implementation discoveries change a
   decision, scope, risk, or validation requirement.

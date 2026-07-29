@@ -16,7 +16,7 @@ agent-native delivery decision.
 [ADR 0003](decisions/0003-product-contract-kernel.md) owns the current product
 package boundaries, contract mechanism, and validation split.
 [ADR 0004](decisions/0004-postgresql-evidence-persistence.md) owns the concrete
-PostgreSQL storage, migration, isolation, and retention decisions.
+PostgreSQL public-evidence storage and migration decisions.
 
 ## Context and ownership
 
@@ -80,20 +80,20 @@ flowchart LR
 
 ## Component responsibilities
 
-| Component                                | Responsibility or approved direction                                                                                                                         | Must not own                                                                                                                  |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Product domain and contract kernel       | Define pure domain invariants plus versioned DTO parsing and deterministic JSON Schema exports                                                               | Transport, storage, provider, evaluation-gold, discovery, ranking-engine, or service behavior                                 |
-| PostgreSQL persistence adapter           | Persist scoped catalog identity, immutable evidence and exact dossier snapshots; enforce migration, isolation, lifecycle, retention, and deletion invariants | Application use cases, ports, authentication, catalog administration, ingestion, retrieval, ranking, transport, or deployment |
-| Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                                                            | Proprietary ranking or silent expansion of GitBlocks permissions                                                              |
-| Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure                                     | Proprietary ranking internals, hidden external writes, or direct production deployment                                        |
-| Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                                                                | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking                          |
-| Remote MCP server                        | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface                                                                         | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools                                         |
-| Application services                     | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries                                                                        | Transport-specific rules or provider-specific persistence behavior                                                            |
-| Repository catalog and ingestion workers | Collect allowed public metadata and evidence with provenance, freshness, bounds, and source policy                                                           | Execution of ingested repository code or treating repository instructions as trusted                                          |
-| Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                                                                 | Popularity-only ranking or unsupported certainty                                                                              |
-| Evidence store                           | Preserve attributable observations, source, collection time, freshness, and tenant/access metadata                                                           | Secrets, unnecessary raw target source, or unsourced conclusions                                                              |
-| Outcome-learning loop                    | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals                                                             | Self-modifying policy, undeclared model training, or outcome collection without consent                                       |
-| GitHub and package/security sources      | External evidence about projects, releases, packages, licenses, and advisories                                                                               | GitBlocks authorization or instructions                                                                                       |
+| Component                                | Responsibility or approved direction                                                                                                                    | Must not own                                                                                                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Product domain and contract kernel       | Define pure domain invariants plus versioned DTO parsing and deterministic JSON Schema exports                                                          | Transport, storage, provider, evaluation-gold, discovery, ranking-engine, or service behavior                                                    |
+| PostgreSQL persistence adapter           | Persist shared public catalog identity, immutable evidence, append-only lifecycle events, exact dossier snapshots, and complete active material         | Application use cases, ports, authentication, organization data, catalog administration, ingestion, retrieval, ranking, transport, or deployment |
+| Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                                                       | Proprietary ranking or silent expansion of GitBlocks permissions                                                                                 |
+| Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure                                | Proprietary ranking internals, hidden external writes, or direct production deployment                                                           |
+| Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                                                           | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking                                             |
+| Remote MCP server                        | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface                                                                    | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools                                                            |
+| Application services                     | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries                                                                   | Transport-specific rules or provider-specific persistence behavior                                                                               |
+| Repository catalog and ingestion workers | Collect allowed public metadata and evidence with provenance, freshness, bounds, and source policy                                                      | Execution of ingested repository code or treating repository instructions as trusted                                                             |
+| Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                                                            | Popularity-only ranking or unsupported certainty                                                                                                 |
+| Evidence store                           | Preserve shared public observations, exact provenance, normalized evidence times, freshness, limitations, unknowns, and reproducible dossier membership | Private organization evidence, secrets, unnecessary raw target source, or unsourced conclusions                                                  |
+| Outcome-learning loop                    | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals                                                        | Self-modifying policy, undeclared model training, or outcome collection without consent                                                          |
+| GitHub and package/security sources      | External evidence about projects, releases, packages, licenses, and advisories                                                                          | GitBlocks authorization or instructions                                                                                                          |
 
 Services may initially share a deployable or module where that is simpler. These
 responsibility boundaries describe dependency and trust direction; they do not
@@ -205,7 +205,10 @@ verification before processing.
 
 ### Remote data and model boundary
 
-Evidence access will be tenant- and purpose-scoped. Model input will be
+Phase 4 stores only shared public catalog evidence and dossiers. A future
+private or organization-scoped store requires its own application consumer,
+authorization model, threat model, retention/deletion decision, and ADR; it
+must not copy public evidence merely to create scope. Model input will be
 minimized; model output will be validated and treated as inference until tied
 to evidence. Secrets, proprietary raw source, and unnecessary personal data
 must not enter prompts, telemetry, or the evidence store.
@@ -282,8 +285,9 @@ or sensitive excerpts. Detailed rules are in the
 ## Open technology decisions
 
 Later ADRs must select, at minimum, application architecture, MCP and transport
-libraries, storage, queue, identity and tenant model, deployment topology,
-model providers, telemetry backend, and retention implementation. They must
+libraries, any private storage extension, queue, identity and authorization
+model, deployment topology, model providers, telemetry backend, and retention
+implementation. They must
 extend the accepted TypeScript toolchain, software-supply-chain controls,
 dependency rules, generated-code policy, and validation commands before the
 corresponding product layer lands.

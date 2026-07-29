@@ -154,7 +154,7 @@ Dashboards show accepted, started, completed, failed, retried, saturated, stale,
 and dead-letter work; queue depth/age; concurrency utilization; and provider
 limiting. Alerts target sustained user-impacting symptoms and dead-letter
 growth, not every individual retry. Runbooks describe safe replay, quarantine,
-and forward recovery without bypassing tenant or approval controls.
+and forward recovery without bypassing authorization or approval controls.
 
 ## Health, readiness, and graceful lifecycle
 
@@ -207,7 +207,7 @@ A responder must be able to determine, without a code change:
 
 - which stable operation and version failed;
 - start, duration, dependency path, and final state;
-- validated tenant-safe object references involved;
+- validated authorization-safe object references involved;
 - authorization and approval decision category;
 - evidence/source freshness state;
 - timeout, retry, cancellation, saturation, and queue/dead-letter history;

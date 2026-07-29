@@ -1,197 +1,167 @@
-# Phase 4 durable catalog and evidence persistence
+# Phase 4 immutable public evidence and dossier persistence
 
 ## Status and authority
 
 - Governing issue:
-  [#11 — Phase 4: Establish durable catalog and evidence persistence](https://github.com/kgudipati/gitblocks/issues/11)
-- Required branch: `feat/11-evidence-persistence`
+  [#11 — Phase 4: Establish immutable public evidence and dossier persistence](https://github.com/kgudipati/gitblocks/issues/11)
+- Existing branch: `feat/11-evidence-persistence`
+- Existing draft PR:
+  [#12 — feat: establish public evidence persistence](https://github.com/kgudipati/gitblocks/pull/12)
 - Owner: GitBlocks maintainers
-- State: implementation published in draft PR #12; hosted verification passed
-- Last updated: 2026-07-28
-- Required draft PR title:
-  `feat: establish catalog and evidence persistence`
-- Authority order: Issue #11; actual repository and Git history; the
-  [product contract](../product/product-contract.md); the
-  [system context](../architecture/system-context.md) and accepted ADRs;
-  `AGENTS.md`, `PLANS.md`, and the engineering handbook; then the execution
-  prompt.
+- State:
+  `public-first scope reduction and independent-review corrections in progress`
+- Last updated: 2026-07-29
+- Authority order: Issue #11; repository and Git history; product contract;
+  system context and accepted ADRs; `AGENTS.md`, `PLANS.md`, engineering
+  handbook; execution prompt.
 
-Issue #11 owns the complete deliverables, storage semantics, security
-requirements, acceptance criteria, and non-goals. This plan provides
-traceability and execution evidence; it does not narrow the issue. Material
-discoveries update this plan and, when architectural, ADR 0004 before the
-implementation is presented as complete.
+The revised issue and maintainer comment supersede the tenant-lifecycle
+portions of this plan's first published version. This plan records the
+correction in place; it does not preserve unpublished compatibility wrappers.
 
-## Purpose and user-visible outcome
+## Purpose and outcome
 
-GitBlocks currently has authoritative product vocabulary but no durable product
-state. This phase adds the first PostgreSQL persistence adapter so a future
-application layer can store and exactly reconstruct fixed-candidate evidence
-inputs without inventing another candidate, evidence, limitation, unknown, or
-dossier contract.
+Phase 4 now builds the smallest durable state needed by the first GitBlocks
+product loop:
 
-The observable engineering outcome is:
+```text
+public repository ingestion
+        -> immutable public evidence and dossiers
+        -> retrieval and ranking
+        -> repository-conditioned recommendation
+```
 
-- one new private production package, `@gitblocks/persistence`;
-- forward-only, checksum-verified PostgreSQL migrations;
-- database-enforced public/tenant scope and row isolation;
-- immutable catalog material and append-only evidence lifecycle events;
-- reproducible candidate-dossier snapshots validated by the existing product
-  parser;
-- bounded purge and transactional tenant deletion; and
-- real PostgreSQL integration verification locally and in hosted CI.
+The result is one concrete PostgreSQL adapter that stores shared public OSS
+candidate identity, immutable source-aware evidence, limitations, material
+unknowns, append-only lifecycle events, and exact reproducible public dossier
+snapshots. It also selects one complete reference-valid material set at an
+explicit evidence-world cutoff.
 
-This is a PostgreSQL adapter, not an operational backend. No application use
-case, catalog administration, ingestion, retrieval, ranking, API, MCP,
-authentication, worker, model, queue, deployment, or production credential is
-created.
+This remains non-operational. No application port/use case, catalog
+administration, ingestion, discovery, retrieval, ranking, transport, MCP,
+authentication, organization workflow, model, queue, worker, deployment, or
+production credential is added.
 
-## Verified current repository state
+## Verified current repository and GitHub state
 
-Verified on 2026-07-28 before editing:
+Verified before the correction:
 
-- `git status --short --branch` reported clean
-  `main...origin/main`.
-- `origin` is `https://github.com/kgudipati/gitblocks.git` for fetch and push.
-- `git fetch origin`, `git switch main`, and
-  `git pull --ff-only origin main` completed without change.
-- Local `HEAD` and `origin/main` both resolve to
-  `e7ae0ba4270b3fb24f144cdb6053355c761b82e5`.
-- The recent history begins with `e7ae0ba feat: establish product contract
-kernel`.
-- Connected GitHub inspection confirmed PR #10 is merged into that commit,
-  Issue #9 is closed, and Issue #11 is open.
-- `packages/domain` and `packages/contracts` are exactly the two existing
-  product packages.
-- Repository inspection found no database client, persistence package,
-  versioned SQL migration system, PostgreSQL integration test path, or
-  PostgreSQL CI service.
-- `evals/pilot-v1/manifest.json` records
-  `status: development-proposed`, `goldStatus: proposed`,
-  `independentReviewStatus: not-reviewed`, and no independent reviewer.
-- The authoritative current dependency direction is
-  `tools/evaluation-harness -> @gitblocks/contracts -> @gitblocks/domain`.
-- The active branch was then created exactly as
-  `feat/11-evidence-persistence`.
+- clean local
+  `feat/11-evidence-persistence...origin/feat/11-evidence-persistence`;
+- local and remote topic heads both
+  `b64a42e3f3fe2d5759d504c63e6e96f4733c612a`;
+- local and remote `main` both
+  `e7ae0ba4270b3fb24f144cdb6053355c761b82e5`;
+- PR #12 is open, draft, unmerged, and titled
+  `feat: establish public evidence persistence`;
+- Issue #11 is open and defines immutable public evidence/dossiers;
+- PR comment `5114455426` is the maintainer scope correction;
+- the published implementation has exactly one new product package,
+  `@gitblocks/persistence`, PostgreSQL 18.4, `postgres@3.4.9`, one migration,
+  and green pre-correction CI;
+- proposed gold remains `proposed` / `not-reviewed`;
+- no Phase 5/6 issue or repository component names an organization-persistence
+  consumer; and
+- no ingestion, retrieval, ranking, application, API/MCP, model, queue, worker,
+  or deployment exists.
 
-The merged baseline ran using the already-installed nvm toolchain; no runtime
-was installed or automatically changed:
+Commands/evidence:
 
-| Command                                                | Result                                                                 |
-| ------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `source /Users/karthikgudipati/.nvm/nvm.sh && nvm use` | Node `24.18.0` selected                                                |
-| `node --version`                                       | `v24.18.0`                                                             |
-| `corepack pnpm --version`                              | `11.17.0`                                                              |
-| `pnpm runtime:check`                                   | exit 0                                                                 |
-| `pnpm install --frozen-lockfile`                       | exit 0; graph already current                                          |
-| `pnpm verify`                                          | exit 0; 31 files / 637 tests                                           |
-| `pnpm architecture:check` within `verify`              | 589 modules / 1,896 dependencies, no violations                        |
-| `pnpm contracts:validate`                              | 10 cases / 40 candidates; proposed/not-reviewed; representability only |
-| `pnpm eval:validate`                                   | 10 cases                                                               |
-| `pnpm eval:fixtures`                                   | all fixed weak fixtures passed                                         |
+```text
+git status --short --branch
+git fetch origin
+git rev-parse HEAD
+git rev-parse origin/feat/11-evidence-persistence
+git rev-parse main
+git rev-parse origin/main
+connected GitHub Issue #11 / PR #12 / PR comments
+repository and issue inventory
+```
 
-The initial shell did not source nvm and exposed standalone pnpm `11.9.0`;
-`pnpm runtime:check` correctly failed before repository scripts ran. The
-correction was to source the existing local nvm installation and use Corepack's
-integrity-bound package-manager pin. This is validation evidence, not a
-repository failure or runtime installation.
+No branch, PR, merge, ready transition, amend, rebase, squash, history rewrite,
+or force-push is authorized.
 
-## Scope and explicit non-goals
+## Scope and non-goals
 
 ### In scope
 
-- ADR 0004 and this living plan.
-- Exactly one new product package: `packages/persistence`.
-- Minimum justified exact PostgreSQL/migration dependencies, with lockfile
-  changes generated only by pnpm.
-- Versioned forward SQL migrations, history/checksum verification, and
-  serialized migration execution.
-- Tenant, catalog identity, optional npm identity, capability membership,
-  evidence, limitations, unknowns, snapshots and exact membership,
-  supersession, invalidation, expiry, purge, deletion, and minimal tombstones.
-- Injected configuration, explicit client lifecycle, explicit migrations, safe
-  errors, deadlines/cancellation, parameterized SQL, bounds, and transactions.
-- Database-enforced row isolation tested through a non-owner,
-  non-superuser runtime role.
-- Real pinned PostgreSQL locally and in CI.
-- Storage conformance for all ten proposed pilot dossiers and separate
-  non-pilot fixtures.
-- Architecture, repository policy, root commands/references, test config, CI,
-  and the Issue #11 documentation set.
+- Rewrite ADR 0004 and migration 0001 in place.
+- Keep PostgreSQL major 18, exact 18.4 image digest, and
+  `postgres@3.4.9`.
+- Retain exactly one new private strict-ESM product package.
+- Remove tenant scope and lifecycle code/schema/docs/tests.
+- Persist public candidate identity and mutable current capability families.
+- Persist immutable public evidence, limitations, unknowns, lifecycle events,
+  and exact dossier snapshots with complete-record digests.
+- Normalize all applicable evidence-world timestamps.
+- Correct capability replacement, snapshot idempotency/history, lifecycle
+  cycles, and active reference closure.
+- Keep real PostgreSQL local/CI verification with no skips.
+- Prove ten pilot cases and five non-pilot dossiers.
+- Correct public-candidate identity inconsistency exposed by shared storage,
+  without changing evaluation scoring or gold review status.
 
 ### Explicit non-goals
 
-- Catalog administration or product-facing mutation workflows.
-- GitHub, npm, advisory, documentation, or other external-source fetching.
-- Ingestion, discovery, retrieval, search, ranking, or fit-assessment
+- Tenant-private candidates/evidence, tenant context, RLS matrices, expiry,
+  retention, purge, deletion, tombstones, resurrection, or private overlays.
+- Organization tables without a named Phase 5/6 consumer.
+- Users, membership, roles, invitations, billing, enterprise governance.
+- Application package or persistence ports.
+- Catalog administration, ingestion, source fetching, search, retrieval,
+  ranking, or fit execution.
+- HTTP, API, MCP, authentication, model, embeddings, outcomes, queue, worker,
+  scheduler, deployment, or production credentials.
+- Candidate repository/package cloning, installation, import, build, or
   execution.
-- An application package, persistence ports, HTTP, GraphQL, RPC, or MCP.
-- Authentication, billing, queues, workers, schedules, models, embeddings,
-  outcomes, deployment, or production credentials.
-- Execution, installation, cloning, import, or build of candidate packages or
-  repositories.
-- Accepting proposed gold, running a live model/agent baseline, or changing
-  evaluation scoring.
+- Live model/agent baseline, scoring changes, or gold acceptance.
 
-## Requirements crosswalk
+## Revised Issue #11 crosswalk
 
-| Issue #11 requirement                                                             | Destination                                      | Milestone | Required evidence                                             |
-| --------------------------------------------------------------------------------- | ------------------------------------------------ | --------- | ------------------------------------------------------------- |
-| PostgreSQL decision and full option/dependency review                             | ADR 0004; plan research log                      | 1         | Official docs/metadata, exact versions, resolved graph, audit |
-| Exactly one new product package                                                   | `packages/persistence`                           | 2         | package inventory, manifests, architecture check              |
-| Injected configuration; no import I/O, singleton, env read, or implicit migration | package client and import tests                  | 2         | unit/import tests and source review                           |
-| Deterministic forward migrations, checksums, locking, repeat safety               | `packages/persistence/migrations`; migrator      | 2         | clean/repeat/drift/concurrent/failure integration tests       |
-| Dedicated schema, roles, and explicit qualification                               | migration SQL                                    | 2         | catalog inspection and migration tests                        |
-| Tenant/public coherence and PostgreSQL row isolation                              | checks, RLS functions/policies, grants           | 3         | non-owner runtime-role matrix                                 |
-| Catalog identity and capability families                                          | candidate and membership tables/API              | 3         | uniqueness, ownership, round-trip tests                       |
-| Immutable evidence, limitations, and unknowns                                     | tables, reference tables, append APIs            | 3         | same/different digest, update denial, concurrency, rollback   |
-| All seven evidence provenance variants                                            | canonical payload mapping and normalized columns | 3         | variant round-trip table                                      |
-| Supersession/invalidation and active-as-of                                        | lifecycle tables, cycle guard, selection API     | 4         | self/cycle/scope/candidate/as-of tests                        |
-| Reproducible exact-membership dossier snapshots                                   | snapshot/membership tables and loader            | 4         | parser-valid reconstruction and historical-stability tests    |
-| Mandatory bounded tenant retention                                                | expiry checks and insertion commands             | 5         | missing/invalid expiry rejection                              |
-| Bounded purge and full tenant deletion                                            | purge/delete operations and tombstone            | 5         | deterministic batch, isolation, no reconstruction             |
-| Safe errors, parameterization, bounds, deadlines/cancellation                     | client/query helpers and public API              | 3–5       | abuse/error/redaction/cancellation tests                      |
-| Real PostgreSQL local and hosted verification                                     | DB orchestration and CI service/container        | 6         | local commands, hosted job/log evidence, no skips             |
-| Ten pilot plus non-pilot representability                                         | evaluation-harness integration fixtures          | 6         | 10-case and non-pilot conformance output                      |
-| Architecture/docs/repository commands                                             | listed repository/doc files                      | 6         | `architecture:check`, `repo:check`, full diff review          |
-| Draft PR, ordinary commits/pushes, hosted correction loop                         | Git/GitHub                                       | 7         | commit SHAs, draft PR, run/job/log evidence                   |
+| Requirement                                          | Artifact                                | Evidence                                         |
+| ---------------------------------------------------- | --------------------------------------- | ------------------------------------------------ |
+| Public-first rationale and deferred tenant lifecycle | ADR 0004; plan; system/engineering docs | complete diff review                             |
+| PostgreSQL 18 and exact 18.4 image                   | ADR; scripts; CI                        | version/catalog and hosted logs                  |
+| One package and `postgres@3.4.9`                     | manifests/lockfile/package              | inventory, architecture, audit                   |
+| Checked forward migration                            | migration; migrator                     | clean/repeat/drift/failure/concurrent tests      |
+| Public candidate uniqueness                          | candidate table/operation               | ID/repository/package tests                      |
+| Set-diff capability membership                       | operation; membership table             | row-version and history tests                    |
+| Seven evidence variants and normalized time          | evidence table/operation                | round trip/catalog/cutoff tests                  |
+| Complete immutable-record idempotency                | record digests/operations               | metadata/payload/ownership/concurrency conflicts |
+| Lifecycle consistency and cycles                     | FKs/check/trigger/operations            | timing, self/cycle, retry tests                  |
+| Exact historical snapshots                           | snapshot/member tables/loader           | exact load after lifecycle/membership change     |
+| Snapshot retry conflict                              | snapshot record digest                  | changed cutoff/ordered membership tests          |
+| Active reference closure                             | active selection                        | inactive-support exclusion test                  |
+| No tenant/private surface                            | schema/API/static review                | zero RLS; prohibited-term/API checks             |
+| Ten pilot + five non-pilot dossiers                  | private harness + integration fixtures  | 40 pilot and 5 non-pilot reconstructions         |
+| Real PostgreSQL local/CI                             | scripts/config/workflow                 | `db:verify`, `verify:ci`, hosted job             |
+| Draft PR updated in place                            | PR #12                                  | draft/open/unmerged metadata                     |
 
 ## Product-contract and system-context crosswalk
 
-| Authority                                                                  | Persistence consequence                                                                                                                 | Intentionally unchanged                                             |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Candidate dossier V1 is the authoritative external value                   | Store enough bounded canonical material and exact membership to reconstruct a `CandidateDossierV1`, then pass `parseCandidateDossierV1` | Contract schema and domain meaning                                  |
-| Source-aware evidence variants                                             | Preserve each closed provenance variant exactly; do not replace it with generic metadata                                                | Provenance validation remains contracts/domain-owned                |
-| Evidence, limitations, and unknowns are candidate-owned                    | Composite database references enforce candidate and storage-scope coherence                                                             | Business interpretation remains domain-owned                        |
-| Product values are bounded and closed                                      | Persistence commands accept existing product values or closed bounded storage commands                                                  | No storage shape becomes a product DTO                              |
-| Evidence store preserves provenance, freshness, and tenant/access metadata | Normalize ownership/lifecycle/index columns while retaining canonical JSONB for exact reconstruction                                    | No ingestion or retrieval/ranking behavior                          |
-| Future application services own authorization/use cases                    | Adapter exposes concrete operations but no application-owned port                                                                       | No `packages/application`; no application dependency on persistence |
-| Product packages never import evaluation records/gold/tools                | Harness may call persistence only for conformance                                                                                       | No reverse import and no gold in product paths                      |
-| Stored external content is untrusted data                                  | Revalidate reconstructed values; parameterize SQL; never execute or follow stored text                                                  | No candidate-code execution capability                              |
+| Authority                                 | Persistence consequence                                        | Unchanged                                |
+| ----------------------------------------- | -------------------------------------------------------------- | ---------------------------------------- |
+| Candidate dossier V1                      | Exact members reconstruct and pass `parseCandidateDossierV1`   | Product DTO/domain meaning               |
+| Seven closed provenance variants          | Preserve canonical source and normalize applicable times       | Source validation remains contract-owned |
+| Candidate ownership                       | Composite database references prevent cross-candidate material | Business interpretation                  |
+| Bounded contract catalogs                 | Active selection returns at most 100/40/40 complete values     | No ranking/retrieval behavior            |
+| Public evidence is attributable/untrusted | Parameterize SQL, revalidate rows, never execute content       | No ingestion/source client               |
+| Future application owns ports/auth        | Adapter exposes concrete public storage operations only        | No application package                   |
+| Evaluation data stays private             | Harness may call adapter; product never imports tools/gold     | Proposed gold/scoring                    |
 
 ## Applicable ADRs and contracts
 
-- [ADR 0001](../architecture/decisions/0001-agent-native-delivery.md):
-  preserves headless future delivery and the prohibition on executing
-  candidate repositories. No delivery surface is implemented here.
-- [ADR 0002](../architecture/decisions/0002-typescript-workspace-and-toolchain.md):
-  retains Node 24.18.0, pnpm 11.17.0, TypeScript 6.0.3, strict ESM/NodeNext,
-  exact pins, frozen pnpm-generated lockfile, default-denied dependency
-  lifecycle scripts, Vitest, dependency-cruiser, secret scanning, and CI
-  controls.
-- [ADR 0003](../architecture/decisions/0003-product-contract-kernel.md):
-  persistence records map to owned contract/domain values and cannot become
-  domain truth. Candidate dossier V1 and source-aware evidence semantics remain
-  unchanged.
-- ADR 0004 is created by this phase and will decide the PostgreSQL, driver,
-  migration, record, role/RLS, lifecycle, retention, and recovery policies.
-- The product contract and system context are clarified only to mark this
-  non-operational adapter implemented. Product vocabulary and planned service
-  boundaries do not change.
+- ADR 0001: headless delivery and non-execution boundary remain unchanged.
+- ADR 0002: Node 24.18.0, pnpm 11.17.0, TypeScript 6.0.3, strict ESM, exact
+  pins, frozen pnpm lockfile, supply-chain controls, Vitest, and CI remain.
+- ADR 0003: contract/domain values remain authoritative; storage is an
+  adapter representation.
+- ADR 0004 is revised to public-first PostgreSQL persistence and supersedes its
+  unpublished tenant/RLS/retention decision.
+- The product contract vocabulary, six contract families, scoring, and gold
+  lifecycle do not change.
 
-## Architecture, package graph, and data flow
-
-Current approved graph after this phase:
+## Architecture and data flow
 
 ```text
 tools/evaluation-harness
@@ -206,277 +176,147 @@ tools/evaluation-harness
 @gitblocks/domain
 ```
 
-The harness-to-persistence edge exists only for offline storage conformance.
-The package itself imports neither tools nor evaluation data. Future
-composition remains:
+Write flow:
 
 ```text
-                    composition root
-                    /              \
-                   v                v
-        application use cases   persistence adapter
-                 |                    |
-                 v                    v
-          contracts/domain      contracts/domain
+validated product value + normalized creation metadata
+  -> complete immutable-record digest
+  -> explicit bounded transaction
+  -> parameterized insert under database uniqueness/ownership
+  -> exact digest comparison on conflict
+  -> stable value-free result
 ```
 
-Primary write flow:
+Snapshot load:
 
 ```text
-validated product value or bounded storage command
-  -> scope/deadline/batch validation
-  -> explicit PostgreSQL transaction and tenant context
-  -> parameterized insert with database ownership/uniqueness/RLS checks
-  -> compare canonical digest on uniqueness conflict
-  -> stable value-free success or error
-```
-
-Snapshot load flow:
-
-```text
-snapshot metadata + stored identity + exact member IDs
-  -> load exact immutable members, not currently-active members
+snapshot metadata + exact ordered membership
+  -> validate candidate/material complete-record digests
   -> reconstruct CandidateDossierV1
-  -> verify canonical dossier digest
-  -> parseCandidateDossierV1
-  -> return contract-valid value or stable corruption error
+  -> validate dossier + snapshot digests
+  -> rerun product parser
 ```
 
-## PostgreSQL threat model
+Active selection:
 
-### Assets
+```text
+candidate + evidence-world cutoff
+  -> all applicable source/freshness timestamps <= cutoff
+  -> remove effective superseded/invalidated evidence
+  -> remove limitation/unknown with inactive support
+  -> product-validate one bounded reference-closed set
+```
 
-- Public catalog identity and attributable evidence.
-- Tenant-approved validation/evidence, tenant snapshots, and tenant identity.
-- Exact historical snapshot membership and canonical digests.
-- Migration history/checksums and database role/isolation policy.
-- Connection credentials supplied by future composition or test tooling.
+## Organization decision
 
-### Actors and entry points
+Both `organizations` and `organization_dossier_refs` are omitted. The
+repository and open Phase 4 authority name public ingestion, retrieval, and
+ranking as the near-term consumers; none needs organization identity or pins.
+Adding either table would be unused future-proofing. A future application/API
+issue may add organization identity and shared-snapshot links only after it
+owns a concrete authorization/workflow use case.
 
-- Migration owner applying reviewed SQL.
-- Public writer for future trusted catalog/ingestion composition.
-- Non-owner, non-superuser tenant runtime role.
-- Future application callers supplying validated commands.
-- Test tooling supplying local ephemeral database configuration.
-- Untrusted stored statements, URLs, stable IDs, reason codes, and provenance.
+## Public persistence threat model
 
-### Misuse cases and controls
+### Assets and actors
 
-| Misuse                                                   | Control                                                                                         | Evidence                                |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------- |
-| Tenant A reads or references tenant B                    | PostgreSQL RLS plus composite scope/ownership foreign keys; fail-closed tenant context          | runtime-role cross-tenant tests         |
-| Missing/malformed context exposes tenant rows            | safe current-tenant function returns no tenant; policies default deny                           | missing/malformed-context tests         |
-| Tenant runtime writes public records                     | separate role/policy/grant contract                                                             | public-policy tests                     |
-| SQL injection through IDs/text/URLs                      | fixed reviewed SQL and parameterized values; no caller identifiers                              | injection sentinel tests                |
-| Stable ID overwrites immutable content                   | unique identity plus digest comparison and update-denial trigger                                | idempotency/conflict/update tests       |
-| Concurrent writers corrupt identity                      | database uniqueness and transaction conflict handling                                           | identical/conflicting concurrency tests |
-| Lifecycle cycle hides all evidence                       | self-reference check plus serialized cycle detection                                            | self/cycle tests                        |
-| Historical snapshot drifts                               | exact immutable membership, stored identity, digest verification, product parse                 | historical-stability tests              |
-| Expiry deletes material still needed by a live snapshot  | creation-time expiry coherence and deterministic purge ordering                                 | retention/reference tests               |
-| Tenant deletion leaves reconstructable payload           | one transaction deletes tenant scope and inserts content-free tombstone                         | deletion/no-reconstruction tests        |
-| Error leaks credential, SQL, payload, or provider detail | stable owned error taxonomy; discard driver detail                                              | sentinel leakage tests                  |
-| Stored instructions cause execution                      | package has no evaluator, shell construction, URL fetch, dynamic import, or candidate execution | source/architecture review              |
-| Migration history is edited or races                     | SHA-256 history plus advisory lock and transactional apply                                      | drift/concurrent migrator tests         |
+- Shared public candidate identity and source-aware evidence.
+- Immutable limitation/unknown/lifecycle records.
+- Exact historical snapshot membership and digests.
+- Migration history/checksums and injected test credentials.
+- Migration owner, least-privilege public persistence runtime, future trusted
+  ingestion/retrieval composition, and untrusted stored source text.
 
-Residual risks are adapter-only: future application authorization, production
-credential issuance, backup deletion, encryption configuration, deployment,
-and operational auditing remain unavailable and must be decided before remote
-storage is enabled.
+### Misuse and controls
 
-## Public and tenant scope matrix
+| Misuse                                            | Control                                                             | Evidence                         |
+| ------------------------------------------------- | ------------------------------------------------------------------- | -------------------------------- |
+| SQL injection via IDs/statements/URLs             | fixed SQL, parameters, no runtime raw SQL/dynamic identifiers       | inert sentinel/static tests      |
+| Same ID overwrites metadata/payload               | complete-record digest + unique constraint + update trigger         | retry/concurrency/conflict tests |
+| Repository/package aliases duplicate identity     | case-insensitive unique indexes                                     | candidate uniqueness tests       |
+| Capability replacement churns unchanged rows      | candidate serialization + set diff                                  | `xmin` preservation tests        |
+| Lifecycle creates self/cycle/cross-candidate edge | checks/FKs/advisory trigger                                         | negative lifecycle tests         |
+| Storage time admits future evidence               | normalized evidence-world predicates                                | all-variant/future-time tests    |
+| Active material has broken references             | deterministic dependent exclusion                                   | closure test                     |
+| Historical snapshot drifts                        | exact ordered membership and digest/parser checks                   | history tests                    |
+| Error exposes secret/SQL/payload/source           | value-free owned error mapping; no logs                             | sentinel redaction tests         |
+| Stored content becomes instructions/code          | no process, fetch, import, evaluator, shell, or candidate execution | source/architecture tests        |
+| Migration edit/race                               | SHA-256 history + advisory migration lock                           | drift/concurrency tests          |
 
-The exact role names and SQL expressions remain open until ADR research is
-complete, but the policy is fixed:
+Residual risk is intentionally narrow: no authenticated service or private data
+exists. Future private/organization data requires a new threat model and
+authorization/isolation/lifecycle decision.
 
-| Record/operation             | Public scope                  | Tenant scope                  | Missing context      | Public writer            | Tenant runtime                      |
-| ---------------------------- | ----------------------------- | ----------------------------- | -------------------- | ------------------------ | ----------------------------------- |
-| Tenant registry              | no public row                 | own identity only when needed | no tenant visibility | no tenant payload access | own row only                        |
-| Catalog candidate/capability | readable                      | matching tenant only          | public rows only     | public read/write        | public read + own tenant read/write |
-| Evidence/limitation/unknown  | readable                      | matching tenant only          | public rows only     | public read/write        | public read + own tenant read/write |
-| Lifecycle event              | readable with public material | matching tenant only          | public only          | public read/write        | public read + own tenant write      |
-| Dossier snapshot/membership  | readable if public            | matching tenant only          | public only          | public read/write        | public read + own tenant read/write |
-| Tombstone                    | not product-readable          | owner/operations only         | none                 | none                     | none                                |
+## Storage and database invariants
 
-Every tenant-capable table carries explicit `scope` and nullable `tenant_id`
-with a database check: public means no tenant; tenant means exactly one tenant.
-RLS is enabled and forced where supported. Tests never claim isolation while
-connected only as the table owner or superuser.
+Product tables:
 
-## Storage and database-invariant inventory
+1. `catalog_candidates`
+2. `candidate_capability_families`
+3. `evidence_observations`
+4. `candidate_limitations`
+5. `candidate_limitation_evidence`
+6. `candidate_material_unknowns`
+7. `candidate_unknown_evidence`
+8. `evidence_supersessions`
+9. `evidence_invalidations`
+10. `candidate_dossier_snapshots`
+11. `snapshot_evidence_members`
+12. `snapshot_limitation_members`
+13. `snapshot_unknown_members`
 
-Working inventory, to be finalized in ADR 0004 and the migration:
+Migrator-owned `schema_migrations` is separate.
 
-- dedicated `gitblocks` schema and schema-qualified objects;
-- migration history with immutable version/name/checksum/applied-at fields;
-- migration advisory serialization;
-- `tenants` and minimal `tenant_tombstones`;
-- `catalog_candidates` with stable candidate ID, display name, GitHub
-  owner/repository, optional npm package, scope/tenant, canonical digest,
-  lifecycle timestamps, and expiry;
-- `candidate_capability_families`;
-- immutable `evidence_observations` with normalized ownership, topic,
-  dimension, provenance kind, freshness/cutoff fields, canonical JSONB, digest,
-  insertion time, and expiry;
-- immutable `candidate_limitations` and `candidate_material_unknowns`;
-- evidence-reference tables for limitations and unknowns;
-- append-only `evidence_supersessions` and `evidence_invalidations`;
-- immutable `candidate_dossier_snapshots` with stored identity, capability,
-  version/contract, cutoff, canonical dossier digest, creation/expiry; and
-- exact snapshot evidence/limitation/unknown membership tables.
+Database enforcement includes:
 
-Database enforcement will cover:
+- deterministic candidate/repository/package identity;
+- candidate ownership for evidence and all references;
+- exact limitation/unknown evidence reference order;
+- normalized provenance timestamp shape/chronology;
+- stable family/dimension/provenance/reason/digest checks;
+- immutable update rejection;
+- self/cycle lifecycle rejection;
+- snapshot family independent of mutable membership;
+- exact ordered snapshot membership; and
+- timezone-aware finite timestamps.
 
-- public/tenant coherence and stable scope key;
-- repository/package identity uniqueness within scope;
-- candidate ownership on all material;
-- reference integrity and duplicate prevention;
-- cross-candidate, cross-scope, and cross-tenant rejection;
-- stable IDs and canonical digest uniqueness;
-- update denial for immutable rows;
-- no lifecycle self-reference and no supersession cycle;
-- timezone-aware timestamps and temporal coherence expressible locally;
-- mandatory tenant expiry and public expiry policy; and
-- indexes supporting stable active-as-of, snapshot membership, expiry purge,
-  and tenant deletion paths.
+There are zero RLS policies because all product records are shared public data.
 
-## Retention and deletion matrix
+## Evidence cutoff matrix
 
-Working decision pending ADR confirmation: tenant payload insertion requires an
-explicit caller-supplied expiry. There is no implicit indefinite default.
+| Provenance            | Required columns no later than cutoff             |
+| --------------------- | ------------------------------------------------- |
+| Git commit            | `published_at`, `collected_at`, `freshness_as_of` |
+| Tag                   | `published_at`, `collected_at`, `freshness_as_of` |
+| Release               | `published_at`, `collected_at`, `freshness_as_of` |
+| Package version       | `published_at`, `collected_at`, `freshness_as_of` |
+| Security advisory     | `published_at`, `collected_at`, `freshness_as_of` |
+| Mutable documentation | `collected_at`, `freshness_as_of`                 |
+| Approved validation   | `validated_at`, `freshness_as_of`                 |
 
-| Storage class                                | Expiry                                                  | Purge                                                  | Tenant deletion         | Tombstone content                                   |
-| -------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------ | ----------------------- | --------------------------------------------------- |
-| Public catalog/evidence/lifecycle/snapshot   | no tenant expiry requirement; explicit public lifecycle | never removed by tenant purge                          | preserved               | none                                                |
-| Tenant candidate identity/capability         | required                                                | bounded deterministic batch/cascade only within tenant | deleted transactionally | no identity payload                                 |
-| Tenant evidence/limitation/unknown/lifecycle | required and coherent with owner/snapshot retention     | bounded; live snapshot references protected            | deleted transactionally | no statement, URL, provenance, or digest            |
-| Tenant dossier snapshot/membership           | required and no later than retained members             | expired snapshots first                                | deleted transactionally | no dossier or membership                            |
-| Tenant tombstone                             | minimal operational deletion fact only                  | separately documented retention                        | created during deletion | tenant opaque ID, deletion time, stable reason only |
+`created_at` is complete-record audit metadata, never a substitute.
 
-No scheduler or worker is added. Backup and deployed derived-index deletion
-remain future deployment obligations; the package must not claim they exist.
+## Migration inventory and recovery
 
-## Client, query, and migration research
+1. `0001_evidence_persistence.sql` — public candidates, capability
+   membership, immutable evidence/limitations/unknowns, lifecycle, exact
+   snapshots, one runtime role, constraints, triggers, and indexes.
 
-Research completed on 2026-07-28 using official project documentation,
-PostgreSQL documentation, official npm registry metadata, the GitHub Advisory
-Database, and the resolved container registry manifest. ADR 0004 compares:
+Final migration SHA-256:
+`569d7a6d6db70b1b04cadfa8798516ce4239b1179bb2f7cdd84b27641e33755f`.
 
-- maintained low-level drivers: `postgres@3.4.9` and `pg@8.22.0` with
-  `@types/pg@8.20.0`;
-- typed-query/mapping approaches: `kysely@0.29.4` and
-  `drizzle-orm@0.45.2`; and
-- migration approaches: `node-pg-migrate@9.0.0`,
-  `graphile-migrate@1.4.1`, and an owned explicit-SQL migrator.
-
-For each serious option ADR 0004 records exact version,
-license, Node 24, TypeScript 6, ESM, release date, repository/publisher
-provenance, lifecycle scripts, peers, direct/transitive footprint, advisories,
-transactions, cancellation, migration behavior, SQL transparency, JSONB,
-testability, and limitations. Rejected options will not be installed merely to
-fill a research gap.
-
-The selected database is PostgreSQL major 18, locally and in CI through
-`postgres:18.4-bookworm` pinned to multi-architecture index digest
-`sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296`.
-The selected driver is the strict-ESM, zero-dependency `postgres@3.4.9`.
-Migrations are repository-owned, forward-only, checksummed SQL serialized by a
-fixed PostgreSQL advisory transaction lock.
-
-Exact-version queries against the GitHub Advisory Database returned zero
-matching advisories for every compared package on 2026-07-28. This is research
-evidence, not a substitute for the final pnpm audit of the resolved graph.
-
-Selection constraints:
-
-- framework-neutral and strict ESM;
-- transparent parameterized SQL and explicit transactions;
-- deadline/cancellation behavior that can be safely mapped;
-- no code generation or implicit schema synchronization;
-- no internal environment reads or singleton pool;
-- deterministic forward SQL migrations with checksums and locking; and
-- smallest justified exact dependency graph under existing pnpm controls.
-
-## Dependency and supply-chain review
-
-The accepted dependency decision adds exactly `postgres@3.4.9`:
-
-- Unlicense, official `porsager/postgres` repository, published by maintainer
-  `porsager` on 2026-04-05;
-- Node `>=12`, native ESM plus a CJS export, bundled declarations, and
-  TypeScript 6 compilation to be proven in this repository;
-- 37 files / 299,744 unpacked bytes, zero dependencies, zero peers, no native
-  addon, and no build requirement;
-- SHA-512 registry integrity
-  `sha512-GD3qdB0x1z9xgFI6cdRD6xu2Sp2WCOEoe3mtnyB5Ee0XrrL5Pe+e4CCnJrRMnL1zYtRDZmQQVbvOttLnKDLnaw==`;
-- registry signature but no SLSA provenance attestation;
-- source-development `prepare`/`prepublishOnly` scripts but no consumer
-  `preinstall`, `install`, or `postinstall`; and
-- no advisory match on the research date.
-
-The repository-owned migrator adds no migration dependency. Postgres.js
-replacement is localized behind package-owned client/query helpers and does not
-affect the stored SQL record model.
-
-Final lockfile review confirms:
-
-- the exact manifest/lockfile delta was generated by pnpm and resolves
-  `postgres@3.4.9`;
-- license and official repository/publisher provenance;
-- publication/release age and maintenance state;
-- Node engine, TypeScript declarations, ESM entry behavior, and peer range;
-- published lifecycle scripts and any `requiresBuild` marker;
-- Postgres.js adds zero transitive dependencies; the complete persistence
-  production graph is nine packages including the already-approved
-  contracts/domain/Ajv/TypeBox graph;
-- the resolved integrity matches the reviewed metadata; no exotic,
-  prerelease, peer, native, or lifecycle build was added;
-- exact-version Advisory Database research found no match and
-  `pnpm security:audit` found no known vulnerability;
-- `allowBuilds`, trust settings, and every existing supply-chain control remain
-  unchanged; and
-- replacement cost and limitations.
-
-## Migration inventory and procedure
-
-Committed inventory:
-
-1. `0001_evidence_persistence.sql` — dedicated schema, roles/grants contract,
-   scope/RLS helpers, tenants/tombstone, candidates/capabilities, immutable
-   evidence/limitations/unknowns/reference tables, lifecycle, snapshots,
-   membership, triggers/functions, constraints, indexes, and policies. Exact
-   SHA-256:
-   `0b6f55dfc97366443579f5ac439619f081bc6a5d3d366b50d3d848eb3f6b6165`.
-
-The owned migrator:
-
-1. validate configured migration metadata and supported PostgreSQL major;
-2. begin an explicit transaction;
-3. acquire one fixed advisory transaction lock;
-4. bootstrap the schema-qualified history table if absent;
-5. load committed SQL and compute SHA-256;
-6. compare every historical row with the committed inventory;
-7. fail safely on drift, gaps, unknown applied versions, or unsupported
-   server;
-8. apply each pending migration transactionally where PostgreSQL permits;
-9. record version/name/checksum in the same transaction; and
-10. release by commit/rollback.
-
-Repeat apply is a no-op after checksum verification. Concurrent attempts
-serialize. There are no destructive down migrations. Application-code rollback
-may precede a corrective forward migration only while the old code remains
-compatible. Irreversible data deletion requires restore or forward recovery,
-not a claimed lossless down migration.
+Apply and verify enforce PostgreSQL major 18, exact file checksum, ordered
+history, no unknown/gap/name drift, transactional failure rollback, and a fixed
+advisory migration lock. Repeat application is safe. No down migration exists.
+Because the PR is unmerged with no production data, version 1 is rewritten in
+place. After publication, corrections use new forward migrations.
 
 ## Persistence API inventory
-
-Names may be refined only for clarity; behavior remains:
 
 - `createPersistenceClient`
 - `closePersistenceClient`
 - `applyMigrations`
 - `verifyMigrations`
-- `createTenant`
 - `putCatalogCandidate`
 - `setCandidateCapabilityFamilies`
 - `appendEvidenceObservation`
@@ -487,204 +327,133 @@ Names may be refined only for clarity; behavior remains:
 - `createCandidateDossierSnapshot`
 - `loadCandidateDossierSnapshot`
 - `selectActiveDossierMaterial`
-- `purgeExpiredTenantData`
-- `deleteTenantData`
 
-All operations use fixed SQL text, explicit scope/context, injected
-configuration or pool, explicit transactions for writes, stable bounds and
-ordering, optional abort/deadline input, and value-free stable errors.
+There is no `StorageScope`, tenant, expiry, purge, deletion, tombstone, or
+organization operation/type/error.
 
-## Domain/contract mapping strategy
+## Transaction and concurrency inventory
 
-- Candidate dossier external shape remains owned by
-  `@gitblocks/contracts`.
-- Canonical payload digests use one package-owned deterministic JSON
-  serialization over product DTOs/storage commands after product validation.
-- Evidence JSONB retains the exact closed source variant; normalized columns
-  exist only for ownership, lifecycle, integrity, query, and index needs.
-- Limitation and unknown reference tables enforce database ownership while
-  canonical payloads preserve exact product statements and codes.
-- Snapshot creation validates the complete dossier through
-  `parseCandidateDossierV1`, locks the candidate ownership row, reads exact
-  immutable material in stable order, validates scope/candidate/expiry
-  coherence, inserts metadata and memberships in one transaction, and verifies
-  the supplied/computed digest.
-- Snapshot loading uses the exact stored membership and stored historical
-  identity, reconstructs a V1 dossier, checks the digest, and reruns the
-  product parser. It never substitutes currently-active evidence.
-- Storage conformance may map evaluation records in the private harness;
-  `@gitblocks/persistence` never imports evaluation types, records, or gold.
+| Operation        | Policy                                                                      |
+| ---------------- | --------------------------------------------------------------------------- |
+| Migration        | fixed advisory transaction lock; checksum/history under lock                |
+| Immutable append | unique insert + digest compare in one transaction                           |
+| Capability set   | candidate advisory lock; insert missing/delete removed                      |
+| Supersession     | candidate lock in adapter and cycle trigger                                 |
+| Invalidation     | candidate lock and composite ownership                                      |
+| Snapshot create  | candidate lock; validate current family/exact material; atomic root/members |
+| Snapshot load    | read-only repeatable read; exact members/digests/parser                     |
+| Active material  | read-only repeatable read; bounded complete selection                       |
+| Cancellation     | caller abort + server statement/lock timeout; rollback                      |
 
-## Transaction and concurrency cases
-
-| Operation              | Transaction/concurrency policy                                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Migration              | fixed advisory transaction lock; history/checksum verified under lock                                              |
-| Immutable append       | single `INSERT ... ON CONFLICT DO NOTHING`; fetch/compare digest after conflict; never read-then-unprotected-write |
-| Capability replacement | candidate row lock; validate bounded unique family set; replace atomically                                         |
-| Supersession           | lock candidate ownership; cycle check and insert in one transaction                                                |
-| Invalidation           | lock candidate ownership; append once with candidate/scope consistency                                             |
-| Snapshot creation      | lock candidate ownership; read exact immutable material in stable order; validate and insert atomically            |
-| Active-as-of           | one read-only transaction/snapshot with explicit cutoff and stable ID order                                        |
-| Expiry purge           | one bounded batch selected deterministically with locks; delete snapshot dependents before unreferenced material   |
-| Tenant deletion        | tenant lock; delete all tenant payload/cascades and create minimal tombstone in one transaction                    |
-| Cancellation           | abort/deadline cancels query where driver supports it; transaction rolls back; safe error returned                 |
-
-Tests use observable barriers or simultaneous promises, never arbitrary sleeps.
-
-## Test-database strategy
-
-ADR 0004 selects PostgreSQL 18.4 through the pinned official image digest. The
-test policy is:
-
-- one currently supported PostgreSQL major and an exact patch/container digest
-  for CI and local integration;
-- a local ephemeral container path with no persistent volume, random host port,
-  health check, unique database/schema, and reliable cleanup;
-- connection details supplied only by the local/CI test boundary;
-- migration owner plus separate non-owner/non-superuser runtime login;
-- no developer production database and no silent test skip;
-- CI PostgreSQL verification is mandatory in `verify:ci`;
-- ordinary offline `verify` may remain database-independent with the coverage
-  difference documented; and
-- root commands map to `db:migrate`, `db:check`, `db:test`, and `db:verify`.
-
-If a container engine is unavailable locally, the database command must fail
-with a bounded prerequisite message rather than report success or skip.
-
-## Row-isolation test strategy
-
-The integration suite will connect as a non-owner/non-superuser runtime role
-and prove:
-
-- tenant A reads/writes/references only tenant A;
-- tenant B is invisible to tenant A even when IDs are known;
-- public rows follow the explicit read policy;
-- tenant runtime cannot write public rows;
-- missing tenant context exposes public rows only;
-- malformed context fails closed without unsafe detail;
-- cross-tenant and cross-scope references are rejected by PostgreSQL;
-- the table owner/superuser is not the identity used for isolation assertions;
-  and
-- deletion/purge for one tenant leaves public and the other tenant unchanged.
-
-Catalog inspection will assert RLS enabled/forced and the expected policies on
-every tenant-capable table.
+Tests use observable promises/locks, not arbitrary sleeps.
 
 ## Performance and index rationale
 
-No production latency claim is made. Review targets bounded predictable work:
+- Expression indexes enforce case-insensitive repository/package uniqueness.
+- Candidate/freshness/evidence supports active selection.
+- Candidate/creation/ID supports limitation and unknown selection.
+- Lifecycle candidate/reference/effective indexes support active exclusion.
+- A lifecycle traversal index supports cycle checks.
+- Candidate/family/cutoff supports snapshot history.
+- Primary/unique indexes support exact references and ordered snapshot loads.
 
-- immutable identity lookups use scope-key/stable-ID unique indexes;
-- active-as-of evidence uses scope/candidate/time plus lifecycle reference
-  indexes;
-- snapshot membership uses snapshot plus deterministic ordinal/ID keys;
-- tenant purge uses tenant/expiry/stable-ID indexes;
-- tenant deletion uses tenant-leading indexes on all tenant tables;
-- public repository and package uniqueness use scope-aware unique indexes;
-- page/batch inputs have named finite maxima; and
-- no query returns an unbounded collection.
+No page API exists. The complete active result inherits contract maxima:
+100 evidence, 40 limitations, and 40 unknowns. Exceeding a bound fails rather
+than returning partial material.
 
-Integration tests use `EXPLAIN` only for index eligibility of the principal
-active/as-of and expiry paths, not as a hardware-dependent timing benchmark.
-Index additions require a named query/invariant; speculative indexes are
-excluded.
+## Test-database and role strategy
+
+- Exact official PostgreSQL 18.4 digest.
+- Ephemeral no-volume container with health check/random port/cleanup.
+- Explicit `_test` database acknowledgment for injected configuration.
+- Owner only for migrations, catalog inspection, and deterministic suite setup.
+- Non-owner, non-superuser `gitblocks_persistence_test` login for every runtime
+  operation integration and pilot-conformance call.
+- No RLS claim; tests instead verify zero policies and public-only schema.
+- `verify:ci` includes `db:verify`; no database test may skip.
+
+## Scope-reduction inventory
+
+Counts use authored migration objects, public `index.ts` bindings, and the
+database Vitest graph:
+
+| Surface                                  | Reviewed tenant design | Public-first design | Reduction |
+| ---------------------------------------- | ---------------------: | ------------------: | --------: |
+| Product tables                           |                     15 |                  13 |         2 |
+| RLS policies                             |                     73 |                   0 |        73 |
+| Schema functions                         |                      7 |                   2 |         5 |
+| Triggers                                 |                     17 |                  13 |         4 |
+| Explicit indexes                         |                     17 |                   9 |         8 |
+| TypeScript public exports                |                     45 |                  37 |         8 |
+| PostgreSQL integration/conformance tests |                     15 |                  12 |         3 |
+| Migration lines                          |                  1,851 |                 773 |     1,078 |
+| Key implementation/test lines            |                  5,119 |               3,804 |     1,315 |
+
+The key-line comparison covers migration, operations, public types,
+PostgreSQL integration, deterministic database-suite setup, and persistence
+conformance. Final diff statistics are recorded after all documentation
+stabilizes.
+
+Deleted behavior includes tenants, tombstones, scope/tenant/expiry columns,
+tenant context, tenant/public policy matrices, 73 RLS policies, retention
+triggers/indexes, purge/delete functions, tenant/public writer roles,
+scope/expiry/purge/delete TypeScript commands/results/errors, and tenant-only
+tests/documentation.
 
 ## Implementation milestones
 
-### Milestone 1 — Plan, research, and ADR
+### 1. Authority and public-first design
 
 Status: complete.
 
-- Complete this initial plan and Issue #11 crosswalk.
-- Research official PostgreSQL/client/query/migration options and package
-  metadata.
-- Create ADR 0004 with selected versions, role/RLS, storage, lifecycle,
-  retention, cancellation, CI, and recovery decisions.
-- Validate documents and branch policy.
+- Re-read revised Issue #11, PR #12, maintainer comment, governing docs.
+- Verify branch/main/PR state.
+- Decide no organization primitives due no named consumer.
+- Update plan status and revise ADR.
 
-### Milestone 2 — Package skeleton and migrations test-first
+### 2. Public schema/API correction
 
 Status: complete.
 
-- Add package manifest/config/public surface with no import I/O.
-- Add migration inventory and tests for clean/repeat/drift/concurrency/failure,
-  schema qualification, version, and no implicit migration.
-- Implement only enough migrator/client behavior to make those tests pass.
+- Rewrite migration 0001 and package types/operations.
+- Implement complete-record digests and normalized evidence timestamps.
+- Replace capability delete/reinsert with serialized set diff.
+- Remove tenant lifecycle and RLS surface.
 
-### Milestone 3 — Scope, catalog, and immutable material
-
-Status: complete.
-
-- Add failing integration tests for runtime-role isolation, catalog identity,
-  all provenance variants, references, idempotency, conflicts, concurrency,
-  update denial, rollback, injection, errors, and bounds.
-- Implement candidates, capabilities, evidence, limitations, and unknowns.
-
-### Milestone 4 — Lifecycle and snapshots
+### 3. Semantic regressions and conformance
 
 Status: complete.
 
-- Add failing tests for supersession/invalidation self/cycle/scope rules,
-  active-as-of cutoffs, exact snapshot membership, parser-valid reconstruction,
-  atomicity, and historical stability.
-- Implement lifecycle and snapshot operations.
+- Replace tenant tests with public identity/idempotency/cutoff/lifecycle/
+  closure/snapshot/concurrency tests.
+- Preserve five non-pilot families.
+- Refactor ten-case conformance to shared public candidates.
+- Normalize two inconsistent webhook display names and update only the
+  affected case hash; scoring and gold remain unchanged.
 
-### Milestone 5 — Retention and deletion
+### 4. Documentation/repository policy
 
-Status: complete.
+Status: complete locally; PR description publication pending.
 
-- Add failing tests for mandatory expiry, coherence, bounded purge,
-  non-expired/public preservation, full isolated deletion, minimal tombstones,
-  and no reconstruction.
-- Implement purge and tenant deletion.
+- Rewrite ADR, plan, package/root README, system context, testing, security,
+  reliability, contributor/agent guidance, and PR description.
+- Review dependency/repository invariants and prohibited imports/components.
 
-### Milestone 6 — Conformance, architecture, docs, and full validation
+### 5. Full validation/publication/hosted evidence
 
-Status: complete.
+Status: local validation complete; publication and hosted evidence pending.
 
-- Extend only private harness/tooling needed for ten-case plus non-pilot
-  storage conformance.
-- Update repository invariants, dependency-cruiser, scripts/references, Vitest,
-  CI, README, AGENTS, CONTRIBUTING, engineering standards, system context,
-  ADR, and this plan.
-- Run the complete local PostgreSQL and repository matrix; record every failure
-  and correction.
+- Run every required local command and static acceptance review.
+- Record checksum/counts/coverage/failures.
+- Create ordinary Conventional Commits and push existing branch normally.
+- Update existing draft PR #12.
+- Inspect complete hosted Verification logs and correct only with ordinary
+  follow-up commits.
 
-### Milestone 7 — Publication and hosted evidence
+## Testing and exact validation
 
-Status: complete. The implementation commit was pushed normally, the exact-title
-draft PR was opened, and its PostgreSQL-enabled Verification job passed with
-decoded logs inspected.
-
-- Review complete diff and scope.
-- Create intentional Conventional Commits.
-- Push normally to `feat/11-evidence-persistence`.
-- Open the exact-title draft PR with `Closes #11`.
-- Inspect the PostgreSQL-enabled Verification run, jobs, steps, and decoded
-  logs; correct failures only with ordinary follow-up commits.
-- Leave the PR draft and unmerged.
-
-## Testing and validation strategy
-
-Required suites:
-
-- unit/contract tests for bounds, canonical digest, safe error mapping, client
-  configuration, import side effects, and no implicit migration;
-- real-PostgreSQL integration tests for migrations, RLS, constraints,
-  transactions, concurrency, lifecycle, snapshots, retention, deletion, and
-  cancellation;
-- security/abuse tests for injection, cross-tenant access, malformed context,
-  payload/error leakage, oversized batches, dynamic identifiers, and
-  prohibited imports/capabilities;
-- all seven evidence provenance round trips;
-- ten pilot dossier storage/reconstruction plus separate non-pilot fixtures;
-- architecture/repository invariants for package count and dependency
-  direction; and
-- existing evaluation/scoring fixtures unchanged.
-
-Exact final commands, from repository root under Node `24.18.0`, pnpm
-`11.17.0`, and the ADR-selected PostgreSQL:
+Required local environment: Node `24.18.0`, pnpm `11.17.0`, exact PostgreSQL
+18.4 image.
 
 ```bash
 source /Users/karthikgudipati/.nvm/nvm.sh
@@ -718,196 +487,118 @@ git diff --stat
 git diff
 ```
 
-The final validation also inspects package count/imports, migration server and
-role identities, test skip count, all ten/non-pilot conformance, gold status,
-candidate execution absence, prohibited component absence, and post-frozen
-install/worktree cleanliness.
+Static acceptance review also proves package count/dependencies, no
+tenant-private/expiry/purge/deletion/tombstone/RLS surface, exact migration
+objects, one runtime role, ten pilot/five non-pilot reconstruction,
+proposed/not-reviewed gold, unchanged scoring, no live baseline/candidate
+execution/prohibited component, ordinary pushes, and unchanged `main`.
 
 ## Observability and operations
 
-This package cannot receive production traffic and this phase adds no
-deployment, telemetry backend, service, worker, scheduler, or shared
-environment. Production-path traces/metrics/logs/audit export therefore cannot
-be truthfully implemented here.
+The adapter cannot receive production traffic and adds no service, worker,
+scheduler, deployment, telemetry backend, or credentials. It emits no logs and
+returns bounded stable value-free errors. A future composition must add
+authorization, correlation, audit, telemetry, deployment, and runbooks before
+handling production traffic. Local/CI tooling owns health checks, failure on
+missing prerequisites, and container cleanup.
 
-The adapter still exposes stable value-free error codes suitable for future
-correlated instrumentation and performs no default logging. Correlation remains
-caller-owned and is not accepted as a SQL or persistence payload. Tests prove
-connection strings, SQL parameters, statements, source URLs, and payload text
-are absent from public errors. A future composition ADR must add application
-authorization/audit and deployed telemetry before this adapter handles
-production data.
+## Compatibility, rollout, and recovery
 
-The local/CI database path owns health checking, bounded startup/cleanup, and
-nonzero failure on missing prerequisites. No database health endpoint or
-runbook is added because no service is deployed.
+This is an unpublished schema version with no production data or consumer.
+Rewriting migration 0001 is therefore the smallest correct recovery from the
+overbuilt design. There is no backfill, mixed deployed version, or production
+rollout. After merge, migration history becomes immutable. Code rollback is
+allowed only when compatible with applied schema; otherwise use a corrective
+forward migration or authorized restore.
 
-## Migration, compatibility, rollout, and recovery
+## Exit criteria
 
-This phase creates persisted schema version 1 from an empty database; there is
-no production data or deployed old consumer to backfill.
-
-- Migrations are forward-only, ordered, checksummed, explicit, and
-  transactionally applied under an advisory lock.
-- Historical SQL edits fail verification; corrections use a new forward
-  migration.
-- Mixed-version rule: code may run only when all known migration checksums
-  match and no unknown applied migration exists; operations requiring pending
-  schema fail safely until explicit migration.
-- No package import, client creation, build, unit test, or offline verify
-  applies migrations.
-- A code rollback is allowed only to a version compatible with the applied
-  schema. Otherwise restore an approved database backup or deploy a corrective
-  forward migration.
-- Purge and tenant deletion are intentionally irreversible for payloads.
-  Recovery is restore from an authorized pre-deletion backup subject to the
-  same deletion policy, not a down migration.
-- There is no production rollout, credential, backup, or remote enablement in
-  this phase.
-
-## Exact exit criteria
-
-Phase 4 is complete only when:
-
-- every Issue #11 crosswalk row has an implemented artifact and exact evidence;
-- ADR 0004 and this plan reflect final decisions and discoveries;
-- exactly one new production package exists;
-- all migrations and operations satisfy the stated database invariants;
-- real PostgreSQL tests use a non-owner runtime role with no skips;
-- all ten pilot dossiers and non-pilot fixtures store/reconstruct while gold
-  remains proposed/not-reviewed and evaluation scoring is unchanged;
-- full local validation, clean frozen install, architecture/security review,
-  and hosted PostgreSQL CI pass on the published head;
-- every failure and correction is recorded below;
-- no prohibited product component, candidate execution, production credential,
-  live baseline, gold acceptance, direct-main push, history rewrite, rebase,
-  squash, amend-after-publication, or force-push occurred; and
-- the exact-title PR exists as draft and remains unmerged.
+- Every revised Issue #11 crosswalk row has implementation and evidence.
+- ADR/plan/docs describe only public-first behavior.
+- Exactly one new product package remains with approved dependencies.
+- Migration/API contain no tenant/private/expiry/purge/deletion/tombstone/RLS
+  surface.
+- Complete-record, cutoff, membership, lifecycle, closure, and snapshot
+  invariants pass on real PostgreSQL.
+- All 40 dossiers in ten pilot cases and five non-pilot dossiers reconstruct.
+- Gold stays proposed/not-reviewed; scoring stays unchanged; no live baseline.
+- Full local and hosted PostgreSQL validation passes on final published head.
+- PR #12 stays open, draft, and unmerged.
+- No direct-main push, amend, rebase, squash, rewrite, or force-push occurs.
 
 ## Progress log
 
-- 2026-07-28: Verified local/remote `main` at
-  `e7ae0ba4270b3fb24f144cdb6053355c761b82e5`, clean worktree, merged PR #10,
-  closed Issue #9, open Issue #11, two product packages, no persistence/DB
-  infrastructure, and proposed/not-reviewed gold.
-- 2026-07-28: The first runtime attempt found no sourced nvm and standalone
-  pnpm 11.9.0; runtime policy failed closed. Located and sourced the existing
-  nvm installation without installing anything; confirmed Node 24.18.0 and
-  Corepack pnpm 11.17.0.
-- 2026-07-28: Completed the merged baseline: frozen install, 637 tests,
-  architecture, repository, evaluation, fixture, contract conformance, and
-  secret checks passed.
-- 2026-07-28: Created `feat/11-evidence-persistence` from verified current
-  `main`.
-- 2026-07-28: Began planning, contract/storage mapping inspection, threat
-  modeling, and official client/query/migration research.
-- 2026-07-28: Completed official PostgreSQL, driver, typed-query, mapping, and
-  migration research. Exact-version GitHub Advisory Database queries found no
-  matches for the compared packages.
-- 2026-07-28: Accepted ADR 0004: PostgreSQL 18 only, exact 18.4 container,
-  `postgres@3.4.9`, repository-owned checksummed forward SQL, hybrid normalized
-  plus canonical JSONB records, forced RLS, mandatory tenant expiry,
-  append-only lifecycle, exact snapshots, and forward recovery.
-- 2026-07-28: Added exactly one product package,
-  `@gitblocks/persistence`, with injected client ownership, stable value-free
-  errors, explicit transactions, one checked forward migration, the complete
-  persistence API, no import I/O, and no implicit migrations.
-- 2026-07-28: Added PostgreSQL 18.4 local/CI infrastructure, forced-RLS
-  tenant-runtime and public-writer roles, immutable storage/lifecycle/snapshot
-  integration tests, all-ten-case conformance, and separate non-pilot fixtures.
-- 2026-07-28: Real-database iteration exposed and corrected SQL qualification,
-  driver JSONB encoding, runtime lock privilege, immutable-child locking, and
-  generated-column trigger timing defects before the integration suite passed.
-- 2026-07-28: Updated dependency-cruiser fixtures, repository invariants, root
-  commands/references, hosted CI, README, AGENTS, CONTRIBUTING, development,
-  testing, security, reliability, and system-context documentation.
-- 2026-07-28: Ordinary tests pass at 32 files / 650 tests; V8 coverage is
-  78.45% statements, 71.48% branches, 84.34% functions, and 78.39% lines.
-  The separate PostgreSQL graph passes 2 files / 15 tests with no skips.
-- 2026-07-28: Created ordinary commit
-  `1eb80e185d8423df3f4c07788d6ef9c9cbf97410`, pushed it normally to
-  `feat/11-evidence-persistence`, and opened exact-title draft PR
-  [#12](https://github.com/kgudipati/gitblocks/pull/12) with `Closes #11`.
-- 2026-07-28: GitHub Actions run
-  [30428692978](https://github.com/kgudipati/gitblocks/actions/runs/30428692978),
-  Verification job `90500722393`, passed. Decoded logs confirmed the exact
-  PostgreSQL digest, healthy service, frozen installation, PR metadata, 650
-  ordinary tests, 15 database tests, one migration, 15 forced-RLS tables,
-  ten-case/40-candidate proposed/not-reviewed conformance, dependency and
-  repository checks, audit, no skipped integration tests, and unchanged
-  worktree.
+- 2026-07-29: Verified branch/remote head at `b64a42e3`, `main` unchanged at
+  `e7ae0ba4`, and clean worktree.
+- 2026-07-29: Read revised Issue #11, open/draft/unmerged PR #12, and maintainer
+  correction comment.
+- 2026-07-29: Found no Phase 5/6 organization consumer; omitted both optional
+  organization tables.
+- 2026-07-29: Rewrote migration/API/tests around shared public records and
+  removed tenant lifecycle/RLS.
+- 2026-07-29: TypeScript checkpoint passed after correcting stored-row typing
+  and stale tenant unit tests.
+- 2026-07-29: First real PostgreSQL run passed all 11 public integration tests
+  and exposed duplicate public candidate display names in ten-case conformance.
+- 2026-07-29: Normalized `standard-webhooks` and `svix` display names across
+  webhook cases and updated the affected case hash; scoring/gold unchanged.
+- 2026-07-29: A subsequent run exposed test-file order dependence on a login
+  role. Deterministic suite setup now creates the test login before Vitest; all
+  operation and pilot-conformance calls use that non-owner role.
+- 2026-07-29: `pnpm db:verify` passed: PostgreSQL 18.4, one migration, 13
+  public product tables, zero RLS policies, 12/12 DB tests, no skips, cleanup.
+- 2026-07-29: Created ordinary implementation commit
+  `6b1bc848f89c0e858bb0eef999045b82ae3a7e5d` without amend, rebase,
+  squash, or history rewrite.
 
 ## Decision and deviation log
 
-- 2026-07-28 — Preserve the contract DTO as reconstruction authority and treat
-  storage scope/lifecycle fields as adapter records. Reason: ADR 0003 explicitly
-  forbids storage representations from becoming domain truth.
-- 2026-07-28 — Plan a hybrid normalized-plus-canonical-JSONB record model.
-  Normalized columns enforce ownership, RLS, lifecycle, retention, references,
-  and indexes; canonical closed payloads preserve exact product variants and
-  deterministic reconstruction. ADR 0004 accepts this model.
-- 2026-07-28 — Prefer mandatory caller-supplied tenant expiry over an implicit
-  default because the package has no application policy owner and must not
-  create accidental indefinite retention. ADR 0004 accepts this policy.
-- 2026-07-28 — Keep one initial forward migration unless implementation
-  discoveries require independently reviewable later corrections. Test-only
-  migrations may exercise transactional failure but are not committed product
-  migrations.
-- 2026-07-28 — Select `postgres@3.4.9` over node-postgres, Kysely, and Drizzle.
-  It provides transparent parameterized SQL, transactions, cancellation,
-  native ESM, bundled types, and JSONB support with zero transitive
-  dependencies. Server-side timeouts compensate for best-effort cancellation.
-- 2026-07-28 — Own the migration runner instead of adding node-pg-migrate or
-  graphile-migrate. The required fixed inventory, exact-byte SHA-256 drift
-  detection, advisory transaction lock, and no-down policy are smaller and
-  clearer as reviewed repository code.
-- 2026-07-28 — Support PostgreSQL major 18 only and pin the local/CI server to
-  official PostgreSQL 18.4 by multi-architecture digest. Minor updates are
-  reviewed ordinary changes; another major requires explicit compatibility
-  evidence.
-- 2026-07-28 — Accept mandatory caller-supplied tenant expiry, forced RLS with
-  separate tenant-runtime/public-writer group roles, hybrid normalized plus
-  canonical JSONB records, and exact immutable snapshot membership as the
-  final ADR policy.
-- 2026-07-28 — Use the candidate ownership row as the runtime serialization
-  lock for lifecycle and snapshot creation. Evidence children are immutable
-  and cannot be independently deleted; this avoids granting `UPDATE` solely to
-  make `FOR UPDATE`/`FOR SHARE` child locks possible. Exact members are still
-  read in stable order and protected by composite references.
-- No scope deviation has been approved.
+- 2026-07-29 — Omit organization persistence. No named next-phase consumer
+  exists; YAGNI is authoritative.
+- 2026-07-29 — Use one public runtime role and zero RLS policies. All Phase 4
+  records are public; RLS would imply a private scope that does not exist.
+- 2026-07-29 — Digest complete immutable records rather than payloads. Creation
+  metadata, ownership, cutoff, family, and ordered membership must conflict.
+- 2026-07-29 — Exclude unsupported limitations/unknowns from active material.
+  This is smaller than a separate stale collection and guarantees closure.
+- 2026-07-29 — Return no active pagination. A dossier input must be complete;
+  a future browser operation must be separately named/typed.
+- 2026-07-29 — Keep snapshot family independent of mutable membership and
+  serialize both set replacement and snapshot creation with candidate advisory
+  locks.
+- 2026-07-29 — Normalize inconsistent display names in one pilot case because
+  shared public identity correctly rejects two immutable records for the same
+  candidate. This is representability correction, not scoring/gold review.
+
+## Failed checks and corrections
+
+| Check                         | Failure                                                                                  | Correction                                                                                     |
+| ----------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Initial targeted formatter    | Prettier could not infer a parser for SQL                                                | Format supported TS/Markdown/JSON; SQL remains reviewed text                                   |
+| First `pnpm typecheck`        | Stored identity row typed `unknown`; unit tests referenced removed tenant scope          | Validate stored unknown through product parser; rewrite unit tests for public metadata/cutoff  |
+| First `pnpm db:verify`        | Public conformance conflicted on two candidate display names hidden by per-tenant copies | Normalize project-level names and update affected case hash                                    |
+| Second `pnpm db:verify`       | Conformance file could run before test login creation                                    | Add deterministic suite setup; run both operation and conformance calls through non-owner role |
+| First full-matrix `pnpm lint` | Provenance timestamp switch used an unprovable exhaustive `default`                      | Name all five immutable-publication provenance cases explicitly                                |
+| Public cutoff regression run  | New storage-time assertion had not inserted its limitation/unknown fixtures              | Insert both immutable records with metadata later than the evidence-world cutoff               |
+| Full-matrix `pnpm repo:check` | Package README heading used the lowercase package identifier as prose                    | Use a product-capitalized heading; package identity remains in package metadata and code       |
+| Current `pnpm db:verify`      | Passed                                                                                   | 12/12 tests, 13 public tables, 0 RLS, no skips                                                 |
 
 ## Validation evidence
 
-| Date       | Command/review                                                                                                                                                                         | Result                                                                                                                                                                                                                                 |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-28 | required Git state/fetch/pull/history/revision/branch checks                                                                                                                           | clean; local and remote `main` match expected SHA                                                                                                                                                                                      |
-| 2026-07-28 | connected Issue #11, Issue #9, and PR #10 inspection                                                                                                                                   | Issue #11 open/full scope read; Issue #9 closed; PR #10 merged                                                                                                                                                                         |
-| 2026-07-28 | repository/package/database infrastructure inventory                                                                                                                                   | exactly two product packages; no persistence/DB/migrations/PG CI                                                                                                                                                                       |
-| 2026-07-28 | initial unsourced `nvm use`, `node`, pnpm/runtime attempt                                                                                                                              | failed safely: nvm/node absent from PATH; pnpm 11.9.0 rejected                                                                                                                                                                         |
-| 2026-07-28 | sourced existing nvm; Node/pnpm/runtime/frozen install                                                                                                                                 | Node 24.18.0; pnpm 11.17.0; exit 0                                                                                                                                                                                                     |
-| 2026-07-28 | `pnpm verify`                                                                                                                                                                          | exit 0; 31 files / 637 tests; architecture 589/1,896                                                                                                                                                                                   |
-| 2026-07-28 | `pnpm contracts:validate`                                                                                                                                                              | exit 0; 10 cases / 40 candidates; proposed/not-reviewed                                                                                                                                                                                |
-| 2026-07-28 | `pnpm eval:validate`; `pnpm eval:fixtures`                                                                                                                                             | exit 0; 10 cases and all fixed fixtures                                                                                                                                                                                                |
-| 2026-07-28 | initial migration smoke test                                                                                                                                                           | failed on invalid `pg_catalog.coalesce` qualification; corrected to PostgreSQL special-syntax `coalesce`                                                                                                                               |
-| 2026-07-28 | first JSONB round trip                                                                                                                                                                 | failed because a string parameter encoded canonical JSON as a JSON string; corrected to the driver's explicit JSON helper                                                                                                              |
-| 2026-07-28 | first capability replacement                                                                                                                                                           | failed because runtime `FOR UPDATE` lacked candidate update privilege; added the narrow RLS/grant while the immutable trigger continues to reject updates                                                                              |
-| 2026-07-28 | first snapshot material locking                                                                                                                                                        | failed because `FOR SHARE` on immutable children required inappropriate update privilege; moved serialization to the candidate ownership lock                                                                                          |
-| 2026-07-28 | first snapshot insert                                                                                                                                                                  | failed because a `BEFORE INSERT` trigger read a not-yet-computed generated scope key; derived the key from validated scope/tenant inputs                                                                                               |
-| 2026-07-28 | first `pnpm architecture:check`                                                                                                                                                        | failed because dependency-cruiser normalizes two Node built-ins to `crypto` and `fs/promises`; corrected the exact Node API allowlist; rerun passed at 603/1,931                                                                       |
-| 2026-07-28 | first dedicated integration invocation                                                                                                                                                 | failed with no matching tests under the offline root include; added separate no-skip `vitest.db.config.ts`                                                                                                                             |
-| 2026-07-28 | first `pnpm lint`                                                                                                                                                                      | failed on script project discovery and strict driver/test value narrowing; added a scripts tsconfig and narrowed `unknown` values without disabling rules; rerun passed                                                                |
-| 2026-07-28 | first `pnpm test`                                                                                                                                                                      | failed because temporary repository fixtures and one runtime assertion modeled Phase 3; upgraded them to Phase 4; rerun passed                                                                                                         |
-| 2026-07-28 | first manual validation-container health loop                                                                                                                                          | failed because zsh reserves `status`; renamed the local variable and reprovisioned the disposable container                                                                                                                            |
-| 2026-07-28 | `pnpm lint`; `pnpm typecheck`; `pnpm architecture:check`; `pnpm repo:check`                                                                                                            | exit 0; no rule weakening                                                                                                                                                                                                              |
-| 2026-07-28 | `pnpm test`                                                                                                                                                                            | exit 0; 32 files / 650 tests                                                                                                                                                                                                           |
-| 2026-07-28 | `pnpm test:coverage`                                                                                                                                                                   | exit 0; 78.45% statements, 71.48% branches, 84.34% functions, 78.39% lines                                                                                                                                                             |
-| 2026-07-28 | `pnpm db:migrate`; `pnpm db:check`; `pnpm db:test`                                                                                                                                     | exit 0 against a fresh no-volume PostgreSQL 18.4 container; 1 migration; 15 forced-RLS tables; 2 files / 15 tests                                                                                                                      |
-| 2026-07-28 | `pnpm db:verify`                                                                                                                                                                       | exit 0; self-provisioned exact-digest PostgreSQL 18.4; 1 migration; 15 forced-RLS tables; no skips; cleanup confirmed                                                                                                                  |
-| 2026-07-28 | final Node/pnpm/frozen install plus format, lint, typecheck, build, test, coverage, architecture, repository, evaluation, fixtures, contracts, secrets, audit, and `pnpm verify` graph | exit 0 under Node 24.18.0 and pnpm 11.17.0                                                                                                                                                                                             |
-| 2026-07-28 | final local `pnpm verify:ci`                                                                                                                                                           | exit 0; offline graph, exact-digest PostgreSQL graph, and registry audit all passed                                                                                                                                                    |
-| 2026-07-28 | first `pnpm repo:branch` audit call                                                                                                                                                    | usage error because the branch value was omitted; reran with `-- feat/11-evidence-persistence`, then branch and exact PR-title checks passed                                                                                           |
-| 2026-07-28 | final scope/static review                                                                                                                                                              | exactly three product packages (one new); domain/contracts direction unchanged; no product-to-tool/eval/prohibited import; gold/manifest/scoring unchanged; no skipped database tests; `main` and `origin/main` remain at expected SHA |
-| 2026-07-28 | first decoded-log request while the hosted job was active                                                                                                                              | GitHub's temporary log blob returned not found; waited for completion and then fetched/decoded the complete job log successfully                                                                                                       |
-| 2026-07-28 | GitHub Actions run `30428692978`, Verification job `90500722393`                                                                                                                       | success; every step passed, including exact PostgreSQL service, authoritative verification, final worktree check, and container cleanup                                                                                                |
+| Date       | Command/review                        | Result                                                                                                                        |
+| ---------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-29 | Git/GitHub authority checks           | Expected branch/head/main; PR draft/open/unmerged; issue/comment confirmed                                                    |
+| 2026-07-29 | runtime/frozen install/static/build   | Node 24.18.0; pnpm 11.17.0; frozen install unchanged; format, lint, typecheck, and build passed                               |
+| 2026-07-29 | `pnpm test` / `pnpm test:coverage`    | 32 files and 650 tests passed; 78.32% statements, 71.66% branches, 83.35% functions, 78.20% lines                             |
+| 2026-07-29 | architecture/repository/contract/eval | 604 modules/1,931 dependencies with no violation; repository checks passed; 10 cases/40 candidates proposed/not-reviewed      |
+| 2026-07-29 | `db:migrate` / `db:check` / `db:test` | PostgreSQL 18.4; one migration; 13 public tables; 0 RLS; 12/12 DB tests through deterministic non-owner setup                 |
+| 2026-07-29 | `pnpm db:verify` / `pnpm verify:ci`   | Exact pinned no-volume image provisioned and cleaned; aggregate offline, PostgreSQL, secret, and registry audit checks passed |
+| 2026-07-29 | security checks                       | Secret scan passed; registry audit reported no known vulnerabilities                                                          |
+| 2026-07-29 | schema/API reduction count            | 15→13 tables; 73→0 policies; 7→2 functions; 17→13 triggers; 17→9 explicit indexes; 45→37 exports                              |
+| 2026-07-29 | line/test reduction                   | key lines 5,119→3,804; migration 1,851→773; DB tests 15→12; 28 files have one setup file added, 27 modified, and none deleted |
+| 2026-07-29 | migration checksum                    | `569d7a6d6db70b1b04cadfa8798516ce4239b1179bb2f7cdd84b27641e33755f`                                                            |
+| 2026-07-29 | local Git review                      | Topic/main heads unchanged; `git diff --check` passed; 27 modified files plus one deterministic DB setup file                 |
 
-No hosted failure required a code correction.
+The documentation commit, ordinary push, updated draft PR description, and
+hosted run/job evidence remain pending and will be appended rather than
+reconstructed.

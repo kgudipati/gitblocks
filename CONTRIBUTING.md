@@ -129,8 +129,11 @@ Persistence work must follow
 The adapter depends inward on contracts and domain; future application-owned
 ports must not import the concrete adapter. Migrations are deterministic,
 checksummed, forward-only SQL and are never applied implicitly. PostgreSQL
-integration tests use non-owner runtime roles and prove forced row isolation,
-immutable insertion, lifecycle behavior, retention, and deletion.
+integration tests use a non-owner runtime role and prove immutable public
+insertion, evidence-world cutoffs, append-only lifecycle behavior, active
+reference closure, and exact historical snapshot reconstruction. Phase 4 does
+not implement tenant-private storage, expiry, purge, deletion, tombstones, or
+RLS.
 
 Run `pnpm contracts:validate` when changing a product contract, its runtime
 JSON Schema export, or the evaluation-to-product mapping. This conformance

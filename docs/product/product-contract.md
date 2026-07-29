@@ -4,12 +4,12 @@
 
 This document defines the approved product boundary for the first private
 alpha. GitBlocks remains in an engineering-foundation phase. The repository
-now contains the first private production-owned product code: a pure domain
-package and a versioned contract package for fixed-candidate fit assessment.
-No API, MCP service, scanner, discovery service, model integration, database,
-deployment, or end-to-end adoption workflow is implemented or available yet.
-Changes to this contract require an issue, an execution plan when substantial,
-and architecture review.
+now contains private production-owned packages for the pure domain, versioned
+fixed-candidate contracts, and an injected PostgreSQL adapter for immutable
+public evidence and dossiers. No API, MCP service, scanner, discovery service,
+model integration, deployed database, deployment, or end-to-end adoption
+workflow is implemented or available yet. Changes to this contract require an
+issue, an execution plan when substantial, and architecture review.
 
 ## Product statement
 
@@ -222,8 +222,10 @@ the underlying content merely because it was read.
 Every remotely accepted shape must be versioned and schema validated. Optional
 source excerpts require a clear preview and affirmative approval. Collection,
 retention, deletion, tenant isolation, and redaction controls must be defined
-before remote storage is enabled. Model output and retrieved content follow the
-same trust-boundary rules as user input.
+before private or user-derived remote storage is enabled. Shared public catalog
+evidence uses attributable immutable records plus explicit supersession and
+invalidation. Model output and retrieved content follow the same trust-boundary
+rules as user input.
 
 Repository fact shape and fact vocabulary evolve separately. Adding an
 ordinary first-ecosystem code that uses an existing category, subject policy,

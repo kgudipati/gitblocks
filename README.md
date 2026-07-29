@@ -59,12 +59,13 @@ verification tooling, a proposed ten-case evaluation pilot for
 repository-conditioned adoption fit over fixed candidate sets, and the first
 production-owned packages: a pure domain, versioned contracts, and a
 PostgreSQL persistence adapter for durable catalog identities, immutable
-evidence, reproducible dossier snapshots, row isolation, retention, and tenant
-deletion. These packages do not implement a use case or service. The repository
-still has no application scaffold, Agent Skill, scanner, MCP server,
-operational backend, ingestion, discovery or product ranking engine,
-deployment, production database, or product release. The pilot gold is
-authored and proposed, not independently accepted.
+public evidence, append-only lifecycle events, and reproducible public dossier
+snapshots. These packages do not implement a use case or service. Full tenant
+and organization persistence is intentionally deferred. The repository still
+has no application scaffold, Agent Skill, scanner, MCP server, operational
+backend, ingestion, discovery or product ranking engine, deployment,
+production database, or product release. The pilot gold is authored and
+proposed, not independently accepted.
 
 The governing product scope is the
 [product contract](docs/product/product-contract.md). Engineering work follows
@@ -73,7 +74,7 @@ the [engineering handbook](docs/engineering/repository-workflow.md) and the
 [ADR 0003](docs/architecture/decisions/0003-product-contract-kernel.md) owns the
 product contract mechanism and package boundaries.
 [ADR 0004](docs/architecture/decisions/0004-postgresql-evidence-persistence.md)
-owns the PostgreSQL storage, migration, row-isolation, and retention decisions.
+owns the PostgreSQL public-evidence storage and migration decisions.
 
 ## Repository map
 
@@ -91,7 +92,7 @@ owns the PostgreSQL storage, migration, row-isolation, and retention decisions.
 | `docs/plans/`               | Active and historical version-controlled execution plans                         |
 | `packages/domain/`          | Pure product vocabulary, constructors, canonicalization, and invariants          |
 | `packages/contracts/`       | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
-| `packages/persistence/`     | Injected PostgreSQL adapter, checked migrations, row isolation, and DB tests     |
+| `packages/persistence/`     | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
 | `evals/pilot-v1/`           | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
 | `schemas/evaluation/`       | Versioned JSON Schema 2020-12 evaluation contracts                               |
 | `tools/evaluation-harness/` | Private bounded validator, deterministic scorer, CLI, and tests                  |
@@ -139,7 +140,7 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                |
 | `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings     |
 | `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB |
-| `pnpm db:check`                       | Verify migration history, roles, and forced row isolation   |
+| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes |
 | `pnpm db:test`                        | Run PostgreSQL integration and conformance tests            |
 | `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks     |
 | `pnpm security:secrets`               | Scan tracked development content for secrets                |

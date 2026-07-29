@@ -196,27 +196,29 @@ Use identifiers instead of content in telemetry. Redaction happens before
 logging, tracing, storage, or model calls and is tested against structured and
 free-text fields. Backups, caches, derived indexes, evaluation corpora, and
 outcome-learning data follow the same deletion and retention policy as their
-source. Production collection cannot begin until retention and deletion are
-implemented and a user can understand what leaves the local boundary.
+source. Production collection of sensitive, private, or user-derived content
+cannot begin until retention and deletion are implemented and a user can
+understand what leaves the local boundary. Shared public catalog evidence uses
+the immutable correction/invalidation lifecycle defined by ADR 0004.
 
-## Persistence isolation and deletion
+## Public evidence persistence boundary
 
-PostgreSQL tenant isolation is a database invariant, not only a query-filter
-convention. Every tenant-capable table enables and forces row-level security.
-Runtime access uses non-owner, non-superuser roles, with the tenant context set
-transaction-locally from a validated UUID; absent or malformed context fails
-closed. Public writes use a distinct least-privilege role. Composite foreign
-keys and triggers reject cross-scope, cross-candidate, and cross-tenant
-references.
+Phase 4 PostgreSQL records are a shared public catalog. The runtime uses one
+non-owner, non-superuser group role with explicit schema/table/sequence
+grants. There is no tenant context, tenant-private row, expiry, purge, tenant
+deletion, tombstone, organization model, or row-level-security policy. Adding
+any private or organization-scoped record requires a named application
+consumer, authorization model, threat model, retention/deletion decision, and
+architecture review.
 
-Tenant payload insertion requires a caller-supplied expiry. Purge and tenant
-deletion are bounded, transactional, tenant-scoped operations that cannot
-remove public or other-tenant data. A deletion tombstone may retain only the
-tenant identifier, deletion time, and stable reason code; it cannot retain
-statements, URLs, excerpts, dossier payloads, limitations, unknowns, or
-credentials. Evidence and snapshots are immutable, and lifecycle corrections
-append rather than overwrite. Tests exercise these guarantees through runtime
-roles, including missing and malformed context.
+Database ownership constraints preserve candidate and reference integrity.
+Evidence, limitations, unknowns, lifecycle events, snapshots, and snapshot
+membership are immutable. Lifecycle corrections append rather than overwrite.
+Every applicable evidence timestamp must satisfy the requested evidence-world
+cutoff, and active dossier material excludes a limitation or unknown when its
+supporting evidence is no longer active. Tests exercise operations through a
+non-owner role and verify that the schema contains no private-scope or RLS
+surface.
 
 ## Auditability and security telemetry
 
