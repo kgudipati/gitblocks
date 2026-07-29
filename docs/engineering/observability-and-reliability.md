@@ -64,6 +64,15 @@ done with “add logging later.”
 Tests assert correlation across owned boundaries, stable operation/error names,
 and safe behavior when incoming correlation metadata is invalid.
 
+The Phase 5 provider boundary distinguishes established value, established
+absence, retry-exhausted temporary unavailability, rate limit, caller
+cancellation, deadline, authentication, authorization, identity mismatch,
+malformed response, content type, body limit, redirect, and invariant failure.
+Only temporary optional unavailability emits a partial candidate outcome, with
+a bounded source code and no snapshot. Fatal outcomes emit `failed` with the
+stable value-free code. Repository/package names, URLs, response text, and
+headers remain excluded from events and receipts.
+
 ## Telemetry data contract
 
 Allowed baseline attributes include service and operation version,

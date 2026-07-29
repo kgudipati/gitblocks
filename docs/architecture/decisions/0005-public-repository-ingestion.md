@@ -41,13 +41,21 @@ built, tested, executed, or sent to a model.
 
 ### Curated-manifest-first strategy
 
-Use a version-controlled `catalog/public-v1/manifest.json` as curator-owned
-input. Do not implement GitHub-wide discovery or npm search.
+Use version-controlled `catalog/public-v1/candidates.json` as explicit
+curator-owned input and deterministically derive
+`catalog/public-v1/manifest.json`. Do not implement GitHub-wide discovery or
+npm search. The generator only sorts, validates, digests, and wraps the
+curated entries; it does not manufacture rationales, source declarations,
+selection evidence, additional families, or file allowlists.
 
-The manifest contains exactly one stable candidate identity per canonical
-GitHub repository and explicit primary/additional capability families. Provider
-responses remain evidence authority; curator rationale never overrides a moved,
-private, mismatched, archived, deprecated, or otherwise limited live identity.
+Each entry contains one stable catalog identity, stable `introducedAt`,
+explicit primary/additional capability families, candidate-specific inclusion
+rationale, candidate-specific classification sources, expected source types,
+status, and allowlisted files. The stable GitHub identity is immutable
+candidate identity, while the provider's current canonical location is
+evidence. Provider responses remain evidence authority; curator rationale
+never overrides a private, mismatched, archived, deprecated, or otherwise
+limited live result.
 
 The V1 repository bounds are:
 
@@ -155,7 +163,8 @@ Selected GET endpoints:
   time;
 - `/repos/{owner}/{repo}/releases?per_page=5&page=1` for selected releases;
 - `/repos/{owner}/{repo}/tags?per_page=5&page=1` for selected tags;
-- `/repos/{owner}/{repo}/license` for license metadata;
+- `/repos/{owner}/{repo}/license?ref={exactCommitSha}` for license metadata
+  pinned to the already collected head;
 - `/repos/{owner}/{repo}/community/profile` for selected community/security
   metadata; and
 - `/repos/{owner}/{repo}/contents/{path}?ref={exactCommitSha}` for manifest
@@ -168,6 +177,12 @@ GitBlocks therefore requires an object response whose type is exactly `file`,
 encoding is supported, reported SHA/content is bounded, and requested `ref` is
 the already collected exact head commit. It never follows returned download
 URLs.
+
+The license response's detected path, optional name, and optional Git object
+SHA are validated. License evidence uses an immutable URL constructed from the
+provider's current canonical owner/repository, exact captured commit SHA, and
+exact detected path. A returned default-branch URL is never used to claim
+exact-commit provenance.
 
 #### npm
 
@@ -232,8 +247,9 @@ not improve the required V1 result over GitHub's reviewed exact-version GET.
 
 Only advisories returned by the exact reviewed query become evidence. A
 zero-result response is not proof of no vulnerability and creates a material
-coverage unknown. A provider failure also creates explicit partial coverage
-without deleting or invalidating prior advisory evidence.
+coverage unknown. Temporary advisory unavailability makes the candidate
+collection transiently partial: it creates no snapshot, limitation, unknown,
+invalidation, or other durable material.
 
 ### Authentication and secret handling
 
@@ -272,8 +288,11 @@ Fetch uses `redirect: manual`. A redirect is followed only when:
 
 Cross-host, downgrade, excess, missing-location, and malformed redirects fail
 closed. A same-host canonical repository move is recorded and compared with the
-manifest; it becomes moved identity evidence/limitation and never silently
-rewrites curator input.
+manifest. A mismatch is accepted only for an entry explicitly marked `moved`;
+it becomes current-location evidence and a moved limitation. Persistence keeps
+the stable manifest owner/repository, npm linkage compares against the current
+provider canonical location, and refresh never rewrites Phase 4 candidate
+identity.
 
 Repository responses must prove `private: false` and public visibility. A
 private, internal, ambiguous, missing, or unauthorized identity fails the
@@ -285,7 +304,7 @@ candidate before persistence.
 | ----------------------------------- | --------------: |
 | GitHub repository/advisory JSON     |   2 MiB decoded |
 | npm full packument JSON             |  16 MiB decoded |
-| GitHub file API response            | 192 KiB decoded |
+| GitHub file API response            | 256 KiB decoded |
 | decoded allowlisted file            |          64 KiB |
 | decoded allowlisted total/candidate |         128 KiB |
 | allowlisted files/candidate         |               3 |
@@ -312,13 +331,26 @@ array bounds before provider mapping.
 
 ### Request, pagination, concurrency, deadline, and retry policy
 
-Per candidate:
+Repository identity and head are the two universal GitHub requests. The
+manifest's `expectedSourceTypes` then controls each optional release, tag,
+license, community, file, npm, and advisory request. Per candidate:
 
-- six base GitHub repository requests;
-- zero to three allowlisted file requests;
-- zero or one npm packument request;
-- zero to two advisory pages, 100 results per page; and
+- two universal GitHub requests;
+- zero to four declared single-request GitHub sources (release, tag, license,
+  and community);
+- zero to three declared allowlisted file requests;
+- zero or one declared npm packument request;
+- zero to two declared advisory pages, 100 results per page; and
 - no more than 12 total provider requests.
+
+Public V1 uses four reviewed policies: non-negative npm-backed entries declare
+release, license, exact-commit `package.json`, npm, and advisory sources;
+non-negative repository-only entries declare release, tag, license, and
+community sources; npm-backed negative controls declare npm and advisory
+sources; repository-only negative controls declare no optional source. This
+keeps declaration semantics reviewable instead of assigning identical optional
+requests to every candidate. The final manifest's highest logical budget is
+eight.
 
 Candidate concurrency defaults to three and is configurable only from one to
 three. Requests inside one candidate are serial. GitHub recommends serial
@@ -336,7 +368,9 @@ most two retries for network failure, 408, 429, 500, 502, 503, or 504. Other
 failures do not retry.
 
 Ordinary transient backoff is exponential from 250 ms with deterministic
-per-request/per-attempt jitter and a 5-second maximum. For GitHub 403/429:
+per-request/per-attempt jitter and a 5-second maximum. Valid `Retry-After`
+seconds or HTTP dates are honored for both GitHub and npm 429 responses. For a
+GitHub 403/429 without `Retry-After`:
 
 1. honor `Retry-After` exactly when valid;
 2. otherwise, when `X-RateLimit-Remaining` is zero, wait until
@@ -353,6 +387,16 @@ batch stops starting new GitHub work.
 Rate-limit limit/remaining/reset values are validated, bounded, and summarized
 in the receipt. Provider messages and response bodies are never inspected to
 construct public errors.
+
+Provider outcomes are closed and value-free: established value, established
+absence, retry-exhausted temporary unavailability, rate limit, caller
+cancellation, deadline, authentication failure, authorization failure,
+identity mismatch, malformed response, unsupported content type, body too
+large, unsafe redirect, and internal invariant failure. Only an explicitly
+approved optional 404 is established absence. Cancellation, deadline, identity,
+schema/JSON, size, content-type, redirect, authentication/authorization, rate
+limit, and deterministic invariant outcomes are never downgraded to missing
+metadata.
 
 ### Allowlisted repository-file policy
 
@@ -424,12 +468,14 @@ The profiler does not infer compatibility or quality from stars, forks,
 downloads, topics, generic descriptions, or marketing text. It does not create
 a ranking, score, viability decision, or model call.
 
-Missing decision-relevant facts become bounded unknowns. Directly established
-drawbacks become limitations, including archive/fork state, move and
-negative-control catalog state, deprecation, repository/package mismatch,
-applicable advisory, missing security policy, and incomplete bounded source
-coverage. Missing or ambiguous license/linkage, undeclared runtime, unavailable
-release state, advisory coverage, and unproven capability fit remain unknowns.
+Missing decision-relevant facts established by a completed declared query
+become bounded unknowns. Directly established drawbacks become limitations,
+including archive/fork state, move and negative-control catalog state,
+deprecation, repository/package mismatch, applicable advisory, missing
+security policy, and deterministic pagination bounds. Missing or ambiguous
+license/linkage, undeclared runtime, established release/tag/file absence,
+advisory coverage, and unproven capability fit remain unknowns. Transient
+request failures create neither limitations nor unknowns.
 V1 defines neither a supported-runtime target nor a stale-release threshold, so
 it does not reinterpret declared ranges or age as a drawback. A limitation is
 descriptive and never automatically rejects or ranks a candidate.
@@ -473,11 +519,14 @@ When that ID exists in prior active material, it reuses the exact prior
 observation, including original collection/freshness values. A new or changed
 normalized record uses the current injected collection time and a new ID.
 
-Candidate persistence creation time is the immutable catalog publication time.
-Limitation, unknown, lifecycle, and snapshot creation times derive from the
-exact profile evidence cutoff. The evidence cutoff is the maximum applicable
-publication/collection/validation/freshness time in the exact material, not the
-batch completion time.
+Candidate persistence creation time is the entry's immutable `introducedAt`,
+not the catalog release's `publishedAt`. Republishing the same candidate in a
+later manifest therefore remains idempotent; changing `introducedAt` conflicts
+with the existing Phase 4 identity record. Newly added candidates may use a
+later introduction time. Limitation, unknown, lifecycle, and snapshot creation
+times derive from the exact profile evidence cutoff. The evidence cutoff is
+the maximum applicable publication/collection/validation/freshness time in the
+exact material, not the batch completion time.
 
 Consequently:
 
@@ -499,18 +548,20 @@ authoritative topic:
 - changed fact: append new evidence and deterministic supersession;
 - old fact no longer established by a complete authoritative source: append
   deterministic invalidation;
-- provider temporary failure: preserve old history and create no invalidation;
+- optional provider temporary failure: return a partial candidate receipt,
+  preserve old history, and create no snapshot or durable material;
 - move/archive/deprecation: append the new directly established evidence and
   limitation;
 - new/updated advisory: append or supersede advisory evidence;
 - withdrawn advisory: append the withdrawal state and supersede the earlier
   advisory observation.
 
-GitHub repository/head identity and npm metadata for a mapped package are
-required candidate sources. If incomplete, no dossier snapshot is created.
-Advisory coverage is an explicit partial-evidence policy: zero results or
-temporary failure produces a bounded material unknown, never fabricated clean
-evidence and never historical deletion.
+GitHub repository identity and head are required candidate sources. All
+manifest-declared optional sources must also complete as either an established
+value or approved established absence before a dossier snapshot is created.
+An advisory zero-result response produces a bounded coverage unknown;
+temporary failure produces no profile. Neither case fabricates clean evidence
+or deletes history.
 
 ### Candidate transaction and batch partial-failure boundaries
 
@@ -521,7 +572,7 @@ membership.
 
 For one candidate, Phase 5:
 
-1. collects every required source before persistence;
+1. collects every required and declared optional source before persistence;
 2. validates every intended candidate-family dossier through the product
    contract before writing a snapshot;
 3. loads prior active material;
@@ -531,10 +582,11 @@ For one candidate, Phase 5:
 7. creates each exact snapshot only after all material is ready; and
 8. immediately reloads every snapshot to prove reconstruction.
 
-Successful immutable writes may remain when a later transient failure occurs;
-their stable complete records make retry coherent. A snapshot is never
-partially inserted. A failure between multiple family snapshots is recorded as
-a stable partial candidate failure and an unchanged rerun converges.
+Collection completes before the first write. A required or fatal source failure
+is a failed candidate with no snapshot. Optional temporary unavailability is a
+partial candidate receipt with no snapshot and no persisted transient
+limitation or unknown. A snapshot is never partially inserted. An unchanged
+rerun converges through stable complete records.
 
 Candidates are independent. The batch does not wrap the manifest in one
 transaction and never rolls back completed candidates because another

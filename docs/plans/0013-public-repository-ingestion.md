@@ -8,8 +8,9 @@
 - Planned draft PR title: `feat: ingest curated public repository catalog`
 - Owner: GitBlocks maintainers
 - State:
-  `implementation and deterministic validation complete; live ingestion
-blocked on explicitly injected provider and database credentials`
+  `independent-review corrections and full local deterministic validation
+complete; correction commits, hosted CI, and both reviewed live runs remain
+incomplete`
 - Last updated: 2026-07-29
 - Authority order: Issue #13; actual repository and Git history; product
   contract; accepted ADRs and system context; `AGENTS.md`, `PLANS.md`, and the
@@ -314,8 +315,9 @@ package/repository-only, and status counts.
 
 ## Manifest schema and invariants
 
-`catalog/public-v1/manifest.json` is one closed, reviewable curator-owned
-document:
+`catalog/public-v1/candidates.json` is explicit curator input.
+`catalog/public-v1/manifest.json` is its closed, deterministically generated
+release form. The generator cannot manufacture per-candidate fields:
 
 ```text
 catalogVersion
@@ -324,12 +326,14 @@ manifestDigest
 candidates[]:
   candidateId
   displayName
-  githubOwner
-  githubRepository
+  introducedAt
+  github:
+    owner
+    repository
   npmPackage
   primaryCapabilityFamily
   additionalCapabilityFamilies[]
-  inclusionRationale
+  rationale
   expectedSourceTypes[]
   selectionSources[]
   status
@@ -355,25 +359,26 @@ Rules:
 
 ## Request, byte, pagination, concurrency, and time budgets
 
-| Bound                              |              Initial decision |
-| ---------------------------------- | ----------------------------: |
-| Candidate concurrency              |                             3 |
-| Requests within one candidate      |                        serial |
-| GitHub base requests/candidate     |                             6 |
-| GitHub file requests/candidate     |                     maximum 3 |
-| npm requests/mapped candidate      |                             1 |
-| advisory pages/mapped candidate    |           maximum 2, 100/page |
-| total provider requests/candidate  |                    maximum 12 |
-| provider attempts                  | 1 initial + maximum 2 retries |
-| per-request timeout                |                    10 seconds |
-| per-candidate deadline             |                    90 seconds |
-| full-run deadline                  |                    60 minutes |
-| ordinary GitHub/advisory JSON body |                         2 MiB |
-| npm full packument body            |                        16 MiB |
-| repository file decoded bytes      |                   64 KiB/file |
-| repository file total              |             128 KiB/candidate |
-| JSON depth / object-array nodes    |                  32 / 100,000 |
-| same-host redirects                |                     maximum 2 |
+| Bound                                  |              Initial decision |
+| -------------------------------------- | ----------------------------: |
+| Candidate concurrency                  |                             3 |
+| Requests within one candidate          |                        serial |
+| universal GitHub requests/candidate    |                             2 |
+| declared release/tag/license/community |              zero or one each |
+| GitHub file requests/candidate         |                     maximum 3 |
+| npm requests/mapped candidate          |                             1 |
+| advisory pages/mapped candidate        |           maximum 2, 100/page |
+| total provider requests/candidate      |                    maximum 12 |
+| provider attempts                      | 1 initial + maximum 2 retries |
+| per-request timeout                    |                    10 seconds |
+| per-candidate deadline                 |                    90 seconds |
+| full-run deadline                      |                    60 minutes |
+| ordinary GitHub/advisory JSON body     |                         2 MiB |
+| npm full packument body                |                        16 MiB |
+| repository file decoded bytes          |                   64 KiB/file |
+| repository file total                  |             128 KiB/candidate |
+| JSON depth / object-array nodes        |                  32 / 100,000 |
+| same-host redirects                    |                     maximum 2 |
 
 All streamed byte limits apply to bytes delivered to the parser after fetch
 content decoding. Requests send `Accept-Encoding: identity` as defense in
@@ -381,9 +386,18 @@ depth. A body exceeding its limit is cancelled before parsing.
 
 Retries apply only to safe GET requests after network failure, 408, 429, 500,
 502, 503, or 504. Backoff is exponential with deterministic per-request
-jitter. GitHub `Retry-After` and primary reset time take precedence. If the
-required wait exceeds the remaining deadline or 60 seconds, the operation
-returns a stable rate-limit failure without an early retry.
+jitter. GitHub and npm `Retry-After` take precedence; GitHub primary reset time
+is the fallback when remaining is zero. If the required wait exceeds the
+remaining deadline or 60 seconds, the operation returns a stable rate-limit
+failure without an early retry.
+
+Closed provider outcomes are established value, established absence,
+retry-exhausted temporary unavailability, rate limited, caller cancellation,
+deadline, authentication failure, authorization failure, identity mismatch,
+malformed response, unsupported content type, body too large, unsafe redirect,
+and internal invariant failure. Only an approved optional absence is normal
+missing metadata; fatal outcomes are rethrown and temporary optional
+unavailability is a no-snapshot partial receipt.
 
 ## Trust boundaries and allowed file paths
 
@@ -469,9 +483,12 @@ Unchanged logical evidence reuses the exact prior persisted observation,
 including its original collection time. New or changed normalized source
 records use the current injected collection time. The evidence cutoff is the
 maximum evidence-world time in the exact material, not the batch wall-clock
-end. Candidate creation time comes from the immutable catalog publication
-time. Thus unchanged provider data reproduces complete immutable records and
-the same snapshot ID rather than conflicting on refreshed audit timestamps.
+end. Candidate creation time comes from stable per-entry `introducedAt`;
+`publishedAt` is catalog-release metadata only. A later manifest
+digest/publication does not rewrite existing identity, a changed introduction
+time conflicts, and a newly added candidate may use a later introduction. Thus
+unchanged provider data reproduces complete immutable records and the same
+snapshot ID rather than conflicting on refreshed audit timestamps.
 
 ## Refresh, lifecycle, and transaction semantics
 
@@ -489,16 +506,20 @@ For each fully collected candidate:
    passed the product parser; and
 9. load the snapshot back for exact reconstruction.
 
-GitHub identity/head and npm metadata for a mapped package are required source
-invariants. Failure produces no snapshot. Advisory collection is an explicitly
-partial evidence source: failure or zero results creates a coverage unknown,
-preserves prior advisory history, and does not fabricate a clean result.
+GitHub identity/head are universal source invariants. Every manifest-declared
+optional source must establish value or approved absence before profiling.
+Required or fatal failure produces no snapshot. Optional temporary
+unavailability produces a partial candidate receipt, no snapshot, and no
+durable transient limitation/unknown. A successful zero-result advisory query
+creates a coverage unknown, preserves prior history, and does not fabricate a
+clean result.
 
 Phase 4 keeps each immutable append and snapshot atomic. Phase 5 does not add a
 schema transaction spanning candidates. An independent candidate failure never
-rolls back completed candidates. If a transient failure occurs after immutable
-material but before every snapshot, the receipt records a stable partial
-failure and an unchanged rerun converges through complete-record idempotency.
+rolls back completed candidates. Provider collection completes before the
+first candidate write, so a transient collection failure cannot publish a
+partial dossier; an unchanged rerun converges through complete-record
+idempotency.
 
 ## Receipt schema
 
@@ -623,9 +644,8 @@ Status: complete.
 
 ### 6. Live run and publication
 
-Status: draft publication and hosted verification complete; live execution
-blocked because no explicit live GitHub or ingestion database configuration is
-injected.
+Status: prior draft publication exists; correction publication, final hosted
+verification, and both live executions remain incomplete.
 
 - Run the full final manifest only with explicitly injected credentials,
   approved non-production PostgreSQL, and acknowledgement.
@@ -633,6 +653,24 @@ injected.
 - Create intentional Conventional Commits, push normally, open the exact draft
   PR with `Closes #13`, inspect decoded hosted logs, and fix only through
   ordinary follow-up commits.
+
+### 7. Independent-review corrections
+
+Status: implementation and focused local regressions complete; full matrix and
+publication pending.
+
+- Make all curator decisions explicit in `candidates.json` and reject generic
+  rationale or repository-homepage-only classification.
+- Replace catch-all optional handling with the closed provider outcome
+  taxonomy and declared-source request policy.
+- Prevent transient collection from writing a snapshot or durable
+  limitation/unknown.
+- Preserve stable manifest identity through a moved provider canonical
+  location.
+- Use stable per-entry `introducedAt`, pin license collection to exact commit,
+  and validate exact provenance.
+- Prove fatal no-snapshot behavior and complete/temporary/recovered source
+  cycles through PostgreSQL 18.4.
 
 ## Testing and deterministic-CI strategy
 
@@ -819,6 +857,49 @@ new issue.
   The GitHub token and all ingestion database variables are unset; Docker is
   not available as an operator target. Per Issue #13, no live run was
   fabricated or replaced with fixtures.
+- 2026-07-29: Began the independent-review correction pass on reviewed head
+  `3b49e164`. Reconfirmed Issue #13, draft PR #14, exact branch, clean shared
+  history, and the no-rebase/no-force/no-new-PR constraints.
+- 2026-07-29: Added focused regressions before correction. The reviewed head
+  failed 11 assertions covering swallowed fatal optional outcomes,
+  exact-commit license `ref`, declared-source execution, npm `Retry-After`,
+  candidate-specific rationale, and homepage-only classification evidence.
+- 2026-07-29: Replaced the shallow candidate source with 150 explicit curator
+  entries. The review retained 30 primary entries per family, 81 npm-backed /
+  69 repository-only, 102 active / three archived / one moved / 44 negative
+  controls, and deliberately zero additional-family assignments. It made no
+  candidate removal, replacement, alias, or primary-family correction before
+  live provider verification. It corrected `logform` from active to negative
+  control because it formats existing records rather than producing,
+  collecting, or transporting logs. The four documented declared-source policies
+  distinguish non-negative npm, non-negative repository-only, npm negative
+  control, and repository-only negative control entries. Fifty-one
+  non-negative npm candidates justify an exact-commit `package.json`; the
+  other 99 request no file. The highest manifest logical request budget is
+  eight.
+- 2026-07-29: Recomputed the manifest digest as
+  `371df1d677284466f7b29f3aaef0b15641e09cf3792a3badc64c45004161dfb7`.
+- 2026-07-29: Implemented the closed provider outcome taxonomy,
+  declaration-driven optional requests, no-snapshot transient partials, stable
+  manifest identity across moves, per-candidate `introducedAt`, and
+  exact-commit license provenance.
+- 2026-07-29: Focused deterministic validation passed with 44 ingestion tests.
+  PostgreSQL 18.4 verification passed with 23 database tests, including fatal
+  no-snapshot cases, five complete/fail/recover source cycles, moved refresh,
+  manifest republication, introduction conflict, and later candidate
+  introduction.
+- 2026-07-29: The complete required local matrix passed after the catalog
+  review. It covered 695 offline tests, 44 focused ingestion tests, 23
+  PostgreSQL 18.4 tests without skips, 625 architecture modules / 1,988
+  dependencies, frozen installation, formatting, lint, typecheck, build,
+  repository checks, evaluation and contract validation, secret scanning, and
+  the registry-backed dependency audit. Coverage was 77.14% statements, 69.95%
+  branches, 83.62% functions, and 76.98% lines.
+- 2026-07-29: Rechecked live configuration without reading any value. No
+  ingestion, GitHub CLI, `GH_TOKEN`, or `GITHUB_TOKEN` credential is available.
+  A pinned no-volume local PostgreSQL 18.4 container is now an available
+  approved database path, but no provider request or live receipt can be
+  produced without existing GitHub authentication.
 
 ## Decision and deviation log
 
@@ -834,48 +915,61 @@ new issue.
   lifecycle operations, active selection, and snapshot operations represent
   the complete Phase 5 result.
 - 2026-07-29 — Make advisory coverage intentionally partial and explicit.
-  Zero results or temporary failure never prove safety and never invalidate
-  prior advisory history.
+  Zero results create a bounded coverage unknown. Temporary failure never
+  proves safety, creates no profile, and never invalidates prior advisory
+  history.
 - 2026-07-29 — Reuse exact prior observations when the deterministic evidence
   ID is unchanged. This reconciles truthful first-collection time with Phase 4
   complete-record idempotency.
 
 ## Failures and corrections
 
-| Check or approach                                             | Failure or risk                                                                                                                  | Correction                                                                                                                           |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Initial mandated `nvm use`                                    | Codex shell did not auto-load NVM                                                                                                | Source the existing NVM script explicitly; record the environment correction                                                         |
-| Treat every refresh collection time as a new immutable record | Unchanged sources would conflict on stable evidence IDs and change snapshot cutoffs                                              | Reuse the exact prior observation when normalized source identity is unchanged                                                       |
-| Use an advisory zero-result as clean evidence                 | Provider coverage cannot prove absence                                                                                           | Emit a bounded coverage unknown and no favorable evidence                                                                            |
-| First lockfile-only update under the repository frozen policy | pnpm correctly rejected the new workspace manifest as an outdated frozen lockfile                                                | Run the authorized pnpm non-frozen lockfile update once, then restore and verify frozen installation                                 |
-| First architecture check after adding the package             | Approved Node built-ins resolved to their bare dependency-cruiser names                                                          | Add only `crypto`, `stream/web`, and `util` to the ingestion Node-API allowlist; the graph then passed                               |
-| First ingestion PostgreSQL changed-refresh test               | Re-appending unchanged limitation/unknown IDs with a later command timestamp conflicted with Phase 4 complete-record idempotency | Reuse active limitation/unknown records by stable ID and append only new material                                                    |
-| First final secret-scan command                               | Used the nonexistent shorthand `pnpm secrets:scan`                                                                               | Run the repository's actual `pnpm security:secrets` command; it passed                                                               |
-| Final prompt/ADR/code trace after the first hosted pass       | ADR required moved canonical identity evidence, but the provider rejected every canonical mismatch                               | Add failing moved/negative-control regressions; accept mismatch only for explicit `moved` entries and emit deterministic limitations |
-| Required live provider/database run                           | `GITBLOCKS_INGEST_GITHUB_TOKEN` and every `GITBLOCKS_INGEST_DB_*` variable are unset; no approved target was supplied            | Stop before provider calls, keep the PR draft, record Phase 5 live completion as incomplete, and request no secret in Git or chat    |
+| Check or approach                                             | Failure or risk                                                                                                                          | Correction                                                                                                                                        |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Initial mandated `nvm use`                                    | Codex shell did not auto-load NVM                                                                                                        | Source the existing NVM script explicitly; record the environment correction                                                                      |
+| Treat every refresh collection time as a new immutable record | Unchanged sources would conflict on stable evidence IDs and change snapshot cutoffs                                                      | Reuse the exact prior observation when normalized source identity is unchanged                                                                    |
+| Use an advisory zero-result as clean evidence                 | Provider coverage cannot prove absence                                                                                                   | Emit a bounded coverage unknown and no favorable evidence                                                                                         |
+| First lockfile-only update under the repository frozen policy | pnpm correctly rejected the new workspace manifest as an outdated frozen lockfile                                                        | Run the authorized pnpm non-frozen lockfile update once, then restore and verify frozen installation                                              |
+| First architecture check after adding the package             | Approved Node built-ins resolved to their bare dependency-cruiser names                                                                  | Add only `crypto`, `stream/web`, and `util` to the ingestion Node-API allowlist; the graph then passed                                            |
+| First ingestion PostgreSQL changed-refresh test               | Re-appending unchanged limitation/unknown IDs with a later command timestamp conflicted with Phase 4 complete-record idempotency         | Reuse active limitation/unknown records by stable ID and append only new material                                                                 |
+| First final secret-scan command                               | Used the nonexistent shorthand `pnpm secrets:scan`                                                                                       | Run the repository's actual `pnpm security:secrets` command; it passed                                                                            |
+| Final prompt/ADR/code trace after the first hosted pass       | ADR required moved canonical identity evidence, but the provider rejected every canonical mismatch                                       | Add failing moved/negative-control regressions; accept mismatch only for explicit `moved` entries and emit deterministic limitations              |
+| Independent review of optional-source handling                | Catch-all fallback swallowed cancellation, rate, auth, identity, malformed, size, content-type, redirect, and invariant outcomes         | Add the closed outcome taxonomy; only approved absence is missing, temporary unavailability is partial, and every fatal outcome propagates        |
+| Independent review of transient dossiers                      | Temporary optional failure still created a snapshot and persisted empty-reference failure material                                       | Complete all declared collection before the first write; partial receipt has no snapshot or durable material; add five PostgreSQL recovery cycles |
+| Independent review of catalog curation                        | `candidates.json` was shallow and the generator manufactured generic decisions                                                           | Store every curator field explicitly, reject generic rationale/homepages, vary source/file policy, and recompute the digest                       |
+| Independent review of identity/time/provenance                | Provider canonical move rewrote identity, publication time drove creation, and license used an unpinned branch request                   | Keep stable manifest identity, use `introducedAt`, pass license commit `ref`, validate file identity/SHA, and construct exact immutable URL       |
+| Required live provider/database run                           | No ingestion token, GitHub CLI, `GH_TOKEN`, or `GITHUB_TOKEN` is available; a pinned no-volume local PostgreSQL 18.4 target is available | Stop before provider calls, keep the PR draft, record Phase 5 live completion as incomplete, and request no secret in Git or chat                 |
+| Final generated-manifest format check                         | Regenerating after the 150-entry rationale review restored the generator's expanded JSON layout                                          | Run repository formatting, revalidate the same canonical digest, and restart the complete deterministic matrix                                    |
 
 ## Validation evidence
 
-| Date       | Command or review                     | Result                                                                                                                                                                                  |
-| ---------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-29 | Git/GitHub authority checks           | Clean synchronized expected main; PR #12 merged; Issue #11 closed; Issue #13 open                                                                                                       |
-| 2026-07-29 | Runtime/frozen install baseline       | Node 24.18.0; pnpm 11.17.0; frozen install unchanged                                                                                                                                    |
-| 2026-07-29 | `pnpm verify` / `pnpm verify:ci`      | 650 offline tests; architecture/repository/contracts/eval/secret/audit passed                                                                                                           |
-| 2026-07-29 | `pnpm db:verify`                      | PostgreSQL 18.4; one migration; 13 public product tables; zero RLS; 12 tests, no skips                                                                                                  |
-| 2026-07-29 | Provider primary-source review        | Endpoint, API version, authentication, rate-limit, npm packument, and advisory choices recorded                                                                                         |
-| 2026-07-29 | `pnpm catalog:validate`               | 150 unique candidates; 30 authorization, 30 audit logging, 30 background jobs, 30 rate limiting, 30 webhooks; digest `d9d61d8b07f7e638ceaa102f4145388b59d1d537aac6203006d98c020b70697d` |
-| 2026-07-29 | Ingestion deterministic tests         | Manifest, fixed transport, rate limits, provider mapping, all-family profiles, limitations, refresh, and receipt tests passed                                                           |
-| 2026-07-29 | Final offline/coverage suite          | 37 files / 670 tests; 76.93% statements, 69.46% branches, 83.50% functions, 76.76% lines                                                                                                |
-| 2026-07-29 | Updated `pnpm db:verify`              | PostgreSQL 18.4; one migration; 13 public tables; zero RLS; 15 DB tests including ingestion round trip, rerun, changed lifecycle, concurrency, and independent failure; no skips        |
-| 2026-07-29 | `db:migrate` / `db:check` / `db:test` | Individually passed against one explicitly provisioned ephemeral PostgreSQL 18.4 target; 15 tests, no skips                                                                             |
-| 2026-07-29 | Ingestion architecture graph          | 625 modules / 1,988 dependencies; no violations                                                                                                                                         |
-| 2026-07-29 | Final `pnpm verify`                   | Formatting, build, lint, typecheck, 670 tests, architecture, repository, evaluation, contracts, catalog, and secret scan passed                                                         |
-| 2026-07-29 | Final `pnpm verify:ci`                | Final `verify`, PostgreSQL verification, and registry-backed moderate dependency audit passed; no known vulnerabilities                                                                 |
-| 2026-07-29 | Hosted CI run/job                     | Run `30445222539`, Verification job `90553802670`: success; all 1,547 decoded log lines inspected, 668 offline and 15 PostgreSQL tests, clean-worktree proof, no warnings/errors        |
-| 2026-07-29 | Hosted evidence-head rerun            | Run `30445683262`, Verification job `90555328238`: success on commit `9231e96`; all 1,547 decoded lines inspected, no warning/error or nonzero-exit markers                             |
-| 2026-07-29 | Live configuration gate               | Required GitHub and database variables unset; no provider request made and no receipt claimed                                                                                           |
+| Date       | Command or review                      | Result                                                                                                                                                                                  |
+| ---------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-29 | Git/GitHub authority checks            | Clean synchronized expected main; PR #12 merged; Issue #11 closed; Issue #13 open                                                                                                       |
+| 2026-07-29 | Runtime/frozen install baseline        | Node 24.18.0; pnpm 11.17.0; frozen install unchanged                                                                                                                                    |
+| 2026-07-29 | `pnpm verify` / `pnpm verify:ci`       | 650 offline tests; architecture/repository/contracts/eval/secret/audit passed                                                                                                           |
+| 2026-07-29 | `pnpm db:verify`                       | PostgreSQL 18.4; one migration; 13 public product tables; zero RLS; 12 tests, no skips                                                                                                  |
+| 2026-07-29 | Provider primary-source review         | Endpoint, API version, authentication, rate-limit, npm packument, and advisory choices recorded                                                                                         |
+| 2026-07-29 | `pnpm catalog:validate`                | 150 unique candidates; 30 authorization, 30 audit logging, 30 background jobs, 30 rate limiting, 30 webhooks; digest `d9d61d8b07f7e638ceaa102f4145388b59d1d537aac6203006d98c020b70697d` |
+| 2026-07-29 | Ingestion deterministic tests          | Manifest, fixed transport, rate limits, provider mapping, all-family profiles, limitations, refresh, and receipt tests passed                                                           |
+| 2026-07-29 | Final offline/coverage suite           | 37 files / 670 tests; 76.93% statements, 69.46% branches, 83.50% functions, 76.76% lines                                                                                                |
+| 2026-07-29 | Updated `pnpm db:verify`               | PostgreSQL 18.4; one migration; 13 public tables; zero RLS; 15 DB tests including ingestion round trip, rerun, changed lifecycle, concurrency, and independent failure; no skips        |
+| 2026-07-29 | `db:migrate` / `db:check` / `db:test`  | Individually passed against one explicitly provisioned ephemeral PostgreSQL 18.4 target; 15 tests, no skips                                                                             |
+| 2026-07-29 | Ingestion architecture graph           | 625 modules / 1,988 dependencies; no violations                                                                                                                                         |
+| 2026-07-29 | Final `pnpm verify`                    | Formatting, build, lint, typecheck, 670 tests, architecture, repository, evaluation, contracts, catalog, and secret scan passed                                                         |
+| 2026-07-29 | Final `pnpm verify:ci`                 | Final `verify`, PostgreSQL verification, and registry-backed moderate dependency audit passed; no known vulnerabilities                                                                 |
+| 2026-07-29 | Hosted CI run/job                      | Run `30445222539`, Verification job `90553802670`: success; all 1,547 decoded log lines inspected, 668 offline and 15 PostgreSQL tests, clean-worktree proof, no warnings/errors        |
+| 2026-07-29 | Hosted evidence-head rerun             | Run `30445683262`, Verification job `90555328238`: success on commit `9231e96`; all 1,547 decoded lines inspected, no warning/error or nonzero-exit markers                             |
+| 2026-07-29 | Live configuration gate                | Required GitHub and database variables unset; no provider request made and no receipt claimed                                                                                           |
+| 2026-07-29 | Corrected `pnpm catalog:validate`      | 150 unique candidates; 30 per family; 102 active / 3 archived / 1 moved / 44 negative controls; digest `371df1d677284466f7b29f3aaef0b15641e09cf3792a3badc64c45004161dfb7`               |
+| 2026-07-29 | Corrected offline/coverage suite       | 37 files / 695 tests; 77.14% statements, 69.95% branches, 83.62% functions, 76.98% lines                                                                                                |
+| 2026-07-29 | Corrected ingestion suite              | 5 files / 44 tests, including fatal outcome propagation, declaration/request agreement, exact license provenance, and rationale rejection                                               |
+| 2026-07-29 | Corrected PostgreSQL matrix            | Individual migrate/check/test commands passed on one no-volume PostgreSQL 18.4 container; 1 migration, 13 tables, 0 RLS, 23 tests; independent `db:verify` passed without skips         |
+| 2026-07-29 | Corrected local `verify` / `verify:ci` | Full deterministic verification and registry-backed moderate audit passed; 625 modules / 1,988 dependencies, no architecture violations, no known vulnerabilities                       |
+| 2026-07-29 | Corrected live configuration gate      | GitHub CLI and all eligible token variables absent; local pinned ephemeral PostgreSQL is available; no provider request made and no receipt claimed                                     |
 
-Draft publication and hosted evidence are complete through `9231e96`. The
-moved-state correction requires the final hosted rerun. Live-run and second-run
-evidence remain blocked on explicit credentials and an approved
-non-production target.
+Draft publication and hosted evidence are complete only through `9231e96`.
+The independent-review correction still requires ordinary commits, a normal
+push, and final hosted CI inspection. Both live-run receipts remain blocked on
+existing GitHub authentication; the approved local ephemeral database path is
+available.
