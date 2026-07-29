@@ -14,12 +14,12 @@ import {
   type DomainResult,
 } from './issues.ts';
 import {
-  CAPABILITY_FAMILIES,
   type CandidateDossier,
   type CapabilityRequest,
   type EvidenceId,
   type EvidenceObservation,
   type FitAssessmentRequest,
+  isSupportedCapabilityFamily,
   type LimitationId,
   type MaterialUnknownId,
   type RepositoryFact,
@@ -49,10 +49,6 @@ function timestampAt(
     addIssue(issues, 'timestamp.invalid', path);
   }
   return parsed;
-}
-
-function isSupportedCapabilityFamily(value: string): boolean {
-  return CAPABILITY_FAMILIES.some((family) => family === value);
 }
 
 export function validateCapabilityRequest(
@@ -229,8 +225,14 @@ export function validateRepositoryFingerprint(
           );
         }
       }
-      const semanticValidation = validateRepositoryFactSemantics(fact);
+      const semanticValidation = validateRepositoryFactSemantics(
+        fingerprint.factVocabularyVersion,
+        fact,
+      );
       if (!semanticValidation.ok) {
+        if (semanticValidation.kind === 'unsupported-vocabulary-version') {
+          continue;
+        }
         addIssue(
           issues,
           semanticValidation.kind === 'unknown-code'

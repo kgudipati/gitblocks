@@ -1,14 +1,24 @@
 declare const stableIdBrand: unique symbol;
 
-export const CAPABILITY_FAMILIES = [
+const CAPABILITY_FAMILY_AUTHORITY = Object.freeze([
   'authorization',
   'audit-logging',
   'background-jobs',
   'rate-limiting',
   'webhooks',
-] as const;
+] as const);
 
-export type CapabilityFamily = (typeof CAPABILITY_FAMILIES)[number];
+export type CapabilityFamily = (typeof CAPABILITY_FAMILY_AUTHORITY)[number];
+
+export function getCapabilityFamilies(): readonly CapabilityFamily[] {
+  return [...CAPABILITY_FAMILY_AUTHORITY];
+}
+
+export function isSupportedCapabilityFamily(
+  value: string,
+): value is CapabilityFamily {
+  return CAPABILITY_FAMILY_AUTHORITY.some((family) => family === value);
+}
 
 export type StableIdKind =
   | 'approval'

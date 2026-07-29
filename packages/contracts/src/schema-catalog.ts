@@ -7,14 +7,14 @@ import {
   repositoryFingerprintV1Schema,
 } from './schemas.ts';
 
-export const CONTRACT_SCHEMA_NAMES = [
+export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-dossier',
   'capability-request',
   'error-envelope',
   'fit-assessment-request',
   'fit-assessment-response',
   'repository-fingerprint',
-] as const;
+] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
 

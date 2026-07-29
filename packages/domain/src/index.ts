@@ -12,7 +12,7 @@ export {
   MAXIMUM_DOMAIN_ISSUE_PATH_LENGTH,
   STABLE_ID_MAX_LENGTH,
 } from './issues.ts';
-export { CAPABILITY_FAMILIES } from './model.ts';
+export { getCapabilityFamilies } from './model.ts';
 export {
   validateFitAssessmentExchange,
   validateFitAssessmentResult,
@@ -24,14 +24,24 @@ export {
   validateRepositoryFingerprint,
 } from './request-validation.ts';
 export {
-  REPOSITORY_FACT_CATEGORIES,
-  REPOSITORY_FACT_PRESENCE_STATES,
-  REPOSITORY_FACT_VOCABULARY,
   SUPPORTED_REPOSITORY_FACT_VOCABULARY_VERSION,
+  getRepositoryFactVocabularySnapshot,
   isSupportedRepositoryFactVocabularyVersion,
   repositoryFactSemanticAssertion,
   repositoryFactSemanticKey,
+  serializeRepositoryFactVocabulary,
   validateRepositoryFactSemantics,
+} from './repository-fact-vocabulary.ts';
+export type {
+  RepositoryFactSemanticFailureReason,
+  RepositoryFactSemanticValidationResult,
+  RepositoryFactVocabularyDefinition,
+  RepositoryFactVocabularySerializationResult,
+  RepositoryFactVocabularySnapshot,
+  RepositoryFactVocabularySnapshotResult,
+  RepositoryFactPresenceState,
+  SupportedRepositoryFactCode,
+  SupportedRepositoryFactVocabularyVersion,
 } from './repository-fact-vocabulary.ts';
 
 export type {

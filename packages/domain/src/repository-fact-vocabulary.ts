@@ -15,19 +15,29 @@ export const SUPPORTED_REPOSITORY_FACT_VOCABULARY_VERSION =
 export type SupportedRepositoryFactVocabularyVersion =
   typeof SUPPORTED_REPOSITORY_FACT_VOCABULARY_VERSION;
 
-export const REPOSITORY_FACT_CATEGORIES = [
+function deepFreezeData<Value>(value: Value): Value {
+  if (typeof value !== 'object' || value === null || Object.isFrozen(value)) {
+    return value;
+  }
+  for (const child of Object.values(value)) {
+    deepFreezeData(child);
+  }
+  return Object.freeze(value);
+}
+
+const REPOSITORY_FACT_CATEGORY_AUTHORITY = Object.freeze([
   'repository-capability',
   'repository-structure',
   'identity',
   'data-policy',
   'operations',
-] as const satisfies readonly RepositoryFactCategory[];
+] as const satisfies readonly RepositoryFactCategory[]);
 
-export const REPOSITORY_FACT_PRESENCE_STATES = [
+const REPOSITORY_FACT_PRESENCE_STATE_AUTHORITY = Object.freeze([
   'absent',
   'present',
   'unknown',
-] as const;
+] as const);
 
 export type RepositoryFactPresenceState = Extract<
   CodedRepositoryFact['value'],
@@ -96,7 +106,7 @@ export type RepositoryFactVocabularyDefinition =
   | PresenceFactDefinition;
 
 const NO_SUBJECT = { kind: 'none' } as const;
-const ALL_PRESENCE_STATES = REPOSITORY_FACT_PRESENCE_STATES;
+const ALL_PRESENCE_STATES = REPOSITORY_FACT_PRESENCE_STATE_AUTHORITY;
 
 const IDENTITY_CONTEXTS = [
   'access-token',
@@ -138,7 +148,7 @@ const OPERATIONAL_RESOURCES = [
  * append a code or bounded code value without adding an open metadata carrier
  * to repository facts. New value variants or fields remain schema evolution.
  */
-export const REPOSITORY_FACT_VOCABULARY = [
+const REPOSITORY_FACT_VOCABULARY_1_0_0 = deepFreezeData([
   {
     category: 'repository-capability',
     code: 'redis',
@@ -442,10 +452,47 @@ export const REPOSITORY_FACT_VOCABULARY = [
       codesBySubject: null,
     },
   },
-] as const satisfies readonly RepositoryFactVocabularyDefinition[];
+] as const satisfies readonly RepositoryFactVocabularyDefinition[]);
 
 export type SupportedRepositoryFactCode =
-  (typeof REPOSITORY_FACT_VOCABULARY)[number]['code'];
+  (typeof REPOSITORY_FACT_VOCABULARY_1_0_0)[number]['code'];
+
+const REPOSITORY_FACT_VOCABULARY_AUTHORITY = deepFreezeData({
+  [SUPPORTED_REPOSITORY_FACT_VOCABULARY_VERSION]:
+    REPOSITORY_FACT_VOCABULARY_1_0_0,
+} as const satisfies Readonly<
+  Record<
+    SupportedRepositoryFactVocabularyVersion,
+    readonly RepositoryFactVocabularyDefinition[]
+  >
+>);
+
+export interface RepositoryFactVocabularySnapshot {
+  readonly version: SupportedRepositoryFactVocabularyVersion;
+  readonly categories: readonly RepositoryFactCategory[];
+  readonly presenceStates: readonly RepositoryFactPresenceState[];
+  readonly definitions: readonly RepositoryFactVocabularyDefinition[];
+}
+
+export type RepositoryFactVocabularySnapshotResult =
+  | {
+      readonly ok: true;
+      readonly value: RepositoryFactVocabularySnapshot;
+    }
+  | {
+      readonly ok: false;
+      readonly kind: 'unsupported-version';
+    };
+
+export type RepositoryFactVocabularySerializationResult =
+  | {
+      readonly ok: true;
+      readonly value: string;
+    }
+  | {
+      readonly ok: false;
+      readonly kind: 'unsupported-version';
+    };
 
 export type RepositoryFactSemanticFailureReason =
   | 'category-mismatch'
@@ -459,7 +506,10 @@ export type RepositoryFactSemanticFailureReason =
 export type RepositoryFactSemanticValidationResult =
   | {
       readonly ok: true;
-      readonly definition: RepositoryFactVocabularyDefinition;
+    }
+  | {
+      readonly ok: false;
+      readonly kind: 'unsupported-vocabulary-version';
     }
   | {
       readonly ok: false;
@@ -470,6 +520,114 @@ export type RepositoryFactSemanticValidationResult =
       readonly kind: 'unsupported-semantics';
       readonly reason: RepositoryFactSemanticFailureReason;
     };
+
+function registryForVersion(
+  version: string,
+): readonly RepositoryFactVocabularyDefinition[] | null {
+  return version === SUPPORTED_REPOSITORY_FACT_VOCABULARY_VERSION
+    ? REPOSITORY_FACT_VOCABULARY_AUTHORITY[version]
+    : null;
+}
+
+function cloneSubject(subject: SubjectDefinition): SubjectDefinition {
+  return subject.kind === 'none'
+    ? { kind: 'none' }
+    : { kind: 'codes', codes: [...subject.codes] };
+}
+
+function cloneSubjectPolicies(
+  policies: readonly SubjectCodePolicy[] | null,
+): readonly SubjectCodePolicy[] | null {
+  return policies === null
+    ? null
+    : policies.map((policy) => ({
+        subject: policy.subject,
+        codes: [...policy.codes],
+      }));
+}
+
+function cloneDefinition(
+  definition: RepositoryFactVocabularyDefinition,
+): RepositoryFactVocabularyDefinition {
+  const subject = cloneSubject(definition.subject);
+  switch (definition.value.kind) {
+    case 'classification':
+      return {
+        category: definition.category,
+        code: definition.code,
+        subject,
+        value: {
+          kind: 'classification',
+          codes: [...definition.value.codes],
+          codesBySubject: cloneSubjectPolicies(definition.value.codesBySubject),
+        },
+      };
+    case 'code-set':
+      return {
+        category: definition.category,
+        code: definition.code,
+        subject,
+        value: {
+          kind: 'code-set',
+          codes: [...definition.value.codes],
+          codesBySubject: cloneSubjectPolicies(definition.value.codesBySubject),
+          maximumCodes: definition.value.maximumCodes,
+          minimumCodes: definition.value.minimumCodes,
+        },
+      };
+    case 'integer':
+      return {
+        category: definition.category,
+        code: definition.code,
+        subject,
+        value: {
+          kind: 'integer',
+          maximum: definition.value.maximum,
+          minimum: definition.value.minimum,
+        },
+      };
+    case 'presence':
+      return {
+        category: definition.category,
+        code: definition.code,
+        subject,
+        value: {
+          kind: 'presence',
+          states: [...definition.value.states],
+        },
+      };
+  }
+}
+
+export function getRepositoryFactVocabularySnapshot(
+  version: string,
+): RepositoryFactVocabularySnapshotResult {
+  const registry = registryForVersion(version);
+  if (registry === null) {
+    return { ok: false, kind: 'unsupported-version' };
+  }
+  return {
+    ok: true,
+    value: {
+      version: SUPPORTED_REPOSITORY_FACT_VOCABULARY_VERSION,
+      categories: [...REPOSITORY_FACT_CATEGORY_AUTHORITY],
+      presenceStates: [...REPOSITORY_FACT_PRESENCE_STATE_AUTHORITY],
+      definitions: registry.map((definition) => cloneDefinition(definition)),
+    },
+  };
+}
+
+export function serializeRepositoryFactVocabulary(
+  version: string,
+): RepositoryFactVocabularySerializationResult {
+  const snapshot = getRepositoryFactVocabularySnapshot(version);
+  return snapshot.ok
+    ? {
+        ok: true,
+        value: `${JSON.stringify(snapshot.value, null, 2)}\n`,
+      }
+    : snapshot;
+}
 
 function containsValue(
   supportedValues: readonly string[],
@@ -507,12 +665,15 @@ export function isSupportedRepositoryFactVocabularyVersion(
 }
 
 export function validateRepositoryFactSemantics(
+  vocabularyVersion: string,
   fact: CodedRepositoryFact,
 ): RepositoryFactSemanticValidationResult {
+  const registry = registryForVersion(vocabularyVersion);
+  if (registry === null) {
+    return { ok: false, kind: 'unsupported-vocabulary-version' };
+  }
   const definition: RepositoryFactVocabularyDefinition | undefined =
-    REPOSITORY_FACT_VOCABULARY.find(
-      (candidate) => candidate.code === fact.code,
-    );
+    registry.find((candidate) => candidate.code === fact.code);
   if (definition === undefined) {
     return { ok: false, kind: 'unknown-code' };
   }
@@ -628,7 +789,7 @@ export function validateRepositoryFactSemantics(
       break;
   }
 
-  return { ok: true, definition };
+  return { ok: true };
 }
 
 export function repositoryFactSemanticKey(fact: CodedRepositoryFact): string {

@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  CAPABILITY_FAMILIES,
   MAXIMUM_DOMAIN_ISSUES,
   STABLE_ID_MAX_LENGTH,
   createStableId,
+  getCapabilityFamilies,
 } from '../src/index.ts';
 
 describe('domain vocabulary and stable identifiers', () => {
   it('owns exactly the five private-alpha capability families', () => {
-    expect(CAPABILITY_FAMILIES).toEqual([
+    expect(getCapabilityFamilies()).toEqual([
       'authorization',
       'audit-logging',
       'background-jobs',
