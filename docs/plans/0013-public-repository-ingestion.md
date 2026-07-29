@@ -9,8 +9,9 @@
 - Owner: GitBlocks maintainers
 - State:
   `both reviewed full live runs succeeded on the corrected catalog; their
-bounded completion evidence is recorded, and final local and hosted
-verification of that evidence commit remains in progress`
+bounded completion evidence is published, and final local and hosted
+verification passed; the draft PR remains unmerged for independent final
+review`
 - Last updated: 2026-07-29
 - Authority order: Issue #13; actual repository and Git history; product
   contract; accepted ADRs and system context; `AGENTS.md`, `PLANS.md`, and the
@@ -644,8 +645,9 @@ Status: complete.
 
 ### 6. Live run and publication
 
-Status: both reviewed live runs and bounded receipt review are complete; final
-completion-evidence publication and hosted verification are in progress.
+Status: complete. Both reviewed live runs, bounded receipt review, ordinary
+completion-evidence publication, and hosted Verification succeeded. The PR
+remains draft and unmerged for independent final review.
 
 - Run the full final manifest only with explicitly injected credentials,
   approved non-production PostgreSQL, and acknowledgement.
@@ -980,6 +982,16 @@ new issue.
   comparison integrity, and absence of credentials, headers, raw responses,
   caches, or unrestricted telemetry. The bounded completion report is
   `catalog/public-v1/live-completion.md`.
+- 2026-07-29: The complete final local matrix passed on the bounded completion
+  artifact: 700 offline tests, 49 ingestion tests, 23 PostgreSQL tests with two
+  migrations, 77.19% / 70.04% / 83.67% / 77.03% coverage, and every required
+  formatting, lint, typecheck, build, architecture, repository, evaluation,
+  contract, catalog, secret, audit, `verify`, `verify:ci`, and diff check.
+- 2026-07-29: Created and normally pushed completion-evidence commit
+  `1cdfddc`. Hosted run `30482539446`, Verification job `90680010411`, passed.
+  All 1,548 decoded lines were inspected; there were no annotations or failure
+  markers, and all six error-looking PostgreSQL lines were deliberate negative
+  integration cases.
 
 ## Decision and deviation log
 
@@ -1063,9 +1075,12 @@ new issue.
 | 2026-07-29 | Live-correction hosted Verification    | Run `30479865114`, job `90670816764`: success on `4f1d1f7`; all 1,544 decoded lines inspected; exact corrected catalog, 700 offline tests, 23 PostgreSQL tests, audit, and clean worktree passed                          |
 | 2026-07-29 | First reviewed full live run           | 150 requested/completed/snapshots; 0 failed/partial; 1,244 evidence created; 769 GitHub + 80 npm requests; receipt `b789167c49000f08fd7c1297e77ccca45a5ee112b193cfa2851d47ff6be63992`                                     |
 | 2026-07-29 | Immediate reviewed idempotency run     | 150 requested/completed; 0 failed/partial; 149 identical snapshots; one legitimate SigNoz head change, one new evidence/supersession/snapshot; receipt `9dc7659dd4aea3e5abd22bfa1e6c58377b742b61fc0e7eccd31c8ee6bc919097` |
+| 2026-07-29 | Final local completion matrix          | 700 offline and 49 ingestion tests; 77.19% / 70.04% / 83.67% / 77.03% coverage; 23 PostgreSQL tests with two migrations; every requested local validation command passed                                                  |
+| 2026-07-29 | Completion hosted Verification         | Run `30482539446`, job `90680010411`: success on `1cdfddc`; all 1,548 decoded lines inspected; no annotations/failure markers; exact catalog, 700 tests, PostgreSQL, audit, and clean worktree passed                     |
 
 The independent-review implementation, runtime migration fix, and
 live-discovered catalog/provider corrections are published on the existing
 draft branch with successful deterministic hosted evidence. Both reviewed full
-live runs succeeded. Their compact completion report is ready for final local
-validation, ordinary publication, and final hosted Verification.
+live runs succeeded. Their compact completion report is published and passed
+the complete local matrix and hosted Verification. PR #14 remains draft,
+unmerged, and pending independent final review.
