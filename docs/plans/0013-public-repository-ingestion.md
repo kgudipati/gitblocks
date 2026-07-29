@@ -5,7 +5,7 @@
 - Governing issue:
   [#13 — Phase 5: Ingest and profile a curated public OSS catalog](https://github.com/kgudipati/gitblocks/issues/13)
 - Branch: `feat/13-public-repository-ingestion`
-- Planned draft PR title: `feat: ingest curated public repository catalog`
+- Draft PR title: `feat: ingest curated public repository catalog`
 - Owner: GitBlocks maintainers
 - State:
   `both reviewed full live runs succeeded on the corrected catalog; their
@@ -138,28 +138,29 @@ or changing a runtime.
 
 ## Issue #13 requirements crosswalk
 
-| Issue requirement                                       | Destination                            | Milestone and evidence                                    |
-| ------------------------------------------------------- | -------------------------------------- | --------------------------------------------------------- |
-| 100–200 curated repositories, target near 150           | `catalog/public-v1/manifest.json`      | Manifest tests, `catalog:validate`, final count matrix    |
-| At least 20 primary repositories per family             | Manifest validator and catalog         | Family-balance tests and completion report                |
-| Stable identities, no repository/npm duplicates         | Manifest parser                        | Case-folded uniqueness and stable-ID negative tests       |
-| Explicit rationale, sources, status, and file allowlist | Every manifest entry                   | Closed-field validation and changed-line review           |
-| Exactly one new package                                 | `packages/ingestion`                   | Package inventory and repository invariant                |
-| Bounded GitHub source collection                        | `src/providers/github.ts`              | Protocol fixtures, transport abuse tests, opt-in live run |
-| Bounded npm metadata collection                         | `src/providers/npm.ts`                 | Packument fixtures, linkage and absent-field tests        |
-| One maintained advisory source                          | `src/providers/advisory.ts`; ADR 0005  | Exact package/version advisory fixtures and live receipt  |
-| Exact-commit allowlisted files                          | GitHub client and manifest path policy | Traversal/symlink/size/count/content-type tests           |
-| Deterministic model-free profiles                       | `src/profile.ts`                       | Five-family, missing-field, popularity-inert tests        |
-| Stable evidence/lifecycle/snapshot IDs                  | `src/identifiers.ts`                   | Canonical-input, unchanged/changed, collision tests       |
-| Safe refresh and immutable history                      | `src/refresh.ts`                       | Release/license/archive/advisory lifecycle tests          |
-| No partial candidate snapshot                           | persistence orchestration              | Failure-before-snapshot and real PostgreSQL tests         |
-| Independent candidate partial failure                   | batch orchestrator                     | Controlled mixed-success test and receipt                 |
-| Compact bounded receipt                                 | `src/receipt.ts`                       | Parser, redaction, digest, second-run comparison tests    |
-| Deterministic CI with no provider network               | fixtures and injected transport        | Hidden-network guard and hosted CI                        |
-| Real PostgreSQL 18.4                                    | ingestion persistence integration      | `ingestion:verify`, `db:verify`, no skips                 |
-| Full live run and immediate idempotency rerun           | opt-in CLI                             | committed receipt or explicit credential/access blocker   |
-| Architecture/docs/repository integration                | listed Phase 5 policy files            | repository, architecture, link, and diff checks           |
-| Draft publication, CI correction                        | required branch and PR                 | ordinary commits/push, draft PR, decoded hosted logs      |
+| Issue requirement                                       | Destination                                     | Milestone and evidence                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 100–200 curated repositories, target near 150           | `catalog/public-v1/manifest.json`               | Manifest tests, `catalog:validate`, final count matrix                                                                                                                                                                                                                                |
+| At least 20 primary repositories per family             | `packages/ingestion/src/manifest.ts`            | Family-balance tests and completion report                                                                                                                                                                                                                                            |
+| Stable identities, no repository/npm duplicates         | `packages/ingestion/src/manifest.ts`            | Case-folded uniqueness and stable-ID negative tests                                                                                                                                                                                                                                   |
+| Explicit rationale, sources, status, and file allowlist | Every manifest entry                            | Closed-field validation and changed-line review                                                                                                                                                                                                                                       |
+| Exactly one new package                                 | `packages/ingestion`                            | Package inventory and repository invariant                                                                                                                                                                                                                                            |
+| Bounded GitHub source collection                        | `packages/ingestion/src/providers.ts`           | Protocol fixtures, transport abuse tests, opt-in live run                                                                                                                                                                                                                             |
+| Bounded npm metadata collection                         | `packages/ingestion/src/providers.ts`           | Packument fixtures, linkage and absent-field tests                                                                                                                                                                                                                                    |
+| One maintained advisory source                          | `packages/ingestion/src/providers.ts`; ADR 0005 | Exact package/version advisory fixtures and live receipt                                                                                                                                                                                                                              |
+| Fixed-host bounded transport                            | `packages/ingestion/src/transport.ts`           | HTTPS/host/redirect/byte/time/retry/rate-limit tests                                                                                                                                                                                                                                  |
+| Exact-commit allowlisted files                          | `packages/ingestion/src/providers.ts`           | Traversal/symlink/size/count/content-type tests                                                                                                                                                                                                                                       |
+| Deterministic model-free profiles                       | `packages/ingestion/src/profile.ts`             | Five-family, missing-field, popularity-inert tests                                                                                                                                                                                                                                    |
+| Stable evidence/lifecycle/snapshot IDs                  | `packages/ingestion/src/canonical-json.ts`      | Canonical-input, unchanged/changed, collision tests                                                                                                                                                                                                                                   |
+| Safe refresh and immutable history                      | `packages/ingestion/src/refresh.ts`             | Release/license/archive/advisory lifecycle tests                                                                                                                                                                                                                                      |
+| No partial candidate snapshot                           | `packages/ingestion/src/persist.ts`             | Failure-before-snapshot and real PostgreSQL tests                                                                                                                                                                                                                                     |
+| Independent candidate partial failure                   | `packages/ingestion/src/batch.ts`               | Controlled mixed-success test and receipt                                                                                                                                                                                                                                             |
+| Compact bounded receipt                                 | `packages/ingestion/src/receipt.ts`             | Parser, redaction, digest, second-run comparison tests                                                                                                                                                                                                                                |
+| Deterministic CI with no provider network               | Fixtures and injected transport                 | Hidden-network guard and hosted CI                                                                                                                                                                                                                                                    |
+| Real PostgreSQL 18.4                                    | `packages/ingestion/src/persist.ts`             | `ingestion:verify`, `db:verify`, no skips                                                                                                                                                                                                                                             |
+| Full live run and immediate idempotency rerun           | `packages/ingestion/scripts/live-cli.ts`        | Both runs succeeded; [bounded completion evidence](../../catalog/public-v1/live-completion.md) records 150 first-run snapshots, 149 identical second-run snapshots, and one reviewed legitimate SigNoz transition; original receipts remained untracked and were removed after review |
+| Architecture/docs/repository integration                | Listed Phase 5 policy files                     | Repository, architecture, link, and diff checks                                                                                                                                                                                                                                       |
+| Draft publication, CI correction                        | Required branch and PR                          | Ordinary commits/push, draft PR, decoded hosted logs                                                                                                                                                                                                                                  |
 
 ## Applicable ADRs, contracts, and Phase 4 API
 
@@ -171,12 +172,20 @@ or changing a runtime.
   shapes. Ingestion maps provider data into these contracts; provider bodies
   never become product DTOs.
 - ADR 0004 provides public immutable PostgreSQL storage and exact snapshots.
-  No Phase 5 persistence migration is currently justified.
-- ADR 0005 will own curated public ingestion.
+  Phase 5 added forward migration
+  `packages/persistence/migrations/0002_runtime_migration_verification.sql`,
+  which grants `gitblocks_persistence` read-only access to
+  `gitblocks.schema_migrations`. This lets a runtime composition root verify
+  the exact applied migration inventory without owner credentials. Migration
+  history remains non-mutable to the runtime role, and migration 0002 changes
+  no evidence table, candidate record, lifecycle semantic, dossier snapshot,
+  RLS policy, or other product schema. ADR 0004 owns and documents this forward
+  correction.
+- ADR 0005 owns curated public ingestion.
 - The product contract fixes the five families, evidence/unknown/limitation
   semantics, popularity-versus-fit distinction, and non-execution boundary.
-- System context currently describes ingestion as planned; Phase 5 will mark
-  only the operator batch and package as implemented and non-deployed.
+- System context records the Phase 5 operator batch and package as implemented
+  and non-deployed.
 
 Phase 4 public API inventory:
 
@@ -553,7 +562,8 @@ content.
         -> @gitblocks/domain
 ```
 
-No external production dependency is added. The planned public surface covers:
+No external production dependency is added. The implemented public surface
+covers:
 
 ```text
 parseCatalogManifest
@@ -771,9 +781,10 @@ fixture substitution or repeated provider hammering.
 
 ## Compatibility, rollout, and recovery
 
-No persisted-schema change is planned. Phase 5 writes only existing V1 product
-contracts through Phase 4 operations. The new manifest, profile-rules, and
-receipt versions are unpublished internal boundaries with exact-version
+Phase 5 added only the ADR 0004 runtime migration-verification access correction
+described above; it did not alter the product schema. Ingestion writes existing
+V1 product contracts through Phase 4 operations. The manifest, profile-rules,
+and receipt versions are unpublished internal boundaries with exact-version
 parsers.
 
 The operator batch is opt-in and non-deployed. A failed run is recovered by an
