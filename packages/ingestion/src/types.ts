@@ -22,6 +22,7 @@ export type CapabilityFamily = (typeof CAPABILITY_FAMILIES)[number];
 export interface CatalogCandidate {
   readonly candidateId: string;
   readonly displayName: string;
+  readonly introducedAt: string;
   readonly github: {
     readonly owner: string;
     readonly repository: string;
@@ -34,6 +35,9 @@ export interface CatalogCandidate {
   readonly expectedSourceTypes: readonly (
     | 'github-repository'
     | 'github-release'
+    | 'github-tag'
+    | 'github-license'
+    | 'github-community'
     | 'github-file'
     | 'npm-package'
     | 'github-advisory'
@@ -86,7 +90,10 @@ export interface GitHubTagSource {
 
 export interface GitHubLicenseSource {
   readonly spdxId: string | null;
-  readonly htmlUrl: string | null;
+  readonly path: string;
+  readonly sha: string | null;
+  readonly sourceUrl: string;
+  readonly immutableUrl: string;
 }
 
 export interface GitHubCommunitySource {
@@ -142,8 +149,17 @@ export interface CandidateSourceBundle {
   readonly files: readonly RepositoryFileSource[];
   readonly npm: NpmPackageSource | null;
   readonly advisories: AdvisoryCollection;
-  readonly incompleteSourceCodes: readonly string[];
 }
+
+export type CandidateCollectionResult =
+  | {
+      readonly outcome: 'complete';
+      readonly bundle: CandidateSourceBundle;
+    }
+  | {
+      readonly outcome: 'partial';
+      readonly incompleteSourceCodes: readonly string[];
+    };
 
 export interface ProfileResult {
   readonly identity: CandidateIdentityV1;

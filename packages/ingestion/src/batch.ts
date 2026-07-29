@@ -6,6 +6,7 @@ import { loadPriorMaterial, persistCandidateProfile } from './persist.ts';
 import { profileCandidate } from './profile.ts';
 import {
   collectCandidateSources,
+  providerRequestBudget,
   type PublicProviderConfig,
 } from './providers.ts';
 import { createIngestionReceipt } from './receipt.ts';
@@ -20,7 +21,10 @@ import type {
 export interface IngestCatalogConfig {
   readonly catalog: PublicCatalog;
   readonly persistence: PersistenceClient;
-  readonly provider: Omit<PublicProviderConfig, 'correlationId' | 'signal'>;
+  readonly provider: Omit<
+    PublicProviderConfig,
+    'correlationId' | 'deadlineSignal' | 'signal'
+  >;
   readonly clock: Clock;
   readonly observer?: IngestionObserver;
   readonly candidateConcurrency?: number;
@@ -50,6 +54,11 @@ export async function ingestPublicCatalog(
   }
   const candidates = selectCandidates(config.catalog, config.candidateIds);
   if (
+    candidates.some((candidate) => providerRequestBudget(candidate).total > 12)
+  ) {
+    throw ingestionError('ingestion.invalid-input');
+  }
+  if (
     config.priorReceipt !== undefined &&
     config.priorReceipt.catalogDigest !== config.catalog.manifestDigest
   ) {
@@ -60,11 +69,7 @@ export async function ingestPublicCatalog(
     catalogDigest: config.catalog.manifestDigest,
     startedAt,
   });
-  const deadline = AbortSignal.timeout(maximumRunMilliseconds);
-  const signal =
-    config.signal === undefined
-      ? deadline
-      : AbortSignal.any([config.signal, deadline]);
+  const runDeadline = AbortSignal.timeout(maximumRunMilliseconds);
   config.observer?.({
     eventName: 'ingestion.batch',
     correlationId: runId,
@@ -92,10 +97,15 @@ export async function ingestPublicCatalog(
       }
       const candidateStarted = performance.now();
       try {
-        const candidateSignal = AbortSignal.any([
-          signal,
-          AbortSignal.timeout(90_000),
+        const candidateDeadline = AbortSignal.timeout(90_000);
+        const providerDeadline = AbortSignal.any([
+          runDeadline,
+          candidateDeadline,
         ]);
+        const candidateSignal =
+          config.signal === undefined
+            ? providerDeadline
+            : AbortSignal.any([config.signal, providerDeadline]);
         const collectedAt = config.clock.now().toISOString();
         const prior = await loadPriorMaterial(
           config.persistence,
@@ -103,18 +113,54 @@ export async function ingestPublicCatalog(
           collectedAt,
           candidateSignal,
         );
-        const bundle = await collectCandidateSources(candidate, collectedAt, {
-          ...config.provider,
-          correlationId: runId,
-          signal: candidateSignal,
-        });
+        const collection = await collectCandidateSources(
+          candidate,
+          collectedAt,
+          {
+            ...config.provider,
+            correlationId: runId,
+            ...(config.signal === undefined ? {} : { signal: config.signal }),
+            deadlineSignal: providerDeadline,
+          },
+        );
+        if (collection.outcome === 'partial') {
+          results[index] = {
+            candidateId: candidate.candidateId,
+            outcome: 'partial',
+            snapshotId: null,
+            evidenceAppended: 0,
+            evidenceIdempotent: 0,
+            evidenceSuperseded: 0,
+            evidenceInvalidated: 0,
+            limitationCount: 0,
+            unknownCount: 0,
+            candidateState: null,
+            snapshotState: null,
+            incompleteSourceCodes: collection.incompleteSourceCodes,
+            safeErrorCode: 'ingestion.provider-unavailable',
+          };
+          config.observer?.({
+            eventName: 'ingestion.candidate',
+            correlationId: runId,
+            candidateId: candidate.candidateId,
+            provider: null,
+            operation: 'profile',
+            outcome: 'partial',
+            attempt: null,
+            durationMilliseconds: Math.round(
+              performance.now() - candidateStarted,
+            ),
+            safeErrorCode: 'ingestion.provider-unavailable',
+          });
+          continue;
+        }
+        const bundle = collection.bundle;
         const profile = profileCandidate(bundle, prior.observations);
         const result = await persistCandidateProfile(
           config.persistence,
           profile,
           prior,
-          config.catalog.publishedAt,
-          bundle.incompleteSourceCodes,
+          candidate.introducedAt,
           candidateSignal,
         );
         results[index] = result;
@@ -124,7 +170,7 @@ export async function ingestPublicCatalog(
           candidateId: candidate.candidateId,
           provider: 'persistence',
           operation: 'profile',
-          outcome: result.outcome === 'partial' ? 'partial' : 'succeeded',
+          outcome: 'succeeded',
           attempt: null,
           durationMilliseconds: Math.round(
             performance.now() - candidateStarted,
@@ -197,7 +243,10 @@ export async function ingestPublicCatalog(
     candidateId: null,
     provider: null,
     operation: 'catalog',
-    outcome: receipt.outcomeCounts.failed > 0 ? 'partial' : 'succeeded',
+    outcome:
+      receipt.outcomeCounts.failed + receipt.outcomeCounts.partial > 0
+        ? 'partial'
+        : 'succeeded',
     attempt: null,
     durationMilliseconds: Date.parse(completedAt) - Date.parse(startedAt),
     safeErrorCode: null,

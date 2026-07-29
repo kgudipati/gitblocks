@@ -6,7 +6,9 @@ export {
 export {
   IngestionError,
   asSafeErrorCode,
+  providerOutcomeClass,
   type IngestionErrorCode,
+  type ProviderOutcomeClass,
 } from './errors.ts';
 export {
   digestCatalog,
@@ -17,6 +19,7 @@ export { persistCandidateProfile, loadPriorMaterial } from './persist.ts';
 export { profileCandidate } from './profile.ts';
 export {
   collectCandidateSources,
+  providerRequestBudget,
   type ProviderTransport,
   type PublicProviderConfig,
 } from './providers.ts';
@@ -36,6 +39,7 @@ export {
   type AdvisoryCollection,
   type AdvisorySource,
   type CandidateSourceBundle,
+  type CandidateCollectionResult,
   type CatalogCandidate,
   type Clock,
   type GitHubCommitSource,

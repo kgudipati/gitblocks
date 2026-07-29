@@ -142,6 +142,37 @@ describe('bounded provider transport', () => {
     });
   });
 
+  it('honors npm Retry-After and preserves the rate-limit outcome', async () => {
+    const delays: number[] = [];
+    let attempts = 0;
+    const transport = createTransport({
+      fetch: () => {
+        attempts += 1;
+        return Promise.resolve(
+          attempts === 1
+            ? new Response(null, {
+                status: 429,
+                headers: { 'retry-after': '3' },
+              })
+            : jsonResponse({ ok: true }),
+        );
+      },
+      sleep: (milliseconds) => {
+        delays.push(milliseconds);
+        return Promise.resolve();
+      },
+    });
+    await transport.requestJson({
+      operation: REQUEST.operation,
+      maximumBytes: REQUEST.maximumBytes,
+      correlationId: REQUEST.correlationId,
+      candidateId: REQUEST.candidateId,
+      provider: 'npm',
+      url: new URL('https://registry.npmjs.org/example'),
+    });
+    expect(delays).toEqual([3_000]);
+  });
+
   it('rejects unsupported content, malformed or excessive JSON, and timed-out fetches', async () => {
     const responses = [
       new Response('{}', { headers: { 'content-type': 'text/plain' } }),
@@ -181,6 +212,47 @@ describe('bounded provider transport', () => {
       message: 'The ingestion deadline was exceeded.',
     });
   });
+
+  it('preserves caller cancellation separately from an internal deadline', async () => {
+    const controller = new AbortController();
+    const transport = createTransport({
+      fetch: (_input, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener(
+            'abort',
+            () => {
+              reject(new Error('untrusted cancellation detail'));
+            },
+            { once: true },
+          );
+          controller.abort();
+        }),
+      sleep: () => Promise.resolve(),
+    });
+    await expect(
+      transport.requestJson({ ...REQUEST, signal: controller.signal }),
+    ).rejects.toMatchObject({
+      code: 'ingestion.cancelled',
+      message: 'The ingestion request was cancelled by the caller.',
+    });
+  });
+
+  it.each([
+    [401, 'ingestion.provider-authentication'],
+    [403, 'ingestion.provider-authorization'],
+    [404, 'ingestion.provider-not-found'],
+  ] as const)(
+    'classifies HTTP %s without downgrading it',
+    async (status, code) => {
+      const transport = createTransport({
+        fetch: () => Promise.resolve(new Response(null, { status })),
+        sleep: () => Promise.resolve(),
+      });
+      await expect(transport.requestJson(REQUEST)).rejects.toMatchObject({
+        code,
+      });
+    },
+  );
 });
 
 function jsonResponse(value: unknown): Response {

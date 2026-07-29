@@ -32,6 +32,7 @@ const CANDIDATE_KEYS = [
   'displayName',
   'expectedSourceTypes',
   'github',
+  'introducedAt',
   'npmPackage',
   'primaryCapabilityFamily',
   'rationale',
@@ -42,6 +43,9 @@ const CANDIDATE_KEYS = [
 const EXPECTED_SOURCE_TYPES = new Set([
   'github-repository',
   'github-release',
+  'github-tag',
+  'github-license',
+  'github-community',
   'github-file',
   'npm-package',
   'github-advisory',
@@ -77,7 +81,7 @@ export function parsePublicCatalog(text: string): PublicCatalog {
   }
 
   const candidates = parsed['candidates'].map(parseCandidate);
-  validateCatalogSet(candidates);
+  validateCatalogSet(candidates, parsed['publishedAt']);
   const expectedDigest = digestCatalog({
     catalogVersion: 'public-v1',
     publishedAt: parsed['publishedAt'],
@@ -115,9 +119,11 @@ function parseCandidate(value: unknown): CatalogCandidate {
   if (
     !isStableId(value['candidateId']) ||
     !isBoundedText(value['displayName'], 160) ||
+    !isTimestamp(value['introducedAt']) ||
     !isRecord(value['github']) ||
     !isCapabilityFamily(value['primaryCapabilityFamily']) ||
-    !isBoundedText(value['rationale'], 500) ||
+    !isBoundedText(value['rationale'], 320) ||
+    value['rationale'].length < 20 ||
     (value['status'] !== 'active' &&
       value['status'] !== 'archived' &&
       value['status'] !== 'moved' &&
@@ -152,17 +158,31 @@ function parseCandidate(value: unknown): CatalogCandidate {
   ) {
     throw ingestionError('ingestion.invalid-manifest');
   }
+  const validatedSelectionSources = selectionSources as string[];
+  const repositorySelectionPrefix =
+    `https://github.com/${owner}/${repository}/`.toLowerCase();
+  if (
+    !validatedSelectionSources.some((source) =>
+      source.toLowerCase().startsWith(repositorySelectionPrefix),
+    )
+  ) {
+    throw ingestionError('ingestion.invalid-manifest');
+  }
   const expectedSourceTypes = value['expectedSourceTypes'];
   if (
     expectedSourceTypes.length < 1 ||
-    expectedSourceTypes.length > 5 ||
+    expectedSourceTypes.length > 8 ||
     expectedSourceTypes.some(
       (sourceType) =>
         typeof sourceType !== 'string' ||
         !EXPECTED_SOURCE_TYPES.has(sourceType),
     ) ||
     !isSortedUnique(expectedSourceTypes) ||
-    !expectedSourceTypes.includes('github-repository')
+    !expectedSourceTypes.includes('github-repository') ||
+    isGenericRationale(value['rationale']) ||
+    !value['rationale']
+      .toLowerCase()
+      .includes(value['displayName'].toLowerCase())
   ) {
     throw ingestionError('ingestion.invalid-manifest');
   }
@@ -172,7 +192,9 @@ function parseCandidate(value: unknown): CatalogCandidate {
   }
   if (
     (npmPackage === null && expectedSourceTypes.includes('npm-package')) ||
-    (npmPackage !== null && !expectedSourceTypes.includes('npm-package'))
+    (npmPackage !== null && !expectedSourceTypes.includes('npm-package')) ||
+    (expectedSourceTypes.includes('github-advisory') &&
+      !expectedSourceTypes.includes('npm-package'))
   ) {
     throw ingestionError('ingestion.invalid-manifest');
   }
@@ -192,12 +214,13 @@ function parseCandidate(value: unknown): CatalogCandidate {
   return {
     candidateId: value['candidateId'],
     displayName: value['displayName'],
+    introducedAt: new Date(value['introducedAt']).toISOString(),
     github: { owner, repository },
     npmPackage,
     primaryCapabilityFamily: value['primaryCapabilityFamily'],
     additionalCapabilityFamilies: additional as CapabilityFamily[],
     rationale: value['rationale'],
-    selectionSources: selectionSources as string[],
+    selectionSources: validatedSelectionSources,
     expectedSourceTypes:
       expectedSourceTypes as CatalogCandidate['expectedSourceTypes'],
     status: value['status'],
@@ -205,7 +228,10 @@ function parseCandidate(value: unknown): CatalogCandidate {
   };
 }
 
-function validateCatalogSet(candidates: readonly CatalogCandidate[]): void {
+function validateCatalogSet(
+  candidates: readonly CatalogCandidate[],
+  publishedAt: string,
+): void {
   const identifiers = new Set<string>();
   const repositories = new Set<string>();
   const packages = new Set<string>();
@@ -219,6 +245,7 @@ function validateCatalogSet(candidates: readonly CatalogCandidate[]): void {
       `${candidate.github.owner}/${candidate.github.repository}`.toLowerCase();
     const packageKey = candidate.npmPackage?.toLowerCase();
     if (
+      Date.parse(candidate.introducedAt) > Date.parse(publishedAt) ||
       candidate.candidateId.localeCompare(previous) <= 0 ||
       identifiers.has(candidateKey) ||
       repositories.has(repositoryKey) ||
@@ -319,16 +346,34 @@ function isSelectionSource(value: unknown): value is string {
   }
   try {
     const url = new URL(value);
+    const isGitHubClassificationSource =
+      url.hostname === 'github.com' &&
+      /^\/[^/]+\/[^/]+\/(?:blob|tree)\/[^/]+\/.+/u.test(url.pathname);
+    const isNpmClassificationSource =
+      url.hostname === 'www.npmjs.com' &&
+      /^\/package\/[^/]+(?:\/[^/]+)?(?:\/v\/[^/]+)?$/u.test(url.pathname);
     return (
       url.protocol === 'https:' &&
       url.username === '' &&
       url.password === '' &&
       url.port === '' &&
-      (url.hostname === 'github.com' || url.hostname === 'www.npmjs.com')
+      (isGitHubClassificationSource || isNpmClassificationSource)
     );
   } catch {
     return false;
   }
+}
+
+function isGenericRationale(value: string): boolean {
+  const normalized = value.toLowerCase();
+  return (
+    normalized.includes('spanning the v1 mix') ||
+    normalized.includes('official project material describes') ||
+    normalized.includes('curated public candidate') ||
+    normalized.includes('curated negative control for') ||
+    normalized.includes('curated archived') ||
+    normalized.includes('curated moved-project')
+  );
 }
 
 function isCapabilityFamily(value: unknown): value is CapabilityFamily {

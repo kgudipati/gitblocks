@@ -3,6 +3,7 @@ import type { CandidateSourceBundle, CatalogCandidate } from '../src/index.ts';
 export const TEST_CANDIDATE: CatalogCandidate = {
   candidateId: 'phase5-test-candidate',
   displayName: 'Phase 5 Test Candidate',
+  introducedAt: '2026-07-29T00:00:00.000Z',
   github: { owner: 'gitblocks-test', repository: 'candidate' },
   npmPackage: '@gitblocks-test/candidate',
   primaryCapabilityFamily: 'authorization',
@@ -15,6 +16,9 @@ export const TEST_CANDIDATE: CatalogCandidate = {
   expectedSourceTypes: [
     'github-repository',
     'github-release',
+    'github-tag',
+    'github-license',
+    'github-community',
     'github-file',
     'npm-package',
     'github-advisory',
@@ -68,7 +72,12 @@ export function testBundle(
     ],
     license: {
       spdxId: 'Apache-2.0',
-      htmlUrl: 'https://github.com/gitblocks-test/candidate/blob/main/LICENSE',
+      path: 'LICENSE',
+      sha: '2222222222222222222222222222222222222222',
+      sourceUrl:
+        'https://github.com/gitblocks-test/candidate/blob/1111111111111111111111111111111111111111/LICENSE',
+      immutableUrl:
+        'https://github.com/gitblocks-test/candidate/blob/1111111111111111111111111111111111111111/LICENSE',
     },
     community: { healthPercentage: 80, hasSecurityPolicy: true },
     files: [
@@ -95,7 +104,6 @@ export function testBundle(
       distTags: { latest: '1.2.3' },
     },
     advisories: { advisories: [], complete: true, limitationCode: null },
-    incompleteSourceCodes: [],
     ...overrides,
   };
 }

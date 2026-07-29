@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import {
   collectCandidateSources,
+  IngestionError,
+  profileCandidate,
+  providerOutcomeClass,
+  providerRequestBudget,
+  type IngestionErrorCode,
   type JsonResponse,
   type ProviderTransport,
   type TransportRequest,
@@ -9,6 +14,39 @@ import {
 import { TEST_CANDIDATE } from './fixtures.ts';
 
 describe('public provider mapping', () => {
+  it('exposes the closed value-free provider outcome taxonomy', () => {
+    const codes: readonly IngestionErrorCode[] = [
+      'ingestion.provider-not-found',
+      'ingestion.provider-unavailable',
+      'ingestion.provider-rate-limited',
+      'ingestion.cancelled',
+      'ingestion.deadline-exceeded',
+      'ingestion.provider-authentication',
+      'ingestion.provider-authorization',
+      'ingestion.provider-identity',
+      'ingestion.provider-response',
+      'ingestion.content-type',
+      'ingestion.body-too-large',
+      'ingestion.redirect',
+      'ingestion.internal-invariant',
+    ];
+    expect(codes.map((code) => providerOutcomeClass(code))).toEqual([
+      'established-absence',
+      'retry-exhausted-temporary-unavailability',
+      'rate-limited',
+      'caller-cancellation',
+      'deadline',
+      'authentication-failure',
+      'authorization-failure',
+      'identity-mismatch',
+      'malformed-response',
+      'unsupported-content-type',
+      'body-too-large',
+      'unsafe-redirect',
+      'internal-invariant-failure',
+    ]);
+  });
+
   it('maps closed GitHub, npm, file, and advisory fields without retaining raw text', async () => {
     const requests: TransportRequest[] = [];
     const transport: ProviderTransport = {
@@ -17,7 +55,7 @@ describe('public provider mapping', () => {
         return Promise.resolve(providerResponse(request));
       },
     };
-    const bundle = await collectCandidateSources(
+    const collection = await collectCandidateSources(
       TEST_CANDIDATE,
       '2026-07-29T12:00:00.000Z',
       {
@@ -26,6 +64,11 @@ describe('public provider mapping', () => {
         correlationId: 'correlation-test',
       },
     );
+    expect(collection.outcome).toBe('complete');
+    if (collection.outcome !== 'complete') {
+      return;
+    }
+    const bundle = collection.bundle;
     expect(bundle.repository.canonicalOwner).toBe('gitblocks-test');
     expect(bundle.commit.sha).toBe('1111111111111111111111111111111111111111');
     expect(bundle.npm).toMatchObject({
@@ -48,6 +91,33 @@ describe('public provider mapping', () => {
       limitationCode: null,
     });
     expect(requests).toHaveLength(9);
+    expect(requests.map((request) => request.operation)).toEqual([
+      'repository',
+      'head-commit',
+      'releases',
+      'tags',
+      'license',
+      'community',
+      'file-package-json',
+      'package-metadata',
+      'advisories',
+    ]);
+    expect(providerRequestBudget(TEST_CANDIDATE)).toEqual({
+      github: 9,
+      npm: 1,
+      total: 10,
+    });
+    expect(
+      providerRequestBudget({
+        ...TEST_CANDIDATE,
+        allowlistedFiles: ['LICENSE', 'SECURITY.md', 'package.json'],
+      }).total,
+    ).toBe(12);
+    expect(
+      requests
+        .find((request) => request.operation === 'license')
+        ?.url.searchParams.get('ref'),
+    ).toBe('1111111111111111111111111111111111111111');
     expect(
       requests.every(
         (request) =>
@@ -115,7 +185,11 @@ describe('public provider mapping', () => {
         correlationId: 'correlation-test',
       },
     );
-    expect(moved.repository).toMatchObject({
+    expect(moved.outcome).toBe('complete');
+    if (moved.outcome !== 'complete') {
+      return;
+    }
+    expect(moved.bundle.repository).toMatchObject({
       canonicalOwner: 'gitblocks-moved',
       canonicalRepository: 'candidate-current',
     });
@@ -127,6 +201,173 @@ describe('public provider mapping', () => {
       }),
     ).rejects.toMatchObject({ code: 'ingestion.provider-identity' });
   });
+
+  it.each([
+    'ingestion.deadline-exceeded',
+    'ingestion.cancelled',
+    'ingestion.provider-rate-limited',
+    'ingestion.provider-authentication',
+    'ingestion.provider-authorization',
+    'ingestion.provider-response',
+    'ingestion.provider-identity',
+    'ingestion.body-too-large',
+    'ingestion.content-type',
+    'ingestion.redirect',
+    'ingestion.internal-invariant',
+  ] as const)(
+    'does not swallow fatal optional-source outcome %s',
+    async (code) => {
+      const transport: ProviderTransport = {
+        requestJson: (request) => {
+          if (request.operation === 'releases') {
+            return Promise.reject(new IngestionError(code));
+          }
+          return Promise.resolve(providerResponse(request));
+        },
+      };
+      await expect(
+        collectCandidateSources(TEST_CANDIDATE, '2026-07-29T12:00:00.000Z', {
+          transport,
+          githubToken: 'injected-test-token',
+          correlationId: 'correlation-test',
+        }),
+      ).rejects.toMatchObject({ code });
+    },
+  );
+
+  it('requests only optional sources declared by the candidate', async () => {
+    const requests: TransportRequest[] = [];
+    const transport: ProviderTransport = {
+      requestJson: (request) => {
+        requests.push(request);
+        return Promise.resolve(providerResponse(request));
+      },
+    };
+    await collectCandidateSources(
+      {
+        ...TEST_CANDIDATE,
+        npmPackage: null,
+        expectedSourceTypes: ['github-repository'],
+        allowlistedFiles: [],
+      },
+      '2026-07-29T12:00:00.000Z',
+      {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      },
+    );
+    expect(requests.map((request) => request.operation)).toEqual([
+      'repository',
+      'head-commit',
+    ]);
+  });
+
+  it('allows an approved optional absence to produce a complete profile', async () => {
+    const transport: ProviderTransport = {
+      requestJson: (request) =>
+        request.operation === 'releases'
+          ? Promise.reject(new IngestionError('ingestion.provider-not-found'))
+          : Promise.resolve(providerResponse(request)),
+    };
+    const collection = await collectCandidateSources(
+      TEST_CANDIDATE,
+      '2026-07-29T12:00:00.000Z',
+      {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      },
+    );
+    expect(collection.outcome).toBe('complete');
+    if (collection.outcome !== 'complete') {
+      return;
+    }
+    expect(collection.bundle.releases).toEqual([]);
+    expect(
+      profileCandidate(collection.bundle).unknowns.map(
+        (unknown) => unknown.topic,
+      ),
+    ).toContain('release-state-unknown');
+  });
+
+  it('keeps license provenance pinned when the default branch changes after head collection', async () => {
+    const transport: ProviderTransport = {
+      requestJson: (request) => {
+        const result = providerResponse(request);
+        if (request.operation === 'license') {
+          expect(request.url.searchParams.get('ref')).toBe(
+            '1111111111111111111111111111111111111111',
+          );
+          return Promise.resolve({
+            ...result,
+            value: {
+              ...(result.value as Record<string, unknown>),
+              html_url:
+                'https://github.com/gitblocks-test/candidate/blob/new-default/LICENSE',
+            },
+          });
+        }
+        return Promise.resolve(result);
+      },
+    };
+    const collection = await collectCandidateSources(
+      TEST_CANDIDATE,
+      '2026-07-29T12:00:00.000Z',
+      {
+        transport,
+        githubToken: 'injected-test-token',
+        correlationId: 'correlation-test',
+      },
+    );
+    expect(collection.outcome).toBe('complete');
+    if (collection.outcome !== 'complete') {
+      return;
+    }
+    expect(collection.bundle.license?.immutableUrl).toBe(
+      'https://github.com/gitblocks-test/candidate/blob/1111111111111111111111111111111111111111/LICENSE',
+    );
+    const licenseEvidence = profileCandidate(
+      collection.bundle,
+    ).observations.find(
+      (observation) => observation.topic === 'license-declared',
+    );
+    expect(licenseEvidence?.source).toMatchObject({
+      kind: 'git-commit',
+      commitSha: '1111111111111111111111111111111111111111',
+      immutableUrl:
+        'https://github.com/gitblocks-test/candidate/blob/1111111111111111111111111111111111111111/LICENSE',
+    });
+  });
+
+  it.each([{ name: 'NOT-LICENSE' }, { sha: 'not-a-git-object-sha' }])(
+    'rejects malformed returned license identity %#',
+    async (override) => {
+      const transport: ProviderTransport = {
+        requestJson: (request) => {
+          const result = providerResponse(request);
+          return Promise.resolve(
+            request.operation === 'license'
+              ? {
+                  ...result,
+                  value: {
+                    ...(result.value as Record<string, unknown>),
+                    ...override,
+                  },
+                }
+              : result,
+          );
+        },
+      };
+      await expect(
+        collectCandidateSources(TEST_CANDIDATE, '2026-07-29T12:00:00.000Z', {
+          transport,
+          githubToken: 'injected-test-token',
+          correlationId: 'correlation-test',
+        }),
+      ).rejects.toMatchObject({ code: 'ingestion.provider-response' });
+    },
+  );
 });
 
 function providerResponse(request: TransportRequest): JsonResponse {
@@ -183,7 +424,11 @@ function providerResponse(request: TransportRequest): JsonResponse {
   }
   if (path.endsWith('/license')) {
     return response({
-      html_url: 'https://github.com/gitblocks-test/candidate/blob/main/LICENSE',
+      name: 'LICENSE',
+      path: 'LICENSE',
+      sha: '2222222222222222222222222222222222222222',
+      html_url:
+        'https://github.com/gitblocks-test/candidate/blob/1111111111111111111111111111111111111111/LICENSE',
       license: { spdx_id: 'Apache-2.0' },
     });
   }

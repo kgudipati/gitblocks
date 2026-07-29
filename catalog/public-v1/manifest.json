@@ -1,10 +1,12 @@
 {
   "catalogVersion": "public-v1",
   "publishedAt": "2026-07-29T00:00:00.000Z",
+  "manifestDigest": "371df1d677284466f7b29f3aaef0b15641e09cf3792a3badc64c45004161dfb7",
   "candidates": [
     {
       "candidateId": "audit-bunyan",
       "displayName": "Bunyan",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "trentm",
         "repository": "node-bunyan"
@@ -12,14 +14,15 @@
       "npmPackage": "bunyan",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Bunyan emits structured JSON logs and supplies tooling for consuming them. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/trentm/node-bunyan",
+        "https://github.com/trentm/node-bunyan/blob/HEAD/README.md",
         "https://www.npmjs.com/package/bunyan"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -30,6 +33,7 @@
     {
       "candidateId": "audit-cabin",
       "displayName": "Cabin",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "cabinjs",
         "repository": "cabin"
@@ -37,14 +41,15 @@
       "npmPackage": "cabin",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Cabin is a Node.js logging library that normalizes request and application logs for downstream services. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/cabinjs/cabin",
+        "https://github.com/cabinjs/cabin/blob/HEAD/README.md",
         "https://www.npmjs.com/package/cabin"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -55,6 +60,7 @@
     {
       "candidateId": "audit-datadog-trace-js",
       "displayName": "dd-trace-js",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "DataDog",
         "repository": "dd-trace-js"
@@ -62,24 +68,23 @@
       "npmPackage": "dd-trace",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for audit-logging; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "dd-trace-js is an adjacent negative control because it instruments Node.js applications for distributed tracing rather than producing an audit-log record.",
       "selectionSources": [
-        "https://github.com/DataDog/dd-trace-js",
+        "https://github.com/DataDog/dd-trace-js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/dd-trace"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "audit-elasticsearch",
       "displayName": "Elasticsearch",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "elastic",
         "repository": "elasticsearch"
@@ -87,15 +92,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for audit-logging; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/elastic/elasticsearch"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Elasticsearch is an adjacent negative control: it can store and search logs, but it is not itself a logging or audit-event producer.",
+      "selectionSources": [
+        "https://github.com/elastic/elasticsearch/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-express-morgan",
       "displayName": "Morgan",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "expressjs",
         "repository": "morgan"
@@ -103,14 +111,15 @@
       "npmPackage": "morgan",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Morgan records HTTP request details as Express middleware, covering a common source of server access logs. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/expressjs/morgan",
+        "https://github.com/expressjs/morgan/blob/HEAD/README.md",
         "https://www.npmjs.com/package/morgan"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -121,6 +130,7 @@
     {
       "candidateId": "audit-fluent-bit",
       "displayName": "Fluent Bit",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "fluent",
         "repository": "fluent-bit"
@@ -128,15 +138,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/fluent/fluent-bit"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Fluent Bit collects, parses, filters, and forwards log records, making it relevant to audit-log transport pipelines.",
+      "selectionSources": [
+        "https://github.com/fluent/fluent-bit/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-fluentd",
       "displayName": "Fluentd",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "fluent",
         "repository": "fluentd"
@@ -144,15 +163,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/fluent/fluentd"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Fluentd provides a pluggable data collector and routing layer widely used to aggregate and deliver application logs.",
+      "selectionSources": [
+        "https://github.com/fluent/fluentd/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-google-logging-winston",
       "displayName": "Logging Winston",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "googleapis",
         "repository": "nodejs-logging-winston"
@@ -160,14 +188,15 @@
       "npmPackage": "@google-cloud/logging-winston",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Logging Winston sends Winston log entries to Google Cloud Logging as a concrete remote transport. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/googleapis/nodejs-logging-winston",
+        "https://github.com/googleapis/nodejs-logging-winston/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40google-cloud%2Flogging-winston"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -178,6 +207,7 @@
     {
       "candidateId": "audit-grafana-loki",
       "displayName": "Grafana Loki",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "grafana",
         "repository": "loki"
@@ -185,15 +215,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/grafana/loki"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Grafana Loki ingests and queries labeled log streams, representing the durable collection side of an audit-log pipeline.",
+      "selectionSources": [
+        "https://github.com/grafana/loki/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-highlight",
       "displayName": "Highlight",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "highlight",
         "repository": "highlight"
@@ -201,15 +240,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for audit-logging; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/highlight/highlight"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Highlight is an adjacent negative control centered on application observability and session replay rather than a reusable audit-log emitter or transport.",
+      "selectionSources": [
+        "https://github.com/highlight/highlight/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-log4js",
       "displayName": "log4js",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "log4js-node",
         "repository": "log4js-node"
@@ -217,14 +259,15 @@
       "npmPackage": "log4js",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "log4js provides categorized logging with configurable appenders for Node.js applications. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/log4js-node/log4js-node",
+        "https://github.com/log4js-node/log4js-node/blob/HEAD/README.md",
         "https://www.npmjs.com/package/log4js"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -235,6 +278,7 @@
     {
       "candidateId": "audit-logdna-logger",
       "displayName": "LogDNA Node Logger",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "logdna",
         "repository": "logger-node"
@@ -242,14 +286,15 @@
       "npmPackage": "@logdna/logger",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated moved-project audit-logging control whose current canonical provider identity remains authoritative.",
+      "rationale": "LogDNA Node Logger sends Node.js log records to the hosted LogDNA service; its moved status exercises stable identity across the provider’s current canonical location. Exact-commit package.json metadata verifies the npm mapping without execution.",
       "selectionSources": [
-        "https://github.com/logdna/logger-node",
+        "https://github.com/logdna/logger-node/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40logdna%2Flogger"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -260,6 +305,7 @@
     {
       "candidateId": "audit-loglevel",
       "displayName": "loglevel",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "pimterry",
         "repository": "loglevel"
@@ -267,14 +313,15 @@
       "npmPackage": "loglevel",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "loglevel supplies leveled logging for JavaScript with a small API and persistence of log thresholds. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/pimterry/loglevel",
+        "https://github.com/pimterry/loglevel/blob/HEAD/README.md",
         "https://www.npmjs.com/package/loglevel"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -285,6 +332,7 @@
     {
       "candidateId": "audit-npm-npmlog",
       "displayName": "npmlog",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "npm",
         "repository": "npmlog"
@@ -292,14 +340,15 @@
       "npmPackage": "npmlog",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated archived audit-logging control for deterministic lifecycle and limitation handling.",
+      "rationale": "npmlog produced leveled CLI-oriented logs and is explicitly archived, making it both a logging candidate and a lifecycle case. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/npm/npmlog",
+        "https://github.com/npm/npmlog/blob/HEAD/README.md",
         "https://www.npmjs.com/package/npmlog"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -310,6 +359,7 @@
     {
       "candidateId": "audit-openobserve",
       "displayName": "OpenObserve",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "openobserve",
         "repository": "openobserve"
@@ -317,15 +367,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/openobserve/openobserve"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "OpenObserve exposes ingestion, storage, and querying for log data, representing a self-hosted audit-log collection backend.",
+      "selectionSources": [
+        "https://github.com/openobserve/openobserve/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-opentelemetry-js",
       "displayName": "OpenTelemetry JS",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "open-telemetry",
         "repository": "opentelemetry-js"
@@ -333,24 +392,23 @@
       "npmPackage": "@opentelemetry/api",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for audit-logging; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "OpenTelemetry JS is an adjacent negative control focused on telemetry APIs and instrumentation; its broad signals are not a dedicated audit-log facility.",
       "selectionSources": [
-        "https://github.com/open-telemetry/opentelemetry-js",
+        "https://github.com/open-telemetry/opentelemetry-js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40opentelemetry%2Fapi"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "audit-pgaudit",
       "displayName": "pgAudit",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "pgaudit",
         "repository": "pgaudit"
@@ -358,15 +416,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/pgaudit/pgaudit"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "pgAudit extends PostgreSQL logging with detailed session and object audit events, making it a direct audit-record producer.",
+      "selectionSources": [
+        "https://github.com/pgaudit/pgaudit/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-pino",
       "displayName": "Pino",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "pinojs",
         "repository": "pino"
@@ -374,14 +441,15 @@
       "npmPackage": "pino",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Pino emits high-throughput structured JSON logs for Node.js services. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/pinojs/pino",
+        "https://github.com/pinojs/pino/blob/HEAD/README.md",
         "https://www.npmjs.com/package/pino"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -392,6 +460,7 @@
     {
       "candidateId": "audit-pino-http",
       "displayName": "pino-http",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "pinojs",
         "repository": "pino-http"
@@ -399,14 +468,15 @@
       "npmPackage": "pino-http",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "pino-http adds request and response logging to Node.js HTTP servers using Pino records. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/pinojs/pino-http",
+        "https://github.com/pinojs/pino-http/blob/HEAD/README.md",
         "https://www.npmjs.com/package/pino-http"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -417,6 +487,7 @@
     {
       "candidateId": "audit-pino-pretty",
       "displayName": "pino-pretty",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "pinojs",
         "repository": "pino-pretty"
@@ -424,24 +495,23 @@
       "npmPackage": "pino-pretty",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for audit-logging; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "pino-pretty is an adjacent negative control because it formats existing Pino records for people but does not originate or transport audit events.",
       "selectionSources": [
-        "https://github.com/pinojs/pino-pretty",
+        "https://github.com/pinojs/pino-pretty/blob/HEAD/README.md",
         "https://www.npmjs.com/package/pino-pretty"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "audit-roarr",
       "displayName": "Roarr",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "gajus",
         "repository": "roarr"
@@ -449,14 +519,15 @@
       "npmPackage": "roarr",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Roarr produces structured JSON messages with contextual child loggers for JavaScript applications. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/gajus/roarr",
+        "https://github.com/gajus/roarr/blob/HEAD/README.md",
         "https://www.npmjs.com/package/roarr"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -467,6 +538,7 @@
     {
       "candidateId": "audit-sematext-logagent",
       "displayName": "Sematext Logagent",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "sematext",
         "repository": "logagent-js"
@@ -474,14 +546,15 @@
       "npmPackage": "@sematext/logagent",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Sematext Logagent tails, parses, enriches, and ships logs to configured outputs. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/sematext/logagent-js",
+        "https://github.com/sematext/logagent-js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40sematext%2Flogagent"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -492,6 +565,7 @@
     {
       "candidateId": "audit-signoz",
       "displayName": "SigNoz",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "SigNoz",
         "repository": "signoz"
@@ -499,15 +573,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for audit-logging; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/SigNoz/signoz"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "SigNoz is an adjacent negative control selected as a broad observability and tracing platform rather than a focused audit-log producer or transport.",
+      "selectionSources": [
+        "https://github.com/SigNoz/signoz/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-syslog-ng",
       "displayName": "syslog-ng",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "syslog-ng",
         "repository": "syslog-ng"
@@ -515,15 +592,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/syslog-ng/syslog-ng"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "syslog-ng collects, transforms, routes, and stores syslog and other log messages, directly covering log transport infrastructure.",
+      "selectionSources": [
+        "https://github.com/syslog-ng/syslog-ng/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-vector",
       "displayName": "Vector",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "vectordotdev",
         "repository": "vector"
@@ -531,15 +617,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/vectordotdev/vector"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Vector is an observability data pipeline with explicit log collection, transformation, and delivery capabilities relevant to audit streams.",
+      "selectionSources": [
+        "https://github.com/vectordotdev/vector/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "audit-winston",
       "displayName": "Winston",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "winstonjs",
         "repository": "winston"
@@ -547,14 +642,15 @@
       "npmPackage": "winston",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Winston is a configurable Node.js logger built around formats and multiple transports. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/winstonjs/winston",
+        "https://github.com/winstonjs/winston/blob/HEAD/README.md",
         "https://www.npmjs.com/package/winston"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -565,6 +661,7 @@
     {
       "candidateId": "audit-winston-daily",
       "displayName": "winston-daily-rotate-file",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "winstonjs",
         "repository": "winston-daily-rotate-file"
@@ -572,14 +669,15 @@
       "npmPackage": "winston-daily-rotate-file",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "winston-daily-rotate-file is a Winston transport that persists logs into time-rotated files. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/winstonjs/winston-daily-rotate-file",
+        "https://github.com/winstonjs/winston-daily-rotate-file/blob/HEAD/README.md",
         "https://www.npmjs.com/package/winston-daily-rotate-file"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -590,6 +688,7 @@
     {
       "candidateId": "audit-winston-logform",
       "displayName": "logform",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "winstonjs",
         "repository": "logform"
@@ -597,24 +696,23 @@
       "npmPackage": "logform",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "logform is an adjacent negative control because it transforms and formats existing Winston records without emitting, collecting, or transporting audit events.",
       "selectionSources": [
-        "https://github.com/winstonjs/logform",
+        "https://github.com/winstonjs/logform/blob/HEAD/README.md",
         "https://www.npmjs.com/package/logform"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
-      "status": "active",
-      "allowlistedFiles": ["package.json"]
+      "status": "negative-control",
+      "allowlistedFiles": []
     },
     {
       "candidateId": "audit-winston-syslog",
       "displayName": "winston-syslog",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "winstonjs",
         "repository": "winston-syslog"
@@ -622,14 +720,15 @@
       "npmPackage": "winston-syslog",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "winston-syslog is a Winston transport that sends application log records through syslog. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/winstonjs/winston-syslog",
+        "https://github.com/winstonjs/winston-syslog/blob/HEAD/README.md",
         "https://www.npmjs.com/package/winston-syslog"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -640,6 +739,7 @@
     {
       "candidateId": "audit-winston-transport",
       "displayName": "winston-transport",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "winstonjs",
         "repository": "winston-transport"
@@ -647,14 +747,15 @@
       "npmPackage": "winston-transport",
       "primaryCapabilityFamily": "audit-logging",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public audit-logging candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "winston-transport defines the reusable transport base used to deliver Winston log records to destinations. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/winstonjs/winston-transport",
+        "https://github.com/winstonjs/winston-transport/blob/HEAD/README.md",
         "https://www.npmjs.com/package/winston-transport"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -665,6 +766,7 @@
     {
       "candidateId": "auth-aserto-topaz",
       "displayName": "Topaz",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "aserto-dev",
         "repository": "topaz"
@@ -672,15 +774,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/aserto-dev/topaz"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Topaz packages a local authorization service with policy templates and decision APIs, making it a concrete policy-enforcement candidate.",
+      "selectionSources": [
+        "https://github.com/aserto-dev/topaz/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-auth0-express-jwt",
       "displayName": "express-jwt",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "auth0",
         "repository": "express-jwt"
@@ -688,24 +799,23 @@
       "npmPackage": "express-jwt",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "express-jwt is an adjacent negative control: it authenticates Express requests by validating JWTs but does not supply a general permission-policy engine.",
       "selectionSources": [
-        "https://github.com/auth0/express-jwt",
+        "https://github.com/auth0/express-jwt/blob/HEAD/README.md",
         "https://www.npmjs.com/package/express-jwt"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "auth-auth0-node-jsonwebtoken",
       "displayName": "node-jsonwebtoken",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "auth0",
         "repository": "node-jsonwebtoken"
@@ -713,24 +823,23 @@
       "npmPackage": "jsonwebtoken",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "node-jsonwebtoken is an adjacent negative control because it signs and verifies JWTs; token cryptography alone does not make authorization decisions.",
       "selectionSources": [
-        "https://github.com/auth0/node-jsonwebtoken",
+        "https://github.com/auth0/node-jsonwebtoken/blob/HEAD/README.md",
         "https://www.npmjs.com/package/jsonwebtoken"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "auth-authzed-spicedb",
       "displayName": "SpiceDB",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "authzed",
         "repository": "spicedb"
@@ -738,15 +847,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/authzed/spicedb"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "SpiceDB is a Zanzibar-inspired permissions database that evaluates relationship-based access, directly representing distributed authorization.",
+      "selectionSources": [
+        "https://github.com/authzed/spicedb/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-casbin-casbin",
       "displayName": "Casbin",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "casbin",
         "repository": "casbin"
@@ -754,15 +872,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/casbin/casbin"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Casbin evaluates configurable access-control models and policies, covering reusable authorization enforcement across several policy styles.",
+      "selectionSources": [
+        "https://github.com/casbin/casbin/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-casbin-casbin-js",
       "displayName": "Casbin.js",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "casbin",
         "repository": "casbin.js"
@@ -770,14 +897,15 @@
       "npmPackage": "casbin.js",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Casbin.js brings Casbin model-and-policy authorization to JavaScript runtimes. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/casbin/casbin.js",
+        "https://github.com/casbin/casbin.js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/casbin.js"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -788,6 +916,7 @@
     {
       "candidateId": "auth-casbin-node-casbin",
       "displayName": "node-casbin",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "casbin",
         "repository": "node-casbin"
@@ -795,14 +924,15 @@
       "npmPackage": "casbin",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "node-casbin is the Node.js Casbin enforcement library for model-driven access checks. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/casbin/node-casbin",
+        "https://github.com/casbin/node-casbin/blob/HEAD/README.md",
         "https://www.npmjs.com/package/casbin"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -813,6 +943,7 @@
     {
       "candidateId": "auth-casdoor-casdoor",
       "displayName": "Casdoor",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "casdoor",
         "repository": "casdoor"
@@ -820,15 +951,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/casdoor/casdoor"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Casdoor includes permission and role management alongside identity services, so it exercises authorization embedded in a broader IAM system.",
+      "selectionSources": [
+        "https://github.com/casdoor/casdoor/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-cerbos-cerbos",
       "displayName": "Cerbos",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "cerbos",
         "repository": "cerbos"
@@ -836,15 +976,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/cerbos/cerbos"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Cerbos is an externalized policy decision point that answers application permission checks from declarative resource policies.",
+      "selectionSources": [
+        "https://github.com/cerbos/cerbos/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-express-session",
       "displayName": "express-session",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "expressjs",
         "repository": "session"
@@ -852,24 +1001,23 @@
       "npmPackage": "express-session",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "express-session is an adjacent negative control because it manages server-side session state but does not determine what an authenticated principal may do.",
       "selectionSources": [
-        "https://github.com/expressjs/session",
+        "https://github.com/expressjs/session/blob/HEAD/README.md",
         "https://www.npmjs.com/package/express-session"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "auth-fastify-auth",
       "displayName": "@fastify/auth",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "fastify",
         "repository": "fastify-auth"
@@ -877,24 +1025,23 @@
       "npmPackage": "@fastify/auth",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "@fastify/auth is an adjacent negative control: it composes Fastify authentication functions, not reusable role, relationship, or policy decisions.",
       "selectionSources": [
-        "https://github.com/fastify/fastify-auth",
+        "https://github.com/fastify/fastify-auth/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40fastify%2Fauth"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "auth-goauthentik",
       "displayName": "authentik",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "goauthentik",
         "repository": "authentik"
@@ -902,15 +1049,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/goauthentik/authentik"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "authentik is an adjacent negative control selected as an identity provider and SSO platform rather than a standalone application-authorization engine.",
+      "selectionSources": [
+        "https://github.com/goauthentik/authentik/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-keycloak",
       "displayName": "Keycloak",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "keycloak",
         "repository": "keycloak"
@@ -918,15 +1068,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/keycloak/keycloak"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Keycloak is an adjacent negative control because its primary role is identity, login, and federation, despite offering authorization features within that larger server.",
+      "selectionSources": [
+        "https://github.com/keycloak/keycloak/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-koa-roles",
       "displayName": "koa-roles",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "ladjs",
         "repository": "koa-roles"
@@ -934,14 +1087,15 @@
       "npmPackage": "koa-roles",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "koa-roles provides role-based permission checks for Koa request handling. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/ladjs/koa-roles",
+        "https://github.com/ladjs/koa-roles/blob/HEAD/README.md",
         "https://www.npmjs.com/package/koa-roles"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -952,6 +1106,7 @@
     {
       "candidateId": "auth-koa-session",
       "displayName": "koa-session",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "koajs",
         "repository": "session"
@@ -959,24 +1114,23 @@
       "npmPackage": "koa-session",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "koa-session is an adjacent negative control because it persists Koa session state without defining or enforcing resource permissions.",
       "selectionSources": [
-        "https://github.com/koajs/session",
+        "https://github.com/koajs/session/blob/HEAD/README.md",
         "https://www.npmjs.com/package/koa-session"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "auth-open-policy-agent",
       "displayName": "Open Policy Agent",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "open-policy-agent",
         "repository": "opa"
@@ -984,15 +1138,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/open-policy-agent/opa"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Open Policy Agent evaluates Rego policies over structured input and is a canonical general-purpose policy decision engine for authorization.",
+      "selectionSources": [
+        "https://github.com/open-policy-agent/opa/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-openfga",
       "displayName": "OpenFGA",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "openfga",
         "repository": "openfga"
@@ -1000,15 +1163,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/openfga/openfga"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "OpenFGA models and evaluates relationship tuples for fine-grained access control, directly covering relationship-based authorization.",
+      "selectionSources": [
+        "https://github.com/openfga/openfga/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-ory-keto",
       "displayName": "Ory Keto",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "ory",
         "repository": "keto"
@@ -1016,15 +1188,22 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/ory/keto"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Ory Keto stores and checks relation tuples for Zanzibar-style permissions, making it a dedicated authorization service.",
+      "selectionSources": ["https://github.com/ory/keto/blob/HEAD/README.md"],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-oso",
       "displayName": "Oso",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "osohq",
         "repository": "oso"
@@ -1032,15 +1211,22 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/osohq/oso"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Oso supplies the Polar policy language and application libraries for expressing and evaluating authorization rules.",
+      "selectionSources": ["https://github.com/osohq/oso/blob/HEAD/README.md"],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-panva-jose",
       "displayName": "jose",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "panva",
         "repository": "jose"
@@ -1048,24 +1234,23 @@
       "npmPackage": "jose",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "jose is an adjacent negative control because it implements JOSE primitives such as JWT, JWS, and JWE, not application permission policy.",
       "selectionSources": [
-        "https://github.com/panva/jose",
+        "https://github.com/panva/jose/blob/HEAD/README.md",
         "https://www.npmjs.com/package/jose"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "auth-panva-oidc",
       "displayName": "oidc-provider",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "panva",
         "repository": "node-oidc-provider"
@@ -1073,24 +1258,23 @@
       "npmPackage": "oidc-provider",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "oidc-provider is an adjacent negative control: it implements an OpenID Connect identity provider rather than deciding access to application resources.",
       "selectionSources": [
-        "https://github.com/panva/node-oidc-provider",
+        "https://github.com/panva/node-oidc-provider/blob/HEAD/README.md",
         "https://www.npmjs.com/package/oidc-provider"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "auth-permify",
       "displayName": "Permify",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "Permify",
         "repository": "permify"
@@ -1098,15 +1282,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/Permify/permify"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Permify is a relationship-based authorization service that evaluates permission schemas and tuples for fine-grained access control.",
+      "selectionSources": [
+        "https://github.com/Permify/permify/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-permit-js",
       "displayName": "Permit Node SDK",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "permitio",
         "repository": "permit-js"
@@ -1114,14 +1307,15 @@
       "npmPackage": "permitio",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Permit Node SDK exposes application permission checks against Permit policy data. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/permitio/permit-js",
+        "https://github.com/permitio/permit-js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/permitio"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1132,6 +1326,7 @@
     {
       "candidateId": "auth-permit-opal",
       "displayName": "OPAL",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "permitio",
         "repository": "opal"
@@ -1139,15 +1334,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/permitio/opal"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "OPAL distributes policy and authorization data to policy engines, addressing the synchronization layer needed for current authorization decisions.",
+      "selectionSources": [
+        "https://github.com/permitio/opal/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-stalniy-casl",
       "displayName": "CASL",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "stalniy",
         "repository": "casl"
@@ -1155,14 +1359,15 @@
       "npmPackage": "@casl/ability",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public authorization candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "CASL defines and evaluates subject-action abilities in JavaScript applications. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/stalniy/casl",
+        "https://github.com/stalniy/casl/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40casl%2Fability"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1173,6 +1378,7 @@
     {
       "candidateId": "auth-supabase-auth",
       "displayName": "Supabase Auth",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "supabase",
         "repository": "auth"
@@ -1180,15 +1386,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/supabase/auth"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Supabase Auth is an adjacent negative control because it manages users, tokens, and login flows rather than serving as a general authorization policy evaluator.",
+      "selectionSources": [
+        "https://github.com/supabase/auth/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-supertokens-core",
       "displayName": "SuperTokens Core",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "supertokens",
         "repository": "supertokens-core"
@@ -1196,15 +1405,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/supertokens/supertokens-core"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "SuperTokens Core is an adjacent negative control focused on login and session authentication, not resource-level permission decisions.",
+      "selectionSources": [
+        "https://github.com/supertokens/supertokens-core/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-tsndr-cloudflare-jwt",
       "displayName": "Cloudflare Worker JWT",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "tsndr",
         "repository": "cloudflare-worker-jwt"
@@ -1212,24 +1424,23 @@
       "npmPackage": "@tsndr/cloudflare-worker-jwt",
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Cloudflare Worker JWT is an adjacent negative control that signs and verifies JWTs in Workers without providing role or policy enforcement.",
       "selectionSources": [
-        "https://github.com/tsndr/cloudflare-worker-jwt",
+        "https://github.com/tsndr/cloudflare-worker-jwt/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40tsndr%2Fcloudflare-worker-jwt"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "auth-warrant",
       "displayName": "Warrant",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "warrant-dev",
         "repository": "warrant"
@@ -1237,15 +1448,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated archived authorization control for deterministic lifecycle and limitation handling.",
-      "selectionSources": ["https://github.com/warrant-dev/warrant"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Warrant implemented relationship-based access checks and object relations; its explicit archived status makes that authorization candidate a lifecycle case.",
+      "selectionSources": [
+        "https://github.com/warrant-dev/warrant/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "archived",
       "allowlistedFiles": []
     },
     {
       "candidateId": "auth-zitadel",
       "displayName": "ZITADEL",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "zitadel",
         "repository": "zitadel"
@@ -1253,15 +1473,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "authorization",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for authorization; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/zitadel/zitadel"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "ZITADEL is an adjacent negative control selected as an identity and access-management platform whose primary catalog role is authentication and federation.",
+      "selectionSources": [
+        "https://github.com/zitadel/zitadel/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-actionhero-node-resque",
       "displayName": "node-resque",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "actionhero",
         "repository": "node-resque"
@@ -1269,14 +1492,15 @@
       "npmPackage": "node-resque",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "node-resque provides Redis-backed queues, workers, delayed jobs, and failure handling for Node.js. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/actionhero/node-resque",
+        "https://github.com/actionhero/node-resque/blob/HEAD/README.md",
         "https://www.npmjs.com/package/node-resque"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1287,6 +1511,7 @@
     {
       "candidateId": "jobs-activepieces",
       "displayName": "Activepieces",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "activepieces",
         "repository": "activepieces"
@@ -1294,15 +1519,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/activepieces/activepieces"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Activepieces runs event-triggered and scheduled automation flows, making it a broader workflow-system candidate for durable background execution.",
+      "selectionSources": [
+        "https://github.com/activepieces/activepieces/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-agenda",
       "displayName": "Agenda",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "agenda",
         "repository": "agenda"
@@ -1310,14 +1544,15 @@
       "npmPackage": "agenda",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Agenda persists scheduled and recurring Node.js jobs in MongoDB and coordinates their execution. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/agenda/agenda",
+        "https://github.com/agenda/agenda/blob/HEAD/README.md",
         "https://www.npmjs.com/package/agenda"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1328,6 +1563,7 @@
     {
       "candidateId": "jobs-airflow",
       "displayName": "Apache Airflow",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "apache",
         "repository": "airflow"
@@ -1335,15 +1571,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/apache/airflow"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Apache Airflow schedules and monitors dependency graphs of batch tasks, covering orchestration of durable background workflows.",
+      "selectionSources": [
+        "https://github.com/apache/airflow/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-asynq",
       "displayName": "Asynq",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "hibiken",
         "repository": "asynq"
@@ -1351,15 +1596,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/hibiken/asynq"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Asynq is a Go task-queue library with Redis persistence, workers, scheduling, retries, and failure handling.",
+      "selectionSources": [
+        "https://github.com/hibiken/asynq/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-bee-queue",
       "displayName": "Bee-Queue",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "bee-queue",
         "repository": "bee-queue"
@@ -1367,14 +1621,15 @@
       "npmPackage": "bee-queue",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Bee-Queue implements Redis-backed job producers and workers for distributed Node.js processing. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/bee-queue/bee-queue",
+        "https://github.com/bee-queue/bee-queue/blob/HEAD/README.md",
         "https://www.npmjs.com/package/bee-queue"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1385,6 +1640,7 @@
     {
       "candidateId": "jobs-bree",
       "displayName": "Bree",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "breejs",
         "repository": "bree"
@@ -1392,14 +1648,15 @@
       "npmPackage": "bree",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Bree schedules recurring and delayed Node.js work using worker threads and cron-style timing. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/breejs/bree",
+        "https://github.com/breejs/bree/blob/HEAD/README.md",
         "https://www.npmjs.com/package/bree"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1410,6 +1667,7 @@
     {
       "candidateId": "jobs-bull",
       "displayName": "Bull",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "OptimalBits",
         "repository": "bull"
@@ -1417,14 +1675,15 @@
       "npmPackage": "bull",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Bull provides Redis-backed queues with workers, delayed jobs, retries, priorities, and repeatable jobs. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/OptimalBits/bull",
+        "https://github.com/OptimalBits/bull/blob/HEAD/README.md",
         "https://www.npmjs.com/package/bull"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1435,6 +1694,7 @@
     {
       "candidateId": "jobs-bullmq",
       "displayName": "BullMQ",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "taskforcesh",
         "repository": "bullmq"
@@ -1442,14 +1702,15 @@
       "npmPackage": "bullmq",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "BullMQ is a Redis-backed Node.js queue with workers, flows, retries, delayed jobs, and schedulers. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/taskforcesh/bullmq",
+        "https://github.com/taskforcesh/bullmq/blob/HEAD/README.md",
         "https://www.npmjs.com/package/bullmq"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1460,6 +1721,7 @@
     {
       "candidateId": "jobs-celery",
       "displayName": "Celery",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "celery",
         "repository": "celery"
@@ -1467,15 +1729,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/celery/celery"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Celery distributes Python tasks through message brokers and supports workers, retries, scheduling, and result backends.",
+      "selectionSources": [
+        "https://github.com/celery/celery/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-dagster",
       "displayName": "Dagster",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "dagster-io",
         "repository": "dagster"
@@ -1483,15 +1754,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/dagster-io/dagster"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Dagster models, schedules, executes, and observes data workflows, representing asset-oriented background orchestration.",
+      "selectionSources": [
+        "https://github.com/dagster-io/dagster/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-graphile-worker",
       "displayName": "Graphile Worker",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "graphile",
         "repository": "worker"
@@ -1499,14 +1779,15 @@
       "npmPackage": "graphile-worker",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Graphile Worker uses PostgreSQL as a durable job queue for Node.js workers and scheduled tasks. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/graphile/worker",
+        "https://github.com/graphile/worker/blob/HEAD/README.md",
         "https://www.npmjs.com/package/graphile-worker"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1517,6 +1798,7 @@
     {
       "candidateId": "jobs-hatchet",
       "displayName": "Hatchet",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "hatchet-dev",
         "repository": "hatchet"
@@ -1524,15 +1806,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/hatchet-dev/hatchet"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Hatchet coordinates durable task queues and workflows with retries, schedules, concurrency controls, and worker execution.",
+      "selectionSources": [
+        "https://github.com/hatchet-dev/hatchet/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-inngest",
       "displayName": "Inngest",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "inngest",
         "repository": "inngest"
@@ -1540,14 +1831,15 @@
       "npmPackage": "inngest",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Inngest runs event-driven durable functions with steps, retries, concurrency, and scheduling. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/inngest/inngest",
+        "https://github.com/inngest/inngest/blob/HEAD/README.md",
         "https://www.npmjs.com/package/inngest"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1558,6 +1850,7 @@
     {
       "candidateId": "jobs-kestra",
       "displayName": "Kestra",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "kestra-io",
         "repository": "kestra"
@@ -1565,15 +1858,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/kestra-io/kestra"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Kestra defines and executes scheduled or event-driven workflows with task dependencies, retries, and operational state.",
+      "selectionSources": [
+        "https://github.com/kestra-io/kestra/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-kue",
       "displayName": "Kue",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "Automattic",
         "repository": "kue"
@@ -1581,14 +1883,15 @@
       "npmPackage": "kue",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated archived background-jobs control for deterministic lifecycle and limitation handling.",
+      "rationale": "Kue implemented Redis-backed Node.js jobs and workers; its archived status makes this queue candidate a lifecycle case. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/Automattic/kue",
+        "https://github.com/Automattic/kue/blob/HEAD/README.md",
         "https://www.npmjs.com/package/kue"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1599,6 +1902,7 @@
     {
       "candidateId": "jobs-n8n",
       "displayName": "n8n",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "n8n-io",
         "repository": "n8n"
@@ -1606,14 +1910,15 @@
       "npmPackage": "n8n",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "n8n executes trigger-driven and scheduled automation workflows, including queued worker operation. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/n8n-io/n8n",
+        "https://github.com/n8n-io/n8n/blob/HEAD/README.md",
         "https://www.npmjs.com/package/n8n"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1624,6 +1929,7 @@
     {
       "candidateId": "jobs-node-cron",
       "displayName": "node-cron",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "node-cron",
         "repository": "node-cron"
@@ -1631,14 +1937,15 @@
       "npmPackage": "node-cron",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "node-cron schedules JavaScript callbacks from cron expressions, covering lightweight recurring background work. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/node-cron/node-cron",
+        "https://github.com/node-cron/node-cron/blob/HEAD/README.md",
         "https://www.npmjs.com/package/node-cron"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1649,6 +1956,7 @@
     {
       "candidateId": "jobs-node-schedule",
       "displayName": "node-schedule",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "node-schedule",
         "repository": "node-schedule"
@@ -1656,14 +1964,15 @@
       "npmPackage": "node-schedule",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "node-schedule runs in-process jobs from dates and recurrence rules, representing non-durable background scheduling. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/node-schedule/node-schedule",
+        "https://github.com/node-schedule/node-schedule/blob/HEAD/README.md",
         "https://www.npmjs.com/package/node-schedule"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1674,6 +1983,7 @@
     {
       "candidateId": "jobs-p-queue",
       "displayName": "p-queue",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "sindresorhus",
         "repository": "p-queue"
@@ -1681,24 +1991,23 @@
       "npmPackage": "p-queue",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for background-jobs; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "p-queue is an adjacent negative control because it limits concurrency for in-memory promises but does not persist or distribute background jobs.",
       "selectionSources": [
-        "https://github.com/sindresorhus/p-queue",
+        "https://github.com/sindresorhus/p-queue/blob/HEAD/README.md",
         "https://www.npmjs.com/package/p-queue"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-pg-boss",
       "displayName": "pg-boss",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "timgit",
         "repository": "pg-boss"
@@ -1706,14 +2015,15 @@
       "npmPackage": "pg-boss",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "pg-boss implements a PostgreSQL-backed job queue with workers, retries, schedules, and transactional enqueueing. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/timgit/pg-boss",
+        "https://github.com/timgit/pg-boss/blob/HEAD/README.md",
         "https://www.npmjs.com/package/pg-boss"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1724,6 +2034,7 @@
     {
       "candidateId": "jobs-prefect",
       "displayName": "Prefect",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "PrefectHQ",
         "repository": "prefect"
@@ -1731,15 +2042,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/PrefectHQ/prefect"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Prefect coordinates Python workflows and deployments with scheduling, retries, remote workers, and observable run state.",
+      "selectionSources": [
+        "https://github.com/PrefectHQ/prefect/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-resque",
       "displayName": "Resque",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "resque",
         "repository": "resque"
@@ -1747,15 +2067,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/resque/resque"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Resque is a Redis-backed Ruby library for creating queues, reserving jobs, and running background workers.",
+      "selectionSources": [
+        "https://github.com/resque/resque/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-river",
       "displayName": "River",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "riverqueue",
         "repository": "river"
@@ -1763,15 +2092,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/riverqueue/river"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "River provides transactional PostgreSQL-backed jobs and Go workers with retries, uniqueness, scheduling, and cancellation.",
+      "selectionSources": [
+        "https://github.com/riverqueue/river/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-rq",
       "displayName": "RQ",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "rq",
         "repository": "rq"
@@ -1779,15 +2117,22 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/rq/rq"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "RQ enqueues Python functions in Redis and executes them through background workers with result and failure tracking.",
+      "selectionSources": ["https://github.com/rq/rq/blob/HEAD/README.md"],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-sidekiq",
       "displayName": "Sidekiq",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "sidekiq",
         "repository": "sidekiq"
@@ -1795,15 +2140,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/sidekiq/sidekiq"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Sidekiq runs multithreaded Ruby background jobs from Redis queues with retry and scheduling behavior.",
+      "selectionSources": [
+        "https://github.com/sidekiq/sidekiq/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "jobs-temporal-typescript",
       "displayName": "Temporal TypeScript SDK",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "temporalio",
         "repository": "sdk-typescript"
@@ -1811,14 +2165,15 @@
       "npmPackage": "@temporalio/worker",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Temporal TypeScript SDK implements durable workflows, activities, and workers against Temporal’s execution service. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/temporalio/sdk-typescript",
+        "https://github.com/temporalio/sdk-typescript/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40temporalio%2Fworker"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1829,6 +2184,7 @@
     {
       "candidateId": "jobs-toad-scheduler",
       "displayName": "Toad Scheduler",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "kibertoad",
         "repository": "toad-scheduler"
@@ -1836,14 +2192,15 @@
       "npmPackage": "toad-scheduler",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Toad Scheduler runs simple interval and cron tasks in Node.js, covering lightweight in-process background scheduling. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/kibertoad/toad-scheduler",
+        "https://github.com/kibertoad/toad-scheduler/blob/HEAD/README.md",
         "https://www.npmjs.com/package/toad-scheduler"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1854,6 +2211,7 @@
     {
       "candidateId": "jobs-trigger-dev",
       "displayName": "Trigger.dev",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "triggerdotdev",
         "repository": "trigger.dev"
@@ -1861,14 +2219,15 @@
       "npmPackage": "@trigger.dev/sdk",
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Trigger.dev defines long-running background tasks with queues, retries, schedules, and durable execution. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/triggerdotdev/trigger.dev",
+        "https://github.com/triggerdotdev/trigger.dev/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40trigger.dev%2Fsdk"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1879,6 +2238,7 @@
     {
       "candidateId": "jobs-windmill",
       "displayName": "Windmill",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "windmill-labs",
         "repository": "windmill"
@@ -1886,15 +2246,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "background-jobs",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public background-jobs candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/windmill-labs/windmill"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Windmill schedules and executes scripts and multi-step workflows through managed worker queues, making it a broader background-work platform.",
+      "selectionSources": [
+        "https://github.com/windmill-labs/windmill/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-apisix",
       "displayName": "Apache APISIX",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "apache",
         "repository": "apisix"
@@ -1902,15 +2271,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/apache/apisix"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Apache APISIX exposes gateway plugins for request-count, concurrency, and traffic rate limits, making throttling a deliberate built-in capability.",
+      "selectionSources": [
+        "https://github.com/apache/apisix/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-bottleneck",
       "displayName": "Bottleneck",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "SGrondin",
         "repository": "bottleneck"
@@ -1918,14 +2296,15 @@
       "npmPackage": "bottleneck",
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Bottleneck schedules JavaScript work under rate and concurrency constraints, with optional clustered coordination. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/SGrondin/bottleneck",
+        "https://github.com/SGrondin/bottleneck/blob/HEAD/README.md",
         "https://www.npmjs.com/package/bottleneck"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -1936,6 +2315,7 @@
     {
       "candidateId": "rate-caddy",
       "displayName": "Caddy",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "caddyserver",
         "repository": "caddy"
@@ -1943,15 +2323,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for rate-limiting; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/caddyserver/caddy"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Caddy is an adjacent negative control because its core project is a general web server and reverse proxy, not a dedicated rate-limit implementation.",
+      "selectionSources": [
+        "https://github.com/caddyserver/caddy/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-envoy",
       "displayName": "Envoy",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "envoyproxy",
         "repository": "envoy"
@@ -1959,15 +2342,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for rate-limiting; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/envoyproxy/envoy"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Envoy is an adjacent negative control selected as a broad service proxy; the separate Envoy Rate Limit Service is the focused enforcement candidate.",
+      "selectionSources": [
+        "https://github.com/envoyproxy/envoy/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-envoy-ratelimit",
       "displayName": "Envoy Rate Limit Service",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "envoyproxy",
         "repository": "ratelimit"
@@ -1975,15 +2361,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/envoyproxy/ratelimit"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Envoy Rate Limit Service implements the external gRPC service used to make shared, descriptor-based global rate-limit decisions.",
+      "selectionSources": [
+        "https://github.com/envoyproxy/ratelimit/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-express-rate-limit",
       "displayName": "express-rate-limit",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "express-rate-limit",
         "repository": "express-rate-limit"
@@ -1991,14 +2386,15 @@
       "npmPackage": "express-rate-limit",
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "express-rate-limit enforces request windows and limits as Express middleware with configurable stores. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/express-rate-limit/express-rate-limit",
+        "https://github.com/express-rate-limit/express-rate-limit/blob/HEAD/README.md",
         "https://www.npmjs.com/package/express-rate-limit"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2009,6 +2405,7 @@
     {
       "candidateId": "rate-fastify-rate-limit",
       "displayName": "@fastify/rate-limit",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "fastify",
         "repository": "fastify-rate-limit"
@@ -2016,14 +2413,15 @@
       "npmPackage": "@fastify/rate-limit",
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "@fastify/rate-limit adds keyed request throttling and configurable stores to Fastify routes. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/fastify/fastify-rate-limit",
+        "https://github.com/fastify/fastify-rate-limit/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40fastify%2Frate-limit"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2034,6 +2432,7 @@
     {
       "candidateId": "rate-go-limiter",
       "displayName": "go-limiter",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "sethvargo",
         "repository": "go-limiter"
@@ -2041,15 +2440,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/sethvargo/go-limiter"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "go-limiter supplies Go rate-limit abstractions and token-bucket style stores for local or distributed enforcement.",
+      "selectionSources": [
+        "https://github.com/sethvargo/go-limiter/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-governor",
       "displayName": "governor",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "boinkor-net",
         "repository": "governor"
@@ -2057,15 +2465,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/boinkor-net/governor"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "governor provides a Go rate-limiting library with middleware integration and configurable limiter stores.",
+      "selectionSources": [
+        "https://github.com/boinkor-net/governor/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-gravitee",
       "displayName": "Gravitee APIM",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "gravitee-io",
         "repository": "gravitee-api-management"
@@ -2073,17 +2490,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Gravitee APIM includes explicit rate-limit and quota policies in its API gateway policy chain, so throttling is a deliberate platform capability.",
       "selectionSources": [
-        "https://github.com/gravitee-io/gravitee-api-management"
+        "https://github.com/gravitee-io/gravitee-api-management/blob/HEAD/README.md"
       ],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-gubernator",
       "displayName": "Gubernator",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "mailgun",
         "repository": "gubernator"
@@ -2091,15 +2515,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/mailgun/gubernator"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Gubernator is a distributed service for high-performance global rate-limit checks using token-bucket style algorithms.",
+      "selectionSources": [
+        "https://github.com/mailgun/gubernator/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-haproxy",
       "displayName": "HAProxy",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "haproxy",
         "repository": "haproxy"
@@ -2107,15 +2540,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for rate-limiting; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/haproxy/haproxy"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "HAProxy is an adjacent negative control because its primary role is load balancing and proxying, not a focused reusable rate-limit service.",
+      "selectionSources": [
+        "https://github.com/haproxy/haproxy/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-juju",
       "displayName": "juju ratelimit",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "juju",
         "repository": "ratelimit"
@@ -2123,15 +2559,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/juju/ratelimit"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "juju ratelimit implements a Go token bucket for controlling operation throughput, directly covering local rate enforcement.",
+      "selectionSources": [
+        "https://github.com/juju/ratelimit/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-koa-ratelimit",
       "displayName": "koa-ratelimit",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "koajs",
         "repository": "ratelimit"
@@ -2139,14 +2584,15 @@
       "npmPackage": "koa-ratelimit",
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "koa-ratelimit enforces keyed request limits for Koa through configurable storage backends. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/koajs/ratelimit",
+        "https://github.com/koajs/ratelimit/blob/HEAD/README.md",
         "https://www.npmjs.com/package/koa-ratelimit"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2157,6 +2603,7 @@
     {
       "candidateId": "rate-kong",
       "displayName": "Kong Gateway",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "Kong",
         "repository": "kong"
@@ -2164,15 +2611,22 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/Kong/kong"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Kong Gateway is retained because it ships dedicated rate-limiting plugins and policies, not merely because it is a general API gateway.",
+      "selectionSources": ["https://github.com/Kong/kong/blob/HEAD/README.md"],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-krakend",
       "displayName": "KrakenD",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "krakend",
         "repository": "krakend-ce"
@@ -2180,15 +2634,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/krakend/krakend-ce"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "KrakenD is retained because its gateway configuration includes client and backend rate limits as explicit traffic-control primitives.",
+      "selectionSources": [
+        "https://github.com/krakend/krakend-ce/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-limiters",
       "displayName": "Limiters",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "mennanov",
         "repository": "limiters"
@@ -2196,15 +2659,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/mennanov/limiters"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Limiters implements multiple distributed rate-limit algorithms and storage integrations as a focused Go library.",
+      "selectionSources": [
+        "https://github.com/mennanov/limiters/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-nestjs-throttler",
       "displayName": "NestJS Throttler",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "nestjs",
         "repository": "throttler"
@@ -2212,14 +2684,15 @@
       "npmPackage": "@nestjs/throttler",
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "NestJS Throttler provides decorators, guards, and storage for application request throttling. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/nestjs/throttler",
+        "https://github.com/nestjs/throttler/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40nestjs%2Fthrottler"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2230,6 +2703,7 @@
     {
       "candidateId": "rate-nginx",
       "displayName": "NGINX",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "nginx",
         "repository": "nginx"
@@ -2237,15 +2711,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for rate-limiting; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/nginx/nginx"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "NGINX is an adjacent negative control because the repository is a general HTTP server and proxy rather than a standalone rate-limit component.",
+      "selectionSources": [
+        "https://github.com/nginx/nginx/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-node-rate-limiter-flexible",
       "displayName": "rate-limiter-flexible",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "animir",
         "repository": "node-rate-limiter-flexible"
@@ -2253,14 +2730,15 @@
       "npmPackage": "rate-limiter-flexible",
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "rate-limiter-flexible supplies atomic rate-limit points across memory and distributed stores with blocking and insurance strategies. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/animir/node-rate-limiter-flexible",
+        "https://github.com/animir/node-rate-limiter-flexible/blob/HEAD/README.md",
         "https://www.npmjs.com/package/rate-limiter-flexible"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2271,6 +2749,7 @@
     {
       "candidateId": "rate-node-ratelimiter",
       "displayName": "ratelimiter",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "TJ",
         "repository": "node-ratelimiter"
@@ -2278,14 +2757,15 @@
       "npmPackage": "ratelimiter",
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "ratelimiter implements Redis-backed request limits for Node.js using configurable identifiers and windows. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/TJ/node-ratelimiter",
+        "https://github.com/TJ/node-ratelimiter/blob/HEAD/README.md",
         "https://www.npmjs.com/package/ratelimiter"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2296,6 +2776,7 @@
     {
       "candidateId": "rate-pingora",
       "displayName": "Pingora",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "cloudflare",
         "repository": "pingora"
@@ -2303,15 +2784,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for rate-limiting; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/cloudflare/pingora"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Pingora is an adjacent negative control selected as a proxy framework whose core responsibility is connection and traffic handling, not rate-limit policy.",
+      "selectionSources": [
+        "https://github.com/cloudflare/pingora/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-redis-cell",
       "displayName": "redis-cell",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "brandur",
         "repository": "redis-cell"
@@ -2319,15 +2803,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/brandur/redis-cell"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "redis-cell adds the atomic CL.THROTTLE command to Redis using a generic cell-rate algorithm for distributed limits.",
+      "selectionSources": [
+        "https://github.com/brandur/redis-cell/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-throttled",
       "displayName": "Throttled",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "throttled",
         "repository": "throttled"
@@ -2335,15 +2828,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/throttled/throttled"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Throttled is a Go package for rate limits and quotas with pluggable storage and HTTP middleware.",
+      "selectionSources": [
+        "https://github.com/throttled/throttled/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-tollbooth",
       "displayName": "Tollbooth",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "didip",
         "repository": "tollbooth"
@@ -2351,15 +2853,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/didip/tollbooth"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Tollbooth provides token-bucket HTTP rate-limiting middleware for Go handlers and common web frameworks.",
+      "selectionSources": [
+        "https://github.com/didip/tollbooth/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-traefik",
       "displayName": "Traefik",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "traefik",
         "repository": "traefik"
@@ -2367,15 +2878,18 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for rate-limiting; public metadata can distinguish adjacent functionality from direct capability evidence.",
-      "selectionSources": ["https://github.com/traefik/traefik"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Traefik is an adjacent negative control because its primary artifact is a broad application proxy, not a dedicated limiter implementation.",
+      "selectionSources": [
+        "https://github.com/traefik/traefik/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": ["github-repository"],
       "status": "negative-control",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-tyk",
       "displayName": "Tyk Gateway",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "TykTechnologies",
         "repository": "tyk"
@@ -2383,15 +2897,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/TykTechnologies/tyk"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Tyk Gateway is retained because its API-management path includes explicit per-key quotas and rate-limit enforcement.",
+      "selectionSources": [
+        "https://github.com/TykTechnologies/tyk/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-uber-go",
       "displayName": "uber-go ratelimit",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "uber-go",
         "repository": "ratelimit"
@@ -2399,15 +2922,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/uber-go/ratelimit"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "uber-go ratelimit is a focused Go leaky-bucket limiter for spacing operations at a configured rate.",
+      "selectionSources": [
+        "https://github.com/uber-go/ratelimit/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-ulule-limiter",
       "displayName": "Ulule Limiter",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "ulule",
         "repository": "limiter"
@@ -2415,15 +2947,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/ulule/limiter"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Ulule Limiter supplies Go rate-limit middleware with memory and distributed stores for HTTP applications.",
+      "selectionSources": [
+        "https://github.com/ulule/limiter/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "rate-upstash",
       "displayName": "Upstash Ratelimit",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "upstash",
         "repository": "ratelimit-js"
@@ -2431,14 +2972,15 @@
       "npmPackage": "@upstash/ratelimit",
       "primaryCapabilityFamily": "rate-limiting",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public rate-limiting candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Upstash Ratelimit implements serverless-friendly fixed, sliding, and token-bucket limits over Redis. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/upstash/ratelimit-js",
+        "https://github.com/upstash/ratelimit-js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40upstash%2Fratelimit"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2449,6 +2991,7 @@
     {
       "candidateId": "webhook-adnanh",
       "displayName": "webhook",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "adnanh",
         "repository": "webhook"
@@ -2456,15 +2999,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/adnanh/webhook"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "webhook exposes HTTP endpoints that trigger configured commands and scripts, representing inbound webhook routing and execution.",
+      "selectionSources": [
+        "https://github.com/adnanh/webhook/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-clerk-javascript",
       "displayName": "Clerk JavaScript",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "clerk",
         "repository": "javascript"
@@ -2472,24 +3024,23 @@
       "npmPackage": "@clerk/backend",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Clerk JavaScript is an adjacent negative control because it is a broad authentication and user-management SDK, not dedicated webhook infrastructure.",
       "selectionSources": [
-        "https://github.com/clerk/javascript",
+        "https://github.com/clerk/javascript/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40clerk%2Fbackend"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-convoy",
       "displayName": "Convoy",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "frain-dev",
         "repository": "convoy"
@@ -2497,15 +3048,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/frain-dev/convoy"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Convoy provides outbound webhook delivery with endpoints, retries, signatures, and operational visibility as a focused webhook service.",
+      "selectionSources": [
+        "https://github.com/frain-dev/convoy/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-discord-js",
       "displayName": "discord.js",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "discordjs",
         "repository": "discord.js"
@@ -2513,24 +3073,23 @@
       "npmPackage": "discord.js",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "discord.js is an adjacent negative control because it is a full Discord API and bot client rather than a reusable webhook delivery or verification component.",
       "selectionSources": [
-        "https://github.com/discordjs/discord.js",
+        "https://github.com/discordjs/discord.js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/discord.js"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-dodopayments",
       "displayName": "Dodo Payments Node",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "dodopayments",
         "repository": "dodopayments-node"
@@ -2538,24 +3097,23 @@
       "npmPackage": "dodopayments",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Dodo Payments Node is an adjacent negative control selected as a payment-provider SDK that may expose webhook helpers but is not webhook infrastructure.",
       "selectionSources": [
-        "https://github.com/dodopayments/dodopayments-node",
+        "https://github.com/dodopayments/dodopayments-node/blob/HEAD/README.md",
         "https://www.npmjs.com/package/dodopayments"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-firebase-admin",
       "displayName": "Firebase Admin Node",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "firebase",
         "repository": "firebase-admin-node"
@@ -2563,24 +3121,23 @@
       "npmPackage": "firebase-admin",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Firebase Admin Node is an adjacent negative control because it is a broad administrative SDK for Firebase services, not a webhook-focused library.",
       "selectionSources": [
-        "https://github.com/firebase/firebase-admin-node",
+        "https://github.com/firebase/firebase-admin-node/blob/HEAD/README.md",
         "https://www.npmjs.com/package/firebase-admin"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-go-playground",
       "displayName": "Go Webhooks",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "go-playground",
         "repository": "webhooks"
@@ -2588,15 +3145,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/go-playground/webhooks"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Go Webhooks parses and validates inbound webhook payloads from multiple providers, directly covering webhook consumption.",
+      "selectionSources": [
+        "https://github.com/go-playground/webhooks/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-hook0",
       "displayName": "Hook0",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "hook0",
         "repository": "hook0"
@@ -2604,15 +3170,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/hook0/hook0"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Hook0 is an open-source webhook service for registering endpoints and delivering signed events with retries.",
+      "selectionSources": [
+        "https://github.com/hook0/hook0/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-hookdeck",
       "displayName": "Hookdeck",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "hookdeck",
         "repository": "hookdeck"
@@ -2620,15 +3195,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/hookdeck/hookdeck"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Hookdeck acts as a webhook gateway with routing, retries, observability, and request management for inbound event traffic.",
+      "selectionSources": [
+        "https://github.com/hookdeck/hookdeck/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-lemonsqueezy",
       "displayName": "Lemon Squeezy.js",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "lmsqueezy",
         "repository": "lemonsqueezy.js"
@@ -2636,24 +3220,23 @@
       "npmPackage": "@lemonsqueezy/lemonsqueezy.js",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Lemon Squeezy.js is an adjacent negative control because it is a commerce API client rather than a general webhook sender, router, or verifier.",
       "selectionSources": [
-        "https://github.com/lmsqueezy/lemonsqueezy.js",
+        "https://github.com/lmsqueezy/lemonsqueezy.js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40lemonsqueezy%2Flemonsqueezy.js"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-localtunnel",
       "displayName": "localtunnel",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "localtunnel",
         "repository": "localtunnel"
@@ -2661,24 +3244,23 @@
       "npmPackage": "localtunnel",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "localtunnel is an adjacent negative control because it exposes a local server through a public tunnel but does not implement webhook delivery semantics.",
       "selectionSources": [
-        "https://github.com/localtunnel/localtunnel",
+        "https://github.com/localtunnel/localtunnel/blob/HEAD/README.md",
         "https://www.npmjs.com/package/localtunnel"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-mux-node",
       "displayName": "Mux Node SDK",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "muxinc",
         "repository": "mux-node-sdk"
@@ -2686,24 +3268,23 @@
       "npmPackage": "@mux/mux-node",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Mux Node SDK is an adjacent negative control selected as a broad video-provider client, not a dedicated webhook handling component.",
       "selectionSources": [
-        "https://github.com/muxinc/mux-node-sdk",
+        "https://github.com/muxinc/mux-node-sdk/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40mux%2Fmux-node"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-ngrok-javascript",
       "displayName": "ngrok JavaScript",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "ngrok",
         "repository": "ngrok-javascript"
@@ -2711,24 +3292,23 @@
       "npmPackage": "@ngrok/ngrok",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "ngrok JavaScript is an adjacent negative control because it creates network tunnels; webhook testing is a use case, not the library’s delivery function.",
       "selectionSources": [
-        "https://github.com/ngrok/ngrok-javascript",
+        "https://github.com/ngrok/ngrok-javascript/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40ngrok%2Fngrok"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-novu",
       "displayName": "Novu",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "novuhq",
         "repository": "novu"
@@ -2736,24 +3316,23 @@
       "npmPackage": "@novu/api",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Novu is an adjacent negative control because it orchestrates multi-channel notifications rather than providing focused webhook transport infrastructure.",
       "selectionSources": [
-        "https://github.com/novuhq/novu",
+        "https://github.com/novuhq/novu/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40novu%2Fapi"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-octokit-app",
       "displayName": "Octokit App",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "octokit",
         "repository": "app.js"
@@ -2761,14 +3340,15 @@
       "npmPackage": "@octokit/app",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Octokit App combines GitHub App authentication with webhook event handling for installed applications. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/octokit/app.js",
+        "https://github.com/octokit/app.js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40octokit%2Fapp"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2779,6 +3359,7 @@
     {
       "candidateId": "webhook-octokit-methods",
       "displayName": "Octokit Webhook Methods",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "octokit",
         "repository": "webhook-methods.js"
@@ -2786,14 +3367,15 @@
       "npmPackage": "@octokit/webhook-methods",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Octokit Webhook Methods signs, verifies, and identifies GitHub webhook payloads as focused protocol helpers. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/octokit/webhook-methods.js",
+        "https://github.com/octokit/webhook-methods.js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40octokit%2Fwebhook-methods"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2804,6 +3386,7 @@
     {
       "candidateId": "webhook-octokit-webhooks",
       "displayName": "Octokit Webhooks",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "octokit",
         "repository": "webhooks.js"
@@ -2811,14 +3394,15 @@
       "npmPackage": "@octokit/webhooks",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Octokit Webhooks verifies GitHub webhook signatures and dispatches typed events to handlers. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/octokit/webhooks.js",
+        "https://github.com/octokit/webhooks.js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40octokit%2Fwebhooks"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -2829,6 +3413,7 @@
     {
       "candidateId": "webhook-paddle-node",
       "displayName": "Paddle Node SDK",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "PaddleHQ",
         "repository": "paddle-node-sdk"
@@ -2836,24 +3421,23 @@
       "npmPackage": "@paddle/paddle-node-sdk",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Paddle Node SDK is an adjacent negative control because it is a full payments client rather than a reusable webhook service.",
       "selectionSources": [
-        "https://github.com/PaddleHQ/paddle-node-sdk",
+        "https://github.com/PaddleHQ/paddle-node-sdk/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40paddle%2Fpaddle-node-sdk"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-paypal-node",
       "displayName": "PayPal Server SDK Node",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "paypal",
         "repository": "paypal-server-sdk-nodejs"
@@ -2861,24 +3445,23 @@
       "npmPackage": "@paypal/paypal-server-sdk",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "PayPal Server SDK Node is an adjacent negative control selected as a payment API client, not dedicated webhook delivery or verification infrastructure.",
       "selectionSources": [
-        "https://github.com/paypal/paypal-server-sdk-nodejs",
+        "https://github.com/paypal/paypal-server-sdk-nodejs/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40paypal%2Fpaypal-server-sdk"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-razorpay-node",
       "displayName": "Razorpay Node",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "razorpay",
         "repository": "razorpay-node"
@@ -2886,24 +3469,23 @@
       "npmPackage": "razorpay",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Razorpay Node is an adjacent negative control because it wraps a payment provider API rather than serving as a general webhook component.",
       "selectionSources": [
-        "https://github.com/razorpay/razorpay-node",
+        "https://github.com/razorpay/razorpay-node/blob/HEAD/README.md",
         "https://www.npmjs.com/package/razorpay"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-sendgrid-node",
       "displayName": "SendGrid Node",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "sendgrid",
         "repository": "sendgrid-nodejs"
@@ -2911,24 +3493,23 @@
       "npmPackage": "@sendgrid/client",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "SendGrid Node is an adjacent negative control because it is an email-delivery client; provider events do not make the client webhook infrastructure.",
       "selectionSources": [
-        "https://github.com/sendgrid/sendgrid-nodejs",
+        "https://github.com/sendgrid/sendgrid-nodejs/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40sendgrid%2Fclient"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-shopify-api",
       "displayName": "Shopify App JS",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "Shopify",
         "repository": "shopify-app-js"
@@ -2936,24 +3517,23 @@
       "npmPackage": "@shopify/shopify-api",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Shopify App JS is an adjacent negative control because webhook registration is one feature inside a broader commerce-application SDK.",
       "selectionSources": [
-        "https://github.com/Shopify/shopify-app-js",
+        "https://github.com/Shopify/shopify-app-js/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40shopify%2Fshopify-api"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-slack-node",
       "displayName": "Slack Node SDK",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "slackapi",
         "repository": "node-slack-sdk"
@@ -2961,24 +3541,23 @@
       "npmPackage": "@slack/web-api",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Slack Node SDK is an adjacent negative control because it is a broad Slack Web API client rather than a webhook-specific sender or verifier.",
       "selectionSources": [
-        "https://github.com/slackapi/node-slack-sdk",
+        "https://github.com/slackapi/node-slack-sdk/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40slack%2Fweb-api"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-standard-webhooks",
       "displayName": "Standard Webhooks",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "standard-webhooks",
         "repository": "standard-webhooks"
@@ -2986,14 +3565,15 @@
       "npmPackage": "standardwebhooks",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Standard Webhooks defines interoperable signing and verification behavior and provides an implementation for that protocol. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/standard-webhooks/standard-webhooks",
+        "https://github.com/standard-webhooks/standard-webhooks/blob/HEAD/README.md",
         "https://www.npmjs.com/package/standardwebhooks"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -3004,6 +3584,7 @@
     {
       "candidateId": "webhook-stripe-node",
       "displayName": "Stripe Node",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "stripe",
         "repository": "stripe-node"
@@ -3011,14 +3592,15 @@
       "npmPackage": "stripe",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Stripe Node is retained because it provides explicit webhook-event construction and signature verification, unlike the adjacent payment SDK controls. Exact-commit package.json metadata verifies the npm mapping without execution.",
       "selectionSources": [
-        "https://github.com/stripe/stripe-node",
+        "https://github.com/stripe/stripe-node/blob/HEAD/README.md",
         "https://www.npmjs.com/package/stripe"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -3029,6 +3611,7 @@
     {
       "candidateId": "webhook-svix",
       "displayName": "Svix Webhooks",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "svix",
         "repository": "svix-webhooks"
@@ -3036,14 +3619,15 @@
       "npmPackage": "svix",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
+      "rationale": "Svix Webhooks supplies webhook sending, endpoint management, and signature verification around a dedicated delivery service. Exact-commit package.json metadata verifies the mapped npm package without executing it.",
       "selectionSources": [
-        "https://github.com/svix/svix-webhooks",
+        "https://github.com/svix/svix-webhooks/blob/HEAD/README.md",
         "https://www.npmjs.com/package/svix"
       ],
       "expectedSourceTypes": [
         "github-advisory",
         "github-file",
+        "github-license",
         "github-release",
         "github-repository",
         "npm-package"
@@ -3054,6 +3638,7 @@
     {
       "candidateId": "webhook-twilio-node",
       "displayName": "Twilio Node",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "twilio",
         "repository": "twilio-node"
@@ -3061,24 +3646,23 @@
       "npmPackage": "twilio",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "Twilio Node is an adjacent negative control because it is a communications API client rather than dedicated webhook transport infrastructure.",
       "selectionSources": [
-        "https://github.com/twilio/twilio-node",
+        "https://github.com/twilio/twilio-node/blob/HEAD/README.md",
         "https://www.npmjs.com/package/twilio"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-webhook-site",
       "displayName": "Webhook.site",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "webhooksite",
         "repository": "webhook.site"
@@ -3086,15 +3670,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/webhooksite/webhook.site"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "Webhook.site receives, records, and inspects webhook requests, providing a focused endpoint and debugging workflow for webhook traffic.",
+      "selectionSources": [
+        "https://github.com/webhooksite/webhook.site/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-webhookx",
       "displayName": "WebhookX",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "webhookx-io",
         "repository": "webhookx"
@@ -3102,15 +3695,24 @@
       "npmPackage": null,
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated public webhooks candidate spanning the V1 mix of libraries, integrations, and self-hostable services.",
-      "selectionSources": ["https://github.com/webhookx-io/webhookx"],
-      "expectedSourceTypes": ["github-release", "github-repository"],
+      "rationale": "WebhookX is a webhook gateway for routing, transforming, observing, and reliably delivering event requests.",
+      "selectionSources": [
+        "https://github.com/webhookx-io/webhookx/blob/HEAD/README.md"
+      ],
+      "expectedSourceTypes": [
+        "github-community",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag"
+      ],
       "status": "active",
       "allowlistedFiles": []
     },
     {
       "candidateId": "webhook-workos-node",
       "displayName": "WorkOS Node",
+      "introducedAt": "2026-07-29T00:00:00.000Z",
       "github": {
         "owner": "workos",
         "repository": "workos-node"
@@ -3118,21 +3720,18 @@
       "npmPackage": "@workos-inc/node",
       "primaryCapabilityFamily": "webhooks",
       "additionalCapabilityFamilies": [],
-      "rationale": "Curated negative control for webhooks; public metadata can distinguish adjacent functionality from direct capability evidence.",
+      "rationale": "WorkOS Node is an adjacent negative control because it is a broad enterprise identity API client, not dedicated webhook infrastructure.",
       "selectionSources": [
-        "https://github.com/workos/workos-node",
+        "https://github.com/workos/workos-node/blob/HEAD/README.md",
         "https://www.npmjs.com/package/%40workos-inc%2Fnode"
       ],
       "expectedSourceTypes": [
         "github-advisory",
-        "github-file",
-        "github-release",
         "github-repository",
         "npm-package"
       ],
       "status": "negative-control",
-      "allowlistedFiles": ["package.json"]
+      "allowlistedFiles": []
     }
-  ],
-  "manifestDigest": "d9d61d8b07f7e638ceaa102f4145388b59d1d537aac6203006d98c020b70697d"
+  ]
 }

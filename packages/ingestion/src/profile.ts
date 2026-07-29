@@ -29,13 +29,13 @@ export function profileCandidate(
     displayName: bundle.candidate.displayName,
     repository: {
       host: 'github' as const,
-      owner: bundle.repository.canonicalOwner,
-      name: bundle.repository.canonicalRepository,
+      owner: bundle.candidate.github.owner,
+      name: bundle.candidate.github.repository,
     },
     package:
-      bundle.npm === null
+      bundle.candidate.npmPackage === null
         ? null
-        : { registry: 'npm' as const, name: bundle.npm.name },
+        : { registry: 'npm' as const, name: bundle.candidate.npmPackage },
   };
   const priorById = new Map(
     priorObservations.map((observation) => [
@@ -65,8 +65,8 @@ export function profileCandidate(
   add(
     {
       topic: 'repository-identity',
-      owner: identity.repository.owner,
-      repository: identity.repository.name,
+      owner: bundle.repository.canonicalOwner,
+      repository: bundle.repository.canonicalRepository,
     },
     {
       kind: 'evidence',
@@ -74,8 +74,8 @@ export function profileCandidate(
       topic: 'repository-identity',
       dimension: 'identity',
       observation: repositoryMoved
-        ? `GitHub reports that catalog identity ${bundle.candidate.github.owner}/${bundle.candidate.github.repository} now resolves to ${identity.repository.owner}/${identity.repository.name}.`
-        : `GitHub identifies the public repository as ${identity.repository.owner}/${identity.repository.name}.`,
+        ? `GitHub reports that stable catalog identity ${bundle.candidate.github.owner}/${bundle.candidate.github.repository} now resolves to ${bundle.repository.canonicalOwner}/${bundle.repository.canonicalRepository}.`
+        : `GitHub identifies the public repository as ${bundle.repository.canonicalOwner}/${bundle.repository.canonicalRepository}.`,
       source: {
         kind: 'mutable-documentation',
         sourceType: 'official-documentation',
@@ -178,6 +178,34 @@ export function profileCandidate(
     );
   }
 
+  for (const tag of bundle.tags) {
+    add(
+      { topic: tagTopic(tag.name), commitSha: tag.commitSha },
+      {
+        kind: 'evidence',
+        candidateId: identity.candidateId,
+        topic: tagTopic(tag.name),
+        dimension: 'version-release',
+        observation: `GitHub lists tag ${tag.name} at commit ${tag.commitSha}.`,
+        source: {
+          kind: 'mutable-documentation',
+          sourceType: 'official-documentation',
+          sourceUrl: `${bundle.repository.htmlUrl}/tags`,
+          limitationCode: 'source-is-mutable',
+          collectedAt: bundle.collectedAt,
+        },
+        freshness: {
+          status: 'current',
+          asOf: bundle.collectedAt,
+          scope: 'Bounded GitHub repository-tag listing at collection time.',
+        },
+        directness: 'direct',
+        limitation:
+          'The bounded tag listing does not establish a tag creation time.',
+      },
+    );
+  }
+
   if (bundle.license?.spdxId !== null && bundle.license !== null) {
     add(
       { topic: 'license-declared', spdxId: bundle.license.spdxId },
@@ -190,7 +218,8 @@ export function profileCandidate(
         source: {
           ...commitSource(bundle),
           sourceType: 'license',
-          sourceUrl: bundle.license.htmlUrl ?? bundle.repository.htmlUrl,
+          sourceUrl: bundle.license.sourceUrl,
+          immutableUrl: bundle.license.immutableUrl,
         },
         freshness: {
           status: 'current',
@@ -417,18 +446,23 @@ export function profileCandidate(
     'repository-head',
     'repository-identity',
     'repository-state',
-    ...(bundle.incompleteSourceCodes.includes('github-releases-unavailable')
-      ? []
-      : ['release-current']),
-    ...(bundle.incompleteSourceCodes.includes('github-license-unavailable')
-      ? []
-      : ['license-declared']),
-    ...(bundle.incompleteSourceCodes.includes('github-community-unavailable')
-      ? []
-      : ['security-policy']),
-    ...(bundle.npm === null ? [] : ['npm-latest-version', 'npm-runtime-shape']),
-    ...(bundle.advisories.complete ? ['security-advisory-*'] : []),
-    ...bundle.files.map((file) => fileTopic(file.path)),
+    ...(expects(bundle, 'github-release') ? ['release-current'] : []),
+    ...(expects(bundle, 'github-tag') ? ['repository-tag-*'] : []),
+    ...(expects(bundle, 'github-license') ? ['license-declared'] : []),
+    ...(expects(bundle, 'github-community') ? ['security-policy'] : []),
+    ...(expects(bundle, 'npm-package')
+      ? [
+          'npm-latest-version',
+          'npm-runtime-shape',
+          'repository-package-linkage',
+        ]
+      : []),
+    ...(expects(bundle, 'github-advisory') && bundle.advisories.complete
+      ? ['security-advisory-*']
+      : []),
+    ...(expects(bundle, 'github-file')
+      ? bundle.candidate.allowlistedFiles.map(fileTopic)
+      : []),
   ].sort();
   return {
     identity,
@@ -593,14 +627,7 @@ function buildLimitations(
       evidence === undefined ? [] : [evidence.evidenceId],
     );
   }
-  for (const code of bundle.incompleteSourceCodes) {
-    add(
-      code,
-      `Source collection is partial because ${code.replaceAll('-', ' ')}.`,
-      [],
-    );
-  }
-  if (!bundle.advisories.complete) {
+  if (expects(bundle, 'github-advisory') && !bundle.advisories.complete) {
     add(
       bundle.advisories.limitationCode ?? 'advisory-coverage-partial',
       'Security advisory coverage is partial for the selected package version.',
@@ -638,7 +665,7 @@ function buildUnknowns(
       evidenceIds: [...evidenceIds],
     });
   };
-  if (bundle.npm === null) {
+  if (bundle.candidate.npmPackage === null) {
     add(
       'package-version-unknown',
       'No approved npm package version is mapped for this repository.',
@@ -655,7 +682,10 @@ function buildUnknowns(
       npmVersionEvidenceId === null ? [] : [npmVersionEvidenceId],
     );
   }
-  if (bundle.license?.spdxId === null || bundle.license === null) {
+  if (
+    expects(bundle, 'github-license') &&
+    (bundle.license?.spdxId === null || bundle.license === null)
+  ) {
     add(
       'license-identity-unknown',
       'The approved repository source did not establish a recognized SPDX license identity.',
@@ -670,8 +700,8 @@ function buildUnknowns(
     );
   }
   if (
-    bundle.releases.every((release) => release.isDraft) &&
-    !bundle.incompleteSourceCodes.includes('github-releases-unavailable')
+    expects(bundle, 'github-release') &&
+    bundle.releases.every((release) => release.isDraft)
   ) {
     add(
       'release-state-unknown',
@@ -679,13 +709,41 @@ function buildUnknowns(
       [],
     );
   }
-  add(
-    'advisory-coverage-unknown',
-    bundle.advisories.complete
-      ? 'A complete bounded query returned the recorded reviewed advisories, but absence of another advisory is not proven.'
-      : 'The bounded advisory query was incomplete, so advisory absence is unknown.',
-    npmVersionEvidenceId === null ? [] : [npmVersionEvidenceId],
-  );
+  if (expects(bundle, 'github-tag') && bundle.tags.length === 0) {
+    add(
+      'tag-state-unknown',
+      'The bounded GitHub tag query established no selected repository tags.',
+      [],
+    );
+  }
+  if (expects(bundle, 'github-community') && bundle.community === null) {
+    add(
+      'security-policy-unknown',
+      'The approved community-profile source established no repository community profile.',
+      [],
+    );
+  }
+  if (expects(bundle, 'github-file')) {
+    const returnedPaths = new Set(bundle.files.map((file) => file.path));
+    for (const path of bundle.candidate.allowlistedFiles) {
+      if (!returnedPaths.has(path)) {
+        add(
+          `${fileTopic(path)}-absence`,
+          `The exact-commit lookup established that allowlisted file ${path} is absent.`,
+          [],
+        );
+      }
+    }
+  }
+  if (expects(bundle, 'github-advisory')) {
+    add(
+      'advisory-coverage-unknown',
+      bundle.advisories.complete
+        ? 'A complete bounded query returned the recorded reviewed advisories, but absence of another advisory is not proven.'
+        : 'The bounded advisory query was incomplete, so advisory absence is unknown.',
+      npmVersionEvidenceId === null ? [] : [npmVersionEvidenceId],
+    );
+  }
   add(
     'capability-fit-unknown',
     'Catalog membership does not establish compatibility with any particular repository request.',
@@ -724,8 +782,23 @@ function uniqueFamilies(
   ].sort();
 }
 
+function expects(
+  bundle: CandidateSourceBundle,
+  sourceType: CandidateSourceBundle['candidate']['expectedSourceTypes'][number],
+): boolean {
+  return bundle.candidate.expectedSourceTypes.includes(sourceType);
+}
+
 function fileTopic(path: string): string {
   return `repository-file-${path
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/gu, '-')
+    .replaceAll(/^-|-$/gu, '')
+    .slice(0, 40)}`;
+}
+
+function tagTopic(tag: string): string {
+  return `repository-tag-${tag
     .toLowerCase()
     .replaceAll(/[^a-z0-9]+/gu, '-')
     .replaceAll(/^-|-$/gu, '')

@@ -133,7 +133,7 @@ describe('deterministic candidate profiling and refresh', () => {
     });
   });
 
-  it('supersedes changed head evidence and avoids invalidation for incomplete optional sources', () => {
+  it('supersedes changed head evidence and invalidates a release after established absence', () => {
     const first = profileCandidate(testBundle());
     const changed = profileCandidate(
       testBundle({
@@ -145,7 +145,7 @@ describe('deterministic candidate profiling and refresh', () => {
           committedAt: '2026-07-30T10:00:00.000Z',
         },
         releases: [],
-        incompleteSourceCodes: ['github-releases-unavailable'],
+        license: null,
       }),
       first.observations,
     );
@@ -166,6 +166,6 @@ describe('deterministic candidate profiling and refresh', () => {
         );
         return old?.topic === 'release-current';
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 });

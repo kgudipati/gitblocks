@@ -52,8 +52,7 @@ export async function persistCandidateProfile(
   client: PersistenceClient,
   profile: ProfileResult,
   prior: ActiveDossierMaterial,
-  catalogPublishedAt: string,
-  incompleteSourceCodes: readonly string[],
+  introducedAt: string,
   signal?: AbortSignal,
 ): Promise<IngestionReceiptCandidate> {
   const control = signal === undefined ? undefined : { signal };
@@ -83,7 +82,7 @@ export async function persistCandidateProfile(
   try {
     await putCatalogCandidate(
       client,
-      { identity: profile.identity, createdAt: catalogPublishedAt },
+      { identity: profile.identity, createdAt: introducedAt },
       control,
     );
     await setCandidateCapabilityFamilies(
@@ -184,13 +183,11 @@ export async function persistCandidateProfile(
     refresh.supersessions.length > 0 ||
     refresh.invalidations.length > 0;
   const outcome =
-    incompleteSourceCodes.length > 0
-      ? 'partial'
-      : snapshotExisted && !changed
-        ? 'unchanged'
-        : prior.observations.length === 0
-          ? 'created'
-          : 'updated';
+    snapshotExisted && !changed
+      ? 'unchanged'
+      : prior.observations.length === 0
+        ? 'created'
+        : 'updated';
   return {
     candidateId: profile.identity.candidateId,
     outcome,
@@ -203,7 +200,7 @@ export async function persistCandidateProfile(
     unknownCount: profile.unknowns.length,
     candidateState: prior.observations.length === 0 ? 'created' : 'idempotent',
     snapshotState: snapshotExisted ? 'idempotent' : 'created',
-    incompleteSourceCodes,
+    incompleteSourceCodes: [],
     safeErrorCode: null,
   };
 }

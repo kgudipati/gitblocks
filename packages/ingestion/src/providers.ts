@@ -1,6 +1,6 @@
 import { TextDecoder } from 'node:util';
 
-import { ingestionError } from './errors.ts';
+import { IngestionError, ingestionError } from './errors.ts';
 import {
   isRecord,
   optionalString,
@@ -13,7 +13,7 @@ import type { JsonResponse, TransportRequest } from './transport.ts';
 import type {
   AdvisoryCollection,
   AdvisorySource,
-  CandidateSourceBundle,
+  CandidateCollectionResult,
   CatalogCandidate,
   GitHubCommitSource,
   GitHubCommunitySource,
@@ -42,109 +42,223 @@ export interface PublicProviderConfig {
   readonly githubToken: string;
   readonly correlationId: string;
   readonly signal?: AbortSignal;
+  readonly deadlineSignal?: AbortSignal;
+}
+
+export function providerRequestBudget(candidate: CatalogCandidate): {
+  readonly github: number;
+  readonly npm: number;
+  readonly total: number;
+} {
+  const expected = new Set(candidate.expectedSourceTypes);
+  const github =
+    2 +
+    Number(expected.has('github-release')) +
+    Number(expected.has('github-tag')) +
+    Number(expected.has('github-license')) +
+    Number(expected.has('github-community')) +
+    (expected.has('github-file') ? candidate.allowlistedFiles.length : 0) +
+    (expected.has('github-advisory') ? 2 : 0);
+  const npm = Number(expected.has('npm-package'));
+  return { github, npm, total: github + npm };
 }
 
 export async function collectCandidateSources(
   candidate: CatalogCandidate,
   collectedAt: string,
   config: PublicProviderConfig,
-): Promise<CandidateSourceBundle> {
+): Promise<CandidateCollectionResult> {
+  try {
+    return await collectCandidateSourcesUnsafe(candidate, collectedAt, config);
+  } catch (error) {
+    if (error instanceof IngestionError) {
+      throw error;
+    }
+    throw ingestionError('ingestion.internal-invariant');
+  }
+}
+
+async function collectCandidateSourcesUnsafe(
+  candidate: CatalogCandidate,
+  collectedAt: string,
+  config: PublicProviderConfig,
+): Promise<CandidateCollectionResult> {
   const repository = await getRepository(candidate, config);
   assertRepositoryIdentity(candidate, repository);
   if (!repository.isPublic) {
     throw ingestionError('ingestion.provider-identity');
   }
   const commit = await getCommit(candidate, repository.defaultBranch, config);
-  const incompleteSourceCodes: string[] = [];
-  const releases = await optionalSource(
-    () => getReleases(candidate, config),
-    'github-releases-unavailable',
-    incompleteSourceCodes,
-    [],
-  );
-  const tags = await optionalSource(
-    () => getTags(candidate, config),
-    'github-tags-unavailable',
-    incompleteSourceCodes,
-    [],
-  );
-  const license = await optionalSource(
-    () => getLicense(candidate, config),
-    'github-license-unavailable',
-    incompleteSourceCodes,
-    null,
-  );
-  const community = await optionalSource(
-    () => getCommunity(candidate, config),
-    'github-community-unavailable',
-    incompleteSourceCodes,
-    null,
-  );
+  const expected = new Set(candidate.expectedSourceTypes);
+
+  let releases: readonly GitHubReleaseSource[] = [];
+  if (expected.has('github-release')) {
+    const outcome = await collectApprovedOptionalSource(
+      () => getReleases(candidate, config),
+      [],
+      true,
+    );
+    if (outcome.outcome === 'retry-exhausted-temporary-unavailability') {
+      return partialCollection('github-releases-unavailable');
+    }
+    releases = outcome.value;
+  }
+
+  let tags: readonly GitHubTagSource[] = [];
+  if (expected.has('github-tag')) {
+    const outcome = await collectApprovedOptionalSource(
+      () => getTags(candidate, config),
+      [],
+      true,
+    );
+    if (outcome.outcome === 'retry-exhausted-temporary-unavailability') {
+      return partialCollection('github-tags-unavailable');
+    }
+    tags = outcome.value;
+  }
+
+  let license: GitHubLicenseSource | null = null;
+  if (expected.has('github-license')) {
+    const outcome = await collectApprovedOptionalSource(
+      () => getLicense(candidate, repository, commit.sha, config),
+      null,
+      true,
+    );
+    if (outcome.outcome === 'retry-exhausted-temporary-unavailability') {
+      return partialCollection('github-license-unavailable');
+    }
+    license = outcome.value;
+  }
+
+  let community: GitHubCommunitySource | null = null;
+  if (expected.has('github-community')) {
+    const outcome = await collectApprovedOptionalSource(
+      () => getCommunity(candidate, config),
+      null,
+      true,
+    );
+    if (outcome.outcome === 'retry-exhausted-temporary-unavailability') {
+      return partialCollection('github-community-unavailable');
+    }
+    community = outcome.value;
+  }
 
   const files: RepositoryFileSource[] = [];
   let totalFileBytes = 0;
-  for (const path of candidate.allowlistedFiles) {
-    const file = await optionalSource(
-      () => getRepositoryFile(candidate, path, commit.sha, config),
-      `github-file-unavailable-${safeCode(path)}`,
-      incompleteSourceCodes,
-      null,
-    );
-    if (file !== null) {
-      totalFileBytes += Buffer.byteLength(file.text, 'utf8');
-      if (totalFileBytes > TOTAL_FILE_DECODED_BYTES) {
-        incompleteSourceCodes.push('github-files-total-bound');
-        break;
+  if (expected.has('github-file')) {
+    for (const path of candidate.allowlistedFiles) {
+      const outcome = await collectApprovedOptionalSource(
+        () => getRepositoryFile(candidate, path, commit.sha, config),
+        null,
+        true,
+      );
+      if (outcome.outcome === 'retry-exhausted-temporary-unavailability') {
+        return partialCollection(`github-file-unavailable-${safeCode(path)}`);
       }
-      files.push(file);
+      const file = outcome.value;
+      if (file !== null) {
+        totalFileBytes += Buffer.byteLength(file.text, 'utf8');
+        if (totalFileBytes > TOTAL_FILE_DECODED_BYTES) {
+          throw ingestionError('ingestion.body-too-large');
+        }
+        files.push(file);
+      }
     }
   }
 
-  const npm =
-    candidate.npmPackage === null
-      ? null
-      : await optionalSource(
-          () => getNpmPackage(candidate, config),
-          'npm-package-unavailable',
-          incompleteSourceCodes,
-          null,
-        );
-  if (candidate.npmPackage !== null && npm === null) {
-    throw ingestionError('ingestion.provider-identity');
+  let npm: NpmPackageSource | null = null;
+  if (expected.has('npm-package')) {
+    const outcome = await collectApprovedOptionalSource(
+      () => getNpmPackage(candidate, config),
+      null,
+      false,
+    );
+    if (outcome.outcome === 'retry-exhausted-temporary-unavailability') {
+      return partialCollection('npm-package-unavailable');
+    }
+    npm = outcome.value;
+    if (npm === null) {
+      throw ingestionError('ingestion.provider-identity');
+    }
   }
 
-  const advisories =
-    npm === null
-      ? {
-          advisories: [],
-          complete: false,
-          limitationCode: 'advisory-requires-npm-version',
-        }
-      : await optionalSource(
-          () => getAdvisories(candidate, npm, config),
-          'github-advisories-unavailable',
-          incompleteSourceCodes,
-          {
-            advisories: [],
-            complete: false,
-            limitationCode: 'advisory-provider-unavailable',
-          },
-        );
+  let advisories: AdvisoryCollection = {
+    advisories: [],
+    complete: false,
+    limitationCode: 'advisory-not-requested',
+  };
+  if (expected.has('github-advisory')) {
+    if (npm === null) {
+      throw ingestionError('ingestion.internal-invariant');
+    }
+    const outcome = await collectApprovedOptionalSource(
+      () => getAdvisories(candidate, npm, config),
+      {
+        advisories: [],
+        complete: false,
+        limitationCode: 'advisory-provider-absence',
+      },
+      false,
+    );
+    if (outcome.outcome === 'retry-exhausted-temporary-unavailability') {
+      return partialCollection('github-advisories-unavailable');
+    }
+    advisories = outcome.value;
+  }
 
   return {
-    candidate,
-    collectedAt,
-    repository,
-    commit,
-    releases,
-    tags,
-    license,
-    community,
-    files,
-    npm,
-    advisories,
-    incompleteSourceCodes: uniqueSorted(incompleteSourceCodes),
+    outcome: 'complete',
+    bundle: {
+      candidate,
+      collectedAt,
+      repository,
+      commit,
+      releases,
+      tags,
+      license,
+      community,
+      files,
+      npm,
+      advisories,
+    },
   };
+}
+
+function partialCollection(sourceCode: string): CandidateCollectionResult {
+  return {
+    outcome: 'partial',
+    incompleteSourceCodes: [sourceCode],
+  };
+}
+
+type OptionalSourceOutcome<T> =
+  | {
+      readonly outcome: 'established-value' | 'established-absence';
+      readonly value: T;
+    }
+  | {
+      readonly outcome: 'retry-exhausted-temporary-unavailability';
+    };
+
+async function collectApprovedOptionalSource<T>(
+  collect: () => Promise<T>,
+  absenceValue: T,
+  absenceApproved: boolean,
+): Promise<OptionalSourceOutcome<T>> {
+  try {
+    return { outcome: 'established-value', value: await collect() };
+  } catch (error) {
+    if (!(error instanceof IngestionError)) {
+      throw ingestionError('ingestion.internal-invariant');
+    }
+    if (error.code === 'ingestion.provider-not-found' && absenceApproved) {
+      return { outcome: 'established-absence', value: absenceValue };
+    }
+    if (error.code === 'ingestion.provider-unavailable') {
+      return { outcome: 'retry-exhausted-temporary-unavailability' };
+    }
+    throw error;
+  }
 }
 
 async function getRepository(
@@ -263,6 +377,8 @@ async function getTags(
 
 async function getLicense(
   candidate: CatalogCandidate,
+  repository: GitHubRepositorySource,
+  commitSha: string,
   config: PublicProviderConfig,
 ): Promise<GitHubLicenseSource> {
   const response = await githubRequest(
@@ -271,16 +387,36 @@ async function getLicense(
     'license',
     `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(
       candidate.github.repository,
-    )}/license`,
+    )}/license?ref=${encodeURIComponent(commitSha)}`,
   );
   const value = requireRecord(response.value);
   const license = requireRecord(value['license']);
+  const path = requireRepositoryPath(value['path']);
+  if (
+    value['name'] !== undefined &&
+    requireString(value['name'], 255) !== path.split('/').at(-1)
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  const sha =
+    value['sha'] === undefined || value['sha'] === null
+      ? null
+      : requireGitObjectSha(value['sha']);
+  const immutableUrl = immutableRepositoryUrl(
+    repository.canonicalOwner,
+    repository.canonicalRepository,
+    commitSha,
+    path,
+  );
+  if (value['html_url'] !== undefined && value['html_url'] !== null) {
+    requireHttpsUrl(value['html_url'], 'github.com');
+  }
   return {
     spdxId: normalizeSpdx(license['spdx_id']),
-    htmlUrl:
-      value['html_url'] === null
-        ? null
-        : requireHttpsUrl(value['html_url'], 'github.com'),
+    path,
+    sha,
+    sourceUrl: immutableUrl,
+    immutableUrl,
   };
 }
 
@@ -404,6 +540,9 @@ async function getNpmPackage(
     correlationId: config.correlationId,
     candidateId: candidate.candidateId,
     ...(config.signal === undefined ? {} : { signal: config.signal }),
+    ...(config.deadlineSignal === undefined
+      ? {}
+      : { deadlineSignal: config.deadlineSignal }),
   });
   const value = requireRecord(response.value);
   const name = requireString(value['name'], 201);
@@ -462,6 +601,9 @@ async function getAdvisories(
       correlationId: config.correlationId,
       candidateId: candidate.candidateId,
       ...(config.signal === undefined ? {} : { signal: config.signal }),
+      ...(config.deadlineSignal === undefined
+        ? {}
+        : { deadlineSignal: config.deadlineSignal }),
     });
     if (!Array.isArray(response.value) || response.value.length > 100) {
       throw ingestionError('ingestion.provider-response');
@@ -522,6 +664,9 @@ async function githubRequest(
     correlationId: config.correlationId,
     candidateId: candidate.candidateId,
     ...(config.signal === undefined ? {} : { signal: config.signal }),
+    ...(config.deadlineSignal === undefined
+      ? {}
+      : { deadlineSignal: config.deadlineSignal }),
   });
 }
 
@@ -632,20 +777,6 @@ function optionalHttpsUrl(value: unknown): string | null {
   return requireHttpsUrl(value);
 }
 
-async function optionalSource<T>(
-  collect: () => Promise<T>,
-  incompleteCode: string,
-  incompleteCodes: string[],
-  fallback: T,
-): Promise<T> {
-  try {
-    return await collect();
-  } catch {
-    incompleteCodes.push(incompleteCode);
-    return fallback;
-  }
-}
-
 function nextLink(header: string | null): URL | null {
   if (header === null || header.length > 4_096) {
     return null;
@@ -670,6 +801,39 @@ function safeCode(value: string): string {
     .slice(0, 48);
 }
 
-function uniqueSorted(values: readonly string[]): readonly string[] {
-  return [...new Set(values)].sort();
+function requireGitObjectSha(value: unknown): string {
+  const sha = requireString(value, 40);
+  if (!/^[a-f0-9]{40}$/u.test(sha)) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return sha;
+}
+
+function requireRepositoryPath(value: unknown): string {
+  const path = requireString(value, 255);
+  if (
+    path.startsWith('/') ||
+    path.endsWith('/') ||
+    path.includes('\\') ||
+    path
+      .split('/')
+      .some((segment) => segment === '' || segment === '.' || segment === '..')
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  return path;
+}
+
+function immutableRepositoryUrl(
+  owner: string,
+  repository: string,
+  commitSha: string,
+  path: string,
+): string {
+  return `https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(
+    repository,
+  )}/blob/${commitSha}/${path
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')}`;
 }

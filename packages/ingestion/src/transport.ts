@@ -16,6 +16,7 @@ export interface TransportRequest {
   readonly correlationId: string;
   readonly candidateId: string;
   readonly signal?: AbortSignal;
+  readonly deadlineSignal?: AbortSignal;
 }
 
 export interface TransportConfig {
@@ -108,10 +109,7 @@ export function createTransport(config: TransportConfig): {
           ) {
             githubBlocked = true;
           }
-          const retryable =
-            error instanceof Error &&
-            'retryable' in error &&
-            error.retryable === true;
+          const retryable = error instanceof IngestionError && error.retryable;
           if (!retryable || attempt === maximumAttempts) {
             config.observer?.({
               eventName: 'ingestion.request',
@@ -145,15 +143,31 @@ export function createTransport(config: TransportConfig): {
             githubBlocked = request.provider === 'github';
             throw ingestionError('ingestion.provider-rate-limited');
           }
-          await config.sleep(
-            requiredDelay ??
-              retryDelayMilliseconds(
-                attempt,
-                request.candidateId,
-                request.operation,
-              ),
-            request.signal,
-          );
+          const sleepSignal =
+            request.signal === undefined
+              ? request.deadlineSignal
+              : request.deadlineSignal === undefined
+                ? request.signal
+                : AbortSignal.any([request.signal, request.deadlineSignal]);
+          try {
+            await config.sleep(
+              requiredDelay ??
+                retryDelayMilliseconds(
+                  attempt,
+                  request.candidateId,
+                  request.operation,
+                ),
+              sleepSignal,
+            );
+          } catch {
+            throw ingestionError(
+              request.signal?.aborted === true
+                ? 'ingestion.cancelled'
+                : request.deadlineSignal?.aborted === true
+                  ? 'ingestion.deadline-exceeded'
+                  : 'ingestion.internal-invariant',
+            );
+          }
         }
       }
       throw ingestionError('ingestion.provider-unavailable', true);
@@ -178,10 +192,12 @@ async function requestOnce(
   for (let redirectCount = 0; ; redirectCount += 1) {
     validateProviderUrl(url, request.provider);
     const timeoutSignal = AbortSignal.timeout(timeoutMilliseconds);
-    const signal =
-      request.signal === undefined
-        ? timeoutSignal
-        : AbortSignal.any([request.signal, timeoutSignal]);
+    const signals = [
+      timeoutSignal,
+      ...(request.signal === undefined ? [] : [request.signal]),
+      ...(request.deadlineSignal === undefined ? [] : [request.deadlineSignal]),
+    ];
+    const signal = AbortSignal.any(signals);
     let response: Response;
     try {
       onRequest();
@@ -192,7 +208,10 @@ async function requestOnce(
         headers: requestHeaders(request),
       });
     } catch {
-      if (signal.aborted) {
+      if (request.signal?.aborted === true) {
+        throw ingestionError('ingestion.cancelled');
+      }
+      if (request.deadlineSignal?.aborted === true || timeoutSignal.aborted) {
         throw ingestionError('ingestion.deadline-exceeded');
       }
       throw ingestionError('ingestion.provider-unavailable', true);
@@ -220,19 +239,27 @@ async function requestOnce(
     }
     if (!response.ok) {
       await cancelBody(response);
+      if (response.status === 401) {
+        throw ingestionError('ingestion.provider-authentication');
+      }
       if (
-        request.provider === 'github' &&
-        (response.status === 403 || response.status === 429)
+        response.status === 429 ||
+        (request.provider === 'github' &&
+          response.status === 403 &&
+          hasGitHubRateLimitSignal(response.headers))
       ) {
-        const delay = githubRateLimitDelay(response.headers, nowMilliseconds());
+        const delay = rateLimitDelay(response.headers, nowMilliseconds());
         throw ingestionError(
           'ingestion.provider-rate-limited',
           delay <= 60_000,
           delay,
         );
       }
-      if (response.status === 429) {
-        throw ingestionError('ingestion.provider-rate-limited', true);
+      if (response.status === 403) {
+        throw ingestionError('ingestion.provider-authorization');
+      }
+      if (response.status === 404) {
+        throw ingestionError('ingestion.provider-not-found');
       }
       if (RETRYABLE_STATUS.has(response.status)) {
         throw ingestionError('ingestion.provider-unavailable', true);
@@ -244,7 +271,18 @@ async function requestOnce(
       await cancelBody(response);
       throw ingestionError('ingestion.content-type');
     }
-    const text = await readBoundedText(response, request.maximumBytes);
+    let text: string;
+    try {
+      text = await readBoundedText(response, request.maximumBytes);
+    } catch (error) {
+      if (request.signal?.aborted === true) {
+        throw ingestionError('ingestion.cancelled');
+      }
+      if (request.deadlineSignal?.aborted === true || timeoutSignal.aborted) {
+        throw ingestionError('ingestion.deadline-exceeded');
+      }
+      throw error;
+    }
     return {
       value: parseBoundedJson(
         text,
@@ -378,13 +416,22 @@ function retryDelayMilliseconds(
   return Math.min(5_000, 250 * 2 ** (attempt - 1) + hash);
 }
 
-function githubRateLimitDelay(
-  headers: Headers,
-  nowMilliseconds: number,
-): number {
+function hasGitHubRateLimitSignal(headers: Headers): boolean {
+  return (
+    headers.has('retry-after') || headers.get('x-ratelimit-remaining') === '0'
+  );
+}
+
+function rateLimitDelay(headers: Headers, nowMilliseconds: number): number {
   const retryAfter = headers.get('retry-after');
-  if (retryAfter !== null && /^\d{1,5}$/u.test(retryAfter)) {
-    return Number(retryAfter) * 1_000;
+  if (retryAfter !== null) {
+    if (/^\d{1,8}$/u.test(retryAfter)) {
+      return Number(retryAfter) * 1_000;
+    }
+    const retryAt = Date.parse(retryAfter);
+    if (Number.isFinite(retryAt)) {
+      return Math.max(0, retryAt - nowMilliseconds);
+    }
   }
   const remaining = headers.get('x-ratelimit-remaining');
   const reset = headers.get('x-ratelimit-reset');
@@ -439,7 +486,7 @@ export async function abortableSleep(
 ): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     if (signal?.aborted === true) {
-      reject(ingestionError('ingestion.deadline-exceeded'));
+      reject(ingestionError('ingestion.cancelled'));
       return;
     }
     const timeout = setTimeout(resolve, milliseconds);
@@ -447,7 +494,7 @@ export async function abortableSleep(
       'abort',
       () => {
         clearTimeout(timeout);
-        reject(ingestionError('ingestion.deadline-exceeded'));
+        reject(ingestionError('ingestion.cancelled'));
       },
       { once: true },
     );
