@@ -301,7 +301,7 @@ Indexes correspond to current operations:
 
 - case-insensitive GitHub repository and optional npm identity uniqueness;
 - candidate/freshness/evidence ordering for active selection;
-- candidate/creation ordering for active limitations and unknowns;
+- candidate/stable-ID ordering for active limitations and unknowns;
 - lifecycle reference/effective-time lookup and supersession traversal; and
 - candidate/family/cutoff snapshot history.
 
