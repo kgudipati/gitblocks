@@ -66,10 +66,12 @@ contains a curated 150-repository public catalog and a bounded deterministic
 operator-run GitHub/npm/advisory ingestion package. The repository still
 has no application scaffold, Agent Skill, scanner, MCP server, operational
 backend, discovery or product ranking engine, continuous crawler, deployment,
-production database, or product release. Full live catalog ingestion is not
-claimed without injected credentials and a reviewed receipt. The pilot gold is
-authored and
-proposed, not independently accepted.
+production database, or product release. The first full live catalog ingestion
+and its immediate refresh completed against a dedicated ephemeral PostgreSQL
+18.4 test database; the bounded reviewed outcomes are recorded in
+[`catalog/public-v1/live-completion.md`](catalog/public-v1/live-completion.md).
+This is collection evidence, not a deployed or continuously fresh service. The
+pilot gold is authored and proposed, not independently accepted.
 
 The governing product scope is the
 [product contract](docs/product/product-contract.md). Engineering work follows

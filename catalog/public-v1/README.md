@@ -47,8 +47,13 @@ reviewed runs:
   exceeds the reviewed 16 MiB body bound; the official Clerk repository README
   remains sufficient negative-control classification evidence.
 
-No primary-family assignment changed. Provider-current accuracy remains
-unclaimed until both required clean live runs succeed.
+No primary-family assignment changed. The two reviewed full live runs completed
+on 2026-07-29 with all 150 candidates producing snapshots. Their bounded
+outcomes, provider counts, exact receipt digests, and single reviewed
+between-run source change are recorded in
+[`live-completion.md`](live-completion.md). This establishes provider-current
+accuracy only for the collection times recorded there; it is not a continuing
+freshness claim.
 
 The review retained zero additional-family assignments. That is a deliberate
 V1 conclusion: none was strong enough to add without broadening a repository's
