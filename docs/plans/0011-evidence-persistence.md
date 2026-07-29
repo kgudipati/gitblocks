@@ -9,7 +9,7 @@
   [#12 — feat: establish public evidence persistence](https://github.com/kgudipati/gitblocks/pull/12)
 - Owner: GitBlocks maintainers
 - State:
-  `public-first scope reduction and independent-review corrections in progress`
+  `public-first implementation, scope reduction, independent-review corrections, validation, and hosted PostgreSQL CI complete; independent final review and merge authorization pending`
 - Last updated: 2026-07-29
 - Authority order: Issue #11; repository and Git history; product contract;
   system context and accepted ADRs; `AGENTS.md`, `PLANS.md`, engineering
@@ -556,11 +556,11 @@ forward migration or authorized restore.
 - 2026-07-29: Updated existing draft PR #12 in place. It remains open, draft,
   unmerged, and based on unchanged `main`.
 - 2026-07-29: Hosted CI run
-  [30435057026](https://github.com/kgudipati/gitblocks/actions/runs/30435057026),
+  [30436002996](https://github.com/kgudipati/gitblocks/actions/runs/30436002996),
   Verification job
-  [90520736938](https://github.com/kgudipati/gitblocks/actions/runs/30435057026/job/90520736938),
-  completed successfully on `dc7ecaea6acc36380e84fd7c9b0515b1cb41c422`.
-  Full decoded logs contained 1,528 lines and no Actions error/warning
+  [90523773693](https://github.com/kgudipati/gitblocks/actions/runs/30436002996/job/90523773693),
+  completed successfully on `da6c8599f6de9f98922b72f8d21a567fa512d4ec`.
+  Full decoded logs contained 1,537 lines and no Actions error/warning
   annotations. Every step passed, including the exact PostgreSQL 18.4
   service, frozen-install/worktree proofs, 650 offline tests, 12/12 database
   tests without skips, proposed/not-reviewed conformance, secret scan, and
@@ -601,21 +601,21 @@ forward migration or authorized restore.
 
 ## Validation evidence
 
-| Date       | Command/review                        | Result                                                                                                                        |
-| ---------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-29 | Git/GitHub authority checks           | Expected branch/head/main; PR draft/open/unmerged; issue/comment confirmed                                                    |
-| 2026-07-29 | runtime/frozen install/static/build   | Node 24.18.0; pnpm 11.17.0; frozen install unchanged; format, lint, typecheck, and build passed                               |
-| 2026-07-29 | `pnpm test` / `pnpm test:coverage`    | 32 files and 650 tests passed; 78.32% statements, 71.66% branches, 83.35% functions, 78.20% lines                             |
-| 2026-07-29 | architecture/repository/contract/eval | 604 modules/1,931 dependencies with no violation; repository checks passed; 10 cases/40 candidates proposed/not-reviewed      |
-| 2026-07-29 | `db:migrate` / `db:check` / `db:test` | PostgreSQL 18.4; one migration; 13 public tables; 0 RLS; 12/12 DB tests through deterministic non-owner setup                 |
-| 2026-07-29 | `pnpm db:verify` / `pnpm verify:ci`   | Exact pinned no-volume image provisioned and cleaned; aggregate offline, PostgreSQL, secret, and registry audit checks passed |
-| 2026-07-29 | security checks                       | Secret scan passed; registry audit reported no known vulnerabilities                                                          |
-| 2026-07-29 | schema/API reduction count            | 15→13 tables; 73→0 policies; 7→2 functions; 17→13 triggers; 17→9 explicit indexes; 45→37 exports                              |
-| 2026-07-29 | line/test reduction                   | key lines 5,119→3,804; migration 1,851→773; DB tests 15→12; 28 files have one setup file added, 27 modified, and none deleted |
-| 2026-07-29 | migration checksum                    | `569d7a6d6db70b1b04cadfa8798516ce4239b1179bb2f7cdd84b27641e33755f`                                                            |
-| 2026-07-29 | local Git review                      | Topic/main heads unchanged; `git diff --check` passed; 27 modified files plus one deterministic DB setup file                 |
-| 2026-07-29 | hosted Verification                   | Run 30435057026 / job 90520736938 passed all steps on `dc7ecaea`; 1,528 decoded lines; no Actions errors/warnings             |
+| Date       | Command/review                        | Result                                                                                                                                                                                           |
+| ---------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-07-29 | Git/GitHub authority checks           | Expected branch/head/main; PR draft/open/unmerged; issue/comment confirmed                                                                                                                       |
+| 2026-07-29 | runtime/frozen install/static/build   | Node 24.18.0; pnpm 11.17.0; frozen install unchanged; format, lint, typecheck, and build passed                                                                                                  |
+| 2026-07-29 | `pnpm test` / `pnpm test:coverage`    | 32 files and 650 tests passed; 78.32% statements, 71.66% branches, 83.35% functions, 78.20% lines                                                                                                |
+| 2026-07-29 | architecture/repository/contract/eval | 604 modules/1,931 dependencies with no violation; repository checks passed; 10 cases/40 candidates proposed/not-reviewed                                                                         |
+| 2026-07-29 | `db:migrate` / `db:check` / `db:test` | PostgreSQL 18.4; one migration; 13 public tables; 0 RLS; 12/12 DB tests through deterministic non-owner setup                                                                                    |
+| 2026-07-29 | `pnpm db:verify` / `pnpm verify:ci`   | Exact pinned no-volume image provisioned and cleaned; aggregate offline, PostgreSQL, secret, and registry audit checks passed                                                                    |
+| 2026-07-29 | security checks                       | Secret scan passed; registry audit reported no known vulnerabilities                                                                                                                             |
+| 2026-07-29 | schema/API reduction count            | 15→13 tables; 73→0 policies; 7→2 functions; 17→13 triggers; 17→9 explicit indexes; 45→37 exports                                                                                                 |
+| 2026-07-29 | line/test reduction                   | key lines 5,119→3,804; migration 1,851→773; DB tests 15→12; 28 files have one setup file added, 27 modified, and none deleted                                                                    |
+| 2026-07-29 | migration checksum                    | `569d7a6d6db70b1b04cadfa8798516ce4239b1179bb2f7cdd84b27641e33755f`                                                                                                                               |
+| 2026-07-29 | local Git review                      | Topic/main heads unchanged; `git diff --check` passed; 27 modified files plus one deterministic DB setup file                                                                                    |
+| 2026-07-29 | hosted Verification                   | Final head `da6c8599`; run 30436002996 / job 90523773693 passed; 650 offline tests; 12 DB tests without skips; 13 public tables; 0 RLS; proposed/not-reviewed gold; unchanged scoring and `main` |
 
-This hosted-evidence plan update is the only remaining follow-up commit. Its
-ordinary push and final documentation-only hosted check are recorded in the PR
-and completion report.
+Implementation, scope reduction, validation, and hosted PostgreSQL CI are
+complete. Independent final review and explicit merge authorization remain
+pending.
