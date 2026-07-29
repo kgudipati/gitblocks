@@ -119,6 +119,11 @@ describe('persistence package boundary', () => {
         name: 'evidence-persistence',
         fileName: '0001_evidence_persistence.sql',
       },
+      {
+        version: 2,
+        name: 'runtime-migration-verification',
+        fileName: '0002_runtime_migration_verification.sql',
+      },
     ]);
   });
 

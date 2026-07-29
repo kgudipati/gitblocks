@@ -20,6 +20,8 @@ const REQUIRED_PATHS = [
   '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
+  'catalog/public-v1/candidates.json',
+  'catalog/public-v1/manifest.json',
   'CONTRIBUTING.md',
   'PLANS.md',
   'README.md',
@@ -29,6 +31,7 @@ const REQUIRED_PATHS = [
   'docs/architecture/decisions/0002-typescript-workspace-and-toolchain.md',
   'docs/architecture/decisions/0003-product-contract-kernel.md',
   'docs/architecture/decisions/0004-postgresql-evidence-persistence.md',
+  'docs/architecture/decisions/0005-public-repository-ingestion.md',
   'docs/architecture/system-context.md',
   'docs/engineering/definition-of-done.md',
   'docs/engineering/development-standards.md',
@@ -44,6 +47,7 @@ const REQUIRED_PATHS = [
   'docs/plans/0005-node-runtime-preflight.md',
   'docs/plans/0009-product-contract-kernel.md',
   'docs/plans/0011-evidence-persistence.md',
+  'docs/plans/0013-public-repository-ingestion.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
   'eslint.config.mjs',
@@ -54,8 +58,19 @@ const REQUIRED_PATHS = [
   'packages/domain/README.md',
   'packages/domain/package.json',
   'packages/domain/src/index.ts',
+  'packages/ingestion/README.md',
+  'packages/ingestion/package.json',
+  'packages/ingestion/scripts/catalog-cli.ts',
+  'packages/ingestion/scripts/live-cli.ts',
+  'packages/ingestion/scripts/receipt-cli.ts',
+  'packages/ingestion/scripts/tsconfig.json',
+  'packages/ingestion/src/index.ts',
+  'packages/ingestion/test/tsconfig.json',
+  'packages/ingestion/tsconfig.json',
+  'packages/ingestion/tsconfig.test.json',
   'packages/persistence/README.md',
   'packages/persistence/migrations/0001_evidence_persistence.sql',
+  'packages/persistence/migrations/0002_runtime_migration_verification.sql',
   'packages/persistence/package.json',
   'packages/persistence/scripts/database-support.ts',
   'packages/persistence/scripts/db-cli.ts',
@@ -106,11 +121,13 @@ const ROOT_MANIFEST = JSON.stringify({
   },
   scripts: {
     build: 'pnpm build:product && pnpm build:tools',
-    'build:product': 'pnpm --filter @gitblocks/persistence... build',
+    'build:product': 'pnpm --filter @gitblocks/ingestion... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'catalog:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':
@@ -125,6 +142,14 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score',
     'eval:validate':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts validate',
+    'ingest:live':
+      'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/live-cli.ts',
+    'ingest:receipt':
+      'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/receipt-cli.ts',
+    'ingestion:test':
+      'pnpm runtime:check && pnpm build:product && vitest run packages/ingestion/test --config vitest.config.ts',
+    'ingestion:verify':
+      'pnpm runtime:check && pnpm catalog:validate && pnpm ingestion:test && pnpm --filter @gitblocks/ingestion typecheck',
     'repo:branch':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts branch',
     'repo:check':
@@ -140,7 +165,7 @@ const ROOT_MANIFEST = JSON.stringify({
     'test:coverage': 'pnpm runtime:check && vitest run --coverage',
     typecheck: 'pnpm build:product && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
@@ -214,6 +239,23 @@ const PERSISTENCE_MANIFEST = JSON.stringify({
   dependencies: {
     '@gitblocks/contracts': 'workspace:0.0.0',
     postgres: '3.4.9',
+  },
+});
+
+const INGESTION_MANIFEST = JSON.stringify({
+  name: '@gitblocks/ingestion',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    '@gitblocks/persistence': 'workspace:0.0.0',
   },
 });
 
@@ -321,6 +363,9 @@ function defaultContent(relativePath: string): string {
   }
   if (relativePath === 'packages/persistence/package.json') {
     return PERSISTENCE_MANIFEST;
+  }
+  if (relativePath === 'packages/ingestion/package.json') {
+    return INGESTION_MANIFEST;
   }
   if (relativePath === 'pnpm-workspace.yaml') {
     return WORKSPACE_POLICY;

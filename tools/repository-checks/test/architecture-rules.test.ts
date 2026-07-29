@@ -30,6 +30,7 @@ describe('dependency-cruiser architecture rules', () => {
     ['contracts-disallowed-package', 'no-contracts-outward-dependency'],
     ['persistence-disallowed-package', 'no-persistence-outward-dependency'],
     ['persistence-prohibited-layer', 'no-persistence-to-prohibited-layer'],
+    ['ingestion-disallowed-package', 'no-ingestion-outward-dependency'],
     ['product-to-tools', 'no-product-to-tools'],
     ['product-test-to-tools', 'no-product-to-tools'],
     ['product-to-evaluation', 'no-product-to-evaluation'],

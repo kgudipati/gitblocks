@@ -36,6 +36,11 @@ const KNOWN_MIGRATIONS: readonly KnownMigration[] = Object.freeze([
     name: 'evidence-persistence',
     fileName: '0001_evidence_persistence.sql',
   }),
+  Object.freeze({
+    version: 2,
+    name: 'runtime-migration-verification',
+    fileName: '0002_runtime_migration_verification.sql',
+  }),
 ]);
 
 export async function applyMigrations(

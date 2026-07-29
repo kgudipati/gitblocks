@@ -6,9 +6,12 @@ Every future production execution path must be diagnosable from deployed
 telemetry and durable audit evidence without adding emergency instrumentation
 or reproducing the user's sensitive content. GitBlocks currently has no
 services, workers, deployments, SLOs, or telemetry pipeline. Its persistence
-adapter returns stable value-free errors and emits no logs; a future
-application/composition layer must instrument it before handling production
-traffic. This document sets the policy for those paths.
+adapter returns stable value-free errors. The Phase 5 operator-run ingester
+accepts an injected observer and emits bounded request/candidate/batch events
+plus a durable secret-free receipt; it is not a deployed telemetry system. A
+future application/composition layer must select and instrument an export path
+before handling production traffic. This document sets the policy for those
+paths.
 
 The first stack and deployment ADRs must select instrumentation libraries,
 export path, sampling, retention, access, redaction, dashboards, and runbook
@@ -60,6 +63,15 @@ done with “add logging later.”
 
 Tests assert correlation across owned boundaries, stable operation/error names,
 and safe behavior when incoming correlation metadata is invalid.
+
+The Phase 5 provider boundary distinguishes established value, established
+absence, retry-exhausted temporary unavailability, rate limit, caller
+cancellation, deadline, authentication, authorization, identity mismatch,
+malformed response, content type, body limit, redirect, and invariant failure.
+Only temporary optional unavailability emits a partial candidate outcome, with
+a bounded source code and no snapshot. Fatal outcomes emit `failed` with the
+stable value-free code. Repository/package names, URLs, response text, and
+headers remain excluded from events and receipts.
 
 ## Telemetry data contract
 

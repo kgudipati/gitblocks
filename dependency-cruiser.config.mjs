@@ -100,6 +100,19 @@ const configuration = {
       },
     },
     {
+      name: 'no-ingestion-outward-dependency',
+      severity: 'error',
+      comment:
+        'Ingestion may depend only on its own source, persistence/contracts/domain, and approved Node APIs.',
+      from: {
+        path: '^packages/ingestion/src/',
+      },
+      to: {
+        pathNot:
+          '^(?:packages/ingestion/src/|packages/(?:persistence|contracts|domain)/|node:|crypto$|stream/web$|util$)|node_modules/@gitblocks/(?:persistence|contracts|domain)(?:/|$)',
+      },
+    },
+    {
       name: 'no-application-outward-dependency',
       severity: 'error',
       comment:
@@ -116,7 +129,7 @@ const configuration = {
       severity: 'error',
       comment: 'Product workspaces must not depend on repository tooling.',
       from: {
-        path: '^packages/(?:contracts|domain|persistence)/',
+        path: '^packages/(?:contracts|domain|persistence|ingestion)/',
       },
       to: {
         path: '^tools/',
@@ -128,7 +141,7 @@ const configuration = {
       comment:
         'Product packages must not depend on evaluation corpus files, schemas, or implementation.',
       from: {
-        path: '^packages/(?:contracts|domain|persistence)/',
+        path: '^packages/(?:contracts|domain|persistence|ingestion)/',
       },
       to: {
         path: '^(?:evals|schemas/evaluation)(?:/|$)',

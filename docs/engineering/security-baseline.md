@@ -220,6 +220,30 @@ supporting evidence is no longer active. Tests exercise operations through a
 non-owner role and verify that the schema contains no private-scope or RLS
 surface.
 
+Phase 5 public ingestion accepts only curator-owned GitHub/npm identities,
+fixed HTTPS provider hosts, closed bounded JSON, and up to three explicitly
+allowlisted files at an exact commit. The reusable core receives credentials
+and database configuration by injection and emits value-free errors and
+allowlisted telemetry. It does not retain raw responses, follow cross-host
+redirects, clone repositories, fetch tarballs, or execute candidate content.
+The operator requires an explicit approved non-production database
+acknowledgement.
+
+The stable curator GitHub identity and `introducedAt` are immutable persistence
+input. A provider canonical move is permitted only for a manifest entry marked
+`moved` and is stored as evidence, never as an identity rewrite. License
+requests include the captured commit `ref`; returned path/name/SHA are bounded,
+and the evidence URL is constructed from current canonical location, exact
+commit, and exact path.
+
+Only an explicitly approved optional 404 is normal absence. Temporary optional
+unavailability creates a partial receipt but no dossier or durable transient
+material. Caller cancellation, deadline, rate limit,
+authentication/authorization, identity mismatch, malformed response,
+unsupported content type, body limit, redirect violation, and invariant
+failure remain stable fatal outcomes. None may be converted into favorable,
+missing, or partial evidence.
+
 ## Auditability and security telemetry
 
 Create structured audit events for authentication, authorization decisions,

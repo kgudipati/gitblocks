@@ -22,8 +22,9 @@ the active issue and execution plan.
   Do not duplicate domain, persistence, API, MCP, event, job, evidence,
   fingerprint, or outcome contracts.
 - Preserve the product-kernel direction:
-  `tools/evaluation-harness -> packages/persistence -> packages/contracts ->
-packages/domain`.
+  `packages/ingestion -> packages/persistence -> packages/contracts ->
+packages/domain`, with `tools/evaluation-harness` depending on persistence only
+  for conformance.
   `packages/domain` has no outward workspace dependency; product packages must
   never import evaluation records, gold, or tool internals.
 - `packages/persistence` is a concrete adapter, not an application port. It may
@@ -31,6 +32,10 @@ packages/domain`.
   approved Node APIs. It must not read environment variables internally,
   migrate implicitly, or own singleton connections. Future application ports
   live in the application package and must not depend on this adapter.
+- `packages/ingestion` is an operator-run public-source adapter. Its reusable
+  core may depend only on persistence, contracts, domain, and approved Node
+  APIs. It uses injected configuration, fixed approved hosts, bounded reads,
+  and inert untrusted data. It never executes candidate code.
 - Define external DTO shape once in the contract schema source. Use the
   TypeBox-derived static type, safe parser, and deterministic JSON Schema export
   rather than maintaining parallel interfaces or schemas.
@@ -84,6 +89,9 @@ packages/domain`.
 - For persistence or migration changes, use the pinned PostgreSQL path and run
   `pnpm db:verify`. Runtime-operation integration tests must use a non-owner,
   non-superuser role; no PostgreSQL test may silently skip.
+- For public-catalog or ingestion changes, run `pnpm catalog:validate`,
+  `pnpm ingestion:verify`, and `pnpm db:verify`. Live provider runs are opt-in,
+  credential-injected, non-production operations.
 - Run the plan's exact validation commands and record results before completion.
   Update the plan and applicable ADR when implementation discoveries change a
   decision, scope, risk, or validation requirement.

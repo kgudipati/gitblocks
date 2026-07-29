@@ -2,8 +2,9 @@
 
 GitBlocks accepts focused, evidence-backed changes through GitHub Flow. The
 project currently provides repository engineering tooling, a pure product
-domain/contract kernel, and a concrete PostgreSQL persistence adapter, but no
-product service or application implementation.
+domain/contract kernel, a concrete PostgreSQL persistence adapter, and a
+bounded public-catalog ingestion adapter, but no product service or application
+implementation.
 
 ## Before starting
 
@@ -134,6 +135,13 @@ insertion, evidence-world cutoffs, append-only lifecycle behavior, active
 reference closure, and exact historical snapshot reconstruction. Phase 4 does
 not implement tenant-private storage, expiry, purge, deletion, tombstones, or
 RLS.
+
+Public catalog and ingestion work follows
+[ADR 0005](docs/architecture/decisions/0005-public-repository-ingestion.md):
+curator-owned manifests, fixed official providers, injected credentials,
+bounded exact-commit files, deterministic profiles, and append-only refresh.
+Never clone, install, import, build, test, or execute candidate code. Run
+`pnpm catalog:validate`, `pnpm ingestion:verify`, and `pnpm db:verify`.
 
 Run `pnpm contracts:validate` when changing a product contract, its runtime
 JSON Schema export, or the evaluation-to-product mapping. This conformance

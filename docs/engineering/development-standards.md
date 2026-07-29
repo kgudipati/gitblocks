@@ -7,17 +7,19 @@ production surface is deliberately limited to the pure product domain and
 contract kernel approved by
 [ADR 0003](../architecture/decisions/0003-product-contract-kernel.md), plus the
 concrete PostgreSQL adapter approved by
-[ADR 0004](../architecture/decisions/0004-postgresql-evidence-persistence.md).
+[ADR 0004](../architecture/decisions/0004-postgresql-evidence-persistence.md),
+and the curated public-source ingestion adapter approved by
+[ADR 0005](../architecture/decisions/0005-public-repository-ingestion.md).
 Repository verification and evaluation tooling are not product
 implementations. The persistence adapter authorizes neither an application
 service nor an operational backend.
 
-| Stage           | Meaning                                                                            | Enforcement                                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Now             | Domain, contracts, PostgreSQL adapter, documentation, plans, metadata, and tooling | ADRs 0002–0004, `pnpm verify`, `pnpm db:verify`, CI, author self-review, and PR review against this handbook |
-| Before services | Before an application, adapter, framework, or deployed product path lands          | An accepted ADR extends the kernel with required application, framework, boundary, and runtime decisions     |
-| With code       | Whenever production or test code exists                                            | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review     |
-| With deployment | Whenever a path runs in a shared or production environment                         | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                    |
+| Stage           | Meaning                                                                                       | Enforcement                                                                                                  |
+| --------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Now             | Domain, contracts, persistence, public ingestion, documentation, plans, metadata, and tooling | ADRs 0002–0005, `pnpm verify`, `pnpm db:verify`, CI, author self-review, and PR review against this handbook |
+| Before services | Before an application, adapter, framework, or deployed product path lands                     | An accepted ADR extends the kernel with required application, framework, boundary, and runtime decisions     |
+| With code       | Whenever production or test code exists                                                       | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review     |
+| With deployment | Whenever a path runs in a shared or production environment                                    | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                    |
 
 Required evidence is the relevant ADR and contract diff, tests, tool output, PR
 validation record, and reviewer confirmation. A future tool may strengthen a
@@ -53,7 +55,8 @@ through them to provider internals.
 The allowed dependency direction is:
 
 ```text
-tools/evaluation-harness -> packages/persistence -> packages/contracts -> packages/domain
+packages/ingestion -> packages/persistence -> packages/contracts -> packages/domain
+tools/evaluation-harness -> packages/persistence
 ```
 
 The future operational direction is:
@@ -75,6 +78,10 @@ HTTP, MCP, queue, GitHub, filesystem, model-provider, and framework adapters
 - `packages/persistence` may depend only on contracts, domain, Postgres.js, and
   approved Node APIs. Configuration and ownership are injected; imports do no
   I/O, clients are not singletons, and migrations are explicit.
+- `packages/ingestion` may depend only on persistence, contracts, domain, and
+  approved Node APIs. Provider, clock, deadline, observer, and database
+  capabilities are injected; imports do no I/O; candidate content is never
+  executed.
 - Domain and application rules must not import transport, framework,
   persistence, queue, GitHub, filesystem, or model-provider adapters.
 - Application ports describe capabilities owned by the use case. Provider
