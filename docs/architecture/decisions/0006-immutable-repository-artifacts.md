@@ -107,6 +107,15 @@ counts, exact content, and `collectedAt`. These fields participate in the
 complete record digest but not stable ID. A deterministic artifact already
 stored under the same ID is reused with its original provenance and timestamp.
 
+A first insertion is accepted only when its catalog owner/name exactly match
+the durable `catalog_candidates` row and its provider owner/name exactly match
+the incoming artifact set's provider-canonical owner/name. Publication loads
+the catalog aliases under the candidate transaction lock; a composite foreign
+key also prevents a direct insert from poisoning catalog provenance. These
+checks apply to the incoming command. Conflict reload of an existing artifact
+compares the immutable source core and deliberately preserves historical
+first-materialization aliases after a legitimate repository rename.
+
 A later artifact set records the provider-canonical location observed for that
 collection. It may reflect a move without duplicating the artifact. Temporary
 `download_url` values are never persisted.
@@ -132,6 +141,17 @@ The authoritative blob API URL addresses the repository and exact blob object
 through `api.github.com` and is stored separately from any display URL.
 Structured repository ID, algorithm, object IDs, path, and content digest are
 the identity authority; URLs are provenance locators.
+
+A non-null display URL must equal the exact derived value:
+
+```text
+https://github.com/{encoded first provider owner}/{encoded first provider repository}/blob/{commit object ID}/{encoded path segments}
+```
+
+Each owner, repository, and path segment is percent-encoded independently.
+Other HTTPS hosts, different aliases, mutable refs, query strings, fragments,
+and temporary download URLs are rejected. The display URL remains
+non-authoritative and excluded from stable identity.
 
 The shared transport gains an explicit request-level GitHub API-version option.
 Its default remains `2026-03-10`, preserving the Phase 5 header and behavior.
@@ -281,6 +301,10 @@ scalar columns. Sets and entries store selection semantics in normalized scalar
 columns. All tables use candidate ownership, foreign keys, bounded checks,
 indexes for referencing columns, complete record digests,
 first-materialization timestamps, and immutable update/delete protection.
+Artifact catalog provenance has a database-enforced composite reference to the
+candidate's durable catalog owner/name. Incoming provider provenance is
+validated against the incoming set before insertion because requiring stored
+historical aliases to equal every later set would break rename-stable reuse.
 
 A deferred constraint trigger validates at commit:
 

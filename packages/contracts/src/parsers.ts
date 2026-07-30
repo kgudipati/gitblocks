@@ -12,6 +12,7 @@ import {
   repositoryArtifactChunkIdentityDigest,
   repositoryArtifactChunkRecordDigest,
   repositoryArtifactContentSha256,
+  repositoryArtifactDisplayUrl,
   repositoryArtifactGitBlobObjectId,
   repositoryArtifactIdentityDigest,
   repositoryArtifactRecordDigest,
@@ -294,6 +295,18 @@ function validateRepositoryArtifact(
     `https://api.github.com/repositories/${value.providerRepositoryId}/git/blobs/${value.blobObjectId}`
   ) {
     issues.push(patternIssue('/blobApiUrl'));
+  }
+  if (
+    value.displayUrl !== null &&
+    value.displayUrl !==
+      repositoryArtifactDisplayUrl({
+        providerOwner: value.firstMaterialization.providerOwner,
+        providerRepository: value.firstMaterialization.providerRepository,
+        commitObjectId: value.commitObjectId,
+        path: value.path,
+      })
+  ) {
+    issues.push(patternIssue('/displayUrl'));
   }
   const identityDigest = repositoryArtifactIdentityDigest(value);
   if (

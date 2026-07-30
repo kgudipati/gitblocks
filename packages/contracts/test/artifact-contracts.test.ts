@@ -253,6 +253,25 @@ describe('immutable repository artifact contracts', () => {
     });
   });
 
+  it('accepts only a display URL derived from first materialization, commit, and path', () => {
+    const arbitrary = createRepositoryArtifactV1(
+      artifactInput({
+        displayUrl: 'https://example.com/unrelated',
+      }),
+    );
+    expect(parseRepositoryArtifactV1(arbitrary)).toMatchObject({ ok: false });
+
+    const mutable = createRepositoryArtifactV1(
+      artifactInput({
+        displayUrl:
+          'https://github.com/pinojs/pino/blob/' +
+          COMMIT +
+          '/README.md?download=1',
+      }),
+    );
+    expect(parseRepositoryArtifactV1(mutable)).toMatchObject({ ok: false });
+  });
+
   it('keeps source identity stable across repository moves and curator reclassification', () => {
     const original = createRepositoryArtifactV1(artifactInput());
     const moved = createRepositoryArtifactV1(

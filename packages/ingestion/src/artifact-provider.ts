@@ -6,6 +6,7 @@ import {
   parseRepositoryArtifactSetV1,
   parseRepositoryArtifactV1,
   repositoryArtifactContentSha256,
+  repositoryArtifactDisplayUrl,
   repositoryArtifactGitBlobObjectId,
   type RepositoryArtifactSetEntryV1,
   type RepositoryArtifactV1,
@@ -218,7 +219,12 @@ async function collectCandidate(
         context.repositoryId,
         content.blobObjectId,
       ),
-      displayUrl: immutableDisplayUrl(context, content.path),
+      displayUrl: repositoryArtifactDisplayUrl({
+        providerOwner: context.owner,
+        providerRepository: context.repository,
+        commitObjectId: context.commitObjectId,
+        path: content.path,
+      }),
       mediaType: 'text/plain',
       encoding: 'utf-8',
       contentSha256: repositoryArtifactContentSha256(exact.text),
@@ -618,12 +624,6 @@ function immutableBlobApiUrl(
   blobObjectId: string,
 ): string {
   return `https://api.github.com/repositories/${repositoryId}/git/blobs/${blobObjectId}`;
-}
-
-function immutableDisplayUrl(context: RepositoryContext, path: string): string {
-  return `https://github.com/${encodeURIComponent(context.owner)}/${encodeURIComponent(
-    context.repository,
-  )}/blob/${context.commitObjectId}/${encodePath(path)}`;
 }
 
 function repositoryPath(owner: string, repository: string): string {

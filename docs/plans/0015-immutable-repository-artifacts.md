@@ -185,6 +185,10 @@ exact file body, line count, byte count, or recoverable blob identity survives.
 - Catalog and provider-canonical locators are first-materialization
   provenance. Later sets may record a newer canonical locator without
   duplicating the artifact.
+- First insertion requires exact catalog aliases from `catalog_candidates`,
+  exact incoming provider aliases from the artifact set, and an exact derived
+  immutable-commit GitHub display URL when non-null. A later rename reuses the
+  original stored provenance while the later set records the new alias.
 - Selection semantics live only in ordered set entries.
 - Root README is optional; only exact-ref 404 establishes `not-found`.
 - Phase 6 supports `sha1` and fails closed on other object algorithms.
@@ -494,6 +498,15 @@ Phase 6 itself is not complete at this checkpoint.
   distinguish operational decoded bytes from successfully materialized bytes.
   The focused artifact suite and the PostgreSQL 18.4 non-owner suite pass
   without skips.
+- **2026-07-30:** Provenance red tests showed that arbitrary HTTPS display
+  URLs, mismatched catalog aliases, mismatched incoming provider aliases, and a
+  direct poisoned catalog-provenance insert were accepted. Artifact parsing now
+  requires the exact derived immutable-commit GitHub display URL. Atomic
+  publication loads the durable catalog owner/name, validates both catalog and
+  incoming provider provenance, and migration 0003 adds a composite catalog
+  provenance foreign key. Contract tests pass 9/9 and PostgreSQL verification
+  passes 30/30 without skips; concurrent poisoning cannot win, while a later
+  repository rename reuses the original artifact and provenance.
 
 ## Decision and deviation log
 

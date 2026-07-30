@@ -18,7 +18,10 @@ Artifact persistence exposes one candidate-scoped write,
 all contracts and reconstruction before opening one transaction, takes the
 candidate advisory lock, uses conflict reloads for deterministic idempotency,
 and relies on deferred database closure checks before commit. Existing records
-retain their first materialization timestamps and provenance.
+retain their first materialization timestamps and provenance. First insertion
+requires catalog provenance matching the durable candidate row and provider
+provenance matching the incoming artifact set; catalog provenance also has a
+database-level composite foreign key.
 
 Configuration and credentials are injected. Imports perform no I/O; the
 package owns no singleton, environment read, implicit migration, logging,

@@ -33,6 +33,11 @@ interface InsertedRow {
   readonly inserted: number;
 }
 
+interface CandidateRepositoryRow {
+  readonly repository_owner: string;
+  readonly repository_name: string;
+}
+
 interface ArtifactRow {
   readonly artifact_id: string;
   readonly candidate_id: string;
@@ -136,18 +141,20 @@ export async function publishRepositoryArtifactSet(
         signal,
       );
       const candidate = await executePending<
-        readonly { readonly found: number }[]
+        readonly CandidateRepositoryRow[]
       >(
         transaction`
-          select 1 as found
+          select repository_owner, repository_name
           from gitblocks.catalog_candidates
           where candidate_id = ${validated.artifactSet.candidateId}
         `,
         signal,
       );
-      if (candidate.length !== 1) {
+      const candidateRepository = candidate[0];
+      if (candidate.length !== 1 || candidateRepository === undefined) {
         throw persistenceError('persistence.conflict');
       }
+      validateCatalogProvenance(validated, candidateRepository);
 
       const inserted = {
         artifacts: 0,
@@ -246,6 +253,10 @@ function validatePublication(
       artifact.candidateId !== parsedSet.value.candidateId ||
       artifact.providerRepositoryId !== parsedSet.value.providerRepositoryId ||
       artifact.commitObjectId !== parsedSet.value.commitObjectId ||
+      artifact.firstMaterialization.providerOwner !==
+        parsedSet.value.providerCanonicalOwner ||
+      artifact.firstMaterialization.providerRepository !==
+        parsedSet.value.providerCanonicalRepository ||
       publication.chunks.length < 1 ||
       publication.chunks.length > 64
     ) {
@@ -264,6 +275,23 @@ function validatePublication(
     throw persistenceError('persistence.invalid-input');
   }
   return { artifactSet: parsedSet.value, artifacts };
+}
+
+function validateCatalogProvenance(
+  command: PublishRepositoryArtifactSetCommand,
+  candidate: CandidateRepositoryRow,
+): void {
+  if (
+    command.artifacts.some(
+      ({ artifact }) =>
+        artifact.firstMaterialization.catalogOwner !==
+          candidate.repository_owner ||
+        artifact.firstMaterialization.catalogRepository !==
+          candidate.repository_name,
+    )
+  ) {
+    throw persistenceError('persistence.invalid-input');
+  }
 }
 
 function validateChunks(

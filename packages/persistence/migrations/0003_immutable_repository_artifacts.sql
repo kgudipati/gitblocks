@@ -1,3 +1,7 @@
+alter table gitblocks.catalog_candidates
+  add constraint catalog_candidates_artifact_provenance_identity
+  unique (candidate_id, repository_owner, repository_name);
+
 create table gitblocks.repository_artifacts (
   artifact_id text primary key,
   candidate_id text not null,
@@ -26,6 +30,13 @@ create table gitblocks.repository_artifacts (
   constraint repository_artifacts_candidate
     foreign key (candidate_id)
     references gitblocks.catalog_candidates (candidate_id),
+  constraint repository_artifacts_catalog_provenance
+    foreign key (candidate_id, catalog_owner, catalog_repository)
+    references gitblocks.catalog_candidates (
+      candidate_id,
+      repository_owner,
+      repository_name
+    ),
   constraint repository_artifacts_candidate_identity
     unique (artifact_id, candidate_id),
   constraint repository_artifacts_id

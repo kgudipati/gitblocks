@@ -397,6 +397,16 @@ describe(
           artifactSetId: moved.artifactSet.artifactSetId,
         });
         expect(movedSet.providerCanonicalOwner).toBe('new-owner');
+        expect(movedSet.providerCanonicalRepository).toBe('new-name');
+        const preservedAfterMove = await loadRepositoryArtifact(first, {
+          artifactId: originalArtifact.artifact.artifactId,
+        });
+        expect(
+          preservedAfterMove.artifact.firstMaterialization.providerOwner,
+        ).toBe('example');
+        expect(
+          preservedAfterMove.artifact.firstMaterialization.providerRepository,
+        ).toBe('alpha');
         const artifactCount = await ownerSql<
           readonly { readonly count: number }[]
         >`
@@ -404,6 +414,53 @@ describe(
           from gitblocks.repository_artifacts
         `;
         expect(artifactCount[0]?.count).toBe(1);
+      } finally {
+        await Promise.all([
+          closePersistenceClient(first),
+          closePersistenceClient(second),
+        ]);
+      }
+    });
+
+    it('rejects poisoned first-materialization aliases before a valid first writer', async () => {
+      const first = createPersistenceClient(RUNTIME_CONFIG);
+      const second = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const valid = createArtifactPublication();
+      const catalogPoison = createArtifactPublication({
+        firstMaterializationCatalogOwner: 'attacker',
+      });
+      const providerPoison = createArtifactPublication({
+        firstMaterializationProviderOwner: 'attacker',
+      });
+      const artifactId = firstOrThrow(valid.artifacts).artifact.artifactId;
+      try {
+        await putCatalogCandidate(first, {
+          identity: dossier.identity,
+          createdAt: CREATED_AT,
+        });
+
+        await expect(
+          publishRepositoryArtifactSet(first, providerPoison),
+        ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+        const outcomes = await Promise.allSettled([
+          publishRepositoryArtifactSet(first, catalogPoison),
+          publishRepositoryArtifactSet(second, valid),
+        ]);
+        expect(
+          outcomes.filter((outcome) => outcome.status === 'fulfilled'),
+        ).toHaveLength(1);
+        expect(
+          outcomes.filter((outcome) => outcome.status === 'rejected'),
+        ).toHaveLength(1);
+
+        const stored = await loadRepositoryArtifact(first, { artifactId });
+        expect(stored.artifact.firstMaterialization).toMatchObject({
+          catalogOwner: 'example',
+          catalogRepository: 'alpha',
+          providerOwner: 'example',
+          providerRepository: 'alpha',
+        });
       } finally {
         await Promise.all([
           closePersistenceClient(first),
@@ -526,6 +583,64 @@ describe(
           createdAt: CREATED_AT,
         });
         await publishRepositoryArtifactSet(runtime, publication);
+
+        await expect(
+          ownerSql`
+            insert into gitblocks.repository_artifacts (
+              artifact_id,
+              candidate_id,
+              contract_version,
+              provider,
+              provider_repository_id,
+              git_object_algorithm,
+              commit_object_id,
+              path,
+              blob_object_id,
+              blob_api_url,
+              display_url,
+              media_type,
+              encoding,
+              content_sha256,
+              byte_count,
+              line_count,
+              exact_content,
+              catalog_owner,
+              catalog_repository,
+              provider_owner,
+              provider_repository,
+              collected_at,
+              identity_digest,
+              record_digest
+            )
+            select
+              ${`artifact-${'9'.repeat(48)}`},
+              candidate_id,
+              contract_version,
+              provider,
+              provider_repository_id,
+              git_object_algorithm,
+              commit_object_id,
+              path,
+              blob_object_id,
+              blob_api_url,
+              display_url,
+              media_type,
+              encoding,
+              content_sha256,
+              byte_count,
+              line_count,
+              exact_content,
+              'attacker',
+              catalog_repository,
+              provider_owner,
+              provider_repository,
+              collected_at,
+              ${'9'.repeat(64)},
+              ${'8'.repeat(64)}
+            from gitblocks.repository_artifacts
+            where artifact_id = ${originalArtifact.artifactId}
+          `,
+        ).rejects.toMatchObject({ code: '23503' });
 
         await expect(
           ownerSql.begin(async (transaction) => {

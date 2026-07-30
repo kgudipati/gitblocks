@@ -7,6 +7,7 @@ import {
   createRepositoryArtifactSetV1,
   createRepositoryArtifactV1,
   repositoryArtifactContentSha256,
+  repositoryArtifactDisplayUrl,
   repositoryArtifactGitBlobObjectId,
   repositoryArtifactUtf8ByteLength,
   type RepositoryArtifactChunkV1,
@@ -105,10 +106,18 @@ export function createArtifactPublication(options?: {
   readonly publishedAt?: string;
   readonly providerOwner?: string;
   readonly providerRepository?: string;
+  readonly firstMaterializationCatalogOwner?: string;
+  readonly firstMaterializationCatalogRepository?: string;
+  readonly firstMaterializationProviderOwner?: string;
+  readonly firstMaterializationProviderRepository?: string;
 }): SyntheticArtifactPublication {
   const content = options?.content ?? '# Synthetic\r\nexact π bytes\n';
   const providerOwner = options?.providerOwner ?? 'example';
   const providerRepository = options?.providerRepository ?? 'alpha';
+  const firstMaterializationProviderOwner =
+    options?.firstMaterializationProviderOwner ?? providerOwner;
+  const firstMaterializationProviderRepository =
+    options?.firstMaterializationProviderRepository ?? providerRepository;
   const repositoryId = '123456789012345678';
   const commitObjectId = '1'.repeat(40);
   const blobObjectId = repositoryArtifactGitBlobObjectId('sha1', content);
@@ -123,7 +132,12 @@ export function createArtifactPublication(options?: {
     path: 'README.md',
     blobObjectId,
     blobApiUrl: `https://api.github.com/repositories/${repositoryId}/git/blobs/${blobObjectId}`,
-    displayUrl: `https://github.com/${providerOwner}/${providerRepository}/blob/${commitObjectId}/README.md`,
+    displayUrl: repositoryArtifactDisplayUrl({
+      providerOwner: firstMaterializationProviderOwner,
+      providerRepository: firstMaterializationProviderRepository,
+      commitObjectId,
+      path: 'README.md',
+    }),
     mediaType: 'text/plain',
     encoding: 'utf-8',
     contentSha256: repositoryArtifactContentSha256(content),
@@ -131,10 +145,11 @@ export function createArtifactPublication(options?: {
     lineCount: 3,
     content,
     firstMaterialization: {
-      catalogOwner: 'example',
-      catalogRepository: 'alpha',
-      providerOwner,
-      providerRepository,
+      catalogOwner: options?.firstMaterializationCatalogOwner ?? 'example',
+      catalogRepository:
+        options?.firstMaterializationCatalogRepository ?? 'alpha',
+      providerOwner: firstMaterializationProviderOwner,
+      providerRepository: firstMaterializationProviderRepository,
       collectedAt: options?.collectedAt ?? '2026-07-29T12:00:00.000Z',
     },
   });

@@ -7,6 +7,7 @@ export {
   repositoryArtifactChunkIdentityDigest,
   repositoryArtifactChunkRecordDigest,
   repositoryArtifactContentSha256,
+  repositoryArtifactDisplayUrl,
   repositoryArtifactGitBlobObjectId,
   repositoryArtifactIdentityDigest,
   repositoryArtifactRecordDigest,

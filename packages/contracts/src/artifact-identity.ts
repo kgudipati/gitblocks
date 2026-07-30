@@ -224,6 +224,23 @@ export function repositoryArtifactUtf8ByteLength(value: string): number {
   return utf8Bytes(value).byteLength;
 }
 
+export function repositoryArtifactDisplayUrl(value: {
+  readonly providerOwner: string;
+  readonly providerRepository: string;
+  readonly commitObjectId: string;
+  readonly path: string;
+}): string {
+  const encodedPath = value.path
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+  return `https://github.com/${encodeURIComponent(
+    value.providerOwner,
+  )}/${encodeURIComponent(value.providerRepository)}/blob/${
+    value.commitObjectId
+  }/${encodedPath}`;
+}
+
 function digestCanonicalJson(value: unknown): string {
   return sha256Hex(utf8Bytes(serializeCanonicalJson(value, new Set<object>())));
 }
