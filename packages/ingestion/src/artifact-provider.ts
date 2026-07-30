@@ -52,6 +52,12 @@ export interface CollectRepositoryArtifactsCommand {
   readonly deadlineSignal?: AbortSignal;
 }
 
+export interface RepositoryArtifactCollector {
+  collectCandidate(
+    command: CollectRepositoryArtifactsCommand,
+  ): Promise<PublishRepositoryArtifactSetCommand>;
+}
+
 interface RepositoryContext {
   readonly repositoryId: string;
   readonly owner: string;
@@ -69,11 +75,7 @@ interface ContentPayload {
 
 export function createRepositoryArtifactCollector(
   config: RepositoryArtifactCollectorConfig,
-): {
-  collectCandidate(
-    command: CollectRepositoryArtifactsCommand,
-  ): Promise<PublishRepositoryArtifactSetCommand>;
-} {
+): RepositoryArtifactCollector {
   if (
     config.githubToken.length < 1 ||
     config.githubToken.length > 1_024 ||

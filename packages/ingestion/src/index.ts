@@ -20,10 +20,19 @@ export {
   verifyRepositoryArtifactChunks,
 } from './artifact-chunking.ts';
 export {
+  collectPublicRepositoryArtifacts,
+  type CollectPublicRepositoryArtifactsConfig,
+} from './artifact-batch.ts';
+export {
   createRepositoryArtifactCollector,
   type CollectRepositoryArtifactsCommand,
   type RepositoryArtifactCollectorConfig,
+  type RepositoryArtifactCollector,
 } from './artifact-provider.ts';
+export {
+  createArtifactReceipt,
+  parseArtifactReceipt,
+} from './artifact-receipt.ts';
 export {
   artifactManifestDigest,
   artifactManifestWithDigest,
@@ -57,6 +66,8 @@ export {
   type AdvisoryCollection,
   type AdvisorySource,
   type ArtifactKind,
+  type ArtifactReceipt,
+  type ArtifactReceiptCandidate,
   type ArtifactRequirement,
   type ArtifactSelection,
   type ArtifactSelectionSource,

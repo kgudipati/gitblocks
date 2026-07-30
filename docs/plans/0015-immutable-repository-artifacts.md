@@ -300,7 +300,7 @@ Buffer, URL, and cryptography cover the operation.
 - [x] **Milestone 5 — Collection/chunking:** explicit API-version boundary,
       algorithm discovery, exact retrieval/tree checks, validation, hashing,
       chunking, limits, Phase 5 regressions, commit.
-- [ ] **Milestone 6 — Operator/receipt:** separate commands, acknowledgement,
+- [x] **Milestone 6 — Operator/receipt:** separate commands, acknowledgement,
       isolation, limits/deadlines, telemetry, receipt/rerun support; no live run;
       commit.
 - [ ] **Milestone 7 — Pre-live checkpoint:** full matrix, diff and hosted CI
@@ -460,6 +460,15 @@ Phase 6 itself is not complete at this checkpoint.
   unexpected real networking in ordinary and PostgreSQL suites. The focused
   suite passes 46 tests, ingestion passes 104 tests, and the repository passes
   763 tests with no Phase 5 fixture or receipt change.
+- **2026-07-29:** Added three receipt and two operator-surface tests first and
+  observed all five fail before the receipt/parser and command family existed.
+  Added the separate candidate-isolated artifact batch, two-worker candidate
+  bound, 64 MiB run bound, candidate/batch deadlines, compact closed receipt,
+  materialization digest, zero-row immediate-rerun comparison, controlled
+  artifact telemetry, and explicitly acknowledged non-production CLI. A real
+  PostgreSQL composition test proves one candidate failure does not roll back
+  another candidate and proves an immediate rerun inserts zero rows while
+  retaining both set and first-materialization identity.
 
 ## Decision and deviation log
 
@@ -553,5 +562,21 @@ pnpm architecture:check  passed; 635 modules / 2,020 dependencies
 pnpm verify               passed; 41 files / 763 tests
 unexpected networking     prohibited by ordinary and database test setup
 Phase 5 API default       unchanged at 2026-03-10; explicit override tested
+live artifact operation   not run
+```
+
+Milestone 6 evidence:
+
+```text
+artifact receipt red run  1 file / 3 failures before implementation
+operator surface red run  1 file / 2 failures before implementation
+pnpm artifacts:verify     passed; 5 files / 60 tests
+pnpm verify               passed; 43 files / 768 tests
+pnpm architecture:check  passed; 640 modules / 2,035 dependencies
+pnpm db:verify            passed; PostgreSQL 18.4
+database integration      passed; 4 files / 29 tests / no skips
+operator command family   artifacts:validate/test/verify/live/receipt
+candidate concurrency     maximum 2
+global request concurrency maximum 1 in the shared collector
 live artifact operation   not run
 ```
