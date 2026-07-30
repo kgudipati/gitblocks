@@ -182,7 +182,27 @@ Artifact requests set the same version explicitly.
 ### Exact provider collection
 
 The collector resolves repository numeric identity, object algorithm, and
-exact default-branch commit before artifact reads.
+exact default-branch commit before artifact reads. It resolves the default
+branch through GitHub's bounded
+[Git reference](https://docs.github.com/en/rest/git/refs?apiVersion=2026-03-10#get-a-reference)
+and
+[Git commit-object](https://docs.github.com/en/rest/git/commits?apiVersion=2026-03-10#get-a-commit-object)
+endpoints:
+
+```text
+GET /repos/{owner}/{repository}/git/ref/heads/{defaultBranch}
+GET /repos/{owner}/{repository}/git/commits/{exactCommitObjectId}
+```
+
+The reference must exactly equal `refs/heads/{defaultBranch}`, its object must
+be a commit, and the returned Git commit object ID must equal the reference
+object ID. The commit object supplies the root tree ID. The collector does not
+use `GET /repos/{owner}/{repository}/commits/{ref}` because that repository
+commit representation may include an unbounded-by-change-count `files` array.
+The controlled live proof measured otherwise valid current responses of
+683,796 and 395,519 bytes from that expansive endpoint; the equivalent Git
+reference/commit-object response pairs were 330/2,809 and 368/2,484 bytes and
+fit the existing 256 KiB metadata bound.
 
 It obtains the root README with:
 
@@ -433,7 +453,7 @@ credentials, SQL, or repository-authored values.
 | path segments                       |           8 |
 | artifact JSON response              |     512 KiB |
 | tree/blob JSON response             |     512 KiB |
-| repository/commit JSON response     |     256 KiB |
+| repository/ref/commit-object JSON   |     256 KiB |
 | hash-algorithm JSON response        |      16 KiB |
 
 These are artifact-specific. Phase 5 file and candidate limits are not widened.
@@ -503,8 +523,11 @@ unapproved local material.
 ## Rollout and recovery
 
 The offline implementation lands behind an explicit operator command and
-reviewed manifest. Migration 0003 applies transactionally with no backfill. The
-full live run remains blocked until maintainer review.
+reviewed manifest. Migration 0003 applies transactionally with no backfill.
+The first authorized live proof published 147 closed candidate sets before
+three controlled candidate failures. The disqualified database was destroyed.
+The bounded exact-commit correction and the root-README symlink policy conflict
+require renewed maintainer review before another fresh live proof.
 
 A failed migration rolls back. A failed candidate transaction creates no set.
 Safe retry reuses exact immutable rows. A merged schema defect is corrected by
@@ -515,6 +538,10 @@ Stored history is never edited as rollback.
 
 - Full reviewed live collection, immediate rerun, and compact completion
   evidence.
+- A maintainer decision for a root README that GitHub discovers as a symlink:
+  current authority both rejects mode `120000` and permits optional root-README
+  absence only for exact-ref `404`, so the measured Dagster candidate cannot
+  publish a closed set under the current rules.
 - Phase 7 semantic repository interview and citation contracts.
 - Additional Git object algorithms when a measured repository requires them.
 - Retrieval/search/indexing, object storage, retention/deletion, tenancy/RLS,

@@ -63,9 +63,35 @@ describe('exact GitHub repository artifact collection', () => {
         .find((request) => request.operation === 'artifact-readme')
         ?.url.searchParams.get('ref'),
     ).toBe(COMMIT_SHA);
+    expect(
+      requests.find(
+        (request) => request.operation === 'artifact-default-branch-ref',
+      )?.url.pathname,
+    ).toBe('/repos/gitblocks-test/candidate/git/ref/heads/main');
+    expect(
+      requests.find((request) => request.operation === 'artifact-exact-commit')
+        ?.url.pathname,
+    ).toBe(`/repos/gitblocks-test/candidate/git/commits/${COMMIT_SHA}`);
+    expect(
+      requests.some(
+        (request) =>
+          request.url.pathname ===
+          '/repos/gitblocks-test/candidate/commits/main',
+      ),
+    ).toBe(false);
+    expect(
+      requests
+        .filter(({ operation }) =>
+          ['artifact-default-branch-ref', 'artifact-exact-commit'].includes(
+            operation,
+          ),
+        )
+        .map(({ maximumBytes }) => maximumBytes),
+    ).toEqual([256 * 1_024, 256 * 1_024]);
     expect(requests.map((request) => request.operation)).toEqual([
       'artifact-repository',
       'artifact-hash-algorithm',
+      'artifact-default-branch-ref',
       'artifact-exact-commit',
       'artifact-readme',
       'artifact-tree',
@@ -75,6 +101,56 @@ describe('exact GitHub repository artifact collection', () => {
       BYTES.byteLength * 2,
     );
   });
+
+  it('resolves a slash-containing default branch through an exact Git reference', async () => {
+    const requests: TransportRequest[] = [];
+    const collector = createRepositoryArtifactCollector({
+      transport: providerTransport(requests, {
+        defaultBranch: 'release/current',
+      }),
+      githubToken: 'synthetic-token',
+    });
+
+    await collector.collectCandidate({
+      candidate: TEST_CANDIDATE,
+      manifest: manifestForRoot(),
+      collectedAt: '2026-07-29T12:00:00.000Z',
+      publishedAt: '2026-07-29T12:01:00.000Z',
+      correlationId: 'artifact-run-1',
+      decodedByteBudget: artifactBudget(),
+    });
+
+    expect(
+      requests.find(
+        ({ operation }) => operation === 'artifact-default-branch-ref',
+      )?.url.pathname,
+    ).toBe('/repos/gitblocks-test/candidate/git/ref/heads/release/current');
+  });
+
+  it.each([
+    ['a different reference name', { referenceName: 'refs/heads/other' }],
+    ['a non-commit reference object', { referenceObjectType: 'tag' }],
+    ['a different commit response SHA', { commitResponseSha: '5'.repeat(40) }],
+  ] as const)(
+    'rejects %s during exact commit resolution',
+    async (_, options) => {
+      const collector = createRepositoryArtifactCollector({
+        transport: providerTransport([], options),
+        githubToken: 'synthetic-token',
+      });
+
+      await expect(
+        collector.collectCandidate({
+          candidate: TEST_CANDIDATE,
+          manifest: manifestForRoot(),
+          collectedAt: '2026-07-29T12:00:00.000Z',
+          publishedAt: '2026-07-29T12:01:00.000Z',
+          correlationId: 'artifact-run-1',
+          decodedByteBudget: artifactBudget(),
+        }),
+      ).rejects.toMatchObject({ code: 'ingestion.provider-response' });
+    },
+  );
 
   it('retains both provider body charges when independent blob validation later fails', async () => {
     const requests: TransportRequest[] = [];
@@ -136,6 +212,7 @@ describe('exact GitHub repository artifact collection', () => {
     expect(requests.map(({ operation }) => operation)).toEqual([
       'artifact-repository',
       'artifact-hash-algorithm',
+      'artifact-default-branch-ref',
       'artifact-exact-commit',
       'artifact-readme',
     ]);
@@ -447,6 +524,10 @@ function providerTransport(
     readonly canonicalOwner?: string;
     readonly canonicalRepository?: string;
     readonly blobObjectMismatch?: boolean;
+    readonly defaultBranch?: string;
+    readonly referenceName?: string;
+    readonly referenceObjectType?: string;
+    readonly commitResponseSha?: string;
   },
 ): ProviderTransport {
   return {
@@ -479,15 +560,25 @@ function providerResponse(
         id: 123456789,
         name: options?.canonicalRepository ?? 'candidate',
         owner: { login: options?.canonicalOwner ?? 'gitblocks-test' },
-        default_branch: 'main',
+        default_branch: options?.defaultBranch ?? 'main',
         private: false,
       });
     case 'artifact-hash-algorithm':
       return json({ hash_algorithm: options?.hashAlgorithm ?? 'sha1' });
+    case 'artifact-default-branch-ref':
+      return json({
+        ref:
+          options?.referenceName ??
+          `refs/heads/${options?.defaultBranch ?? 'main'}`,
+        object: {
+          type: options?.referenceObjectType ?? 'commit',
+          sha: COMMIT_SHA,
+        },
+      });
     case 'artifact-exact-commit':
       return json({
-        sha: COMMIT_SHA,
-        commit: { tree: { sha: TREE_SHA } },
+        sha: options?.commitResponseSha ?? COMMIT_SHA,
+        tree: { sha: TREE_SHA },
       });
     case 'artifact-readme':
     case 'artifact-content':

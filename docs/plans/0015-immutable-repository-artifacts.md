@@ -10,8 +10,9 @@
   [additional compatibility guard](https://github.com/kgudipati/gitblocks/issues/15#issuecomment-5124411687)
 - Branch: `feat/15-immutable-repository-artifacts`
 - Owner: repository maintainer
-- State: offline and PostgreSQL-tested checkpoint in progress; full live
-  collection blocked on maintainer review
+- State: authorized live proof paused after a controlled 147/150 partial run;
+  exact-commit correction and root-README symlink policy await renewed
+  maintainer review
 - Last updated: 2026-07-30
 
 Authority descends from Issue #15 and its maintainer comments, through actual
@@ -31,10 +32,12 @@ later without re-fetching a mutable repository head.
 
 This checkpoint delivers offline contracts, selection authority, provider
 adapter, chunker, PostgreSQL migration and adapter, operator commands, safe
-receipt, tests, and documentation. It does not contain a full 150-candidate
-artifact collection or final completion evidence. The live operation remains
-blocked until the maintainer reviews the complete PR diff, proposed additional
-paths and rationales, and final offline contract and architecture shapes.
+receipt, tests, and documentation. The authorized live proof produced a valid
+but partial 147/150 receipt, so it does not contain a definitive full
+collection, immediate rerun, or final completion evidence. A live-discovered
+exact-commit metadata correction and a governing contradiction for a
+provider-discovered root README symlink require renewed maintainer review
+before the proof restarts against another fresh database.
 
 Phase 7 may later reference immutable artifact and chunk IDs plus line
 intervals. Phase 6 does not define semantic claims, model prompts, interviews,
@@ -132,7 +135,8 @@ exact file body, line count, byte count, or recoverable blob identity survives.
 
 ### Explicit non-goals
 
-- The blocked full live run or its immediate rerun.
+- Treating the partial 147/150 live run or a retry on its database as
+  completion.
 - Final Phase 6 completion evidence.
 - Models, prompts, semantics, retrieval, ranking, or repository interviews.
 - Changes to `CandidateDossierV1`, domain behavior, Phase 5 profile rules,
@@ -241,7 +245,7 @@ exact file body, line count, byte count, or recoverable blob identity survives.
 ```text
 public-v1 catalog + public-artifacts-v1 manifest
   -> validate closed selection authority
-  -> resolve repository ID, hash algorithm, exact commit
+  -> resolve repository ID, hash algorithm, exact branch ref and Git commit
   -> retrieve exact-ref README and paths
   -> verify selected paths through bounded non-recursive trees
   -> validate UTF-8 and Git blob object ID
@@ -269,7 +273,7 @@ public-v1 catalog + public-artifacts-v1 manifest
 | batch deadline                   |                   60 minutes |
 | path bytes/depth                 | 512 UTF-8 bytes / 8 segments |
 | artifact/blob/tree JSON response |                      512 KiB |
-| repository/commit metadata JSON  |                      256 KiB |
+| repository/ref/commit metadata   |                      256 KiB |
 | hash-algorithm metadata JSON     |                       16 KiB |
 
 Provider response limits include JSON/base64 overhead and remain distinct from
@@ -413,20 +417,20 @@ rewritten as recovery.
 
 ## Exact exit criteria
 
-The pre-live checkpoint requires:
+The current live-proof recovery gate requires:
 
-- all offline milestones committed and pushed ordinarily;
-- the draft PR remains draft and links Issue #15;
-- 150 README attempts and the required clearly marked proposed path cohort;
-- contract roots, migration, operations, operator and receipt match authority;
-- prior schema digests and Phase 5 behavior unchanged;
-- full offline/PostgreSQL verification with no skipped database test;
-- hosted checks and decoded logs inspected;
-- full diff, dependency graph, migration/table inventory, lockfile and
-  content-exclusion review recorded;
-- a clean worktree;
-- no live artifact operation or final completion evidence; and
-- remaining live approvals explicitly listed.
+- the exact-commit endpoint correction committed and pushed ordinarily;
+- renewed maintainer review of that correction and the measured root-README
+  symlink contradiction;
+- no change to contracts, identities, migrations, bounds, or the approved
+  manifest without explicit amended authority;
+- another brand-new ephemeral database after renewed authorization;
+- a definitive 150/150 first receipt before any comparison run;
+- an immediate comparison receipt proving unchanged-candidate idempotency;
+- full offline/PostgreSQL/hosted verification with no skipped database test;
+- compact content-free completion evidence only after both definitive runs;
+- a clean worktree; and
+- the draft PR remains draft and Issue #15 remains open.
 
 Phase 6 itself is not complete at this checkpoint.
 
@@ -557,6 +561,41 @@ Phase 6 itself is not complete at this checkpoint.
   helper was intentional and already used by both parsing and collection, so
   its narrow export is now explicitly covered. The restarted complete matrix
   passes.
+- **2026-07-30:** The authorized live proof used a new localhost-only
+  PostgreSQL 18.4 database at migration 0003 and a non-owner runtime login
+  inheriting only `gitblocks_persistence`. Phase 5 seeded 150/150 candidates.
+  Before artifact collection, non-owner aggregate queries proved 150 durable
+  catalog rows and zero artifact, chunk, set, or entry rows.
+- **2026-07-30:** The prescribed artifact command passed the raw
+  `candidates.json` array to a CLI that requires the closed public catalog and
+  failed locally with `ingestion.invalid-manifest`. It created no receipt,
+  provider event, or database row. The repository-authoritative
+  `catalog/public-v1/manifest.json` input was then used; this invocation-path
+  contradiction is recorded rather than hidden.
+- **2026-07-30:** The first actual artifact collection produced a valid partial
+  receipt: 150 requested, 147 completed, 3 failed, 175 artifacts, 402 chunks,
+  147 sets, and 175 entries. Safe failures were
+  `jobs-dagster`/`ingestion.unsupported-artifact-type`,
+  `webhook-hookdeck`/`ingestion.body-too-large`, and
+  `webhook-paypal-node`/`ingestion.body-too-large`. No comparison run or
+  completion evidence was created. The partial database was destroyed; raw
+  receipts remain outside the repository and unrestricted telemetry was
+  removed.
+- **2026-07-30:** Bounded metadata-only investigation found Dagster's exact
+  root `README.md` at commit `014641bc1bdb71ea2c7f40371691103bbff5c9c7`
+  is mode `120000`, while the approved explicit document remains a normal
+  `100644` blob. Existing authority rejects symlinks and permits optional
+  root-README absence only for exact-ref `404`; no local interpretation can
+  produce a closed Dagster set without an amended maintainer decision.
+- **2026-07-30:** Hookdeck and PayPal failed during the repository commit
+  request, whose current response envelopes measured 683,796 and 395,519
+  bytes. Red provider tests required exact default-branch Git references and
+  bounded Git commit objects, then failed 18/26 before implementation. The
+  collector now uses the official Git Database ref and commit-object endpoints,
+  verifies exact ref/type/SHA closure, supports slash-containing branches, and
+  never requests the expansive repository-commit route. Focused tests pass
+  30/30. Targeted live metadata measured replacement response pairs of
+  330/2,809 and 368/2,484 bytes under the unchanged 256 KiB bound.
 
 ## Decision and deviation log
 
@@ -583,6 +622,16 @@ Phase 6 itself is not complete at this checkpoint.
   chunk record digests but are not redundant stable-ID inputs. The chunk ID
   inputs are artifact/candidate IDs, chunker version, ordinal, byte interval,
   and chunk content SHA-256.
+- **Live catalog CLI path:** the reviewed artifact CLI consumes a closed
+  `PublicCatalog`, so its `--catalog` input is
+  `catalog/public-v1/manifest.json`; passing the raw candidate array fails
+  before provider or persistence setup.
+- **Exact commit metadata:** default-branch identity now resolves through the
+  exact Git reference and Git commit-object endpoints. This preserves the
+  256 KiB metadata bound without widening it.
+- **Root README symlink:** no behavior change is made. Dagster proves the
+  current requirements are jointly unsatisfiable for a provider-discovered
+  mode-`120000` root README, so renewed maintainer authority is required.
 
 ## Validation evidence
 
@@ -590,7 +639,8 @@ Initial evidence is recorded under “Verified current repository state.” Each
 milestone appends exact commands, results, failures, and resolutions here
 before its next publication point.
 
-No live provider collection has been run.
+A controlled live provider collection has been run, but it was partial and is
+not completion evidence.
 
 Milestone 1 evidence:
 
@@ -791,4 +841,74 @@ manifest files/digest     unchanged from reviewed head
 candidate-content safety  synthetic bodies only; no candidate body, receipt,
                            or completion evidence committed
 live artifact operation   not run
+```
+
+Authorized controlled live-proof attempt:
+
+```text
+authorized head            59540dbd73a651fde04bb75d6f8e409c64adddb2
+runtime                    Node 24.18.0 / pnpm 11.17.0
+pre-live verification      passed; 44 files / 786 tests; 4 PostgreSQL files /
+                           36 tests without skips; 11 ingestion files /
+                           125 tests; 6 artifact files / 76 tests
+database                   fresh localhost-only PostgreSQL 18.4; migration 0003;
+                           17 product tables; 0 RLS policies
+runtime role               non-owner/non-superuser; member only of
+                           gitblocks_persistence
+Phase 5 seed receipt       636156ea52089239150b88cc2a3082e113c95211231c2374bfd1a7cc331b9c8e;
+                           150 requested / 150 completed / 0 failed
+pre-artifact rows          catalog 150; artifacts 0; chunks 0; sets 0; entries 0
+artifact receipt           5087f139e4c4d4751f3af1449d2e0b3dc811ad0087607c900a4f6b3afb53c1f8;
+                           150 requested / 147 completed / 3 failed
+partial artifact rows      artifacts 175; chunks 402; sets 147; entries 175
+safe failures              jobs-dagster / unsupported-artifact-type;
+                           webhook-hookdeck / body-too-large;
+                           webhook-paypal-node / body-too-large
+comparison run             not run; first receipt was not definitive
+completion evidence        not created
+partial database           destroyed
+raw receipts               retained outside repository
+unrestricted telemetry     removed
+candidate bodies           not printed, committed, or placed in evidence
+```
+
+Live-discovered exact-commit correction:
+
+```text
+provider red run           1 file / 18 failures / 8 passes before correction
+provider focused green     1 file / 30 tests
+old commit envelopes       683,796 bytes / 395,519 bytes
+Git ref envelopes          330 bytes / 368 bytes
+Git commit-object envelopes 2,809 bytes / 2,484 bytes
+metadata bound             unchanged at 256 KiB
+contracts/migrations       unchanged
+manifest digest            unchanged at 17d2a47f8d99...
+renewed live authorization pending
+```
+
+Post-correction verification:
+
+```text
+pnpm install --frozen-lockfile
+                           passed; already up to date
+pnpm verify                passed; 44 files / 790 tests
+pnpm verify:ci             passed; PostgreSQL required; registry audit clear
+pnpm contracts:validate    passed; 10 cases / 40 supplied candidates
+pnpm catalog:validate      passed; 150 candidates / 30 per family
+pnpm ingestion:verify      passed; 11 files / 129 tests
+pnpm db:verify             passed; PostgreSQL 18.4 / 4 files / 36 tests / no skips
+pnpm eval:validate         passed; 10 cases
+pnpm eval:fixtures         passed; all fixture profiles
+pnpm artifacts:validate   passed; 150 roots / 30 additional candidates;
+                           manifest digest 17d2a47f8d99...
+pnpm artifacts:verify     passed; 6 files / 80 tests
+pnpm test:coverage        passed; 44 files / 790 tests; 76.15% statements,
+                           68.76% branches, 83.22% functions, 75.95% lines
+pnpm architecture:check   passed within verification; 642 modules /
+                           2,040 dependencies; no violations
+git diff --check          passed
+pnpm-lock.yaml            unchanged
+contracts/migrations      unchanged
+manifest files/digest     unchanged
+candidate-content safety  no candidate body or raw receipt tracked
 ```

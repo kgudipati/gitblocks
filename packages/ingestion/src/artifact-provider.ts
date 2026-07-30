@@ -329,15 +329,31 @@ async function loadRepositoryContext(
     throw ingestionError('ingestion.unsupported-git-object-algorithm');
   }
 
+  const referenceResponse = await request(
+    'artifact-default-branch-ref',
+    `${canonicalPath}/git/ref/heads/${encodePath(defaultBranch)}`,
+    METADATA_RESPONSE_BYTES,
+  );
+  const reference = requireRecord(referenceResponse.value);
+  const referenceObject = requireRecord(reference['object']);
+  if (
+    reference['ref'] !== `refs/heads/${defaultBranch}` ||
+    referenceObject['type'] !== 'commit'
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  const commitObjectId = requireSha1(referenceObject['sha']);
+
   const commitResponse = await request(
     'artifact-exact-commit',
-    `${canonicalPath}/commits/${encodeURIComponent(defaultBranch)}`,
+    `${canonicalPath}/git/commits/${commitObjectId}`,
     METADATA_RESPONSE_BYTES,
   );
   const commit = requireRecord(commitResponse.value);
-  const commitObjectId = requireSha1(commit['sha']);
-  const commitBody = requireRecord(commit['commit']);
-  const tree = requireRecord(commitBody['tree']);
+  if (requireSha1(commit['sha']) !== commitObjectId) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  const tree = requireRecord(commit['tree']);
   const rootTreeObjectId = requireSha1(tree['sha']);
   return {
     repositoryId,
