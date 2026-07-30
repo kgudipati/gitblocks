@@ -68,6 +68,14 @@ const REQUIRED_PATHS = [
   'packages/ingestion/test/tsconfig.json',
   'packages/ingestion/tsconfig.json',
   'packages/ingestion/tsconfig.test.json',
+  'packages/interviews/README.md',
+  'packages/interviews/package.json',
+  'packages/interviews/scripts/specification-cli.ts',
+  'packages/interviews/scripts/tsconfig.json',
+  'packages/interviews/src/index.ts',
+  'packages/interviews/test/tsconfig.json',
+  'packages/interviews/tsconfig.json',
+  'packages/interviews/tsconfig.test.json',
   'packages/persistence/README.md',
   'packages/persistence/migrations/0001_evidence_persistence.sql',
   'packages/persistence/migrations/0002_runtime_migration_verification.sql',
@@ -268,6 +276,24 @@ const INGESTION_MANIFEST = JSON.stringify({
   },
 });
 
+const INTERVIEWS_MANIFEST = JSON.stringify({
+  name: '@gitblocks/interviews',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    ajv: '8.20.0',
+    typebox: '1.3.8',
+  },
+});
+
 const WORKSPACE_POLICY = `packages:
   - apps/*
   - packages/*
@@ -375,6 +401,9 @@ function defaultContent(relativePath: string): string {
   }
   if (relativePath === 'packages/ingestion/package.json') {
     return INGESTION_MANIFEST;
+  }
+  if (relativePath === 'packages/interviews/package.json') {
+    return INTERVIEWS_MANIFEST;
   }
   if (relativePath === 'pnpm-workspace.yaml') {
     return WORKSPACE_POLICY;

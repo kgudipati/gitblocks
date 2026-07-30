@@ -24,6 +24,7 @@ const APPROVED_PACKAGE_MANIFESTS = new Set([
   'packages/contracts/package.json',
   'packages/domain/package.json',
   'packages/ingestion/package.json',
+  'packages/interviews/package.json',
   'packages/persistence/package.json',
   'tools/evaluation-harness/package.json',
   'tools/repository-checks/package.json',
@@ -64,6 +65,17 @@ const PRODUCT_PACKAGE_POLICIES: ReadonlyMap<string, ProductPackagePolicy> =
       },
     ],
     [
+      'packages/interviews/package.json',
+      {
+        dependencies: new Map([
+          ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+          ['ajv', '8.20.0'],
+          ['typebox', '1.3.8'],
+        ]),
+        name: '@gitblocks/interviews',
+      },
+    ],
+    [
       'packages/persistence/package.json',
       {
         dependencies: new Map([
@@ -88,6 +100,10 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
       ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
       ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
     ]),
+  ],
+  [
+    'packages/interviews/package.json',
+    new Map([['@gitblocks/contracts', EXACT_WORKSPACE_VERSION]]),
   ],
   [
     'packages/persistence/package.json',
@@ -166,6 +182,14 @@ const REQUIRED_PATHS = [
   'packages/ingestion/test/tsconfig.json',
   'packages/ingestion/tsconfig.json',
   'packages/ingestion/tsconfig.test.json',
+  'packages/interviews/README.md',
+  'packages/interviews/package.json',
+  'packages/interviews/scripts/specification-cli.ts',
+  'packages/interviews/scripts/tsconfig.json',
+  'packages/interviews/src/index.ts',
+  'packages/interviews/test/tsconfig.json',
+  'packages/interviews/tsconfig.json',
+  'packages/interviews/tsconfig.test.json',
   'packages/persistence/README.md',
   'packages/persistence/migrations/0001_evidence_persistence.sql',
   'packages/persistence/migrations/0002_runtime_migration_verification.sql',
@@ -237,7 +261,7 @@ export function validateRepositoryInvariants(
       diagnostics.push(
         diagnostic(
           'repository.prohibited-artifact',
-          'Artifact is outside the approved Phase 4 workspace shape.',
+          'Artifact is outside the approved workspace shape.',
           trackedPath,
         ),
       );
@@ -279,7 +303,7 @@ function validatePackageManifests(
       diagnostics.push(
         diagnostic(
           'repository.prohibited-artifact',
-          'Package manifest is not approved in the Phase 4 workspace.',
+          'Package manifest is not approved in the workspace.',
           manifestPath,
         ),
       );
@@ -850,6 +874,7 @@ function isProhibitedArtifact(trackedPath: string): boolean {
       !trackedPath.startsWith('packages/contracts/') &&
       !trackedPath.startsWith('packages/domain/') &&
       !trackedPath.startsWith('packages/ingestion/') &&
+      !trackedPath.startsWith('packages/interviews/') &&
       !trackedPath.startsWith('packages/persistence/')) ||
     trackedPath.startsWith('src/') ||
     (trackedPath.startsWith('tools/') &&

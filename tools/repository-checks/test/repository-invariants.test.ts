@@ -67,6 +67,14 @@ const REQUIRED_PATHS = [
   'packages/ingestion/test/tsconfig.json',
   'packages/ingestion/tsconfig.json',
   'packages/ingestion/tsconfig.test.json',
+  'packages/interviews/README.md',
+  'packages/interviews/package.json',
+  'packages/interviews/scripts/specification-cli.ts',
+  'packages/interviews/scripts/tsconfig.json',
+  'packages/interviews/src/index.ts',
+  'packages/interviews/test/tsconfig.json',
+  'packages/interviews/tsconfig.json',
+  'packages/interviews/tsconfig.test.json',
   'packages/persistence/README.md',
   'packages/persistence/migrations/0001_evidence_persistence.sql',
   'packages/persistence/migrations/0002_runtime_migration_verification.sql',
@@ -267,6 +275,24 @@ const INGESTION_MANIFEST = JSON.stringify({
   },
 });
 
+const INTERVIEWS_MANIFEST = JSON.stringify({
+  name: '@gitblocks/interviews',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    ajv: '8.20.0',
+    typebox: '1.3.8',
+  },
+});
+
 const WORKSPACE_POLICY = `packages:
   - apps/*
   - packages/*
@@ -330,6 +356,7 @@ function validRepository() {
     ['packages/contracts/package.json', CONTRACTS_MANIFEST],
     ['packages/domain/package.json', DOMAIN_MANIFEST],
     ['packages/ingestion/package.json', INGESTION_MANIFEST],
+    ['packages/interviews/package.json', INTERVIEWS_MANIFEST],
     ['packages/persistence/package.json', PERSISTENCE_MANIFEST],
     ['tools/evaluation-harness/package.json', EVALUATION_MANIFEST],
     ['tools/repository-checks/package.json', TOOL_MANIFEST],
@@ -339,7 +366,7 @@ function validRepository() {
 }
 
 describe('validateRepositoryInvariants', () => {
-  it('accepts the explicit Phase 4 repository shape', () => {
+  it('accepts the explicit approved repository shape', () => {
     expect(validateRepositoryInvariants(validRepository())).toEqual([]);
   });
 
@@ -492,6 +519,23 @@ describe('validateRepositoryInvariants', () => {
         expect.objectContaining({
           code: 'repository.product-dependency',
           path: 'packages/persistence/package.json',
+        }),
+      ]),
+    );
+  });
+
+  it('requires the interviews runtime dependency allowlist exactly', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'packages/interviews/package.json',
+      INTERVIEWS_MANIFEST.replace('"ajv":"8.20.0"', '"ajv":"^8.20.0"'),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.product-dependency',
+          path: 'packages/interviews/package.json',
         }),
       ]),
     );

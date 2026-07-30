@@ -1894,6 +1894,15 @@ Two full-verification discoveries were corrected and retained as evidence:
   its fixtures were updated to protect the interviews build/typecheck/
   generate/validate/test/verify graph, its focused 43 tests passed, and the
   complete matrix restarted.
+- the first hosted CI run for commit `7b4af6b` passed the new package and all
+  885 tests, then the PR-aware repository checker rejected the new tracked
+  `packages/interviews/` files. Clean-tree local verification had not exercised
+  that diff-aware path. A red repository-invariant test reproduced the
+  rejection; the checker now approves the package path, requires its structural
+  entry points, and enforces its exact package/dependency policy. The focused
+  repository-check suite passes 58 tests, and the complete matrix passes 886
+  tests. The rejected run made no provider request and did not reach any Phase
+  7 live behavior.
 
 The final pre-commit matrix on 2026-07-30 produced:
 
@@ -1901,7 +1910,7 @@ The final pre-commit matrix on 2026-07-30 produced:
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `pnpm install --frozen-lockfile` | passed; eight workspace projects already up to date; pnpm 11.17.0                                                                                                        |
 | `pnpm interviews:verify`         | passed; specification/digests valid; four files and 68 tests; package typecheck; 657 modules/2,078 dependencies without violation                                        |
-| `pnpm verify`                    | passed; 48 files and 885 tests; format, lint, seven package typechecks, build, architecture, repository, evaluation, contract, catalog, specification, and secret checks |
+| `pnpm verify`                    | passed; 48 files and 886 tests; format, lint, seven package typechecks, build, architecture, repository, evaluation, contract, catalog, specification, and secret checks |
 | `pnpm verify:ci`                 | passed; repeated ordinary verification, PostgreSQL 18.4 integration with 36 tests and no skips, and registry audit with no vulnerabilities                               |
 | `pnpm contracts:validate`        | passed; 10 cases and 40 supplied candidates; representability only                                                                                                       |
 | `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                                        |
@@ -1911,7 +1920,7 @@ The final pre-commit matrix on 2026-07-30 produced:
 | `pnpm eval:fixtures`             | passed; all five fixed strategies produced expected summaries                                                                                                            |
 | `pnpm artifacts:validate`        | passed; 150 root attempts, 30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                                      |
 | `pnpm artifacts:verify`          | passed; six files and 107 artifact tests plus typecheck                                                                                                                  |
-| `pnpm test:coverage`             | passed; 48 files and 885 tests; interviews 89.69% statements, 84.06% branches, 98.16% functions, 89.57% lines                                                            |
+| `pnpm test:coverage`             | passed; 48 files and 886 tests; interviews 89.69% statements, 84.06% branches, 98.16% functions, 89.57% lines                                                            |
 | `git diff --check`               | passed                                                                                                                                                                   |
 
 The lockfile adds only the `packages/interviews` importer and reuses the
@@ -1961,6 +1970,11 @@ ephemeral local PostgreSQL verification calls.
   repository tests, exact specification/schema/projection digests, unchanged
   existing authorities, PostgreSQL 18.4, registry audit, and coverage. Marked
   Milestone 2 implemented and awaiting review; Milestone 3 remains stopped.
+- **2026-07-30:** Decoded the first hosted CI failure: the PR-aware repository
+  checker rejected the newly tracked interviews package after the 885-test
+  suite passed. Added a red regression, approved the exact package shape and
+  dependency policy, and reran the complete local matrix with 886 passing
+  tests before the follow-up push.
 
 ## Decision and deviation log
 
@@ -1993,6 +2007,10 @@ ephemeral local PostgreSQL verification calls.
   semantic item remain invalid.
 - **Unicode normalization:** semantic text requires exact UTF-8 round trip but
   not NFC. No normalization or sanitization is performed.
+- **Repository shape enforcement:** the repository checker treats
+  `packages/interviews/` as an approved product package, requires its minimal
+  Milestone 2 entry points, and permits only contracts, exact `ajv`, and exact
+  `typebox` runtime dependencies.
 
 ## Remaining maintainer decisions before Milestone 3
 
