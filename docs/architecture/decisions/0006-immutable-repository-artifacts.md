@@ -240,7 +240,13 @@ JSONB is rejected for bodies because it duplicates content.
 It scans exact bytes into logical lines, treating CRLF as one terminator and LF
 or lone CR as one terminator while preserving terminator bytes. Empty content
 has one empty logical line. A final terminator creates a final empty logical
-line for metadata without inventing bytes.
+line for metadata without inventing bytes. `artifact.lineCount` includes that
+terminal empty logical line. Chunks describe only byte-bearing intervals, so a
+terminal zero-byte line never receives its own zero-byte chunk and no chunk
+claims to contain bytes from it. The final byte-bearing chunk ends at
+`artifact.lineCount - 1` when content ends in CRLF, LF, or lone CR. Empty
+content is the deliberate exception: it remains one empty logical line
+represented by one zero-byte chunk with line range 1 through 1.
 
 The chunker greedily assigns whole logical lines up to 16 KiB and 200 logical
 lines. A line exceeding 16 KiB is split at the last valid UTF-8 code-point
@@ -249,7 +255,11 @@ receive no special treatment.
 
 Chunks use zero-based, half-open UTF-8 byte offsets and one-based inclusive line
 ranges. They are contiguous, ordered, non-overlapping, and limited to 64. Before
-publication:
+publication, both adapter validation and deferred PostgreSQL closure validation
+derive line ranges from exact content. A CRLF pair is never split across chunks.
+The 200-line bound counts byte-bearing line intervals claimed by a chunk; the
+terminal empty logical line is artifact metadata, not a claimed chunk line.
+Before publication:
 
 ```text
 Buffer.concat(chunks ordered by ordinal) === exact artifact bytes

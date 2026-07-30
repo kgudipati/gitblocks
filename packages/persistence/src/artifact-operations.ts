@@ -310,7 +310,16 @@ function validateChunks(
   });
   let expectedStart = 0;
   for (const chunk of chunks) {
-    if (chunk.startByte !== expectedStart) {
+    const expectedLines = lineRangeForByteInterval(
+      artifact.content,
+      chunk.startByte,
+      chunk.endByteExclusive,
+    );
+    if (
+      chunk.startByte !== expectedStart ||
+      chunk.startLine !== expectedLines?.startLine ||
+      chunk.endLine !== expectedLines.endLine
+    ) {
       throw persistenceError('persistence.invalid-input');
     }
     expectedStart = chunk.endByteExclusive;
@@ -327,6 +336,72 @@ function validateChunks(
     throw persistenceError('persistence.invalid-input');
   }
   return chunks;
+}
+
+function lineRangeForByteInterval(
+  content: string,
+  startByte: number,
+  endByteExclusive: number,
+): { readonly startLine: number; readonly endLine: number } | undefined {
+  const bytes = Buffer.from(content, 'utf8');
+  if (
+    startByte < 0 ||
+    endByteExclusive < startByte ||
+    endByteExclusive > bytes.byteLength
+  ) {
+    return undefined;
+  }
+  if (bytes.byteLength === 0) {
+    return startByte === 0 && endByteExclusive === 0
+      ? { startLine: 1, endLine: 1 }
+      : undefined;
+  }
+  const intervals: {
+    readonly startByte: number;
+    readonly endByteExclusive: number;
+    readonly line: number;
+  }[] = [];
+  let lineStart = 0;
+  let line = 1;
+  for (let index = 0; index < bytes.byteLength; index += 1) {
+    const byte = bytes[index];
+    if (byte !== 0x0a && byte !== 0x0d) {
+      continue;
+    }
+    if (
+      byte === 0x0d &&
+      index + 1 < bytes.byteLength &&
+      bytes[index + 1] === 0x0a
+    ) {
+      index += 1;
+    }
+    intervals.push({
+      startByte: lineStart,
+      endByteExclusive: index + 1,
+      line,
+    });
+    lineStart = index + 1;
+    line += 1;
+  }
+  if (lineStart < bytes.byteLength) {
+    intervals.push({
+      startByte: lineStart,
+      endByteExclusive: bytes.byteLength,
+      line,
+    });
+  }
+  const start = intervals.find(
+    (interval) =>
+      startByte >= interval.startByte && startByte < interval.endByteExclusive,
+  );
+  const finalByte = Math.max(startByte, endByteExclusive - 1);
+  const end = intervals.find(
+    (interval) =>
+      finalByte >= interval.startByte && finalByte < interval.endByteExclusive,
+  );
+  return start === undefined || end === undefined
+    ? undefined
+    : { startLine: start.line, endLine: end.line };
 }
 
 async function insertArtifact(

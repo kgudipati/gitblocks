@@ -122,6 +122,7 @@ export function createArtifactPublication(options?: {
   const commitObjectId = '1'.repeat(40);
   const blobObjectId = repositoryArtifactGitBlobObjectId('sha1', content);
   const byteCount = repositoryArtifactUtf8ByteLength(content);
+  const lineCount = logicalLineCount(content);
   const artifact = createRepositoryArtifactV1({
     contractVersion: '1.0.0',
     candidateId: 'candidate-alpha',
@@ -142,7 +143,7 @@ export function createArtifactPublication(options?: {
     encoding: 'utf-8',
     contentSha256: repositoryArtifactContentSha256(content),
     byteCount,
-    lineCount: 3,
+    lineCount,
     content,
     firstMaterialization: {
       catalogOwner: options?.firstMaterializationCatalogOwner ?? 'example',
@@ -163,7 +164,10 @@ export function createArtifactPublication(options?: {
     endByteExclusive: byteCount,
     byteCount,
     startLine: 1,
-    endLine: 3,
+    endLine:
+      content.length === 0
+        ? 1
+        : lineCount - (/(?:\r\n|\r|\n)$/u.test(content) ? 1 : 0),
     contentSha256: artifact.contentSha256,
     content,
   });
@@ -201,4 +205,8 @@ export function createArtifactPublication(options?: {
     publishedAt: options?.publishedAt ?? '2026-07-29T12:01:00.000Z',
   });
   return { artifactSet, artifacts: [{ artifact, chunks: [chunk] }] };
+}
+
+function logicalLineCount(content: string): number {
+  return content.split(/\r\n|\r|\n/u).length;
 }

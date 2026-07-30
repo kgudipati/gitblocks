@@ -541,6 +541,68 @@ begin
       message = 'artifact chunk interval rejected';
   end if;
 
+  if exists (
+    select 1
+    from gitblocks.repository_artifact_set_entries as entry
+    join gitblocks.repository_artifacts as artifact
+      on artifact.artifact_id = entry.artifact_id
+    join gitblocks.repository_artifact_chunks as chunk
+      on chunk.artifact_id = artifact.artifact_id
+      and chunk.chunker_version = target_set.chunker_version
+    left join gitblocks.repository_artifact_chunks as prior
+      on prior.artifact_id = chunk.artifact_id
+      and prior.chunker_version = chunk.chunker_version
+      and prior.ordinal = chunk.ordinal - 1
+    where entry.artifact_set_id = target_set_id
+      and (
+        (
+          chunk.ordinal = 0
+          and chunk.start_line <> 1
+        )
+        or (
+          chunk.ordinal > 0
+          and (
+            prior.chunk_id is null
+            or chunk.start_line <> prior.end_line + (
+              case
+                when prior.exact_content ~ E'(\\r\\n|\\r|\\n)$' then 1
+                else 0
+              end
+            )
+          )
+        )
+        or chunk.end_line <> chunk.start_line
+          + pg_catalog.regexp_count(
+              chunk.exact_content,
+              E'\\r\\n|\\r|\\n'
+            )
+          - (
+              case
+                when chunk.exact_content ~ E'(\\r\\n|\\r|\\n)$' then 1
+                else 0
+              end
+            )
+        or (
+          chunk.ordinal = (
+            select pg_catalog.max(final_chunk.ordinal)
+            from gitblocks.repository_artifact_chunks as final_chunk
+            where final_chunk.artifact_id = artifact.artifact_id
+              and final_chunk.chunker_version = target_set.chunker_version
+          )
+          and chunk.end_line <> artifact.line_count - (
+            case
+              when artifact.exact_content ~ E'(\\r\\n|\\r|\\n)$' then 1
+              else 0
+            end
+          )
+        )
+      )
+  ) then
+    raise exception using
+      errcode = 'P0001',
+      message = 'artifact chunk line metadata rejected';
+  end if;
+
   return null;
 end
 $gitblocks_artifact_closure$;

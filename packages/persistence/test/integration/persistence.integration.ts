@@ -469,6 +469,60 @@ describe(
       }
     });
 
+    it('rejects chunks that falsely claim a terminal empty logical line', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const publication = createArtifactPublication({ content: 'a\n' });
+      const supplied = firstOrThrow(publication.artifacts);
+      const chunk = firstOrThrow(supplied.chunks);
+      const falseTerminalClaim = createRepositoryArtifactChunkV1({
+        contractVersion: chunk.contractVersion,
+        artifactId: chunk.artifactId,
+        candidateId: chunk.candidateId,
+        chunkerVersion: chunk.chunkerVersion,
+        ordinal: chunk.ordinal,
+        startByte: chunk.startByte,
+        endByteExclusive: chunk.endByteExclusive,
+        byteCount: chunk.byteCount,
+        startLine: 1,
+        endLine: 2,
+        contentSha256: chunk.contentSha256,
+        content: chunk.content,
+      });
+      try {
+        await putCatalogCandidate(runtime, {
+          identity: dossier.identity,
+          createdAt: CREATED_AT,
+        });
+        await expect(
+          publishRepositoryArtifactSet(runtime, {
+            artifactSet: publication.artifactSet,
+            artifacts: [
+              {
+                artifact: supplied.artifact,
+                chunks: [falseTerminalClaim],
+              },
+            ],
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+
+        await expect(
+          publishRepositoryArtifactSet(runtime, publication),
+        ).resolves.toMatchObject({
+          inserted: { artifacts: 1, chunks: 1, artifactSets: 1, entries: 1 },
+        });
+        const stored = await loadRepositoryArtifact(runtime, {
+          artifactId: supplied.artifact.artifactId,
+        });
+        expect(stored.artifact.lineCount).toBe(2);
+        expect(stored.chunks).toEqual([
+          expect.objectContaining({ startLine: 1, endLine: 1 }),
+        ]);
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
+
     it('serializes concurrent publications and rolls invalid closure back', async () => {
       const first = createPersistenceClient(RUNTIME_CONFIG);
       const second = createPersistenceClient(RUNTIME_CONFIG);
@@ -514,7 +568,7 @@ describe(
               },
             ],
           }),
-        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+        ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
 
         const invalid = {
           artifactSet: publication.artifactSet,
@@ -687,6 +741,36 @@ describe(
               where artifact_id = ${originalArtifact.artifactId}
             `;
             const artifactSetId = `artifact-set-${'c'.repeat(48)}`;
+            await insertDirectArtifactSet(
+              transaction,
+              publication.artifactSet,
+              artifactSetId,
+              alpha.identity.candidateId,
+              1,
+            );
+            await insertDirectArtifactSetEntry(
+              transaction,
+              artifactSetId,
+              alpha.identity.candidateId,
+              originalArtifact.artifactId,
+              0,
+            );
+            await transaction`set constraints all immediate`;
+          }),
+        ).rejects.toMatchObject({ code: 'P0001' });
+
+        await expect(
+          ownerSql.begin(async (transaction) => {
+            await transaction`
+              alter table gitblocks.repository_artifact_chunks
+              disable trigger repository_artifact_chunks_immutable
+            `;
+            await transaction`
+              update gitblocks.repository_artifact_chunks
+              set end_line = ${originalArtifact.lineCount}
+              where artifact_id = ${originalArtifact.artifactId}
+            `;
+            const artifactSetId = `artifact-set-${'7'.repeat(48)}`;
             await insertDirectArtifactSet(
               transaction,
               publication.artifactSet,

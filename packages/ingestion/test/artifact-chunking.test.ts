@@ -48,6 +48,50 @@ describe('exact-lines-v1 lossless chunking', () => {
     expect(verifyRepositoryArtifactChunks(artifact, chunks)).toBe(true);
   });
 
+  it.each([
+    ['a\n', 2, 1],
+    ['a\r', 2, 1],
+    ['a\r\n', 2, 1],
+    ['x\n'.repeat(199), 200, 199],
+    ['x\n'.repeat(200), 201, 200],
+    ['', 1, 1],
+    ['no final newline', 1, 1],
+  ])(
+    'keeps terminal empty line metadata byte-free for case %#',
+    (content, lineCount, finalByteBearingLine) => {
+      const artifact = artifactFor(content, lineCount);
+      const chunks = chunkRepositoryArtifact(artifact);
+      const finalChunk = chunks.at(-1);
+      expect(finalChunk).toBeDefined();
+      expect(finalChunk?.endLine).toBe(finalByteBearingLine);
+      expect(
+        chunks.every((chunk) => chunk.endLine - chunk.startLine + 1 <= 200),
+      ).toBe(true);
+      expect(verifyRepositoryArtifactChunks(artifact, chunks)).toBe(true);
+      if (content.length === 0) {
+        expect(chunks).toHaveLength(1);
+        expect(chunks[0]).toMatchObject({
+          byteCount: 0,
+          startLine: 1,
+          endLine: 1,
+        });
+      } else {
+        expect(chunks.every((chunk) => chunk.byteCount > 0)).toBe(true);
+      }
+    },
+  );
+
+  it('does not split a CRLF terminator at the exact chunk-byte boundary', () => {
+    const content = `${'a'.repeat(16 * 1_024 - 1)}\r\n`;
+    const artifact = artifactFor(content, 2);
+    const chunks = chunkRepositoryArtifact(artifact);
+    expect(chunks).toHaveLength(2);
+    expect(chunks[0]?.content.endsWith('\r')).toBe(false);
+    expect(chunks[1]?.content).toBe('\r\n');
+    expect(chunks[1]).toMatchObject({ startLine: 1, endLine: 1 });
+    expect(verifyRepositoryArtifactChunks(artifact, chunks)).toBe(true);
+  });
+
   it('honors exact byte, artifact, line, and chunk boundaries', () => {
     const exactChunk = artifactFor('a'.repeat(16 * 1_024), 1);
     expect(chunkRepositoryArtifact(exactChunk)).toHaveLength(1);

@@ -518,6 +518,13 @@ Phase 6 itself is not complete at this checkpoint.
   controlled text extension. The 21 manifest tests pass and the generated
   digest is
   `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`.
+- **2026-07-30:** Terminal-line tests exposed two implicit-boundary gaps: a
+  long line could split a CRLF pair at exactly 16 KiB, and persistence accepted
+  a chunk that claimed the byte-free terminal empty line. `exact-lines-v1` now
+  keeps CRLF together, documents the byte-bearing-line rule, and both adapter
+  and deferred database closure validation derive chunk line ranges from exact
+  content. Direct cases cover LF, lone CR, CRLF, 199 and 200 terminated lines,
+  empty content, and no-final-newline content.
 
 ## Decision and deviation log
 

@@ -54,11 +54,21 @@ export function chunkRepositoryArtifact(
   for (const unit of logicalLineUnits(bytes)) {
     let cursor = unit.startByte;
     while (cursor < unit.endByteExclusive) {
-      const pieceEnd = utf8BoundaryAtOrBefore(
+      let pieceEnd = utf8BoundaryAtOrBefore(
         bytes,
         cursor,
         Math.min(unit.endByteExclusive, cursor + MAXIMUM_CHUNK_BYTES),
       );
+      // CRLF is one logical terminator. Keep its two bytes together so a
+      // physical chunk boundary cannot make the next chunk appear to start on
+      // a new logical line that has no independently addressable bytes.
+      if (
+        pieceEnd < unit.endByteExclusive &&
+        bytes[pieceEnd - 1] === 0x0d &&
+        bytes[pieceEnd] === 0x0a
+      ) {
+        pieceEnd -= 1;
+      }
       if (pieceEnd <= cursor) {
         throw new Error(
           'Unable to split repository artifact at UTF-8 boundary.',
@@ -221,6 +231,8 @@ function logicalLineUnits(bytes: Buffer): readonly LineUnit[] {
   if (startByte < bytes.byteLength) {
     units.push({ startByte, endByteExclusive: bytes.byteLength, line });
   }
+  // A final terminator increments artifact.lineCount, but its terminal empty
+  // logical line has no byte interval and therefore no LineUnit or chunk.
   return units;
 }
 
