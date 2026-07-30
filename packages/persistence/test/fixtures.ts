@@ -2,6 +2,17 @@ import type {
   CandidateDossierV1,
   EvidenceObservationV1,
 } from '@gitblocks/contracts';
+import {
+  createRepositoryArtifactChunkV1,
+  createRepositoryArtifactSetV1,
+  createRepositoryArtifactV1,
+  repositoryArtifactContentSha256,
+  repositoryArtifactGitBlobObjectId,
+  repositoryArtifactUtf8ByteLength,
+  type RepositoryArtifactChunkV1,
+  type RepositoryArtifactSetV1,
+  type RepositoryArtifactV1,
+} from '@gitblocks/contracts';
 
 export type MutableValue<Value> = Value extends readonly (infer Item)[]
   ? MutableValue<Item>[]
@@ -78,4 +89,101 @@ export function createCandidateDossier(
     ],
     unknowns: [],
   };
+}
+
+export interface SyntheticArtifactPublication {
+  readonly artifactSet: RepositoryArtifactSetV1;
+  readonly artifacts: readonly {
+    readonly artifact: RepositoryArtifactV1;
+    readonly chunks: readonly RepositoryArtifactChunkV1[];
+  }[];
+}
+
+export function createArtifactPublication(options?: {
+  readonly content?: string;
+  readonly collectedAt?: string;
+  readonly publishedAt?: string;
+  readonly providerOwner?: string;
+  readonly providerRepository?: string;
+}): SyntheticArtifactPublication {
+  const content = options?.content ?? '# Synthetic\r\nexact π bytes\n';
+  const providerOwner = options?.providerOwner ?? 'example';
+  const providerRepository = options?.providerRepository ?? 'alpha';
+  const repositoryId = '123456789012345678';
+  const commitObjectId = '1'.repeat(40);
+  const blobObjectId = repositoryArtifactGitBlobObjectId('sha1', content);
+  const byteCount = repositoryArtifactUtf8ByteLength(content);
+  const artifact = createRepositoryArtifactV1({
+    contractVersion: '1.0.0',
+    candidateId: 'candidate-alpha',
+    provider: 'github',
+    providerRepositoryId: repositoryId,
+    gitObjectAlgorithm: 'sha1',
+    commitObjectId,
+    path: 'README.md',
+    blobObjectId,
+    blobApiUrl: `https://api.github.com/repositories/${repositoryId}/git/blobs/${blobObjectId}`,
+    displayUrl: `https://github.com/${providerOwner}/${providerRepository}/blob/${commitObjectId}/README.md`,
+    mediaType: 'text/plain',
+    encoding: 'utf-8',
+    contentSha256: repositoryArtifactContentSha256(content),
+    byteCount,
+    lineCount: 3,
+    content,
+    firstMaterialization: {
+      catalogOwner: 'example',
+      catalogRepository: 'alpha',
+      providerOwner,
+      providerRepository,
+      collectedAt: options?.collectedAt ?? '2026-07-29T12:00:00.000Z',
+    },
+  });
+  const chunk = createRepositoryArtifactChunkV1({
+    contractVersion: '1.0.0',
+    artifactId: artifact.artifactId,
+    candidateId: artifact.candidateId,
+    chunkerVersion: 'exact-lines-v1',
+    ordinal: 0,
+    startByte: 0,
+    endByteExclusive: byteCount,
+    byteCount,
+    startLine: 1,
+    endLine: 3,
+    contentSha256: artifact.contentSha256,
+    content,
+  });
+  const artifactSet = createRepositoryArtifactSetV1({
+    contractVersion: '1.0.0',
+    candidateId: artifact.candidateId,
+    catalogVersion: 'public-v1',
+    catalogDigest:
+      '4819dd943b49c75693e6629c5c005a373d711d341115fd4572bbb4ca01f26c96',
+    artifactManifestVersion: 'public-artifacts-v1',
+    artifactManifestDigest:
+      '2ba28512832f149a3f4068d789004c07f3d6773ec2cc32859555aac1be3fdc43',
+    collectorVersion: 'repository-artifacts-v1',
+    chunkerVersion: 'exact-lines-v1',
+    provider: 'github',
+    providerRepositoryId: repositoryId,
+    providerCanonicalOwner: providerOwner,
+    providerCanonicalRepository: providerRepository,
+    gitObjectAlgorithm: 'sha1',
+    commitObjectId,
+    entries: [
+      {
+        selectionId: `selection-${'2'.repeat(48)}`,
+        ordinal: 0,
+        selector: 'root-readme',
+        artifactKind: 'readme',
+        requirement: 'optional',
+        rationale: null,
+        requestedPath: null,
+        resolvedPath: artifact.path,
+        outcome: 'present',
+        artifactId: artifact.artifactId,
+      },
+    ],
+    publishedAt: options?.publishedAt ?? '2026-07-29T12:01:00.000Z',
+  });
+  return { artifactSet, artifacts: [{ artifact, chunks: [chunk] }] };
 }

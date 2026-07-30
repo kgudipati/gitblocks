@@ -294,7 +294,7 @@ Buffer, URL, and cryptography cover the operation.
       proposed reviewed paths, `artifacts:validate`, commit and PR review summary.
 - [x] **Milestone 3 — Contracts:** red tests, three roots, artifact preflight,
       parsers, IDs/digests, exports, mutation/compatibility tests, commit.
-- [ ] **Milestone 4 — Persistence:** PostgreSQL failures first, migration 0003,
+- [x] **Milestone 4 — Persistence:** PostgreSQL failures first, migration 0003,
       tables/grants/closure/publication/loaders, runtime-role verification, commit.
 - [ ] **Milestone 5 — Collection/chunking:** explicit API-version boundary,
       algorithm discovery, exact retrieval/tree checks, validation, hashing,
@@ -442,6 +442,14 @@ Phase 6 itself is not complete at this checkpoint.
   implementation keeps the package outward-dependency-free with deterministic
   local UTF-8, SHA-256, and SHA-1 primitives covered against Node reference
   values. The eight contract tests and all 728 repository tests pass.
+- **2026-07-29:** Added PostgreSQL assertions before migration 0003 and observed
+  five integration failures (missing migration/tables/API/grants). Added four
+  normalized artifact tables, deferred closed-set validation, immutable-row and
+  no-truncate triggers, minimum grants, candidate-locked atomic publication,
+  conflict reloads, first-materialization reuse, and historical loaders.
+  Direct database tests reject missing/reordered entries, missing chunks,
+  cross-candidate references, and owner mutation. PostgreSQL 18.4 verification
+  now passes 27 tests without skips.
 
 ## Decision and deviation log
 
@@ -505,4 +513,17 @@ repository-artifact-chunk  d79d2803e3e11e83a9554eae4a38bba1bf379da6f767be402105c
 repository-artifact-set    0d78814c3361e76e9d82c29cc6464fbedb3e6b761269dba3641c0e1c2c894e54
 
 all six prior schema digests remained byte-for-byte unchanged
+```
+
+Milestone 4 evidence:
+
+```text
+PostgreSQL red run         3 files / 5 failures before migration and API
+pnpm verify               passed; 39 files / 728 offline tests
+pnpm db:verify            passed; PostgreSQL 18.4
+database integration      passed; 3 files / 27 tests / no skips
+migration inventory       3 (0001, 0002, 0003)
+product table inventory   17 total; 4 new artifact tables
+runtime grants            SELECT + INSERT only on all 4 artifact tables
+RLS policies              0
 ```

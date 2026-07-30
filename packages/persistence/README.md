@@ -3,12 +3,22 @@
 Private strict-ESM PostgreSQL adapter for GitBlocks' shared public OSS catalog.
 It persists immutable candidate identity, source-aware evidence, limitations,
 material unknowns, lifecycle events, and exact candidate-dossier snapshots.
+It also persists exact curator-approved repository artifacts, lossless chunks,
+and normalized closed artifact-set entries.
 
 The adapter exposes explicit client creation/closure, explicit checked forward
 migrations, public catalog writes, exact historical snapshot loading, and one
 complete active-material selection operation. Active selection uses every
 applicable evidence-world timestamp and excludes a limitation or unknown when
 any referenced evidence is superseded or invalidated at the cutoff.
+
+Artifact persistence exposes one candidate-scoped write,
+`publishRepositoryArtifactSet`, and the narrow historical reads
+`loadRepositoryArtifact` and `loadRepositoryArtifactSet`. Publication validates
+all contracts and reconstruction before opening one transaction, takes the
+candidate advisory lock, uses conflict reloads for deterministic idempotency,
+and relies on deferred database closure checks before commit. Existing records
+retain their first materialization timestamps and provenance.
 
 Configuration and credentials are injected. Imports perform no I/O; the
 package owns no singleton, environment read, implicit migration, logging,
