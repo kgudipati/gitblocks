@@ -178,6 +178,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryArtifactChunkIdentityDigest',
       'repositoryArtifactChunkRecordDigest',
       'repositoryArtifactContentSha256',
+      'repositoryArtifactDisplayUrl',
       'repositoryArtifactGitBlobObjectId',
       'repositoryArtifactIdentityDigest',
       'repositoryArtifactRecordDigest',
