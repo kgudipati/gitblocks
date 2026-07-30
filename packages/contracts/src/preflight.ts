@@ -23,6 +23,19 @@ const MAX_PREFLIGHT_ARRAY_ITEMS = 2_000;
 export function preflightContractValue(
   value: unknown,
 ): readonly ContractIssue[] {
+  return preflightValue(value, MAX_INPUT_STRING_CODE_UNITS);
+}
+
+export function preflightRepositoryArtifactContractValue(
+  value: unknown,
+): readonly ContractIssue[] {
+  return preflightValue(value, 256 * 1_024);
+}
+
+function preflightValue(
+  value: unknown,
+  maximumStringCodeUnits: number,
+): readonly ContractIssue[] {
   const pending: PendingValue[] = [{ value, depth: 0, path: '' }];
   const ancestors = new WeakSet<object>();
   const issues: ContractIssue[] = [];
@@ -32,7 +45,7 @@ export function preflightContractValue(
   const consumeStringBudget = (stringValue: string): boolean => {
     const stringLength = stringValue.length;
     if (
-      stringLength > MAX_INPUT_STRING_CODE_UNITS ||
+      stringLength > maximumStringCodeUnits ||
       totalStringCodeUnits > MAX_INPUT_TOTAL_STRING_CODE_UNITS - stringLength
     ) {
       return false;

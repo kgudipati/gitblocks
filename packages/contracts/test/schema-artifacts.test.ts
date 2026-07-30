@@ -24,18 +24,27 @@ const EXPECTED_SCHEMA_DIGESTS = {
     'c130a56044cbb043fac97e66db4c372d48990d672784b4abfde9ab9e78c9e504',
   'fit-assessment-response':
     '330b5b3940858428b1881701774bac785a7c93cf2d50e6dcb4ec37091a696a4d',
+  'repository-artifact':
+    '994643368bdc95a5279a2d939ec350ed65932ad16a3c937ae32f52ff87113d16',
+  'repository-artifact-chunk':
+    'd79d2803e3e11e83a9554eae4a38bba1bf379da6f767be402105cc3bf57508a6',
+  'repository-artifact-set':
+    '0d78814c3361e76e9d82c29cc6464fbedb3e6b761269dba3641c0e1c2c894e54',
   'repository-fingerprint':
     '73f42c7a7cd20de24372ecddb7afa33925ca1f4d67cb1f9598cd9d56ea87477c',
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
-  it('exports exactly six stable V1 roots', () => {
+  it('exports the six accepted roots and three additive artifact roots', () => {
     expect(CONTRACT_SCHEMA_NAMES).toEqual([
       'candidate-dossier',
       'capability-request',
       'error-envelope',
       'fit-assessment-request',
       'fit-assessment-response',
+      'repository-artifact',
+      'repository-artifact-chunk',
+      'repository-artifact-set',
       'repository-fingerprint',
     ]);
 
@@ -151,13 +160,30 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'MAX_INPUT_STRING_CODE_UNITS',
       'MAX_INPUT_TOTAL_STRING_CODE_UNITS',
       'MAX_OBJECT_PROPERTIES',
+      'REPOSITORY_ARTIFACT_CHUNKER_VERSION',
+      'REPOSITORY_ARTIFACT_VERSION',
+      'createRepositoryArtifactChunkV1',
+      'createRepositoryArtifactSetV1',
+      'createRepositoryArtifactV1',
       'getContractSchemaV1',
       'parseCandidateDossierV1',
       'parseCapabilityRequestV1',
       'parseErrorEnvelopeV1',
       'parseFitAssessmentRequestV1',
       'parseFitAssessmentResponseV1',
+      'parseRepositoryArtifactChunkV1',
+      'parseRepositoryArtifactSetV1',
+      'parseRepositoryArtifactV1',
       'parseRepositoryFingerprintV1',
+      'repositoryArtifactChunkIdentityDigest',
+      'repositoryArtifactChunkRecordDigest',
+      'repositoryArtifactContentSha256',
+      'repositoryArtifactGitBlobObjectId',
+      'repositoryArtifactIdentityDigest',
+      'repositoryArtifactRecordDigest',
+      'repositoryArtifactSetIdentityDigest',
+      'repositoryArtifactSetRecordDigest',
+      'repositoryArtifactUtf8ByteLength',
       'serializeContractSchemaV1',
       'validateFitAssessmentExchangeV1',
     ]);

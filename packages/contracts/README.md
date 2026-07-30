@@ -26,9 +26,11 @@ or:
 { ok: false, issues: readonly ContractIssue[] }
 ```
 
-The `value` is the validated V1 DTO. The `domain` is a fresh canonical owned
-value. Parsers never mutate the input, perform I/O, dynamically import input,
-or return rejected values in diagnostics.
+The `value` is the validated V1 DTO. For fit-assessment kernel contracts,
+`domain` is a fresh canonical domain value. Immutable artifact contracts have
+no domain mapping: their `domain` result is the same validated inert DTO.
+Parsers never mutate the input, perform I/O, dynamically import input, or
+return rejected values in diagnostics.
 
 The public V1 parsers are:
 
@@ -38,6 +40,9 @@ The public V1 parsers are:
 - `parseFitAssessmentRequestV1`
 - `parseFitAssessmentResponseV1`
 - `parseErrorEnvelopeV1`
+- `parseRepositoryArtifactV1`
+- `parseRepositoryArtifactChunkV1`
+- `parseRepositoryArtifactSetV1`
 
 `validateFitAssessmentExchangeV1` additionally proves that one independently
 valid request and response agree on candidate set, constraints, evidence,
@@ -99,16 +104,18 @@ schema value. `serializeContractSchemaV1(name)` returns its deterministic
 newline-terminated representation. The public schema-name catalog is runtime
 frozen and cannot be widened through consumer mutation. Every root has an
 explicit `1.0.0` `$id`, uses Draft 2020-12, and is closed at every untrusted
-object shape. All six
-corrected roots remain `1.0.0` because they are unpublished, unmerged, and have
-no public or deployed consumer. A root shape change after publication requires
-a separately versioned schema/parser and explicit negotiation; controlled
-fact-vocabulary evolution is negotiated separately.
+object shape. The six accepted fit-assessment roots retain their exact schema
+digests; the three repository-artifact roots are additive. A root shape change
+after publication requires a separately versioned schema/parser and explicit
+negotiation; controlled fact-vocabulary evolution is negotiated separately.
 
 The object-value preflight bounds depth at 32, scheduled/visited values at
 200,000, own properties at 64 per object, array width at 2,000, scalar strings
 and property names at 4,096 UTF-16 code units, and aggregate value/name string
-work at 64,000,000 code units. Schema-specific bounds are narrower.
+work at 64,000,000 code units. Artifact parsers use a separate bounded
+preflight that admits an exact artifact body only up to 256 KiB while retaining
+the original 4,096-code-unit scalar limit for unrelated roots. Schema-specific
+bounds are narrower.
 Diagnostics are capped at 20 issues, 256 path characters, and 160 safe message
 characters. The package accepts already-materialized object values; transport
 adapters remain responsible for byte, content-type, decompression, and

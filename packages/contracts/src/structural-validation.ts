@@ -11,7 +11,10 @@ import {
   type ContractIssueCode,
   type ContractIssueMessage,
 } from './diagnostics.ts';
-import { preflightContractValue } from './preflight.ts';
+import {
+  preflightContractValue,
+  preflightRepositoryArtifactContractValue,
+} from './preflight.ts';
 import {
   candidateDossierV1Schema,
   capabilityRequestV1Schema,
@@ -19,12 +22,18 @@ import {
   fitAssessmentRequestV1Schema,
   fitAssessmentResponseV1Schema,
   repositoryFingerprintV1Schema,
+  repositoryArtifactChunkV1Schema,
+  repositoryArtifactSetV1Schema,
+  repositoryArtifactV1Schema,
   type CandidateDossierV1,
   type CapabilityRequestV1,
   type ErrorEnvelopeV1,
   type FitAssessmentRequestV1,
   type FitAssessmentResponseV1,
   type RepositoryFingerprintV1,
+  type RepositoryArtifactChunkV1,
+  type RepositoryArtifactSetV1,
+  type RepositoryArtifactV1,
 } from './schemas.ts';
 
 const ajv = new Ajv2020({
@@ -53,6 +62,13 @@ export const fitAssessmentResponseV1Validator =
 export const errorEnvelopeV1Validator = ajv.compile<ErrorEnvelopeV1>(
   errorEnvelopeV1Schema,
 );
+export const repositoryArtifactV1Validator = ajv.compile<RepositoryArtifactV1>(
+  repositoryArtifactV1Schema,
+);
+export const repositoryArtifactChunkV1Validator =
+  ajv.compile<RepositoryArtifactChunkV1>(repositoryArtifactChunkV1Schema);
+export const repositoryArtifactSetV1Validator =
+  ajv.compile<RepositoryArtifactSetV1>(repositoryArtifactSetV1Schema);
 
 export type StructuralValidationResult<T> =
   | {
@@ -70,6 +86,48 @@ export function structurallyValidate<T>(
   validator: ValidateFunction<T>,
 ): StructuralValidationResult<T> {
   const preflightIssues = preflightContractValue(value);
+  if (preflightIssues.length > 0) {
+    return { ok: false, issues: preflightIssues };
+  }
+  try {
+    if (validator(value)) {
+      return { ok: true, value, issues: [] };
+    }
+    return {
+      ok: false,
+      issues: formatAjvErrors(validator.errors),
+    };
+  } catch {
+    return {
+      ok: false,
+      issues: [
+        contractIssue(
+          'contract.input-shape',
+          '',
+          'Contract input has an unsupported object shape.',
+        ),
+      ],
+    };
+  }
+}
+
+export function structurallyValidateRepositoryArtifact<T>(
+  value: unknown,
+  validator: ValidateFunction<T>,
+): StructuralValidationResult<T> {
+  return structurallyValidateWithPreflight(
+    value,
+    validator,
+    preflightRepositoryArtifactContractValue,
+  );
+}
+
+function structurallyValidateWithPreflight<T>(
+  value: unknown,
+  validator: ValidateFunction<T>,
+  preflight: (input: unknown) => readonly ContractIssue[],
+): StructuralValidationResult<T> {
+  const preflightIssues = preflight(value);
   if (preflightIssues.length > 0) {
     return { ok: false, issues: preflightIssues };
   }

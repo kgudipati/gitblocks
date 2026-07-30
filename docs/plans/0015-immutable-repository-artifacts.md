@@ -292,7 +292,7 @@ Buffer, URL, and cryptography cover the operation.
       commit, push, and open a draft PR.
 - [x] **Milestone 2 — Manifest:** red tests, closed parser/digest/selection IDs,
       proposed reviewed paths, `artifacts:validate`, commit and PR review summary.
-- [ ] **Milestone 3 — Contracts:** red tests, three roots, artifact preflight,
+- [x] **Milestone 3 — Contracts:** red tests, three roots, artifact preflight,
       parsers, IDs/digests, exports, mutation/compatibility tests, commit.
 - [ ] **Milestone 4 — Persistence:** PostgreSQL failures first, migration 0003,
       tables/grants/closure/publication/loaders, runtime-role verification, commit.
@@ -434,6 +434,14 @@ Phase 6 itself is not complete at this checkpoint.
   generator command, and a proposed 30-candidate additional-path cohort. The
   focused suite then passed all 20 tests. Manifest digest:
   `2ba28512832f149a3f4068d789004c07f3d6773ec2cc32859555aac1be3fdc43`.
+- **2026-07-29:** Wrote the artifact-contract suite before the additive roots
+  and observed all six initial tests fail. Added the exact-file, exact-chunk,
+  and closed-set TypeBox roots, artifact-specific preflight, safe parsers,
+  canonical identity/record digests, and deterministic IDs. The architecture
+  verifier rejected an initial Node `crypto` import from contracts; the final
+  implementation keeps the package outward-dependency-free with deterministic
+  local UTF-8, SHA-256, and SHA-1 primitives covered against Node reference
+  values. The eight contract tests and all 728 repository tests pass.
 
 ## Decision and deviation log
 
@@ -451,6 +459,10 @@ Phase 6 itself is not complete at this checkpoint.
 - **GitHub CLI:** `gh` is unavailable. Local Git will provide commits/pushes and
   the connected GitHub app will provide issue/PR/check metadata. No tool is
   installed.
+- **Contract cryptography boundary:** Node `crypto` is forbidden by the
+  accepted contracts-outward dependency rule. Artifact digest and supported
+  SHA-1 Git-object verification therefore use dependency-free deterministic
+  primitives inside contracts; provider transport remains in ingestion.
 
 ## Validation evidence
 
@@ -476,4 +488,21 @@ artifact manifest red run  1 file / 20 failures before implementation
 pnpm artifacts:validate    passed; 150 roots, 30 additional candidates,
                            6 per family, digest 2ba28512832f...
 artifact manifest tests    passed; 1 file / 20 tests
+```
+
+Milestone 3 evidence:
+
+```text
+artifact contract red run  1 file / 6 failures before implementation
+artifact contract tests    passed; 1 file / 8 tests
+pnpm architecture:check    passed; 629 modules / 2,001 dependencies
+pnpm verify                passed; 39 files / 728 tests
+pnpm contracts:validate    passed; 10 cases / 40 supplied candidates
+
+new schema digests:
+repository-artifact        994643368bdc95a5279a2d939ec350ed65932ad16a3c937ae32f52ff87113d16
+repository-artifact-chunk  d79d2803e3e11e83a9554eae4a38bba1bf379da6f767be402105cc3bf57508a6
+repository-artifact-set    0d78814c3361e76e9d82c29cc6464fbedb3e6b761269dba3641c0e1c2c894e54
+
+all six prior schema digests remained byte-for-byte unchanged
 ```
