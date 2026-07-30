@@ -53,8 +53,11 @@ describe('repository artifact batch orchestration', () => {
         ),
       );
       const collector: RepositoryArtifactCollector = {
-        collectCandidate: (command) =>
-          command.candidate.candidateId === BETA.candidateId
+        collectCandidate: (command) => {
+          command.decodedByteBudget.reserve(
+            command.candidate.candidateId === BETA.candidateId ? 17 : 54,
+          );
+          return command.candidate.candidateId === BETA.candidateId
             ? Promise.reject(
                 new IngestionError('ingestion.provider-authorization'),
               )
@@ -64,7 +67,8 @@ describe('repository artifact batch orchestration', () => {
                   command.collectedAt,
                   command.publishedAt,
                 ),
-              ),
+              );
+        },
       };
       const first = await run(client, collector, clockAt(0));
       expect(first.outcomeCounts).toEqual({
@@ -77,7 +81,11 @@ describe('repository artifact batch orchestration', () => {
         outcome: 'failed',
         artifactSetId: null,
         safeErrorCode: 'ingestion.provider-authorization',
+        operationalDecodedBytes: 17,
+        materializedArtifactBytes: 0,
       });
+      expect(first.operationalDecodedBytes).toBe(71);
+      expect(first.materializedArtifactBytes).toBe(27);
 
       const second = await run(client, collector, clockAt(10), first);
       expect(second.outcomeCounts).toEqual({
@@ -119,15 +127,17 @@ describe('repository artifact batch orchestration', () => {
         createdAt: ALPHA.introducedAt,
       });
       const collector: RepositoryArtifactCollector = {
-        collectCandidate: (command) =>
-          Promise.resolve(
+        collectCandidate: (command) => {
+          command.decodedByteBudget.reserve(2);
+          return Promise.resolve(
             publication(
               command.candidate,
               command.collectedAt,
               command.publishedAt,
               '# Too large for the synthetic one-byte run bound.\n',
             ),
-          ),
+          );
+        },
       };
       const receipt = await collectPublicRepositoryArtifacts({
         catalog: publicCatalog([ALPHA]),

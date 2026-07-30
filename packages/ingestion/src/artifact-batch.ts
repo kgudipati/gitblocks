@@ -6,6 +6,7 @@ import {
 } from '@gitblocks/persistence';
 
 import { createArtifactReceipt } from './artifact-receipt.ts';
+import { createArtifactDecodedByteBudget } from './artifact-byte-budget.ts';
 import { StableIdRegistry, canonicalizeJson } from './canonical-json.ts';
 import { asSafeErrorCode, ingestionError } from './errors.ts';
 import type { RepositoryArtifactCollector } from './artifact-provider.ts';
@@ -69,9 +70,8 @@ export async function collectPublicRepositoryArtifacts(
     () => undefined,
   );
   let nextIndex = 0;
-  let totalDecodedBytes = 0;
-  let runByteBoundExceeded = false;
-  const hasRunByteBoundExceeded = (): boolean => runByteBoundExceeded;
+  const decodedByteBudget =
+    createArtifactDecodedByteBudget(maximumDecodedBytes);
 
   emit(config.observer, {
     eventName: 'artifact.batch',
@@ -94,10 +94,9 @@ export async function collectPublicRepositoryArtifacts(
         return;
       }
       const candidateStarted = performance.now();
+      const candidateDecodedByteBudget =
+        decodedByteBudget.createCandidateScope();
       try {
-        if (hasRunByteBoundExceeded()) {
-          throw ingestionError('ingestion.body-too-large');
-        }
         throwIfStopped(config.signal, runDeadline);
         const candidateDeadline = AbortSignal.timeout(
           MAXIMUM_CANDIDATE_MILLISECONDS,
@@ -112,22 +111,11 @@ export async function collectPublicRepositoryArtifacts(
           collectedAt: config.clock.now().toISOString(),
           publishedAt: config.clock.now().toISOString(),
           correlationId: runId,
+          decodedByteBudget: candidateDecodedByteBudget,
           ...(config.signal === undefined ? {} : { signal: config.signal }),
           deadlineSignal,
         });
-        const candidateBytes = publication.artifacts.reduce(
-          (total, artifact) => total + artifact.artifact.byteCount,
-          0,
-        );
         throwIfStopped(config.signal, deadlineSignal);
-        if (
-          hasRunByteBoundExceeded() ||
-          totalDecodedBytes + candidateBytes > maximumDecodedBytes
-        ) {
-          runByteBoundExceeded = true;
-          throw ingestionError('ingestion.body-too-large');
-        }
-        totalDecodedBytes += candidateBytes;
         const operationSignal =
           config.signal === undefined
             ? deadlineSignal
@@ -163,7 +151,9 @@ export async function collectPublicRepositoryArtifacts(
           absenceCount: persisted.artifactSet.entries.filter(
             ({ outcome }) => outcome === 'not-found',
           ).length,
-          decodedBytes: loaded.reduce(
+          operationalDecodedBytes:
+            candidateDecodedByteBudget.operationalDecodedBytes,
+          materializedArtifactBytes: loaded.reduce(
             (total, artifact) => total + artifact.artifact.byteCount,
             0,
           ),
@@ -202,7 +192,11 @@ export async function collectPublicRepositoryArtifacts(
           error instanceof PersistenceError
             ? 'ingestion.persistence'
             : asSafeErrorCode(error);
-        results[index] = failedCandidate(candidate.candidateId, safeErrorCode);
+        results[index] = failedCandidate(
+          candidate.candidateId,
+          safeErrorCode,
+          candidateDecodedByteBudget.operationalDecodedBytes,
+        );
         emit(config.observer, {
           eventName: 'artifact.candidate',
           correlationId: runId,
@@ -240,6 +234,7 @@ export async function collectPublicRepositoryArtifacts(
     providerMetrics: config.getProviderMetrics(),
     databaseMigrationVersion: config.databaseMigrationVersion,
     requestedCandidateCount: candidates.length,
+    operationalDecodedBytes: decodedByteBudget.operationalDecodedBytes,
     ...(config.priorReceipt === undefined
       ? {}
       : { priorReceipt: config.priorReceipt }),
@@ -332,6 +327,7 @@ function throwIfStopped(
 function failedCandidate(
   candidateId: string,
   safeErrorCode: ReturnType<typeof asSafeErrorCode>,
+  operationalDecodedBytes: number,
 ): ArtifactReceiptCandidate {
   return {
     candidateId,
@@ -340,7 +336,8 @@ function failedCandidate(
     artifactCount: 0,
     chunkCount: 0,
     absenceCount: 0,
-    decodedBytes: 0,
+    operationalDecodedBytes,
+    materializedArtifactBytes: 0,
     inserted: { artifacts: 0, chunks: 0, artifactSets: 0, entries: 0 },
     materializationDigest: null,
     safeErrorCode,

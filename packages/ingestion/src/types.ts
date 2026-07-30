@@ -310,7 +310,8 @@ export interface ArtifactReceiptCandidate {
   readonly artifactCount: number;
   readonly chunkCount: number;
   readonly absenceCount: number;
-  readonly decodedBytes: number;
+  readonly operationalDecodedBytes: number;
+  readonly materializedArtifactBytes: number;
   readonly inserted: {
     readonly artifacts: number;
     readonly chunks: number;
@@ -337,7 +338,8 @@ export interface ArtifactReceipt {
   readonly artifactCount: number;
   readonly chunkCount: number;
   readonly absenceCount: number;
-  readonly decodedBytes: number;
+  readonly operationalDecodedBytes: number;
+  readonly materializedArtifactBytes: number;
   readonly githubRequestCount: number;
   readonly providerRateLimit: {
     readonly limit: number;

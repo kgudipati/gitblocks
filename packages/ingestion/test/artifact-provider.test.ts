@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   IngestionError,
   createRepositoryArtifactCollector,
+  createArtifactDecodedByteBudget,
   type JsonResponse,
   type ProviderTransport,
   type PublicArtifactManifest,
@@ -21,6 +22,9 @@ describe('exact GitHub repository artifact collection', () => {
   it('uses exact refs, numeric repository identity, tree verification, and immutable blobs', async () => {
     const requests: TransportRequest[] = [];
     const transport = providerTransport(requests);
+    const decodedByteBudget = createArtifactDecodedByteBudget(
+      64 * 1_024 * 1_024,
+    );
     const collector = createRepositoryArtifactCollector({
       transport,
       githubToken: 'synthetic-token',
@@ -31,6 +35,7 @@ describe('exact GitHub repository artifact collection', () => {
       collectedAt: '2026-07-29T12:00:00.000Z',
       publishedAt: '2026-07-29T12:01:00.000Z',
       correlationId: 'artifact-run-1',
+      decodedByteBudget: decodedByteBudget.createCandidateScope(),
     });
 
     expect(publication.artifacts).toHaveLength(1);
@@ -66,6 +71,70 @@ describe('exact GitHub repository artifact collection', () => {
       'artifact-tree',
       'artifact-blob',
     ]);
+    expect(decodedByteBudget.operationalDecodedBytes).toBe(BYTES.byteLength * 2);
+  });
+
+  it('retains both provider body charges when independent blob validation later fails', async () => {
+    const requests: TransportRequest[] = [];
+    const decodedByteBudget = createArtifactDecodedByteBudget(
+      64 * 1_024 * 1_024,
+    );
+    const collector = createRepositoryArtifactCollector({
+      transport: providerTransport(requests, { blobObjectMismatch: true }),
+      githubToken: 'synthetic-token',
+    });
+
+    await expect(
+      collector.collectCandidate({
+        candidate: TEST_CANDIDATE,
+        manifest: manifestForRoot(),
+        collectedAt: '2026-07-29T12:00:00.000Z',
+        publishedAt: '2026-07-29T12:01:00.000Z',
+        correlationId: 'artifact-run-1',
+        decodedByteBudget: decodedByteBudget.createCandidateScope(),
+      }),
+    ).rejects.toMatchObject({
+      code: 'ingestion.artifact-hash-mismatch',
+      message: 'The repository artifact failed immutable object verification.',
+    });
+
+    expect(decodedByteBudget.operationalDecodedBytes).toBe(BYTES.byteLength * 2);
+    expect(requests.at(-1)?.operation).toBe('artifact-blob');
+    expect(
+      JSON.stringify({
+        code: 'ingestion.artifact-hash-mismatch',
+        message:
+          'The repository artifact failed immutable object verification.',
+      }),
+    ).not.toContain(CONTENT);
+  });
+
+  it('rejects before decoding when the aggregate budget cannot reserve the provider body', async () => {
+    const requests: TransportRequest[] = [];
+    const budget = createArtifactDecodedByteBudget(BYTES.byteLength - 1);
+    const collector = createRepositoryArtifactCollector({
+      transport: providerTransport(requests),
+      githubToken: 'synthetic-token',
+    });
+
+    await expect(
+      collector.collectCandidate({
+        candidate: TEST_CANDIDATE,
+        manifest: manifestForRoot(),
+        collectedAt: '2026-07-29T12:00:00.000Z',
+        publishedAt: '2026-07-29T12:01:00.000Z',
+        correlationId: 'artifact-run-1',
+        decodedByteBudget: budget.createCandidateScope(),
+      }),
+    ).rejects.toMatchObject({ code: 'ingestion.body-too-large' });
+
+    expect(budget.operationalDecodedBytes).toBe(0);
+    expect(requests.map(({ operation }) => operation)).toEqual([
+      'artifact-repository',
+      'artifact-hash-algorithm',
+      'artifact-exact-commit',
+      'artifact-readme',
+    ]);
   });
 
   it('publishes only an optional definitive exact-ref 404 as absence', async () => {
@@ -81,6 +150,7 @@ describe('exact GitHub repository artifact collection', () => {
       collectedAt: '2026-07-29T12:00:00.000Z',
       publishedAt: '2026-07-29T12:01:00.000Z',
       correlationId: 'artifact-run-1',
+      decodedByteBudget: artifactBudget(),
     });
     expect(publication.artifacts).toEqual([]);
     expect(publication.artifactSet.entries).toEqual([
@@ -106,6 +176,7 @@ describe('exact GitHub repository artifact collection', () => {
         collectedAt: '2026-07-29T12:00:00.000Z',
         publishedAt: '2026-07-29T12:01:00.000Z',
         correlationId: 'artifact-run-1',
+        decodedByteBudget: artifactBudget(),
       }),
     ).rejects.toMatchObject({ code: 'ingestion.provider-not-found' });
   });
@@ -122,6 +193,7 @@ describe('exact GitHub repository artifact collection', () => {
       collectedAt: '2026-07-29T12:00:00.000Z',
       publishedAt: '2026-07-29T12:01:00.000Z',
       correlationId: 'artifact-run-1',
+      decodedByteBudget: artifactBudget(),
     });
     expect(publication.artifactSet.entries[0]).toMatchObject({
       selector: 'path',
@@ -151,6 +223,7 @@ describe('exact GitHub repository artifact collection', () => {
       collectedAt: '2026-07-29T12:00:00.000Z',
       publishedAt: '2026-07-29T12:01:00.000Z',
       correlationId: 'artifact-run-1',
+      decodedByteBudget: artifactBudget(),
     });
     expect(publication.artifactSet).toMatchObject({
       providerRepositoryId: '123456789',
@@ -193,6 +266,7 @@ describe('exact GitHub repository artifact collection', () => {
       collectedAt: '2026-07-29T12:00:00.000Z',
       publishedAt: '2026-07-29T12:01:00.000Z',
       correlationId: 'artifact-run-1',
+      decodedByteBudget: artifactBudget(),
     } as const;
     await Promise.all([
       collector.collectCandidate(command),
@@ -227,6 +301,7 @@ describe('exact GitHub repository artifact collection', () => {
         collectedAt: '2026-07-29T12:00:00.000Z',
         publishedAt: '2026-07-29T12:01:00.000Z',
         correlationId: 'artifact-run-1',
+        decodedByteBudget: artifactBudget(),
       }),
     ).rejects.toMatchObject({ code });
   });
@@ -243,6 +318,7 @@ describe('exact GitHub repository artifact collection', () => {
         collectedAt: '2026-07-29T12:00:00.000Z',
         publishedAt: '2026-07-29T12:01:00.000Z',
         correlationId: 'artifact-run-1',
+        decodedByteBudget: artifactBudget(),
       }),
     ).rejects.toMatchObject({
       code: 'ingestion.unsupported-git-object-algorithm',
@@ -265,6 +341,7 @@ describe('exact GitHub repository artifact collection', () => {
         collectedAt: '2026-07-29T12:00:00.000Z',
         publishedAt: '2026-07-29T12:01:00.000Z',
         correlationId: 'artifact-run-1',
+        decodedByteBudget: artifactBudget(),
       }),
     ).rejects.toMatchObject({ code: 'ingestion.unsupported-artifact-type' });
   });
@@ -288,10 +365,17 @@ describe('exact GitHub repository artifact collection', () => {
         collectedAt: '2026-07-29T12:00:00.000Z',
         publishedAt: '2026-07-29T12:01:00.000Z',
         correlationId: 'artifact-run-1',
+        decodedByteBudget: artifactBudget(),
       }),
     ).rejects.toBeInstanceOf(IngestionError);
   });
 });
+
+function artifactBudget() {
+  return createArtifactDecodedByteBudget(
+    64 * 1_024 * 1_024,
+  ).createCandidateScope();
+}
 
 function manifestForRoot(): PublicArtifactManifest {
   return {
@@ -358,6 +442,7 @@ function providerTransport(
       | 'nul';
     readonly canonicalOwner?: string;
     readonly canonicalRepository?: string;
+    readonly blobObjectMismatch?: boolean;
   },
 ): ProviderTransport {
   return {
@@ -427,7 +512,10 @@ function providerResponse(
             ? BYTES.byteLength + 1
             : BYTES.byteLength,
         sha:
-          options?.contentFault === 'hash-mismatch' ? '4'.repeat(40) : BLOB_SHA,
+          options?.contentFault === 'hash-mismatch' ||
+          options?.blobObjectMismatch
+            ? '4'.repeat(40)
+            : BLOB_SHA,
         url: `https://api.github.com/repos/gitblocks-test/candidate/git/blobs/${BLOB_SHA}`,
       });
     default:

@@ -32,6 +32,12 @@ migrates implicitly. Its receipt is bounded and content-free, and
 `pnpm artifacts:receipt` validates or compares receipts without contacting a
 provider.
 
+One process-wide decoded-byte budget is shared by both candidate workers and
+charged before every Base64 decode. It includes both Contents/README and
+independent Git blob bodies, including decodes from candidates that later fail.
+Receipts report that operational total separately from bytes in successfully
+materialized immutable artifacts.
+
 Repository identity and head are universal. `expectedSourceTypes` controls
 optional release, tag, exact-commit license, community, allowlisted-file, npm,
 and reviewed-advisory requests. The maximum logical budget remains 12 requests

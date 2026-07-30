@@ -245,10 +245,10 @@ public-v1 catalog + public-artifacts-v1 manifest
 
 | Bound                            |                        Value |
 | -------------------------------- | ---------------------------: |
-| decoded artifact bytes           |                      256 KiB |
+| unique accepted artifact bytes   |                      256 KiB |
 | selections per candidate         |                            4 |
-| decoded candidate bytes          |                      512 KiB |
-| decoded run bytes                |                       64 MiB |
+| unique accepted candidate bytes  |                      512 KiB |
+| operational decoded run bytes    |                       64 MiB |
 | logical lines per artifact       |                       10,000 |
 | chunks per artifact              |                           64 |
 | chunk bytes                      |                       16 KiB |
@@ -266,6 +266,12 @@ public-v1 catalog + public-artifacts-v1 manifest
 Provider response limits include JSON/base64 overhead and remain distinct from
 decoded limits. Phase 5's 64 KiB/file and 128 KiB/candidate limits do not
 change.
+
+Artifact/candidate bytes count unique accepted artifact content. Operational
+run bytes count every actual Base64 decode, including the Contents/README body
+and independently retrieved blob body, even when the candidate later fails.
+One process-wide synchronous reservation budget is shared by both workers and
+charged before decoding; a failed reservation is atomic and value-free.
 
 ## Security, privacy, abuse, and supply chain
 
@@ -375,9 +381,10 @@ display URLs, raw errors, SQL, credentials, headers, and provider bodies are
 prohibited.
 
 The receipt records catalog/manifest/collector/chunker versions and digests,
-candidate/artifact/chunk/set counts, kind/absence/failure counts, decoded
-bytes, provider request/rate metadata, migration version, rerun comparison, and
-its digest. It contains no source content.
+candidate/artifact/chunk/set counts, kind/absence/failure counts, operational
+decoded bytes, successfully materialized artifact bytes, provider request/rate
+metadata, migration version, rerun comparison, and its digest. It contains no
+source content.
 
 ## Migration, compatibility, rollout, and recovery
 
@@ -478,6 +485,15 @@ Phase 6 itself is not complete at this checkpoint.
   rejects zero-byte chunks except the sole chunk of an empty artifact. The
   regression and all 29 database tests pass. Migration 0003 remains unmerged;
   migrations 0001 and 0002 were not changed.
+- **2026-07-30:** Maintainer pre-live review identified five material
+  corrections and kept the live run blocked. Aggregate-byte red tests produced
+  nine focused failures before implementation. The collector now reserves both
+  Contents/README and independent blob decoded lengths from one process-wide
+  atomic budget before Base64 decoding. Failed candidates retain their charged
+  operational bytes, concurrent workers cannot oversubscribe, and receipts
+  distinguish operational decoded bytes from successfully materialized bytes.
+  The focused artifact suite and the PostgreSQL 18.4 non-owner suite pass
+  without skips.
 
 ## Decision and deviation log
 

@@ -16,6 +16,7 @@ import type {
 } from '@gitblocks/persistence';
 
 import { chunkRepositoryArtifact } from './artifact-chunking.ts';
+import type { ArtifactDecodedByteBudgetScope } from './artifact-byte-budget.ts';
 import { isSafeArtifactPath } from './artifact-manifest.ts';
 import { IngestionError, ingestionError } from './errors.ts';
 import { isRecord } from './json-boundary.ts';
@@ -48,6 +49,7 @@ export interface CollectRepositoryArtifactsCommand {
   readonly collectedAt: string;
   readonly publishedAt: string;
   readonly correlationId: string;
+  readonly decodedByteBudget: ArtifactDecodedByteBudgetScope;
   readonly signal?: AbortSignal;
   readonly deadlineSignal?: AbortSignal;
 }
@@ -156,7 +158,7 @@ async function collectCandidate(
     });
 
   const context = await loadRepositoryContext(command.candidate, request);
-  const artifacts: RepositoryArtifactPublication[] = [];
+  const artifactsById = new Map<string, RepositoryArtifactPublication>();
   const entries: RepositoryArtifactSetEntryV1[] = [];
   const treeCache = new Map<string, readonly TreeEntry[]>();
   let candidateBytes = 0;
@@ -164,7 +166,12 @@ async function collectCandidate(
   for (const [ordinal, selection] of manifestCandidate.selections.entries()) {
     let content: ContentPayload;
     try {
-      content = await retrieveSelection(selection, context, request);
+      content = await retrieveSelection(
+        selection,
+        context,
+        request,
+        command.decodedByteBudget,
+      );
     } catch (error) {
       if (
         error instanceof IngestionError &&
@@ -192,15 +199,12 @@ async function collectCandidate(
       content.blobObjectId,
       context,
       request,
+      command.decodedByteBudget,
     );
     if (!blobBytes.equals(content.bytes)) {
       throw ingestionError('ingestion.artifact-hash-mismatch');
     }
     const exact = validateExactText(blobBytes);
-    candidateBytes += blobBytes.byteLength;
-    if (candidateBytes > MAXIMUM_CANDIDATE_BYTES) {
-      throw ingestionError('ingestion.body-too-large');
-    }
     const artifact = createRepositoryArtifactV1({
       contractVersion: '1.0.0',
       candidateId: command.candidate.candidateId,
@@ -233,10 +237,16 @@ async function collectCandidate(
     if (!parsedArtifact.ok) {
       throw ingestionError('ingestion.internal-invariant');
     }
-    artifacts.push({
-      artifact: parsedArtifact.value,
-      chunks: chunkRepositoryArtifact(parsedArtifact.value),
-    });
+    if (!artifactsById.has(parsedArtifact.value.artifactId)) {
+      if (candidateBytes > MAXIMUM_CANDIDATE_BYTES - blobBytes.byteLength) {
+        throw ingestionError('ingestion.body-too-large');
+      }
+      candidateBytes += blobBytes.byteLength;
+      artifactsById.set(parsedArtifact.value.artifactId, {
+        artifact: parsedArtifact.value,
+        chunks: chunkRepositoryArtifact(parsedArtifact.value),
+      });
+    }
     entries.push(presentEntry(selection, ordinal, content.path, artifact));
   }
 
@@ -262,7 +272,10 @@ async function collectCandidate(
   if (!parsedSet.ok) {
     throw ingestionError('ingestion.internal-invariant');
   }
-  return { artifactSet: parsedSet.value, artifacts };
+  return {
+    artifactSet: parsedSet.value,
+    artifacts: [...artifactsById.values()],
+  };
 }
 
 async function loadRepositoryContext(
@@ -338,6 +351,7 @@ async function retrieveSelection(
     path: string,
     maximumBytes: number,
   ) => ReturnType<ProviderTransport['requestJson']>,
+  decodedByteBudget: ArtifactDecodedByteBudgetScope,
 ): Promise<ContentPayload> {
   const base = repositoryPath(context.owner, context.repository);
   const endpoint =
@@ -361,7 +375,7 @@ async function retrieveSelection(
   if (selection.selector === 'path' && path !== selection.path) {
     throw ingestionError('ingestion.provider-response');
   }
-  const bytes = decodeBase64(payload['content']);
+  const bytes = decodeBase64(payload['content'], decodedByteBudget);
   const declaredSize = payload['size'];
   if (
     !Number.isSafeInteger(declaredSize) ||
@@ -459,6 +473,7 @@ async function retrieveBlob(
     path: string,
     maximumBytes: number,
   ) => ReturnType<ProviderTransport['requestJson']>,
+  decodedByteBudget: ArtifactDecodedByteBudgetScope,
 ): Promise<Buffer> {
   const response = await request(
     'artifact-blob',
@@ -469,7 +484,7 @@ async function retrieveBlob(
   if (payload['encoding'] !== 'base64') {
     throw ingestionError('ingestion.unsupported-artifact-type');
   }
-  const bytes = decodeBase64(payload['content']);
+  const bytes = decodeBase64(payload['content'], decodedByteBudget);
   if (
     !Number.isSafeInteger(payload['size']) ||
     Number(payload['size']) !== bytes.byteLength
@@ -511,7 +526,10 @@ function validateExactText(bytes: Buffer): {
   return { text, lineCount };
 }
 
-function decodeBase64(value: unknown): Buffer {
+function decodeBase64(
+  value: unknown,
+  decodedByteBudget: ArtifactDecodedByteBudgetScope,
+): Buffer {
   if (typeof value !== 'string' || value.length > ARTIFACT_RESPONSE_BYTES) {
     throw ingestionError('ingestion.provider-response');
   }
@@ -523,6 +541,16 @@ function decodeBase64(value: unknown): Buffer {
   ) {
     throw ingestionError('ingestion.provider-response');
   }
+  const paddingBytes = compact.endsWith('==')
+    ? 2
+    : compact.endsWith('=')
+      ? 1
+      : 0;
+  const decodedByteCount = (compact.length / 4) * 3 - paddingBytes;
+  if (decodedByteCount > MAXIMUM_ARTIFACT_BYTES) {
+    throw ingestionError('ingestion.body-too-large');
+  }
+  decodedByteBudget.reserve(decodedByteCount);
   const bytes = Buffer.from(compact, 'base64');
   if (bytes.toString('base64') !== compact) {
     throw ingestionError('ingestion.provider-response');

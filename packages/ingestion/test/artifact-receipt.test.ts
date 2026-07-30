@@ -25,6 +25,7 @@ describe('repository artifact receipt', () => {
         githubRateLimit: null,
       },
       databaseMigrationVersion: 3,
+      operationalDecodedBytes: 46,
     });
     expect(parseArtifactReceipt(JSON.stringify(receipt))).toEqual(receipt);
     const serialized = JSON.stringify(receipt);
@@ -54,6 +55,7 @@ describe('repository artifact receipt', () => {
         githubRateLimit: null,
       },
       databaseMigrationVersion: 3,
+      operationalDecodedBytes: 46,
     });
     const second = createArtifactReceipt({
       catalog: publicCatalog,
@@ -73,6 +75,7 @@ describe('repository artifact receipt', () => {
         githubRateLimit: null,
       },
       databaseMigrationVersion: 3,
+      operationalDecodedBytes: 46,
       priorReceipt: first,
     });
     expect(second.rerunComparison).toEqual({
@@ -98,10 +101,14 @@ describe('repository artifact receipt', () => {
         githubRateLimit: null,
       },
       databaseMigrationVersion: 3,
+      operationalDecodedBytes: 46,
     });
     expect(() =>
       parseArtifactReceipt(
-        JSON.stringify({ ...receipt, decodedBytes: receipt.decodedBytes + 1 }),
+        JSON.stringify({
+          ...receipt,
+          operationalDecodedBytes: receipt.operationalDecodedBytes + 1,
+        }),
       ),
     ).toThrow(IngestionError);
     expect(() =>
@@ -148,7 +155,8 @@ function createdCandidate(): ArtifactReceiptCandidate {
     artifactCount: 1,
     chunkCount: 1,
     absenceCount: 0,
-    decodedBytes: 23,
+    operationalDecodedBytes: 46,
+    materializedArtifactBytes: 23,
     inserted: { artifacts: 1, chunks: 1, artifactSets: 1, entries: 1 },
     materializationDigest: '5'.repeat(64),
     safeErrorCode: null,

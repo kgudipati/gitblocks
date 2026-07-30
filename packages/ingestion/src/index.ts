@@ -20,6 +20,11 @@ export {
   verifyRepositoryArtifactChunks,
 } from './artifact-chunking.ts';
 export {
+  createArtifactDecodedByteBudget,
+  type ArtifactDecodedByteBudget,
+  type ArtifactDecodedByteBudgetScope,
+} from './artifact-byte-budget.ts';
+export {
   collectPublicRepositoryArtifacts,
   type CollectPublicRepositoryArtifactsConfig,
 } from './artifact-batch.ts';

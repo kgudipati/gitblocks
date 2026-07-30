@@ -24,7 +24,8 @@ const ROOT_KEYS = [
   'completedAt',
   'completedCandidateCount',
   'databaseMigrationVersion',
-  'decodedBytes',
+  'materializedArtifactBytes',
+  'operationalDecodedBytes',
   'failuresByCode',
   'githubRequestCount',
   'inserted',
@@ -43,7 +44,8 @@ const CANDIDATE_KEYS = [
   'artifactSetId',
   'candidateId',
   'chunkCount',
-  'decodedBytes',
+  'materializedArtifactBytes',
+  'operationalDecodedBytes',
   'inserted',
   'materializationDigest',
   'outcome',
@@ -66,6 +68,7 @@ export function createArtifactReceipt(input: {
   readonly providerMetrics: TransportMetrics;
   readonly databaseMigrationVersion: number;
   readonly requestedCandidateCount?: number;
+  readonly operationalDecodedBytes: number;
   readonly priorReceipt?: ArtifactReceipt;
 }): ArtifactReceipt {
   if (
@@ -99,7 +102,8 @@ export function createArtifactReceipt(input: {
     artifactCount: sum(candidates, 'artifactCount'),
     chunkCount: sum(candidates, 'chunkCount'),
     absenceCount: sum(candidates, 'absenceCount'),
-    decodedBytes: sum(candidates, 'decodedBytes'),
+    operationalDecodedBytes: input.operationalDecodedBytes,
+    materializedArtifactBytes: sum(candidates, 'materializedArtifactBytes'),
     githubRequestCount: input.providerMetrics.providerRequestCounts.github,
     providerRateLimit: input.providerMetrics.githubRateLimit,
     databaseMigrationVersion: input.databaseMigrationVersion,
@@ -173,7 +177,14 @@ export function parseArtifactReceipt(text: string): ArtifactReceipt {
     artifactCount: requireCount(parsed['artifactCount'], 600),
     chunkCount: requireCount(parsed['chunkCount'], 38_400),
     absenceCount: requireCount(parsed['absenceCount'], 600),
-    decodedBytes: requireCount(parsed['decodedBytes'], 64 * 1_024 * 1_024),
+    operationalDecodedBytes: requireCount(
+      parsed['operationalDecodedBytes'],
+      64 * 1_024 * 1_024,
+    ),
+    materializedArtifactBytes: requireCount(
+      parsed['materializedArtifactBytes'],
+      64 * 1_024 * 1_024,
+    ),
     githubRequestCount: requireCount(parsed['githubRequestCount'], 10_000),
     providerRateLimit: parseRateLimit(parsed['providerRateLimit']),
     databaseMigrationVersion: requireCount(
@@ -211,7 +222,10 @@ function validateReceipt(value: Omit<ArtifactReceipt, 'receiptDigest'>): void {
     value.artifactCount !== sum(value.candidates, 'artifactCount') ||
     value.chunkCount !== sum(value.candidates, 'chunkCount') ||
     value.absenceCount !== sum(value.candidates, 'absenceCount') ||
-    value.decodedBytes !== sum(value.candidates, 'decodedBytes') ||
+    value.operationalDecodedBytes !==
+      sum(value.candidates, 'operationalDecodedBytes') ||
+    value.materializedArtifactBytes !==
+      sum(value.candidates, 'materializedArtifactBytes') ||
     !sameInserted(value.inserted, inserted) ||
     value.outcomeCounts.created !== outcomeCounts.created ||
     value.outcomeCounts.idempotent !== outcomeCounts.idempotent ||
@@ -251,7 +265,7 @@ function validateCandidateCollection(
           candidate.artifactCount !== 0 ||
           candidate.chunkCount !== 0 ||
           candidate.absenceCount !== 0 ||
-          candidate.decodedBytes !== 0 ||
+          candidate.materializedArtifactBytes !== 0 ||
           insertedRows !== 0
         );
       }
@@ -264,7 +278,8 @@ function validateCandidateCollection(
         candidate.artifactCount + candidate.absenceCount < 1 ||
         candidate.artifactCount + candidate.absenceCount > 4 ||
         candidate.chunkCount < candidate.artifactCount ||
-        candidate.decodedBytes > 512 * 1_024 ||
+        candidate.materializedArtifactBytes > 512 * 1_024 ||
+        candidate.operationalDecodedBytes > 64 * 1_024 * 1_024 ||
         (candidate.outcome === 'idempotent' && insertedRows !== 0) ||
         (candidate.outcome === 'created' && insertedRows < 1)
       );
@@ -297,7 +312,14 @@ function parseCandidate(value: unknown): ArtifactReceiptCandidate {
     artifactCount: requireCount(value['artifactCount'], 4),
     chunkCount: requireCount(value['chunkCount'], 256),
     absenceCount: requireCount(value['absenceCount'], 4),
-    decodedBytes: requireCount(value['decodedBytes'], 512 * 1_024),
+    operationalDecodedBytes: requireCount(
+      value['operationalDecodedBytes'],
+      64 * 1_024 * 1_024,
+    ),
+    materializedArtifactBytes: requireCount(
+      value['materializedArtifactBytes'],
+      512 * 1_024,
+    ),
     inserted: parseInserted(value['inserted']),
     materializationDigest:
       value['materializationDigest'] === null
@@ -477,7 +499,12 @@ function countOutcome(
 
 function sum(
   candidates: readonly ArtifactReceiptCandidate[],
-  field: 'artifactCount' | 'chunkCount' | 'absenceCount' | 'decodedBytes',
+  field:
+    | 'artifactCount'
+    | 'chunkCount'
+    | 'absenceCount'
+    | 'operationalDecodedBytes'
+    | 'materializedArtifactBytes',
 ): number {
   return candidates.reduce((total, candidate) => total + candidate[field], 0);
 }

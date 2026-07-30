@@ -174,6 +174,8 @@ set publication.
 Accepted content must:
 
 - be strict base64 with declared/decoded size equality;
+- reserve its computed decoded length from the shared run budget before
+  `Buffer` decoding or text materialization;
 - decode through a fatal UTF-8 decoder;
 - contain no NUL;
 - re-encode to the exact original bytes;
@@ -182,6 +184,16 @@ Accepted content must:
 
 No Unicode, whitespace, CRLF, LF, lone CR, Markdown, HTML, heading, fence, or
 final-newline normalization occurs.
+
+Per-artifact and per-candidate byte limits count unique accepted artifact
+content. The aggregate operational run limit has deliberately different
+semantics: it charges every provider body actually Base64-decoded, including
+both the README/Contents body and the independently retrieved Git blob body.
+Decoded bytes remain charged when later tree, hash, candidate, or persistence
+validation fails. A synchronous shared reservation object performs an atomic
+check-and-charge before decoding, so the two candidate workers cannot
+oversubscribe the limit. A failed reservation decodes nothing and produces
+only `ingestion.body-too-large`.
 
 PostgreSQL `text` is the durable content representation. Migration verification
 requires UTF-8 server encoding, and the database checks `octet_length` against
@@ -327,34 +339,37 @@ configuration, candidate concurrency two, request concurrency one,
 per-request/candidate/batch deadlines, and no implicit migration.
 
 Receipts contain controlled IDs, versions/digests, counts, safe outcome codes,
-decoded-byte totals, provider request/rate metadata, migration version, rerun
-comparison, and receipt digest. They contain no content, paths, display URLs,
-raw errors, provider bodies, headers, credentials, SQL, or repository-authored
-values.
+`operationalDecodedBytes`, `materializedArtifactBytes`, provider request/rate
+metadata, migration version, rerun comparison, and receipt digest.
+`operationalDecodedBytes` includes successful and failed provider-body decodes;
+`materializedArtifactBytes` includes only immutable artifacts in successfully
+published sets. Candidate records preserve the same distinction. Receipts
+contain no content, paths, display URLs, raw errors, provider bodies, headers,
+credentials, SQL, or repository-authored values.
 
 ### Bounds
 
-| Bound                             |  Hard limit |
-| --------------------------------- | ----------: |
-| decoded bytes per artifact        |     256 KiB |
-| selections per candidate          |           4 |
-| decoded bytes per candidate       |     512 KiB |
-| decoded bytes per run             |      64 MiB |
-| logical lines per artifact        |      10,000 |
-| chunks per artifact               |          64 |
-| bytes per chunk                   |      16 KiB |
-| logical lines per chunk           |         200 |
-| candidate concurrency             |           2 |
-| global GitHub request concurrency |           1 |
-| request timeout                   |  10 seconds |
-| candidate deadline                | 120 seconds |
-| batch deadline                    |  60 minutes |
-| path UTF-8 bytes                  |         512 |
-| path segments                     |           8 |
-| artifact JSON response            |     512 KiB |
-| tree/blob JSON response           |     512 KiB |
-| repository/commit JSON response   |     256 KiB |
-| hash-algorithm JSON response      |      16 KiB |
+| Bound                               |  Hard limit |
+| ----------------------------------- | ----------: |
+| unique accepted bytes per artifact  |     256 KiB |
+| selections per candidate            |           4 |
+| unique accepted bytes per candidate |     512 KiB |
+| operational decoded bytes per run   |      64 MiB |
+| logical lines per artifact          |      10,000 |
+| chunks per artifact                 |          64 |
+| bytes per chunk                     |      16 KiB |
+| logical lines per chunk             |         200 |
+| candidate concurrency               |           2 |
+| global GitHub request concurrency   |           1 |
+| request timeout                     |  10 seconds |
+| candidate deadline                  | 120 seconds |
+| batch deadline                      |  60 minutes |
+| path UTF-8 bytes                    |         512 |
+| path segments                       |           8 |
+| artifact JSON response              |     512 KiB |
+| tree/blob JSON response             |     512 KiB |
+| repository/commit JSON response     |     256 KiB |
+| hash-algorithm JSON response        |      16 KiB |
 
 These are artifact-specific. Phase 5 file and candidate limits are not widened.
 
