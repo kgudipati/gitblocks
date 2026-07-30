@@ -59,6 +59,7 @@ const SUPPORTED_EXTENSIONLESS_NAMES = new Set([
   'COPYING',
   'LICENSE',
   'NOTICE',
+  'README',
   'SECURITY',
 ]);
 

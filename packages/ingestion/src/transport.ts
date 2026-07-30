@@ -16,6 +16,7 @@ export interface TransportRequest {
   readonly maximumBytes: number;
   readonly maximumNodes?: number;
   readonly authorizationToken?: string;
+  readonly githubApiVersion?: '2022-11-28' | '2026-03-10';
   readonly correlationId: string;
   readonly candidateId: string;
   readonly signal?: AbortSignal;
@@ -312,7 +313,10 @@ function requestHeaders(request: TransportRequest): Headers {
     'user-agent': 'gitblocks-ingestion/1',
   });
   if (request.provider === 'github') {
-    headers.set('x-github-api-version', '2026-03-10');
+    headers.set(
+      'x-github-api-version',
+      request.githubApiVersion ?? '2026-03-10',
+    );
     if (request.authorizationToken !== undefined) {
       headers.set('authorization', `Bearer ${request.authorizationToken}`);
     }

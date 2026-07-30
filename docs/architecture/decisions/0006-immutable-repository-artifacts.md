@@ -116,7 +116,7 @@ collection. It may reflect a move without duplicating the artifact. Temporary
 The collector uses GitHub REST API version `2026-03-10` to query the repository
 hash-algorithm endpoint before validating object IDs. Contracts represent the
 algorithm explicitly. Phase 6 supports only `sha1`; another algorithm produces
-the controlled `artifact.unsupported-git-object-algorithm` outcome and prevents
+the controlled `ingestion.unsupported-git-object-algorithm` outcome and prevents
 set publication.
 
 Commit and blob object-ID validation is algorithm-conditional. For `sha1`:
@@ -212,9 +212,11 @@ Buffer.concat(chunks ordered by ordinal) === exact artifact bytes
 
 must hold with all hashes, intervals, ordinals, and line metadata.
 
-Chunk IDs include artifact ID, chunker version, ordinal, byte interval, line
-range, and content SHA-256. Timestamps are excluded. Existing identical chunks
-are reused.
+Chunk IDs include artifact ID, candidate ID, chunker version, ordinal, byte
+interval, and content SHA-256. Line ranges are deterministic metadata derived
+from those inputs and participate in the complete record digest without
+duplicating a stable-ID input. Timestamps are excluded. Existing identical
+chunks are reused.
 
 ### Artifact-set contract and identity
 

@@ -243,24 +243,25 @@ public-v1 catalog + public-artifacts-v1 manifest
   -> compact content-free receipt
 ```
 
-| Bound                             |                        Value |
-| --------------------------------- | ---------------------------: |
-| decoded artifact bytes            |                      256 KiB |
-| selections per candidate          |                            4 |
-| decoded candidate bytes           |                      512 KiB |
-| decoded run bytes                 |                       64 MiB |
-| logical lines per artifact        |                       10,000 |
-| chunks per artifact               |                           64 |
-| chunk bytes                       |                       16 KiB |
-| logical lines per chunk           |                          200 |
-| candidate concurrency             |                            2 |
-| GitHub request concurrency        |                            1 |
-| request timeout                   |                   10 seconds |
-| candidate deadline                |                  120 seconds |
-| batch deadline                    |                   60 minutes |
-| path bytes/depth                  | 512 UTF-8 bytes / 8 segments |
-| artifact JSON response            |                      512 KiB |
-| ordinary GitHub metadata response |                        2 MiB |
+| Bound                            |                        Value |
+| -------------------------------- | ---------------------------: |
+| decoded artifact bytes           |                      256 KiB |
+| selections per candidate         |                            4 |
+| decoded candidate bytes          |                      512 KiB |
+| decoded run bytes                |                       64 MiB |
+| logical lines per artifact       |                       10,000 |
+| chunks per artifact              |                           64 |
+| chunk bytes                      |                       16 KiB |
+| logical lines per chunk          |                          200 |
+| candidate concurrency            |                            2 |
+| GitHub request concurrency       |                            1 |
+| request timeout                  |                   10 seconds |
+| candidate deadline               |                  120 seconds |
+| batch deadline                   |                   60 minutes |
+| path bytes/depth                 | 512 UTF-8 bytes / 8 segments |
+| artifact/blob/tree JSON response |                      512 KiB |
+| repository/commit metadata JSON  |                      256 KiB |
+| hash-algorithm metadata JSON     |                       16 KiB |
 
 Provider response limits include JSON/base64 overhead and remain distinct from
 decoded limits. Phase 5's 64 KiB/file and 128 KiB/candidate limits do not
@@ -296,7 +297,7 @@ Buffer, URL, and cryptography cover the operation.
       parsers, IDs/digests, exports, mutation/compatibility tests, commit.
 - [x] **Milestone 4 — Persistence:** PostgreSQL failures first, migration 0003,
       tables/grants/closure/publication/loaders, runtime-role verification, commit.
-- [ ] **Milestone 5 — Collection/chunking:** explicit API-version boundary,
+- [x] **Milestone 5 — Collection/chunking:** explicit API-version boundary,
       algorithm discovery, exact retrieval/tree checks, validation, hashing,
       chunking, limits, Phase 5 regressions, commit.
 - [ ] **Milestone 6 — Operator/receipt:** separate commands, acknowledgement,
@@ -450,6 +451,15 @@ Phase 6 itself is not complete at this checkpoint.
   Direct database tests reject missing/reordered entries, missing chunks,
   cross-candidate references, and owner mutation. PostgreSQL 18.4 verification
   now passes 27 tests without skips.
+- **2026-07-29:** Added the collection/chunking tests before implementation and
+  observed 30 focused failures. Added explicit request-level GitHub API
+  versioning, one shared request gate, repository numeric/hash/commit
+  resolution, exact-ref README and Contents reads, non-recursive tree walking,
+  immutable numeric-repository blob reads, strict canonical Base64/UTF-8/NUL
+  and hash checks, and `exact-lines-v1`. A process-wide test setup now rejects
+  unexpected real networking in ordinary and PostgreSQL suites. The focused
+  suite passes 46 tests, ingestion passes 104 tests, and the repository passes
+  763 tests with no Phase 5 fixture or receipt change.
 
 ## Decision and deviation log
 
@@ -471,6 +481,11 @@ Phase 6 itself is not complete at this checkpoint.
   accepted contracts-outward dependency rule. Artifact digest and supported
   SHA-1 Git-object verification therefore use dependency-free deterministic
   primitives inside contracts; provider transport remains in ingestion.
+- **Chunk identity derivation:** line intervals are deterministic metadata
+  derived from exact bytes and `exact-lines-v1`; they participate in complete
+  chunk record digests but are not redundant stable-ID inputs. The chunk ID
+  inputs are artifact/candidate IDs, chunker version, ordinal, byte interval,
+  and chunk content SHA-256.
 
 ## Validation evidence
 
@@ -526,4 +541,17 @@ migration inventory       3 (0001, 0002, 0003)
 product table inventory   17 total; 4 new artifact tables
 runtime grants            SELECT + INSERT only on all 4 artifact tables
 RLS policies              0
+```
+
+Milestone 5 evidence:
+
+```text
+collection/chunk red run  3 files / 30 failures before implementation
+focused provider/chunker  passed; 3 files / 46 tests
+pnpm ingestion:verify     passed; 8 files / 104 tests
+pnpm architecture:check  passed; 635 modules / 2,020 dependencies
+pnpm verify               passed; 41 files / 763 tests
+unexpected networking     prohibited by ordinary and database test setup
+Phase 5 API default       unchanged at 2026-03-10; explicit override tested
+live artifact operation   not run
 ```

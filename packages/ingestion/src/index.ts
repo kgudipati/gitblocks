@@ -16,6 +16,15 @@ export {
   parsePublicCatalog,
 } from './manifest.ts';
 export {
+  chunkRepositoryArtifact,
+  verifyRepositoryArtifactChunks,
+} from './artifact-chunking.ts';
+export {
+  createRepositoryArtifactCollector,
+  type CollectRepositoryArtifactsCommand,
+  type RepositoryArtifactCollectorConfig,
+} from './artifact-provider.ts';
+export {
   artifactManifestDigest,
   artifactManifestWithDigest,
   buildArtifactManifest,

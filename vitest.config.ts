@@ -38,5 +38,6 @@ export default defineConfig({
     ],
     passWithNoTests: false,
     restoreMocks: true,
+    setupFiles: ['packages/ingestion/test/network-guard.ts'],
   },
 });
