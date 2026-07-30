@@ -192,7 +192,8 @@ must not substitute popularity for compatibility.
 
 ### Stays local by default
 
-- repository source and documentation bodies;
+- user target-repository source and documentation bodies, private repository
+  material, and source outside a reviewed public-catalog selection;
 - untracked files and local working changes;
 - environment variables, credentials, tokens, cookies, and signing material;
 - customer data, proprietary source excerpts, database contents, and logs;
@@ -203,6 +204,14 @@ must not substitute popularity for compatibility.
 
 The local scanner may derive facts from approved files, but it must not send
 the underlying content merely because it was read.
+
+Separately, curator-approved documents from the shared public candidate catalog
+may be collected at an exact public Git commit and stored centrally as bounded,
+immutable repository artifacts. That authority does not extend to a user's
+target repository, private repositories, secrets, or arbitrary source
+discovered outside the reviewed artifact-selection manifest. Public artifact
+bodies remain hostile inert data: they are never executed, rendered, followed
+as links, or treated as instructions.
 
 ### May be sent after minimization
 

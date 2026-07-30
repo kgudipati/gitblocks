@@ -1,4 +1,21 @@
 export {
+  REPOSITORY_ARTIFACT_CHUNKER_VERSION,
+  REPOSITORY_ARTIFACT_VERSION,
+  createRepositoryArtifactChunkV1,
+  createRepositoryArtifactSetV1,
+  createRepositoryArtifactV1,
+  repositoryArtifactChunkIdentityDigest,
+  repositoryArtifactChunkRecordDigest,
+  repositoryArtifactContentSha256,
+  repositoryArtifactDisplayUrl,
+  repositoryArtifactGitBlobObjectId,
+  repositoryArtifactIdentityDigest,
+  repositoryArtifactRecordDigest,
+  repositoryArtifactSetIdentityDigest,
+  repositoryArtifactSetRecordDigest,
+  repositoryArtifactUtf8ByteLength,
+} from './artifact-identity.ts';
+export {
   CONTRACT_SCHEMA_NAMES,
   getContractSchemaV1,
   serializeContractSchemaV1,
@@ -23,6 +40,9 @@ export {
   parseFitAssessmentRequestV1,
   parseFitAssessmentResponseV1,
   parseRepositoryFingerprintV1,
+  parseRepositoryArtifactChunkV1,
+  parseRepositoryArtifactSetV1,
+  parseRepositoryArtifactV1,
   validateFitAssessmentExchangeV1,
   type FitAssessmentExchangeValidationResult,
 } from './parsers.ts';
@@ -44,4 +64,8 @@ export type {
   MaterialClaimV1,
   MaterialUnknownV1,
   RepositoryFingerprintV1,
+  RepositoryArtifactChunkV1,
+  RepositoryArtifactSetEntryV1,
+  RepositoryArtifactSetV1,
+  RepositoryArtifactV1,
 } from './schemas.ts';

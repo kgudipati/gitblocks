@@ -53,6 +53,57 @@ export interface PublicCatalog {
   readonly candidates: readonly CatalogCandidate[];
 }
 
+export type ArtifactKind =
+  | 'readme'
+  | 'documentation'
+  | 'security-policy'
+  | 'changelog'
+  | 'license'
+  | 'contributing';
+
+export type ArtifactRequirement = 'required' | 'optional';
+
+export interface RootReadmeArtifactSelection {
+  readonly selectionId: string;
+  readonly selector: 'root-readme';
+  readonly artifactKind: 'readme';
+  readonly requirement: 'optional';
+}
+
+export interface PathArtifactSelection {
+  readonly selectionId: string;
+  readonly selector: 'path';
+  readonly path: string;
+  readonly artifactKind: Exclude<ArtifactKind, 'readme'>;
+  readonly requirement: ArtifactRequirement;
+  readonly rationale: string;
+}
+
+export type ArtifactSelection =
+  RootReadmeArtifactSelection | PathArtifactSelection;
+
+export interface PublicArtifactManifest {
+  readonly artifactManifestVersion: 'public-artifacts-v1';
+  readonly catalogVersion: 'public-v1';
+  readonly catalogDigest: string;
+  readonly candidates: readonly {
+    readonly candidateId: string;
+    readonly selections: readonly ArtifactSelection[];
+  }[];
+  readonly manifestDigest: string;
+}
+
+export interface ArtifactSelectionSource {
+  readonly artifactManifestVersion: 'public-artifacts-v1';
+  readonly candidates: readonly {
+    readonly candidateId: string;
+    readonly selections: readonly Omit<
+      PathArtifactSelection,
+      'selectionId' | 'selector'
+    >[];
+  }[];
+}
+
 export interface GitHubRepositorySource {
   readonly canonicalOwner: string;
   readonly canonicalRepository: string;
@@ -252,6 +303,74 @@ export interface IngestionReceipt {
   readonly receiptDigest: string;
 }
 
+export interface ArtifactReceiptCandidate {
+  readonly candidateId: string;
+  readonly outcome: 'created' | 'idempotent' | 'failed';
+  readonly artifactSetId: string | null;
+  readonly artifactCount: number;
+  readonly chunkCount: number;
+  readonly absenceCount: number;
+  readonly operationalDecodedBytes: number;
+  readonly materializedArtifactBytes: number;
+  readonly inserted: {
+    readonly artifacts: number;
+    readonly chunks: number;
+    readonly artifactSets: number;
+    readonly entries: number;
+  };
+  readonly materializationDigest: string | null;
+  readonly safeErrorCode: string | null;
+}
+
+export interface ArtifactReceipt {
+  readonly receiptVersion: 'public-artifact-receipt/1.0.0';
+  readonly catalogVersion: 'public-v1';
+  readonly catalogDigest: string;
+  readonly artifactManifestVersion: 'public-artifacts-v1';
+  readonly artifactManifestDigest: string;
+  readonly collectorVersion: 'repository-artifacts-v1';
+  readonly chunkerVersion: 'exact-lines-v1';
+  readonly runId: string;
+  readonly startedAt: string;
+  readonly completedAt: string;
+  readonly requestedCandidateCount: number;
+  readonly completedCandidateCount: number;
+  readonly artifactCount: number;
+  readonly chunkCount: number;
+  readonly absenceCount: number;
+  readonly operationalDecodedBytes: number;
+  readonly materializedArtifactBytes: number;
+  readonly githubRequestCount: number;
+  readonly providerRateLimit: {
+    readonly limit: number;
+    readonly remaining: number;
+    readonly resetAt: string;
+  } | null;
+  readonly databaseMigrationVersion: number;
+  readonly inserted: {
+    readonly artifacts: number;
+    readonly chunks: number;
+    readonly artifactSets: number;
+    readonly entries: number;
+  };
+  readonly failuresByCode: readonly {
+    readonly code: string;
+    readonly count: number;
+  }[];
+  readonly outcomeCounts: Readonly<
+    Record<'created' | 'idempotent' | 'failed', number>
+  >;
+  readonly rerunComparison: {
+    readonly priorReceiptDigest: string;
+    readonly identicalArtifactSetCount: number;
+    readonly identicalMaterializationCount: number;
+    readonly zeroNewRowCandidateCount: number;
+    readonly newRowCount: number;
+  } | null;
+  readonly candidates: readonly ArtifactReceiptCandidate[];
+  readonly receiptDigest: string;
+}
+
 export interface TransportMetrics {
   readonly providerRequestCounts: {
     readonly github: number;
@@ -266,7 +385,11 @@ export interface TransportMetrics {
 
 export interface SafeTelemetryEvent {
   readonly eventName:
-    'ingestion.request' | 'ingestion.candidate' | 'ingestion.batch';
+    | 'ingestion.request'
+    | 'ingestion.candidate'
+    | 'ingestion.batch'
+    | 'artifact.candidate'
+    | 'artifact.batch';
   readonly correlationId: string;
   readonly candidateId: string | null;
   readonly provider: 'github' | 'npm' | 'persistence' | null;

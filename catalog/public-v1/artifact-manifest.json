@@ -1,0 +1,1898 @@
+{
+  "artifactManifestVersion": "public-artifacts-v1",
+  "catalogVersion": "public-v1",
+  "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+  "candidates": [
+    {
+      "candidateId": "audit-bunyan",
+      "selections": [
+        {
+          "selectionId": "selection-ae978c6d67fabc714d33552737b406a708b5bb0e46035c4c",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-cabin",
+      "selections": [
+        {
+          "selectionId": "selection-9453b6c8d6886049bbac6f09bf6ec39e8a08959e845b4dcf",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-datadog-trace-js",
+      "selections": [
+        {
+          "selectionId": "selection-1e42949cd19a38199b0bf3dcbb802875b674ddcf1397b407",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-elasticsearch",
+      "selections": [
+        {
+          "selectionId": "selection-03e56e2f151411776018032a410ef4478f93081ca1740547",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-express-morgan",
+      "selections": [
+        {
+          "selectionId": "selection-4539f99d2d970e4401e34dc1645a87045615e93b93a21fb6",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-fluent-bit",
+      "selections": [
+        {
+          "selectionId": "selection-76a2bc27d9ffde70eb443fe7d149c4d5ebbc34fc7308ae33",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-6dc02f93059a5fa2ed41eb8da07c7f21266f545d84119db1",
+          "selector": "path",
+          "path": "CHUNKS.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What operational burden does adoption introduce?' by documenting Fluent Bit's memory and filesystem chunk storage, on-disk representation, and format compatibility."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-fluentd",
+      "selections": [
+        {
+          "selectionId": "selection-27eff0b42c53819f77a4755a3d2359b140f7e2c820ab8103",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-google-logging-winston",
+      "selections": [
+        {
+          "selectionId": "selection-a8caa5de06652ebeddf2d6647ec2ee2ef3fa94efd80f58de",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-grafana-loki",
+      "selections": [
+        {
+          "selectionId": "selection-bdc8ef1dd51f4bd3ee8e8f29fc789eb56c5088e19a284b35",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-dcefcd576f9f6f36de99dfcd4c525b4c2942dbdee7d44444",
+          "selector": "path",
+          "path": "docs/sources/get-started/deployment-modes.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What deployment models are supported?' by comparing Loki's monolithic, HA monolithic, and microservices modes, prerequisites, scale, and operational complexity."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-highlight",
+      "selections": [
+        {
+          "selectionId": "selection-3b761584a1bf19cee36708f1d47dfd042b9c59b7b32c7620",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-log4js",
+      "selections": [
+        {
+          "selectionId": "selection-de122e2a82644ded75ded038df415e5b37f9958ce54bbd9e",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-31125e66ed6b5054dd214f5fc4a8ce7e73aab15e29528cab",
+          "selector": "path",
+          "path": "docs/api.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by defining Log4js appenders, categories, levels, cluster and PM2 behavior, shutdown, and runtime API."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-logdna-logger",
+      "selections": [
+        {
+          "selectionId": "selection-aacd28bac127582f00898596ed339f86f3eb9687605394cd",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-loglevel",
+      "selections": [
+        {
+          "selectionId": "selection-c1f546a71a0c8c05b21d87c0276452ce86bddff976704ee6",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-npm-npmlog",
+      "selections": [
+        {
+          "selectionId": "selection-5fabbfbf391a846908c08829aaeba5bd63de60747688ecc0",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-openobserve",
+      "selections": [
+        {
+          "selectionId": "selection-5f4afe6a99b6a04a6bb9d5c6fd23390f56b05baf1cf71869",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-opentelemetry-js",
+      "selections": [
+        {
+          "selectionId": "selection-0f38a6c74dbe87053c4c59eff94b178e39b0fa204c4b74d5",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-pgaudit",
+      "selections": [
+        {
+          "selectionId": "selection-5eb4ccbd3e74dfd195610e798f824970660b0d43e05b1285",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-pino",
+      "selections": [
+        {
+          "selectionId": "selection-f39ddd7552888ea7678fe1aa5c63ab7523314747af470508",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-2ebce17301d66eefe3b232b561b650f8c82942a1dfc8088f",
+          "selector": "path",
+          "path": "docs/transports.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by explaining Pino transport modules, worker-thread isolation, asynchronous behavior, configuration, and compatibility since v7."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-pino-http",
+      "selections": [
+        {
+          "selectionId": "selection-f34c846b8b1e01edea64bd9cf418e4c1bc653c16de925939",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-pino-pretty",
+      "selections": [
+        {
+          "selectionId": "selection-e48dfc7c8a5d613dedaeaea61faeb28f6d9eab827c8b444a",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-roarr",
+      "selections": [
+        {
+          "selectionId": "selection-d7207e3559774d66f000a5212e7465ef6d4a100af9c14a89",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-sematext-logagent",
+      "selections": [
+        {
+          "selectionId": "selection-3889934ee79347a539aa933542e7120c2b355137e9f02ac9",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-signoz",
+      "selections": [
+        {
+          "selectionId": "selection-90c5ca79583b5b754091eb5a682e51d610e0b2b5bbc945ed",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-syslog-ng",
+      "selections": [
+        {
+          "selectionId": "selection-0e432919890081f9b2f4c52db8bf04cf3102aa3cfa0ac6b2",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-vector",
+      "selections": [
+        {
+          "selectionId": "selection-62d265d3d7bc552996aa05f74599d60e0e8f8a0d52e3dbb8",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-4e303f3601eb31d0fc0e36eb460f035812228623f70b9584",
+          "selector": "path",
+          "path": "website/content/en/docs/architecture/pipeline-model.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What architectural assumptions does it make?' by defining Vector's acyclic source-to-sink pipeline, accepted configuration formats, compile-time checks, and live reconfiguration."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-winston",
+      "selections": [
+        {
+          "selectionId": "selection-71d17b694b56111d632331dce80f4630a9e21a78be60c0d1",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-0fc61bd97b6e26e700e0ee04096b88306adb16b260972d02",
+          "selector": "path",
+          "path": "docs/transports.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by cataloging Winston transport choices, routing levels, file lifecycle, remote endpoints, batching, and retry behavior."
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-winston-daily",
+      "selections": [
+        {
+          "selectionId": "selection-2182c2fc6debdbae27d2f5276618188b91784382d8c70711",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-winston-logform",
+      "selections": [
+        {
+          "selectionId": "selection-1c606de0193a4ccc09604888e9ce3b805bfcd129d225ef47",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-winston-syslog",
+      "selections": [
+        {
+          "selectionId": "selection-22f9fbb22dd03c8339ad4b9b41c9f0c74c18e79b1e9f249c",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "audit-winston-transport",
+      "selections": [
+        {
+          "selectionId": "selection-b4bedbc471c2f5b8f2f0d3d3a2bb8d8cd3ce107d8e6af63c",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-aserto-topaz",
+      "selections": [
+        {
+          "selectionId": "selection-3753071db445dcce4febcdcd97ee5ad329fae32d8f76a9d7",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-e6231abc3c33d456459128285539710aed23f4be1576f7c2",
+          "selector": "path",
+          "path": "docs/config.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by documenting Topaz directories, environment variables, service endpoints, authentication, storage, and a removed legacy setting."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-auth0-express-jwt",
+      "selections": [
+        {
+          "selectionId": "selection-8b4174fc1de27326083afcfa45893ce204e7b11c8437270c",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-auth0-node-jsonwebtoken",
+      "selections": [
+        {
+          "selectionId": "selection-551b18d9b2f51385ec8cef54340c7142e6567ba2abd17926",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-authzed-spicedb",
+      "selections": [
+        {
+          "selectionId": "selection-ff9a5509d809e654a8db6e10ee6654bb3377380645e9ec64",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-casbin-casbin",
+      "selections": [
+        {
+          "selectionId": "selection-caf4b700552227056838db0c89dc451442b2c522a58ead3a",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-casbin-casbin-js",
+      "selections": [
+        {
+          "selectionId": "selection-c5b17a11813769855126a531b624144b885206b6c42df2d3",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-casbin-node-casbin",
+      "selections": [
+        {
+          "selectionId": "selection-679782aaf8eee0a6985f828cb4260234652d38ceee9ba2e9",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-casdoor-casdoor",
+      "selections": [
+        {
+          "selectionId": "selection-8fb9b6de0a6a7c2c755867dc1b1dd8bd81beda0573d19b7f",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-cerbos-cerbos",
+      "selections": [
+        {
+          "selectionId": "selection-d816b34f857049259655b0b86ba15a70259db35275217902",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-75c72662f7a62df5348f1ebb4fe46f2b044b1c39ee85fb17",
+          "selector": "path",
+          "path": "docs/modules/ROOT/pages/what-is-cerbos.adoc",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What is the smallest useful adoptable unit?' by describing Cerbos as a standalone PDP, its sidecar deployment, policy distribution, identity-provider boundary, and gRPC or HTTP checks."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-express-session",
+      "selections": [
+        {
+          "selectionId": "selection-5cb1ec2908bd4c5b500931b1b1b8a3239299738234e5348a",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-fastify-auth",
+      "selections": [
+        {
+          "selectionId": "selection-9638a415a28e81faaf6d3f3eebac610a77347898c42630c7",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-goauthentik",
+      "selections": [
+        {
+          "selectionId": "selection-1f59577cdc103aee0f4b0225f84fbada4d61b0d72aedb055",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-keycloak",
+      "selections": [
+        {
+          "selectionId": "selection-ab37ac6e36e4a4b3b9a62d40376635b56137d11983c5e4cd",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-koa-roles",
+      "selections": [
+        {
+          "selectionId": "selection-040de949d86b11ef5619f276c7cffceadce81fcb27fa8e62",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-koa-session",
+      "selections": [
+        {
+          "selectionId": "selection-d26d61783d5a43f13cdbe393d2634b7c08bae70d132b4a13",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-open-policy-agent",
+      "selections": [
+        {
+          "selectionId": "selection-8e401a0f1aab846d3e447f3dcaf41fd3ba79d010554ec933",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-82a08bb4ffd0a26171ca69a0dbac66506abdadf8036d6450",
+          "selector": "path",
+          "path": "docs/docs/management-introduction/index.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What architectural assumptions does it make?' by explaining OPA's colocated distributed enforcement, in-memory policy data, management APIs, telemetry, and absent built-in control plane."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-openfga",
+      "selections": [
+        {
+          "selectionId": "selection-9dc7e9a5c7b5d74b87a946fb1ffe84afce2f3d93ff2e64fc",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-e11bff584190e106d3123fc8840f070b15d500a8e8691531",
+          "selector": "path",
+          "path": "docs/architecture/architecture.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by identifying OpenFGA's database, ingress, authentication, API or SDK integration, observability, and multi-instance storage restrictions."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-ory-keto",
+      "selections": [
+        {
+          "selectionId": "selection-5b20e7a7048ff62614070b0ac1f55a2d14428f46d2c9c04a",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-oso",
+      "selections": [
+        {
+          "selectionId": "selection-bf6ec6a8d9652c723b254439d3b2fee03a9ebc549cc58a8b",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-f5d3bd5dbebc076fde05f9a76dc1097850e82ea79abc27b7",
+          "selector": "path",
+          "path": "docs/content/any/getting-started/quickstart/index.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What use cases are explicitly unsupported or poor fits?' by showing Oso's application integration pathway and stating that the library fits monoliths better than shared multi-service policy."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-panva-jose",
+      "selections": [
+        {
+          "selectionId": "selection-6b2d3db34ee6f9b06c41f7d18fcf415373619d1828bcdb8c",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-panva-oidc",
+      "selections": [
+        {
+          "selectionId": "selection-153e3541cdeedadd2ed969c683493fa5a8a27833079a13e9",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-permify",
+      "selections": [
+        {
+          "selectionId": "selection-ada48e75a706c80b4c2bf819f17736ac68ac1b8d88da3834",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-10909486bd96557c3cc569b3c61631a86e7688d48ce2cb97",
+          "selector": "path",
+          "path": "docs/docs/permify-overview/infrastructure.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What deployment models are supported?' by describing Permify's service and sidecar patterns, database and discovery assumptions, APIs, scaling, and authentication boundary."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-permit-js",
+      "selections": [
+        {
+          "selectionId": "selection-8d7158923b56c78d1fae5b9304e1b94dcd55e159b21db893",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-permit-opal",
+      "selections": [
+        {
+          "selectionId": "selection-fd52241d24b8f7b14a2bb07aac827f8fa69b8507abe35028",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-stalniy-casl",
+      "selections": [
+        {
+          "selectionId": "selection-061049964f794d15925cbcc4b798ef4d50979f1766636d64",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-supabase-auth",
+      "selections": [
+        {
+          "selectionId": "selection-a022a3202f899073584c1092da23aa8a032499b70ff8e0f8",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-supertokens-core",
+      "selections": [
+        {
+          "selectionId": "selection-837a94d233c6335bc843c7227c009388240b60339e77b160",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-tsndr-cloudflare-jwt",
+      "selections": [
+        {
+          "selectionId": "selection-ad06d0bea809d682cebef542ee831816dd42b02e4f2bdbd8",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-warrant",
+      "selections": [
+        {
+          "selectionId": "selection-05354abaa553f108a71fe2e7a4f9a9057d79cb9c8f1f5815",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-zitadel",
+      "selections": [
+        {
+          "selectionId": "selection-4dcadfb9b70c6d7bd405046497e1836ee1e1e55aee25484b",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-actionhero-node-resque",
+      "selections": [
+        {
+          "selectionId": "selection-ab9e8b94d24b4ef3a331d76d097f4e53812d7634f3c27b2e",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-activepieces",
+      "selections": [
+        {
+          "selectionId": "selection-5d9dc8b11def28a66a23e1d5e385d960327ffcafab139dc5",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-agenda",
+      "selections": [
+        {
+          "selectionId": "selection-c3c3779f2ebf43a242c4a0228122617ab624fada945d514b",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-airflow",
+      "selections": [
+        {
+          "selectionId": "selection-160b4eb33e578715d945d175b0f1df85a1e57ce9d5345df5",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-asynq",
+      "selections": [
+        {
+          "selectionId": "selection-b47376d16748fa01d85abb7a33c0500499ef439476a314c7",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-bee-queue",
+      "selections": [
+        {
+          "selectionId": "selection-4bfafff593cbdd9f52bb2d369c2386a69f98f2ca63678537",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-bree",
+      "selections": [
+        {
+          "selectionId": "selection-13ef314072e5378e3ebf5aabbb48d2eb71e5cb52acd46c5a",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-bull",
+      "selections": [
+        {
+          "selectionId": "selection-f685f700da9b5d5a6b1eb1e8df800b98ed2da367465de7cb",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-e9e1f9ccbc863186541d6a8d94aae9555d0f5dc226476e58",
+          "selector": "path",
+          "path": "PATTERNS.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What operational burden does adoption introduce?' by documenting Bull's Redis connection count, connection reuse, graceful shutdown, Redis Cluster constraints, and durable messaging patterns."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-bullmq",
+      "selections": [
+        {
+          "selectionId": "selection-6dce584fbae727d73c6a18100911ae545f5b271fad586153",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-747a1a52901c9c3c58ad87d41b0c0f9773719f865c26b0af",
+          "selector": "path",
+          "path": "docs/gitbook/guide/architecture.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What architectural assumptions does it make?' by defining BullMQ's Redis-backed job and flow lifecycle, queue states, priorities, delays, completion, failure, and retry behavior."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-celery",
+      "selections": [
+        {
+          "selectionId": "selection-ce2ed14e2f62ca09e7cae3c8edec3ef35a0215b5b178c0a5",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-dagster",
+      "selections": [
+        {
+          "selectionId": "selection-988e633c6da9c6b72f582bb387fb5973dd09a62b789359ff",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-1ac662483afab727b35f3f86e1d173a8ff5358788a52db25",
+          "selector": "path",
+          "path": "docs/docs/deployment/oss/oss-deployment-architecture.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by detailing Dagster OSS's three long-running services, storage and launcher components, configuration layers, and execution flow."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-graphile-worker",
+      "selections": [
+        {
+          "selectionId": "selection-4fa64247b9a5a4eb7252f3908c5201846905c8bc96380ee5",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-35570b693569da17f6ef7cab5fe7e7d0d1f4ebe995aa8694",
+          "selector": "path",
+          "path": "website/docs/config.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by specifying Graphile Worker's PostgreSQL connection, concurrency, task loading, presets, CLI and library modes, and option precedence."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-hatchet",
+      "selections": [
+        {
+          "selectionId": "selection-96bcf13c75a29d03a771decbf0ffcda2a363011279df1a05",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-047a3c9abf2508fd586ba50451717993aeaa5846b1e46a18",
+          "selector": "path",
+          "path": "frontend/docs/pages/v1/architecture-and-guarantees.mdx",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What use cases are explicitly unsupported or poor fits?' by documenting Hatchet's services, PostgreSQL and optional broker needs, execution guarantees, worker model, scaling, and poor-fit workloads."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-inngest",
+      "selections": [
+        {
+          "selectionId": "selection-0e042816a6feaedddf7b1c96deae56a4487d8c6962c3352a",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-kestra",
+      "selections": [
+        {
+          "selectionId": "selection-628cd35d57f87ff69f1348571b02a3c5fe9a636532f91c66",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-kue",
+      "selections": [
+        {
+          "selectionId": "selection-a702c4008e4b4fa2d688fb89208a16295e54e438fef6e23a",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-n8n",
+      "selections": [
+        {
+          "selectionId": "selection-d8514a186663cce1104d891fa558ea0be214f940b8895848",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-node-cron",
+      "selections": [
+        {
+          "selectionId": "selection-da6fcde1d7501e8a86e27119473871c43d9f66f65cbfbe5e",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-node-schedule",
+      "selections": [
+        {
+          "selectionId": "selection-61484c51ac863301606155d22825fc7d228707c8cc5d7a9f",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-p-queue",
+      "selections": [
+        {
+          "selectionId": "selection-215d43385de603b3581523f9956e38ca76c6003560edb797",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-pg-boss",
+      "selections": [
+        {
+          "selectionId": "selection-fa31b4efeb63f6cf5eee94587bf4e1ec96b84baf7372d20f",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-2765df637021f6c55b961b5cccaa916cbd3ba6845ca30f82",
+          "selector": "path",
+          "path": "docs/introduction.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by explaining pg-boss's PostgreSQL-only queue model, SKIP LOCKED semantics, partitioning, worker instances, connection burden, and job lifecycle."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-prefect",
+      "selections": [
+        {
+          "selectionId": "selection-80dbdae344e0499e4797a8d141f04d24102b49cf6471a481",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-resque",
+      "selections": [
+        {
+          "selectionId": "selection-acf9a61d52dfcce7f3d294d27cabd3f7cdd53d5fa9cd64ed",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-river",
+      "selections": [
+        {
+          "selectionId": "selection-e95a4e993df6a62882b2aeb89c55a32fdfaf05d05b0c8a97",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-rq",
+      "selections": [
+        {
+          "selectionId": "selection-d03abd6d83bdc2635d81696c677f9b65aeb4ad4e23614663",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-sidekiq",
+      "selections": [
+        {
+          "selectionId": "selection-7369d967d13c3316d63e34889800480b5fc63e7e5e3515f5",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-temporal-typescript",
+      "selections": [
+        {
+          "selectionId": "selection-672c5d4c84ba41acce87ae263a05d65e42d59803fe4bf60c",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-toad-scheduler",
+      "selections": [
+        {
+          "selectionId": "selection-7e29ebd603a976c7f88498031c955b3e3cced5dbf8d62c87",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-trigger-dev",
+      "selections": [
+        {
+          "selectionId": "selection-864d4f5aed450c378de53dd8a1c568091c593a3193f880a9",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-windmill",
+      "selections": [
+        {
+          "selectionId": "selection-9cdab8980bf493e97da22595cb876e748546fd8c09fe09f9",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-apisix",
+      "selections": [
+        {
+          "selectionId": "selection-e4e095b16f77b45460fb5deb39bbc1804058d614bc01d55f",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-466bd4f992a7383137bfa2afddc4b75e3bfe8ae02d5ec0a3",
+          "selector": "path",
+          "path": "docs/en/latest/getting-started/rate-limiting.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by showing how APISIX attaches the limit-count plugin to a route, validates behavior, disables it, and optionally uses Redis for cluster limits."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-bottleneck",
+      "selections": [
+        {
+          "selectionId": "selection-a8032ed831748df08c3f9d5c1d3fc7e484da2e6bff9ba1f7",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-caddy",
+      "selections": [
+        {
+          "selectionId": "selection-f19c33389410b26f209b35decd66d45c859f6dee3b5fa333",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-envoy",
+      "selections": [
+        {
+          "selectionId": "selection-52f1bffa35ebaf2418a97aab1167f93b8e38a43056cbb863",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-envoy-ratelimit",
+      "selections": [
+        {
+          "selectionId": "selection-be104681129b0fdc1fdc8a1eb05e4c1fb75ce533d76a0547",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-dfaa267cdaf1b852cc8df6e774ea7f510b62e089e6c74b77",
+          "selector": "path",
+          "path": "examples/xds-sotw-config-server/README.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by describing Envoy Ratelimit's xDS V3 control-plane configuration, snapshot resource, Docker Compose services, and server components."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-express-rate-limit",
+      "selections": [
+        {
+          "selectionId": "selection-a37f17e5f9e65084f7925901a93b0d636cf18a2ad2c11acb",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-9ecee4266801be221c8555e20b4d7efa6070d79e39ef83b5",
+          "selector": "path",
+          "path": "docs/reference/configuration.mdx",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What compatibility or versioning restrictions exist?' by defining express-rate-limit options, store persistence limits, timer bounds, async configuration, and the v7 zero-limit behavior change."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-fastify-rate-limit",
+      "selections": [
+        {
+          "selectionId": "selection-2d83183f2740a5b1cfa2d1dc11413d37488bb79bbfd15d8b",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-go-limiter",
+      "selections": [
+        {
+          "selectionId": "selection-d0ed3e6fbca27030f0cdb7ca957dd372de3a9586d97d2118",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-governor",
+      "selections": [
+        {
+          "selectionId": "selection-216491397e6a13ecf9a702bd89ba7b58040dd75408785b3b",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-gravitee",
+      "selections": [
+        {
+          "selectionId": "selection-3fd9c650e2cda9375e0da13c096d4ec9a765103dc6d27d79",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-444467ce290f585d88faf8423b5232af9aadea7cf15e6874",
+          "selector": "path",
+          "path": "docker/quick-setup/postgresql/README.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by documenting Gravitee APIM's PostgreSQL deployment path, required JDBC driver, container workflow, and Enterprise license requirement."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-gubernator",
+      "selections": [
+        {
+          "selectionId": "selection-294744e8407a209c615beaab4168571f66c7a218de736129",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-haproxy",
+      "selections": [
+        {
+          "selectionId": "selection-f0c4ffe7c49df59ade545e70ab1298bd4d963bdf96d84d7a",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-juju",
+      "selections": [
+        {
+          "selectionId": "selection-f8e1857cda59202ddf76f3330596ea0fa11e0b403218b6af",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-koa-ratelimit",
+      "selections": [
+        {
+          "selectionId": "selection-f79d2e34978e7977fd668accee5dc17d85b86145bee961ac",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-kong",
+      "selections": [
+        {
+          "selectionId": "selection-03ea152577bc7988cfac4aeb3592298db407908f4171e547",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-4bb614e111c1e3c10e3fa3c814b80b6e963362fdb2a7b4df",
+          "selector": "path",
+          "path": "UPGRADE.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What compatibility or versioning restrictions exist?' by documenting Kong's supported migration sequence, datastore and configuration changes, dependency versions, hybrid-mode constraints, and rollback precautions."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-krakend",
+      "selections": [
+        {
+          "selectionId": "selection-bc0e07fe4febc9e227095ace943db7930fb8ff03bb688487",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-limiters",
+      "selections": [
+        {
+          "selectionId": "selection-d227a6fdbfc82e672349b33f10a248957da23acc71373d4d",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-nestjs-throttler",
+      "selections": [
+        {
+          "selectionId": "selection-16bc9c7db08c4294e2c692c26c91d884134a38f564cb6570",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-nginx",
+      "selections": [
+        {
+          "selectionId": "selection-3cbf9246696ce7d7079d4eb1866dc2b6c9bbeff8dde69a31",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-node-rate-limiter-flexible",
+      "selections": [
+        {
+          "selectionId": "selection-c28c74e0ad3ebdd3d752fd9824fe12af666ae93c2c614a38",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-node-ratelimiter",
+      "selections": [
+        {
+          "selectionId": "selection-e71c976c306b13a567b1e57d0631b02d5d3c874b46518443",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-pingora",
+      "selections": [
+        {
+          "selectionId": "selection-9509618f09c501709b2a28bfdd8d7ef3ea5681c0934d9ddb",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-redis-cell",
+      "selections": [
+        {
+          "selectionId": "selection-d6e075ea68e687d839992e7751c6bd5c838d10afa494a125",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-throttled",
+      "selections": [
+        {
+          "selectionId": "selection-d576bcb734735f15ca940a1ed41254331e6a2aa24e184182",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-tollbooth",
+      "selections": [
+        {
+          "selectionId": "selection-ddd4008f4c0231814fbc407ac0cb184ae0dcb4cddddfce55",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-traefik",
+      "selections": [
+        {
+          "selectionId": "selection-9eeca9c2a0239b70cde7ddad4d167b9f7607c1139ff1428b",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-tyk",
+      "selections": [
+        {
+          "selectionId": "selection-bd67baba095ce377e65c165e7c181a72f74a530c3d674a25",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-uber-go",
+      "selections": [
+        {
+          "selectionId": "selection-3745ffed9726fe75f5252d3d55953fbfd630a0f480fe4bce",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-ulule-limiter",
+      "selections": [
+        {
+          "selectionId": "selection-659c0af575e7b3528108859e16b336e957766d8de394da45",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-upstash",
+      "selections": [
+        {
+          "selectionId": "selection-8da82c57863ef1674b74323386dc692c5af446eab042927c",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-6d938c50917d078bbae2be096b3c8ca09cf671ad02afe8ae",
+          "selector": "path",
+          "path": "examples/nextjs-middleware/README.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by showing Upstash rate limiting in Next.js middleware and naming the Redis service, credentials, analytics lifecycle, and Vercel deployment requirements."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-adnanh",
+      "selections": [
+        {
+          "selectionId": "selection-2304d5991cdbf9abd7630b5caf9428cd857a795ca6085e3b",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-6fa01e79c6ea3cb0485788f0f84611fd6c3d1e2449507921",
+          "selector": "path",
+          "path": "docs/Hook-Definition.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by specifying webhook hook IDs, commands, working directories, request mapping, response behavior, signature rules, and execution controls."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-clerk-javascript",
+      "selections": [
+        {
+          "selectionId": "selection-4b0b50cb791c92e979bb9579167bbdb8608478528b294170",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-convoy",
+      "selections": [
+        {
+          "selectionId": "selection-656a3b0e95b99c72e3385208c24457df0341aa08dfaa468b",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-discord-js",
+      "selections": [
+        {
+          "selectionId": "selection-8f9898960bffb1c79032816d4461c373d628bb23bfc2eba2",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-dodopayments",
+      "selections": [
+        {
+          "selectionId": "selection-071fe20736257548d92782fac1916173ea0ceae47464e539",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-firebase-admin",
+      "selections": [
+        {
+          "selectionId": "selection-aa8440d322e05400792884d0ecc0527e6a1bfa4ea475b45e",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-go-playground",
+      "selections": [
+        {
+          "selectionId": "selection-eb0b78d467e3849c83bce031128d1d21e0477328aa28ac8d",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-hook0",
+      "selections": [
+        {
+          "selectionId": "selection-7ad16fc595875f530a8ec519ff5a431ceaa3e007cb5419aa",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-346337f34fb61845b45fa6656b28e2449a3ed71e728f746f",
+          "selector": "path",
+          "path": "documentation/explanation/hook0-architecture.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What deployment models are supported?' by comparing Hook0's PostgreSQL-only and Pulsar plus S3 architectures, component roles, scaling boundary, retry flow, and storage tradeoffs."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-hookdeck",
+      "selections": [
+        {
+          "selectionId": "selection-2736ee612abca8cbb3baa22f7bf8278dc5b741545dcf7b18",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-098e3103fe4a0f31d72b2b429c370ce8bea749d079712bc5",
+          "selector": "path",
+          "path": "docs/content/self-hosting/architecture.mdoc",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by documenting Outpost's API, delivery, and log services, single-process option, supported queues, Redis, and PostgreSQL or ClickHouse requirements."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-lemonsqueezy",
+      "selections": [
+        {
+          "selectionId": "selection-86cd45ddfe634983c3ced36193605f26363119e15b015d5c",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-localtunnel",
+      "selections": [
+        {
+          "selectionId": "selection-4720cd4814de495ff3c14dfe3d017a08872054a596a4f209",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-mux-node",
+      "selections": [
+        {
+          "selectionId": "selection-e2a52484cf3ce61010a3e7c6b874fd7ba84bc7345ac01958",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-ngrok-javascript",
+      "selections": [
+        {
+          "selectionId": "selection-ec7b341877fb7f3072dc5749c0ecf086b1cf8c86137a94e0",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-novu",
+      "selections": [
+        {
+          "selectionId": "selection-2f47f5ab6d3f318efa461a5fe9145c6767b7f820a947afd4",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-octokit-app",
+      "selections": [
+        {
+          "selectionId": "selection-a111baf968b11f42189d542991e0f19b1831dfc1bb8b048e",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-octokit-methods",
+      "selections": [
+        {
+          "selectionId": "selection-45f2a6518ec3af874fa57d15beba772508f12bd83628d961",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-octokit-webhooks",
+      "selections": [
+        {
+          "selectionId": "selection-24f2b015dc7b03f11126e4e13b0bd4851b434be76af3a8cc",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-paddle-node",
+      "selections": [
+        {
+          "selectionId": "selection-8778d87dd36276788e217b74abec76c47758fa10add16aa2",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-paypal-node",
+      "selections": [
+        {
+          "selectionId": "selection-b3e95a358cf777cf31eedf6661047890841cfd0d380c0738",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-razorpay-node",
+      "selections": [
+        {
+          "selectionId": "selection-a0bb5332ce496329033e35a41279c9cb35efb9ca2c6faa23",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-sendgrid-node",
+      "selections": [
+        {
+          "selectionId": "selection-6fd973f6720e3e5f3420f5e4168f00714804aa635496fd69",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-shopify-api",
+      "selections": [
+        {
+          "selectionId": "selection-5d177593a53fae4a3ffa4a8bb59f4905d0fe53a453ae4fb1",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-slack-node",
+      "selections": [
+        {
+          "selectionId": "selection-4561fdf026f5a6c301bddb73905dc89492380361fa521e46",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-standard-webhooks",
+      "selections": [
+        {
+          "selectionId": "selection-4f1f065929ff7d86f76025ac70023cfd11c996a13b1b6f99",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-8592becfe28893ebe7a5b48c047e858f466475d5a4a6d9e0",
+          "selector": "path",
+          "path": "spec/standard-webhooks.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What compatibility or versioning restrictions exist?' by defining the Standard Webhooks protocol, producer and consumer requirements, payload choices, signatures, replay protection, and interoperability goals."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-stripe-node",
+      "selections": [
+        {
+          "selectionId": "selection-60d6695d18b1c1145ddcc99c46cc977f87addb6dcbf23ee0",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-svix",
+      "selections": [
+        {
+          "selectionId": "selection-b5e1968f8e6b59bbe5ef02c8eb25768e6d95c45a98a5e687",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-b216f37ad34eec0777b319ad2e2f8ed074c975dbe58d0c50",
+          "selector": "path",
+          "path": "server/README.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by documenting the Svix server boundary, PostgreSQL and Redis environment, database migrations, authentication token setup, and build or run pathway."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-twilio-node",
+      "selections": [
+        {
+          "selectionId": "selection-e895dbe2fc934361a3dbe7adf3036a51eb9ea20522ce13b6",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-webhook-site",
+      "selections": [
+        {
+          "selectionId": "selection-fe3cdcaa7f32633cae189169c481491c27e7dbb03a7a5b6e",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-webhookx",
+      "selections": [
+        {
+          "selectionId": "selection-d0cc890f1b8cee6ca316cc9622e9ddb638ba12b614cb31fe",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        },
+        {
+          "selectionId": "selection-3c539abf109f324b1ab6651f498efd8d02770b67f542722b",
+          "selector": "path",
+          "path": "plugins/wasm/README.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by defining WebhookX's Wasm extension unit, ABI reference, delivery-request customization, module path, exposed environment, and plugin configuration."
+        }
+      ]
+    },
+    {
+      "candidateId": "webhook-workos-node",
+      "selections": [
+        {
+          "selectionId": "selection-b959a804c01b65bd28c85cef2a41ee4ef0de14cc5f3be5ee",
+          "selector": "root-readme",
+          "artifactKind": "readme",
+          "requirement": "optional"
+        }
+      ]
+    }
+  ],
+  "manifestDigest": "17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c"
+}

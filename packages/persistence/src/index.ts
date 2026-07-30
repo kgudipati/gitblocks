@@ -5,6 +5,11 @@ export {
 } from './client.ts';
 export { PersistenceError, type PersistenceErrorCode } from './errors.ts';
 export {
+  loadRepositoryArtifact,
+  loadRepositoryArtifactSet,
+  publishRepositoryArtifactSet,
+} from './artifact-operations.ts';
+export {
   applyMigrations,
   knownMigrationInventory,
   verifyMigrations,
@@ -34,11 +39,17 @@ export type {
   LoadCandidateDossierSnapshotCommand,
   MigrationRecord,
   MigrationVerification,
+  LoadedRepositoryArtifact,
+  LoadRepositoryArtifactCommand,
+  LoadRepositoryArtifactSetCommand,
   OperationControl,
   PersistenceClientConfig,
   PutCatalogCandidateCommand,
+  PublishRepositoryArtifactSetCommand,
+  PublishRepositoryArtifactSetResult,
   RecordEvidenceInvalidationCommand,
   RecordEvidenceSupersessionCommand,
   SelectActiveDossierMaterialCommand,
   SetCandidateCapabilityFamiliesCommand,
+  RepositoryArtifactPublication,
 } from './types.ts';

@@ -12,6 +12,7 @@ export default defineConfig({
     maxWorkers: 1,
     passWithNoTests: false,
     restoreMocks: true,
+    setupFiles: ['packages/ingestion/test/network-guard.ts'],
     hookTimeout: 30_000,
     testTimeout: 30_000,
   },

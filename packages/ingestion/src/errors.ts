@@ -12,6 +12,9 @@ export type IngestionErrorCode =
   | 'ingestion.provider-authorization'
   | 'ingestion.provider-response'
   | 'ingestion.provider-identity'
+  | 'ingestion.unsupported-git-object-algorithm'
+  | 'ingestion.unsupported-artifact-type'
+  | 'ingestion.artifact-hash-mismatch'
   | 'ingestion.body-too-large'
   | 'ingestion.content-type'
   | 'ingestion.redirect'
@@ -28,6 +31,9 @@ export type ProviderOutcomeClass =
   | 'authentication-failure'
   | 'authorization-failure'
   | 'identity-mismatch'
+  | 'unsupported-git-object-algorithm'
+  | 'unsupported-artifact-type'
+  | 'artifact-hash-mismatch'
   | 'malformed-response'
   | 'unsupported-content-type'
   | 'body-too-large'
@@ -56,6 +62,12 @@ const SAFE_MESSAGES: Readonly<Record<IngestionErrorCode, string>> = {
     'The approved public provider returned an invalid response.',
   'ingestion.provider-identity':
     'The approved public provider identity does not match the catalog.',
+  'ingestion.unsupported-git-object-algorithm':
+    'The repository uses an unsupported Git object algorithm.',
+  'ingestion.unsupported-artifact-type':
+    'The selected repository artifact type is unsupported.',
+  'ingestion.artifact-hash-mismatch':
+    'The repository artifact failed immutable object verification.',
   'ingestion.body-too-large':
     'The approved public provider response exceeded its bound.',
   'ingestion.content-type':
@@ -125,6 +137,12 @@ export function providerOutcomeClass(
       return 'authorization-failure';
     case 'ingestion.provider-identity':
       return 'identity-mismatch';
+    case 'ingestion.unsupported-git-object-algorithm':
+      return 'unsupported-git-object-algorithm';
+    case 'ingestion.unsupported-artifact-type':
+      return 'unsupported-artifact-type';
+    case 'ingestion.artifact-hash-mismatch':
+      return 'artifact-hash-mismatch';
     case 'ingestion.provider-response':
       return 'malformed-response';
     case 'ingestion.content-type':

@@ -699,6 +699,165 @@ export const errorEnvelopeV1Schema = Type.Object(
   },
 );
 
+const hexSha256Schema = Type.String({
+  minLength: 64,
+  maxLength: 64,
+  pattern: '^[0-9a-f]{64}$',
+});
+
+const sha1ObjectIdSchema = Type.String({
+  minLength: 40,
+  maxLength: 40,
+  pattern: '^[0-9a-f]{40}$',
+});
+
+const githubRepositoryIdSchema = Type.String({
+  minLength: 1,
+  maxLength: 20,
+  pattern: '^(?:0|[1-9][0-9]{0,19})$',
+});
+
+const artifactPathSchema = Type.String({
+  minLength: 1,
+  maxLength: 512,
+});
+
+const repositoryArtifactFirstMaterializationSchema = closedObject({
+  catalogOwner: repositoryNameSchema,
+  catalogRepository: repositoryNameSchema,
+  providerOwner: repositoryNameSchema,
+  providerRepository: repositoryNameSchema,
+  collectedAt: timestampSchema,
+});
+
+const repositoryArtifactV1Properties = {
+  contractVersion: contractVersionSchema,
+  artifactId: stableIdSchema,
+  candidateId: stableIdSchema,
+  provider: Type.Literal('github'),
+  providerRepositoryId: githubRepositoryIdSchema,
+  gitObjectAlgorithm: Type.Literal('sha1'),
+  commitObjectId: sha1ObjectIdSchema,
+  path: artifactPathSchema,
+  blobObjectId: sha1ObjectIdSchema,
+  blobApiUrl: httpsUrlSchema,
+  displayUrl: Type.Union([httpsUrlSchema, Type.Null()]),
+  mediaType: Type.Literal('text/plain'),
+  encoding: Type.Literal('utf-8'),
+  contentSha256: hexSha256Schema,
+  byteCount: Type.Integer({ minimum: 0, maximum: 256 * 1_024 }),
+  lineCount: Type.Integer({ minimum: 1, maximum: 10_000 }),
+  content: Type.String({ maxLength: 256 * 1_024 }),
+  firstMaterialization: repositoryArtifactFirstMaterializationSchema,
+  identityDigest: hexSha256Schema,
+  recordDigest: hexSha256Schema,
+} as const;
+
+export const repositoryArtifactV1Schema = Type.Object(
+  repositoryArtifactV1Properties,
+  {
+    ...SCHEMA_ROOT_OPTIONS,
+    $id: 'https://gitblocks.dev/schemas/contracts/repository-artifact/1.0.0',
+    additionalProperties: false,
+  },
+);
+
+const repositoryArtifactChunkV1Properties = {
+  contractVersion: contractVersionSchema,
+  chunkId: stableIdSchema,
+  artifactId: stableIdSchema,
+  candidateId: stableIdSchema,
+  chunkerVersion: Type.Literal('exact-lines-v1'),
+  ordinal: Type.Integer({ minimum: 0, maximum: 63 }),
+  startByte: Type.Integer({ minimum: 0, maximum: 256 * 1_024 }),
+  endByteExclusive: Type.Integer({ minimum: 0, maximum: 256 * 1_024 }),
+  byteCount: Type.Integer({ minimum: 0, maximum: 16 * 1_024 }),
+  startLine: Type.Integer({ minimum: 1, maximum: 10_000 }),
+  endLine: Type.Integer({ minimum: 1, maximum: 10_000 }),
+  contentSha256: hexSha256Schema,
+  content: Type.String({ maxLength: 16 * 1_024 }),
+  identityDigest: hexSha256Schema,
+  recordDigest: hexSha256Schema,
+} as const;
+
+export const repositoryArtifactChunkV1Schema = Type.Object(
+  repositoryArtifactChunkV1Properties,
+  {
+    ...SCHEMA_ROOT_OPTIONS,
+    $id: 'https://gitblocks.dev/schemas/contracts/repository-artifact-chunk/1.0.0',
+    additionalProperties: false,
+  },
+);
+
+const repositoryArtifactKindSchema = Type.Union([
+  Type.Literal('readme'),
+  Type.Literal('contributing'),
+  Type.Literal('security-policy'),
+  Type.Literal('changelog'),
+  Type.Literal('documentation'),
+  Type.Literal('license'),
+]);
+
+const repositoryArtifactSetEntryBase = {
+  selectionId: stableIdSchema,
+  ordinal: Type.Integer({ minimum: 0, maximum: 3 }),
+  selector: Type.Union([Type.Literal('root-readme'), Type.Literal('path')]),
+  artifactKind: repositoryArtifactKindSchema,
+  requirement: Type.Union([Type.Literal('required'), Type.Literal('optional')]),
+  rationale: Type.Union([shortTextSchema, Type.Null()]),
+  requestedPath: Type.Union([artifactPathSchema, Type.Null()]),
+} as const;
+
+const repositoryArtifactSetEntrySchema = Type.Union([
+  closedObject({
+    ...repositoryArtifactSetEntryBase,
+    resolvedPath: artifactPathSchema,
+    outcome: Type.Literal('present'),
+    artifactId: stableIdSchema,
+  }),
+  closedObject({
+    ...repositoryArtifactSetEntryBase,
+    requirement: Type.Literal('optional'),
+    resolvedPath: Type.Null(),
+    outcome: Type.Literal('not-found'),
+    artifactId: Type.Null(),
+  }),
+]);
+
+const repositoryArtifactSetV1Properties = {
+  contractVersion: contractVersionSchema,
+  artifactSetId: stableIdSchema,
+  candidateId: stableIdSchema,
+  catalogVersion: Type.Literal('public-v1'),
+  catalogDigest: hexSha256Schema,
+  artifactManifestVersion: Type.Literal('public-artifacts-v1'),
+  artifactManifestDigest: hexSha256Schema,
+  collectorVersion: Type.Literal('repository-artifacts-v1'),
+  chunkerVersion: Type.Literal('exact-lines-v1'),
+  provider: Type.Literal('github'),
+  providerRepositoryId: githubRepositoryIdSchema,
+  providerCanonicalOwner: repositoryNameSchema,
+  providerCanonicalRepository: repositoryNameSchema,
+  gitObjectAlgorithm: Type.Literal('sha1'),
+  commitObjectId: sha1ObjectIdSchema,
+  entries: Type.Array(repositoryArtifactSetEntrySchema, {
+    minItems: 1,
+    maxItems: 4,
+  }),
+  publishedAt: timestampSchema,
+  identityDigest: hexSha256Schema,
+  recordDigest: hexSha256Schema,
+} as const;
+
+export const repositoryArtifactSetV1Schema = Type.Object(
+  repositoryArtifactSetV1Properties,
+  {
+    ...SCHEMA_ROOT_OPTIONS,
+    $id: 'https://gitblocks.dev/schemas/contracts/repository-artifact-set/1.0.0',
+    additionalProperties: false,
+  },
+);
+
 export type CapabilityRequestV1 = Static<typeof capabilityRequestV1Schema>;
 export type RepositoryFingerprintV1 = Static<
   typeof repositoryFingerprintV1Schema
@@ -717,4 +876,14 @@ export type MaterialClaimV1 = Static<typeof materialClaimV1Schema>;
 export type MaterialUnknownV1 = Static<typeof materialUnknownV1Schema>;
 export type HardConstraintConflictV1 = Static<
   typeof hardConstraintConflictV1Schema
+>;
+export type RepositoryArtifactV1 = Static<typeof repositoryArtifactV1Schema>;
+export type RepositoryArtifactChunkV1 = Static<
+  typeof repositoryArtifactChunkV1Schema
+>;
+export type RepositoryArtifactSetEntryV1 = Static<
+  typeof repositoryArtifactSetEntrySchema
+>;
+export type RepositoryArtifactSetV1 = Static<
+  typeof repositoryArtifactSetV1Schema
 >;

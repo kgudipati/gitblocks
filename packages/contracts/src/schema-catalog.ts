@@ -4,6 +4,9 @@ import {
   errorEnvelopeV1Schema,
   fitAssessmentRequestV1Schema,
   fitAssessmentResponseV1Schema,
+  repositoryArtifactChunkV1Schema,
+  repositoryArtifactSetV1Schema,
+  repositoryArtifactV1Schema,
   repositoryFingerprintV1Schema,
 } from './schemas.ts';
 
@@ -13,6 +16,9 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'error-envelope',
   'fit-assessment-request',
   'fit-assessment-response',
+  'repository-artifact',
+  'repository-artifact-chunk',
+  'repository-artifact-set',
   'repository-fingerprint',
 ] as const);
 
@@ -32,6 +38,9 @@ const SCHEMAS = {
   'error-envelope': errorEnvelopeV1Schema,
   'fit-assessment-request': fitAssessmentRequestV1Schema,
   'fit-assessment-response': fitAssessmentResponseV1Schema,
+  'repository-artifact': repositoryArtifactV1Schema,
+  'repository-artifact-chunk': repositoryArtifactChunkV1Schema,
+  'repository-artifact-set': repositoryArtifactSetV1Schema,
   'repository-fingerprint': repositoryFingerprintV1Schema,
 } as const;
 

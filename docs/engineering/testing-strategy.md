@@ -92,6 +92,18 @@ responses, and composes exact profiles through PostgreSQL 18.4. A live receipt
 is operational evidence only when the explicit opt-in command completes;
 fixtures are not current-source validation.
 
+The Phase 6 ordinary suite also never calls a live provider. Synthetic fixtures
+cover the reviewed artifact manifest, request-version compatibility,
+repository hash-algorithm discovery, exact-ref README/path retrieval,
+non-recursive tree verification, strict content validation, lossless chunk
+properties, controlled failures, and content-free receipts. Unexpected real
+network access fails the suite. Real PostgreSQL 18 integration through the
+non-owner runtime role covers immutable artifact/set migration, grants,
+closure, reconstruction, idempotency, concurrency, historical loading, and
+first-materialization reuse without skipped tests. The full 150-candidate
+artifact operation is a separately authorized live proof and is not simulated
+by offline fixtures.
+
 Ingestion regressions must prove the closed provider taxonomy rather than mock
 all failures as absence. Fatal optional outcomes are rethrown and create no
 snapshot. PostgreSQL recovery tests perform complete, temporary-failure, and

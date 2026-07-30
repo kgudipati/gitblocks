@@ -35,6 +35,12 @@ describe('bounded provider transport', () => {
     expect(capturedHeaders?.get('authorization')).toBe(
       'Bearer test-token-value',
     );
+
+    await transport.requestJson({
+      ...REQUEST,
+      githubApiVersion: '2022-11-28',
+    });
+    expect(capturedHeaders?.get('x-github-api-version')).toBe('2022-11-28');
   });
 
   it('rejects arbitrary hosts and same-provider redirects to another host', async () => {

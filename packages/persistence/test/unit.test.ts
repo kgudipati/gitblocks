@@ -7,6 +7,7 @@ import {
   closePersistenceClient,
   createPersistenceClient,
   knownMigrationInventory,
+  loadRepositoryArtifact,
   PersistenceError,
   putCatalogCandidate,
   selectActiveDossierMaterial,
@@ -84,6 +85,25 @@ describe('persistence package boundary', () => {
     }
   });
 
+  it('rejects missing or unsupported artifact chunker versions before database I/O', async () => {
+    const client = createPersistenceClient(UNREACHABLE_CONFIG);
+    const artifactId = `artifact-${'a'.repeat(48)}`;
+
+    try {
+      await expect(
+        loadRepositoryArtifact(client, { artifactId } as never),
+      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+      await expect(
+        loadRepositoryArtifact(client, {
+          artifactId,
+          chunkerVersion: 'unsupported-chunker',
+        } as never),
+      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+    } finally {
+      await closePersistenceClient(client);
+    }
+  });
+
   it('canonicalizes object key order and distinguishes changed values', () => {
     const left = canonicalizeJson({
       beta: ['one', { delta: true, gamma: null }],
@@ -124,20 +144,34 @@ describe('persistence package boundary', () => {
         name: 'runtime-migration-verification',
         fileName: '0002_runtime_migration_verification.sql',
       },
+      {
+        version: 3,
+        name: 'immutable-repository-artifacts',
+        fileName: '0003_immutable_repository_artifacts.sql',
+      },
     ]);
   });
 
   it('contains no environment reads, runtime raw SQL, or logging calls', async () => {
-    const [clientSource, indexSource, operationsSource] = await Promise.all([
-      readFile(new URL('../src/client.ts', import.meta.url), 'utf8'),
-      readFile(new URL('../src/index.ts', import.meta.url), 'utf8'),
-      readFile(new URL('../src/operations.ts', import.meta.url), 'utf8'),
-    ]);
+    const [clientSource, indexSource, operationsSource, artifactSource] =
+      await Promise.all([
+        readFile(new URL('../src/client.ts', import.meta.url), 'utf8'),
+        readFile(new URL('../src/index.ts', import.meta.url), 'utf8'),
+        readFile(new URL('../src/operations.ts', import.meta.url), 'utf8'),
+        readFile(
+          new URL('../src/artifact-operations.ts', import.meta.url),
+          'utf8',
+        ),
+      ]);
 
     expect(clientSource).not.toContain('process.env');
     expect(operationsSource).not.toContain('.unsafe(');
     expect(operationsSource).not.toMatch(/\bconsole\./u);
     expect(operationsSource).not.toMatch(/\b(?:eval|Function)\s*\(/u);
+    expect(artifactSource).not.toContain('.unsafe(');
+    expect(artifactSource).not.toMatch(/\bconsole\./u);
+    expect(artifactSource).not.toMatch(/\b(?:eval|Function)\s*\(/u);
+    expect(artifactSource).toContain('and chunker_version = ${chunkerVersion}');
     expect(indexSource).not.toMatch(
       /\b(?:tenant|expiry|purge|tombstone|StorageScope)\b/iu,
     );

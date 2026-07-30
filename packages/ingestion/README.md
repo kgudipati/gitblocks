@@ -14,6 +14,53 @@ manifest. Every entry supplies stable GitHub identity, stable `introducedAt`,
 candidate-specific rationale and selection sources, source declarations,
 status, capability families, and its own file allowlist.
 
+Phase 6 adds a separate `public-artifacts-v1` selection authority without
+changing Phase 5 file allowlists. `artifact-selections.json` contains the
+review-focused proposed additional paths and rationales;
+`artifact-manifest.json` binds them to the exact catalog and adds one optional
+root README attempt per candidate. `artifact-manifest-cli.ts` validates the
+closed shapes, deterministic selection IDs, safe paths, coverage, ordering, and
+digest. It imports no evaluation records or gold.
+
+Artifact collection is a separate operator path. `pnpm artifacts:verify`
+exercises its deterministic offline boundary. `pnpm artifacts:live` requires
+an injected GitHub token and PostgreSQL connection, explicit catalog,
+artifact-manifest, and receipt paths, the
+`approved-non-production-public-artifact-collection` acknowledgement, and an
+`ephemeral-non-production` database-scope declaration. The command never
+migrates implicitly. Its receipt is bounded and content-free, and
+`pnpm artifacts:receipt` validates or compares receipts without contacting a
+provider.
+
+The artifact operator consumes the closed public catalog:
+
+```shell
+pnpm artifacts:live -- \
+  --catalog catalog/public-v1/manifest.json \
+  --manifest catalog/public-v1/artifact-manifest.json \
+  --receipt <absolute-untracked-receipt-path> \
+  --concurrency 2 \
+  --deadline-ms 3600000
+```
+
+Symlinks remain unsupported generally. The provider-discovered root README
+selector may resolve exactly one safely bounded repository-internal symlink to
+a normal blob at the same exact commit. The artifact is identified by the
+normalized target path and target blob; the symlink itself is not persisted as
+an artifact. Explicit path selections remain regular-file-only.
+
+One process-wide decoded-byte budget is shared by both candidate workers and
+charged before every Base64 decode. It includes both Contents/README and
+independent Git blob bodies, including decodes from candidates that later fail.
+Receipts report that operational total separately from bytes in successfully
+materialized immutable artifacts.
+
+For a safely resolved root README symlink, the operational total charges the
+README endpoint's resolved content, the symlink target-path blob, and the
+independently retrieved target blob. Materialized artifact bytes count only the
+accepted target once. The symlink path is decoded only as strict bounded
+repository-path data, never as artifact content.
+
 Repository identity and head are universal. `expectedSourceTypes` controls
 optional release, tag, exact-commit license, community, allowlisted-file, npm,
 and reviewed-advisory requests. The maximum logical budget remains 12 requests
@@ -46,3 +93,7 @@ See [ADR 0005](../../docs/architecture/decisions/0005-public-repository-ingestio
 and the
 [Phase 5 execution plan](../../docs/plans/0013-public-repository-ingestion.md)
 for source policy, bounds, refresh semantics, and operator procedures.
+Artifact selection and collection are governed separately by
+[ADR 0006](../../docs/architecture/decisions/0006-immutable-repository-artifacts.md)
+and the
+[Phase 6 execution plan](../../docs/plans/0015-immutable-repository-artifacts.md).

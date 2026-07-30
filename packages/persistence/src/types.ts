@@ -1,6 +1,9 @@
 import type {
   CandidateDossierV1,
   EvidenceObservationV1,
+  RepositoryArtifactChunkV1,
+  RepositoryArtifactSetV1,
+  RepositoryArtifactV1,
 } from '@gitblocks/contracts';
 
 export type CandidateIdentityV1 = CandidateDossierV1['identity'];
@@ -102,4 +105,38 @@ export interface MigrationRecord {
 export interface MigrationVerification {
   readonly postgresqlVersion: string;
   readonly migrations: readonly MigrationRecord[];
+}
+
+export interface RepositoryArtifactPublication {
+  readonly artifact: RepositoryArtifactV1;
+  readonly chunks: readonly RepositoryArtifactChunkV1[];
+}
+
+export interface PublishRepositoryArtifactSetCommand {
+  readonly artifactSet: RepositoryArtifactSetV1;
+  readonly artifacts: readonly RepositoryArtifactPublication[];
+}
+
+export interface PublishRepositoryArtifactSetResult {
+  readonly artifactSet: RepositoryArtifactSetV1;
+  readonly inserted: {
+    readonly artifacts: number;
+    readonly chunks: number;
+    readonly artifactSets: number;
+    readonly entries: number;
+  };
+}
+
+export interface LoadRepositoryArtifactCommand {
+  readonly artifactId: string;
+  readonly chunkerVersion: 'exact-lines-v1';
+}
+
+export interface LoadedRepositoryArtifact {
+  readonly artifact: RepositoryArtifactV1;
+  readonly chunks: readonly RepositoryArtifactChunkV1[];
+}
+
+export interface LoadRepositoryArtifactSetCommand {
+  readonly artifactSetId: string;
 }

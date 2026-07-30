@@ -15,6 +15,38 @@ export {
   manifestWithDigest,
   parsePublicCatalog,
 } from './manifest.ts';
+export {
+  chunkRepositoryArtifact,
+  verifyRepositoryArtifactChunks,
+} from './artifact-chunking.ts';
+export {
+  createArtifactDecodedByteBudget,
+  type ArtifactDecodedByteBudget,
+  type ArtifactDecodedByteBudgetScope,
+} from './artifact-byte-budget.ts';
+export {
+  collectPublicRepositoryArtifacts,
+  type CollectPublicRepositoryArtifactsConfig,
+} from './artifact-batch.ts';
+export {
+  createRepositoryArtifactCollector,
+  type CollectRepositoryArtifactsCommand,
+  type RepositoryArtifactCollectorConfig,
+  type RepositoryArtifactCollector,
+} from './artifact-provider.ts';
+export {
+  createArtifactReceipt,
+  parseArtifactReceipt,
+} from './artifact-receipt.ts';
+export {
+  artifactManifestDigest,
+  artifactManifestWithDigest,
+  buildArtifactManifest,
+  isSafeArtifactPath,
+  parseArtifactSelectionSource,
+  parsePublicArtifactManifest,
+  selectionId,
+} from './artifact-manifest.ts';
 export { persistCandidateProfile, loadPriorMaterial } from './persist.ts';
 export { profileCandidate } from './profile.ts';
 export {
@@ -38,6 +70,12 @@ export {
   SYSTEM_CLOCK,
   type AdvisoryCollection,
   type AdvisorySource,
+  type ArtifactKind,
+  type ArtifactReceipt,
+  type ArtifactReceiptCandidate,
+  type ArtifactRequirement,
+  type ArtifactSelection,
+  type ArtifactSelectionSource,
   type CandidateSourceBundle,
   type CandidateCollectionResult,
   type CatalogCandidate,
@@ -53,6 +91,7 @@ export {
   type IngestionReceiptCandidate,
   type NpmPackageSource,
   type ProfileResult,
+  type PublicArtifactManifest,
   type PublicCatalog,
   type RefreshPlan,
   type RepositoryFileSource,

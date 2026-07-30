@@ -41,6 +41,11 @@ const KNOWN_MIGRATIONS: readonly KnownMigration[] = Object.freeze([
     name: 'runtime-migration-verification',
     fileName: '0002_runtime_migration_verification.sql',
   }),
+  Object.freeze({
+    version: 3,
+    name: 'immutable-repository-artifacts',
+    fileName: '0003_immutable_repository_artifacts.sql',
+  }),
 ]);
 
 export async function applyMigrations(
