@@ -291,6 +291,9 @@ function validateChunks(
   }
   if (
     expectedStart !== artifact.byteCount ||
+    (artifact.byteCount === 0 &&
+      (chunks.length !== 1 || chunks[0]?.byteCount !== 0)) ||
+    (artifact.byteCount > 0 && chunks.some((chunk) => chunk.byteCount === 0)) ||
     Buffer.concat(
       chunks.map((chunk) => Buffer.from(chunk.content, 'utf8')),
     ).toString('utf8') !== artifact.content

@@ -469,6 +469,15 @@ Phase 6 itself is not complete at this checkpoint.
   PostgreSQL composition test proves one candidate failure does not roll back
   another candidate and proves an immediate rerun inserts zero rows while
   retaining both set and first-materialization identity.
+- **2026-07-29:** The pre-live full-diff audit found that direct `INSERT`
+  privilege could append a new chunk after an artifact was already referenced
+  by a closed set. A PostgreSQL regression reproduced the gap: one test failed
+  because the append succeeded. Migration 0003 now serializes chunk insertion
+  and set membership on an artifact advisory lock, permits only exact
+  idempotent existing chunk IDs after publication, rejects new chunk IDs, and
+  rejects zero-byte chunks except the sole chunk of an empty artifact. The
+  regression and all 29 database tests pass. Migration 0003 remains unmerged;
+  migrations 0001 and 0002 were not changed.
 
 ## Decision and deviation log
 
@@ -575,6 +584,7 @@ pnpm verify               passed; 43 files / 768 tests
 pnpm architecture:check  passed; 640 modules / 2,035 dependencies
 pnpm db:verify            passed; PostgreSQL 18.4
 database integration      passed; 4 files / 29 tests / no skips
+schema functions/triggers  4 / 25
 operator command family   artifacts:validate/test/verify/live/receipt
 candidate concurrency     maximum 2
 global request concurrency maximum 1 in the shared collector

@@ -471,6 +471,32 @@ describe(
         await expect(
           publishRepositoryArtifactSet(first, invalid),
         ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+        const trailingEmptyChunk = createRepositoryArtifactChunkV1({
+          contractVersion: originalChunk.contractVersion,
+          artifactId: originalChunk.artifactId,
+          candidateId: originalChunk.candidateId,
+          chunkerVersion: originalChunk.chunkerVersion,
+          ordinal: 1,
+          startByte: originalArtifact.artifact.byteCount,
+          endByteExclusive: originalArtifact.artifact.byteCount,
+          byteCount: 0,
+          startLine: originalArtifact.artifact.lineCount,
+          endLine: originalArtifact.artifact.lineCount,
+          contentSha256:
+            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+          content: '',
+        });
+        await expect(
+          publishRepositoryArtifactSet(first, {
+            artifactSet: publication.artifactSet,
+            artifacts: [
+              {
+                artifact: originalArtifact.artifact,
+                chunks: [originalChunk, trailingEmptyChunk],
+              },
+            ],
+          }),
+        ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
         const sets = await ownerSql<readonly { readonly count: number }[]>`
           select pg_catalog.count(*)::integer as count
           from gitblocks.repository_artifact_sets
@@ -600,6 +626,44 @@ describe(
         ).rejects.toMatchObject({ code: 'P0001' });
         await expect(
           ownerSql`truncate table gitblocks.repository_artifact_set_entries`,
+        ).rejects.toMatchObject({ code: 'P0001' });
+        await expect(
+          ownerSql`
+            insert into gitblocks.repository_artifact_chunks (
+              chunk_id,
+              artifact_id,
+              candidate_id,
+              contract_version,
+              chunker_version,
+              ordinal,
+              start_byte,
+              end_byte_exclusive,
+              byte_count,
+              start_line,
+              end_line,
+              content_sha256,
+              exact_content,
+              identity_digest,
+              record_digest
+            )
+            values (
+              ${`chunk-${'f'.repeat(48)}`},
+              ${originalArtifact.artifactId},
+              ${originalArtifact.candidateId},
+              '1.0.0',
+              'exact-lines-v1',
+              1,
+              ${originalArtifact.byteCount},
+              ${originalArtifact.byteCount},
+              0,
+              ${originalArtifact.lineCount},
+              ${originalArtifact.lineCount},
+              ${'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'},
+              '',
+              ${'f'.repeat(64)},
+              ${'e'.repeat(64)}
+            )
+          `,
         ).rejects.toMatchObject({ code: 'P0001' });
 
         const preserved = await loadRepositoryArtifact(runtime, {

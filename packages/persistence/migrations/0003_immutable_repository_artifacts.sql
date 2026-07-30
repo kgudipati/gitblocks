@@ -148,6 +148,15 @@ create table gitblocks.repository_artifact_chunks (
       and end_byte_exclusive - start_byte = byte_count
       and byte_count between 0 and 16384
       and pg_catalog.octet_length(exact_content) = byte_count
+      and (
+        byte_count > 0
+        or (
+          ordinal = 0
+          and start_byte = 0
+          and end_byte_exclusive = 0
+          and exact_content = ''
+        )
+      )
       and start_line between 1 and 10000
       and end_line between start_line and 10000
     ),
@@ -346,6 +355,56 @@ create unique index repository_artifact_set_entries_resolved_path
   )
   where resolved_path is not null;
 
+create function gitblocks.guard_repository_artifact_chunk_insert()
+returns trigger
+language plpgsql
+set search_path = ''
+as $gitblocks_artifact_chunk_guard$
+declare
+  target_artifact_id text;
+begin
+  target_artifact_id := new.artifact_id;
+  if target_artifact_id is null then
+    return new;
+  end if;
+
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(target_artifact_id, 44392818)
+  );
+
+  if tg_table_name = 'repository_artifact_chunks' then
+    if exists (
+      select 1
+      from gitblocks.repository_artifact_chunks as chunk
+      where chunk.chunk_id = new.chunk_id
+    ) then
+      return new;
+    end if;
+    if exists (
+      select 1
+      from gitblocks.repository_artifact_set_entries as entry
+      where entry.artifact_id = target_artifact_id
+    ) then
+      raise exception using
+        errcode = 'P0001',
+        message = 'published artifact chunks are immutable';
+    end if;
+  end if;
+
+  return new;
+end
+$gitblocks_artifact_chunk_guard$;
+
+create trigger repository_artifact_chunks_insert_guard
+before insert on gitblocks.repository_artifact_chunks
+for each row
+execute function gitblocks.guard_repository_artifact_chunk_insert();
+
+create trigger repository_artifact_set_entries_insert_guard
+before insert on gitblocks.repository_artifact_set_entries
+for each row
+execute function gitblocks.guard_repository_artifact_chunk_insert();
+
 create function gitblocks.validate_repository_artifact_set_closure()
 returns trigger
 language plpgsql
@@ -427,6 +486,18 @@ begin
       or pg_catalog.max(chunk.end_byte_exclusive) <>
         artifact.byte_count
       or pg_catalog.sum(chunk.byte_count) <> artifact.byte_count
+      or (
+        artifact.byte_count = 0
+        and (
+          pg_catalog.count(chunk.chunk_id) <> 1
+          or pg_catalog.max(chunk.byte_count) <> 0
+        )
+      )
+      or (
+        artifact.byte_count > 0
+        and pg_catalog.count(chunk.chunk_id)
+          filter (where chunk.byte_count = 0) > 0
+      )
       or pg_catalog.string_agg(
         chunk.exact_content,
         '' order by chunk.ordinal

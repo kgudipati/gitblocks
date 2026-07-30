@@ -280,6 +280,12 @@ A deferred constraint trigger validates at commit:
 - declared artifact/chunk counts and bytes; and
 - complete content reconstruction.
 
+Artifact-level advisory locking serializes chunk insertion with set membership.
+Once any published set entry references an artifact, new chunk identities for
+that artifact are rejected; exact idempotent reinsertion of existing chunk IDs
+still reaches conflict reload and verification. This prevents append-only
+table grants from mutating a previously closed set.
+
 The only public write is:
 
 ```text

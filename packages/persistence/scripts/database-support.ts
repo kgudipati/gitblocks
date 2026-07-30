@@ -299,8 +299,8 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
     const triggerCount = triggers[0]?.count;
     if (
       policyCount !== 0 ||
-      functionCount !== 3 ||
-      triggerCount !== 23 ||
+      functionCount !== 4 ||
+      triggerCount !== 25 ||
       indexes.length !== requiredIndexNames.length
     ) {
       throw new Error('PostgreSQL public-schema invariant check failed.');
