@@ -1,6 +1,6 @@
 # ADR 0007: Evidence-grounded repository interviews
 
-- Status: proposed for Milestone 1 review
+- Status: accepted
 - Date: 2026-07-30
 - Decision owners: GitBlocks maintainers
 - Governing issue:
@@ -29,8 +29,11 @@ exactly three production contract roots, keeps review in evaluation, selects a
 direct OpenAI adapter, fixes initial bounds and quality gates, and requires
 calibration before choosing a model. This ADR records that amended boundary.
 
-No Phase 7 executable behavior exists when this ADR is proposed. Milestone 1
-adds documentation only.
+Milestone 1 added documentation only and was accepted by maintainer review.
+That review authorized Milestone 2's provider-output schema, immutable
+specification, deterministic schema projections, offline validation, and
+minimal package wiring. It did not authorize durable contracts or any
+provider, persistence, operator, evaluation, or live behavior.
 
 ## Decision
 
@@ -108,13 +111,10 @@ request, execution, interview and nested record IDs; provider/model
 configuration; specification/schema/prompt digests; timestamps; identity and
 record digests; persistence provenance; and publication eligibility.
 
-The model never becomes an identity, provenance, review, authorization,
-ranking, or persistence authority.
-
-Trusted mapping publishes the immutable production review state `unreviewed`.
-Phase 7 evaluation never mutates that field or creates a production acceptance
-record. A later reviewed/selected meaning requires the deferred ranking-time
-selection decision.
+The model never becomes an identity, provenance, acceptance, authorization,
+ranking, or persistence authority. `RepositoryInterviewV1` has no production
+review or acceptance field in Phase 7. A later reviewed or selected meaning
+requires the deferred ranking-time selection decision.
 
 ### Production contract roots
 
@@ -552,7 +552,6 @@ second maintained schema.
 
 ## Deferred work
 
-- Exact final topic/question/confidence wording pending Milestone 1 review.
 - Exact root and nested TypeBox field definitions pending red tests.
 - Exact migration 0004 SQL and adapter APIs.
 - Exact 30-candidate cohort and six calibration candidates.
@@ -565,13 +564,12 @@ second maintained schema.
 
 ## Exit gates
 
-Implementation may begin at Milestone 2 only after:
-
-- this ADR and Plan 0017 pass maintainer review;
-- the remaining Milestone 2 freeze decisions are explicitly resolved;
-- Milestone 1 local and hosted verification is green;
-- the draft PR remains draft; and
-- no executable Phase 7 behavior or live operation has occurred.
+Milestone 1 passed maintainer review and its local and hosted verification was
+green. Milestone 2 may implement only the authorized provider-output schema,
+immutable specification, deterministic projections, offline validation, and
+minimal package wiring while the draft PR remains draft. Milestone 3 requires
+separate maintainer review of the completed Milestone 2 schema snapshots,
+digests, tests, and recorded discoveries.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

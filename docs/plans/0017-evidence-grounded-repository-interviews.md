@@ -9,10 +9,11 @@
     interview contract.”
   - “Maintainer architecture decisions — Phase 7 implementation may begin at
     Milestone 1.”
+  - PR #18 review: “Milestone 1 accepted — Milestone 2 authorized with binding
+    amendments.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestone 1 documentation and architecture review only; no executable
-  Phase 7 behavior exists
+- State: Milestone 1 accepted; Milestone 2 authorized and in progress
 - Last updated: 2026-07-30
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -40,9 +41,11 @@ Future ranking may join this semantic interview with the independently derived
 provenance. An interview will not rank, recommend, select, or itself become
 direct evidence.
 
-Milestone 1 delivers only this plan, ADR 0007, and minimal authoritative
-documentation reconciliation. It does not make the outcome available to a
-user or operator.
+Milestone 1 delivered only this plan, ADR 0007, and minimal authoritative
+documentation reconciliation. Milestone 2 adds only the provider-output
+schema, immutable specification, deterministic schema projections, and their
+offline package validation; it does not make the outcome available to a user
+or operator.
 
 ## Verified repository state
 
@@ -129,21 +132,21 @@ evaluation authority, or Phase 7 root contract exists at the start.
 
 ## Requirements crosswalk
 
-| Requirement                                            | Authoritative destination                            | Delivery gate      |
-| ------------------------------------------------------ | ---------------------------------------------------- | ------------------ |
-| Candidate-owned, request-independent interview         | ADR 0007; product contract                           | Milestone 1 review |
-| Artifact-set-only semantic input and identity          | ADR 0007; prompt/spec tests                          | Milestones 1, 4    |
-| Provider output separated from durable mapping         | ADR 0007; provider schema and mapper                 | Milestones 2–4     |
-| Three production contract roots                        | `packages/contracts`                                 | Milestone 3        |
-| Persistence-independent application package            | `packages/interviews`                                | Milestone 5        |
-| Composition-root-owned persistence and process effects | `apps/repository-interview-operator`                 | Milestone 9        |
-| Immutable versioned specification                      | `interviews/repository/specifications/`              | Milestone 2        |
-| Bounded direct OpenAI adapter                          | `packages/interviews` adapter                        | Milestone 8        |
-| Immutable PostgreSQL history                           | migration 0004 and adapter                           | Milestone 6        |
-| Independent audit authority                            | `evals/repository-interviews-v1` and harness support | Milestone 7        |
-| Calibration and human review                           | content-free evaluation records                      | Milestones 11–12   |
-| Full run and zero-call reuse                           | explicit operator and receipts                       | Milestone 13       |
-| Content-free completion evidence                       | catalog completion document                          | Milestone 14       |
+| Requirement                                            | Authoritative destination                            | Delivery gate        |
+| ------------------------------------------------------ | ---------------------------------------------------- | -------------------- |
+| Candidate-owned, request-independent interview         | ADR 0007; product contract                           | Milestone 1 accepted |
+| Artifact-set-only semantic input and identity          | ADR 0007; prompt/spec tests                          | Milestones 1, 4      |
+| Provider output separated from durable mapping         | ADR 0007; provider schema and mapper                 | Milestones 2–4       |
+| Three production contract roots                        | `packages/contracts`                                 | Milestone 3          |
+| Persistence-independent application package            | `packages/interviews`                                | Milestone 5          |
+| Composition-root-owned persistence and process effects | `apps/repository-interview-operator`                 | Milestone 9          |
+| Immutable versioned specification                      | `interviews/repository/specifications/`              | Milestone 2          |
+| Bounded direct OpenAI adapter                          | `packages/interviews` adapter                        | Milestone 8          |
+| Immutable PostgreSQL history                           | migration 0004 and adapter                           | Milestone 6          |
+| Independent audit authority                            | `evals/repository-interviews-v1` and harness support | Milestone 7          |
+| Calibration and human review                           | content-free evaluation records                      | Milestones 11–12     |
+| Full run and zero-call reuse                           | explicit operator and receipts                       | Milestone 13         |
+| Content-free completion evidence                       | catalog completion document                          | Milestone 14         |
 
 ## Resolved maintainer decisions and assumptions
 
@@ -337,13 +340,13 @@ The sole executable schema source will be a TypeBox definition owned by
 `@gitblocks/interviews`. Its planned root is a closed object containing five
 required arrays:
 
-| Semantic collection   | Planned contents                                                                                                                                      |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `documentedPositions` | topic, bounded statement, confidence code, one to four alias/range citations                                                                          |
-| `inferences`          | topic, bounded statement, required bounded rationale, confidence code, one to four alias/range citations                                              |
-| `limitations`         | topic, bounded drawback or evidence-scope statement, confidence code, zero to four alias/range citations                                              |
-| `contradictions`      | topic, bounded description, two explicitly opposed sides, confidence code, one to two citations per side and no more than four total                  |
-| `unknowns`            | topic, bounded missing decision-relevant fact, confidence code describing confidence that the fact remains unknown, zero to four contextual citations |
+| Semantic collection   | Planned contents                                                                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `documentedPositions` | topic, bounded statement, confidence code, one to four alias/range citations                                                                                |
+| `inferences`          | topic, bounded statement, required bounded rationale, confidence code, one to four alias/range citations                                                    |
+| `limitations`         | topic, documented-position or inference basis, bounded statement, nullable rationale governed by basis, matching confidence code, and one to four citations |
+| `contradictions`      | topic, direct/scope-dependent/version-dependent kind, bounded explanation, and two explicitly opposed positions with one to two citations per side          |
+| `unknowns`            | topic, controlled reason, bounded artifact-set-scoped statement, and zero to four partial citations                                                         |
 
 A provider citation contains only:
 
@@ -359,26 +362,30 @@ specification digest, timestamps, record digest, review state, ranking result,
 or recommendation. The output wrapper will not ask the model to echo trusted
 version or identity fields.
 
-The initial controlled confidence vocabulary is planned as `high`, `medium`,
-and `low`. It expresses confidence in the stated documented position,
-inference, limitation, contradiction, or unknown classification; it is not
-evidence strength, probability, review state, or permission. Exact semantics
-and examples require maintainer approval before Milestone 2 freezes the
-specification.
+Confidence is basis-specific rather than a generic score. Documented positions
+and documented-position limitations permit `high` or `medium`; inferences and
+inference limitations permit `medium` or `low`. Contradictions and unknowns
+carry no confidence. `high` means every material clause is explicit and
+unambiguous in narrow citations; `medium` means a direct position is qualified,
+distributed, or materially scope-sensitive, or that an inference has a
+bounded bridge with limited uncertainty; `low` is reserved for materially
+uncertain but useful inferences. Confidence is not probability, review state,
+or permission.
 
 The initial provider-output limits proposed for that review are:
 
-| Field or shape                          |                              Proposed local limit |
-| --------------------------------------- | ------------------------------------------------: |
-| Topic                                   |                     one of eight controlled codes |
-| Statement/description/side text         | 1,000 Unicode scalar values and 4,096 UTF-8 bytes |
-| Inference rationale                     | 1,500 Unicode scalar values and 6,144 UTF-8 bytes |
-| Artifact alias                          |                            `A1` through `A4` only |
-| Line number                             |                                  1 through 10,000 |
-| Documented-position/inference citations |                                       1 through 4 |
-| Limitation/unknown citations            |                                       0 through 4 |
-| Contradiction citations                 |                  1 through 2 per side and 4 total |
-| Citation span                           |                        at most 80 inclusive lines |
+| Field or shape                          |                            Proposed local limit |
+| --------------------------------------- | ----------------------------------------------: |
+| Topic                                   |                   one of eight controlled codes |
+| Statement/side text                     | 500 Unicode scalar values and 2,048 UTF-8 bytes |
+| Rationale/contradiction explanation     | 750 Unicode scalar values and 3,072 UTF-8 bytes |
+| Artifact alias                          |                          `A1` through `A4` only |
+| Line number                             |                                1 through 10,000 |
+| Documented-position/inference citations |                                     1 through 4 |
+| Limitation citations                    |                                     1 through 4 |
+| Unknown partial citations               |                                     0 through 4 |
+| Contradiction citations                 |                1 through 2 per side and 4 total |
+| Citation span                           |                      at most 80 inclusive lines |
 
 All root and nested properties are required for strict output; an empty
 required array represents “none.” Local validation enforces Unicode/UTF-8,
@@ -389,21 +396,21 @@ projection cannot express them.
 
 The first semantic specification proposes exactly this ordered vocabulary:
 
-| Topic code                  | Controlled question                                                                                                        |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `purpose-and-scope`         | What capability and intended use does the repository explicitly describe, and what scope does it exclude or leave unclear? |
-| `runtime-and-framework`     | What runtime, framework, platform, or version positions are documented or responsibly inferable?                           |
-| `integration-surface`       | What APIs, extension points, dependencies, setup steps, or integration boundaries are described?                           |
-| `data-and-state`            | What data model, storage, durability, consistency, migration, or state-management positions are described?                 |
-| `deployment-and-operations` | What deployment, scaling, failure, retry, observability, and operational responsibilities are described?                   |
-| `security-and-trust`        | What authentication, authorization, secret, validation, isolation, abuse, or trust-boundary positions are described?       |
-| `maintenance-and-support`   | What maintenance, compatibility, upgrade, release, support, or deprecation positions are described?                        |
-| `adoption-and-limitations`  | What adoption effort, explicit limitation, contradiction, tradeoff, or material unknown remains?                           |
+| Topic code                  | Controlled question                                                                                                                                            |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `purpose-and-scope`         | What capability, intended use, smallest useful adoptable unit, ideal use cases, and explicit out-of-scope or poor-fit boundaries does the repository describe? |
+| `runtime-and-framework`     | What runtime, framework, platform, language, or version requirements and compatibility positions are documented or responsibly inferable?                      |
+| `integration-surface`       | What setup path, APIs, configuration surface, extension points, dependencies, or integration boundaries are described?                                         |
+| `data-and-state`            | What data model, storage, durability, consistency, migration, or state-management positions are described?                                                     |
+| `deployment-and-operations` | What required or optional infrastructure, deployment models, scaling, failure, retry, observability, and operational responsibilities are described?           |
+| `security-and-trust`        | What authentication, authorization, secret handling, validation, isolation, abuse, or trust-boundary positions are described?                                  |
+| `maintenance-and-support`   | What license position, maintenance status, compatibility, upgrade, release, support, or deprecation constraints are documented?                                |
+| `adoption-and-limitations`  | What adoption effort, explicit limitation, tradeoff, contradiction, or material unknown remains after reviewing all supplied artifacts?                        |
 
 Questions ask for repository positions, not fit conclusions. They do not name a
-capability family, target environment, or recommendation criterion. Review may
-amend wording or codes before Milestone 2; after the `1.0.0` specification is
-used live, changes require a new semantic version.
+capability family, target environment, or recommendation criterion. This exact
+ordered vocabulary is frozen for specification `1.0.0`; after that
+specification is used live, semantic changes require a new version.
 
 ### Durable mapping
 
@@ -414,17 +421,15 @@ Trusted code will inject or derive:
   and unknown IDs;
 - exact provider and model-profile configuration;
 - specification, prompt, output-schema, and provider-projection digests;
-- requested, started, completed, persisted, and provider timestamps;
+- started, completed, persisted, publication, and provider timestamps;
 - identity, reuse-key, and complete-record digests;
 - attempt/retry metadata and safe provider request IDs;
 - persistence migration and adapter provenance; and
-- publication eligibility and the controlled production review state.
+- publication eligibility.
 
-Trusted mapping will publish the immutable production review state
-`unreviewed`. Phase 7 human audit does not mutate it or create an accepted
-production state; audit and adjudication belong to separate content-free
-evaluation records. Any later accepted/selected production meaning requires
-the deferred ranking-selection decision.
+`RepositoryInterviewV1` has no production review or acceptance field in Phase 7. Human audit and adjudication belong to separate content-free evaluation
+records. Any later accepted or selected production meaning requires the
+deferred ranking-selection decision.
 
 ## Planned production contracts
 
@@ -447,13 +452,12 @@ Planned fields:
 - `specificationVersion` and `specificationDigest`;
 - `rendererVersion`;
 - `providerOutputSchemaVersion` and canonical schema digest;
-- `promptDigest`; and
-- trusted `requestedAt`.
+- `promptDigest`.
 
-The request identity will bind every field above except `requestId` and
-`requestedAt`, then trusted code will derive `requestId` from that identity
-digest. The prompt digest will prove exact deterministic assembly without
-persisting another copy of the raw prompt.
+The request identity will bind every field above except `requestId`, then
+trusted code will derive `requestId` from that identity digest. The prompt
+digest will prove exact deterministic assembly without persisting another copy
+of the raw prompt.
 
 ### `ModelExecutionV1`
 
@@ -499,7 +503,6 @@ The planned durable interview will contain:
   and model-profile digests;
 - deterministic processing state: `complete`, `partial-evidence`, or
   `insufficient-evidence`;
-- trusted immutable `reviewState: unreviewed`;
 - ordered documented-position and inference claims;
 - ordered limitations, contradictions, and unknowns;
 - published timestamp; and
@@ -1742,6 +1745,14 @@ remain:
   pinned toolchain. All final invocations passed; existing contract, catalog,
   artifact, migration, dependency, workspace, runtime, and lockfile authority
   remained unchanged.
+- **2026-07-30:** Maintainer review accepted Milestone 1, accepted ADR 0007,
+  removed production review state and the request timestamp, froze the
+  provider-output semantics and eight ordered questions, and authorized
+  Milestone 2.
+- **2026-07-30:** Began Milestone 2 with documentation reconciliation only;
+  executable work remains limited to the provider-output schema,
+  specification, deterministic projections, offline validation, and required
+  package wiring.
 
 ## Decision and deviation log
 
@@ -1764,25 +1775,20 @@ remain:
   connected GitHub application will create and inspect the draft PR. No tool or
   dependency will be installed.
 
-## Remaining maintainer decisions before Milestone 2
+## Remaining maintainer decisions before Milestone 3
 
-Milestone 2 must not begin until review explicitly accepts or amends:
+Milestone 2 is authorized with the binding schema, specification, projection,
+question, and package amendments recorded above. Review of the completed
+Milestone 2 snapshots and digest evidence must accept or amend:
 
-1. the initial eight-topic question vocabulary and exact question wording;
-2. the `high`/`medium`/`low` confidence semantics and examples;
-3. exact provider-output item fields, citation requirements, and string/byte
-   limits;
-4. the specification digest, renderer-version, prompt-digest, and
-   provider-projection version partition;
-5. the proposed immutable specification directory file set;
-6. the strict-schema projection keyword allowlist and unknown-keyword failure;
-7. deterministic line rendering, terminal-line representation, and canonical
-   item ordering;
-8. the proposed request/execution/interview identity, reuse-key, force-nonce,
-   and complete-record digest partition;
-9. the pre-implementation token/deadline/response-byte/run budgets; and
-10. whether ADR 0007 is accepted as written or needs a recorded amendment.
+1. the exact generated provider-neutral and OpenAI projection bytes;
+2. the executable canonicalization and semantic-validation behavior;
+3. the declared specification, schema, renderer, and projection version/digest
+   partition; and
+4. any implementation discovery recorded in this plan.
 
-The final Gate A model, exact 30-candidate cohort, production review/selection
-policy, ranking integration, and any provider beyond OpenAI are intentionally
-not decisions required for Milestone 2.
+Durable request/execution/interview fields and identity, reuse-key,
+force-nonce, processing-state, publication, and complete-record digest
+partitions remain Milestone 3 decisions. The final Gate A model, exact
+30-candidate cohort, production review/selection policy, ranking integration,
+and any provider beyond OpenAI remain later decisions.
