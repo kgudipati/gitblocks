@@ -45,4 +45,14 @@ describe('repository artifact operator surface', () => {
     expect(source).not.toContain('resolvedPath');
     expect(source).not.toContain('displayUrl');
   });
+
+  it("loads materialized artifacts with the artifact set's chunker version", async () => {
+    const source = await readFile(
+      new URL('../src/artifact-batch.ts', import.meta.url),
+      'utf8',
+    );
+    expect(source).toMatch(
+      /chunkerVersion:\s+persisted\.artifactSet\.chunkerVersion/u,
+    );
+  });
 });

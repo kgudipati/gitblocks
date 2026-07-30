@@ -525,6 +525,14 @@ Phase 6 itself is not complete at this checkpoint.
   and deferred database closure validation derive chunk line ranges from exact
   content. Direct cases cover LF, lone CR, CRLF, 199 and 200 terminated lines,
   empty content, and no-final-newline content.
+- **2026-07-30:** Chunk-loading red tests showed that the public read accepted
+  no chunker version, loaded every sequence for an artifact, and left the
+  artifact operator unable to prove set-context selection. The command now
+  requires the sole V1 value `exact-lines-v1`, rejects missing or unsupported
+  runtime values before database I/O, filters SQL by artifact ID plus chunker
+  version, and receives the persisted set's declared version from the operator.
+  Artifact-only conflict reloads remain independent of chunks and artifact
+  identity remains independent of chunker version.
 
 ## Decision and deviation log
 
@@ -619,6 +627,16 @@ pnpm verify               passed; 41 files / 763 tests
 unexpected networking     prohibited by ordinary and database test setup
 Phase 5 API default       unchanged at 2026-03-10; explicit override tested
 live artifact operation   not run
+```
+
+Maintainer pre-live correction focused evidence:
+
+```text
+chunker-scoped red run    2 files / 3 failures before implementation
+chunker-scoped focused    passed; 2 files / 12 tests
+pnpm artifacts:verify     passed; 6 files / 76 tests
+pnpm db:verify            passed; PostgreSQL 18.4 / 4 files / 31 tests / no skips
+pnpm typecheck            passed
 ```
 
 Pre-live audit and offline checkpoint evidence:

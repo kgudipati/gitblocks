@@ -360,9 +360,16 @@ publication.
 Public reads are:
 
 ```text
-loadRepositoryArtifact
+loadRepositoryArtifact({ artifactId, chunkerVersion: "exact-lines-v1" })
 loadRepositoryArtifactSet
 ```
+
+Artifact loading is explicitly chunker-scoped: the query filters by artifact
+ID and requested chunker version and returns only that lossless sequence.
+The V1 read contract accepts only `exact-lines-v1`; unsupported or omitted
+runtime values fail before database I/O. Artifact identity remains independent
+of chunker version, so a future additive chunker can coexist without
+duplicating exact source artifacts.
 
 Low-level append helpers remain internal. Runtime grants are limited to schema
 usage and exact table `SELECT`/`INSERT`; update/delete/truncate/migration/schema

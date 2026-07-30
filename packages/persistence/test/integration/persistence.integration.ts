@@ -351,6 +351,7 @@ describe(
         await expect(
           loadRepositoryArtifact(first, {
             artifactId: originalArtifact.artifact.artifactId,
+            chunkerVersion: 'exact-lines-v1',
           }),
         ).resolves.toEqual(publication.artifacts[0]);
         await expect(
@@ -375,6 +376,7 @@ describe(
         );
         const preserved = await loadRepositoryArtifact(first, {
           artifactId: originalArtifact.artifact.artifactId,
+          chunkerVersion: 'exact-lines-v1',
         });
         expect(preserved.artifact.firstMaterialization.collectedAt).toBe(
           originalArtifact.artifact.firstMaterialization.collectedAt,
@@ -400,6 +402,7 @@ describe(
         expect(movedSet.providerCanonicalRepository).toBe('new-name');
         const preservedAfterMove = await loadRepositoryArtifact(first, {
           artifactId: originalArtifact.artifact.artifactId,
+          chunkerVersion: 'exact-lines-v1',
         });
         expect(
           preservedAfterMove.artifact.firstMaterialization.providerOwner,
@@ -454,7 +457,10 @@ describe(
           outcomes.filter((outcome) => outcome.status === 'rejected'),
         ).toHaveLength(1);
 
-        const stored = await loadRepositoryArtifact(first, { artifactId });
+        const stored = await loadRepositoryArtifact(first, {
+          artifactId,
+          chunkerVersion: 'exact-lines-v1',
+        });
         expect(stored.artifact.firstMaterialization).toMatchObject({
           catalogOwner: 'example',
           catalogRepository: 'alpha',
@@ -513,6 +519,7 @@ describe(
         });
         const stored = await loadRepositoryArtifact(runtime, {
           artifactId: supplied.artifact.artifactId,
+          chunkerVersion: 'exact-lines-v1',
         });
         expect(stored.artifact.lineCount).toBe(2);
         expect(stored.chunks).toEqual([
@@ -867,6 +874,7 @@ describe(
 
         const preserved = await loadRepositoryArtifact(runtime, {
           artifactId: originalArtifact.artifactId,
+          chunkerVersion: 'exact-lines-v1',
         });
         expect(preserved).toEqual(firstOrThrow(publication.artifacts));
       } finally {

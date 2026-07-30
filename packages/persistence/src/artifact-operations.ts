@@ -204,12 +204,13 @@ export async function loadRepositoryArtifact(
   control?: OperationControl,
 ): Promise<LoadedRepositoryArtifact> {
   const artifactId = validateStableId(command.artifactId);
+  const chunkerVersion = validateArtifactChunkerVersion(command.chunkerVersion);
   return withTransaction(
     client,
     control,
     'read-only',
     async (transaction, signal) =>
-      loadArtifactTransaction(transaction, artifactId, signal),
+      loadArtifactTransaction(transaction, artifactId, chunkerVersion, signal),
   );
 }
 
@@ -471,9 +472,11 @@ async function insertArtifact(
   if (rows.length === 1) {
     return 1;
   }
-  const stored = (
-    await loadArtifactTransaction(transaction, artifact.artifactId, signal)
-  ).artifact;
+  const stored = await loadArtifactRecordTransaction(
+    transaction,
+    artifact.artifactId,
+    signal,
+  );
   if (
     stored.identityDigest !== artifact.identityDigest ||
     artifactImmutableCoreDigest(stored) !==
@@ -686,8 +689,29 @@ async function insertArtifactSetEntry(
 async function loadArtifactTransaction(
   transaction: PersistenceTransaction,
   artifactId: string,
+  chunkerVersion: 'exact-lines-v1',
   signal: AbortSignal | undefined,
 ): Promise<LoadedRepositoryArtifact> {
+  const artifact = await loadArtifactRecordTransaction(
+    transaction,
+    artifactId,
+    signal,
+  );
+  const chunks = await loadChunks(
+    transaction,
+    artifact.artifactId,
+    chunkerVersion,
+    signal,
+  );
+  validateChunks(artifact, chunks);
+  return { artifact, chunks };
+}
+
+async function loadArtifactRecordTransaction(
+  transaction: PersistenceTransaction,
+  artifactId: string,
+  signal: AbortSignal | undefined,
+): Promise<RepositoryArtifactV1> {
   const rows = await executePending<readonly ArtifactRow[]>(
     transaction`
       select *
@@ -703,15 +727,13 @@ async function loadArtifactTransaction(
   if (artifactRow === undefined) {
     throw persistenceError('persistence.not-found');
   }
-  const artifact = mapArtifact(artifactRow);
-  const chunks = await loadChunks(transaction, artifact.artifactId, signal);
-  validateChunks(artifact, chunks);
-  return { artifact, chunks };
+  return mapArtifact(artifactRow);
 }
 
 async function loadChunks(
   transaction: PersistenceTransaction,
   artifactId: string,
+  chunkerVersion: 'exact-lines-v1',
   signal: AbortSignal | undefined,
 ): Promise<readonly RepositoryArtifactChunkV1[]> {
   const rows = await executePending<readonly ChunkRow[]>(
@@ -719,6 +741,7 @@ async function loadChunks(
       select *
       from gitblocks.repository_artifact_chunks
       where artifact_id = ${artifactId}
+        and chunker_version = ${chunkerVersion}
       order by ordinal
     `,
     signal,
@@ -727,6 +750,13 @@ async function loadChunks(
     throw persistenceError('persistence.result-limit');
   }
   return rows.map(mapChunk);
+}
+
+function validateArtifactChunkerVersion(value: unknown): 'exact-lines-v1' {
+  if (value !== 'exact-lines-v1') {
+    throw persistenceError('persistence.invalid-input');
+  }
+  return value;
 }
 
 async function loadChunkById(

@@ -131,7 +131,10 @@ export async function collectPublicRepositoryArtifacts(
               ? [
                   loadRepositoryArtifact(
                     config.persistence,
-                    { artifactId: entry.artifactId },
+                    {
+                      artifactId: entry.artifactId,
+                      chunkerVersion: persisted.artifactSet.chunkerVersion,
+                    },
                     { signal: operationSignal },
                   ),
                 ]

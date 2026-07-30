@@ -23,6 +23,10 @@ requires catalog provenance matching the durable candidate row and provider
 provenance matching the incoming artifact set; catalog provenance also has a
 database-level composite foreign key.
 
+`loadRepositoryArtifact` requires the caller to name the set's supported
+`exact-lines-v1` chunker version and filters the chunk query by both artifact ID
+and chunker version. Artifact identity remains independent of chunker version.
+
 Configuration and credentials are injected. Imports perform no I/O; the
 package owns no singleton, environment read, implicit migration, logging,
 dynamic SQL identifier, organization model, tenant scope, expiry, purge,

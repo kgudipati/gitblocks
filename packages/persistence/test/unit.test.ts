@@ -7,6 +7,7 @@ import {
   closePersistenceClient,
   createPersistenceClient,
   knownMigrationInventory,
+  loadRepositoryArtifact,
   PersistenceError,
   putCatalogCandidate,
   selectActiveDossierMaterial,
@@ -84,6 +85,25 @@ describe('persistence package boundary', () => {
     }
   });
 
+  it('rejects missing or unsupported artifact chunker versions before database I/O', async () => {
+    const client = createPersistenceClient(UNREACHABLE_CONFIG);
+    const artifactId = `artifact-${'a'.repeat(48)}`;
+
+    try {
+      await expect(
+        loadRepositoryArtifact(client, { artifactId } as never),
+      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+      await expect(
+        loadRepositoryArtifact(client, {
+          artifactId,
+          chunkerVersion: 'unsupported-chunker',
+        } as never),
+      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+    } finally {
+      await closePersistenceClient(client);
+    }
+  });
+
   it('canonicalizes object key order and distinguishes changed values', () => {
     const left = canonicalizeJson({
       beta: ['one', { delta: true, gamma: null }],
@@ -151,6 +171,7 @@ describe('persistence package boundary', () => {
     expect(artifactSource).not.toContain('.unsafe(');
     expect(artifactSource).not.toMatch(/\bconsole\./u);
     expect(artifactSource).not.toMatch(/\b(?:eval|Function)\s*\(/u);
+    expect(artifactSource).toContain('and chunker_version = ${chunkerVersion}');
     expect(indexSource).not.toMatch(
       /\b(?:tenant|expiry|purge|tombstone|StorageScope)\b/iu,
     );

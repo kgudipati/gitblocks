@@ -129,6 +129,7 @@ export interface PublishRepositoryArtifactSetResult {
 
 export interface LoadRepositoryArtifactCommand {
   readonly artifactId: string;
+  readonly chunkerVersion: 'exact-lines-v1';
 }
 
 export interface LoadedRepositoryArtifact {
