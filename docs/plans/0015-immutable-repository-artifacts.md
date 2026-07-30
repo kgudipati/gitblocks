@@ -533,6 +533,12 @@ Phase 6 itself is not complete at this checkpoint.
   version, and receives the persisted set's declared version from the operator.
   Artifact-only conflict reloads remain independent of chunks and artifact
   identity remains independent of chunker version.
+- **2026-07-30:** The first authoritative post-review `pnpm verify` run
+  correctly rejected an incomplete locked contract export expectation for the
+  new exact display-URL helper (43 suites passed and one failed). The public
+  helper was intentional and already used by both parsing and collection, so
+  its narrow export is now explicitly covered. The restarted complete matrix
+  passes.
 
 ## Decision and deviation log
 
@@ -689,3 +695,46 @@ candidate concurrency     maximum 2
 global request concurrency maximum 1 in the shared collector
 live artifact operation   not run
 ```
+
+Maintainer review correction checkpoint:
+
+```text
+runtime                    Node 24.18.0 / pnpm 11.17.0
+pnpm install --frozen-lockfile
+                           passed; already up to date
+pnpm verify                passed; 44 files / 786 tests
+pnpm verify:ci             passed; PostgreSQL required; registry audit clear
+pnpm contracts:validate    passed; 10 cases / 40 supplied candidates
+pnpm catalog:validate      passed; 150 candidates / 30 per family
+pnpm ingestion:verify      passed; 11 files / 125 tests
+pnpm db:verify             passed; PostgreSQL 18.4 / 4 files / 31 tests / no skips
+pnpm eval:validate         passed; 10 cases
+pnpm eval:fixtures         passed; all fixture profiles
+pnpm artifacts:validate   passed; 150 roots / 30 additional candidates;
+                           manifest digest 17d2a47f8d99...
+pnpm artifacts:verify     passed; 6 files / 76 tests
+pnpm test:coverage        passed; 44 files / 786 tests; 76.23% statements,
+                           68.88% branches, 83.22% functions, 76.03% lines
+pnpm architecture:check   passed within verification; 642 modules /
+                           2,040 dependencies; no violations
+git diff --check          passed
+production dependencies  unchanged; 13 direct/link production packages /
+                           7 workspaces; no added dependency
+pnpm-lock.yaml            unchanged from 3f45f03b...
+migration inventory       3; 17 public product tables; 0 RLS policies
+full branch diff          56 files; 12,817 insertions / 74 deletions reviewed
+candidate-content safety  synthetic bodies only; no candidate body, receipt,
+                           or completion evidence committed
+worktree                  clean after validation
+live artifact operation   not run
+```
+
+Hosted CI run `30508072393` completed successfully for correction
+implementation head `3905061bb9f89dbff1d0aac7add201ee2c8e3a51` (job
+`90762081032`). Every job step passed, including pinned pnpm, frozen install,
+reproducibility, pull-request metadata, authoritative verification,
+PostgreSQL 18.4 verification, registry audit, and clean-worktree proof. Decoded
+logs report 44 files / 786 offline tests, 4 files / 31 PostgreSQL tests without
+skips, 642 architecture modules / 2,040 dependencies without violations, and
+no known dependency vulnerabilities. PostgreSQL error lines are expected
+negative-test rejection paths; the workflow contains no `##[error]` entry.
