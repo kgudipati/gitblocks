@@ -6,10 +6,12 @@ This document defines the approved product boundary for the first private
 alpha. GitBlocks remains in an engineering-foundation phase. The repository
 now contains private production-owned packages for the pure domain, versioned
 fixed-candidate contracts, and an injected PostgreSQL adapter for immutable
-public evidence and dossiers. No API, MCP service, scanner, discovery service,
-model integration, deployed database, deployment, or end-to-end adoption
-workflow is implemented or available yet. Changes to this contract require an
-issue, an execution plan when substantial, and architecture review.
+public evidence, dossiers, and exact repository artifacts, plus a bounded
+public-source ingestion adapter. No repository-interview application, API, MCP
+service, scanner, discovery service, model integration, deployed database,
+deployment, or end-to-end adoption workflow is implemented or available yet.
+Changes to this contract require an issue, an execution plan when substantial,
+and architecture review.
 
 ## Product statement
 
@@ -102,6 +104,9 @@ The planned workflow is:
    constraints.
 5. **Assess adoption fit.** Ranking combines repository facts with sourced
    compatibility, maintenance, security, licensing, and integration evidence.
+   Planned candidate-owned repository interviews may contribute separately
+   from deterministic candidate dossiers; neither is conditioned on the target
+   request before this ranking step.
 6. **Explain the result.** The coding agent receives candidates with evidence
    references, preserved candidate limitations, tradeoffs, material unknowns,
    and the reasons for exclusion or ranking. Every reason is traceable to
@@ -165,6 +170,11 @@ must not substitute popularity for compatibility.
   distinct from direct and declared facts.
 - **Inference:** a conclusion derived from one or more evidence items using a
   stated rationale. An inference is never presented as direct evidence.
+- **Repository interview:** a planned candidate-owned semantic synthesis of
+  documented positions, bounded inferences, limitations, contradictions, and
+  unknowns from one exact immutable repository artifact set. It is independent
+  of capability and ranking requests, cites exact artifact line intervals,
+  never ranks or recommends, and is not itself direct evidence.
 - **Unknown:** a decision-relevant fact that cannot be established from current
   evidence with sufficient confidence. Unknowns are preserved, not silently
   scored as favorable.
@@ -211,7 +221,12 @@ immutable repository artifacts. That authority does not extend to a user's
 target repository, private repositories, secrets, or arbitrary source
 discovered outside the reviewed artifact-selection manifest. Public artifact
 bodies remain hostile inert data: they are never executed, rendered, followed
-as links, or treated as instructions.
+as links, or treated as instructions. A separately acknowledged Phase 7
+repository-interview operation may later transmit one complete approved public
+artifact set to a reviewed model provider under
+[ADR 0007](../architecture/decisions/0007-evidence-grounded-repository-interviews.md).
+That narrow authority does not include target-repository bodies, private
+repositories, secrets, unapproved public material, or model tools.
 
 ### May be sent after minimization
 

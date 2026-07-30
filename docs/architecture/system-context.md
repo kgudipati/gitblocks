@@ -3,10 +3,12 @@
 ## Status
 
 This document describes the approved direction for GitBlocks components. The
-repository now contains three implemented, non-operational product components:
-the pure domain/contract kernel, a concrete PostgreSQL persistence adapter, and
-an operator-run curated public-source ingestion adapter. It contains no
-application use case, runtime service, deployed data store, continuous
+repository now contains four implemented, non-operational product packages:
+the pure domain, versioned contracts, a concrete PostgreSQL persistence
+adapter, and an operator-run curated public-source ingestion adapter. The
+contracts, persistence, and ingestion packages also implement exact immutable
+public repository artifacts. It contains no application use case, repository
+interview implementation, runtime service, deployed data store, continuous
 ingestion worker, or network service. Technology choices remain open unless an
 architecture decision record (ADR) approves them.
 
@@ -24,6 +26,10 @@ receipt.
 [ADR 0006](decisions/0006-immutable-repository-artifacts.md) owns the reviewed
 public artifact selection boundary, source identity, exact collection,
 lossless chunking, immutable artifact sets, and artifact operator receipt.
+[ADR 0007](decisions/0007-evidence-grounded-repository-interviews.md) owns the
+planned candidate-owned repository interview, persistence-independent
+application package, provider/durable boundary, immutable specification,
+direct provider adapter, calibration, and live gates.
 
 ## Context and ownership
 
@@ -61,6 +67,7 @@ flowchart LR
         MCP["Remote MCP server"]
         App["Application services"]
         Ranking["Retrieval and ranking services"]
+        Interviews["Repository interview application (planned)"]
         Catalog["Repository catalog and ingestion workers"]
         Evidence["Evidence store"]
         Outcomes["Outcome-learning loop"]
@@ -73,6 +80,9 @@ flowchart LR
     Skill -->|"minimized fingerprint and goal"| MCP
     MCP --> App
     App --> Ranking
+    Catalog --> Interviews
+    Interviews --> Evidence
+    Interviews --> Ranking
     Ranking --> Evidence
     Catalog --> Evidence
     Catalog -->|"rate-limited collection"| GitHub
@@ -96,6 +106,7 @@ flowchart LR
 | Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                                                                                              | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking                                             |
 | Remote MCP server                        | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface                                                                                                       | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools                                                            |
 | Application services                     | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries                                                                                                      | Transport-specific rules or provider-specific persistence behavior                                                                               |
+| Repository interview application         | Produce one candidate-owned semantic interview from one exact immutable public artifact set through injected provider and persistence ports                                                | Target/request conditioning, dossier input, ranking, model-authored identity, concrete persistence imports, or evaluation review                 |
 | Repository catalog and ingestion workers | Collect allowed public metadata, evidence, and manifest-selected exact public artifacts with provenance, freshness, bounds, and source policy                                              | Execution/rendering of ingested content, following repository-authored links, or treating repository instructions as trusted                     |
 | Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                                                                                               | Popularity-only ranking or unsupported certainty                                                                                                 |
 | Evidence store                           | Preserve shared public observations, exact provenance, normalized evidence times, freshness, limitations, unknowns, and reproducible dossier membership                                    | Private organization evidence, secrets, unnecessary raw target source, or unsourced conclusions                                                  |
@@ -225,10 +236,16 @@ stores exact curator-approved public catalog artifacts and closed artifact-set
 snapshots. A future
 private or organization-scoped store requires its own application consumer,
 authorization model, threat model, retention/deletion decision, and ADR; it
-must not copy public evidence merely to create scope. Model input will be
-minimized; model output will be validated and treated as inference until tied
-to evidence. Secrets, proprietary raw source, and unnecessary personal data
-must not enter prompts, telemetry, or the evidence store.
+must not copy public evidence merely to create scope. Phase 7 plans one narrow
+exception to the earlier no-model artifact-collection path: a separately
+acknowledged interview operator may send one complete exact approved public
+artifact set, rendered once with machine aliases and line numbers, to a
+reviewed provider. It excludes dossier, candidate/repository identity,
+target-repository facts, credentials, tools, and ranking context. Model output
+is untrusted synthesis, never direct evidence; trusted code resolves citations
+and derives all durable identity and provenance. Secrets, proprietary raw
+source, and unnecessary personal data must not enter prompts, telemetry, or the
+evidence store.
 
 ## Contract direction
 
@@ -248,6 +265,11 @@ The future operational dependency direction remains inward:
 ```text
 transports and providers -> application use cases -> contracts and domain
 composition root -> application use cases + persistence adapter
+
+planned Phase 7:
+apps/repository-interview-operator
+  -> @gitblocks/interviews + @gitblocks/persistence
+@gitblocks/interviews -> @gitblocks/contracts
 ```
 
 HTTP/MCP, GitHub, database, queue, filesystem, model-provider, and framework
@@ -258,7 +280,7 @@ not depend on adapters. Versioned request, response, event, error, evidence,
 fingerprint, and outcome contracts each have one authoritative definition;
 transports may encode them but must not recreate competing shapes.
 
-For the six current `1.0.0` contract families, closed TypeBox definitions are
+For the nine current `1.0.0` contract families, closed TypeBox definitions are
 the single source for DTO types and deterministic JSON Schema 2020-12 runtime
 exports. Structural parsing handles untrusted shape, version, size, and
 diagnostic bounds; pure domain validation handles cross-field references,
@@ -302,10 +324,11 @@ or sensitive excerpts. Detailed rules are in the
 
 ## Open technology decisions
 
-Later ADRs must select, at minimum, application architecture, MCP and transport
-libraries, any private storage extension, queue, identity and authorization
-model, deployment topology, model providers, telemetry backend, and retention
-implementation. They must
+Later ADRs must select, at minimum, MCP and transport libraries, any private
+storage extension, queue, identity and authorization model, deployment
+topology, telemetry backend, and retention implementation. ADR 0007 selects
+only the narrow Phase 7 repository-interview application and OpenAI adapter
+direction; it does not select a general model platform. Later decisions must
 extend the accepted TypeScript toolchain, software-supply-chain controls,
 dependency rules, generated-code policy, and validation commands before the
 corresponding product layer lands.

@@ -242,11 +242,28 @@ blobs after explicit repository hash-algorithm discovery, bounded
 non-recursive tree verification, strict base64 and UTF-8 validation, NUL and
 binary rejection, provider-object recomputation, and independent content
 hashing. Artifact content is hostile inert data: it must not be rendered,
-executed, followed as links, interpreted as instruction, sent to a model,
-logged, emitted to a terminal, copied into receipts, or committed in fixtures
-or completion evidence. Only curator-approved public catalog artifacts may be
-stored centrally; target-repository bodies and unapproved material remain local
-by default.
+executed, followed as links, interpreted as instruction, logged, emitted to a
+terminal, copied into receipts, or committed in fixtures or completion
+evidence. The Phase 6 collector itself never sends content to a model. Only
+curator-approved public catalog artifacts may be stored centrally;
+target-repository bodies and unapproved material remain local by default.
+
+Phase 7 plans a separate, explicitly acknowledged repository-interview
+operation under
+[ADR 0007](../architecture/decisions/0007-evidence-grounded-repository-interviews.md).
+It may send one complete exact approved public artifact set to one reviewed
+provider only after deterministic reconstruction, ownership closure, byte and
+token preflight, and cost authorization. Repository content remains delimited
+untrusted data; the request enables no tools, search, code execution, MCP,
+background state, conversation, or previous response. The model sees temporary
+artifact aliases and machine line numbers, not candidate/repository identity,
+GitBlocks IDs, dossier content, target facts, credentials, or ranking context.
+Trusted code validates the closed provider output, resolves citations, derives
+all identity/provenance, and publishes nothing after an operational or policy
+failure. Errors, telemetry, receipts, and evaluation audit files remain
+content-free. `store: false` and in-memory prompt caching minimize provider
+state but do not represent zero provider retention; that residual boundary must
+be disclosed before live authorization.
 
 Only an explicitly approved optional 404 is normal absence. Temporary optional
 unavailability creates a partial receipt but no dossier or durable transient

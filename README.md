@@ -63,12 +63,18 @@ public evidence, append-only lifecycle events, and reproducible public dossier
 snapshots. These packages do not implement a use case or service. Full tenant
 and organization persistence is intentionally deferred. The repository also
 contains a curated 150-repository public catalog and a bounded deterministic
-operator-run GitHub/npm/advisory ingestion package. The repository still
-has no application scaffold, Agent Skill, scanner, MCP server, operational
-backend, discovery or product ranking engine, continuous crawler, deployment,
-production database, or product release. The first full live catalog ingestion
-and its immediate refresh completed against a dedicated ephemeral PostgreSQL
-18.4 test database; the bounded reviewed outcomes are recorded in
+operator-run GitHub/npm/advisory ingestion package, plus exact immutable public
+repository artifacts and lossless line-addressable chunks for all 150
+candidates. The repository still has no application scaffold, repository
+interview implementation, model integration, Agent Skill, scanner, MCP server,
+operational backend, discovery or product ranking engine, continuous crawler,
+deployment, production database, or product release. Phase 7 repository
+interviews are documentation-only planned work governed by
+[Plan 0017](docs/plans/0017-evidence-grounded-repository-interviews.md) and
+[ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md).
+The first full live catalog ingestion and its immediate refresh completed
+against a dedicated ephemeral PostgreSQL 18.4 test database; the bounded
+reviewed outcomes are recorded in
 [`catalog/public-v1/live-completion.md`](catalog/public-v1/live-completion.md).
 This is collection evidence, not a deployed or continuously fresh service. The
 pilot gold is authored and proposed, not independently accepted.
@@ -83,6 +89,12 @@ product contract mechanism and package boundaries.
 owns the PostgreSQL public-evidence storage and migration decisions.
 [ADR 0005](docs/architecture/decisions/0005-public-repository-ingestion.md)
 owns the curated catalog, provider, profiling, refresh, and receipt decisions.
+[ADR 0006](docs/architecture/decisions/0006-immutable-repository-artifacts.md)
+owns immutable public artifacts, lossless chunks, closed artifact sets, and
+their operator.
+[ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md)
+owns the planned candidate-owned semantic interview and provider/application
+boundaries; no Phase 7 executable behavior is implemented.
 
 ## Repository map
 

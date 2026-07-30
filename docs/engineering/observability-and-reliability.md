@@ -8,10 +8,12 @@ or reproducing the user's sensitive content. GitBlocks currently has no
 services, workers, deployments, SLOs, or telemetry pipeline. Its persistence
 adapter returns stable value-free errors. The Phase 5 operator-run ingester
 accepts an injected observer and emits bounded request/candidate/batch events
-plus a durable secret-free receipt; it is not a deployed telemetry system. A
-future application/composition layer must select and instrument an export path
-before handling production traffic. This document sets the policy for those
-paths.
+plus a durable secret-free receipt; the Phase 6 artifact operator follows the
+same content-free pattern. Neither is a deployed telemetry system. Phase 7
+plans a separate repository-interview operator with injected telemetry and no
+service or deployment. A future production application/composition layer must
+select and instrument an export path before handling production traffic. This
+document sets the policy for those paths.
 
 The first stack and deployment ADRs must select instrumentation libraries,
 export path, sampling, retention, access, redaction, dashboards, and runbook
@@ -72,6 +74,18 @@ Only temporary optional unavailability emits a partial candidate outcome, with
 a bounded source code and no snapshot. Fatal outcomes emit `failed` with the
 stable value-free code. Repository/package names, URLs, response text, and
 headers remain excluded from events and receipts.
+
+The planned Phase 7 operation uses stable names
+`repository_interview.execute`, `.provider`, `.validate`, `.persist`, and
+`.reuse`. Allowed evidence includes specification/model-profile digests,
+bounded count/byte/token/cost/duration buckets, attempt/retry, semantic state,
+reuse outcome, and stable failure category. Artifact bodies, prompts, complete
+provider output, reasoning/refusal/error text, repository names, paths, URLs,
+credentials, SQL, and provider bodies/headers are prohibited. Input, cached,
+output, and reasoning-token usage must be structurally validated before cost
+accounting. Operational failures remain separate from responsible semantic
+states, and the immediate Gate B comparison must emit a provable zero-call
+reuse result.
 
 ## Telemetry data contract
 
