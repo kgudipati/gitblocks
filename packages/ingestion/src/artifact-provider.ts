@@ -36,6 +36,7 @@ const HASH_RESPONSE_BYTES = 16 * 1_024;
 const MAXIMUM_ARTIFACT_BYTES = 256 * 1_024;
 const MAXIMUM_CANDIDATE_BYTES = 512 * 1_024;
 const MAXIMUM_LOGICAL_LINES = 10_000;
+const MAXIMUM_SAFE_PATH_BYTES = 512;
 const CANDIDATE_DEADLINE_MILLISECONDS = 120_000;
 const MAXIMUM_TREE_ENTRIES = 10_000;
 
@@ -184,18 +185,14 @@ async function collectCandidate(
       }
       throw error;
     }
-    const treeEntry = await verifyTreePath(
-      content.path,
+    content = await verifySelectionTree(
+      selection,
+      content,
       context,
       request,
       treeCache,
+      command.decodedByteBudget,
     );
-    if (
-      treeEntry.sha !== content.blobObjectId ||
-      (treeEntry.size !== null && treeEntry.size !== content.bytes.byteLength)
-    ) {
-      throw ingestionError('ingestion.artifact-hash-mismatch');
-    }
     const blobBytes = await retrieveBlob(
       content.blobObjectId,
       context,
@@ -428,7 +425,61 @@ interface TreeEntry {
   readonly sha: string;
 }
 
-async function verifyTreePath(
+async function verifySelectionTree(
+  selection: ArtifactSelection,
+  content: ContentPayload,
+  context: RepositoryContext,
+  request: (
+    operation: string,
+    path: string,
+    maximumBytes: number,
+  ) => ReturnType<ProviderTransport['requestJson']>,
+  cache: Map<string, readonly TreeEntry[]>,
+  decodedByteBudget: ArtifactDecodedByteBudgetScope,
+): Promise<ContentPayload> {
+  const aliasEntry = await locateTreePath(
+    content.path,
+    context,
+    request,
+    cache,
+  );
+  if (isRegularBlob(aliasEntry)) {
+    requireTreeContentAgreement(aliasEntry, content);
+    return content;
+  }
+  if (
+    selection.selector !== 'root-readme' ||
+    aliasEntry.mode !== '120000' ||
+    aliasEntry.type !== 'blob'
+  ) {
+    throw ingestionError('ingestion.unsupported-artifact-type');
+  }
+
+  // GitHub may resolve a repository-internal README symlink in the Contents
+  // payload. Prove the alias and exactly one target without treating either
+  // path text or another symlink as artifact content.
+  const symlinkBytes = await retrieveBlob(
+    aliasEntry.sha,
+    context,
+    request,
+    decodedByteBudget,
+    'artifact-symlink-blob',
+    MAXIMUM_SAFE_PATH_BYTES,
+  );
+  if (aliasEntry.size !== null && aliasEntry.size !== symlinkBytes.byteLength) {
+    throw ingestionError('ingestion.artifact-hash-mismatch');
+  }
+  const targetPath = resolveRootReadmeSymlinkTarget(content.path, symlinkBytes);
+  const targetEntry = await locateTreePath(targetPath, context, request, cache);
+  if (!isRegularBlob(targetEntry)) {
+    throw ingestionError('ingestion.unsupported-artifact-type');
+  }
+  const targetContent = { ...content, path: targetPath };
+  requireTreeContentAgreement(targetEntry, targetContent);
+  return targetContent;
+}
+
+async function locateTreePath(
   path: string,
   context: RepositoryContext,
   request: (
@@ -474,9 +525,6 @@ async function verifyTreePath(
     }
     const final = index === segments.length - 1;
     if (final) {
-      if (!['100644', '100755'].includes(entry.mode) || entry.type !== 'blob') {
-        throw ingestionError('ingestion.unsupported-artifact-type');
-      }
       return entry;
     }
     if (entry.mode !== '040000' || entry.type !== 'tree') {
@@ -485,6 +533,78 @@ async function verifyTreePath(
     treeObjectId = entry.sha;
   }
   throw ingestionError('ingestion.internal-invariant');
+}
+
+function isRegularBlob(entry: TreeEntry): boolean {
+  return ['100644', '100755'].includes(entry.mode) && entry.type === 'blob';
+}
+
+function requireTreeContentAgreement(
+  entry: TreeEntry,
+  content: ContentPayload,
+): void {
+  if (
+    entry.sha !== content.blobObjectId ||
+    (entry.size !== null && entry.size !== content.bytes.byteLength)
+  ) {
+    throw ingestionError('ingestion.artifact-hash-mismatch');
+  }
+}
+
+function resolveRootReadmeSymlinkTarget(
+  aliasPath: string,
+  bytes: Buffer,
+): string {
+  let target: string;
+  try {
+    target = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    throw ingestionError('ingestion.provider-response');
+  }
+  if (
+    target.length === 0 ||
+    Buffer.byteLength(target, 'utf8') > MAXIMUM_SAFE_PATH_BYTES ||
+    !Buffer.from(target, 'utf8').equals(bytes) ||
+    /[\p{Cc}\p{Cf}]/u.test(target) ||
+    target.includes('\\') ||
+    target.startsWith('/') ||
+    /^[A-Za-z][A-Za-z0-9+.-]*:/u.test(target)
+  ) {
+    throw ingestionError('ingestion.unsupported-artifact-type');
+  }
+  const normalized = normalizeRepositorySymlinkTarget(aliasPath, target);
+  const segments = normalized.split('/');
+  if (
+    normalized === '.' ||
+    normalized === '..' ||
+    normalized.startsWith('../') ||
+    segments.some((segment) => segment === '.' || segment === '..') ||
+    !isSafeArtifactPath(normalized)
+  ) {
+    throw ingestionError('ingestion.unsupported-artifact-type');
+  }
+  return normalized;
+}
+
+function normalizeRepositorySymlinkTarget(
+  aliasPath: string,
+  target: string,
+): string {
+  const normalizedSegments = aliasPath.split('/').slice(0, -1);
+  for (const segment of target.split('/')) {
+    if (segment.length === 0 || segment === '.') {
+      continue;
+    }
+    if (segment === '..') {
+      if (normalizedSegments.length === 0) {
+        return '..';
+      }
+      normalizedSegments.pop();
+      continue;
+    }
+    normalizedSegments.push(segment);
+  }
+  return normalizedSegments.length === 0 ? '.' : normalizedSegments.join('/');
 }
 
 async function retrieveBlob(
@@ -496,9 +616,11 @@ async function retrieveBlob(
     maximumBytes: number,
   ) => ReturnType<ProviderTransport['requestJson']>,
   decodedByteBudget: ArtifactDecodedByteBudgetScope,
+  operation = 'artifact-blob',
+  maximumDecodedBytes = MAXIMUM_ARTIFACT_BYTES,
 ): Promise<Buffer> {
   const response = await request(
-    'artifact-blob',
+    operation,
     `/repositories/${context.repositoryId}/git/blobs/${blobObjectId}`,
     ARTIFACT_RESPONSE_BYTES,
   );
@@ -506,7 +628,11 @@ async function retrieveBlob(
   if (payload['encoding'] !== 'base64') {
     throw ingestionError('ingestion.unsupported-artifact-type');
   }
-  const bytes = decodeBase64(payload['content'], decodedByteBudget);
+  const bytes = decodeBase64(
+    payload['content'],
+    decodedByteBudget,
+    maximumDecodedBytes,
+  );
   if (
     !Number.isSafeInteger(payload['size']) ||
     Number(payload['size']) !== bytes.byteLength
@@ -551,6 +677,7 @@ function validateExactText(bytes: Buffer): {
 function decodeBase64(
   value: unknown,
   decodedByteBudget: ArtifactDecodedByteBudgetScope,
+  maximumDecodedBytes = MAXIMUM_ARTIFACT_BYTES,
 ): Buffer {
   if (typeof value !== 'string' || value.length > ARTIFACT_RESPONSE_BYTES) {
     throw ingestionError('ingestion.provider-response');
@@ -569,7 +696,7 @@ function decodeBase64(
       ? 1
       : 0;
   const decodedByteCount = (compact.length / 4) * 3 - paddingBytes;
-  if (decodedByteCount > MAXIMUM_ARTIFACT_BYTES) {
+  if (decodedByteCount > maximumDecodedBytes) {
     throw ingestionError('ingestion.body-too-large');
   }
   decodedByteBudget.reserve(decodedByteCount);

@@ -214,16 +214,50 @@ The provider-discovered path becomes the resolved path. Explicit selections use
 the Contents API at the same commit.
 
 Every final path is verified by walking at most eight segments through bounded,
-non-recursive Git tree calls. Only:
+non-recursive Git tree calls. A normal selected path accepts only:
 
 ```text
 100644 blob
 100755 blob
 ```
 
-is accepted. Trees/directories (`040000`), symlinks (`120000`), submodules
-(`160000`), missing segments, ambiguous duplicates, or disagreement between
-tree and content metadata fail closed. Recursive tree retrieval is prohibited.
+Trees/directories (`040000`), submodules (`160000`), missing segments,
+ambiguous duplicates, or disagreement between tree and content metadata fail
+closed. Symlinks remain unsupported generally. Explicit `path` selections
+always reject mode `120000`.
+
+The provider-discovered `root-readme` selector may resolve exactly one bounded
+repository-internal symlink at the same exact commit. When its discovered path
+is mode `120000`, type `blob`, the collector:
+
+1. fetches that exact tree-entry blob through
+   `/repositories/{repositoryId}/git/blobs/{symlinkBlobId}`;
+2. reserves its decoded size from the shared operational byte budget before
+   Base64 decoding;
+3. verifies the declared and recomputed Git blob object ID;
+4. interprets the strict UTF-8 bytes only as a relative POSIX repository path;
+5. resolves that path against the symlink alias parent;
+6. verifies the normalized target with the same bounded non-recursive tree
+   walk; and
+7. accepts only a normal `100644` or `100755` target blob whose tree SHA equals
+   the README payload SHA and whose independently retrieved immutable blob
+   exactly equals the README payload bytes.
+
+The raw target is nonempty, at most 512 UTF-8 bytes, and contains no NUL,
+control/format character, backslash, absolute path, or URI-like scheme.
+POSIX normalization may consume relative `..` operands only when the result
+remains inside the repository. The normalized target cannot be `.`, `..`, or
+begin with `../`; it contains no unresolved dot segment and must pass the
+existing 512-byte/eight-segment safe artifact path validation. A missing
+target, directory, submodule, second symlink, unsupported mode/type, escape, or
+metadata/content disagreement fails the candidate. It is never `not-found`.
+
+The artifact uses the normalized target path, target blob ID, immutable target
+blob URL, exact-commit target display URL, and verified target content. The
+ordered root-README entry remains `present`, has `requestedPath: null`, and
+uses the normalized target as `resolvedPath`. The symlink alias, target-path
+text, and symlink blob are not persisted as artifacts. Recursive tree
+retrieval and symlink chains are prohibited.
 
 Only an exact-ref README/Contents 404 can create `not-found`, and only for an
 optional selection. Authentication, authorization, rate or abuse limits,
@@ -256,6 +290,11 @@ validation fails. A synchronous shared reservation object performs an atomic
 check-and-charge before decoding, so the two candidate workers cannot
 oversubscribe the limit. A failed reservation decodes nothing and produces
 only `ingestion.body-too-large`.
+
+A resolved root README symlink charges three decoded bodies: the README
+endpoint's resolved target content, the symlink target-path blob, and the
+independently retrieved target blob. Materialized bytes count only the accepted
+target artifact once.
 
 PostgreSQL `text` is the durable content representation. Migration verification
 requires UTF-8 server encoding, and the database checks `octet_length` against
@@ -423,6 +462,17 @@ GitHub read credentials, acknowledged ephemeral non-production PostgreSQL
 configuration, candidate concurrency two, request concurrency one,
 per-request/candidate/batch deadlines, and no implicit migration.
 
+The catalog input is the closed public catalog, not the raw candidate source:
+
+```shell
+pnpm artifacts:live -- \
+  --catalog catalog/public-v1/manifest.json \
+  --manifest catalog/public-v1/artifact-manifest.json \
+  --receipt <absolute-untracked-receipt-path> \
+  --concurrency 2 \
+  --deadline-ms 3600000
+```
+
 Receipts contain controlled IDs, versions/digests, counts, safe outcome codes,
 `operationalDecodedBytes`, `materializedArtifactBytes`, provider request/rate
 metadata, migration version, rerun comparison, and receipt digest.
@@ -475,6 +525,9 @@ These are artifact-specific. Phase 5 file and candidate limits are not widened.
 
 - Exact public documentation consumes bounded PostgreSQL storage.
 - Tree verification adds path-depth-bounded requests.
+- A safely resolvable root README symlink adds one immutable symlink-blob
+  request plus bounded non-recursive tree requests for its normalized target.
+  Global GitHub request concurrency remains one.
 - Deferred closure and reconstruction add write-time database work.
 - Unsupported object algorithms fail closed until an additive version.
 - First-materialization provenance is historical; later aliases appear on
@@ -526,8 +579,9 @@ The offline implementation lands behind an explicit operator command and
 reviewed manifest. Migration 0003 applies transactionally with no backfill.
 The first authorized live proof published 147 closed candidate sets before
 three controlled candidate failures. The disqualified database was destroyed.
-The bounded exact-commit correction and the root-README symlink policy conflict
-require renewed maintainer review before another fresh live proof.
+The exact-commit correction was accepted, and the renewed review authorized the
+narrow one-hop root-README symlink rule. Another fresh live proof remains
+blocked until this implementation passes review.
 
 A failed migration rolls back. A failed candidate transaction creates no set.
 Safe retry reuses exact immutable rows. A merged schema defect is corrected by
@@ -538,10 +592,6 @@ Stored history is never edited as rollback.
 
 - Full reviewed live collection, immediate rerun, and compact completion
   evidence.
-- A maintainer decision for a root README that GitHub discovers as a symlink:
-  current authority both rejects mode `120000` and permits optional root-README
-  absence only for exact-ref `404`, so the measured Dagster candidate cannot
-  publish a closed set under the current rules.
 - Phase 7 semantic repository interview and citation contracts.
 - Additional Git object algorithms when a measured repository requires them.
 - Retrieval/search/indexing, object storage, retention/deletion, tenancy/RLS,

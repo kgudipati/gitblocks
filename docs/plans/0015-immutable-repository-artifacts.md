@@ -11,8 +11,8 @@
 - Branch: `feat/15-immutable-repository-artifacts`
 - Owner: repository maintainer
 - State: authorized live proof paused after a controlled 147/150 partial run;
-  exact-commit correction and root-README symlink policy await renewed
-  maintainer review
+  the exact-commit correction is accepted and the bounded root-README symlink
+  policy is implemented pending renewed review
 - Last updated: 2026-07-30
 
 Authority descends from Issue #15 and its maintainer comments, through actual
@@ -35,9 +35,10 @@ adapter, chunker, PostgreSQL migration and adapter, operator commands, safe
 receipt, tests, and documentation. The authorized live proof produced a valid
 but partial 147/150 receipt, so it does not contain a definitive full
 collection, immediate rerun, or final completion evidence. A live-discovered
-exact-commit metadata correction and a governing contradiction for a
-provider-discovered root README symlink require renewed maintainer review
-before the proof restarts against another fresh database.
+exact-commit metadata correction is accepted. The renewed review authorized one
+selector-specific, one-hop resolution rule for a safely bounded internal root
+README symlink. That implementation must pass complete review before the proof
+restarts against another fresh database.
 
 Phase 7 may later reference immutable artifact and chunk IDs plus line
 intervals. Phase 6 does not define semantic claims, model prompts, interviews,
@@ -200,6 +201,11 @@ exact file body, line count, byte count, or recoverable blob identity survives.
   set records the new alias.
 - Selection semantics live only in ordered set entries.
 - Root README is optional; only exact-ref 404 establishes `not-found`.
+- Symlinks remain unsupported generally. Only a provider-discovered
+  `root-readme` may resolve one strict UTF-8, repository-internal POSIX symlink
+  hop to a normal blob at the same exact commit. The artifact uses the
+  normalized target path and target blob; explicit paths still reject
+  symlinks.
 - Phase 6 supports `sha1` and fails closed on other object algorithms.
 - Exact content uses PostgreSQL UTF-8 `text`; normalization is prohibited.
 - `exact-lines-v1` gives Markdown no semantic treatment.
@@ -215,7 +221,7 @@ exact file body, line count, byte count, or recoverable blob identity survives.
 | Escape/control leakage              | Value-free errors/receipts and synthetic tests                     |
 | Mutable alias mistaken for identity | Numeric repository ID plus exact object/path/hash identity         |
 | Unsupported object algorithm        | Explicit discovery, closed enum, controlled failure                |
-| Symlink/submodule ambiguity         | Non-recursive tree-mode verification at each path segment          |
+| Symlink/submodule ambiguity         | Regular-file-only explicit paths; one bounded root README hop      |
 | Byte normalization                  | Fatal UTF-8 decode, re-encode, byte offsets, reconstruction        |
 | Database amplification              | Approved artifact/candidate/run/chunk limits                       |
 | Partial set looks complete          | One transaction, normalized entries, deferred closure check        |
@@ -341,10 +347,12 @@ Chunk properties cover empty/final-newline content, LF/CRLF/lone CR,
 multibyte Unicode, long lines, exact boundaries, overflow, gaps, overlaps,
 ordering, and exact byte reconstruction.
 
-Provider tests cover exact refs, discovered README path, moves and numeric IDs,
-algorithm discovery, ordinary/executable blobs, trees/symlinks/submodules,
-redirects, exact 404 absence, every non-absence failure, content/hash checks,
-concurrency, cancellation, and Phase 5 compatibility.
+Provider tests cover exact refs, discovered README paths, moves and numeric
+IDs, algorithm discovery, ordinary/executable blobs, selector-specific
+one-hop root README symlinks, rejected explicit-path symlinks, unsafe targets,
+trees/submodules, redirects, exact 404 absence, every non-absence failure,
+content/hash checks, byte accounting, concurrency, cancellation, and Phase 5
+compatibility.
 
 PostgreSQL tests use the non-owner role and cover migrations, grants,
 immutability, exact round trips, closure failures, idempotency, collision,
@@ -419,9 +427,9 @@ rewritten as recovery.
 
 The current live-proof recovery gate requires:
 
-- the exact-commit endpoint correction committed and pushed ordinarily;
-- renewed maintainer review of that correction and the measured root-README
-  symlink contradiction;
+- the accepted exact-commit endpoint correction;
+- the authorized bounded root-README symlink implementation committed, pushed,
+  and accepted through renewed maintainer review;
 - no change to contracts, identities, migrations, bounds, or the approved
   manifest without explicit amended authority;
 - another brand-new ephemeral database after renewed authorization;
@@ -596,6 +604,20 @@ Phase 6 itself is not complete at this checkpoint.
   never requests the expansive repository-commit route. Focused tests pass
   30/30. Targeted live metadata measured replacement response pairs of
   330/2,809 and 368/2,484 bytes under the unchanged 256 KiB bound.
+- **2026-07-30:** The renewed review accepted the exact-commit correction and
+  authorized one selector-specific exception to general symlink rejection.
+  Synthetic red tests produced 8 failures / 47 passes before implementation.
+  The provider-discovered `root-readme` path may now resolve exactly one
+  verified mode-`120000` alias to a bounded internal normal blob. Its raw path,
+  normalized path, tree entry, target payload SHA, immutable blob, accounting,
+  request serialization, and non-recursive traversal are tested without
+  candidate content. Focused provider tests pass 57/57. Explicit paths and
+  second symlinks remain unsupported.
+- **2026-07-30:** The first complete `pnpm verify` passed 44 files / 817 tests
+  and then correctly rejected `node:path` as outside ingestion's approved Node
+  API set. The correction now uses a dependency-free POSIX segment normalizer;
+  the focused 57-test provider suite and 642-module/2,040-dependency
+  architecture check pass without widening the dependency boundary.
 
 ## Decision and deviation log
 
@@ -629,9 +651,10 @@ Phase 6 itself is not complete at this checkpoint.
 - **Exact commit metadata:** default-branch identity now resolves through the
   exact Git reference and Git commit-object endpoints. This preserves the
   256 KiB metadata bound without widening it.
-- **Root README symlink:** no behavior change is made. Dagster proves the
-  current requirements are jointly unsatisfiable for a provider-discovered
-  mode-`120000` root README, so renewed maintainer authority is required.
+- **Root README symlink:** symlinks remain unsupported generally. Only
+  `root-readme` may resolve one safely normalized internal POSIX target to a
+  normal blob at the same commit. The symlink body counts operationally but is
+  not persisted; artifact and set-entry paths use the normalized target.
 
 ## Validation evidence
 
@@ -883,7 +906,7 @@ Git commit-object envelopes 2,809 bytes / 2,484 bytes
 metadata bound             unchanged at 256 KiB
 contracts/migrations       unchanged
 manifest digest            unchanged at 17d2a47f8d99...
-renewed live authorization pending
+correction review          accepted
 ```
 
 Post-correction verification:
@@ -911,4 +934,48 @@ pnpm-lock.yaml            unchanged
 contracts/migrations      unchanged
 manifest files/digest     unchanged
 candidate-content safety  no candidate body or raw receipt tracked
+```
+
+Bounded root-README symlink correction:
+
+```text
+provider red run           1 file / 8 failures / 47 passes
+provider focused green     1 file / 57 tests
+selector scope             root-readme only; explicit paths still reject
+resolution                 one internal POSIX hop to a normal target blob
+operational accounting     README body + symlink blob + target blob
+materialized accounting    accepted target artifact once
+request topology           one immutable symlink-blob request plus bounded,
+                           non-recursive target-tree traversal
+contracts/migration        unchanged
+manifest/catalog digests   unchanged
+live operation             not run
+renewed implementation review pending
+```
+
+Post-symlink-correction verification:
+
+```text
+pnpm install --frozen-lockfile
+                           passed; already up to date under pnpm 11.17.0
+pnpm verify                passed; 44 files / 817 tests
+pnpm verify:ci             passed; PostgreSQL required; registry audit clear
+pnpm contracts:validate    passed; 10 cases / 40 supplied candidates
+pnpm catalog:validate      passed; 150 candidates / 30 per family
+pnpm ingestion:verify      passed; 11 files / 156 tests
+pnpm db:verify             passed; PostgreSQL 18.4 / 4 files / 36 tests / no skips
+pnpm eval:validate         passed; 10 cases
+pnpm eval:fixtures         passed; all fixture profiles
+pnpm artifacts:validate   passed; 150 roots / 30 additional candidates;
+                           manifest digest 17d2a47f8d99...
+pnpm artifacts:verify     passed; 6 files / 107 tests
+pnpm test:coverage        passed; 44 files / 817 tests; 76.35% statements,
+                           69.25% branches, 83.29% functions, 76.15% lines
+pnpm architecture:check   passed within verification; 642 modules /
+                           2,040 dependencies; no violations
+contract digests          all nine unchanged
+migration 0003            unchanged
+manifest/catalog digests  unchanged
+pnpm-lock.yaml            unchanged
+live operation            not run
 ```

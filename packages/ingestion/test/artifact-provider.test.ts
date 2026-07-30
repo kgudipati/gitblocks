@@ -17,6 +17,11 @@ const BYTES = Buffer.from(CONTENT, 'utf8');
 const BLOB_SHA = gitBlobSha1(BYTES);
 const COMMIT_SHA = '1'.repeat(40);
 const TREE_SHA = '3'.repeat(40);
+const PYTHON_MODULES_TREE_SHA = '5'.repeat(40);
+const DAGSTER_TREE_SHA = '6'.repeat(40);
+const DOCS_TREE_SHA = '8'.repeat(40);
+const SYMLINK_TARGET = 'python_modules/dagster/README.md';
+const SYMLINK_BYTES = Buffer.from(SYMLINK_TARGET, 'utf8');
 
 describe('exact GitHub repository artifact collection', () => {
   it('uses exact refs, numeric repository identity, tree verification, and immutable blobs', async () => {
@@ -290,6 +295,351 @@ describe('exact GitHub repository artifact collection', () => {
     ).toBe(COMMIT_SHA);
   });
 
+  it('resolves one bounded root README symlink to its normal target artifact', async () => {
+    const requests: TransportRequest[] = [];
+    const budget = createArtifactDecodedByteBudget(64 * 1_024 * 1_024);
+    const collector = createRepositoryArtifactCollector({
+      githubToken: 'synthetic-token',
+      transport: providerTransport(requests, { treeMode: '120000' }),
+    });
+
+    const publication = await collector.collectCandidate({
+      candidate: TEST_CANDIDATE,
+      manifest: manifestForRoot(),
+      collectedAt: '2026-07-29T12:00:00.000Z',
+      publishedAt: '2026-07-29T12:01:00.000Z',
+      correlationId: 'artifact-run-symlink',
+      decodedByteBudget: budget.createCandidateScope(),
+    });
+
+    expect(publication.artifacts).toHaveLength(1);
+    expect(publication.artifacts[0]?.artifact).toMatchObject({
+      path: SYMLINK_TARGET,
+      blobObjectId: BLOB_SHA,
+      content: CONTENT,
+      byteCount: BYTES.byteLength,
+      blobApiUrl: `https://api.github.com/repositories/123456789/git/blobs/${BLOB_SHA}`,
+      displayUrl: `https://github.com/gitblocks-test/candidate/blob/${COMMIT_SHA}/python_modules/dagster/README.md`,
+    });
+    expect(publication.artifactSet.entries).toEqual([
+      expect.objectContaining({
+        selector: 'root-readme',
+        requestedPath: null,
+        resolvedPath: SYMLINK_TARGET,
+        outcome: 'present',
+        artifactId: publication.artifacts[0]?.artifact.artifactId,
+      }),
+    ]);
+    expect(
+      publication.artifacts.reduce(
+        (total, { artifact }) => total + artifact.byteCount,
+        0,
+      ),
+    ).toBe(BYTES.byteLength);
+    expect(budget.operationalDecodedBytes).toBe(
+      BYTES.byteLength * 2 + SYMLINK_BYTES.byteLength,
+    );
+    expect(requests.map(({ operation }) => operation)).toEqual([
+      'artifact-repository',
+      'artifact-hash-algorithm',
+      'artifact-default-branch-ref',
+      'artifact-exact-commit',
+      'artifact-readme',
+      'artifact-tree',
+      'artifact-symlink-blob',
+      'artifact-tree',
+      'artifact-tree',
+      'artifact-blob',
+    ]);
+  });
+
+  it('keeps explicit path symlinks unsupported', async () => {
+    const collector = createRepositoryArtifactCollector({
+      githubToken: 'synthetic-token',
+      transport: providerTransport([], { treeMode: '120000' }),
+    });
+
+    await expect(
+      collector.collectCandidate({
+        candidate: TEST_CANDIDATE,
+        manifest: manifestForPath('required'),
+        collectedAt: '2026-07-29T12:00:00.000Z',
+        publishedAt: '2026-07-29T12:01:00.000Z',
+        correlationId: 'artifact-run-explicit-symlink',
+        decodedByteBudget: artifactBudget(),
+      }),
+    ).rejects.toMatchObject({
+      code: 'ingestion.unsupported-artifact-type',
+    });
+  });
+
+  it('accepts parent operands only when POSIX normalization remains inside the repository', async () => {
+    const collector = createRepositoryArtifactCollector({
+      githubToken: 'synthetic-token',
+      transport: providerTransport([], {
+        treeMode: '120000',
+        readmePath: 'docs/README.md',
+        symlinkTargetBytes: Buffer.from(`../${SYMLINK_TARGET}`),
+      }),
+    });
+
+    const publication = await collector.collectCandidate({
+      candidate: TEST_CANDIDATE,
+      manifest: manifestForRoot(),
+      collectedAt: '2026-07-29T12:00:00.000Z',
+      publishedAt: '2026-07-29T12:01:00.000Z',
+      correlationId: 'artifact-run-normalized-symlink',
+      decodedByteBudget: artifactBudget(),
+    });
+
+    expect(publication.artifacts[0]?.artifact.path).toBe(SYMLINK_TARGET);
+    expect(publication.artifactSet.entries[0]).toMatchObject({
+      selector: 'root-readme',
+      requestedPath: null,
+      resolvedPath: SYMLINK_TARGET,
+      outcome: 'present',
+    });
+  });
+
+  it.each([
+    ['an empty target', Buffer.alloc(0), 'ingestion.unsupported-artifact-type'],
+    [
+      'an absolute target',
+      Buffer.from('/README.md'),
+      'ingestion.unsupported-artifact-type',
+    ],
+    [
+      'a URL-like target',
+      Buffer.from('https://example.test/README.md'),
+      'ingestion.unsupported-artifact-type',
+    ],
+    [
+      'a backslash target',
+      Buffer.from('docs\\README.md'),
+      'ingestion.unsupported-artifact-type',
+    ],
+    [
+      'a NUL target',
+      Buffer.from('docs/\0README.md'),
+      'ingestion.provider-response',
+    ],
+    [
+      'a control-character target',
+      Buffer.from('docs/\nREADME.md'),
+      'ingestion.unsupported-artifact-type',
+    ],
+    ['invalid UTF-8', Buffer.from([0xc3, 0x28]), 'ingestion.provider-response'],
+    [
+      'an overlong target',
+      Buffer.from(`${'a'.repeat(513)}.md`),
+      'ingestion.body-too-large',
+    ],
+    [
+      'too many normalized path segments',
+      Buffer.from('a/b/c/d/e/f/g/h/README.md'),
+      'ingestion.unsupported-artifact-type',
+    ],
+    [
+      'a repository escape',
+      Buffer.from('../README.md'),
+      'ingestion.unsupported-artifact-type',
+    ],
+    [
+      'normalization to the repository root',
+      Buffer.from('docs/..'),
+      'ingestion.unsupported-artifact-type',
+    ],
+    [
+      'normalization to a parent',
+      Buffer.from('..'),
+      'ingestion.unsupported-artifact-type',
+    ],
+  ] as const)(
+    'rejects root README symlink with %s',
+    async (_, targetBytes, code) => {
+      const collector = createRepositoryArtifactCollector({
+        githubToken: 'synthetic-token',
+        transport: providerTransport([], {
+          treeMode: '120000',
+          symlinkTargetBytes: targetBytes,
+        }),
+      });
+
+      await expect(
+        collector.collectCandidate({
+          candidate: TEST_CANDIDATE,
+          manifest: manifestForRoot(),
+          collectedAt: '2026-07-29T12:00:00.000Z',
+          publishedAt: '2026-07-29T12:01:00.000Z',
+          correlationId: 'artifact-run-unsafe-symlink',
+          decodedByteBudget: artifactBudget(),
+        }),
+      ).rejects.toMatchObject({ code });
+    },
+  );
+
+  it.each([
+    ['a dangling target', { targetMissing: true }],
+    [
+      'a target directory',
+      { targetTreeMode: '040000', targetTreeType: 'tree' },
+    ],
+    [
+      'a target submodule',
+      { targetTreeMode: '160000', targetTreeType: 'commit' },
+    ],
+    [
+      'target mode 120000',
+      { targetTreeMode: '120000', targetTreeType: 'blob' },
+    ],
+    [
+      'a two-hop symlink chain',
+      { targetTreeMode: '120000', targetTreeType: 'blob' },
+    ],
+    [
+      'an unsupported file mode',
+      { targetTreeMode: '100600', targetTreeType: 'blob' },
+    ],
+  ] as const)('rejects root README symlink with %s', async (_, fault) => {
+    const collector = createRepositoryArtifactCollector({
+      githubToken: 'synthetic-token',
+      transport: providerTransport([], { treeMode: '120000', ...fault }),
+    });
+
+    await expect(
+      collector.collectCandidate({
+        candidate: TEST_CANDIDATE,
+        manifest: manifestForRoot(),
+        collectedAt: '2026-07-29T12:00:00.000Z',
+        publishedAt: '2026-07-29T12:01:00.000Z',
+        correlationId: 'artifact-run-target-object',
+        decodedByteBudget: artifactBudget(),
+      }),
+    ).rejects.toBeInstanceOf(IngestionError);
+  });
+
+  it.each([
+    ['target tree SHA disagreement', { targetTreeObjectMismatch: true }],
+    ['target blob byte disagreement', { targetBlobBytesMismatch: true }],
+    ['symlink blob SHA disagreement', { symlinkBlobObjectMismatch: true }],
+    ['target blob SHA disagreement', { blobObjectMismatch: true }],
+  ] as const)('rejects root README symlink %s', async (_, fault) => {
+    const collector = createRepositoryArtifactCollector({
+      githubToken: 'synthetic-token',
+      transport: providerTransport([], { treeMode: '120000', ...fault }),
+    });
+
+    await expect(
+      collector.collectCandidate({
+        candidate: TEST_CANDIDATE,
+        manifest: manifestForRoot(),
+        collectedAt: '2026-07-29T12:00:00.000Z',
+        publishedAt: '2026-07-29T12:01:00.000Z',
+        correlationId: 'artifact-run-symlink-mismatch',
+        decodedByteBudget: artifactBudget(),
+      }),
+    ).rejects.toMatchObject({
+      code: 'ingestion.artifact-hash-mismatch',
+    });
+  });
+
+  it('rejects before decoding a symlink target when the run budget is exhausted', async () => {
+    const requests: TransportRequest[] = [];
+    const budget = createArtifactDecodedByteBudget(BYTES.byteLength);
+    const collector = createRepositoryArtifactCollector({
+      githubToken: 'synthetic-token',
+      transport: providerTransport(requests, { treeMode: '120000' }),
+    });
+
+    await expect(
+      collector.collectCandidate({
+        candidate: TEST_CANDIDATE,
+        manifest: manifestForRoot(),
+        collectedAt: '2026-07-29T12:00:00.000Z',
+        publishedAt: '2026-07-29T12:01:00.000Z',
+        correlationId: 'artifact-run-symlink-budget',
+        decodedByteBudget: budget.createCandidateScope(),
+      }),
+    ).rejects.toMatchObject({ code: 'ingestion.body-too-large' });
+
+    expect(budget.operationalDecodedBytes).toBe(BYTES.byteLength);
+    expect(requests.at(-1)?.operation).toBe('artifact-symlink-blob');
+  });
+
+  it('rejects before decoding the target blob when the remaining run budget is insufficient', async () => {
+    const requests: TransportRequest[] = [];
+    const budget = createArtifactDecodedByteBudget(
+      BYTES.byteLength + SYMLINK_BYTES.byteLength,
+    );
+    const collector = createRepositoryArtifactCollector({
+      githubToken: 'synthetic-token',
+      transport: providerTransport(requests, { treeMode: '120000' }),
+    });
+
+    await expect(
+      collector.collectCandidate({
+        candidate: TEST_CANDIDATE,
+        manifest: manifestForRoot(),
+        collectedAt: '2026-07-29T12:00:00.000Z',
+        publishedAt: '2026-07-29T12:01:00.000Z',
+        correlationId: 'artifact-run-target-budget',
+        decodedByteBudget: budget.createCandidateScope(),
+      }),
+    ).rejects.toMatchObject({ code: 'ingestion.body-too-large' });
+
+    expect(budget.operationalDecodedBytes).toBe(
+      BYTES.byteLength + SYMLINK_BYTES.byteLength,
+    );
+    expect(requests.at(-1)?.operation).toBe('artifact-blob');
+  });
+
+  it('keeps root README symlink requests serialized, bounded, and non-recursive', async () => {
+    const requests: TransportRequest[] = [];
+    let active = 0;
+    let maximumActive = 0;
+    const base = providerTransport(requests, { treeMode: '120000' });
+    const collector = createRepositoryArtifactCollector({
+      githubToken: 'synthetic-token',
+      transport: {
+        requestJson: async (request) => {
+          active += 1;
+          maximumActive = Math.max(maximumActive, active);
+          await Promise.resolve();
+          try {
+            return await base.requestJson(request);
+          } finally {
+            active -= 1;
+          }
+        },
+      },
+    });
+
+    await collector.collectCandidate({
+      candidate: TEST_CANDIDATE,
+      manifest: manifestForRoot(),
+      collectedAt: '2026-07-29T12:00:00.000Z',
+      publishedAt: '2026-07-29T12:01:00.000Z',
+      correlationId: 'artifact-run-symlink-bounds',
+      decodedByteBudget: artifactBudget(),
+    });
+
+    expect(maximumActive).toBe(1);
+    expect(
+      requests
+        .filter(({ operation }) =>
+          ['artifact-tree', 'artifact-symlink-blob', 'artifact-blob'].includes(
+            operation,
+          ),
+        )
+        .every(({ maximumBytes }) => maximumBytes === 512 * 1_024),
+    ).toBe(true);
+    expect(
+      requests
+        .filter(({ operation }) => operation === 'artifact-tree')
+        .every(({ url }) => !url.searchParams.has('recursive')),
+    ).toBe(true);
+  });
+
   it('records a provider-canonical move without using the alias as artifact identity', async () => {
     const collector = createRepositoryArtifactCollector({
       githubToken: 'synthetic-token',
@@ -408,24 +758,26 @@ describe('exact GitHub repository artifact collection', () => {
 
   it.each([
     ['040000', 'tree'],
-    ['120000', 'blob'],
     ['160000', 'commit'],
-  ] as const)('rejects unsupported tree object %s/%s', async (mode, type) => {
-    const collector = createRepositoryArtifactCollector({
-      githubToken: 'synthetic-token',
-      transport: providerTransport([], { treeMode: mode, treeType: type }),
-    });
-    await expect(
-      collector.collectCandidate({
-        candidate: TEST_CANDIDATE,
-        manifest: manifestForRoot(),
-        collectedAt: '2026-07-29T12:00:00.000Z',
-        publishedAt: '2026-07-29T12:01:00.000Z',
-        correlationId: 'artifact-run-1',
-        decodedByteBudget: artifactBudget(),
-      }),
-    ).rejects.toMatchObject({ code: 'ingestion.unsupported-artifact-type' });
-  });
+  ] as const)(
+    'rejects unsupported root README tree object %s/%s',
+    async (mode, type) => {
+      const collector = createRepositoryArtifactCollector({
+        githubToken: 'synthetic-token',
+        transport: providerTransport([], { treeMode: mode, treeType: type }),
+      });
+      await expect(
+        collector.collectCandidate({
+          candidate: TEST_CANDIDATE,
+          manifest: manifestForRoot(),
+          collectedAt: '2026-07-29T12:00:00.000Z',
+          publishedAt: '2026-07-29T12:01:00.000Z',
+          correlationId: 'artifact-run-1',
+          decodedByteBudget: artifactBudget(),
+        }),
+      ).rejects.toMatchObject({ code: 'ingestion.unsupported-artifact-type' });
+    },
+  );
 
   it.each([
     'malformed-base64',
@@ -528,6 +880,14 @@ function providerTransport(
     readonly referenceName?: string;
     readonly referenceObjectType?: string;
     readonly commitResponseSha?: string;
+    readonly symlinkTargetBytes?: Buffer;
+    readonly targetMissing?: boolean;
+    readonly targetTreeMode?: string;
+    readonly targetTreeType?: string;
+    readonly targetTreeObjectMismatch?: boolean;
+    readonly targetBlobBytesMismatch?: boolean;
+    readonly symlinkBlobObjectMismatch?: boolean;
+    readonly readmePath?: string;
   },
 ): ProviderTransport {
   return {
@@ -581,31 +941,38 @@ function providerResponse(
         tree: { sha: TREE_SHA },
       });
     case 'artifact-readme':
+      return json(
+        contentPayload(
+          options?.contentFault,
+          options?.readmePath ?? 'README.md',
+        ),
+      );
     case 'artifact-content':
       return json(contentPayload(options?.contentFault));
     case 'artifact-tree':
+      return json(treePayload(request, options));
+    case 'artifact-symlink-blob': {
+      const symlinkBytes = options?.symlinkTargetBytes ?? SYMLINK_BYTES;
       return json({
-        sha: TREE_SHA,
-        truncated: false,
-        tree: [
-          {
-            path: 'README.md',
-            mode: options?.treeMode ?? '100644',
-            type: options?.treeType ?? 'blob',
-            size: BYTES.byteLength,
-            sha: BLOB_SHA,
-            url: `https://api.github.com/repos/gitblocks-test/candidate/git/blobs/${BLOB_SHA}`,
-          },
-        ],
+        content: symlinkBytes.toString('base64'),
+        encoding: 'base64',
+        size: symlinkBytes.byteLength,
+        sha: options?.symlinkBlobObjectMismatch
+          ? '4'.repeat(40)
+          : gitBlobSha1(symlinkBytes),
       });
-    case 'artifact-blob':
+    }
+    case 'artifact-blob': {
+      const blobBytes = options?.targetBlobBytesMismatch
+        ? Buffer.from('different synthetic target\n')
+        : faultBytes(options?.contentFault);
       return json({
-        content: encodedContent(options?.contentFault),
+        content: blobBytes.toString('base64'),
         encoding: 'base64',
         size:
           options?.contentFault === 'size-mismatch'
             ? BYTES.byteLength + 1
-            : BYTES.byteLength,
+            : blobBytes.byteLength,
         sha:
           options?.contentFault === 'hash-mismatch' ||
           options?.blobObjectMismatch
@@ -613,9 +980,110 @@ function providerResponse(
             : BLOB_SHA,
         url: `https://api.github.com/repos/gitblocks-test/candidate/git/blobs/${BLOB_SHA}`,
       });
+    }
     default:
       throw new Error('Unexpected synthetic artifact request.');
   }
+}
+
+function treePayload(
+  request: TransportRequest,
+  options?: Parameters<typeof providerTransport>[1],
+): Record<string, unknown> {
+  if (options?.treeMode !== '120000') {
+    return {
+      sha: TREE_SHA,
+      truncated: false,
+      tree: [
+        treeEntry(
+          'README.md',
+          options?.treeMode ?? '100644',
+          options?.treeType ?? 'blob',
+          BLOB_SHA,
+          BYTES.byteLength,
+        ),
+      ],
+    };
+  }
+
+  const treeObjectId = request.url.pathname.split('/').at(-1);
+  if (treeObjectId === TREE_SHA) {
+    const aliasPath = options.readmePath ?? 'README.md';
+    const aliasEntry =
+      aliasPath === 'README.md'
+        ? treeEntry(
+            'README.md',
+            '120000',
+            'blob',
+            gitBlobSha1(options.symlinkTargetBytes ?? SYMLINK_BYTES),
+            (options.symlinkTargetBytes ?? SYMLINK_BYTES).byteLength,
+          )
+        : treeEntry('docs', '040000', 'tree', DOCS_TREE_SHA);
+    return {
+      sha: TREE_SHA,
+      truncated: false,
+      tree: [
+        aliasEntry,
+        treeEntry('python_modules', '040000', 'tree', PYTHON_MODULES_TREE_SHA),
+      ],
+    };
+  }
+  if (treeObjectId === DOCS_TREE_SHA) {
+    return {
+      sha: DOCS_TREE_SHA,
+      truncated: false,
+      tree: [
+        treeEntry(
+          'README.md',
+          '120000',
+          'blob',
+          gitBlobSha1(options.symlinkTargetBytes ?? SYMLINK_BYTES),
+          (options.symlinkTargetBytes ?? SYMLINK_BYTES).byteLength,
+        ),
+      ],
+    };
+  }
+  if (treeObjectId === PYTHON_MODULES_TREE_SHA) {
+    return {
+      sha: PYTHON_MODULES_TREE_SHA,
+      truncated: false,
+      tree: [treeEntry('dagster', '040000', 'tree', DAGSTER_TREE_SHA)],
+    };
+  }
+  if (treeObjectId === DAGSTER_TREE_SHA) {
+    return {
+      sha: DAGSTER_TREE_SHA,
+      truncated: false,
+      tree: options.targetMissing
+        ? []
+        : [
+            treeEntry(
+              'README.md',
+              options.targetTreeMode ?? '100644',
+              options.targetTreeType ?? 'blob',
+              options.targetTreeObjectMismatch ? '7'.repeat(40) : BLOB_SHA,
+              BYTES.byteLength,
+            ),
+          ],
+    };
+  }
+  throw new Error('Unexpected synthetic tree request.');
+}
+
+function treeEntry(
+  path: string,
+  mode: string,
+  type: string,
+  sha: string,
+  size?: number,
+): Record<string, unknown> {
+  return {
+    path,
+    mode,
+    type,
+    sha,
+    ...(size === undefined ? {} : { size }),
+  };
 }
 
 function contentPayload(
@@ -627,6 +1095,7 @@ function contentPayload(
     | 'invalid-utf8'
     | 'nul'
     | undefined,
+  path = 'README.md',
 ): Record<string, unknown> {
   const bytes = faultBytes(fault);
   return {
@@ -634,7 +1103,7 @@ function contentPayload(
     encoding: 'base64',
     size: fault === 'size-mismatch' ? bytes.byteLength + 1 : bytes.byteLength,
     name: 'README.md',
-    path: 'README.md',
+    path,
     content: encodedContent(fault),
     sha: fault === 'hash-mismatch' ? '4'.repeat(40) : BLOB_SHA,
     git_url: `https://api.github.com/repos/gitblocks-test/candidate/git/blobs/${BLOB_SHA}`,
