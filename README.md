@@ -134,33 +134,37 @@ Corepack reads the exact pnpm 11.17.0 pin and integrity digest from
 `package.json`; `pnpm --version` must report `11.17.0`. Do not use npm or Yarn,
 hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 
-| Command                               | Purpose                                                       |
-| ------------------------------------- | ------------------------------------------------------------- |
-| `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin   |
-| `pnpm format:check`                   | Check formatting without changing files                       |
-| `pnpm lint`                           | Run typed ESLint with zero warnings                           |
-| `pnpm typecheck`                      | Type-check product packages, tooling, and tests               |
-| `pnpm build`                          | Emit the private product and tooling packages                 |
-| `pnpm test`                           | Run the protected deterministic Vitest suite                  |
-| `pnpm test:coverage`                  | Record the V8 coverage baseline                               |
-| `pnpm architecture:check`             | Enforce dependency directions                                 |
-| `pnpm repo:check`                     | Validate workflows, Markdown, and repository invariants       |
-| `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity        |
-| `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory             |
-| `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                  |
-| `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings       |
-| `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB   |
-| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes   |
-| `pnpm db:test`                        | Run PostgreSQL integration and conformance tests              |
-| `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks       |
-| `pnpm catalog:validate`               | Validate catalog bounds, balance, identity, paths, and digest |
-| `pnpm artifacts:validate`             | Validate public artifact selections, coverage, and digest     |
-| `pnpm ingestion:test`                 | Run deterministic ingestion adapter and profile tests         |
-| `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                |
-| `pnpm security:secrets`               | Scan tracked development content for secrets                  |
-| `pnpm security:audit`                 | Run the online registry dependency audit                      |
-| `pnpm verify`                         | Run one preflight plus authoritative offline verification     |
-| `pnpm verify:ci`                      | Run `verify`, audit, and real PostgreSQL verification         |
+| Command                               | Purpose                                                           |
+| ------------------------------------- | ----------------------------------------------------------------- |
+| `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin       |
+| `pnpm format:check`                   | Check formatting without changing files                           |
+| `pnpm lint`                           | Run typed ESLint with zero warnings                               |
+| `pnpm typecheck`                      | Type-check product packages, tooling, and tests                   |
+| `pnpm build`                          | Emit the private product and tooling packages                     |
+| `pnpm test`                           | Run the protected deterministic Vitest suite                      |
+| `pnpm test:coverage`                  | Record the V8 coverage baseline                                   |
+| `pnpm architecture:check`             | Enforce dependency directions                                     |
+| `pnpm repo:check`                     | Validate workflows, Markdown, and repository invariants           |
+| `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity            |
+| `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory                 |
+| `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                      |
+| `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings           |
+| `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB       |
+| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes       |
+| `pnpm db:test`                        | Run PostgreSQL integration and conformance tests                  |
+| `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks           |
+| `pnpm catalog:validate`               | Validate catalog bounds, balance, identity, paths, and digest     |
+| `pnpm artifacts:validate`             | Validate public artifact selections, coverage, and digest         |
+| `pnpm artifacts:test`                 | Run deterministic artifact manifest, collector, and receipt tests |
+| `pnpm artifacts:verify`               | Run complete offline artifact verification                        |
+| `pnpm artifacts:live`                 | Run the separately acknowledged public-artifact operator          |
+| `pnpm artifacts:receipt`              | Validate and compare content-free artifact receipts               |
+| `pnpm ingestion:test`                 | Run deterministic ingestion adapter and profile tests             |
+| `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                    |
+| `pnpm security:secrets`               | Scan tracked development content for secrets                      |
+| `pnpm security:audit`                 | Run the online registry dependency audit                          |
+| `pnpm verify`                         | Run one preflight plus authoritative offline verification         |
+| `pnpm verify:ci`                      | Run `verify`, audit, and real PostgreSQL verification             |
 
 Contract and evaluation commands are offline and do not execute candidate code
 or call a model. Product schemas are deterministic JSON Schema 2020-12 runtime
@@ -174,3 +178,8 @@ verification. There is no development service or deployment command because
 product services remain unimplemented. `pnpm ingest:live` is a separate
 credential-injected operator command requiring explicit manifest, receipt,
 database configuration, and non-production acknowledgement.
+`pnpm artifacts:live` is a distinct credential-injected operator command with
+its own stronger acknowledgement, explicit catalog and artifact-manifest
+paths, ephemeral non-production database scope, and content-free receipt. It
+remains blocked until the Phase 6 manifest and offline implementation receive
+maintainer review.

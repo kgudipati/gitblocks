@@ -352,7 +352,9 @@ values.
 | path UTF-8 bytes                  |         512 |
 | path segments                     |           8 |
 | artifact JSON response            |     512 KiB |
-| ordinary GitHub metadata response |       2 MiB |
+| tree/blob JSON response           |     512 KiB |
+| repository/commit JSON response   |     256 KiB |
+| hash-algorithm JSON response      |      16 KiB |
 
 These are artifact-specific. Phase 5 file and candidate limits are not widened.
 

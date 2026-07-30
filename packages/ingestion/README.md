@@ -22,6 +22,16 @@ root README attempt per candidate. `artifact-manifest-cli.ts` validates the
 closed shapes, deterministic selection IDs, safe paths, coverage, ordering, and
 digest. It imports no evaluation records or gold.
 
+Artifact collection is a separate operator path. `pnpm artifacts:verify`
+exercises its deterministic offline boundary. `pnpm artifacts:live` requires
+an injected GitHub token and PostgreSQL connection, explicit catalog,
+artifact-manifest, and receipt paths, the
+`approved-non-production-public-artifact-collection` acknowledgement, and an
+`ephemeral-non-production` database-scope declaration. The command never
+migrates implicitly. Its receipt is bounded and content-free, and
+`pnpm artifacts:receipt` validates or compares receipts without contacting a
+provider.
+
 Repository identity and head are universal. `expectedSourceTypes` controls
 optional release, tag, exact-commit license, community, allowlisted-file, npm,
 and reviewed-advisory requests. The maximum logical budget remains 12 requests

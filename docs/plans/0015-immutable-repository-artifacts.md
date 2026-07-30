@@ -303,7 +303,7 @@ Buffer, URL, and cryptography cover the operation.
 - [x] **Milestone 6 — Operator/receipt:** separate commands, acknowledgement,
       isolation, limits/deadlines, telemetry, receipt/rerun support; no live run;
       commit.
-- [ ] **Milestone 7 — Pre-live checkpoint:** full matrix, diff and hosted CI
+- [x] **Milestone 7 — Pre-live checkpoint:** full matrix, diff and hosted CI
       inspection, plan/PR update, and stop for authorization.
 - [ ] **Deferred live completion:** reviewed full run/rerun and compact
       completion evidence after explicit authorization.
@@ -573,6 +573,40 @@ unexpected networking     prohibited by ordinary and database test setup
 Phase 5 API default       unchanged at 2026-03-10; explicit override tested
 live artifact operation   not run
 ```
+
+Pre-live audit and offline checkpoint evidence:
+
+```text
+pnpm verify               passed; 43 files / 768 tests
+pnpm verify:ci            passed; registry audit clear; PostgreSQL required
+pnpm contracts:validate   passed; 10 cases / 40 supplied candidates
+pnpm catalog:validate     passed; 150 candidates / 30 per family
+pnpm ingestion:verify     passed; 10 files / 109 tests
+pnpm db:verify            passed; PostgreSQL 18.4 / 4 files / 29 tests / no skips
+pnpm eval:validate        passed; 10 cases / 40 supplied candidates
+pnpm eval:fixtures        passed; strong, weak, partial, and rejected fixtures
+pnpm artifacts:validate   passed; manifest digest 2ba28512832f...
+pnpm artifacts:verify     passed; 5 files / 60 tests
+pnpm test:coverage        passed; 43 files / 768 tests; 75.55% statements,
+                           68.38% branches, 82.26% functions, 75.33% lines
+git diff --check          passed
+production dependencies  unchanged; 114 production packages / 7 workspaces
+pnpm-lock.yaml            unchanged from 3f45f03b...
+full branch diff          reviewed; no candidate body, receipt, or completion
+                           evidence is committed
+worktree                  clean after every published implementation commit
+live artifact operation   not run
+```
+
+Hosted CI run `30504095071` was started for implementation head
+`917bc8dc9399bd97948c846d52a98d650dd3a925` and completed successfully.
+Its setup, pinned pnpm, frozen install, reproducibility, pull-request metadata,
+authoritative verification, PostgreSQL 18.4 verification, registry audit, and
+clean-worktree steps all passed. Decoded logs report 43 files / 768 offline
+tests, 4 files / 29 PostgreSQL tests without skips, 640 architecture modules /
+2,035 dependencies without violations, and no known dependency
+vulnerabilities. PostgreSQL `ERROR` lines are the expected rejection paths
+asserted by negative tests; the job has no failed step or unexplained finding.
 
 Milestone 6 evidence:
 
