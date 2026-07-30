@@ -454,6 +454,10 @@ function validateRuntimeScripts(
     'ingest:receipt',
     'ingestion:test',
     'ingestion:verify',
+    'interviews:generate',
+    'interviews:test',
+    'interviews:validate',
+    'interviews:verify',
     'repo:check',
     'repo:branch',
     'repo:pr-branch',
@@ -476,7 +480,8 @@ function validateRuntimeScripts(
   }
   const requiredWorkspaceScripts = {
     build: 'pnpm build:product && pnpm build:tools',
-    'build:product': 'pnpm --filter @gitblocks/ingestion... build',
+    'build:product':
+      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
     'contracts:validate':
@@ -487,6 +492,14 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && vitest run packages/ingestion/test --config vitest.config.ts',
     'ingestion:verify':
       'pnpm runtime:check && pnpm catalog:validate && pnpm ingestion:test && pnpm --filter @gitblocks/ingestion typecheck',
+    'interviews:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts generate',
+    'interviews:test':
+      'pnpm runtime:check && pnpm build:product && vitest run packages/interviews/test --config vitest.config.ts',
+    'interviews:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts validate',
+    'interviews:verify':
+      'pnpm runtime:check && pnpm interviews:validate && pnpm interviews:test && pnpm --filter @gitblocks/interviews typecheck && pnpm architecture:check',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':
@@ -499,7 +512,7 @@ function validateRuntimeScripts(
     'lint:internal': 'eslint . --max-warnings 0',
     typecheck: 'pnpm build:product && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
   } as const;
   for (const [scriptName, expected] of Object.entries(
     requiredWorkspaceScripts,

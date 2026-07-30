@@ -7,6 +7,7 @@ export default defineConfig({
       exclude: [
         'packages/contracts/src/index.ts',
         'packages/domain/src/index.ts',
+        'packages/interviews/src/index.ts',
         'packages/persistence/src/index.ts',
         'packages/ingestion/src/index.ts',
         'tools/evaluation-harness/src/cli.ts',
@@ -20,6 +21,7 @@ export default defineConfig({
         'packages/domain/src/**/*.ts',
         'packages/persistence/src/**/*.ts',
         'packages/ingestion/src/**/*.ts',
+        'packages/interviews/src/**/*.ts',
         'tools/evaluation-harness/src/**/*.ts',
         'tools/repository-checks/src/**/*.ts',
         'tools/runtime-preflight.mjs',
@@ -33,6 +35,7 @@ export default defineConfig({
       'packages/domain/test/**/*.test.ts',
       'packages/persistence/test/**/*.test.ts',
       'packages/ingestion/test/**/*.test.ts',
+      'packages/interviews/test/**/*.test.ts',
       'tools/evaluation-harness/test/**/*.test.ts',
       'tools/repository-checks/test/**/*.test.{mjs,ts}',
     ],

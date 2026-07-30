@@ -13,7 +13,8 @@
     amendments.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestone 1 accepted; Milestone 2 authorized and in progress
+- State: Milestone 1 accepted; Milestone 2 implemented and locally verified,
+  awaiting maintainer review; Milestone 3 is not authorized
 - Last updated: 2026-07-30
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -1423,6 +1424,8 @@ already includes `apps/*` and will remain unchanged.
 
 ### 2. Provider-output TypeBox schema, specification source, and projections
 
+- **Status:** implemented and locally verified; awaiting maintainer review
+  before Milestone 3.
 - **Red first:** closed schema, bounds, every required field, unsupported
   keyword rejection, deterministic neutral/OpenAI projection, digest drift,
   immutable directory tests.
@@ -1725,6 +1728,202 @@ remain:
 | repository artifact set   | `0d78814c3361e76e9d82c29cc6464fbedb3e6b761269dba3641c0e1c2c894e54` |
 | repository fingerprint    | `73f42c7a7cd20de24372ecddb7afa33925ca1f4d67cb1f9598cd9d56ea87477c` |
 
+## Milestone 2 implementation evidence
+
+### Implemented boundary and file map
+
+Milestone 2 adds one private package and one immutable specification directory.
+No durable production contract root, application/provider/persistence port,
+artifact prompt renderer, alias-to-artifact mapper, provider HTTP adapter,
+database behavior, evaluation corpus, or operator exists.
+
+```text
+packages/interviews/
+  README.md
+  package.json
+  tsconfig.json
+  tsconfig.test.json
+  scripts/
+    specification-cli.ts
+    tsconfig.json
+  src/
+    canonical-json.ts
+    index.ts
+    provider-output-issues.ts
+    provider-output-parser.ts
+    provider-output-preflight.ts
+    provider-output-schema.ts
+    provider-output-validation.ts
+    schema-projection.ts
+    specification.ts
+  test/
+    fixtures.ts
+    import-side-effects.test.ts
+    provider-output.test.ts
+    schema-projection.test.ts
+    specification.test.ts
+    tsconfig.json
+
+interviews/repository/specifications/1.0.0/
+  README.md
+  specification.json
+  instructions.md
+  questions.json
+  provider-output.schema.json
+  providers/
+    openai-responses.strict.schema.json
+```
+
+Required workspace wiring changed only:
+
+```text
+.prettierignore
+dependency-cruiser.config.mjs
+package.json
+pnpm-lock.yaml
+tsconfig.json
+vitest.config.ts
+tools/repository-checks/src/repository-invariants.ts
+tools/repository-checks/test/repository-invariants.test.ts
+tools/repository-checks/test/temp-repository.ts
+```
+
+`pnpm-workspace.yaml` already includes `packages/*` and remains unchanged.
+Generated schema snapshots are excluded from Prettier because their exact
+canonical bytes belong to the deterministic generator; ordinary formatting
+still covers their TypeBox source, manifest, reviewed instructions/questions,
+README, CLI, and tests.
+
+### Provider-output schema and validation
+
+`provider-output-schema.ts` is the sole executable schema source. Its TypeBox
+root is a closed object containing exactly the required
+`documentedPositions`, `inferences`, `limitations`, `contradictions`, and
+`unknowns` arrays. The TypeBox-derived static type is the only maintained
+TypeScript provider-output shape.
+
+The parser applies:
+
+1. a bounded plain-data object-graph preflight;
+2. strict Ajv 2020-12 structural validation without coercion, defaults,
+   property removal, custom schema loading, or caller schemas;
+3. an owned data copy;
+4. local semantic validation; and
+5. bounded value-free issues.
+
+Local validation enforces inclusive citation ranges, the 80-line span,
+duplicate citations within a semantic item, the global 96-unique-citation
+bound, total claims, canonical duplicate semantic items, all-topic coverage,
+inference-rationale non-repetition, distinct contradiction sides, and
+artifact-set-scoped unknowns. A citation reused by different semantic items is
+one canonical citation for the global bound; it is not rejected merely because
+one exact source span responsibly supports more than one item. Duplicate
+citations inside one item are rejected.
+
+Semantic text is preserved exactly. Validation counts Unicode scalar values
+and UTF-8 bytes, requires exact UTF-8 round trip, and rejects surrounding
+whitespace, NUL, Unicode control/format characters, Markdown links, HTML tags,
+and HTTP(S) URLs. It neither trims nor sanitizes. NFC is not required,
+consistent with existing free-text contracts; decomposed valid Unicode remains
+exact while lone-surrogate input fails the UTF-8 round-trip check.
+
+### Projection and specification decisions
+
+The OpenAI projection preserves the reviewed executable subset and fails
+closed on unknown keywords, root unions, open objects, optional properties,
+unsupported formats, unresolved/nonlocal references, excessive object depth or
+property count, and unsupported composition. The projection removes exactly:
+
+```text
+$schema
+$id
+title
+description
+examples
+default
+minLength
+maxLength
+uniqueItems
+```
+
+Unsupported `oneOf`, `allOf`, `not`, `dependentRequired`,
+`dependentSchemas`, `if`, `then`, and `else` are rejected rather than removed:
+dropping them would change semantics and violate the binding fail-closed rule.
+Nested `anyOf`, `$defs`, valid local `$ref`, patterns, supported formats,
+numeric constraints, array bounds, enums, consts, closure, and required
+properties survive.
+
+The specification loader treats `instructions.md` and `questions.json` as
+reviewed source, validates exact UTF-8 and the frozen topic order, and performs
+no I/O until explicitly called. `interviews:generate` is the only writer.
+`interviews:validate` is read-only and recomputes source, snapshot, projection,
+manifest, and semantic-policy digests without network access.
+
+The frozen values are:
+
+| Value                            | Result                                                             |
+| -------------------------------- | ------------------------------------------------------------------ |
+| Specification version            | `1.0.0`                                                            |
+| Renderer version                 | `repository-interview-renderer-v1`                                 |
+| Provider-output schema version   | `1.0.0`                                                            |
+| OpenAI strict projection version | `1.0.0`                                                            |
+| Specification digest             | `da2c8560e0b6a2fc7bc8d79fd89f65984815236a54cbf49491911274db8168f9` |
+| Provider-output schema digest    | `5fa5d1c44a8924d8be3acc2ac74e58ec45ea134264c2245b7e158873b2e26b19` |
+| OpenAI strict projection digest  | `5d81e5e32cc4871f0068f691302282a4e5dd6dc656ee4be132c050fbc4228ed7` |
+
+The specification digest binds exact instruction and ordered-question bytes,
+provider-output schema version/digest, renderer version, and the controlled
+semantic policy. The OpenAI projection version/digest remains separate.
+README bytes, candidates, artifact sets, models, reasoning, provider settings,
+timestamps, and candidate prompt bytes are excluded.
+
+### Red/green and verification evidence
+
+The first focused run occurred after test/package scaffolding but before any
+`src/` implementation. `pnpm interviews:test` failed all four test files
+because `packages/interviews/src/index.ts` did not exist; this was the intended
+red boundary. After implementation, the focused suite passed four files and 68
+tests.
+
+Two full-verification discoveries were corrected and retained as evidence:
+
+- the first ordinary run stopped at Prettier after a final projection
+  type-narrowing edit; the file was formatted and the complete matrix restarted;
+- the next run reached the repository invariant checker after all 885 tests
+  passed and identified unreviewed protected script strings. The checker and
+  its fixtures were updated to protect the interviews build/typecheck/
+  generate/validate/test/verify graph, its focused 43 tests passed, and the
+  complete matrix restarted.
+
+The final pre-commit matrix on 2026-07-30 produced:
+
+| Command                          | Result                                                                                                                                                                   |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm install --frozen-lockfile` | passed; eight workspace projects already up to date; pnpm 11.17.0                                                                                                        |
+| `pnpm interviews:verify`         | passed; specification/digests valid; four files and 68 tests; package typecheck; 657 modules/2,078 dependencies without violation                                        |
+| `pnpm verify`                    | passed; 48 files and 885 tests; format, lint, seven package typechecks, build, architecture, repository, evaluation, contract, catalog, specification, and secret checks |
+| `pnpm verify:ci`                 | passed; repeated ordinary verification, PostgreSQL 18.4 integration with 36 tests and no skips, and registry audit with no vulnerabilities                               |
+| `pnpm contracts:validate`        | passed; 10 cases and 40 supplied candidates; representability only                                                                                                       |
+| `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                                        |
+| `pnpm ingestion:verify`          | passed; 11 files and 156 tests plus typecheck                                                                                                                            |
+| `pnpm db:verify`                 | passed; PostgreSQL 18.4, migrations 0001–0003, 17 product tables, four files and 36 tests, no skips                                                                      |
+| `pnpm eval:validate`             | passed; 10 cases                                                                                                                                                         |
+| `pnpm eval:fixtures`             | passed; all five fixed strategies produced expected summaries                                                                                                            |
+| `pnpm artifacts:validate`        | passed; 150 root attempts, 30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                                      |
+| `pnpm artifacts:verify`          | passed; six files and 107 artifact tests plus typecheck                                                                                                                  |
+| `pnpm test:coverage`             | passed; 48 files and 885 tests; interviews 89.69% statements, 84.06% branches, 98.16% functions, 89.57% lines                                                            |
+| `git diff --check`               | passed                                                                                                                                                                   |
+
+The lockfile adds only the `packages/interviews` importer and reuses the
+existing exact workspace/contracts link, `ajv@8.20.0`, and `typebox@1.3.8`.
+No external package version, resolution, integrity, or tarball entry changed.
+The existing nine contract roots and digests, migrations 0001–0003, catalog
+and artifact manifests/digests, Node/pnpm pins, and workspace globs remain
+unchanged. No candidate content, credential, environment file, model call,
+provider/network request, database mutation, live operator, or Phase 5/6/7
+live execution occurred. `verify:ci` made only its expected registry audit and
+ephemeral local PostgreSQL verification calls.
+
 ## Progress log
 
 - **2026-07-30:** Verified clean branch, exact main/origin/main/HEAD
@@ -1753,6 +1952,15 @@ remain:
   executable work remains limited to the provider-output schema,
   specification, deterministic projections, offline validation, and required
   package wiring.
+- **2026-07-30:** Wrote the Milestone 2 tests first and captured the intended
+  four-file import failure before adding package source.
+- **2026-07-30:** Implemented the semantic-only TypeBox schema, safe parser and
+  local validator, deterministic provider-neutral/OpenAI projection, immutable
+  specification loader/generator/validator, and minimal workspace wiring.
+- **2026-07-30:** Completed the full local matrix with 68 focused and 885
+  repository tests, exact specification/schema/projection digests, unchanged
+  existing authorities, PostgreSQL 18.4, registry audit, and coverage. Marked
+  Milestone 2 implemented and awaiting review; Milestone 3 remains stopped.
 
 ## Decision and deviation log
 
@@ -1774,6 +1982,17 @@ remain:
 - **GitHub CLI unavailable:** local Git will be used for commit and push; the
   connected GitHub application will create and inspect the draft PR. No tool or
   dependency will be installed.
+- **Projection fail-closed rule:** unsupported composition is rejected, not
+  stripped, because removal would alter schema meaning. Only annotations and
+  locally re-enforced unsupported length/uniqueness keywords are removed.
+- **Exact generated bytes:** the generator, not Prettier, owns the two schema
+  snapshots; both are ignored by Prettier and checked byte-for-byte by
+  `interviews:validate`.
+- **Canonical citation accounting:** exact citation reuse across semantic
+  items counts once toward the 96-unique-citation bound; duplicates within one
+  semantic item remain invalid.
+- **Unicode normalization:** semantic text requires exact UTF-8 round trip but
+  not NFC. No normalization or sanitization is performed.
 
 ## Remaining maintainer decisions before Milestone 3
 

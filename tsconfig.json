@@ -13,6 +13,9 @@
       "path": "./packages/contracts"
     },
     {
+      "path": "./packages/interviews"
+    },
+    {
       "path": "./packages/persistence"
     },
     {
