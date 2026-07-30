@@ -532,7 +532,8 @@ These are artifact-specific. Phase 5 file and candidate limits are not widened.
 - Unsupported object algorithms fail closed until an additive version.
 - First-materialization provenance is historical; later aliases appear on
   later sets rather than rewriting artifacts.
-- Additional paths require product review before the live operation.
+- Additional paths require product review before any live operation that uses
+  a changed manifest.
 
 ## Rejected alternatives
 
@@ -577,11 +578,13 @@ unapproved local material.
 
 The offline implementation lands behind an explicit operator command and
 reviewed manifest. Migration 0003 applies transactionally with no backfill.
-The first authorized live proof published 147 closed candidate sets before
-three controlled candidate failures. The disqualified database was destroyed.
-The exact-commit correction was accepted, and the renewed review authorized the
-narrow one-hop root-README symlink rule. Another fresh live proof remains
-blocked until this implementation passes review.
+The first authorized attempt published 147 closed candidate sets before three
+controlled candidate failures; that disqualified database was destroyed. After
+reviewed exact-commit and one-hop root-README symlink corrections, a fresh
+definitive proof completed 150/150 candidates twice. The immediate comparison
+proved 145 unchanged candidates zero-row idempotent and appended closed
+immutable history for five verified default-branch advances. Content-free
+completion evidence is committed with the catalog.
 
 A failed migration rolls back. A failed candidate transaction creates no set.
 Safe retry reuses exact immutable rows. A merged schema defect is corrected by
@@ -590,8 +593,8 @@ Stored history is never edited as rollback.
 
 ## Deferred work
 
-- Full reviewed live collection, immediate rerun, and compact completion
-  evidence.
+- Production deployment or any later live collection requires its own
+  authorization and reviewed inputs.
 - Phase 7 semantic repository interview and citation contracts.
 - Additional Git object algorithms when a measured repository requires them.
 - Retrieval/search/indexing, object storage, retention/deletion, tenancy/RLS,

@@ -181,5 +181,7 @@ database configuration, and non-production acknowledgement.
 `pnpm artifacts:live` is a distinct credential-injected operator command with
 its own stronger acknowledgement, explicit catalog and artifact-manifest
 paths, ephemeral non-production database scope, and content-free receipt. It
-remains blocked until the Phase 6 manifest and offline implementation receive
-maintainer review.
+remains an explicitly authorized non-production operation. The Phase 6
+controlled live proof is recorded in
+[`artifact-completion.md`](catalog/public-v1/artifact-completion.md); production
+deployment is not authorized.

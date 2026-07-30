@@ -122,11 +122,11 @@ configuration, integration, protocol, compatibility, operational-pattern, and
 production-guidance documents rather than security, contribution, or changelog
 files to satisfy the count.
 
-The additional paths and rationales are pending maintainer review in draft PR
-#16. Exact current paths and adoption relevance were checked with bounded
-GitHub search/path metadata and limited leading excerpts only; no candidate
-body is persisted or committed. The full artifact operation was not run and
-must remain blocked until the review gate is explicitly cleared.
+The additional paths and rationales were approved as the live-proof inputs in
+draft PR #16. Exact current paths and adoption relevance were checked with
+bounded GitHub search/path metadata and limited leading excerpts only; no
+candidate body is committed. The completed controlled proof is recorded in
+[`artifact-completion.md`](artifact-completion.md).
 
 The current generated artifact-manifest digest is
 `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`.

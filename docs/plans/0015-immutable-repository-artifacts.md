@@ -10,9 +10,8 @@
   [additional compatibility guard](https://github.com/kgudipati/gitblocks/issues/15#issuecomment-5124411687)
 - Branch: `feat/15-immutable-repository-artifacts`
 - Owner: repository maintainer
-- State: authorized live proof paused after a controlled 147/150 partial run;
-  the exact-commit correction is accepted and the bounded root-README symlink
-  policy is implemented pending renewed review
+- State: definitive controlled live proof completed; draft PR remains pending
+  final maintainer review
 - Last updated: 2026-07-30
 
 Authority descends from Issue #15 and its maintainer comments, through actual
@@ -32,13 +31,12 @@ later without re-fetching a mutable repository head.
 
 This checkpoint delivers offline contracts, selection authority, provider
 adapter, chunker, PostgreSQL migration and adapter, operator commands, safe
-receipt, tests, and documentation. The authorized live proof produced a valid
-but partial 147/150 receipt, so it does not contain a definitive full
-collection, immediate rerun, or final completion evidence. A live-discovered
-exact-commit metadata correction is accepted. The renewed review authorized one
-selector-specific, one-hop resolution rule for a safely bounded internal root
-README symlink. That implementation must pass complete review before the proof
-restarts against another fresh database.
+receipts, tests, documentation, and the authorized controlled live proof. A
+fresh definitive run completed 150/150 candidates, and its immediate comparison
+also completed 150/150. The comparison proved 145 unchanged candidates
+zero-row idempotent and appended closed immutable history for five boundedly
+verified default-branch advances. Compact content-free completion evidence is
+committed with the catalog.
 
 Phase 7 may later reference immutable artifact and chunk IDs plus line
 intervals. Phase 6 does not define semantic claims, model prompts, interviews,
@@ -136,9 +134,10 @@ exact file body, line count, byte count, or recoverable blob identity survives.
 
 ### Explicit non-goals
 
-- Treating the partial 147/150 live run or a retry on its database as
-  completion.
-- Final Phase 6 completion evidence.
+- Treating the historical partial 147/150 run or a retry on its database as
+  completion; the definitive proof used another fresh database.
+- Marking the draft PR ready, merging it, or closing Issue #15 without
+  maintainer review.
 - Models, prompts, semantics, retrieval, ranking, or repository interviews.
 - Changes to `CandidateDossierV1`, domain behavior, Phase 5 profile rules,
   evidence semantics, evaluation gold, or scorer implementation.
@@ -330,7 +329,7 @@ Buffer, URL, and cryptography cover the operation.
       commit.
 - [x] **Milestone 7 — Pre-live checkpoint:** full matrix, diff and hosted CI
       inspection, plan/PR update, and stop for authorization.
-- [ ] **Deferred live completion:** reviewed full run/rerun and compact
+- [x] **Controlled live completion:** reviewed full run/rerun and compact
       completion evidence after explicit authorization.
 
 ## Testing and validation strategy
@@ -387,8 +386,9 @@ git diff --check
 git status --short --branch
 ```
 
-`pnpm artifacts:live` and `pnpm artifacts:receipt` are intentionally excluded
-from this checkpoint.
+`pnpm artifacts:live` remains opt-in and is excluded from ordinary verification.
+The authorized completion proof used it twice and validated both receipts with
+`pnpm artifacts:receipt`.
 
 ## Observability and operations
 
@@ -425,22 +425,23 @@ rewritten as recovery.
 
 ## Exact exit criteria
 
-The current live-proof recovery gate requires:
+The controlled live-proof gate required and achieved:
 
-- the accepted exact-commit endpoint correction;
-- the authorized bounded root-README symlink implementation committed, pushed,
-  and accepted through renewed maintainer review;
+- the accepted exact-commit endpoint and bounded root-README symlink
+  corrections;
 - no change to contracts, identities, migrations, bounds, or the approved
-  manifest without explicit amended authority;
-- another brand-new ephemeral database after renewed authorization;
-- a definitive 150/150 first receipt before any comparison run;
-- an immediate comparison receipt proving unchanged-candidate idempotency;
-- full offline/PostgreSQL/hosted verification with no skipped database test;
-- compact content-free completion evidence only after both definitive runs;
+  manifest;
+- a brand-new localhost-only PostgreSQL 18.4 database;
+- a definitive 150/150 first receipt before the comparison run;
+- a 150/150 comparison proving unchanged-candidate idempotency and legitimate
+  immutable append behavior for changed heads;
+- compact content-free completion evidence only after both receipts passed;
+- final offline/PostgreSQL/hosted verification with no skipped database test;
 - a clean worktree; and
-- the draft PR remains draft and Issue #15 remains open.
+- the draft PR remaining draft with Issue #15 open.
 
-Phase 6 itself is not complete at this checkpoint.
+The live-proof work is complete. Maintainer review, PR readiness, merge, and
+Issue #15 closure remain outside this checkpoint.
 
 ## Progress log
 
@@ -618,6 +619,28 @@ Phase 6 itself is not complete at this checkpoint.
   API set. The correction now uses a dependency-free POSIX segment normalizer;
   the focused 57-test provider suite and 642-module/2,040-dependency
   architecture check pass without widening the dependency boundary.
+- **2026-07-30:** Renewed review accepted the bounded root-README symlink
+  implementation and authorized the definitive proof from head `75386f9`.
+  The clean pre-live matrix passed with 44 files / 817 tests, 4 PostgreSQL
+  files / 36 tests without skips, and the approved manifest digest unchanged.
+- **2026-07-30:** Provisioned a new localhost-only PostgreSQL 18.4 test
+  database, applied all three migrations, verified 17 product tables and zero
+  RLS policies, and created a non-owner runtime login inheriting only
+  `gitblocks_persistence`. Phase 5 seeded 150/150 durable candidates. Runtime
+  queries then proved all four artifact tables empty.
+- **2026-07-30:** The definitive artifact run completed 150/150 with 180
+  artifacts, 407 chunks, 150 sets, 180 entries, zero absences, zero failures,
+  5,450,444 operational decoded bytes, and 2,725,206 materialized bytes. All
+  aggregate closure and reconstruction checks passed. Dagster resolved its
+  bounded internal README symlink; Hookdeck and PayPal completed through the
+  reviewed exact-ref/commit-object path.
+- **2026-07-30:** The immediate comparison also completed 150/150. It proved
+  145 identical sets, 145 identical materializations, and 145 zero-new-row
+  candidates. Five repository heads advanced legitimately, adding 6 artifacts,
+  9 chunks, 5 sets, and 6 entries while preserving all original artifact and
+  set timestamps and record digests. Bounded commit-object traversal proved
+  each comparison commit descended from its first-run commit; no identity drift
+  occurred.
 
 ## Decision and deviation log
 
@@ -978,4 +1001,37 @@ migration 0003            unchanged
 manifest/catalog digests  unchanged
 pnpm-lock.yaml            unchanged
 live operation            not run
+```
+
+Definitive controlled live proof:
+
+```text
+authorized head            75386f9c761979e7bf1a8d638234b2be099eb17e
+database                   fresh localhost-only PostgreSQL 18.4; 3 migrations;
+                           17 product tables; 0 RLS policies
+runtime role               non-owner/non-superuser; member only of
+                           gitblocks_persistence
+Phase 5 seed               150 requested / 150 completed / 0 failed;
+                           receipt befa16eea837b...
+pre-artifact rows          catalog 150; artifacts 0; chunks 0; sets 0; entries 0
+first artifact receipt     150 requested / 150 completed / 0 failed;
+                           180 artifacts / 407 chunks; f39bef34fd62...
+first database rows        artifacts 180; chunks 407; sets 150; entries 180
+first byte accounting      operational 5,450,444; materialized 2,725,206
+first provider requests    1,183
+first invariants           0 orphans, cross-candidate references, incomplete
+                           ordinals/intervals, or reconstruction failures
+comparison receipt         150 requested / 150 completed / 0 failed;
+                           eef96fa9e9b3...
+comparison result          145 identical sets/materializations/zero-row
+                           candidates; 5 legitimate changed-head appends
+second-row delta           artifacts +6; chunks +9; sets +5; entries +6
+final database rows        artifacts 186; chunks 416; sets 155; entries 186
+historical preservation    original artifact and set metadata fingerprints
+                           unchanged; all 186 artifacts reconstruct exactly
+optional README absence    0
+candidate/provider errors  0
+raw receipts               retained untracked outside the repository
+candidate content          not printed, rendered, executed, or committed
+Phase 7                    not begun
 ```
