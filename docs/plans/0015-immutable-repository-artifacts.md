@@ -12,7 +12,7 @@
 - Owner: repository maintainer
 - State: offline and PostgreSQL-tested checkpoint in progress; full live
   collection blocked on maintainer review
-- Last updated: 2026-07-29
+- Last updated: 2026-07-30
 
 Authority descends from Issue #15 and its maintainer comments, through actual
 merged behavior and history, accepted ADRs and the product contract, repository
@@ -187,8 +187,13 @@ exact file body, line count, byte count, or recoverable blob identity survives.
   duplicating the artifact.
 - First insertion requires exact catalog aliases from `catalog_candidates`,
   exact incoming provider aliases from the artifact set, and an exact derived
-  immutable-commit GitHub display URL when non-null. A later rename reuses the
-  original stored provenance while the later set records the new alias.
+  immutable-commit GitHub display URL when non-null.
+- Rename-safe provenance reuse applies only after an artifact has entered a
+  successfully published artifact set. An unreferenced preexisting artifact
+  must completely match the incoming contract record before it may participate
+  in first publication. A later rename reuses the original stored provenance
+  only for an artifact already referenced by a published set, while the later
+  set records the new alias.
 - Selection semantics live only in ordered set entries.
 - Root README is optional; only exact-ref 404 establishes `not-found`.
 - Phase 6 supports `sha1` and fails closed on other object algorithms.
@@ -533,6 +538,19 @@ Phase 6 itself is not complete at this checkpoint.
   version, and receives the persisted set's declared version from the operator.
   Artifact-only conflict reloads remain independent of chunks and artifact
   identity remains independent of chunker version.
+- **2026-07-30:** The second pre-live review found that direct runtime insertion
+  could leave an intrinsically correct but provider-provenance-poisoned
+  artifact unreferenced, after which the proper publisher's intrinsic-only
+  conflict reload could silently adopt it. Five PostgreSQL regressions were
+  added first; four failed before the correction because poisoned and
+  intrinsic-conflict rows were not rejected, while exact unreferenced reuse
+  already succeeded. Conflict reload now checks for a committed
+  `repository_artifact_set_entries` reference inside the existing candidate
+  transaction. An unreferenced row must match the incoming complete record
+  digest; a referenced row retains rename-safe intrinsic-core comparison.
+  PostgreSQL 18.4 verification passes 4 files / 36 tests without skips. No
+  stable identity, schema contract, migration, manifest, or stored row was
+  changed.
 - **2026-07-30:** The first authoritative post-review `pnpm verify` run
   correctly rejected an incomplete locked contract export expectation for the
   new exact display-URL helper (43 suites passed and one failed). The public
@@ -738,3 +756,39 @@ logs report 44 files / 786 offline tests, 4 files / 31 PostgreSQL tests without
 skips, 642 architecture modules / 2,040 dependencies without violations, and
 no known dependency vulnerabilities. PostgreSQL error lines are expected
 negative-test rejection paths; the workflow contains no `##[error]` entry.
+
+Second pre-live review correction checkpoint:
+
+```text
+runtime                    Node 24.18.0 / pnpm 11.17.0
+provenance red run         4 failures among the 5 new PostgreSQL regressions;
+                           exact unreferenced preinsert already succeeded
+pnpm install --frozen-lockfile
+                           passed; already up to date
+pnpm verify                passed; 44 files / 786 tests
+pnpm verify:ci             passed; PostgreSQL required; registry audit clear
+pnpm contracts:validate    passed; 10 cases / 40 supplied candidates
+pnpm catalog:validate      passed; 150 candidates / 30 per family
+pnpm ingestion:verify      passed; 11 files / 125 tests
+pnpm db:verify             passed; PostgreSQL 18.4 / 4 files / 36 tests / no skips
+pnpm eval:validate         passed; 10 cases
+pnpm eval:fixtures         passed; all fixture profiles
+pnpm artifacts:validate   passed; 150 roots / 30 additional candidates;
+                           manifest digest 17d2a47f8d99...
+pnpm artifacts:verify     passed; 6 files / 76 tests
+pnpm test:coverage        passed; 44 files / 786 tests; 76.13% statements,
+                           68.72% branches, 83.22% functions, 75.93% lines
+pnpm architecture:check   passed within verification; 642 modules /
+                           2,040 dependencies; no violations
+git diff --check          passed
+production dependencies  unchanged; 13 direct/link production packages /
+                           7 workspaces; no added dependency
+pnpm-lock.yaml            unchanged from reviewed head and branch point
+migration 0003             unchanged from reviewed head; migrations 0001 and
+                           0002 unchanged from main
+schema contracts/digests  unchanged from reviewed head
+manifest files/digest     unchanged from reviewed head
+candidate-content safety  synthetic bodies only; no candidate body, receipt,
+                           or completion evidence committed
+live artifact operation   not run
+```

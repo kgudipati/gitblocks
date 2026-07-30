@@ -117,17 +117,26 @@ Artifacts also retain first-materialization provenance: catalog owner/name,
 provider-canonical owner/name, authoritative Git blob API URL,
 non-authoritative display URL when present, media information, byte/line
 counts, exact content, and `collectedAt`. These fields participate in the
-complete record digest but not stable ID. A deterministic artifact already
-stored under the same ID is reused with its original provenance and timestamp.
+complete record digest but not stable ID.
 
 A first insertion is accepted only when its catalog owner/name exactly match
 the durable `catalog_candidates` row and its provider owner/name exactly match
 the incoming artifact set's provider-canonical owner/name. Publication loads
 the catalog aliases under the candidate transaction lock; a composite foreign
 key also prevents a direct insert from poisoning catalog provenance. These
-checks apply to the incoming command. Conflict reload of an existing artifact
-compares the immutable source core and deliberately preserves historical
-first-materialization aliases after a legitimate repository rename.
+checks apply to the incoming command.
+
+Rename-safe provenance reuse applies only after an artifact has entered a
+successfully published artifact set. An unreferenced preexisting artifact must
+completely match the incoming contract record before it may participate in
+first publication. After an artifact insert conflict, publication therefore
+verifies the intrinsic identity and immutable core, then checks for a committed
+artifact-set-entry reference inside the candidate-scoped transaction. An
+unreferenced row must have the exact incoming complete record digest. A
+referenced row may retain its original first-materialization provenance and
+timestamp when its intrinsic core matches, allowing a later legitimate
+repository rename to reuse the historical artifact. Neither path mutates the
+stored artifact.
 
 A later artifact set records the provider-canonical location observed for that
 collection. It may reflect a move without duplicating the artifact. Temporary
@@ -353,9 +362,11 @@ publishRepositoryArtifactSet
 
 Provider reads, validation, hashing, and chunking finish before one
 candidate-advisory-locked read-committed transaction. Inserts use
-`ON CONFLICT DO NOTHING`, conflict reload, full identity/record verification,
-and original timestamp/provenance reuse. Candidate failure rolls back the
-publication.
+`ON CONFLICT DO NOTHING` and conflict reload. Every artifact conflict requires
+exact intrinsic identity and immutable-core equivalence. A row without a
+published set-entry reference additionally requires exact complete-record
+digest equality; a referenced row reuses its original timestamp and provenance.
+Candidate failure rolls back the publication.
 
 Public reads are:
 

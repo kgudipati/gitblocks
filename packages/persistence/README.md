@@ -17,11 +17,14 @@ Artifact persistence exposes one candidate-scoped write,
 `loadRepositoryArtifact` and `loadRepositoryArtifactSet`. Publication validates
 all contracts and reconstruction before opening one transaction, takes the
 candidate advisory lock, uses conflict reloads for deterministic idempotency,
-and relies on deferred database closure checks before commit. Existing records
-retain their first materialization timestamps and provenance. First insertion
+and relies on deferred database closure checks before commit. First insertion
 requires catalog provenance matching the durable candidate row and provider
 provenance matching the incoming artifact set; catalog provenance also has a
-database-level composite foreign key.
+database-level composite foreign key. A conflict with an unreferenced artifact
+requires exact complete-record digest equality before first publication. Once
+a published set references the artifact, an intrinsic-core match may reuse its
+historical first-materialization timestamp and provenance across a legitimate
+repository rename.
 
 `loadRepositoryArtifact` requires the caller to name the set's supported
 `exact-lines-v1` chunker version and filters the chunk query by both artifact ID

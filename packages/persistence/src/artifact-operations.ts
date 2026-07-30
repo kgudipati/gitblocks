@@ -15,7 +15,7 @@ import {
   type PersistenceClient,
   type PersistenceTransaction,
 } from './client.ts';
-import { persistenceError } from './errors.ts';
+import { PersistenceError, persistenceError } from './errors.ts';
 import type {
   LoadRepositoryArtifactCommand,
   LoadRepositoryArtifactSetCommand,
@@ -31,6 +31,10 @@ const MAX_ARTIFACT_BYTES_PER_CANDIDATE = 512 * 1_024;
 
 interface InsertedRow {
   readonly inserted: number;
+}
+
+interface ArtifactPublishedRow {
+  readonly published: boolean;
 }
 
 interface CandidateRepositoryRow {
@@ -472,15 +476,46 @@ async function insertArtifact(
   if (rows.length === 1) {
     return 1;
   }
-  const stored = await loadArtifactRecordTransaction(
-    transaction,
-    artifact.artifactId,
-    signal,
-  );
+  let stored: RepositoryArtifactV1;
+  try {
+    stored = await loadArtifactRecordTransaction(
+      transaction,
+      artifact.artifactId,
+      signal,
+    );
+  } catch (error) {
+    if (
+      error instanceof PersistenceError &&
+      error.code === 'persistence.corrupt-record'
+    ) {
+      throw persistenceError('persistence.conflict');
+    }
+    throw error;
+  }
   if (
     stored.identityDigest !== artifact.identityDigest ||
     artifactImmutableCoreDigest(stored) !==
       artifactImmutableCoreDigest(artifact)
+  ) {
+    throw persistenceError('persistence.conflict');
+  }
+  // Historical aliases are safe to preserve only after atomic set publication
+  // has made this artifact part of reference-closed history.
+  const references = await executePending<readonly ArtifactPublishedRow[]>(
+    transaction`
+      select exists (
+        select 1
+        from gitblocks.repository_artifact_set_entries
+        where artifact_id = ${artifact.artifactId}
+      ) as published
+    `,
+    signal,
+  );
+  const published = references[0]?.published;
+  if (
+    references.length !== 1 ||
+    typeof published !== 'boolean' ||
+    (!published && stored.recordDigest !== artifact.recordDigest)
   ) {
     throw persistenceError('persistence.conflict');
   }

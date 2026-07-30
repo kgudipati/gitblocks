@@ -4,6 +4,7 @@ import postgres, { type Sql, type TransactionSql } from 'postgres';
 import type {
   CandidateDossierV1,
   EvidenceObservationV1,
+  RepositoryArtifactV1,
 } from '@gitblocks/contracts';
 import { createRepositoryArtifactChunkV1 } from '@gitblocks/contracts';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
@@ -394,7 +395,16 @@ describe(
         expect(moved.artifactSet.artifactSetId).not.toBe(
           publication.artifactSet.artifactSetId,
         );
-        await publishRepositoryArtifactSet(first, moved);
+        const movedPublication = await publishRepositoryArtifactSet(
+          first,
+          moved,
+        );
+        expect(movedPublication.inserted).toEqual({
+          artifacts: 0,
+          chunks: 0,
+          artifactSets: 1,
+          entries: 1,
+        });
         const movedSet = await loadRepositoryArtifactSet(first, {
           artifactSetId: moved.artifactSet.artifactSetId,
         });
@@ -410,6 +420,12 @@ describe(
         expect(
           preservedAfterMove.artifact.firstMaterialization.providerRepository,
         ).toBe('alpha');
+        expect(preservedAfterMove.artifact.displayUrl).toBe(
+          originalArtifact.artifact.displayUrl,
+        );
+        expect(
+          preservedAfterMove.artifact.firstMaterialization.collectedAt,
+        ).toBe(originalArtifact.artifact.firstMaterialization.collectedAt);
         const artifactCount = await ownerSql<
           readonly { readonly count: number }[]
         >`
@@ -425,7 +441,7 @@ describe(
       }
     });
 
-    it('rejects poisoned first-materialization aliases before a valid first writer', async () => {
+    it('rejects invalid incoming first-materialization aliases before insertion', async () => {
       const first = createPersistenceClient(RUNTIME_CONFIG);
       const second = createPersistenceClient(RUNTIME_CONFIG);
       const dossier = createCandidateDossier('candidate-alpha');
@@ -471,6 +487,237 @@ describe(
         await Promise.all([
           closePersistenceClient(first),
           closePersistenceClient(second),
+        ]);
+      }
+    });
+
+    it('rejects a directly preinserted unreferenced provenance poison without partial publication', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const runtimeSql = directSql(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const valid = createArtifactPublication();
+      const poisoned = createArtifactPublication({
+        firstMaterializationProviderOwner: 'attacker',
+        firstMaterializationProviderRepository: 'poisoned',
+        collectedAt: '2026-07-29T11:59:00.000Z',
+      });
+      const validArtifact = firstOrThrow(valid.artifacts).artifact;
+      const poisonedArtifact = firstOrThrow(poisoned.artifacts).artifact;
+      expect(poisonedArtifact.artifactId).toBe(validArtifact.artifactId);
+      expect(poisonedArtifact.identityDigest).toBe(
+        validArtifact.identityDigest,
+      );
+      expect(poisonedArtifact.recordDigest).not.toBe(
+        validArtifact.recordDigest,
+      );
+
+      try {
+        await putCatalogCandidate(runtime, {
+          identity: dossier.identity,
+          createdAt: CREATED_AT,
+        });
+        await runtimeSql.begin((transaction) =>
+          insertDirectArtifact(transaction, poisonedArtifact),
+        );
+
+        await expect(
+          publishRepositoryArtifactSet(runtime, valid),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+
+        const state = await artifactPublicationState(validArtifact.artifactId);
+        expect(state).toEqual({
+          artifacts: 1,
+          chunks: 0,
+          artifactSets: 0,
+          entries: 0,
+          storedRecordDigest: poisonedArtifact.recordDigest,
+        });
+      } finally {
+        await Promise.all([
+          closePersistenceClient(runtime),
+          runtimeSql.end({ timeout: 5 }),
+        ]);
+      }
+    });
+
+    it('completes publication from an exact unreferenced artifact preinsert', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const runtimeSql = directSql(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const publication = createArtifactPublication();
+      const supplied = firstOrThrow(publication.artifacts);
+
+      try {
+        await putCatalogCandidate(runtime, {
+          identity: dossier.identity,
+          createdAt: CREATED_AT,
+        });
+        await runtimeSql.begin((transaction) =>
+          insertDirectArtifact(transaction, supplied.artifact),
+        );
+
+        await expect(
+          publishRepositoryArtifactSet(runtime, publication),
+        ).resolves.toMatchObject({
+          inserted: {
+            artifacts: 0,
+            chunks: 1,
+            artifactSets: 1,
+            entries: 1,
+          },
+        });
+        await expect(
+          loadRepositoryArtifact(runtime, {
+            artifactId: supplied.artifact.artifactId,
+            chunkerVersion: 'exact-lines-v1',
+          }),
+        ).resolves.toEqual(supplied);
+      } finally {
+        await Promise.all([
+          closePersistenceClient(runtime),
+          runtimeSql.end({ timeout: 5 }),
+        ]);
+      }
+    });
+
+    it('fails closed on an unreferenced intrinsic-core conflict', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const runtimeSql = directSql(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const publication = createArtifactPublication();
+      const artifact = firstOrThrow(publication.artifacts).artifact;
+      const alteredContent = artifact.content.replace('#', '!');
+      expect(Buffer.byteLength(alteredContent, 'utf8')).toBe(
+        artifact.byteCount,
+      );
+
+      try {
+        await putCatalogCandidate(runtime, {
+          identity: dossier.identity,
+          createdAt: CREATED_AT,
+        });
+        await runtimeSql.begin((transaction) =>
+          insertDirectArtifact(transaction, artifact, alteredContent),
+        );
+
+        await expect(
+          publishRepositoryArtifactSet(runtime, publication),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+        await expect(
+          artifactPublicationState(artifact.artifactId),
+        ).resolves.toMatchObject({
+          artifacts: 1,
+          chunks: 0,
+          artifactSets: 0,
+          entries: 0,
+        });
+      } finally {
+        await Promise.all([
+          closePersistenceClient(runtime),
+          runtimeSql.end({ timeout: 5 }),
+        ]);
+      }
+    });
+
+    it('fails closed on an already-published intrinsic-core conflict', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const publication = createArtifactPublication();
+      const artifact = firstOrThrow(publication.artifacts).artifact;
+      const alteredContent = artifact.content.replace('#', '!');
+
+      try {
+        await putCatalogCandidate(runtime, {
+          identity: dossier.identity,
+          createdAt: CREATED_AT,
+        });
+        await publishRepositoryArtifactSet(runtime, publication);
+        await ownerSql.begin(async (transaction) => {
+          await transaction`
+            alter table gitblocks.repository_artifacts
+            disable trigger repository_artifacts_immutable
+          `;
+          await transaction`
+            update gitblocks.repository_artifacts
+            set exact_content = ${alteredContent}
+            where artifact_id = ${artifact.artifactId}
+          `;
+          await transaction`
+            alter table gitblocks.repository_artifacts
+            enable trigger repository_artifacts_immutable
+          `;
+        });
+
+        await expect(
+          publishRepositoryArtifactSet(runtime, publication),
+        ).rejects.toMatchObject({ code: 'persistence.conflict' });
+        await expect(
+          artifactPublicationState(artifact.artifactId),
+        ).resolves.toMatchObject({
+          artifacts: 1,
+          chunks: 1,
+          artifactSets: 1,
+          entries: 1,
+        });
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
+
+    it('prevents a concurrent direct provenance poison from becoming published history', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const runtimeSql = directSql(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const valid = createArtifactPublication();
+      const poisoned = createArtifactPublication({
+        firstMaterializationProviderOwner: 'attacker',
+        firstMaterializationProviderRepository: 'poisoned',
+        collectedAt: '2026-07-29T11:59:00.000Z',
+      });
+      const validArtifact = firstOrThrow(valid.artifacts).artifact;
+      const poisonedArtifact = firstOrThrow(poisoned.artifacts).artifact;
+      let releaseDirectInsert: (() => void) | undefined;
+      let announceDirectInsert: (() => void) | undefined;
+      const directInserted = new Promise<void>((resolve) => {
+        announceDirectInsert = resolve;
+      });
+      const release = new Promise<void>((resolve) => {
+        releaseDirectInsert = resolve;
+      });
+
+      try {
+        await putCatalogCandidate(runtime, {
+          identity: dossier.identity,
+          createdAt: CREATED_AT,
+        });
+        const directWriter = runtimeSql.begin(async (transaction) => {
+          await insertDirectArtifact(transaction, poisonedArtifact);
+          announceDirectInsert?.();
+          await release;
+        });
+        await directInserted;
+        const properPublisher = publishRepositoryArtifactSet(runtime, valid);
+        await new Promise((resolve) => setImmediate(resolve));
+        releaseDirectInsert?.();
+        await directWriter;
+
+        await expect(properPublisher).rejects.toMatchObject({
+          code: 'persistence.conflict',
+        });
+        await expect(
+          artifactPublicationState(validArtifact.artifactId),
+        ).resolves.toEqual({
+          artifacts: 1,
+          chunks: 0,
+          artifactSets: 0,
+          entries: 0,
+          storedRecordDigest: poisonedArtifact.recordDigest,
+        });
+      } finally {
+        releaseDirectInsert?.();
+        await Promise.all([
+          closePersistenceClient(runtime),
+          runtimeSql.end({ timeout: 5 }),
         ]);
       }
     });
@@ -1906,6 +2153,119 @@ async function insertDirectArtifactSetEntry(
       ${artifactId}
     )
   `;
+}
+
+async function insertDirectArtifact(
+  transaction: TransactionSql,
+  artifact: RepositoryArtifactV1,
+  exactContent = artifact.content,
+): Promise<void> {
+  await transaction`
+    insert into gitblocks.repository_artifacts (
+      artifact_id,
+      candidate_id,
+      contract_version,
+      provider,
+      provider_repository_id,
+      git_object_algorithm,
+      commit_object_id,
+      path,
+      blob_object_id,
+      blob_api_url,
+      display_url,
+      media_type,
+      encoding,
+      content_sha256,
+      byte_count,
+      line_count,
+      exact_content,
+      catalog_owner,
+      catalog_repository,
+      provider_owner,
+      provider_repository,
+      collected_at,
+      identity_digest,
+      record_digest
+    )
+    values (
+      ${artifact.artifactId},
+      ${artifact.candidateId},
+      ${artifact.contractVersion},
+      ${artifact.provider},
+      ${artifact.providerRepositoryId},
+      ${artifact.gitObjectAlgorithm},
+      ${artifact.commitObjectId},
+      ${artifact.path},
+      ${artifact.blobObjectId},
+      ${artifact.blobApiUrl},
+      ${artifact.displayUrl},
+      ${artifact.mediaType},
+      ${artifact.encoding},
+      ${artifact.contentSha256},
+      ${artifact.byteCount},
+      ${artifact.lineCount},
+      ${exactContent},
+      ${artifact.firstMaterialization.catalogOwner},
+      ${artifact.firstMaterialization.catalogRepository},
+      ${artifact.firstMaterialization.providerOwner},
+      ${artifact.firstMaterialization.providerRepository},
+      ${artifact.firstMaterialization.collectedAt}::timestamptz,
+      ${artifact.identityDigest},
+      ${artifact.recordDigest}
+    )
+  `;
+}
+
+async function artifactPublicationState(artifactId: string): Promise<{
+  readonly artifacts: number;
+  readonly chunks: number;
+  readonly artifactSets: number;
+  readonly entries: number;
+  readonly storedRecordDigest: string;
+}> {
+  const rows = await ownerSql<
+    readonly {
+      readonly artifacts: number;
+      readonly chunks: number;
+      readonly artifact_sets: number;
+      readonly entries: number;
+      readonly stored_record_digest: string;
+    }[]
+  >`
+    select
+      (
+        select pg_catalog.count(*)::integer
+        from gitblocks.repository_artifacts
+        where artifact_id = ${artifactId}
+      ) as artifacts,
+      (
+        select pg_catalog.count(*)::integer
+        from gitblocks.repository_artifact_chunks
+        where artifact_id = ${artifactId}
+      ) as chunks,
+      (
+        select pg_catalog.count(*)::integer
+        from gitblocks.repository_artifact_sets
+      ) as artifact_sets,
+      (
+        select pg_catalog.count(*)::integer
+        from gitblocks.repository_artifact_set_entries
+        where artifact_id = ${artifactId}
+      ) as entries,
+      (
+        select record_digest
+        from gitblocks.repository_artifacts
+        where artifact_id = ${artifactId}
+      ) as stored_record_digest
+  `;
+  const row = firstOrThrow(rows);
+  return {
+    artifacts: row.artifacts,
+    chunks: row.chunks,
+    artifactSets: row.artifact_sets,
+    entries: row.entries,
+    storedRecordDigest: row.stored_record_digest,
+  };
 }
 
 function readOwnerConfig(): PersistenceClientConfig {
