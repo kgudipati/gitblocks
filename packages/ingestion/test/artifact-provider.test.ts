@@ -71,7 +71,9 @@ describe('exact GitHub repository artifact collection', () => {
       'artifact-tree',
       'artifact-blob',
     ]);
-    expect(decodedByteBudget.operationalDecodedBytes).toBe(BYTES.byteLength * 2);
+    expect(decodedByteBudget.operationalDecodedBytes).toBe(
+      BYTES.byteLength * 2,
+    );
   });
 
   it('retains both provider body charges when independent blob validation later fails', async () => {
@@ -98,7 +100,9 @@ describe('exact GitHub repository artifact collection', () => {
       message: 'The repository artifact failed immutable object verification.',
     });
 
-    expect(decodedByteBudget.operationalDecodedBytes).toBe(BYTES.byteLength * 2);
+    expect(decodedByteBudget.operationalDecodedBytes).toBe(
+      BYTES.byteLength * 2,
+    );
     expect(requests.at(-1)?.operation).toBe('artifact-blob');
     expect(
       JSON.stringify({

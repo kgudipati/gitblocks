@@ -507,6 +507,17 @@ Phase 6 itself is not complete at this checkpoint.
   provenance foreign key. Contract tests pass 9/9 and PostgreSQL verification
   passes 30/30 without skips; concurrent poisoning cannot win, while a later
   repository rename reuses the original artifact and provenance.
+- **2026-07-30:** Replaced the quota-driven additional-document cohort after
+  two red manifest assertions rejected the old kinds/rationales and unsupported
+  Markdoc path. Bounded GitHub code/path search and targeted leading excerpts
+  verified exact current paths and adoption relevance without cloning,
+  recursive tree reads, package installation, candidate execution, content
+  persistence, or the artifact operator. The revised cohort has 30
+  capability-bearing `documentation` paths, exactly 6 candidates per family;
+  every rationale names its adoption question. Markdoc `.mdoc` is now a
+  controlled text extension. The 21 manifest tests pass and the generated
+  digest is
+  `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`.
 
 ## Decision and deviation log
 

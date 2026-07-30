@@ -5,10 +5,10 @@
       "candidateId": "audit-fluent-bit",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "CHUNKS.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Fluent Bit's repository security policy records its official vulnerability-reporting and disclosure boundary."
+          "rationale": "Answers the adoption question 'What operational burden does adoption introduce?' by documenting Fluent Bit's memory and filesystem chunk storage, on-disk representation, and format compatibility."
         }
       ]
     },
@@ -16,21 +16,21 @@
       "candidateId": "audit-grafana-loki",
       "selections": [
         {
-          "path": "CONTRIBUTING.md",
-          "artifactKind": "contributing",
+          "path": "docs/sources/get-started/deployment-modes.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Loki's contribution guide adds repository-specific development and validation expectations beyond its root overview."
+          "rationale": "Answers the adoption question 'What deployment models are supported?' by comparing Loki's monolithic, HA monolithic, and microservices modes, prerequisites, scale, and operational complexity."
         }
       ]
     },
     {
-      "candidateId": "audit-openobserve",
+      "candidateId": "audit-log4js",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docs/api.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "OpenObserve's security policy supplies the project's official vulnerability-reporting instructions and scope."
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by defining Log4js appenders, categories, levels, cluster and PM2 behavior, shutdown, and runtime API."
         }
       ]
     },
@@ -38,10 +38,10 @@
       "candidateId": "audit-pino",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docs/transports.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Pino's security policy records the logging project's supported security-reporting process and expectations."
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by explaining Pino transport modules, worker-thread isolation, asynchronous behavior, configuration, and compatibility since v7."
         }
       ]
     },
@@ -49,10 +49,10 @@
       "candidateId": "audit-vector",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "website/content/en/docs/architecture/pipeline-model.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Vector's security policy provides official reporting and disclosure guidance for the observability data pipeline."
+          "rationale": "Answers the adoption question 'What architectural assumptions does it make?' by defining Vector's acyclic source-to-sink pipeline, accepted configuration formats, compile-time checks, and live reconfiguration."
         }
       ]
     },
@@ -60,32 +60,21 @@
       "candidateId": "audit-winston",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docs/transports.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Winston's security policy adds the project's maintained vulnerability-reporting boundary to its logging overview."
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by cataloging Winston transport choices, routing levels, file lifecycle, remote endpoints, batching, and retry behavior."
         }
       ]
     },
     {
-      "candidateId": "auth-authzed-spicedb",
+      "candidateId": "auth-aserto-topaz",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docs/config.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "SpiceDB's security policy records the authorization database's official vulnerability-reporting process."
-        }
-      ]
-    },
-    {
-      "candidateId": "auth-casdoor-casdoor",
-      "selections": [
-        {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
-          "requirement": "required",
-          "rationale": "Casdoor's security policy provides its maintained reporting channel and disclosure expectations for security issues."
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by documenting Topaz directories, environment variables, service endpoints, authentication, storage, and a removed legacy setting."
         }
       ]
     },
@@ -93,10 +82,10 @@
       "candidateId": "auth-cerbos-cerbos",
       "selections": [
         {
-          "path": "CONTRIBUTING.md",
-          "artifactKind": "contributing",
+          "path": "docs/modules/ROOT/pages/what-is-cerbos.adoc",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Cerbos's contribution guide adds repository-specific build, test, and change guidance beyond the root README."
+          "rationale": "Answers the adoption question 'What is the smallest useful adoptable unit?' by describing Cerbos as a standalone PDP, its sidecar deployment, policy distribution, identity-provider boundary, and gRPC or HTTP checks."
         }
       ]
     },
@@ -104,10 +93,10 @@
       "candidateId": "auth-open-policy-agent",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docs/docs/management-introduction/index.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "OPA's security policy records the policy engine's official vulnerability-reporting and disclosure boundary."
+          "rationale": "Answers the adoption question 'What architectural assumptions does it make?' by explaining OPA's colocated distributed enforcement, in-memory policy data, management APIs, telemetry, and absent built-in control plane."
         }
       ]
     },
@@ -115,10 +104,21 @@
       "candidateId": "auth-openfga",
       "selections": [
         {
-          "path": "CONTRIBUTING.md",
-          "artifactKind": "contributing",
+          "path": "docs/architecture/architecture.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "OpenFGA's contribution guide provides repository-specific development and verification instructions for the authorization server."
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by identifying OpenFGA's database, ingress, authentication, API or SDK integration, observability, and multi-instance storage restrictions."
+        }
+      ]
+    },
+    {
+      "candidateId": "auth-oso",
+      "selections": [
+        {
+          "path": "docs/content/any/getting-started/quickstart/index.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What use cases are explicitly unsupported or poor fits?' by showing Oso's application integration pathway and stating that the library fits monoliths better than shared multi-service policy."
         }
       ]
     },
@@ -126,32 +126,21 @@
       "candidateId": "auth-permify",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docs/docs/permify-overview/infrastructure.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Permify's security policy adds the project's official vulnerability-reporting process to its authorization documentation."
+          "rationale": "Answers the adoption question 'What deployment models are supported?' by describing Permify's service and sidecar patterns, database and discovery assumptions, APIs, scaling, and authentication boundary."
         }
       ]
     },
     {
-      "candidateId": "jobs-airflow",
+      "candidateId": "jobs-bull",
       "selections": [
         {
-          "path": "CONTRIBUTING.rst",
-          "artifactKind": "contributing",
+          "path": "PATTERNS.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Airflow's contribution guide records repository-specific development, testing, and change-management expectations."
-        }
-      ]
-    },
-    {
-      "candidateId": "jobs-asynq",
-      "selections": [
-        {
-          "path": "CONTRIBUTING.md",
-          "artifactKind": "contributing",
-          "requirement": "required",
-          "rationale": "Asynq's contribution guide adds maintained development and verification practices beyond the queue's root overview."
+          "rationale": "Answers the adoption question 'What operational burden does adoption introduce?' by documenting Bull's Redis connection count, connection reuse, graceful shutdown, Redis Cluster constraints, and durable messaging patterns."
         }
       ]
     },
@@ -159,21 +148,10 @@
       "candidateId": "jobs-bullmq",
       "selections": [
         {
-          "path": "CHANGELOG.md",
-          "artifactKind": "changelog",
+          "path": "docs/gitbook/guide/architecture.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "BullMQ's changelog provides maintained release-transition context for the Redis-backed job queue."
-        }
-      ]
-    },
-    {
-      "candidateId": "jobs-celery",
-      "selections": [
-        {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
-          "requirement": "required",
-          "rationale": "Celery's security policy records the task queue's supported vulnerability-reporting and disclosure process."
+          "rationale": "Answers the adoption question 'What architectural assumptions does it make?' by defining BullMQ's Redis-backed job and flow lifecycle, queue states, priorities, delays, completion, failure, and retry behavior."
         }
       ]
     },
@@ -181,21 +159,43 @@
       "candidateId": "jobs-dagster",
       "selections": [
         {
-          "path": "CHANGES.md",
-          "artifactKind": "changelog",
+          "path": "docs/docs/deployment/oss/oss-deployment-architecture.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Dagster's maintained changes document adds release and compatibility context beyond the orchestration overview."
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by detailing Dagster OSS's three long-running services, storage and launcher components, configuration layers, and execution flow."
         }
       ]
     },
     {
-      "candidateId": "jobs-temporal-typescript",
+      "candidateId": "jobs-graphile-worker",
       "selections": [
         {
-          "path": "CONTRIBUTING.md",
-          "artifactKind": "contributing",
+          "path": "website/docs/config.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Temporal's TypeScript SDK contribution guide records repository-specific development and validation expectations."
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by specifying Graphile Worker's PostgreSQL connection, concurrency, task loading, presets, CLI and library modes, and option precedence."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-hatchet",
+      "selections": [
+        {
+          "path": "frontend/docs/pages/v1/architecture-and-guarantees.mdx",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What use cases are explicitly unsupported or poor fits?' by documenting Hatchet's services, PostgreSQL and optional broker needs, execution guarantees, worker model, scaling, and poor-fit workloads."
+        }
+      ]
+    },
+    {
+      "candidateId": "jobs-pg-boss",
+      "selections": [
+        {
+          "path": "docs/introduction.md",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by explaining pg-boss's PostgreSQL-only queue model, SKIP LOCKED semantics, partitioning, worker instances, connection burden, and job lifecycle."
         }
       ]
     },
@@ -203,21 +203,32 @@
       "candidateId": "rate-apisix",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docs/en/latest/getting-started/rate-limiting.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Apache APISIX's security policy provides official reporting and disclosure guidance for gateway vulnerabilities."
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by showing how APISIX attaches the limit-count plugin to a route, validates behavior, disables it, and optionally uses Redis for cluster limits."
         }
       ]
     },
     {
-      "candidateId": "rate-envoy",
+      "candidateId": "rate-envoy-ratelimit",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "examples/xds-sotw-config-server/README.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Envoy's security policy records the proxy project's official vulnerability-handling and reporting boundary."
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by describing Envoy Ratelimit's xDS V3 control-plane configuration, snapshot resource, Docker Compose services, and server components."
+        }
+      ]
+    },
+    {
+      "candidateId": "rate-express-rate-limit",
+      "selections": [
+        {
+          "path": "docs/reference/configuration.mdx",
+          "artifactKind": "documentation",
+          "requirement": "required",
+          "rationale": "Answers the adoption question 'What compatibility or versioning restrictions exist?' by defining express-rate-limit options, store persistence limits, timer bounds, async configuration, and the v7 zero-limit behavior change."
         }
       ]
     },
@@ -225,10 +236,10 @@
       "candidateId": "rate-gravitee",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docker/quick-setup/postgresql/README.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Gravitee API Management's security policy adds its maintained reporting process for gateway security issues."
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by documenting Gravitee APIM's PostgreSQL deployment path, required JDBC driver, container workflow, and Enterprise license requirement."
         }
       ]
     },
@@ -236,54 +247,54 @@
       "candidateId": "rate-kong",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "UPGRADE.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Kong's security policy supplies the gateway project's official vulnerability-reporting and disclosure expectations."
+          "rationale": "Answers the adoption question 'What compatibility or versioning restrictions exist?' by documenting Kong's supported migration sequence, datastore and configuration changes, dependency versions, hybrid-mode constraints, and rollback precautions."
         }
       ]
     },
     {
-      "candidateId": "rate-traefik",
+      "candidateId": "rate-upstash",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "examples/nextjs-middleware/README.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Traefik's security policy records the proxy's supported vulnerability-reporting process and security scope."
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by showing Upstash rate limiting in Next.js middleware and naming the Redis service, credentials, analytics lifecycle, and Vercel deployment requirements."
         }
       ]
     },
     {
-      "candidateId": "rate-tyk",
+      "candidateId": "webhook-adnanh",
       "selections": [
         {
-          "path": "CONTRIBUTING.md",
-          "artifactKind": "contributing",
+          "path": "docs/Hook-Definition.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Tyk's contribution guide adds repository-specific development and verification practices for the API gateway."
+          "rationale": "Answers the adoption question 'What configuration surface must an adopter own?' by specifying webhook hook IDs, commands, working directories, request mapping, response behavior, signature rules, and execution controls."
         }
       ]
     },
     {
-      "candidateId": "webhook-convoy",
+      "candidateId": "webhook-hook0",
       "selections": [
         {
-          "path": "CONTRIBUTING.md",
-          "artifactKind": "contributing",
+          "path": "documentation/explanation/hook0-architecture.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Convoy's contribution guide records repository-specific development and testing expectations for webhook delivery."
+          "rationale": "Answers the adoption question 'What deployment models are supported?' by comparing Hook0's PostgreSQL-only and Pulsar plus S3 architectures, component roles, scaling boundary, retry flow, and storage tradeoffs."
         }
       ]
     },
     {
-      "candidateId": "webhook-octokit-webhooks",
+      "candidateId": "webhook-hookdeck",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "docs/content/self-hosting/architecture.mdoc",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Octokit's webhooks security policy provides its official vulnerability-reporting and disclosure guidance."
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by documenting Outpost's API, delivery, and log services, single-process option, supported queues, Redis, and PostgreSQL or ClickHouse requirements."
         }
       ]
     },
@@ -291,10 +302,10 @@
       "candidateId": "webhook-standard-webhooks",
       "selections": [
         {
-          "path": "CONTRIBUTING.md",
-          "artifactKind": "contributing",
+          "path": "spec/standard-webhooks.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Standard Webhooks' contribution guide adds maintained development and verification context for the specification."
+          "rationale": "Answers the adoption question 'What compatibility or versioning restrictions exist?' by defining the Standard Webhooks protocol, producer and consumer requirements, payload choices, signatures, replay protection, and interoperability goals."
         }
       ]
     },
@@ -302,21 +313,10 @@
       "candidateId": "webhook-svix",
       "selections": [
         {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
+          "path": "server/README.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "Svix's security policy records the webhook service's official vulnerability-reporting and disclosure process."
-        }
-      ]
-    },
-    {
-      "candidateId": "webhook-webhook-site",
-      "selections": [
-        {
-          "path": "SECURITY.md",
-          "artifactKind": "security-policy",
-          "requirement": "required",
-          "rationale": "Webhook.site's security policy adds its maintained vulnerability-reporting boundary to the service overview."
+          "rationale": "Answers the adoption question 'What infrastructure or services are mandatory?' by documenting the Svix server boundary, PostgreSQL and Redis environment, database migrations, authentication token setup, and build or run pathway."
         }
       ]
     },
@@ -324,10 +324,10 @@
       "candidateId": "webhook-webhookx",
       "selections": [
         {
-          "path": "CHANGELOG.md",
-          "artifactKind": "changelog",
+          "path": "plugins/wasm/README.md",
+          "artifactKind": "documentation",
           "requirement": "required",
-          "rationale": "WebhookX's changelog provides maintained release-transition context for the webhook gateway implementation."
+          "rationale": "Answers the adoption question 'What is the documented integration pathway?' by defining WebhookX's Wasm extension unit, ABI reference, delivery-request customization, module path, exposed environment, and plugin configuration."
         }
       ]
     }

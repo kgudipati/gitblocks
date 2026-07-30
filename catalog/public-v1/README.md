@@ -116,12 +116,20 @@ for every candidate, and contains the proposed explicit paths.
 The current proposal contains 30 additional-path candidates: exactly 6 from
 each primary capability family. Its 180 total selections comprise 150 optional
 root READMEs and 30 required proposed paths. Artifact-kind counts are 150
-`readme`, 18 `security-policy`, 9 `contributing`, and 3 `changelog`.
+`readme` and 30 `documentation`. Every additional rationale names the adoption
+question the document helps answer. The cohort uses architecture, deployment,
+configuration, integration, protocol, compatibility, operational-pattern, and
+production-guidance documents rather than security, contribution, or changelog
+files to satisfy the count.
 
 The additional paths and rationales are pending maintainer review in draft PR
-#16. They were checked through bounded path metadata only; no candidate body is
-committed. Do not run the full artifact operation before the review gate is
-explicitly cleared.
+#16. Exact current paths and adoption relevance were checked with bounded
+GitHub search/path metadata and limited leading excerpts only; no candidate
+body is persisted or committed. The full artifact operation was not run and
+must remain blocked until the review gate is explicitly cleared.
+
+The current generated artifact-manifest digest is
+`17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`.
 
 Run `pnpm artifacts:validate` after either artifact file changes. The command
 regenerates the authority in memory, validates catalog binding, selection IDs,

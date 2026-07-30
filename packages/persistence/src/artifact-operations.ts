@@ -140,9 +140,7 @@ export async function publishRepositoryArtifactSet(
         `,
         signal,
       );
-      const candidate = await executePending<
-        readonly CandidateRepositoryRow[]
-      >(
+      const candidate = await executePending<readonly CandidateRepositoryRow[]>(
         transaction`
           select repository_owner, repository_name
           from gitblocks.catalog_candidates

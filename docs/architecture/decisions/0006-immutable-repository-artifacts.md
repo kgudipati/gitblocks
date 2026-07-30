@@ -63,6 +63,19 @@ IDs derive from the canonical selection descriptor. The manifest digest covers
 canonical JSON with only `manifestDigest` omitted. Neither selection IDs nor
 the manifest digest includes a wall-clock timestamp.
 
+The pre-live maintainer-review revision uses 30 capability-bearing official
+repository documents, exactly 6 candidates per family. All 30 are controlled
+`documentation` selections whose rationales name the adoption question they
+answer; security policies, contribution guides, and changelogs are not used to
+meet the cohort. Supported text extensions are `.md`, `.markdown`, `.mdown`,
+`.mkd`, `.mdx`, `.mdoc` (Markdoc), `.rst`, `.adoc`, `.asciidoc`, and `.txt`,
+plus the controlled extensionless document names. The generated proposal
+digest is:
+
+```text
+17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c
+```
+
 Production validation does not import evaluation files, schemas, gold, or
 scorers.
 

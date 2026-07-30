@@ -8,6 +8,7 @@ import {
   IngestionError,
   artifactManifestWithDigest,
   buildArtifactManifest,
+  isSafeArtifactPath,
   parseArtifactSelectionSource,
   parsePublicArtifactManifest,
   parsePublicCatalog,
@@ -90,10 +91,18 @@ describe('public artifact manifest', () => {
       additionalSelections.every(
         (selection) =>
           selection.selector === 'path' &&
+          selection.artifactKind === 'documentation' &&
           selection.requirement === 'required' &&
-          selection.rationale.length >= 40,
+          selection.rationale.startsWith('Answers the adoption question ') &&
+          selection.rationale.length >= 80,
       ),
     ).toBe(true);
+  });
+
+  it('accepts Markdoc as a controlled repository-document extension', () => {
+    expect(isSafeArtifactPath('docs/self-hosting/architecture.mdoc')).toBe(
+      true,
+    );
   });
 
   it('regenerates exactly from the curator source and catalog', async () => {

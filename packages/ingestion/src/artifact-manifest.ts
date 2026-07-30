@@ -46,6 +46,7 @@ const SUPPORTED_EXTENSIONS = new Set([
   '.mdown',
   '.mkd',
   '.mdx',
+  '.mdoc',
   '.rst',
   '.adoc',
   '.asciidoc',
