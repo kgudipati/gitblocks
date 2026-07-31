@@ -51,7 +51,9 @@ fail-closed exotic artifact-array ownership and provider response-effect
 preflight before semantic mapping. The latest review accepted those
 corrections and authorized only Milestone 6's forward migration 0004 and
 concrete contract-grounded persistence operations. Milestone 7 remains
-unauthorized.
+unauthorized. Milestone 6 review accepted migration 0004 and publication-side
+transactions but required complete normalized-column reconciliation on every
+read before renewed acceptance.
 
 ## Decision
 
@@ -404,6 +406,15 @@ closed without repair. Multiple executions may share one reuse key; forced
 history is append-only and excluded from automatic normal reuse. A future
 composition root, not either package, adapts these operations to the
 application-owned record port.
+
+Canonical JSONB and normalized columns are coequal read authority. The one
+complete exchange loader reconciles execution storage candidate/artifact-set
+context with its request and checks every typed semantic row's parent context,
+ordinal, stable ID, controlled query fields, full digests, and canonical value
+against the interview root. Publication reload, both historical lookup forms,
+and normal reuse use this same path. Owner-level normalized drift or storage
+damage therefore returns only `persistence.corrupt-record`; eligible corrupt
+history is not skipped for a later execution.
 
 ### Complete scope and bounds
 

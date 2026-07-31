@@ -21,6 +21,9 @@
   - PR #18 review: “Milestone 5 review — architecture accepted; two
     application-boundary corrections required before Milestone 6.”
   - PR #18 review: “Milestone 5 accepted — Milestone 6 authorized.”
+  - PR #18 finding: migration 0004 and publication transactions accepted;
+    complete normalized persistence-read authority required before Milestone
+    6 acceptance.
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
 - State: Milestones 1–5 accepted; Milestone 6 is implemented and awaiting
@@ -1603,15 +1606,16 @@ already includes `apps/*` and will remain unchanged.
 
 ### 6. Migration 0004 and persistence operations
 
-- **Status:** implemented and awaiting maintainer review; Milestone 7 remains
-  blocked.
+- **Status:** implemented with complete normalized read-authority correction
+  and awaiting renewed maintainer review; Milestone 7 remains blocked.
 - **Red first:** missing migration/API failures, non-owner grants, immutable
   tables, FK/deferred closure, failed execution, idempotency/reuse/force/
   collision/concurrency/rollback/history tests.
 - **Implemented files:** `0004_repository_interviews.sql`,
-  `repository-interview-operations.ts`, persistence types/exports and database
-  verification inventory, focused unit fixtures/tests, and PostgreSQL 18.4
-  integration tests. No composition adapter exists.
+  `repository-interview-operations.ts`, internal typed row validation,
+  persistence types/exports and database verification inventory, focused unit
+  fixtures/tests, and PostgreSQL 18.4 integration tests. No composition
+  adapter exists.
 - **Commit:** `feat(persistence): store immutable repository interviews`.
 - **Verification:** `db:verify`, contracts, architecture, verify/verify:ci.
 - **Review:** exact eight-table SQL, first-class request root, normalized/JSONB
@@ -2505,14 +2509,26 @@ PostgreSQL run retained all 37 then-existing database tests and recorded 13
 intended Milestone 6 integration failures.
 
 The green implementation adds exactly eight tables and three public operations.
-The focused unit run passes five tests. `pnpm db:verify` passes five files and
-54 tests on PostgreSQL 18.4 without skips, with four migrations, 25 public
-product tables, and zero RLS policies. Integration coverage includes complete
+The original focused unit run passes five tests. After review identified the
+normalized read-authority gap, five new corruption cases first failed while all
+54 existing database tests remained green; the focused typed-row suite also
+failed before its validator existed. The correction passes six typed-row tests
+and `pnpm db:verify` passes five files and 59 tests on PostgreSQL 18.4 without
+skips, with four migrations, 25 public product tables, and zero RLS policies.
+Integration coverage includes complete
 five-family publication and reconstruction, failed executions, exact replay,
 normal/forced history, earliest eligible reuse, sequential and concurrent
 idempotency/conflicts, missing/extra member closure, artifact-set and citation
 closure, corrupt-history rejection, historical not-found behavior,
 owner/runtime immutability, grants, and prohibited-column minimization.
+
+The corrected loader independently reconciles every normalized execution
+column, including denormalized candidate/artifact-set ownership, with the
+parsed execution and its request. Typed citation, claim, limitation,
+contradiction, and unknown rows reconcile parent context, ordinal, stable ID,
+controlled query fields, digests, and exact canonical value with the parsed
+interview. Publication reload, both historical lookup forms, and reuse share
+this one fail-closed loader; an eligible corrupt reuse record is never skipped.
 
 The migration 0004 SHA-256 is
 `2cd18e7d92373215b2a540cdf12e32a7e949bfb01866616e8a44ad326e45bca0`.
@@ -2521,18 +2537,18 @@ The complete 2026-07-31 local matrix produced:
 | Command                          | Result                                                                                                                                                    |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm install --frozen-lockfile` | passed; eight workspaces already current; pnpm 11.17.0                                                                                                    |
-| `pnpm interviews:verify`         | passed; six files/172 tests, package typecheck, three frozen digests, 675 modules/2,143 dependencies without violation                                    |
-| `pnpm verify`                    | passed; 52 files/1,031 tests plus formatting, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, and secrets |
-| `pnpm verify:ci`                 | passed; repeated 1,031-test verification, PostgreSQL 18.4 with 54 tests/no skips, four migrations/25 tables, registry audit with no vulnerabilities       |
+| `pnpm interviews:verify`         | passed; six files/172 tests, package typecheck, three frozen digests, 677 modules/2,149 dependencies without violation                                    |
+| `pnpm verify`                    | passed; 53 files/1,037 tests plus formatting, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, and secrets |
+| `pnpm verify:ci`                 | passed; repeated 1,037-test verification, PostgreSQL 18.4 with 59 tests/no skips, four migrations/25 tables, registry audit with no vulnerabilities       |
 | `pnpm contracts:validate`        | passed; 10 cases/40 supplied candidates; representability only                                                                                            |
 | `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                         |
 | `pnpm ingestion:verify`          | passed; 11 files/156 tests plus typecheck                                                                                                                 |
-| `pnpm db:verify`                 | passed separately and in CI; PostgreSQL 18.4, four migrations, 25 product tables, five files/54 tests, no skips                                           |
+| `pnpm db:verify`                 | passed separately and in CI; PostgreSQL 18.4, four migrations, 25 product tables, five files/59 tests, no skips                                           |
 | `pnpm eval:validate`             | passed; 10 cases                                                                                                                                          |
 | `pnpm eval:fixtures`             | passed; five fixed strategies produced expected summaries                                                                                                 |
 | `pnpm artifacts:validate`        | passed; 150 root attempts/30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                        |
 | `pnpm artifacts:verify`          | passed; six files/107 tests plus typecheck                                                                                                                |
-| `pnpm test:coverage`             | passed; 52 files/1,031 tests; repository 77.95%/69.56%/84.58%/77.77%; interviews 89.09%/80.69%/97.98%/88.89%                                              |
+| `pnpm test:coverage`             | passed; 53 files/1,037 tests; repository 78.07%/70.34%/84.79%/77.89%; interviews 89.09%/80.69%/97.98%/88.89%                                              |
 | `git diff --check`               | passed                                                                                                                                                    |
 
 All 12 contract schema digests, three specification digests, two Milestone 4
@@ -2647,6 +2663,17 @@ operation was added or used.
   RLS, unchanged contract/specification/catalog/artifact authority, no
   dependency or lockfile change, and no provider or live operation. Milestone
   6 awaits maintainer review; Milestone 7 remains blocked.
+- **2026-07-31:** Milestone 6 review accepted migration 0004 and publication
+  transactions but found incomplete reconstruction authority for normalized
+  execution ownership and nested semantic rows. Added five red PostgreSQL
+  corruption cases and a six-test typed-row suite before strengthening the
+  single complete exchange loader.
+- **2026-07-31:** Completed the corrected local matrix with 1,037 ordinary
+  tests, PostgreSQL 18.4 with 59 tests and no skips, four migrations/25
+  tables/zero RLS, exact migration 0004 checksum, unchanged contract,
+  specification, prompt, provider-output, catalog, artifact, dependency, and
+  lockfile authority, and no provider or live operation. Milestone 6 awaits
+  renewed maintainer review; Milestone 7 remains blocked.
 
 ## Decision and deviation log
 
@@ -2771,6 +2798,11 @@ operation was added or used.
   wrappers perform deferred closure for runtime inserts. Public and runtime
   receive no function execution grant, and the helpers accept no dynamic SQL
   or caller-controlled object names.
+- **Coequal read authority:** canonical contract JSON and every normalized
+  ownership, provenance, chronology, status, and query column are independently
+  checked after read. One typed complete exchange loader serves publication
+  reload, both historical lookup forms, and reuse so no weaker reconstruction
+  path can accept or skip normalized corruption.
 
 ## Remaining maintainer decisions before Milestone 7
 

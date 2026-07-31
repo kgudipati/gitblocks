@@ -22,6 +22,20 @@ import {
   type PersistenceTransaction,
 } from './client.ts';
 import { PersistenceError, persistenceError } from './errors.ts';
+import {
+  storedCitationRowsMatch,
+  storedClaimRowsMatch,
+  storedContradictionRowsMatch,
+  storedExecutionRowMatches,
+  storedLimitationRowsMatch,
+  storedUnknownRowsMatch,
+  type StoredCitationRow,
+  type StoredClaimRow,
+  type StoredContradictionRow,
+  type StoredExecutionRow,
+  type StoredLimitationRow,
+  type StoredUnknownRow,
+} from './repository-interview-row-validation.ts';
 import type {
   FindReusableRepositoryInterviewCommand,
   LoadRepositoryInterviewExchangeCommand,
@@ -59,31 +73,6 @@ interface RequestRow {
   readonly canonical_payload: unknown;
 }
 
-interface ExecutionRow {
-  readonly execution_id: string;
-  readonly request_id: string;
-  readonly candidate_id: string;
-  readonly artifact_set_id: string;
-  readonly contract_version: string;
-  readonly request_identity_digest: string;
-  readonly execution_nonce: string;
-  readonly execution_mode: string;
-  readonly force_reason: string | null;
-  readonly provider: string;
-  readonly model_snapshot: string;
-  readonly reasoning_effort: string;
-  readonly model_profile_digest: string;
-  readonly reuse_key_digest: string;
-  readonly started_at: unknown;
-  readonly completed_at: unknown;
-  readonly outcome_status: string;
-  readonly failure_code: string | null;
-  readonly provider_output_digest: string | null;
-  readonly identity_digest: string;
-  readonly record_digest: string;
-  readonly canonical_payload: unknown;
-}
-
 interface InterviewRow {
   readonly interview_id: string;
   readonly candidate_id: string;
@@ -116,13 +105,6 @@ interface InterviewRow {
   readonly canonical_payload: unknown;
 }
 
-interface NestedRow {
-  readonly ordinal: number;
-  readonly identity_digest: string;
-  readonly record_digest: string;
-  readonly canonical_payload: unknown;
-}
-
 interface ArtifactSetAuthorityRow {
   readonly candidate_id: string;
   readonly identity_digest: string;
@@ -140,6 +122,11 @@ interface ValidatedPublication {
   readonly request: RepositoryInterviewRequestV1;
   readonly execution: ModelExecutionV1;
   readonly interview: RepositoryInterviewV1 | null;
+}
+
+interface LoadedExecutionAuthority {
+  readonly row: StoredExecutionRow;
+  readonly value: ModelExecutionV1;
 }
 
 export async function publishRepositoryInterviewExchange(
@@ -965,12 +952,10 @@ async function loadExchangeByExecution(
   executionId: string,
   signal: AbortSignal | undefined,
 ): Promise<RepositoryInterviewStoredExchange> {
-  const execution = await loadExecution(transaction, executionId, signal);
+  const loadedExecution = await loadExecution(transaction, executionId, signal);
+  const execution = loadedExecution.value;
   const request = await loadRequest(transaction, execution.requestId, signal);
-  if (
-    execution.requestIdentityDigest !== request.identityDigest ||
-    execution.requestId !== request.requestId
-  ) {
+  if (!storedExecutionRowMatches(loadedExecution.row, execution, request)) {
     throw persistenceError('persistence.corrupt-record');
   }
   const interviewRows = await executePending<readonly InterviewRow[]>(
@@ -1038,8 +1023,8 @@ async function loadExecution(
   transaction: PersistenceTransaction,
   executionId: string,
   signal: AbortSignal | undefined,
-): Promise<ModelExecutionV1> {
-  const rows = await executePending<readonly ExecutionRow[]>(
+): Promise<LoadedExecutionAuthority> {
+  const rows = await executePending<readonly StoredExecutionRow[]>(
     transaction`
       select *
       from gitblocks.model_executions
@@ -1052,10 +1037,10 @@ async function loadExecution(
     throw persistenceError('persistence.not-found');
   }
   const parsed = parseModelExecutionV1(row.canonical_payload);
-  if (!parsed.ok || !executionRowMatches(row, parsed.value)) {
+  if (!parsed.ok) {
     throw persistenceError('persistence.corrupt-record');
   }
-  return parsed.value;
+  return { row, value: parsed.value };
 }
 
 async function loadInterview(
@@ -1074,11 +1059,11 @@ async function loadInterview(
     contradictionRows,
     unknownRows,
   ] = await Promise.all([
-    loadNestedRows(transaction, 'citations', row.interview_id, signal),
-    loadNestedRows(transaction, 'claims', row.interview_id, signal),
-    loadNestedRows(transaction, 'limitations', row.interview_id, signal),
-    loadNestedRows(transaction, 'contradictions', row.interview_id, signal),
-    loadNestedRows(transaction, 'unknowns', row.interview_id, signal),
+    loadCitationRows(transaction, row.interview_id, signal),
+    loadClaimRows(transaction, row.interview_id, signal),
+    loadLimitationRows(transaction, row.interview_id, signal),
+    loadContradictionRows(transaction, row.interview_id, signal),
+    loadUnknownRows(transaction, row.interview_id, signal),
   ]);
   const reconstructed = {
     ...root.value,
@@ -1092,75 +1077,144 @@ async function loadInterview(
   if (
     !parsed.ok ||
     !sameRecord(parsed.value, root.value) ||
-    !nestedRowsMatch(citationRows, root.value.citations) ||
-    !nestedRowsMatch(claimRows, root.value.claims) ||
-    !nestedRowsMatch(limitationRows, root.value.limitations) ||
-    !nestedRowsMatch(contradictionRows, root.value.contradictions) ||
-    !nestedRowsMatch(unknownRows, root.value.unknowns)
+    !storedCitationRowsMatch(citationRows, root.value) ||
+    !storedClaimRowsMatch(claimRows, root.value) ||
+    !storedLimitationRowsMatch(limitationRows, root.value) ||
+    !storedContradictionRowsMatch(contradictionRows, root.value) ||
+    !storedUnknownRowsMatch(unknownRows, root.value)
   ) {
     throw persistenceError('persistence.corrupt-record');
   }
   return parsed.value;
 }
 
-async function loadNestedRows(
+async function loadCitationRows(
   transaction: PersistenceTransaction,
-  kind: 'citations' | 'claims' | 'limitations' | 'contradictions' | 'unknowns',
   interviewId: string,
   signal: AbortSignal | undefined,
-): Promise<readonly NestedRow[]> {
-  switch (kind) {
-    case 'citations':
-      return executePending<readonly NestedRow[]>(
-        transaction`
-          select ordinal, identity_digest, record_digest, canonical_payload
-          from gitblocks.repository_interview_citations
-          where interview_id = ${interviewId}
-          order by ordinal
-        `,
-        signal,
-      );
-    case 'claims':
-      return executePending<readonly NestedRow[]>(
-        transaction`
-          select ordinal, identity_digest, record_digest, canonical_payload
-          from gitblocks.repository_interview_claims
-          where interview_id = ${interviewId}
-          order by ordinal
-        `,
-        signal,
-      );
-    case 'limitations':
-      return executePending<readonly NestedRow[]>(
-        transaction`
-          select ordinal, identity_digest, record_digest, canonical_payload
-          from gitblocks.repository_interview_limitations
-          where interview_id = ${interviewId}
-          order by ordinal
-        `,
-        signal,
-      );
-    case 'contradictions':
-      return executePending<readonly NestedRow[]>(
-        transaction`
-          select ordinal, identity_digest, record_digest, canonical_payload
-          from gitblocks.repository_interview_contradictions
-          where interview_id = ${interviewId}
-          order by ordinal
-        `,
-        signal,
-      );
-    case 'unknowns':
-      return executePending<readonly NestedRow[]>(
-        transaction`
-          select ordinal, identity_digest, record_digest, canonical_payload
-          from gitblocks.repository_interview_unknowns
-          where interview_id = ${interviewId}
-          order by ordinal
-        `,
-        signal,
-      );
-  }
+): Promise<readonly StoredCitationRow[]> {
+  return executePending<readonly StoredCitationRow[]>(
+    transaction`
+      select
+        citation_id,
+        interview_id,
+        candidate_id,
+        artifact_set_id,
+        ordinal,
+        artifact_id,
+        start_line,
+        end_line,
+        identity_digest,
+        record_digest,
+        canonical_payload
+      from gitblocks.repository_interview_citations
+      where interview_id = ${interviewId}
+      order by ordinal
+    `,
+    signal,
+  );
+}
+
+async function loadClaimRows(
+  transaction: PersistenceTransaction,
+  interviewId: string,
+  signal: AbortSignal | undefined,
+): Promise<readonly StoredClaimRow[]> {
+  return executePending<readonly StoredClaimRow[]>(
+    transaction`
+      select
+        claim_id,
+        interview_id,
+        candidate_id,
+        ordinal,
+        claim_kind,
+        topic,
+        confidence,
+        identity_digest,
+        record_digest,
+        canonical_payload
+      from gitblocks.repository_interview_claims
+      where interview_id = ${interviewId}
+      order by ordinal
+    `,
+    signal,
+  );
+}
+
+async function loadLimitationRows(
+  transaction: PersistenceTransaction,
+  interviewId: string,
+  signal: AbortSignal | undefined,
+): Promise<readonly StoredLimitationRow[]> {
+  return executePending<readonly StoredLimitationRow[]>(
+    transaction`
+      select
+        limitation_id,
+        interview_id,
+        candidate_id,
+        ordinal,
+        basis,
+        topic,
+        confidence,
+        identity_digest,
+        record_digest,
+        canonical_payload
+      from gitblocks.repository_interview_limitations
+      where interview_id = ${interviewId}
+      order by ordinal
+    `,
+    signal,
+  );
+}
+
+async function loadContradictionRows(
+  transaction: PersistenceTransaction,
+  interviewId: string,
+  signal: AbortSignal | undefined,
+): Promise<readonly StoredContradictionRow[]> {
+  return executePending<readonly StoredContradictionRow[]>(
+    transaction`
+      select
+        contradiction_id,
+        interview_id,
+        candidate_id,
+        ordinal,
+        topic,
+        contradiction_kind,
+        identity_digest,
+        record_digest,
+        canonical_payload
+      from gitblocks.repository_interview_contradictions
+      where interview_id = ${interviewId}
+      order by ordinal
+    `,
+    signal,
+  );
+}
+
+async function loadUnknownRows(
+  transaction: PersistenceTransaction,
+  interviewId: string,
+  signal: AbortSignal | undefined,
+): Promise<readonly StoredUnknownRow[]> {
+  return executePending<readonly StoredUnknownRow[]>(
+    transaction`
+      select
+        unknown_id,
+        interview_id,
+        candidate_id,
+        ordinal,
+        topic,
+        reason,
+        identity_digest,
+        record_digest,
+        canonical_payload
+      from gitblocks.repository_interview_unknowns
+      where interview_id = ${interviewId}
+      order by ordinal
+    `,
+    signal,
+  );
 }
 
 function requestRowMatches(
@@ -1179,33 +1233,6 @@ function requestRowMatches(
     row.provider_output_schema_version === value.providerOutputSchemaVersion &&
     row.provider_output_schema_digest === value.providerOutputSchemaDigest &&
     row.prompt_digest === value.promptDigest &&
-    row.identity_digest === value.identityDigest &&
-    row.record_digest === value.recordDigest
-  );
-}
-
-function executionRowMatches(
-  row: ExecutionRow,
-  value: ModelExecutionV1,
-): boolean {
-  return (
-    row.execution_id === value.executionId &&
-    row.request_id === value.requestId &&
-    row.contract_version === value.contractVersion &&
-    row.request_identity_digest === value.requestIdentityDigest &&
-    row.execution_nonce === value.executionNonce &&
-    row.execution_mode === value.executionMode &&
-    row.force_reason === value.forceReason &&
-    row.provider === value.modelProfile.provider &&
-    row.model_snapshot === value.modelProfile.modelSnapshot &&
-    row.reasoning_effort === value.modelProfile.reasoningEffort &&
-    row.model_profile_digest === value.modelProfileDigest &&
-    row.reuse_key_digest === value.reuseKeyDigest &&
-    normalizeStoredTimestamp(row.started_at) === value.startedAt &&
-    normalizeStoredTimestamp(row.completed_at) === value.completedAt &&
-    row.outcome_status === value.outcome.status &&
-    row.failure_code === value.outcome.failureCode &&
-    row.provider_output_digest === value.outcome.providerOutputDigest &&
     row.identity_digest === value.identityDigest &&
     row.record_digest === value.recordDigest
   );
@@ -1248,7 +1275,10 @@ function interviewRowMatches(
 }
 
 function nestedPayloads(
-  rows: readonly NestedRow[],
+  rows: readonly {
+    readonly ordinal: number;
+    readonly canonical_payload: unknown;
+  }[],
   expectedCount: number,
 ): readonly unknown[] {
   if (
@@ -1258,25 +1288,6 @@ function nestedPayloads(
     throw persistenceError('persistence.corrupt-record');
   }
   return rows.map((row) => row.canonical_payload);
-}
-
-function nestedRowsMatch(
-  rows: readonly NestedRow[],
-  values: readonly {
-    readonly identityDigest: string;
-    readonly recordDigest: string;
-  }[],
-): boolean {
-  return rows.every((row, index) => {
-    const value = values[index];
-    return (
-      value !== undefined &&
-      row.ordinal === index &&
-      row.identity_digest === value.identityDigest &&
-      row.record_digest === value.recordDigest &&
-      sameJson(row.canonical_payload, value)
-    );
-  });
 }
 
 function requireSameExchange(

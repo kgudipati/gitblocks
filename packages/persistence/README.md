@@ -49,6 +49,14 @@ membership in a `present` artifact from the exact set with an inclusive
 line-closed range. Prompt text, alias bindings, artifact bodies, raw provider
 output/errors, and evaluation review are not persisted.
 
+Historical reads treat both representations as authority. The execution's
+normalized candidate and artifact-set context is reconciled with its loaded
+request. Typed citation, claim, limitation, contradiction, and unknown rows
+independently reconcile parent ownership, ordinal, stable ID, query fields,
+digests, and canonical payload with the interview root. Any mismatch fails as
+the bounded `persistence.corrupt-record` on publication reload, historical
+load, and reuse; normalized drift is never ignored, repaired, or skipped.
+
 Exact replay is idempotent only when stable IDs, full identity/record digests,
 normalized columns, canonical payloads, and complete nested membership agree.
 Collisions and partial history fail closed without repair. Reuse considers

@@ -201,6 +201,103 @@ describe(
       }
     });
 
+    it.each(['candidate-id', 'artifact-set-id'] as const)(
+      'rejects normalized execution %s drift on every read path',
+      async (field) => {
+        const fixture = createRepositoryInterviewPersistenceFixture();
+        const runtime = await seededRuntime(fixture);
+        try {
+          await publishRepositoryInterviewExchange(runtime, {
+            request: fixture.request,
+            execution: fixture.execution,
+            interview: fixture.interview,
+          });
+          await ownerSql.begin(async (transaction) => {
+            await transaction`set local session_replication_role = replica`;
+            if (field === 'candidate-id') {
+              await transaction`
+                update gitblocks.model_executions
+                set candidate_id = 'candidate-corrupt'
+                where execution_id = ${fixture.execution.executionId}
+              `;
+            } else {
+              await transaction`
+                update gitblocks.model_executions
+                set artifact_set_id = 'artifact-set-corrupt'
+                where execution_id = ${fixture.execution.executionId}
+              `;
+            }
+          });
+          await expectReplicationRoleOrigin();
+          await expectEverySuccessfulReadPathCorrupt(runtime, fixture);
+        } finally {
+          await closePersistenceClient(runtime);
+        }
+      },
+    );
+
+    it('rejects normalized semantic-member ownership drift on every read path', async () => {
+      const fixture = createRepositoryInterviewPersistenceFixture();
+      const runtime = await seededRuntime(fixture);
+      try {
+        await publishRepositoryInterviewExchange(runtime, {
+          request: fixture.request,
+          execution: fixture.execution,
+          interview: fixture.interview,
+        });
+        await ownerSql.begin(async (transaction) => {
+          await transaction`set local session_replication_role = replica`;
+          await transaction`
+            update gitblocks.repository_interview_claims
+            set candidate_id = 'candidate-corrupt'
+            where interview_id = ${fixture.interview.interviewId}
+              and ordinal = 0
+          `;
+        });
+        await expectReplicationRoleOrigin();
+        await expectEverySuccessfulReadPathCorrupt(runtime, fixture);
+      } finally {
+        await closePersistenceClient(runtime);
+      }
+    });
+
+    it.each(['candidate-id', 'artifact-set-id'] as const)(
+      'rejects normalized citation %s drift on every read path',
+      async (field) => {
+        const fixture = createRepositoryInterviewPersistenceFixture();
+        const runtime = await seededRuntime(fixture);
+        try {
+          await publishRepositoryInterviewExchange(runtime, {
+            request: fixture.request,
+            execution: fixture.execution,
+            interview: fixture.interview,
+          });
+          await ownerSql.begin(async (transaction) => {
+            await transaction`set local session_replication_role = replica`;
+            if (field === 'candidate-id') {
+              await transaction`
+                update gitblocks.repository_interview_citations
+                set candidate_id = 'candidate-corrupt'
+                where interview_id = ${fixture.interview.interviewId}
+                  and ordinal = 0
+              `;
+            } else {
+              await transaction`
+                update gitblocks.repository_interview_citations
+                set artifact_set_id = 'artifact-set-corrupt'
+                where interview_id = ${fixture.interview.interviewId}
+                  and ordinal = 0
+              `;
+            }
+          });
+          await expectReplicationRoleOrigin();
+          await expectEverySuccessfulReadPathCorrupt(runtime, fixture);
+        } finally {
+          await closePersistenceClient(runtime);
+        }
+      },
+    );
+
     it.each<RepositoryInterviewFailureCode>([
       'refused',
       'provider-output-invalid',
@@ -907,6 +1004,53 @@ async function rootExchangeCount(): Promise<number> {
     )::integer as count
   `;
   return rows[0]?.count ?? -1;
+}
+
+async function expectEverySuccessfulReadPathCorrupt(
+  runtime: PersistenceClient,
+  fixture: ReturnType<typeof createRepositoryInterviewPersistenceFixture>,
+): Promise<void> {
+  const operations = [
+    () =>
+      loadRepositoryInterviewExchange(runtime, {
+        by: 'execution-id' as const,
+        executionId: fixture.execution.executionId,
+      }),
+    () =>
+      loadRepositoryInterviewExchange(runtime, {
+        by: 'interview-id' as const,
+        interviewId: fixture.interview.interviewId,
+      }),
+    () =>
+      findReusableRepositoryInterview(runtime, {
+        requestIdentityDigest: fixture.request.identityDigest,
+        modelProfileDigest: fixture.execution.modelProfileDigest,
+        reuseKeyDigest: fixture.execution.reuseKeyDigest,
+      }),
+  ];
+  for (const operation of operations) {
+    let rejected: unknown;
+    try {
+      await operation();
+    } catch (error) {
+      rejected = error;
+    }
+    expect(rejected).toMatchObject({
+      code: 'persistence.corrupt-record',
+      message: 'Persisted state failed validation.',
+    });
+    const serialized = JSON.stringify(rejected);
+    expect(serialized).not.toContain('candidate-corrupt');
+    expect(serialized).not.toContain('artifact-set-corrupt');
+    expect(serialized).not.toContain(fixture.interview.interviewId);
+  }
+}
+
+async function expectReplicationRoleOrigin(): Promise<void> {
+  const rows = await ownerSql<
+    readonly { readonly session_replication_role: string }[]
+  >`show session_replication_role`;
+  expect(rows).toEqual([{ session_replication_role: 'origin' }]);
 }
 
 function requireInterview<Value>(value: Value | null): Value {
