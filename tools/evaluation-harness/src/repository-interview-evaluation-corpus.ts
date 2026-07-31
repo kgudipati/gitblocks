@@ -23,6 +23,7 @@ import type {
   RepositoryInterviewRubricV1,
 } from './repository-interview-evaluation-contracts.ts';
 import { repositoryInterviewEvaluationCorpusDigestV1 } from './repository-interview-evaluation-digests.ts';
+import { ownAndFreezeRepositoryInterviewEvaluationDataV1 } from './repository-interview-evaluation-owned-data.ts';
 import {
   EvaluationBoundaryError,
   hashJsonFile,
@@ -38,10 +39,19 @@ export {
   REQUIRED_REPOSITORY_INTERVIEW_CANDIDATE_IDS,
 };
 
+declare const VALIDATED_CORPUS_AUTHORITY: unique symbol;
+
+export type ValidatedRepositoryInterviewEvaluationCorpusV1 =
+  RepositoryInterviewEvaluationCorpusV1 & {
+    readonly [VALIDATED_CORPUS_AUTHORITY]: true;
+  };
+
+const VALIDATED_CORPORA = new WeakSet<object>();
+
 export type RepositoryInterviewEvaluationCorpusLoadResultV1 =
   | {
       readonly ok: true;
-      readonly corpus: RepositoryInterviewEvaluationCorpusV1;
+      readonly corpus: ValidatedRepositoryInterviewEvaluationCorpusV1;
       readonly diagnostics: readonly [];
     }
   | {
@@ -289,54 +299,59 @@ function load(
       ).length,
     ]),
   ) as RepositoryInterviewEvaluationCorpusV1['derived']['familyCounts'];
+  const corpus = ownAndFreezeRepositoryInterviewEvaluationDataV1({
+    manifest,
+    candidates: orderedCandidates,
+    adversarialFixtures: fixtures.sort((left, right) =>
+      compareText(left.fixtureId, right.fixtureId),
+    ),
+    policies: {
+      cohort: policies.get(
+        'policy/cohort-policy.json',
+      ) as RepositoryInterviewCohortPolicyV1,
+      review: policies.get(
+        'policy/review-policy.json',
+      ) as RepositoryInterviewReviewPolicyV1,
+      rubric: policies.get('policy/rubric.json') as RepositoryInterviewRubricV1,
+      gate: policies.get(
+        'policy/gate-policy.json',
+      ) as RepositoryInterviewGatePolicyV1,
+    },
+    policyDigests: {
+      cohort: policyDigest(manifest, 'policy/cohort-policy.json'),
+      review: policyDigest(manifest, 'policy/review-policy.json'),
+      rubric: policyDigest(manifest, 'policy/rubric.json'),
+      gate: policyDigest(manifest, 'policy/gate-policy.json'),
+    },
+    derived: {
+      familyCounts,
+      negativeControlCount: countStatus(orderedCandidates, 'negative-control'),
+      archivedCount: countStatus(orderedCandidates, 'archived'),
+      movedCount: countStatus(orderedCandidates, 'moved'),
+      richDocumentationCount: countLabel(
+        orderedCandidates,
+        'rich-additional-documentation',
+      ),
+      readmeOnlyCount: countLabel(orderedCandidates, 'readme-only'),
+      calibrationCount: orderedCandidates.filter(
+        ({ calibrationMember }) => calibrationMember,
+      ).length,
+    },
+  }) as unknown as ValidatedRepositoryInterviewEvaluationCorpusV1;
+  VALIDATED_CORPORA.add(corpus);
   return {
     ok: true,
-    corpus: {
-      manifest,
-      candidates: orderedCandidates,
-      adversarialFixtures: fixtures.sort((left, right) =>
-        compareText(left.fixtureId, right.fixtureId),
-      ),
-      policies: {
-        cohort: policies.get(
-          'policy/cohort-policy.json',
-        ) as RepositoryInterviewCohortPolicyV1,
-        review: policies.get(
-          'policy/review-policy.json',
-        ) as RepositoryInterviewReviewPolicyV1,
-        rubric: policies.get(
-          'policy/rubric.json',
-        ) as RepositoryInterviewRubricV1,
-        gate: policies.get(
-          'policy/gate-policy.json',
-        ) as RepositoryInterviewGatePolicyV1,
-      },
-      policyDigests: {
-        cohort: policyDigest(manifest, 'policy/cohort-policy.json'),
-        review: policyDigest(manifest, 'policy/review-policy.json'),
-        rubric: policyDigest(manifest, 'policy/rubric.json'),
-        gate: policyDigest(manifest, 'policy/gate-policy.json'),
-      },
-      derived: {
-        familyCounts,
-        negativeControlCount: countStatus(
-          orderedCandidates,
-          'negative-control',
-        ),
-        archivedCount: countStatus(orderedCandidates, 'archived'),
-        movedCount: countStatus(orderedCandidates, 'moved'),
-        richDocumentationCount: countLabel(
-          orderedCandidates,
-          'rich-additional-documentation',
-        ),
-        readmeOnlyCount: countLabel(orderedCandidates, 'readme-only'),
-        calibrationCount: orderedCandidates.filter(
-          ({ calibrationMember }) => calibrationMember,
-        ).length,
-      },
-    },
+    corpus,
     diagnostics: [],
   };
+}
+
+export function isValidatedRepositoryInterviewEvaluationCorpusV1(
+  value: unknown,
+): value is ValidatedRepositoryInterviewEvaluationCorpusV1 {
+  return (
+    typeof value === 'object' && value !== null && VALIDATED_CORPORA.has(value)
+  );
 }
 
 export function validateRepositoryInterviewEvaluationCohortV1(

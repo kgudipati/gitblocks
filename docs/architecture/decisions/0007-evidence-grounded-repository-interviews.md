@@ -64,6 +64,16 @@ policy-driven sampling/gate math, and complete gate-report provenance. This
 correction implements only that evaluation boundary; Milestone 7 remains
 pending renewed acceptance and Milestone 8 remains blocked.
 
+The next review accepted that semantic closure but found two remaining input
+authority gaps: embedded run scopes were self-authenticating without their
+durable exchanges, and the validated audit authority retained mutable caller
+references. Its addendum also requires runtime authentication of the loaded
+corpus so structural policy lookalikes cannot preserve stale digests. The final
+Milestone 7 correction therefore brands only the fully validated owned/frozen
+loader result, re-derives each completed scope from an exact durable exchange,
+and owns and freezes the complete validated audit authority. It does not begin
+Milestone 8.
+
 ## Decision
 
 ### Candidate-owned, request-independent intelligence
@@ -582,6 +592,16 @@ thresholds, and empty unknown or basis denominators are invalid. The report
 digest also binds the run, ordered audit scopes, audits, adjudications, model
 profile, corpus, and all policy-file digests.
 
+Evaluation authority is authenticated in memory as well as by digest. Only the
+exact privately branded corpus returned by the complete loader may enter audit
+validation. Each completed run result must have exactly one parsed successful
+request/execution/interview exchange; failed results have none. Trusted code
+derives the scope from that exchange, compares every provenance digest and
+ordered item ID with the run evidence, and uses only the derived scope. The
+final audit authority is a bounded deeply copied and deeply frozen plain-data
+graph with no caller-owned run, audit, adjudication, exchange, corpus, or policy
+reference.
+
 ### Quality and live gates
 
 Gate A requires 100% schema/citation closure, zero cross-owner references, zero
@@ -778,10 +798,10 @@ second maintained schema.
 ## Exit gates
 
 Milestones 1–6 passed maintainer review. The Milestone 7 cohort, calibration
-membership, and adversarial membership are accepted. Its corrected durable
-inventory closure, exact secondary scope, narrow adjudication, policy-driven
-sampling/gates, complete report provenance, compatibility evidence, and hosted
-CI require renewed maintainer acceptance while the PR remains draft.
+membership, adversarial membership, and semantic closure are accepted. Its
+loader-authenticated corpus, exchange-derived scopes, owned immutable audit
+authority, compatibility evidence, and hosted CI require renewed maintainer
+acceptance while the PR remains draft.
 Milestone 8 requires separate renewed authorization.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and

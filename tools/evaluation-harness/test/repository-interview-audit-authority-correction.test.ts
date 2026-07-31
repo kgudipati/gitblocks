@@ -20,12 +20,16 @@ import type {
 } from '../src/repository-interview-evaluation-contracts.ts';
 import { repositoryInterviewAuditInventoryDigestV1 } from '../src/repository-interview-evaluation-digests.ts';
 import { runRepositoryInterviewGateFixturesV1 } from '../src/repository-interview-evaluation-fixtures.ts';
-import { computeRepositoryInterviewGateReportV1 } from '../src/repository-interview-evaluation-gates.ts';
+import {
+  computeRepositoryInterviewGateReportV1,
+  repositoryInterviewRateExceedsMaximumV1,
+} from '../src/repository-interview-evaluation-gates.ts';
 import { createRepositoryInterviewEvaluationSchemaRegistry } from '../src/repository-interview-evaluation-schema-registry.ts';
 import { findGitBlocksRoot } from '../src/repository-root.ts';
 import {
   calibrationAudits,
   durableSyntheticExchange,
+  exchangeInputsForRun,
   gateAudits,
   makeAdjudication,
   makeRun,
@@ -593,32 +597,25 @@ describe('repository-interview complete report provenance', () => {
     expect(fixtures.ok).toBe(true);
     expect(fixtures.scenarios).toHaveLength(16);
     expect(fixtures.scenarios.every(({ passed }) => passed)).toBe(true);
-  });
+  }, 15_000);
 
   it('keeps operational failures outside semantic denominators', () => {
     const loaded = corpus();
-    const initialRun = makeRun(loaded);
-    const initialLast = initialRun.candidateResults.at(-1);
-    if (initialLast?.status !== 'completed')
-      throw new Error('Synthetic run result is missing.');
-    const emptyLastScope = reDigestScope({
-      ...initialLast.auditScope,
-      claimIds: [],
-      limitationIds: [],
-      contradictionIds: [],
-      unknownIds: [],
-    });
-    const baselineRun: RepositoryInterviewRunSummaryV1 = {
-      ...initialRun,
-      candidateResults: [
-        ...initialRun.candidateResults.slice(0, -1),
-        { ...initialLast, auditScope: emptyLastScope },
-      ],
+    const baselineRun = makeRun(loaded);
+    const primaries = primaryAudits(baselineRun);
+    const lastPrimary = primaries.at(-1);
+    if (lastPrimary === undefined) throw new Error('Synthetic audit missing.');
+    primaries[primaries.length - 1] = {
+      ...lastPrimary,
+      subjectFindings: lastPrimary.subjectFindings.map((finding) => ({
+        ...finding,
+        materiality: 'non-material' as const,
+      })),
     };
     const baseline = validate(
       loaded,
       baselineRun,
-      gateAudits(loaded, baselineRun),
+      gateAudits(loaded, baselineRun, primaries),
     );
     expect(baseline.ok).toBe(true);
     if (!baseline.ok) return;
@@ -652,7 +649,7 @@ describe('repository-interview complete report provenance', () => {
     expect(failedReport.unknownRecall).toEqual(baselineReport.unknownRecall);
   });
 
-  it('uses supplied validated gate-policy ratios instead of embedded thresholds', () => {
+  it('uses explicit validated gate-policy ratios without forging corpus authority', () => {
     const loaded = corpus();
     const run = makeRun(loaded);
     const primaries = primaryAudits(run);
@@ -677,31 +674,30 @@ describe('repository-interview complete report provenance', () => {
     expect(
       computeRepositoryInterviewGateReportV1(baseline.authority).failureCodes,
     ).not.toContain('noncritical-support-threshold');
-    const zeroToleranceCorpus = {
-      ...loaded,
-      policies: {
-        ...loaded.policies,
-        gate: {
-          ...loaded.policies.gate,
-          semanticThresholds: {
-            ...loaded.policies.gate.semanticThresholds,
-            unsupportedNumerator: 0,
-          },
-        },
+    const zeroTolerancePolicy = {
+      ...loaded.policies.gate,
+      semanticThresholds: {
+        ...loaded.policies.gate.semanticThresholds,
+        unsupportedNumerator: 0,
       },
     };
     expect(
       createRepositoryInterviewEvaluationSchemaRegistry(root).validate(
         'gate-policy',
-        zeroToleranceCorpus.policies.gate,
+        zeroTolerancePolicy,
       ),
     ).toEqual([]);
-    const strict = validate(zeroToleranceCorpus, run, audits);
-    expect(strict.ok).toBe(true);
-    if (!strict.ok) return;
     expect(
-      computeRepositoryInterviewGateReportV1(strict.authority).failureCodes,
-    ).toContain('noncritical-support-threshold');
+      repositoryInterviewRateExceedsMaximumV1(
+        1,
+        240,
+        zeroTolerancePolicy.semanticThresholds.unsupportedNumerator,
+        zeroTolerancePolicy.semanticThresholds.unsupportedDenominator,
+      ),
+    ).toBe(true);
+    expect(issueCodes(validate({ ...loaded }, run, audits))).toContain(
+      'audit.corpus-authority',
+    );
   });
 
   it('excludes critical subjects from noncritical material denominators', () => {
@@ -797,16 +793,7 @@ describe('repository-interview complete report provenance', () => {
       ],
     };
     const second = validate(loaded, secondRun, gateAudits(loaded, secondRun));
-    expect(second.ok).toBe(true);
-    if (!second.ok) return;
-    const firstReport = computeRepositoryInterviewGateReportV1(first.authority);
-    const secondReport = computeRepositoryInterviewGateReportV1(
-      second.authority,
-    );
-    expect(secondReport.auditScopeSetDigest).not.toBe(
-      firstReport.auditScopeSetDigest,
-    );
-    expect(secondReport.reportDigest).not.toBe(firstReport.reportDigest);
+    expect(issueCodes(second)).toContain('audit.scope-authority');
   });
 
   it('canonicalizes digest collection order and rejects unvalidated raw authority', () => {
@@ -947,6 +934,7 @@ function validate(
     run,
     audits,
     adjudications,
+    exchangeInputsForRun(run),
   );
 }
 

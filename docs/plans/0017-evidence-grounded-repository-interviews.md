@@ -29,11 +29,15 @@
     implementation may proceed.”
   - PR #18 review: “Milestone 7 review — cohort accepted; audit authority
     correction required before Milestone 8.”
+  - PR #18 review: “Milestone 7 review — semantic closure accepted; two final
+    trust-boundary corrections required before Milestone 8.”
+  - PR #18 addendum: validated corpus authority must also be authenticated.
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–6 and the Milestone 7 cohort are accepted; corrected
-  Milestone 7 audit authority awaits renewed review; Milestones 8–14 remain
-  unauthorized or incomplete
+- State: Milestones 1–6, the Milestone 7 cohort, and its semantic closure are
+  accepted; final Milestone 7 input-authenticity and immutable-ownership
+  corrections await renewed review; Milestones 8–14 remain unauthorized or
+  incomplete
 - Last updated: 2026-07-31
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -1129,6 +1133,11 @@ exact paths, byte hashes, catalog/artifact authority, semantic counts,
 calibration diversity, and the domain-separated corpus digest. No real run
 summary, audit scope, audit record, or adjudication is committed.
 
+Only the exact deeply owned and frozen corpus value returned by that loader is
+runtime evaluation authority. A private module brand rejects caller-authored,
+spread, cloned, or in-memory policy-mutated lookalikes even if their embedded
+digests remain unchanged.
+
 Committed audit records will be content-free. A reviewer tool will load the
 exact immutable artifact and cited span from the approved evaluation database
 by stable IDs; source text will not be copied into audit files.
@@ -1138,6 +1147,14 @@ validated successful request/execution/interview exchange. The scope binds all
 three record digests and the ordered IDs of every durable claim, limitation,
 contradiction, and unknown. Failed results carry neither an interview nor a
 scope. No caller-authored inventory digest is trusted.
+
+Audit validation receives exactly one actual durable exchange for every
+completed result and zero for every failed result. It parses and validates the
+roots, derives the scope internally, and requires exact equality with the
+embedded run evidence before using the derived scope for coverage, references,
+sampling, adjudication, or report provenance. The validated authority then
+copies and deep-freezes all retained plain data; no caller input or exchange
+root remains reachable.
 
 Each audit finding records evaluation version, pseudonymous reviewer role/ID,
 execution and interview IDs, semantic item ID, material/critical
@@ -2738,6 +2755,49 @@ vulnerabilities. Hosted CI results are recorded on draft PR #18 after the
 correction commit. Milestone 7 remains pending renewed maintainer acceptance;
 Milestone 8 remains blocked.
 
+### Milestone 7 input-authenticity correction evidence
+
+The final correction began with a focused six-test red run: five tests failed
+because structurally copied corpora were accepted, loaded policies were
+mutable, durable exchanges were not required, recomputed embedded scopes were
+trusted, and returned authority retained caller references. The implemented
+boundary now privately brands only the fully validated loader result, requires
+exact completed-exchange membership, derives scopes through the accepted
+product exchange validator, and returns one separately owned, deeply frozen
+audit authority.
+
+The bounded ownership preflight accepts only JSON-like finite scalar values,
+ordinary plain objects, and contiguous ordinary arrays. It rejects cycles,
+accessors without invoking them, symbols, sparse or extended arrays,
+nonstandard prototypes, throwing reflection traps, excessive depth/nodes/
+collection sizes, and excessive aggregate string bytes. Focused green evidence
+passes five repository-interview files and 70 tests, including all 16 gate
+scenarios. The corpus and four policy digests remain
+`82fefaa6428e2214caee4d88fd9c93b15782bf855cba1d8f69400028dd6a0dbf`,
+`12a72fb4e77325dd7e5bf4940ea7db039593cc8e6bc7260667e53455b6401b80`,
+`057c50095a59fdafd5e88b666a0d9c3496c08077fd5a7e5a908025293e281baa`,
+`286893915c5ca88fdab498a0319a62b7c6c215943110146e2a6ead622bb4844b`,
+and `6669702218b002df14acf3d6fe66f2adfae1ec7ed7d86fa80edf9ddd4d5284f8`.
+No evaluation schema, candidate, adversarial fixture, or policy byte changed.
+The first full `pnpm verify` stopped at seven lint findings in the new code;
+descriptor narrowing, synthetic-topic lookup, and malformed-input factory
+typing corrected them without changing behavior. Coverage then exposed only
+instrumentation-time contention: the two evaluation fixture assertions
+exceeded five seconds and one unchanged YAML stress test intermittently did.
+The intentional complete gate-fixture test now has a 15-second bound, while the
+CLI formatting test injects a deterministic test-owned fixture result instead
+of redundantly executing all 16 scenarios. The real CLI and the separate
+gate-fixture test still execute every scenario.
+
+The final matrix passes 58 files and 1,107 tests. Coverage passes at 79.63%
+statements, 72.03% branches, 86.92% functions, and 79.57% lines. Dependency
+cruising covers 696 modules and 2,235 dependencies without a violation.
+PostgreSQL 18.4 passes five files and 59 tests without a skip, retaining four
+migrations, 25 product tables, and zero RLS policies; the registry audit has no
+known vulnerability. Hosted CI evidence is recorded after the correction
+commit. Milestone 7 remains pending renewed acceptance and Milestone 8 remains
+blocked.
+
 ## Progress log
 
 - **2026-07-30:** Verified clean branch, exact main/origin/main/HEAD
@@ -2875,6 +2935,13 @@ Milestone 8 remains blocked.
   policy-driven math, and complete report-input digests without changing any
   candidate or adversarial fixture bytes. Milestone 7 awaits renewed review;
   Milestone 8 remains blocked.
+- **2026-07-31:** Maintainer review accepted semantic closure but required
+  authenticated corpus input, exchange-derived scope authority, and immutable
+  ownership. The focused red run exposed five of six trust-boundary cases;
+  loader branding, exact durable exchange membership, bounded plain-data
+  ownership, and deep freezing now pass 70 focused evaluation tests without an
+  evaluation-schema, member, or policy-byte change. Milestone 7 remains
+  pending renewed review; Milestone 8 remains blocked.
 
 ## Decision and deviation log
 
@@ -3022,18 +3089,21 @@ Milestone 8 remains blocked.
   policies. Gate reports bind run, scope, audit, adjudication, model-profile,
   corpus, and every policy digest; order-normalized set digests remove caller
   array order as authority.
+- **Runtime input authenticity:** only the exact privately branded corpus
+  returned by the complete loader is audit authority. Completed scopes derive
+  from exact durable exchanges, and every retained authority value is bounded,
+  separately owned, and deeply frozen before its private audit brand is added.
 
 ## Remaining maintainer decisions before Milestone 8
 
 Milestones 1–6 and the Milestone 7 cohort are accepted. Milestone 8 must not
 advance until renewed maintainer review accepts:
 
-1. content-free durable audit-scope construction and exact subject-inventory
-   coverage;
-2. same-interview limitation/unknown references and exact secondary scope;
-3. narrow adjudication source/disagreement closure and input-order
-   determinism;
-4. parsed-policy consumption and complete gate-report provenance digests;
+1. loader-authenticated corpus and policy authority;
+2. exact durable-exchange membership and internally derived scope equality;
+3. deeply owned, deeply frozen audit authority and post-validation mutation
+   resistance;
+4. unchanged accepted semantic closure and complete report provenance;
 5. unchanged accepted cohort, calibration, adversarial, product,
    specification, migration, catalog, artifact, pilot, dependency, and
    lockfile authorities; and

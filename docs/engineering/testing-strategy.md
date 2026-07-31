@@ -259,6 +259,15 @@ empty unknown-recall or basis denominators are invalid. Synthetic
 prompt-injection fixtures test deterministic boundaries but do not substitute
 for later blinded behavioral review.
 
+Repository-interview audit tests authenticate both committed evaluation
+authority and runtime provenance. They use only a loader-branded, deeply owned
+and frozen corpus; supply one synthetic durable product exchange for each
+completed run result; derive audit scopes internally; and prove that cloned
+corpora, fabricated scopes, cross-result exchanges, exotic object graphs, and
+post-validation mutations fail closed or cannot change report bytes. Alternate
+policy arithmetic is tested through schema-validated pure policy inputs rather
+than mutation of committed corpus authority.
+
 ## Coverage policy
 
 Coverage identifies unexecuted code and unexpected changes in exercised paths.

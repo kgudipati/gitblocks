@@ -3,11 +3,18 @@ import { pathToFileURL } from 'node:url';
 import { findGitBlocksRoot } from './repository-root.ts';
 import { loadRepositoryInterviewEvaluationCorpusV1 } from './repository-interview-evaluation-corpus.ts';
 import { writeRepositoryInterviewEvaluationAssetsV1 } from './repository-interview-evaluation-assets.ts';
-import { runRepositoryInterviewGateFixturesV1 } from './repository-interview-evaluation-fixtures.ts';
+import {
+  runRepositoryInterviewGateFixturesV1,
+  type RepositoryInterviewGateFixtureResultV1,
+} from './repository-interview-evaluation-fixtures.ts';
+
+type RepositoryInterviewGateFixtureRunnerV1 =
+  () => RepositoryInterviewGateFixtureResultV1;
 
 export function runRepositoryInterviewEvaluationCli(
   argv: readonly string[],
   startDirectory = process.cwd(),
+  runGateFixtures: RepositoryInterviewGateFixtureRunnerV1 = runRepositoryInterviewGateFixturesV1,
 ): number {
   const root = findGitBlocksRoot(startDirectory);
   const command = argv[0];
@@ -40,7 +47,7 @@ export function runRepositoryInterviewEvaluationCli(
     return 0;
   }
   if (command === 'fixtures') {
-    const result = runRepositoryInterviewGateFixturesV1();
+    const result = runGateFixtures();
     for (const scenario of result.scenarios)
       process.stdout.write(
         `${scenario.name} ${scenario.passed ? 'pass' : 'fail'}\n`,

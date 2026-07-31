@@ -13,6 +13,12 @@ domain-separated corpus digest cover the four policy files, 12 closed
 evaluation schemas, 30 candidate documents, and 12 synthetic adversarial
 fixtures. This README is excluded.
 
+The corpus loader is also the runtime authority boundary. Only the exact
+deeply owned, deeply frozen object returned after all file, digest, catalog,
+artifact, policy, schema, cohort, and fixture checks is accepted by the audit
+validator. Structural copies, spreads, casts, and caller-recomputed policy
+objects do not reproduce that private authority.
+
 ## Cohort authority
 
 The amended cohort has six candidates in each capability family, one catalog
@@ -42,10 +48,19 @@ only; no model is selected or executed.
 
 Audit and run documents are future inputs validated by the separate schemas;
 none are committed here. Every completed run result carries a content-free
-audit scope derived from one valid request/execution/interview exchange. That
-scope binds the three record digests and the complete ordered claim,
+audit scope. Validation independently receives exactly one real durable
+request/execution/interview exchange for each completed result and none for a
+failed result. It derives the authoritative scope from those parsed roots and
+requires the embedded run scope to match it completely. The derived scope
+binds the three record digests and the complete ordered claim,
 limitation, contradiction, and unknown ID inventory. Failed results carry no
 interview or scope.
+
+After closure succeeds, the run, audits, adjudications, internally derived
+scopes, secondary assignments, policies, and corpus are copied into bounded
+ordinary plain data and deep-frozen before the audit authority is privately
+branded. Caller objects and exchange roots are not retained. Later mutation
+cannot change a gate input or report digest.
 
 Opaque reviewer IDs, durable semantic-item IDs, and controlled verdicts allow
 exact scoring without storing reviewer identity, source content, claim text,

@@ -7,6 +7,8 @@ import {
   type RepositoryInterviewRequestV1,
 } from '@gitblocks/contracts';
 
+import { createRepositoryInterviewAuditScopeV1 } from '../src/repository-interview-evaluation-scope.ts';
+
 import type {
   RepositoryInterviewAdjudicationRecordV1,
   RepositoryInterviewAuditRecordV1,
@@ -29,10 +31,10 @@ const DIGEST = {
   providerOutput: '6'.repeat(64),
 } as const;
 
-export function durableSyntheticExchange() {
+export function durableSyntheticExchange(candidateId = 'synthetic-candidate') {
   const request = createRepositoryInterviewRequestV1({
     contractVersion: '1.0.0',
-    candidateId: 'synthetic-candidate',
+    candidateId,
     artifactSetId: `artifact-set-${'a'.repeat(48)}`,
     artifactSetIdentityDigest: DIGEST.artifactSet,
     specificationVersion: '1.0.0',
@@ -110,6 +112,19 @@ export function durableSyntheticExchange() {
   return { request, execution, interview };
 }
 
+export function exchangeInputsForRun(run: RepositoryInterviewRunSummaryV1) {
+  return run.candidateResults.flatMap((result) =>
+    result.status === 'completed'
+      ? [
+          {
+            candidateId: result.candidateId,
+            ...durableSyntheticExchange(result.candidateId),
+          },
+        ]
+      : [],
+  );
+}
+
 export function makeRun(
   corpus: RepositoryInterviewEvaluationCorpusV1,
   stage: RepositoryInterviewReviewStage = 'gate-a',
@@ -131,16 +146,18 @@ export function makeRun(
     reviewPolicyDigest: corpus.policyDigests.review,
     rubricDigest: corpus.policyDigests.rubric,
     gatePolicyDigest: corpus.policyDigests.gate,
-    candidateResults: candidates.map(({ candidateId }, index) => {
+    candidateResults: candidates.map(({ candidateId }) => {
+      const { request, execution, interview } =
+        durableSyntheticExchange(candidateId);
       const base = {
         candidateId,
-        requestId: `intreq-${hex(100 + index, 48)}`,
-        executionId: `modelexec-${hex(200 + index, 48)}`,
-        interviewId: `interview-${hex(300 + index, 48)}`,
+        requestId: request.requestId,
+        executionId: execution.executionId,
+        interviewId: interview.interviewId,
       };
       const scope =
         scopes?.find((value) => value.candidateId === candidateId) ??
-        makeScope(base, index);
+        createRepositoryInterviewAuditScopeV1(request, execution, interview);
       return {
         ...base,
         status: 'completed' as const,
@@ -236,6 +253,7 @@ export function makeReview(
   index: number,
   reviewerRole: 'calibration-reviewer' | 'gate-primary' | 'gate-secondary',
   subjectFindings: readonly RepositoryInterviewSubjectFindingV1[],
+  unknownFindings: RepositoryInterviewAuditRecordV1['unknownFindings'] = [],
 ): RepositoryInterviewAuditRecordV1 {
   if (result.status !== 'completed')
     throw new Error('Synthetic completed result required.');
@@ -255,7 +273,7 @@ export function makeReview(
     independentFromGeneration: true,
     reviewedAt: '2026-07-31T00:00:00.000Z',
     subjectFindings,
-    unknownFindings: [],
+    unknownFindings,
     policyFindings: {
       promptInjection: 'pass',
       outsideKnowledge: 'pass',
@@ -352,20 +370,43 @@ export function gateAudits(
       ({ candidateId }) => candidateId === result.candidateId,
     );
     if (primary === undefined) return [];
-    const findings = primary.subjectFindings.filter((value) =>
-      requiredKeys.has(
-        secondarySubjectKey({
-          candidateId: result.candidateId,
-          subjectKind: value.subjectKind,
-          subjectId: value.subjectId,
-        }),
-      ),
-    );
+    const findings = primary.subjectFindings
+      .filter((value) =>
+        requiredKeys.has(
+          secondarySubjectKey({
+            candidateId: result.candidateId,
+            subjectKind: value.subjectKind,
+            subjectId: value.subjectId,
+          }),
+        ),
+      )
+      .sort((left, right) =>
+        compareText(
+          secondarySubjectKey({
+            candidateId: result.candidateId,
+            subjectKind: left.subjectKind,
+            subjectId: left.subjectId,
+          }),
+          secondarySubjectKey({
+            candidateId: result.candidateId,
+            subjectKind: right.subjectKind,
+            subjectId: right.subjectId,
+          }),
+        ),
+      );
     const policyRequired =
       primary.policyFindings.promptInjection !== 'pass' ||
       primary.policyFindings.outsideKnowledge !== 'pass';
     return findings.length > 0 || policyRequired
-      ? [makeReview(result, 100 + index, 'gate-secondary', findings)]
+      ? [
+          makeReview(
+            result,
+            100 + index,
+            'gate-secondary',
+            findings,
+            primary.unknownFindings,
+          ),
+        ]
       : [];
   });
   return [...primaries, ...secondaries];

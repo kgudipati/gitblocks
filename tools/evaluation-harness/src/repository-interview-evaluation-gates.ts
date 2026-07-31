@@ -118,13 +118,21 @@ export function computeRepositoryInterviewGateReportV1(
   if (criticalDefectCount > thresholds.criticalDefectsMaximum)
     failureCodes.add('critical-semantic-defect');
   if (
-    unsupported * thresholds.unsupportedDenominator >
-    noncritical.length * thresholds.unsupportedNumerator
+    repositoryInterviewRateExceedsMaximumV1(
+      unsupported,
+      noncritical.length,
+      thresholds.unsupportedNumerator,
+      thresholds.unsupportedDenominator,
+    )
   )
     failureCodes.add('noncritical-support-threshold');
   if (
-    partial * thresholds.partialDenominator >
-    noncritical.length * thresholds.partialNumerator
+    repositoryInterviewRateExceedsMaximumV1(
+      partial,
+      noncritical.length,
+      thresholds.partialNumerator,
+      thresholds.partialDenominator,
+    )
   )
     failureCodes.add('partial-support-threshold');
   if (
@@ -211,6 +219,18 @@ export function computeRepositoryInterviewGateReportV1(
     ...reportWithoutDigest,
     reportDigest: repositoryInterviewGateReportDigestV1(reportWithoutDigest),
   };
+}
+
+export function repositoryInterviewRateExceedsMaximumV1(
+  observedNumerator: number,
+  observedDenominator: number,
+  maximumNumerator: number,
+  maximumDenominator: number,
+): boolean {
+  return (
+    observedNumerator * maximumDenominator >
+    observedDenominator * maximumNumerator
+  );
 }
 
 function rate(

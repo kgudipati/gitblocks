@@ -2,19 +2,23 @@ import type {
   RepositoryInterviewAuditRecordV1,
   RepositoryInterviewAuditScopeV1,
   RepositoryInterviewCandidateRunResultV1,
-  RepositoryInterviewEvaluationCorpusV1,
   RepositoryInterviewRunSummaryV1,
   RepositoryInterviewSecondarySubjectV1,
   RepositoryInterviewSubjectFindingV1,
 } from './repository-interview-evaluation-contracts.ts';
 import {
+  type RepositoryInterviewAuditExchangeInputV1,
   selectRepositoryInterviewSecondarySampleV1,
   validateRepositoryInterviewAuditSetV1,
 } from './repository-interview-evaluation-audit.ts';
-import { loadRepositoryInterviewEvaluationCorpusV1 } from './repository-interview-evaluation-corpus.ts';
-import { repositoryInterviewAuditInventoryDigestV1 } from './repository-interview-evaluation-digests.ts';
+import {
+  loadRepositoryInterviewEvaluationCorpusV1,
+  type ValidatedRepositoryInterviewEvaluationCorpusV1,
+} from './repository-interview-evaluation-corpus.ts';
 import { computeRepositoryInterviewGateReportV1 } from './repository-interview-evaluation-gates.ts';
 import { findGitBlocksRoot } from './repository-root.ts';
+import { createRepositoryInterviewAuditScopeV1 } from './repository-interview-evaluation-scope.ts';
+import { createSyntheticRepositoryInterviewExchangeV1 } from './repository-interview-evaluation-synthetic-exchange.ts';
 
 export interface RepositoryInterviewGateFixtureResultV1 {
   readonly ok: boolean;
@@ -148,17 +152,18 @@ interface GateOverrides {
 function gateScenario(
   repositoryRoot: string,
   name: string,
-  corpus: RepositoryInterviewEvaluationCorpusV1,
+  corpus: ValidatedRepositoryInterviewEvaluationCorpusV1,
   overrides: GateOverrides,
   expectedPass: boolean,
 ) {
-  const { run, audits } = scenarioInputs(corpus, overrides);
+  const { run, audits, exchanges } = scenarioInputs(corpus, overrides);
   const validated = validateRepositoryInterviewAuditSetV1(
     repositoryRoot,
     corpus,
     run,
     audits,
     [],
+    exchanges,
   );
   if (!validated.ok) return { name, passed: !expectedPass };
   return {
@@ -171,7 +176,7 @@ function gateScenario(
 
 function operationalSeparationScenario(
   repositoryRoot: string,
-  corpus: RepositoryInterviewEvaluationCorpusV1,
+  corpus: ValidatedRepositoryInterviewEvaluationCorpusV1,
 ) {
   const baselineInputs = scenarioInputs(corpus, {});
   const baseline = validateRepositoryInterviewAuditSetV1(
@@ -180,6 +185,7 @@ function operationalSeparationScenario(
     baselineInputs.run,
     baselineInputs.audits,
     [],
+    baselineInputs.exchanges,
   );
   if (!baseline.ok)
     return { name: 'operational-failure-separated', passed: false };
@@ -210,6 +216,9 @@ function operationalSeparationScenario(
     run,
     audits,
     [],
+    baselineInputs.exchanges.filter(
+      ({ candidateId }) => candidateId !== last.candidateId,
+    ),
   );
   if (!validated.ok)
     return { name: 'operational-failure-separated', passed: false };
@@ -230,11 +239,11 @@ function operationalSeparationScenario(
 
 function workflowScenario(
   repositoryRoot: string,
-  corpus: RepositoryInterviewEvaluationCorpusV1,
+  corpus: ValidatedRepositoryInterviewEvaluationCorpusV1,
   name: string,
   mode: 'missing-secondary' | 'disagreement',
 ) {
-  const { run, audits } = scenarioInputs(corpus, {});
+  const { run, audits, exchanges } = scenarioInputs(corpus, {});
   const secondaryIndex = audits.findIndex(
     ({ reviewerRole, subjectFindings }) =>
       reviewerRole === 'gate-secondary' && subjectFindings.length > 0,
@@ -262,6 +271,7 @@ function workflowScenario(
     run,
     changed,
     [],
+    exchanges,
   );
   const expectedCode =
     mode === 'missing-secondary'
@@ -275,18 +285,23 @@ function workflowScenario(
 }
 
 function scenarioInputs(
-  corpus: RepositoryInterviewEvaluationCorpusV1,
+  corpus: ValidatedRepositoryInterviewEvaluationCorpusV1,
   overrides: GateOverrides,
 ): {
   readonly run: RepositoryInterviewRunSummaryV1;
   readonly audits: readonly RepositoryInterviewAuditRecordV1[];
+  readonly exchanges: readonly RepositoryInterviewAuditExchangeInputV1[];
 } {
-  const run = makeRun(corpus, overrides.noSemantics === true);
+  const { run, exchanges } = makeRun(corpus);
   const primaries = run.candidateResults.flatMap((result, index) => {
     if (result.status !== 'completed') return [];
     const findings: RepositoryInterviewSubjectFindingV1[] = fullScopeFindings(
       result.auditScope,
     ).map((finding, findingIndex) => {
+      const materiality =
+        index === 0 && overrides.noSemantics !== true
+          ? finding.materiality
+          : ('non-material' as const);
       if (finding.subjectKind !== 'claim') return finding;
       const supportVerdict: RepositoryInterviewSubjectFindingV1['supportVerdict'] =
         findingIndex < (overrides.unsupported ?? 0)
@@ -300,7 +315,7 @@ function scenarioInputs(
         materiality:
           overrides.criticalUnsupported === true && findingIndex === 0
             ? ('critical' as const)
-            : finding.materiality,
+            : materiality,
         criticalDomain:
           overrides.criticalUnsupported === true && findingIndex === 0
             ? ('security' as const)
@@ -320,18 +335,20 @@ function scenarioInputs(
             : null,
       };
     });
-    const unknownFindings = result.auditScope.unknownIds.map(
-      (unknownId, unknownIndex) => {
-        const disclosed = unknownIndex < (overrides.disclosedUnknowns ?? 10);
-        return {
-          auditUnknownId: `auditunknown-${hex(500 + unknownIndex, 48)}`,
-          topic: 'security-and-trust',
-          materiality: 'material' as const,
-          disclosedUnknownId: disclosed ? unknownId : null,
-          verdict: disclosed ? ('disclosed' as const) : ('omitted' as const),
-        };
-      },
-    );
+    const unknownFindings = (
+      index === 0 && overrides.noSemantics !== true
+        ? result.auditScope.unknownIds
+        : []
+    ).map((unknownId, unknownIndex) => {
+      const disclosed = unknownIndex < (overrides.disclosedUnknowns ?? 10);
+      return {
+        auditUnknownId: `auditunknown-${hex(500 + unknownIndex, 48)}`,
+        topic: 'security-and-trust',
+        materiality: 'material' as const,
+        disclosedUnknownId: disclosed ? unknownId : null,
+        verdict: disclosed ? ('disclosed' as const) : ('omitted' as const),
+      };
+    });
     return [
       makeReview(result, index, 'gate-primary', findings, unknownFindings, {
         promptInjection:
@@ -341,14 +358,22 @@ function scenarioInputs(
       }),
     ];
   });
-  return { run, audits: exactGateAuditSet(corpus, run, primaries) };
+  return {
+    run,
+    audits: exactGateAuditSet(corpus, run, primaries),
+    exchanges,
+  };
 }
 
-function makeRun(
-  corpus: RepositoryInterviewEvaluationCorpusV1,
-  noSemantics: boolean,
-): RepositoryInterviewRunSummaryV1 {
-  return {
+function makeRun(corpus: ValidatedRepositoryInterviewEvaluationCorpusV1): {
+  readonly run: RepositoryInterviewRunSummaryV1;
+  readonly exchanges: readonly RepositoryInterviewAuditExchangeInputV1[];
+} {
+  const exchanges = corpus.candidates.map(({ candidateId }, index) => ({
+    candidateId,
+    ...createSyntheticRepositoryInterviewExchangeV1(candidateId, index === 0),
+  }));
+  const run: RepositoryInterviewRunSummaryV1 = {
     schemaVersion: '1.0.0',
     corpusId: 'repository-interviews-v1',
     corpusVersion: '1.0.0',
@@ -360,64 +385,29 @@ function makeRun(
     reviewPolicyDigest: corpus.policyDigests.review,
     rubricDigest: corpus.policyDigests.rubric,
     gatePolicyDigest: corpus.policyDigests.gate,
-    candidateResults: corpus.candidates.map(({ candidateId }, index) => {
-      const provenance = {
-        candidateId,
-        requestId: `intreq-${hex(1_000 + index, 48)}`,
-        executionId: `modelexec-${hex(2_000 + index, 48)}`,
-        interviewId: `interview-${hex(3_000 + index, 48)}`,
-      };
-      return {
-        ...provenance,
-        status: 'completed' as const,
-        auditScope: makeScope(provenance, index, index === 0 && !noSemantics),
-        contractValid: true,
-        citationClosed: true,
-        crossCandidateReferenceCount: 0,
-        crossArtifactSetReferenceCount: 0,
-      };
-    }),
+    candidateResults: exchanges.map(
+      ({ candidateId, request, execution, interview }) => {
+        const auditScope = createRepositoryInterviewAuditScopeV1(
+          request,
+          execution,
+          interview,
+        );
+        return {
+          candidateId,
+          requestId: request.requestId,
+          executionId: execution.executionId,
+          interviewId: interview.interviewId,
+          status: 'completed' as const,
+          auditScope,
+          contractValid: true,
+          citationClosed: true,
+          crossCandidateReferenceCount: 0,
+          crossArtifactSetReferenceCount: 0,
+        };
+      },
+    ),
   };
-}
-
-function makeScope(
-  provenance: {
-    readonly candidateId: string;
-    readonly requestId: string;
-    readonly executionId: string;
-    readonly interviewId: string;
-  },
-  index: number,
-  populated: boolean,
-): RepositoryInterviewAuditScopeV1 {
-  const withoutDigest: Omit<
-    RepositoryInterviewAuditScopeV1,
-    'inventoryDigest'
-  > = {
-    schemaVersion: '1.0.0',
-    ...provenance,
-    requestRecordDigest: hex(4_000 + index, 64),
-    executionRecordDigest: hex(5_000 + index, 64),
-    interviewRecordDigest: hex(6_000 + index, 64),
-    claimIds: populated
-      ? Array.from(
-          { length: 20 },
-          (_, itemIndex) => `intclaim-${hex(itemIndex + 1, 48)}`,
-        )
-      : [],
-    limitationIds: populated ? [`intlimit-${hex(1, 48)}`] : [],
-    contradictionIds: [],
-    unknownIds: populated
-      ? Array.from(
-          { length: 10 },
-          (_, itemIndex) => `intunknown-${hex(itemIndex + 1, 48)}`,
-        )
-      : [],
-  };
-  return {
-    ...withoutDigest,
-    inventoryDigest: repositoryInterviewAuditInventoryDigestV1(withoutDigest),
-  };
+  return { run, exchanges };
 }
 
 function fullScopeFindings(
@@ -437,7 +427,7 @@ function fullScopeFindings(
 }
 
 function exactGateAuditSet(
-  corpus: RepositoryInterviewEvaluationCorpusV1,
+  corpus: ValidatedRepositoryInterviewEvaluationCorpusV1,
   run: RepositoryInterviewRunSummaryV1,
   primaries: readonly RepositoryInterviewAuditRecordV1[],
 ): RepositoryInterviewAuditRecordV1[] {
@@ -469,11 +459,18 @@ function exactGateAuditSet(
       ({ candidateId }) => candidateId === result.candidateId,
     );
     if (primary === undefined) return [];
-    const findings = primary.subjectFindings.filter((finding) =>
-      requiredKeys.has(
-        secondaryKey(secondarySubject(result.candidateId, finding)),
-      ),
-    );
+    const findings = primary.subjectFindings
+      .filter((finding) =>
+        requiredKeys.has(
+          secondaryKey(secondarySubject(result.candidateId, finding)),
+        ),
+      )
+      .sort((left, right) =>
+        compareText(
+          secondaryKey(secondarySubject(result.candidateId, left)),
+          secondaryKey(secondarySubject(result.candidateId, right)),
+        ),
+      );
     const policyRequired =
       primary.policyFindings.promptInjection !== 'pass' ||
       primary.policyFindings.outsideKnowledge !== 'pass';
@@ -568,6 +565,10 @@ function secondarySubject(
 
 function secondaryKey(value: RepositoryInterviewSecondarySubjectV1): string {
   return `${value.candidateId}\0${value.subjectKind}\0${value.subjectId}`;
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function hex(value: number, width: number): string {

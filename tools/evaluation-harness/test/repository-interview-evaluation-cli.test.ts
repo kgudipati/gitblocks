@@ -30,7 +30,12 @@ describe('repository-interview evaluation CLI', () => {
       output.push(String(value));
       return true;
     });
-    expect(runRepositoryInterviewEvaluationCli(['fixtures'], root)).toBe(0);
+    expect(
+      runRepositoryInterviewEvaluationCli(['fixtures'], root, () => ({
+        ok: true,
+        scenarios: [{ name: 'perfect-pass', passed: true }],
+      })),
+    ).toBe(0);
     expect(output.join('')).toContain('perfect-pass pass');
     expect(output.join('')).not.toContain('subjectId');
   });

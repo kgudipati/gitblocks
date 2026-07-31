@@ -25,6 +25,7 @@ export {
   selectRepositoryInterviewSecondarySampleV1,
   validateRepositoryInterviewAuditSetV1,
   type RepositoryInterviewAuditAuthorityV1,
+  type RepositoryInterviewAuditExchangeInputV1,
   type RepositoryInterviewAuditValidationResultV1,
 } from './repository-interview-evaluation-audit.ts';
 export { createRepositoryInterviewAuditScopeV1 } from './repository-interview-evaluation-scope.ts';
@@ -40,5 +41,6 @@ export {
   REQUIRED_REPOSITORY_INTERVIEW_CALIBRATION,
   REQUIRED_REPOSITORY_INTERVIEW_CANDIDATE_IDS,
   type RepositoryInterviewEvaluationCorpusLoadResultV1,
+  type ValidatedRepositoryInterviewEvaluationCorpusV1,
 } from './repository-interview-evaluation-corpus.ts';
 export { computeRepositoryInterviewGateReportV1 } from './repository-interview-evaluation-gates.ts';

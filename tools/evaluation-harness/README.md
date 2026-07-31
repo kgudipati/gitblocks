@@ -15,6 +15,14 @@ adversarial/boundary fixtures. It does not call a provider, grade with a
 model, write production persistence, create production review state, or select
 an interview for ranking.
 
+The repository-interview corpus is a loader-authenticated runtime authority,
+not merely a structurally valid object. The loader owns and freezes the value
+before applying a private brand; cloning or changing a policy while retaining
+its old digest cannot authorize it. Completed audit validation also requires
+one in-memory durable exchange per completed run result, derives each audit
+scope through the public product parsers and complete-exchange validator, and
+compares that authority with the run's content-free embedded scope.
+
 The schemas under `schemas/evaluation/repository-interviews/` are evaluation
 schemas, not product contracts. Production packages are forbidden from
 importing the harness, evaluation schemas, or `evals/` data. The harness may
@@ -27,8 +35,17 @@ corpus identities/counts/digests and fixture scenario names/results; it never
 prints candidate rationale, hostile fixture text, semantic content, reviewer
 values, prompts, or provider data.
 
+In-memory audit ownership separately caps retained input at depth 64, 100,000
+nodes, 50,000 elements per array, 1,024 keys per object, and 8 MiB of aggregate
+UTF-8 string and key bytes. It accepts only finite JSON-like scalars, ordinary
+plain objects, and contiguous ordinary arrays; accessors, symbols, cycles,
+sparse or extended arrays, exotic prototypes, and throwing reflection traps
+fail before schema or semantic validation.
+
 Gate reports accept only an audit authority returned by the complete
-validator. Their domain-separated provenance binds the run summary, ordered
+validator. That authority is a bounded deeply owned and deeply frozen graph;
+it retains no caller run, audit, adjudication, exchange, corpus, or policy
+reference. Its domain-separated provenance binds the run summary, ordered
 durable inventory scopes, audit records, adjudications, selected model-profile
 digest, corpus digest, and exact cohort/review/rubric/gate policy file digests.
 Caller ordering of scope, audit, and adjudication collections cannot change

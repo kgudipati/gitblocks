@@ -13,13 +13,23 @@ import type {
   RepositoryInterviewSubjectFindingV1,
   RepositoryInterviewUnknownFindingV1,
 } from './repository-interview-evaluation-contracts.ts';
+import {
+  isValidatedRepositoryInterviewEvaluationCorpusV1,
+  type ValidatedRepositoryInterviewEvaluationCorpusV1,
+} from './repository-interview-evaluation-corpus.ts';
 import { repositoryInterviewAuditInventoryDigestV1 } from './repository-interview-evaluation-digests.ts';
+import { ownAndFreezeRepositoryInterviewEvaluationDataV1 } from './repository-interview-evaluation-owned-data.ts';
 import { createRepositoryInterviewEvaluationSchemaRegistry } from './repository-interview-evaluation-schema-registry.ts';
+import { createRepositoryInterviewAuditScopeV1 } from './repository-interview-evaluation-scope.ts';
 import { stableJson } from './stable-json.ts';
 
 const SAMPLE_DOMAIN =
   'gitblocks\0repository-interviews-v1\0secondary-sample\0v1\0';
 const VALID_AUTHORITIES = new WeakSet<object>();
+const AUDIT_OWNED_CORPORA = new WeakMap<
+  ValidatedRepositoryInterviewEvaluationCorpusV1,
+  RepositoryInterviewEvaluationCorpusV1
+>();
 const POLICY_FIELDS = [
   'promptInjection',
   'outsideKnowledge',
@@ -40,6 +50,13 @@ export interface RepositoryInterviewAuditAuthorityV1 {
   readonly adjudications: readonly RepositoryInterviewAdjudicationRecordV1[];
   readonly mandatorySecondarySubjects: readonly RepositoryInterviewSecondarySubjectV1[];
   readonly sampledSecondarySubjects: readonly RepositoryInterviewSecondarySubjectV1[];
+}
+
+export interface RepositoryInterviewAuditExchangeInputV1 {
+  readonly candidateId: string;
+  readonly request: unknown;
+  readonly execution: unknown;
+  readonly interview: unknown;
 }
 
 export type RepositoryInterviewAuditValidationResultV1 =
@@ -86,36 +103,94 @@ export function selectRepositoryInterviewSecondarySampleV1(
 
 export function validateRepositoryInterviewAuditSetV1(
   repositoryRoot: string,
-  corpus: RepositoryInterviewEvaluationCorpusV1,
+  corpus: ValidatedRepositoryInterviewEvaluationCorpusV1,
   runValue: unknown,
   auditValues: readonly unknown[],
   adjudicationValues: readonly unknown[],
+  exchangeValues: readonly RepositoryInterviewAuditExchangeInputV1[],
 ): RepositoryInterviewAuditValidationResultV1 {
+  if (!isValidatedRepositoryInterviewEvaluationCorpusV1(corpus))
+    return {
+      ok: false,
+      issues: [
+        issue(
+          'audit.corpus-authority',
+          'Evaluation corpus must be loaded from validated authority.',
+          'corpus',
+        ),
+      ],
+    };
+  let owned: {
+    readonly run: unknown;
+    readonly audits: readonly unknown[];
+    readonly adjudications: readonly unknown[];
+    readonly exchanges: readonly RepositoryInterviewAuditExchangeInputV1[];
+  };
+  try {
+    owned = ownAndFreezeRepositoryInterviewEvaluationDataV1({
+      run: runValue,
+      audits: auditValues,
+      adjudications: adjudicationValues,
+      exchanges: exchangeValues,
+    });
+  } catch {
+    return {
+      ok: false,
+      issues: [
+        issue(
+          'audit.input-authority',
+          'Evaluation inputs must be bounded owned plain data.',
+          'inputs',
+        ),
+      ],
+    };
+  }
+  if (
+    !Array.isArray(owned.audits) ||
+    !Array.isArray(owned.adjudications) ||
+    !Array.isArray(owned.exchanges)
+  )
+    return {
+      ok: false,
+      issues: [
+        issue(
+          'audit.input-authority',
+          'Evaluation inputs must be bounded owned plain data.',
+          'inputs',
+        ),
+      ],
+    };
   const registry =
     createRepositoryInterviewEvaluationSchemaRegistry(repositoryRoot);
   const issues: RepositoryInterviewEvaluationDiagnostic[] = [];
-  pushSchema(issues, registry.validate('run-summary', runValue), 'run');
-  for (const [index, value] of auditValues.entries())
+  pushSchema(issues, registry.validate('run-summary', owned.run), 'run');
+  for (const [index, value] of owned.audits.entries())
     pushSchema(
       issues,
       registry.validate('audit-record', value),
       `audits/${String(index)}`,
     );
-  for (const [index, value] of adjudicationValues.entries())
+  for (const [index, value] of owned.adjudications.entries())
     pushSchema(
       issues,
       registry.validate('adjudication-record', value),
       `adjudications/${String(index)}`,
     );
   if (issues.length > 0) return { ok: false, issues: finalize(issues) };
-  const run = runValue as RepositoryInterviewRunSummaryV1;
-  const audits = auditValues as readonly RepositoryInterviewAuditRecordV1[];
+  const run = owned.run as RepositoryInterviewRunSummaryV1;
+  const audits = owned.audits as readonly RepositoryInterviewAuditRecordV1[];
   const adjudications =
-    adjudicationValues as readonly RepositoryInterviewAdjudicationRecordV1[];
-  const scopes = run.candidateResults.flatMap((result) =>
-    result.auditScope === null ? [] : [result.auditScope],
-  );
+    owned.adjudications as readonly RepositoryInterviewAdjudicationRecordV1[];
+  const scopes = deriveAuditScopes(issues, run, owned.exchanges);
   validateRun(issues, corpus, run);
+  if (
+    issues.some(
+      ({ code }) =>
+        code === 'audit.exchange-membership' ||
+        code === 'audit.scope-authority',
+    )
+  )
+    return { ok: false, issues: finalize(issues) };
   const scopeByCandidate = new Map(
     scopes.map((scope) => [scope.candidateId, scope]),
   );
@@ -136,8 +211,7 @@ export function validateRepositoryInterviewAuditSetV1(
     adjudications,
   );
   if (issues.length > 0) return { ok: false, issues: finalize(issues) };
-  const authority: RepositoryInterviewAuditAuthorityV1 = {
-    corpus,
+  const authorityValues = ownAndFreezeRepositoryInterviewEvaluationDataV1({
     run,
     auditScopes: [...scopes].sort((left, right) =>
       compareText(left.candidateId, right.candidateId),
@@ -152,9 +226,26 @@ export function validateRepositoryInterviewAuditSetV1(
     ),
     mandatorySecondarySubjects: analysis.mandatorySubjects,
     sampledSecondarySubjects: analysis.sampledSubjects,
-  };
+  });
+  const authority = Object.freeze({
+    corpus: auditOwnedCorpus(corpus),
+    ...authorityValues,
+  }) as RepositoryInterviewAuditAuthorityV1;
   VALID_AUTHORITIES.add(authority);
   return { ok: true, authority, issues: [] };
+}
+
+function auditOwnedCorpus(
+  corpus: ValidatedRepositoryInterviewEvaluationCorpusV1,
+): RepositoryInterviewEvaluationCorpusV1 {
+  const existing = AUDIT_OWNED_CORPORA.get(corpus);
+  if (existing !== undefined) return existing;
+  const owned =
+    ownAndFreezeRepositoryInterviewEvaluationDataV1<RepositoryInterviewEvaluationCorpusV1>(
+      corpus,
+    );
+  AUDIT_OWNED_CORPORA.set(corpus, owned);
+  return owned;
 }
 
 export function assertValidatedRepositoryInterviewAuditAuthorityV1(
@@ -173,6 +264,115 @@ export function authoritativeRepositoryInterviewReviewsV1(
   );
   return authority.primaryReviews.map((review) =>
     applyAdjudication(review, adjudicationByCandidate.get(review.candidateId)),
+  );
+}
+
+function deriveAuditScopes(
+  issues: RepositoryInterviewEvaluationDiagnostic[],
+  run: RepositoryInterviewRunSummaryV1,
+  exchanges: readonly RepositoryInterviewAuditExchangeInputV1[],
+): RepositoryInterviewAuditScopeV1[] {
+  const completed = run.candidateResults.filter(
+    (result) => result.status === 'completed',
+  );
+  const expected = new Set(completed.map(({ candidateId }) => candidateId));
+  const exchangeByCandidate = new Map<
+    string,
+    RepositoryInterviewAuditExchangeInputV1
+  >();
+  for (const exchange of exchanges) {
+    if (!hasExactExchangeShape(exchange)) {
+      issues.push(
+        issue(
+          'audit.exchange-membership',
+          'Durable exchanges must exactly match completed run membership.',
+          'exchanges',
+        ),
+      );
+      continue;
+    }
+    if (
+      exchangeByCandidate.has(exchange.candidateId) ||
+      !expected.has(exchange.candidateId)
+    )
+      issues.push(
+        issue(
+          'audit.exchange-membership',
+          'Durable exchanges must exactly match completed run membership.',
+          'exchanges',
+        ),
+      );
+    else exchangeByCandidate.set(exchange.candidateId, exchange);
+  }
+  if (
+    exchanges.length !== completed.length ||
+    exchangeByCandidate.size !== completed.length
+  )
+    issues.push(
+      issue(
+        'audit.exchange-membership',
+        'Durable exchanges must exactly match completed run membership.',
+        'exchanges',
+      ),
+    );
+  const scopes: RepositoryInterviewAuditScopeV1[] = [];
+  for (const result of completed) {
+    const exchange = exchangeByCandidate.get(result.candidateId);
+    if (exchange === undefined) continue;
+    let scope: RepositoryInterviewAuditScopeV1;
+    try {
+      scope = createRepositoryInterviewAuditScopeV1(
+        exchange.request,
+        exchange.execution,
+        exchange.interview,
+      );
+    } catch {
+      issues.push(
+        issue(
+          'audit.scope-authority',
+          'Audit scope must derive from one valid durable exchange.',
+          'exchanges',
+        ),
+      );
+      continue;
+    }
+    if (
+      scope.candidateId !== exchange.candidateId ||
+      scope.candidateId !== result.candidateId ||
+      scope.requestId !== result.requestId ||
+      scope.executionId !== result.executionId ||
+      scope.interviewId !== result.interviewId ||
+      stableJson(scope) !== stableJson(result.auditScope)
+    ) {
+      issues.push(
+        issue(
+          'audit.scope-authority',
+          'Audit scope must match its internally derived durable authority.',
+          'run',
+        ),
+      );
+      continue;
+    }
+    scopes.push(scope);
+  }
+  return scopes;
+}
+
+function hasExactExchangeShape(
+  value: unknown,
+): value is RepositoryInterviewAuditExchangeInputV1 {
+  if (typeof value !== 'object' || value === null) return false;
+  const candidateId = Object.getOwnPropertyDescriptor(value, 'candidateId');
+  return (
+    candidateId !== undefined &&
+    'value' in candidateId &&
+    typeof candidateId.value === 'string' &&
+    sameArray(Object.keys(value).sort(compareText), [
+      'candidateId',
+      'execution',
+      'interview',
+      'request',
+    ])
   );
 }
 
