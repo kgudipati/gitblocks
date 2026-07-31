@@ -9,8 +9,9 @@ The manifest binds the frozen `public-v1` catalog and Phase 6 artifact
 manifest, all three repository-interview production schemas, and the accepted
 repository-interview specification/schema projections. It deliberately does
 not bind a model or model-profile digest. Member byte hashes and a
-domain-separated corpus digest cover the four policy files, 30 candidate
-documents, and 12 synthetic adversarial fixtures. This README is excluded.
+domain-separated corpus digest cover the four policy files, 12 closed
+evaluation schemas, 30 candidate documents, and 12 synthetic adversarial
+fixtures. This README is excluded.
 
 ## Cohort authority
 
@@ -40,17 +41,32 @@ only; no model is selected or executed.
 ## Human audit and gates
 
 Audit and run documents are future inputs validated by the separate schemas;
-none are committed here. Opaque reviewer IDs, durable semantic-item IDs, and
-controlled verdicts allow exact scoring without storing reviewer identity,
-source content, claim text, or notes. Calibration requires two distinct blind
-reviewers. Gate A requires one primary per candidate, mandatory secondaries,
-and a cohort-wide SHA-256 ordered ceiling sample of 10% of remaining material
-subjects. A third reviewer adjudicates only material human disagreement.
+none are committed here. Every completed run result carries a content-free
+audit scope derived from one valid request/execution/interview exchange. That
+scope binds the three record digests and the complete ordered claim,
+limitation, contradiction, and unknown ID inventory. Failed results carry no
+interview or scope.
+
+Opaque reviewer IDs, durable semantic-item IDs, and controlled verdicts allow
+exact scoring without storing reviewer identity, source content, claim text,
+or notes. Each Gate A primary, and both blind calibration reviews, must cover
+every durable claim, limitation, and contradiction exactly once. Limitation
+and disclosed-unknown references must close within the same interview.
+
+Gate A requires one primary per candidate, mandatory secondaries, and a
+review-policy-driven cohort-wide SHA-256 ordered ceiling sample of 10% of
+remaining material subjects. A secondary record covers exactly its assigned
+durable subjects and cannot enlarge the semantic denominator. A policy-only
+secondary may have no semantic subjects. Material disagreements use the
+separate narrow adjudication schema: exactly two source reviews and only the
+disputed subject, unknown, or individual policy-field resolutions.
 
 Operational failures fail the cohort but never dilute semantic denominators.
-The deterministic scorer compares integer numerators and denominators without
-rounding, rejects empty unknown or basis denominators, and binds the complete
-content-free report except its own digest.
+The deterministic scorer consumes the reviewed gate policy, compares integer
+cross-products without rounding, rejects empty unknown or basis denominators,
+and binds the run, durable scope set, audit set, adjudication set, model
+profile, corpus, and all four policy authorities into the complete
+content-free report digest.
 
 ## Commands
 

@@ -246,12 +246,18 @@ Phase 7 repository-interview quality evaluation uses the separate
 `repository-interviews-v1` authority, not `pilot-v1` ranking gold. Its future
 human audit files are content-minimized controlled verdict records. The
 offline harness derives cohort counts from catalog-backed candidate documents,
-selects the cohort-wide 10% secondary sample deterministically, rejects
-unresolved material disagreement, and compares exact integer gate ratios
-without rounding. Operational failures fail separately and never enter
-semantic denominators; empty unknown-recall or basis denominators are invalid.
-Synthetic prompt-injection fixtures test deterministic boundaries but do not
-substitute for later blinded behavioral review.
+derives each completed interview's full durable semantic-ID inventory from a
+validated product exchange, requires exact primary coverage, selects the
+review-policy-driven cohort-wide 10% secondary sample deterministically, and
+restricts secondaries to their exact assigned subjects. Material disagreements
+use narrow subject/unknown/policy-field adjudication records rather than full
+replacement audits. Gate math consumes the reviewed gate policy and compares
+exact integer cross-products without rounding. Reports bind every run, scope,
+audit, adjudication, model-profile, corpus, and policy input digest.
+Operational failures fail separately and never enter semantic denominators;
+empty unknown-recall or basis denominators are invalid. Synthetic
+prompt-injection fixtures test deterministic boundaries but do not substitute
+for later blinded behavioral review.
 
 ## Coverage policy
 

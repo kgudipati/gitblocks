@@ -57,6 +57,12 @@ was authorized. Its first attempt correctly stopped because the original
 per-family archived/moved stratum was impossible in the frozen catalog. The
 binding amendment retains the exact cohort and makes lifecycle diversity a
 cohort-level authority without catalog mutation or reclassification.
+Maintainer review then accepted the cohort, calibration set, adversarial
+membership, and lifecycle amendment but required complete durable inventory
+closure, exact secondary scope, narrow order-independent adjudication,
+policy-driven sampling/gate math, and complete gate-report provenance. This
+correction implements only that evaluation boundary; Milestone 7 remains
+pending renewed acceptance and Milestone 8 remains blocked.
 
 ## Decision
 
@@ -537,27 +543,44 @@ The evaluation authority binds exact catalog, artifact-manifest, production
 schema, and interview-specification digests plus ordered byte digests for four
 policy files, 30 candidate files, and 12 adversarial fixtures. Its
 domain-separated corpus digest is
-`4da50cfd996e80e5a0c0dddebff8cfd303f063c1700538326bda0e629dc36c91`.
-It binds no model snapshot or model-profile digest. Ten independently named
-evaluation schemas remain outside the product contract catalog.
+`82fefaa6428e2214caee4d88fd9c93b15782bf855cba1d8f69400028dd6a0dbf`.
+It binds no model snapshot or model-profile digest. Twelve independently named
+evaluation schemas remain outside the product contract catalog, including
+separate durable audit-scope and narrow adjudication records.
 
-Audit records are content-free. Reviewers load exact cited spans from immutable
-artifacts by trusted IDs. Review is not persisted as production interview
-rows.
+Audit records are content-free. Every completed run result carries an audit
+scope derived from one valid durable request/execution/interview exchange. It
+binds those roots' complete record digests and the canonical ordered IDs of
+every claim, limitation, contradiction, and unknown. A failed result carries
+neither an interview nor a scope. Reviewers load exact cited spans from
+immutable artifacts by trusted IDs. Review is not persisted as production
+interview rows.
 
 The six-candidate calibration has two blind reviewers. Gate A has one
 independent primary reviewer for all 30 candidates, mandatory second review
 for unclear critical claims, disputes, suspected prompt injection,
-outside-knowledge claims, and a deterministic 10% sample, with a third
-adjudicator only for material disagreement.
+outside-knowledge claims, and a review-policy-driven deterministic 10% sample,
+with a third adjudicator only for material disagreement. Each primary and both
+calibration reviews cover the entire durable claim/limitation/contradiction
+inventory. Secondary reviews cover only their mandatory and sampled subjects;
+policy-only secondaries may carry an empty semantic set.
 
 Audit documents contain opaque reviewer and durable item IDs plus controlled
 verdicts; they contain no semantic text, citation text, source content, prompt,
-model output, reviewer name, contact detail, or free-form note. The secondary
-sample is the deterministic SHA-256 ordered ceiling of 10% of remaining
-material subjects across the complete Gate A cohort. Operational failures fail
-the gate outside semantic denominators. Exact integer cross-products enforce
-semantic thresholds, and empty unknown or basis denominators are invalid.
+model output, reviewer name, contact detail, or free-form note. Limitation and
+unknown references close within the same durable interview. Adjudication uses
+a separate record that names exactly two source reviews and replaces only
+materially disputed subject, unknown, or individual policy-field keys; it
+cannot replace a complete audit record or alter an undisputed value.
+
+The secondary sample consumes the reviewed ratio, rounding, and scope fields;
+the committed policy yields the deterministic SHA-256 ordered ceiling of 10%
+of remaining material subjects across the complete Gate A cohort. Gate math
+consumes the reviewed gate policy. Operational failures fail the gate outside
+semantic denominators. Exact integer cross-products enforce semantic
+thresholds, and empty unknown or basis denominators are invalid. The report
+digest also binds the run, ordered audit scopes, audits, adjudications, model
+profile, corpus, and all policy-file digests.
 
 ### Quality and live gates
 
@@ -754,11 +777,12 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1–6 passed maintainer review. Milestone 7's exact amended cohort,
-content-minimized audit authority, synthetic adversarial fixtures,
-deterministic sampling and gate math, compatibility evidence, and hosted CI
-require renewed maintainer acceptance while the PR remains draft. Milestone 8
-requires separate renewed authorization.
+Milestones 1–6 passed maintainer review. The Milestone 7 cohort, calibration
+membership, and adversarial membership are accepted. Its corrected durable
+inventory closure, exact secondary scope, narrow adjudication, policy-driven
+sampling/gates, complete report provenance, compatibility evidence, and hosted
+CI require renewed maintainer acceptance while the PR remains draft.
+Milestone 8 requires separate renewed authorization.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

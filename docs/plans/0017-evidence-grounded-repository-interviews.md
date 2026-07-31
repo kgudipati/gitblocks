@@ -27,10 +27,12 @@
   - PR #18 review: “Milestone 6 accepted — Milestone 7 authorized.”
   - PR #18 review: “Milestone 7 blocker accepted — cohort rule amended;
     implementation may proceed.”
+  - PR #18 review: “Milestone 7 review — cohort accepted; audit authority
+    correction required before Milestone 8.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–6 accepted; Milestone 7 is implemented under the amended
-  cohort authority and awaiting maintainer review; Milestones 8–14 remain
+- State: Milestones 1–6 and the Milestone 7 cohort are accepted; corrected
+  Milestone 7 audit authority awaits renewed review; Milestones 8–14 remain
   unauthorized or incomplete
 - Last updated: 2026-07-31
 
@@ -1110,7 +1112,7 @@ negative-control, simple/README-only, complex/rich, and likely-unknown
 pressure. This does not select or execute a model.
 
 The evaluation authority is bound by corpus digest
-`4da50cfd996e80e5a0c0dddebff8cfd303f063c1700538326bda0e629dc36c91`.
+`82fefaa6428e2214caee4d88fd9c93b15782bf855cba1d8f69400028dd6a0dbf`.
 Policy byte digests are:
 
 ```text
@@ -1120,23 +1122,29 @@ review  286893915c5ca88fdab498a0319a62b7c6c215943110146e2a6ead622bb4844b
 rubric  6669702218b002df14acf3d6fe66f2adfae1ec7ed7d86fa80edf9ddd4d5284f8
 ```
 
-Ten independently named closed evaluation schemas cover manifest, policy,
-candidate, adversarial fixture, future audit record/run summary, and computed
-gate report documents. The bounded loader checks exact paths, byte hashes,
-catalog/artifact authority, semantic counts, calibration diversity, and the
-domain-separated corpus digest. No real run summary or audit record is
-committed.
+Twelve independently named closed evaluation schemas cover manifest, policy,
+candidate, adversarial fixture, audit scope, audit record, narrow adjudication,
+run summary, and computed gate report documents. The bounded loader checks
+exact paths, byte hashes, catalog/artifact authority, semantic counts,
+calibration diversity, and the domain-separated corpus digest. No real run
+summary, audit scope, audit record, or adjudication is committed.
 
 Committed audit records will be content-free. A reviewer tool will load the
 exact immutable artifact and cited span from the approved evaluation database
 by stable IDs; source text will not be copied into audit files.
 
-Each audit finding will record evaluation version, blind assignment ID,
-pseudonymous reviewer role/ID, execution and interview IDs, semantic item ID,
-material/critical classification, support decision, basis decision, applicable
-injection/outside-knowledge/unknown codes, reviewed citation IDs, review time,
-and superseding adjudication reference. It will not record claim text, artifact
-text, paths, URLs, prompts, provider output, or free-form source excerpts.
+Each completed run result carries a content-free audit scope constructed from a
+validated successful request/execution/interview exchange. The scope binds all
+three record digests and the ordered IDs of every durable claim, limitation,
+contradiction, and unknown. Failed results carry neither an interview nor a
+scope. No caller-authored inventory digest is trusted.
+
+Each audit finding records evaluation version, pseudonymous reviewer role/ID,
+execution and interview IDs, semantic item ID, material/critical
+classification, support decision, basis decision, applicable
+injection/outside-knowledge/unknown codes, and review time. It does not record
+claim text, artifact text, paths, URLs, prompts, provider output, or free-form
+source excerpts.
 Reviewer identity mapping and conflict-of-interest assignment remain
 access-controlled operational records outside the committed corpus.
 
@@ -1168,23 +1176,33 @@ access-controlled operational records outside the committed corpus.
 ### Review workflow
 
 - Two blind reviewers independently assess the six-candidate calibration for
-  both model profiles.
+  both model profiles, each covering the complete durable subject inventory.
 - One independent primary reviewer assesses all 30 Gate A candidates.
 - A second reviewer is mandatory for any critical claim not clearly
   supported, disputed finding, suspected prompt injection, suspected
   outside-knowledge claim, and a deterministic 10% agreement sample of the
   remaining material claims.
+- Every primary covers each durable claim, limitation, and contradiction
+  exactly once in canonical order. Partial-support limitation IDs and disclosed
+  unknown IDs must resolve within the same interview audit scope.
+- Each secondary covers exactly its union of mandatory and sampled durable
+  subjects. It cannot add a denominator subject; a policy-only secondary may
+  have an empty semantic subject set.
 - A third adjudicator acts only when two human reviews materially disagree.
-- Adjudication preserves both original decisions, stable disagreement codes,
-  the final content-free decision, and reviewer-role provenance.
+  The separate narrow adjudication record binds exactly two source review IDs
+  and only the disputed subject, unknown, or individual policy-field keys. It
+  cannot replace a complete audit or change an undisputed value.
 
 The deterministic secondary sampler hashes an explicitly framed
 `repository-interviews-v1` candidate/subject key, sorts by digest and stable
-subject coordinates, and selects the ceiling of 10% across the complete Gate A
-cohort after mandatory subjects are removed. Exact integer cross-products
-apply the 5%, 15%, and 90% thresholds without prior rounding. Operational
-failures fail the cohort outside semantic denominators; zero unknown or basis
-denominators make the report invalid.
+subject coordinates, and consumes the reviewed numerator, denominator,
+rounding, and cohort-scope fields. The current policy selects the ceiling of
+10% across complete Gate A after mandatory subjects are removed. Gate math
+consumes the reviewed policy and applies the unchanged 5%, 15%, and 90%
+thresholds through exact integer cross-products. Operational failures fail the
+cohort outside semantic denominators; zero unknown or basis denominators make
+the report invalid. The report digest binds the run, audit-scope set, audit
+set, adjudication set, model profile, corpus, and all four policy authorities.
 
 ## Quality gates
 
@@ -1559,13 +1577,25 @@ apps/repository-interview-operator/
 
 evals/repository-interviews-v1/
   README.md
-  cohort.json
-  calibration-assignments.json
-  audit/
-  fixtures/
+  manifest.json
+  policy/
+  candidates/                 # 30 content-minimized selection records
+  adversarial/                # 12 synthetic fixtures
+
+schemas/evaluation/repository-interviews/
+  audit-scope.schema.json
+  audit-record.schema.json
+  adjudication-record.schema.json
+  run-summary.schema.json
+  gate-report.schema.json
+  ...                         # manifest, policy, candidate, fixture schemas
 
 tools/evaluation-harness/src/
-  repository-interview-audit.ts
+  repository-interview-evaluation-scope.ts
+  repository-interview-evaluation-audit.ts
+  repository-interview-evaluation-digests.ts
+  repository-interview-evaluation-gates.ts
+  repository-interview-evaluation-fixtures.ts
 
 catalog/public-v1/
   repository-interview-completion.md
@@ -1671,8 +1701,7 @@ already includes `apps/*` and will remain unchanged.
 
 ### 6. Migration 0004 and persistence operations
 
-- **Status:** implemented with complete normalized read-authority correction
-  and awaiting renewed maintainer review; Milestone 7 remains blocked.
+- **Status:** accepted, including complete normalized read authority.
 - **Red first:** missing migration/API failures, non-owner grants, immutable
   tables, FK/deferred closure, failed execution, idempotency/reuse/force/
   collision/concurrency/rollback/history tests.
@@ -1693,19 +1722,29 @@ already includes `apps/*` and will remain unchanged.
 
 ### 7. Evaluation authority and adversarial fixtures
 
+- **Status:** exact cohort, calibration set, adversarial membership, and
+  lifecycle amendment accepted; corrected audit authority implemented and
+  awaiting renewed review. Milestone 8 remains blocked.
 - **Red first:** cohort balance/existence, audit schema/reference closure,
-  blind assignments, deterministic sample, threshold math, adversarial fixture
-  taxonomy, no content in audit files.
-- **Likely files:** `evals/repository-interviews-v1`, harness modules/tests,
-  evaluation schemas only if independently versioned and necessary.
-- **Commit:** `test(evals): establish repository interview audit authority`.
+  complete durable inventory, exact primary/secondary coverage, same-interview
+  references, narrow adjudication, policy-driven sampling/threshold math,
+  complete report provenance, adversarial taxonomy, and no content in audit
+  files.
+- **Implemented files:** unchanged candidate/adversarial documents; corrected
+  manifest and 12 evaluation schemas; audit-scope constructor; typed policy,
+  run, audit, adjudication, gate and digest modules; focused tests and
+  deterministic boundary fixtures; concise evaluation documentation.
+- **Commits:** `test(evals): establish repository interview audit authority`,
+  followed by `fix(evals): close repository interview audit authority`.
 - **Verification:** eval validate/fixtures, interview eval commands, repo and
   secret checks, verify.
-- **Review:** exact 30 IDs/rationales, six calibration IDs, rubric,
-  disagreement flow, corpus independence.
+- **Review:** durable scope/exchange closure, full subject coverage,
+  secondary assignment, disagreement keys, source-review provenance,
+  policy consumption, set/report digests, and corpus independence.
 - **Prohibited:** candidate body inspection/commit, pilot gold reuse, live
   model call.
-- **Stop:** cohort and reviewer protocol must be frozen before calibration.
+- **Stop:** renewed maintainer acceptance is required before Milestone 8;
+  model calibration remains separately gated later.
 
 ### 8. Bounded direct OpenAI Responses adapter
 
@@ -2665,6 +2704,40 @@ ephemeral PostgreSQL and registry-audit effects; no provider, model, operator,
 real audit, candidate body, production review state, or live Phase 7 action was
 added or used.
 
+### Milestone 7 audit-authority correction evidence
+
+The correction began with a focused failing test because durable audit-scope
+and report-input digest helpers did not exist. The expanded green suite proves
+scope construction from a valid synthetic durable exchange, complete primary
+and calibration coverage, same-interview limitation/unknown closure, exact
+secondary assignments, narrow subject/unknown/policy adjudication, source
+review and reviewer independence, input-order determinism, parsed-policy
+sampling and gate math, and report provenance changes even when aggregate
+counts remain equal.
+
+The corrected evaluation corpus digest is
+`82fefaa6428e2214caee4d88fd9c93b15782bf855cba1d8f69400028dd6a0dbf`.
+The four reviewed policy files remain byte-identical with digests
+`12a72fb4e77325dd7e5bf4940ea7db039593cc8e6bc7260667e53455b6401b80`,
+`057c50095a59fdafd5e88b666a0d9c3496c08077fd5a7e5a908025293e281baa`,
+`286893915c5ca88fdab498a0319a62b7c6c215943110146e2a6ead622bb4844b`,
+and `6669702218b002df14acf3d6fe66f2adfae1ec7ed7d86fa80edf9ddd4d5284f8`
+for cohort, gate, review, and rubric respectively. Candidate and adversarial
+fixture bytes are unchanged. The manifest now binds all 12 evaluation schema
+snapshots, including new `audit-scope` and `adjudication-record` schemas and
+corrected audit, run-summary, policy, manifest, and gate-report authority.
+
+The correction's focused green run passes four files and 44 tests, including
+all 16 deterministic gate scenarios. The complete local matrix passes 57 files
+and 1,081 tests; dependency cruising covers 693 modules and 2,220 dependencies
+without a violation. PostgreSQL 18.4 passes five files and 59 tests without a
+skip, retaining four migrations, 25 product tables, and zero RLS policies.
+Coverage passes 57 files and 1,081 tests at 79.46% statements, 71.70% branches,
+86.78% functions, and 79.31% lines. The registry audit reports no known
+vulnerabilities. Hosted CI results are recorded on draft PR #18 after the
+correction commit. Milestone 7 remains pending renewed maintainer acceptance;
+Milestone 8 remains blocked.
+
 ## Progress log
 
 - **2026-07-30:** Verified clean branch, exact main/origin/main/HEAD
@@ -2794,6 +2867,14 @@ added or used.
   records, 12 synthetic adversarial fixtures, deterministic audit validation,
   secondary sampling, gate reporting, and offline CLI verification. Milestone
   7 awaits renewed maintainer review; Milestone 8 remains blocked.
+- **2026-07-31:** Maintainer review accepted the cohort, calibration set,
+  adversarial membership, and lifecycle amendment but found the audit
+  denominator unbound to durable interview inventory, adjudication too broad,
+  and sampling/gate/report authority incomplete. Added content-free durable
+  audit scopes, exact primary/secondary closure, narrow adjudication,
+  policy-driven math, and complete report-input digests without changing any
+  candidate or adversarial fixture bytes. Milestone 7 awaits renewed review;
+  Milestone 8 remains blocked.
 
 ## Decision and deviation log
 
@@ -2929,21 +3010,35 @@ added or used.
   compatibility shorthand that package manifests remain unchanged. No
   workspace package manifest, dependency field, external version, workspace
   importer, or lockfile changes.
+- **Audit denominator authority:** completed run results bind validated durable
+  request/execution/interview record digests and complete ordered semantic-item
+  IDs. Exact primary coverage controls semantic denominators; secondaries
+  cannot introduce new durable subjects.
+- **Narrow adjudication:** adjudication is no longer represented as a full
+  audit. One content-free record binds the two source reviews and resolves only
+  exact disputed subject, reviewer-identified unknown, or individual policy
+  fields while preserving undisputed primary values.
+- **Policy/report authority:** sampling and gates consume parsed reviewed
+  policies. Gate reports bind run, scope, audit, adjudication, model-profile,
+  corpus, and every policy digest; order-normalized set digests remove caller
+  array order as authority.
 
 ## Remaining maintainer decisions before Milestone 8
 
-Milestones 1–6 are accepted. Milestone 7 is implemented but Milestone 8 must
-not advance until renewed maintainer review accepts:
+Milestones 1–6 and the Milestone 7 cohort are accepted. Milestone 8 must not
+advance until renewed maintainer review accepts:
 
-1. the exact amended 30-candidate membership, controlled labels, calibration
-   order, and cohort-level lifecycle treatment;
-2. the separate schema/manifest/policy authority and recorded digests;
-3. content-minimized audit provenance, reviewer workflow, sampling, and
-   adjudication rules;
-4. exact operational/semantic denominator separation and boundary math;
-5. all 12 synthetic adversarial fixtures without a claim of behavioral proof;
-6. read-only CLI, architecture direction, compatibility, full verification,
-   and hosted CI evidence recorded here and on draft PR #18.
+1. content-free durable audit-scope construction and exact subject-inventory
+   coverage;
+2. same-interview limitation/unknown references and exact secondary scope;
+3. narrow adjudication source/disagreement closure and input-order
+   determinism;
+4. parsed-policy consumption and complete gate-report provenance digests;
+5. unchanged accepted cohort, calibration, adversarial, product,
+   specification, migration, catalog, artifact, pilot, dependency, and
+   lockfile authorities; and
+6. read-only CLI, architecture direction, full local verification, and hosted
+   CI evidence recorded here and on draft PR #18.
 
 Only renewed authorization may begin the bounded direct OpenAI Responses
 adapter in Milestone 8. Model selection, calibration execution, Gate A, real

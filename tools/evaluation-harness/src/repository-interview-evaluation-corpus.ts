@@ -17,6 +17,10 @@ import type {
   RepositoryInterviewEvaluationCorpusV1,
   RepositoryInterviewEvaluationDiagnostic,
   RepositoryInterviewEvaluationManifestV1,
+  RepositoryInterviewCohortPolicyV1,
+  RepositoryInterviewGatePolicyV1,
+  RepositoryInterviewReviewPolicyV1,
+  RepositoryInterviewRubricV1,
 } from './repository-interview-evaluation-contracts.ts';
 import { repositoryInterviewEvaluationCorpusDigestV1 } from './repository-interview-evaluation-digests.ts';
 import {
@@ -104,6 +108,14 @@ function load(
   const adversarialEntries = loadJsonDirectory(root, 'adversarial', {
     maximumFiles: 12,
   });
+  const schemaDirectory = join(
+    repositoryRoot,
+    'schemas/evaluation/repository-interviews',
+  );
+  const schemaPaths = readdirSync(schemaDirectory)
+    .filter((name) => name.endsWith('.schema.json'))
+    .map((name) => `schemas/evaluation/repository-interviews/${name}`)
+    .sort(compareText);
   for (const directory of ['policy', 'candidates', 'adversarial']) {
     if (
       readdirSync(join(root, directory)).some(
@@ -170,6 +182,34 @@ function load(
         );
     }
   }
+  const declaredSchemaPaths = manifest.schemas.map(({ path }) => path);
+  if (
+    !sameArray(declaredSchemaPaths, [...declaredSchemaPaths].sort(compareText))
+  )
+    diagnostics.push(
+      issue(
+        'manifest.order',
+        'Manifest members must use deterministic path order.',
+        'manifest.json',
+      ),
+    );
+  if (!sameArray(declaredSchemaPaths, schemaPaths))
+    diagnostics.push(
+      issue(
+        'manifest.membership',
+        'Manifest schema membership must exactly match owned schema files.',
+        'manifest.json',
+      ),
+    );
+  for (const member of manifest.schemas)
+    if (hashJsonFile(repositoryRoot, member.path) !== member.sha256)
+      diagnostics.push(
+        issue(
+          'manifest.hash',
+          'Manifest member digest does not match file bytes.',
+          member.path,
+        ),
+      );
   const policySchemas = [
     ['policy/cohort-policy.json', 'cohort-policy'],
     ['policy/gate-policy.json', 'gate-policy'],
@@ -258,10 +298,24 @@ function load(
         compareText(left.fixtureId, right.fixtureId),
       ),
       policies: {
-        cohort: policies.get('policy/cohort-policy.json'),
-        review: policies.get('policy/review-policy.json'),
-        rubric: policies.get('policy/rubric.json'),
-        gate: policies.get('policy/gate-policy.json'),
+        cohort: policies.get(
+          'policy/cohort-policy.json',
+        ) as RepositoryInterviewCohortPolicyV1,
+        review: policies.get(
+          'policy/review-policy.json',
+        ) as RepositoryInterviewReviewPolicyV1,
+        rubric: policies.get(
+          'policy/rubric.json',
+        ) as RepositoryInterviewRubricV1,
+        gate: policies.get(
+          'policy/gate-policy.json',
+        ) as RepositoryInterviewGatePolicyV1,
+      },
+      policyDigests: {
+        cohort: policyDigest(manifest, 'policy/cohort-policy.json'),
+        review: policyDigest(manifest, 'policy/review-policy.json'),
+        rubric: policyDigest(manifest, 'policy/rubric.json'),
+        gate: policyDigest(manifest, 'policy/gate-policy.json'),
       },
       derived: {
         familyCounts,
@@ -737,6 +791,18 @@ function validateStatusLabel(
         path,
       ),
     );
+}
+
+function policyDigest(
+  manifest: RepositoryInterviewEvaluationManifestV1,
+  path: string,
+): string {
+  const digest = manifest.policies.find(
+    (member) => member.path === path,
+  )?.sha256;
+  if (digest === undefined)
+    throw new Error('Repository-interview evaluation policy is unavailable.');
+  return digest;
 }
 
 function pushSchema(

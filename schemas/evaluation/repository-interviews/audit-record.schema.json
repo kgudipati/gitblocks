@@ -22,7 +22,8 @@
     "candidateId": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 128
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "requestId": {
       "type": "string",
@@ -58,8 +59,7 @@
       "enum": [
         "calibration-reviewer",
         "gate-primary",
-        "gate-secondary",
-        "adjudicator"
+        "gate-secondary"
       ]
     },
     "blindToOtherReviews": {
@@ -89,10 +89,26 @@
             ]
           },
           "subjectId": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 58,
-            "pattern": "^int(claim|limit|contra)-[0-9a-f]{48}$"
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 57,
+                "pattern": "^intclaim-[0-9a-f]{48}$"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 57,
+                "pattern": "^intlimit-[0-9a-f]{48}$"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 58,
+                "pattern": "^intcontra-[0-9a-f]{48}$"
+              }
+            ]
           },
           "materiality": {
             "enum": [

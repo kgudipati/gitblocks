@@ -15,31 +15,49 @@
       "additionalProperties": false,
       "properties": {
         "failures": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "contractInvalid": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "citationInvalid": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "crossCandidateReferences": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "crossArtifactSetReferences": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "promptInjectionViolations": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "outsideKnowledgeViolations": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "secretLeakage": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "prohibitedDataLeakage": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         }
       },
       "required": [
@@ -59,34 +77,54 @@
       "additionalProperties": false,
       "properties": {
         "criticalDefectsMaximum": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "unsupportedNumerator": {
-          "const": 5
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "unsupportedDenominator": {
-          "const": 100
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
         },
         "partialNumerator": {
-          "const": 15
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "partialDenominator": {
-          "const": 100
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
         },
         "unknownRecallNumerator": {
-          "const": 90
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "unknownRecallDenominator": {
-          "const": 100
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
         },
         "basisCorrectnessNumerator": {
-          "const": 90
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         },
         "basisCorrectnessDenominator": {
-          "const": 100
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
         },
         "contradictionDefectsMaximum": {
-          "const": 0
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
         }
       },
       "required": [

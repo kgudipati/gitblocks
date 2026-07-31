@@ -77,6 +77,7 @@ export interface RepositoryInterviewEvaluationManifestV1 {
     readonly openAiProjectionDigest: string;
   };
   readonly policies: readonly RepositoryInterviewManifestMemberV1[];
+  readonly schemas: readonly RepositoryInterviewManifestMemberV1[];
   readonly candidates: readonly RepositoryInterviewManifestMemberV1[];
   readonly adversarialFixtures: readonly RepositoryInterviewManifestMemberV1[];
   readonly corpusDigest: string;
@@ -98,7 +99,7 @@ export interface RepositoryInterviewAdversarialFixtureV1 {
 
 export type RepositoryInterviewReviewStage = 'calibration' | 'gate-a';
 export type RepositoryInterviewReviewerRole =
-  'adjudicator' | 'calibration-reviewer' | 'gate-primary' | 'gate-secondary';
+  'calibration-reviewer' | 'gate-primary' | 'gate-secondary';
 export type RepositoryInterviewMateriality =
   'critical' | 'material' | 'non-material';
 export type RepositoryInterviewSupportVerdict =
@@ -164,6 +165,87 @@ export interface RepositoryInterviewAuditRecordV1 {
   readonly overallUsefulness: 'useful' | 'partially-useful' | 'not-useful';
 }
 
+export interface RepositoryInterviewAuditScopeV1 {
+  readonly schemaVersion: '1.0.0';
+  readonly candidateId: string;
+  readonly requestId: string;
+  readonly executionId: string;
+  readonly interviewId: string;
+  readonly requestRecordDigest: string;
+  readonly executionRecordDigest: string;
+  readonly interviewRecordDigest: string;
+  readonly claimIds: readonly string[];
+  readonly limitationIds: readonly string[];
+  readonly contradictionIds: readonly string[];
+  readonly unknownIds: readonly string[];
+  readonly inventoryDigest: string;
+}
+
+export type RepositoryInterviewPolicyField =
+  | 'promptInjection'
+  | 'outsideKnowledge'
+  | 'secretLeakage'
+  | 'prohibitedDataLeakage'
+  | 'poorFitCoverage'
+  | 'operationalRequirementsCoverage'
+  | 'contradictionCoverage';
+
+export type RepositoryInterviewPolicyResolutionV1 =
+  | {
+      readonly field: 'promptInjection';
+      readonly finalValue: RepositoryInterviewPolicyFindingsV1['promptInjection'];
+    }
+  | {
+      readonly field: 'outsideKnowledge';
+      readonly finalValue: RepositoryInterviewPolicyFindingsV1['outsideKnowledge'];
+    }
+  | {
+      readonly field: 'secretLeakage';
+      readonly finalValue: RepositoryInterviewPolicyFindingsV1['secretLeakage'];
+    }
+  | {
+      readonly field: 'prohibitedDataLeakage';
+      readonly finalValue: RepositoryInterviewPolicyFindingsV1['prohibitedDataLeakage'];
+    }
+  | {
+      readonly field: 'poorFitCoverage';
+      readonly finalValue: RepositoryInterviewPolicyFindingsV1['poorFitCoverage'];
+    }
+  | {
+      readonly field: 'operationalRequirementsCoverage';
+      readonly finalValue: RepositoryInterviewPolicyFindingsV1['operationalRequirementsCoverage'];
+    }
+  | {
+      readonly field: 'contradictionCoverage';
+      readonly finalValue: RepositoryInterviewPolicyFindingsV1['contradictionCoverage'];
+    };
+
+export interface RepositoryInterviewAdjudicationRecordV1 {
+  readonly schemaVersion: '1.0.0';
+  readonly corpusId: typeof REPOSITORY_INTERVIEW_CORPUS_ID;
+  readonly corpusVersion: typeof REPOSITORY_INTERVIEW_CORPUS_VERSION;
+  readonly stage: RepositoryInterviewReviewStage;
+  readonly candidateId: string;
+  readonly requestId: string;
+  readonly executionId: string;
+  readonly interviewId: string;
+  readonly adjudicationId: string;
+  readonly adjudicatorId: string;
+  readonly sourceReviewIds: readonly [string, string];
+  readonly independentFromGeneration: boolean;
+  readonly adjudicatedAt: string;
+  readonly subjectResolutions: readonly {
+    readonly subjectKind: RepositoryInterviewSubjectFindingV1['subjectKind'];
+    readonly subjectId: string;
+    readonly finalFinding: RepositoryInterviewSubjectFindingV1;
+  }[];
+  readonly unknownResolutions: readonly {
+    readonly auditUnknownId: string;
+    readonly finalFinding: RepositoryInterviewUnknownFindingV1;
+  }[];
+  readonly policyResolutions: readonly RepositoryInterviewPolicyResolutionV1[];
+}
+
 export type RepositoryInterviewRunStatus =
   | 'completed'
   | 'provider-failed'
@@ -172,6 +254,28 @@ export type RepositoryInterviewRunStatus =
   | 'persistence-failed'
   | 'policy-failed';
 
+interface RepositoryInterviewCandidateRunResultBaseV1 {
+  readonly candidateId: string;
+  readonly requestId: string;
+  readonly executionId: string;
+  readonly contractValid: boolean;
+  readonly citationClosed: boolean;
+  readonly crossCandidateReferenceCount: number;
+  readonly crossArtifactSetReferenceCount: number;
+}
+
+export type RepositoryInterviewCandidateRunResultV1 =
+  | (RepositoryInterviewCandidateRunResultBaseV1 & {
+      readonly status: 'completed';
+      readonly interviewId: string;
+      readonly auditScope: RepositoryInterviewAuditScopeV1;
+    })
+  | (RepositoryInterviewCandidateRunResultBaseV1 & {
+      readonly status: Exclude<RepositoryInterviewRunStatus, 'completed'>;
+      readonly interviewId: null;
+      readonly auditScope: null;
+    });
+
 export interface RepositoryInterviewRunSummaryV1 {
   readonly schemaVersion: '1.0.0';
   readonly corpusId: typeof REPOSITORY_INTERVIEW_CORPUS_ID;
@@ -179,17 +283,12 @@ export interface RepositoryInterviewRunSummaryV1 {
   readonly stage: RepositoryInterviewReviewStage;
   readonly runId: string;
   readonly modelProfileDigest: string;
-  readonly candidateResults: readonly {
-    readonly candidateId: string;
-    readonly requestId: string;
-    readonly executionId: string;
-    readonly interviewId: string | null;
-    readonly status: RepositoryInterviewRunStatus;
-    readonly contractValid: boolean;
-    readonly citationClosed: boolean;
-    readonly crossCandidateReferenceCount: number;
-    readonly crossArtifactSetReferenceCount: number;
-  }[];
+  readonly corpusDigest: string;
+  readonly cohortPolicyDigest: string;
+  readonly reviewPolicyDigest: string;
+  readonly rubricDigest: string;
+  readonly gatePolicyDigest: string;
+  readonly candidateResults: readonly RepositoryInterviewCandidateRunResultV1[];
 }
 
 export interface RepositoryInterviewSecondarySubjectV1 {
@@ -210,6 +309,16 @@ export interface RepositoryInterviewGateReportV1 {
   readonly corpusVersion: typeof REPOSITORY_INTERVIEW_CORPUS_VERSION;
   readonly runId: string;
   readonly stage: RepositoryInterviewReviewStage;
+  readonly corpusDigest: string;
+  readonly cohortPolicyDigest: string;
+  readonly reviewPolicyDigest: string;
+  readonly rubricDigest: string;
+  readonly gatePolicyDigest: string;
+  readonly modelProfileDigest: string;
+  readonly runSummaryDigest: string;
+  readonly auditScopeSetDigest: string;
+  readonly auditSetDigest: string;
+  readonly adjudicationSetDigest: string;
   readonly candidateCount: number;
   readonly completedCandidateCount: number;
   readonly operationalFailureCount: number;
@@ -236,15 +345,94 @@ export interface RepositoryInterviewGateReportV1 {
   readonly reportDigest: string;
 }
 
+export interface RepositoryInterviewCohortPolicyV1 {
+  readonly schemaVersion: '1.0.0';
+  readonly corpusId: typeof REPOSITORY_INTERVIEW_CORPUS_ID;
+  readonly candidateIds: readonly string[];
+  readonly calibrationCandidateIds: readonly string[];
+  readonly requiredCounts: {
+    readonly candidates: number;
+    readonly candidatesPerFamily: number;
+    readonly negativeControls: number;
+    readonly negativeControlsPerFamily: number;
+    readonly archived: number;
+    readonly moved: number;
+    readonly richAdditionalDocumentation: number;
+    readonly readmeOnly: number;
+  };
+  readonly lifecycleDiversityScope: 'cohort';
+}
+
+export interface RepositoryInterviewReviewPolicyV1 {
+  readonly schemaVersion: '1.0.0';
+  readonly corpusId: typeof REPOSITORY_INTERVIEW_CORPUS_ID;
+  readonly calibrationReviewersPerCandidate: 2;
+  readonly calibrationBlind: true;
+  readonly gatePrimaryReviewersPerCandidate: 1;
+  readonly secondarySampleNumerator: number;
+  readonly secondarySampleDenominator: number;
+  readonly secondarySampleRounding: 'ceiling' | 'floor';
+  readonly secondarySampleScope: 'complete-gate-a-cohort';
+  readonly mandatorySecondaryReasons: readonly string[];
+  readonly adjudicationTrigger: 'material-human-disagreement';
+}
+
+export interface RepositoryInterviewRubricV1 {
+  readonly schemaVersion: '1.0.0';
+  readonly corpusId: typeof REPOSITORY_INTERVIEW_CORPUS_ID;
+  readonly support: Readonly<Record<string, string>>;
+  readonly basis: Readonly<Record<string, string>>;
+  readonly criticalDomains: readonly string[];
+  readonly unknownRecall: string;
+  readonly promptInjection: string;
+  readonly outsideKnowledge: string;
+}
+
+export interface RepositoryInterviewGatePolicyV1 {
+  readonly schemaVersion: '1.0.0';
+  readonly corpusId: typeof REPOSITORY_INTERVIEW_CORPUS_ID;
+  readonly operationalMaximums: {
+    readonly failures: number;
+    readonly contractInvalid: number;
+    readonly citationInvalid: number;
+    readonly crossCandidateReferences: number;
+    readonly crossArtifactSetReferences: number;
+    readonly promptInjectionViolations: number;
+    readonly outsideKnowledgeViolations: number;
+    readonly secretLeakage: number;
+    readonly prohibitedDataLeakage: number;
+  };
+  readonly semanticThresholds: {
+    readonly criticalDefectsMaximum: number;
+    readonly unsupportedNumerator: number;
+    readonly unsupportedDenominator: number;
+    readonly partialNumerator: number;
+    readonly partialDenominator: number;
+    readonly unknownRecallNumerator: number;
+    readonly unknownRecallDenominator: number;
+    readonly basisCorrectnessNumerator: number;
+    readonly basisCorrectnessDenominator: number;
+    readonly contradictionDefectsMaximum: number;
+  };
+  readonly zeroSemanticDenominator: 'invalid';
+  readonly operationalFailuresEnterSemanticDenominators: false;
+}
+
 export interface RepositoryInterviewEvaluationCorpusV1 {
   readonly manifest: RepositoryInterviewEvaluationManifestV1;
   readonly candidates: readonly RepositoryInterviewEvaluationCandidateV1[];
   readonly adversarialFixtures: readonly RepositoryInterviewAdversarialFixtureV1[];
   readonly policies: {
-    readonly cohort: unknown;
-    readonly review: unknown;
-    readonly rubric: unknown;
-    readonly gate: unknown;
+    readonly cohort: RepositoryInterviewCohortPolicyV1;
+    readonly review: RepositoryInterviewReviewPolicyV1;
+    readonly rubric: RepositoryInterviewRubricV1;
+    readonly gate: RepositoryInterviewGatePolicyV1;
+  };
+  readonly policyDigests: {
+    readonly cohort: string;
+    readonly review: string;
+    readonly rubric: string;
+    readonly gate: string;
   };
   readonly derived: {
     readonly familyCounts: Readonly<Record<CapabilityFamily, number>>;

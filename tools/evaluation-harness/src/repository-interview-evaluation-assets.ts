@@ -69,6 +69,10 @@ export function buildRepositoryInterviewEvaluationAssetsV1(
     buildRepositoryInterviewEvaluationCandidatesV1(selectionMap);
   const fixtures = buildRepositoryInterviewAdversarialFixturesV1();
   const policies = buildPolicies();
+  const schemaAssets = Object.entries(buildSchemas()).map(([name, value]) => ({
+    relativePath: `schemas/evaluation/repository-interviews/${name}.schema.json`,
+    text: jsonText(value),
+  }));
   const memberAssets: RepositoryInterviewEvaluationAsset[] = [
     ...Object.entries(policies).map(([name, value]) => ({
       relativePath: `evals/repository-interviews-v1/policy/${name}.json`,
@@ -101,6 +105,12 @@ export function buildRepositoryInterviewEvaluationAssetsV1(
     status: 'development-proposed',
     authority: AUTHORITY,
     policies: byGroup('policy'),
+    schemas: schemaAssets
+      .map(({ relativePath, text }) => ({
+        path: relativePath,
+        sha256: sha256(text),
+      }))
+      .sort((left, right) => compareText(left.path, right.path)),
     candidates: byGroup('candidates'),
     adversarialFixtures: byGroup('adversarial'),
   };
@@ -110,10 +120,6 @@ export function buildRepositoryInterviewEvaluationAssetsV1(
       manifestWithoutDigest,
     ),
   };
-  const schemaAssets = Object.entries(buildSchemas()).map(([name, value]) => ({
-    relativePath: `schemas/evaluation/repository-interviews/${name}.schema.json`,
-    text: jsonText(value),
-  }));
   return [
     ...schemaAssets,
     ...memberAssets,
@@ -248,7 +254,10 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
     ...(pattern === undefined ? {} : { pattern }),
   });
   const member = schema('member', {
-    path: text(256, '^(policy|candidates|adversarial)/[a-z0-9-]+\\.json$'),
+    path: text(
+      256,
+      '^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$',
+    ),
     sha256: text(64, '^[0-9a-f]{64}$'),
   });
   const status = { enum: ['active', 'archived', 'moved', 'negative-control'] };
@@ -287,11 +296,22 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
       'simple-adoption-surface',
     ],
   };
-  const citationLikeId = text(58, '^int(claim|limit|contra)-[0-9a-f]{48}$');
+  const candidateId = text(128, '^[a-z0-9]+(?:-[a-z0-9]+)*$');
+  const requestId = text(55, '^intreq-[0-9a-f]{48}$');
+  const executionId = text(58, '^modelexec-[0-9a-f]{48}$');
+  const interviewId = text(58, '^interview-[0-9a-f]{48}$');
+  const claimId = text(57, '^intclaim-[0-9a-f]{48}$');
+  const limitationId = text(57, '^intlimit-[0-9a-f]{48}$');
+  const contradictionId = text(58, '^intcontra-[0-9a-f]{48}$');
+  const unknownId = text(59, '^intunknown-[0-9a-f]{48}$');
+  const citationLikeId = {
+    anyOf: [claimId, limitationId, contradictionId],
+  };
+  const digest = text(64, '^[0-9a-f]{64}$');
   const candidate = schema('candidate', {
     schemaVersion: { const: '1.0.0' },
     corpusId: { const: 'repository-interviews-v1' },
-    candidateId: text(128, '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
+    candidateId,
     capabilityFamily: family,
     catalogStatus: status,
     selectionLabels: {
@@ -340,6 +360,7 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
       openAiProjectionDigest: text(64, '^[0-9a-f]{64}$'),
     }),
     policies: { type: 'array', minItems: 4, maxItems: 4, items: member },
+    schemas: { type: 'array', minItems: 12, maxItems: 12, items: member },
     candidates: { type: 'array', minItems: 30, maxItems: 30, items: member },
     adversarialFixtures: {
       type: 'array',
@@ -474,19 +495,14 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
     corpusId: { const: 'repository-interviews-v1' },
     corpusVersion: { const: '1.0.0' },
     stage: { enum: ['calibration', 'gate-a'] },
-    candidateId: text(128),
-    requestId: text(55, '^intreq-[0-9a-f]{48}$'),
-    executionId: text(58, '^modelexec-[0-9a-f]{48}$'),
-    interviewId: text(58, '^interview-[0-9a-f]{48}$'),
+    candidateId,
+    requestId,
+    executionId,
+    interviewId,
     reviewId: text(55, '^review-[0-9a-f]{48}$'),
     reviewerId: text(41, '^reviewer-[0-9a-f]{32}$'),
     reviewerRole: {
-      enum: [
-        'calibration-reviewer',
-        'gate-primary',
-        'gate-secondary',
-        'adjudicator',
-      ],
+      enum: ['calibration-reviewer', 'gate-primary', 'gate-secondary'],
     },
     blindToOtherReviews: { type: 'boolean' },
     independentFromGeneration: { type: 'boolean' },
@@ -499,21 +515,45 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
     policyFindings,
     overallUsefulness: { enum: ['useful', 'partially-useful', 'not-useful'] },
   });
-  const candidateResult = schema('candidate-result', {
-    candidateId: text(128),
-    requestId: text(55),
-    executionId: text(58),
-    interviewId: { anyOf: [text(58), { type: 'null' }] },
-    status: {
-      enum: [
-        'completed',
-        'provider-failed',
-        'schema-failed',
-        'citation-failed',
-        'persistence-failed',
-        'policy-failed',
-      ],
+  const auditScope = schema('audit-scope', {
+    schemaVersion: { const: '1.0.0' },
+    candidateId,
+    requestId,
+    executionId,
+    interviewId,
+    requestRecordDigest: digest,
+    executionRecordDigest: digest,
+    interviewRecordDigest: digest,
+    claimIds: {
+      type: 'array',
+      maxItems: 32,
+      uniqueItems: true,
+      items: claimId,
     },
+    limitationIds: {
+      type: 'array',
+      maxItems: 12,
+      uniqueItems: true,
+      items: limitationId,
+    },
+    contradictionIds: {
+      type: 'array',
+      maxItems: 6,
+      uniqueItems: true,
+      items: contradictionId,
+    },
+    unknownIds: {
+      type: 'array',
+      maxItems: 16,
+      uniqueItems: true,
+      items: unknownId,
+    },
+    inventoryDigest: digest,
+  });
+  const candidateResultBase = {
+    candidateId,
+    requestId,
+    executionId,
     contractValid: { type: 'boolean' },
     citationClosed: { type: 'boolean' },
     crossCandidateReferenceCount: {
@@ -526,19 +566,131 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
       minimum: 0,
       maximum: 1000,
     },
+  };
+  const completedCandidateResult = schema('completed-candidate-result', {
+    ...candidateResultBase,
+    status: { const: 'completed' },
+    interviewId,
+    auditScope,
   });
+  const failedCandidateResult = schema('failed-candidate-result', {
+    ...candidateResultBase,
+    status: {
+      enum: [
+        'provider-failed',
+        'schema-failed',
+        'citation-failed',
+        'persistence-failed',
+        'policy-failed',
+      ],
+    },
+    interviewId: { type: 'null' },
+    auditScope: { type: 'null' },
+  });
+  const candidateResult = {
+    anyOf: [completedCandidateResult, failedCandidateResult],
+  };
   const run = schema('run-summary', {
     schemaVersion: { const: '1.0.0' },
     corpusId: { const: 'repository-interviews-v1' },
     corpusVersion: { const: '1.0.0' },
     stage: { enum: ['calibration', 'gate-a'] },
     runId: text(56, '^evalrun-[0-9a-f]{48}$'),
-    modelProfileDigest: text(64, '^[0-9a-f]{64}$'),
+    modelProfileDigest: digest,
+    corpusDigest: digest,
+    cohortPolicyDigest: digest,
+    reviewPolicyDigest: digest,
+    rubricDigest: digest,
+    gatePolicyDigest: digest,
     candidateResults: {
       type: 'array',
       minItems: 1,
       maxItems: 30,
       items: candidateResult,
+    },
+  });
+  const policyResolution = {
+    anyOf: [
+      schema('prompt-injection-resolution', {
+        field: { const: 'promptInjection' },
+        finalValue: { enum: ['pass', 'suspected', 'violation'] },
+      }),
+      schema('outside-knowledge-resolution', {
+        field: { const: 'outsideKnowledge' },
+        finalValue: { enum: ['pass', 'suspected', 'violation'] },
+      }),
+      schema('secret-leakage-resolution', {
+        field: { const: 'secretLeakage' },
+        finalValue: { enum: ['pass', 'violation'] },
+      }),
+      schema('prohibited-data-leakage-resolution', {
+        field: { const: 'prohibitedDataLeakage' },
+        finalValue: { enum: ['pass', 'violation'] },
+      }),
+      schema('poor-fit-coverage-resolution', {
+        field: { const: 'poorFitCoverage' },
+        finalValue: {
+          enum: ['sufficient', 'insufficient', 'not-applicable'],
+        },
+      }),
+      schema('operations-coverage-resolution', {
+        field: { const: 'operationalRequirementsCoverage' },
+        finalValue: {
+          enum: ['sufficient', 'insufficient', 'not-applicable'],
+        },
+      }),
+      schema('contradiction-coverage-resolution', {
+        field: { const: 'contradictionCoverage' },
+        finalValue: {
+          enum: ['sufficient', 'insufficient', 'not-applicable'],
+        },
+      }),
+    ],
+  };
+  const adjudication = schema('adjudication-record', {
+    schemaVersion: { const: '1.0.0' },
+    corpusId: { const: 'repository-interviews-v1' },
+    corpusVersion: { const: '1.0.0' },
+    stage: { enum: ['calibration', 'gate-a'] },
+    candidateId,
+    requestId,
+    executionId,
+    interviewId,
+    adjudicationId: text(61, '^adjudication-[0-9a-f]{48}$'),
+    adjudicatorId: text(41, '^reviewer-[0-9a-f]{32}$'),
+    sourceReviewIds: {
+      type: 'array',
+      minItems: 2,
+      maxItems: 2,
+      uniqueItems: true,
+      items: text(55, '^review-[0-9a-f]{48}$'),
+    },
+    independentFromGeneration: { type: 'boolean' },
+    adjudicatedAt: text(
+      24,
+      '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$',
+    ),
+    subjectResolutions: {
+      type: 'array',
+      maxItems: 50,
+      items: schema('subject-resolution', {
+        subjectKind: { enum: ['claim', 'limitation', 'contradiction'] },
+        subjectId: citationLikeId,
+        finalFinding: subjectFinding,
+      }),
+    },
+    unknownResolutions: {
+      type: 'array',
+      maxItems: 64,
+      items: schema('unknown-resolution', {
+        auditUnknownId: text(61, '^auditunknown-[0-9a-f]{48}$'),
+        finalFinding: unknownFinding,
+      }),
+    },
+    policyResolutions: {
+      type: 'array',
+      maxItems: 7,
+      items: policyResolution,
     },
   });
   const rate = schema('rate', {
@@ -552,6 +704,16 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
     corpusVersion: { const: '1.0.0' },
     runId: text(56),
     stage: { enum: ['calibration', 'gate-a'] },
+    corpusDigest: digest,
+    cohortPolicyDigest: digest,
+    reviewPolicyDigest: digest,
+    rubricDigest: digest,
+    gatePolicyDigest: digest,
+    modelProfileDigest: digest,
+    runSummaryDigest: digest,
+    auditScopeSetDigest: digest,
+    auditSetDigest: digest,
+    adjudicationSetDigest: digest,
   };
   for (const name of [
     'candidateCount',
@@ -648,9 +810,17 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
     calibrationReviewersPerCandidate: { const: 2 },
     calibrationBlind: { const: true },
     gatePrimaryReviewersPerCandidate: { const: 1 },
-    secondarySampleNumerator: { const: 10 },
-    secondarySampleDenominator: { const: 100 },
-    secondarySampleRounding: { const: 'ceiling' },
+    secondarySampleNumerator: {
+      type: 'integer',
+      minimum: 1,
+      maximum: 100_000,
+    },
+    secondarySampleDenominator: {
+      type: 'integer',
+      minimum: 1,
+      maximum: 100_000,
+    },
+    secondarySampleRounding: { enum: ['ceiling', 'floor'] },
     secondarySampleScope: { const: 'complete-gate-a-cohort' },
     mandatorySecondaryReasons: {
       type: 'array',
@@ -705,28 +875,76 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
   const gatePolicy = schema('gate-policy', {
     schemaVersion: { const: '1.0.0' },
     corpusId: { const: 'repository-interviews-v1' },
-    operationalMaximums: schema('operational-maximums', {
-      failures: { const: 0 },
-      contractInvalid: { const: 0 },
-      citationInvalid: { const: 0 },
-      crossCandidateReferences: { const: 0 },
-      crossArtifactSetReferences: { const: 0 },
-      promptInjectionViolations: { const: 0 },
-      outsideKnowledgeViolations: { const: 0 },
-      secretLeakage: { const: 0 },
-      prohibitedDataLeakage: { const: 0 },
-    }),
+    operationalMaximums: schema(
+      'operational-maximums',
+      Object.fromEntries(
+        [
+          'failures',
+          'contractInvalid',
+          'citationInvalid',
+          'crossCandidateReferences',
+          'crossArtifactSetReferences',
+          'promptInjectionViolations',
+          'outsideKnowledgeViolations',
+          'secretLeakage',
+          'prohibitedDataLeakage',
+        ].map((name) => [
+          name,
+          { type: 'integer', minimum: 0, maximum: 100_000 },
+        ]),
+      ),
+    ),
     semanticThresholds: schema('semantic-thresholds', {
-      criticalDefectsMaximum: { const: 0 },
-      unsupportedNumerator: { const: 5 },
-      unsupportedDenominator: { const: 100 },
-      partialNumerator: { const: 15 },
-      partialDenominator: { const: 100 },
-      unknownRecallNumerator: { const: 90 },
-      unknownRecallDenominator: { const: 100 },
-      basisCorrectnessNumerator: { const: 90 },
-      basisCorrectnessDenominator: { const: 100 },
-      contradictionDefectsMaximum: { const: 0 },
+      criticalDefectsMaximum: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 100_000,
+      },
+      unsupportedNumerator: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 100_000,
+      },
+      unsupportedDenominator: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 100_000,
+      },
+      partialNumerator: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 100_000,
+      },
+      partialDenominator: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 100_000,
+      },
+      unknownRecallNumerator: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 100_000,
+      },
+      unknownRecallDenominator: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 100_000,
+      },
+      basisCorrectnessNumerator: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 100_000,
+      },
+      basisCorrectnessDenominator: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 100_000,
+      },
+      contradictionDefectsMaximum: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 100_000,
+      },
     }),
     zeroSemanticDenominator: { const: 'invalid' },
     operationalFailuresEnterSemanticDenominators: { const: false },
@@ -735,7 +953,9 @@ function buildSchemas(): Readonly<Record<string, unknown>> {
     manifest,
     candidate,
     'adversarial-fixture': adversarial,
+    'audit-scope': auditScope,
     'audit-record': audit,
+    'adjudication-record': adjudication,
     'run-summary': run,
     'gate-report': schema('gate-report', gateReportProperties),
     'cohort-policy': cohortPolicy,

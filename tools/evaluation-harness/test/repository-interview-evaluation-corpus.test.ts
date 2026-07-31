@@ -311,11 +311,13 @@ describe('repository-interviews-v1 corpus', () => {
     expect(loadRepositoryInterviewEvaluationCorpusV1(unordered).ok).toBe(false);
   });
 
-  it('keeps all ten evaluation schemas independently named and recursively closed', () => {
+  it('keeps all twelve evaluation schemas independently named and recursively closed', () => {
     const directory = join(root, 'schemas/evaluation/repository-interviews');
     const names = [
+      'adjudication-record',
       'adversarial-fixture',
       'audit-record',
+      'audit-scope',
       'candidate',
       'cohort-policy',
       'gate-policy',
@@ -334,6 +336,27 @@ describe('repository-interviews-v1 corpus', () => {
       );
       assertClosedObjects(schema);
     }
+  });
+
+  it('fails closed when a reviewed policy drifts from its manifest digest', () => {
+    const copy = copyAuthority();
+    const policyPath = join(
+      copy,
+      'evals/repository-interviews-v1/policy/review-policy.json',
+    );
+    writeFileSync(
+      policyPath,
+      readFileSync(policyPath, 'utf8').replace(
+        '"secondarySampleNumerator": 10',
+        '"secondarySampleNumerator": 9',
+      ),
+    );
+    const result = loadRepositoryInterviewEvaluationCorpusV1(copy);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostics.map(({ code }) => code)).toContain(
+      'manifest.hash',
+    );
   });
 
   it('retains bounded file and string failures for candidate documents', () => {

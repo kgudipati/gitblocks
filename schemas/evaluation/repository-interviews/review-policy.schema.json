@@ -20,13 +20,20 @@
       "const": 1
     },
     "secondarySampleNumerator": {
-      "const": 10
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
     },
     "secondarySampleDenominator": {
-      "const": 100
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
     },
     "secondarySampleRounding": {
-      "const": "ceiling"
+      "enum": [
+        "ceiling",
+        "floor"
+      ]
     },
     "secondarySampleScope": {
       "const": "complete-gate-a-cohort"

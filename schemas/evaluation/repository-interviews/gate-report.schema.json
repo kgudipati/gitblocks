@@ -24,6 +24,66 @@
         "gate-a"
       ]
     },
+    "corpusDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "cohortPolicyDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewPolicyDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "rubricDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "gatePolicyDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "modelProfileDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "runSummaryDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "auditScopeSetDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "auditSetDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "adjudicationSetDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
     "candidateCount": {
       "type": "integer",
       "minimum": 0,
@@ -288,6 +348,16 @@
     "corpusVersion",
     "runId",
     "stage",
+    "corpusDigest",
+    "cohortPolicyDigest",
+    "reviewPolicyDigest",
+    "rubricDigest",
+    "gatePolicyDigest",
+    "modelProfileDigest",
+    "runSummaryDigest",
+    "auditScopeSetDigest",
+    "auditSetDigest",
+    "adjudicationSetDigest",
     "candidateCount",
     "completedCandidateCount",
     "operationalFailureCount",

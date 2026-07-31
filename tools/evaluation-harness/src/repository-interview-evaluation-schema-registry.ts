@@ -12,9 +12,15 @@ import { findGitBlocksRoot } from './repository-root.ts';
 import type { ValidationDiagnostic } from './schema-registry.ts';
 
 const MAX_SCHEMA_BYTES = 256 * 1024;
+const REGISTRIES = new Map<
+  string,
+  RepositoryInterviewEvaluationSchemaRegistry
+>();
 const NAMES = [
+  'adjudication-record',
   'adversarial-fixture',
   'audit-record',
+  'audit-scope',
   'candidate',
   'cohort-policy',
   'gate-policy',
@@ -38,6 +44,8 @@ export function createRepositoryInterviewEvaluationSchemaRegistry(
   startDirectory = process.cwd(),
 ): RepositoryInterviewEvaluationSchemaRegistry {
   const root = findGitBlocksRoot(startDirectory);
+  const existing = REGISTRIES.get(root);
+  if (existing !== undefined) return existing;
   const ajv = new Ajv2020({
     allErrors: true,
     coerceTypes: false,
@@ -71,7 +79,7 @@ export function createRepositoryInterviewEvaluationSchemaRegistry(
     }
     validators.set(name, validator);
   }
-  return {
+  const registry: RepositoryInterviewEvaluationSchemaRegistry = {
     validate(name, value) {
       const validator = validators.get(name);
       if (validator === undefined)
@@ -86,6 +94,8 @@ export function createRepositoryInterviewEvaluationSchemaRegistry(
       return formatErrors(validator.errors);
     },
   };
+  REGISTRIES.set(root, registry);
+  return registry;
 }
 
 function formatErrors(

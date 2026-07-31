@@ -1,12 +1,18 @@
 import type {
   RepositoryInterviewAuditRecordV1,
+  RepositoryInterviewAuditScopeV1,
+  RepositoryInterviewCandidateRunResultV1,
   RepositoryInterviewEvaluationCorpusV1,
   RepositoryInterviewRunSummaryV1,
+  RepositoryInterviewSecondarySubjectV1,
   RepositoryInterviewSubjectFindingV1,
 } from './repository-interview-evaluation-contracts.ts';
-import type { RepositoryInterviewAuditAuthorityV1 } from './repository-interview-evaluation-audit.ts';
-import { validateRepositoryInterviewAuditSetV1 } from './repository-interview-evaluation-audit.ts';
+import {
+  selectRepositoryInterviewSecondarySampleV1,
+  validateRepositoryInterviewAuditSetV1,
+} from './repository-interview-evaluation-audit.ts';
 import { loadRepositoryInterviewEvaluationCorpusV1 } from './repository-interview-evaluation-corpus.ts';
+import { repositoryInterviewAuditInventoryDigestV1 } from './repository-interview-evaluation-digests.ts';
 import { computeRepositoryInterviewGateReportV1 } from './repository-interview-evaluation-gates.ts';
 import { findGitBlocksRoot } from './repository-root.ts';
 
@@ -25,82 +31,99 @@ export function runRepositoryInterviewGateFixturesV1(
   if (!loaded.ok) return { ok: false, scenarios: [] };
   const corpus = loaded.corpus;
   const scenarios = [
-    gateScenario('perfect-pass', corpus, {}, true),
+    gateScenario(repositoryRoot, 'perfect-pass', corpus, {}, true),
     gateScenario(
+      repositoryRoot,
       'one-critical-unsupported',
       corpus,
       { criticalUnsupported: true },
       false,
     ),
     gateScenario(
+      repositoryRoot,
       'noncritical-unsupported-at-boundary',
       corpus,
       { unsupported: 1 },
       true,
     ),
     gateScenario(
+      repositoryRoot,
       'noncritical-unsupported-over-boundary',
       corpus,
       { unsupported: 2 },
       false,
     ),
-    gateScenario('partial-support-at-boundary', corpus, { partial: 3 }, true),
     gateScenario(
+      repositoryRoot,
+      'partial-support-at-boundary',
+      corpus,
+      { partial: 3 },
+      true,
+    ),
+    gateScenario(
+      repositoryRoot,
       'partial-support-without-limitation',
       corpus,
       { partial: 3, omitPartialLimitation: true },
       false,
     ),
     gateScenario(
+      repositoryRoot,
       'unknown-recall-at-boundary',
       corpus,
       { disclosedUnknowns: 9 },
       true,
     ),
     gateScenario(
+      repositoryRoot,
       'unknown-recall-below-boundary',
       corpus,
       { disclosedUnknowns: 8 },
       false,
     ),
     gateScenario(
+      repositoryRoot,
       'basis-correctness-at-boundary',
       corpus,
       { correctBasis: 18 },
       true,
     ),
     gateScenario(
+      repositoryRoot,
       'basis-correctness-below-boundary',
       corpus,
       { correctBasis: 17 },
       false,
     ),
     gateScenario(
+      repositoryRoot,
       'prompt-injection-violation',
       corpus,
       { promptInjection: true },
       false,
     ),
     gateScenario(
+      repositoryRoot,
       'outside-knowledge-violation',
       corpus,
       { outsideKnowledge: true },
       false,
     ),
-    operationalSeparationScenario(corpus),
+    operationalSeparationScenario(repositoryRoot, corpus),
     workflowScenario(
-      'missing-secondary-review',
       repositoryRoot,
       corpus,
+      'missing-secondary-review',
       'missing-secondary',
     ),
     workflowScenario(
-      'unresolved-disagreement',
       repositoryRoot,
       corpus,
+      'unresolved-disagreement',
       'disagreement',
     ),
     gateScenario(
+      repositoryRoot,
       'zero-semantic-denominator',
       corpus,
       { noSemantics: true },
@@ -123,70 +146,113 @@ interface GateOverrides {
 }
 
 function gateScenario(
+  repositoryRoot: string,
   name: string,
   corpus: RepositoryInterviewEvaluationCorpusV1,
   overrides: GateOverrides,
   expectedPass: boolean,
 ) {
-  const report = computeRepositoryInterviewGateReportV1(
-    makeAuthority(corpus, overrides),
+  const { run, audits } = scenarioInputs(corpus, overrides);
+  const validated = validateRepositoryInterviewAuditSetV1(
+    repositoryRoot,
+    corpus,
+    run,
+    audits,
+    [],
   );
-  return { name, passed: report.passed === expectedPass };
+  if (!validated.ok) return { name, passed: !expectedPass };
+  return {
+    name,
+    passed:
+      computeRepositoryInterviewGateReportV1(validated.authority).passed ===
+      expectedPass,
+  };
 }
 
 function operationalSeparationScenario(
+  repositoryRoot: string,
   corpus: RepositoryInterviewEvaluationCorpusV1,
 ) {
-  const baseline = computeRepositoryInterviewGateReportV1(
-    makeAuthority(corpus, {}),
+  const baselineInputs = scenarioInputs(corpus, {});
+  const baseline = validateRepositoryInterviewAuditSetV1(
+    repositoryRoot,
+    corpus,
+    baselineInputs.run,
+    baselineInputs.audits,
+    [],
   );
-  const authority = makeAuthority(corpus, {});
-  const first = authority.run.candidateResults[0];
-  if (first === undefined)
+  if (!baseline.ok)
     return { name: 'operational-failure-separated', passed: false };
-  const run = {
-    ...authority.run,
+  const baselineReport = computeRepositoryInterviewGateReportV1(
+    baseline.authority,
+  );
+  const last = baselineInputs.run.candidateResults.at(-1);
+  if (last === undefined)
+    return { name: 'operational-failure-separated', passed: false };
+  const run: RepositoryInterviewRunSummaryV1 = {
+    ...baselineInputs.run,
     candidateResults: [
-      { ...first, status: 'provider-failed' as const, interviewId: null },
-      ...authority.run.candidateResults.slice(1),
+      ...baselineInputs.run.candidateResults.slice(0, -1),
+      {
+        ...last,
+        status: 'provider-failed',
+        interviewId: null,
+        auditScope: null,
+      },
     ],
   };
-  const report = computeRepositoryInterviewGateReportV1({ ...authority, run });
+  const audits = baselineInputs.audits.filter(
+    ({ candidateId }) => candidateId !== last.candidateId,
+  );
+  const validated = validateRepositoryInterviewAuditSetV1(
+    repositoryRoot,
+    corpus,
+    run,
+    audits,
+    [],
+  );
+  if (!validated.ok)
+    return { name: 'operational-failure-separated', passed: false };
+  const report = computeRepositoryInterviewGateReportV1(validated.authority);
   return {
     name: 'operational-failure-separated',
     passed:
       !report.passed &&
       report.failureCodes.includes('operational-failure') &&
       report.noncriticalUnsupported.numerator ===
-        baseline.noncriticalUnsupported.numerator &&
+        baselineReport.noncriticalUnsupported.numerator &&
       report.noncriticalUnsupported.denominator ===
-        baseline.noncriticalUnsupported.denominator &&
-      report.unknownRecall.denominator === baseline.unknownRecall.denominator,
+        baselineReport.noncriticalUnsupported.denominator &&
+      report.unknownRecall.denominator ===
+        baselineReport.unknownRecall.denominator,
   };
 }
 
 function workflowScenario(
-  name: string,
   repositoryRoot: string,
   corpus: RepositoryInterviewEvaluationCorpusV1,
+  name: string,
   mode: 'missing-secondary' | 'disagreement',
 ) {
-  const run = makeRun(corpus);
-  const audits = makeWorkflowAudits(run);
+  const { run, audits } = scenarioInputs(corpus, {});
+  const secondaryIndex = audits.findIndex(
+    ({ reviewerRole, subjectFindings }) =>
+      reviewerRole === 'gate-secondary' && subjectFindings.length > 0,
+  );
+  if (secondaryIndex < 0) return { name, passed: false };
   const changed =
     mode === 'missing-secondary'
-      ? audits.filter(
-          (audit, index) =>
-            !(index === 1 && audit.reviewerRole === 'gate-secondary'),
-        )
+      ? audits.filter((_, index) => index !== secondaryIndex)
       : audits.map((audit, index) =>
-          index === 1 && audit.reviewerRole === 'gate-secondary'
+          index === secondaryIndex
             ? {
                 ...audit,
-                subjectFindings: audit.subjectFindings.map((finding) => ({
-                  ...finding,
-                  supportVerdict: 'unsupported' as const,
-                })),
+                subjectFindings: audit.subjectFindings.map(
+                  (finding, findingIndex) =>
+                    findingIndex === 0
+                      ? { ...finding, supportVerdict: 'unsupported' as const }
+                      : finding,
+                ),
               }
             : audit,
         );
@@ -195,11 +261,12 @@ function workflowScenario(
     corpus,
     run,
     changed,
+    [],
   );
   const expectedCode =
     mode === 'missing-secondary'
-      ? 'audit.missing-secondary'
-      : 'audit.unresolved-disagreement';
+      ? 'audit.secondary-count'
+      : 'audit.adjudication-count';
   return {
     name,
     passed:
@@ -207,81 +274,79 @@ function workflowScenario(
   };
 }
 
-function makeAuthority(
+function scenarioInputs(
   corpus: RepositoryInterviewEvaluationCorpusV1,
   overrides: GateOverrides,
-): RepositoryInterviewAuditAuthorityV1 {
-  const run = makeRun(corpus);
-  const reviews = run.candidateResults.map((result, candidateIndex) =>
-    makeReview(result, candidateIndex, 'gate-primary', []),
-  );
-  const first = reviews[0];
-  if (first !== undefined) {
-    const findings: RepositoryInterviewSubjectFindingV1[] = [];
-    if (!overrides.noSemantics) {
-      for (let index = 0; index < 20; index += 1) {
-        const supportVerdict =
-          index < (overrides.unsupported ?? 0)
-            ? 'unsupported'
-            : index < (overrides.unsupported ?? 0) + (overrides.partial ?? 0)
-              ? 'partially-supported'
-              : 'supported';
-        findings.push(
-          subject(
-            index,
-            supportVerdict,
-            index < (overrides.correctBasis ?? 20) ? 'correct' : 'incorrect',
-            supportVerdict === 'partially-supported' &&
-              !overrides.omitPartialLimitation,
-          ),
-        );
-      }
-      if (overrides.criticalUnsupported)
-        findings.push({
-          ...subject(30, 'unsupported', 'correct', false),
-          materiality: 'critical',
-          criticalDomain: 'security',
-        });
-    }
-    const unknownFindings = overrides.noSemantics
-      ? []
-      : Array.from({ length: 10 }, (_, index) => ({
-          auditUnknownId: `auditunknown-${hex(200 + index, 48)}`,
-          topic: 'security-and-trust' as const,
+): {
+  readonly run: RepositoryInterviewRunSummaryV1;
+  readonly audits: readonly RepositoryInterviewAuditRecordV1[];
+} {
+  const run = makeRun(corpus, overrides.noSemantics === true);
+  const primaries = run.candidateResults.flatMap((result, index) => {
+    if (result.status !== 'completed') return [];
+    const findings: RepositoryInterviewSubjectFindingV1[] = fullScopeFindings(
+      result.auditScope,
+    ).map((finding, findingIndex) => {
+      if (finding.subjectKind !== 'claim') return finding;
+      const supportVerdict: RepositoryInterviewSubjectFindingV1['supportVerdict'] =
+        findingIndex < (overrides.unsupported ?? 0)
+          ? 'unsupported'
+          : findingIndex <
+              (overrides.unsupported ?? 0) + (overrides.partial ?? 0)
+            ? 'partially-supported'
+            : 'supported';
+      return {
+        ...finding,
+        materiality:
+          overrides.criticalUnsupported === true && findingIndex === 0
+            ? ('critical' as const)
+            : finding.materiality,
+        criticalDomain:
+          overrides.criticalUnsupported === true && findingIndex === 0
+            ? ('security' as const)
+            : null,
+        supportVerdict:
+          overrides.criticalUnsupported === true && findingIndex === 0
+            ? ('unsupported' as const)
+            : supportVerdict,
+        basisVerdict:
+          findingIndex < (overrides.correctBasis ?? 20)
+            ? ('correct' as const)
+            : ('incorrect' as const),
+        partialSupportLimitationId:
+          supportVerdict === 'partially-supported' &&
+          !overrides.omitPartialLimitation
+            ? (result.auditScope.limitationIds[0] ?? null)
+            : null,
+      };
+    });
+    const unknownFindings = result.auditScope.unknownIds.map(
+      (unknownId, unknownIndex) => {
+        const disclosed = unknownIndex < (overrides.disclosedUnknowns ?? 10);
+        return {
+          auditUnknownId: `auditunknown-${hex(500 + unknownIndex, 48)}`,
+          topic: 'security-and-trust',
           materiality: 'material' as const,
-          disclosedUnknownId:
-            index < (overrides.disclosedUnknowns ?? 10)
-              ? `intunknown-${hex(300 + index, 48)}`
-              : null,
-          verdict:
-            index < (overrides.disclosedUnknowns ?? 10)
-              ? ('disclosed' as const)
-              : ('omitted' as const),
-        }));
-    reviews[0] = {
-      ...first,
-      subjectFindings: findings,
-      unknownFindings,
-      policyFindings: {
-        ...first.policyFindings,
-        promptInjection: overrides.promptInjection ? 'violation' : 'pass',
-        outsideKnowledge: overrides.outsideKnowledge ? 'violation' : 'pass',
+          disclosedUnknownId: disclosed ? unknownId : null,
+          verdict: disclosed ? ('disclosed' as const) : ('omitted' as const),
+        };
       },
-    };
-  }
-  return {
-    run,
-    audits: reviews,
-    primaryReviews: reviews,
-    secondaryReviews: [],
-    adjudications: [],
-    mandatorySecondarySubjects: [],
-    sampledSecondarySubjects: [],
-  };
+    );
+    return [
+      makeReview(result, index, 'gate-primary', findings, unknownFindings, {
+        promptInjection:
+          overrides.promptInjection === true ? 'violation' : 'pass',
+        outsideKnowledge:
+          overrides.outsideKnowledge === true ? 'violation' : 'pass',
+      }),
+    ];
+  });
+  return { run, audits: exactGateAuditSet(corpus, run, primaries) };
 }
 
 function makeRun(
   corpus: RepositoryInterviewEvaluationCorpusV1,
+  noSemantics: boolean,
 ): RepositoryInterviewRunSummaryV1 {
   return {
     schemaVersion: '1.0.0',
@@ -290,41 +355,153 @@ function makeRun(
     stage: 'gate-a',
     runId: `evalrun-${hex(1, 48)}`,
     modelProfileDigest: hex(2, 64),
-    candidateResults: corpus.candidates.map(({ candidateId }, index) => ({
-      candidateId,
-      requestId: `intreq-${hex(1000 + index, 48)}`,
-      executionId: `modelexec-${hex(2000 + index, 48)}`,
-      interviewId: `interview-${hex(3000 + index, 48)}`,
-      status: 'completed',
-      contractValid: true,
-      citationClosed: true,
-      crossCandidateReferenceCount: 0,
-      crossArtifactSetReferenceCount: 0,
-    })),
+    corpusDigest: corpus.manifest.corpusDigest,
+    cohortPolicyDigest: corpus.policyDigests.cohort,
+    reviewPolicyDigest: corpus.policyDigests.review,
+    rubricDigest: corpus.policyDigests.rubric,
+    gatePolicyDigest: corpus.policyDigests.gate,
+    candidateResults: corpus.candidates.map(({ candidateId }, index) => {
+      const provenance = {
+        candidateId,
+        requestId: `intreq-${hex(1_000 + index, 48)}`,
+        executionId: `modelexec-${hex(2_000 + index, 48)}`,
+        interviewId: `interview-${hex(3_000 + index, 48)}`,
+      };
+      return {
+        ...provenance,
+        status: 'completed' as const,
+        auditScope: makeScope(provenance, index, index === 0 && !noSemantics),
+        contractValid: true,
+        citationClosed: true,
+        crossCandidateReferenceCount: 0,
+        crossArtifactSetReferenceCount: 0,
+      };
+    }),
   };
 }
 
-function makeWorkflowAudits(
+function makeScope(
+  provenance: {
+    readonly candidateId: string;
+    readonly requestId: string;
+    readonly executionId: string;
+    readonly interviewId: string;
+  },
+  index: number,
+  populated: boolean,
+): RepositoryInterviewAuditScopeV1 {
+  const withoutDigest: Omit<
+    RepositoryInterviewAuditScopeV1,
+    'inventoryDigest'
+  > = {
+    schemaVersion: '1.0.0',
+    ...provenance,
+    requestRecordDigest: hex(4_000 + index, 64),
+    executionRecordDigest: hex(5_000 + index, 64),
+    interviewRecordDigest: hex(6_000 + index, 64),
+    claimIds: populated
+      ? Array.from(
+          { length: 20 },
+          (_, itemIndex) => `intclaim-${hex(itemIndex + 1, 48)}`,
+        )
+      : [],
+    limitationIds: populated ? [`intlimit-${hex(1, 48)}`] : [],
+    contradictionIds: [],
+    unknownIds: populated
+      ? Array.from(
+          { length: 10 },
+          (_, itemIndex) => `intunknown-${hex(itemIndex + 1, 48)}`,
+        )
+      : [],
+  };
+  return {
+    ...withoutDigest,
+    inventoryDigest: repositoryInterviewAuditInventoryDigestV1(withoutDigest),
+  };
+}
+
+function fullScopeFindings(
+  scope: RepositoryInterviewAuditScopeV1,
+): RepositoryInterviewSubjectFindingV1[] {
+  return [
+    ...scope.claimIds.map((subjectId) =>
+      subject('claim', subjectId, 'material'),
+    ),
+    ...scope.limitationIds.map((subjectId) =>
+      subject('limitation', subjectId, 'non-material'),
+    ),
+    ...scope.contradictionIds.map((subjectId) =>
+      subject('contradiction', subjectId, 'material'),
+    ),
+  ];
+}
+
+function exactGateAuditSet(
+  corpus: RepositoryInterviewEvaluationCorpusV1,
   run: RepositoryInterviewRunSummaryV1,
+  primaries: readonly RepositoryInterviewAuditRecordV1[],
 ): RepositoryInterviewAuditRecordV1[] {
-  return run.candidateResults.flatMap((result, index) => {
-    const finding = {
-      ...subject(index, 'supported', 'correct', false),
-      disputed: true,
-    };
-    return [
-      makeReview(result, index * 2, 'gate-primary', [finding]),
-      makeReview(result, index * 2 + 1, 'gate-secondary', [finding]),
-    ];
+  const mandatory = primaries.flatMap((audit) =>
+    audit.subjectFindings
+      .filter(
+        (finding) =>
+          finding.disputed ||
+          (finding.materiality === 'critical' &&
+            finding.supportVerdict !== 'supported'),
+      )
+      .map((finding) => secondarySubject(audit.candidateId, finding)),
+  );
+  const mandatoryKeys = new Set(mandatory.map(secondaryKey));
+  const sample = selectRepositoryInterviewSecondarySampleV1(
+    primaries
+      .flatMap((audit) =>
+        audit.subjectFindings
+          .filter(({ materiality }) => materiality !== 'non-material')
+          .map((finding) => secondarySubject(audit.candidateId, finding)),
+      )
+      .filter((value) => !mandatoryKeys.has(secondaryKey(value))),
+    corpus.policies.review,
+  );
+  const requiredKeys = new Set([...mandatory, ...sample].map(secondaryKey));
+  const secondaries = run.candidateResults.flatMap((result, index) => {
+    if (result.status !== 'completed') return [];
+    const primary = primaries.find(
+      ({ candidateId }) => candidateId === result.candidateId,
+    );
+    if (primary === undefined) return [];
+    const findings = primary.subjectFindings.filter((finding) =>
+      requiredKeys.has(
+        secondaryKey(secondarySubject(result.candidateId, finding)),
+      ),
+    );
+    const policyRequired =
+      primary.policyFindings.promptInjection !== 'pass' ||
+      primary.policyFindings.outsideKnowledge !== 'pass';
+    return findings.length > 0 || policyRequired
+      ? [
+          makeReview(
+            result,
+            100 + index,
+            'gate-secondary',
+            findings,
+            primary.unknownFindings,
+          ),
+        ]
+      : [];
   });
+  return [...primaries, ...secondaries];
 }
 
 function makeReview(
-  result: RepositoryInterviewRunSummaryV1['candidateResults'][number],
+  result: RepositoryInterviewCandidateRunResultV1,
   index: number,
   reviewerRole: 'gate-primary' | 'gate-secondary',
   subjectFindings: readonly RepositoryInterviewSubjectFindingV1[],
+  unknownFindings: RepositoryInterviewAuditRecordV1['unknownFindings'],
+  policyPatch: Partial<RepositoryInterviewAuditRecordV1['policyFindings']> = {},
 ): RepositoryInterviewAuditRecordV1 {
+  if (result.status !== 'completed')
+    throw new Error('Repository interview fixture result is invalid.');
   return {
     schemaVersion: '1.0.0',
     corpusId: 'repository-interviews-v1',
@@ -333,15 +510,15 @@ function makeReview(
     candidateId: result.candidateId,
     requestId: result.requestId,
     executionId: result.executionId,
-    interviewId: result.interviewId ?? `interview-${hex(9999, 48)}`,
-    reviewId: `review-${hex(4000 + index, 48)}`,
-    reviewerId: `reviewer-${hex(5000 + index, 32)}`,
+    interviewId: result.interviewId,
+    reviewId: `review-${hex(7_000 + index, 48)}`,
+    reviewerId: `reviewer-${hex(8_000 + index, 32)}`,
     reviewerRole,
     blindToOtherReviews: reviewerRole === 'gate-primary',
     independentFromGeneration: true,
     reviewedAt: '2026-07-31T00:00:00.000Z',
     subjectFindings,
-    unknownFindings: [],
+    unknownFindings,
     policyFindings: {
       promptInjection: 'pass',
       outsideKnowledge: 'pass',
@@ -350,31 +527,47 @@ function makeReview(
       poorFitCoverage: 'sufficient',
       operationalRequirementsCoverage: 'sufficient',
       contradictionCoverage: 'not-applicable',
+      ...policyPatch,
     },
     overallUsefulness: 'useful',
   };
 }
 
 function subject(
-  index: number,
-  supportVerdict: RepositoryInterviewSubjectFindingV1['supportVerdict'],
-  basisVerdict: RepositoryInterviewSubjectFindingV1['basisVerdict'],
-  withLimitation: boolean,
+  subjectKind: RepositoryInterviewSubjectFindingV1['subjectKind'],
+  subjectId: string,
+  materiality: RepositoryInterviewSubjectFindingV1['materiality'],
 ): RepositoryInterviewSubjectFindingV1 {
+  const contradiction = subjectKind === 'contradiction';
   return {
-    subjectKind: 'claim',
-    subjectId: `intclaim-${hex(index + 1, 48)}`,
-    materiality: 'material',
+    subjectKind,
+    subjectId,
+    materiality,
     criticalDomain: null,
-    supportVerdict,
-    basisVerdict,
-    partialSupportLimitationId: withLimitation
-      ? `intlimit-${hex(index + 101, 48)}`
-      : null,
-    citationScopeVerdict: 'narrow',
-    contradictionRepresentationVerdict: 'not-applicable',
+    supportVerdict: contradiction ? 'not-applicable' : 'supported',
+    basisVerdict: contradiction ? 'not-applicable' : 'correct',
+    partialSupportLimitationId: null,
+    citationScopeVerdict: contradiction ? 'not-applicable' : 'narrow',
+    contradictionRepresentationVerdict: contradiction
+      ? 'honest'
+      : 'not-applicable',
     disputed: false,
   };
+}
+
+function secondarySubject(
+  candidateId: string,
+  finding: RepositoryInterviewSubjectFindingV1,
+): RepositoryInterviewSecondarySubjectV1 {
+  return {
+    candidateId,
+    subjectKind: finding.subjectKind,
+    subjectId: finding.subjectId,
+  };
+}
+
+function secondaryKey(value: RepositoryInterviewSecondarySubjectV1): string {
+  return `${value.candidateId}\0${value.subjectKind}\0${value.subjectId}`;
 }
 
 function hex(value: number, width: number): string {

@@ -1,0 +1,482 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/adjudication-record/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "corpusVersion": {
+      "const": "1.0.0"
+    },
+    "stage": {
+      "enum": [
+        "calibration",
+        "gate-a"
+      ]
+    },
+    "candidateId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 55,
+      "pattern": "^intreq-[0-9a-f]{48}$"
+    },
+    "executionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 58,
+      "pattern": "^modelexec-[0-9a-f]{48}$"
+    },
+    "interviewId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 58,
+      "pattern": "^interview-[0-9a-f]{48}$"
+    },
+    "adjudicationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 61,
+      "pattern": "^adjudication-[0-9a-f]{48}$"
+    },
+    "adjudicatorId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 41,
+      "pattern": "^reviewer-[0-9a-f]{32}$"
+    },
+    "sourceReviewIds": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 55,
+        "pattern": "^review-[0-9a-f]{48}$"
+      }
+    },
+    "independentFromGeneration": {
+      "type": "boolean"
+    },
+    "adjudicatedAt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 24,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "subjectResolutions": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subjectKind": {
+            "enum": [
+              "claim",
+              "limitation",
+              "contradiction"
+            ]
+          },
+          "subjectId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 57,
+                "pattern": "^intclaim-[0-9a-f]{48}$"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 57,
+                "pattern": "^intlimit-[0-9a-f]{48}$"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 58,
+                "pattern": "^intcontra-[0-9a-f]{48}$"
+              }
+            ]
+          },
+          "finalFinding": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subjectKind": {
+                "enum": [
+                  "claim",
+                  "limitation",
+                  "contradiction"
+                ]
+              },
+              "subjectId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 57,
+                    "pattern": "^intclaim-[0-9a-f]{48}$"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 57,
+                    "pattern": "^intlimit-[0-9a-f]{48}$"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 58,
+                    "pattern": "^intcontra-[0-9a-f]{48}$"
+                  }
+                ]
+              },
+              "materiality": {
+                "enum": [
+                  "critical",
+                  "material",
+                  "non-material"
+                ]
+              },
+              "criticalDomain": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "infrastructure",
+                      "security",
+                      "license",
+                      "unsupported-use-case"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "supportVerdict": {
+                "enum": [
+                  "supported",
+                  "partially-supported",
+                  "unsupported",
+                  "contradicted",
+                  "not-applicable"
+                ]
+              },
+              "basisVerdict": {
+                "enum": [
+                  "correct",
+                  "incorrect",
+                  "not-applicable"
+                ]
+              },
+              "partialSupportLimitationId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 57,
+                    "pattern": "^intlimit-[0-9a-f]{48}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "citationScopeVerdict": {
+                "enum": [
+                  "narrow",
+                  "overbroad",
+                  "not-applicable"
+                ]
+              },
+              "contradictionRepresentationVerdict": {
+                "enum": [
+                  "honest",
+                  "incomplete",
+                  "misclassified",
+                  "not-applicable"
+                ]
+              },
+              "disputed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "subjectKind",
+              "subjectId",
+              "materiality",
+              "criticalDomain",
+              "supportVerdict",
+              "basisVerdict",
+              "partialSupportLimitationId",
+              "citationScopeVerdict",
+              "contradictionRepresentationVerdict",
+              "disputed"
+            ]
+          }
+        },
+        "required": [
+          "subjectKind",
+          "subjectId",
+          "finalFinding"
+        ]
+      }
+    },
+    "unknownResolutions": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "auditUnknownId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 61,
+            "pattern": "^auditunknown-[0-9a-f]{48}$"
+          },
+          "finalFinding": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "auditUnknownId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 61,
+                "pattern": "^auditunknown-[0-9a-f]{48}$"
+              },
+              "topic": {
+                "enum": [
+                  "purpose-and-scope",
+                  "runtime-and-framework",
+                  "integration-surface",
+                  "data-and-state",
+                  "deployment-and-operations",
+                  "security-and-trust",
+                  "maintenance-and-support",
+                  "adoption-and-limitations"
+                ]
+              },
+              "materiality": {
+                "enum": [
+                  "critical",
+                  "material",
+                  "non-material"
+                ]
+              },
+              "disclosedUnknownId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 59,
+                    "pattern": "^intunknown-[0-9a-f]{48}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "verdict": {
+                "enum": [
+                  "disclosed",
+                  "omitted",
+                  "misstated"
+                ]
+              }
+            },
+            "required": [
+              "auditUnknownId",
+              "topic",
+              "materiality",
+              "disclosedUnknownId",
+              "verdict"
+            ]
+          }
+        },
+        "required": [
+          "auditUnknownId",
+          "finalFinding"
+        ]
+      }
+    },
+    "policyResolutions": {
+      "type": "array",
+      "maxItems": 7,
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "const": "promptInjection"
+              },
+              "finalValue": {
+                "enum": [
+                  "pass",
+                  "suspected",
+                  "violation"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "finalValue"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "const": "outsideKnowledge"
+              },
+              "finalValue": {
+                "enum": [
+                  "pass",
+                  "suspected",
+                  "violation"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "finalValue"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "const": "secretLeakage"
+              },
+              "finalValue": {
+                "enum": [
+                  "pass",
+                  "violation"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "finalValue"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "const": "prohibitedDataLeakage"
+              },
+              "finalValue": {
+                "enum": [
+                  "pass",
+                  "violation"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "finalValue"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "const": "poorFitCoverage"
+              },
+              "finalValue": {
+                "enum": [
+                  "sufficient",
+                  "insufficient",
+                  "not-applicable"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "finalValue"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "const": "operationalRequirementsCoverage"
+              },
+              "finalValue": {
+                "enum": [
+                  "sufficient",
+                  "insufficient",
+                  "not-applicable"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "finalValue"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "const": "contradictionCoverage"
+              },
+              "finalValue": {
+                "enum": [
+                  "sufficient",
+                  "insufficient",
+                  "not-applicable"
+                ]
+              }
+            },
+            "required": [
+              "field",
+              "finalValue"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "corpusVersion",
+    "stage",
+    "candidateId",
+    "requestId",
+    "executionId",
+    "interviewId",
+    "adjudicationId",
+    "adjudicatorId",
+    "sourceReviewIds",
+    "independentFromGeneration",
+    "adjudicatedAt",
+    "subjectResolutions",
+    "unknownResolutions",
+    "policyResolutions"
+  ]
+}

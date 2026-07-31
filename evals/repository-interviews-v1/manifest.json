@@ -33,6 +33,56 @@
       "sha256": "6669702218b002df14acf3d6fe66f2adfae1ec7ed7d86fa80edf9ddd4d5284f8"
     }
   ],
+  "schemas": [
+    {
+      "path": "schemas/evaluation/repository-interviews/adjudication-record.schema.json",
+      "sha256": "6adf6bd0633dd3c59053b979cc1f316864d72857ff8c6b21d4ce5d37df3c252c"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/adversarial-fixture.schema.json",
+      "sha256": "aa4288363520c4ab0651777baf13a6cd6b54d0ffd1284394751edf42b31f713b"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/audit-record.schema.json",
+      "sha256": "e7942d26bf3ba7aee3a5178e7b40325b8929115c6cb75ce7f717749acb95b941"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/audit-scope.schema.json",
+      "sha256": "87ceeea1da4bdd453c8295a0897df6146bd8d6d234f910c032de25ccb35747cf"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/candidate.schema.json",
+      "sha256": "b03bf15d62070e1f450f3c0f744cdba26efe34da0ed1fcb758d4a336049b791f"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/cohort-policy.schema.json",
+      "sha256": "b82d5129b918c682ccac67dec4f530671a072de83c0f7d34e693677231689f2f"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/gate-policy.schema.json",
+      "sha256": "59a7c7fbf1899c710e88101157e5d2cb13b59c92ba9e577e53873ca320151b3f"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/gate-report.schema.json",
+      "sha256": "53fc02a3ba8bf144db6afe0fb06e2667d708ab7be7b93361379815cb32e7824b"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/manifest.schema.json",
+      "sha256": "3d744252353922761215facb5f6482a054feae89336ab36c3f4e995dc4adc7b7"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/review-policy.schema.json",
+      "sha256": "800b3c7fca124206f7eeab13ab5fce5dbaf7f17a67e81fe0fd64dc7f75c6e933"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/rubric.schema.json",
+      "sha256": "b81aa363b84ebfa35bb25872ec3be0e16f6000a5c5efc2560b842695c34cc163"
+    },
+    {
+      "path": "schemas/evaluation/repository-interviews/run-summary.schema.json",
+      "sha256": "07239cd862964553d0e662f5f03867a75598c80f16b465e20a2dbaf587012eb3"
+    }
+  ],
   "candidates": [
     {
       "path": "candidates/audit-bunyan.json",
@@ -205,5 +255,5 @@
       "sha256": "09c9a6678f1218aab691f17ede99d77fb55744980ec8d369e16b8fa4a4390b58"
     }
   ],
-  "corpusDigest": "4da50cfd996e80e5a0c0dddebff8cfd303f063c1700538326bda0e629dc36c91"
+  "corpusDigest": "82fefaa6428e2214caee4d88fd9c93b15782bf855cba1d8f69400028dd6a0dbf"
 }

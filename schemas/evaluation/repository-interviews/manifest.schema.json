@@ -100,7 +100,34 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 256,
-            "pattern": "^(policy|candidates|adversarial)/[a-z0-9-]+\\.json$"
+            "pattern": "^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "path",
+          "sha256"
+        ]
+      }
+    },
+    "schemas": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$"
           },
           "sha256": {
             "type": "string",
@@ -127,7 +154,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 256,
-            "pattern": "^(policy|candidates|adversarial)/[a-z0-9-]+\\.json$"
+            "pattern": "^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$"
           },
           "sha256": {
             "type": "string",
@@ -154,7 +181,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 256,
-            "pattern": "^(policy|candidates|adversarial)/[a-z0-9-]+\\.json$"
+            "pattern": "^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$"
           },
           "sha256": {
             "type": "string",
@@ -183,6 +210,7 @@
     "status",
     "authority",
     "policies",
+    "schemas",
     "candidates",
     "adversarialFixtures",
     "corpusDigest"

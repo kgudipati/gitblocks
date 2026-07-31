@@ -27,6 +27,13 @@ export {
   type RepositoryInterviewAuditAuthorityV1,
   type RepositoryInterviewAuditValidationResultV1,
 } from './repository-interview-evaluation-audit.ts';
+export { createRepositoryInterviewAuditScopeV1 } from './repository-interview-evaluation-scope.ts';
+export {
+  repositoryInterviewAdjudicationSetDigestV1,
+  repositoryInterviewAuditScopeSetDigestV1,
+  repositoryInterviewAuditSetDigestV1,
+  repositoryInterviewRunSummaryDigestV1,
+} from './repository-interview-evaluation-digests.ts';
 export {
   loadRepositoryInterviewEvaluationCorpusV1,
   REQUIRED_REPOSITORY_INTERVIEW_ADVERSARIAL_FIXTURE_IDS,
