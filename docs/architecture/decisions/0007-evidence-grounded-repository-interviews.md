@@ -46,8 +46,10 @@ accepted Milestone 3 in full, and authorized only the persistence-independent
 Milestone 4 renderer and mapping boundary. The latest review accepted
 Milestone 4 and authorized Milestone 5 with the binding requirement that one
 ephemeral rendered prompt object remain the exact provider/resolver context.
-Milestone 5 is implemented and awaiting review; Milestone 6 remains
-unauthorized.
+The next review accepted the Milestone 5 architecture but required
+fail-closed exotic artifact-array ownership and provider response-effect
+preflight before semantic mapping. Those corrections await renewed review;
+Milestone 6 remains unauthorized.
 
 ## Decision
 
@@ -229,6 +231,28 @@ execution. Expected provider failures and invalid provider output publish only
 the deterministic request plus a safe failed execution and null interview.
 Successful resolution uses an injected publication clock, validates complete
 cross-root closure, and publishes one immutable exchange.
+
+The renderer treats the artifact array itself as untrusted input. Bounded
+descriptor inspection must prove an ordinary array with zero through four
+contiguous enumerable numeric data properties and no accessor, sparse,
+non-enumerable, symbol, extra-property, nonstandard-prototype, or unsafe proxy
+shape before any element access. It then copies descriptor values into a
+frozen owned array for contract parsing. Shape or reflection failure returns a
+value-free artifact-context result without invoking numeric getters. The
+application independently catches any unexpected renderer exception before
+record, provider, nonce, or clock effects.
+
+A provider `response` effect is not semantic-output authority until the
+accepted execution constructor proves a valid one-or-two-attempt history and a
+final HTTP 2xx response. The application privately preflights the real usage,
+then known-valid zero usage only when needed to distinguish genuine token
+accounting failure from malformed attempt or terminal metadata. Genuine usage
+failure becomes one published `invalid-usage` failed execution with null
+usage, output digest, and interview before semantic resolution. Malformed
+response metadata is a value-free provider-port failure with no resolver,
+clock, or publication effect. A controlled failed effect must construct its
+declared failed execution using the supplied nullable usage; invalid non-null
+usage is never discarded and retried as null.
 
 ### Immutable specification and schema authority
 
@@ -658,10 +682,11 @@ second maintained schema.
 
 Milestones 1–4 passed maintainer review. Milestone 5's exact application
 surface, ephemeral prompt-reference closure, injected port shapes, reuse and
-forced-run orchestration, failed-execution publication, value-free diagnostics,
-tests, compatibility evidence, and hosted CI require maintainer acceptance
-while the PR remains draft. Milestone 6 requires separate renewed
-authorization.
+forced-run orchestration, failed-execution publication, descriptor-owned
+artifact arrays, provider response-effect preflight, genuine invalid-usage
+classification, value-free diagnostics, tests, compatibility evidence, and
+hosted CI require renewed maintainer acceptance while the PR remains draft.
+Milestone 6 requires separate renewed authorization.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

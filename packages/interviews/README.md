@@ -28,6 +28,14 @@ here.
 The renderer parses one exact `RepositoryArtifactSetV1` and zero through four
 complete `RepositoryArtifactV1` values. Present entries receive `A1` through
 `A4` in entry-ordinal order; `not-found` entries do not consume aliases.
+Before any element access or iteration, the public renderer inspects the
+artifact array through bounded property descriptors and copies only ordinary,
+contiguous numeric data properties into a frozen owned array. Sparse arrays,
+numeric accessors, non-enumerable entries, symbols, extra properties,
+nonstandard prototypes, over-bound arrays, and throwing proxy reflection fail
+as value-free `artifact-context-invalid` results without invoking an artifact
+getter. The application additionally catches any unexpected renderer
+exception as `prompt-render-failed` before an injected effect can run.
 Artifact text is split with the contracts-owned LF/CRLF/CR logical-line
 semantics and rendered exactly once as canonical JSON evidence. The separate
 instruction string is the exact reviewed instruction bytes followed by the
@@ -83,13 +91,21 @@ appends a distinct execution.
 
 The provider port receives only the exact prompt object, exact model profile,
 and the loaded OpenAI projection version, digest, and reviewed snapshot text.
-Expected provider failures become content-free failed executions. Valid
-responses are resolved against the same prompt, while structurally or
-semantically invalid output and alias/range failures become
-`provider-output-invalid` without retaining raw output. The record port
-receives only `{ request, execution, interview }`; failed execution uses a null
-interview. Reuse bundles and idempotent publication records are parsed and
-checked before return.
+Before provider-output resolution, a `response` effect must prove one or two
+valid, ordered, non-overlapping attempts ending in an HTTP 2xx response and
+valid token usage. Malformed attempt or terminal metadata is a value-free
+`provider-port-failure` with no clock read or publication. When only token
+accounting is invalid, the application publishes one `invalid-usage` failed
+execution with null durable usage, output digest, and interview, without
+resolving provider output. Controlled failed effects must directly construct
+their declared failed execution; malformed non-null usage is not silently
+replaced with null. Other expected provider failures become content-free
+failed executions. Valid responses are resolved against the same prompt,
+while structurally or semantically invalid output and alias/range failures
+become `provider-output-invalid` without retaining raw output. The record port
+receives only `{ request, execution, interview }`; failed execution uses a
+null interview. Reuse bundles and idempotent publication records are parsed
+and checked before return.
 
 Application failures use fixed, bounded, value-free issues. The application
 use case reads no clock, randomness, process state, environment, filesystem,

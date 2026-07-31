@@ -18,10 +18,13 @@
   - PR #18 review: “Milestone 3 accepted — Milestone 4 authorized.”
   - PR #18 review: “Milestone 4 accepted — Milestone 5 authorized with an
     exact-context requirement.”
+  - PR #18 review: “Milestone 5 review — architecture accepted; two
+    application-boundary corrections required before Milestone 6.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–4 accepted; Milestone 5 implemented and awaiting
-  maintainer review; Milestones 6–14 remain unauthorized or incomplete
+- State: Milestones 1–4 accepted; Milestone 5 application-boundary
+  corrections implemented and awaiting renewed maintainer review; Milestones
+  6–14 remain unauthorized or incomplete
 - Last updated: 2026-07-30
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -1578,8 +1581,9 @@ already includes `apps/*` and will remain unchanged.
 
 ### 5. Persistence-independent application flow and fake provider
 
-- **Status:** implemented and awaiting maintainer review; Milestone 6 remains
-  blocked.
+- **Status:** implemented with the review-required artifact-array and
+  provider-effect corrections; awaiting renewed maintainer review. Milestone
+  6 remains blocked.
 - **Red first:** closed input/port boundaries, exact prompt object identity,
   fake provider success/failure/invalid output/throw/mutation, deterministic
   request and reuse, poisoned reuse, force behavior, publication closure,
@@ -2362,6 +2366,17 @@ object. The exact object reference is supplied to the provider port and then
 to `resolveRepositoryInterviewProviderOutputV1`; no caller, provider, or record
 port can supply, replace, clone, reconstruct, or persist it.
 
+The renderer treats the artifact-array shape itself as untrusted. Before
+element access, it uses bounded descriptor inspection to accept only an
+ordinary array with its standard `length` property and zero through four
+contiguous enumerable numeric data properties. It rejects sparse,
+accessor-backed, non-enumerable, symbol-bearing, extra-property,
+nonstandard-prototype, over-bound, and throwing-proxy shapes without invoking
+numeric getters, then passes a frozen owned array to the artifact parsers.
+The application catches any residual renderer exception as the same
+value-free `prompt-render-failed` boundary result before record, provider,
+nonce, or clock effects.
+
 The provider request has exactly `prompt`, `modelProfile`,
 `providerProjectionVersion`, `providerProjectionDigest`, and
 `providerProjectionText`. Response results contain only response status, one
@@ -2370,6 +2385,18 @@ results contain only failed status, attempts, an accepted failure code, and
 nullable usage. The application derives provider-output and execution
 identity/digests and catches unexpected port exceptions as value-free
 application issues.
+
+A response effect is eligible for semantic resolution only after the accepted
+execution constructor proves its one-or-two-attempt history, chronology,
+provider identifiers, byte/rate metadata, final HTTP 2xx response, and real
+usage. A second private preflight using known-valid zero usage distinguishes a
+genuine usage-only failure from malformed attempt/terminal metadata. Genuine
+usage failure publishes one `invalid-usage` execution with null usage,
+provider-output digest, and interview without inspecting semantic output.
+Malformed response effects are `provider-port-failure` and receive no resolver,
+clock, or publication call. Controlled failed effects must construct their
+declared execution with the supplied nullable usage; invalid non-null usage is
+never silently downgraded to null.
 
 The record port looks up only by request identity digest, model-profile digest,
 and reuse-key digest. Returned roots are reparsed and the complete successful
@@ -2418,21 +2445,33 @@ tests after adding closure assertions for exact provider/record shapes,
 idempotent digest mismatch, publication exactly at completion, and owned
 specification authority across the first asynchronous effect.
 
-`pnpm interviews:verify` passes six interview test files with 151 tests,
+The correction tests were also written red first. The focused two-file run
+recorded 21 intended failures: artifact accessors were invoked or escaped,
+unexpected renderer exceptions escaped, malformed response effects reached
+the resolver, genuine invalid usage reached semantic mapping, and malformed
+controlled-failure usage was silently retried as null. After the correction,
+the same focused run passes 100 tests. Direct renderer cases cover sparse,
+accessor-backed, extra-property, symbol-bearing, nonstandard-prototype, and
+throwing-proxy arrays; application cases prove bounded `prompt-render-failed`
+results and zero effects. Provider cases prove terminal/attempt closure,
+usage-only classification, strict controlled-failure metadata, zero semantic
+resolution where prohibited, and value-free results.
+
+`pnpm interviews:verify` passes six interview test files with 172 tests,
 package typecheck, the unchanged specification digests, and dependency
-cruiser with no violation. `pnpm test:coverage` passes 51 files and 1,005 tests;
-repository coverage is 79.26% statements, 71.51% branches, 86.16% functions,
-and 79.08% lines, while `packages/interviews/src` is 88.13%, 79.58%, 97.97%,
-and 87.93%.
+cruiser with no violation. `pnpm test:coverage` passes 51 files and 1,026
+tests; repository coverage is 79.43% statements, 71.72% branches, 86.17%
+functions, and 79.25% lines, while `packages/interviews/src` is 89.09%,
+80.69%, 97.98%, and 88.89%.
 
 The pre-commit matrix on 2026-07-30 produced:
 
 | Command                          | Result                                                                                                                                                |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm install --frozen-lockfile` | passed; eight workspaces already current; pnpm 11.17.0                                                                                                |
-| `pnpm interviews:verify`         | passed; six files/151 tests, package typecheck, three frozen digests, 670 modules/2,125 dependencies without violation                                |
-| `pnpm verify`                    | passed; 51 files/1,005 tests plus formatting, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, secrets |
-| `pnpm verify:ci`                 | passed; repeated 1,005-test verification, PostgreSQL 18.4 with 36 tests/no skips, three migrations/17 tables, registry audit with no vulnerabilities  |
+| `pnpm interviews:verify`         | passed; six files/172 tests, package typecheck, three frozen digests, 671 modules/2,127 dependencies without violation                                |
+| `pnpm verify`                    | passed; 51 files/1,026 tests plus formatting, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, secrets |
+| `pnpm verify:ci`                 | passed; repeated 1,026-test verification, PostgreSQL 18.4 with 36 tests/no skips, three migrations/17 tables, registry audit with no vulnerabilities  |
 | `pnpm contracts:validate`        | passed; 10 cases/40 supplied candidates; representability only                                                                                        |
 | `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                     |
 | `pnpm ingestion:verify`          | passed; 11 files/156 tests plus typecheck                                                                                                             |
@@ -2441,7 +2480,7 @@ The pre-commit matrix on 2026-07-30 produced:
 | `pnpm eval:fixtures`             | passed; five fixed strategies produced expected summaries                                                                                             |
 | `pnpm artifacts:validate`        | passed; 150 root attempts/30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                    |
 | `pnpm artifacts:verify`          | passed; six files/107 tests plus typecheck                                                                                                            |
-| `pnpm test:coverage`             | passed; 51 files/1,005 tests; repository 79.26%/71.51%/86.16%/79.08%; interviews 88.13%/79.58%/97.97%/87.93%                                          |
+| `pnpm test:coverage`             | passed; 51 files/1,026 tests; repository 79.43%/71.72%/86.17%/79.25%; interviews 89.09%/80.69%/97.98%/88.89%                                          |
 | `git diff --check`               | passed                                                                                                                                                |
 
 All 12 contract schema digests, all three specification digests, the Milestone
@@ -2537,6 +2576,15 @@ expected registry audit and ephemeral local PostgreSQL checks.
   parser, provider/record/clock/nonce ports, deterministic reuse and force
   behavior, safe failed-execution publication, and test-owned fakes. Milestone
   5 awaits maintainer review; Milestone 6 remains blocked.
+- **2026-07-30:** Maintainer review accepted the Milestone 5 architecture but
+  required fail-closed exotic artifact-array handling and response-effect
+  preflight before semantic mapping.
+- **2026-07-30:** Recorded 21 focused red failures, then added bounded
+  descriptor-based artifact-array ownership, application renderer
+  defense-in-depth, constructor-backed response preflight, genuine
+  `invalid-usage` classification, and strict controlled-failure metadata.
+  Milestone 5 remains pending renewed acceptance and Milestone 6 remains
+  blocked.
 
 ## Decision and deviation log
 
@@ -2630,11 +2678,22 @@ expected registry audit and ephemeral local PostgreSQL checks.
 - **Reuse poison policy:** a returned reuse bundle is untrusted. Any root,
   request, profile, reuse-key, output-digest, ownership, or exchange mismatch
   fails closed without provider fallback.
+- **Artifact-array ownership:** renderer inputs are copied only after bounded
+  reflection proves a plain, contiguous, zero-to-four-element data array.
+  Accessors are never invoked; exotic reflection and shape fail with no
+  artifact value disclosure. The application independently catches any
+  unexpected renderer exception before effects.
+- **Provider-effect preflight:** response effects must already close as a
+  successful execution with a final HTTP 2xx attempt before semantic output is
+  inspected. A zero-usage constructor preflight separates usage-only failure
+  from invalid attempt/terminal metadata. Controlled failed effects are
+  accepted only when their supplied metadata directly creates the declared
+  execution.
 
 ## Remaining maintainer decisions before Milestone 6
 
-Milestones 1–4 are accepted. Milestone 5 is implemented but must not advance
-until maintainer review accepts:
+Milestones 1–4 are accepted. Milestone 5 is corrected but must not advance
+until renewed maintainer review accepts:
 
 1. the exact closed application input and result unions;
 2. provider, record/reuse, clock, and nonce port shapes;
@@ -2644,7 +2703,11 @@ until maintainer review accepts:
    publication semantics;
 6. value-free application issue vocabulary and test-owned fake coverage; and
 7. the red/green, compatibility, complete local verification, and hosted CI
-   evidence recorded here and on draft PR #18.
+   evidence recorded here and on draft PR #18;
+8. fail-closed descriptor ownership for every exotic artifact-array shape;
+   and
+9. response-effect terminal/attempt preflight, genuine `invalid-usage`
+   classification, and strict controlled-failure metadata.
 
 Only renewed authorization may begin migration 0004 or a concrete persistence
 adapter in Milestone 6. The final Gate A model, exact 30-candidate cohort,

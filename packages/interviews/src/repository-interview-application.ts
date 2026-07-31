@@ -20,6 +20,7 @@ import {
 } from '@gitblocks/contracts';
 
 import { canonicalizeJson } from './canonical-json.ts';
+import { copyBoundedPlainArray } from './owned-array.ts';
 import {
   finalizeRepositoryInterviewApplicationIssues,
   repositoryInterviewApplicationIssue,
@@ -32,7 +33,7 @@ import type { LoadedRepositoryInterviewSpecification } from './specification.ts'
 
 export interface ExecuteRepositoryInterviewInputV1 {
   readonly artifactSet: unknown;
-  readonly artifacts: readonly unknown[];
+  readonly artifacts: unknown;
   readonly specification: LoadedRepositoryInterviewSpecification;
   readonly modelProfile: ModelExecutionModelProfileV1;
   readonly executionMode: ModelExecutionV1['executionMode'];
@@ -159,6 +160,14 @@ const APPLICATION_INPUT_KEYS = Object.freeze([
 ] as const);
 
 const NONCE_PATTERN = /^[0-9a-f]{32}$/u;
+const PREFLIGHT_PROVIDER_OUTPUT_DIGEST = '0'.repeat(64);
+const ZERO_USAGE = Object.freeze({
+  inputTokens: 0,
+  cachedInputTokens: 0,
+  outputTokens: 0,
+  reasoningTokens: 0,
+  totalTokens: 0,
+} satisfies ModelExecutionUsageV1);
 const TIMESTAMP_PATTERN =
   /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,3}))?Z$/u;
 const CONTROLLED_FAILURE_CODES = new Set<ProviderControlledFailureCode>([
@@ -193,11 +202,18 @@ export async function executeRepositoryInterviewV1(
     return failure('prompt-render-failed', '/specification');
   }
 
-  const rendered = repositoryInterviewPrompt.renderRepositoryInterviewPromptV1({
-    artifactSet: applicationInput.artifactSet,
-    artifacts: applicationInput.artifacts,
-    specification,
-  });
+  let rendered: ReturnType<
+    typeof repositoryInterviewPrompt.renderRepositoryInterviewPromptV1
+  >;
+  try {
+    rendered = repositoryInterviewPrompt.renderRepositoryInterviewPromptV1({
+      artifactSet: applicationInput.artifactSet,
+      artifacts: applicationInput.artifacts,
+      specification,
+    });
+  } catch {
+    return failure('prompt-render-failed', '/artifactSet');
+  }
   if (!rendered.ok) {
     return failure('prompt-render-failed', '/artifactSet');
   }
@@ -319,6 +335,34 @@ export async function executeRepositoryInterviewV1(
       return failure('provider-port-failure', '/provider');
     }
     return publishProviderFailure(ownedRequest, execution, ports.record);
+  }
+
+  const responsePreflight = preflightProviderResponse(
+    ownedRequest,
+    modelProfile,
+    executionNonce,
+    applicationInput.executionMode,
+    applicationInput.forceReason,
+    parsedEffect.attempts,
+    parsedEffect.usage,
+  );
+  if (responsePreflight === 'provider-port-failure') {
+    return failure('provider-port-failure', '/provider');
+  }
+  if (responsePreflight === 'invalid-usage') {
+    const execution = createFailedExecution(
+      ownedRequest,
+      modelProfile,
+      executionNonce,
+      applicationInput.executionMode,
+      applicationInput.forceReason,
+      parsedEffect.attempts,
+      'invalid-usage',
+      null,
+    );
+    return execution === null
+      ? failure('provider-port-failure', '/provider')
+      : publishProviderFailure(ownedRequest, execution, ports.record);
   }
 
   const mapped =
@@ -444,7 +488,6 @@ function parseApplicationInput(
   const fields = readExactDataProperties(value, APPLICATION_INPUT_KEYS);
   if (
     fields === null ||
-    !Array.isArray(fields['artifacts']) ||
     (fields['executionMode'] !== 'normal' &&
       fields['executionMode'] !== 'forced') ||
     (fields['executionMode'] === 'normal' && fields['forceReason'] !== null) ||
@@ -478,15 +521,23 @@ function parseProviderEffect(
       'usage',
       'providerOutput',
     ]);
+    const attempts =
+      fields === null ? null : copyBoundedPlainArray(fields['attempts'], 2);
     if (
       fields === null ||
-      !isOneOrTwoItemArray(fields['attempts']) ||
+      attempts === null ||
+      attempts.length < 1 ||
       fields['usage'] === null ||
       typeof fields['usage'] !== 'object'
     ) {
       return null;
     }
-    return fields as unknown as RepositoryInterviewProviderEffectResultV1;
+    return {
+      status: 'response',
+      attempts: attempts as readonly ModelExecutionAttemptV1[],
+      usage: fields['usage'] as ModelExecutionUsageV1,
+      providerOutput: fields['providerOutput'],
+    };
   }
   if (status === 'failed') {
     const fields = readExactDataProperties(value, [
@@ -495,9 +546,12 @@ function parseProviderEffect(
       'failureCode',
       'usage',
     ]);
+    const attempts =
+      fields === null ? null : copyBoundedPlainArray(fields['attempts'], 2);
     if (
       fields === null ||
-      !isOneOrTwoItemArray(fields['attempts']) ||
+      attempts === null ||
+      attempts.length < 1 ||
       !CONTROLLED_FAILURE_CODES.has(
         fields['failureCode'] as ProviderControlledFailureCode,
       ) ||
@@ -505,7 +559,12 @@ function parseProviderEffect(
     ) {
       return null;
     }
-    return fields as unknown as RepositoryInterviewProviderEffectResultV1;
+    return {
+      status: 'failed',
+      attempts: attempts as readonly ModelExecutionAttemptV1[],
+      failureCode: fields['failureCode'] as ProviderControlledFailureCode,
+      usage: fields['usage'] as ModelExecutionUsageV1 | null,
+    };
   }
   return null;
 }
@@ -551,6 +610,42 @@ function createSuccessfulExecution(
   }
 }
 
+function preflightProviderResponse(
+  request: RepositoryInterviewRequestV1,
+  modelProfile: ModelExecutionModelProfileV1,
+  executionNonce: string,
+  executionMode: ModelExecutionV1['executionMode'],
+  forceReason: ModelExecutionV1['forceReason'],
+  attempts: readonly ModelExecutionAttemptV1[],
+  usage: ModelExecutionUsageV1,
+): 'valid' | 'invalid-usage' | 'provider-port-failure' {
+  const withRealUsage = createSuccessfulExecution(
+    request,
+    modelProfile,
+    executionNonce,
+    executionMode,
+    forceReason,
+    attempts,
+    usage,
+    PREFLIGHT_PROVIDER_OUTPUT_DIGEST,
+  );
+  if (withRealUsage !== null) {
+    return 'valid';
+  }
+  return createSuccessfulExecution(
+    request,
+    modelProfile,
+    executionNonce,
+    executionMode,
+    forceReason,
+    attempts,
+    ZERO_USAGE,
+    PREFLIGHT_PROVIDER_OUTPUT_DIGEST,
+  ) === null
+    ? 'provider-port-failure'
+    : 'invalid-usage';
+}
+
 function createFailedExecution(
   request: RepositoryInterviewRequestV1,
   modelProfile: ModelExecutionModelProfileV1,
@@ -564,8 +659,8 @@ function createFailedExecution(
   >['failureCode'],
   usage: ModelExecutionUsageV1 | null,
 ): ModelExecutionV1 | null {
-  const create = (safeUsage: ModelExecutionUsageV1 | null) =>
-    deepFreeze(
+  try {
+    return deepFreeze(
       createModelExecutionV1({
         contractVersion: CONTRACT_VERSION,
         requestId: request.requestId,
@@ -581,20 +676,11 @@ function createFailedExecution(
           status: 'failed',
           failureCode,
           providerOutputDigest: null,
-          usage: safeUsage,
+          usage,
         },
       }),
     );
-  try {
-    return create(usage);
   } catch {
-    if (usage !== null) {
-      try {
-        return create(null);
-      } catch {
-        return null;
-      }
-    }
     return null;
   }
 }
@@ -782,12 +868,6 @@ function validatePublicationRecord(
         interview: exchange.interview,
       })
     : null;
-}
-
-function isOneOrTwoItemArray(
-  value: unknown,
-): value is readonly ModelExecutionAttemptV1[] {
-  return Array.isArray(value) && value.length >= 1 && value.length <= 2;
 }
 
 function readExactDataProperties(

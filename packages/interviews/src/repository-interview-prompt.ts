@@ -13,6 +13,7 @@ import {
   repositoryInterviewMappingIssue,
   type RepositoryInterviewMappingIssue,
 } from './repository-interview-mapping-issues.ts';
+import { copyBoundedPlainArray } from './owned-array.ts';
 import {
   validateLoadedRepositoryInterviewSpecification,
   type LoadedRepositoryInterviewSpecification,
@@ -56,7 +57,7 @@ export interface RenderedRepositoryInterviewPromptV1 {
 
 export interface RenderRepositoryInterviewPromptInputV1 {
   readonly artifactSet: unknown;
-  readonly artifacts: readonly unknown[];
+  readonly artifacts: unknown;
   readonly specification: LoadedRepositoryInterviewSpecification;
 }
 
@@ -217,7 +218,7 @@ export function repositoryInterviewPromptDigest(value: {
 
 function validateArtifactContext(
   artifactSetValue: unknown,
-  artifactValues: readonly unknown[],
+  artifactValues: unknown,
 ):
   | {
       readonly ok: true;
@@ -240,33 +241,31 @@ function validateArtifactContext(
       ),
     );
   }
-  const artifactsInput = Array.isArray(artifactValues) ? artifactValues : [];
-  if (
-    !Array.isArray(artifactValues) ||
-    artifactsInput.length > REPOSITORY_INTERVIEW_PROMPT_BOUNDS.maximumArtifacts
-  ) {
+  const artifactsInput = copyBoundedPlainArray(
+    artifactValues,
+    REPOSITORY_INTERVIEW_PROMPT_BOUNDS.maximumArtifacts,
+  );
+  if (artifactsInput === null) {
     issues.push(
       repositoryInterviewMappingIssue('artifact-context-invalid', '/artifacts'),
     );
   }
   const parsedArtifacts: RepositoryArtifactV1[] = [];
-  artifactsInput
-    .slice(0, REPOSITORY_INTERVIEW_PROMPT_BOUNDS.maximumArtifacts + 1)
-    .forEach((value, index) => {
-      const parsed = parseRepositoryArtifactV1(value);
-      if (!parsed.ok) {
-        issues.push(
-          ...parsed.issues.map((issue) =>
-            repositoryInterviewMappingIssue(
-              'artifact-context-invalid',
-              `/artifacts/${String(index)}${issue.path}`,
-            ),
+  (artifactsInput ?? []).forEach((value, index) => {
+    const parsed = parseRepositoryArtifactV1(value);
+    if (!parsed.ok) {
+      issues.push(
+        ...parsed.issues.map((issue) =>
+          repositoryInterviewMappingIssue(
+            'artifact-context-invalid',
+            `/artifacts/${String(index)}${issue.path}`,
           ),
-        );
-      } else {
-        parsedArtifacts.push(parsed.value);
-      }
-    });
+        ),
+      );
+    } else {
+      parsedArtifacts.push(parsed.value);
+    }
+  });
   if (issues.length > 0 || !parsedSet.ok) {
     return failure(issues);
   }

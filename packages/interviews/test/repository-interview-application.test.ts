@@ -113,6 +113,102 @@ describe('repository interview application input and effects', () => {
     expectNoEffects(harness);
   });
 
+  it('converts exotic artifact arrays to value-free prompt failures before every effect', async () => {
+    const sentinel = 'EXOTIC_APPLICATION_ARRAY_SENTINEL';
+    let accessorCalls = 0;
+    const accessorArray: unknown[] = [];
+    Object.defineProperty(accessorArray, '0', {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        accessorCalls += 1;
+        return sentinel;
+      },
+    });
+    const throwingAccessorArray: unknown[] = [];
+    Object.defineProperty(throwingAccessorArray, '0', {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        accessorCalls += 1;
+        throw new Error(sentinel);
+      },
+    });
+    const sparseArray = new Array<unknown>(1);
+    const nonEnumerableEntryArray: unknown[] = [];
+    Object.defineProperty(nonEnumerableEntryArray, '0', {
+      configurable: true,
+      enumerable: false,
+      value: sentinel,
+      writable: true,
+    });
+    const extraPropertyArray: unknown[] = [];
+    Object.defineProperty(extraPropertyArray, 'unexpected', {
+      configurable: true,
+      enumerable: true,
+      value: sentinel,
+      writable: true,
+    });
+    const symbolPropertyArray: unknown[] = [];
+    Object.defineProperty(symbolPropertyArray, Symbol('unexpected'), {
+      configurable: true,
+      enumerable: true,
+      value: sentinel,
+      writable: true,
+    });
+    const nonstandardPrototypeArray: unknown[] = [];
+    Object.setPrototypeOf(nonstandardPrototypeArray, null);
+    const throwingReflectionProxy = new Proxy([] as unknown[], {
+      ownKeys: () => {
+        throw new Error(sentinel);
+      },
+    });
+
+    for (const artifacts of [
+      accessorArray,
+      throwingAccessorArray,
+      sparseArray,
+      nonEnumerableEntryArray,
+      extraPropertyArray,
+      symbolPropertyArray,
+      nonstandardPrototypeArray,
+      throwingReflectionProxy,
+    ]) {
+      const harness = createHarness();
+      const result = await executeRepositoryInterviewV1(
+        { ...applicationInput(), artifacts },
+        harness.ports,
+      );
+      expect(result).toMatchObject({
+        ok: false,
+        issues: [{ code: 'prompt-render-failed' }],
+      });
+      expectNoEffects(harness);
+      expect(JSON.stringify(result)).not.toContain(sentinel);
+    }
+    expect(accessorCalls).toBe(0);
+  });
+
+  it('catches an unexpected renderer exception before every effect', async () => {
+    const harness = createHarness();
+    vi.spyOn(
+      repositoryInterviewPrompt,
+      'renderRepositoryInterviewPromptV1',
+    ).mockImplementationOnce(() => {
+      throw new Error(PROVIDER_SENTINEL);
+    });
+    const result = await executeRepositoryInterviewV1(
+      applicationInput(),
+      harness.ports,
+    );
+    expect(result).toMatchObject({
+      ok: false,
+      issues: [{ code: 'prompt-render-failed' }],
+    });
+    expectNoEffects(harness);
+    expect(JSON.stringify(result)).not.toContain(PROVIDER_SENTINEL);
+  });
+
   it('rejects invalid specification before every effect', async () => {
     const harness = createHarness();
     const input = applicationInput();
@@ -509,6 +605,240 @@ describe('provider responses, failures, and publication', () => {
 
   it.each([
     {
+      name: 'a final network error',
+      effect: () =>
+        responseEffectWith({
+          attempts: [transportAttempt('network-error')],
+        }),
+    },
+    {
+      name: 'a final deadline',
+      effect: () =>
+        responseEffectWith({
+          attempts: [transportAttempt('deadline-exceeded')],
+        }),
+    },
+    {
+      name: 'a final cancellation',
+      effect: () =>
+        responseEffectWith({
+          attempts: [transportAttempt('cancelled')],
+        }),
+    },
+    ...[199, 300, 400, 429, 500].map((httpStatus) => ({
+      name: `final HTTP ${String(httpStatus)}`,
+      effect: () =>
+        responseEffectWith({ attempts: [responseAttempt(httpStatus)] }),
+    })),
+    {
+      name: 'a missing final HTTP status',
+      effect: () =>
+        responseEffectWith({
+          attempts: [
+            {
+              ...responseAttempt(200),
+              httpStatus: null,
+            },
+          ],
+        }),
+    },
+    {
+      name: 'a noncontiguous attempt ordinal',
+      effect: () =>
+        responseEffectWith({
+          attempts: [responseAttempt(200, { ordinal: 2 })],
+        }),
+    },
+    {
+      name: 'overlapping attempts',
+      effect: () =>
+        responseEffectWith({
+          attempts: [
+            responseAttempt(429),
+            responseAttempt(200, {
+              ordinal: 2,
+              startedAt: '2026-07-30T12:00:00.500Z',
+              completedAt: '2026-07-30T12:00:02.000Z',
+            }),
+          ],
+        }),
+    },
+    {
+      name: 'an invalid provider identifier',
+      effect: () =>
+        responseEffectWith({
+          attempts: [
+            responseAttempt(200, {
+              providerRequestId: `https://${PROVIDER_SENTINEL}.invalid`,
+            }),
+          ],
+        }),
+    },
+    {
+      name: 'response bytes above the profile bound',
+      effect: () =>
+        responseEffectWith({
+          attempts: [
+            responseAttempt(200, {
+              responseBytes: profile().maximumResponseBytes + 1,
+            }),
+          ],
+        }),
+    },
+  ])(
+    'rejects a response effect with $name before mapping or publication',
+    async ({ effect }) => {
+      const harness = createHarness();
+      const resolveSpy = vi.spyOn(
+        repositoryInterviewMapping,
+        'resolveRepositoryInterviewProviderOutputV1',
+      );
+      harness.provider.result = effect();
+      const result = await executeRepositoryInterviewV1(
+        applicationInput(),
+        harness.ports,
+      );
+      expect(result).toMatchObject({
+        ok: false,
+        issues: [{ code: 'provider-port-failure' }],
+      });
+      expect(resolveSpy).not.toHaveBeenCalled();
+      expect(harness.record.publications).toHaveLength(0);
+      expect(harness.clock.calls).toBe(0);
+      expect(JSON.stringify(result)).not.toContain(PROVIDER_SENTINEL);
+    },
+  );
+
+  it.each([
+    {
+      name: 'cached input tokens above input tokens',
+      invalidUsage: {
+        ...usage(),
+        cachedInputTokens: usage().inputTokens + 1,
+      },
+    },
+    {
+      name: 'reasoning tokens above output tokens',
+      invalidUsage: {
+        ...usage(),
+        reasoningTokens: usage().outputTokens + 1,
+      },
+    },
+    {
+      name: 'an incorrect total token count',
+      invalidUsage: {
+        ...usage(),
+        totalTokens: usage().totalTokens + 1,
+      },
+    },
+    {
+      name: 'structurally invalid token accounting',
+      invalidUsage: {
+        unexpected: PROVIDER_SENTINEL,
+      },
+    },
+  ])(
+    'publishes genuine invalid usage for $name without semantic mapping',
+    async ({ invalidUsage }) => {
+      const harness = createHarness();
+      const resolveSpy = vi.spyOn(
+        repositoryInterviewMapping,
+        'resolveRepositoryInterviewProviderOutputV1',
+      );
+      harness.provider.result = responseEffectWith({
+        usage: invalidUsage as ModelExecutionUsageV1,
+      });
+      const result = expectCompleted(
+        await executeRepositoryInterviewV1(applicationInput(), harness.ports),
+      );
+      expect(result).toMatchObject({
+        disposition: 'provider-failed',
+        interview: null,
+        execution: {
+          outcome: {
+            status: 'failed',
+            failureCode: 'invalid-usage',
+            providerOutputDigest: null,
+            usage: null,
+          },
+        },
+      });
+      expect(resolveSpy).not.toHaveBeenCalled();
+      expect(harness.record.publications).toHaveLength(1);
+      expect(harness.record.publications[0]?.interview).toBeNull();
+      expect(harness.clock.calls).toBe(0);
+      expect(JSON.stringify(result)).not.toContain(PROVIDER_SENTINEL);
+      expect(JSON.stringify(harness.record.publications)).not.toContain(
+        PROVIDER_SENTINEL,
+      );
+    },
+  );
+
+  it('accepts controlled failures only when their declared metadata is valid', async () => {
+    const nullUsageHarness = createHarness();
+    nullUsageHarness.provider.result = failedEffect(
+      'provider-error',
+      responseAttempt(500),
+    );
+    expect(
+      expectCompleted(
+        await executeRepositoryInterviewV1(
+          applicationInput(),
+          nullUsageHarness.ports,
+        ),
+      ).disposition,
+    ).toBe('provider-failed');
+    expect(nullUsageHarness.record.publications).toHaveLength(1);
+
+    const validUsageHarness = createHarness();
+    validUsageHarness.provider.result = failedEffect(
+      'provider-error',
+      responseAttempt(500),
+      usage(),
+    );
+    const validUsageResult = expectCompleted(
+      await executeRepositoryInterviewV1(
+        applicationInput(),
+        validUsageHarness.ports,
+      ),
+    );
+    expect(validUsageResult.execution.outcome).toMatchObject({
+      status: 'failed',
+      failureCode: 'provider-error',
+      usage: usage(),
+    });
+    expect(validUsageHarness.record.publications).toHaveLength(1);
+
+    for (const effect of [
+      failedEffect('provider-error', responseAttempt(500), {
+        ...usage(),
+        cachedInputTokens: usage().inputTokens + 1,
+      }),
+      failedEffect(
+        'provider-error',
+        responseAttempt(500, {
+          providerRequestId: `https://${PROVIDER_SENTINEL}.invalid`,
+        }),
+      ),
+    ]) {
+      const harness = createHarness();
+      harness.provider.result = effect;
+      const result = await executeRepositoryInterviewV1(
+        applicationInput(),
+        harness.ports,
+      );
+      expect(result).toMatchObject({
+        ok: false,
+        issues: [{ code: 'provider-port-failure' }],
+      });
+      expect(harness.record.publications).toHaveLength(0);
+      expect(harness.clock.calls).toBe(0);
+      expect(JSON.stringify(result)).not.toContain(PROVIDER_SENTINEL);
+    }
+  });
+
+  it.each([
+    {
       name: 'refusal',
       effect: failedEffect('refused', responseAttempt(200)),
     },
@@ -863,22 +1193,41 @@ function responseEffect(
   };
 }
 
+function responseEffectWith(
+  overrides: Partial<
+    Extract<
+      RepositoryInterviewProviderEffectResultV1,
+      { readonly status: 'response' }
+    >
+  >,
+): RepositoryInterviewProviderEffectResultV1 {
+  return {
+    ...responseEffect(),
+    ...overrides,
+    status: 'response',
+  } as RepositoryInterviewProviderEffectResultV1;
+}
+
 function failedEffect(
   failureCode: Extract<
     RepositoryInterviewProviderEffectResultV1,
     { readonly status: 'failed' }
   >['failureCode'],
   attempt: ModelExecutionAttemptV1,
+  effectUsage: ModelExecutionUsageV1 | null = null,
 ): RepositoryInterviewProviderEffectResultV1 {
   return {
     status: 'failed',
     attempts: [attempt],
     failureCode,
-    usage: null,
+    usage: effectUsage,
   };
 }
 
-function responseAttempt(httpStatus: number): ModelExecutionAttemptV1 {
+function responseAttempt(
+  httpStatus: number,
+  overrides: Partial<ModelExecutionAttemptV1> = {},
+): ModelExecutionAttemptV1 {
   return {
     ordinal: 1,
     startedAt: STARTED_AT,
@@ -894,6 +1243,7 @@ function responseAttempt(httpStatus: number): ModelExecutionAttemptV1 {
     remainingTokens: null,
     resetRequestsMilliseconds: null,
     resetTokensMilliseconds: null,
+    ...overrides,
   };
 }
 

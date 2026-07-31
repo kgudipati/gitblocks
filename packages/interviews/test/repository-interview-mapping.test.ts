@@ -94,6 +94,86 @@ describe('repository interview artifact context and aliases', () => {
     }
   });
 
+  it('rejects exotic artifact arrays without invoking accessors or leaking values', () => {
+    const context = createPresentContext([numberedContent(12, 'base')]);
+    const sentinel = 'EXOTIC_ARTIFACT_ARRAY_SENTINEL';
+    let accessorCalls = 0;
+    const accessorArray: unknown[] = [];
+    Object.defineProperty(accessorArray, '0', {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        accessorCalls += 1;
+        return sentinel;
+      },
+    });
+    const throwingAccessorArray: unknown[] = [];
+    Object.defineProperty(throwingAccessorArray, '0', {
+      configurable: true,
+      enumerable: true,
+      get: () => {
+        accessorCalls += 1;
+        throw new Error(sentinel);
+      },
+    });
+    const sparseArray = new Array<unknown>(1);
+    const nonEnumerableEntryArray: unknown[] = [];
+    Object.defineProperty(nonEnumerableEntryArray, '0', {
+      configurable: true,
+      enumerable: false,
+      value: sentinel,
+      writable: true,
+    });
+    const extraPropertyArray: unknown[] = [];
+    Object.defineProperty(extraPropertyArray, 'unexpected', {
+      configurable: true,
+      enumerable: true,
+      value: sentinel,
+      writable: true,
+    });
+    const symbolPropertyArray: unknown[] = [];
+    Object.defineProperty(symbolPropertyArray, Symbol('unexpected'), {
+      configurable: true,
+      enumerable: true,
+      value: sentinel,
+      writable: true,
+    });
+    const nonstandardPrototypeArray: unknown[] = [];
+    Object.setPrototypeOf(nonstandardPrototypeArray, null);
+    const throwingReflectionProxy = new Proxy([] as unknown[], {
+      ownKeys: () => {
+        throw new Error(sentinel);
+      },
+    });
+
+    for (const artifacts of [
+      accessorArray,
+      throwingAccessorArray,
+      sparseArray,
+      nonEnumerableEntryArray,
+      extraPropertyArray,
+      symbolPropertyArray,
+      nonstandardPrototypeArray,
+      throwingReflectionProxy,
+    ]) {
+      let result:
+        ReturnType<typeof renderRepositoryInterviewPromptV1> | undefined;
+      expect(() => {
+        result = renderRepositoryInterviewPromptV1({
+          artifactSet: context.artifactSet,
+          artifacts,
+          specification,
+        });
+      }).not.toThrow();
+      expect(result).toMatchObject({
+        ok: false,
+        issues: [{ code: 'artifact-context-invalid' }],
+      });
+      expect(JSON.stringify(result)).not.toContain(sentinel);
+    }
+    expect(accessorCalls).toBe(0);
+  });
+
   it('makes caller artifact order irrelevant to aliases and prompt bytes', () => {
     const context = createPresentContext([
       numberedContent(12, 'first'),
