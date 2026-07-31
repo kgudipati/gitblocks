@@ -82,10 +82,19 @@ The request has no timestamp or model/provider setting. An execution separates
 its request/profile reuse key, trusted nonce/mode identity, and terminal
 record. It stores only bounded attempt, usage, outcome, and safe provider-ID
 metadata—never prompts, source, responses, reasoning, refusals, headers, URLs,
-or raw errors. An interview stores mapped artifact IDs and inclusive line
-intervals, model-authored claims, limitations, contradictions, and unknowns;
-it has no dossier, review, ranking, recommendation, or current-selection
-field.
+or raw errors. Nullable provider identifiers must match
+`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$` and are never transformed when invalid.
+Success requires the final attempt to be an HTTP 200–299 response; the
+transport-terminal failure codes close against the corresponding final
+transport outcome. Model snapshots retain their dated suffix and additionally
+must end in a real proleptic Gregorian date. An interview stores mapped
+artifact IDs and inclusive line intervals, model-authored claims, limitations,
+contradictions, and unknowns; it has no dossier, review, ranking,
+recommendation, or current-selection field.
+
+Cross-root execution validation additionally requires
+`interview.publishedAt >= execution.completedAt`. Publication time remains
+record-only and does not participate in interview identity.
 
 Interview processing state is derived: zero directly grounded topics is
 `insufficient-evidence`; all eight topics directly grounded by documented

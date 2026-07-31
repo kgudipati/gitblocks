@@ -13,10 +13,13 @@
     amendments.”
   - PR #18 review: “Milestone 2 accepted — Milestone 3 authorized after
     diagnostic cleanup.”
+  - PR #18 review: “Milestone 3 review — request/interview roots accepted;
+    model-execution correction required before Milestone 4.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–2 accepted; Milestone 3 implemented and awaiting
-  maintainer review; Milestone 4 is not authorized
+- State: Milestones 1–2 accepted; Milestone 3 provenance correction
+  implemented and awaiting renewed maintainer acceptance; Milestone 4 is not
+  authorized
 - Last updated: 2026-07-30
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -495,6 +498,14 @@ The complete record additionally contains execution ID, request ID, one or two
 bounded attempt summaries, root/attempt timestamps, terminal outcome, safe
 provider request/response IDs, validated usage counters, response-byte and
 duration metadata, stable failure code, and identity/reuse/record digests.
+Provider identifiers are nullable and must match
+`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`; invalid provider text is rejected
+without transformation or diagnostic disclosure. A successful outcome
+requires a final response with HTTP status 200–299. The transport-terminal
+failure codes `transport-error`, `deadline-exceeded`, and `cancelled` must
+agree with the final attempt, while other provider failure mappings remain
+deferred to Milestone 8. The dated model-snapshot suffix is structurally fixed
+and semantically validated as a real proleptic Gregorian date.
 Persistence provenance remains outside this provider-execution contract.
 Prompt text,
 provider response text, reasoning text, refusal text, and raw error bodies are
@@ -1978,8 +1989,12 @@ The three exact additive roots are:
   closed model profile and profile digest, reuse-key digest, root timestamps,
   one or two one-based contiguous bounded attempt summaries, terminal
   success/failure outcome and validated nullable usage, identity digest, and
-  record digest. It carries no prompt/source/provider body, reasoning,
-  refusal, header, URL, SQL, or raw error.
+  record digest. Provider identifiers are nullable and restricted to the
+  reviewed alphanumeric/period/underscore/hyphen grammar. Successful outcomes
+  close against a final 2xx response, transport-terminal failure codes close
+  against the final attempt, and dated snapshots must end in a real calendar
+  date. It carries no prompt/source/provider body, reasoning, refusal, header,
+  URL, SQL, or raw error.
 - `RepositoryInterviewV1`: exact candidate/artifact-set/request/successful
   execution provenance, specification/renderer/schema/projection/prompt/model
   digests, derived processing state, canonical citation catalog, claims,
@@ -2014,15 +2029,17 @@ diagnostics.
 `validateRepositoryInterviewExecutionV1` requires a successful execution and
 closes request, candidate, artifact-set, specification, renderer,
 provider-output-schema, prompt, provider projection, model profile, execution,
-and provider-output provenance. Artifact-set membership and exact line-count
-closure remain intentionally blocked for Milestone 4.
+provider-output provenance, and publication chronology. Publication at
+execution completion is valid; publication before completion is rejected.
+Artifact-set membership and exact line-count closure remain intentionally
+blocked for Milestone 4.
 
 The new schema digests are:
 
 | Contract root                | SHA-256                                                            |
 | ---------------------------- | ------------------------------------------------------------------ |
 | repository interview request | `c009494390484a40ace4eea9b58ba3b288cf0577c13aab926fb7e5cdcfb7c673` |
-| model execution              | `cd773b08ce853a4017a1f710883fb76fa6cc1df14d7633f46f0467863b6a1e7a` |
+| model execution              | `f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7` |
 | repository interview         | `99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb` |
 
 All prior nine schema digests remain the values listed above. The frozen
@@ -2045,6 +2062,15 @@ tests because the shared topic authority, constructors, parsers, schemas, and
 catalog roots did not exist. The current focused contract/interviews/schema
 suite passes 82 tests.
 
+The subsequent Milestone 3 review accepted the request and interview roots but
+required four execution-provenance corrections before renewed acceptance. The
+focused correction suite first failed five of 25 tests: narrow provider
+identifiers, final attempt/outcome agreement, transport-terminal failure-code
+agreement, publication chronology, and real model-snapshot dates. After the
+correction, all 25 focused tests pass. Only the model-execution schema digest
+changed; request, interview, specification, provider-output, projection, and
+the nine pre-Phase-7 schema digests remain exact.
+
 The first full `pnpm verify` attempt stopped before tests on an insufficient
 TypeScript guard in the new schema-test helper. After that guard was corrected,
 the next run reached the new required-property assertion and showed that the
@@ -2059,8 +2085,8 @@ The final pre-commit matrix on 2026-07-30 produced:
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm install --frozen-lockfile` | passed; all eight workspace projects already up to date; pnpm 11.17.0                                                                                     |
 | `pnpm interviews:verify`         | passed; frozen digests valid; four files and 72 tests; package typecheck; 663 modules/2,100 dependencies without violation                                |
-| `pnpm verify`                    | passed; 49 files and 911 tests; format, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, and secret checks |
-| `pnpm verify:ci`                 | passed; repeated verification, PostgreSQL 18.4 with 36 tests/no skips, and registry audit with no vulnerabilities                                         |
+| `pnpm verify`                    | passed; 49 files and 916 tests; format, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, and secret checks |
+| `pnpm verify:ci`                 | passed; repeated 916-test verification, PostgreSQL 18.4 with 36 tests/no skips, and registry audit with no vulnerabilities                                |
 | `pnpm contracts:validate`        | passed; 10 cases and 40 supplied candidates; representability only                                                                                        |
 | `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                         |
 | `pnpm ingestion:verify`          | passed; 11 files and 156 tests plus typecheck                                                                                                             |
@@ -2069,7 +2095,7 @@ The final pre-commit matrix on 2026-07-30 produced:
 | `pnpm eval:fixtures`             | passed; all five fixed strategies produced expected summaries                                                                                             |
 | `pnpm artifacts:validate`        | passed; 150 root attempts and 30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                    |
 | `pnpm artifacts:verify`          | passed; six files and 107 tests plus typecheck                                                                                                            |
-| `pnpm test:coverage`             | passed; 49 files and 911 tests; contracts 93.24% statements/77.68% branches/97.58% functions/93.15% lines; repository total 78.82%/71.07%/85.57%/78.65%   |
+| `pnpm test:coverage`             | passed; 49 files and 916 tests; contracts 93.14% statements/78.66% branches/97.60% functions/93.04% lines; repository total 78.87%/71.28%/85.59%/78.70%   |
 | `git diff --check`               | passed                                                                                                                                                    |
 
 No dependency, package manifest, lockfile, workspace glob, TypeScript pin,
@@ -2129,6 +2155,11 @@ expected registry-audit and ephemeral local PostgreSQL verification calls.
   captured 19 intended failures. Added exactly three closed additive roots,
   trusted constructors/digests, safe owned parsers, canonical/referential
   validation, and cross-root provenance closure. Milestone 4 remains stopped.
+- **2026-07-30:** Maintainer review accepted the request/interview roots in
+  substance and required four model-execution provenance corrections before
+  Milestone 4. Added five focused red groups and closed provider identifier
+  grammar, terminal attempt/outcome agreement, publication chronology, and
+  real dated-snapshot validation. Milestone 3 awaits renewed acceptance.
 
 ## Decision and deviation log
 
@@ -2173,19 +2204,31 @@ expected registry-audit and ephemeral local PostgreSQL verification calls.
 - **Execution attempt ordinals:** attempt summaries are one-based and
   contiguous for operator readability.
 - **Dated model profiles:** the durable profile structurally requires a dated
-  snapshot suffix. Moving aliases cannot become reusable execution identity.
+  snapshot suffix and semantically requires that suffix to round-trip as a
+  real proleptic Gregorian date. Moving aliases and impossible dates cannot
+  become reusable execution identity.
+- **Safe provider identifiers:** nullable request/response identifiers accept
+  only the reviewed alphanumeric/period/underscore/hyphen grammar. Invalid
+  provider text is rejected without trimming, sanitization, hashing, or
+  diagnostic disclosure.
+- **Terminal closure:** success requires the final attempt to be a 2xx
+  response. Only transport-terminal failure codes are mapped to exact final
+  transport outcomes before the provider adapter is implemented.
+- **Publication chronology:** the cross-root validator permits publication at
+  or after execution completion and rejects earlier publication without
+  adding a serialized field or changing interview identity.
 
 ## Remaining maintainer decisions before Milestone 4
 
-Milestone 3 is implemented within the binding durable boundary. Review must
-accept or amend:
+The request and interview roots are accepted in substance. Milestone 3 remains
+pending renewed acceptance of:
 
-1. the exact three root schemas and new schema digests;
-2. the identity/reuse-key/record partitions and domain separators;
-3. resolved-coordinate constructor input and canonical ordering;
-4. one-based attempt ordinals and dated model-snapshot structural policy;
-5. processing-state and cross-root provenance validation; and
-6. any implementation discovery or final verification evidence recorded here.
+1. the corrected model-execution schema and digest;
+2. the narrow nullable provider-identifier grammar;
+3. final attempt/outcome and transport failure-code closure;
+4. real dated-snapshot semantic validation;
+5. publication chronology in cross-root provenance validation; and
+6. the correction test and final verification evidence recorded here.
 
 Milestone 4 must not begin until that review authorizes artifact prompt
 rendering, trusted provider-alias mapping, and exact artifact membership/line

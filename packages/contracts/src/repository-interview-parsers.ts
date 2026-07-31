@@ -55,6 +55,7 @@ const MARKDOWN_LINK_PATTERN = /!?\[[^\]\r\n]*\]\([^)\r\n]*\)/u;
 const URL_PATTERN = /https?:\/\//iu;
 const HTML_PATTERN = /<\/?[A-Za-z][^>]*>/u;
 const CONTROL_OR_FORMAT_PATTERN = /[\p{Cc}\p{Cf}]/u;
+const MODEL_SNAPSHOT_DATE_SUFFIX_PATTERN = /-(\d{4})-(\d{2})-(\d{2})$/u;
 
 export function parseRepositoryInterviewRequestV1(
   value: unknown,
@@ -218,6 +219,15 @@ export function validateRepositoryInterviewExecutionV1(
     '/interview/modelProfileDigest',
     issues,
   );
+  const publishedAt = timestampValue(ownedInterview.publishedAt);
+  const executionCompletedAt = timestampValue(ownedExecution.completedAt);
+  if (
+    publishedAt === null ||
+    executionCompletedAt === null ||
+    publishedAt < executionCompletedAt
+  ) {
+    issues.push(boundsIssue('/interview/publishedAt'));
+  }
   if (ownedExecution.outcome.status !== 'succeeded') {
     issues.push(patternIssue('/execution/outcome/status'));
   } else {
@@ -300,6 +310,11 @@ function validateExecution(value: ModelExecutionV1): readonly ContractIssue[] {
   ) {
     issues.push(patternIssue('/forceReason'));
   }
+  validateModelSnapshotDate(
+    value.modelProfile.modelSnapshot,
+    '/modelProfile/modelSnapshot',
+    issues,
+  );
   const modelProfileDigest = modelExecutionModelProfileDigest(
     value.modelProfile,
   );
@@ -321,6 +336,7 @@ function validateExecution(value: ModelExecutionV1): readonly ContractIssue[] {
     issues,
   );
   validateExecutionTimeline(value, issues);
+  validateTerminalOutcome(value, issues);
   validateUsage(value.outcome.usage, '/outcome/usage', issues);
   if (modelExecutionRecordDigest(value) !== value.recordDigest) {
     issues.push(patternIssue('/recordDigest'));
@@ -371,6 +387,50 @@ function validateExecutionTimeline(
   });
 }
 
+function validateTerminalOutcome(
+  value: ModelExecutionV1,
+  issues: ContractIssue[],
+): void {
+  const finalAttemptIndex = value.attempts.length - 1;
+  const finalAttempt = value.attempts[finalAttemptIndex];
+  if (finalAttempt === undefined) {
+    issues.push(boundsIssue('/attempts'));
+    return;
+  }
+  const transportPath = `/attempts/${String(
+    finalAttemptIndex,
+  )}/transportOutcome`;
+  if (value.outcome.status === 'succeeded') {
+    if (finalAttempt.transportOutcome !== 'response') {
+      issues.push(patternIssue(transportPath));
+    }
+    if (
+      finalAttempt.httpStatus === null ||
+      finalAttempt.httpStatus < 200 ||
+      finalAttempt.httpStatus > 299
+    ) {
+      issues.push(
+        boundsIssue(`/attempts/${String(finalAttemptIndex)}/httpStatus`),
+      );
+    }
+    return;
+  }
+  const expectedTransportOutcome =
+    value.outcome.failureCode === 'transport-error'
+      ? 'network-error'
+      : value.outcome.failureCode === 'deadline-exceeded'
+        ? 'deadline-exceeded'
+        : value.outcome.failureCode === 'cancelled'
+          ? 'cancelled'
+          : null;
+  if (
+    expectedTransportOutcome !== null &&
+    finalAttempt.transportOutcome !== expectedTransportOutcome
+  ) {
+    issues.push(patternIssue(transportPath));
+  }
+}
+
 function validateUsage(
   usage: ModelExecutionUsageV1 | null,
   path: string,
@@ -385,6 +445,53 @@ function validateUsage(
     usage.totalTokens !== usage.inputTokens + usage.outputTokens
   ) {
     issues.push(boundsIssue(path));
+  }
+}
+
+function validateModelSnapshotDate(
+  value: string,
+  path: string,
+  issues: ContractIssue[],
+): void {
+  const match = MODEL_SNAPSHOT_DATE_SUFFIX_PATTERN.exec(value);
+  const yearText = match?.[1];
+  const monthText = match?.[2];
+  const dayText = match?.[3];
+  if (
+    yearText === undefined ||
+    monthText === undefined ||
+    dayText === undefined
+  ) {
+    issues.push(patternIssue(path));
+    return;
+  }
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const roundTrip = `${String(year).padStart(4, '0')}-${String(month).padStart(
+    2,
+    '0',
+  )}-${String(day).padStart(2, '0')}`;
+  const dateSuffix = `${yearText}-${monthText}-${dayText}`;
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const maximumDay =
+    month === 2
+      ? leapYear
+        ? 29
+        : 28
+      : [4, 6, 9, 11].includes(month)
+        ? 30
+        : month >= 1 && month <= 12
+          ? 31
+          : 0;
+  if (
+    roundTrip !== dateSuffix ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > maximumDay
+  ) {
+    issues.push(patternIssue(path));
   }
 }
 

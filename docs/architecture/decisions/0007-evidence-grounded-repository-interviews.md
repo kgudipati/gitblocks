@@ -37,6 +37,12 @@ authorized Milestone 3's three durable roots after a focused value-free
 diagnostic cleanup. No review has authorized prompt rendering, provider,
 persistence, operator, evaluation, or live behavior.
 
+The next Milestone 3 review accepted the request and interview roots in
+substance but required correction of model-execution provider identifiers,
+final attempt/outcome closure, publication chronology, and real dated-snapshot
+validation. Milestone 3 therefore remains pending renewed acceptance, and
+Milestone 4 remains unauthorized.
+
 ## Decision
 
 ### Candidate-owned, request-independent intelligence
@@ -140,6 +146,15 @@ Execution identity is a trusted nonce and normal/forced mode over a separately
 reusable request/model-profile key. Interview identity binds mapped artifact
 citations, ordered semantic identities, and exact request/execution
 provenance. Wall-clock and terminal operation facts are record-only.
+
+Provider request and response identifiers are nullable and restricted to
+`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`; invalid values are not transformed or
+echoed through diagnostics. A successful execution must close against a final
+HTTP 200–299 response. Transport-terminal failure codes close against their
+corresponding final transport outcome, while provider-envelope mappings remain
+deferred to Milestone 8. Dated model-snapshot suffixes must be real proleptic
+Gregorian dates. Cross-root validation requires interview publication at or
+after execution completion; publication remains record-only.
 
 Phase 7 will not create production roots or PostgreSQL roots for:
 
@@ -574,11 +589,11 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1 and 2 passed maintainer review. Milestone 3 may implement only the
-three durable roots, trusted identity/record helpers, safe parsers, shared
-topic authority, and cross-root provenance validation while the draft PR
-remains draft. Milestone 4 requires separate maintainer review of the
-completed Milestone 3 schemas, digests, tests, and recorded discoveries.
+Milestones 1 and 2 passed maintainer review. The request and interview roots
+from Milestone 3 are accepted in substance; the corrected model-execution
+schema, digest, terminal closure, real-date validation, and cross-root
+publication chronology require renewed acceptance while the draft PR remains
+draft. Milestone 4 requires that separate maintainer authorization.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

@@ -10,6 +10,7 @@ import {
   createRepositoryInterviewV1,
   getContractSchemaV1,
   modelExecutionModelProfileDigest,
+  modelExecutionRecordDigest,
   parseModelExecutionV1,
   parseRepositoryInterviewRequestV1,
   parseRepositoryInterviewV1,
@@ -377,6 +378,92 @@ describe('ModelExecutionV1', () => {
     }
   });
 
+  it('requires real dated snapshots while preserving planned calibration profiles', () => {
+    const request = createRepositoryInterviewRequestV1(requestInput());
+    for (const modelSnapshot of [
+      'gpt-5.4-2026-00-01',
+      'gpt-5.4-2026-13-01',
+      'gpt-5.4-2026-02-30',
+      'gpt-5.4-2026-99-99',
+      'gpt-5.4-2025-02-29',
+    ]) {
+      expect(() =>
+        createModelExecutionV1(
+          executionInput(request, {
+            modelProfile: profile({ modelSnapshot }),
+          }),
+        ),
+      ).toThrow(/invalid/u);
+    }
+    for (const modelSnapshot of [
+      'gpt-5.4-2026-03-05',
+      'gpt-5.4-mini-2026-03-17',
+      'synthetic-model-2024-02-29',
+    ]) {
+      expect(
+        createModelExecutionV1(
+          executionInput(request, {
+            modelProfile: profile({ modelSnapshot }),
+          }),
+        ).modelProfile.modelSnapshot,
+      ).toBe(modelSnapshot);
+    }
+  });
+
+  it('accepts only nullable narrow provider identifiers without leaking rejected values', () => {
+    const request = createRepositoryInterviewRequestV1(requestInput());
+    const accepted = [null, 'req_abc123', 'resp-123', 'request.v1', 'A1'];
+    for (const providerIdentifier of accepted) {
+      const attempt = {
+        ...executionInput(request).attempts[0]!,
+        providerRequestId: providerIdentifier,
+        responseId: providerIdentifier,
+      };
+      expect(
+        createModelExecutionV1(executionInput(request, { attempts: [attempt] }))
+          .attempts[0],
+      ).toMatchObject({
+        providerRequestId: providerIdentifier,
+        responseId: providerIdentifier,
+      });
+    }
+
+    const rejected = [
+      'https://example.invalid/request',
+      'request: abc',
+      'request abc',
+      'request/abc',
+      'request\nabc',
+      'request\tabc',
+      '',
+      'a'.repeat(129),
+    ];
+    const base = createModelExecutionV1(executionInput(request));
+    for (const providerIdentifier of rejected) {
+      for (const field of ['providerRequestId', 'responseId'] as const) {
+        const changedAttempt =
+          field === 'providerRequestId'
+            ? { ...base.attempts[0]!, providerRequestId: providerIdentifier }
+            : { ...base.attempts[0]!, responseId: providerIdentifier };
+        const changed = {
+          ...base,
+          attempts: [changedAttempt],
+        } as ModelExecutionV1;
+        const value = {
+          ...changed,
+          recordDigest: modelExecutionRecordDigest(changed),
+        };
+        const parsed = parseModelExecutionV1(value);
+        expectRejected(parsed);
+        if (!parsed.ok && providerIdentifier.length > 0) {
+          expect(
+            parsed.issues.map((issue) => issue.message).join('\n'),
+          ).not.toContain(providerIdentifier);
+        }
+      }
+    }
+  });
+
   it('enforces modes, attempts, timestamps, response status, and retry bounds', () => {
     const request = createRepositoryInterviewRequestV1(requestInput());
     const base = createModelExecutionV1(executionInput(request));
@@ -496,6 +583,118 @@ describe('ModelExecutionV1', () => {
       },
     ]) {
       expectRejected(parseModelExecutionV1(value));
+    }
+  });
+
+  it('requires a final successful 2xx response for successful outcomes', () => {
+    const request = createRepositoryInterviewRequestV1(requestInput());
+    const baseAttempt = executionInput(request).attempts[0]!;
+    for (const attempt of [
+      {
+        ...baseAttempt,
+        transportOutcome: 'network-error' as const,
+        httpStatus: null,
+      },
+      {
+        ...baseAttempt,
+        transportOutcome: 'deadline-exceeded' as const,
+        httpStatus: null,
+      },
+      {
+        ...baseAttempt,
+        transportOutcome: 'cancelled' as const,
+        httpStatus: null,
+      },
+      ...[400, 429, 500].map((httpStatus) => ({
+        ...baseAttempt,
+        httpStatus,
+      })),
+    ]) {
+      expect(() =>
+        createModelExecutionV1(
+          executionInput(request, { attempts: [attempt] }),
+        ),
+      ).toThrow(/invalid/u);
+    }
+    for (const httpStatus of [200, 299]) {
+      expect(
+        createModelExecutionV1(
+          executionInput(request, {
+            attempts: [{ ...baseAttempt, httpStatus }],
+          }),
+        ).outcome.status,
+      ).toBe('succeeded');
+    }
+  });
+
+  it('closes transport-terminal failure codes without overmapping provider failures', () => {
+    const request = createRepositoryInterviewRequestV1(requestInput());
+    const baseAttempt = executionInput(request).attempts[0]!;
+    for (const failureCode of [
+      'transport-error',
+      'deadline-exceeded',
+      'cancelled',
+    ] as const) {
+      expect(() =>
+        createModelExecutionV1(
+          executionInput(request, {
+            attempts: [{ ...baseAttempt, transportOutcome: 'response' }],
+            outcome: {
+              status: 'failed',
+              failureCode,
+              providerOutputDigest: null,
+              usage: null,
+            },
+          }),
+        ),
+      ).toThrow(/invalid/u);
+    }
+
+    for (const [failureCode, transportOutcome] of [
+      ['transport-error', 'network-error'],
+      ['deadline-exceeded', 'deadline-exceeded'],
+      ['cancelled', 'cancelled'],
+    ] as const) {
+      expect(
+        createModelExecutionV1(
+          executionInput(request, {
+            attempts: [
+              {
+                ...baseAttempt,
+                transportOutcome,
+                httpStatus: null,
+              },
+            ],
+            outcome: {
+              status: 'failed',
+              failureCode,
+              providerOutputDigest: null,
+              usage: null,
+            },
+          }),
+        ).outcome.failureCode,
+      ).toBe(failureCode);
+    }
+
+    for (const [failureCode, httpStatus] of [
+      ['provider-output-invalid', 200],
+      ['invalid-response', 299],
+      ['rate-limited', 429],
+      ['provider-error', 500],
+    ] as const) {
+      expect(
+        createModelExecutionV1(
+          executionInput(request, {
+            attempts: [{ ...baseAttempt, httpStatus }],
+            outcome: {
+              status: 'failed',
+              failureCode,
+              providerOutputDigest: null,
+              usage: null,
+            },
+          }),
+        ).outcome.failureCode,
+      ).toBe(failureCode);
     }
   });
 
@@ -884,6 +1083,32 @@ describe('RepositoryInterviewV1', () => {
         providerProjectionDigest: 'f'.repeat(64),
       }),
     ).toMatchObject({ ok: false });
+  });
+
+  it('requires publication at or after execution completion', () => {
+    const request = createRepositoryInterviewRequestV1(requestInput());
+    const execution = createModelExecutionV1(executionInput(request));
+    const beforeCompletion = createRepositoryInterviewV1(
+      interviewInput(request, execution, {
+        publishedAt: '2026-07-30T12:00:00.999Z',
+      }),
+    );
+    expect(
+      validateRepositoryInterviewExecutionV1(
+        request,
+        execution,
+        beforeCompletion,
+      ),
+    ).toMatchObject({ ok: false });
+
+    const atCompletion = createRepositoryInterviewV1(
+      interviewInput(request, execution, {
+        publishedAt: execution.completedAt,
+      }),
+    );
+    expect(
+      validateRepositoryInterviewExecutionV1(request, execution, atCompletion),
+    ).toMatchObject({ ok: true });
   });
 });
 

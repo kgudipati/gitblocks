@@ -56,7 +56,7 @@ const UNKNOWN_ID_PATTERN = '^intunknown-[0-9a-f]{48}$';
 const VERSION_CODE_PATTERN = '^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$';
 const DATED_MODEL_SNAPSHOT_PATTERN =
   '^[A-Za-z0-9][A-Za-z0-9._-]{0,102}-[0-9]{4}-[0-9]{2}-[0-9]{2}$';
-const PRINTABLE_ASCII_PATTERN = '^[\\x20-\\x7e]{1,128}$';
+const PROVIDER_IDENTIFIER_PATTERN = '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$';
 const SAFE_SEMANTIC_TEXT_PATTERN =
   '^[^\\u0000-\\u001f\\u007f-\\u009f\\u00ad\\u0600-\\u0605\\u061c\\u06dd\\u070f\\u0890-\\u0891\\u08e2\\u180e\\u200b-\\u200f\\u2028-\\u202e\\u2060-\\u206f\\ufeff\\ufff9-\\ufffb]*$';
 
@@ -82,7 +82,7 @@ const artifactIdSchema = patternedString(ARTIFACT_ID_PATTERN, 57, 57);
 const rendererVersionSchema = patternedString(VERSION_CODE_PATTERN, 1, 64);
 const nonceSchema = patternedString(HEX_32_PATTERN, 32, 32);
 const providerIdentifierSchema = Type.Union([
-  patternedString(PRINTABLE_ASCII_PATTERN, 1, 128),
+  patternedString(PROVIDER_IDENTIFIER_PATTERN, 1, 128),
   Type.Null(),
 ]);
 const topicSchema = Type.Enum(REPOSITORY_INTERVIEW_TOPICS);

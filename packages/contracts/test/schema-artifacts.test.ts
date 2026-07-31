@@ -35,7 +35,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'repository-interview-request':
     'c009494390484a40ace4eea9b58ba3b288cf0577c13aab926fb7e5cdcfb7c673',
   'model-execution':
-    'cd773b08ce853a4017a1f710883fb76fa6cc1df14d7633f46f0467863b6a1e7a',
+    'f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7',
   'repository-interview':
     '99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb',
 } as const;
