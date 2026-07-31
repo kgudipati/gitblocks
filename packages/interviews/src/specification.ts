@@ -54,6 +54,7 @@ export interface RepositoryInterviewQuestion {
 
 export interface LoadedRepositoryInterviewSpecification {
   readonly instructions: string;
+  readonly questionsSnapshot: string;
   readonly questions: readonly RepositoryInterviewQuestion[];
   readonly manifest: SpecificationManifest;
   readonly manifestSnapshot: string;
@@ -131,26 +132,49 @@ export async function loadRepositoryInterviewSpecification(
       readUtf8(join(directory, SOURCE_PATHS.providerOutputSchema)),
       readUtf8(join(directory, SOURCE_PATHS.openAiProjection)),
     ]);
-    return {
+    const loaded = {
       instructions: sources.instructions,
+      questionsSnapshot: new TextDecoder('utf-8', { fatal: true }).decode(
+        sources.questionsBytes,
+      ),
       questions: sources.questions,
       manifest: parseManifest(manifestText),
       manifestSnapshot: manifestText,
       providerOutputSchemaSnapshot,
       openAiProjectionSnapshot,
     };
+    validateLoadedRepositoryInterviewSpecification(loaded);
+    return loaded;
   } catch {
     throw new InterviewSpecificationError();
   }
 }
 
-export async function validateRepositoryInterviewSpecification(
-  directory: string,
-): Promise<SpecificationValidationSummary> {
+export function validateLoadedRepositoryInterviewSpecification(
+  loaded: LoadedRepositoryInterviewSpecification,
+): SpecificationValidationSummary {
   try {
-    const loaded = await loadRepositoryInterviewSpecification(directory);
-    const sources = await loadReviewedSources(directory);
-    const generated = generateSpecification(sources);
+    const instructionsBytes = new TextEncoder().encode(loaded.instructions);
+    const questionsBytes = new TextEncoder().encode(loaded.questionsSnapshot);
+    if (
+      decodeExactUtf8(instructionsBytes) !== loaded.instructions ||
+      decodeExactUtf8(questionsBytes) !== loaded.questionsSnapshot
+    ) {
+      throw new InterviewSpecificationError();
+    }
+    validateInstructions(loaded.instructions);
+    const parsedQuestions = parseQuestions(loaded.questionsSnapshot);
+    if (
+      canonicalizeJson(parsedQuestions) !== canonicalizeJson(loaded.questions)
+    ) {
+      throw new InterviewSpecificationError();
+    }
+    const generated = generateSpecification({
+      instructions: loaded.instructions,
+      instructionsBytes,
+      questions: parsedQuestions,
+      questionsBytes,
+    });
     if (
       loaded.providerOutputSchemaSnapshot !==
         generated.providerOutputSchemaSnapshot ||
@@ -161,6 +185,17 @@ export async function validateRepositoryInterviewSpecification(
       throw new InterviewSpecificationError();
     }
     return generated.summary;
+  } catch {
+    throw new InterviewSpecificationError();
+  }
+}
+
+export async function validateRepositoryInterviewSpecification(
+  directory: string,
+): Promise<SpecificationValidationSummary> {
+  try {
+    const loaded = await loadRepositoryInterviewSpecification(directory);
+    return validateLoadedRepositoryInterviewSpecification(loaded);
   } catch {
     throw new InterviewSpecificationError();
   }

@@ -244,6 +244,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryInterviewRequestRecordDigest',
       'repositoryInterviewUnknownIdentityDigest',
       'serializeContractSchemaV1',
+      'splitRepositoryArtifactLogicalLines',
       'validateFitAssessmentExchangeV1',
       'validateRepositoryInterviewExecutionV1',
     ]);

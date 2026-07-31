@@ -43,3 +43,25 @@ export {
   type RepositoryInterviewQuestion,
   type SpecificationValidationSummary,
 } from './specification.ts';
+export {
+  repositoryInterviewProviderOutputDigestV1,
+  resolveRepositoryInterviewProviderOutputV1,
+  type RepositoryInterviewProviderOutputDigestResultV1,
+  type ResolveRepositoryInterviewProviderOutputInputV1,
+  type ResolveRepositoryInterviewProviderOutputResultV1,
+  type ResolvedRepositoryInterviewProviderOutputV1,
+} from './repository-interview-mapping.ts';
+export type {
+  RepositoryInterviewMappingIssue,
+  RepositoryInterviewMappingIssueCode,
+  RepositoryInterviewMappingIssueMessage,
+} from './repository-interview-mapping-issues.ts';
+export {
+  REPOSITORY_INTERVIEW_PROMPT_BOUNDS,
+  renderRepositoryInterviewPromptV1,
+  type RenderedRepositoryInterviewPromptV1,
+  type RenderRepositoryInterviewPromptInputV1,
+  type RenderRepositoryInterviewPromptResultV1,
+  type RepositoryInterviewArtifactAlias,
+  type RepositoryInterviewArtifactAliasBinding,
+} from './repository-interview-prompt.ts';

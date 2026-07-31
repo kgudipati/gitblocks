@@ -15,11 +15,11 @@
     diagnostic cleanup.”
   - PR #18 review: “Milestone 3 review — request/interview roots accepted;
     model-execution correction required before Milestone 4.”
+  - PR #18 review: “Milestone 3 accepted — Milestone 4 authorized.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–2 accepted; Milestone 3 provenance correction
-  implemented and awaiting renewed maintainer acceptance; Milestone 4 is not
-  authorized
+- State: Milestones 1–3 accepted; Milestone 4 implemented and awaiting
+  maintainer review; Milestones 5–14 remain unauthorized or incomplete
 - Last updated: 2026-07-30
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -52,7 +52,11 @@ documentation reconciliation. Milestone 2 added only the provider-output
 schema, immutable specification, deterministic schema projections, and their
 offline package validation. Milestone 3 adds durable records and trusted
 identity/parser behavior without a prompt renderer, provider, persistence,
-operator, or user-visible execution path.
+operator, or user-visible execution path. Milestone 4 adds only deterministic
+offline prompt rendering, exact artifact-set/alias/citation closure,
+provider-output digesting, and durable-constructor input mapping. It adds no
+application use case, effect port, provider, persistence, operator, or live
+execution.
 
 ## Verified repository state
 
@@ -621,40 +625,114 @@ responses are not persisted.
 
 ### Model-visible prompt
 
-The model will see:
+Milestone 4 freezes two separate strings under
+`repository-interview-renderer-v1`.
 
-- static trusted instructions;
-- controlled ordered interview questions;
-- complete reconstructed artifacts exactly once;
-- aliases `A1` through `A4` following artifact-set membership order;
-- controlled artifact kinds;
-- machine-generated explicit line numbers; and
-- clear untrusted-data delimiters.
-
-It will not see:
-
-- storage chunks duplicated beside artifacts;
-- dossier content or identity;
-- candidate or repository identity;
-- capability requests, target-repository facts, hard constraints, preferences,
-  or ranking context;
-- trusted GitBlocks IDs;
-- provider provenance or model execution metadata;
-- credentials, environment values, or tools.
-
-Each artifact will be reconstructed and verified from exact chunks, then
-rendered once in artifact-set order. A planned line form is:
+`instructionText`, intended for a future developer-role message, is:
 
 ```text
-L000001|<exact line content>
+<exact instructions.md bytes>
+Repository interview questions:
+
+1. [purpose-and-scope] <exact reviewed question>
+...
+8. [adoption-and-limitations] <exact reviewed question>
 ```
 
-The renderer will preserve exact artifact characters after the machine prefix,
-distinguish terminators deterministically, and never interpolate
-repository-authored content into an instruction role. The exact escape and
-terminal-line representation must be frozen by renderer tests before
-Milestone 4. The model cites only alias and inclusive line numbers; trusted
-mapping resolves the alias after generation.
+The instructions already end in LF; renderer V1 appends one additional LF,
+the exact heading above, one blank line, the eight ordered lines, and one
+terminal LF.
+
+`evidenceText`, intended for a future user-role message, is compact canonical
+JSON with sorted object keys and exactly:
+
+```text
+kind: repository-interview-evidence-v1
+artifacts:
+  alias
+  artifactKind
+  lineCount
+  lines:
+    number
+    text
+unavailableSelections:
+  selectionOrdinal
+  selector
+  artifactKind
+  requirement
+  outcome: not-found
+```
+
+Artifacts are ordered by alias, lines by ascending one-based number, and
+unavailable selections by artifact-set ordinal. LF, CRLF, and CR use the
+contracts-owned logical-line splitter. Separators are omitted from line text;
+all other characters, blank lines, and a terminal empty line after a final
+separator are preserved. JSON escaping makes quotes, backslashes, braces,
+role declarations, Markdown, HTML, JSON-looking fields, links, and tool
+requests data rather than prompt structure. Each artifact line is included
+exactly once.
+
+Present entries receive `A1` through `A4` in artifact-set ordinal order; a
+preceding `not-found` entry consumes no alias. Trusted alias bindings retain
+artifact ID, controlled kind, entry ordinal, and actual line count outside the
+model-visible strings. Before rendering, public contract parsers and closure
+checks require exact candidate, repository numeric ID, commit, intrinsic path,
+present-entry membership, unique artifact reference, line count, and the
+Phase 6 512 KiB aggregate bound.
+
+Neither model-visible string injects chunks, dossier content/identity,
+candidate or repository identity, source paths/URLs, capability/ranking
+context, stable IDs/digests, provider provenance, execution metadata,
+credentials, environment values, or tools. Repository-authored bytes may
+coincidentally contain identity-like text; they are preserved as untrusted
+content rather than interpreted or silently removed. Structural role
+separation is not a claim that prompt injection is impossible; adversarial
+behavioral evaluation remains Milestone 7.
+
+The hard renderer bounds are:
+
+| Input/result                          | Maximum bytes/count |
+| ------------------------------------- | ------------------: |
+| present artifacts                     |                   4 |
+| exact artifact source bytes           |             524,288 |
+| logical lines                         |              40,000 |
+| instruction UTF-8 bytes               |              65,536 |
+| evidence UTF-8 bytes                  |           4,194,304 |
+| instruction plus evidence UTF-8 bytes |           4,259,840 |
+
+Every excess is `prompt-too-large`; no artifact, line, question, unavailable
+selection, or terminal line is truncated or omitted.
+
+The prompt digest is lowercase SHA-256 over canonical JSON binding domain
+`repository-interview-prompt`, digest version 1, renderer version,
+specification version/digest, and the exact instruction/evidence strings. The
+role-named fields make the encoding unambiguous. It does not bind artifact IDs:
+the request separately binds the exact artifact set. Equivalent source
+line-ending encodings may therefore share a prompt digest only when their
+model-visible logical lines are byte-identical.
+
+The provider-output digest is lowercase SHA-256 over canonical JSON binding
+domain `repository-interview-provider-output`, digest version 1,
+provider-output schema version/digest, and the exact accepted parsed value.
+Array order and exact Unicode remain significant; no normalization,
+reordering, trimming, or sanitization occurs.
+
+Resolution first repeats the accepted provider-output parser, then checks each
+alias against the exact rendered registry and each inclusive range against the
+bound artifact's actual line count. It returns trusted candidate/artifact-set
+provenance, prompt/provider-output digests, one de-duplicated deterministic
+artifact-ID/line coordinate catalog, and constructor-shaped claims,
+limitations, contradictions, and unknowns. Shared coordinates remain
+referenced by every semantic item. The mapping creates no stable ID or
+timestamp.
+
+Failures use only `artifact-context-invalid`, `artifact-set-closure`,
+`prompt-too-large`, `unknown-artifact-alias`, `citation-out-of-range`,
+`provider-output-invalid`, or `mapping-closure`. At most 20 sorted unique
+issues are returned; paths are capped at 256 characters and alias/range
+failures retain the exact provider-output path. Messages are fixed and never
+echo repository text, prompt text, semantic text, rejected aliases, numeric
+ranges, or repository identity.
 
 No artifact, line, question, semantic item, or provider output may be silently
 truncated. Any bound or context failure is an operational failure and
@@ -1460,8 +1538,8 @@ already includes `apps/*` and will remain unchanged.
 
 ### 3. Durable contracts and identity helpers
 
-- **Status:** implemented and awaiting maintainer review; Milestone 4 remains
-  blocked.
+- **Status:** accepted by maintainer review; corrected model-execution schema
+  digest `f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7`.
 - **Red first:** exactly three root schemas, nested ownership, parser/preflight
   bounds, prior nine digests, ID/identity/record mutation matrices, collision
   behavior, dossier exclusion.
@@ -1477,6 +1555,8 @@ already includes `apps/*` and will remain unchanged.
 
 ### 4. Prompt renderer, alias mapper, and citation validator
 
+- **Status:** implemented and awaiting maintainer review; Milestone 5 remains
+  blocked.
 - **Red first:** byte-golden render, aliases/order, exact-once artifact content,
   terminal/Unicode/line-ending cases, no dossier/identity leakage, alias/range/
   topic/basis/duplicate/coverage failures.
@@ -2031,8 +2111,9 @@ closes request, candidate, artifact-set, specification, renderer,
 provider-output-schema, prompt, provider projection, model profile, execution,
 provider-output provenance, and publication chronology. Publication at
 execution completion is valid; publication before completion is rejected.
-Artifact-set membership and exact line-count closure remain intentionally
-blocked for Milestone 4.
+Artifact-set membership and exact line-count closure were intentionally
+deferred from the cross-root validator and are now enforced by the accepted
+Milestone 4 mapping boundary before durable construction.
 
 The new schema digests are:
 
@@ -2104,6 +2185,125 @@ credential, or environment file changed. Ordinary verification performed no
 provider request and no Phase 5/6/7 live operation. `verify:ci` made only its
 expected registry-audit and ephemeral local PostgreSQL verification calls.
 
+## Milestone 4 implementation evidence
+
+### Implemented files and authority
+
+Milestone 4 adds:
+
+```text
+packages/contracts/src/artifact-identity.ts
+packages/contracts/src/parsers.ts
+packages/contracts/test/artifact-contracts.test.ts
+
+packages/interviews/src/
+  repository-interview-mapping-issues.ts
+  repository-interview-prompt.ts
+  repository-interview-mapping.ts
+
+packages/interviews/test/
+  repository-interview-mapping.test.ts
+```
+
+Existing package indexes and specification loading receive only the required
+exports and pure loaded-authority validation. No contract schema, interview
+specification snapshot, package manifest, dependency, lockfile, migration,
+catalog, artifact manifest, operator, or evaluation file changes.
+
+`splitRepositoryArtifactLogicalLines` is now the single Phase 6/7 line
+authority. It splits LF, CRLF, and CR; preserves all non-separator characters,
+empty lines, and a terminal empty line; returns one line for separator-free or
+empty content; and rejects invalid Unicode. The artifact parser consumes this
+same helper, so accepted `RepositoryArtifactV1.lineCount` and rendered
+coordinates cannot drift.
+
+The artifact-context validator parses the exact set and every accepted
+artifact through public contract parsers, proves complete present-entry
+closure and trusted candidate/repository/commit/path ownership, rejects
+duplicates/extras/not-found material, enforces four artifacts/40,000 lines/512
+KiB, and orders accepted artifacts only through set membership. It performs no
+filesystem, PostgreSQL, GitHub, or provider operation.
+
+Renderer V1 returns separate immutable instruction/evidence strings plus
+trusted alias bindings and byte/line accounting. The evidence string is
+canonical JSON, not prose or Markdown. `A1`–`A4` follow present-entry ordinal;
+`not-found` entries do not consume aliases. The prompt and provider-output
+digest algorithms and bounds are defined in the model-visible prompt section.
+Frozen synthetic examples are:
+
+```text
+prompt          bdfa0ac1bd39782028a3e3f5598cf980ae5066aaef24068eee0c1a45059ff584
+provider output e245c7db27f96709263f120760ff4394602ae70053bd4f0162a59dcf82b2789c
+```
+
+The provider-output resolver repeats local parsing, validates aliases/ranges
+against the exact rendered context, maps only to trusted artifact IDs, and
+returns the existing constructor input shapes with one deterministic unique
+coordinate catalog. It creates no durable IDs or timestamps. The synthetic
+integration test combines its result with accepted request/execution
+constructors and proves `createRepositoryInterviewV1` plus
+`validateRepositoryInterviewExecutionV1` succeed; no application use case is
+introduced.
+
+### Red/green evidence
+
+The line and mapping tests were written first. The first focused run recorded
+40 intended failures because the shared line helper and all renderer,
+digesting, and mapping APIs were absent. After implementation, the focused
+contracts/interviews run passes 50 tests, including the golden digests,
+artifact closure abuse matrix, 40,000-line boundary, value-free 20-issue cap,
+all semantic families, terminal empty-line citation, cross-prompt alias
+rejection, and durable-constructor integration.
+
+`pnpm interviews:verify` passes the unchanged three specification digests,
+five interview test files with 103 tests, package typecheck, and architecture
+validation with no dependency violation.
+
+The first complete `pnpm verify` run passed 956 tests and then failed the
+contracts public-surface snapshot because it did not yet list the newly
+required shared line helper. The expected API list was updated with only
+`splitRepositoryArtifactLogicalLines`; the restarted complete matrix passed.
+This was a test-authority correction, not a schema or runtime change.
+
+The pre-commit matrix on 2026-07-30 produced:
+
+| Command                          | Result                                                                                                                                                    |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile` | passed; all eight workspace projects already up to date; pnpm 11.17.0                                                                                     |
+| `pnpm interviews:verify`         | passed; frozen digests valid; five files and 103 tests; package typecheck; 667 modules/2,115 dependencies without violation                               |
+| `pnpm verify`                    | passed; 50 files and 957 tests; format, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, and secret checks |
+| `pnpm verify:ci`                 | passed; repeated 957-test verification, PostgreSQL 18.4 with 36 tests/no skips, three migrations/17 tables, and registry audit with no vulnerabilities    |
+| `pnpm contracts:validate`        | passed; 10 cases and 40 supplied candidates; representability only                                                                                        |
+| `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                         |
+| `pnpm ingestion:verify`          | passed; 11 files and 156 tests plus typecheck                                                                                                             |
+| `pnpm db:verify`                 | passed through `verify:ci`; PostgreSQL 18.4, migrations 0001–0003, 17 product tables, four files and 36 tests, no skips                                   |
+| `pnpm eval:validate`             | passed; 10 cases                                                                                                                                          |
+| `pnpm eval:fixtures`             | passed; all five fixed strategies produced expected summaries                                                                                             |
+| `pnpm artifacts:validate`        | passed; 150 root attempts and 30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                    |
+| `pnpm artifacts:verify`          | passed; six files and 107 tests plus typecheck                                                                                                            |
+| `pnpm test:coverage`             | passed; 50 files and 957 tests; repository 79.13% statements/71.41% branches/86.11% functions/78.95% lines; interviews 89.33%/81.26%/98.83%/89.13%        |
+| `git diff --check`               | passed                                                                                                                                                    |
+
+All 12 contract schema digests remain byte-identical, including the accepted
+Milestone 3 roots:
+
+```text
+repository-interview-request c009494390484a40ace4eea9b58ba3b288cf0577c13aab926fb7e5cdcfb7c673
+model-execution               f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7
+repository-interview          99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb
+```
+
+The specification, provider-output schema, and OpenAI projection remain
+`da2c8560e0b6a2fc7bc8d79fd89f65984815236a54cbf49491911274db8168f9`,
+`5fa5d1c44a8924d8be3acc2ac74e58ec45ea134264c2245b7e158873b2e26b19`,
+and
+`5d81e5e32cc4871f0068f691302282a4e5dd6dc656ee4be132c050fbc4228ed7`.
+No package manifest, dependency, lockfile, workspace glob, migration,
+catalog/artifact manifest, candidate body, credential, or environment file
+changed. No persistence/provider port, operator, model call, Phase 7 database
+operation, or Phase 5/6/7 live operator was added or run. `verify:ci` made only
+the expected registry-audit and ephemeral local PostgreSQL verification calls.
+
 ## Progress log
 
 - **2026-07-30:** Verified clean branch, exact main/origin/main/HEAD
@@ -2160,6 +2360,25 @@ expected registry-audit and ephemeral local PostgreSQL verification calls.
   Milestone 4. Added five focused red groups and closed provider identifier
   grammar, terminal attempt/outcome agreement, publication chronology, and
   real dated-snapshot validation. Milestone 3 awaits renewed acceptance.
+- **2026-07-30:** Maintainer review accepted Milestone 3 and corrected
+  model-execution digest
+  `f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7`,
+  then authorized only the persistence-independent Milestone 4 renderer and
+  mapping boundary.
+- **2026-07-30:** Wrote the shared-line, artifact-closure, rendering, digest,
+  alias/range, diagnostic, and durable-constructor integration tests first;
+  recorded 40 intended focused failures before implementation.
+- **2026-07-30:** Implemented exact logical-line reuse, deterministic separate
+  instruction/evidence rendering, trusted alias closure, prompt and
+  provider-output digests, value-free mapping diagnostics, and constructor
+  input mapping. Milestone 4 awaits maintainer review; Milestone 5 remains
+  blocked.
+- **2026-07-30:** Corrected the contracts public-API snapshot after the first
+  full verification passed 956 tests and rejected the unlisted shared helper.
+  Restarted the complete matrix: 957 repository tests, 103 interview tests,
+  PostgreSQL 18.4 with 36 no-skip tests, no dependency violations or
+  vulnerabilities, unchanged schema/specification/catalog/artifact digests,
+  and coverage all passed.
 
 ## Decision and deviation log
 
@@ -2217,21 +2436,47 @@ expected registry-audit and ephemeral local PostgreSQL verification calls.
 - **Publication chronology:** the cross-root validator permits publication at
   or after execution completion and rejects earlier publication without
   adding a serialized field or changing interview identity.
+- **Shared logical lines:** LF, CRLF, and CR use one contracts-owned splitter
+  for artifact validation and rendering. Empty and terminal lines are
+  preserved; invalid Unicode fails instead of being replaced.
+- **Renderer V1 encoding:** reviewed instructions/questions occupy one future
+  developer-role string; repository evidence occupies a separate compact
+  canonical JSON future user-role string. This freezes exact bytes without a
+  generic prompt framework.
+- **Prompt identity:** domain-separated canonical JSON binds exact
+  role-separated visible strings plus renderer/specification authority. Exact
+  artifact-set identity remains separately bound by the durable request.
+- **Mapping boundary:** aliases never leave `@gitblocks/interviews`; trusted
+  mapping resolves them to artifact coordinates, de-duplicates only the
+  top-level coordinate catalog, and preserves every semantic reference without
+  deriving durable IDs or timestamps.
+- **Milestone 4 module deviation:** the planned separate alias and citation
+  modules collapsed into cohesive `repository-interview-prompt.ts` and
+  `repository-interview-mapping.ts` modules. A separate public artifact-context
+  API or generic prompt framework would expose mutable internals without a
+  current consumer. The loaded specification now retains its exact reviewed
+  question snapshot so pure render-time authority validation can recheck every
+  digest without filesystem access.
+- **Prompt-injection scope:** JSON data positioning and instruction/evidence
+  role separation prevent repository text from becoming application-authored
+  instructions, but behavioral prompt-injection resistance remains an
+  empirical Milestone 7 gate.
 
-## Remaining maintainer decisions before Milestone 4
+## Remaining maintainer decisions before Milestone 5
 
-The request and interview roots are accepted in substance. Milestone 3 remains
-pending renewed acceptance of:
+Milestone 3 is accepted. Milestone 4 is implemented but must not advance until
+maintainer review accepts:
 
-1. the corrected model-execution schema and digest;
-2. the narrow nullable provider-identifier grammar;
-3. final attempt/outcome and transport failure-code closure;
-4. real dated-snapshot semantic validation;
-5. publication chronology in cross-root provenance validation; and
-6. the correction test and final verification evidence recorded here.
+1. the exact renderer V1 instruction and canonical evidence bytes;
+2. shared logical-line and terminal-empty-line semantics;
+3. artifact-set closure and present-only alias ordering;
+4. prompt bounds and domain-separated prompt/provider-output digests;
+5. exact alias/range failure paths and value-free diagnostic vocabulary;
+6. the trusted constructor-input mapping and unique coordinate ordering; and
+7. the red/green, compatibility, complete local verification, and hosted CI
+   evidence recorded here and on draft PR #18.
 
-Milestone 4 must not begin until that review authorizes artifact prompt
-rendering, trusted provider-alias mapping, and exact artifact membership/line
-closure. The final Gate A model, exact 30-candidate cohort, production
+Only renewed authorization may begin Milestone 5 application/use-case and fake
+port behavior. The final Gate A model, exact 30-candidate cohort, production
 review/selection policy, ranking integration, and any provider beyond OpenAI
 remain later decisions.

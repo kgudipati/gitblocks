@@ -59,8 +59,17 @@ request, successful model execution, and durable interview agree on candidate
 and artifact-set ownership; request, execution, specification, renderer,
 provider-output schema/projection, prompt, model-profile, and provider-output
 provenance; and complete identities. It intentionally does not prove artifact
-membership or exact artifact line closure, which remain the next mapping
-milestone.
+membership or exact artifact line closure; `@gitblocks/interviews` now proves
+those conditions before supplying durable constructor inputs.
+
+`splitRepositoryArtifactLogicalLines` is the shared Phase 6/7 logical-line
+authority. It treats LF, CRLF, and CR as separators; returns line text without
+the separator; preserves blank lines and the terminal empty line after a final
+separator; returns `['']` for empty content; and rejects invalid Unicode
+without trimming, normalization, replacement, or rewriting. Artifact parsing
+uses the helper when validating `RepositoryArtifactV1.lineCount`, and the
+repository-interview renderer uses the same helper for one-based citation
+coordinates.
 
 ## Durable repository-interview records
 

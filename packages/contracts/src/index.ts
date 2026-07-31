@@ -14,6 +14,7 @@ export {
   repositoryArtifactSetIdentityDigest,
   repositoryArtifactSetRecordDigest,
   repositoryArtifactUtf8ByteLength,
+  splitRepositoryArtifactLogicalLines,
 } from './artifact-identity.ts';
 export {
   createModelExecutionV1,

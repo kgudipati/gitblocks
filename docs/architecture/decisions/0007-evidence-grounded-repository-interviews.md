@@ -40,8 +40,11 @@ persistence, operator, evaluation, or live behavior.
 The next Milestone 3 review accepted the request and interview roots in
 substance but required correction of model-execution provider identifiers,
 final attempt/outcome closure, publication chronology, and real dated-snapshot
-validation. Milestone 3 therefore remains pending renewed acceptance, and
-Milestone 4 remains unauthorized.
+validation. The latest review accepted those corrections and schema digest
+`f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7`,
+accepted Milestone 3 in full, and authorized only the persistence-independent
+Milestone 4 renderer and mapping boundary. Milestone 4 is now implemented and
+awaiting review; Milestone 5 remains unauthorized.
 
 ## Decision
 
@@ -236,18 +239,46 @@ inputs and digests; duplicate raw prompt persistence is unnecessary.
 
 ### Deterministic prompt and untrusted-data isolation
 
-Aliases `A1` through `A4` follow ordered artifact-set membership. The model
-sees trusted static instructions and questions, complete reconstructed
-artifacts exactly once, machine aliases, controlled artifact kinds, and
-machine-generated explicit line numbers.
+Milestone 4 implements `repository-interview-renderer-v1` as two separate
+strings. The future developer-role string contains the exact reviewed
+instruction bytes followed by one frozen heading and the eight exact ordered
+questions. The future user-role string is compact canonical JSON containing a
+format kind, present artifacts, and unavailable selections.
+
+Aliases `A1` through `A4` follow present-entry ordinal; `not-found` entries do
+not consume aliases. Each present artifact exposes only alias, controlled kind,
+line count, and one-based `{ number, text }` logical lines. LF, CRLF, and CR
+share the Phase 6 contracts-owned splitter. Separators are omitted, every other
+character is preserved, and empty plus terminal-empty lines remain
+addressable. Each artifact line appears exactly once. Unavailable selections
+expose only bounded ordinal/selector/kind/requirement/outcome metadata.
 
 It does not see chunks in addition to artifacts, dossier content, candidate or
 repository identity, capability/ranking context, trusted IDs, provider
 provenance, credentials, or execution metadata.
 
-Repository-authored content always occupies an untrusted-data position. It
-cannot become a system or developer instruction, enable a tool, change output
-policy, or expand scope. No tools or previous/conversation state are enabled.
+Repository-authored content always occupies an escaped JSON data position,
+separate from application-authored instructions. It does not alter the
+rendered developer-role bytes or application policy. This structural boundary
+does not claim that a model cannot behaviorally follow adversarial data;
+Milestone 7 evaluation remains required. No tools or previous/conversation
+state will be enabled by the future adapter.
+
+Before rendering, public contract parsers and trusted closure checks require
+one exact valid artifact set, zero through four valid artifacts, exact
+candidate/numeric-repository/commit/path agreement, one-to-one present-entry
+membership, correct logical-line counts, and the Phase 6 512 KiB aggregate
+bound. Rendering additionally caps 40,000 logical lines, 65,536 instruction
+bytes, 4,194,304 evidence bytes, and 4,259,840 combined bytes. Bounds fail
+without truncation.
+
+The prompt digest is lowercase SHA-256 over canonical JSON binding domain
+`repository-interview-prompt`, digest version 1, renderer/specification
+authority, and the exact instruction/evidence strings. The provider-output
+digest is lowercase SHA-256 over canonical JSON binding domain
+`repository-interview-provider-output`, digest version 1, provider-output
+schema authority, and the exact parsed provider value. Exact Unicode and array
+order remain significant.
 
 ### Citation semantics
 
@@ -261,6 +292,14 @@ semantic item. Prompts request the narrowest sufficient interval. Overbroad
 but range-valid citations are human-audit findings; unknown aliases,
 out-of-range/reversed intervals, or cross-set artifacts are validation
 failures.
+
+Milestone 4 returns one deterministic unique coordinate catalog plus
+constructor-shaped claims, limitations, contradictions, and unknowns. Reuse of
+one coordinate across semantic items produces one catalog entry while every
+item retains its reference. The mapping creates no durable ID or timestamp.
+Its fixed diagnostics preserve exact provider paths, cap issues at 20 and
+paths at 256 characters, and contain no artifact, prompt, semantic, alias,
+range, or repository values.
 
 ### Stable identities are trusted-code outputs
 
@@ -577,7 +616,7 @@ second maintained schema.
 
 ## Deferred work
 
-- Artifact-alias mapping and exact artifact membership/line closure.
+- Persistence-independent interview application flow and fake effect ports.
 - Exact migration 0004 SQL and adapter APIs.
 - Exact 30-candidate cohort and six calibration candidates.
 - Final Gate A model-profile selection.
@@ -589,11 +628,11 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1 and 2 passed maintainer review. The request and interview roots
-from Milestone 3 are accepted in substance; the corrected model-execution
-schema, digest, terminal closure, real-date validation, and cross-root
-publication chronology require renewed acceptance while the draft PR remains
-draft. Milestone 4 requires that separate maintainer authorization.
+Milestones 1–3 passed maintainer review. Milestone 4's exact renderer bytes,
+shared line semantics, artifact/alias/range closure, digest algorithms,
+constructor-input mapping, diagnostics, tests, compatibility evidence, and
+hosted CI require maintainer acceptance while the PR remains draft. Milestone
+5 requires separate renewed authorization.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

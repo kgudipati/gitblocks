@@ -11,6 +11,7 @@ import {
   parseRepositoryArtifactSetV1,
   parseRepositoryArtifactV1,
   serializeContractSchemaV1,
+  splitRepositoryArtifactLogicalLines,
   type RepositoryArtifactChunkV1,
   type RepositoryArtifactSetV1,
   type RepositoryArtifactV1,
@@ -151,6 +152,55 @@ function setInput(
 }
 
 describe('immutable repository artifact contracts', () => {
+  it.each([
+    ['alpha', ['alpha']],
+    ['alpha\nbeta', ['alpha', 'beta']],
+    ['alpha\r\nbeta', ['alpha', 'beta']],
+    ['alpha\rbeta', ['alpha', 'beta']],
+    ['alpha\n', ['alpha', '']],
+    ['\n', ['', '']],
+    ['', ['']],
+    ['\ralpha\n\nbeta\r\n', ['', 'alpha', '', 'beta', '']],
+  ])('shares exact logical-line semantics for %j', (content, expected) => {
+    expect(splitRepositoryArtifactLogicalLines(content)).toEqual(expected);
+  });
+
+  it('makes the shared logical-line helper agree with artifact lineCount', () => {
+    for (const content of [
+      'alpha',
+      'alpha\nbeta',
+      'alpha\r\nbeta',
+      'alpha\rbeta',
+      'alpha\n',
+      '\n',
+      '',
+      '\ralpha\n\nbeta\r\n',
+    ]) {
+      const artifact = createRepositoryArtifactV1(
+        artifactInput({
+          content,
+          contentSha256: sha256(content),
+          byteCount: Buffer.byteLength(content),
+          lineCount: splitRepositoryArtifactLogicalLines(content).length,
+          blobObjectId: gitBlobSha1(Buffer.from(content)),
+          blobApiUrl:
+            'https://api.github.com/repositories/123456789012345678/git/blobs/' +
+            gitBlobSha1(Buffer.from(content)),
+        }),
+      );
+      expect(parseRepositoryArtifactV1(artifact)).toMatchObject({ ok: true });
+      expect(
+        splitRepositoryArtifactLogicalLines(artifact.content),
+      ).toHaveLength(artifact.lineCount);
+    }
+  });
+
+  it('rejects invalid Unicode instead of replacing it while splitting lines', () => {
+    expect(() => splitRepositoryArtifactLogicalLines('\ud800')).toThrow(
+      /invalid Unicode/u,
+    );
+  });
+
   it('adds three closed schema roots without changing the six accepted roots', () => {
     expect(CONTRACT_SCHEMA_NAMES).toContain('repository-artifact');
     expect(CONTRACT_SCHEMA_NAMES).toContain('repository-artifact-chunk');
