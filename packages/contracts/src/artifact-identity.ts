@@ -241,8 +241,12 @@ export function repositoryArtifactDisplayUrl(value: {
   }/${encodedPath}`;
 }
 
-function digestCanonicalJson(value: unknown): string {
+export function contractCanonicalDigest(value: unknown): string {
   return sha256Hex(utf8Bytes(serializeCanonicalJson(value, new Set<object>())));
+}
+
+function digestCanonicalJson(value: unknown): string {
+  return contractCanonicalDigest(value);
 }
 
 function serializeCanonicalJson(

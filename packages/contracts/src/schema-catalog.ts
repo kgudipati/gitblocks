@@ -9,6 +9,11 @@ import {
   repositoryArtifactV1Schema,
   repositoryFingerprintV1Schema,
 } from './schemas.ts';
+import {
+  modelExecutionV1Schema,
+  repositoryInterviewRequestV1Schema,
+  repositoryInterviewV1Schema,
+} from './repository-interview-schemas.ts';
 
 export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-dossier',
@@ -20,6 +25,9 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'repository-artifact-chunk',
   'repository-artifact-set',
   'repository-fingerprint',
+  'repository-interview-request',
+  'model-execution',
+  'repository-interview',
 ] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
@@ -42,6 +50,9 @@ const SCHEMAS = {
   'repository-artifact-chunk': repositoryArtifactChunkV1Schema,
   'repository-artifact-set': repositoryArtifactSetV1Schema,
   'repository-fingerprint': repositoryFingerprintV1Schema,
+  'repository-interview-request': repositoryInterviewRequestV1Schema,
+  'model-execution': modelExecutionV1Schema,
+  'repository-interview': repositoryInterviewV1Schema,
 } as const;
 
 export function getContractSchemaV1(name: ContractSchemaName): JsonSchemaValue {

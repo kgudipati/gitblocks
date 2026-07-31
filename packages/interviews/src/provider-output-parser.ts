@@ -162,7 +162,9 @@ function isLimitationVariantError(
   limitationPath: string,
 ): boolean {
   if (error.keyword === 'required') {
-    const missingProperty = error.params['missingProperty'];
+    const missingProperty = (
+      error.params as Readonly<{ missingProperty?: unknown }>
+    ).missingProperty;
     return (
       error.instancePath === limitationPath &&
       (missingProperty === 'basis' ||

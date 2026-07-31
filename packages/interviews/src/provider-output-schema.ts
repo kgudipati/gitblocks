@@ -1,18 +1,14 @@
 import { Type, type Static, type TSchema } from 'typebox';
 
+import { REPOSITORY_INTERVIEW_TOPICS } from '@gitblocks/contracts';
+
+export {
+  REPOSITORY_INTERVIEW_TOPICS,
+  type RepositoryInterviewTopic,
+} from '@gitblocks/contracts';
+
 export const REPOSITORY_INTERVIEW_PROVIDER_OUTPUT_SCHEMA_VERSION =
   '1.0.0' as const;
-
-export const REPOSITORY_INTERVIEW_TOPICS = Object.freeze([
-  'purpose-and-scope',
-  'runtime-and-framework',
-  'integration-surface',
-  'data-and-state',
-  'deployment-and-operations',
-  'security-and-trust',
-  'maintenance-and-support',
-  'adoption-and-limitations',
-] as const);
 
 export const PROVIDER_OUTPUT_BOUNDS = Object.freeze({
   artifactAliases: 4,
@@ -44,16 +40,9 @@ function closedObject<T extends Readonly<Record<string, TSchema>>>(
   });
 }
 
-const topicSchema = Type.Union([
-  Type.Literal('purpose-and-scope'),
-  Type.Literal('runtime-and-framework'),
-  Type.Literal('integration-surface'),
-  Type.Literal('data-and-state'),
-  Type.Literal('deployment-and-operations'),
-  Type.Literal('security-and-trust'),
-  Type.Literal('maintenance-and-support'),
-  Type.Literal('adoption-and-limitations'),
-]);
+const topicSchema = Type.Union(
+  REPOSITORY_INTERVIEW_TOPICS.map((topic) => Type.Literal(topic)),
+);
 
 const artifactAliasSchema = Type.Union([
   Type.Literal('A1'),
@@ -222,9 +211,6 @@ export const repositoryInterviewProviderOutputV1Schema = closedObject(
 export type RepositoryInterviewProviderOutputV1 = Static<
   typeof repositoryInterviewProviderOutputV1Schema
 >;
-
-export type RepositoryInterviewTopic =
-  (typeof REPOSITORY_INTERVIEW_TOPICS)[number];
 
 export type ProviderCitationV1 =
   RepositoryInterviewProviderOutputV1['documentedPositions'][number]['citations'][number];

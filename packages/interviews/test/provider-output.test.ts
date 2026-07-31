@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
+import { REPOSITORY_INTERVIEW_TOPICS as CONTRACT_REPOSITORY_INTERVIEW_TOPICS } from '@gitblocks/contracts';
+
 import {
   parseRepositoryInterviewProviderOutputV1,
+  REPOSITORY_INTERVIEW_TOPICS,
   repositoryInterviewProviderOutputV1Schema,
 } from '../src/index.ts';
 import {
@@ -31,6 +34,12 @@ function citation(startLine: number, endLine = startLine) {
 }
 
 describe('repository interview provider-output schema', () => {
+  it('uses the shared durable topic vocabulary without drift', () => {
+    expect(REPOSITORY_INTERVIEW_TOPICS).toBe(
+      CONTRACT_REPOSITORY_INTERVIEW_TOPICS,
+    );
+  });
+
   it('accepts one closed root with exactly five required arrays', () => {
     expectValid(createValidProviderOutput());
 

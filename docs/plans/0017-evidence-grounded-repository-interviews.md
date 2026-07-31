@@ -11,10 +11,12 @@
     Milestone 1.”
   - PR #18 review: “Milestone 1 accepted — Milestone 2 authorized with binding
     amendments.”
+  - PR #18 review: “Milestone 2 accepted — Milestone 3 authorized after
+    diagnostic cleanup.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestone 1 accepted; Milestone 2 implemented and locally verified,
-  awaiting maintainer review; Milestone 3 is not authorized
+- State: Milestones 1–2 accepted; Milestone 3 implemented and awaiting
+  maintainer review; Milestone 4 is not authorized
 - Last updated: 2026-07-30
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -42,11 +44,12 @@ Future ranking may join this semantic interview with the independently derived
 provenance. An interview will not rank, recommend, select, or itself become
 direct evidence.
 
-Milestone 1 delivered only this plan, ADR 0007, and minimal authoritative
-documentation reconciliation. Milestone 2 adds only the provider-output
+Milestone 1 delivered this plan, ADR 0007, and minimal authoritative
+documentation reconciliation. Milestone 2 added only the provider-output
 schema, immutable specification, deterministic schema projections, and their
-offline package validation; it does not make the outcome available to a user
-or operator.
+offline package validation. Milestone 3 adds durable records and trusted
+identity/parser behavior without a prompt renderer, provider, persistence,
+operator, or user-visible execution path.
 
 ## Verified repository state
 
@@ -434,17 +437,17 @@ deferred ranking-selection decision.
 
 ## Planned production contracts
 
-The exact TypeBox field definitions and parser limits will be implemented
-test-first in Milestone 3. The following ownership is binding; details marked
-“review before Milestone 3” are proposals, not current contracts.
+Milestone 3 implements the exact TypeBox field definitions and parser limits
+test-first. The following ownership and partitions are executable contract
+authority pending maintainer review.
 
 ### `RepositoryInterviewRequestV1`
 
-The planned request will identify one candidate and one exact artifact set plus
+The request identifies one candidate and one exact artifact set plus
 the immutable semantic specification and deterministic renderer inputs. It
 will not carry dossier material or provider/model configuration.
 
-Planned fields:
+Exact fields:
 
 - `contractVersion`;
 - trusted `requestId`;
@@ -453,7 +456,9 @@ Planned fields:
 - `specificationVersion` and `specificationDigest`;
 - `rendererVersion`;
 - `providerOutputSchemaVersion` and canonical schema digest;
-- `promptDigest`.
+- `promptDigest`;
+- `identityDigest`; and
+- `recordDigest`.
 
 The request identity will bind every field above except `requestId`, then
 trusted code will derive `requestId` from that identity digest. The prompt
@@ -462,10 +467,10 @@ of the raw prompt.
 
 ### `ModelExecutionV1`
 
-The planned execution root will represent one bounded provider-call operation,
+The execution root represents one bounded provider-call operation,
 including failed operations, without embedding prompt or response bodies.
 
-Planned identity fields:
+Its exact identity partition is:
 
 - request identity digest;
 - provider code and fixed endpoint profile;
@@ -486,16 +491,18 @@ successful execution and its exact interview by reuse key without a provider
 call. A forced run requires an explicit trusted nonce, creates new immutable
 history, and never overwrites the earlier execution.
 
-The complete record will additionally contain execution ID, request ID,
-timestamps, terminal outcome, attempt count, safe provider request ID,
-validated usage counters, response-byte count, duration, stable failure code,
-identity/reuse/record digests, and persistence provenance. Prompt text,
+The complete record additionally contains execution ID, request ID, one or two
+bounded attempt summaries, root/attempt timestamps, terminal outcome, safe
+provider request/response IDs, validated usage counters, response-byte and
+duration metadata, stable failure code, and identity/reuse/record digests.
+Persistence provenance remains outside this provider-execution contract.
+Prompt text,
 provider response text, reasoning text, refusal text, and raw error bodies are
 prohibited.
 
 ### `RepositoryInterviewV1`
 
-The planned durable interview will contain:
+The durable interview contains:
 
 - contract version;
 - trusted interview ID;
@@ -523,11 +530,11 @@ for a missing citation required by that item's semantics. Ranges are requested
 as the narrowest sufficient interval; a range-valid but overbroad citation is
 a human-audit finding rather than a parser failure.
 
-Planned deterministic ordering is controlled topic order, then semantic basis,
-then exact Unicode statement order, then canonical citation order
-`artifact-set ordinal`, `startLine`, `endLine`. Mapping rejects duplicates
-before ordering. Every controlled topic must be represented by at least one
-claim, limitation, contradiction, or unknown.
+Deterministic ordering is controlled topic order, then semantic basis, exact
+Unicode statement order, and full identity digest. Root citations order by
+artifact ID, `startLine`, `endLine`, and identity digest. Mapping rejects
+duplicates before ordering. Every controlled topic must be represented by at
+least one claim, limitation, contradiction, or unknown.
 
 ID inputs will include the execution ID, semantic kind, topic, exact semantic
 text, rationale where applicable, confidence, and ordered resolved citations.
@@ -1424,8 +1431,7 @@ already includes `apps/*` and will remain unchanged.
 
 ### 2. Provider-output TypeBox schema, specification source, and projections
 
-- **Status:** implemented and locally verified; awaiting maintainer review
-  before Milestone 3.
+- **Status:** accepted by maintainer review.
 - **Red first:** closed schema, bounds, every required field, unsupported
   keyword rejection, deterministic neutral/OpenAI projection, digest drift,
   immutable directory tests.
@@ -1443,6 +1449,8 @@ already includes `apps/*` and will remain unchanged.
 
 ### 3. Durable contracts and identity helpers
 
+- **Status:** implemented and awaiting maintainer review; Milestone 4 remains
+  blocked.
 - **Red first:** exactly three root schemas, nested ownership, parser/preflight
   bounds, prior nine digests, ID/identity/record mutation matrices, collision
   behavior, dossier exclusion.
@@ -1933,6 +1941,143 @@ provider/network request, database mutation, live operator, or Phase 5/6/7
 live execution occurred. `verify:ci` made only its expected registry audit and
 ephemeral local PostgreSQL verification calls.
 
+## Milestone 3 implementation evidence
+
+### Implemented files and authority
+
+Milestone 3 adds no package, dependency, migration, operator, provider,
+persistence port, prompt renderer, alias mapper, candidate content, or live
+behavior. Its executable files are limited to:
+
+```text
+packages/contracts/src/
+  owned-json.ts
+  repository-interview-schemas.ts
+  repository-interview-digests.ts
+  repository-interview-identity.ts
+  repository-interview-parsers.ts
+
+packages/contracts/test/
+  repository-interview-contracts.test.ts
+```
+
+Existing contract catalog, structural-validation, public export, schema
+artifact test, and canonical artifact-digest modules receive only the additive
+wiring required by those roots. `@gitblocks/interviews` imports the shared
+frozen topic constant from `@gitblocks/contracts`; its provider-output TypeBox
+definition remains the sole provider DTO authority.
+
+The three exact additive roots are:
+
+- `RepositoryInterviewRequestV1`: contract/request/candidate/artifact-set
+  identity, specification and renderer versions/digests, provider-output
+  schema version/digest, prompt digest, identity digest, and record digest. It
+  has no timestamp, dossier, provider/model configuration, review, ranking, or
+  recommendation field.
+- `ModelExecutionV1`: request identity, trusted nonce and normal/forced mode,
+  closed model profile and profile digest, reuse-key digest, root timestamps,
+  one or two one-based contiguous bounded attempt summaries, terminal
+  success/failure outcome and validated nullable usage, identity digest, and
+  record digest. It carries no prompt/source/provider body, reasoning,
+  refusal, header, URL, SQL, or raw error.
+- `RepositoryInterviewV1`: exact candidate/artifact-set/request/successful
+  execution provenance, specification/renderer/schema/projection/prompt/model
+  digests, derived processing state, canonical citation catalog, claims,
+  limitations, contradictions, unknowns, publication timestamp, identity
+  digest, and record digest. It has no provider aliases, dossier, review,
+  selection, ranking, or recommendation state.
+
+Nested IDs use `intcite-`, `intclaim-`, `intlimit-`, `intcontra-`, and
+`intunknown-`; roots use `intreq-`, `modelexec-`, and `interview-`. Every ID
+contains the first 48 hex characters of a full domain-separated SHA-256
+identity and is checked against that complete digest. Semantic strings are
+preserved byte-for-byte: NFC and NFD stay distinct, and no trim,
+normalization, rewrite, sanitization, or silent deduplication occurs.
+
+Request identity binds only deterministic candidate/artifact-set and prompt
+authority. A model profile has a separate complete digest. The reuse key binds
+request and profile digests; execution identity adds nonce, mode, and force
+reason; attempts, timestamps, usage, terminal outcome, and provider IDs remain
+record-only. Interview identity binds exact request/execution provenance,
+processing state, and ordered nested identity digests; `publishedAt` remains
+record-only.
+
+Trusted constructors accept resolved artifact IDs and line coordinates, never
+provider aliases or caller-generated IDs/digests. They preflight and copy plain
+data, reject unsupported fields, derive nested and root identities/records,
+canonicalize citation references and contradiction sides, derive processing
+state, and return values accepted by the public parsers. The parsers repeat
+bounded preflight, strict TypeBox/Ajv validation, owned copying, semantic and
+referential validation, and digest/collision checks with bounded value-free
+diagnostics.
+
+`validateRepositoryInterviewExecutionV1` requires a successful execution and
+closes request, candidate, artifact-set, specification, renderer,
+provider-output-schema, prompt, provider projection, model profile, execution,
+and provider-output provenance. Artifact-set membership and exact line-count
+closure remain intentionally blocked for Milestone 4.
+
+The new schema digests are:
+
+| Contract root                | SHA-256                                                            |
+| ---------------------------- | ------------------------------------------------------------------ |
+| repository interview request | `c009494390484a40ace4eea9b58ba3b288cf0577c13aab926fb7e5cdcfb7c673` |
+| model execution              | `cd773b08ce853a4017a1f710883fb76fa6cc1df14d7633f46f0467863b6a1e7a` |
+| repository interview         | `99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb` |
+
+All prior nine schema digests remain the values listed above. The frozen
+specification, provider-output schema, and OpenAI projection digests remain
+`da2c8560e0b6a2fc7bc8d79fd89f65984815236a54cbf49491911274db8168f9`,
+`5fa5d1c44a8924d8be3acc2ac74e58ec45ea134264c2245b7e158873b2e26b19`,
+and
+`5d81e5e32cc4871f0068f691302282a4e5dd6dc656ee4be132c050fbc4228ed7`.
+
+### Red/green evidence
+
+The diagnostic cleanup first added focused failures for ordinary limitation
+classification and exact contradiction/unknown citation paths. The focused
+run failed two of 53 tests, then passed all 70 relevant tests after the fix.
+The frozen specification validator remained green, and commit `ab5df00` was
+pushed separately.
+
+Before durable implementation, the new contract/topic suite failed all 19 new
+tests because the shared topic authority, constructors, parsers, schemas, and
+catalog roots did not exist. The current focused contract/interviews/schema
+suite passes 82 tests.
+
+The first full `pnpm verify` attempt stopped before tests on an insufficient
+TypeScript guard in the new schema-test helper. After that guard was corrected,
+the next run reached the new required-property assertion and showed that the
+canonical schema sorts property keys while TypeBox preserves declaration order
+in `required`; the assertion was corrected to compare sets. Both discoveries
+were test-only and changed no schema or runtime behavior. The complete matrix
+was restarted and passed.
+
+The final pre-commit matrix on 2026-07-30 produced:
+
+| Command                          | Result                                                                                                                                                    |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile` | passed; all eight workspace projects already up to date; pnpm 11.17.0                                                                                     |
+| `pnpm interviews:verify`         | passed; frozen digests valid; four files and 72 tests; package typecheck; 663 modules/2,100 dependencies without violation                                |
+| `pnpm verify`                    | passed; 49 files and 911 tests; format, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, and secret checks |
+| `pnpm verify:ci`                 | passed; repeated verification, PostgreSQL 18.4 with 36 tests/no skips, and registry audit with no vulnerabilities                                         |
+| `pnpm contracts:validate`        | passed; 10 cases and 40 supplied candidates; representability only                                                                                        |
+| `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                         |
+| `pnpm ingestion:verify`          | passed; 11 files and 156 tests plus typecheck                                                                                                             |
+| `pnpm db:verify`                 | passed; PostgreSQL 18.4, migrations 0001–0003, 17 product tables, four files and 36 tests, no skips                                                       |
+| `pnpm eval:validate`             | passed; 10 cases                                                                                                                                          |
+| `pnpm eval:fixtures`             | passed; all five fixed strategies produced expected summaries                                                                                             |
+| `pnpm artifacts:validate`        | passed; 150 root attempts and 30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                    |
+| `pnpm artifacts:verify`          | passed; six files and 107 tests plus typecheck                                                                                                            |
+| `pnpm test:coverage`             | passed; 49 files and 911 tests; contracts 93.24% statements/77.68% branches/97.58% functions/93.15% lines; repository total 78.82%/71.07%/85.57%/78.65%   |
+| `git diff --check`               | passed                                                                                                                                                    |
+
+No dependency, package manifest, lockfile, workspace glob, TypeScript pin,
+Node/pnpm pin, migration, catalog, artifact manifest, candidate content,
+credential, or environment file changed. Ordinary verification performed no
+provider request and no Phase 5/6/7 live operation. `verify:ci` made only its
+expected registry-audit and ephemeral local PostgreSQL verification calls.
+
 ## Progress log
 
 - **2026-07-30:** Verified clean branch, exact main/origin/main/HEAD
@@ -1975,6 +2120,15 @@ ephemeral local PostgreSQL verification calls.
   suite passed. Added a red regression, approved the exact package shape and
   dependency policy, and reran the complete local matrix with 886 passing
   tests before the follow-up push.
+- **2026-07-30:** Maintainer review accepted Milestone 2 and authorized
+  Milestone 3 after exact provider diagnostic cleanup. Added the cleanup red
+  tests, preserved precise contradiction/unknown citation paths, corrected
+  limitation Ajv classification, confirmed all three frozen digests, and
+  pushed standalone commit `ab5df00`.
+- **2026-07-30:** Wrote the durable contract and shared-topic tests first and
+  captured 19 intended failures. Added exactly three closed additive roots,
+  trusted constructors/digests, safe owned parsers, canonical/referential
+  validation, and cross-root provenance closure. Milestone 4 remains stopped.
 
 ## Decision and deviation log
 
@@ -2011,21 +2165,30 @@ ephemeral local PostgreSQL verification calls.
   `packages/interviews/` as an approved product package, requires its minimal
   Milestone 2 entry points, and permits only contracts, exact `ajv`, and exact
   `typebox` runtime dependencies.
+- **Durable creation references:** the interview constructor accepts a unique
+  root catalog of resolved artifact ID/line coordinates, and semantic items
+  reference those same coordinates. Trusted code resolves them to derived
+  citation IDs before publication; provider aliases remain outside the
+  durable constructor.
+- **Execution attempt ordinals:** attempt summaries are one-based and
+  contiguous for operator readability.
+- **Dated model profiles:** the durable profile structurally requires a dated
+  snapshot suffix. Moving aliases cannot become reusable execution identity.
 
-## Remaining maintainer decisions before Milestone 3
+## Remaining maintainer decisions before Milestone 4
 
-Milestone 2 is authorized with the binding schema, specification, projection,
-question, and package amendments recorded above. Review of the completed
-Milestone 2 snapshots and digest evidence must accept or amend:
+Milestone 3 is implemented within the binding durable boundary. Review must
+accept or amend:
 
-1. the exact generated provider-neutral and OpenAI projection bytes;
-2. the executable canonicalization and semantic-validation behavior;
-3. the declared specification, schema, renderer, and projection version/digest
-   partition; and
-4. any implementation discovery recorded in this plan.
+1. the exact three root schemas and new schema digests;
+2. the identity/reuse-key/record partitions and domain separators;
+3. resolved-coordinate constructor input and canonical ordering;
+4. one-based attempt ordinals and dated model-snapshot structural policy;
+5. processing-state and cross-root provenance validation; and
+6. any implementation discovery or final verification evidence recorded here.
 
-Durable request/execution/interview fields and identity, reuse-key,
-force-nonce, processing-state, publication, and complete-record digest
-partitions remain Milestone 3 decisions. The final Gate A model, exact
-30-candidate cohort, production review/selection policy, ranking integration,
-and any provider beyond OpenAI remain later decisions.
+Milestone 4 must not begin until that review authorizes artifact prompt
+rendering, trusted provider-alias mapping, and exact artifact membership/line
+closure. The final Gate A model, exact 30-candidate cohort, production
+review/selection policy, ranking integration, and any provider beyond OpenAI
+remain later decisions.

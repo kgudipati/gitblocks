@@ -1,7 +1,7 @@
 # `@gitblocks/contracts`
 
 Versioned, transport-neutral DTO schemas and safe object-value parsers for the
-GitBlocks fit-assessment kernel.
+GitBlocks product kernel.
 
 ## Boundary
 
@@ -27,10 +27,12 @@ or:
 ```
 
 The `value` is the validated V1 DTO. For fit-assessment kernel contracts,
-`domain` is a fresh canonical domain value. Immutable artifact contracts have
-no domain mapping: their `domain` result is the same validated inert DTO.
-Parsers never mutate the input, perform I/O, dynamically import input, or
-return rejected values in diagnostics.
+`domain` is a fresh canonical domain value. Immutable artifact and
+repository-interview contracts have no domain mapping: their `domain` result
+is the same validated inert DTO. Repository-interview parsers additionally
+copy accepted input into fresh owned data before semantic use. Parsers never
+mutate the input, perform I/O, dynamically import input, or return rejected
+values in diagnostics.
 
 The public V1 parsers are:
 
@@ -43,11 +45,55 @@ The public V1 parsers are:
 - `parseRepositoryArtifactV1`
 - `parseRepositoryArtifactChunkV1`
 - `parseRepositoryArtifactSetV1`
+- `parseRepositoryInterviewRequestV1`
+- `parseModelExecutionV1`
+- `parseRepositoryInterviewV1`
 
 `validateFitAssessmentExchangeV1` additionally proves that one independently
 valid request and response agree on candidate set, constraints, evidence,
 unknowns, supplied candidate limitations, cutoff, request ID, and correlation
 ID.
+
+`validateRepositoryInterviewExecutionV1` proves that one independently valid
+request, successful model execution, and durable interview agree on candidate
+and artifact-set ownership; request, execution, specification, renderer,
+provider-output schema/projection, prompt, model-profile, and provider-output
+provenance; and complete identities. It intentionally does not prove artifact
+membership or exact artifact line closure, which remain the next mapping
+milestone.
+
+## Durable repository-interview records
+
+The three additive `1.0.0` roots are
+`RepositoryInterviewRequestV1`, `ModelExecutionV1`, and
+`RepositoryInterviewV1`. The frozen ordered
+`REPOSITORY_INTERVIEW_TOPICS` vocabulary is shared with the interviews
+provider-output schema, but provider DTOs remain owned exclusively by
+`@gitblocks/interviews`.
+
+Trusted creation helpers accept no caller-authored IDs or digests. They reject
+non-plain or unsupported shapes, copy inputs, preserve semantic strings
+byte-for-byte without Unicode normalization, canonicalize ordering, and derive
+full SHA-256 identities, 48-hex shortened IDs, and complete record digests.
+The prefixes are `intreq-`, `modelexec-`, `interview-`, `intcite-`,
+`intclaim-`, `intlimit-`, `intcontra-`, and `intunknown-`.
+
+The request has no timestamp or model/provider setting. An execution separates
+its request/profile reuse key, trusted nonce/mode identity, and terminal
+record. It stores only bounded attempt, usage, outcome, and safe provider-ID
+metadata—never prompts, source, responses, reasoning, refusals, headers, URLs,
+or raw errors. An interview stores mapped artifact IDs and inclusive line
+intervals, model-authored claims, limitations, contradictions, and unknowns;
+it has no dossier, review, ranking, recommendation, or current-selection
+field.
+
+Interview processing state is derived: zero directly grounded topics is
+`insufficient-evidence`; all eight topics directly grounded by documented
+claims or documented limitations with no contradictions or unknowns is
+`complete`; every other valid state is `partial-evidence`. Parsers enforce
+canonical ordering, topic coverage, semantic text policy, nested identity and
+record integrity, citation resolution, duplicate rejection, and no orphan
+citations.
 
 ## Repository facts and evidence
 
@@ -104,10 +150,11 @@ schema value. `serializeContractSchemaV1(name)` returns its deterministic
 newline-terminated representation. The public schema-name catalog is runtime
 frozen and cannot be widened through consumer mutation. Every root has an
 explicit `1.0.0` `$id`, uses Draft 2020-12, and is closed at every untrusted
-object shape. The six accepted fit-assessment roots retain their exact schema
-digests; the three repository-artifact roots are additive. A root shape change
-after publication requires a separately versioned schema/parser and explicit
-negotiation; controlled fact-vocabulary evolution is negotiated separately.
+object shape. The six accepted fit-assessment roots and three
+repository-artifact roots retain their exact schema digests; the three
+repository-interview roots are additive. A root shape change after publication
+requires a separately versioned schema/parser and explicit negotiation;
+controlled fact-vocabulary evolution is negotiated separately.
 
 The object-value preflight bounds depth at 32, scheduled/visited values at
 200,000, own properties at 64 per object, array width at 2,000, scalar strings

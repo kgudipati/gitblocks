@@ -29,11 +29,13 @@ exactly three production contract roots, keeps review in evaluation, selects a
 direct OpenAI adapter, fixes initial bounds and quality gates, and requires
 calibration before choosing a model. This ADR records that amended boundary.
 
-Milestone 1 added documentation only and was accepted by maintainer review.
-That review authorized Milestone 2's provider-output schema, immutable
+Milestone 1 added documentation and was accepted by maintainer review.
+Milestone 2 added the accepted provider-output schema, immutable
 specification, deterministic schema projections, offline validation, and
-minimal package wiring. It did not authorize durable contracts or any
-provider, persistence, operator, evaluation, or live behavior.
+minimal package wiring. The next review accepted those exact snapshots and
+authorized Milestone 3's three durable roots after a focused value-free
+diagnostic cleanup. No review has authorized prompt rendering, provider,
+persistence, operator, evaluation, or live behavior.
 
 ## Decision
 
@@ -118,7 +120,7 @@ requires the deferred ranking-time selection decision.
 
 ### Production contract roots
 
-Phase 7 will add exactly:
+Phase 7 defines exactly:
 
 ```text
 RepositoryInterviewRequestV1
@@ -130,6 +132,14 @@ Repository-interview-specific claim, citation, limitation, contradiction, and
 unknown shapes are nested under these roots. Existing dossier and fit
 assessment nested records are not reused in a way that changes their ownership
 or meaning.
+
+Milestone 3 implements these roots as additive closed TypeBox schemas with
+safe owned-data parsers and trusted constructors. Request identity is
+artifact-set/specification/renderer/provider-output-schema/prompt owned.
+Execution identity is a trusted nonce and normal/forced mode over a separately
+reusable request/model-profile key. Interview identity binds mapped artifact
+citations, ordered semantic identities, and exact request/execution
+provenance. Wall-clock and terminal operation facts are record-only.
 
 Phase 7 will not create production roots or PostgreSQL roots for:
 
@@ -552,7 +562,7 @@ second maintained schema.
 
 ## Deferred work
 
-- Exact root and nested TypeBox field definitions pending red tests.
+- Artifact-alias mapping and exact artifact membership/line closure.
 - Exact migration 0004 SQL and adapter APIs.
 - Exact 30-candidate cohort and six calibration candidates.
 - Final Gate A model-profile selection.
@@ -564,12 +574,11 @@ second maintained schema.
 
 ## Exit gates
 
-Milestone 1 passed maintainer review and its local and hosted verification was
-green. Milestone 2 may implement only the authorized provider-output schema,
-immutable specification, deterministic projections, offline validation, and
-minimal package wiring while the draft PR remains draft. Milestone 3 requires
-separate maintainer review of the completed Milestone 2 schema snapshots,
-digests, tests, and recorded discoveries.
+Milestones 1 and 2 passed maintainer review. Milestone 3 may implement only the
+three durable roots, trusted identity/record helpers, safe parsers, shared
+topic authority, and cross-root provenance validation while the draft PR
+remains draft. Milestone 4 requires separate maintainer review of the
+completed Milestone 3 schemas, digests, tests, and recorded discoveries.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

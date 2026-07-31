@@ -32,6 +32,12 @@ const EXPECTED_SCHEMA_DIGESTS = {
     '0d78814c3361e76e9d82c29cc6464fbedb3e6b761269dba3641c0e1c2c894e54',
   'repository-fingerprint':
     '73f42c7a7cd20de24372ecddb7afa33925ca1f4d67cb1f9598cd9d56ea87477c',
+  'repository-interview-request':
+    'c009494390484a40ace4eea9b58ba3b288cf0577c13aab926fb7e5cdcfb7c673',
+  'model-execution':
+    'cd773b08ce853a4017a1f710883fb76fa6cc1df14d7633f46f0467863b6a1e7a',
+  'repository-interview':
+    '99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb',
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
@@ -46,6 +52,9 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repository-artifact-chunk',
       'repository-artifact-set',
       'repository-fingerprint',
+      'repository-interview-request',
+      'model-execution',
+      'repository-interview',
     ]);
 
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -87,6 +96,33 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
           expect(readProperty(value, 'additionalProperties')).toBe(false);
         }
         expect(hasProperty(value, 'default')).toBe(false);
+      });
+    }
+  });
+
+  it('requires every property in each repository-interview object', () => {
+    for (const name of [
+      'repository-interview-request',
+      'model-execution',
+      'repository-interview',
+    ] as const) {
+      walkSchema(getContractSchemaV1(name), (value) => {
+        if (readProperty(value, 'type') !== 'object') {
+          return;
+        }
+        const properties = readProperty(value, 'properties');
+        const required = readProperty(value, 'required');
+        if (
+          properties === undefined ||
+          required === undefined ||
+          !isRecord(properties) ||
+          !isSchemaArray(required)
+        ) {
+          throw new Error(
+            'Repository-interview objects must declare required properties.',
+          );
+        }
+        expect([...required].sort()).toEqual(Object.keys(properties).sort());
       });
     }
   });
@@ -162,19 +198,31 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'MAX_OBJECT_PROPERTIES',
       'REPOSITORY_ARTIFACT_CHUNKER_VERSION',
       'REPOSITORY_ARTIFACT_VERSION',
+      'REPOSITORY_INTERVIEW_BOUNDS',
+      'REPOSITORY_INTERVIEW_TOPICS',
+      'createModelExecutionV1',
       'createRepositoryArtifactChunkV1',
       'createRepositoryArtifactSetV1',
       'createRepositoryArtifactV1',
+      'createRepositoryInterviewRequestV1',
+      'createRepositoryInterviewV1',
       'getContractSchemaV1',
+      'modelExecutionIdentityDigest',
+      'modelExecutionModelProfileDigest',
+      'modelExecutionRecordDigest',
+      'modelExecutionReuseKeyDigest',
       'parseCandidateDossierV1',
       'parseCapabilityRequestV1',
       'parseErrorEnvelopeV1',
       'parseFitAssessmentRequestV1',
       'parseFitAssessmentResponseV1',
+      'parseModelExecutionV1',
       'parseRepositoryArtifactChunkV1',
       'parseRepositoryArtifactSetV1',
       'parseRepositoryArtifactV1',
       'parseRepositoryFingerprintV1',
+      'parseRepositoryInterviewRequestV1',
+      'parseRepositoryInterviewV1',
       'repositoryArtifactChunkIdentityDigest',
       'repositoryArtifactChunkRecordDigest',
       'repositoryArtifactContentSha256',
@@ -185,8 +233,19 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryArtifactSetIdentityDigest',
       'repositoryArtifactSetRecordDigest',
       'repositoryArtifactUtf8ByteLength',
+      'repositoryInterviewCitationIdentityDigest',
+      'repositoryInterviewClaimIdentityDigest',
+      'repositoryInterviewContradictionIdentityDigest',
+      'repositoryInterviewIdentityDigest',
+      'repositoryInterviewLimitationIdentityDigest',
+      'repositoryInterviewNestedRecordDigest',
+      'repositoryInterviewRecordDigest',
+      'repositoryInterviewRequestIdentityDigest',
+      'repositoryInterviewRequestRecordDigest',
+      'repositoryInterviewUnknownIdentityDigest',
       'serializeContractSchemaV1',
       'validateFitAssessmentExchangeV1',
+      'validateRepositoryInterviewExecutionV1',
     ]);
   });
 });
