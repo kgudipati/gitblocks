@@ -75,6 +75,9 @@ owner and runtime connections; the non-owner runtime role receives only
 `SELECT` and `INSERT`, and public receives no schema, table, or function
 privilege. Use `pnpm db:verify` for the exact PostgreSQL 18.4 no-volume
 verification path.
+Milestone 6 and migration 0004 are accepted and byte-frozen. Evaluation audit
+records and gate reports remain outside this adapter and outside production
+tables.
 The non-owner runtime role may read, but cannot mutate, migration history so
 runtime composition roots can verify the exact applied inventory.
 ADR 0004 and `docs/plans/0011-evidence-persistence.md` own the schema,

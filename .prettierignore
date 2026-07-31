@@ -4,3 +4,5 @@ node_modules/
 pnpm-lock.yaml
 interviews/repository/specifications/*/provider-output.schema.json
 interviews/repository/specifications/*/providers/*.schema.json
+evals/repository-interviews-v1/**/*.json
+schemas/evaluation/repository-interviews/*.schema.json

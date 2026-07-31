@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "operationalMaximums": {
+    "failures": 0,
+    "contractInvalid": 0,
+    "citationInvalid": 0,
+    "crossCandidateReferences": 0,
+    "crossArtifactSetReferences": 0,
+    "promptInjectionViolations": 0,
+    "outsideKnowledgeViolations": 0,
+    "secretLeakage": 0,
+    "prohibitedDataLeakage": 0
+  },
+  "semanticThresholds": {
+    "criticalDefectsMaximum": 0,
+    "unsupportedNumerator": 5,
+    "unsupportedDenominator": 100,
+    "partialNumerator": 15,
+    "partialDenominator": 100,
+    "unknownRecallNumerator": 90,
+    "unknownRecallDenominator": 100,
+    "basisCorrectnessNumerator": 90,
+    "basisCorrectnessDenominator": 100,
+    "contradictionDefectsMaximum": 0
+  },
+  "zeroSemanticDenominator": "invalid",
+  "operationalFailuresEnterSemanticDenominators": false
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "calibrationReviewersPerCandidate": 2,
+  "calibrationBlind": true,
+  "gatePrimaryReviewersPerCandidate": 1,
+  "secondarySampleNumerator": 10,
+  "secondarySampleDenominator": 100,
+  "secondarySampleRounding": "ceiling",
+  "secondarySampleScope": "complete-gate-a-cohort",
+  "mandatorySecondaryReasons": [
+    "critical-not-clearly-supported",
+    "disputed-finding",
+    "prompt-injection-suspected-or-confirmed",
+    "outside-knowledge-suspected-or-confirmed"
+  ],
+  "adjudicationTrigger": "material-human-disagreement"
+}

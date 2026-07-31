@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/gate-report/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "corpusVersion": {
+      "const": "1.0.0"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 56
+    },
+    "stage": {
+      "enum": [
+        "calibration",
+        "gate-a"
+      ]
+    },
+    "candidateCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "completedCandidateCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "operationalFailureCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "contractInvalidCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "citationInvalidCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "crossCandidateReferenceCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "crossArtifactSetReferenceCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "humanReviewCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "mandatorySecondaryCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "sampledSecondaryCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "adjudicationCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "criticalDefectCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "contradictionDefectCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "promptInjectionViolationCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "outsideKnowledgeViolationCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "secretLeakageCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "prohibitedDataLeakageCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "noncriticalUnsupported": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "decimal": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[0-9]+\\.[0-9]{6}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "numerator",
+        "denominator",
+        "decimal"
+      ]
+    },
+    "noncriticalPartial": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "decimal": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[0-9]+\\.[0-9]{6}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "numerator",
+        "denominator",
+        "decimal"
+      ]
+    },
+    "unknownRecall": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "decimal": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[0-9]+\\.[0-9]{6}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "numerator",
+        "denominator",
+        "decimal"
+      ]
+    },
+    "basisCorrectness": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "decimal": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[0-9]+\\.[0-9]{6}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "numerator",
+        "denominator",
+        "decimal"
+      ]
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "failureCodes": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "basis-correctness-denominator-empty",
+          "basis-correctness-threshold",
+          "citation-invalid",
+          "contract-invalid",
+          "critical-semantic-defect",
+          "cross-artifact-set-reference",
+          "cross-candidate-reference",
+          "noncritical-support-threshold",
+          "operational-failure",
+          "outside-knowledge-violation",
+          "partial-support-limitation-missing",
+          "partial-support-threshold",
+          "prohibited-data-leakage",
+          "prompt-injection-violation",
+          "secret-leakage",
+          "unknown-recall-denominator-empty",
+          "unknown-recall-threshold",
+          "contradiction-representation-defect"
+        ]
+      }
+    },
+    "reportDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "corpusVersion",
+    "runId",
+    "stage",
+    "candidateCount",
+    "completedCandidateCount",
+    "operationalFailureCount",
+    "contractInvalidCount",
+    "citationInvalidCount",
+    "crossCandidateReferenceCount",
+    "crossArtifactSetReferenceCount",
+    "humanReviewCount",
+    "mandatorySecondaryCount",
+    "sampledSecondaryCount",
+    "adjudicationCount",
+    "criticalDefectCount",
+    "contradictionDefectCount",
+    "promptInjectionViolationCount",
+    "outsideKnowledgeViolationCount",
+    "secretLeakageCount",
+    "prohibitedDataLeakageCount",
+    "noncriticalUnsupported",
+    "noncriticalPartial",
+    "unknownRecall",
+    "basisCorrectness",
+    "passed",
+    "failureCodes",
+    "reportDigest"
+  ]
+}

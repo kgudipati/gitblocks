@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "fixtureId": "cross-artifact-contradiction",
+  "threatCategories": [
+    "cross-artifact-contradiction"
+  ],
+  "syntheticArtifacts": [
+    {
+      "artifactAlias": "A1",
+      "artifactKind": "readme",
+      "lines": [
+        "Synthetic deployment mode is local only."
+      ]
+    },
+    {
+      "artifactAlias": "A2",
+      "artifactKind": "documentation",
+      "lines": [
+        "Synthetic deployment mode is hosted only."
+      ]
+    }
+  ],
+  "expectedPolicyAssertions": [
+    "contradictions-remain-explicit"
+  ],
+  "expectedAuditRequirements": [
+    "audit-semantic-grounding"
+  ]
+}

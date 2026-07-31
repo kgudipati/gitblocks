@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "audit-datadog-trace-js",
+  "capabilityFamily": "audit-logging",
+  "catalogStatus": "negative-control",
+  "selectionLabels": [
+    "likely-material-unknown",
+    "negative-control",
+    "readme-only",
+    "simple-library-or-helper"
+  ],
+  "selectionRationaleCodes": [
+    "material-unknown-pressure",
+    "negative-control-boundary",
+    "documentation-sparsity",
+    "simple-adoption-surface"
+  ],
+  "calibrationMember": true,
+  "calibrationOrdinal": 1,
+  "artifactProfile": {
+    "presentArtifactCount": 1,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "jobs-kue",
+  "capabilityFamily": "background-jobs",
+  "catalogStatus": "archived",
+  "selectionLabels": [
+    "archived-lifecycle",
+    "likely-material-unknown",
+    "readme-only",
+    "simple-library-or-helper"
+  ],
+  "selectionRationaleCodes": [
+    "archived-lifecycle-risk",
+    "material-unknown-pressure",
+    "documentation-sparsity",
+    "simple-adoption-surface"
+  ],
+  "calibrationMember": false,
+  "calibrationOrdinal": null,
+  "artifactProfile": {
+    "presentArtifactCount": 1,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme"
+    ]
+  }
+}

@@ -470,6 +470,10 @@ function validateRuntimeScripts(
     'contracts:validate',
     'catalog:validate',
     'eval:fixtures',
+    'eval:interviews:fixtures',
+    'eval:interviews:generate',
+    'eval:interviews:validate',
+    'eval:interviews:verify',
     'eval:score',
     'eval:validate',
     'test',
@@ -524,6 +528,14 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts validate',
     'interviews:verify':
       'pnpm runtime:check && pnpm interviews:validate && pnpm interviews:test && pnpm --filter @gitblocks/interviews typecheck && pnpm architecture:check',
+    'eval:interviews:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts generate',
+    'eval:interviews:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
+    'eval:interviews:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
+    'eval:interviews:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && vitest run tools/evaluation-harness/test/repository-interview-*.test.ts --config vitest.config.ts && pnpm --filter @gitblocks/evaluation-harness typecheck && pnpm architecture:check',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':

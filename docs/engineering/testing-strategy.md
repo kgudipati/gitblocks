@@ -242,6 +242,17 @@ model or generic-agent baseline must follow the
 - Quality gates compare against an approved baseline and define allowed
   variance; rerunning until a favorable result is prohibited.
 
+Phase 7 repository-interview quality evaluation uses the separate
+`repository-interviews-v1` authority, not `pilot-v1` ranking gold. Its future
+human audit files are content-minimized controlled verdict records. The
+offline harness derives cohort counts from catalog-backed candidate documents,
+selects the cohort-wide 10% secondary sample deterministically, rejects
+unresolved material disagreement, and compares exact integer gate ratios
+without rounding. Operational failures fail separately and never enter
+semantic denominators; empty unknown-recall or basis denominators are invalid.
+Synthetic prompt-injection fixtures test deterministic boundaries but do not
+substitute for later blinded behavioral review.
+
 ## Coverage policy
 
 Coverage identifies unexecuted code and unexpected changes in exercised paths.

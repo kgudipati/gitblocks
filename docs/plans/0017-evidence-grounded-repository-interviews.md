@@ -24,10 +24,14 @@
   - PR #18 finding: migration 0004 and publication transactions accepted;
     complete normalized persistence-read authority required before Milestone
     6 acceptance.
+  - PR #18 review: “Milestone 6 accepted — Milestone 7 authorized.”
+  - PR #18 review: “Milestone 7 blocker accepted — cohort rule amended;
+    implementation may proceed.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–5 accepted; Milestone 6 is implemented and awaiting
-  maintainer review; Milestones 7–14 remain unauthorized or incomplete
+- State: Milestones 1–6 accepted; Milestone 7 is implemented under the amended
+  cohort authority and awaiting maintainer review; Milestones 8–14 remain
+  unauthorized or incomplete
 - Last updated: 2026-07-31
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -71,6 +75,10 @@ Milestone 6 adds only forward migration 0004 and concrete contract-grounded
 operations in `@gitblocks/persistence`; it does not add application
 composition, provider behavior, an operator, evaluation authority, or live
 execution.
+Milestone 7 adds only a separate offline evaluation authority, synthetic
+fixtures, content-minimized future audit schemas, and deterministic gate math.
+It performs no provider/model call, calibration, Gate A execution, human
+review, production review-state mutation, or application composition.
 
 ## Verified repository state
 
@@ -1058,17 +1066,66 @@ application record port; neither package imports the other.
 
 ## Evaluation authority and human audit
 
-`repository-interviews-v1` will be separate from `pilot-v1`. Pilot ranking gold
-must not become interview gold.
+`repository-interviews-v1` is separate from `pilot-v1`. Pilot ranking gold does
+not become interview gold.
 
-Milestone 7 will select exactly 30 verified `public-v1` candidate IDs, six per
-capability family, using catalog metadata and artifact-set availability only.
-Candidate bodies will not be inspected or committed during selection. The
-cohort will deliberately cover rich capability documentation, README-only
-material, negative controls, archived and moved candidates, simple libraries,
-complex services/platforms, and repositories expected to produce material
-unknowns. The exact list and rationale require maintainer review before a
-provider call.
+The first Milestone 7 attempt stopped without changing files after proving the
+original per-family lifecycle stratum impossible: the frozen catalog contains
+no archived or moved rate-limiting or webhook candidate. The maintainer
+accepted the blocker and amended lifecycle diversity to cohort scope. No
+catalog record, status, artifact selection, or candidate body was changed or
+reclassified.
+
+The frozen cohort is:
+
+```text
+audit-logging       audit-vector, audit-winston, audit-bunyan,
+                    audit-datadog-trace-js, audit-npm-npmlog,
+                    audit-logdna-logger
+authorization       auth-open-policy-agent, auth-cerbos-cerbos,
+                    auth-stalniy-casl, auth-auth0-node-jsonwebtoken,
+                    auth-warrant, auth-casbin-casbin
+background-jobs     jobs-dagster, jobs-graphile-worker, jobs-node-cron,
+                    jobs-p-queue, jobs-kue, jobs-temporal-typescript
+rate-limiting       rate-apisix, rate-envoy-ratelimit, rate-bottleneck,
+                    rate-caddy, rate-kong, rate-redis-cell
+webhooks            webhook-hookdeck, webhook-standard-webhooks,
+                    webhook-octokit-methods, webhook-clerk-javascript,
+                    webhook-webhook-site, webhook-adnanh
+```
+
+The validator derives six candidates per family, five negative controls (one
+per family), three archived, two moved, 12 rich-additional-documentation, and
+18 README-only cases from candidate documents plus catalog/artifact authority.
+Every family covers simple/helper, complex service/platform, and likely
+material unknown pressure. Every candidate has exactly one documentation
+scope label. Sorted controlled labels replace the rejected exclusive
+`primaryStratum` field.
+
+Calibration ordinals are fixed to `auth-warrant`,
+`audit-datadog-trace-js`, `jobs-node-cron`, `jobs-dagster`,
+`rate-redis-cell`, and `webhook-hookdeck`. They cover all five families, two
+background-jobs cases and one of every other family, plus archived,
+negative-control, simple/README-only, complex/rich, and likely-unknown
+pressure. This does not select or execute a model.
+
+The evaluation authority is bound by corpus digest
+`4da50cfd996e80e5a0c0dddebff8cfd303f063c1700538326bda0e629dc36c91`.
+Policy byte digests are:
+
+```text
+cohort  12a72fb4e77325dd7e5bf4940ea7db039593cc8e6bc7260667e53455b6401b80
+gate    057c50095a59fdafd5e88b666a0d9c3496c08077fd5a7e5a908025293e281baa
+review  286893915c5ca88fdab498a0319a62b7c6c215943110146e2a6ead622bb4844b
+rubric  6669702218b002df14acf3d6fe66f2adfae1ec7ed7d86fa80edf9ddd4d5284f8
+```
+
+Ten independently named closed evaluation schemas cover manifest, policy,
+candidate, adversarial fixture, future audit record/run summary, and computed
+gate report documents. The bounded loader checks exact paths, byte hashes,
+catalog/artifact authority, semantic counts, calibration diversity, and the
+domain-separated corpus digest. No real run summary or audit record is
+committed.
 
 Committed audit records will be content-free. A reviewer tool will load the
 exact immutable artifact and cited span from the approved evaluation database
@@ -1120,6 +1177,14 @@ access-controlled operational records outside the committed corpus.
 - A third adjudicator acts only when two human reviews materially disagree.
 - Adjudication preserves both original decisions, stable disagreement codes,
   the final content-free decision, and reviewer-role provenance.
+
+The deterministic secondary sampler hashes an explicitly framed
+`repository-interviews-v1` candidate/subject key, sorts by digest and stable
+subject coordinates, and selects the ceiling of 10% across the complete Gate A
+cohort after mandatory subjects are removed. Exact integer cross-products
+apply the 5%, 15%, and 90% thresholds without prior rounding. Operational
+failures fail the cohort outside semantic denominators; zero unknown or basis
+denominators make the report invalid.
 
 ## Quality gates
 
@@ -2558,6 +2623,48 @@ dependencies, workspace configuration, and lockfile remain unchanged. No
 provider, operator, evaluation corpus, credential, candidate content, or live
 operation was added or used.
 
+### Milestone 7 red/green and verification evidence
+
+The initial focused red run failed before test collection because the
+repository-interview corpus loader did not exist. The suite was then expanded
+alongside the separately owned corpus, audit, sampling, gate, adversarial, CLI,
+and architecture boundaries. The green focused run passes four files and 24
+tests. Mutation cases cover exact membership, family/lifecycle/documentation
+counts, status-label closure, simple/complex/unknown family coverage,
+calibration replacement and diversity, closed schemas, bounded files/strings,
+member/hash/order drift, content-minimized audits, distinct blind reviewers,
+mandatory/sample secondary review, adjudication, all threshold boundaries,
+operational denominator separation, accepted renderer isolation, trusted-ID
+forgery, and alias/range rejection.
+
+The complete 2026-07-31 local matrix produced:
+
+| Command                          | Result                                                                                                                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm install --frozen-lockfile` | passed; eight workspaces already current; Node 24.18.0/pnpm 11.17.0                                                                                          |
+| `pnpm eval:interviews:verify`    | passed; exact 30/6-per-family cohort, 5/3/2 lifecycle and 12/18 documentation counts, 12 adversarial fixtures, 16 gate scenarios, four files/24 tests        |
+| `pnpm interviews:verify`         | passed; accepted interview tests and three frozen specification digests                                                                                      |
+| `pnpm verify`                    | passed; 57 files/1,061 tests plus formatting, lint, typecheck, build, architecture, both evaluation authorities, contracts, catalog, specification, secrets  |
+| `pnpm verify:ci`                 | passed; repeated 1,061-test verification, PostgreSQL 18.4 with 59 tests/no skips, four migrations/25 tables/zero RLS, registry audit without vulnerabilities |
+| `pnpm contracts:validate`        | passed; 10 cases/40 supplied candidates; representability only                                                                                               |
+| `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                            |
+| `pnpm ingestion:verify`          | passed; 11 files/156 tests plus typecheck                                                                                                                    |
+| `pnpm db:verify`                 | passed; PostgreSQL 18.4, four migrations, 25 product tables, zero RLS, five files/59 tests, no skips                                                         |
+| `pnpm eval:validate`             | passed; unchanged `pilot-v1`, 10 cases                                                                                                                       |
+| `pnpm eval:fixtures`             | passed; five unchanged fixed-strategy summaries                                                                                                              |
+| `pnpm artifacts:validate`        | passed; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                                                                            |
+| `pnpm artifacts:verify`          | passed; six files/107 tests plus typecheck                                                                                                                   |
+| `pnpm test:coverage`             | passed; 57 files/1,061 tests; repository statements/branches/functions/lines 78.78%/71.04%/85.69%/78.66%                                                     |
+
+Dependency cruising passed across 691 modules and 2,209 dependencies. All 12
+product schema digests, all three interview specification digests, both
+Milestone 4 goldens, migration 0004 checksum, migrations 0001–0004, catalog,
+artifact manifest, `pilot-v1`, package dependencies, workspace configuration,
+and lockfile remain unchanged. Verification performed only its prescribed
+ephemeral PostgreSQL and registry-audit effects; no provider, model, operator,
+real audit, candidate body, production review state, or live Phase 7 action was
+added or used.
+
 ## Progress log
 
 - **2026-07-30:** Verified clean branch, exact main/origin/main/HEAD
@@ -2674,6 +2781,19 @@ operation was added or used.
   specification, prompt, provider-output, catalog, artifact, dependency, and
   lockfile authority, and no provider or live operation. Milestone 6 awaits
   renewed maintainer review; Milestone 7 remains blocked.
+- **2026-07-31:** Maintainer review accepted Milestone 6 and authorized
+  Milestone 7. The initial Milestone 7 attempt stopped before file changes
+  after catalog validation proved the per-family archived/moved stratum
+  impossible for rate limiting and webhooks.
+- **2026-07-31:** The maintainer accepted the blocker and amended lifecycle
+  diversity to cohort scope without catalog mutation. Red-first tests then
+  established exact cohort, calibration, audit, sampling, gate-boundary,
+  adversarial, bounded-loader, and dependency-direction requirements.
+- **2026-07-31:** Added `repository-interviews-v1`, ten separate evaluation
+  schemas, exact manifest/policy digests, 30 content-minimized candidate
+  records, 12 synthetic adversarial fixtures, deterministic audit validation,
+  secondary sampling, gate reporting, and offline CLI verification. Milestone
+  7 awaits renewed maintainer review; Milestone 8 remains blocked.
 
 ## Decision and deviation log
 
@@ -2803,23 +2923,29 @@ operation was added or used.
   checked after read. One typed complete exchange loader serves publication
   reload, both historical lookup forms, and reuse so no weaker reconstruction
   path can accept or skip normalized corruption.
+- **Root script compatibility:** Milestone 7 explicitly requires three
+  `eval:interviews:*` commands and authoritative verification wiring, which
+  necessarily changes only the root `package.json` scripts despite the broader
+  compatibility shorthand that package manifests remain unchanged. No
+  workspace package manifest, dependency field, external version, workspace
+  importer, or lockfile changes.
 
-## Remaining maintainer decisions before Milestone 7
+## Remaining maintainer decisions before Milestone 8
 
-Milestones 1–5 are accepted. Milestone 6 is implemented but Milestone 7 must
+Milestones 1–6 are accepted. Milestone 7 is implemented but Milestone 8 must
 not advance until renewed maintainer review accepts:
 
-1. the exact eight-table migration and first-class request-root shape;
-2. canonical JSONB versus normalized query/ownership authority;
-3. deferred root/member/citation/artifact-set/provenance closure;
-4. owner/runtime append-only guards and least-privilege grants;
-5. publish, reuse, and closed historical-load operation surfaces;
-6. exact replay, collision, partial-history, forced-history, and concurrency
-   behavior; and
-7. red/green, PostgreSQL 18.4, compatibility, full verification, and hosted CI
-   evidence recorded here and on draft PR #18.
+1. the exact amended 30-candidate membership, controlled labels, calibration
+   order, and cohort-level lifecycle treatment;
+2. the separate schema/manifest/policy authority and recorded digests;
+3. content-minimized audit provenance, reviewer workflow, sampling, and
+   adjudication rules;
+4. exact operational/semantic denominator separation and boundary math;
+5. all 12 synthetic adversarial fixtures without a claim of behavioral proof;
+6. read-only CLI, architecture direction, compatibility, full verification,
+   and hosted CI evidence recorded here and on draft PR #18.
 
-Only renewed authorization may begin the `repository-interviews-v1`
-evaluation authority or adversarial fixtures in Milestone 7. The final Gate A
-model, exact 30-candidate cohort, production review/selection policy, ranking
-integration, and any provider beyond OpenAI remain later decisions.
+Only renewed authorization may begin the bounded direct OpenAI Responses
+adapter in Milestone 8. Model selection, calibration execution, Gate A, real
+human audit, production review/selection policy, and ranking integration
+remain separately blocked.

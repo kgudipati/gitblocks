@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "auth-warrant",
+  "capabilityFamily": "authorization",
+  "catalogStatus": "archived",
+  "selectionLabels": [
+    "archived-lifecycle",
+    "complex-service-or-platform",
+    "likely-material-unknown",
+    "readme-only"
+  ],
+  "selectionRationaleCodes": [
+    "archived-lifecycle-risk",
+    "complex-operational-surface",
+    "material-unknown-pressure",
+    "documentation-sparsity"
+  ],
+  "calibrationMember": true,
+  "calibrationOrdinal": 0,
+  "artifactProfile": {
+    "presentArtifactCount": 1,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme"
+    ]
+  }
+}

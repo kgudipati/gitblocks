@@ -50,10 +50,13 @@ The next review accepted the Milestone 5 architecture but required
 fail-closed exotic artifact-array ownership and provider response-effect
 preflight before semantic mapping. The latest review accepted those
 corrections and authorized only Milestone 6's forward migration 0004 and
-concrete contract-grounded persistence operations. Milestone 7 remains
-unauthorized. Milestone 6 review accepted migration 0004 and publication-side
+concrete contract-grounded persistence operations. Milestone 6 review accepted migration 0004 and publication-side
 transactions but required complete normalized-column reconciliation on every
-read before renewed acceptance.
+read before renewed acceptance. The correction was accepted and Milestone 7
+was authorized. Its first attempt correctly stopped because the original
+per-family archived/moved stratum was impossible in the frozen catalog. The
+binding amendment retains the exact cohort and makes lifecycle diversity a
+cohort-level authority without catalog mutation or reclassification.
 
 ## Decision
 
@@ -521,6 +524,23 @@ does not reuse `pilot-v1` ranking gold. Its 30-candidate Gate A cohort contains
 six candidates per capability family and deliberate documentation,
 complexity, archive/move, negative-control, and unknown-producing variation.
 
+The cohort has no exclusive primary stratum. Sorted, unique controlled
+`selectionLabels` may express multiple pressures. Catalog status alone
+authorizes negative-control, archived-lifecycle, and moved-repository labels.
+The cohort contains five negative controls, three archived candidates, two
+moved candidates, 12 rich-additional-documentation cases, and 18 README-only
+cases. Rate limiting and webhooks intentionally require no lifecycle member;
+all families still cover simple/helper, complex service/platform, and likely
+material unknown pressure.
+
+The evaluation authority binds exact catalog, artifact-manifest, production
+schema, and interview-specification digests plus ordered byte digests for four
+policy files, 30 candidate files, and 12 adversarial fixtures. Its
+domain-separated corpus digest is
+`4da50cfd996e80e5a0c0dddebff8cfd303f063c1700538326bda0e629dc36c91`.
+It binds no model snapshot or model-profile digest. Ten independently named
+evaluation schemas remain outside the product contract catalog.
+
 Audit records are content-free. Reviewers load exact cited spans from immutable
 artifacts by trusted IDs. Review is not persisted as production interview
 rows.
@@ -530,6 +550,14 @@ independent primary reviewer for all 30 candidates, mandatory second review
 for unclear critical claims, disputes, suspected prompt injection,
 outside-knowledge claims, and a deterministic 10% sample, with a third
 adjudicator only for material disagreement.
+
+Audit documents contain opaque reviewer and durable item IDs plus controlled
+verdicts; they contain no semantic text, citation text, source content, prompt,
+model output, reviewer name, contact detail, or free-form note. The secondary
+sample is the deterministic SHA-256 ordered ceiling of 10% of remaining
+material subjects across the complete Gate A cohort. Operational failures fail
+the gate outside semantic denominators. Exact integer cross-products enforce
+semantic thresholds, and empty unknown or basis denominators are invalid.
 
 ### Quality and live gates
 
@@ -716,8 +744,7 @@ second maintained schema.
 
 ## Deferred work
 
-- Milestone 6 maintainer acceptance and any later forward-recovery finding.
-- Exact 30-candidate cohort and six calibration candidates.
+- Milestone 7 maintainer acceptance.
 - Final Gate A model-profile selection.
 - Provider portability or another provider.
 - Production review/selection contracts.
@@ -727,11 +754,10 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1–5 passed maintainer review. Milestone 6's exact eight-table
-migration, first-class request root, hybrid JSONB representation, deferred
-closure, least-privilege grants, three public operations, idempotency,
-forced-history/reuse behavior, tests, compatibility evidence, and hosted CI
-require renewed maintainer acceptance while the PR remains draft. Milestone 7
+Milestones 1–6 passed maintainer review. Milestone 7's exact amended cohort,
+content-minimized audit authority, synthetic adversarial fixtures,
+deterministic sampling and gate math, compatibility evidence, and hosted CI
+require renewed maintainer acceptance while the PR remains draft. Milestone 8
 requires separate renewed authorization.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and

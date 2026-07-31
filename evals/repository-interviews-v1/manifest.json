@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "corpusVersion": "1.0.0",
+  "status": "development-proposed",
+  "authority": {
+    "catalogVersion": "public-v1",
+    "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+    "artifactManifestDigest": "17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c",
+    "repositoryInterviewRequestSchemaDigest": "c009494390484a40ace4eea9b58ba3b288cf0577c13aab926fb7e5cdcfb7c673",
+    "modelExecutionSchemaDigest": "f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7",
+    "repositoryInterviewSchemaDigest": "99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb",
+    "specificationVersion": "1.0.0",
+    "specificationDigest": "da2c8560e0b6a2fc7bc8d79fd89f65984815236a54cbf49491911274db8168f9",
+    "providerOutputSchemaDigest": "5fa5d1c44a8924d8be3acc2ac74e58ec45ea134264c2245b7e158873b2e26b19",
+    "openAiProjectionDigest": "5d81e5e32cc4871f0068f691302282a4e5dd6dc656ee4be132c050fbc4228ed7"
+  },
+  "policies": [
+    {
+      "path": "policy/cohort-policy.json",
+      "sha256": "12a72fb4e77325dd7e5bf4940ea7db039593cc8e6bc7260667e53455b6401b80"
+    },
+    {
+      "path": "policy/gate-policy.json",
+      "sha256": "057c50095a59fdafd5e88b666a0d9c3496c08077fd5a7e5a908025293e281baa"
+    },
+    {
+      "path": "policy/review-policy.json",
+      "sha256": "286893915c5ca88fdab498a0319a62b7c6c215943110146e2a6ead622bb4844b"
+    },
+    {
+      "path": "policy/rubric.json",
+      "sha256": "6669702218b002df14acf3d6fe66f2adfae1ec7ed7d86fa80edf9ddd4d5284f8"
+    }
+  ],
+  "candidates": [
+    {
+      "path": "candidates/audit-bunyan.json",
+      "sha256": "b049bffe46069abace089ca942083c00e4eebf59062158f92cc499dad28cab7b"
+    },
+    {
+      "path": "candidates/audit-datadog-trace-js.json",
+      "sha256": "9573fa15d7c3bd00d3a8315ce892997006c916b401ce36ed51ac53356015802c"
+    },
+    {
+      "path": "candidates/audit-logdna-logger.json",
+      "sha256": "f3b73eca8a017f2536ccccf21c8ed2feccfe275fb0b4c11f7fcdccd3096b1030"
+    },
+    {
+      "path": "candidates/audit-npm-npmlog.json",
+      "sha256": "c2d6b71bd7984566a17759c57e143b7b2496c3485c65d1e4719491caae8116f6"
+    },
+    {
+      "path": "candidates/audit-vector.json",
+      "sha256": "4861ee1b278c1dde634a2b6f69580794713abc20aa9b4916c640e76312f54843"
+    },
+    {
+      "path": "candidates/audit-winston.json",
+      "sha256": "fc2268842859742caf8a42d3fe1643f915a99e8e816ff653dac0f296f353c7b2"
+    },
+    {
+      "path": "candidates/auth-auth0-node-jsonwebtoken.json",
+      "sha256": "d63e649b2b2f680226bb600ac737e58e05990fb68d99c33a5aa44e9f72fad93b"
+    },
+    {
+      "path": "candidates/auth-casbin-casbin.json",
+      "sha256": "d1241f93fa423fcd787e722f6d2259639446deaabed45932e171006a8f19d965"
+    },
+    {
+      "path": "candidates/auth-cerbos-cerbos.json",
+      "sha256": "a1bcec88c6c74a4e761a2369c4c34d2c5fd15085f35840c3bff6db1afdb597d0"
+    },
+    {
+      "path": "candidates/auth-open-policy-agent.json",
+      "sha256": "0436ac137a6e998e17fe2d3628afa3e6e18dd67b3f83900080a53e7398bcb573"
+    },
+    {
+      "path": "candidates/auth-stalniy-casl.json",
+      "sha256": "e98610e628fe67edec6975e830ef305e957491a33beee5964ce576fe8a10b716"
+    },
+    {
+      "path": "candidates/auth-warrant.json",
+      "sha256": "fe117b9dc0cacd1f79ad80990ba86321d41d8c419bfd9185b92a20e53279c6c0"
+    },
+    {
+      "path": "candidates/jobs-dagster.json",
+      "sha256": "3eb11f49741cae61b5f11a6484d9ad6fa314c06811c22eab4eccffcb06e2d29e"
+    },
+    {
+      "path": "candidates/jobs-graphile-worker.json",
+      "sha256": "4e112b1aacef3575f8cd167919c9f30a02ffa8281749c85e14e1f29a7c19a911"
+    },
+    {
+      "path": "candidates/jobs-kue.json",
+      "sha256": "15cb55c98ad5baedacbf8cef8d435587a837e80882c243ac4ebb1735a88cc93f"
+    },
+    {
+      "path": "candidates/jobs-node-cron.json",
+      "sha256": "ee9752ee58252b9c1a08aa46360f354c0a124b274c8eb1bfc7522668317079d6"
+    },
+    {
+      "path": "candidates/jobs-p-queue.json",
+      "sha256": "bd8f2b2b464224f3bbe069c9e26023f83896aad8892a8faad7722555a0e96e75"
+    },
+    {
+      "path": "candidates/jobs-temporal-typescript.json",
+      "sha256": "0ecd72ee22369a7699fc84014c759703d903216141f671032e4f19a951579243"
+    },
+    {
+      "path": "candidates/rate-apisix.json",
+      "sha256": "9cd5ab7e69b7dfa61fa8344e7b4877917fd34d8be25ea01d96925b092f6af36d"
+    },
+    {
+      "path": "candidates/rate-bottleneck.json",
+      "sha256": "754069a1b7269b2e6af80e80056f8b189297c66fb3cc5d88b4702d2d36e5cad8"
+    },
+    {
+      "path": "candidates/rate-caddy.json",
+      "sha256": "c4816c824a3db21062008e1016255ebbfbfb8ff86155a31918512061fc171c5e"
+    },
+    {
+      "path": "candidates/rate-envoy-ratelimit.json",
+      "sha256": "f4e3895222a08d2f3e446ebb3226edcfb5c3966d79651c950d354ebd43174f22"
+    },
+    {
+      "path": "candidates/rate-kong.json",
+      "sha256": "fbd8ef8533bad935882f844e060de2eec2627e4c381a4d16c23d2923238adab0"
+    },
+    {
+      "path": "candidates/rate-redis-cell.json",
+      "sha256": "422bde3dd91e694abf26164ba4820c120907a58535e2c4da38e154e95fa27aae"
+    },
+    {
+      "path": "candidates/webhook-adnanh.json",
+      "sha256": "9c76548ff3174d1c7c1090bc5b6c373c10d82bfbc70d023c90a39c230928892d"
+    },
+    {
+      "path": "candidates/webhook-clerk-javascript.json",
+      "sha256": "836ec2ba472a199026409211b711f0facc80545f2a25fd3759c2a558526086a9"
+    },
+    {
+      "path": "candidates/webhook-hookdeck.json",
+      "sha256": "698b7a672080b518eb539929516d630685b1eeea893d15586f7f9fe88403333b"
+    },
+    {
+      "path": "candidates/webhook-octokit-methods.json",
+      "sha256": "655b7b525e2179c780d5a00eeac99221d58d76eb1ac9ba09ba6895dcd91464ee"
+    },
+    {
+      "path": "candidates/webhook-standard-webhooks.json",
+      "sha256": "2720ffbce527458d9cf0f7b8bf64cdac2edc2ca0501a41d89904c63bdcaab013"
+    },
+    {
+      "path": "candidates/webhook-webhook-site.json",
+      "sha256": "3ce6ad1ac0bc7940356537c3214b998e0d964667fb216fa68fef1b26571923f5"
+    }
+  ],
+  "adversarialFixtures": [
+    {
+      "path": "adversarial/citation-alias-range-forgery.json",
+      "sha256": "be9f9fd8cf5651040a5ce77cba1a6b64e098b64d4cbc7ad6a2935981dd273223"
+    },
+    {
+      "path": "adversarial/confidence-inflation.json",
+      "sha256": "fb98aae9423228341da161eaadd66d676aa187dfbde5a83ceef48fe9bb64ec76"
+    },
+    {
+      "path": "adversarial/cross-artifact-contradiction.json",
+      "sha256": "684e14928ad5f7589a11bf3c150ababf5582a9611184a1d8ada7615021ed1cb3"
+    },
+    {
+      "path": "adversarial/identity-provenance-forgery.json",
+      "sha256": "f5414b370446319e4055b4c8c8624b0d12f9903b6999d5873886a8d910fa1eb8"
+    },
+    {
+      "path": "adversarial/instruction-override.json",
+      "sha256": "ef0656cfd90b4e4a0460eb3aa614dcaf71dbf557d243c82d8c5b81615aa5b1e0"
+    },
+    {
+      "path": "adversarial/link-and-web-request.json",
+      "sha256": "c05b520de5ab5041c8ee4ae20572619d8b50795575873128d9043153d83668bf"
+    },
+    {
+      "path": "adversarial/outside-knowledge-bait.json",
+      "sha256": "ea545c49c6aab74967fc3f481cad4cf53529aa965b50a80ea5d865c594e0304d"
+    },
+    {
+      "path": "adversarial/ranking-recommendation-request.json",
+      "sha256": "63c677dc56473eabb4a48f0e5c7b21a14087f3ce2df48a66dec998603f4baee8"
+    },
+    {
+      "path": "adversarial/role-policy-forgery.json",
+      "sha256": "953b9742af60e6b94677a1bf6f35bc5e8c88783051ebae0b51495daa96607d9e"
+    },
+    {
+      "path": "adversarial/structured-output-injection.json",
+      "sha256": "c4ce04a89e5dc1633976fa4363e8bf3c357df45ae0b5f2d1b6659c1c1a3f8194"
+    },
+    {
+      "path": "adversarial/tool-secret-request.json",
+      "sha256": "42d95fca126a66876e3eca5c6315aaec78bf438aae7df9a1e18db635873a2527"
+    },
+    {
+      "path": "adversarial/unknown-suppression.json",
+      "sha256": "09c9a6678f1218aab691f17ede99d77fb55744980ec8d369e16b8fa4a4390b58"
+    }
+  ],
+  "corpusDigest": "4da50cfd996e80e5a0c0dddebff8cfd303f063c1700538326bda0e629dc36c91"
+}

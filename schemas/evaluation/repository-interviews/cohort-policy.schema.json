@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/cohort-policy/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "candidateIds": {
+      "type": "array",
+      "minItems": 30,
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "calibrationCandidateIds": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "requiredCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "candidates": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "candidatesPerFamily": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "negativeControls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "negativeControlsPerFamily": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "archived": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "moved": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "richAdditionalDocumentation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "readmeOnly": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "candidates",
+        "candidatesPerFamily",
+        "negativeControls",
+        "negativeControlsPerFamily",
+        "archived",
+        "moved",
+        "richAdditionalDocumentation",
+        "readmeOnly"
+      ]
+    },
+    "lifecycleDiversityScope": {
+      "const": "cohort"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "candidateIds",
+    "calibrationCandidateIds",
+    "requiredCounts",
+    "lifecycleDiversityScope"
+  ]
+}

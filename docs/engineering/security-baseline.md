@@ -384,6 +384,15 @@ and test flakiness are not compensating controls. Prohibitions on secret
 exposure, executing ingested code, silent cross-tenant access, or unapproved
 destructive/default-branch writes cannot be waived through a routine PR.
 
+Repository-interview evaluation is an outward consumer only. Product packages
+must not import evaluation schemas, audit records, gate reports, harness code,
+or corpus data. Committed audit authority contains opaque reviewer and durable
+record identifiers plus controlled verdicts only—never names, email addresses,
+notes, prompts, provider output, semantic statements, citations, repository
+content, or credentials. Synthetic hostile fixture text is inert test data;
+ordinary validation performs no provider, network, database, environment, or
+credential effect.
+
 ## Standards mapping
 
 This mapping supplies traceability, not certification and not a copy of the

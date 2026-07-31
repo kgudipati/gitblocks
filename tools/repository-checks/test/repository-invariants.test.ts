@@ -146,6 +146,14 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build && node packages/persistence/scripts/db-verify.ts',
     'eval:fixtures':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures',
+    'eval:interviews:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
+    'eval:interviews:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts generate',
+    'eval:interviews:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
+    'eval:interviews:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && vitest run tools/evaluation-harness/test/repository-interview-*.test.ts --config vitest.config.ts && pnpm --filter @gitblocks/evaluation-harness typecheck && pnpm architecture:check',
     'eval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score',
     'eval:validate':
