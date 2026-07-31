@@ -78,43 +78,105 @@ export function parseRepositoryInterviewProviderOutputV1(
 function formatAjvErrors(
   errors: readonly ErrorObject[] | null | undefined,
 ): readonly ProviderOutputIssue[] {
-  return finalizeProviderOutputIssues(
-    (errors ?? []).map((error) => {
-      if (error.instancePath.startsWith('/limitations/')) {
-        return providerOutputIssue(
-          'provider-output.limitation-basis',
-          error.instancePath,
-          'Provider output limitation basis is inconsistent.',
-        );
-      }
-      if (
-        error.keyword === 'minLength' ||
-        error.keyword === 'maxLength' ||
-        error.keyword === 'pattern'
-      ) {
-        return providerOutputIssue(
-          'provider-output.string-policy',
-          error.instancePath,
-          'Provider output semantic text violates the safe text policy.',
-        );
-      }
-      if (
-        error.keyword === 'maximum' ||
-        error.keyword === 'minimum' ||
-        error.keyword === 'maxItems' ||
-        error.keyword === 'minItems'
-      ) {
-        return providerOutputIssue(
-          'provider-output.bounds',
-          error.instancePath,
-          'Provider output value is outside the allowed bounds.',
-        );
-      }
-      return providerOutputIssue(
-        'provider-output.structure',
-        error.instancePath,
-        'Provider output value does not match the required closed structure.',
-      );
-    }),
+  const candidates = errors ?? [];
+  const withoutUnionSummaries = candidates.some(
+    (error) => error.keyword !== 'anyOf' && error.keyword !== 'oneOf',
+  )
+    ? candidates.filter(
+        (error) => error.keyword !== 'anyOf' && error.keyword !== 'oneOf',
+      )
+    : candidates;
+  const issues: ProviderOutputIssue[] = [];
+  const handledLimitationIndexes = new Set<string>();
+
+  for (const error of withoutUnionSummaries) {
+    const limitationPath = limitationItemPath(error.instancePath);
+    if (limitationPath === null) {
+      issues.push(mapAjvError(error));
+      continue;
+    }
+    if (handledLimitationIndexes.has(limitationPath)) {
+      continue;
+    }
+    handledLimitationIndexes.add(limitationPath);
+    const limitationErrors = withoutUnionSummaries.filter(
+      (candidate) =>
+        limitationItemPath(candidate.instancePath) === limitationPath,
+    );
+    const ordinaryErrors = limitationErrors.filter(
+      (candidate) => !isLimitationVariantError(candidate, limitationPath),
+    );
+    if (ordinaryErrors.length > 0) {
+      issues.push(...ordinaryErrors.map(mapAjvError));
+      continue;
+    }
+    issues.push(
+      providerOutputIssue(
+        'provider-output.limitation-basis',
+        limitationPath,
+        'Provider output limitation basis is inconsistent.',
+      ),
+    );
+  }
+  return finalizeProviderOutputIssues(issues);
+}
+
+function mapAjvError(error: ErrorObject): ProviderOutputIssue {
+  if (
+    error.keyword === 'minLength' ||
+    error.keyword === 'maxLength' ||
+    error.keyword === 'pattern'
+  ) {
+    return providerOutputIssue(
+      'provider-output.string-policy',
+      error.instancePath,
+      'Provider output semantic text violates the safe text policy.',
+    );
+  }
+  if (
+    error.keyword === 'maximum' ||
+    error.keyword === 'minimum' ||
+    error.keyword === 'maxItems' ||
+    error.keyword === 'minItems'
+  ) {
+    return providerOutputIssue(
+      'provider-output.bounds',
+      error.instancePath,
+      'Provider output value is outside the allowed bounds.',
+    );
+  }
+  return providerOutputIssue(
+    'provider-output.structure',
+    error.instancePath,
+    'Provider output value does not match the required closed structure.',
+  );
+}
+
+function limitationItemPath(instancePath: string): string | null {
+  const match = /^\/limitations\/[0-9]+(?:\/|$)/u.exec(instancePath);
+  return match === null ? null : match[0].replace(/\/$/u, '');
+}
+
+function isLimitationVariantError(
+  error: ErrorObject,
+  limitationPath: string,
+): boolean {
+  if (error.keyword === 'required') {
+    const missingProperty = error.params['missingProperty'];
+    return (
+      error.instancePath === limitationPath &&
+      (missingProperty === 'basis' ||
+        missingProperty === 'rationale' ||
+        missingProperty === 'confidence')
+    );
+  }
+  if (error.keyword !== 'const' && error.keyword !== 'type') {
+    return false;
+  }
+  const fieldPath = error.instancePath.slice(limitationPath.length + 1);
+  return (
+    fieldPath === 'basis' ||
+    fieldPath === 'rationale' ||
+    fieldPath === 'confidence'
   );
 }

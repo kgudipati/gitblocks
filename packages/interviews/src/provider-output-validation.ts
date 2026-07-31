@@ -224,60 +224,78 @@ function validateCitations(
 ): void {
   const uniqueGlobalCitations = new Set<string>();
   const collections: readonly {
-    readonly path: string;
-    readonly citations: readonly ProviderCitationV1[];
+    readonly citations: readonly {
+      readonly path: string;
+      readonly value: ProviderCitationV1;
+    }[];
   }[] = [
     ...value.documentedPositions.map((item, index) => ({
-      path: `/documentedPositions/${String(index)}`,
-      citations: item.citations,
+      citations: citationEntries(
+        `/documentedPositions/${String(index)}/citations`,
+        item.citations,
+      ),
     })),
     ...value.inferences.map((item, index) => ({
-      path: `/inferences/${String(index)}`,
-      citations: item.citations,
+      citations: citationEntries(
+        `/inferences/${String(index)}/citations`,
+        item.citations,
+      ),
     })),
     ...value.limitations.map((item, index) => ({
-      path: `/limitations/${String(index)}`,
-      citations: item.citations,
+      citations: citationEntries(
+        `/limitations/${String(index)}/citations`,
+        item.citations,
+      ),
     })),
     ...value.contradictions.map((item, index) => ({
-      path: `/contradictions/${String(index)}`,
-      citations: [...item.positionA.citations, ...item.positionB.citations],
+      citations: [
+        ...citationEntries(
+          `/contradictions/${String(index)}/positionA/citations`,
+          item.positionA.citations,
+        ),
+        ...citationEntries(
+          `/contradictions/${String(index)}/positionB/citations`,
+          item.positionB.citations,
+        ),
+      ],
     })),
     ...value.unknowns.map((item, index) => ({
-      path: `/unknowns/${String(index)}`,
-      citations: item.partialCitations,
+      citations: citationEntries(
+        `/unknowns/${String(index)}/partialCitations`,
+        item.partialCitations,
+      ),
     })),
   ];
 
   for (const collection of collections) {
     const local = new Set<string>();
-    collection.citations.forEach((item, index) => {
-      const key = citationKey(item);
+    for (const citation of collection.citations) {
+      const key = citationKey(citation.value);
       uniqueGlobalCitations.add(key);
       if (local.has(key)) {
         issues.push(
           providerOutputIssue(
             'provider-output.duplicate-citation',
-            `${collection.path}/citations/${String(index)}`,
+            citation.path,
             'Provider output contains a duplicate citation.',
           ),
         );
       }
       local.add(key);
       if (
-        item.startLine > item.endLine ||
-        item.endLine - item.startLine + 1 >
+        citation.value.startLine > citation.value.endLine ||
+        citation.value.endLine - citation.value.startLine + 1 >
           PROVIDER_OUTPUT_BOUNDS.maximumCitationLines
       ) {
         issues.push(
           providerOutputIssue(
             'provider-output.citation-range',
-            `${collection.path}/citations/${String(index)}`,
+            citation.path,
             'Provider output citation interval is invalid.',
           ),
         );
       }
-    });
+    }
   }
 
   if (
@@ -291,6 +309,16 @@ function validateCitations(
       ),
     );
   }
+}
+
+function citationEntries(
+  path: string,
+  citations: readonly ProviderCitationV1[],
+): readonly { readonly path: string; readonly value: ProviderCitationV1 }[] {
+  return citations.map((citation, index) => ({
+    path: `${path}/${String(index)}`,
+    value: citation,
+  }));
 }
 
 function validateContradictions(

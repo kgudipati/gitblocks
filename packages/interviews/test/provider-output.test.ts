@@ -190,6 +190,68 @@ describe('documented positions and inferences', () => {
 });
 
 describe('limitations, contradictions, and unknowns', () => {
+  it('classifies ordinary limitation structural errors before basis conflicts', () => {
+    const createDocumentedLimitation = () => {
+      const value = cloneProviderOutput();
+      readArray(value, 'limitations').push({
+        topic: 'adoption-and-limitations',
+        basis: 'documented-position',
+        statement: 'The supplied artifacts state a synthetic limitation.',
+        rationale: null,
+        confidence: 'high',
+        citations: [citation(30)],
+      });
+      return value;
+    };
+
+    const cases = [
+      (() => {
+        const value = createDocumentedLimitation();
+        readArray(value, 'limitations')[0]!['unexpected'] = true;
+        return value;
+      })(),
+      (() => {
+        const value = createDocumentedLimitation();
+        Reflect.deleteProperty(readArray(value, 'limitations')[0]!, 'topic');
+        return value;
+      })(),
+      (() => {
+        const value = createDocumentedLimitation();
+        readArray(value, 'limitations')[0]!['statement'] = '';
+        return value;
+      })(),
+      (() => {
+        const value = createDocumentedLimitation();
+        readArray(value, 'limitations')[0]!['citations'] = [];
+        return value;
+      })(),
+    ];
+
+    for (const value of cases) {
+      const result = parseRepositoryInterviewProviderOutputV1(value);
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.issues.map((issue) => issue.code)).not.toContain(
+          'provider-output.limitation-basis',
+        );
+      }
+    }
+  });
+
+  it('classifies genuine limitation union conflicts as basis errors', () => {
+    const value = cloneProviderOutput();
+    readArray(value, 'limitations').push({
+      topic: 'adoption-and-limitations',
+      basis: 'unsupported-basis',
+      statement: 'The supplied artifacts state a synthetic limitation.',
+      rationale: null,
+      confidence: 'high',
+      citations: [citation(30)],
+    });
+
+    expectInvalid(value, 'provider-output.limitation-basis');
+  });
+
   it('enforces documented-position limitation cross-fields', () => {
     const valid = cloneProviderOutput();
     readArray(valid, 'limitations').push({
@@ -319,6 +381,61 @@ describe('limitations, contradictions, and unknowns', () => {
     readArray(universal, 'unknowns')[0]!['statement'] =
       'Authentication does not exist anywhere.';
     expectInvalid(universal, 'provider-output.unknown-scope');
+  });
+
+  it('preserves exact contradiction-side and unknown citation paths', () => {
+    const contradiction = cloneProviderOutput();
+    readArray(contradiction, 'contradictions').push({
+      topic: 'maintenance-and-support',
+      kind: 'direct',
+      explanation: 'Two synthetic positions differ materially.',
+      positionA: {
+        statement: 'Synthetic position A applies.',
+        citations: [citation(40), citation(40)],
+      },
+      positionB: {
+        statement: 'Synthetic position B applies.',
+        citations: [citation(41, 40)],
+      },
+    });
+    const contradictionResult =
+      parseRepositoryInterviewProviderOutputV1(contradiction);
+    expect(contradictionResult.ok).toBe(false);
+    if (!contradictionResult.ok) {
+      expect(contradictionResult.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'provider-output.duplicate-citation',
+            path: '/contradictions/0/positionA/citations/1',
+          }),
+          expect.objectContaining({
+            code: 'provider-output.citation-range',
+            path: '/contradictions/0/positionB/citations/0',
+          }),
+        ]),
+      );
+    }
+
+    const unknown = cloneProviderOutput();
+    readArray(unknown, 'unknowns').push({
+      topic: 'security-and-trust',
+      reason: 'insufficient-detail',
+      statement:
+        'The supplied artifacts do not establish one synthetic security detail.',
+      partialCitations: [citation(50), citation(50)],
+    });
+    const unknownResult = parseRepositoryInterviewProviderOutputV1(unknown);
+    expect(unknownResult.ok).toBe(false);
+    if (!unknownResult.ok) {
+      expect(unknownResult.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'provider-output.duplicate-citation',
+            path: '/unknowns/0/partialCitations/1',
+          }),
+        ]),
+      );
+    }
   });
 });
 
