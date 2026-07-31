@@ -15,6 +15,8 @@ The package currently implements only:
   record/reuse, clock, and nonce ports;
 - deterministic reuse and forced-execution orchestration with immutable
   request, execution, and interview construction;
+- a bounded fixed-host OpenAI Responses adapter behind injected credential,
+  fetch, clock, sleeper, and attempt-control authorities;
 - bounded value-free mapping diagnostics; and
 - offline focused tests and CLI validation.
 
@@ -114,9 +116,41 @@ cover provider response/failure/throw/mutation, record
 reuse/publication/conflict/throw, deterministic clocks, and deterministic
 nonces.
 
+The OpenAI adapter implements only `POST https://api.openai.com/v1/responses`
+with no SDK or global-fetch fallback. Preflight authenticates the exact
+renderer object and committed strict projection, accepts only the two dated
+calibration candidates, and validates the model profile before credentials or
+other effects. The wire body has fixed property order and contains only the
+developer instruction string, user evidence string, strict JSON Schema,
+reasoning/output controls, `store: false`, disabled background/stream/tools/
+truncation, default service tier, and the exact mapping
+`promptCacheRetention: in-memory` to
+`prompt_cache_retention: "in_memory"`. Caller, credential, transport,
+environment, organization, project, or response data cannot override that
+mapping; extended cache options, keys, breakpoints, and TTL fields are absent.
+
+Requests are capped at 10,485,760 UTF-8 bytes. The adapter permits two
+120-second attempts within a 300-second operation, one deterministic eligible
+retry, and at most 30 seconds of provider-directed delay. It streams response
+bodies within the profile limit, strictly decodes UTF-8, retains only
+allowlisted parsed header values, validates token accounting, ignores reasoning
+items, discards refusal/error text, and returns owned frozen port results.
+Expected HTTP, provider-status, transport, cancellation, usage, refusal, and
+response-shape outcomes use the existing controlled failure taxonomy; raw
+bodies, headers, prompts, credentials, and exception text never enter results.
+
+`store: false` is not Zero Data Retention. The explicit `"in_memory"` field is
+GitBlocks request intent and is not proof that abuse-monitoring or other
+organization-level retention is absent. The adapter neither inspects nor
+verifies organization/project ZDR. Before any real provider call, the pre-live
+gate must verify ZDR for the exact organization/project or cite updated
+authoritative OpenAI documentation or provider confirmation proving the
+field's effective behavior for the exact snapshot.
+
 This package still does not contain artifact persistence loading, a concrete
-PostgreSQL adapter, provider HTTP behavior, an operator, evaluation data,
-receipts, production telemetry, or live execution.
+PostgreSQL composition adapter, an operator, receipts, production telemetry,
+or live execution. Neither calibration snapshot is selected, and ordinary
+tests make no provider request.
 
 All package imports are side-effect-free. Filesystem access occurs only when a
 caller explicitly loads, generates, or validates a specification. Ordinary

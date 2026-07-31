@@ -60,9 +60,7 @@ cohort-level authority without catalog mutation or reclassification.
 Maintainer review then accepted the cohort, calibration set, adversarial
 membership, and lifecycle amendment but required complete durable inventory
 closure, exact secondary scope, narrow order-independent adjudication,
-policy-driven sampling/gate math, and complete gate-report provenance. This
-correction implements only that evaluation boundary; Milestone 7 remains
-pending renewed acceptance and Milestone 8 remains blocked.
+policy-driven sampling/gate math, and complete gate-report provenance.
 
 The next review accepted that semantic closure but found two remaining input
 authority gaps: embedded run scopes were self-authenticating without their
@@ -71,8 +69,18 @@ references. Its addendum also requires runtime authentication of the loaded
 corpus so structural policy lookalikes cannot preserve stale digests. The final
 Milestone 7 correction therefore brands only the fully validated owned/frozen
 loader result, re-derives each completed scope from an exact durable exchange,
-and owns and freezes the complete validated audit authority. It does not begin
-Milestone 8.
+and owns and freezes the complete validated audit authority. Maintainer review
+accepted Milestone 7 in full and authorized Milestone 8.
+
+The first Milestone 8 pass correctly stopped without changing files after the
+July 31, 2026 official OpenAI documentation recheck exposed a retention
+conflict: omitting the prompt-cache retention field can allow effective
+retention to depend on organization settings, including 24-hour retention.
+The maintainer accepted that stop and amended this decision to require the
+exact product-to-wire mapping `in-memory` to
+`prompt_cache_retention: "in_memory"` for both authorized calibration
+snapshots. Milestone 8 implements only the bounded direct protocol adapter and
+offline fake-transport tests; Milestone 9 remains blocked.
 
 ## Decision
 
@@ -473,16 +481,44 @@ POST https://api.openai.com/v1/responses
 
 It does not add the OpenAI SDK.
 
-Required controls are exact dated snapshot, `store: false`, strict Structured
-Outputs, disabled truncation, no tools/search/code/MCP/background/
-conversation/previous response, low reasoning during calibration, in-memory
-prompt-cache retention only, response-byte and candidate/run deadlines, at
-most one eligible retry, bounded retry-header handling, and injected fetch,
-clock, sleeper, and nonce.
+Credential, fetch, UTC/monotonic clock, sleeper, and per-attempt
+cancellation/deadline control are injected; the package reads no environment,
+file, global clock, timer, or default network transport.
 
-Errors and telemetry are value-free. `store: false` does not imply zero
-provider retention; separate provider abuse-monitoring retention is disclosed.
-Extended prompt-cache retention remains disabled.
+The adapter sends one deterministically serialized request with the exact
+dated snapshot, separate developer/user prompt strings, low/medium/high
+reasoning from the profile, strict Structured Outputs through `text.format`,
+the profile output-token bound, `store: false`, `background: false`,
+`stream: false`, `tools: []`, `truncation: "disabled"`,
+`service_tier: "default"`, and
+`prompt_cache_retention: "in_memory"`. The last field is the sole mapping of
+the accepted product value `promptCacheRetention = in-memory`; it is required
+for both calibration candidates and cannot be supplied or overridden by a
+caller, credential, environment, organization setting, transport, or response.
+The adapter rejects `"24h"`, prompt-cache keys/options/breakpoints/TTL
+controls, tools/search/code/MCP, background, conversation, previous response,
+metadata, user identifiers, and trusted GitBlocks provenance.
+
+Preflight checks the closed provider request, exact privately authenticated
+prompt instance, parsed model profile, committed projection bytes/digest, and
+10 MiB request bound before any injected effect. Responses are read through a
+bounded stream, decoded strictly as UTF-8, and interpreted through allowlisted
+status/output/usage/header fields. Attempts are capped at two, each at 120
+seconds and the operation at 300 seconds; one deterministic retry is allowed
+only for the reviewed network/deadline/408/409/429/5xx classes, with a bounded
+30-second retry delay. Results are separately owned, deeply frozen where
+structured data is retained, and contain no raw prompt, body, reasoning,
+refusal, header, credential, or exception value.
+
+`store: false` does not imply zero provider retention, and explicit
+`"in_memory"` is request intent rather than proof that abuse-monitoring or
+other organization-level retention is absent. Extended 24-hour retention is
+not the GitBlocks profile. The adapter does not inspect or verify ZDR or
+organization/project configuration. Before any real provider call in
+Milestone 11, a separate pre-live gate must either verify ZDR for the exact
+OpenAI organization/project or cite updated authoritative OpenAI documentation
+or provider confirmation that resolves the July 31 conflict and proves the
+explicit field's effective behavior for the exact snapshot.
 
 ### Strict-schema projection
 
@@ -742,8 +778,12 @@ appearing complete.
   credentials never enter prompts; errors/telemetry/receipts are allowlisted.
 - **Cost and denial of service:** bytes, counts, tokens, context, response size,
   time, concurrency, retry, run, and USD limits fail closed.
-- **Provider retention misunderstanding:** the operator discloses that
-  `store: false` is not zero retention and disables extended caching.
+- **Provider retention misunderstanding:** the adapter explicitly sends
+  `prompt_cache_retention: "in_memory"` and `store: false`, rejects 24-hour
+  cache controls, and documents that neither value proves ZDR or absence of
+  abuse-monitoring or organization-level retention. A pre-live gate must
+  verify the exact organization/project or authoritative updated provider
+  behavior before calibration.
 - **History corruption:** forward migration, immutable rows, minimum grants,
   complete digests, atomic publication, and no current pointer.
 - **Evaluation leakage:** production packages cannot import evaluation data;
@@ -787,7 +827,7 @@ second maintained schema.
 
 ## Deferred work
 
-- Milestone 7 maintainer acceptance.
+- Milestone 8 maintainer acceptance and Milestone 9 composition.
 - Final Gate A model-profile selection.
 - Provider portability or another provider.
 - Production review/selection contracts.
@@ -797,12 +837,10 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1–6 passed maintainer review. The Milestone 7 cohort, calibration
-membership, adversarial membership, and semantic closure are accepted. Its
-loader-authenticated corpus, exchange-derived scopes, owned immutable audit
-authority, compatibility evidence, and hosted CI require renewed maintainer
-acceptance while the PR remains draft.
-Milestone 8 requires separate renewed authorization.
+Milestones 1–7 passed maintainer review. Milestone 8 implements only the
+bounded direct adapter and fake-transport protocol evidence and now requires
+maintainer acceptance while the PR remains draft. Milestone 9 composition is
+not authorized by this implementation.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never
@@ -810,8 +848,10 @@ implies authority for the next one.
 
 ## Official provider references
 
-Provider facts in this decision were checked only against current official
-OpenAI documentation:
+Provider facts in this decision were rechecked on July 31, 2026 only against
+current official OpenAI documentation. That recheck produced the explicit
+retention amendment recorded above rather than silently preserving the prior
+omission:
 
 - [Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create)
 - [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
@@ -820,5 +860,6 @@ OpenAI documentation:
 - [GPT-5.4 snapshot and limits](https://developers.openai.com/api/docs/models/gpt-5.4)
 - [GPT-5.4 mini snapshot and limits](https://developers.openai.com/api/docs/models/gpt-5.4-mini)
 
-These external facts must be revalidated before implementing the adapter and
-again immediately before a live gate.
+These external facts must be revalidated immediately before the separately
+authorized pre-live gate. Neither calibration snapshot is selected by this
+adapter implementation.

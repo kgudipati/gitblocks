@@ -72,6 +72,8 @@ export type RenderRepositoryInterviewPromptResultV1 =
       readonly issues: readonly RepositoryInterviewMappingIssue[];
     };
 
+const validatedRenderedPrompts = new WeakSet<object>();
+
 interface ValidatedArtifactContext {
   readonly artifactSet: RepositoryArtifactSetV1;
   readonly present: readonly {
@@ -174,26 +176,38 @@ export function renderRepositoryInterviewPromptV1(
     instructionText,
     evidenceText,
   });
+  const prompt = Object.freeze({
+    candidateId: context.value.artifactSet.candidateId,
+    artifactSetId: context.value.artifactSet.artifactSetId,
+    artifactSetIdentityDigest: context.value.artifactSet.identityDigest,
+    rendererVersion: input.specification.manifest.rendererVersion,
+    specificationVersion: input.specification.manifest.specificationVersion,
+    specificationDigest: input.specification.manifest.specificationDigest,
+    instructionText,
+    evidenceText,
+    promptDigest,
+    aliasBindings: Object.freeze(aliasBindings),
+    instructionUtf8Bytes,
+    evidenceUtf8Bytes,
+    artifactUtf8Bytes: context.value.artifactUtf8Bytes,
+    totalLogicalLines: context.value.totalLogicalLines,
+  });
+  validatedRenderedPrompts.add(prompt);
   return {
     ok: true,
-    value: Object.freeze({
-      candidateId: context.value.artifactSet.candidateId,
-      artifactSetId: context.value.artifactSet.artifactSetId,
-      artifactSetIdentityDigest: context.value.artifactSet.identityDigest,
-      rendererVersion: input.specification.manifest.rendererVersion,
-      specificationVersion: input.specification.manifest.specificationVersion,
-      specificationDigest: input.specification.manifest.specificationDigest,
-      instructionText,
-      evidenceText,
-      promptDigest,
-      aliasBindings: Object.freeze(aliasBindings),
-      instructionUtf8Bytes,
-      evidenceUtf8Bytes,
-      artifactUtf8Bytes: context.value.artifactUtf8Bytes,
-      totalLogicalLines: context.value.totalLogicalLines,
-    }),
+    value: prompt,
     issues: [],
   };
+}
+
+export function isValidatedRenderedRepositoryInterviewPromptV1(
+  value: unknown,
+): value is RenderedRepositoryInterviewPromptV1 {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    validatedRenderedPrompts.has(value)
+  );
 }
 
 export function repositoryInterviewPromptDigest(value: {

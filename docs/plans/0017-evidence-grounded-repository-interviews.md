@@ -32,12 +32,14 @@
   - PR #18 review: “Milestone 7 review — semantic closure accepted; two final
     trust-boundary corrections required before Milestone 8.”
   - PR #18 addendum: validated corpus authority must also be authenticated.
+  - PR #18 review: “Milestone 7 accepted — Milestone 8 authorized.”
+  - PR #18 review: “Milestone 8 documentation conflict accepted —
+    implementation authorized with retention amendment.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–6, the Milestone 7 cohort, and its semantic closure are
-  accepted; final Milestone 7 input-authenticity and immutable-ownership
-  corrections await renewed review; Milestones 8–14 remain unauthorized or
-  incomplete
+- State: Milestones 1–7 are accepted; Milestone 8's bounded direct OpenAI
+  Responses adapter is implemented and awaiting review; Milestones 9–14 remain
+  unauthorized or incomplete
 - Last updated: 2026-07-31
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -85,6 +87,11 @@ Milestone 7 adds only a separate offline evaluation authority, synthetic
 fixtures, content-minimized future audit schemas, and deterministic gate math.
 It performs no provider/model call, calibration, Gate A execution, human
 review, production review-state mutation, or application composition.
+Milestone 8 adds only a bounded direct OpenAI Responses protocol adapter behind
+the accepted injected provider port. Its validation uses fake transports only;
+it configures no credential, composes no operator or persistence adapter,
+makes no provider request, selects no model, and performs no calibration or
+live execution.
 
 ## Verified repository state
 
@@ -804,14 +811,14 @@ behavior is external and versioned independently.
 
 ## OpenAI adapter direction
 
-The initial adapter will issue only:
+Milestone 8 implements a single adapter that may issue only:
 
 ```text
 POST https://api.openai.com/v1/responses
 ```
 
-It will use injected `fetch`, clock, sleeper, and nonce sources. It will
-construct one fixed-host request with:
+It uses injected credential, `fetch`, UTC/monotonic clock, sleeper, and
+per-attempt control authorities. It constructs one fixed-host request with:
 
 - one exact dated model snapshot;
 - `store: false`;
@@ -822,13 +829,15 @@ construct one fixed-host request with:
   protocol fixture;
 - no web search, file search, code interpreter, MCP, background mode,
   conversation, or previous response;
-- in-memory prompt-cache retention only;
+- the exact product-to-wire cache mapping
+  `promptCacheRetention = in-memory` to
+  `prompt_cache_retention: "in_memory"`;
 - bounded request and response bytes;
 - caller, candidate, and run deadlines;
 - at most one eligible retry; and
 - bounded `Retry-After`/rate-limit handling within the remaining deadline.
 
-The adapter will not add the OpenAI SDK initially. Direct `fetch` keeps the
+The adapter does not add the OpenAI SDK. Direct `fetch` keeps the
 production dependency graph unchanged, narrows request/response parsing to one
 endpoint, prevents SDK defaults/types from becoming application contracts,
 supports injected protocol fixtures, and gives GitBlocks explicit retry,
@@ -837,12 +846,27 @@ small protocol adapter and must track API drift. An SDK may be reconsidered
 only if measured protocol maintenance or correctness evidence exceeds that
 cost.
 
-`store: false` prevents the normal Responses application-state retention path;
-it does not mean zero provider retention. OpenAI documents separate abuse
-monitoring retention, generally up to 30 days by default. The live gate must
-disclose that boundary. Extended prompt-cache retention remains disabled;
-in-memory retention is selected because it is short-lived and does not require
-the longer retention mode.
+The deterministic body order is `model`, `input`, `reasoning`, `text`,
+`max_output_tokens`, `store`, `background`, `stream`, `tools`, `truncation`,
+`service_tier`, then `prompt_cache_retention`. It contains separate developer
+and user input messages, the exact committed strict projection, the profile
+reasoning/output controls, `store: false`, `background: false`, `stream: false`,
+`tools: []`, disabled truncation, and the default service tier. It rejects
+cache options, cache keys, breakpoints, TTL controls, `"24h"`, conversation,
+previous-response state, user/metadata fields, and trusted GitBlocks identity.
+
+The July 31, 2026 official-documentation recheck exposed a conflict with the
+earlier plan to omit `prompt_cache_retention`: omission can make effective
+retention depend on organization policy, including 24-hour retention. Work
+stopped without file changes; the maintainer accepted that stop and authorized
+the exact explicit `"in_memory"` mapping for both dated calibration candidates.
+`store: false` is not ZDR, and explicit `"in_memory"` is request intent rather
+than proof that abuse-monitoring or other organization-level retention is
+absent. The adapter neither reads nor verifies organization/project/ZDR state.
+Before any real Milestone 11 calibration request, a separate pre-live gate must
+either verify ZDR for the exact organization/project or cite updated official
+documentation or provider confirmation resolving the conflict and proving the
+field's effective behavior for the exact snapshot.
 
 ## Model calibration
 
@@ -1739,9 +1763,9 @@ already includes `apps/*` and will remain unchanged.
 
 ### 7. Evaluation authority and adversarial fixtures
 
-- **Status:** exact cohort, calibration set, adversarial membership, and
-  lifecycle amendment accepted; corrected audit authority implemented and
-  awaiting renewed review. Milestone 8 remains blocked.
+- **Status:** accepted in full, including the exact cohort/calibration/
+  adversarial authority, loader-authenticated corpus, exchange-derived scopes,
+  immutable audit authority, policy-driven gates, and report provenance.
 - **Red first:** cohort balance/existence, audit schema/reference closure,
   complete durable inventory, exact primary/secondary coverage, same-interview
   references, narrow adjudication, policy-driven sampling/threshold math,
@@ -1760,24 +1784,32 @@ already includes `apps/*` and will remain unchanged.
   policy consumption, set/report digests, and corpus independence.
 - **Prohibited:** candidate body inspection/commit, pilot gold reuse, live
   model call.
-- **Stop:** renewed maintainer acceptance is required before Milestone 8;
-  model calibration remains separately gated later.
+- **Stop:** satisfied by explicit maintainer acceptance; model calibration
+  remains separately gated later.
 
 ### 8. Bounded direct OpenAI Responses adapter
 
+- **Status:** implemented and awaiting maintainer review; Milestone 9 remains
+  blocked.
 - **Red first:** exact request fixture, fixed host, strict schema, store/no-tool/
-  no-state controls, bytes, deadlines, cancellation, retry headers, refusals,
-  incomplete/safety/errors, usage validation, redaction, injected capabilities.
-- **Likely files:** OpenAI adapter, protocol types kept private, adapter tests,
-  official-reference update.
+  no-state controls, exact `"in_memory"` cache mapping, bytes, deadlines,
+  cancellation, retry headers, refusals, incomplete/safety/errors, usage
+  validation, redaction, injected capabilities.
+- **Files:** `packages/interviews/src/openai-responses-adapter.ts`, narrow
+  package exports, private rendered-prompt authentication, focused fake-
+  transport tests, and the required package/plan/ADR/security/testing/
+  reliability documentation.
 - **Commit:** `feat(interviews): add bounded OpenAI responses adapter`.
-- **Verification:** focused protocol suite with fake fetch, no-network suite,
-  security, architecture, verify.
+- **Verification:** 72-test focused fake-transport protocol suite, complete
+  `interviews:verify`, no-network/security/architecture checks, and the full
+  repository matrix recorded below.
 - **Review:** official API recheck, exact request/response allowlist,
-  retention disclosure, no SDK dependency.
+  explicit cache-retention intent/ZDR disclosure, bounded stream/retry/status
+  behavior, owned results, and no SDK dependency.
 - **Prohibited:** credential access, real API call, background/tools/state.
-- **Stop:** unknown provider field/keyword or unsafe diagnostic blocks
-  progress.
+- **Stop:** Milestone 9 remains blocked until maintainer review accepts the
+  implementation and all local/hosted verification evidence. The separate
+  ZDR or updated-authority pre-live gate remains mandatory before Milestone 11.
 
 ### 9. Operator composition root, reuse, receipt, and telemetry
 
@@ -2795,8 +2827,43 @@ cruising covers 696 modules and 2,235 dependencies without a violation.
 PostgreSQL 18.4 passes five files and 59 tests without a skip, retaining four
 migrations, 25 product tables, and zero RLS policies; the registry audit has no
 known vulnerability. Hosted CI evidence is recorded after the correction
-commit. Milestone 7 remains pending renewed acceptance and Milestone 8 remains
-blocked.
+commit. Maintainer review accepted Milestone 7 in full.
+
+### Milestone 8 red/green and verification evidence
+
+The July 31, 2026 official OpenAI documentation review covered direct
+Responses creation, bearer authentication, strict `text.format` structured
+outputs, response statuses/output items, usage, request/rate-limit headers,
+error responses, prompt caching, data controls, and compatibility. It found the
+cache-retention conflict described above. The accepted stop changed no file or
+external state; the maintainer's binding amendment then authorized the exact
+`in-memory` to `"in_memory"` request mapping.
+
+The focused red run failed one file and all 62 initial tests because the
+adapter factory did not exist. Green implementation and further boundary tests
+now pass 72 focused cases using only injected fake credential, transport,
+clock, sleeper, attempt control, and bounded response streams. Tests cover both
+authorized but unselected snapshots, exact deterministic request bytes,
+presence and non-overridability of `prompt_cache_retention: "in_memory"`,
+closed preflight, private prompt-instance authentication, credential safety,
+10 MiB request bounds, bounded response streaming/UTF-8, allowlisted headers,
+status/output/usage/refusal mappings, deterministic two-attempt retry policy,
+deadlines/cancellation, owned frozen output, and denial of global network use.
+
+`pnpm interviews:verify` passes the three unchanged specification digests,
+seven files and 244 tests, package build/typecheck/lint, and dependency cruising
+of 698 modules and 2,243 dependencies without a violation. The complete local
+matrix passes 59 files and 1,179 ordinary tests; PostgreSQL 18.4 passes five
+files and 59 tests with no skip, retaining four migrations, 25 product tables,
+and zero RLS policies. Coverage passes the same 59 files and 1,179 tests at
+80.08% statements, 72.78% branches, 87.15% functions, and 80.03% lines. Two
+initial coverage invocations hit the pre-existing five-second YAML node-bound
+stress-test timeout under parallel instrumentation; its isolated coverage run
+passed 30 tests in 3.50 seconds and the unmodified prescribed command then
+passed in full. The registry audit reports no known vulnerabilities. Hosted CI
+counts are appended after the exact final-head run.
+No credential, real transport, model call, calibration, Gate A, operator,
+persistence composition, live database operation, or Milestone 9 work occurred.
 
 ## Progress log
 
@@ -2942,6 +3009,20 @@ blocked.
   ownership, and deep freezing now pass 70 focused evaluation tests without an
   evaluation-schema, member, or policy-byte change. Milestone 7 remains
   pending renewed review; Milestone 8 remains blocked.
+- **2026-07-31:** Maintainer review accepted Milestone 7 in full and authorized
+  Milestone 8. The first implementation pass stopped without changing files
+  when official OpenAI prompt-caching and data-control documentation conflicted
+  with the planned cache-field omission.
+- **2026-07-31:** The maintainer accepted that stop and amended Milestone 8 to
+  require the exact `in-memory` to
+  `prompt_cache_retention: "in_memory"` mapping. Official Responses,
+  authentication, structured-output, status/output, usage, header/error,
+  caching, retention, compatibility, and both dated-model pages were rechecked
+  before code.
+- **2026-07-31:** Recorded 62 focused red failures, then implemented the
+  fixed-host injected adapter and expanded the fake-transport suite to 72
+  passing cases. Milestone 8 awaits review; Milestone 9 and every live gate
+  remain blocked.
 
 ## Decision and deviation log
 
@@ -3093,24 +3174,36 @@ blocked.
   returned by the complete loader is audit authority. Completed scopes derive
   from exact durable exchanges, and every retained authority value is bounded,
   separately owned, and deeply frozen before its private audit brand is added.
+- **Explicit prompt-cache intent:** the accepted `in-memory` profile maps only
+  to `prompt_cache_retention: "in_memory"`; omission and `"24h"` are rejected.
+  The field is not treated as ZDR evidence, and the adapter does not inspect
+  organization/project retention settings.
+- **Protocol authority narrowed:** the direct adapter accepts only the existing
+  provider port, a privately authenticated exact prompt, the two calibration
+  snapshots, and injected credential/fetch/time/sleep/attempt control. It owns
+  fixed request bytes, bounded response parsing, safe retry/header/status
+  mappings, and value-free owned results without introducing an SDK or generic
+  HTTP/model framework.
 
-## Remaining maintainer decisions before Milestone 8
+## Remaining maintainer decisions before Milestone 9
 
-Milestones 1–6 and the Milestone 7 cohort are accepted. Milestone 8 must not
-advance until renewed maintainer review accepts:
+Milestones 1–7 are accepted. Milestone 9 must not advance until renewed
+maintainer review accepts:
 
-1. loader-authenticated corpus and policy authority;
-2. exact durable-exchange membership and internally derived scope equality;
-3. deeply owned, deeply frozen audit authority and post-validation mutation
-   resistance;
-4. unchanged accepted semantic closure and complete report provenance;
-5. unchanged accepted cohort, calibration, adversarial, product,
-   specification, migration, catalog, artifact, pilot, dependency, and
-   lockfile authorities; and
-6. read-only CLI, architecture direction, full local verification, and hosted
-   CI evidence recorded here and on draft PR #18.
+1. exact direct Responses request bytes, fixed host/headers, strict schema, and
+   explicit `"in_memory"` cache mapping for both calibration candidates;
+2. closed preflight, authenticated exact prompt object, injected effect
+   authorities, byte/deadline/retry bounds, and value-free failure behavior;
+3. bounded streaming parse, safe-header/status/output/usage interpretation,
+   and owned/frozen controlled results;
+4. unchanged product, specification, prompt/provider-output golden,
+   evaluation, migration, catalog, artifact, pilot, dependency, and lockfile
+   authorities; and
+5. full local verification and hosted CI evidence on the exact commit.
 
-Only renewed authorization may begin the bounded direct OpenAI Responses
-adapter in Milestone 8. Model selection, calibration execution, Gate A, real
-human audit, production review/selection policy, and ranking integration
-remain separately blocked.
+Only renewed authorization may begin Milestone 9 composition. Before any real
+provider call in Milestone 11, the separate pre-live gate must verify ZDR for
+the exact organization/project or provide updated authoritative provider
+evidence for the effective explicit-cache behavior. Model selection,
+calibration execution, Gate A, real human audit, production review/selection
+policy, and ranking integration remain separately blocked.

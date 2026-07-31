@@ -165,6 +165,18 @@ commands report only version, name, checksum, and PostgreSQL version.
 Application telemetry may record bounded operation/result categories,
 durations, and counts, but never SQL statements or persisted evidence content.
 
+The repository-interview OpenAI adapter is a narrow protocol component rather
+than a telemetry emitter. It returns only contract-safe attempt summaries,
+usage, controlled failure codes, and parsed structured output to the existing
+application boundary. It never returns raw prompts, response/error bodies,
+reasoning, refusal text, credentials, unparsed headers, or transport
+exceptions. A future operator may emit only the already reviewed value-free
+categories and counts. The explicit
+`prompt_cache_retention: "in_memory"` request field records request intent; it
+is neither telemetry nor evidence of ZDR or absence of organization-level
+retention. That external retention authority is checked at the separate
+pre-live gate before calibration.
+
 ## Worker and job observability
 
 Each job type defines a versioned payload, owner, idempotency key, maximum

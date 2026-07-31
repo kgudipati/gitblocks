@@ -86,3 +86,15 @@ export {
   type RepositoryInterviewArtifactAlias,
   type RepositoryInterviewArtifactAliasBinding,
 } from './repository-interview-prompt.ts';
+export {
+  createOpenAiResponsesRepositoryInterviewProviderV1,
+  type OpenAiResponsesRepositoryInterviewProviderDependenciesV1,
+  type RepositoryInterviewOpenAiAttemptControlPortV1,
+  type RepositoryInterviewOpenAiAttemptControlV1,
+  type RepositoryInterviewOpenAiAttemptOutcomeV1,
+  type RepositoryInterviewOpenAiClockPortV1,
+  type RepositoryInterviewOpenAiClockReadingV1,
+  type RepositoryInterviewOpenAiCredentialPortV1,
+  type RepositoryInterviewOpenAiFetchV1,
+  type RepositoryInterviewOpenAiSleeperPortV1,
+} from './openai-responses-adapter.ts';

@@ -261,9 +261,17 @@ GitBlocks IDs, dossier content, target facts, credentials, or ranking context.
 Trusted code validates the closed provider output, resolves citations, derives
 all identity/provenance, and publishes nothing after an operational or policy
 failure. Errors, telemetry, receipts, and evaluation audit files remain
-content-free. `store: false` and in-memory prompt caching minimize provider
-state but do not represent zero provider retention; that residual boundary must
-be disclosed before live authorization.
+content-free. The bounded direct Responses adapter maps the accepted
+`promptCacheRetention: in-memory` profile only to the explicit request field
+`prompt_cache_retention: "in_memory"`; it rejects omission, `"24h"`, cache
+keys, options, breakpoints, TTL controls, and caller/environment/credential
+overrides. `store: false` and explicit in-memory request intent do not
+represent Zero Data Retention or prove that abuse-monitoring or other
+organization-level retention is absent. The adapter does not inspect or verify
+ZDR. Before Milestone 11 can make any provider call, a separate pre-live gate
+must either verify ZDR for the exact OpenAI organization/project or cite
+updated authoritative OpenAI documentation or provider confirmation proving
+the field's effective behavior for the exact dated snapshot.
 
 Migration 0004 persists only the approved request, execution, interview, and
 normalized semantic-member contracts. It excludes prompts, alias registries,

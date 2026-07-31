@@ -121,6 +121,18 @@ and the 30/150-candidate gates remain explicit acknowledged operations with
 frozen model/specification profiles, spend limits, human review, and
 content-free evidence.
 
+The Milestone 8 provider-protocol suite remains entirely fake-transport based.
+It proves fixed-host request bytes, the exact
+`promptCacheRetention = in-memory` to
+`prompt_cache_retention: "in_memory"` mapping, strict structured output,
+bounded streaming reads, safe header parsing, retry/deadline behavior, status
+and usage mappings, and owned value-free results. These tests prove adapter
+protocol behavior only: they do not establish Zero Data Retention, model
+quality, prompt-injection resistance, or suitability of either calibration
+snapshot. Before any real calibration request, the pre-live gate must verify
+ZDR for the exact organization/project or cite newer authoritative provider
+evidence proving the effective retention behavior.
+
 Ingestion regressions must prove the closed provider taxonomy rather than mock
 all failures as absence. Fatal optional outcomes are rethrown and create no
 snapshot. PostgreSQL recovery tests perform complete, temporary-failure, and
