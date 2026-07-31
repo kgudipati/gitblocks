@@ -265,6 +265,17 @@ content-free. `store: false` and in-memory prompt caching minimize provider
 state but do not represent zero provider retention; that residual boundary must
 be disclosed before live authorization.
 
+Migration 0004 persists only the approved request, execution, interview, and
+normalized semantic-member contracts. It excludes prompts, alias registries,
+artifact bodies, raw provider output, reasoning, refusal/error text,
+credentials, review, and selection data. Deferred closure binds every durable
+citation to one `present` artifact-set member and an inclusive range within its
+recorded logical-line count. All eight tables are append-only for owner and
+runtime connections; runtime receives only `SELECT` and `INSERT`, public
+receives no schema, table, or function privilege, and no row-level security
+policy is introduced. Record collisions, partial histories, and corrupt
+eligible reuse records fail closed rather than being overwritten or repaired.
+
 Only an explicitly approved optional 404 is normal absence. Temporary optional
 unavailability creates a partial receipt but no dossier or durable transient
 material. Caller cancellation, deadline, rate limit,

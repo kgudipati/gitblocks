@@ -48,8 +48,10 @@ Milestone 4 and authorized Milestone 5 with the binding requirement that one
 ephemeral rendered prompt object remain the exact provider/resolver context.
 The next review accepted the Milestone 5 architecture but required
 fail-closed exotic artifact-array ownership and provider response-effect
-preflight before semantic mapping. Those corrections await renewed review;
-Milestone 6 remains unauthorized.
+preflight before semantic mapping. The latest review accepted those
+corrections and authorized only Milestone 6's forward migration 0004 and
+concrete contract-grounded persistence operations. Milestone 7 remains
+unauthorized.
 
 ## Decision
 
@@ -369,6 +371,40 @@ request/configuration. An explicitly forced rerun adds a trusted nonce to a new
 execution identity and preserves both histories. A short-ID/full-digest
 mismatch is a fatal collision, not idempotency.
 
+### Immutable request, execution, and interview persistence
+
+Migration 0004 persists `RepositoryInterviewRequestV1` as a first-class root,
+not an execution subdocument. The request is the byte-deterministic reusable
+authority for candidate/artifact-set, specification, renderer, provider-output
+schema, and prompt identity and therefore has no operational timestamp.
+
+Exactly eight append-only tables store request, execution, interview,
+citation, claim, limitation, contradiction, and unknown records. Each keeps
+bounded normalized identity, ownership, provenance, chronology, status, or
+query columns plus the exact parsed contract value as canonical JSONB and full
+identity/record digests. Attempts, usage, safe provider IDs, semantic text,
+and contradiction positions remain inside their approved canonical contracts;
+prompt/alias/artifact content, raw provider output/error/reasoning,
+credentials, review, and selection data do not enter these tables.
+
+Deferred PostgreSQL closure proves root-array/member equality, contiguous
+ordinals, citation reference closure, exact `present` artifact-set membership,
+inclusive line ranges within the stored artifact line count, and complete
+request/execution/interview provenance. A successful execution owns exactly
+one interview; a failed execution owns none. All eight tables reject
+update/delete/truncate for owner and runtime connections. The runtime role has
+only `SELECT` and `INSERT`; public has no schema, table, or function privilege,
+and no RLS policy is introduced.
+
+The concrete adapter exposes only atomic exchange publication, exact normal
+reuse lookup, and closed historical loading by execution or interview ID.
+Exact replay requires complete record and member equality. Short-ID/full-digest
+collisions, record changes, partial history, and corrupt eligible history fail
+closed without repair. Multiple executions may share one reuse key; forced
+history is append-only and excluded from automatic normal reuse. A future
+composition root, not either package, adapts these operations to the
+application-owned record port.
+
 ### Complete scope and bounds
 
 All Phase 6 artifacts in the exact set are reconstructed and included. No
@@ -669,7 +705,7 @@ second maintained schema.
 
 ## Deferred work
 
-- Exact migration 0004 SQL and adapter APIs.
+- Milestone 6 maintainer acceptance and any later forward-recovery finding.
 - Exact 30-candidate cohort and six calibration candidates.
 - Final Gate A model-profile selection.
 - Provider portability or another provider.
@@ -680,13 +716,12 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1–4 passed maintainer review. Milestone 5's exact application
-surface, ephemeral prompt-reference closure, injected port shapes, reuse and
-forced-run orchestration, failed-execution publication, descriptor-owned
-artifact arrays, provider response-effect preflight, genuine invalid-usage
-classification, value-free diagnostics, tests, compatibility evidence, and
-hosted CI require renewed maintainer acceptance while the PR remains draft.
-Milestone 6 requires separate renewed authorization.
+Milestones 1–5 passed maintainer review. Milestone 6's exact eight-table
+migration, first-class request root, hybrid JSONB representation, deferred
+closure, least-privilege grants, three public operations, idempotency,
+forced-history/reuse behavior, tests, compatibility evidence, and hosted CI
+require renewed maintainer acceptance while the PR remains draft. Milestone 7
+requires separate renewed authorization.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

@@ -4,7 +4,9 @@ Private strict-ESM PostgreSQL adapter for GitBlocks' shared public OSS catalog.
 It persists immutable candidate identity, source-aware evidence, limitations,
 material unknowns, lifecycle events, and exact candidate-dossier snapshots.
 It also persists exact curator-approved repository artifacts, lossless chunks,
-and normalized closed artifact-set entries.
+normalized closed artifact-set entries, deterministic repository-interview
+requests, model-execution history, and successful repository interviews with
+their normalized semantic members.
 
 The adapter exposes explicit client creation/closure, explicit checked forward
 migrations, public catalog writes, exact historical snapshot loading, and one
@@ -30,13 +32,41 @@ repository rename.
 `exact-lines-v1` chunker version and filters the chunk query by both artifact ID
 and chunker version. Artifact identity remains independent of chunker version.
 
+Repository-interview persistence exposes exactly three operations:
+`publishRepositoryInterviewExchange`, `findReusableRepositoryInterview`, and
+`loadRepositoryInterviewExchange`. Publication reparses every contract before
+opening its transaction, verifies the exact artifact-set identity, serializes
+the request/execution authority with an advisory transaction lock, and appends
+one atomic exchange. A failed execution stores only its immutable request and
+safe execution record. A successful execution stores exactly one interview
+and closed citation, claim, limitation, contradiction, and unknown rows.
+
+Each of the three roots and five semantic member families retains its exact
+parsed contract as canonical JSONB plus bounded normalized ownership/query
+columns. Deferred checks prove root/member equality, contiguous ordinals,
+request/execution/interview provenance, successful ownership, and citation
+membership in a `present` artifact from the exact set with an inclusive
+line-closed range. Prompt text, alias bindings, artifact bodies, raw provider
+output/errors, and evaluation review are not persisted.
+
+Exact replay is idempotent only when stable IDs, full identity/record digests,
+normalized columns, canonical payloads, and complete nested membership agree.
+Collisions and partial history fail closed without repair. Reuse considers
+only complete successful `normal` executions and selects the earliest
+completion then lexical execution ID. Failed and `forced` executions remain
+immutable history but are not automatic reuse candidates.
+
 Configuration and credentials are injected. Imports perform no I/O; the
 package owns no singleton, environment read, implicit migration, logging,
 dynamic SQL identifier, organization model, tenant scope, expiry, purge,
 deletion, tombstone, RLS policy, transport, provider, worker, model, or
 deployment behavior.
 
-Use `pnpm db:verify` for the exact PostgreSQL 18.4 no-volume verification path.
+Migration 0004 adds exactly eight product tables. All are append-only for both
+owner and runtime connections; the non-owner runtime role receives only
+`SELECT` and `INSERT`, and public receives no schema, table, or function
+privilege. Use `pnpm db:verify` for the exact PostgreSQL 18.4 no-volume
+verification path.
 The non-owner runtime role may read, but cannot mutate, migration history so
 runtime composition roots can verify the exact applied inventory.
 ADR 0004 and `docs/plans/0011-evidence-persistence.md` own the schema,

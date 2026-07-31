@@ -104,10 +104,16 @@ first-materialization reuse without skipped tests. The full 150-candidate
 artifact operation is a separately authorized live proof and is not simulated
 by offline fixtures.
 
-The planned Phase 7 ordinary suite will also perform no model-provider network
-request. It will separate deterministic schema, projection, prompt, identity,
-citation, persistence, receipt, and security tests from nondeterministic model
-quality evaluation. Synthetic adversarial repository text will attempt
+The Phase 7 ordinary suite performs no model-provider network request. It
+separates deterministic schema, projection, prompt, identity, citation,
+persistence, receipt, and security tests from nondeterministic model quality
+evaluation. Real PostgreSQL 18 tests apply all four migrations and verify the
+eight-table repository-interview history through the non-owner runtime role:
+atomic publication, exact replay, concurrent idempotency/conflict behavior,
+forced and normal histories, earliest eligible reuse, historical loading,
+deferred root/member/citation/provenance closure, immutability, grants, and
+corrupt-history rejection, without skips. Synthetic adversarial repository
+text will attempt
 instruction override, identity forgery, tool/secret requests, invalid aliases
 and lines, ranking, JSON-field injection, outside knowledge, unknown
 suppression, confidence inflation, and unsafe output. Real provider calibration

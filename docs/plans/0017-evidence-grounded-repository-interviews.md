@@ -20,12 +20,12 @@
     exact-context requirement.”
   - PR #18 review: “Milestone 5 review — architecture accepted; two
     application-boundary corrections required before Milestone 6.”
+  - PR #18 review: “Milestone 5 accepted — Milestone 6 authorized.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–4 accepted; Milestone 5 application-boundary
-  corrections implemented and awaiting renewed maintainer review; Milestones
-  6–14 remain unauthorized or incomplete
-- Last updated: 2026-07-30
+- State: Milestones 1–5 accepted; Milestone 6 is implemented and awaiting
+  maintainer review; Milestones 7–14 remain unauthorized or incomplete
+- Last updated: 2026-07-31
 
 The latest maintainer comment amends broader or conflicting language in the
 issue body. Authority descends from Issue #17 and those comments, through
@@ -64,6 +64,10 @@ adds one persistence-independent application flow, narrow effect ports,
 deterministic reuse/force orchestration, and synthetic fakes. It adds no
 concrete persistence, provider HTTP adapter, operator, database, evaluation
 corpus, receipt, production telemetry, or live execution.
+Milestone 6 adds only forward migration 0004 and concrete contract-grounded
+operations in `@gitblocks/persistence`; it does not add application
+composition, provider behavior, an operator, evaluation authority, or live
+execution.
 
 ## Verified repository state
 
@@ -980,79 +984,74 @@ semantic states only after all operational validation succeeds. A partial
 semantic state identifies evidence limitations; it does not hide processing,
 provider, or persistence failure.
 
-## Migration 0004 design goals
+## Migration 0004 and immutable persistence
 
-Milestone 6 will add one forward migration without changing 0001–0003. The
-planned hybrid representation uses normalized identity, ownership,
-relationships, query fields, and immutable member rows plus canonical JSONB for
-exact root reconstruction where it avoids competing column-only contract
-representations.
+Milestone 6 adds one forward migration without changing 0001–0003. The hybrid
+representation uses normalized identity, ownership, relationships, chronology,
+query fields, and immutable member rows plus the exact parsed contract value
+as canonical JSONB.
 
-Planned tables:
+The exact eight new product tables are:
 
 ```text
+repository_interview_requests
 model_executions
 repository_interviews
-repository_interview_claims
 repository_interview_citations
+repository_interview_claims
 repository_interview_limitations
 repository_interview_contradictions
 repository_interview_unknowns
 ```
 
-No production review/audit table is planned. Evaluation audit files remain
-outside migration 0004.
+`RepositoryInterviewRequestV1` is a first-class immutable root because it is
+the deterministic reusable authority for candidate/artifact-set,
+specification, renderer, schema, and exact prompt identity. It has no
+operational timestamp. Executions reference that request and normalize model,
+mode, chronology, outcome, and reuse authority without making the reuse-key
+unique. Interviews reference one successful execution and retain
+specification, projection, prompt, model, provider-output, processing-state,
+and publication closure.
 
-`repository_interview_citations` will store one normalized citation occurrence
-with interview/candidate/artifact-set/artifact ownership, inclusive range,
-ordinal, identity/record digests, and exactly one semantic owner. Nullable
-foreign keys for claim, limitation, contradiction, or unknown ownership plus a
-closed owner-kind/one-owner check are preferred over an unenforced polymorphic
-ID. Contradiction citations additionally carry a closed `left`/`right` side.
-Deferred validation will prove the owner row exists in the same interview,
-candidate, and artifact set. Exact SQL shape remains a Milestone 6 red-test
-decision.
+Each root and nested row stores complete identity/record digests and exact
+canonical JSONB. Attempts, usage, safe provider identifiers, contradiction
+positions, semantic statements, and rationales remain reconstructible from
+their owning contract payload. Prompt text, alias bindings, artifact content,
+raw provider output/errors/reasoning, credentials, review, and selection state
+are absent.
 
-Required database properties:
-
-- composite candidate/artifact-set foreign-key closure;
-- successful interview foreign key to one successful model execution and exact
-  request;
-- normalized unique reuse key for unchanged input/configuration;
-- explicit forced-run nonce in distinct immutable execution identity;
-- immutable identity and complete-record digests;
-- owner update/delete/truncate guards and no runtime update/delete grants;
-- atomic publication of one valid interview and all nested rows;
-- failed execution rows without an interview;
-- deferred checks for contiguous ordinals, declared counts, citation
-  membership, artifact-set ownership, and complete nested closure;
-- line ranges checked against the referenced artifact line count;
-- indexes for request/config reuse, execution history, candidate/artifact-set
-  history, and exact interview reconstruction;
-- non-owner runtime `SELECT`/`INSERT` only where required;
-- conflict reload and complete-record comparison for race-safe idempotency;
-- collision failure when a short ID resolves to another full digest; and
-- no mutable current-interview pointer or overwrite.
+Deferred database validation proves root/member counts and contiguous
+zero-based ordinals; member payload equality to the corresponding root-array
+entry; citation-reference closure and absence of orphans/duplicates; exact
+candidate/artifact-set provenance; `present` artifact membership; one-based
+inclusive ranges of at most 80 lines within the stored artifact line count;
+request/execution/interview provenance; successful execution ownership; and
+failed-execution absence of interview rows. Every table rejects
+update/delete/truncate even for the owner. Runtime receives only
+`SELECT`/`INSERT`; public receives no privilege; no RLS policy is added.
 
 Future ranking can query content-free evaluation acceptance by a later
 selection policy, but Phase 7 persistence will expose historical loading and
 candidate/artifact-set/config history only. It will not declare which
 interview ranking should use.
 
-Planned public persistence adapter operations are:
+The public persistence adapter operations are:
 
 ```text
-findReusableRepositoryInterviewExecution
-appendModelExecution
-publishRepositoryInterview
-loadModelExecution
-loadRepositoryInterview
-listRepositoryInterviewHistory
+publishRepositoryInterviewExchange
+findReusableRepositoryInterview
+loadRepositoryInterviewExchange
 ```
 
-The application package will define narrower ports around its use case.
-`@gitblocks/persistence` will implement those ports in the operator composition
-root; the application package will not import these concrete names or types.
+Publication is atomic and returns stored owned roots plus per-table insert
+counts. Exact replay is idempotent only when IDs, full digests, normalized
+columns, canonical payloads, and complete members agree; collision or partial
+history is a conflict and is never repaired. Reuse admits only complete,
+successful `normal` history and chooses earliest completion then lexical
+execution ID. Failed and forced executions remain immutable history but do not
+become automatic reuse. Historical loading uses only a closed execution-ID or
+interview-ID union. A later composition root may wrap these operations for the
+application record port; neither package imports the other.
 
 ## Evaluation authority and human audit
 
@@ -1581,9 +1580,8 @@ already includes `apps/*` and will remain unchanged.
 
 ### 5. Persistence-independent application flow and fake provider
 
-- **Status:** implemented with the review-required artifact-array and
-  provider-effect corrections; awaiting renewed maintainer review. Milestone
-  6 remains blocked.
+- **Status:** accepted by maintainer review after the required artifact-array
+  and provider-effect corrections.
 - **Red first:** closed input/port boundaries, exact prompt object identity,
   fake provider success/failure/invalid output/throw/mutation, deterministic
   request and reuse, poisoned reuse, force behavior, publication closure,
@@ -1605,18 +1603,24 @@ already includes `apps/*` and will remain unchanged.
 
 ### 6. Migration 0004 and persistence operations
 
+- **Status:** implemented and awaiting maintainer review; Milestone 7 remains
+  blocked.
 - **Red first:** missing migration/API failures, non-owner grants, immutable
   tables, FK/deferred closure, failed execution, idempotency/reuse/force/
   collision/concurrency/rollback/history tests.
-- **Likely files:** migration 0004, persistence operation/types/exports/tests,
-  composition test adapters.
+- **Implemented files:** `0004_repository_interviews.sql`,
+  `repository-interview-operations.ts`, persistence types/exports and database
+  verification inventory, focused unit fixtures/tests, and PostgreSQL 18.4
+  integration tests. No composition adapter exists.
 - **Commit:** `feat(persistence): store immutable repository interviews`.
 - **Verification:** `db:verify`, contracts, architecture, verify/verify:ci.
-- **Review:** SQL line review, normalized/JSON authority, grants, indexes,
-  history and recovery.
+- **Review:** exact eight-table SQL, first-class request root, normalized/JSONB
+  authority, deferred closure, grants, indexes, history and recovery.
 - **Prohibited:** production review/selection rows, current pointer, provider
   calls.
-- **Stop:** no skip, no 0001–0003 drift, no owner-only behavior accepted.
+- **Stop:** Milestone 7 remains blocked until maintainer review accepts
+  migration/API shape, no-skip verification, unchanged 0001–0003 bytes, and
+  owner/runtime immutability.
 
 ### 7. Evaluation authority and adversarial fixtures
 
@@ -2492,6 +2496,52 @@ environment files, and candidate content remain absent. No model-provider
 request or Phase 5/6/7 live operator ran. The verification matrix used only its
 expected registry audit and ephemeral local PostgreSQL checks.
 
+### Milestone 6 red/green and verification evidence
+
+The persistence tests were written before migration 0004 or its operations.
+The focused unit run recorded five intended failures for the absent migration,
+three absent operations, and absent dependency-boundary source. The first real
+PostgreSQL run retained all 37 then-existing database tests and recorded 13
+intended Milestone 6 integration failures.
+
+The green implementation adds exactly eight tables and three public operations.
+The focused unit run passes five tests. `pnpm db:verify` passes five files and
+54 tests on PostgreSQL 18.4 without skips, with four migrations, 25 public
+product tables, and zero RLS policies. Integration coverage includes complete
+five-family publication and reconstruction, failed executions, exact replay,
+normal/forced history, earliest eligible reuse, sequential and concurrent
+idempotency/conflicts, missing/extra member closure, artifact-set and citation
+closure, corrupt-history rejection, historical not-found behavior,
+owner/runtime immutability, grants, and prohibited-column minimization.
+
+The migration 0004 SHA-256 is
+`2cd18e7d92373215b2a540cdf12e32a7e949bfb01866616e8a44ad326e45bca0`.
+The complete 2026-07-31 local matrix produced:
+
+| Command                          | Result                                                                                                                                                    |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile` | passed; eight workspaces already current; pnpm 11.17.0                                                                                                    |
+| `pnpm interviews:verify`         | passed; six files/172 tests, package typecheck, three frozen digests, 675 modules/2,143 dependencies without violation                                    |
+| `pnpm verify`                    | passed; 52 files/1,031 tests plus formatting, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, and secrets |
+| `pnpm verify:ci`                 | passed; repeated 1,031-test verification, PostgreSQL 18.4 with 54 tests/no skips, four migrations/25 tables, registry audit with no vulnerabilities       |
+| `pnpm contracts:validate`        | passed; 10 cases/40 supplied candidates; representability only                                                                                            |
+| `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                         |
+| `pnpm ingestion:verify`          | passed; 11 files/156 tests plus typecheck                                                                                                                 |
+| `pnpm db:verify`                 | passed separately and in CI; PostgreSQL 18.4, four migrations, 25 product tables, five files/54 tests, no skips                                           |
+| `pnpm eval:validate`             | passed; 10 cases                                                                                                                                          |
+| `pnpm eval:fixtures`             | passed; five fixed strategies produced expected summaries                                                                                                 |
+| `pnpm artifacts:validate`        | passed; 150 root attempts/30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                        |
+| `pnpm artifacts:verify`          | passed; six files/107 tests plus typecheck                                                                                                                |
+| `pnpm test:coverage`             | passed; 52 files/1,031 tests; repository 77.95%/69.56%/84.58%/77.77%; interviews 89.09%/80.69%/97.98%/88.89%                                              |
+| `git diff --check`               | passed                                                                                                                                                    |
+
+All 12 contract schema digests, three specification digests, two Milestone 4
+goldens, Phase 6 artifact identities and logical-line semantics, migrations
+0001–0003, catalog and artifact-manifest digests, package manifests,
+dependencies, workspace configuration, and lockfile remain unchanged. No
+provider, operator, evaluation corpus, credential, candidate content, or live
+operation was added or used.
+
 ## Progress log
 
 - **2026-07-30:** Verified clean branch, exact main/origin/main/HEAD
@@ -2585,6 +2635,18 @@ expected registry audit and ephemeral local PostgreSQL checks.
   `invalid-usage` classification, and strict controlled-failure metadata.
   Milestone 5 remains pending renewed acceptance and Milestone 6 remains
   blocked.
+- **2026-07-31:** Maintainer review accepted Milestone 5 and authorized only
+  migration 0004 plus the concrete repository-interview persistence
+  operations.
+- **2026-07-31:** Recorded five focused unit and 13 PostgreSQL integration
+  failures before implementation. Added the first-class request root, exactly
+  eight immutable tables, deferred semantic/provenance closure, and the
+  publish/reuse/historical-load operations.
+- **2026-07-31:** Completed the full local matrix with 1,031 ordinary tests,
+  PostgreSQL 18.4 with 54 tests and no skips, four migrations/25 tables/zero
+  RLS, unchanged contract/specification/catalog/artifact authority, no
+  dependency or lockfile change, and no provider or live operation. Milestone
+  6 awaits maintainer review; Milestone 7 remains blocked.
 
 ## Decision and deviation log
 
@@ -2689,27 +2751,43 @@ expected registry audit and ephemeral local PostgreSQL checks.
   from invalid attempt/terminal metadata. Controlled failed effects are
   accepted only when their supplied metadata directly creates the declared
   execution.
+- **First-class persisted request:** `RepositoryInterviewRequestV1` is stored
+  once as the deterministic reusable authority and referenced by every
+  execution; it is not duplicated as an execution subdocument or assigned an
+  operational timestamp.
+- **Hybrid immutable history:** bounded normalized columns own lookup,
+  ownership, chronology, state, and relational closure while canonical JSONB
+  preserves the exact parsed contracts. Attempts, usage, and semantic text are
+  not independently normalized because no authorized query requires them.
+- **Deferred closure:** constraint triggers validate exact root/member arrays,
+  ordinals, citation references and artifact line bounds, request/execution/
+  interview provenance, and successful-versus-failed interview ownership at
+  transaction closure.
+- **Reuse is a lookup, not uniqueness:** multiple normal and forced executions
+  retain one reuse key. Automatic reuse chooses the earliest completed valid
+  normal success and excludes forced history; corrupt eligible history fails
+  closed.
+- **Trigger privilege boundary:** fixed internal `SECURITY DEFINER` trigger
+  wrappers perform deferred closure for runtime inserts. Public and runtime
+  receive no function execution grant, and the helpers accept no dynamic SQL
+  or caller-controlled object names.
 
-## Remaining maintainer decisions before Milestone 6
+## Remaining maintainer decisions before Milestone 7
 
-Milestones 1–4 are accepted. Milestone 5 is corrected but must not advance
-until renewed maintainer review accepts:
+Milestones 1–5 are accepted. Milestone 6 is implemented but Milestone 7 must
+not advance until renewed maintainer review accepts:
 
-1. the exact closed application input and result unions;
-2. provider, record/reuse, clock, and nonce port shapes;
-3. the frozen one-object provider/resolver prompt-reference invariant;
-4. normal reuse, poisoned-reuse, and forced-execution behavior;
-5. successful, controlled-failure, invalid-output, idempotent, and conflict
-   publication semantics;
-6. value-free application issue vocabulary and test-owned fake coverage; and
-7. the red/green, compatibility, complete local verification, and hosted CI
-   evidence recorded here and on draft PR #18;
-8. fail-closed descriptor ownership for every exotic artifact-array shape;
-   and
-9. response-effect terminal/attempt preflight, genuine `invalid-usage`
-   classification, and strict controlled-failure metadata.
+1. the exact eight-table migration and first-class request-root shape;
+2. canonical JSONB versus normalized query/ownership authority;
+3. deferred root/member/citation/artifact-set/provenance closure;
+4. owner/runtime append-only guards and least-privilege grants;
+5. publish, reuse, and closed historical-load operation surfaces;
+6. exact replay, collision, partial-history, forced-history, and concurrency
+   behavior; and
+7. red/green, PostgreSQL 18.4, compatibility, full verification, and hosted CI
+   evidence recorded here and on draft PR #18.
 
-Only renewed authorization may begin migration 0004 or a concrete persistence
-adapter in Milestone 6. The final Gate A model, exact 30-candidate cohort,
-production review/selection policy, ranking integration, and any provider
-beyond OpenAI remain later decisions.
+Only renewed authorization may begin the `repository-interviews-v1`
+evaluation authority or adversarial fixtures in Milestone 7. The final Gate A
+model, exact 30-candidate cohort, production review/selection policy, ranking
+integration, and any provider beyond OpenAI remain later decisions.

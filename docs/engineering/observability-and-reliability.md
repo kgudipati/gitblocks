@@ -87,6 +87,13 @@ accounting. Operational failures remain separate from responsible semantic
 states, and the immediate Gate B comparison must emit a provable zero-call
 reuse result.
 
+The concrete repository-interview persistence operations do not emit
+telemetry. They return only bounded dispositions, inserted-row counts, parsed
+records, or the adapter's stable value-free error taxonomy. The future
+composition root must instrument those results without recording contract
+payloads, semantic text, provider identifiers, SQL, connection data, prompts,
+or artifact content.
+
 ## Telemetry data contract
 
 Allowed baseline attributes include service and operation version,
