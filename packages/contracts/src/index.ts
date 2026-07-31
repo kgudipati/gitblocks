@@ -47,6 +47,7 @@ export {
   repositoryInterviewUnknownIdentityDigest,
 } from './repository-interview-digests.ts';
 export {
+  parseModelExecutionModelProfileV1,
   parseModelExecutionV1,
   parseRepositoryInterviewRequestV1,
   parseRepositoryInterviewV1,

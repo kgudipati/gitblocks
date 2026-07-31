@@ -216,6 +216,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseErrorEnvelopeV1',
       'parseFitAssessmentRequestV1',
       'parseFitAssessmentResponseV1',
+      'parseModelExecutionModelProfileV1',
       'parseModelExecutionV1',
       'parseRepositoryArtifactChunkV1',
       'parseRepositoryArtifactSetV1',

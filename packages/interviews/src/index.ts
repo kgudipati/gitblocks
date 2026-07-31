@@ -44,6 +44,27 @@ export {
   type SpecificationValidationSummary,
 } from './specification.ts';
 export {
+  executeRepositoryInterviewV1,
+  type ExecuteRepositoryInterviewInputV1,
+  type ExecuteRepositoryInterviewResultV1,
+  type RepositoryInterviewApplicationPortsV1,
+  type RepositoryInterviewClockPortV1,
+  type RepositoryInterviewNoncePortV1,
+  type RepositoryInterviewProviderEffectResultV1,
+  type RepositoryInterviewProviderPortV1,
+  type RepositoryInterviewProviderRequestV1,
+  type RepositoryInterviewPublicationCommandV1,
+  type RepositoryInterviewPublicationResultV1,
+  type RepositoryInterviewRecordPortV1,
+  type RepositoryInterviewReusableBundleV1,
+  type RepositoryInterviewReuseLookupV1,
+} from './repository-interview-application.ts';
+export type {
+  RepositoryInterviewApplicationIssue,
+  RepositoryInterviewApplicationIssueCode,
+  RepositoryInterviewApplicationIssueMessage,
+} from './repository-interview-application-issues.ts';
+export {
   repositoryInterviewProviderOutputDigestV1,
   resolveRepositoryInterviewProviderOutputV1,
   type RepositoryInterviewProviderOutputDigestResultV1,

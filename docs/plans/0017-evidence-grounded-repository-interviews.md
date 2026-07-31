@@ -16,10 +16,12 @@
   - PR #18 review: “Milestone 3 review — request/interview roots accepted;
     model-execution correction required before Milestone 4.”
   - PR #18 review: “Milestone 3 accepted — Milestone 4 authorized.”
+  - PR #18 review: “Milestone 4 accepted — Milestone 5 authorized with an
+    exact-context requirement.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–3 accepted; Milestone 4 implemented and awaiting
-  maintainer review; Milestones 5–14 remain unauthorized or incomplete
+- State: Milestones 1–4 accepted; Milestone 5 implemented and awaiting
+  maintainer review; Milestones 6–14 remain unauthorized or incomplete
 - Last updated: 2026-07-30
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -54,9 +56,11 @@ offline package validation. Milestone 3 adds durable records and trusted
 identity/parser behavior without a prompt renderer, provider, persistence,
 operator, or user-visible execution path. Milestone 4 adds only deterministic
 offline prompt rendering, exact artifact-set/alias/citation closure,
-provider-output digesting, and durable-constructor input mapping. It adds no
-application use case, effect port, provider, persistence, operator, or live
-execution.
+provider-output digesting, and durable-constructor input mapping. Milestone 5
+adds one persistence-independent application flow, narrow effect ports,
+deterministic reuse/force orchestration, and synthetic fakes. It adds no
+concrete persistence, provider HTTP adapter, operator, database, evaluation
+corpus, receipt, production telemetry, or live execution.
 
 ## Verified repository state
 
@@ -295,30 +299,32 @@ Planned allowed Node APIs for `@gitblocks/interviews` are the minimum needed
 for deterministic UTF-8 byte accounting, hashing, abort composition, and the
 direct adapter: `node:crypto` plus Node 24 global `fetch`, `URL`, `Buffer`,
 `TextDecoder`, `AbortSignal`, and timers only through injected clock/sleeper
-ports. The exact dependency-cruiser allowlist will be reviewed in Milestone 5.
-The package will perform no import I/O, environment read, singleton creation,
-network request, database access, or scheduling.
+ports. Milestone 5 confirms the existing dependency-cruiser boundary without
+adding a Node API or exception. The package performs no import I/O, environment
+read, singleton creation, network request, database access, or scheduling.
 
-### Planned workspace wiring
+Milestone 5 confirmed the existing package boundary with no architecture
+exception: application effects are injected through narrow provider,
+record/reuse, clock, and nonce ports, and `@gitblocks/interviews` still imports
+neither persistence nor ingestion.
 
-Milestone 5 will add `@gitblocks/interviews`; Milestone 9 will add the operator
-app. The planned wiring is:
+### Workspace wiring
 
-- root `tsconfig.json` references `packages/interviews` after contracts and
-  `apps/repository-interview-operator` after interviews/persistence;
-- `build:product` selects ingestion, interviews, and the operator, allowing
-  pnpm's workspace topology to build domain/contracts/persistence before their
-  consumers;
-- `typecheck:internal` selects both new workspaces;
-- dependency-cruiser scans both source/test trees and adds explicit rules that
-  interviews may import only its own source, contracts, and approved Node APIs,
-  while the operator may import interviews and persistence;
-- the ordinary Vitest configuration includes both test trees and extends the
-  network guard to the model-provider boundary;
-- the database Vitest configuration includes interview persistence and
-  operator composition integration through the non-owner role;
-- coverage includes the reusable application/provider code and excludes only
-  narrow re-export/CLI boundaries consistently with existing policy; and
+Milestone 2 added `@gitblocks/interviews` and its package/root verification
+wiring. Milestone 5 needs no package-manifest, root-script, workspace, Vitest,
+coverage, TypeScript-reference, or dependency-cruiser change. Milestone 9 will
+add the operator app. Current and planned wiring is:
+
+- root `tsconfig.json` references `packages/interviews` after contracts; the
+  future operator follows interviews/persistence;
+- `build:product` and `typecheck:internal` already select interviews; the
+  future operator becomes another selected consumer;
+- dependency-cruiser already scans interviews source/scripts/tests and proves
+  that the package imports contracts but not persistence or ingestion; the
+  future operator may import interviews and persistence;
+- ordinary Vitest and coverage already include interviews; future database
+  integration will cover persistence and operator composition through the
+  non-owner role; and
 - `pnpm-workspace.yaml`, Node/pnpm pins, and existing package names remain
   unchanged.
 
@@ -1412,8 +1418,9 @@ without the future `interviews:*` commands.
 
 ## Planned package and file map
 
-All paths below are future work except this plan, ADR 0007, and the minimal
-documentation updates in Milestone 1.
+Paths through the application boundary reflect Milestones 1–5. Persistence,
+evaluation, provider HTTP, operator, live-proof, and completion paths remain
+future work owned by their recorded milestones.
 
 ```text
 interviews/repository/specifications/1.0.0/
@@ -1429,35 +1436,35 @@ packages/interviews/
   tsconfig.json
   tsconfig.test.json
   src/
+    canonical-json.ts
     index.ts
-    ports.ts
-    errors.ts
+    provider-output-issues.ts
+    provider-output-parser.ts
+    provider-output-preflight.ts
     provider-output-schema.ts
+    provider-output-validation.ts
+    repository-interview-application-issues.ts
+    repository-interview-application.ts
+    repository-interview-mapping-issues.ts
+    repository-interview-mapping.ts
+    repository-interview-prompt.ts
     schema-projection.ts
     specification.ts
-    prompt-renderer.ts
-    artifact-aliases.ts
-    citation-validation.ts
-    semantic-validation.ts
-    identity.ts
-    interview-use-case.ts
-    openai-responses-adapter.ts
+    openai-responses-adapter.ts                  # Milestone 8
   test/
-    provider-output-schema.test.ts
+    fixtures.ts
+    import-side-effects.test.ts
+    provider-output.test.ts
+    repository-interview-application.test.ts
+    repository-interview-mapping.test.ts
     schema-projection.test.ts
     specification.test.ts
-    prompt-renderer.test.ts
-    artifact-aliases.test.ts
-    citation-validation.test.ts
-    semantic-validation.test.ts
-    identity.test.ts
-    interview-use-case.test.ts
-    openai-responses-adapter.test.ts
-    network-guard.ts
+    openai-responses-adapter.test.ts             # Milestone 8
 
 packages/contracts/src/
   repository-interview-schemas.ts
   repository-interview-parsers.ts
+  repository-interview-digests.ts
   repository-interview-identity.ts
 
 packages/persistence/
@@ -1555,8 +1562,7 @@ already includes `apps/*` and will remain unchanged.
 
 ### 4. Prompt renderer, alias mapper, and citation validator
 
-- **Status:** implemented and awaiting maintainer review; Milestone 5 remains
-  blocked.
+- **Status:** accepted by maintainer review.
 - **Red first:** byte-golden render, aliases/order, exact-once artifact content,
   terminal/Unicode/line-ending cases, no dossier/identity leakage, alias/range/
   topic/basis/duplicate/coverage failures.
@@ -1572,19 +1578,26 @@ already includes `apps/*` and will remain unchanged.
 
 ### 5. Persistence-independent application flow and fake provider
 
-- **Red first:** port boundaries, fake provider success/failure, deterministic
-  mapping, reuse decision, no side effects on validation failure, cancellation,
-  no persistence/ingestion import.
-- **Likely files:** interviews ports/use case/errors/identity, package
-  manifests/references, root scripts/config, fake tests.
+- **Status:** implemented and awaiting maintainer review; Milestone 6 remains
+  blocked.
+- **Red first:** closed input/port boundaries, exact prompt object identity,
+  fake provider success/failure/invalid output/throw/mutation, deterministic
+  request and reuse, poisoned reuse, force behavior, publication closure,
+  value-free issues, and no side effects on validation failure.
+- **Files:** interviews application/use-case and issue modules, narrow package
+  exports, one synthetic fake-driven test file, one nested model-profile parser
+  export without a new contract root, and focused package/plan/ADR/system
+  documentation.
 - **Commit:** `feat(interviews): add repository interview application flow`.
 - **Verification:** unit tests, architecture fixtures, root build/typecheck/
   lint/test/verify.
-- **Review:** public application surface, injected effects, testability without
-  PostgreSQL/network.
+- **Review:** closed application input/result, exact provider/record/clock/nonce
+  ports, one-instance prompt closure, reuse/force behavior, failed-execution
+  publication, and testability without PostgreSQL/network.
 - **Prohibited:** concrete persistence import, live adapter, operator or model
   call.
-- **Stop:** dependency-cruiser must prove the boundary without exception.
+- **Stop:** dependency-cruiser must prove the boundary without exception and
+  maintainer review must accept Milestone 5 before migration 0004 begins.
 
 ### 6. Migration 0004 and persistence operations
 
@@ -2304,6 +2317,142 @@ changed. No persistence/provider port, operator, model call, Phase 7 database
 operation, or Phase 5/6/7 live operator was added or run. `verify:ci` made only
 the expected registry-audit and ephemeral local PostgreSQL verification calls.
 
+## Milestone 5 implementation evidence
+
+### Implemented application boundary
+
+Milestone 5 adds:
+
+```text
+packages/contracts/src/
+  repository-interview-parsers.ts
+  structural-validation.ts
+
+packages/interviews/src/
+  repository-interview-application-issues.ts
+  repository-interview-application.ts
+
+packages/interviews/test/
+  repository-interview-application.test.ts
+```
+
+Existing indexes expose only the narrow parser, use case, port, result, and
+issue types. `parseModelExecutionModelProfileV1` compiles and reuses the
+existing nested TypeBox schema and real-date semantic rule; it creates no new
+root and changes no schema bytes. No package manifest, dependency, lockfile,
+workspace, specification, migration, catalog, artifact manifest, operator, or
+evaluation authority changes.
+
+The closed application input has exactly:
+
+```text
+artifactSet
+artifacts
+specification
+modelProfile
+executionMode
+forceReason
+```
+
+The application renders internally, creates the deterministic request,
+validates the model profile and projection authority, computes model-profile
+and reuse-key digests, and then either validates reuse or performs one
+provider operation. The rendered prompt is one frozen ephemeral trusted
+object. The exact object reference is supplied to the provider port and then
+to `resolveRepositoryInterviewProviderOutputV1`; no caller, provider, or record
+port can supply, replace, clone, reconstruct, or persist it.
+
+The provider request has exactly `prompt`, `modelProfile`,
+`providerProjectionVersion`, `providerProjectionDigest`, and
+`providerProjectionText`. Response results contain only response status, one
+or two safe attempts, usage, and unknown provider output. Controlled failure
+results contain only failed status, attempts, an accepted failure code, and
+nullable usage. The application derives provider-output and execution
+identity/digests and catches unexpected port exceptions as value-free
+application issues.
+
+The record port looks up only by request identity digest, model-profile digest,
+and reuse-key digest. Returned roots are reparsed and the complete successful
+exchange is revalidated. Mismatch or poison fails closed without provider
+fallback. Valid normal reuse consumes no nonce, provider operation, clock read,
+or publication. Forced execution skips reuse, consumes one injected
+32-character lowercase hexadecimal nonce, preserves the deterministic request
+and reuse key, and creates a distinct execution.
+
+Publication receives exactly `{ request, execution, interview }`. Valid
+provider output resolves with the exact prompt, creates a successful execution
+and immutable interview, enforces publication at or after completion, validates
+the full exchange, and publishes once. Controlled provider failures and
+provider-output structural/semantic/alias/range failures publish the request
+plus a safe failed execution and null interview. Idempotent records must parse,
+close, and match record digests; conflict fails closed.
+
+Successful results use `created`, `idempotent`, or `reused`; controlled provider
+completion uses `provider-failed`. Boundary issues are capped, path-bounded,
+fixed-message records with codes:
+
+```text
+application-input-invalid
+prompt-render-failed
+model-profile-invalid
+reuse-record-invalid
+provider-port-failure
+publication-time-invalid
+record-port-failure
+record-port-conflict
+application-closure
+```
+
+Test-owned deterministic provider, record, clock, and nonce fakes cover
+success, controlled failures, invalid provider output, alias/range failures,
+throws, prompt mutation, valid/poisoned reuse, created/idempotent/conflict
+publication, call ordering, and deterministic effect counts. They are not
+production exports.
+
+### Red/green evidence
+
+The Milestone 5 tests were written before the application implementation. The
+first focused run recorded 45 intended failures because the use case and
+nested model-profile parser did not exist. The green focused run passes 48
+tests after adding closure assertions for exact provider/record shapes,
+idempotent digest mismatch, publication exactly at completion, and owned
+specification authority across the first asynchronous effect.
+
+`pnpm interviews:verify` passes six interview test files with 151 tests,
+package typecheck, the unchanged specification digests, and dependency
+cruiser with no violation. `pnpm test:coverage` passes 51 files and 1,005 tests;
+repository coverage is 79.26% statements, 71.51% branches, 86.16% functions,
+and 79.08% lines, while `packages/interviews/src` is 88.13%, 79.58%, 97.97%,
+and 87.93%.
+
+The pre-commit matrix on 2026-07-30 produced:
+
+| Command                          | Result                                                                                                                                                |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile` | passed; eight workspaces already current; pnpm 11.17.0                                                                                                |
+| `pnpm interviews:verify`         | passed; six files/151 tests, package typecheck, three frozen digests, 670 modules/2,125 dependencies without violation                                |
+| `pnpm verify`                    | passed; 51 files/1,005 tests plus formatting, lint, typecheck, build, architecture, repository, evaluation, contract, catalog, specification, secrets |
+| `pnpm verify:ci`                 | passed; repeated 1,005-test verification, PostgreSQL 18.4 with 36 tests/no skips, three migrations/17 tables, registry audit with no vulnerabilities  |
+| `pnpm contracts:validate`        | passed; 10 cases/40 supplied candidates; representability only                                                                                        |
+| `pnpm catalog:validate`          | passed; 150 candidates; digest `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                                     |
+| `pnpm ingestion:verify`          | passed; 11 files/156 tests plus typecheck                                                                                                             |
+| `pnpm db:verify`                 | passed separately and in CI; PostgreSQL 18.4, migrations 0001–0003, 17 product tables, four files/36 tests, no skips                                  |
+| `pnpm eval:validate`             | passed; 10 cases                                                                                                                                      |
+| `pnpm eval:fixtures`             | passed; five fixed strategies produced expected summaries                                                                                             |
+| `pnpm artifacts:validate`        | passed; 150 root attempts/30 additional-path candidates; digest `17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`                    |
+| `pnpm artifacts:verify`          | passed; six files/107 tests plus typecheck                                                                                                            |
+| `pnpm test:coverage`             | passed; 51 files/1,005 tests; repository 79.26%/71.51%/86.16%/79.08%; interviews 88.13%/79.58%/97.97%/87.93%                                          |
+| `git diff --check`               | passed                                                                                                                                                |
+
+All 12 contract schema digests, all three specification digests, the Milestone
+4 golden prompt/provider-output digests, Phase 6 artifact IDs/line semantics,
+migrations 0001–0003, catalog and artifact-manifest digests, package
+dependencies, and the lockfile remain unchanged. Migration 0004, a concrete
+persistence/provider adapter, operator app, evaluation corpus, credentials,
+environment files, and candidate content remain absent. No model-provider
+request or Phase 5/6/7 live operator ran. The verification matrix used only its
+expected registry audit and ephemeral local PostgreSQL checks.
+
 ## Progress log
 
 - **2026-07-30:** Verified clean branch, exact main/origin/main/HEAD
@@ -2379,6 +2528,15 @@ the expected registry-audit and ephemeral local PostgreSQL verification calls.
   PostgreSQL 18.4 with 36 no-skip tests, no dependency violations or
   vulnerabilities, unchanged schema/specification/catalog/artifact digests,
   and coverage all passed.
+- **2026-07-30:** Maintainer review accepted Milestone 4 and authorized
+  Milestone 5 with one exact-context amendment: the rendered prompt is an
+  ephemeral trusted value and the same frozen object instance must cross both
+  provider execution and trusted output resolution.
+- **2026-07-30:** Wrote the application-flow tests first and recorded 45
+  intended failures. Implemented the closed use case, nested model-profile
+  parser, provider/record/clock/nonce ports, deterministic reuse and force
+  behavior, safe failed-execution publication, and test-owned fakes. Milestone
+  5 awaits maintainer review; Milestone 6 remains blocked.
 
 ## Decision and deviation log
 
@@ -2461,22 +2619,34 @@ the expected registry-audit and ephemeral local PostgreSQL verification calls.
   role separation prevent repository text from becoming application-authored
   instructions, but behavioral prompt-injection resistance remains an
   empirical Milestone 7 gate.
+- **Ephemeral exact context:** the use case renders once for a non-reused
+  provider operation, freezes the result, and passes the same object reference
+  to provider and resolver. Prompt text and alias bindings never enter the
+  record port or durable records.
+- **Effect ownership:** the application owns request/profile/reuse/output and
+  durable identity decisions. Provider, record/reuse, clock, and nonce behavior
+  is injected; the package reads no environment, filesystem, network,
+  database, process clock, or randomness directly.
+- **Reuse poison policy:** a returned reuse bundle is untrusted. Any root,
+  request, profile, reuse-key, output-digest, ownership, or exchange mismatch
+  fails closed without provider fallback.
 
-## Remaining maintainer decisions before Milestone 5
+## Remaining maintainer decisions before Milestone 6
 
-Milestone 3 is accepted. Milestone 4 is implemented but must not advance until
-maintainer review accepts:
+Milestones 1–4 are accepted. Milestone 5 is implemented but must not advance
+until maintainer review accepts:
 
-1. the exact renderer V1 instruction and canonical evidence bytes;
-2. shared logical-line and terminal-empty-line semantics;
-3. artifact-set closure and present-only alias ordering;
-4. prompt bounds and domain-separated prompt/provider-output digests;
-5. exact alias/range failure paths and value-free diagnostic vocabulary;
-6. the trusted constructor-input mapping and unique coordinate ordering; and
+1. the exact closed application input and result unions;
+2. provider, record/reuse, clock, and nonce port shapes;
+3. the frozen one-object provider/resolver prompt-reference invariant;
+4. normal reuse, poisoned-reuse, and forced-execution behavior;
+5. successful, controlled-failure, invalid-output, idempotent, and conflict
+   publication semantics;
+6. value-free application issue vocabulary and test-owned fake coverage; and
 7. the red/green, compatibility, complete local verification, and hosted CI
    evidence recorded here and on draft PR #18.
 
-Only renewed authorization may begin Milestone 5 application/use-case and fake
-port behavior. The final Gate A model, exact 30-candidate cohort, production
-review/selection policy, ranking integration, and any provider beyond OpenAI
-remain later decisions.
+Only renewed authorization may begin migration 0004 or a concrete persistence
+adapter in Milestone 6. The final Gate A model, exact 30-candidate cohort,
+production review/selection policy, ranking integration, and any provider
+beyond OpenAI remain later decisions.

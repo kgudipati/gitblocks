@@ -11,6 +11,10 @@ The package currently implements only:
 - immutable specification loading, generation, and digest validation; and
 - deterministic artifact-set closure, prompt rendering, provider-output
   digesting, alias/range resolution, and durable-constructor input mapping;
+- one persistence-independent application use case with narrow provider,
+  record/reuse, clock, and nonce ports;
+- deterministic reuse and forced-execution orchestration with immutable
+  request, execution, and interview construction;
 - bounded value-free mapping diagnostics; and
 - offline focused tests and CLI validation.
 
@@ -62,9 +66,41 @@ coordinate catalog, and returns claims, limitations, contradictions, and
 unknowns shaped for the existing durable constructor. It creates no durable
 ID or timestamp.
 
-This package still does not contain application or persistence ports, an
-interview application use case, artifact persistence loading, provider HTTP
-behavior, an operator, database access, evaluation data, or live execution.
+`executeRepositoryInterviewV1` accepts only an artifact set, complete
+artifacts, reviewed specification, exact model profile, execution mode, and
+force reason. It renders the prompt internally, freezes that ephemeral trusted
+object, and passes the exact same object instance to both the injected provider
+port and trusted output resolver. Neither callers nor ports may substitute a
+prompt, aliases, trusted IDs, digests, nonce, timestamps, attempts, usage, or
+provider output.
+
+Normal execution looks up reuse by request identity, model-profile digest, and
+reuse-key digest. A valid complete historical exchange is returned without a
+nonce, provider operation, clock read, or publication. Poisoned or mismatched
+reuse fails closed. Forced execution skips lookup, consumes one injected
+lowercase-hex nonce, preserves the deterministic request/reuse authority, and
+appends a distinct execution.
+
+The provider port receives only the exact prompt object, exact model profile,
+and the loaded OpenAI projection version, digest, and reviewed snapshot text.
+Expected provider failures become content-free failed executions. Valid
+responses are resolved against the same prompt, while structurally or
+semantically invalid output and alias/range failures become
+`provider-output-invalid` without retaining raw output. The record port
+receives only `{ request, execution, interview }`; failed execution uses a null
+interview. Reuse bundles and idempotent publication records are parsed and
+checked before return.
+
+Application failures use fixed, bounded, value-free issues. The application
+use case reads no clock, randomness, process state, environment, filesystem,
+database, or network directly; every effect is injected. Test-owned fakes
+cover provider response/failure/throw/mutation, record
+reuse/publication/conflict/throw, deterministic clocks, and deterministic
+nonces.
+
+This package still does not contain artifact persistence loading, a concrete
+PostgreSQL adapter, provider HTTP behavior, an operator, evaluation data,
+receipts, production telemetry, or live execution.
 
 All package imports are side-effect-free. Filesystem access occurs only when a
 caller explicitly loads, generates, or validates a specification. Ordinary

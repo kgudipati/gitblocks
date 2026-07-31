@@ -28,6 +28,7 @@ import {
 import {
   REPOSITORY_INTERVIEW_BOUNDS,
   REPOSITORY_INTERVIEW_TOPICS,
+  type ModelExecutionModelProfileV1,
   type ModelExecutionUsageV1,
   type ModelExecutionV1,
   type RepositoryInterviewCitationV1,
@@ -41,6 +42,7 @@ import {
   type RepositoryInterviewV1,
 } from './repository-interview-schemas.ts';
 import {
+  modelExecutionModelProfileV1Validator,
   modelExecutionV1Validator,
   repositoryInterviewRequestV1Validator,
   repositoryInterviewV1Validator,
@@ -66,6 +68,18 @@ export function parseRepositoryInterviewRequestV1(
   return parseRepositoryInterviewContract(
     structurallyValidate(value, repositoryInterviewRequestV1Validator),
     validateRequest,
+  );
+}
+
+export function parseModelExecutionModelProfileV1(
+  value: unknown,
+): ContractParseResult<
+  ModelExecutionModelProfileV1,
+  ModelExecutionModelProfileV1
+> {
+  return parseRepositoryInterviewContract(
+    structurallyValidate(value, modelExecutionModelProfileV1Validator),
+    validateModelProfile,
   );
 }
 
@@ -310,10 +324,8 @@ function validateExecution(value: ModelExecutionV1): readonly ContractIssue[] {
   ) {
     issues.push(patternIssue('/forceReason'));
   }
-  validateModelSnapshotDate(
-    value.modelProfile.modelSnapshot,
-    '/modelProfile/modelSnapshot',
-    issues,
+  issues.push(
+    ...prefixIssues(validateModelProfile(value.modelProfile), '/modelProfile'),
   );
   const modelProfileDigest = modelExecutionModelProfileDigest(
     value.modelProfile,
@@ -341,6 +353,14 @@ function validateExecution(value: ModelExecutionV1): readonly ContractIssue[] {
   if (modelExecutionRecordDigest(value) !== value.recordDigest) {
     issues.push(patternIssue('/recordDigest'));
   }
+  return issues;
+}
+
+function validateModelProfile(
+  value: ModelExecutionModelProfileV1,
+): readonly ContractIssue[] {
+  const issues: ContractIssue[] = [];
+  validateModelSnapshotDate(value.modelSnapshot, '/modelSnapshot', issues);
   return issues;
 }
 

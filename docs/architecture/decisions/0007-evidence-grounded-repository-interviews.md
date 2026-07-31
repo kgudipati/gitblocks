@@ -43,8 +43,11 @@ final attempt/outcome closure, publication chronology, and real dated-snapshot
 validation. The latest review accepted those corrections and schema digest
 `f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7`,
 accepted Milestone 3 in full, and authorized only the persistence-independent
-Milestone 4 renderer and mapping boundary. Milestone 4 is now implemented and
-awaiting review; Milestone 5 remains unauthorized.
+Milestone 4 renderer and mapping boundary. The latest review accepted
+Milestone 4 and authorized Milestone 5 with the binding requirement that one
+ephemeral rendered prompt object remain the exact provider/resolver context.
+Milestone 5 is implemented and awaiting review; Milestone 6 remains
+unauthorized.
 
 ## Decision
 
@@ -200,6 +203,32 @@ controls, receipts, and telemetry composition.
 
 This follows the accepted inward dependency direction. It is not an
 architecture exception. The existing workspace already includes `apps/*`.
+
+Milestone 5 implements one narrow persistence-independent
+`executeRepositoryInterviewV1` use case. Its closed input contains only the
+exact artifact set and artifacts, loaded reviewed specification, exact model
+profile, execution mode, and governed force reason. It renders internally,
+creates the deterministic request and reuse authority, and injects all effects
+through provider, record/reuse, clock, and nonce ports.
+
+The rendered prompt is an ephemeral trusted value, not a caller or persistence
+input. One non-reused operation retains one frozen prompt object and passes
+that exact object instance to both the provider port and trusted output
+resolver. It is never cloned, reconstructed, reloaded, or replaced between
+those boundaries. The provider port receives only that object, the exact model
+profile, and the loaded provider projection version, digest, and snapshot
+text. The record port never receives prompt text, aliases, raw provider output,
+or artifacts.
+
+Normal reuse validates a complete request/execution/interview exchange selected
+by request identity, model-profile digest, and reuse-key digest. Valid reuse
+consumes no nonce, provider operation, clock read, or publication; poisoned
+reuse fails closed without provider fallback. Forced execution skips lookup,
+uses one injected nonce, preserves the reuse key, and appends a distinct
+execution. Expected provider failures and invalid provider output publish only
+the deterministic request plus a safe failed execution and null interview.
+Successful resolution uses an injected publication clock, validates complete
+cross-root closure, and publishes one immutable exchange.
 
 ### Immutable specification and schema authority
 
@@ -616,7 +645,6 @@ second maintained schema.
 
 ## Deferred work
 
-- Persistence-independent interview application flow and fake effect ports.
 - Exact migration 0004 SQL and adapter APIs.
 - Exact 30-candidate cohort and six calibration candidates.
 - Final Gate A model-profile selection.
@@ -628,11 +656,12 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1–3 passed maintainer review. Milestone 4's exact renderer bytes,
-shared line semantics, artifact/alias/range closure, digest algorithms,
-constructor-input mapping, diagnostics, tests, compatibility evidence, and
-hosted CI require maintainer acceptance while the PR remains draft. Milestone
-5 requires separate renewed authorization.
+Milestones 1–4 passed maintainer review. Milestone 5's exact application
+surface, ephemeral prompt-reference closure, injected port shapes, reuse and
+forced-run orchestration, failed-execution publication, value-free diagnostics,
+tests, compatibility evidence, and hosted CI require maintainer acceptance
+while the PR remains draft. Milestone 6 requires separate renewed
+authorization.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never
