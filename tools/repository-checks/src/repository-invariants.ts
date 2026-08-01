@@ -630,7 +630,7 @@ function validateRuntimeScripts(
     typeof verifyCore !== 'string' ||
     (verifyCore.match(/pnpm build:product/gu)?.length ?? 0) !== 1 ||
     !verifyCore.includes(
-      'pnpm build:product && pnpm lint:internal && pnpm typecheck:internal && pnpm build:tools',
+      'pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal',
     )
   ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:core', manifestPath));

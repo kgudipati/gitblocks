@@ -222,7 +222,7 @@ const ROOT_MANIFEST = JSON.stringify({
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
-      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm typecheck:internal && pnpm build:tools && vitest run',
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run',
   },
   devDependencies: {
     typescript: '6.0.3',

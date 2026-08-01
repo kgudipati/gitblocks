@@ -3465,14 +3465,21 @@ deterministic receipts. Network, secret, import-effect, and sentinel scans
 remain content-free. No test contacts OpenAI.
 
 The final local verification completed under Node 24.18.0 and pnpm 11.17.0.
-`pnpm verify:ci` passes 72 files and 1,270 tests, the complete PostgreSQL 18.4
+`pnpm verify:ci` passes 72 files and 1,271 tests, the complete PostgreSQL 18.4
 suite, and the registry-backed audit with no known vulnerabilities. The
 database result remains exactly four accepted migrations, 25 public product
 tables, zero RLS policies, and no skipped integration test. Every prescribed
 contract, catalog, ingestion, evaluation, artifact, interview, operator, and
 pre-live command passes. The exact single-worker coverage run passes all 72
-files and 1,270 tests at 79.29% statements, 73.02% branches, 86.67% functions,
+files and 1,271 tests at 79.29% statements, 73.02% branches, 86.67% functions,
 and 79.67% lines.
+
+The first Milestone 10 hosted run (`30713743850`, job `91405658188`) exposed a
+clean-checkout ordering defect that persistent local build output had masked:
+the new pre-live tool was typechecked before its evaluation-harness dependency
+had been built. A focused repository-policy regression now requires tool builds
+before internal typecheck, and `verify:core` performs that order explicitly.
+No product behavior or frozen authority changed in this correction.
 
 The committed state remains `offline-verified-live-blocked`. Current pricing
 and retention evidence remain external. `store: false` and

@@ -221,7 +221,7 @@ const ROOT_MANIFEST = JSON.stringify({
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
-      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm typecheck:internal && pnpm build:tools && vitest run',
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run',
   },
   devDependencies: {
     typescript: '6.0.3',
@@ -747,8 +747,25 @@ describe('validateRepositoryInvariants', () => {
     repository.textFiles.set(
       'package.json',
       ROOT_MANIFEST.replace(
-        'pnpm build:product && pnpm lint:internal && pnpm typecheck:internal',
-        'pnpm lint:internal && pnpm build:product && pnpm typecheck:internal',
+        'pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal',
+        'pnpm lint:internal && pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
+      ),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'repository.runtime-script' }),
+      ]),
+    );
+  });
+
+  it('requires tool builds before internal typecheck on a clean checkout', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'package.json',
+      ROOT_MANIFEST.replace(
+        'pnpm build:tools && pnpm typecheck:internal',
+        'pnpm typecheck:internal && pnpm build:tools',
       ),
     );
 
