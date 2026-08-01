@@ -206,16 +206,14 @@ export function createOpenAiResponsesRepositoryInterviewProviderV1(
         lastMonotonicMilliseconds: null,
       };
       const operationStart = readClock(dependencies.clock, clockState);
+      let nextAttemptStart = operationStart;
 
       for (
         let ordinal = 1;
         ordinal <= OPENAI_RESPONSES_REPOSITORY_INTERVIEW_LIMITS.maximumAttempts;
         ordinal += 1
       ) {
-        const start =
-          ordinal === 1
-            ? operationStart
-            : readClock(dependencies.clock, clockState);
+        const start = nextAttemptStart;
         const attempt = await executeAttempt(
           ordinal as 1 | 2,
           start,
@@ -251,6 +249,18 @@ export function createOpenAiResponsesRepositoryInterviewProviderV1(
         } catch {
           throw operationError();
         }
+        const afterSleep = readClock(dependencies.clock, clockState);
+        const elapsedAfterSleep =
+          afterSleep.monotonicMilliseconds -
+          operationStart.monotonicMilliseconds;
+        if (
+          elapsedAfterSleep +
+            OPENAI_RESPONSES_REPOSITORY_INTERVIEW_LIMITS.attemptDeadlineMilliseconds >
+          OPENAI_RESPONSES_REPOSITORY_INTERVIEW_LIMITS.operationDeadlineMilliseconds
+        ) {
+          return ownedResult(attempt.effect, attempts);
+        }
+        nextAttemptStart = afterSleep;
       }
       throw operationError();
     },
@@ -291,147 +301,87 @@ async function executeAttempt(
         body: preflight.requestBody,
       });
     } catch {
-      const completion = readClock(dependencies.clock, clockState);
-      const outcome = safeAttemptOutcome(control);
-      const transportOutcome =
-        outcome === 'deadline-exceeded'
-          ? 'deadline-exceeded'
-          : outcome === 'cancelled'
-            ? 'cancelled'
-            : 'network-error';
-      const failureCode: FailureCode =
-        transportOutcome === 'deadline-exceeded'
-          ? 'deadline-exceeded'
-          : transportOutcome === 'cancelled'
-            ? 'cancelled'
-            : 'transport-error';
-      return {
-        attempt: transportAttempt(
-          ordinal,
-          start.timestamp,
-          completion.timestamp,
-          transportOutcome,
-        ),
-        effect: { status: 'failed', failureCode, usage: null },
-        retryable: transportOutcome !== 'cancelled',
-      };
+      return finalizeTransportAttempt(
+        ordinal,
+        start,
+        'network-error',
+        control,
+        dependencies.clock,
+        clockState,
+      );
     }
 
-    const status = safeHttpStatus(response);
-    const safeHeaders = captureSafeHeaders(response.headers);
     let body: ResponseBodyRead;
     try {
       body = await readBoundedResponseBody(
         response,
         preflight.modelProfile.maximumResponseBytes,
+        control.signal,
       );
     } catch {
-      const completion = readClock(dependencies.clock, clockState);
-      const outcome = safeAttemptOutcome(control);
-      const transportOutcome =
-        outcome === 'deadline-exceeded'
-          ? 'deadline-exceeded'
-          : outcome === 'cancelled'
-            ? 'cancelled'
-            : 'network-error';
-      const failureCode: FailureCode =
-        transportOutcome === 'deadline-exceeded'
-          ? 'deadline-exceeded'
-          : transportOutcome === 'cancelled'
-            ? 'cancelled'
-            : 'transport-error';
-      return {
-        attempt: transportAttempt(
-          ordinal,
-          start.timestamp,
-          completion.timestamp,
-          transportOutcome,
-        ),
-        effect: { status: 'failed', failureCode, usage: null },
-        retryable: transportOutcome !== 'cancelled',
-      };
+      return finalizeTransportAttempt(
+        ordinal,
+        start,
+        'network-error',
+        control,
+        dependencies.clock,
+        clockState,
+      );
     }
-    const completion = readClock(dependencies.clock, clockState);
-    const parsedHeaders = parseSafeHeaders(safeHeaders, completion.timestamp);
+    const settledOutcome = safeAttemptOutcome(control);
+    if (settledOutcome !== 'completed') {
+      return finalizeKnownControlOutcome(
+        ordinal,
+        start,
+        settledOutcome,
+        control,
+        dependencies.clock,
+        clockState,
+      );
+    }
 
+    const status = safeHttpStatus(response);
+    const safeHeaders = captureSafeHeaders(response.headers);
+    const interpretationTime = readClock(dependencies.clock, clockState);
+    const parsedHeaders = parseSafeHeaders(
+      safeHeaders,
+      interpretationTime.timestamp,
+    );
+    let protocol: ProtocolResponse;
     if (body.status === 'too-large') {
-      return {
-        attempt: responseAttempt(
-          ordinal,
-          start.timestamp,
-          completion.timestamp,
-          status,
-          parsedHeaders,
-          null,
-          body.responseBytes,
-        ),
-        effect: {
-          status: 'failed',
-          failureCode: 'response-too-large',
-          usage: null,
-        },
-        retryable: false,
-      };
-    }
-    if (body.status === 'invalid-utf8' || body.text === null) {
-      return {
-        attempt: responseAttempt(
-          ordinal,
-          start.timestamp,
-          completion.timestamp,
-          status,
-          parsedHeaders,
-          null,
-          body.responseBytes,
-        ),
-        effect: {
-          status: 'failed',
-          failureCode: 'invalid-response',
-          usage: null,
-        },
-        retryable: false,
-      };
-    }
-
-    if (status < 200 || status > 299) {
+      protocol = failedProtocol('response-too-large');
+    } else if (body.status === 'invalid-utf8' || body.text === null) {
+      protocol = failedProtocol('invalid-response');
+    } else if (status < 200 || status > 299) {
       const http = parseHttpFailure(status, body.text);
-      return {
-        attempt: responseAttempt(
-          ordinal,
-          start.timestamp,
-          completion.timestamp,
-          status,
-          parsedHeaders,
-          null,
-          body.responseBytes,
-        ),
+      protocol = {
         effect: {
           status: 'failed',
           failureCode: http.failureCode,
           usage: null,
         },
+        responseId: null,
         retryable: http.retryable,
       };
+    } else {
+      protocol = parseSuccessfulResponse(
+        body.text,
+        preflight.modelProfile.modelSnapshot,
+      );
     }
 
-    const protocol = parseSuccessfulResponse(
-      body.text,
-      preflight.modelProfile.modelSnapshot,
+    const completion = readClock(dependencies.clock, clockState);
+    const finalOutcome = reconcileAttemptOutcomes(
+      settledOutcome,
+      safeAttemptOutcome(control),
     );
-    if (
-      protocol.effect.status === 'failed' &&
-      protocol.effect.failureCode === 'cancelled'
-    ) {
-      return {
-        attempt: transportAttempt(
-          ordinal,
-          start.timestamp,
-          completion.timestamp,
-          'cancelled',
-        ),
-        effect: protocol.effect,
-        retryable: false,
-      };
+    if (finalOutcome !== 'completed') {
+      return controlledTransportAttempt(
+        ordinal,
+        start.timestamp,
+        completion.timestamp,
+        finalOutcome,
+      );
     }
     return {
       attempt: responseAttempt(
@@ -453,6 +403,103 @@ async function executeAttempt(
       // Cleanup cannot replace an already classified provider outcome.
     }
   }
+}
+
+function finalizeTransportAttempt(
+  ordinal: 1 | 2,
+  start: RepositoryInterviewOpenAiClockReadingV1,
+  completedTransportOutcome: 'network-error',
+  control: RepositoryInterviewOpenAiAttemptControlV1,
+  clock: RepositoryInterviewOpenAiClockPortV1,
+  clockState: ClockState,
+): AttemptResult {
+  const settledOutcome = safeAttemptOutcome(control);
+  const completion = readClock(clock, clockState);
+  const finalOutcome = reconcileAttemptOutcomes(
+    settledOutcome,
+    safeAttemptOutcome(control),
+  );
+  return finalOutcome === 'completed'
+    ? transportFailureAttempt(
+        ordinal,
+        start.timestamp,
+        completion.timestamp,
+        completedTransportOutcome,
+      )
+    : controlledTransportAttempt(
+        ordinal,
+        start.timestamp,
+        completion.timestamp,
+        finalOutcome,
+      );
+}
+
+function finalizeKnownControlOutcome(
+  ordinal: 1 | 2,
+  start: RepositoryInterviewOpenAiClockReadingV1,
+  settledOutcome: Exclude<
+    RepositoryInterviewOpenAiAttemptOutcomeV1,
+    'completed'
+  >,
+  control: RepositoryInterviewOpenAiAttemptControlV1,
+  clock: RepositoryInterviewOpenAiClockPortV1,
+  clockState: ClockState,
+): AttemptResult {
+  const completion = readClock(clock, clockState);
+  const finalOutcome = reconcileAttemptOutcomes(
+    settledOutcome,
+    safeAttemptOutcome(control),
+  );
+  if (finalOutcome === 'completed') {
+    throw operationError();
+  }
+  return controlledTransportAttempt(
+    ordinal,
+    start.timestamp,
+    completion.timestamp,
+    finalOutcome,
+  );
+}
+
+function reconcileAttemptOutcomes(
+  settled: RepositoryInterviewOpenAiAttemptOutcomeV1,
+  final: RepositoryInterviewOpenAiAttemptOutcomeV1,
+): RepositoryInterviewOpenAiAttemptOutcomeV1 {
+  if (settled === 'completed') {
+    return final;
+  }
+  if (final !== settled) {
+    throw operationError();
+  }
+  return final;
+}
+
+function controlledTransportAttempt(
+  ordinal: 1 | 2,
+  startedAt: string,
+  completedAt: string,
+  outcome: 'deadline-exceeded' | 'cancelled',
+): AttemptResult {
+  return transportFailureAttempt(ordinal, startedAt, completedAt, outcome);
+}
+
+function transportFailureAttempt(
+  ordinal: 1 | 2,
+  startedAt: string,
+  completedAt: string,
+  outcome: 'network-error' | 'deadline-exceeded' | 'cancelled',
+): AttemptResult {
+  const failureCode: FailureCode =
+    outcome === 'deadline-exceeded'
+      ? 'deadline-exceeded'
+      : outcome === 'cancelled'
+        ? 'cancelled'
+        : 'transport-error';
+  return {
+    attempt: transportAttempt(ordinal, startedAt, completedAt, outcome),
+    effect: { status: 'failed', failureCode, usage: null },
+    retryable: outcome !== 'cancelled',
+  };
 }
 
 function preflightProviderRequest(value: unknown): PreflightResult {
@@ -626,6 +673,7 @@ function validatePrompt(value: unknown): RenderedRepositoryInterviewPromptV1 {
 async function readBoundedResponseBody(
   response: Response,
   maximumBytes: number,
+  signal: AbortSignal,
 ): Promise<ResponseBodyRead> {
   const declaredLength = response.headers.get('content-length');
   if (
@@ -644,7 +692,7 @@ async function readBoundedResponseBody(
   let total = 0;
   try {
     for (;;) {
-      const result = await reader.read();
+      const result = await readResponseChunk(reader, signal);
       if (result.done) {
         break;
       }
@@ -681,6 +729,38 @@ async function readBoundedResponseBody(
   } catch {
     return { status: 'invalid-utf8', text: null, responseBytes: total };
   }
+}
+
+async function readResponseChunk(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  signal: AbortSignal,
+): Promise<{
+  readonly done: boolean;
+  readonly value: Uint8Array | undefined;
+}> {
+  if (signal.aborted) {
+    throw operationError();
+  }
+  return await new Promise<{
+    readonly done: boolean;
+    readonly value: Uint8Array | undefined;
+  }>((resolve, reject) => {
+    const onAbort = (): void => {
+      signal.removeEventListener('abort', onAbort);
+      reject(operationError());
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    reader.read().then(
+      (result) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(result);
+      },
+      () => {
+        signal.removeEventListener('abort', onAbort);
+        reject(operationError());
+      },
+    );
+  });
 }
 
 function parseHttpFailure(

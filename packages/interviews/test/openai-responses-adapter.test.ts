@@ -458,6 +458,88 @@ describe('OpenAI Responses status and usage mapping', () => {
     expect(harness.fetchCalls).toHaveLength(1);
   });
 
+  it('preserves HTTP provenance for provider-envelope cancellation', async () => {
+    const envelope = {
+      id: 'resp_cancelled-1',
+      object: 'response',
+      model: AUTHORIZED_MODELS[0],
+      status: 'cancelled',
+      output: [],
+      usage: usage(),
+      cancellation_detail: SENTINEL,
+    };
+    const expectedBytes = Buffer.byteLength(JSON.stringify(envelope));
+    const harness = createHarness();
+    harness.responses.push(
+      response(envelope, 200, {
+        'x-request-id': 'req_cancelled-1',
+        'openai-processing-ms': '321',
+        'x-ratelimit-remaining-requests': '9',
+        'x-ratelimit-remaining-tokens': '99',
+        'x-ratelimit-reset-requests': '1s',
+        'x-ratelimit-reset-tokens': '2s',
+      }),
+    );
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      failureCode: 'cancelled',
+      usage: {
+        inputTokens: 10,
+        cachedInputTokens: 2,
+        outputTokens: 5,
+        reasoningTokens: 1,
+        totalTokens: 15,
+      },
+      attempts: [
+        {
+          transportOutcome: 'response',
+          httpStatus: 200,
+          providerRequestId: 'req_cancelled-1',
+          responseId: 'resp_cancelled-1',
+          responseBytes: expectedBytes,
+          providerProcessingMilliseconds: 321,
+          remainingRequests: 9,
+          remainingTokens: 99,
+          resetRequestsMilliseconds: 1_000,
+          resetTokensMilliseconds: 2_000,
+        },
+      ],
+    });
+    expect(harness.fetchCalls).toHaveLength(1);
+    expect(harness.sleeper.delays).toEqual([]);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+
+    const external = createHarness();
+    external.attemptControl.outcomeSequences = [['cancelled', 'cancelled']];
+    external.responses.push(
+      successResponse(AUTHORIZED_MODELS[0], {
+        late_response: SENTINEL,
+      }),
+    );
+    const externalResult = await external.provider.execute(baseRequest);
+    expect(externalResult).toMatchObject({
+      status: 'failed',
+      failureCode: 'cancelled',
+      usage: null,
+      attempts: [
+        {
+          transportOutcome: 'cancelled',
+          httpStatus: null,
+          providerRequestId: null,
+          responseId: null,
+          responseBytes: 0,
+        },
+      ],
+    });
+    expect(external.fetchCalls).toHaveLength(1);
+    expect(external.sleeper.delays).toEqual([]);
+    expect(externalResult.attempts[0]).not.toEqual(result.attempts[0]);
+    expect(JSON.stringify(externalResult)).not.toContain(SENTINEL);
+  });
+
   it('maps a refusal without retaining refusal text', async () => {
     const harness = createHarness();
     harness.responses.push(
@@ -631,6 +713,129 @@ describe('OpenAI Responses HTTP, retry, and attempt closure', () => {
     expect(harness.sleeper.delays).toEqual([]);
   });
 
+  it('lets attempt deadline authority discard a late successful response and retry once', async () => {
+    const harness = createHarness();
+    harness.attemptControl.outcomeSequences = [
+      ['deadline-exceeded', 'deadline-exceeded'],
+      ['completed', 'completed'],
+    ];
+    harness.responses.push(
+      successResponse(AUTHORIZED_MODELS[0], { late_response: SENTINEL }),
+      successResponse(AUTHORIZED_MODELS[0]),
+    );
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result.status).toBe('response');
+    expect(result.attempts[0]).toMatchObject({
+      transportOutcome: 'deadline-exceeded',
+      httpStatus: null,
+      providerRequestId: null,
+      responseId: null,
+      responseBytes: 0,
+    });
+    expect(harness.fetchCalls).toHaveLength(2);
+    expect(harness.sleeper.delays).toEqual([1_000]);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
+  it('lets attempt cancellation authority discard a late successful response without retry', async () => {
+    const harness = createHarness();
+    harness.attemptControl.outcomeSequences = [['cancelled', 'cancelled']];
+    harness.responses.push(
+      successResponse(AUTHORIZED_MODELS[0], { late_response: SENTINEL }),
+    );
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      failureCode: 'cancelled',
+      usage: null,
+      attempts: [
+        {
+          transportOutcome: 'cancelled',
+          httpStatus: null,
+          providerRequestId: null,
+          responseId: null,
+          responseBytes: 0,
+        },
+      ],
+    });
+    expect(harness.fetchCalls).toHaveLength(1);
+    expect(harness.sleeper.delays).toEqual([]);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
+  it.each(['deadline-exceeded', 'cancelled'] as const)(
+    'lets a final %s outcome override a response parsed after body settlement',
+    async (finalOutcome) => {
+      const harness = createHarness();
+      harness.attemptControl.outcomeSequences = [['completed', finalOutcome]];
+      if (finalOutcome === 'deadline-exceeded') {
+        harness.clock.setNextIncrement(181_000);
+      }
+      harness.responses.push(
+        successResponse(AUTHORIZED_MODELS[0], {
+          parsed_late_response: SENTINEL,
+        }),
+      );
+
+      const result = await harness.provider.execute(baseRequest);
+
+      expect(result).toMatchObject({
+        status: 'failed',
+        failureCode: finalOutcome,
+        usage: null,
+        attempts: [
+          {
+            transportOutcome: finalOutcome,
+            httpStatus: null,
+            providerRequestId: null,
+            responseId: null,
+            responseBytes: 0,
+          },
+        ],
+      });
+      expect(harness.attemptControl.outcomeCalls).toEqual([2]);
+      expect(harness.fetchCalls).toHaveLength(1);
+      expect(harness.sleeper.delays).toEqual([]);
+      expect(JSON.stringify(result)).not.toContain(SENTINEL);
+    },
+  );
+
+  it('rejects invalid or throwing attempt-outcome authority with a value-free error', async () => {
+    for (const outcome of ['invalid-outcome', new Error(SENTINEL)]) {
+      const harness = createHarness();
+      harness.attemptControl.outcomeSequences = [[outcome]];
+      harness.responses.push(successResponse(AUTHORIZED_MODELS[0]));
+      let message = '';
+      try {
+        await harness.provider.execute(baseRequest);
+      } catch (error) {
+        message = error instanceof Error ? error.message : String(error);
+      }
+      expect(message).toBe(
+        'OpenAI repository interview provider operation failed.',
+      );
+      expect(message).not.toContain(SENTINEL);
+      expect(harness.attemptControl.outcomeCalls[0]).toBe(1);
+    }
+  });
+
+  it('rejects a contradictory terminal attempt outcome with a value-free error', async () => {
+    const harness = createHarness();
+    harness.attemptControl.outcomeSequences = [
+      ['deadline-exceeded', 'completed'],
+    ];
+    harness.responses.push(successResponse(AUTHORIZED_MODELS[0]));
+
+    await expect(harness.provider.execute(baseRequest)).rejects.toThrow(
+      'OpenAI repository interview provider operation failed.',
+    );
+    expect(harness.attemptControl.outcomeCalls).toEqual([2]);
+  });
+
   it('uses capped Retry-After and safe rate-limit metadata only', async () => {
     const harness = createHarness();
     harness.responses.push(
@@ -705,6 +910,110 @@ describe('OpenAI Responses HTTP, retry, and attempt closure', () => {
     });
     expect(harness.fetchCalls).toHaveLength(1);
     expect(harness.sleeper.delays).toEqual([]);
+  });
+
+  it('rechecks the total deadline after retry sleep at the exact attempt-budget boundary', async () => {
+    const exact = createHarness();
+    exact.sleeper.advanceOverride = 179_970;
+    exact.responses.push(
+      response({}, 500, { 'retry-after': '0' }),
+      successResponse(AUTHORIZED_MODELS[0]),
+    );
+    const exactResult = await exact.provider.execute(baseRequest);
+    expect(exactResult.status).toBe('response');
+    expect(exact.fetchCalls).toHaveLength(2);
+    expect(exact.attemptControl.calls).toBe(2);
+    expect(exact.sleeper.delays).toEqual([0]);
+    expect(exactResult.attempts[1]?.startedAt).toBe('2026-07-31T12:03:00.000Z');
+
+    const short = createHarness();
+    short.sleeper.advanceOverride = 179_971;
+    short.responses.push(
+      response({}, 500, { 'retry-after': '0' }),
+      successResponse(AUTHORIZED_MODELS[0]),
+    );
+    const shortResult = await short.provider.execute(baseRequest);
+    expect(shortResult).toMatchObject({
+      status: 'failed',
+      failureCode: 'provider-error',
+    });
+    expect(short.fetchCalls).toHaveLength(1);
+    expect(short.attemptControl.calls).toBe(1);
+    expect(short.sleeper.delays).toEqual([0]);
+    expect(short.clock.calls).toBeGreaterThanOrEqual(4);
+  });
+
+  it('does not let retry-sleep overshoot start a second attempt', async () => {
+    const harness = createHarness();
+    harness.sleeper.advanceOverride = 300_000;
+    harness.responses.push(
+      response({}, 500),
+      successResponse(AUTHORIZED_MODELS[0]),
+    );
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      failureCode: 'provider-error',
+    });
+    expect(harness.fetchCalls).toHaveLength(1);
+    expect(harness.attemptControl.calls).toBe(1);
+    expect(harness.sleeper.delays).toEqual([1_000]);
+    expect(result.attempts).toHaveLength(1);
+  });
+
+  it('maps retry-sleep failure to the fixed value-free operation error', async () => {
+    const harness = createHarness();
+    harness.sleeper.failure = new Error(SENTINEL);
+    harness.responses.push(response({}, 500));
+
+    let message = '';
+    try {
+      await harness.provider.execute(baseRequest);
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toBe(
+      'OpenAI repository interview provider operation failed.',
+    );
+    expect(message).not.toContain(SENTINEL);
+    expect(harness.fetchCalls).toHaveLength(1);
+    expect(harness.attemptControl.calls).toBe(1);
+  });
+
+  it('timestamps completion after protocol interpretation and keeps retry attempts nonoverlapping', async () => {
+    const harness = createHarness();
+    harness.responses.push(
+      response({}, 500),
+      response({
+        id: 'resp_cancelled-chronology',
+        object: 'response',
+        model: AUTHORIZED_MODELS[0],
+        status: 'cancelled',
+        output: [],
+      }),
+    );
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      failureCode: 'cancelled',
+      attempts: [
+        { completedAt: '2026-07-31T12:00:00.020Z' },
+        {
+          startedAt: '2026-07-31T12:00:01.030Z',
+          completedAt: '2026-07-31T12:00:01.050Z',
+          transportOutcome: 'response',
+        },
+      ],
+    });
+    expect(
+      Date.parse(result.attempts[1]?.startedAt ?? '') >=
+        Date.parse(result.attempts[0]?.completedAt ?? ''),
+    ).toBe(true);
+    expect(harness.attemptControl.outcomeCalls).toEqual([2, 2]);
   });
 
   it('parses controlled reset units and nulls malformed safe headers', async () => {
@@ -856,11 +1165,18 @@ function createHarness(options: { readonly token?: string } = {}) {
   const clock = new FakeClock();
   const sleeper: RepositoryInterviewOpenAiSleeperPortV1 & {
     delays: number[];
+    advanceOverride: number | null;
+    failure: Error | null;
   } = {
     delays: [],
+    advanceOverride: null,
+    failure: null,
     sleep(milliseconds) {
       this.delays.push(milliseconds);
-      clock.advance(milliseconds);
+      if (this.failure !== null) {
+        return Promise.reject(this.failure);
+      }
+      clock.advance(this.advanceOverride ?? milliseconds);
       return Promise.resolve();
     },
   };
@@ -912,14 +1228,28 @@ class FakeClock implements RepositoryInterviewOpenAiClockPortV1 {
 class FakeAttemptControl implements RepositoryInterviewOpenAiAttemptControlPortV1 {
   public calls = 0;
   public outcomes: ('completed' | 'deadline-exceeded' | 'cancelled')[] = [];
+  public outcomeSequences: unknown[][] = [];
+  public outcomeCalls: number[] = [];
 
   public beginAttempt() {
-    const outcome = this.outcomes[this.calls] ?? 'completed';
+    const attemptIndex = this.calls;
+    const outcome = this.outcomes[attemptIndex] ?? 'completed';
+    const sequence = this.outcomeSequences[attemptIndex] ?? [outcome];
     this.calls += 1;
     const controller = new AbortController();
+    let outcomeIndex = 0;
     return {
       signal: controller.signal,
-      outcome: () => outcome,
+      outcome: () => {
+        this.outcomeCalls[attemptIndex] =
+          (this.outcomeCalls[attemptIndex] ?? 0) + 1;
+        const next = sequence[Math.min(outcomeIndex, sequence.length - 1)];
+        outcomeIndex += 1;
+        if (next instanceof Error) {
+          throw next;
+        }
+        return next as 'completed' | 'deadline-exceeded' | 'cancelled';
+      },
       dispose: () => undefined,
     };
   }

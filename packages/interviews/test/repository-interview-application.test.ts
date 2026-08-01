@@ -868,6 +868,19 @@ describe('provider responses, failures, and publication', () => {
       name: 'cancellation',
       effect: failedEffect('cancelled', transportAttempt('cancelled')),
     },
+    {
+      name: 'provider-envelope cancellation',
+      effect: failedEffect(
+        'cancelled',
+        responseAttempt(200, {
+          providerRequestId: 'req_provider_cancelled',
+          responseId: 'resp_provider_cancelled',
+          responseBytes: 2_048,
+          providerProcessingMilliseconds: 321,
+        }),
+        usage(),
+      ),
+    },
   ])(
     'publishes controlled $name as a valid failed execution',
     async ({ effect }) => {
@@ -884,6 +897,10 @@ describe('provider responses, failures, and publication', () => {
       expect(harness.record.publications).toHaveLength(1);
       expect(harness.record.publications[0]?.interview).toBeNull();
       expect(harness.clock.calls).toBe(0);
+      if (effect.status === 'failed' && effect.failureCode === 'cancelled') {
+        expect(result.execution.attempts).toEqual(effect.attempts);
+      }
+      expect(JSON.stringify(result)).not.toContain(PROVIDER_SENTINEL);
     },
   );
 

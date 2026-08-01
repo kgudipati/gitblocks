@@ -633,7 +633,6 @@ describe('ModelExecutionV1', () => {
     for (const failureCode of [
       'transport-error',
       'deadline-exceeded',
-      'cancelled',
     ] as const) {
       expect(() =>
         createModelExecutionV1(
@@ -674,6 +673,39 @@ describe('ModelExecutionV1', () => {
           }),
         ).outcome.failureCode,
       ).toBe(failureCode);
+    }
+
+    expect(
+      createModelExecutionV1(
+        executionInput(request, {
+          attempts: [{ ...baseAttempt, httpStatus: 200 }],
+          outcome: {
+            status: 'failed',
+            failureCode: 'cancelled',
+            providerOutputDigest: null,
+            usage: null,
+          },
+        }),
+      ).attempts[0],
+    ).toMatchObject({
+      transportOutcome: 'response',
+      httpStatus: 200,
+    });
+
+    for (const httpStatus of [199, 300, 500]) {
+      expect(() =>
+        createModelExecutionV1(
+          executionInput(request, {
+            attempts: [{ ...baseAttempt, httpStatus }],
+            outcome: {
+              status: 'failed',
+              failureCode: 'cancelled',
+              providerOutputDigest: null,
+              usage: null,
+            },
+          }),
+        ),
+      ).toThrow(/invalid/u);
     }
 
     for (const [failureCode, httpStatus] of [

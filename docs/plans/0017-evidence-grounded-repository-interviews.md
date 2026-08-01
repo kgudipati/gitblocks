@@ -35,11 +35,14 @@
   - PR #18 review: “Milestone 7 accepted — Milestone 8 authorized.”
   - PR #18 review: “Milestone 8 documentation conflict accepted —
     implementation authorized with retention amendment.”
+  - PR #18 review: “Milestone 8 review — adapter boundary accepted;
+    attempt-provenance and deadline corrections required before Milestone 9.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
 - State: Milestones 1–7 are accepted; Milestone 8's bounded direct OpenAI
-  Responses adapter is implemented and awaiting review; Milestones 9–14 remain
-  unauthorized or incomplete
+  Responses adapter and narrow attempt-provenance/deadline correction are
+  implemented and awaiting renewed review; Milestones 9–14 remain unauthorized
+  or incomplete
 - Last updated: 2026-07-31
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -845,6 +848,23 @@ timeout, byte, and safe-error control. The tradeoff is that GitBlocks owns a
 small protocol adapter and must track API drift. An SDK may be reconsidered
 only if measured protocol maintenance or correctness evidence exceeds that
 cost.
+
+Provider-returned `status: cancelled` is not transport cancellation. A valid
+2xx envelope produces the controlled `cancelled` failure while preserving the
+safe HTTP attempt status, byte count, identifiers, headers, chronology, and
+valid optional usage. Actual attempt-controller/transport cancellation
+produces `transportOutcome: cancelled`, null HTTP provenance, zero response
+bytes, null usage, and no retry. The durable semantic validator permits these
+two provenance forms without changing `ModelExecutionV1` schema bytes.
+
+The attempt controller is consulted after bounded body settlement and after
+bounded protocol interpretation. Only a final `completed` outcome may retain
+HTTP/provider values; deadline or cancellation discards late response data.
+The final clock read follows interpretation and owns `completedAt`. Retry sleep
+is followed by a fresh clock reading that must leave the entire 120-second
+second-attempt budget inside the 300-second operation deadline. The exact
+120,000-millisecond remainder passes; 119,999 milliseconds fails without a
+second controller or fetch call.
 
 The deterministic body order is `model`, `input`, `reasoning`, `text`,
 `max_output_tokens`, `store`, `background`, `stream`, `tools`, `truncation`,
@@ -1789,8 +1809,9 @@ already includes `apps/*` and will remain unchanged.
 
 ### 8. Bounded direct OpenAI Responses adapter
 
-- **Status:** implemented and awaiting maintainer review; Milestone 9 remains
-  blocked.
+- **Status:** adapter boundary accepted in substance; the narrow
+  attempt-provenance/deadline correction is implemented and awaiting renewed
+  maintainer review. Milestone 9 remains blocked.
 - **Red first:** exact request fixture, fixed host, strict schema, store/no-tool/
   no-state controls, exact `"in_memory"` cache mapping, bytes, deadlines,
   cancellation, retry headers, refusals, incomplete/safety/errors, usage
@@ -1799,10 +1820,12 @@ already includes `apps/*` and will remain unchanged.
   package exports, private rendered-prompt authentication, focused fake-
   transport tests, and the required package/plan/ADR/security/testing/
   reliability documentation.
-- **Commit:** `feat(interviews): add bounded OpenAI responses adapter`.
-- **Verification:** 72-test focused fake-transport protocol suite, complete
-  `interviews:verify`, no-network/security/architecture checks, and the full
-  repository matrix recorded below.
+- **Commits:** `feat(interviews): add bounded OpenAI responses adapter`, then
+  `fix(interviews): close OpenAI attempt provenance`.
+- **Verification:** 83-test focused fake-transport protocol suite plus
+  application and contract compatibility tests, complete `interviews:verify`,
+  no-network/security/architecture checks, and the full repository matrix
+  recorded below.
 - **Review:** official API recheck, exact request/response allowlist,
   explicit cache-retention intent/ZDR disclosure, bounded stream/retry/status
   behavior, owned results, and no SDK dependency.
@@ -2841,7 +2864,7 @@ external state; the maintainer's binding amendment then authorized the exact
 
 The focused red run failed one file and all 62 initial tests because the
 adapter factory did not exist. Green implementation and further boundary tests
-now pass 72 focused cases using only injected fake credential, transport,
+passed 72 focused cases using only injected fake credential, transport,
 clock, sleeper, attempt control, and bounded response streams. Tests cover both
 authorized but unselected snapshots, exact deterministic request bytes,
 presence and non-overridability of `prompt_cache_retention: "in_memory"`,
@@ -2850,18 +2873,27 @@ closed preflight, private prompt-instance authentication, credential safety,
 status/output/usage/refusal mappings, deterministic two-attempt retry policy,
 deadlines/cancellation, owned frozen output, and denial of global network use.
 
+The follow-up correction began with 11 focused failures and 164 passing tests
+across the adapter, application, and contract files. The failures proved that
+provider-envelope cancellation lost HTTP provenance, late responses could
+override controller deadlines/cancellation, post-sleep overshoot could begin
+attempt two, completion timestamps preceded interpretation, and the application
+could not retain a provider-cancelled response attempt. Green correction passes
+177 focused tests. The adapter suite now has 83 cases, checks controller outcome
+at two bounded finalization points, preserves provider-response cancellation,
+discards late values for external outcomes, and enforces the exact post-sleep
+120,000/119,999-millisecond boundary. The semantic contract correction changes
+no JSON Schema bytes.
+
 `pnpm interviews:verify` passes the three unchanged specification digests,
-seven files and 244 tests, package build/typecheck/lint, and dependency cruising
+seven files and 256 tests, package build/typecheck/lint, and dependency cruising
 of 698 modules and 2,243 dependencies without a violation. The complete local
-matrix passes 59 files and 1,179 ordinary tests; PostgreSQL 18.4 passes five
+matrix passes 59 files and 1,191 ordinary tests; PostgreSQL 18.4 passes five
 files and 59 tests with no skip, retaining four migrations, 25 product tables,
-and zero RLS policies. Coverage passes the same 59 files and 1,179 tests at
-80.08% statements, 72.78% branches, 87.15% functions, and 80.03% lines. Two
-initial coverage invocations hit the pre-existing five-second YAML node-bound
-stress-test timeout under parallel instrumentation; its isolated coverage run
-passed 30 tests in 3.50 seconds and the unmodified prescribed command then
-passed in full. The registry audit reports no known vulnerabilities. Hosted CI
-counts are appended after the exact final-head run.
+and zero RLS policies. Coverage passes the same 59 files and 1,191 tests at
+80.17% statements, 72.90% branches, 87.16% functions, and 80.12% lines. The
+registry audit reports no known vulnerabilities. Hosted CI counts are appended
+after the exact final-head run.
 No credential, real transport, model call, calibration, Gate A, operator,
 persistence composition, live database operation, or Milestone 9 work occurred.
 
@@ -3023,6 +3055,13 @@ persistence composition, live database operation, or Milestone 9 work occurred.
   fixed-host injected adapter and expanded the fake-transport suite to 72
   passing cases. Milestone 8 awaits review; Milestone 9 and every live gate
   remain blocked.
+- **2026-07-31:** Maintainer review accepted the adapter boundary in substance
+  and required two final corrections. Eleven focused failures proved lost HTTP
+  provenance for provider cancellation, missing late controller authority,
+  incomplete attempt chronology, absent post-sleep deadline enforcement, and
+  failed application compatibility. The correction now passes 177 focused
+  adapter/application/contract tests; Milestone 8 awaits renewed review and
+  Milestone 9 remains blocked.
 
 ## Decision and deviation log
 
@@ -3184,6 +3223,10 @@ persistence composition, live database operation, or Milestone 9 work occurred.
   fixed request bytes, bounded response parsing, safe retry/header/status
   mappings, and value-free owned results without introducing an SDK or generic
   HTTP/model framework.
+- **Attempt authority closed:** provider-envelope cancellation remains a 2xx
+  response attempt, external cancellation remains transport-only, controller
+  outcomes override late transport/parser results, and post-sleep observed time
+  controls whether attempt two may begin.
 
 ## Remaining maintainer decisions before Milestone 9
 
@@ -3193,9 +3236,11 @@ maintainer review accepts:
 1. exact direct Responses request bytes, fixed host/headers, strict schema, and
    explicit `"in_memory"` cache mapping for both calibration candidates;
 2. closed preflight, authenticated exact prompt object, injected effect
-   authorities, byte/deadline/retry bounds, and value-free failure behavior;
+   authorities, byte/deadline/retry bounds, post-sleep total-deadline closure,
+   and value-free failure behavior;
 3. bounded streaming parse, safe-header/status/output/usage interpretation,
-   and owned/frozen controlled results;
+   provider-versus-external cancellation provenance, bounded final controller
+   authority, and owned/frozen controlled results;
 4. unchanged product, specification, prompt/provider-output golden,
    evaluation, migration, catalog, artifact, pilot, dependency, and lockfile
    authorities; and

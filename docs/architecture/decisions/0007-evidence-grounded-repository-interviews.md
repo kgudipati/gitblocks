@@ -80,7 +80,12 @@ The maintainer accepted that stop and amended this decision to require the
 exact product-to-wire mapping `in-memory` to
 `prompt_cache_retention: "in_memory"` for both authorized calibration
 snapshots. Milestone 8 implements only the bounded direct protocol adapter and
-offline fake-transport tests; Milestone 9 remains blocked.
+offline fake-transport tests. The next review accepted that adapter boundary
+in substance but required provider-envelope cancellation to retain HTTP
+provenance and attempt/operation deadlines to remain authoritative after
+asynchronous transport, parsing, and retry-sleep effects. Those narrow
+corrections are implemented for renewed Milestone 8 review; Milestone 9
+remains blocked.
 
 ## Decision
 
@@ -510,6 +515,17 @@ only for the reviewed network/deadline/408/409/429/5xx classes, with a bounded
 structured data is retained, and contain no raw prompt, body, reasoning,
 refusal, header, credential, or exception value.
 
+Provider-envelope `cancelled` is a failed semantic outcome of a completed 2xx
+response and therefore retains only the safe HTTP attempt provenance. External
+controller or transport cancellation is a transport outcome and retains no
+HTTP-derived provenance. The controller is checked after bounded body
+settlement and again after protocol interpretation; a deadline or cancellation
+at either finalization point discards late response data. Attempt completion
+time is read after interpretation. After retry sleep, observed injected time
+must leave the full 120-second second-attempt budget inside the 300-second
+operation deadline; exactly 120 seconds is allowed and 119,999 milliseconds is
+not.
+
 `store: false` does not imply zero provider retention, and explicit
 `"in_memory"` is request intent rather than proof that abuse-monitoring or
 other organization-level retention is absent. Extended 24-hour retention is
@@ -827,7 +843,8 @@ second maintained schema.
 
 ## Deferred work
 
-- Milestone 8 maintainer acceptance and Milestone 9 composition.
+- Renewed Milestone 8 maintainer acceptance of attempt provenance/deadline
+  closure and Milestone 9 composition.
 - Final Gate A model-profile selection.
 - Provider portability or another provider.
 - Production review/selection contracts.
@@ -838,9 +855,10 @@ second maintained schema.
 ## Exit gates
 
 Milestones 1–7 passed maintainer review. Milestone 8 implements only the
-bounded direct adapter and fake-transport protocol evidence and now requires
-maintainer acceptance while the PR remains draft. Milestone 9 composition is
-not authorized by this implementation.
+bounded direct adapter, its attempt-provenance/deadline correction, and
+fake-transport protocol evidence and now requires renewed maintainer acceptance
+while the PR remains draft. Milestone 9 composition is not authorized by this
+implementation.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

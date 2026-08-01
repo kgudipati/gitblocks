@@ -435,14 +435,25 @@ function validateTerminalOutcome(
     }
     return;
   }
+  if (value.outcome.failureCode === 'cancelled') {
+    const isExternalCancellation =
+      finalAttempt.transportOutcome === 'cancelled';
+    const isProviderResponseCancellation =
+      finalAttempt.transportOutcome === 'response' &&
+      finalAttempt.httpStatus !== null &&
+      finalAttempt.httpStatus >= 200 &&
+      finalAttempt.httpStatus <= 299;
+    if (!isExternalCancellation && !isProviderResponseCancellation) {
+      issues.push(patternIssue(transportPath));
+    }
+    return;
+  }
   const expectedTransportOutcome =
     value.outcome.failureCode === 'transport-error'
       ? 'network-error'
       : value.outcome.failureCode === 'deadline-exceeded'
         ? 'deadline-exceeded'
-        : value.outcome.failureCode === 'cancelled'
-          ? 'cancelled'
-          : null;
+        : null;
   if (
     expectedTransportOutcome !== null &&
     finalAttempt.transportOutcome !== expectedTransportOutcome

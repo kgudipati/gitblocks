@@ -177,6 +177,14 @@ is neither telemetry nor evidence of ZDR or absence of organization-level
 retention. That external retention authority is checked at the separate
 pre-live gate before calibration.
 
+Attempt provenance distinguishes provider-envelope cancellation from external
+cancellation: a cancelled 2xx envelope remains a response attempt with only
+allowlisted HTTP metadata, while controller/transport cancellation retains no
+HTTP-derived values. Controller deadline or cancellation observed after body
+settlement or bounded parsing overrides a late response. Retry sleep is
+followed by an observed-clock deadline check, so scheduler delay or oversleep
+cannot start an attempt without the full configured attempt budget.
+
 ## Worker and job observability
 
 Each job type defines a versioned payload, owner, idempotency key, maximum

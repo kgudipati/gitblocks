@@ -133,6 +133,14 @@ snapshot. Before any real calibration request, the pre-live gate must verify
 ZDR for the exact organization/project or cite newer authoritative provider
 evidence proving the effective retention behavior.
 
+Cancellation fixtures distinguish a provider-returned 2xx cancelled envelope
+from external attempt-control cancellation. Deadline fixtures use transports
+that ignore abort, controller outcomes that change during bounded parsing,
+and retry sleepers that advance injected time farther than requested. They
+require controller authority to discard late HTTP data, final timestamps to
+follow response interpretation, and the post-sleep clock to preserve the full
+120-second second-attempt budget at the exact 300-second boundary.
+
 Ingestion regressions must prove the closed provider taxonomy rather than mock
 all failures as absence. Fatal optional outcomes are rethrown and create no
 snapshot. PostgreSQL recovery tests perform complete, temporary-failure, and

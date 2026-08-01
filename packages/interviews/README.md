@@ -139,6 +139,24 @@ Expected HTTP, provider-status, transport, cancellation, usage, refusal, and
 response-shape outcomes use the existing controlled failure taxonomy; raw
 bodies, headers, prompts, credentials, and exception text never enter results.
 
+A provider envelope with `status: cancelled` is still a completed HTTP
+response attempt: it retains its safe 2xx status, bounded byte count,
+allowlisted headers, safe provider identifiers, and valid optional usage while
+returning the controlled `cancelled` failure. Only attempt-controller or
+transport cancellation produces `transportOutcome: cancelled` with null HTTP
+provenance and zero response bytes. The application contract accepts both
+provenance forms without changing serialized schemas.
+
+Attempt control remains authoritative even when an injected fetch or response
+stream ignores its abort signal. The adapter checks the controller after body
+settlement and again after bounded protocol interpretation; a late deadline or
+cancellation discards all HTTP/provider data. `completedAt` comes from the
+final injected clock read after interpretation. Before attempt two, the
+adapter also rereads the clock after retry sleep and requires the complete
+120-second attempt budget to remain inside the 300-second operation deadline.
+Exactly 120 seconds remaining is sufficient; less is not, and oversleep never
+creates a synthetic attempt.
+
 `store: false` is not Zero Data Retention. The explicit `"in_memory"` field is
 GitBlocks request intent and is not proof that abuse-monitoring or other
 organization-level retention is absent. The adapter neither inspects nor
