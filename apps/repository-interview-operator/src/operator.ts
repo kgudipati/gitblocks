@@ -20,6 +20,10 @@ import {
 import type { MigrationVerification } from '@gitblocks/persistence';
 
 import {
+  parseRepositoryInterviewCandidatePlanV1,
+  type RepositoryInterviewCandidatePlanV1,
+} from './candidate-plan.ts';
+import {
   calculateRepositoryInterviewUsageCostMicroUsdV1,
   calculateRepositoryInterviewWorstCaseV1,
   parseRepositoryInterviewOperatorPolicyV1,
@@ -168,6 +172,56 @@ type MutableProviderSummary = {
     Key in keyof RepositoryInterviewOperatorReceiptV1['providerSummary']
   ]: RepositoryInterviewOperatorReceiptV1['providerSummary'][Key];
 };
+
+export function validateRepositoryInterviewCandidatePlanPreflightV1(
+  candidatePlanInput: unknown,
+  policyInput: unknown,
+  modelProfileInput: unknown,
+):
+  | {
+      readonly ok: true;
+      readonly candidatePlan: RepositoryInterviewCandidatePlanV1;
+      readonly policy: RepositoryInterviewOperatorPolicyV1;
+      readonly modelProfile: ModelExecutionModelProfileV1;
+      readonly modelProfileDigest: string;
+      readonly worstCase: RepositoryInterviewOperatorWorstCaseV1;
+      readonly issues: readonly [];
+    }
+  | {
+      readonly ok: false;
+      readonly issues: readonly RepositoryInterviewOperatorIssueV1[];
+    } {
+  const candidatePlan =
+    parseRepositoryInterviewCandidatePlanV1(candidatePlanInput);
+  if (!candidatePlan.ok) return { ok: false, issues: candidatePlan.issues };
+  const modelProfile = parseModelExecutionModelProfileV1(modelProfileInput);
+  if (
+    !modelProfile.ok ||
+    !AUTHORIZED_MODEL_SNAPSHOTS.has(modelProfile.value.modelSnapshot)
+  )
+    return { ok: false, issues: [operatorIssue('operator.input-invalid')] };
+  const policy = parseRepositoryInterviewOperatorPolicyV1(
+    policyInput,
+    modelProfile.value,
+  );
+  if (!policy.ok) return { ok: false, issues: policy.issues };
+  try {
+    return Object.freeze({
+      ok: true,
+      candidatePlan: candidatePlan.value,
+      policy: policy.value,
+      modelProfile: modelProfile.value,
+      modelProfileDigest: modelExecutionModelProfileDigest(modelProfile.value),
+      worstCase: calculateRepositoryInterviewWorstCaseV1(
+        candidatePlan.value.candidateIds.length,
+        policy.value,
+      ),
+      issues: [] as const,
+    });
+  } catch {
+    return { ok: false, issues: [operatorIssue('operator.budget-invalid')] };
+  }
+}
 
 export function validateRepositoryInterviewOperatorPreflightV1(
   selectionInput: unknown,

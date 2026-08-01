@@ -284,6 +284,25 @@ non-overwriting. Dry-run validates complete configuration and worst-case
 budgets with zero secret, database, provider, time, telemetry, or write effects.
 These controls do not authorize a real credential or provider request.
 
+Milestone 10 adds a content-free pre-live layer without weakening that
+boundary. Committed candidate plans contain membership only and never contain
+artifact-set IDs, repository IDs, commits, artifact IDs, paths, URLs, or
+selection identity. The raw artifact-receipt parser remains owned by ingestion.
+The separate non-production materializer accepts only a complete fresh
+150-candidate receipt, reads only its explicitly named synthetic database
+password, loads sets only by receipt-provided IDs from that same acknowledged
+ephemeral database, writes only an untracked selection and binding with mode
+`0600`, and never reads a provider token or constructs a provider. It rejects
+partial authority groups, symlink/nonexclusive output, migration drift, and
+all cross-file mismatches before publishing output.
+
+The committed readiness policy deliberately leaves fresh materialization,
+retention, pricing, model calibration, maintainer live authorization,
+ephemeral database, provider credential, and audit assignments unsatisfied.
+Explicit `store: false` and `prompt_cache_retention: "in_memory"` remain request
+intent, not ZDR evidence. Synthetic retention and pricing digests in tests are
+not substantive approvals, and no real authorization is committed.
+
 Migration 0004 persists only the approved request, execution, interview, and
 normalized semantic-member contracts. It excludes prompts, alias registries,
 artifact bodies, raw provider output, reasoning, refusal/error text,

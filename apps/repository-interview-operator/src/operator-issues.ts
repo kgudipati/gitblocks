@@ -1,6 +1,9 @@
 export type RepositoryInterviewOperatorIssueCode =
   | 'operator.input-invalid'
   | 'operator.selection-invalid'
+  | 'operator.candidate-plan-invalid'
+  | 'operator.selection-materialization-invalid'
+  | 'operator.prelive-authorization-invalid'
   | 'operator.policy-invalid'
   | 'operator.budget-invalid'
   | 'operator.migration-invalid'
@@ -22,6 +25,11 @@ const MESSAGES: Readonly<Record<RepositoryInterviewOperatorIssueCode, string>> =
   Object.freeze({
     'operator.input-invalid': 'The operator input is invalid.',
     'operator.selection-invalid': 'The operator selection is invalid.',
+    'operator.candidate-plan-invalid': 'The candidate plan is invalid.',
+    'operator.selection-materialization-invalid':
+      'The selection materialization is invalid.',
+    'operator.prelive-authorization-invalid':
+      'The pre-live authorization is invalid.',
     'operator.policy-invalid': 'The operator policy is invalid.',
     'operator.budget-invalid': 'The operator budget cannot authorize the run.',
     'operator.migration-invalid':

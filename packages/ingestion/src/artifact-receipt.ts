@@ -1,6 +1,10 @@
 import { canonicalizeJson } from './canonical-json.ts';
 import { ingestionError } from './errors.ts';
-import { isRecord, parseBoundedJson } from './json-boundary.ts';
+import {
+  isRecord,
+  ownAndFreezeIngestionJson,
+  parseBoundedJson,
+} from './json-boundary.ts';
 import type {
   ArtifactReceipt,
   ArtifactReceiptCandidate,
@@ -130,6 +134,80 @@ export function parseArtifactReceipt(text: string): ArtifactReceipt {
     },
     'ingestion.invalid-receipt',
   );
+  return parseArtifactReceiptValue(parsed);
+}
+
+export interface CompleteArtifactReceiptAuthorityV1 {
+  readonly catalogVersion: string;
+  readonly catalogDigest: string;
+  readonly artifactManifestVersion: string;
+  readonly artifactManifestDigest: string;
+  readonly candidateIds: readonly string[];
+}
+
+export function parseCompleteArtifactReceiptTextV1(
+  text: string,
+  authority: CompleteArtifactReceiptAuthorityV1,
+): ArtifactReceipt {
+  const parsed = parseBoundedJson(
+    text,
+    {
+      maximumBytes: RECEIPT_MAXIMUM_BYTES,
+      maximumDepth: 10,
+      maximumNodes: 10_000,
+    },
+    'ingestion.invalid-receipt',
+  );
+  return parseCompleteArtifactReceiptV1(parsed, authority);
+}
+
+export function parseCompleteArtifactReceiptV1(
+  input: unknown,
+  authority: CompleteArtifactReceiptAuthorityV1,
+): ArtifactReceipt {
+  const owned = ownAndFreezeIngestionJson(input, {
+    maximumBytes: RECEIPT_MAXIMUM_BYTES,
+    maximumDepth: 10,
+    maximumNodes: 10_000,
+  });
+  const receipt = parseArtifactReceiptValue(owned);
+  const expected = [...authority.candidateIds];
+  if (
+    authority.catalogVersion !== 'public-v1' ||
+    authority.artifactManifestVersion !== 'public-artifacts-v1' ||
+    !isDigest(authority.catalogDigest) ||
+    !isDigest(authority.artifactManifestDigest) ||
+    expected.length !== 150 ||
+    expected.some(
+      (candidateId, index) =>
+        !isStableId(candidateId) ||
+        (index > 0 && compareText(expected[index - 1] ?? '', candidateId) >= 0),
+    ) ||
+    receipt.catalogDigest !== authority.catalogDigest ||
+    receipt.artifactManifestDigest !== authority.artifactManifestDigest ||
+    receipt.requestedCandidateCount !== 150 ||
+    receipt.completedCandidateCount !== 150 ||
+    receipt.outcomeCounts.failed !== 0 ||
+    receipt.candidates.length !== 150 ||
+    receipt.candidates.some(
+      (candidate, index) =>
+        candidate.candidateId !== expected[index] ||
+        candidate.outcome === 'failed' ||
+        candidate.artifactSetId === null ||
+        candidate.materializationDigest === null ||
+        candidate.safeErrorCode !== null,
+    )
+  ) {
+    throw ingestionError('ingestion.invalid-receipt');
+  }
+  return ownAndFreezeIngestionJson(receipt, {
+    maximumBytes: RECEIPT_MAXIMUM_BYTES,
+    maximumDepth: 10,
+    maximumNodes: 10_000,
+  });
+}
+
+function parseArtifactReceiptValue(parsed: unknown): ArtifactReceipt {
   if (!isRecord(parsed)) {
     throw ingestionError('ingestion.invalid-receipt');
   }

@@ -133,6 +133,23 @@ snapshot. Before any real calibration request, the pre-live gate must verify
 ZDR for the exact organization/project or cite newer authoritative provider
 evidence proving the effective retention behavior.
 
+Milestone 10 adds read-only reproduction of three exact candidate plans, two
+unselected dated profiles, the readiness policy, offline report, schema
+snapshots, and manifest. Synthetic tests cover 6/30/150 execution at
+concurrency one and two, complete first passes, canonical ordering, exact
+zero-call reuse, bounded task creation, fail-fast/deadline/budget stops,
+truthful attempts and calls, complete raw receipt parsing, authorization
+closure, and network/secret/import-effect/sentinel denial. Synthetic prices
+and retention digests are test inputs only.
+
+The PostgreSQL 18.4 suite applies migrations through 0004 in the existing test
+harness, then proves 6/30/150 selection materialization from one complete
+synthetic receipt. Receipt `artifactSetId` is the sole lookup key; identity is
+accepted only from the loaded parsed set; a newer same-candidate set is ignored;
+missing or mismatched receipt-named sets fail. This test never contacts OpenAI,
+never reads a provider credential, never skips, and does not make the
+materializer or operator a migration owner.
+
 Cancellation fixtures distinguish a provider-returned 2xx cancelled envelope
 from external attempt-control cancellation. Deadline fixtures use transports
 that ignore abort, controller outcomes that change during bounded parsing,

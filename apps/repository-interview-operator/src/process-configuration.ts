@@ -2,7 +2,11 @@ import { isAbsolute } from 'node:path';
 
 export interface RepositoryInterviewOperatorCliConfigurationV1 {
   readonly acknowledgement: string;
-  readonly selectionFile: string;
+  readonly candidatePlanFile: string;
+  readonly artifactReceiptFile: string | null;
+  readonly selectionFile: string | null;
+  readonly selectionMaterializationFile: string | null;
+  readonly preliveAuthorizationFile: string | null;
   readonly specificationDirectory: string;
   readonly modelProfileFile: string;
   readonly operatorPolicyFile: string;
@@ -23,7 +27,11 @@ export interface RepositoryInterviewOperatorCliConfigurationV1 {
 
 const VALUE_ARGUMENTS = new Set([
   '--acknowledge-ephemeral-non-production',
+  '--candidate-plan-file',
+  '--artifact-receipt-file',
   '--selection-file',
+  '--selection-materialization-file',
+  '--prelive-authorization-file',
   '--specification-directory',
   '--model-profile-file',
   '--operator-policy-file',
@@ -81,8 +89,19 @@ export function parseRepositoryInterviewOperatorArgumentsV1(
       throw invalid();
     }
   }
+  const conditional = new Set([
+    '--artifact-receipt-file',
+    '--selection-file',
+    '--selection-materialization-file',
+    '--prelive-authorization-file',
+  ]);
   for (const argument of VALUE_ARGUMENTS) {
-    if (argument !== '--force-reason' && !values.has(argument)) throw invalid();
+    if (
+      argument !== '--force-reason' &&
+      !conditional.has(argument) &&
+      !values.has(argument)
+    )
+      throw invalid();
   }
   const force = flags.has('--force');
   const forceReason = values.get('--force-reason') ?? null;
@@ -104,7 +123,24 @@ export function parseRepositoryInterviewOperatorArgumentsV1(
   const ssl = requireValue(values, '--database-ssl');
   const databasePasswordEnv = requireValue(values, '--database-password-env');
   const openAiTokenEnv = requireValue(values, '--openai-token-env');
-  const selectionFile = requireValue(values, '--selection-file');
+  const candidatePlanFile = requireValue(values, '--candidate-plan-file');
+  const groupCount = [...conditional].filter((argument) =>
+    values.has(argument),
+  ).length;
+  const dryRun = flags.has('--dry-run');
+  if (
+    (groupCount !== 0 && groupCount !== conditional.size) ||
+    (!dryRun && groupCount === 0) ||
+    (!dryRun && force)
+  ) {
+    throw invalid();
+  }
+  const artifactReceiptFile = values.get('--artifact-receipt-file') ?? null;
+  const selectionFile = values.get('--selection-file') ?? null;
+  const selectionMaterializationFile =
+    values.get('--selection-materialization-file') ?? null;
+  const preliveAuthorizationFile =
+    values.get('--prelive-authorization-file') ?? null;
   const specificationDirectory = requireValue(
     values,
     '--specification-directory',
@@ -113,11 +149,17 @@ export function parseRepositoryInterviewOperatorArgumentsV1(
   const operatorPolicyFile = requireValue(values, '--operator-policy-file');
   const receiptPath = requireValue(values, '--receipt-path');
   const paths = [
-    selectionFile,
+    candidatePlanFile,
     specificationDirectory,
     modelProfileFile,
     operatorPolicyFile,
     receiptPath,
+    ...[
+      artifactReceiptFile,
+      selectionFile,
+      selectionMaterializationFile,
+      preliveAuthorizationFile,
+    ].filter((path): path is string => path !== null),
   ];
   if (
     !Number.isSafeInteger(databasePort) ||
@@ -136,7 +178,11 @@ export function parseRepositoryInterviewOperatorArgumentsV1(
     throw invalid();
   return Object.freeze({
     acknowledgement,
+    candidatePlanFile,
+    artifactReceiptFile,
     selectionFile,
+    selectionMaterializationFile,
+    preliveAuthorizationFile,
     specificationDirectory,
     modelProfileFile,
     operatorPolicyFile,
@@ -148,7 +194,7 @@ export function parseRepositoryInterviewOperatorArgumentsV1(
     databasePasswordEnv,
     openAiTokenEnv,
     receiptPath,
-    dryRun: flags.has('--dry-run'),
+    dryRun,
     executionMode: force ? 'forced' : 'normal',
     forceReason:
       forceReason as RepositoryInterviewOperatorCliConfigurationV1['forceReason'],

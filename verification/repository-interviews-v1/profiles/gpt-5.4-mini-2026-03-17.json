@@ -1,0 +1,19 @@
+{
+  "background": false,
+  "conversationState": false,
+  "endpointProfile": "responses-v1",
+  "maximumOutputTokens": 8192,
+  "maximumResponseBytes": 2097152,
+  "modelSnapshot": "gpt-5.4-mini-2026-03-17",
+  "previousResponseState": false,
+  "promptCacheRetention": "in-memory",
+  "provider": "openai",
+  "providerProjectionDigest": "5d81e5e32cc4871f0068f691302282a4e5dd6dc656ee4be132c050fbc4228ed7",
+  "providerProjectionVersion": "1.0.0",
+  "reasoningEffort": "low",
+  "retryPolicyVersion": "repository-interview-retry-v1",
+  "serviceTier": "default",
+  "store": false,
+  "toolsEnabled": false,
+  "truncation": "disabled"
+}

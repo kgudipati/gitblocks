@@ -14,6 +14,18 @@ const policyDigest = {
   maxLength: 64,
   pattern: '^[0-9a-f]{64}$',
 } as const;
+const safeId = {
+  type: 'string',
+  minLength: 1,
+  maxLength: 128,
+  pattern: '^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$',
+} as const;
+const candidateId = {
+  type: 'string',
+  minLength: 1,
+  maxLength: 64,
+  pattern: '^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$',
+} as const;
 
 function closed(properties: Readonly<Record<string, unknown>>): Schema {
   return Object.freeze({
@@ -51,6 +63,97 @@ export const repositoryInterviewOperatorSelectionV1Schema = closed({
     }),
   },
   selectionDigest: digest,
+});
+
+export const repositoryInterviewCandidatePlanV1Schema = closed({
+  schemaVersion: { const: '1.0.0' },
+  planId: safeId,
+  catalogVersion: { const: 'public-v1' },
+  catalogDigest: {
+    const: '4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634',
+  },
+  artifactManifestVersion: { const: 'public-artifacts-v1' },
+  artifactManifestDigest: {
+    const: '17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c',
+  },
+  candidateIds: {
+    type: 'array',
+    minItems: 1,
+    maxItems: 150,
+    uniqueItems: true,
+    items: candidateId,
+  },
+  planDigest: digest,
+});
+
+export const repositoryInterviewSelectionMaterializationV1Schema = closed({
+  schemaVersion: { const: '1.0.0' },
+  materializationId: safeId,
+  candidatePlanId: safeId,
+  candidatePlanDigest: digest,
+  artifactCollectionReceiptVersion: {
+    const: 'public-artifact-receipt/1.0.0',
+  },
+  artifactCollectionReceiptDigest: digest,
+  catalogVersion: { const: 'public-v1' },
+  catalogDigest: {
+    const: '4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634',
+  },
+  artifactManifestVersion: { const: 'public-artifacts-v1' },
+  artifactManifestDigest: {
+    const: '17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c',
+  },
+  operatorSelectionId: safeId,
+  operatorSelectionDigest: digest,
+  candidateCount: { type: 'integer', minimum: 1, maximum: 150 },
+  materializationDigest: digest,
+});
+
+export const repositoryInterviewPreliveAuthorizationV1Schema = closed({
+  schemaVersion: { const: '1.0.0' },
+  authorizationId: safeId,
+  scope: { const: 'calibration-six' },
+  status: { const: 'approved' },
+  candidatePlanId: safeId,
+  candidatePlanDigest: digest,
+  artifactCollectionReceiptVersion: {
+    const: 'public-artifact-receipt/1.0.0',
+  },
+  artifactCollectionReceiptDigest: digest,
+  selectionMaterializationDigest: digest,
+  selectionId: safeId,
+  selectionDigest: digest,
+  allowedModelProfileDigests: {
+    type: 'array',
+    minItems: 2,
+    maxItems: 2,
+    uniqueItems: true,
+    items: digest,
+  },
+  specificationDigest: digest,
+  catalogDigest: digest,
+  artifactManifestDigest: digest,
+  operatorPolicyDigest: digest,
+  pricingAuthorityDigest: digest,
+  retentionAuthorityDigest: digest,
+  databaseScope: { const: 'ephemeral-non-production' },
+  maximumProviderCalls: { const: 12 },
+  maximumCostMicroUsd: {
+    type: 'integer',
+    minimum: 0,
+    maximum: 10_000_000,
+  },
+  authorizedAt: {
+    type: 'string',
+    pattern:
+      '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$',
+  },
+  expiresAt: {
+    type: 'string',
+    pattern:
+      '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$',
+  },
+  authorizationDigest: digest,
 });
 
 export const repositoryInterviewOperatorPolicyV1Schema = closed({
@@ -283,10 +386,16 @@ export const repositoryInterviewOperatorReceiptV1Schema = closed({
 });
 
 export const REPOSITORY_INTERVIEW_OPERATOR_SCHEMA_SNAPSHOTS = Object.freeze({
+  'repository-interview-candidate-plan-v1.schema.json':
+    repositoryInterviewCandidatePlanV1Schema,
   'repository-interview-operator-selection-v1.schema.json':
     repositoryInterviewOperatorSelectionV1Schema,
   'repository-interview-operator-policy-v1.schema.json':
     repositoryInterviewOperatorPolicyV1Schema,
   'repository-interview-operator-receipt-v1.schema.json':
     repositoryInterviewOperatorReceiptV1Schema,
+  'repository-interview-prelive-authorization-v1.schema.json':
+    repositoryInterviewPreliveAuthorizationV1Schema,
+  'repository-interview-selection-materialization-v1.schema.json':
+    repositoryInterviewSelectionMaterializationV1Schema,
 });

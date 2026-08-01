@@ -12,8 +12,10 @@ import {
 import { runRepositoryInterviewOperatorCliV1 } from '../src/cli.ts';
 import {
   createRepositoryInterviewOperatorPolicyV1,
-  createRepositoryInterviewOperatorSelectionV1,
+  createRepositoryInterviewCandidatePlanV1,
   parseRepositoryInterviewOperatorArgumentsV1,
+  REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
+  REPOSITORY_INTERVIEW_CATALOG_DIGEST,
 } from '../src/index.ts';
 import {
   createExplicitGlobalFetchPortV1,
@@ -62,6 +64,13 @@ describe('operator process boundary', () => {
       parseRepositoryInterviewOperatorArgumentsV1([...valid, 'positional']),
     ).toThrow('configuration is invalid');
     expect(() =>
+      parseRepositoryInterviewOperatorArgumentsV1([
+        ...valid,
+        '--selection-file',
+        '/tmp/selection.json',
+      ]),
+    ).toThrow('configuration is invalid');
+    expect(() =>
       parseRepositoryInterviewOperatorArgumentsV1(
         replaceArgument(valid, '--openai-token-env', 'unsafe-name'),
       ),
@@ -85,28 +94,21 @@ describe('operator process boundary', () => {
 
   it('performs a deterministic dry run without secret, database, provider, clock, telemetry, or receipt effects', async () => {
     const profile = modelProfile();
-    const selection = createRepositoryInterviewOperatorSelectionV1({
+    const candidatePlan = createRepositoryInterviewCandidatePlanV1({
       schemaVersion: '1.0.0',
-      selectionId: 'dry-run-selection',
+      planId: 'dry-run-candidate-plan',
       catalogVersion: 'public-v1',
-      catalogDigest: DIGEST,
+      catalogDigest: REPOSITORY_INTERVIEW_CATALOG_DIGEST,
       artifactManifestVersion: 'public-artifacts-v1',
-      artifactManifestDigest: DIGEST,
-      members: [
-        {
-          ordinal: 0,
-          candidateId: 'dry-run-candidate',
-          artifactSetId: `artifact-set-${'b'.repeat(48)}`,
-          artifactSetIdentityDigest: DIGEST,
-        },
-      ],
+      artifactManifestDigest: REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
+      candidateIds: ['dry-run-candidate'],
     });
     const policy = createRepositoryInterviewOperatorPolicyV1(
       policyDraft(profile),
       profile,
     );
     const files = new Map([
-      ['/tmp/selection.json', JSON.stringify(selection)],
+      ['/tmp/candidate-plan.json', JSON.stringify(candidatePlan)],
       ['/tmp/profile.json', JSON.stringify(profile)],
       ['/tmp/policy.json', JSON.stringify(policy)],
     ]);
@@ -138,6 +140,9 @@ describe('operator process boundary', () => {
     expect(output).toHaveLength(1);
     expect(JSON.parse(output[0]!)).toMatchObject({
       status: 'dry-run-valid',
+      materializationChecked: false,
+      liveAuthorizationChecked: false,
+      liveReady: false,
       databaseChecked: false,
       providerChecked: false,
       candidateCount: 1,
@@ -310,8 +315,8 @@ function argumentsFor(): string[] {
   return [
     '--acknowledge-ephemeral-non-production',
     'synthetic-db',
-    '--selection-file',
-    '/tmp/selection.json',
+    '--candidate-plan-file',
+    '/tmp/candidate-plan.json',
     '--specification-directory',
     resolve('interviews/repository/specifications/1.0.0'),
     '--model-profile-file',

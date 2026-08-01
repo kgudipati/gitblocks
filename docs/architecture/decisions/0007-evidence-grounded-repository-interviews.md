@@ -107,6 +107,22 @@ the stop, and prevents already-aborted attempt or fetch startup. The policy
 schema mirrors field-level runtime authority; cross-field and real-date rules
 remain runtime validation concerns.
 
+Maintainer review accepted those corrections and Milestone 9 in full,
+including active candidate/run deadlines, candidate-scoped persistence,
+provider, sleeper, and attempt authority, already-aborted startup denial,
+truthful provider-call accounting, and immediate zero-call reuse. Hosted CI
+run 83 is accepted.
+
+The first Milestone 10 pass then correctly stopped because the committed
+artifact manifest is declaration authority rather than a materialized-set
+inventory. Phase 6 committed neither its raw receipt nor its ephemeral
+database, and its completion document contains only aggregate evidence. A
+historical set ID or identity digest therefore cannot be reconstructed and
+must not be invented. The accepted amendment makes committed candidate plans
+the offline membership authority and reserves selection materialization for a
+fresh full-catalog receipt joined to receipt-named sets in the exact same
+future ephemeral database.
+
 ## Decision
 
 ### Candidate-owned, request-independent intelligence
@@ -613,6 +629,44 @@ input/configuration reuse are supported. Future ranking cannot infer review
 acceptance from production history alone; a later ranking selection policy is
 required.
 
+### Offline pre-live and future materialization authority
+
+Milestone 10 commits three content-free candidate plans: the exact six-member
+calibration set, the exact 30-member evaluation cohort, and the complete
+150-member public catalog. Plans bind the frozen catalog and artifact-manifest
+authorities but contain no artifact-set, repository, commit, artifact, path,
+URL, lifecycle, rationale, review, or materialization identity. The complete
+plan is deterministically derived from the committed catalog during ordinary
+read-only verification.
+
+The two exact dated model profiles remain calibration candidates, not a model
+selection or Gate A approval. A closed readiness policy keeps live readiness
+false until fresh materialization, retention, pricing, model calibration,
+maintainer authorization, ephemeral database, provider credential, and audit
+assignment gates are satisfied. A content-free report and manifest bind the
+offline authorities and reproduce byte-for-byte without rewriting them.
+
+Raw `public-artifact-receipt/1.0.0` semantics remain owned once by ingestion.
+A non-production pre-live tool may depend on public ingestion, persistence,
+operator, interview, contract, and evaluation surfaces. The operator app must
+not depend on ingestion. Future materialization loads each set only by the
+exact fresh receipt's `artifactSetId` from the same explicitly configured
+database, parses and closes that loaded set, uses its recomputed
+`identityDigest`, constructs the selection through the operator constructor,
+and emits only an untracked selection plus content-free binding. Declaration
+data, candidate-only lookup, historical state, or a database “latest” set can
+never supply this authority.
+
+The materializer and non-dry operator verify PostgreSQL 18.4 and the exact
+accepted 0001–0004 inventory but never apply migrations. All file and
+cross-authority validation precedes database-password access; all database
+closure precedes provider-token access or provider construction. A plan-only
+dry-run may omit the materialization group and performs zero secret, database,
+provider, clock, nonce, sleeper, timer, telemetry, or write effect. A real
+pre-live authorization is never committed and can authorize only the exact
+six-candidate calibration scope with both profile digests, at most 12 provider
+calls, and at most USD 10 expressed as 10,000,000 micro-USD.
+
 ### Evaluation and human review
 
 `repository-interviews-v1` is a new fixed-candidate evaluation authority and
@@ -871,8 +925,12 @@ second maintained schema.
 
 ## Deferred work
 
-- Renewed Milestone 9 maintainer acceptance and Milestone 10 pre-live
-  verification.
+- Maintainer acceptance of Milestone 10's offline pre-live authority and
+  synthetic/PostgreSQL evidence.
+- Fresh full-catalog artifact collection and receipt in the exact future
+  ephemeral database, followed by untracked selection materialization.
+- Substantive retention and current pricing authority plus a separately
+  approved, expiring calibration authorization.
 - Final Gate A model-profile selection.
 - Provider portability or another provider.
 - Production review/selection contracts.
@@ -882,13 +940,11 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1–8 passed maintainer review. Milestone 9 implements only the
-explicit offline composition root, app-owned persistence translation,
-operational policy/bounds, immediate reuse proof, content-free telemetry, and
-immutable local receipt authority. Its active deadline, reuse-evidence, and
-schema-authority correction now requires renewed maintainer review
-while the PR remains draft; Milestone 10 is not authorized by this
-implementation.
+Milestones 1–9 passed maintainer review. Milestone 10 implements only the
+content-free offline pre-live authorities, future receipt-and-database
+materializer, and synthetic/ephemeral-PostgreSQL verification. The committed
+readiness state is `offline-verified-live-blocked`; neither dated profile is
+selected, and Milestone 11 is not authorized by this implementation.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and
 explicit authorization recorded in Plan 0017. Passing an earlier gate never

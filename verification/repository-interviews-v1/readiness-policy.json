@@ -1,0 +1,47 @@
+{
+  "calibrationStatus": "blocked",
+  "gateAStatus": "blocked",
+  "gateBStatus": "blocked",
+  "gates": [
+    {
+      "gate": "offline-verification",
+      "status": "satisfied"
+    },
+    {
+      "gate": "fresh-artifact-materialization",
+      "status": "unsatisfied"
+    },
+    {
+      "gate": "retention-authority",
+      "status": "unsatisfied"
+    },
+    {
+      "gate": "pricing-authority",
+      "status": "unsatisfied"
+    },
+    {
+      "gate": "model-calibration",
+      "status": "unsatisfied"
+    },
+    {
+      "gate": "maintainer-live-authorization",
+      "status": "unsatisfied"
+    },
+    {
+      "gate": "ephemeral-database",
+      "status": "unsatisfied"
+    },
+    {
+      "gate": "provider-credential",
+      "status": "unsatisfied"
+    },
+    {
+      "gate": "audit-assignment-readiness",
+      "status": "unsatisfied"
+    }
+  ],
+  "liveReady": false,
+  "policyDigest": "19e3bfbd3bca28cd0b69154d801fb7744631a2cba327b62f5e0c7ce2cb2d49ab",
+  "policyId": "repository-interviews-prelive-readiness-v1",
+  "schemaVersion": "1.0.0"
+}

@@ -1,4 +1,30 @@
 export {
+  runRepositoryInterviewOperatorCliV1,
+  type RepositoryInterviewOperatorCliBoundaryV1,
+} from './cli.ts';
+export {
+  REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
+  REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_VERSION,
+  REPOSITORY_INTERVIEW_CATALOG_DIGEST,
+  REPOSITORY_INTERVIEW_CATALOG_VERSION,
+  createRepositoryInterviewCandidatePlanV1,
+  parseRepositoryInterviewCandidatePlanV1,
+  repositoryInterviewCandidatePlanDigestV1,
+  type RepositoryInterviewCandidatePlanV1,
+} from './candidate-plan.ts';
+export {
+  createRepositoryInterviewSelectionMaterializationV1,
+  parseRepositoryInterviewSelectionMaterializationV1,
+  repositoryInterviewSelectionMaterializationDigestV1,
+  type RepositoryInterviewSelectionMaterializationV1,
+} from './selection-materialization.ts';
+export {
+  createRepositoryInterviewPreliveAuthorizationV1,
+  parseRepositoryInterviewPreliveAuthorizationV1,
+  repositoryInterviewPreliveAuthorizationDigestV1,
+  type RepositoryInterviewPreliveAuthorizationV1,
+} from './prelive-authorization.ts';
+export {
   calculateRepositoryInterviewUsageCostMicroUsdV1,
   calculateRepositoryInterviewWorstCaseV1,
   createRepositoryInterviewOperatorPolicyV1,
@@ -22,6 +48,7 @@ export type {
 } from './operator-issues.ts';
 export {
   runRepositoryInterviewOperatorV1,
+  validateRepositoryInterviewCandidatePlanPreflightV1,
   validateRepositoryInterviewOperatorPreflightV1,
   type RepositoryInterviewOperatorCandidateControlFactoryV1,
   type RepositoryInterviewOperatorCandidateControlV1,
@@ -36,6 +63,7 @@ export {
 } from './operator.ts';
 export {
   createRepositoryInterviewPersistenceAdapterV1,
+  validateRepositoryInterviewOperatorSelectionPersistenceV1,
   RepositoryInterviewOperatorPersistenceError,
   type RepositoryInterviewOperatorArtifactContextV1,
   type RepositoryInterviewOperatorCandidatePersistencePortV1,
@@ -62,3 +90,4 @@ export {
   type RepositoryInterviewOperatorEventV1,
   type RepositoryInterviewOperatorObserverV1,
 } from './telemetry.ts';
+export { REPOSITORY_INTERVIEW_OPERATOR_SCHEMA_SNAPSHOTS } from './schema-snapshots.ts';

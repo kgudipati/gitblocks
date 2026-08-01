@@ -22,7 +22,10 @@ import {
 } from '@gitblocks/persistence';
 
 import type { RepositoryInterviewOperatorSelectionMemberV1 } from './operator-selection.ts';
-import type { RepositoryInterviewOperatorSelectionV1 } from './operator-selection.ts';
+import {
+  parseRepositoryInterviewOperatorSelectionV1,
+  type RepositoryInterviewOperatorSelectionV1,
+} from './operator-selection.ts';
 import { ownAndFreezeOperatorData } from './plain-data.ts';
 
 export class RepositoryInterviewOperatorPersistenceError extends Error {
@@ -184,6 +187,46 @@ export function createRepositoryInterviewPersistenceAdapterV1(
       });
     },
   });
+}
+
+export async function validateRepositoryInterviewOperatorSelectionPersistenceV1(
+  client: PersistenceClient,
+  selection: RepositoryInterviewOperatorSelectionV1,
+  control?: OperationControl,
+): Promise<void> {
+  const parsedSelection =
+    parseRepositoryInterviewOperatorSelectionV1(selection);
+  if (!parsedSelection.ok) {
+    throw new RepositoryInterviewOperatorPersistenceError();
+  }
+  try {
+    for (const member of parsedSelection.value.members) {
+      const loaded = await loadRepositoryArtifactSet(
+        client,
+        { artifactSetId: member.artifactSetId },
+        control,
+      );
+      const parsed = parseRepositoryArtifactSetV1(loaded);
+      if (
+        !parsed.ok ||
+        parsed.value.artifactSetId !== member.artifactSetId ||
+        parsed.value.candidateId !== member.candidateId ||
+        parsed.value.identityDigest !== member.artifactSetIdentityDigest ||
+        parsed.value.catalogVersion !== parsedSelection.value.catalogVersion ||
+        parsed.value.catalogDigest !== parsedSelection.value.catalogDigest ||
+        parsed.value.artifactManifestVersion !==
+          parsedSelection.value.artifactManifestVersion ||
+        parsed.value.artifactManifestDigest !==
+          parsedSelection.value.artifactManifestDigest
+      )
+        throw new RepositoryInterviewOperatorPersistenceError();
+    }
+  } catch (error) {
+    if (error instanceof RepositoryInterviewOperatorPersistenceError) {
+      throw error;
+    }
+    throw new RepositoryInterviewOperatorPersistenceError();
+  }
 }
 
 function rejectAborted(signal: AbortSignal): void {

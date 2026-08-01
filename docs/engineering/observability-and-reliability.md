@@ -201,6 +201,17 @@ reuse guard increments its local call counter before throwing so a failed proof
 cannot be reported as zero-call. Abort reasons and raw effect failures remain
 excluded.
 
+Pre-live plan/profile/manifest/report validation and plan-only dry-run emit no
+telemetry at all. Their sole summaries are canonical, compact, and
+content-free. The future materialization binding carries only plan, receipt,
+selection, catalog, artifact-manifest, count, and digest authority; it excludes
+member identities, database values, repository/source values, provider values,
+pricing and retention evidence, and free-form notes. Fixed value-free failures
+are scanned with distinct artifact, prompt, provider, credential, database,
+SQL, repository, URL, commit, artifact-ID, pricing/retention, and reviewer
+sentinels. A syntactically valid authorization is never treated as telemetry
+evidence that retention or pricing received substantive approval.
+
 ## Worker and job observability
 
 Each job type defines a versioned payload, owner, idempotency key, maximum

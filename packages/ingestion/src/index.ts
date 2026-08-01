@@ -36,7 +36,10 @@ export {
 } from './artifact-provider.ts';
 export {
   createArtifactReceipt,
+  parseCompleteArtifactReceiptTextV1,
+  parseCompleteArtifactReceiptV1,
   parseArtifactReceipt,
+  type CompleteArtifactReceiptAuthorityV1,
 } from './artifact-receipt.ts';
 export {
   artifactManifestDigest,

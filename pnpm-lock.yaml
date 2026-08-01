@@ -139,6 +139,31 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(yaml@2.9.0)
 
+  tools/repository-interview-prelive:
+    dependencies:
+      '@gitblocks/contracts':
+        specifier: workspace:0.0.0
+        version: link:../../packages/contracts
+      '@gitblocks/evaluation-harness':
+        specifier: workspace:0.0.0
+        version: link:../evaluation-harness
+      '@gitblocks/ingestion':
+        specifier: workspace:0.0.0
+        version: link:../../packages/ingestion
+      '@gitblocks/interviews':
+        specifier: workspace:0.0.0
+        version: link:../../packages/interviews
+      '@gitblocks/persistence':
+        specifier: workspace:0.0.0
+        version: link:../../packages/persistence
+      '@gitblocks/repository-interview-operator':
+        specifier: workspace:0.0.0
+        version: link:../../apps/repository-interview-operator
+    devDependencies:
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(yaml@2.9.0)
+
 packages:
 
   '@azu/format-text@1.0.2':

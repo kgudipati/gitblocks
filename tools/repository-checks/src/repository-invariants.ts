@@ -28,6 +28,7 @@ const APPROVED_PACKAGE_MANIFESTS = new Set([
   'packages/interviews/package.json',
   'packages/persistence/package.json',
   'tools/evaluation-harness/package.json',
+  'tools/repository-interview-prelive/package.json',
   'tools/repository-checks/package.json',
 ]);
 interface ProductPackagePolicy {
@@ -134,6 +135,17 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
     new Map([
       ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
       ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+    ]),
+  ],
+  [
+    'tools/repository-interview-prelive/package.json',
+    new Map([
+      ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/evaluation-harness', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/ingestion', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/interviews', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/repository-interview-operator', EXACT_WORKSPACE_VERSION],
     ]),
   ],
 ] as const);
@@ -518,6 +530,10 @@ function validateRuntimeScripts(
     'interviews:test',
     'interviews:validate',
     'interviews:verify',
+    'interviews:prelive:materialize',
+    'interviews:prelive:test',
+    'interviews:prelive:validate',
+    'interviews:prelive:verify',
     'operator:interviews',
     'operator:interviews:schema:validate',
     'operator:interviews:test',
@@ -547,7 +563,7 @@ function validateRuntimeScripts(
     'build:product':
       'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/repository-interview-operator... build',
     'build:tools':
-      'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
+      'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
     'catalog:validate':
@@ -564,8 +580,16 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts validate',
     'interviews:verify':
       'pnpm runtime:check && pnpm interviews:validate && pnpm interviews:test && pnpm --filter @gitblocks/interviews typecheck && pnpm architecture:check',
+    'interviews:prelive:materialize':
+      'pnpm runtime:check && pnpm build:product && pnpm --filter @gitblocks/repository-interview-prelive build && node tools/repository-interview-prelive/src/materialize-cli.ts',
+    'interviews:prelive:test':
+      'pnpm runtime:check && pnpm build:product && pnpm build:tools && vitest run tools/repository-interview-prelive/test apps/repository-interview-operator/test/prelive-authorities.test.ts apps/repository-interview-operator/test/process-boundary.test.ts --config vitest.config.ts',
+    'interviews:prelive:validate':
+      'pnpm runtime:check && pnpm build:product && pnpm build:tools && node tools/repository-interview-prelive/src/prelive-cli.ts validate',
+    'interviews:prelive:verify':
+      'pnpm runtime:check && pnpm interviews:prelive:validate && pnpm interviews:prelive:test && pnpm operator:interviews:verify && pnpm interviews:verify && pnpm eval:interviews:verify',
     'operator:interviews':
-      'pnpm runtime:check && pnpm build:product && node apps/repository-interview-operator/scripts/operator-cli.ts',
+      'pnpm runtime:check && pnpm build:product && pnpm --filter @gitblocks/repository-interview-prelive build && node tools/repository-interview-prelive/src/operator-cli.ts',
     'operator:interviews:schema:validate':
       'pnpm runtime:check && pnpm build:product && node apps/repository-interview-operator/scripts/schema-cli.ts validate',
     'operator:interviews:test':
@@ -592,7 +616,7 @@ function validateRuntimeScripts(
     'lint:internal': 'eslint . --max-warnings 0',
     typecheck: 'pnpm build:product && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
   } as const;
   for (const [scriptName, expected] of Object.entries(
     requiredWorkspaceScripts,
@@ -937,6 +961,7 @@ function isProhibitedArtifact(trackedPath: string): boolean {
     (trackedPath.startsWith('tools/') &&
       trackedPath !== 'tools/runtime-preflight.mjs' &&
       !trackedPath.startsWith('tools/evaluation-harness/') &&
+      !trackedPath.startsWith('tools/repository-interview-prelive/') &&
       !trackedPath.startsWith('tools/repository-checks/'))
   );
 }

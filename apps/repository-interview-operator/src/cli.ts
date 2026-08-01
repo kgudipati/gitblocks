@@ -1,7 +1,9 @@
 import {
   closePersistenceClient,
   createPersistenceClient,
+  verifyMigrations,
   type PersistenceClient,
+  type MigrationVerification,
 } from '@gitblocks/persistence';
 import {
   createOpenAiResponsesRepositoryInterviewProviderV1,
@@ -11,9 +13,12 @@ import {
 
 import {
   runRepositoryInterviewOperatorV1,
-  validateRepositoryInterviewOperatorPreflightV1,
+  validateRepositoryInterviewCandidatePlanPreflightV1,
 } from './operator.ts';
-import { createRepositoryInterviewPersistenceAdapterV1 } from './persistence-adapter.ts';
+import {
+  createRepositoryInterviewPersistenceAdapterV1,
+  validateRepositoryInterviewOperatorSelectionPersistenceV1,
+} from './persistence-adapter.ts';
 import {
   parseRepositoryInterviewOperatorArgumentsV1,
   RepositoryInterviewOperatorConfigurationError,
@@ -31,6 +36,7 @@ import {
   writeRepositoryInterviewOperatorReceiptFileV1,
 } from './process-ports.ts';
 import { serializeRepositoryInterviewOperatorReceiptV1 } from './receipt.ts';
+import type { RepositoryInterviewOperatorSelectionV1 } from './operator-selection.ts';
 import type { RepositoryInterviewOperatorEventV1 } from './telemetry.ts';
 
 const MAX_CONFIGURATION_BYTES = 8 * 1024 * 1024;
@@ -44,6 +50,22 @@ export interface RepositoryInterviewOperatorCliBoundaryV1 {
   writeReceipt?(path: string, content: string): Promise<void>;
   createPersistenceClient?: typeof createPersistenceClient;
   closePersistenceClient?: typeof closePersistenceClient;
+  validateCandidatePlan?(candidatePlan: unknown): Promise<unknown>;
+  parseCompleteArtifactReceipt?(text: string): unknown;
+  validatePreliveClosure?(input: {
+    readonly candidatePlan: unknown;
+    readonly artifactReceipt: unknown;
+    readonly selection: unknown;
+    readonly materialization: unknown;
+    readonly authorization: unknown;
+    readonly modelProfile: unknown;
+    readonly operatorPolicy: unknown;
+    readonly specificationDigest: string;
+    readonly now?: string;
+  }):
+    | { readonly selection: RepositoryInterviewOperatorSelectionV1 }
+    | Promise<{ readonly selection: RepositoryInterviewOperatorSelectionV1 }>;
+  authorizationNow?(): string;
 }
 
 export async function runRepositoryInterviewOperatorCliV1(
@@ -62,10 +84,10 @@ export async function runRepositoryInterviewOperatorCliV1(
     return 2;
   }
   try {
-    const [selectionText, modelProfileText, policyText, specification] =
+    const [candidatePlanText, modelProfileText, policyText, specification] =
       await Promise.all([
         boundary.readTextFile(
-          configuration.selectionFile,
+          configuration.candidatePlanFile,
           MAX_CONFIGURATION_BYTES,
         ),
         boundary.readTextFile(
@@ -80,11 +102,15 @@ export async function runRepositoryInterviewOperatorCliV1(
           configuration.specificationDirectory,
         ),
       ]);
-    const selection = parseJson(selectionText);
+    const parsedCandidatePlan = parseJson(candidatePlanText);
+    const candidatePlan =
+      boundary.validateCandidatePlan === undefined
+        ? parsedCandidatePlan
+        : await boundary.validateCandidatePlan(parsedCandidatePlan);
     const modelProfile = parseJson(modelProfileText);
     const policy = parseJson(policyText);
-    const preflight = validateRepositoryInterviewOperatorPreflightV1(
-      selection,
+    const preflight = validateRepositoryInterviewCandidatePlanPreflightV1(
+      candidatePlan,
       policy,
       modelProfile,
     );
@@ -97,24 +123,92 @@ export async function runRepositoryInterviewOperatorCliV1(
     )
       throw new RepositoryInterviewOperatorConfigurationError();
 
+    let closure: {
+      readonly selection: RepositoryInterviewOperatorSelectionV1;
+    } | null = null;
+    if (
+      configuration.artifactReceiptFile !== null &&
+      configuration.selectionFile !== null &&
+      configuration.selectionMaterializationFile !== null &&
+      configuration.preliveAuthorizationFile !== null
+    ) {
+      if (
+        boundary.parseCompleteArtifactReceipt === undefined ||
+        boundary.validatePreliveClosure === undefined
+      )
+        throw new RepositoryInterviewOperatorConfigurationError();
+      const [
+        artifactReceiptText,
+        selectionText,
+        materializationText,
+        authorizationText,
+      ] = await Promise.all([
+        boundary.readTextFile(
+          configuration.artifactReceiptFile,
+          MAX_CONFIGURATION_BYTES,
+        ),
+        boundary.readTextFile(
+          configuration.selectionFile,
+          MAX_CONFIGURATION_BYTES,
+        ),
+        boundary.readTextFile(
+          configuration.selectionMaterializationFile,
+          MAX_CONFIGURATION_BYTES,
+        ),
+        boundary.readTextFile(
+          configuration.preliveAuthorizationFile,
+          MAX_CONFIGURATION_BYTES,
+        ),
+      ]);
+      const artifactReceipt =
+        await boundary.parseCompleteArtifactReceipt(artifactReceiptText);
+      const closureInput = {
+        candidatePlan,
+        artifactReceipt,
+        selection: parseJson(selectionText),
+        materialization: parseJson(materializationText),
+        authorization: parseJson(authorizationText),
+        modelProfile,
+        operatorPolicy: policy,
+        specificationDigest: specification.manifest.specificationDigest,
+      };
+      closure = await boundary.validatePreliveClosure(closureInput);
+      if (!configuration.dryRun) {
+        if (boundary.authorizationNow === undefined) {
+          throw new RepositoryInterviewOperatorConfigurationError();
+        }
+        closure = await boundary.validatePreliveClosure({
+          ...closureInput,
+          now: boundary.authorizationNow(),
+        });
+      }
+    }
+
     if (configuration.dryRun) {
       boundary.writeStdout(
         serializeCanonicalJson({
           status: 'dry-run-valid',
-          selectionId: preflight.selection.selectionId,
-          selectionDigest: preflight.selection.selectionDigest,
-          candidateCount: preflight.selection.members.length,
+          candidatePlanId: preflight.candidatePlan.planId,
+          candidatePlanDigest: preflight.candidatePlan.planDigest,
+          candidateCount: preflight.candidatePlan.candidateIds.length,
           modelSnapshot: preflight.modelProfile.modelSnapshot,
           modelProfileDigest: preflight.modelProfileDigest,
           specificationVersion: specification.manifest.specificationVersion,
           specificationDigest: specification.manifest.specificationDigest,
           operatorPolicyDigest: preflight.policy.policyDigest,
           worstCase: preflight.worstCase,
+          materializationChecked: closure !== null,
+          liveAuthorizationChecked: closure !== null,
+          liveReady: false,
           databaseChecked: false,
           providerChecked: false,
         }),
       );
       return 0;
+    }
+
+    if (closure === null) {
+      throw new RepositoryInterviewOperatorConfigurationError();
     }
 
     const databasePassword = boundary.readEnvironment(
@@ -143,6 +237,18 @@ export async function runRepositoryInterviewOperatorCliV1(
           preflight.policy.statementTimeoutMilliseconds,
         lockTimeoutMilliseconds: preflight.policy.lockTimeoutMilliseconds,
       });
+      const databaseControl = Object.freeze({
+        statementTimeoutMilliseconds:
+          preflight.policy.statementTimeoutMilliseconds,
+        lockTimeoutMilliseconds: preflight.policy.lockTimeoutMilliseconds,
+      });
+      const migration = await verifyMigrations(client, databaseControl);
+      validatePreliveMigrationAuthority(migration);
+      await validateRepositoryInterviewOperatorSelectionPersistenceV1(
+        client,
+        closure.selection,
+        databaseControl,
+      );
       const runController = new AbortController();
       const runDeadline = createProcessRunDeadlineControlV1(
         runController,
@@ -177,7 +283,7 @@ export async function runRepositoryInterviewOperatorCliV1(
       try {
         const result = await runRepositoryInterviewOperatorV1(
           {
-            selection: preflight.selection,
+            selection: closure.selection,
             specification,
             modelProfile: preflight.modelProfile,
             policy: preflight.policy,
@@ -239,4 +345,47 @@ function parseJson(text: string): unknown {
   } catch {
     throw new RepositoryInterviewOperatorConfigurationError();
   }
+}
+
+function validatePreliveMigrationAuthority(
+  migration: MigrationVerification,
+): void {
+  const expected = [
+    [
+      1,
+      'evidence-persistence',
+      '569d7a6d6db70b1b04cadfa8798516ce4239b1179bb2f7cdd84b27641e33755f',
+    ],
+    [
+      2,
+      'runtime-migration-verification',
+      'b61cf8ad8673663c646b77e8f0ebed452898aab795aa64f52217e1271e1dc2ae',
+    ],
+    [
+      3,
+      'immutable-repository-artifacts',
+      '0ea1e4698e8eec6d33320df7af4758ae6b3b4fcbe3da387bb042d074b86228dc',
+    ],
+    [
+      4,
+      'repository-interviews',
+      '2cd18e7d92373215b2a540cdf12e32a7e949bfb01866616e8a44ad326e45bca0',
+    ],
+  ] as const;
+  const expectedByVersion = new Map<number, (typeof expected)[number]>(
+    expected.map((record) => [record[0], record] as const),
+  );
+  if (
+    !/^18\.4(?:\.|\s|$)/u.test(migration.postgresqlVersion) ||
+    migration.migrations.length !== expected.length ||
+    migration.migrations.some((record, index) => {
+      const authority = expectedByVersion.get(record.version);
+      return (
+        record.version !== index + 1 ||
+        record.name !== authority?.[1] ||
+        record.checksum !== authority[2]
+      );
+    })
+  )
+    throw new RepositoryInterviewOperatorConfigurationError();
 }

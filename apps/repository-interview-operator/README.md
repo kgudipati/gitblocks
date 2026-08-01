@@ -26,8 +26,9 @@ transport under an already-aborted signal. A durable result completed before
 the boundary changed is retained exactly, while a deadline before durable
 publication produces only a content-free operator result.
 
-Selection, policy, and receipt are operator-local `1.0.0` authorities. Their
-closed JSON Schema snapshots live in `schemas/` and are reproduced from
+Selection, policy, receipt, candidate plan, selection materialization, and
+pre-live authorization are operator-local `1.0.0` authorities. Their closed
+JSON Schema snapshots live in `schemas/` and are reproduced from
 `src/schema-snapshots.ts`. `pnpm operator:interviews:schema:validate` is
 read-only and rejects drift. Parsers copy only bounded plain data, reject
 exotic/accessor/sparse/cyclic input without invoking getters, and deep-freeze
@@ -40,13 +41,22 @@ and bounded string grammars. Runtime-only cross-field and real-date rules
 remain separately tested. Its current SHA-256 is
 `6147c1a4e47680a6c5e6a760bbc27d4bdfea5e8b1a7dd93e67a080bb6ce7184e`.
 
+Milestone 10 adds these schema digests:
+
+- candidate plan:
+  `f50d4b73c2fc04f0c13b7b1288a215ecc4a740fc2e97433478e3ffcdbe352387`;
+- selection materialization:
+  `1c2ef4968c9de9d8d0c34c74350fc418d2ce1407a2ead62bb58eb33b682d0fe2`;
+- pre-live authorization:
+  `e55b4d7a64fae07fa7f9f93ce4271993170c1ebf61d0246654227c4055cd4c76`.
+
 ## Explicit CLI
 
 `pnpm operator:interviews` has no implicit selection or database. It requires:
 
 ```text
 --acknowledge-ephemeral-non-production <database-name>
---selection-file <absolute-path>
+--candidate-plan-file <absolute-path>
 --specification-directory <absolute-path>
 --model-profile-file <absolute-path>
 --operator-policy-file <absolute-path>
@@ -59,8 +69,13 @@ remain separately tested. Its current SHA-256 is
 --openai-token-env <UPPERCASE_VARIABLE_NAME>
 --receipt-path <absolute-path>
 [--dry-run]
-[--force --force-reason <calibration|review-rejected|operator-recovery>]
 [--verify-immediate-reuse]
+
+Complete materialization group (optional only for dry-run):
+--artifact-receipt-file <absolute-path>
+--selection-file <absolute-path>
+--selection-materialization-file <absolute-path>
+--prelive-authorization-file <absolute-path>
 ```
 
 The acknowledgement must equal the database name byte-for-byte before any
@@ -69,10 +84,24 @@ effect. A database URL and secret argv/config values are not accepted. The
 operator never applies migrations; it verifies PostgreSQL 18.4 and the exact
 four accepted migration checksums before artifact loading or execution.
 
-Dry-run validates the complete explicit configuration, authority digests,
-compatibility, receipt-path syntax, and worst-case budgets. It reads no secret,
-constructs no database/provider, reads no clock/nonce, emits no telemetry,
-writes no receipt, and emits one canonical content-free summary.
+Plan-only dry-run validates the candidate plan, specification, one profile,
+policy, explicit database syntax, receipt-path syntax, and conservative
+plan-count budgets while omitting the complete materialization group. It reads
+no secret, constructs no database/provider, reads no clock/nonce, emits no
+telemetry, writes no receipt, and reports `materializationChecked: false`,
+`liveAuthorizationChecked: false`, and `liveReady: false`. Tests may supply the
+complete synthetic group to a dry-run, which validates closure with the same
+zero-effect boundary.
+
+Every non-dry invocation requires the complete group. The receipt must be the
+exact successful fresh 150-candidate receipt, the selection must be the exact
+materialized selection, the binding must join that plan/receipt/selection, and
+the authorization must approve only the exact six-member calibration scope.
+All file and authorization closure, including expiration, completes before the
+database password is read. Migration and exact selected-set reload closure
+complete before the OpenAI token can be read or the provider constructed.
+Forced mode, Gate A, Gate B, partial groups, and missing or mismatched
+authorities fail before either secret.
 
 The OpenAI token port is lazy and reads its named value only when the accepted
 provider adapter begins an operation. Ordinary and hosted verification use
@@ -100,9 +129,17 @@ guard before the guard fails. A passing proof requires zero calls, attempts,
 tokens, and cost; a missing reusable record therefore fails with the truthful
 observed call count rather than claiming a zero-call proof.
 
-Milestone 9 implements and tests this composition offline only and remains
-pending renewed maintainer review. No credential
-is configured, no provider/model request is authorized, and no non-test
-database or live receipt has been used. Milestone 10 remains blocked. Before
-Milestone 11 calibration, ADR 0007's ZDR or updated-provider-authority gate is
-still mandatory.
+Milestone 9 is accepted in full, including active candidate/run deadlines,
+candidate-scoped effects, already-aborted startup denial, truthful provider
+call accounting, and immediate zero-call reuse. Hosted CI run 83 is accepted.
+
+Milestone 10's first stop is also accepted: the committed artifact manifest is
+declaration authority, not a materialized-set inventory, and no historical
+Phase 6 set ID or digest can be reconstructed or invented. Milestone 10 now
+commits candidate plans only. A future fresh receipt and exact same ephemeral
+database will produce an untracked selection and content-free binding through
+the separate pre-live tool; this app still imports no ingestion package. No
+credential is configured, no provider/model request is authorized, and no
+non-test database, live receipt, materialized selection, or real authorization
+has been used or committed. Readiness remains live-blocked. Retention and
+pricing remain unresolved, and Milestone 11 is blocked.

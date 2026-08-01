@@ -67,9 +67,13 @@ operator-run GitHub/npm/advisory ingestion package, plus exact immutable public
 repository artifacts and lossless line-addressable chunks for all 150
 candidates. Phase 7 now includes repository-interview contracts, application,
 immutable PostgreSQL history, evaluation authority, a bounded direct Responses
-adapter, and an explicit offline operator composition root. The repository
-still has no live provider configuration, selected model, calibration or Gate
-A result, Agent Skill, scanner, MCP server, operational backend, discovery or
+adapter, an explicit offline operator composition root, and a content-free
+Milestone 10 pre-live authority with exact 6/30/150 candidate plans, two
+unselected dated profiles, a live-blocked readiness policy, and synthetic
+materialization proofs. The repository still has no live provider
+configuration, materialized live selection, real pre-live authorization,
+approved retention or pricing authority, selected model, calibration or Gate A
+result, Agent Skill, scanner, MCP server, operational backend, discovery or
 product ranking engine, continuous crawler, deployment, production database,
 or product release. Phase 7 is governed by
 [Plan 0017](docs/plans/0017-evidence-grounded-repository-interviews.md) and
@@ -101,30 +105,32 @@ occurred.
 
 ## Repository map
 
-| Path                                  | Purpose                                                                          |
-| ------------------------------------- | -------------------------------------------------------------------------------- |
-| `README.md`                           | Product orientation and honest project status                                    |
-| `AGENTS.md`                           | Concise durable instructions for coding agents                                   |
-| `PLANS.md`                            | Required structure and lifecycle for substantial execution plans                 |
-| `CONTRIBUTING.md`                     | Issue-to-merge contributor workflow                                              |
-| `SECURITY.md`                         | Private vulnerability-reporting and disclosure policy                            |
-| `docs/product/`                       | Product contract, vocabulary, evaluation scope, and success criteria             |
-| `docs/architecture/`                  | System context and architecture decisions                                        |
-| `docs/engineering/`                   | Repository, development, testing, security, reliability, and completion policies |
-| `docs/evaluation/`                    | Case authoring, deterministic scoring, and future baseline protocols             |
-| `docs/plans/`                         | Active and historical version-controlled execution plans                         |
-| `packages/domain/`                    | Pure product vocabulary, constructors, canonicalization, and invariants          |
-| `packages/contracts/`                 | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
-| `packages/persistence/`               | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
-| `packages/ingestion/`                 | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
-| `packages/interviews/`                | Interview schema, prompt/mapping, application, and provider core                 |
-| `apps/repository-interview-operator/` | Explicit offline composition, policy, receipt, and process ports                 |
-| `catalog/public-v1/`                  | Curator-owned repository source and deterministically digested public manifest   |
-| `evals/pilot-v1/`                     | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
-| `schemas/evaluation/`                 | Versioned JSON Schema 2020-12 evaluation contracts                               |
-| `tools/evaluation-harness/`           | Private bounded validator, deterministic scorer, CLI, and tests                  |
-| `tools/repository-checks/`            | Bounded repository-policy CLI and tests                                          |
-| `.github/`                            | Intake templates, read-only CI, and dependency update policy                     |
+| Path                                     | Purpose                                                                          |
+| ---------------------------------------- | -------------------------------------------------------------------------------- |
+| `README.md`                              | Product orientation and honest project status                                    |
+| `AGENTS.md`                              | Concise durable instructions for coding agents                                   |
+| `PLANS.md`                               | Required structure and lifecycle for substantial execution plans                 |
+| `CONTRIBUTING.md`                        | Issue-to-merge contributor workflow                                              |
+| `SECURITY.md`                            | Private vulnerability-reporting and disclosure policy                            |
+| `docs/product/`                          | Product contract, vocabulary, evaluation scope, and success criteria             |
+| `docs/architecture/`                     | System context and architecture decisions                                        |
+| `docs/engineering/`                      | Repository, development, testing, security, reliability, and completion policies |
+| `docs/evaluation/`                       | Case authoring, deterministic scoring, and future baseline protocols             |
+| `docs/plans/`                            | Active and historical version-controlled execution plans                         |
+| `packages/domain/`                       | Pure product vocabulary, constructors, canonicalization, and invariants          |
+| `packages/contracts/`                    | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
+| `packages/persistence/`                  | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
+| `packages/ingestion/`                    | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
+| `packages/interviews/`                   | Interview schema, prompt/mapping, application, and provider core                 |
+| `apps/repository-interview-operator/`    | Explicit offline composition, policy, receipt, and process ports                 |
+| `tools/repository-interview-prelive/`    | Content-free pre-live validation and future receipt/database materialization     |
+| `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority         |
+| `catalog/public-v1/`                     | Curator-owned repository source and deterministically digested public manifest   |
+| `evals/pilot-v1/`                        | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
+| `schemas/evaluation/`                    | Versioned JSON Schema 2020-12 evaluation contracts                               |
+| `tools/evaluation-harness/`              | Private bounded validator, deterministic scorer, CLI, and tests                  |
+| `tools/repository-checks/`               | Bounded repository-policy CLI and tests                                          |
+| `.github/`                               | Intake templates, read-only CI, and dependency update policy                     |
 
 ## Local development
 
@@ -180,6 +186,9 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                    |
 | `pnpm operator:interviews`            | Require complete explicit acknowledged operator configuration     |
 | `pnpm operator:interviews:verify`     | Verify operator schemas, tests, architecture, and test PostgreSQL |
+| `pnpm interviews:prelive:validate`    | Reproduce committed pre-live authorities read-only                |
+| `pnpm interviews:prelive:verify`      | Run offline, denial, scale, operator, evaluation, and DB proofs   |
+| `pnpm interviews:prelive:materialize` | Future explicit fresh-receipt/same-database materialization       |
 | `pnpm security:secrets`               | Scan tracked development content for secrets                      |
 | `pnpm security:audit`                 | Run the online registry dependency audit                          |
 | `pnpm verify`                         | Run one preflight plus authoritative offline verification         |

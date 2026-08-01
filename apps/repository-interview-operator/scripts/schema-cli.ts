@@ -25,4 +25,4 @@ for (const [name, schema] of Object.entries(
   }
 }
 
-process.stdout.write(`Operator schema ${command} passed (3 schemas).\n`);
+process.stdout.write(`Operator schema ${command} passed (6 schemas).\n`);

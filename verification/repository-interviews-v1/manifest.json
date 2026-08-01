@@ -1,0 +1,56 @@
+{
+  "artifactManifestDigest": "17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c",
+  "artifactManifestVersion": "public-artifacts-v1",
+  "candidatePlanMembers": [
+    {
+      "path": "plans/calibration-six.plan.json",
+      "sha256": "da7fbe1fe2195b6c311d52cb1280cae1366a78006ecdc78581fdf10e36c3e136"
+    },
+    {
+      "path": "plans/gate-a-thirty.plan.json",
+      "sha256": "0111dc1c94d2c74e610ea039ef0fff9d004941592e1aa10329b7fa0c5d6a4766"
+    },
+    {
+      "path": "plans/gate-b-one-hundred-fifty.plan.json",
+      "sha256": "61f69a356957d17a2321d157a3810a75ce79f5ea2a8576fc3d37641d09d3a0cd"
+    }
+  ],
+  "candidatePlanSchemaDigest": "f50d4b73c2fc04f0c13b7b1288a215ecc4a740fc2e97433478e3ffcdbe352387",
+  "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+  "catalogVersion": "public-v1",
+  "evaluationCorpusDigest": "82fefaa6428e2214caee4d88fd9c93b15782bf855cba1d8f69400028dd6a0dbf",
+  "evaluationCorpusId": "repository-interviews-v1",
+  "evaluationCorpusVersion": "1.0.0",
+  "manifestDigest": "c967ed61e4b52b0094910f482d2b826a6d6ecf7e03a1705d63e6f3198130a960",
+  "modelProfileMembers": [
+    {
+      "modelProfileDigest": "a9345d998c12079b3b6beacf60869867ddaf97a8ba449b0b0f42f98e51ff005c",
+      "path": "profiles/gpt-5.4-2026-03-05.json"
+    },
+    {
+      "modelProfileDigest": "7cc772a1641c2068253486a5bf5773ac29c28e78a39f24851283d9d69dc378f3",
+      "path": "profiles/gpt-5.4-mini-2026-03-17.json"
+    }
+  ],
+  "offlineReport": {
+    "path": "offline-verification-report.json",
+    "sha256": "6e0c1ef761235f80cc41ef4e9b0c250da52aa55e83183ca5273498e1ecf87e76"
+  },
+  "operatorPolicySchemaDigest": "6147c1a4e47680a6c5e6a760bbc27d4bdfea5e8b1a7dd93e67a080bb6ce7184e",
+  "operatorReceiptSchemaDigest": "934ba36ee7bf6640b1886507123978e0421dc56bc98c2fe02583f31a402187c5",
+  "operatorSelectionSchemaDigest": "e66956879ecfd3ef878513dcaa9f454d6b4cc7a035b5176c26a7b9f4a204c7a3",
+  "preliveAuthorizationSchemaDigest": "e55b4d7a64fae07fa7f9f93ce4271993170c1ebf61d0246654227c4055cd4c76",
+  "providerOutputSchemaDigest": "5fa5d1c44a8924d8be3acc2ac74e58ec45ea134264c2245b7e158873b2e26b19",
+  "providerProjectionDigest": "5d81e5e32cc4871f0068f691302282a4e5dd6dc656ee4be132c050fbc4228ed7",
+  "readinessPolicy": {
+    "path": "readiness-policy.json",
+    "sha256": "8c611e4c10d5db0fa78473c28387c3475d49d3c2d773c72ee6df9a76fd4f6818"
+  },
+  "schemaVersion": "1.0.0",
+  "selectionMaterializationSchemaDigest": "1c2ef4968c9de9d8d0c34c74350fc418d2ce1407a2ead62bb58eb33b682d0fe2",
+  "specificationDigest": "da2c8560e0b6a2fc7bc8d79fd89f65984815236a54cbf49491911274db8168f9",
+  "specificationVersion": "1.0.0",
+  "status": "offline-verified-live-blocked",
+  "verificationId": "repository-interviews-prelive-v1",
+  "verificationVersion": "1.0.0"
+}

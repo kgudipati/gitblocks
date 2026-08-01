@@ -41,12 +41,15 @@
   - PR #18 review: “Milestone 9 review — composition accepted in substance;
     deadline, reuse-proof, and schema-authority corrections required before
     Milestone 10.”
+  - PR #18 review: “Milestone 9 accepted — Milestone 10 authorized.”
+  - PR #18 review: “Milestone 10 stop accepted — candidate-plan/materialization
+    amendment.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–8 are accepted; Milestone 9's explicit offline operator
-  composition is implemented and awaiting review; Milestones 10–14 remain
-  unauthorized or incomplete
-- Last updated: 2026-07-31
+- State: Milestones 1–9 are accepted. Milestone 10's content-free offline
+  pre-live authority, future receipt-and-database materializer, and synthetic
+  proofs are implemented and awaiting review. Milestone 11 remains blocked.
+- Last updated: 2026-08-01
 
 The latest maintainer comment amends broader or conflicting language in the
 issue body. Authority descends from Issue #17 and those comments, through
@@ -105,6 +108,14 @@ telemetry, and immutable local receipt authority. Verification uses synthetic
 fakes and prescribed ephemeral PostgreSQL only; no real credential, provider
 request, model selection, calibration, Gate A, deployment, or live receipt is
 authorized.
+Milestone 10 adds only committed content-free candidate plans, two unselected
+dated model profiles, a live-blocked readiness policy, an offline report and
+manifest, operator-local materialization/authorization authorities, and a
+future-use receipt-and-database materializer. It validates scale with synthetic
+receipts, artifacts, providers, pricing, retention digests, and prescribed
+ephemeral PostgreSQL only. It commits no raw receipt, materialized selection,
+selection-materialization instance, real authorization, current pricing,
+retention evidence, provider result, or repository artifact content.
 
 ## Verified repository state
 
@@ -1819,9 +1830,8 @@ already includes `apps/*` and will remain unchanged.
 
 ### 8. Bounded direct OpenAI Responses adapter
 
-- **Status:** adapter boundary accepted in substance; the narrow
-  attempt-provenance/deadline correction is implemented and awaiting renewed
-  maintainer review. Milestone 9 remains blocked.
+- **Status:** accepted in full after the attempt-provenance/deadline and active
+  reader-cancellation corrections.
 - **Red first:** exact request fixture, fixed host, strict schema, store/no-tool/
   no-state controls, exact `"in_memory"` cache mapping, bytes, deadlines,
   cancellation, retry headers, refusals, incomplete/safety/errors, usage
@@ -1846,6 +1856,9 @@ already includes `apps/*` and will remain unchanged.
 
 ### 9. Operator composition root, reuse, receipt, and telemetry
 
+- **Status:** accepted in full, including active candidate/run deadlines,
+  candidate-scoped effect authority, already-aborted startup denial, truthful
+  call accounting, immediate zero-call reuse, and all three schema snapshots.
 - **Red first:** CLI acknowledgement/arguments, dry-run zero effect, exact
   composition, reuse zero call, force nonce/history, token/cost/deadline stops,
   content-free receipt and telemetry probes.
@@ -1862,18 +1875,29 @@ already includes `apps/*` and will remain unchanged.
 
 ### 10. Complete offline/PostgreSQL pre-live verification
 
-- **Red first:** complete diff audit and any discovered regression before
-  correction.
-- **Likely files:** tests/docs only when a concrete finding requires them;
-  update plan evidence.
-- **Commit:** `test(interviews): complete pre-live verification` if changes are
-  required; otherwise no commit.
-- **Verification:** the complete exact command matrix, dependency/lock/
-  migration/schema/catalog/artifact digest comparison, hosted CI.
-- **Review:** independent architecture/security/database/provider-protocol
-  checkpoint.
-- **Prohibited:** credentials, model calls, live operator.
-- **Stop:** explicit maintainer authorization required for calibration.
+- **Status:** implemented under the accepted candidate-plan/materialization
+  amendment and awaiting maintainer review; Milestone 11 is blocked.
+- **Red first:** operator-local candidate-plan, selection-materialization, and
+  pre-live-authorization authorities; exact plan membership; complete raw
+  artifact-receipt parsing; materialization; CLI closure; live-blocked policy;
+  deterministic report/manifest; synthetic 6/30/150 scale; PostgreSQL;
+  network/secret/leakage and import-effect denial.
+- **Files:** `verification/repository-interviews-v1/`,
+  `tools/repository-interview-prelive/`, narrow operator-local authorities and
+  schemas, one public ingestion receipt parser, focused tests, root commands,
+  and governing documentation.
+- **Commit:** `test(operator): establish pre-live verification gate`.
+- **Verification:** exact committed-member reproduction, complete local command
+  matrix, PostgreSQL 18.4 without skips, authority-drift comparison, coverage,
+  and hosted CI.
+- **Review:** candidate-plan authority, fresh receipt-and-same-database
+  materialization, pre-live authorization closure, external retention/pricing
+  gates, zero-effect dry-run, and the complete denial/evidence matrix.
+- **Prohibited:** historical inventory reconstruction, real receipt/selection/
+  binding/authorization, credentials, provider/model calls, calibration, Gate
+  A, Gate B, human audit, deployment, or Milestone 11 work.
+- **Stop:** explicit maintainer acceptance plus every external readiness gate
+  remains required before calibration.
 
 ### 11. Six-candidate model calibration
 
@@ -3357,25 +3381,103 @@ Gate A, live operator/receipt, non-test database operation, implicit migration,
 service, queue, scheduler, daemon, or deployment occurred. No implementation
 deviation is recorded.
 
-### Remaining maintainer decisions before Milestone 10
+Maintainer review accepted Milestone 9 in full. The accepted schema digests are
+selection
+`e66956879ecfd3ef878513dcaa9f454d6b4cc7a035b5176c26a7b9f4a204c7a3`,
+policy `6147c1a4e47680a6c5e6a760bbc27d4bdfea5e8b1a7dd93e67a080bb6ce7184e`,
+and receipt
+`934ba36ee7bf6640b1886507123978e0421dc56bc98c2fe02583f31a402187c5`.
+Hosted CI run 83 (`30685150764`, job `91329325174`) is accepted.
 
-Milestones 1–8 are accepted. Milestone 10 must remain blocked until renewed
-review accepts:
+## Milestone 10 implementation record
 
-1. the app/package/dependency direction and exact explicit CLI/acknowledgement
-   boundary;
-2. selection, model, specification, operator-policy/schema equivalence,
-   migration, artifact, active candidate/run deadline, concurrency, reuse,
-   force, receipt, and telemetry closure;
-3. the normal/reuse/forced/failure fake-provider and ephemeral PostgreSQL
-   evidence, including truthful failed-proof provider-call accounting and the
-   immediate zero-call passing proof;
-4. unchanged product, specification, golden, evaluation, migration, catalog,
-   artifact, pilot, dependency-version, and workspace authorities; and
-5. complete local and hosted-CI verification on the exact Milestone 9 commit.
+The first Milestone 10 attempt correctly stopped without changing any file,
+test, commit, PR metadata, credential, database, provider operation, or model
+call. The committed `catalog/public-v1/artifact-manifest.json` is declaration
+authority, not a materialized-set inventory; it cannot determine an
+`artifactSetId` or `artifactSetIdentityDigest`. The Phase 6 completion document
+contains aggregate evidence only, while the raw receipt and ephemeral database
+were intentionally untracked. No historical content-free inventory can be
+reconstructed from Git, and no historical set identifier or digest is
+invented. Even a recovered Phase 6 selection would not authorize Milestone 11,
+which requires a fresh collection in the exact future ephemeral database.
 
-Before any real provider call in Milestone 11, the separate pre-live gate must
-verify ZDR for the exact organization/project or provide updated authoritative
-provider evidence for the effective explicit-cache behavior. Model selection,
-calibration, Gate A, real human audit, production review/selection policy, and
-ranking remain blocked.
+Milestone 10 therefore commits candidate plans only. The exact plan digests
+are:
+
+- calibration six:
+  `35ad2ec35dc8424aeaa20d3ae065ba3dea73cdff9dce7d2dd4a5962d1974d54a`;
+- Gate A cohort membership:
+  `f4459ed13522c912b4614ee612f39552e5957cde6dcadca15392690b40b0cead`;
+- complete 150-candidate catalog:
+  `a423f34c58f5def2a38029fe69918c4e8235d0bedd7c537aa65a2abe0fcf45ff`.
+
+The 150-member plan is reproduced directly from the exact committed catalog
+in memory and byte-compared; it is not maintained as a second handwritten
+catalog. The operator-local candidate-plan schema digest is
+`f50d4b73c2fc04f0c13b7b1288a215ecc4a740fc2e97433478e3ffcdbe352387`.
+The selection-materialization schema digest is
+`1c2ef4968c9de9d8d0c34c74350fc418d2ce1407a2ead62bb58eb33b682d0fe2`,
+and the calibration-only pre-live-authorization schema digest is
+`e55b4d7a64fae07fa7f9f93ce4271993170c1ebf61d0246654227c4055cd4c76`.
+
+The two committed profile digests are
+`a9345d998c12079b3b6beacf60869867ddaf97a8ba449b0b0f42f98e51ff005c`
+for `gpt-5.4-2026-03-05` and
+`7cc772a1641c2068253486a5bf5773ac29c28e78a39f24851283d9d69dc378f3`
+for `gpt-5.4-mini-2026-03-17`. Both preserve low reasoning, 8,192 output
+tokens, the accepted projection, `store: false`, and explicit in-memory cache
+intent. Neither is selected or Gate A approved, and no pricing appears.
+
+`@gitblocks/ingestion` remains the single owner of raw artifact-receipt
+construction and semantic parsing. The non-production
+`@gitblocks/repository-interview-prelive` tool may import ingestion,
+persistence, the operator, interviews, contracts, and evaluation authority;
+the operator application still does not import ingestion. Its future-use
+materializer accepts an exact complete fresh receipt, loads only receipt-named
+sets from the explicitly configured same database, obtains identity digests
+from the parsed loaded sets, constructs the selection through the accepted
+operator constructor, and returns a content-free binding. It never derives a
+set from declarations, searches for a latest set, applies migrations,
+constructs a provider, or reads a provider credential.
+
+The committed readiness policy digest is
+`19e3bfbd3bca28cd0b69154d801fb7744631a2cba327b62f5e0c7ce2cb2d49ab`.
+Only `offline-verification` is satisfied. Fresh materialization, retention,
+pricing, model calibration, maintainer live authorization, an ephemeral
+database, a provider credential, and audit-assignment readiness are all
+unsatisfied; `liveReady` is false and calibration, Gate A, and Gate B remain
+blocked. The offline report digest is
+`163bd54ea05af7f07a337ac8db402507a4d9543c58dce5875a9a587c5ac38c7b`,
+and the pre-live manifest digest is
+`c967ed61e4b52b0094910f482d2b826a6d6ecf7e03a1705d63e6f3198130a960`.
+
+Red-first evidence began with four failing operator-authority tests against
+the absent exports. The implemented focused pre-live suite currently passes
+39 tests across nine files. The prescribed PostgreSQL 18.4 suite passes 61
+tests across seven files without skips and proves receipt-ID-only 6/30/150
+materialization, loaded identity authority, deterministic bytes, and rejection
+of a missing receipt-named set while ignoring a newer same-candidate set.
+Synthetic execution proves concurrency one and two, bounded task creation,
+canonical result order, complete first passes, exact zero-call reuse, truthful
+attempt/provider-call counts, fail-fast assignment, deadline behavior, and
+deterministic receipts. Network, secret, import-effect, and sentinel scans
+remain content-free. No test contacts OpenAI.
+
+The final local verification completed under Node 24.18.0 and pnpm 11.17.0.
+`pnpm verify:ci` passes 72 files and 1,270 tests, the complete PostgreSQL 18.4
+suite, and the registry-backed audit with no known vulnerabilities. The
+database result remains exactly four accepted migrations, 25 public product
+tables, zero RLS policies, and no skipped integration test. Every prescribed
+contract, catalog, ingestion, evaluation, artifact, interview, operator, and
+pre-live command passes. The exact single-worker coverage run passes all 72
+files and 1,270 tests at 79.29% statements, 73.02% branches, 86.67% functions,
+and 79.67% lines.
+
+The committed state remains `offline-verified-live-blocked`. Current pricing
+and retention evidence remain external. `store: false` and
+`prompt_cache_retention: "in_memory"` express request intent only and do not
+prove ZDR. No raw receipt, real materialized selection, real binding, real
+authorization, current price, retention evidence body, credential, runtime
+operator receipt, provider response, or repository artifact content is
+committed. Milestone 10 awaits review; Milestone 11 remains blocked.
