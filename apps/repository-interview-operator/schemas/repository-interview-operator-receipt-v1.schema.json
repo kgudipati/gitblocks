@@ -1,0 +1,831 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "authorities": {
+      "additionalProperties": false,
+      "properties": {
+        "artifactManifestDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "artifactManifestVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "catalogDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "catalogVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "modelProfileDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "operatorPolicyDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "pricingAuthorityDate": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "pricingAuthorityDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "providerOutputSchemaDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "providerOutputSchemaVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "providerProjectionDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "providerProjectionVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "rendererVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "specificationDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "specificationVersion": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "catalogVersion",
+        "catalogDigest",
+        "artifactManifestVersion",
+        "artifactManifestDigest",
+        "specificationVersion",
+        "specificationDigest",
+        "rendererVersion",
+        "providerOutputSchemaVersion",
+        "providerOutputSchemaDigest",
+        "providerProjectionVersion",
+        "providerProjectionDigest",
+        "modelProfileDigest",
+        "operatorPolicyDigest",
+        "pricingAuthorityDate",
+        "pricingAuthorityDigest"
+      ],
+      "type": "object"
+    },
+    "candidateResults": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "artifactSetId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "artifactSetIdentityDigest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "attemptCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "candidateId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "citations": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "claims": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "contradictions": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "costMicroUsd": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "disposition": {
+            "enum": [
+              "created",
+              "idempotent",
+              "reused",
+              "provider-failed",
+              null
+            ],
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "durationMilliseconds": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "executionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "executionRecordDigest": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "failureCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "interviewId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "interviewRecordDigest": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limitations": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "ordinal": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "publicationStatus": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requestId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "requestRecordDigest": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "retryCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "provider-failed",
+              "application-failed",
+              "persistence-failed"
+            ]
+          },
+          "unknowns": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "usage": {
+            "additionalProperties": false,
+            "properties": {
+              "cachedInputTokens": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "inputTokens": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "outputTokens": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "reasoningTokens": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "totalTokens": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "inputTokens",
+              "cachedInputTokens",
+              "outputTokens",
+              "reasoningTokens",
+              "totalTokens"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "ordinal",
+          "candidateId",
+          "artifactSetId",
+          "artifactSetIdentityDigest",
+          "status",
+          "disposition",
+          "failureCode",
+          "requestId",
+          "requestRecordDigest",
+          "executionId",
+          "executionRecordDigest",
+          "interviewId",
+          "interviewRecordDigest",
+          "attemptCount",
+          "retryCount",
+          "publicationStatus",
+          "claims",
+          "citations",
+          "limitations",
+          "contradictions",
+          "unknowns",
+          "usage",
+          "costMicroUsd",
+          "durationMilliseconds"
+        ],
+        "type": "object"
+      },
+      "maxItems": 150,
+      "type": "array"
+    },
+    "completedAt": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "cost": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "const": "USD"
+        },
+        "maximumMicroUsd": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "totalMicroUsd": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "unit": {
+          "const": "micro-usd"
+        }
+      },
+      "required": [
+        "currency",
+        "unit",
+        "totalMicroUsd",
+        "maximumMicroUsd"
+      ],
+      "type": "object"
+    },
+    "counts": {
+      "additionalProperties": false,
+      "properties": {
+        "applicationFailedCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "completedCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "createdCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "idempotentCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "notStartedCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "persistenceFailedCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "providerAttempts": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "providerCalls": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "providerFailedCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "providerRetries": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "requestedCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reusedCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "startedCandidates": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "requestedCandidates",
+        "startedCandidates",
+        "completedCandidates",
+        "reusedCandidates",
+        "createdCandidates",
+        "idempotentCandidates",
+        "providerFailedCandidates",
+        "applicationFailedCandidates",
+        "persistenceFailedCandidates",
+        "notStartedCandidates",
+        "providerCalls",
+        "providerAttempts",
+        "providerRetries"
+      ],
+      "type": "object"
+    },
+    "database": {
+      "additionalProperties": false,
+      "properties": {
+        "latestMigrationVersion": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "migrationCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "migrationInventoryDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "postgresqlVersion": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "postgresqlVersion",
+        "latestMigrationVersion",
+        "migrationInventoryDigest",
+        "migrationCount"
+      ],
+      "type": "object"
+    },
+    "durationMilliseconds": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "executionPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "candidateDeadlineMilliseconds": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "concurrency": {
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "executionMode": {
+          "enum": [
+            "normal",
+            "forced"
+          ]
+        },
+        "forceReasonCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "immediateReuseRequested": {
+          "type": "boolean"
+        },
+        "maximumRunCachedInputTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maximumRunCostMicroUsd": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maximumRunInputTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maximumRunOutputTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maximumRunReasoningTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maximumRunTotalTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "runDeadlineMilliseconds": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "executionMode",
+        "forceReasonCode",
+        "concurrency",
+        "candidateDeadlineMilliseconds",
+        "runDeadlineMilliseconds",
+        "maximumRunInputTokens",
+        "maximumRunCachedInputTokens",
+        "maximumRunOutputTokens",
+        "maximumRunReasoningTokens",
+        "maximumRunTotalTokens",
+        "maximumRunCostMicroUsd",
+        "immediateReuseRequested"
+      ],
+      "type": "object"
+    },
+    "immediateReuse": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "requested": {
+              "const": false
+            }
+          },
+          "required": [
+            "requested"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "candidateCount": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "costMicroUsd": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "passed": {
+              "type": "boolean"
+            },
+            "providerAttempts": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "providerCalls": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "requested": {
+              "const": true
+            },
+            "reusedCount": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "tokenUsage": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "requested",
+            "passed",
+            "candidateCount",
+            "reusedCount",
+            "providerCalls",
+            "providerAttempts",
+            "tokenUsage",
+            "costMicroUsd"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "kind": {
+      "const": "repository-interview-operator-receipt"
+    },
+    "providerSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "cancellations": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "deadlines": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "incomplete": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "invalidResponses": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "invalidUsage": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maximumResetRequestsMilliseconds": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "maximumResetTokensMilliseconds": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "minimumRemainingRequests": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "minimumRemainingTokens": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "networkErrors": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "providerErrors": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "quotaExceeded": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rateLimited": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "refusals": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "responseTooLarge": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "responses": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "safetyInterruptions": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "responses",
+        "networkErrors",
+        "deadlines",
+        "cancellations",
+        "refusals",
+        "incomplete",
+        "safetyInterruptions",
+        "rateLimited",
+        "quotaExceeded",
+        "providerErrors",
+        "invalidResponses",
+        "invalidUsage",
+        "responseTooLarge",
+        "minimumRemainingRequests",
+        "minimumRemainingTokens",
+        "maximumResetRequestsMilliseconds",
+        "maximumResetTokensMilliseconds"
+      ],
+      "type": "object"
+    },
+    "receiptDigest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "runId": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "selection": {
+      "additionalProperties": false,
+      "properties": {
+        "candidateCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "selectionDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "selectionId": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "selectionId",
+        "selectionDigest",
+        "candidateCount"
+      ],
+      "type": "object"
+    },
+    "semanticCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "citations": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "claims": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "contradictions": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "interviews": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "limitations": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "unknowns": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "interviews",
+        "claims",
+        "citations",
+        "limitations",
+        "contradictions",
+        "unknowns"
+      ],
+      "type": "object"
+    },
+    "startedAt": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "stopped",
+        "failed"
+      ]
+    },
+    "stopCode": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "telemetry": {
+      "additionalProperties": false,
+      "properties": {
+        "eventCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "telemetryFailureCount": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "eventCount",
+        "telemetryFailureCount"
+      ],
+      "type": "object"
+    },
+    "usage": {
+      "additionalProperties": false,
+      "properties": {
+        "cachedInputTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "inputTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "outputTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reasoningTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "totalTokens": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "inputTokens",
+        "cachedInputTokens",
+        "outputTokens",
+        "reasoningTokens",
+        "totalTokens"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "kind",
+    "runId",
+    "startedAt",
+    "completedAt",
+    "durationMilliseconds",
+    "status",
+    "stopCode",
+    "selection",
+    "authorities",
+    "database",
+    "executionPolicy",
+    "counts",
+    "semanticCounts",
+    "usage",
+    "cost",
+    "providerSummary",
+    "candidateResults",
+    "immediateReuse",
+    "telemetry",
+    "receiptDigest"
+  ],
+  "type": "object"
+}

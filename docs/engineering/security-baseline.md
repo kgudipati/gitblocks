@@ -248,8 +248,8 @@ evidence. The Phase 6 collector itself never sends content to a model. Only
 curator-approved public catalog artifacts may be stored centrally;
 target-repository bodies and unapproved material remain local by default.
 
-Phase 7 plans a separate, explicitly acknowledged repository-interview
-operation under
+Phase 7 implements a separate, explicitly acknowledged offline
+repository-interview composition root under
 [ADR 0007](../architecture/decisions/0007-evidence-grounded-repository-interviews.md).
 It may send one complete exact approved public artifact set to one reviewed
 provider only after deterministic reconstruction, ownership closure, byte and
@@ -272,6 +272,17 @@ ZDR. Before Milestone 11 can make any provider call, a separate pre-live gate
 must either verify ZDR for the exact OpenAI organization/project or cite
 updated authoritative OpenAI documentation or provider confirmation proving
 the field's effective behavior for the exact dated snapshot.
+
+The operator requires the database-name acknowledgement before any environment
+read, connection, clock, nonce, telemetry, provider, or filesystem-write
+effect. It accepts individual database fields rather than a URL, never accepts
+passwords in argv/config/receipts, never applies migrations, and retrieves the
+named OpenAI token lazily only when a provider operation begins. Selection,
+policy, telemetry, diagnostics, and receipts remain content-free. Final receipt
+creation is exclusive, mode `0600`, symlink-resistant, flushed, and
+non-overwriting. Dry-run validates complete configuration and worst-case
+budgets with zero secret, database, provider, time, telemetry, or write effects.
+These controls do not authorize a real credential or provider request.
 
 Migration 0004 persists only the approved request, execution, interview, and
 normalized semantic-member contracts. It excludes prompts, alias registries,

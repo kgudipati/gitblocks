@@ -22,6 +22,9 @@
       "path": "./packages/ingestion"
     },
     {
+      "path": "./apps/repository-interview-operator"
+    },
+    {
       "path": "./tools/repository-checks"
     },
     {

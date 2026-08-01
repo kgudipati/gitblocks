@@ -88,7 +88,15 @@ corrections were accepted. The remaining review found that an abort during a
 pending response read released the reader lock without actively cancelling the
 stream. The bounded reader now cancels and releases once on abort, read
 failure, invalid chunk, or streaming overflow while preserving the original
-controlled outcome; Milestone 9 remains blocked pending renewed acceptance.
+controlled outcome. Maintainer review accepted Milestone 8 in full and
+authorized Milestone 9. The resulting
+`apps/repository-interview-operator` is the sole composition root: it imports
+only the three public workspace surfaces, verifies exact migration authority
+without applying migrations, keeps credentials lazy, invokes only the accepted
+interview application, and owns selection iteration, budget/deadline/fail-fast
+controls, immediate reuse proof, content-free telemetry, and an immutable
+local receipt. This is offline tested composition, not authority for a real
+provider or non-test database.
 
 ## Decision
 
@@ -854,8 +862,8 @@ second maintained schema.
 
 ## Deferred work
 
-- Renewed Milestone 8 maintainer acceptance of attempt provenance/deadline
-  closure and Milestone 9 composition.
+- Renewed Milestone 9 maintainer acceptance and Milestone 10 pre-live
+  verification.
 - Final Gate A model-profile selection.
 - Provider portability or another provider.
 - Production review/selection contracts.
@@ -865,10 +873,11 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1–7 passed maintainer review. Milestone 8 implements only the
-bounded direct adapter, its attempt-provenance/deadline correction, and
-fake-transport protocol evidence and now requires renewed maintainer acceptance
-while the PR remains draft. Milestone 9 composition is not authorized by this
+Milestones 1–8 passed maintainer review. Milestone 9 implements only the
+explicit offline composition root, app-owned persistence translation,
+operational policy/bounds, immediate reuse proof, content-free telemetry, and
+immutable local receipt authority. It now requires renewed maintainer review
+while the PR remains draft; Milestone 10 is not authorized by this
 implementation.
 
 Calibration, Gate A, and Gate B each require the separate stop conditions and

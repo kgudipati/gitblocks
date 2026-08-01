@@ -37,12 +37,12 @@
     implementation authorized with retention amendment.”
   - PR #18 review: “Milestone 8 review — adapter boundary accepted;
     attempt-provenance and deadline corrections required before Milestone 9.”
+  - PR #18 review: “Milestone 8 accepted — Milestone 9 authorized.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–7 are accepted; Milestone 8's bounded direct OpenAI
-  Responses adapter and narrow attempt-provenance/deadline correction are
-  implemented and awaiting renewed review; Milestones 9–14 remain unauthorized
-  or incomplete
+- State: Milestones 1–8 are accepted; Milestone 9's explicit offline operator
+  composition is implemented and awaiting review; Milestones 10–14 remain
+  unauthorized or incomplete
 - Last updated: 2026-07-31
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -95,6 +95,13 @@ the accepted injected provider port. Its validation uses fake transports only;
 it configures no credential, composes no operator or persistence adapter,
 makes no provider request, selects no model, and performs no calibration or
 live execution.
+Milestone 9 adds only the explicit offline composition root, public persistence
+adaptation, exact selection/model/specification/policy/database inputs,
+conservative operational accounting, immediate reuse proof, content-free
+telemetry, and immutable local receipt authority. Verification uses synthetic
+fakes and prescribed ephemeral PostgreSQL only; no real credential, provider
+request, model selection, calibration, Gate A, deployment, or live receipt is
+authorized.
 
 ## Verified repository state
 
@@ -3255,28 +3262,86 @@ persistence composition, live database operation, or Milestone 9 work occurred.
   Cleanup rejection cannot replace durable attempt classification or retain
   late content; complete bodies are not cancelled after consumption.
 
-## Remaining maintainer decisions before Milestone 9
+## Milestone 9 implementation record
 
-Milestones 1–7 are accepted. Milestone 9 must not advance until renewed
-maintainer review accepts:
+The accepted Milestone 8 adapter is unchanged. Milestone 9 adds
+`apps/repository-interview-operator/` with only workspace dependencies on
+contracts, interviews, and persistence. Its pure core validates the exact
+selection/model/specification/policy authorities, computes conservative token
+and micro-USD bounds with integer arithmetic, verifies migration authority,
+loads exact artifact-set context, and delegates every candidate exchange to
+`executeRepositoryInterviewV1`. The app-owned persistence adapter maps only an
+exact `persistence.conflict` to application conflict and uses no SQL.
 
-1. exact direct Responses request bytes, fixed host/headers, strict schema, and
-   explicit `"in_memory"` cache mapping for both calibration candidates;
-2. closed preflight, authenticated exact prompt object, injected effect
-   authorities, byte/deadline/retry bounds, post-sleep total-deadline closure,
-   and value-free failure behavior;
-3. bounded streaming parse, safe-header/status/output/usage interpretation,
-   provider-versus-external cancellation provenance, bounded final controller
-   authority, active pending-reader cleanup, and owned/frozen controlled
-   results;
-4. unchanged product, specification, prompt/provider-output golden,
-   evaluation, migration, catalog, artifact, pilot, dependency, and lockfile
-   authorities; and
-5. full local verification and hosted CI evidence on the exact commit.
+The explicit CLI requires individual database fields, matching nonproduction
+acknowledgement, named secret variables, absolute authority paths, and an
+exclusive receipt path. Dry-run performs no secret, database, provider, clock,
+nonce, telemetry, or write effect. Normal execution preserves reuse without a
+credential/nonce/provider call; forced execution accepts only the three
+existing product-contract reason codes and appends immutable history. The
+optional second pass installs a provider guard and requires exact zero-call
+reuse.
 
-Only renewed authorization may begin Milestone 9 composition. Before any real
-provider call in Milestone 11, the separate pre-live gate must verify ZDR for
-the exact organization/project or provide updated authoritative provider
-evidence for the effective explicit-cache behavior. Model selection,
-calibration execution, Gate A, real human audit, production review/selection
-policy, and ranking integration remain separately blocked.
+Operator-local selection, policy, and receipt `1.0.0` schemas are generated and
+byte-validated. Their parsers own/freeze bounded plain data and their records
+use domain-separated canonical digests. The receipt and telemetry contain only
+controlled authority, record, count, duration, usage, cost, and outcome fields.
+Receipt writing is exclusive, mode `0600`, non-overwriting, flushed, and
+cleanup-safe. Unit tests use synthetic fakes; PostgreSQL composition tests use
+only the prescribed ephemeral PostgreSQL role and synthetic provider transport.
+
+The committed operator schema snapshot SHA-256 values are:
+
+- selection: `e66956879ecfd3ef878513dcaa9f454d6b4cc7a035b5176c26a7b9f4a204c7a3`;
+- policy: `770c9f628b6f69d3086d4e02e3666904cc3627777dfda6292ca1dcf268c793ba`;
+- receipt: `934ba36ee7bf6640b1886507123978e0421dc56bc98c2fe02583f31a402187c5`.
+
+Red-first work began with the absent app/package surface and failing focused
+tests. The green Milestone 9 evidence is 20 operator unit tests across four
+files, three drift-checked operator schemas, 60 PostgreSQL tests across six
+files with no skips, and the repository-wide 63-file/1,221-test suite. The
+ephemeral PostgreSQL composition uses the real interview application, real
+direct Responses adapter with synthetic `fetch`, real persistence adapter, and
+synthetic artifacts to prove first creation, historical reconstruction,
+zero-call normal reuse, forced immutable history, retained normal reuse after
+force, and failed-execution publication without an interview. Coverage remains
+above repository thresholds at 79.62% statements, 73.12% branches, 86.27%
+functions, and 79.8% lines.
+
+The complete prescribed command matrix passed on Node 24.14.0 and pnpm
+11.17.0. PostgreSQL verification used 18.4, four migrations, 25 product tables,
+zero RLS policies, and no skipped integration test; dependency audit reported
+no known vulnerability. Product-contract conformance remained 10 cases/40
+supplied candidates, the catalog remained 150 candidates with digest
+`4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`,
+and the artifact manifest remained 150 candidates with digest
+`17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c`.
+All 12 product schemas, the three repository-interview specification digests,
+prompt/provider-output goldens, evaluation authority, `pilot-v1`, migrations,
+external dependency versions, workspace globs, and runtime pins are unchanged.
+The lockfile adds only the app importer and its three existing workspace links.
+No real credential read, provider request, model selection/call, calibration,
+Gate A, live operator/receipt, non-test database operation, implicit migration,
+service, queue, scheduler, daemon, or deployment occurred. No implementation
+deviation is recorded.
+
+### Remaining maintainer decisions before Milestone 10
+
+Milestones 1–8 are accepted. Milestone 10 must remain blocked until renewed
+review accepts:
+
+1. the app/package/dependency direction and exact explicit CLI/acknowledgement
+   boundary;
+2. selection, model, specification, operator-policy, migration, artifact,
+   budget, deadline, concurrency, reuse, force, receipt, and telemetry closure;
+3. the normal/reuse/forced/failure fake-provider and ephemeral PostgreSQL
+   evidence, including the immediate zero-call proof;
+4. unchanged product, specification, golden, evaluation, migration, catalog,
+   artifact, pilot, dependency-version, and workspace authorities; and
+5. complete local and hosted-CI verification on the exact Milestone 9 commit.
+
+Before any real provider call in Milestone 11, the separate pre-live gate must
+verify ZDR for the exact organization/project or provide updated authoritative
+provider evidence for the effective explicit-cache behavior. Model selection,
+calibration, Gate A, real human audit, production review/selection policy, and
+ranking remain blocked.

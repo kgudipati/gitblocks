@@ -1,0 +1,138 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "candidateDeadlineMilliseconds": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "concurrency": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "lockTimeoutMilliseconds": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumCandidates": {
+      "maximum": 150,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "maximumInputTokensPerProviderCall": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumOutputTokensPerProviderCall": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunCachedInputTokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunCostMicroUsd": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunInputTokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunOutputTokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunReasoningTokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunTotalTokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "policyDigest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "policyId": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pricing": {
+      "additionalProperties": false,
+      "properties": {
+        "cachedInputMicroUsdPerMillionTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "inputMicroUsdPerMillionTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "modelSnapshot": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "outputMicroUsdPerMillionTokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pricingAuthorityDate": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "pricingAuthorityDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "provider": {
+          "const": "openai"
+        }
+      },
+      "required": [
+        "provider",
+        "modelSnapshot",
+        "inputMicroUsdPerMillionTokens",
+        "cachedInputMicroUsdPerMillionTokens",
+        "outputMicroUsdPerMillionTokens",
+        "pricingAuthorityDate",
+        "pricingAuthorityDigest"
+      ],
+      "type": "object"
+    },
+    "runDeadlineMilliseconds": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "statementTimeoutMilliseconds": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "policyId",
+    "maximumCandidates",
+    "concurrency",
+    "candidateDeadlineMilliseconds",
+    "runDeadlineMilliseconds",
+    "statementTimeoutMilliseconds",
+    "lockTimeoutMilliseconds",
+    "maximumInputTokensPerProviderCall",
+    "maximumOutputTokensPerProviderCall",
+    "maximumRunInputTokens",
+    "maximumRunCachedInputTokens",
+    "maximumRunOutputTokens",
+    "maximumRunReasoningTokens",
+    "maximumRunTotalTokens",
+    "maximumRunCostMicroUsd",
+    "pricing",
+    "policyDigest"
+  ],
+  "type": "object"
+}

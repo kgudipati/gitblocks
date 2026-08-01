@@ -60,16 +60,18 @@ repository-conditioned adoption fit over fixed candidate sets, and the first
 production-owned packages: a pure domain, versioned contracts, and a
 PostgreSQL persistence adapter for durable catalog identities, immutable
 public evidence, append-only lifecycle events, and reproducible public dossier
-snapshots. These packages do not implement a use case or service. Full tenant
-and organization persistence is intentionally deferred. The repository also
+snapshots. Full tenant and organization persistence is intentionally deferred.
+The repository also
 contains a curated 150-repository public catalog and a bounded deterministic
 operator-run GitHub/npm/advisory ingestion package, plus exact immutable public
 repository artifacts and lossless line-addressable chunks for all 150
-candidates. The repository still has no application scaffold, repository
-interview implementation, model integration, Agent Skill, scanner, MCP server,
-operational backend, discovery or product ranking engine, continuous crawler,
-deployment, production database, or product release. Phase 7 repository
-interviews are documentation-only planned work governed by
+candidates. Phase 7 now includes repository-interview contracts, application,
+immutable PostgreSQL history, evaluation authority, a bounded direct Responses
+adapter, and an explicit offline operator composition root. The repository
+still has no live provider configuration, selected model, calibration or Gate
+A result, Agent Skill, scanner, MCP server, operational backend, discovery or
+product ranking engine, continuous crawler, deployment, production database,
+or product release. Phase 7 is governed by
 [Plan 0017](docs/plans/0017-evidence-grounded-repository-interviews.md) and
 [ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md).
 The first full live catalog ingestion and its immediate refresh completed
@@ -93,33 +95,36 @@ owns the curated catalog, provider, profiling, refresh, and receipt decisions.
 owns immutable public artifacts, lossless chunks, closed artifact sets, and
 their operator.
 [ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md)
-owns the planned candidate-owned semantic interview and provider/application
-boundaries; no Phase 7 executable behavior is implemented.
+owns the candidate-owned semantic interview, provider/application, evaluation,
+persistence, and offline operator boundaries; no live Phase 7 operation has
+occurred.
 
 ## Repository map
 
-| Path                        | Purpose                                                                          |
-| --------------------------- | -------------------------------------------------------------------------------- |
-| `README.md`                 | Product orientation and honest project status                                    |
-| `AGENTS.md`                 | Concise durable instructions for coding agents                                   |
-| `PLANS.md`                  | Required structure and lifecycle for substantial execution plans                 |
-| `CONTRIBUTING.md`           | Issue-to-merge contributor workflow                                              |
-| `SECURITY.md`               | Private vulnerability-reporting and disclosure policy                            |
-| `docs/product/`             | Product contract, vocabulary, evaluation scope, and success criteria             |
-| `docs/architecture/`        | System context and architecture decisions                                        |
-| `docs/engineering/`         | Repository, development, testing, security, reliability, and completion policies |
-| `docs/evaluation/`          | Case authoring, deterministic scoring, and future baseline protocols             |
-| `docs/plans/`               | Active and historical version-controlled execution plans                         |
-| `packages/domain/`          | Pure product vocabulary, constructors, canonicalization, and invariants          |
-| `packages/contracts/`       | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
-| `packages/persistence/`     | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
-| `packages/ingestion/`       | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
-| `catalog/public-v1/`        | Curator-owned repository source and deterministically digested public manifest   |
-| `evals/pilot-v1/`           | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
-| `schemas/evaluation/`       | Versioned JSON Schema 2020-12 evaluation contracts                               |
-| `tools/evaluation-harness/` | Private bounded validator, deterministic scorer, CLI, and tests                  |
-| `tools/repository-checks/`  | Bounded repository-policy CLI and tests                                          |
-| `.github/`                  | Intake templates, read-only CI, and dependency update policy                     |
+| Path                                  | Purpose                                                                          |
+| ------------------------------------- | -------------------------------------------------------------------------------- |
+| `README.md`                           | Product orientation and honest project status                                    |
+| `AGENTS.md`                           | Concise durable instructions for coding agents                                   |
+| `PLANS.md`                            | Required structure and lifecycle for substantial execution plans                 |
+| `CONTRIBUTING.md`                     | Issue-to-merge contributor workflow                                              |
+| `SECURITY.md`                         | Private vulnerability-reporting and disclosure policy                            |
+| `docs/product/`                       | Product contract, vocabulary, evaluation scope, and success criteria             |
+| `docs/architecture/`                  | System context and architecture decisions                                        |
+| `docs/engineering/`                   | Repository, development, testing, security, reliability, and completion policies |
+| `docs/evaluation/`                    | Case authoring, deterministic scoring, and future baseline protocols             |
+| `docs/plans/`                         | Active and historical version-controlled execution plans                         |
+| `packages/domain/`                    | Pure product vocabulary, constructors, canonicalization, and invariants          |
+| `packages/contracts/`                 | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
+| `packages/persistence/`               | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
+| `packages/ingestion/`                 | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
+| `packages/interviews/`                | Interview schema, prompt/mapping, application, and provider core                 |
+| `apps/repository-interview-operator/` | Explicit offline composition, policy, receipt, and process ports                 |
+| `catalog/public-v1/`                  | Curator-owned repository source and deterministically digested public manifest   |
+| `evals/pilot-v1/`                     | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
+| `schemas/evaluation/`                 | Versioned JSON Schema 2020-12 evaluation contracts                               |
+| `tools/evaluation-harness/`           | Private bounded validator, deterministic scorer, CLI, and tests                  |
+| `tools/repository-checks/`            | Bounded repository-policy CLI and tests                                          |
+| `.github/`                            | Intake templates, read-only CI, and dependency update policy                     |
 
 ## Local development
 
@@ -173,6 +178,8 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm artifacts:receipt`              | Validate and compare content-free artifact receipts               |
 | `pnpm ingestion:test`                 | Run deterministic ingestion adapter and profile tests             |
 | `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                    |
+| `pnpm operator:interviews`            | Require complete explicit acknowledged operator configuration     |
+| `pnpm operator:interviews:verify`     | Verify operator schemas, tests, architecture, and test PostgreSQL |
 | `pnpm security:secrets`               | Scan tracked development content for secrets                      |
 | `pnpm security:audit`                 | Run the online registry dependency audit                          |
 | `pnpm verify`                         | Run one preflight plus authoritative offline verification         |

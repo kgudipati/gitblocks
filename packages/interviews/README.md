@@ -3,6 +3,15 @@
 This private application package owns repository-interview behavior without
 depending on ingestion, persistence, evaluation, retrieval, or ranking.
 
+Milestone 8's bounded direct Responses adapter, including exact request bytes,
+explicit in-memory cache intent, authenticated prompt/projection authority,
+attempt provenance, deadline/retry closure, bounded stream cleanup, and
+value-free results, is accepted. Milestone 9 does not change that adapter. The
+separate `apps/repository-interview-operator` composition root injects its
+credential/fetch/time/control ports and adapts persistence without introducing
+a dependency from this package to persistence or the app. No live credential,
+provider request, or selected model exists.
+
 The package currently implements only:
 
 - the authoritative semantic-only provider-output TypeBox schema;

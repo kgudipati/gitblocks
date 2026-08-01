@@ -1,0 +1,77 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifactManifestDigest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "artifactManifestVersion": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "catalogDigest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "catalogVersion": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "members": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "artifactSetId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "artifactSetIdentityDigest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "candidateId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "ordinal": {
+            "maximum": 149,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ordinal",
+          "candidateId",
+          "artifactSetId",
+          "artifactSetIdentityDigest"
+        ],
+        "type": "object"
+      },
+      "maxItems": 150,
+      "minItems": 1,
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "selectionDigest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "selectionId": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "selectionId",
+    "catalogVersion",
+    "catalogDigest",
+    "artifactManifestVersion",
+    "artifactManifestDigest",
+    "members",
+    "selectionDigest"
+  ],
+  "type": "object"
+}

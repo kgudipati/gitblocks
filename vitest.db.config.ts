@@ -8,6 +8,7 @@ export default defineConfig({
       'packages/persistence/test/integration/**/*.integration.ts',
       'packages/ingestion/test/**/*.persistence-integration.ts',
       'tools/evaluation-harness/test/**/*.persistence-integration.ts',
+      'apps/repository-interview-operator/test/**/*.persistence-integration.ts',
     ],
     maxWorkers: 1,
     passWithNoTests: false,

@@ -10,8 +10,10 @@ persistence-independent repository-interview application. The contracts,
 persistence, and ingestion packages also implement exact immutable public
 repository artifacts. The persistence adapter now also stores immutable
 repository-interview request, execution, and interview history through a
-contract-grounded PostgreSQL adapter. It contains no repository-interview
-provider adapter, operator app, runtime service, deployed data store,
+contract-grounded PostgreSQL adapter. A narrow direct provider adapter and
+explicit offline operator composition root now exist with injected effects
+and fake-only verification. It contains no live provider configuration,
+runtime service, deployed data store,
 continuous ingestion worker, or network service. Technology choices remain
 open unless an architecture decision record (ADR) approves them.
 
@@ -30,7 +32,7 @@ receipt.
 public artifact selection boundary, source identity, exact collection,
 lossless chunking, immutable artifact sets, and artifact operator receipt.
 [ADR 0007](decisions/0007-evidence-grounded-repository-interviews.md) owns the
-planned candidate-owned repository interview, persistence-independent
+candidate-owned repository interview, persistence-independent
 application package, provider/durable boundary, immutable specification,
 direct provider adapter, calibration, and live gates.
 
@@ -70,7 +72,7 @@ flowchart LR
         MCP["Remote MCP server"]
         App["Application services"]
         Ranking["Retrieval and ranking services"]
-        Interviews["Repository interview application (planned)"]
+        Interviews["Repository interview application"]
         Catalog["Repository catalog and ingestion workers"]
         Evidence["Evidence store"]
         Outcomes["Outcome-learning loop"]
@@ -110,6 +112,7 @@ flowchart LR
 | Remote MCP server                        | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface                                                                                                                                                 | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools                                                                                                          |
 | Application services                     | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries                                                                                                                                                | Transport-specific rules or provider-specific persistence behavior                                                                                                                             |
 | Repository interview application         | Produce one candidate-owned semantic interview from one exact immutable public artifact set through injected provider and record/reuse ports                                                                                         | Target/request conditioning, dossier input, ranking, model-authored identity, concrete persistence imports, provider HTTP, or evaluation review                                                |
+| Repository interview operator            | Compose exact offline selection/specification/model/policy/database inputs, persistence adaptation, bounded execution, reuse proof, content-free receipts, and injected telemetry                                                    | Implicit selection, migration application, model selection, live credentials by default, deployment, scheduling, ranking, or evaluation review                                                 |
 | Repository catalog and ingestion workers | Collect allowed public metadata, evidence, and manifest-selected exact public artifacts with provenance, freshness, bounds, and source policy                                                                                        | Execution/rendering of ingested content, following repository-authored links, or treating repository instructions as trusted                                                                   |
 | Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                                                                                                                                         | Popularity-only ranking or unsupported certainty                                                                                                                                               |
 | Evidence store                           | Preserve shared public observations, exact provenance, normalized evidence times, freshness, limitations, unknowns, and reproducible dossier membership                                                                              | Private organization evidence, secrets, unnecessary raw target source, or unsourced conclusions                                                                                                |
@@ -264,13 +267,12 @@ The harness-to-persistence dependency exists only for storage representability
 conformance. Product packages do not import evaluation schemas, corpus records,
 gold, or tool internals.
 
-The future operational dependency direction remains inward:
+The operational dependency direction remains inward:
 
 ```text
 transports and providers -> application use cases -> contracts and domain
 composition root -> application use cases + persistence adapter
 
-planned Phase 7:
 apps/repository-interview-operator
   -> @gitblocks/interviews + @gitblocks/persistence
 ```

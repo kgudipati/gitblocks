@@ -21,6 +21,7 @@ const POSTGRES_TEST_IMAGE =
   'postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296';
 const APPROVED_PACKAGE_MANIFESTS = new Set([
   'package.json',
+  'apps/repository-interview-operator/package.json',
   'packages/contracts/package.json',
   'packages/domain/package.json',
   'packages/ingestion/package.json',
@@ -36,6 +37,17 @@ interface ProductPackagePolicy {
 
 const PRODUCT_PACKAGE_POLICIES: ReadonlyMap<string, ProductPackagePolicy> =
   new Map([
+    [
+      'apps/repository-interview-operator/package.json',
+      {
+        dependencies: new Map([
+          ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+          ['@gitblocks/interviews', EXACT_WORKSPACE_VERSION],
+          ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+        ]),
+        name: '@gitblocks/repository-interview-operator',
+      },
+    ],
     [
       'packages/contracts/package.json',
       {
@@ -91,6 +103,14 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
   ReadonlyMap<string, string>
 > = new Map([
   [
+    'apps/repository-interview-operator/package.json',
+    new Map([
+      ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/interviews', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+    ]),
+  ],
+  [
     'packages/contracts/package.json',
     new Map([['@gitblocks/domain', EXACT_WORKSPACE_VERSION]]),
   ],
@@ -134,6 +154,18 @@ const REQUIRED_PATHS = [
   '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
+  'apps/repository-interview-operator/README.md',
+  'apps/repository-interview-operator/package.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-policy-v1.schema.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-receipt-v1.schema.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-selection-v1.schema.json',
+  'apps/repository-interview-operator/scripts/operator-cli.ts',
+  'apps/repository-interview-operator/scripts/schema-cli.ts',
+  'apps/repository-interview-operator/scripts/tsconfig.json',
+  'apps/repository-interview-operator/src/index.ts',
+  'apps/repository-interview-operator/test/tsconfig.json',
+  'apps/repository-interview-operator/tsconfig.json',
+  'apps/repository-interview-operator/tsconfig.test.json',
   'catalog/public-v1/candidates.json',
   'catalog/public-v1/manifest.json',
   'CONTRIBUTING.md',
@@ -486,6 +518,10 @@ function validateRuntimeScripts(
     'interviews:test',
     'interviews:validate',
     'interviews:verify',
+    'operator:interviews',
+    'operator:interviews:schema:validate',
+    'operator:interviews:test',
+    'operator:interviews:verify',
     'repo:check',
     'repo:branch',
     'repo:pr-branch',
@@ -509,7 +545,7 @@ function validateRuntimeScripts(
   const requiredWorkspaceScripts = {
     build: 'pnpm build:product && pnpm build:tools',
     'build:product':
-      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... build',
+      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/repository-interview-operator... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
     'contracts:validate':
@@ -528,6 +564,14 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts validate',
     'interviews:verify':
       'pnpm runtime:check && pnpm interviews:validate && pnpm interviews:test && pnpm --filter @gitblocks/interviews typecheck && pnpm architecture:check',
+    'operator:interviews':
+      'pnpm runtime:check && pnpm build:product && node apps/repository-interview-operator/scripts/operator-cli.ts',
+    'operator:interviews:schema:validate':
+      'pnpm runtime:check && pnpm build:product && node apps/repository-interview-operator/scripts/schema-cli.ts validate',
+    'operator:interviews:test':
+      'pnpm runtime:check && pnpm build:product && vitest run apps/repository-interview-operator/test --config vitest.config.ts',
+    'operator:interviews:verify':
+      'pnpm runtime:check && pnpm operator:interviews:schema:validate && pnpm operator:interviews:test && pnpm --filter @gitblocks/repository-interview-operator lint && pnpm --filter @gitblocks/repository-interview-operator typecheck && pnpm architecture:check && pnpm db:verify',
     'eval:interviews:generate':
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts generate',
     'eval:interviews:validate':
@@ -548,7 +592,7 @@ function validateRuntimeScripts(
     'lint:internal': 'eslint . --max-warnings 0',
     typecheck: 'pnpm build:product && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
   } as const;
   for (const [scriptName, expected] of Object.entries(
     requiredWorkspaceScripts,
@@ -881,7 +925,8 @@ function validateProductCapitalization(
 
 function isProhibitedArtifact(trackedPath: string): boolean {
   return (
-    trackedPath.startsWith('apps/') ||
+    (trackedPath.startsWith('apps/') &&
+      !trackedPath.startsWith('apps/repository-interview-operator/')) ||
     (trackedPath.startsWith('packages/') &&
       !trackedPath.startsWith('packages/contracts/') &&
       !trackedPath.startsWith('packages/domain/') &&

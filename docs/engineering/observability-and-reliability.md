@@ -170,8 +170,13 @@ than a telemetry emitter. It returns only contract-safe attempt summaries,
 usage, controlled failure codes, and parsed structured output to the existing
 application boundary. It never returns raw prompts, response/error bodies,
 reasoning, refusal text, credentials, unparsed headers, or transport
-exceptions. A future operator may emit only the already reviewed value-free
-categories and counts. The explicit
+exceptions. The offline operator emits only closed, owned, frozen value-free
+events with contiguous sequence numbers and records observer failures as a
+bounded receipt count; observer exceptions never replace application or
+persistence outcomes. Its receipt aggregates authority digests, controlled
+outcomes, counts, usage, cost, and immutable record references but excludes
+prompts, artifacts, semantics, provider values, SQL, secrets, and database
+endpoints. The explicit
 `prompt_cache_retention: "in_memory"` request field records request intent; it
 is neither telemetry nor evidence of ZDR or absence of organization-level
 retention. That external retention authority is checked at the separate

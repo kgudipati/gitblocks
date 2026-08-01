@@ -20,6 +20,18 @@ const REQUIRED_PATHS = [
   '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
+  'apps/repository-interview-operator/README.md',
+  'apps/repository-interview-operator/package.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-policy-v1.schema.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-receipt-v1.schema.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-selection-v1.schema.json',
+  'apps/repository-interview-operator/scripts/operator-cli.ts',
+  'apps/repository-interview-operator/scripts/schema-cli.ts',
+  'apps/repository-interview-operator/scripts/tsconfig.json',
+  'apps/repository-interview-operator/src/index.ts',
+  'apps/repository-interview-operator/test/tsconfig.json',
+  'apps/repository-interview-operator/tsconfig.json',
+  'apps/repository-interview-operator/tsconfig.test.json',
   'catalog/public-v1/candidates.json',
   'catalog/public-v1/manifest.json',
   'CONTRIBUTING.md',
@@ -130,7 +142,7 @@ const ROOT_MANIFEST = JSON.stringify({
   scripts: {
     build: 'pnpm build:product && pnpm build:tools',
     'build:product':
-      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... build',
+      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/repository-interview-operator... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
     'contracts:validate':
@@ -175,6 +187,14 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts validate',
     'interviews:verify':
       'pnpm runtime:check && pnpm interviews:validate && pnpm interviews:test && pnpm --filter @gitblocks/interviews typecheck && pnpm architecture:check',
+    'operator:interviews':
+      'pnpm runtime:check && pnpm build:product && node apps/repository-interview-operator/scripts/operator-cli.ts',
+    'operator:interviews:schema:validate':
+      'pnpm runtime:check && pnpm build:product && node apps/repository-interview-operator/scripts/schema-cli.ts validate',
+    'operator:interviews:test':
+      'pnpm runtime:check && pnpm build:product && vitest run apps/repository-interview-operator/test --config vitest.config.ts',
+    'operator:interviews:verify':
+      'pnpm runtime:check && pnpm operator:interviews:schema:validate && pnpm operator:interviews:test && pnpm --filter @gitblocks/repository-interview-operator lint && pnpm --filter @gitblocks/repository-interview-operator typecheck && pnpm architecture:check && pnpm db:verify',
     'repo:branch':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts branch',
     'repo:check':
@@ -190,7 +210,7 @@ const ROOT_MANIFEST = JSON.stringify({
     'test:coverage': 'pnpm runtime:check && vitest run --coverage',
     typecheck: 'pnpm build:product && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
@@ -299,6 +319,24 @@ const INTERVIEWS_MANIFEST = JSON.stringify({
     '@gitblocks/contracts': 'workspace:0.0.0',
     ajv: '8.20.0',
     typebox: '1.3.8',
+  },
+});
+
+const OPERATOR_MANIFEST = JSON.stringify({
+  name: '@gitblocks/repository-interview-operator',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    '@gitblocks/interviews': 'workspace:0.0.0',
+    '@gitblocks/persistence': 'workspace:0.0.0',
   },
 });
 
@@ -412,6 +450,9 @@ function defaultContent(relativePath: string): string {
   }
   if (relativePath === 'packages/interviews/package.json') {
     return INTERVIEWS_MANIFEST;
+  }
+  if (relativePath === 'apps/repository-interview-operator/package.json') {
+    return OPERATOR_MANIFEST;
   }
   if (relativePath === 'pnpm-workspace.yaml') {
     return WORKSPACE_POLICY;
