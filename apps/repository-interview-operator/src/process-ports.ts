@@ -11,6 +11,7 @@ import type {
 } from '@gitblocks/interviews';
 
 import type {
+  RepositoryInterviewOperatorCandidateControlFactoryV1,
   RepositoryInterviewOperatorMonotonicClockPortV1,
   RepositoryInterviewOperatorRunIdPortV1,
   RepositoryInterviewOperatorWallClockPortV1,
@@ -56,7 +57,13 @@ function hasControlCharacter(value: string): boolean {
 export function createExplicitGlobalFetchPortV1(
   fetchImplementation: typeof globalThis.fetch,
 ): RepositoryInterviewOpenAiFetchV1 {
-  return async (input, init) => fetchImplementation(input, init);
+  return async (input, init) => {
+    const signal = init.signal;
+    if (signal?.aborted === true) {
+      throw new RepositoryInterviewOperatorProcessError();
+    }
+    return fetchImplementation(input, init);
+  };
 }
 
 export function createProcessClockPortsV1(): {
@@ -105,12 +112,96 @@ export function createProcessRunIdPortV1(): RepositoryInterviewOperatorRunIdPort
   });
 }
 
-export function createProcessSleeperPortV1(): RepositoryInterviewOpenAiSleeperPortV1 {
+export function createProcessSleeperPortV1(
+  signal?: AbortSignal,
+): RepositoryInterviewOpenAiSleeperPortV1 {
   return Object.freeze({
-    sleep: (milliseconds: number) =>
-      new Promise<void>((resolve) => {
-        setTimeout(resolve, milliseconds);
-      }),
+    sleep(milliseconds: number) {
+      if (!Number.isSafeInteger(milliseconds) || milliseconds < 0) {
+        return Promise.reject(new RepositoryInterviewOperatorProcessError());
+      }
+      return new Promise<void>((resolve, reject) => {
+        if (signal?.aborted === true) {
+          reject(new RepositoryInterviewOperatorProcessError());
+          return;
+        }
+        let settled = false;
+        const cleanup = () => signal?.removeEventListener('abort', onAbort);
+        const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          resolve();
+        }, milliseconds);
+        const onAbort = () => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          cleanup();
+          reject(new RepositoryInterviewOperatorProcessError());
+        };
+        signal?.addEventListener('abort', onAbort, { once: true });
+      });
+    },
+  });
+}
+
+export function createProcessCandidateControlFactoryV1(
+  runSignal: AbortSignal,
+): RepositoryInterviewOperatorCandidateControlFactoryV1 {
+  return Object.freeze({
+    beginCandidate({
+      ordinal,
+      timeoutMilliseconds,
+    }: {
+      readonly ordinal: number;
+      readonly timeoutMilliseconds: number;
+    }) {
+      if (
+        !Number.isSafeInteger(ordinal) ||
+        ordinal < 0 ||
+        !Number.isSafeInteger(timeoutMilliseconds) ||
+        timeoutMilliseconds < 300_000 ||
+        timeoutMilliseconds > 86_400_000
+      ) {
+        throw new RepositoryInterviewOperatorProcessError();
+      }
+      const controller = new AbortController();
+      let outcome: 'active' | 'candidate-deadline' | 'run-deadline' = 'active';
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let listening = false;
+      let disposed = false;
+      const onRunAbort = () => {
+        if (disposed || outcome !== 'active') return;
+        outcome = 'run-deadline';
+        controller.abort();
+      };
+      if (runSignal.aborted) {
+        outcome = 'run-deadline';
+        controller.abort();
+      } else {
+        runSignal.addEventListener('abort', onRunAbort, { once: true });
+        listening = true;
+        timer = setTimeout(() => {
+          if (disposed || outcome !== 'active') return;
+          outcome = 'candidate-deadline';
+          controller.abort();
+        }, timeoutMilliseconds);
+        timer.unref();
+      }
+      return Object.freeze({
+        signal: controller.signal,
+        outcome: () => outcome,
+        dispose() {
+          if (disposed) return;
+          disposed = true;
+          if (timer !== undefined) clearTimeout(timer);
+          if (listening) runSignal.removeEventListener('abort', onRunAbort);
+          timer = undefined;
+          listening = false;
+        },
+      });
+    },
   });
 }
 
@@ -131,12 +222,20 @@ export function createProcessAttemptControlPortV1(
         outcome = 'cancelled';
         controller.abort();
       };
-      runSignal?.addEventListener('abort', onRunAbort, { once: true });
-      const timer = setTimeout(() => {
-        if (outcome === 'completed') outcome = 'deadline-exceeded';
+      let listening = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      if (runSignal?.aborted === true) {
+        outcome = 'cancelled';
         controller.abort();
-      }, timeoutMilliseconds);
-      timer.unref();
+      } else {
+        runSignal?.addEventListener('abort', onRunAbort, { once: true });
+        listening = runSignal !== undefined;
+        timer = setTimeout(() => {
+          if (outcome === 'completed') outcome = 'deadline-exceeded';
+          controller.abort();
+        }, timeoutMilliseconds);
+        timer.unref();
+      }
       let disposed = false;
       return Object.freeze({
         signal: controller.signal,
@@ -144,8 +243,10 @@ export function createProcessAttemptControlPortV1(
         dispose: () => {
           if (disposed) return;
           disposed = true;
-          clearTimeout(timer);
-          runSignal?.removeEventListener('abort', onRunAbort);
+          if (timer !== undefined) clearTimeout(timer);
+          if (listening) runSignal?.removeEventListener('abort', onRunAbort);
+          timer = undefined;
+          listening = false;
         },
       });
     },

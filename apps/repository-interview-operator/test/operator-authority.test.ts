@@ -1,3 +1,6 @@
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -7,8 +10,10 @@ import {
   createRepositoryInterviewOperatorSelectionV1,
   parseRepositoryInterviewOperatorPolicyV1,
   parseRepositoryInterviewOperatorSelectionV1,
+  repositoryInterviewOperatorPolicyDigestV1,
   validateRepositoryInterviewOperatorPreflightV1,
 } from '../src/index.ts';
+import { repositoryInterviewOperatorPolicyV1Schema } from '../src/schema-snapshots.ts';
 
 const DIGEST = 'a'.repeat(64);
 
@@ -251,7 +256,157 @@ describe('operator authority red-first boundary', () => {
     }
     expect(Object.isFrozen(valid.pricing)).toBe(true);
   });
+
+  it('keeps strict policy JSON Schema field bounds equivalent to runtime authority', () => {
+    const profile = modelProfile();
+    const base = createRepositoryInterviewOperatorPolicyV1(
+      policyDraft(profile),
+      profile,
+    );
+    const validate = strictSchemaValidator(
+      repositoryInterviewOperatorPolicyV1Schema,
+    );
+    expect(validate(base)).toBe(true);
+
+    const boundaries = [
+      ['maximumCandidates', 1, 150],
+      ['candidateDeadlineMilliseconds', 300_000, 86_400_000],
+      ['runDeadlineMilliseconds', 1, 86_400_000],
+      ['statementTimeoutMilliseconds', 1, 60_000],
+      ['lockTimeoutMilliseconds', 1, 30_000],
+      ['maximumInputTokensPerProviderCall', 1, 10_000_000],
+      ['maximumOutputTokensPerProviderCall', 1, 8_192],
+      ['maximumRunCostMicroUsd', 0, 120_000_000],
+    ] as const;
+    for (const [field, minimum, maximum] of boundaries) {
+      const atMinimum = authenticatePolicy({ ...base, [field]: minimum });
+      const atMaximum = authenticatePolicy({ ...base, [field]: maximum });
+      expect(validate(atMinimum), field).toBe(true);
+      expect(parseRepositoryInterviewOperatorPolicyV1(atMinimum).ok).toBe(true);
+      expect(validate(atMaximum), field).toBe(true);
+      expect(parseRepositoryInterviewOperatorPolicyV1(atMaximum).ok).toBe(true);
+      if (minimum > 0) {
+        const below = authenticatePolicy({ ...base, [field]: minimum - 1 });
+        expect(validate(below), `${field}: below`).toBe(false);
+        expect(parseRepositoryInterviewOperatorPolicyV1(below).ok).toBe(false);
+      }
+      const above = authenticatePolicy({ ...base, [field]: maximum + 1 });
+      expect(validate(above), `${field}: above`).toBe(false);
+      expect(parseRepositoryInterviewOperatorPolicyV1(above).ok).toBe(false);
+    }
+    expect(validate(authenticatePolicy({ ...base, concurrency: 1 }))).toBe(
+      true,
+    );
+    expect(validate(authenticatePolicy({ ...base, concurrency: 2 }))).toBe(
+      true,
+    );
+    expect(validate(authenticatePolicy({ ...base, concurrency: 3 }))).toBe(
+      false,
+    );
+    const largestSafe = authenticatePolicy({
+      ...base,
+      maximumRunInputTokens: Number.MAX_SAFE_INTEGER,
+    });
+    expect(validate(largestSafe)).toBe(true);
+    expect(parseRepositoryInterviewOperatorPolicyV1(largestSafe).ok).toBe(true);
+    expect(
+      validate(
+        authenticatePolicy({
+          ...base,
+          maximumRunInputTokens: Number.MAX_SAFE_INTEGER + 1,
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('keeps strict policy JSON Schema strings closed and runtime-shaped', () => {
+    const profile = modelProfile();
+    const base = createRepositoryInterviewOperatorPolicyV1(
+      policyDraft(profile),
+      profile,
+    );
+    const validate = strictSchemaValidator(
+      repositoryInterviewOperatorPolicyV1Schema,
+    );
+    for (const draft of [
+      { ...base, policyId: 'Unsafe Policy' },
+      { ...base, schemaVersion: '2.0.0' },
+      { ...base, unexpected: true },
+      {
+        ...base,
+        pricing: { ...base.pricing, provider: 'other' },
+      },
+      {
+        ...base,
+        pricing: { ...base.pricing, modelSnapshot: 'moving-alias' },
+      },
+      {
+        ...base,
+        pricing: { ...base.pricing, pricingAuthorityDate: '2026/07/31' },
+      },
+      {
+        ...base,
+        pricing: { ...base.pricing, pricingAuthorityDigest: 'bad' },
+      },
+    ]) {
+      const mutation = authenticatePolicy(draft);
+      expect(validate(mutation)).toBe(false);
+      expect(parseRepositoryInterviewOperatorPolicyV1(mutation).ok).toBe(false);
+    }
+    const invalidDigest = { ...base, policyDigest: 'not-a-digest' };
+    expect(validate(invalidDigest)).toBe(false);
+    expect(parseRepositoryInterviewOperatorPolicyV1(invalidDigest).ok).toBe(
+      false,
+    );
+  });
 });
+
+type StrictValidator = (value: unknown) => boolean;
+
+function authenticatePolicy<T extends Readonly<Record<string, unknown>>>(
+  value: T,
+): T & { readonly policyDigest: string } {
+  const { policyDigest, ...draft } = value;
+  void policyDigest;
+  return {
+    ...value,
+    policyDigest: repositoryInterviewOperatorPolicyDigestV1(
+      draft as unknown as Parameters<
+        typeof repositoryInterviewOperatorPolicyDigestV1
+      >[0],
+    ),
+  };
+}
+
+interface AjvLike {
+  compile(schema: unknown): StrictValidator;
+}
+
+type AjvConstructor = new (
+  options: Readonly<Record<string, unknown>>,
+) => AjvLike;
+
+function strictSchemaValidator(schema: unknown): StrictValidator {
+  const requireFromContracts = createRequire(
+    resolve('packages/contracts/package.json'),
+  );
+  const loaded = requireFromContracts('ajv/dist/2020.js') as unknown;
+  const candidate =
+    typeof loaded === 'function'
+      ? loaded
+      : typeof loaded === 'object' && loaded !== null && 'default' in loaded
+        ? loaded.default
+        : null;
+  if (typeof candidate !== 'function') {
+    throw new Error('Strict JSON Schema validator is unavailable.');
+  }
+  const Ajv = candidate as AjvConstructor;
+  return new Ajv({
+    strict: true,
+    allErrors: true,
+    validateFormats: false,
+  }).compile(schema);
+}
 
 function modelProfile() {
   return {

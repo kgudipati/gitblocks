@@ -2,6 +2,18 @@ type Schema = Readonly<Record<string, unknown>>;
 const digest = { type: 'string', pattern: '^[0-9a-f]{64}$' } as const;
 const text = { type: 'string', minLength: 1 } as const;
 const integer = { type: 'integer', minimum: 0 } as const;
+const maximumSafeInteger = Number.MAX_SAFE_INTEGER;
+const policySafeInteger = {
+  type: 'integer',
+  minimum: 0,
+  maximum: maximumSafeInteger,
+} as const;
+const policyDigest = {
+  type: 'string',
+  minLength: 64,
+  maxLength: 64,
+  pattern: '^[0-9a-f]{64}$',
+} as const;
 
 function closed(properties: Readonly<Record<string, unknown>>): Schema {
   return Object.freeze({
@@ -43,31 +55,74 @@ export const repositoryInterviewOperatorSelectionV1Schema = closed({
 
 export const repositoryInterviewOperatorPolicyV1Schema = closed({
   schemaVersion: { const: '1.0.0' },
-  policyId: text,
+  policyId: {
+    type: 'string',
+    minLength: 1,
+    maxLength: 128,
+    pattern: '^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$',
+  },
   maximumCandidates: { type: 'integer', minimum: 1, maximum: 150 },
   concurrency: { enum: [1, 2] },
-  candidateDeadlineMilliseconds: integer,
-  runDeadlineMilliseconds: integer,
-  statementTimeoutMilliseconds: integer,
-  lockTimeoutMilliseconds: integer,
-  maximumInputTokensPerProviderCall: integer,
-  maximumOutputTokensPerProviderCall: integer,
-  maximumRunInputTokens: integer,
-  maximumRunCachedInputTokens: integer,
-  maximumRunOutputTokens: integer,
-  maximumRunReasoningTokens: integer,
-  maximumRunTotalTokens: integer,
-  maximumRunCostMicroUsd: integer,
+  candidateDeadlineMilliseconds: {
+    type: 'integer',
+    minimum: 300_000,
+    maximum: 86_400_000,
+  },
+  runDeadlineMilliseconds: {
+    type: 'integer',
+    minimum: 1,
+    maximum: 86_400_000,
+  },
+  statementTimeoutMilliseconds: {
+    type: 'integer',
+    minimum: 1,
+    maximum: 60_000,
+  },
+  lockTimeoutMilliseconds: {
+    type: 'integer',
+    minimum: 1,
+    maximum: 30_000,
+  },
+  maximumInputTokensPerProviderCall: {
+    type: 'integer',
+    minimum: 1,
+    maximum: 10_000_000,
+  },
+  maximumOutputTokensPerProviderCall: {
+    type: 'integer',
+    minimum: 1,
+    maximum: 8_192,
+  },
+  maximumRunInputTokens: policySafeInteger,
+  maximumRunCachedInputTokens: policySafeInteger,
+  maximumRunOutputTokens: policySafeInteger,
+  maximumRunReasoningTokens: policySafeInteger,
+  maximumRunTotalTokens: policySafeInteger,
+  maximumRunCostMicroUsd: {
+    type: 'integer',
+    minimum: 0,
+    maximum: 120_000_000,
+  },
   pricing: closed({
     provider: { const: 'openai' },
-    modelSnapshot: text,
-    inputMicroUsdPerMillionTokens: integer,
-    cachedInputMicroUsdPerMillionTokens: integer,
-    outputMicroUsdPerMillionTokens: integer,
-    pricingAuthorityDate: text,
-    pricingAuthorityDigest: digest,
+    modelSnapshot: {
+      type: 'string',
+      minLength: 12,
+      maxLength: 128,
+      pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,102}-[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+    },
+    inputMicroUsdPerMillionTokens: policySafeInteger,
+    cachedInputMicroUsdPerMillionTokens: policySafeInteger,
+    outputMicroUsdPerMillionTokens: policySafeInteger,
+    pricingAuthorityDate: {
+      type: 'string',
+      minLength: 10,
+      maxLength: 10,
+      pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+    },
+    pricingAuthorityDigest: policyDigest,
   }),
-  policyDigest: digest,
+  policyDigest,
 });
 
 const candidateResult = closed({

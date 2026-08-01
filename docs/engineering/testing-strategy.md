@@ -299,6 +299,18 @@ fully consumed response is not cancelled and both declared and streaming size
 bounds retain their established cleanup paths. No real provider transport is
 used.
 
+Repository-interview operator tests use injected candidate controls and fake
+time to prove active candidate/run deadlines from before artifact loading
+through publication, already-aborted parent handling, retry-sleeper cleanup,
+no post-deadline provider startup, concurrency-two fail-fast behavior, and
+selection-ordered receipts. The ephemeral PostgreSQL suite additionally proves
+that the exact candidate signal reaches real artifact loading and publication,
+and that deterministic cancellation after a real artifact load creates no
+partial history or provider call. Operator-policy schema conformance tests
+exercise every field-level minimum, maximum, safe-integer ceiling, and string
+grammar against the runtime parser; cross-field rules remain explicit runtime
+tests.
+
 ## Coverage policy
 
 Coverage identifies unexecuted code and unexpected changes in exercised paths.

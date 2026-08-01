@@ -96,7 +96,16 @@ without applying migrations, keeps credentials lazy, invokes only the accepted
 interview application, and owns selection iteration, budget/deadline/fail-fast
 controls, immediate reuse proof, content-free telemetry, and an immutable
 local receipt. This is offline tested composition, not authority for a real
-provider or non-test database.
+provider or non-test database. The subsequent Milestone 9 review accepted that
+composition in substance and required three closure corrections before
+Milestone 10: candidate deadlines must actively govern artifact load through
+publication, the immediate-reuse guard must count its own invocation before
+throwing, and the committed policy schema must express the actual runtime
+bounds. The app now composes one candidate signal with the run signal, checks
+it between every awaited phase, preserves only durable work completed before
+the stop, and prevents already-aborted attempt or fetch startup. The policy
+schema mirrors field-level runtime authority; cross-field and real-date rules
+remain runtime validation concerns.
 
 ## Decision
 
@@ -876,7 +885,8 @@ second maintained schema.
 Milestones 1–8 passed maintainer review. Milestone 9 implements only the
 explicit offline composition root, app-owned persistence translation,
 operational policy/bounds, immediate reuse proof, content-free telemetry, and
-immutable local receipt authority. It now requires renewed maintainer review
+immutable local receipt authority. Its active deadline, reuse-evidence, and
+schema-authority correction now requires renewed maintainer review
 while the PR remains draft; Milestone 10 is not authorized by this
 implementation.
 

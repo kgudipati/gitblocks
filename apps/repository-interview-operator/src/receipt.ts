@@ -600,10 +600,12 @@ function validateReceiptSections(
         .length &&
     typedCounts.notStartedCandidates ===
       typedCounts.requestedCandidates - typedCounts.startedCandidates &&
-    typedCounts.providerAttempts ===
+    typedCounts.providerAttempts >=
       typedResults.reduce((total, result) => total + result.attemptCount, 0) &&
-    typedCounts.providerRetries ===
+    typedCounts.providerRetries >=
       typedResults.reduce((total, result) => total + result.retryCount, 0) &&
+    typedCounts.providerRetries <= typedCounts.providerAttempts &&
+    typedCounts.providerAttempts <= typedCounts.providerCalls * 2 &&
     typedSemantic.interviews === completed.length &&
     typedSemantic.claims === aggregate(typedResults, 'claims') &&
     typedSemantic.citations === aggregate(typedResults, 'citations') &&

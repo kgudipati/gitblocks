@@ -93,24 +93,26 @@ describe('repository interview operator composition', () => {
     let providerCalls = 0;
     const persistence: RepositoryInterviewOperatorPersistencePortV1 = {
       verifyMigrations: () => Promise.resolve(migrationAuthority()),
-      loadArtifactContext: () =>
-        Promise.resolve({ artifactSet, artifacts: [] }),
-      record: {
-        findReusable: () =>
-          Promise.resolve(
-            stored?.interview === null || stored === null
-              ? null
-              : {
-                  request: stored.request,
-                  execution: stored.execution,
-                  interview: stored.interview,
-                },
-          ),
-        publish: (command) => {
-          stored = command;
-          return Promise.resolve({ status: 'created' as const });
+      forCandidate: () => ({
+        loadArtifactContext: () =>
+          Promise.resolve({ artifactSet, artifacts: [] }),
+        record: {
+          findReusable: () =>
+            Promise.resolve(
+              stored?.interview === null || stored === null
+                ? null
+                : {
+                    request: stored.request,
+                    execution: stored.execution,
+                    interview: stored.interview,
+                  },
+            ),
+          publish: (command) => {
+            stored = command;
+            return Promise.resolve({ status: 'created' as const });
+          },
         },
-      },
+      }),
     };
     let monotonic = 0;
     const telemetryEvents: unknown[] = [];
@@ -127,22 +129,25 @@ describe('repository interview operator composition', () => {
       {
         persistence,
         provider: {
-          execute: () => {
-            providerCalls += 1;
-            return Promise.resolve({
-              status: 'response' as const,
-              attempts: [attempt()],
-              usage: {
-                inputTokens: 100,
-                cachedInputTokens: 20,
-                outputTokens: 30,
-                reasoningTokens: 10,
-                totalTokens: 130,
-              },
-              providerOutput: providerOutput(),
-            });
-          },
+          forCandidate: () => ({
+            execute: () => {
+              providerCalls += 1;
+              return Promise.resolve({
+                status: 'response' as const,
+                attempts: [attempt()],
+                usage: {
+                  inputTokens: 100,
+                  cachedInputTokens: 20,
+                  outputTokens: 30,
+                  reasoningTokens: 10,
+                  totalTokens: 130,
+                },
+                providerOutput: providerOutput(),
+              });
+            },
+          }),
         },
+        candidateControl: activeCandidateControlFactory(),
         clock: { now: () => '2026-07-31T12:00:02.000Z' },
         monotonicClock: { nowMilliseconds: () => monotonic++ },
         nonce: { nextExecutionNonce: () => '1'.repeat(32) },
@@ -216,14 +221,17 @@ describe('repository interview operator composition', () => {
       {
         persistence,
         provider: {
-          execute: () =>
-            Promise.resolve({
-              status: 'failed' as const,
-              failureCode: 'rate-limited' as const,
-              attempts: [{ ...attempt(), httpStatus: 429 }],
-              usage: null,
-            }),
+          forCandidate: () => ({
+            execute: () =>
+              Promise.resolve({
+                status: 'failed' as const,
+                failureCode: 'rate-limited' as const,
+                attempts: [{ ...attempt(), httpStatus: 429 }],
+                usage: null,
+              }),
+          }),
         },
+        candidateControl: activeCandidateControlFactory(),
         clock: { now: () => '2026-07-31T12:00:02.000Z' },
         monotonicClock: { nowMilliseconds: () => monotonic++ },
         nonce: { nextExecutionNonce: () => '2'.repeat(32) },
@@ -244,6 +252,19 @@ describe('repository interview operator composition', () => {
     expect(JSON.stringify(failed)).not.toContain('observer sentinel');
   });
 });
+
+function activeCandidateControlFactory() {
+  return {
+    beginCandidate() {
+      const controller = new AbortController();
+      return {
+        signal: controller.signal,
+        outcome: () => 'active' as const,
+        dispose: () => undefined,
+      };
+    },
+  };
+}
 
 function modelProfile(): ModelExecutionModelProfileV1 {
   return {

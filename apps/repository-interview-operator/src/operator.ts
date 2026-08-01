@@ -110,9 +110,30 @@ export interface RepositoryInterviewOperatorRunIdPortV1 {
   nextRunId(): string;
 }
 
+export type RepositoryInterviewOperatorCandidateOutcomeV1 =
+  'active' | 'candidate-deadline' | 'run-deadline';
+
+export interface RepositoryInterviewOperatorCandidateControlV1 {
+  readonly signal: AbortSignal;
+  outcome(): RepositoryInterviewOperatorCandidateOutcomeV1;
+  dispose(): void;
+}
+
+export interface RepositoryInterviewOperatorCandidateControlFactoryV1 {
+  beginCandidate(input: {
+    readonly ordinal: number;
+    readonly timeoutMilliseconds: number;
+  }): RepositoryInterviewOperatorCandidateControlV1;
+}
+
+export interface RepositoryInterviewOperatorProviderFactoryV1 {
+  forCandidate(signal: AbortSignal): RepositoryInterviewProviderPortV1;
+}
+
 export interface RepositoryInterviewOperatorPortsV1 {
   readonly persistence: RepositoryInterviewOperatorPersistencePortV1;
-  readonly provider: RepositoryInterviewProviderPortV1;
+  readonly provider: RepositoryInterviewOperatorProviderFactoryV1;
+  readonly candidateControl: RepositoryInterviewOperatorCandidateControlFactoryV1;
   readonly clock: RepositoryInterviewOperatorWallClockPortV1;
   readonly monotonicClock: RepositoryInterviewOperatorMonotonicClockPortV1;
   readonly nonce: RepositoryInterviewNoncePortV1;
@@ -136,6 +157,8 @@ interface MutableRunState {
   stopCode: string | null;
   persistenceFailures: number;
   providerCalls: number;
+  providerAttempts: number;
+  providerRetries: number;
   providerSummary: MutableProviderSummary;
   results: (RepositoryInterviewOperatorCandidateResultV1 | undefined)[];
 }
@@ -256,6 +279,8 @@ export async function runRepositoryInterviewOperatorV1(
     stopCode: null,
     persistenceFailures: 0,
     providerCalls: 0,
+    providerAttempts: 0,
+    providerRetries: 0,
     providerSummary: emptyProviderSummary(),
     results: Array.from(
       { length: preflight.selection.members.length },
@@ -307,7 +332,7 @@ export async function runRepositoryInterviewOperatorV1(
           interviewId: result.interviewId,
         });
       } else {
-        state.stopCode = result.failureCode ?? 'candidate-failed';
+        state.stopCode ??= result.failureCode ?? 'candidate-failed';
       }
     }
   };
@@ -400,30 +425,81 @@ async function executeMember(
   telemetry: ReturnType<typeof createRepositoryInterviewOperatorTelemetryV1>,
   state: MutableRunState,
 ): Promise<RepositoryInterviewOperatorCandidateResultV1> {
-  const started = readMonotonic(ports.monotonicClock);
-  await telemetry.emit(
-    event('candidate-started', { candidateOrdinal: member.ordinal }),
-  );
-  let context: Awaited<
-    ReturnType<typeof ports.persistence.loadArtifactContext>
-  >;
-  try {
-    context = await ports.persistence.loadArtifactContext(member, selection);
-  } catch {
-    state.persistenceFailures += 1;
-    return failedCandidate(
-      member,
-      'persistence-failed',
-      started,
-      ports,
-      'persistence-failed',
-    );
+  const control = ports.candidateControl.beginCandidate({
+    ordinal: member.ordinal,
+    timeoutMilliseconds: policy.candidateDeadlineMilliseconds,
+  });
+  if (!(control.signal instanceof AbortSignal)) {
+    throw new Error('Candidate control is invalid.');
   }
-  const provider: RepositoryInterviewProviderPortV1 = Object.freeze({
-    execute: async (request: RepositoryInterviewProviderRequestV1) => {
-      state.providerCalls += 1;
-      try {
-        const effect = await ports.provider.execute(request);
+  const started = readMonotonic(ports.monotonicClock);
+  try {
+    const initialDeadline = candidateDeadline(control);
+    if (initialDeadline !== null) {
+      state.stopCode ??= initialDeadline;
+      return failedCandidate(member, initialDeadline, started, ports);
+    }
+    await telemetry.emit(
+      event('candidate-started', { candidateOrdinal: member.ordinal }),
+    );
+    const afterStart = candidateDeadline(control);
+    if (afterStart !== null) {
+      state.stopCode ??= afterStart;
+      return failedCandidate(member, afterStart, started, ports);
+    }
+    const candidatePersistence = ports.persistence.forCandidate(control.signal);
+    let context: Awaited<
+      ReturnType<typeof candidatePersistence.loadArtifactContext>
+    >;
+    try {
+      context = await candidatePersistence.loadArtifactContext(
+        member,
+        selection,
+      );
+    } catch {
+      const deadline = candidateDeadline(control);
+      if (deadline !== null) {
+        state.stopCode ??= deadline;
+        return failedCandidate(member, deadline, started, ports);
+      }
+      state.persistenceFailures += 1;
+      return failedCandidate(
+        member,
+        'persistence-failed',
+        started,
+        ports,
+        'persistence-failed',
+      );
+    }
+    const afterArtifacts = candidateDeadline(control);
+    if (afterArtifacts !== null) {
+      state.stopCode ??= afterArtifacts;
+      return failedCandidate(member, afterArtifacts, started, ports);
+    }
+    const candidateProvider = ports.provider.forCandidate(control.signal);
+    const provider: RepositoryInterviewProviderPortV1 = Object.freeze({
+      execute: async (request: RepositoryInterviewProviderRequestV1) => {
+        if (candidateDeadline(control) !== null) {
+          throw new Error('Repository interview provider operation failed.');
+        }
+        state.providerCalls += 1;
+        let effect: Awaited<
+          ReturnType<RepositoryInterviewProviderPortV1['execute']>
+        >;
+        try {
+          effect = await candidateProvider.execute(request);
+        } catch {
+          await telemetry.emit(
+            event('provider-completed', {
+              candidateOrdinal: member.ordinal,
+              resultCode: 'provider-port-failure',
+              failureCode: 'provider-port-failure',
+            }),
+          );
+          throw new Error('Repository interview provider operation failed.');
+        }
+        state.providerAttempts += effect.attempts.length;
+        state.providerRetries += Math.max(0, effect.attempts.length - 1);
         recordProviderEffect(state.providerSummary, effect);
         await telemetry.emit(
           event('provider-completed', {
@@ -449,166 +525,205 @@ async function executeMember(
             failureCode: effect.status === 'failed' ? effect.failureCode : null,
           }),
         );
+        if (candidateDeadline(control) !== null) {
+          throw new Error('Repository interview provider operation failed.');
+        }
         return effect;
-      } catch {
-        await telemetry.emit(
-          event('provider-completed', {
-            candidateOrdinal: member.ordinal,
-            resultCode: 'provider-port-failure',
-            failureCode: 'provider-port-failure',
-          }),
-        );
-        throw new Error('Repository interview provider operation failed.');
-      }
-    },
-  });
-  let publicationStatus: 'created' | 'idempotent' | null = null;
-  const record: RepositoryInterviewRecordPortV1 = Object.freeze({
-    findReusable: (lookup: RepositoryInterviewReuseLookupV1) =>
-      ports.persistence.record.findReusable(lookup),
-    async publish(command: RepositoryInterviewPublicationCommandV1) {
-      const publication = await ports.persistence.record.publish(command);
-      if (
-        publication.status === 'created' ||
-        publication.status === 'idempotent'
-      ) {
-        publicationStatus = publication.status;
-      }
-      return publication;
-    },
-  });
-  const result = await executeRepositoryInterviewV1(
-    {
-      artifactSet: context.artifactSet,
-      artifacts: context.artifacts,
-      specification: input.specification,
-      modelProfile: input.modelProfile,
-      executionMode: input.executionMode,
-      forceReason: input.forceReason,
-    },
-    {
-      provider,
-      record,
-      clock: ports.clock,
-      nonce: ports.nonce,
-    },
-  );
-  const duration = readMonotonic(ports.monotonicClock) - started;
-  if (!result.ok) {
-    const failureCode = result.issues[0]?.code ?? 'application-failed';
-    const persistenceFailure =
-      failureCode === 'record-port-failure' ||
-      failureCode === 'record-port-conflict' ||
-      failureCode === 'reuse-record-invalid';
-    if (persistenceFailure) state.persistenceFailures += 1;
-    return failedCandidate(
-      member,
-      failureCode,
-      started,
-      ports,
-      persistenceFailure ? 'persistence-failed' : 'application-failed',
-    );
-  }
-  const attempts = result.execution.attempts;
-  const usage =
-    result.disposition === 'reused'
-      ? ZERO_USAGE
-      : (result.execution.outcome.usage ?? ZERO_USAGE);
-  const cost = calculateRepositoryInterviewUsageCostMicroUsdV1(
-    usage,
-    policy.pricing,
-  );
-  const interview = result.interview;
-  const status = interview === null ? 'provider-failed' : 'completed';
-  const durablePublicationStatus =
-    result.disposition === 'reused'
-      ? 'reused'
-      : result.disposition === 'created' || result.disposition === 'idempotent'
-        ? result.disposition
-        : publicationStatus;
-  if (durablePublicationStatus === null) {
-    return failedCandidate(member, 'application-closure', started, ports);
-  }
-  const candidate: RepositoryInterviewOperatorCandidateResultV1 = Object.freeze(
-    {
-      ordinal: member.ordinal,
-      candidateId: member.candidateId,
-      artifactSetId: member.artifactSetId,
-      artifactSetIdentityDigest: member.artifactSetIdentityDigest,
-      status,
-      disposition: result.disposition,
-      failureCode:
-        result.execution.outcome.status === 'failed'
-          ? result.execution.outcome.failureCode
-          : null,
-      requestId: result.request.requestId,
-      requestRecordDigest: result.request.recordDigest,
-      executionId: result.execution.executionId,
-      executionRecordDigest: result.execution.recordDigest,
-      interviewId: interview?.interviewId ?? null,
-      interviewRecordDigest: interview?.recordDigest ?? null,
-      attemptCount: result.disposition === 'reused' ? 0 : attempts.length,
-      retryCount:
-        result.disposition === 'reused' ? 0 : Math.max(0, attempts.length - 1),
-      publicationStatus: durablePublicationStatus,
-      claims: interview?.claims.length ?? 0,
-      citations: interview?.citations.length ?? 0,
-      limitations: interview?.limitations.length ?? 0,
-      contradictions: interview?.contradictions.length ?? 0,
-      unknowns: interview?.unknowns.length ?? 0,
-      usage,
-      costMicroUsd: cost,
-      durationMilliseconds: duration,
-    },
-  );
-  if (
-    usage.inputTokens > policy.maximumInputTokensPerProviderCall ||
-    usage.outputTokens > policy.maximumOutputTokensPerProviderCall ||
-    usage.cachedInputTokens > policy.maximumRunCachedInputTokens ||
-    usage.reasoningTokens > policy.maximumRunReasoningTokens ||
-    duration > policy.candidateDeadlineMilliseconds ||
-    exceedsCurrentRunBudget(state.results, candidate, policy)
-  ) {
-    state.stopCode =
-      duration > policy.candidateDeadlineMilliseconds
-        ? 'candidate-deadline'
-        : 'budget-exhausted';
-  }
-  if (result.disposition !== 'reused') {
-    await telemetry.emit(
-      event('publication-completed', {
-        candidateOrdinal: member.ordinal,
-        executionId: candidate.executionId,
-        interviewId: candidate.interviewId,
-        disposition: candidate.disposition,
-        publicationStatus: candidate.publicationStatus,
-      }),
-    );
-  }
-  await telemetry.emit(
-    event(
-      result.disposition === 'reused'
-        ? 'candidate-reused'
-        : 'candidate-completed',
-      {
-        candidateOrdinal: member.ordinal,
-        executionId: candidate.executionId,
-        interviewId: candidate.interviewId,
-        disposition: candidate.disposition,
-        durationMilliseconds: duration,
-        attemptCount: candidate.attemptCount,
-        retryCount: candidate.retryCount,
-        inputTokens: usage.inputTokens,
-        cachedInputTokens: usage.cachedInputTokens,
-        outputTokens: usage.outputTokens,
-        reasoningTokens: usage.reasoningTokens,
-        totalTokens: usage.totalTokens,
-        costMicroUsd: cost,
-        failureCode: candidate.failureCode,
       },
-    ),
-  );
-  return candidate;
+    });
+    let publicationStatus: 'created' | 'idempotent' | null = null;
+    const record: RepositoryInterviewRecordPortV1 = Object.freeze({
+      async findReusable(lookup: RepositoryInterviewReuseLookupV1) {
+        if (candidateDeadline(control) !== null) {
+          throw new Error('Repository interview persistence operation failed.');
+        }
+        const reusable = await candidatePersistence.record.findReusable(lookup);
+        if (candidateDeadline(control) !== null) {
+          throw new Error('Repository interview persistence operation failed.');
+        }
+        return reusable;
+      },
+      async publish(command: RepositoryInterviewPublicationCommandV1) {
+        if (candidateDeadline(control) !== null) {
+          throw new Error('Repository interview persistence operation failed.');
+        }
+        const publication = await candidatePersistence.record.publish(command);
+        if (
+          publication.status === 'created' ||
+          publication.status === 'idempotent'
+        ) {
+          publicationStatus = publication.status;
+        }
+        return publication;
+      },
+    });
+    const beforeApplication = candidateDeadline(control);
+    if (beforeApplication !== null) {
+      state.stopCode ??= beforeApplication;
+      return failedCandidate(member, beforeApplication, started, ports);
+    }
+    const result = await executeRepositoryInterviewV1(
+      {
+        artifactSet: context.artifactSet,
+        artifacts: context.artifacts,
+        specification: input.specification,
+        modelProfile: input.modelProfile,
+        executionMode: input.executionMode,
+        forceReason: input.forceReason,
+      },
+      {
+        provider,
+        record,
+        clock: ports.clock,
+        nonce: ports.nonce,
+      },
+    );
+    const afterApplication = candidateDeadline(control);
+    const duration = readMonotonic(ports.monotonicClock) - started;
+    if (!result.ok) {
+      if (afterApplication !== null) {
+        state.stopCode ??= afterApplication;
+        return failedCandidate(member, afterApplication, started, ports);
+      }
+      const failureCode = result.issues[0]?.code ?? 'application-failed';
+      const persistenceFailure =
+        failureCode === 'record-port-failure' ||
+        failureCode === 'record-port-conflict' ||
+        failureCode === 'reuse-record-invalid';
+      if (persistenceFailure) state.persistenceFailures += 1;
+      return failedCandidate(
+        member,
+        failureCode,
+        started,
+        ports,
+        persistenceFailure ? 'persistence-failed' : 'application-failed',
+      );
+    }
+    const attempts = result.execution.attempts;
+    const usage =
+      result.disposition === 'reused'
+        ? ZERO_USAGE
+        : (result.execution.outcome.usage ?? ZERO_USAGE);
+    const cost = calculateRepositoryInterviewUsageCostMicroUsdV1(
+      usage,
+      policy.pricing,
+    );
+    const interview = result.interview;
+    const status = interview === null ? 'provider-failed' : 'completed';
+    const durablePublicationStatus =
+      result.disposition === 'reused'
+        ? 'reused'
+        : result.disposition === 'created' ||
+            result.disposition === 'idempotent'
+          ? result.disposition
+          : publicationStatus;
+    if (durablePublicationStatus === null) {
+      if (afterApplication !== null) state.stopCode ??= afterApplication;
+      return failedCandidate(member, 'application-closure', started, ports);
+    }
+    const candidate: RepositoryInterviewOperatorCandidateResultV1 =
+      Object.freeze({
+        ordinal: member.ordinal,
+        candidateId: member.candidateId,
+        artifactSetId: member.artifactSetId,
+        artifactSetIdentityDigest: member.artifactSetIdentityDigest,
+        status,
+        disposition: result.disposition,
+        failureCode:
+          result.execution.outcome.status === 'failed'
+            ? result.execution.outcome.failureCode
+            : null,
+        requestId: result.request.requestId,
+        requestRecordDigest: result.request.recordDigest,
+        executionId: result.execution.executionId,
+        executionRecordDigest: result.execution.recordDigest,
+        interviewId: interview?.interviewId ?? null,
+        interviewRecordDigest: interview?.recordDigest ?? null,
+        attemptCount: result.disposition === 'reused' ? 0 : attempts.length,
+        retryCount:
+          result.disposition === 'reused'
+            ? 0
+            : Math.max(0, attempts.length - 1),
+        publicationStatus: durablePublicationStatus,
+        claims: interview?.claims.length ?? 0,
+        citations: interview?.citations.length ?? 0,
+        limitations: interview?.limitations.length ?? 0,
+        contradictions: interview?.contradictions.length ?? 0,
+        unknowns: interview?.unknowns.length ?? 0,
+        usage,
+        costMicroUsd: cost,
+        durationMilliseconds: duration,
+      });
+    if (afterApplication !== null) state.stopCode ??= afterApplication;
+    if (
+      usage.inputTokens > policy.maximumInputTokensPerProviderCall ||
+      usage.outputTokens > policy.maximumOutputTokensPerProviderCall ||
+      usage.cachedInputTokens > policy.maximumRunCachedInputTokens ||
+      usage.reasoningTokens > policy.maximumRunReasoningTokens ||
+      duration > policy.candidateDeadlineMilliseconds ||
+      exceedsCurrentRunBudget(state.results, candidate, policy)
+    ) {
+      state.stopCode ??=
+        duration > policy.candidateDeadlineMilliseconds
+          ? 'candidate-deadline'
+          : 'budget-exhausted';
+    }
+    if (result.disposition !== 'reused') {
+      await telemetry.emit(
+        event('publication-completed', {
+          candidateOrdinal: member.ordinal,
+          executionId: candidate.executionId,
+          interviewId: candidate.interviewId,
+          disposition: candidate.disposition,
+          publicationStatus: candidate.publicationStatus,
+        }),
+      );
+    }
+    await telemetry.emit(
+      event(
+        result.disposition === 'reused'
+          ? 'candidate-reused'
+          : 'candidate-completed',
+        {
+          candidateOrdinal: member.ordinal,
+          executionId: candidate.executionId,
+          interviewId: candidate.interviewId,
+          disposition: candidate.disposition,
+          durationMilliseconds: duration,
+          attemptCount: candidate.attemptCount,
+          retryCount: candidate.retryCount,
+          inputTokens: usage.inputTokens,
+          cachedInputTokens: usage.cachedInputTokens,
+          outputTokens: usage.outputTokens,
+          reasoningTokens: usage.reasoningTokens,
+          totalTokens: usage.totalTokens,
+          costMicroUsd: cost,
+          failureCode: candidate.failureCode,
+        },
+      ),
+    );
+    const finalDeadline = candidateDeadline(control);
+    if (finalDeadline !== null) state.stopCode ??= finalDeadline;
+    return candidate;
+  } finally {
+    control.dispose();
+  }
+}
+
+function candidateDeadline(
+  control: RepositoryInterviewOperatorCandidateControlV1,
+): Exclude<RepositoryInterviewOperatorCandidateOutcomeV1, 'active'> | null {
+  const outcome = control.outcome();
+  if (outcome === 'active') {
+    if (control.signal.aborted) {
+      throw new Error('Candidate control is inconsistent.');
+    }
+    return null;
+  }
+  if (!control.signal.aborted) {
+    throw new Error('Candidate control is inconsistent.');
+  }
+  return outcome;
 }
 
 async function verifyImmediateReuse(
@@ -623,12 +738,29 @@ async function verifyImmediateReuse(
   >
 > {
   let reused = 0;
+  let providerCalls = 0;
   for (const member of selection.members) {
+    const control = ports.candidateControl.beginCandidate({
+      ordinal: member.ordinal,
+      timeoutMilliseconds: input.policy.candidateDeadlineMilliseconds,
+    });
     try {
-      const context = await ports.persistence.loadArtifactContext(
-        member,
-        selection,
-      );
+      if (candidateDeadline(control) !== null) {
+        return immediateReuseFailure(
+          selection.members.length,
+          reused,
+          providerCalls,
+        );
+      }
+      const persistence = ports.persistence.forCandidate(control.signal);
+      const context = await persistence.loadArtifactContext(member, selection);
+      if (candidateDeadline(control) !== null) {
+        return immediateReuseFailure(
+          selection.members.length,
+          reused,
+          providerCalls,
+        );
+      }
       const result = await executeRepositoryInterviewV1(
         {
           artifactSet: context.artifactSet,
@@ -640,10 +772,14 @@ async function verifyImmediateReuse(
         },
         {
           provider: Object.freeze({
-            execute: () =>
-              Promise.reject(new Error('Immediate reuse provider guard.')),
+            execute: () => {
+              providerCalls += 1;
+              return Promise.reject(
+                new Error('Immediate reuse provider guard.'),
+              );
+            },
           }),
-          record: ports.persistence.record,
+          record: persistence.record,
           clock: ports.clock,
           nonce: ports.nonce,
         },
@@ -655,10 +791,20 @@ async function verifyImmediateReuse(
         result.execution.executionId !== authority?.executionId ||
         result.interview.interviewId !== authority.interviewId
       )
-        return immediateReuseFailure(selection.members.length, reused);
+        return immediateReuseFailure(
+          selection.members.length,
+          reused,
+          providerCalls,
+        );
       reused += 1;
     } catch {
-      return immediateReuseFailure(selection.members.length, reused);
+      return immediateReuseFailure(
+        selection.members.length,
+        reused,
+        providerCalls,
+      );
+    } finally {
+      control.dispose();
     }
   }
   return Object.freeze({
@@ -676,6 +822,7 @@ async function verifyImmediateReuse(
 function immediateReuseFailure(
   candidateCount: number,
   reusedCount: number,
+  providerCalls: number,
 ): Extract<
   RepositoryInterviewOperatorReceiptV1['immediateReuse'],
   { requested: true }
@@ -685,7 +832,7 @@ function immediateReuseFailure(
     passed: false,
     candidateCount,
     reusedCount,
-    providerCalls: 0,
+    providerCalls,
     providerAttempts: 0,
     tokenUsage: 0,
     costMicroUsd: 0,
@@ -785,14 +932,8 @@ function buildReceipt(args: {
       persistenceFailedCandidates: args.state.persistenceFailures,
       notStartedCandidates: preflight.selection.members.length - results.length,
       providerCalls: args.state.providerCalls,
-      providerAttempts: results.reduce(
-        (total, result) => total + result.attemptCount,
-        0,
-      ),
-      providerRetries: results.reduce(
-        (total, result) => total + result.retryCount,
-        0,
-      ),
+      providerAttempts: args.state.providerAttempts,
+      providerRetries: args.state.providerRetries,
     },
     semanticCounts: {
       interviews: completed.length,

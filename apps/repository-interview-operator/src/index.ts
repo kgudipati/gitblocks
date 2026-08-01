@@ -23,8 +23,12 @@ export type {
 export {
   runRepositoryInterviewOperatorV1,
   validateRepositoryInterviewOperatorPreflightV1,
+  type RepositoryInterviewOperatorCandidateControlFactoryV1,
+  type RepositoryInterviewOperatorCandidateControlV1,
+  type RepositoryInterviewOperatorCandidateOutcomeV1,
   type RepositoryInterviewOperatorMonotonicClockPortV1,
   type RepositoryInterviewOperatorPortsV1,
+  type RepositoryInterviewOperatorProviderFactoryV1,
   type RepositoryInterviewOperatorRunIdPortV1,
   type RepositoryInterviewOperatorWallClockPortV1,
   type RunRepositoryInterviewOperatorInputV1,
@@ -34,6 +38,7 @@ export {
   createRepositoryInterviewPersistenceAdapterV1,
   RepositoryInterviewOperatorPersistenceError,
   type RepositoryInterviewOperatorArtifactContextV1,
+  type RepositoryInterviewOperatorCandidatePersistencePortV1,
   type RepositoryInterviewOperatorPersistencePortV1,
 } from './persistence-adapter.ts';
 export {

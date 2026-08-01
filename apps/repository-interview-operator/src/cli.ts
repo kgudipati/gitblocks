@@ -22,6 +22,7 @@ import {
   createExplicitGlobalFetchPortV1,
   createLazyEnvironmentCredentialPortV1,
   createProcessAttemptControlPortV1,
+  createProcessCandidateControlFactoryV1,
   createProcessClockPortsV1,
   createProcessNoncePortV1,
   createProcessRunDeadlineControlV1,
@@ -157,15 +158,21 @@ export async function runRepositoryInterviewOperatorCliV1(
         },
       );
       const clocks = createProcessClockPortsV1();
-      const provider = createOpenAiResponsesRepositoryInterviewProviderV1({
-        credential: createLazyEnvironmentCredentialPortV1(
-          configuration.openAiTokenEnv,
-          (name) => boundary.readEnvironment(name),
-        ),
-        fetch: createExplicitGlobalFetchPortV1(boundary.createFetch()),
-        clock: clocks.openAi,
-        sleeper: createProcessSleeperPortV1(),
-        attemptControl: createProcessAttemptControlPortV1(runController.signal),
+      const credential = createLazyEnvironmentCredentialPortV1(
+        configuration.openAiTokenEnv,
+        (name) => boundary.readEnvironment(name),
+      );
+      const fetch = createExplicitGlobalFetchPortV1(boundary.createFetch());
+      const provider = Object.freeze({
+        forCandidate(signal: AbortSignal) {
+          return createOpenAiResponsesRepositoryInterviewProviderV1({
+            credential,
+            fetch,
+            clock: clocks.openAi,
+            sleeper: createProcessSleeperPortV1(signal),
+            attemptControl: createProcessAttemptControlPortV1(signal),
+          });
+        },
       });
       try {
         const result = await runRepositoryInterviewOperatorV1(
@@ -181,6 +188,9 @@ export async function runRepositoryInterviewOperatorCliV1(
           {
             persistence,
             provider,
+            candidateControl: createProcessCandidateControlFactoryV1(
+              runController.signal,
+            ),
             clock: clocks.wall,
             monotonicClock: clocks.monotonic,
             nonce: createProcessNoncePortV1(),

@@ -38,6 +38,9 @@
   - PR #18 review: “Milestone 8 review — adapter boundary accepted;
     attempt-provenance and deadline corrections required before Milestone 9.”
   - PR #18 review: “Milestone 8 accepted — Milestone 9 authorized.”
+  - PR #18 review: “Milestone 9 review — composition accepted in substance;
+    deadline, reuse-proof, and schema-authority corrections required before
+    Milestone 10.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
 - State: Milestones 1–8 are accepted; Milestone 9's explicit offline operator
@@ -3280,7 +3283,21 @@ nonce, telemetry, or write effect. Normal execution preserves reuse without a
 credential/nonce/provider call; forced execution accepts only the three
 existing product-contract reason codes and appends immutable history. The
 optional second pass installs a provider guard and requires exact zero-call
-reuse.
+reuse. The correction counts each guard invocation before it throws, so a
+missing reusable record records one observed provider call rather than
+claiming a false zero-call proof.
+
+Candidate control now begins before candidate-started telemetry and artifact
+loading, composes the policy-exact candidate timeout with the parent run
+signal, and reaches artifact loading, reuse lookup, provider attempt control,
+retry sleep, and publication through app-local scoped ports. The pure operator
+checks control authority before and after each awaited phase, starts no new or
+replacement candidate after a stop, and disposes every timer and listener.
+Already-aborted parent signals immediately abort candidate and attempt
+controls, and the explicit fetch boundary refuses to call global fetch under
+an already-aborted signal. Durable exchanges completed before a deadline are
+preserved exactly; a deadline before durable completion produces a
+content-free operator candidate result with no fabricated execution.
 
 Operator-local selection, policy, and receipt `1.0.0` schemas are generated and
 byte-validated. Their parsers own/freeze bounded plain data and their records
@@ -3293,22 +3310,37 @@ only the prescribed ephemeral PostgreSQL role and synthetic provider transport.
 The committed operator schema snapshot SHA-256 values are:
 
 - selection: `e66956879ecfd3ef878513dcaa9f454d6b4cc7a035b5176c26a7b9f4a204c7a3`;
-- policy: `770c9f628b6f69d3086d4e02e3666904cc3627777dfda6292ca1dcf268c793ba`;
+- policy: `6147c1a4e47680a6c5e6a760bbc27d4bdfea5e8b1a7dd93e67a080bb6ce7184e`;
 - receipt: `934ba36ee7bf6640b1886507123978e0421dc56bc98c2fe02583f31a402187c5`.
 
-Red-first work began with the absent app/package surface and failing focused
-tests. The green Milestone 9 evidence is 20 operator unit tests across four
-files, three drift-checked operator schemas, 60 PostgreSQL tests across six
-files with no skips, and the repository-wide 63-file/1,221-test suite. The
+Red-first work began with the absent app/package surface. The correction added
+focused failing deadline, already-aborted-parent, truthful reuse-proof, and
+schema/runtime boundary tests before implementation. The focused correction
+suite is 32 tests across three files and the complete operator unit suite is 37
+tests across five files. Three drift-checked operator schemas remain, and the
+ephemeral PostgreSQL suite is 60 tests across six files with no skips. The
 ephemeral PostgreSQL composition uses the real interview application, real
 direct Responses adapter with synthetic `fetch`, real persistence adapter, and
 synthetic artifacts to prove first creation, historical reconstruction,
 zero-call normal reuse, forced immutable history, retained normal reuse after
-force, and failed-execution publication without an interview. Coverage remains
-above repository thresholds at 79.62% statements, 73.12% branches, 86.27%
-functions, and 79.8% lines.
+force, failed-execution publication without an interview, candidate-scoped
+artifact/publication signals, and deterministic run cancellation after a real
+artifact load with zero provider calls and unchanged reusable history.
 
-The complete prescribed command matrix passed on Node 24.14.0 and pnpm
+The repository-wide suite is 64 files/1,238 tests. Coverage remains above the
+repository thresholds at 79.86% statements, 73.48% branches, 86.85% functions,
+and 80.02% lines. Policy-schema conformance covers every field-level minimum,
+maximum, safe-integer ceiling, and string grammar; runtime-only cross-field and
+real-date constraints remain independently exercised.
+
+On this workstation, repeated default-worker coverage runs exposed an existing
+resource-sensitive five-second timeout in the unrelated 10,001-node workflow
+YAML bound test; all other 1,237 tests passed. The exact coverage script passed
+all 64 files/1,238 tests with `VITEST_MAX_WORKERS=1` and produced the percentages
+above. No unrelated test timeout or repository-check implementation was changed;
+hosted CI remains the independent default-worker authority.
+
+The complete prescribed command matrix passed on Node 24.18.0 and pnpm
 11.17.0. PostgreSQL verification used 18.4, four migrations, 25 product tables,
 zero RLS policies, and no skipped integration test; dependency audit reported
 no known vulnerability. Product-contract conformance remained 10 cases/40
@@ -3332,10 +3364,12 @@ review accepts:
 
 1. the app/package/dependency direction and exact explicit CLI/acknowledgement
    boundary;
-2. selection, model, specification, operator-policy, migration, artifact,
-   budget, deadline, concurrency, reuse, force, receipt, and telemetry closure;
+2. selection, model, specification, operator-policy/schema equivalence,
+   migration, artifact, active candidate/run deadline, concurrency, reuse,
+   force, receipt, and telemetry closure;
 3. the normal/reuse/forced/failure fake-provider and ephemeral PostgreSQL
-   evidence, including the immediate zero-call proof;
+   evidence, including truthful failed-proof provider-call accounting and the
+   immediate zero-call passing proof;
 4. unchanged product, specification, golden, evaluation, migration, catalog,
    artifact, pilot, dependency-version, and workspace authorities; and
 5. complete local and hosted-CI verification on the exact Milestone 9 commit.

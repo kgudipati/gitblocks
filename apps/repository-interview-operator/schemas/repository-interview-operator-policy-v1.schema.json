@@ -2,7 +2,8 @@
   "additionalProperties": false,
   "properties": {
     "candidateDeadlineMilliseconds": {
-      "minimum": 0,
+      "maximum": 86400000,
+      "minimum": 300000,
       "type": "integer"
     },
     "concurrency": {
@@ -12,7 +13,8 @@
       ]
     },
     "lockTimeoutMilliseconds": {
-      "minimum": 0,
+      "maximum": 30000,
+      "minimum": 1,
       "type": "integer"
     },
     "maximumCandidates": {
@@ -21,69 +23,90 @@
       "type": "integer"
     },
     "maximumInputTokensPerProviderCall": {
-      "minimum": 0,
+      "maximum": 10000000,
+      "minimum": 1,
       "type": "integer"
     },
     "maximumOutputTokensPerProviderCall": {
-      "minimum": 0,
+      "maximum": 8192,
+      "minimum": 1,
       "type": "integer"
     },
     "maximumRunCachedInputTokens": {
+      "maximum": 9007199254740991,
       "minimum": 0,
       "type": "integer"
     },
     "maximumRunCostMicroUsd": {
+      "maximum": 120000000,
       "minimum": 0,
       "type": "integer"
     },
     "maximumRunInputTokens": {
+      "maximum": 9007199254740991,
       "minimum": 0,
       "type": "integer"
     },
     "maximumRunOutputTokens": {
+      "maximum": 9007199254740991,
       "minimum": 0,
       "type": "integer"
     },
     "maximumRunReasoningTokens": {
+      "maximum": 9007199254740991,
       "minimum": 0,
       "type": "integer"
     },
     "maximumRunTotalTokens": {
+      "maximum": 9007199254740991,
       "minimum": 0,
       "type": "integer"
     },
     "policyDigest": {
+      "maxLength": 64,
+      "minLength": 64,
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },
     "policyId": {
+      "maxLength": 128,
       "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
       "type": "string"
     },
     "pricing": {
       "additionalProperties": false,
       "properties": {
         "cachedInputMicroUsdPerMillionTokens": {
+          "maximum": 9007199254740991,
           "minimum": 0,
           "type": "integer"
         },
         "inputMicroUsdPerMillionTokens": {
+          "maximum": 9007199254740991,
           "minimum": 0,
           "type": "integer"
         },
         "modelSnapshot": {
-          "minLength": 1,
+          "maxLength": 128,
+          "minLength": 12,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,102}-[0-9]{4}-[0-9]{2}-[0-9]{2}$",
           "type": "string"
         },
         "outputMicroUsdPerMillionTokens": {
+          "maximum": 9007199254740991,
           "minimum": 0,
           "type": "integer"
         },
         "pricingAuthorityDate": {
-          "minLength": 1,
+          "maxLength": 10,
+          "minLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
           "type": "string"
         },
         "pricingAuthorityDigest": {
+          "maxLength": 64,
+          "minLength": 64,
           "pattern": "^[0-9a-f]{64}$",
           "type": "string"
         },
@@ -103,14 +126,16 @@
       "type": "object"
     },
     "runDeadlineMilliseconds": {
-      "minimum": 0,
+      "maximum": 86400000,
+      "minimum": 1,
       "type": "integer"
     },
     "schemaVersion": {
       "const": "1.0.0"
     },
     "statementTimeoutMilliseconds": {
-      "minimum": 0,
+      "maximum": 60000,
+      "minimum": 1,
       "type": "integer"
     }
   },

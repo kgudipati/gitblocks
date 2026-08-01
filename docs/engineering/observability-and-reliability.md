@@ -190,6 +190,17 @@ settlement or bounded parsing overrides a late response. Retry sleep is
 followed by an observed-clock deadline check, so scheduler delay or oversleep
 cannot start an attempt without the full configured attempt budget.
 
+The repository-interview operator starts a candidate control before
+candidate-started telemetry or artifact loading and composes it with the run
+signal. That exact signal governs persistence, provider attempt control, and
+retry sleep; authority is rechecked after awaited phases before later work is
+accepted. Deadline receipts distinguish `candidate-deadline` from
+`run-deadline`, preserve durable results completed before the stop, and report
+actual calls, returned attempts, publications, usage, and cost. The immediate
+reuse guard increments its local call counter before throwing so a failed proof
+cannot be reported as zero-call. Abort reasons and raw effect failures remain
+excluded.
+
 ## Worker and job observability
 
 Each job type defines a versioned payload, owner, idempotency key, maximum

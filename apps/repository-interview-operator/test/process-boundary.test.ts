@@ -16,7 +16,11 @@ import {
   parseRepositoryInterviewOperatorArgumentsV1,
 } from '../src/index.ts';
 import {
+  createExplicitGlobalFetchPortV1,
+  createProcessAttemptControlPortV1,
+  createProcessCandidateControlFactoryV1,
   createProcessRunDeadlineControlV1,
+  createProcessSleeperPortV1,
   writeRepositoryInterviewOperatorReceiptFileV1,
 } from '../src/process-ports.ts';
 
@@ -203,6 +207,99 @@ describe('operator process boundary', () => {
       deadline.dispose();
       vi.advanceTimersByTime(1_000);
       expect(disposed.signal.aborted).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('immediately closes candidate and attempt controls over an already-aborted parent', () => {
+    vi.useFakeTimers();
+    try {
+      const parent = new AbortController();
+      parent.abort();
+      const candidates = createProcessCandidateControlFactoryV1(parent.signal);
+      const candidate = candidates.beginCandidate({
+        ordinal: 0,
+        timeoutMilliseconds: 300_000,
+      });
+      expect(candidate.signal.aborted).toBe(true);
+      expect(candidate.outcome()).toBe('run-deadline');
+      candidate.dispose();
+      candidate.dispose();
+
+      const attempt = createProcessAttemptControlPortV1(
+        parent.signal,
+      ).beginAttempt({ ordinal: 1, timeoutMilliseconds: 120_000 });
+      expect(attempt.signal.aborted).toBe(true);
+      expect(attempt.outcome()).toBe('cancelled');
+      attempt.dispose();
+      attempt.dispose();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('composes exact candidate and parent run deadline authority', () => {
+    vi.useFakeTimers();
+    try {
+      const parent = new AbortController();
+      const factory = createProcessCandidateControlFactoryV1(parent.signal);
+      const candidate = factory.beginCandidate({
+        ordinal: 0,
+        timeoutMilliseconds: 300_000,
+      });
+      vi.advanceTimersByTime(299_999);
+      expect(candidate.outcome()).toBe('active');
+      vi.advanceTimersByTime(1);
+      expect(candidate.signal.aborted).toBe(true);
+      expect(candidate.outcome()).toBe('candidate-deadline');
+      parent.abort();
+      expect(candidate.outcome()).toBe('candidate-deadline');
+      candidate.dispose();
+
+      const secondParent = new AbortController();
+      const secondFactory = createProcessCandidateControlFactoryV1(
+        secondParent.signal,
+      );
+      const runOwned = secondFactory.beginCandidate({
+        ordinal: 1,
+        timeoutMilliseconds: 300_000,
+      });
+      secondParent.abort();
+      expect(runOwned.signal.aborted).toBe(true);
+      expect(runOwned.outcome()).toBe('run-deadline');
+      runOwned.dispose();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not invoke fetch for an already-aborted request signal', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const underlying = vi.fn(() => Promise.resolve(new Response('{}')));
+    const fetch = createExplicitGlobalFetchPortV1(underlying);
+    await expect(
+      fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        signal: controller.signal,
+      }),
+    ).rejects.toThrow('process operation failed');
+    expect(underlying).not.toHaveBeenCalled();
+  });
+
+  it('cancels retry sleep without retaining an abort reason', async () => {
+    vi.useFakeTimers();
+    try {
+      const controller = new AbortController();
+      const sleeper = createProcessSleeperPortV1(controller.signal);
+      const sleeping = sleeper.sleep(30_000);
+      controller.abort('abort sentinel');
+      await expect(sleeping).rejects.toThrow('process operation failed');
+      expect(vi.getTimerCount()).toBe(0);
+      await expect(sleeping).rejects.not.toThrow('abort sentinel');
     } finally {
       vi.useRealTimers();
     }

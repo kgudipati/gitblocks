@@ -16,6 +16,8 @@ import {
 const DIGEST = /^[0-9a-f]{64}$/u;
 const SAFE_ID = /^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$/u;
 const DATE = /^\d{4}-\d{2}-\d{2}$/u;
+const DATED_MODEL_SNAPSHOT =
+  /^[A-Za-z0-9][A-Za-z0-9._-]{0,102}-[0-9]{4}-[0-9]{2}-[0-9]{2}$/u;
 const ROOT_KEYS = [
   'schemaVersion',
   'policyId',
@@ -163,6 +165,10 @@ export function parseRepositoryInterviewOperatorPolicyV1(
         Number(value['maximumRunOutputTokens']) ||
       pricing['provider'] !== 'openai' ||
       typeof pricing['modelSnapshot'] !== 'string' ||
+      pricing['modelSnapshot'].length < 12 ||
+      pricing['modelSnapshot'].length > 128 ||
+      !DATED_MODEL_SNAPSHOT.test(pricing['modelSnapshot']) ||
+      !isRealDate(pricing['modelSnapshot'].slice(-10)) ||
       typeof pricing['pricingAuthorityDate'] !== 'string' ||
       !DATE.test(pricing['pricingAuthorityDate']) ||
       !isRealDate(pricing['pricingAuthorityDate']) ||

@@ -12,6 +12,7 @@ import {
   createOpenAiResponsesRepositoryInterviewProviderV1,
   loadRepositoryInterviewSpecification,
   REPOSITORY_INTERVIEW_TOPICS,
+  type RepositoryInterviewReuseLookupV1,
 } from '@gitblocks/interviews';
 import {
   applyMigrations,
@@ -93,6 +94,37 @@ describe('operator PostgreSQL composition', { concurrent: false }, () => {
           },
         ],
       });
+      const basePersistence = createRepositoryInterviewPersistenceAdapterV1(
+        runtime,
+        {
+          statementTimeoutMilliseconds: 10_000,
+          lockTimeoutMilliseconds: 5_000,
+        },
+      );
+      const artifactSignals: AbortSignal[] = [];
+      const publicationSignals: AbortSignal[] = [];
+      const persistence = {
+        verifyMigrations: () => basePersistence.verifyMigrations(),
+        forCandidate(signal: AbortSignal) {
+          const scoped = basePersistence.forCandidate(signal);
+          return {
+            async loadArtifactContext(
+              ...args: Parameters<typeof scoped.loadArtifactContext>
+            ) {
+              artifactSignals.push(signal);
+              return scoped.loadArtifactContext(...args);
+            },
+            record: {
+              findReusable: (lookup: RepositoryInterviewReuseLookupV1) =>
+                scoped.record.findReusable(lookup),
+              async publish(...args: Parameters<typeof scoped.record.publish>) {
+                publicationSignals.push(signal);
+                return scoped.record.publish(...args);
+              },
+            },
+          };
+        },
+      };
       let providerCalls = 0;
       let nonce = 0;
       let providerClockTick = 0;
@@ -161,11 +193,9 @@ describe('operator PostgreSQL composition', { concurrent: false }, () => {
         },
       });
       const ports = {
-        persistence: createRepositoryInterviewPersistenceAdapterV1(runtime, {
-          statementTimeoutMilliseconds: 10_000,
-          lockTimeoutMilliseconds: 5_000,
-        }),
-        provider,
+        persistence,
+        provider: { forCandidate: () => provider },
+        candidateControl: activeCandidateControlFactory(),
         clock: { now: () => '2026-07-31T12:10:00.000Z' },
         monotonicClock: (() => {
           let value = 0;
@@ -202,6 +232,8 @@ describe('operator PostgreSQL composition', { concurrent: false }, () => {
         passed: true,
         providerCalls: 0,
       });
+      expect(artifactSignals[0]).toBeInstanceOf(AbortSignal);
+      expect(publicationSignals[0]).toBe(artifactSignals[0]);
       expect(providerCalls).toBe(1);
       const firstCandidate = first.receipt.candidateResults[0];
       if (firstCandidate?.executionId == null) {
@@ -272,6 +304,78 @@ describe('operator PostgreSQL composition', { concurrent: false }, () => {
       );
       expect(providerCalls).toBe(2);
 
+      const deadlineControl = mutableCandidateControl();
+      let deadlineProviderCalls = 0;
+      const deadline = await runRepositoryInterviewOperatorV1(
+        {
+          selection,
+          specification,
+          modelProfile: profile,
+          policy,
+          executionMode: 'normal',
+          forceReason: null,
+          verifyImmediateReuse: false,
+        },
+        {
+          ...ports,
+          persistence: {
+            verifyMigrations: () => basePersistence.verifyMigrations(),
+            forCandidate(signal) {
+              const scoped = basePersistence.forCandidate(signal);
+              return {
+                async loadArtifactContext(...args) {
+                  const context = await scoped.loadArtifactContext(...args);
+                  expect(signal).toBe(deadlineControl.signal);
+                  deadlineControl.expireRun();
+                  return context;
+                },
+                record: scoped.record,
+              };
+            },
+          },
+          provider: {
+            forCandidate: () => ({
+              execute: () => {
+                deadlineProviderCalls += 1;
+                throw new Error('Provider must not run after deadline.');
+              },
+            }),
+          },
+          candidateControl: deadlineControl,
+        },
+      );
+      expect(deadline.ok).toBe(false);
+      expect(deadline.receipt).toMatchObject({
+        status: 'stopped',
+        stopCode: 'run-deadline',
+        counts: { providerCalls: 0, providerAttempts: 0 },
+      });
+      expect(deadline.receipt?.candidateResults[0]).toMatchObject({
+        failureCode: 'run-deadline',
+        requestId: null,
+        executionId: null,
+        interviewId: null,
+        publicationStatus: null,
+      });
+      expect(deadlineProviderCalls).toBe(0);
+
+      const afterDeadline = await runRepositoryInterviewOperatorV1(
+        {
+          selection,
+          specification,
+          modelProfile: profile,
+          policy,
+          executionMode: 'normal',
+          forceReason: null,
+          verifyImmediateReuse: false,
+        },
+        ports,
+      );
+      expect(afterDeadline.receipt?.candidateResults[0]?.executionId).toBe(
+        firstCandidate.executionId,
+      );
+      expect(providerCalls).toBe(2);
+
       const failed = await runRepositoryInterviewOperatorV1(
         {
           selection,
@@ -285,15 +389,17 @@ describe('operator PostgreSQL composition', { concurrent: false }, () => {
         {
           ...ports,
           provider: {
-            execute: () => {
-              providerCalls += 1;
-              return Promise.resolve({
-                status: 'failed' as const,
-                failureCode: 'rate-limited' as const,
-                attempts: [{ ...responseAttempt(), httpStatus: 429 }],
-                usage: null,
-              });
-            },
+            forCandidate: () => ({
+              execute: () => {
+                providerCalls += 1;
+                return Promise.resolve({
+                  status: 'failed' as const,
+                  failureCode: 'rate-limited' as const,
+                  attempts: [{ ...responseAttempt(), httpStatus: 429 }],
+                  usage: null,
+                });
+              },
+            }),
           },
         },
       );
@@ -317,6 +423,35 @@ describe('operator PostgreSQL composition', { concurrent: false }, () => {
     }
   });
 });
+
+function activeCandidateControlFactory() {
+  return {
+    beginCandidate() {
+      const controller = new AbortController();
+      return {
+        signal: controller.signal,
+        outcome: () => 'active' as const,
+        dispose: () => undefined,
+      };
+    },
+  };
+}
+
+function mutableCandidateControl() {
+  const controller = new AbortController();
+  let outcome: 'active' | 'run-deadline' = 'active';
+  const control = {
+    signal: controller.signal,
+    outcome: () => outcome,
+    dispose: () => undefined,
+    expireRun() {
+      outcome = 'run-deadline';
+      controller.abort();
+    },
+    beginCandidate: () => control,
+  };
+  return control;
+}
 
 function artifactPublication() {
   const content = '# Synthetic\r\nexact π bytes\n';
