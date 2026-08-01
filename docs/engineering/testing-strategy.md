@@ -142,6 +142,22 @@ truthful attempts and calls, complete raw receipt parsing, authorization
 closure, and network/secret/import-effect/sentinel denial. Synthetic prices
 and retention digests are test inputs only.
 
+Correction regressions prove that a digest-correct complete migration-`0003`
+receipt remains accepted by the generic historical parser but is rejected by
+the Phase 7 complete-receipt boundary before any external effect. The
+readiness matrix covers calibration eligibility before and after its result,
+every missing or `not-applicable` prerequisite, permanently blocked Gate A/B
+stages in policy `1.0.0`, and rehashed forged derived states. Plan-only dry-run
+accepts only the two exact committed complete profile authorities and rejects
+profile-field drift with zero external effects.
+
+The public root `pnpm typecheck` builds required product and tool workspace
+outputs before internal typechecking. Repository-policy tests reject a missing
+or reordered tool build in both standalone typecheck and `verify:core`.
+Hosted CI runs the exact standalone command immediately after frozen install,
+before any build-producing verification command, so ignored local `dist/`
+state cannot satisfy the proof.
+
 The PostgreSQL 18.4 suite applies migrations through 0004 in the existing test
 harness, then proves 6/30/150 selection materialization from one complete
 synthetic receipt. Receipt `artifactSetId` is the sole lookup key; identity is

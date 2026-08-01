@@ -16,6 +16,17 @@ export const PRELIVE_GATE_CODES = Object.freeze([
   'audit-assignment-readiness',
 ] as const);
 
+const PRELIVE_CALIBRATION_PREREQUISITE_CODES = Object.freeze([
+  'offline-verification',
+  'fresh-artifact-materialization',
+  'retention-authority',
+  'pricing-authority',
+  'maintainer-live-authorization',
+  'ephemeral-database',
+  'provider-credential',
+  'audit-assignment-readiness',
+] as const satisfies readonly GateCode[]);
+
 export const PRELIVE_OFFLINE_CHECK_CODES = Object.freeze([
   'candidate-plan-closure',
   'profile-closure',
@@ -87,16 +98,16 @@ export function createRepositoryInterviewPreliveReadinessPolicyV1(
     gate,
     status: statuses[gate],
   }));
-  const liveReady = gates.every(({ status }) => status !== 'unsatisfied');
-  const executionStatus = liveReady ? ('ready' as const) : ('blocked' as const);
+  const calibrationStatus = calibrationReadiness(gates);
+  const liveReady = calibrationStatus === 'ready';
   const base: ReadinessDraft = {
     schemaVersion: '1.0.0',
     policyId: 'repository-interviews-prelive-readiness-v1',
     gates,
     liveReady,
-    calibrationStatus: executionStatus,
-    gateAStatus: executionStatus,
-    gateBStatus: executionStatus,
+    calibrationStatus,
+    gateAStatus: 'blocked',
+    gateBStatus: 'blocked',
   };
   return parseRepositoryInterviewPreliveReadinessPolicyV1({
     ...base,
@@ -133,17 +144,23 @@ export function parseRepositoryInterviewPreliveReadinessPolicyV1(
     )
       throw invalid();
   }
-  const liveReady = gates.every(
-    (entry) => record(entry)['status'] !== 'unsatisfied',
+  const calibrationStatus = calibrationReadiness(
+    gates.map((entry) => {
+      const parsed = record(entry);
+      return {
+        gate: parsed['gate'] as GateCode,
+        status: parsed['status'] as GateStatus,
+      };
+    }),
   );
-  const expectedStatus = liveReady ? 'ready' : 'blocked';
+  const liveReady = calibrationStatus === 'ready';
   if (
     value['schemaVersion'] !== '1.0.0' ||
     value['policyId'] !== 'repository-interviews-prelive-readiness-v1' ||
     value['liveReady'] !== liveReady ||
-    value['calibrationStatus'] !== expectedStatus ||
-    value['gateAStatus'] !== expectedStatus ||
-    value['gateBStatus'] !== expectedStatus ||
+    value['calibrationStatus'] !== calibrationStatus ||
+    value['gateAStatus'] !== 'blocked' ||
+    value['gateBStatus'] !== 'blocked' ||
     !digest(value['policyDigest'])
   )
     throw invalid();
@@ -155,6 +172,17 @@ export function parseRepositoryInterviewPreliveReadinessPolicyV1(
     throw invalid();
   }
   return typed;
+}
+
+function calibrationReadiness(
+  gates: readonly { readonly gate: GateCode; readonly status: GateStatus }[],
+): 'ready' | 'blocked' {
+  const statuses = new Map(gates.map(({ gate, status }) => [gate, status]));
+  return PRELIVE_CALIBRATION_PREREQUISITE_CODES.every(
+    (gate) => statuses.get(gate) === 'satisfied',
+  )
+    ? 'ready'
+    : 'blocked';
 }
 
 export interface RepositoryInterviewOfflineVerificationReportV1 {

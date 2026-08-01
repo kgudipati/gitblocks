@@ -109,6 +109,7 @@ describe('repository interview pre-live verification', () => {
       artifactManifestVersion: 'public-artifacts-v1',
       artifactManifestDigest: fixture.artifactManifest.manifestDigest,
       candidateIds: fixture.candidateIds,
+      databaseMigrationVersion: 4,
     } as const;
     const mutable = JSON.parse(JSON.stringify(fixture.receipt)) as {
       candidates: { safeErrorCode: string | null }[];

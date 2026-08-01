@@ -143,6 +143,7 @@ export interface CompleteArtifactReceiptAuthorityV1 {
   readonly artifactManifestVersion: string;
   readonly artifactManifestDigest: string;
   readonly candidateIds: readonly string[];
+  readonly databaseMigrationVersion: 4;
 }
 
 export function parseCompleteArtifactReceiptTextV1(
@@ -177,6 +178,7 @@ export function parseCompleteArtifactReceiptV1(
     authority.artifactManifestVersion !== 'public-artifacts-v1' ||
     !isDigest(authority.catalogDigest) ||
     !isDigest(authority.artifactManifestDigest) ||
+    !isPreliveDatabaseMigrationVersion(authority.databaseMigrationVersion) ||
     expected.length !== 150 ||
     expected.some(
       (candidateId, index) =>
@@ -185,6 +187,7 @@ export function parseCompleteArtifactReceiptV1(
     ) ||
     receipt.catalogDigest !== authority.catalogDigest ||
     receipt.artifactManifestDigest !== authority.artifactManifestDigest ||
+    receipt.databaseMigrationVersion !== authority.databaseMigrationVersion ||
     receipt.requestedCandidateCount !== 150 ||
     receipt.completedCandidateCount !== 150 ||
     receipt.outcomeCounts.failed !== 0 ||
@@ -205,6 +208,10 @@ export function parseCompleteArtifactReceiptV1(
     maximumDepth: 10,
     maximumNodes: 10_000,
   });
+}
+
+function isPreliveDatabaseMigrationVersion(value: unknown): value is 4 {
+  return value === 4;
 }
 
 function parseArtifactReceiptValue(parsed: unknown): ArtifactReceipt {

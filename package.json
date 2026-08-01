@@ -13,7 +13,7 @@
     "format:check": "prettier --check .",
     "lint": "pnpm build:product && pnpm lint:internal",
     "lint:internal": "eslint . --max-warnings 0",
-    "typecheck": "pnpm build:product && pnpm typecheck:internal",
+    "typecheck": "pnpm build:product && pnpm build:tools && pnpm typecheck:internal",
     "typecheck:internal": "pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck",
     "build": "pnpm build:product && pnpm build:tools",
     "build:product": "pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/repository-interview-operator... build",

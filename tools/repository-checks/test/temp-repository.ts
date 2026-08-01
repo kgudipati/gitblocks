@@ -216,7 +216,8 @@ const ROOT_MANIFEST = JSON.stringify({
     'lint:internal': 'eslint . --max-warnings 0',
     test: 'pnpm runtime:check && vitest run',
     'test:coverage': 'pnpm runtime:check && vitest run --coverage',
-    typecheck: 'pnpm build:product && pnpm typecheck:internal',
+    typecheck:
+      'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
     'typecheck:internal':
       'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
@@ -500,6 +501,8 @@ jobs:
       GITBLOCKS_TEST_DB_DATABASE: gitblocks_test
       GITBLOCKS_TEST_DB_OWNER: postgres
     steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
       - run: pnpm verify:ci
 `;
   }

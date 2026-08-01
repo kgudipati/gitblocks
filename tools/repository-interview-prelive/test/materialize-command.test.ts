@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 import { serializeCanonicalJson } from '@gitblocks/interviews';
+import { createArtifactReceipt } from '@gitblocks/ingestion';
 import type { PersistenceClient } from '@gitblocks/persistence';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -50,6 +51,57 @@ describe('repository interview pre-live materialize command', () => {
     ).rejects.toThrow('materialization');
     expect(environment).not.toHaveBeenCalled();
     expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it('rejects a digest-correct migration-0003 receipt before every external effect', async () => {
+    const fixture = await syntheticArtifactAuthorityV1();
+    const expected = await buildRepositoryInterviewPreliveExpectedV1(
+      process.cwd(),
+    );
+    const historicalReceipt = createArtifactReceipt({
+      catalog: fixture.catalog,
+      manifest: fixture.artifactManifest,
+      runId: 'synthetic-historical-materialization-run',
+      startedAt: '2026-07-30T18:00:00.000Z',
+      completedAt: '2026-07-30T18:01:00.000Z',
+      candidates: fixture.receipt.candidates,
+      providerMetrics: {
+        providerRequestCounts: { github: 0, npm: 0 },
+        githubRateLimit: null,
+      },
+      databaseMigrationVersion: 3,
+      operationalDecodedBytes: 0,
+    });
+    const files = new Map([
+      [
+        '/tmp/calibration.plan.json',
+        serializeCanonicalJson(expected.plans.calibration),
+      ],
+      ['/tmp/fresh-receipt.json', serializeCanonicalJson(historicalReceipt)],
+    ]);
+    const environment = vi.fn(() => 'database-secret-sentinel');
+    const createClient = vi.fn(() => {
+      throw new Error('database construction sentinel');
+    });
+    const loadArtifactSet = vi.fn(() => {
+      throw new Error('artifact load sentinel');
+    });
+    const writeOutputs = vi.fn(() => Promise.resolve());
+
+    await expect(
+      runRepositoryInterviewPreliveMaterializeCommandV1(argumentsFor(), {
+        repositoryRoot: process.cwd(),
+        readTextFile: (path) => Promise.resolve(files.get(path) ?? ''),
+        readEnvironment: environment,
+        createPersistenceClient: createClient,
+        loadArtifactSet,
+        writeOutputs,
+      }),
+    ).rejects.toThrow('materialization');
+    expect(environment).not.toHaveBeenCalled();
+    expect(createClient).not.toHaveBeenCalled();
+    expect(loadArtifactSet).not.toHaveBeenCalled();
+    expect(writeOutputs).not.toHaveBeenCalled();
   });
 
   it('uses only receipt-named loads and writes only selection and binding bytes', async () => {

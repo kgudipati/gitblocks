@@ -2,7 +2,10 @@ import {
   modelExecutionModelProfileDigest,
   type ModelExecutionModelProfileV1,
 } from '@gitblocks/contracts';
-import { parseCompleteArtifactReceiptTextV1 } from '@gitblocks/ingestion';
+import {
+  createArtifactReceipt,
+  parseCompleteArtifactReceiptTextV1,
+} from '@gitblocks/ingestion';
 import {
   createRepositoryInterviewOperatorPolicyV1,
   createRepositoryInterviewPreliveAuthorizationV1,
@@ -13,6 +16,8 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   buildRepositoryInterviewPreliveExpectedV1,
   materializeRepositoryInterviewOperatorSelectionV1,
+  validateCommittedRepositoryInterviewCandidatePlanV1,
+  validateCommittedRepositoryInterviewModelProfileV1,
   validateRepositoryInterviewPreliveAuthorizationClosureV1,
 } from '../src/index.ts';
 import { syntheticArtifactAuthorityV1 } from './prelive-fixtures.ts';
@@ -21,6 +26,141 @@ const PRICING_DIGEST = 'b'.repeat(64);
 const RETENTION_DIGEST = 'c'.repeat(64);
 
 describe('repository interview operator pre-live CLI closure', () => {
+  it('accepts only either exact committed profile during plan-only dry-run', async () => {
+    const expected = await buildRepositoryInterviewPreliveExpectedV1(
+      process.cwd(),
+    );
+    const environment = vi.fn(() => 'secret sentinel');
+    const createClient = vi.fn(() => {
+      throw new Error('database sentinel');
+    });
+    const createFetch = vi.fn(() => {
+      throw new Error('network sentinel');
+    });
+    const writeReceipt = vi.fn(() => Promise.resolve());
+
+    for (const profile of expected.profiles) {
+      const policy = createRepositoryInterviewOperatorPolicyV1(
+        policyDraft(profile),
+        profile,
+      );
+      const output: string[] = [];
+      const errors: string[] = [];
+      const files = new Map([
+        [
+          '/tmp/candidate-plan.json',
+          JSON.stringify(expected.plans.calibration),
+        ],
+        ['/tmp/profile.json', JSON.stringify(profile)],
+        ['/tmp/policy.json', JSON.stringify(policy)],
+      ]);
+      const exit = await runRepositoryInterviewOperatorCliV1(
+        planOnlyArguments(),
+        {
+          readTextFile: (path) => Promise.resolve(files.get(path) ?? ''),
+          readEnvironment: environment,
+          createFetch,
+          writeStdout: (text) => output.push(text),
+          writeStderr: (text) => errors.push(text),
+          writeReceipt,
+          createPersistenceClient: createClient,
+          validateCandidatePlan: (input) =>
+            Promise.resolve(
+              validateCommittedRepositoryInterviewCandidatePlanV1(
+                input,
+                expected.plans,
+              ),
+            ),
+          validateModelProfile: (input) =>
+            Promise.resolve(
+              validateCommittedRepositoryInterviewModelProfileV1(
+                input,
+                expected.profiles,
+              ),
+            ),
+        },
+      );
+      expect(exit).toBe(0);
+      expect(errors).toEqual([]);
+      expect(JSON.parse(output[0]!)).toMatchObject({
+        status: 'dry-run-valid',
+        modelProfileDigest: modelExecutionModelProfileDigest(profile),
+        materializationChecked: false,
+        liveAuthorizationChecked: false,
+        liveReady: false,
+      });
+    }
+
+    const profile = expected.profiles[0];
+    const policy = createRepositoryInterviewOperatorPolicyV1(
+      policyDraft(profile),
+      profile,
+    );
+    const mutations: readonly unknown[] = [
+      { ...profile, reasoningEffort: 'medium' },
+      { ...profile, maximumOutputTokens: profile.maximumOutputTokens - 1 },
+      { ...profile, maximumResponseBytes: profile.maximumResponseBytes - 1 },
+      { ...profile, promptCacheRetention: '24h' },
+      { ...profile, providerProjectionDigest: 'a'.repeat(64) },
+      { ...profile, toolsEnabled: true },
+      { ...profile, background: true },
+      { ...profile, conversationState: true },
+      { ...profile, previousResponseState: true },
+      { ...profile, modelSnapshot: 'gpt-5.4-2026-03-06' },
+      { ...profile, extra: true },
+      Object.fromEntries(
+        Object.entries(profile).filter(([key]) => key !== 'serviceTier'),
+      ),
+    ];
+    for (const mutation of mutations) {
+      const output: string[] = [];
+      const errors: string[] = [];
+      const files = new Map([
+        [
+          '/tmp/candidate-plan.json',
+          JSON.stringify(expected.plans.calibration),
+        ],
+        ['/tmp/profile.json', JSON.stringify(mutation)],
+        ['/tmp/policy.json', JSON.stringify(policy)],
+      ]);
+      const exit = await runRepositoryInterviewOperatorCliV1(
+        planOnlyArguments(),
+        {
+          readTextFile: (path) => Promise.resolve(files.get(path) ?? ''),
+          readEnvironment: environment,
+          createFetch,
+          writeStdout: (text) => output.push(text),
+          writeStderr: (text) => errors.push(text),
+          writeReceipt,
+          createPersistenceClient: createClient,
+          validateCandidatePlan: (input) =>
+            Promise.resolve(
+              validateCommittedRepositoryInterviewCandidatePlanV1(
+                input,
+                expected.plans,
+              ),
+            ),
+          validateModelProfile: (input) =>
+            Promise.resolve(
+              validateCommittedRepositoryInterviewModelProfileV1(
+                input,
+                expected.profiles,
+              ),
+            ),
+        },
+      );
+      expect(exit).toBe(1);
+      expect(output).toEqual([]);
+      expect(errors).toEqual([
+        'Repository interview operator execution failed.\n',
+      ]);
+    }
+    expect(environment).not.toHaveBeenCalled();
+    expect(createClient).not.toHaveBeenCalled();
+    expect(createFetch).not.toHaveBeenCalled();
+    expect(writeReceipt).not.toHaveBeenCalled();
+  });
+
   it('accepts the complete synthetic group in dry-run with zero external effects', async () => {
     const authority = await completeAuthority();
     const output: string[] = [];
@@ -44,6 +184,20 @@ describe('repository interview operator pre-live CLI closure', () => {
         writeStderr: (text) => errors.push(text),
         writeReceipt,
         createPersistenceClient: createClient,
+        validateCandidatePlan: (input) =>
+          Promise.resolve(
+            validateCommittedRepositoryInterviewCandidatePlanV1(
+              input,
+              authority.expected.plans,
+            ),
+          ),
+        validateModelProfile: (input) =>
+          Promise.resolve(
+            validateCommittedRepositoryInterviewModelProfileV1(
+              input,
+              authority.expected.profiles,
+            ),
+          ),
         parseCompleteArtifactReceipt: (text) =>
           parseCompleteArtifactReceiptTextV1(text, {
             catalogVersion: 'public-v1',
@@ -52,6 +206,7 @@ describe('repository interview operator pre-live CLI closure', () => {
             artifactManifestDigest:
               authority.expected.manifest.artifactManifestDigest,
             candidateIds: authority.fixture.candidateIds,
+            databaseMigrationVersion: 4,
           }),
         validatePreliveClosure: (input) =>
           validateRepositoryInterviewPreliveAuthorizationClosureV1({
@@ -105,6 +260,20 @@ describe('repository interview operator pre-live CLI closure', () => {
           writeStdout: vi.fn(),
           writeStderr: vi.fn(),
           createPersistenceClient: createClient,
+          validateCandidatePlan: (input) =>
+            Promise.resolve(
+              validateCommittedRepositoryInterviewCandidatePlanV1(
+                input,
+                authority.expected.plans,
+              ),
+            ),
+          validateModelProfile: (input) =>
+            Promise.resolve(
+              validateCommittedRepositoryInterviewModelProfileV1(
+                input,
+                authority.expected.profiles,
+              ),
+            ),
           parseCompleteArtifactReceipt: (text) =>
             parseCompleteArtifactReceiptTextV1(text, {
               catalogVersion: 'public-v1',
@@ -113,6 +282,7 @@ describe('repository interview operator pre-live CLI closure', () => {
               artifactManifestDigest:
                 authority.expected.manifest.artifactManifestDigest,
               candidateIds: authority.fixture.candidateIds,
+              databaseMigrationVersion: 4,
             }),
           validatePreliveClosure: (input) =>
             validateRepositoryInterviewPreliveAuthorizationClosureV1({
@@ -128,6 +298,82 @@ describe('repository interview operator pre-live CLI closure', () => {
       expect(environment).not.toHaveBeenCalled();
       expect(createClient).not.toHaveBeenCalled();
     }
+  });
+
+  it('rejects migration 0003 before authorization, secrets, database, or provider construction', async () => {
+    const authority = await completeAuthority();
+    const historicalReceipt = createArtifactReceipt({
+      catalog: authority.fixture.catalog,
+      manifest: authority.fixture.artifactManifest,
+      runId: 'synthetic-historical-cli-run',
+      startedAt: '2026-07-30T18:00:00.000Z',
+      completedAt: '2026-07-30T18:01:00.000Z',
+      candidates: authority.fixture.receipt.candidates,
+      providerMetrics: {
+        providerRequestCounts: { github: 0, npm: 0 },
+        githubRateLimit: null,
+      },
+      databaseMigrationVersion: 3,
+      operationalDecodedBytes: 0,
+    });
+    const files = new Map(authority.files);
+    files.set('/tmp/artifact-receipt.json', JSON.stringify(historicalReceipt));
+    const environment = vi.fn(() => 'secret sentinel');
+    const createClient = vi.fn(() => {
+      throw new Error('database sentinel');
+    });
+    const createFetch = vi.fn(() => {
+      throw new Error('provider sentinel');
+    });
+    const validateClosure = vi.fn(() => {
+      throw new Error('authorization sentinel');
+    });
+    const authorizationNow = vi.fn(() => '2026-08-02T12:00:00.000Z');
+    const output: string[] = [];
+    const exit = await runRepositoryInterviewOperatorCliV1(
+      completeArguments(false),
+      {
+        readTextFile: (path) => Promise.resolve(files.get(path) ?? ''),
+        readEnvironment: environment,
+        createFetch,
+        writeStdout: (text) => output.push(text),
+        writeStderr: vi.fn(),
+        createPersistenceClient: createClient,
+        validateCandidatePlan: (input) =>
+          Promise.resolve(
+            validateCommittedRepositoryInterviewCandidatePlanV1(
+              input,
+              authority.expected.plans,
+            ),
+          ),
+        validateModelProfile: (input) =>
+          Promise.resolve(
+            validateCommittedRepositoryInterviewModelProfileV1(
+              input,
+              authority.expected.profiles,
+            ),
+          ),
+        parseCompleteArtifactReceipt: (text) =>
+          parseCompleteArtifactReceiptTextV1(text, {
+            catalogVersion: 'public-v1',
+            catalogDigest: authority.expected.manifest.catalogDigest,
+            artifactManifestVersion: 'public-artifacts-v1',
+            artifactManifestDigest:
+              authority.expected.manifest.artifactManifestDigest,
+            candidateIds: authority.fixture.candidateIds,
+            databaseMigrationVersion: 4,
+          }),
+        validatePreliveClosure: validateClosure,
+        authorizationNow,
+      },
+    );
+    expect(exit).toBe(1);
+    expect(output).toEqual([]);
+    expect(validateClosure).not.toHaveBeenCalled();
+    expect(authorizationNow).not.toHaveBeenCalled();
+    expect(environment).not.toHaveBeenCalled();
+    expect(createClient).not.toHaveBeenCalled();
+    expect(createFetch).not.toHaveBeenCalled();
   });
 });
 
@@ -199,6 +445,18 @@ async function completeAuthority() {
     authorization,
     files,
   };
+}
+
+function planOnlyArguments(): string[] {
+  return completeArguments(true).filter((argument, index, values) => {
+    const omitted = new Set([
+      '--artifact-receipt-file',
+      '--selection-file',
+      '--selection-materialization-file',
+      '--prelive-authorization-file',
+    ]);
+    return !omitted.has(argument) && !omitted.has(values[index - 1] ?? '');
+  });
 }
 
 function completeArguments(dryRun: boolean): string[] {

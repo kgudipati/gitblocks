@@ -16,13 +16,18 @@ Before calibration, a separately authorized fresh artifact collection must run
 in the exact future ephemeral PostgreSQL database. The future materialization
 command must join that run's complete raw receipt to the receipt-named sets
 loaded from that same database. The generated selection and its materialization
-binding remain untracked runtime authorities.
+binding remain untracked runtime authorities. The strict pre-live receipt
+boundary requires the receipt itself to record migration `0004`. Generic
+ingestion parsing continues to accept valid historical migration-`0003`
+Phase 6 receipts, but those receipts are not Phase 7 materialization authority.
 
 The two profiles are calibration candidates only. Neither is selected or Gate
 A approved. Explicit `promptCacheRetention: "in-memory"` records request
 intent; together with `store: false` it does not prove Zero Data Retention.
 Retention and current pricing authorities remain external and unresolved, and
-no real pre-live authorization is committed.
+no real pre-live authorization is committed. Every pre-live CLI path,
+including plan-only dry-run, authenticates the complete profile against one of
+the two committed profile digests and bytes before policy or budget acceptance.
 
 The committed authority digests are:
 
@@ -54,6 +59,15 @@ retention authority, pricing authority, model calibration, maintainer live
 authorization, ephemeral database, provider credential, and audit assignment
 readiness are unsatisfied. Consequently `liveReady` is false and calibration,
 Gate A, and Gate B are blocked.
+
+Readiness-policy `1.0.0` treats `model-calibration` as the result of
+calibration, not a prerequisite to attempt it. Calibration becomes `ready`
+only when the other eight exact prerequisites are `satisfied`;
+`not-applicable` is not sufficient. In this calibration-only policy,
+`liveReady` means only that exact calibration is eligible. Gate A and Gate B
+remain unconditionally blocked even after calibration eligibility or a
+satisfied model-calibration result; it does not express production or general
+provider readiness.
 
 Use `pnpm interviews:prelive:validate` for read-only byte and authority
 validation. Use `pnpm interviews:prelive:verify` for the complete offline and

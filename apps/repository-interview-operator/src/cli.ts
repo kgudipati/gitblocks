@@ -51,6 +51,7 @@ export interface RepositoryInterviewOperatorCliBoundaryV1 {
   createPersistenceClient?: typeof createPersistenceClient;
   closePersistenceClient?: typeof closePersistenceClient;
   validateCandidatePlan?(candidatePlan: unknown): Promise<unknown>;
+  validateModelProfile?(modelProfile: unknown): Promise<unknown>;
   parseCompleteArtifactReceipt?(text: string): unknown;
   validatePreliveClosure?(input: {
     readonly candidatePlan: unknown;
@@ -103,11 +104,20 @@ export async function runRepositoryInterviewOperatorCliV1(
         ),
       ]);
     const parsedCandidatePlan = parseJson(candidatePlanText);
+    if (
+      (boundary.validateCandidatePlan === undefined) !==
+      (boundary.validateModelProfile === undefined)
+    )
+      throw new RepositoryInterviewOperatorConfigurationError();
     const candidatePlan =
       boundary.validateCandidatePlan === undefined
         ? parsedCandidatePlan
         : await boundary.validateCandidatePlan(parsedCandidatePlan);
-    const modelProfile = parseJson(modelProfileText);
+    const parsedModelProfile = parseJson(modelProfileText);
+    const modelProfile =
+      boundary.validateModelProfile === undefined
+        ? parsedModelProfile
+        : await boundary.validateModelProfile(parsedModelProfile);
     const policy = parseJson(policyText);
     const preflight = validateRepositoryInterviewCandidatePlanPreflightV1(
       candidatePlan,

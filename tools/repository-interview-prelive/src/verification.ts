@@ -91,6 +91,23 @@ export function validateCommittedRepositoryInterviewCandidatePlanV1(
   return accepted;
 }
 
+export function validateCommittedRepositoryInterviewModelProfileV1(
+  input: unknown,
+  profiles: RepositoryInterviewPreliveExpectedV1['profiles'],
+): ModelExecutionModelProfileV1 {
+  const parsed = parseModelExecutionModelProfileV1(input);
+  if (!parsed.ok) throw invalid();
+  const parsedDigest = modelExecutionModelProfileDigest(parsed.value);
+  const parsedBytes = serializeCanonicalJson(parsed.value);
+  const accepted = profiles.find(
+    (profile) =>
+      modelExecutionModelProfileDigest(profile) === parsedDigest &&
+      serializeCanonicalJson(profile) === parsedBytes,
+  );
+  if (accepted === undefined) throw invalid();
+  return Object.freeze({ ...accepted });
+}
+
 export async function buildRepositoryInterviewPreliveExpectedV1(
   repositoryRoot: string,
 ): Promise<RepositoryInterviewPreliveExpectedV1> {

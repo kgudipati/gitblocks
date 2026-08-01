@@ -614,7 +614,8 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build && node packages/persistence/scripts/db-verify.ts',
     lint: 'pnpm build:product && pnpm lint:internal',
     'lint:internal': 'eslint . --max-warnings 0',
-    typecheck: 'pnpm build:product && pnpm typecheck:internal',
+    typecheck:
+      'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
     'typecheck:internal':
       'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
   } as const;
@@ -911,16 +912,42 @@ function validateCiPolicy(
     'GITBLOCKS_TEST_DB_OWNER: postgres',
     'run: pnpm verify:ci',
   ] as const;
-  if (requiredFragments.every((fragment) => content.includes(fragment))) {
-    return [];
+  const diagnostics: Diagnostic[] = [];
+  if (!requiredFragments.every((fragment) => content.includes(fragment))) {
+    diagnostics.push(
+      diagnostic(
+        'repository.ci-postgresql',
+        'CI must run verify:ci against the exact pinned ephemeral PostgreSQL service.',
+        workflowPath,
+      ),
+    );
   }
-  return [
-    diagnostic(
-      'repository.ci-postgresql',
-      'CI must run verify:ci against the exact pinned ephemeral PostgreSQL service.',
-      workflowPath,
-    ),
-  ];
+  const install = 'run: pnpm install --frozen-lockfile';
+  const typecheck = 'run: pnpm typecheck';
+  const verify = 'run: pnpm verify:ci';
+  const installIndex = content.indexOf(install);
+  const typecheckIndex = content.indexOf(typecheck);
+  const verifyIndex = content.indexOf(verify);
+  if (
+    installIndex < 0 ||
+    typecheckIndex <= installIndex ||
+    verifyIndex <= typecheckIndex ||
+    content.slice(installIndex + install.length).includes(install) ||
+    content.slice(typecheckIndex + typecheck.length).includes(typecheck) ||
+    content.slice(0, installIndex).includes('run: pnpm ') ||
+    content
+      .slice(installIndex + install.length, typecheckIndex)
+      .includes('run:')
+  ) {
+    diagnostics.push(
+      diagnostic(
+        'repository.ci-clean-typecheck',
+        'CI must run standalone typecheck directly after frozen installation and before authoritative verification.',
+        workflowPath,
+      ),
+    );
+  }
+  return diagnostics;
 }
 
 function validateProductCapitalization(

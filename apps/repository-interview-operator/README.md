@@ -91,10 +91,15 @@ no secret, constructs no database/provider, reads no clock/nonce, emits no
 telemetry, writes no receipt, and reports `materializationChecked: false`,
 `liveAuthorizationChecked: false`, and `liveReady: false`. Tests may supply the
 complete synthetic group to a dry-run, which validates closure with the same
-zero-effect boundary.
+zero-effect boundary. The pre-live process wrapper first parses the product
+contract and then requires exact complete-profile digest and canonical-byte
+equality with one of the two committed profiles. A changed reasoning effort,
+response bound, projection, retention/state control, or dated snapshot is
+rejected before policy compatibility, budgeting, clocks, secrets, database,
+provider, telemetry, or receipt effects.
 
 Every non-dry invocation requires the complete group. The receipt must be the
-exact successful fresh 150-candidate receipt, the selection must be the exact
+exact successful fresh 150-candidate migration-`0004` receipt, the selection must be the exact
 materialized selection, the binding must join that plan/receipt/selection, and
 the authorization must approve only the exact six-member calibration scope.
 All file and authorization closure, including expiration, completes before the
@@ -143,3 +148,10 @@ credential is configured, no provider/model request is authorized, and no
 non-test database, live receipt, materialized selection, or real authorization
 has been used or committed. Readiness remains live-blocked. Retention and
 pricing remain unresolved, and Milestone 11 is blocked.
+
+Readiness-policy `1.0.0` derives calibration eligibility from the eight
+external prerequisites and does not require the `model-calibration` result
+gate. Its `liveReady` value means only exact calibration eligibility. Gate A
+and Gate B remain blocked under this policy version regardless of calibration
+eligibility or result; later-stage authorization requires future reviewed
+authority.

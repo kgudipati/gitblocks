@@ -54,6 +54,7 @@ export async function materializeRepositoryInterviewOperatorSelectionV1(
     artifactManifestVersion: REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_VERSION,
     artifactManifestDigest: REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
     candidateIds: input.fullCatalogCandidateIds,
+    databaseMigrationVersion: 4,
   });
   const receiptCandidates = new Map(
     receipt.candidates.map((candidate) => [candidate.candidateId, candidate]),
@@ -149,6 +150,7 @@ export function validateRepositoryInterviewSelectionMaterializationClosureV1(inp
     artifactManifestVersion: REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_VERSION,
     artifactManifestDigest: REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
     candidateIds: input.fullCatalogCandidateIds,
+    databaseMigrationVersion: 4,
   });
   const selectedCandidateIds = selection.value.members.map(
     ({ candidateId }) => candidateId,

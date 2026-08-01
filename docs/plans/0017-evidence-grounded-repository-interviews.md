@@ -44,11 +44,15 @@
   - PR #18 review: “Milestone 9 accepted — Milestone 10 authorized.”
   - PR #18 review: “Milestone 10 stop accepted — candidate-plan/materialization
     amendment.”
+  - PR #18 review: “Milestone 10 review — offline gate accepted in substance;
+    freshness, staged-readiness, exact-profile, and clean-typecheck corrections
+    required before Milestone 11.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
 - State: Milestones 1–9 are accepted. Milestone 10's content-free offline
   pre-live authority, future receipt-and-database materializer, and synthetic
-  proofs are implemented and awaiting review. Milestone 11 remains blocked.
+  proofs are accepted in substance; the four requested authority corrections
+  are implemented and awaiting renewed review. Milestone 11 remains blocked.
 - Last updated: 2026-08-01
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -1875,8 +1879,9 @@ already includes `apps/*` and will remain unchanged.
 
 ### 10. Complete offline/PostgreSQL pre-live verification
 
-- **Status:** implemented under the accepted candidate-plan/materialization
-  amendment and awaiting maintainer review; Milestone 11 is blocked.
+- **Status:** accepted in substance under the candidate-plan/materialization
+  amendment; the requested correction is implemented and awaiting renewed
+  maintainer review. Milestone 11 is blocked.
 - **Red first:** operator-local candidate-plan, selection-materialization, and
   pre-live-authorization authorities; exact plan membership; complete raw
   artifact-receipt parsing; materialization; CLI closure; live-blocked policy;
@@ -1887,6 +1892,7 @@ already includes `apps/*` and will remain unchanged.
   schemas, one public ingestion receipt parser, focused tests, root commands,
   and governing documentation.
 - **Commit:** `test(operator): establish pre-live verification gate`.
+- **Correction commit:** `fix(prelive): close live authority boundaries`.
 - **Verification:** exact committed-member reproduction, complete local command
   matrix, PostgreSQL 18.4 without skips, authority-drift comparison, coverage,
   and hosted CI.
@@ -3481,10 +3487,53 @@ had been built. A focused repository-policy regression now requires tool builds
 before internal typecheck, and `verify:core` performs that order explicitly.
 No product behavior or frozen authority changed in this correction.
 
+The latest review accepted the offline gate in substance and identified four
+remaining boundary defects. The focused red run recorded ten failures across
+receipt freshness, staged readiness, complete-profile authentication, and
+root/CI typecheck policy. The corrected strict complete-receipt authority now
+requires the receipt itself to record migration `0004`; the generic ingestion
+parser still accepts digest-correct historical migration-`0003` receipts, but
+the materializer and non-dry CLI reject them before authorization, secrets,
+database construction, set loading, output writing, or provider construction.
+
+Readiness-policy `1.0.0` now makes calibration eligible only when its eight
+external prerequisites are exactly `satisfied`; `model-calibration` is the
+result gate and is not a prerequisite to running it. `not-applicable` is not
+sufficient. `liveReady` means only exact six-candidate calibration
+eligibility, while Gate A and Gate B remain unconditionally blocked even after
+calibration becomes eligible or its result is satisfied. The committed policy
+state and canonical bytes remain unchanged, so its digest remains
+`19e3bfbd3bca28cd0b69154d801fb7744631a2cba327b62f5e0c7ce2cb2d49ab`.
+
+The pre-live process wrapper now authenticates every parsed model profile by
+complete digest and canonical-byte equality against exactly the two committed
+profile authorities before policy compatibility or budget acceptance. This
+applies to plan-only dry-run, synthetic complete-group dry-run, and non-dry
+invocation. Profile drift produces no valid summary or external effect.
+
+The public root `pnpm typecheck` now builds product and tool workspace outputs
+before `typecheck:internal`. Repository policy rejects missing or reversed
+tool-build order in both standalone typecheck and `verify:core`; hosted CI runs
+the exact standalone command directly after frozen install and before any
+other build-producing verification command. The corrected focused suite passes
+75 tests across the four affected files after its recorded ten-failure red
+state. The full local matrix passes 73 ordinary files and 1,294 tests;
+PostgreSQL 18.4 passes 61 tests across seven files without skips and retains
+four migrations, 25 product tables, and zero RLS policies. Single-worker
+coverage passes all 1,294 tests at 79.35% statements, 73.10% branches, 86.66%
+functions, and 79.72% lines. Frozen install, standalone `pnpm typecheck`, every
+pre-live/operator/interview/evaluation/contract/catalog/ingestion/artifact
+command, `pnpm verify`, `pnpm verify:ci`, and the no-vulnerability audit pass.
+An additional ownership assertion then exposed that the authenticated generated
+profile was returned without top-level freezing; the validator now returns a
+fresh frozen copy, and the focused suite remains 75-for-75 green.
+Exact-head hosted evidence remains the post-push stop and will be recorded in
+PR #18 before renewed review.
+
 The committed state remains `offline-verified-live-blocked`. Current pricing
 and retention evidence remain external. `store: false` and
 `prompt_cache_retention: "in_memory"` express request intent only and do not
 prove ZDR. No raw receipt, real materialized selection, real binding, real
 authorization, current price, retention evidence body, credential, runtime
 operator receipt, provider response, or repository artifact content is
-committed. Milestone 10 awaits review; Milestone 11 remains blocked.
+committed. Milestone 10 awaits renewed review; Milestone 11 remains blocked.

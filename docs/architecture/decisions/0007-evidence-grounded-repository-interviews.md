@@ -640,11 +640,20 @@ plan is deterministically derived from the committed catalog during ordinary
 read-only verification.
 
 The two exact dated model profiles remain calibration candidates, not a model
-selection or Gate A approval. A closed readiness policy keeps live readiness
-false until fresh materialization, retention, pricing, model calibration,
-maintainer authorization, ephemeral database, provider credential, and audit
-assignment gates are satisfied. A content-free report and manifest bind the
-offline authorities and reproduce byte-for-byte without rewriting them.
+selection or Gate A approval. Every pre-live CLI path authenticates the parsed
+complete profile digest and canonical bytes against one of those two committed
+authorities before policy compatibility, budgeting, clocks, secrets, database,
+or provider effects. A content-free report and manifest bind the offline
+authorities and reproduce byte-for-byte without rewriting them.
+
+Readiness-policy `1.0.0` represents only staged calibration eligibility. Its
+eight prerequisites are offline verification, fresh materialization,
+retention, pricing, maintainer live authorization, ephemeral database,
+provider credential, and audit-assignment readiness; each must be exactly
+`satisfied`. `model-calibration` is the result gate and is not a prerequisite
+to running calibration. `liveReady` means only that exact calibration is
+eligible. Gate A and Gate B remain blocked in this version even when
+calibration is eligible or the model-calibration result is satisfied.
 
 Raw `public-artifact-receipt/1.0.0` semantics remain owned once by ingestion.
 A non-production pre-live tool may depend on public ingestion, persistence,
@@ -656,6 +665,12 @@ database, parses and closes that loaded set, uses its recomputed
 and emits only an untracked selection plus content-free binding. Declaration
 data, candidate-only lookup, historical state, or a database “latest” set can
 never supply this authority.
+
+The general receipt parser remains compatible with valid historical Phase 6
+migration-`0003` receipts. The narrower complete pre-live parser requires the
+receipt itself to record migration `0004`; this proof is validated before any
+database password, database construction, set load, authorization validation,
+output write, or provider possibility.
 
 The materializer and non-dry operator verify PostgreSQL 18.4 and the exact
 accepted 0001–0004 inventory but never apply migrations. All file and

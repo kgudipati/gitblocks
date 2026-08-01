@@ -182,6 +182,13 @@ is neither telemetry nor evidence of ZDR or absence of organization-level
 retention. That external retention authority is checked at the separate
 pre-live gate before calibration.
 
+Pre-live readiness-policy `1.0.0` is not a service-health or general provider
+readiness signal. `liveReady` means only that the exact six-candidate
+calibration prerequisites are satisfied; `model-calibration` records the
+result rather than gating its own start. Gate A and Gate B remain blocked
+regardless of that value. Required prerequisites marked `not-applicable` do
+not make calibration eligible.
+
 Attempt provenance distinguishes provider-envelope cancellation from external
 cancellation: a cancelled 2xx envelope remains a response attempt with only
 allowlisted HTTP metadata, while controller/transport cancellation retains no

@@ -61,6 +61,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Prove standalone typecheck from a clean checkout
+        run: pnpm typecheck
+
       - name: Prove installation is reproducible
         run: git diff --exit-code
 

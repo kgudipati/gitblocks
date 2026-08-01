@@ -6,6 +6,7 @@ import { runRepositoryInterviewOperatorCliV1 } from '@gitblocks/repository-inter
 
 import { validateRepositoryInterviewPreliveAuthorizationClosureV1 } from './authorization.ts';
 import {
+  validateCommittedRepositoryInterviewModelProfileV1,
   validateCommittedRepositoryInterviewCandidatePlanV1,
   validateRepositoryInterviewPreliveFilesV1,
 } from './verification.ts';
@@ -46,6 +47,13 @@ const exitCode = await runRepositoryInterviewOperatorCliV1(
         authority.plans,
       );
     },
+    async validateModelProfile(modelProfile) {
+      const authority = await expected();
+      return validateCommittedRepositoryInterviewModelProfileV1(
+        modelProfile,
+        authority.profiles,
+      );
+    },
     async parseCompleteArtifactReceipt(text) {
       const authority = await expected();
       return parseCompleteArtifactReceiptTextV1(text, {
@@ -54,6 +62,7 @@ const exitCode = await runRepositoryInterviewOperatorCliV1(
         artifactManifestVersion: 'public-artifacts-v1',
         artifactManifestDigest: authority.manifest.artifactManifestDigest,
         candidateIds: authority.catalogCandidateIds,
+        databaseMigrationVersion: 4,
       });
     },
     async validatePreliveClosure(input) {

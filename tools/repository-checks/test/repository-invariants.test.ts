@@ -215,7 +215,8 @@ const ROOT_MANIFEST = JSON.stringify({
     'lint:internal': 'eslint . --max-warnings 0',
     test: 'pnpm runtime:check && vitest run',
     'test:coverage': 'pnpm runtime:check && vitest run --coverage',
-    typecheck: 'pnpm build:product && pnpm typecheck:internal',
+    typecheck:
+      'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
     'typecheck:internal':
       'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
@@ -394,6 +395,8 @@ const CI_POLICY = `jobs:
       GITBLOCKS_TEST_DB_DATABASE: gitblocks_test
       GITBLOCKS_TEST_DB_OWNER: postgres
     steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
       - run: pnpm verify:ci
 `;
 
@@ -490,6 +493,31 @@ describe('validateRepositoryInvariants', () => {
         }),
       ]),
     );
+  });
+
+  it('requires standalone typecheck directly after frozen installation and before verification', () => {
+    for (const invalid of [
+      CI_POLICY.replace('      - run: pnpm typecheck\n', ''),
+      CI_POLICY.replace(
+        '      - run: pnpm typecheck\n      - run: pnpm verify:ci',
+        '      - run: pnpm verify:ci\n      - run: pnpm typecheck',
+      ),
+      CI_POLICY.replace(
+        '    steps:\n      - run: pnpm install --frozen-lockfile',
+        '    steps:\n      - run: pnpm build\n      - run: pnpm install --frozen-lockfile',
+      ),
+    ]) {
+      const repository = validRepository();
+      repository.textFiles.set('.github/workflows/ci.yml', invalid);
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'repository.ci-clean-typecheck',
+            path: '.github/workflows/ci.yml',
+          }),
+        ]),
+      );
+    }
   });
 
   it.each([
@@ -774,6 +802,27 @@ describe('validateRepositoryInvariants', () => {
         expect.objectContaining({ code: 'repository.runtime-script' }),
       ]),
     );
+  });
+
+  it('requires product and tool builds before standalone internal typecheck', () => {
+    for (const invalid of [
+      'pnpm build:product && pnpm typecheck:internal',
+      'pnpm build:product && pnpm typecheck:internal && pnpm build:tools',
+    ]) {
+      const repository = validRepository();
+      repository.textFiles.set(
+        'package.json',
+        ROOT_MANIFEST.replace(
+          'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
+          invalid,
+        ),
+      );
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ code: 'repository.runtime-script' }),
+        ]),
+      );
+    }
   });
 
   it('requires private package manifests', () => {

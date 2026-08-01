@@ -45,6 +45,7 @@ export {
   generateRepositoryInterviewPreliveFilesV1,
   repositoryInterviewPreliveSummaryV1,
   validateCommittedRepositoryInterviewCandidatePlanV1,
+  validateCommittedRepositoryInterviewModelProfileV1,
   validateRepositoryInterviewPreliveFilesV1,
   type RepositoryInterviewPreliveExpectedV1,
 } from './verification.ts';

@@ -55,16 +55,19 @@ export async function runRepositoryInterviewPreliveMaterializeCommandV1(
     reader(configuration.artifactReceiptFile, MAXIMUM_INPUT_BYTES),
   ]);
   const plan = parsePlan(planText, expected.plans);
-  const receipt: ArtifactReceipt = parseCompleteArtifactReceiptTextV1(
-    receiptText,
-    {
+  let receipt: ArtifactReceipt;
+  try {
+    receipt = parseCompleteArtifactReceiptTextV1(receiptText, {
       catalogVersion: 'public-v1',
       catalogDigest: expected.manifest.catalogDigest,
       artifactManifestVersion: 'public-artifacts-v1',
       artifactManifestDigest: expected.manifest.artifactManifestDigest,
       candidateIds: expected.catalogCandidateIds,
-    },
-  );
+      databaseMigrationVersion: 4,
+    });
+  } catch {
+    throw invalid();
+  }
 
   const password = boundary.readEnvironment(configuration.databasePasswordEnv);
   if (
