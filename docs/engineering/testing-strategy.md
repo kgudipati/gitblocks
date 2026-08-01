@@ -288,6 +288,17 @@ post-validation mutations fail closed or cannot change report bytes. Alternate
 policy arithmetic is tested through schema-validated pure policy inputs rather
 than mutation of committed corpus authority.
 
+The direct Responses adapter's synthetic stream tests prove active-reader
+cleanup independently of durable attempt semantics. Pending reads are aborted
+under deterministic deadline and external-cancellation control; cleanup
+rejection, independent read rejection, invalid chunks, abort/read races, and
+late enqueue attempts remain value-free and settle once. Tests count exactly
+one reader cancellation for every abnormal active-read exit, require the lock
+to be released, preserve retry classification, and separately prove that a
+fully consumed response is not cancelled and both declared and streaming size
+bounds retain their established cleanup paths. No real provider transport is
+used.
+
 ## Coverage policy
 
 Coverage identifies unexecuted code and unexpected changes in exercised paths.

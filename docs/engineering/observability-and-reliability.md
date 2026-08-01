@@ -277,6 +277,14 @@ detection gaps, recovery, and owned preventive actions. Focus on system
 improvement. Material gaps become linked issues; emergency instrumentation is a
 signal that the relevant path did not meet this policy.
 
+For the repository-interview Responses adapter, reader cancellation and lock
+release are ephemeral cleanup, not provider or model evidence. A cleanup
+failure cannot replace the controlled attempt outcome and must not add stream,
+abort, body, or exception values to results or future telemetry. Deadline,
+external cancellation, network failure, and response-size outcomes remain the
+durable diagnostic authority after cleanup; returning from those paths leaves
+no adapter-owned active reader or retained late content.
+
 ## Validation and review evidence
 
 An applicable PR includes:

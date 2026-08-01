@@ -84,8 +84,11 @@ offline fake-transport tests. The next review accepted that adapter boundary
 in substance but required provider-envelope cancellation to retain HTTP
 provenance and attempt/operation deadlines to remain authoritative after
 asynchronous transport, parsing, and retry-sleep effects. Those narrow
-corrections are implemented for renewed Milestone 8 review; Milestone 9
-remains blocked.
+corrections were accepted. The remaining review found that an abort during a
+pending response read released the reader lock without actively cancelling the
+stream. The bounded reader now cancels and releases once on abort, read
+failure, invalid chunk, or streaming overflow while preserving the original
+controlled outcome; Milestone 9 remains blocked pending renewed acceptance.
 
 ## Decision
 
@@ -525,6 +528,14 @@ time is read after interpretation. After retry sleep, observed injected time
 must leave the full 120-second second-attempt budget inside the 300-second
 operation deadline; exactly 120 seconds is allowed and 119,999 milliseconds is
 not.
+
+Abnormal active-reader termination attempts one reason-free reader
+cancellation and then releases the lock. Cancellation rejection and lock
+release failure cannot replace a deadline, external cancellation, network, or
+size classification. This resource cleanup is not provider provenance and is
+not serialized; late body content is discarded. A fully consumed response is
+released without cancellation, declared-size overflow cancels the unlocked
+body, and streaming overflow cancels its reader exactly once.
 
 `store: false` does not imply zero provider retention, and explicit
 `"in_memory"` is request intent rather than proof that abuse-monitoring or

@@ -2885,13 +2885,29 @@ discards late values for external outcomes, and enforces the exact post-sleep
 120,000/119,999-millisecond boundary. The semantic contract correction changes
 no JSON Schema bytes.
 
+The next review accepted that provenance/deadline correction and found one
+remaining reader-lifecycle gap: aborting a pending read released its lock
+without actively cancelling the underlying stream. The cleanup correction
+began with 9 focused failures and 82 passing adapter tests. Green now passes 93
+adapter tests: every abort, read rejection, invalid chunk, or streaming
+overflow attempts exactly one reason-free reader cancellation and lock
+release; cleanup rejection cannot replace the controlled result; deadline
+retry remains eligible; external cancellation remains terminal; late chunks
+remain unretained; declared overflow still cancels the unlocked body; and a
+fully consumed response is not cancelled afterward. Reader cleanup remains
+ephemeral resource handling rather than durable provider provenance.
+
 `pnpm interviews:verify` passes the three unchanged specification digests,
-seven files and 256 tests, package build/typecheck/lint, and dependency cruising
+seven files and 266 tests, package build/typecheck/lint, and dependency cruising
 of 698 modules and 2,243 dependencies without a violation. The complete local
-matrix passes 59 files and 1,191 ordinary tests; PostgreSQL 18.4 passes five
+matrix passes 59 files and 1,201 ordinary tests; PostgreSQL 18.4 passes five
 files and 59 tests with no skip, retaining four migrations, 25 product tables,
-and zero RLS policies. Coverage passes the same 59 files and 1,191 tests at
-80.17% statements, 72.90% branches, 87.16% functions, and 80.12% lines. The
+and zero RLS policies. Coverage passes the same 59 files and 1,201 tests at
+80.28% statements, 72.94% branches, 87.33% functions, and 80.22% lines.
+Intermittent local coverage attempts hit the unchanged 5-second
+instrumentation timeout in the 10,001-node YAML stress fixture with all other
+1,200 tests passing; an unchanged exact rerun passed all 1,201 tests, so no
+unrelated timeout or workflow-policy change entered this correction. The
 registry audit reports no known vulnerabilities. Hosted CI counts are appended
 after the exact final-head run.
 No credential, real transport, model call, calibration, Gate A, operator,
@@ -3062,6 +3078,13 @@ persistence composition, live database operation, or Milestone 9 work occurred.
   failed application compatibility. The correction now passes 177 focused
   adapter/application/contract tests; Milestone 8 awaits renewed review and
   Milestone 9 remains blocked.
+- **2026-07-31:** Maintainer review accepted the provenance/deadline
+  correction and identified one remaining pending-read cleanup gap. Nine red
+  failures proved active readers were not cancelled; the bounded cleanup now
+  passes 93 adapter tests, attempts one reason-free cancellation and lock
+  release per abnormal active read, preserves all controlled classifications,
+  and retains no late content. Milestone 8 still awaits renewed acceptance;
+  Milestone 9 remains blocked.
 
 ## Decision and deviation log
 
@@ -3227,6 +3250,10 @@ persistence composition, live database operation, or Milestone 9 work occurred.
   response attempt, external cancellation remains transport-only, controller
   outcomes override late transport/parser results, and post-sleep observed time
   controls whether attempt two may begin.
+- **Active-reader cleanup:** an abnormal active body read attempts one bounded
+  reader cancellation and lock release without a content-bearing reason.
+  Cleanup rejection cannot replace durable attempt classification or retain
+  late content; complete bodies are not cancelled after consumption.
 
 ## Remaining maintainer decisions before Milestone 9
 
@@ -3240,7 +3267,8 @@ maintainer review accepts:
    and value-free failure behavior;
 3. bounded streaming parse, safe-header/status/output/usage interpretation,
    provider-versus-external cancellation provenance, bounded final controller
-   authority, and owned/frozen controlled results;
+   authority, active pending-reader cleanup, and owned/frozen controlled
+   results;
 4. unchanged product, specification, prompt/provider-output golden,
    evaluation, migration, catalog, artifact, pilot, dependency, and lockfile
    authorities; and

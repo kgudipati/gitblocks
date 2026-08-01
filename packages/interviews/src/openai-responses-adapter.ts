@@ -690,6 +690,7 @@ async function readBoundedResponseBody(
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let total = 0;
+  let readerFinalized = false;
   try {
     for (;;) {
       const result = await readResponseChunk(reader, signal);
@@ -705,14 +706,21 @@ async function readBoundedResponseBody(
           chunks.push(result.value.slice(0, remaining));
         }
         total = maximumBytes;
-        await reader.cancel().catch(() => undefined);
+        readerFinalized = true;
+        await cancelAndReleaseResponseReader(reader);
         return { status: 'too-large', text: null, responseBytes: total };
       }
       chunks.push(result.value.slice());
       total += result.value.byteLength;
     }
+  } catch (error) {
+    readerFinalized = true;
+    await cancelAndReleaseResponseReader(reader);
+    throw error;
   } finally {
-    reader.releaseLock();
+    if (!readerFinalized) {
+      reader.releaseLock();
+    }
   }
   const bytes = new Uint8Array(total);
   let offset = 0;
@@ -728,6 +736,27 @@ async function readBoundedResponseBody(
     };
   } catch {
     return { status: 'invalid-utf8', text: null, responseBytes: total };
+  }
+}
+
+async function cancelAndReleaseResponseReader(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+): Promise<void> {
+  try {
+    const cancellation = Promise.resolve(reader.cancel()).then(
+      () => undefined,
+      () => undefined,
+    );
+    // Stream cancellation closes pending reads synchronously; an untrusted
+    // underlying source cannot extend adapter-owned attempt finalization.
+    await Promise.race([cancellation, Promise.resolve()]);
+  } catch {
+    // Cleanup cannot replace an already determined bounded outcome.
+  }
+  try {
+    reader.releaseLock();
+  } catch {
+    // A cleanup failure has no provider or transport provenance authority.
   }
 }
 

@@ -1039,14 +1039,239 @@ describe('OpenAI Responses HTTP, retry, and attempt closure', () => {
 });
 
 describe('OpenAI Responses body bounds and offline behavior', () => {
+  it('cancels a pending response reader before retrying an attempt deadline', async () => {
+    const pending = pendingResponse();
+    const harness = createHarness();
+    pending.onCancel = () => {
+      pending.fetchCallsAtCancel = harness.fetchCalls.length;
+    };
+    harness.attemptControl.outcomeSequences = [
+      ['deadline-exceeded', 'deadline-exceeded'],
+      ['completed', 'completed'],
+    ];
+    harness.responses.push(
+      pending.response,
+      successResponse(AUTHORIZED_MODELS[0]),
+    );
+
+    const execution = harness.provider.execute(baseRequest);
+    await pending.readStarted;
+    harness.attemptControl.abort(0);
+    const result = await execution;
+
+    expect(result.status).toBe('response');
+    expect(result.attempts[0]).toMatchObject({
+      transportOutcome: 'deadline-exceeded',
+      httpStatus: null,
+      providerRequestId: null,
+      responseId: null,
+      responseBytes: 0,
+    });
+    expect(pending.cancelCalls).toBe(1);
+    expect(pending.fetchCallsAtCancel).toBe(1);
+    expect(pending.response.body?.locked).toBe(false);
+    expect(harness.fetchCalls).toHaveLength(2);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
+  it('cancels a pending response reader for external cancellation without retrying', async () => {
+    const pending = pendingResponse({ lateChunkAfterCancel: true });
+    const harness = createHarness();
+    harness.attemptControl.outcomeSequences = [['cancelled', 'cancelled']];
+    harness.responses.push(pending.response);
+
+    const execution = harness.provider.execute(baseRequest);
+    await pending.readStarted;
+    harness.attemptControl.abort(0);
+    const result = await execution;
+    await pending.lateChunkSettled;
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      failureCode: 'cancelled',
+      usage: null,
+      attempts: [
+        {
+          transportOutcome: 'cancelled',
+          httpStatus: null,
+          providerRequestId: null,
+          responseId: null,
+          responseBytes: 0,
+        },
+      ],
+    });
+    expect(pending.cancelCalls).toBe(1);
+    expect(pending.response.body?.locked).toBe(false);
+    expect(harness.fetchCalls).toHaveLength(1);
+    expect(harness.sleeper.delays).toEqual([]);
+    expect(pending.lateChunkAttempts).toBe(1);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
+  it.each(['deadline-exceeded', 'cancelled'] as const)(
+    'preserves %s when pending-reader cancellation rejects',
+    async (outcome) => {
+      const pending = pendingResponse({ cancelFailure: new Error(SENTINEL) });
+      const harness = createHarness();
+      harness.attemptControl.outcomeSequences = [[outcome, outcome]];
+      if (outcome === 'deadline-exceeded') {
+        harness.attemptControl.outcomeSequences.push([
+          'completed',
+          'completed',
+        ]);
+        harness.responses.push(
+          pending.response,
+          successResponse(AUTHORIZED_MODELS[0]),
+        );
+      } else {
+        harness.responses.push(pending.response);
+      }
+
+      const execution = harness.provider.execute(baseRequest);
+      await pending.readStarted;
+      harness.attemptControl.abort(0);
+      const result = await execution;
+
+      expect(result.attempts[0]).toMatchObject({
+        transportOutcome: outcome,
+        httpStatus: null,
+        responseBytes: 0,
+      });
+      expect(pending.cancelCalls).toBe(1);
+      expect(pending.response.body?.locked).toBe(false);
+      expect(harness.fetchCalls).toHaveLength(
+        outcome === 'deadline-exceeded' ? 2 : 1,
+      );
+      expect(harness.sleeper.delays).toEqual(
+        outcome === 'deadline-exceeded' ? [1_000] : [],
+      );
+      expect(JSON.stringify(result)).not.toContain(SENTINEL);
+    },
+  );
+
+  it('cancels and releases the reader after an independent read failure', async () => {
+    const failedRead = failedReaderResponse();
+    const harness = createHarness();
+    harness.responses.push(
+      failedRead.response,
+      successResponse(AUTHORIZED_MODELS[0]),
+    );
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result.status).toBe('response');
+    expect(result.attempts[0]).toMatchObject({
+      transportOutcome: 'network-error',
+      httpStatus: null,
+      responseBytes: 0,
+    });
+    expect(failedRead.cancelCalls).toBe(1);
+    expect(failedRead.releaseCalls).toBe(1);
+    expect(harness.fetchCalls).toHaveLength(2);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
+  it('cancels an invalid reader chunk without exposing its value', async () => {
+    const invalidChunk = invalidChunkReaderResponse();
+    const harness = createHarness();
+    harness.responses.push(
+      invalidChunk.response,
+      successResponse(AUTHORIZED_MODELS[0]),
+    );
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result.status).toBe('response');
+    expect(result.attempts[0]).toMatchObject({
+      transportOutcome: 'network-error',
+      responseBytes: 0,
+    });
+    expect(invalidChunk.cancelCalls).toBe(1);
+    expect(invalidChunk.releaseCalls).toBe(1);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
+  it('cancels once when the signal is already aborted before the first read', async () => {
+    const pending = pendingResponse();
+    const harness = createHarness();
+    harness.attemptControl.outcomeSequences = [['cancelled', 'cancelled']];
+    harness.attemptControl.abortOnBegin = [true];
+    harness.responses.push(pending.response);
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      failureCode: 'cancelled',
+      attempts: [{ transportOutcome: 'cancelled', responseBytes: 0 }],
+    });
+    expect(pending.readCalls).toBe(0);
+    expect(pending.cancelCalls).toBe(1);
+    expect(pending.response.body?.locked).toBe(false);
+    expect(harness.fetchCalls).toHaveLength(1);
+  });
+
+  it('settles once and cancels once when read rejection races with abort', async () => {
+    const racing = controllableReaderResponse();
+    const harness = createHarness();
+    harness.attemptControl.outcomeSequences = [['cancelled', 'cancelled']];
+    harness.responses.push(racing.response);
+
+    const execution = harness.provider.execute(baseRequest);
+    await racing.readStarted;
+    harness.attemptControl.abort(0);
+    racing.rejectRead(new Error(SENTINEL));
+    const result = await execution;
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      failureCode: 'cancelled',
+      attempts: [{ transportOutcome: 'cancelled', responseBytes: 0 }],
+    });
+    expect(racing.cancelCalls).toBe(1);
+    expect(racing.releaseCalls).toBe(1);
+    expect(harness.fetchCalls).toHaveLength(1);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
+  it('discards a completed chunk when its read races with abort', async () => {
+    const racing = controllableReaderResponse();
+    const harness = createHarness();
+    harness.attemptControl.outcomeSequences = [['cancelled', 'cancelled']];
+    harness.responses.push(racing.response);
+
+    const execution = harness.provider.execute(baseRequest);
+    await racing.readStarted;
+    racing.resolveRead({
+      done: false,
+      value: new TextEncoder().encode(SENTINEL),
+    });
+    harness.attemptControl.abort(0);
+    const result = await execution;
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      failureCode: 'cancelled',
+      attempts: [{ transportOutcome: 'cancelled', responseBytes: 0 }],
+    });
+    expect(racing.cancelCalls).toBe(1);
+    expect(racing.releaseCalls).toBe(1);
+    expect(harness.fetchCalls).toHaveLength(1);
+    expect(JSON.stringify(result)).not.toContain(SENTINEL);
+  });
+
   it('rejects a declared oversized body without buffering or retrying', async () => {
     const harness = createHarness();
     let pulled = 0;
+    let cancelled = 0;
     const body = new ReadableStream<Uint8Array>({
       pull(controller) {
         pulled += 1;
         controller.enqueue(new TextEncoder().encode(SENTINEL));
         controller.close();
+      },
+      cancel() {
+        cancelled += 1;
       },
     });
     harness.responses.push(
@@ -1068,14 +1293,18 @@ describe('OpenAI Responses body bounds and offline behavior', () => {
       attempts: [{ responseBytes: 0 }],
     });
     expect(pulled).toBeLessThanOrEqual(1);
+    expect(cancelled).toBe(1);
     expect(harness.fetchCalls).toHaveLength(1);
     expect(JSON.stringify(result)).not.toContain(SENTINEL);
   });
 
   it('stops a chunked body at the exact limit and rejects invalid UTF-8', async () => {
     const oversizedHarness = createHarness();
+    let overflowCancellations = 0;
     oversizedHarness.responses.push(
-      chunkedResponse([new Uint8Array(8), new Uint8Array(8)]),
+      chunkedResponse([new Uint8Array(8), new Uint8Array(8)], () => {
+        overflowCancellations += 1;
+      }),
     );
     const oversized = await oversizedHarness.provider.execute(
       requestWith({
@@ -1089,6 +1318,7 @@ describe('OpenAI Responses body bounds and offline behavior', () => {
       failureCode: 'response-too-large',
       attempts: [{ responseBytes: 10 }],
     });
+    expect(overflowCancellations).toBe(1);
 
     const utf8Harness = createHarness();
     utf8Harness.responses.push(chunkedResponse([new Uint8Array([0xff])]));
@@ -1126,6 +1356,28 @@ describe('OpenAI Responses body bounds and offline behavior', () => {
       status: 'response',
       attempts: [{ responseBytes: maximumResponseBytes }],
     });
+  });
+
+  it('does not cancel a completely consumed valid response', async () => {
+    let cancellations = 0;
+    const harness = createHarness();
+    harness.responses.push(
+      chunkedResponse(
+        [
+          new TextEncoder().encode(
+            JSON.stringify(completedEnvelope(AUTHORIZED_MODELS[0])),
+          ),
+        ],
+        () => {
+          cancellations += 1;
+        },
+      ),
+    );
+
+    const result = await harness.provider.execute(baseRequest);
+
+    expect(result.status).toBe('response');
+    expect(cancellations).toBe(0);
   });
 
   it('constructs without effects and never falls back to global fetch', () => {
@@ -1230,6 +1482,8 @@ class FakeAttemptControl implements RepositoryInterviewOpenAiAttemptControlPortV
   public outcomes: ('completed' | 'deadline-exceeded' | 'cancelled')[] = [];
   public outcomeSequences: unknown[][] = [];
   public outcomeCalls: number[] = [];
+  public abortOnBegin: boolean[] = [];
+  private readonly controllers: AbortController[] = [];
 
   public beginAttempt() {
     const attemptIndex = this.calls;
@@ -1237,6 +1491,10 @@ class FakeAttemptControl implements RepositoryInterviewOpenAiAttemptControlPortV
     const sequence = this.outcomeSequences[attemptIndex] ?? [outcome];
     this.calls += 1;
     const controller = new AbortController();
+    this.controllers[attemptIndex] = controller;
+    if (this.abortOnBegin[attemptIndex] === true) {
+      controller.abort();
+    }
     let outcomeIndex = 0;
     return {
       signal: controller.signal,
@@ -1252,6 +1510,10 @@ class FakeAttemptControl implements RepositoryInterviewOpenAiAttemptControlPortV
       },
       dispose: () => undefined,
     };
+  }
+
+  public abort(attemptIndex: number): void {
+    this.controllers[attemptIndex]?.abort();
   }
 }
 
@@ -1347,9 +1609,12 @@ function response(
   });
 }
 
-function chunkedResponse(chunks: readonly Uint8Array[]): Response {
+function chunkedResponse(
+  chunks: readonly Uint8Array[],
+  onReaderCancel: () => void = () => undefined,
+): Response {
   let index = 0;
-  return new Response(
+  const response = new Response(
     new ReadableStream<Uint8Array>({
       pull(controller) {
         const chunk = chunks[index];
@@ -1363,6 +1628,218 @@ function chunkedResponse(chunks: readonly Uint8Array[]): Response {
     }),
     { status: 200 },
   );
+  const body = response.body;
+  if (body === null) {
+    throw new Error('Synthetic chunked response body is absent.');
+  }
+  const getReader = body.getReader.bind(body);
+  Object.defineProperty(body, 'getReader', {
+    value: () => {
+      const reader = getReader();
+      const cancel = reader.cancel.bind(reader);
+      Object.defineProperty(reader, 'cancel', {
+        value: () => {
+          onReaderCancel();
+          return cancel();
+        },
+      });
+      return reader;
+    },
+  });
+  return response;
+}
+
+interface PendingResponse {
+  readonly response: Response;
+  readonly readStarted: Promise<void>;
+  readonly lateChunkSettled: Promise<void>;
+  readCalls: number;
+  cancelCalls: number;
+  lateChunkAttempts: number;
+  fetchCallsAtCancel: number | null;
+  onCancel: () => void;
+}
+
+function pendingResponse(
+  options: {
+    readonly cancelFailure?: Error;
+    readonly lateChunkAfterCancel?: boolean;
+  } = {},
+): PendingResponse {
+  let resolveReadStarted: () => void = () => undefined;
+  let resolveLateChunkSettled: () => void = () => undefined;
+  let controller: ReadableStreamDefaultController<Uint8Array> | null = null;
+  const state: PendingResponse = {
+    response: undefined as unknown as Response,
+    readStarted: new Promise<void>((resolve) => {
+      resolveReadStarted = resolve;
+    }),
+    lateChunkSettled: new Promise<void>((resolve) => {
+      resolveLateChunkSettled = resolve;
+    }),
+    readCalls: 0,
+    cancelCalls: 0,
+    lateChunkAttempts: 0,
+    fetchCallsAtCancel: null,
+    onCancel: () => undefined,
+  };
+  const stream = new ReadableStream<Uint8Array>({
+    start(value) {
+      controller = value;
+      if (options.lateChunkAfterCancel !== true) {
+        resolveLateChunkSettled();
+      }
+    },
+    pull() {
+      return new Promise<void>(() => undefined);
+    },
+    cancel() {
+      state.cancelCalls += 1;
+      state.onCancel();
+      if (options.lateChunkAfterCancel === true) {
+        queueMicrotask(() => {
+          state.lateChunkAttempts += 1;
+          try {
+            controller?.enqueue(new TextEncoder().encode(SENTINEL));
+          } catch {
+            // The attempted late chunk must remain outside adapter ownership.
+          }
+          resolveLateChunkSettled();
+        });
+      }
+      if (options.cancelFailure !== undefined) {
+        return Promise.reject(options.cancelFailure);
+      }
+      return undefined;
+    },
+  });
+  const response = new Response(stream, { status: 200 });
+  const body = response.body;
+  if (body === null) {
+    throw new Error('Synthetic pending response body is absent.');
+  }
+  const getReader = body.getReader.bind(body);
+  Object.defineProperty(body, 'getReader', {
+    value: () => {
+      const reader = getReader();
+      const read = reader.read.bind(reader);
+      Object.defineProperty(reader, 'read', {
+        value: () => {
+          state.readCalls += 1;
+          resolveReadStarted();
+          return read();
+        },
+      });
+      return reader;
+    },
+  });
+  Object.defineProperty(state, 'response', { value: response });
+  return state;
+}
+
+function failedReaderResponse(): {
+  readonly response: Response;
+  readonly cancelCalls: number;
+  readonly releaseCalls: number;
+} {
+  return syntheticReaderResponse(() => Promise.reject(new Error(SENTINEL)));
+}
+
+function invalidChunkReaderResponse(): {
+  readonly response: Response;
+  readonly cancelCalls: number;
+  readonly releaseCalls: number;
+} {
+  return syntheticReaderResponse(() =>
+    Promise.resolve({ done: false, value: SENTINEL }),
+  );
+}
+
+function controllableReaderResponse(): {
+  readonly response: Response;
+  readonly readStarted: Promise<void>;
+  readonly cancelCalls: number;
+  readonly releaseCalls: number;
+  resolveRead(result: {
+    readonly done: boolean;
+    readonly value: unknown;
+  }): void;
+  rejectRead(error: Error): void;
+} {
+  let settleRead: (result: {
+    readonly done: boolean;
+    readonly value: unknown;
+  }) => void = () => undefined;
+  let rejectRead: (error: Error) => void = () => undefined;
+  let resolveReadStarted: () => void = () => undefined;
+  const readStarted = new Promise<void>((resolve) => {
+    resolveReadStarted = resolve;
+  });
+  const result = syntheticReaderResponse(
+    () =>
+      new Promise((resolve, reject) => {
+        settleRead = resolve;
+        rejectRead = reject;
+        resolveReadStarted();
+      }),
+  );
+  return {
+    response: result.response,
+    readStarted,
+    get cancelCalls() {
+      return result.cancelCalls;
+    },
+    get releaseCalls() {
+      return result.releaseCalls;
+    },
+    resolveRead(value) {
+      settleRead(value);
+    },
+    rejectRead(error) {
+      rejectRead(error);
+    },
+  };
+}
+
+function syntheticReaderResponse(
+  read: () => Promise<{ readonly done: boolean; readonly value: unknown }>,
+): {
+  readonly response: Response;
+  readonly cancelCalls: number;
+  readonly releaseCalls: number;
+} {
+  const state = {
+    cancelCalls: 0,
+    releaseCalls: 0,
+  };
+  const reader = {
+    read,
+    cancel() {
+      state.cancelCalls += 1;
+      return Promise.resolve();
+    },
+    releaseLock() {
+      state.releaseCalls += 1;
+    },
+  };
+  const response = {
+    body: {
+      getReader() {
+        return reader;
+      },
+    },
+    headers: new Headers(),
+    status: 200,
+  } as unknown as Response;
+  return {
+    response,
+    get cancelCalls() {
+      return state.cancelCalls;
+    },
+    get releaseCalls() {
+      return state.releaseCalls;
+    },
+  };
 }
 
 function requireBody(body: RequestInit['body']): string {

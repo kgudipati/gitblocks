@@ -157,6 +157,16 @@ adapter also rereads the clock after retry sleep and requires the complete
 Exactly 120 seconds remaining is sufficient; less is not, and oversleep never
 creates a synthetic attempt.
 
+If an abort, read rejection, invalid chunk, or other bounded-reader failure
+terminates active body consumption, the adapter cancels that exact reader once
+without a content-bearing reason and then attempts to release its lock. A
+cleanup rejection cannot replace the already controlled deadline,
+cancellation, network, or size outcome. Fully consumed responses are not
+cancelled afterward; declared-size overflow cancels the still-unlocked body,
+and streaming overflow cancels its active reader once. Reader cleanup is an
+ephemeral resource-lifecycle action, not durable provider evidence, and late
+chunks remain outside returned results.
+
 `store: false` is not Zero Data Retention. The explicit `"in_memory"` field is
 GitBlocks request intent and is not proof that abuse-monitoring or other
 organization-level retention is absent. The adapter neither inspects nor
