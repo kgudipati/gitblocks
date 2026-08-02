@@ -51,12 +51,16 @@
     external live authorities.”
   - PR #18 review: “Milestone 11 preparation stop accepted — live artifact
     migration authority correction required.”
+  - PR #18 review: “Milestone 11 preparation stop accepted — catalog-only
+    database seed boundary required.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–10 are accepted. The first Milestone 11 preparation
-  attempt correctly stopped before external effects because the live artifact
-  CLI retained migration-`0003` authority. Its bounded migration-`0004`
-  correction awaits renewed review. Milestone 11 remains blocked.
+- State: Milestones 1–10 are accepted. Two Milestone 11 preparation attempts
+  correctly stopped before external effects: first on stale migration-`0003`
+  artifact authority, then on the absence of a catalog-only durable provenance
+  seed for a fresh migration-`0004` database. The second correction adds only
+  that bounded seed application and CLI. Fresh preparation awaits renewed
+  review; Milestone 11 remains blocked.
 - Last updated: 2026-08-02
 
 The latest maintainer comment amends broader or conflicting language in the
@@ -3585,3 +3589,33 @@ single-worker coverage result is 79.36% statements, 73.11% branches, 86.66%
 functions, and 79.73% lines. No dependency vulnerability, live collection,
 credential read, receipt, materialization, provider operation, or Milestone 11
 execution occurred. Exact-head hosted CI remains the post-push stop.
+
+The next authorized preparation preflight then correctly stopped before
+Docker, database, or provider effects because migrations create schema but do
+not populate `catalog_candidates`, `catalog:validate` is file-only, and
+`artifacts:live` requires durable catalog provenance. Reusing `ingest:live`
+would have exceeded preparation authority by collecting providers, profiling,
+and writing evidence, limitations, unknowns, and dossiers. Maintainer review
+accepted that second stop and required a catalog-only seed boundary.
+
+The correction adds one ingestion-owned pure mapping authority shared by
+normal profiling and catalog seeding, plus `seedPublicCatalogV1` and the
+explicit `catalog:seed` process boundary. The complete exact 150-candidate plan
+is parsed, owned, frozen, canonically ordered, and validated before the first
+write. Production composition invokes only `putCatalogCandidate` followed by
+`setCandidateCapabilityFamilies` for each candidate. The CLI requires exact
+ephemeral non-production acknowledgement, discrete PostgreSQL configuration,
+and verified latest migration `0004`; migrations `0003`, `0005`, missing, or
+invalid authority fail before writes. A partial failure makes the ephemeral
+database ineligible and requires discard, not repair or cleanup SQL.
+
+Red-first tests recorded the absent mapping, plan, command, script, and import
+boundaries before implementation. The prescribed PostgreSQL 18.4 harness then
+proved exact 150-row catalog closure, exact 150 family assignments, unchanged
+idempotent replay, identity-drift rejection, migration-3/5 zero-write denial,
+zero seed-created evidence/dossier/artifact/interview rows, and satisfaction of
+the synthetic artifact-publication catalog-provenance precondition. This
+correction provisioned only ephemeral test databases. It read no real database,
+GitHub, or OpenAI credential; ran no live seed or collection; created no
+receipt, selection, binding, or authorization; and began no calibration, gate,
+or other Milestone 11 work. Fresh preparation remains pending renewed review.

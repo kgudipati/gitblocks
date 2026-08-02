@@ -35,6 +35,7 @@
     "eval:interviews:verify": "pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && vitest run tools/evaluation-harness/test/repository-interview-*.test.ts --config vitest.config.ts && pnpm --filter @gitblocks/evaluation-harness typecheck && pnpm architecture:check",
     "contracts:validate": "pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts",
     "catalog:validate": "pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts",
+    "catalog:seed": "pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-seed-cli.ts",
     "artifacts:validate": "pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/artifact-manifest-cli.ts",
     "artifacts:test": "pnpm runtime:check && pnpm build:product && vitest run packages/ingestion/test/artifact-*.test.ts --config vitest.config.ts",
     "artifacts:verify": "pnpm artifacts:validate && pnpm artifacts:test && pnpm --filter @gitblocks/ingestion typecheck",

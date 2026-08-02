@@ -133,6 +133,14 @@ valid historical migration-`0003` receipts remains compatible. No database,
 collection, materialization, provider, or Milestone 11 execution is part of
 the correction.
 
+The renewed preparation preflight then correctly stopped before external
+effects because a fresh migration-`0004` database has schema but no durable
+catalog rows, while immutable artifact publication requires catalog
+provenance. File-only catalog validation cannot establish that state, and full
+ingestion would exceed preparation authority by invoking provider collection,
+profiling, evidence, limitations, unknowns, and dossier persistence. Maintainer
+review accepted the stop and required a bounded catalog-only seed boundary.
+
 ## Decision
 
 ### Candidate-owned, request-independent intelligence
@@ -690,6 +698,19 @@ the narrowed exact value `4` through the existing collector input so receipt
 construction records the verified authority without changing the receipt
 version or historical parser.
 
+Before that collector runs against a fresh database, the separate
+`catalog:seed` composition authenticates the exact committed `public-v1`
+catalog and exact migration `0004`, builds the entire owned/frozen canonical
+plan before writing, and invokes only the existing public
+`putCatalogCandidate` and `setCandidateCapabilityFamilies` persistence
+operations. Candidate identity and family assignments come from the same pure
+ingestion mapping authority used by `profileCandidate`; `introducedAt` remains
+the catalog-row creation time. The seed has no provider, profiler, evidence,
+dossier, artifact, interview, network, timer, retry, migration, or file-write
+capability. Its result is a bounded content-free operational summary, not a
+new committed authorization authority. Any write failure stops the command and
+makes the ephemeral database ineligible; it must be discarded.
+
 The materializer and non-dry operator verify PostgreSQL 18.4 and the exact
 accepted 0001–0004 inventory but never apply migrations. All file and
 cross-authority validation precedes database-password access; all database
@@ -958,8 +979,8 @@ second maintained schema.
 
 ## Deferred work
 
-- Renewed maintainer acceptance of the live artifact migration-authority
-  correction before retrying fresh preparation.
+- Renewed maintainer acceptance of the catalog-only database-seed correction
+  before retrying fresh preparation.
 - Fresh full-catalog artifact collection and receipt in the exact future
   ephemeral database, followed by untracked selection materialization.
 - Substantive retention and current pricing authority plus a separately

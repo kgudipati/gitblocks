@@ -40,6 +40,27 @@ missing migrations, and migrations newer than `0004` before constructing its
 GitHub transport or collector. The verified exact value `4` is recorded in the
 new receipt through the existing collection boundary.
 
+A fresh migration-`0004` database does not contain durable catalog provenance.
+After the second preparation stop exposed that missing composition boundary,
+`pnpm catalog:seed -- --catalog <explicit-path>` was added as a separate
+catalog-only operator. It parses and authenticates the exact committed
+`public-v1` catalog, verifies that the database is exactly at migration `0004`,
+builds the complete frozen seed plan before its first write, then uses only
+`putCatalogCandidate` and `setCandidateCapabilityFamilies` in canonical
+candidate order. Normal profiling and seeding share the same pure candidate
+identity and capability-family mapping authority.
+
+The seed command requires
+`approved-non-production-public-catalog-seed` and
+`ephemeral-non-production` plus explicit discrete PostgreSQL environment
+configuration. It has no GitHub/OpenAI credential, provider, profiler,
+transport, timeout, file-write, evidence, limitation, unknown, dossier,
+artifact, or interview path. It does not apply migrations. Its stdout is only
+the canonical content-free completion summary. On any write failure it emits
+no success summary, stops immediately, and the ephemeral database is
+ineligible and must be discarded. The correction exercised only the prescribed
+PostgreSQL test harness; no real preparation database or seed was run.
+
 The artifact operator consumes the closed public catalog:
 
 ```shell

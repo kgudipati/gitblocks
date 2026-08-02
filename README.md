@@ -81,7 +81,13 @@ or product release. Phase 7 is governed by
 The strict Phase 7 materialization boundary requires a fresh complete receipt
 that records migration `0004`; historical migration-`0003` receipts remain
 generically parseable but cannot authorize pre-live materialization. Every
-pre-live dry-run authenticates one of the two exact committed complete model
+fresh migration-`0004` artifact database must first receive the exact committed
+catalog provenance through the separately acknowledged catalog-only seed
+boundary. That boundary writes only catalog identities and capability-family
+assignments; it performs no provider collection, profiling, evidence, dossier,
+artifact, or interview work. No real preparation database has been provisioned
+or seeded by this correction, and fresh preparation remains pending renewed
+review. Every pre-live dry-run authenticates one of the two exact committed complete model
 profiles. Readiness-policy `1.0.0` can make only six-candidate calibration
 eligible; Gate A and Gate B remain blocked.
 The first full live catalog ingestion and its immediate refresh completed
@@ -183,6 +189,7 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm db:test`                        | Run PostgreSQL integration and conformance tests                    |
 | `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks             |
 | `pnpm catalog:validate`               | Validate catalog bounds, balance, identity, paths, and digest       |
+| `pnpm catalog:seed -- --catalog …`    | Seed exact catalog provenance into an acknowledged ephemeral DB     |
 | `pnpm artifacts:validate`             | Validate public artifact selections, coverage, and digest           |
 | `pnpm artifacts:test`                 | Run deterministic artifact manifest, collector, and receipt tests   |
 | `pnpm artifacts:verify`               | Run complete offline artifact verification                          |
@@ -219,3 +226,10 @@ remains an explicitly authorized non-production operation. The Phase 6
 controlled live proof is recorded in
 [`artifact-completion.md`](catalog/public-v1/artifact-completion.md); production
 deployment is not authorized.
+`pnpm catalog:seed` is the separate no-provider preparation boundary that must
+run after exact migration-0004 verification and before `pnpm artifacts:live`
+against a fresh artifact database. It requires an explicit catalog path,
+ephemeral non-production acknowledgement, and discrete PostgreSQL settings.
+It never applies migrations or reads GitHub/OpenAI credentials. A failed seed
+makes that ephemeral database ineligible for preparation and it must be
+discarded rather than repaired in place.

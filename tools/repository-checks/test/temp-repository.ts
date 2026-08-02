@@ -73,9 +73,13 @@ const REQUIRED_PATHS = [
   'packages/ingestion/README.md',
   'packages/ingestion/package.json',
   'packages/ingestion/scripts/catalog-cli.ts',
+  'packages/ingestion/scripts/catalog-seed-cli.ts',
+  'packages/ingestion/scripts/catalog-seed-command.ts',
   'packages/ingestion/scripts/live-cli.ts',
   'packages/ingestion/scripts/receipt-cli.ts',
   'packages/ingestion/scripts/tsconfig.json',
+  'packages/ingestion/src/catalog-persistence.ts',
+  'packages/ingestion/src/catalog-seed.ts',
   'packages/ingestion/src/index.ts',
   'packages/ingestion/test/tsconfig.json',
   'packages/ingestion/tsconfig.json',
@@ -149,6 +153,8 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
+    'catalog:seed':
+      'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-seed-cli.ts',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':

@@ -23,8 +23,16 @@ Phase 6 receipts, but those receipts are not Phase 7 materialization authority.
 The live artifact operator now requires exact migration `0004` for every new
 collection intended for this boundary. The prior preparation attempt correctly
 stopped before database creation or collection when it exposed the stale
-migration-`0003` live guard; collection and materialization remain pending
-renewed review.
+migration-`0003` live guard. After that correction was accepted, the next
+preparation preflight correctly stopped again because a fresh migration-`0004`
+database needs the exact durable catalog identities required by artifact
+provenance and no catalog-only composition existed. The correction adds the
+separate `catalog:seed` boundary, which writes only exact catalog candidates and
+capability-family assignments after migration verification. It performs no
+provider collection, profiling, evidence/dossier persistence, artifact or
+interview publication, and no real preparation database or seed was run while
+implementing it. Collection and materialization remain pending renewed review;
+Milestone 11 remains blocked.
 
 The two profiles are calibration candidates only. Neither is selected or Gate
 A approved. Explicit `promptCacheRetention: "in-memory"` records request

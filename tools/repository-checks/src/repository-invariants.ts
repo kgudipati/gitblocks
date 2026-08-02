@@ -219,9 +219,13 @@ const REQUIRED_PATHS = [
   'packages/ingestion/README.md',
   'packages/ingestion/package.json',
   'packages/ingestion/scripts/catalog-cli.ts',
+  'packages/ingestion/scripts/catalog-seed-cli.ts',
+  'packages/ingestion/scripts/catalog-seed-command.ts',
   'packages/ingestion/scripts/live-cli.ts',
   'packages/ingestion/scripts/receipt-cli.ts',
   'packages/ingestion/scripts/tsconfig.json',
+  'packages/ingestion/src/catalog-persistence.ts',
+  'packages/ingestion/src/catalog-seed.ts',
   'packages/ingestion/src/index.ts',
   'packages/ingestion/test/tsconfig.json',
   'packages/ingestion/tsconfig.json',
@@ -512,6 +516,7 @@ function validateRuntimeScripts(
   }
   for (const scriptName of [
     'contracts:validate',
+    'catalog:seed',
     'catalog:validate',
     'eval:fixtures',
     'eval:interviews:fixtures',
@@ -568,6 +573,8 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
+    'catalog:seed':
+      'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-seed-cli.ts',
     'ingestion:test':
       'pnpm runtime:check && pnpm build:product && vitest run packages/ingestion/test --config vitest.config.ts',
     'ingestion:verify':
