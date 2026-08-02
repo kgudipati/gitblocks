@@ -20,6 +20,11 @@ binding remain untracked runtime authorities. The strict pre-live receipt
 boundary requires the receipt itself to record migration `0004`. Generic
 ingestion parsing continues to accept valid historical migration-`0003`
 Phase 6 receipts, but those receipts are not Phase 7 materialization authority.
+The live artifact operator now requires exact migration `0004` for every new
+collection intended for this boundary. The prior preparation attempt correctly
+stopped before database creation or collection when it exposed the stale
+migration-`0003` live guard; collection and materialization remain pending
+renewed review.
 
 The two profiles are calibration candidates only. Neither is selected or Gate
 A approved. Explicit `promptCacheRetention: "in-memory"` records request

@@ -32,6 +32,14 @@ migrates implicitly. Its receipt is bounded and content-free, and
 `pnpm artifacts:receipt` validates or compares receipts without contacting a
 provider.
 
+The original Phase 6 live proof ran against migration `0003`, and its valid
+historical receipts remain accepted by the generic receipt parser. A new live
+artifact collection for Phase 7 preparation requires the exact verified
+0001–0004 migration inventory; the live operator rejects migration `0003`,
+missing migrations, and migrations newer than `0004` before constructing its
+GitHub transport or collector. The verified exact value `4` is recorded in the
+new receipt through the existing collection boundary.
+
 The artifact operator consumes the closed public catalog:
 
 ```shell

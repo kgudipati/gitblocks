@@ -47,13 +47,17 @@
   - PR #18 review: “Milestone 10 review — offline gate accepted in substance;
     freshness, staged-readiness, exact-profile, and clean-typecheck corrections
     required before Milestone 11.”
+  - PR #18 review: “Milestone 10 accepted — Milestone 11 remains blocked on
+    external live authorities.”
+  - PR #18 review: “Milestone 11 preparation stop accepted — live artifact
+    migration authority correction required.”
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–9 are accepted. Milestone 10's content-free offline
-  pre-live authority, future receipt-and-database materializer, and synthetic
-  proofs are accepted in substance; the four requested authority corrections
-  are implemented and awaiting renewed review. Milestone 11 remains blocked.
-- Last updated: 2026-08-01
+- State: Milestones 1–10 are accepted. The first Milestone 11 preparation
+  attempt correctly stopped before external effects because the live artifact
+  CLI retained migration-`0003` authority. Its bounded migration-`0004`
+  correction awaits renewed review. Milestone 11 remains blocked.
+- Last updated: 2026-08-02
 
 The latest maintainer comment amends broader or conflicting language in the
 issue body. Authority descends from Issue #17 and those comments, through
@@ -3125,6 +3129,25 @@ persistence composition, live database operation, or Milestone 9 work occurred.
   release per abnormal active read, preserves all controlled classifications,
   and retains no late content. Milestone 8 still awaits renewed acceptance;
   Milestone 9 remains blocked.
+- **2026-08-02:** Maintainer review accepted Milestone 10. The separately
+  authorized preparation attempt correctly stopped before Docker, database,
+  credential, or collection effects after proving the live artifact CLI still
+  required migration `0003` while the strict pre-live receipt requires
+  migration `0004`.
+- **2026-08-02:** Recorded the correction red state: the focused suite failed
+  because the exact migration-authority helper and guarded CLI effect boundary
+  did not exist. Added the script-owned exact-`4` assertion and callback
+  boundary; 14 focused tests now prove `4` acceptance, `3`/`5`/missing/type
+  rejection, fixed diagnostics, effect ordering, exact receipt input, and no
+  migration override. Fresh preparation remains stopped pending renewed
+  review.
+- **2026-08-02:** The first complete `pnpm verify` run stopped on one lint-only
+  shorthand callback in the new test. Rewrote the callback with an explicit
+  block, then reran focused lint/tests and the complete required matrix. Final
+  ordinary verification passes 74 files/1,305 tests. PostgreSQL 18.4 passes 7
+  files/61 tests with no skips, four migrations, 25 product tables, and zero
+  RLS policies. Single-worker coverage passes all 1,305 tests at 79.36%
+  statements, 73.11% branches, 86.66% functions, and 79.73% lines.
 
 ## Decision and deviation log
 
@@ -3143,6 +3166,12 @@ persistence composition, live database operation, or Milestone 9 work occurred.
   `fetch`, not the OpenAI SDK.
 - **Model choice remains open:** two exact snapshots are calibration
   candidates; neither is yet the Gate A model.
+- **Live artifact migration authority:** the original Phase 6 proof and its
+  generic receipts remain valid at migration `0003`. Every new live artifact
+  collection for Phase 7 requires exact migration `0004`; a script-owned
+  assertion narrows the verified value before transport, collector,
+  collection, and receipt-write effects without adding an override or changing
+  receipt semantics.
 - **GitHub CLI unavailable:** local Git will be used for commit and push; the
   connected GitHub application will create and inspect the draft PR. No tool or
   dependency will be installed.
@@ -3536,4 +3565,23 @@ and retention evidence remain external. `store: false` and
 prove ZDR. No raw receipt, real materialized selection, real binding, real
 authorization, current price, retention evidence body, credential, runtime
 operator receipt, provider response, or repository artifact content is
-committed. Milestone 10 awaits renewed review; Milestone 11 remains blocked.
+committed. Milestone 10 is accepted. Its first preparation attempt correctly
+stopped before external effects when the stale migration-`0003` live artifact
+guard was discovered. The correction requires exact migration `0004` for new
+live collection, preserves generic historical migration-`0003` receipt
+parsing, and performs no fresh database or collection. Milestone 11 remains
+blocked pending exact-head correction review and a separately authorized
+retry.
+
+The correction validation completed under Node 24.18.0 and pnpm 11.17.0.
+Frozen installation, standalone typecheck, ingestion, artifact, pre-live,
+operator, interview, evaluation, database, repository, security, `pnpm verify`,
+and `pnpm verify:ci` commands pass. Ingestion passes 12 files/167 tests;
+artifact verification passes 7 files/118 tests; pre-live verification passes
+10 files/60 tests; ordinary verification passes 74 files/1,305 tests; and the
+PostgreSQL suite passes 7 files/61 tests without skips on PostgreSQL 18.4 with
+exactly four migrations, 25 product tables, and zero RLS policies. The exact
+single-worker coverage result is 79.36% statements, 73.11% branches, 86.66%
+functions, and 79.73% lines. No dependency vulnerability, live collection,
+credential read, receipt, materialization, provider operation, or Milestone 11
+execution occurred. Exact-head hosted CI remains the post-push stop.

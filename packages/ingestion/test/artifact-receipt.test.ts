@@ -28,6 +28,12 @@ describe('repository artifact receipt', () => {
       operationalDecodedBytes: 46,
     });
     expect(parseArtifactReceipt(JSON.stringify(receipt))).toEqual(receipt);
+    expect(receipt.databaseMigrationVersion).toBe(3);
+    expect(() =>
+      parseArtifactReceipt(
+        JSON.stringify({ ...receipt, databaseMigrationVersion: 4 }),
+      ),
+    ).toThrow(IngestionError);
     const serialized = JSON.stringify(receipt);
     for (const forbidden of [
       '# Synthetic',

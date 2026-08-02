@@ -46,6 +46,41 @@ describe('repository artifact operator surface', () => {
     expect(source).not.toContain('displayUrl');
   });
 
+  it('guards exact migration 0004 before transport, collection, and receipt writing', async () => {
+    const source = await readFile(
+      new URL('../scripts/artifacts-live-cli.ts', import.meta.url),
+      'utf8',
+    );
+    const guard = source.indexOf(
+      'withVerifiedArtifactLiveDatabaseMigrationV1(',
+    );
+    const verification = source.indexOf('verifyMigrations(client)', guard);
+    const transport = source.indexOf('createTransport({', verification);
+    const collector = source.indexOf(
+      'createRepositoryArtifactCollector({',
+      transport,
+    );
+    const collection = source.indexOf(
+      'collectPublicRepositoryArtifacts({',
+      collector,
+    );
+    const receiptWrite = source.indexOf('await writeFile(', collection);
+
+    expect(guard).toBeGreaterThan(-1);
+    expect(verification).toBeGreaterThan(guard);
+    expect(transport).toBeGreaterThan(verification);
+    expect(collector).toBeGreaterThan(transport);
+    expect(collection).toBeGreaterThan(collector);
+    expect(receiptWrite).toBeGreaterThan(collection);
+    expect(source.slice(guard, receiptWrite)).toContain(
+      'databaseMigrationVersion',
+    );
+    expect(source).not.toContain('databaseMigrationVersion !== 3');
+    expect(source).not.toContain('migration 0003.');
+    expect(source).not.toMatch(/--(?:database-)?migration/u);
+    expect(source).not.toContain('GITBLOCKS_ARTIFACT_DB_MIGRATION');
+  });
+
   it("loads materialized artifacts with the artifact set's chunker version", async () => {
     const source = await readFile(
       new URL('../src/artifact-batch.ts', import.meta.url),

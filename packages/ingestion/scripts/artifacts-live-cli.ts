@@ -19,6 +19,7 @@ import {
   parsePublicCatalog,
   type SafeTelemetryEvent,
 } from '../src/index.ts';
+import { withVerifiedArtifactLiveDatabaseMigrationV1 } from './artifact-live-authority.ts';
 
 const acknowledgement = 'approved-non-production-public-artifact-collection';
 if (process.env['GITBLOCKS_ARTIFACT_ACKNOWLEDGEMENT'] !== acknowledgement) {
@@ -63,37 +64,35 @@ const observer = (event: SafeTelemetryEvent): void => {
 };
 
 try {
-  const migration = await verifyMigrations(client);
-  const databaseMigrationVersion = migration.migrations.at(-1)?.version;
-  if (databaseMigrationVersion !== 3) {
-    throw new Error(
-      'The artifact database must be verified at migration 0003.',
-    );
-  }
-  const transport = createTransport({
-    fetch,
-    sleep: abortableSleep,
-    observer,
-    requestTimeoutMilliseconds: 10_000,
-  });
-  const collector = createRepositoryArtifactCollector({
-    transport,
-    githubToken,
-  });
-  const receipt = await collectPublicRepositoryArtifacts({
-    catalog,
-    manifest,
-    persistence: client,
-    collector,
-    getProviderMetrics: () => transport.getMetrics(),
-    clock: SYSTEM_CLOCK,
-    observer,
-    candidateConcurrency: concurrency,
-    maximumRunMilliseconds: deadlineMilliseconds,
-    databaseMigrationVersion,
-    ...(candidateIds.length === 0 ? {} : { candidateIds }),
-    ...(priorReceipt === undefined ? {} : { priorReceipt }),
-  });
+  const receipt = await withVerifiedArtifactLiveDatabaseMigrationV1(
+    () => verifyMigrations(client),
+    async (databaseMigrationVersion) => {
+      const transport = createTransport({
+        fetch,
+        sleep: abortableSleep,
+        observer,
+        requestTimeoutMilliseconds: 10_000,
+      });
+      const collector = createRepositoryArtifactCollector({
+        transport,
+        githubToken,
+      });
+      return collectPublicRepositoryArtifacts({
+        catalog,
+        manifest,
+        persistence: client,
+        collector,
+        getProviderMetrics: () => transport.getMetrics(),
+        clock: SYSTEM_CLOCK,
+        observer,
+        candidateConcurrency: concurrency,
+        maximumRunMilliseconds: deadlineMilliseconds,
+        databaseMigrationVersion,
+        ...(candidateIds.length === 0 ? {} : { candidateIds }),
+        ...(priorReceipt === undefined ? {} : { priorReceipt }),
+      });
+    },
+  );
   await writeFile(
     resolve(receiptArgument),
     `${JSON.stringify(receipt, null, 2)}\n`,

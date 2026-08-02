@@ -123,6 +123,16 @@ the offline membership authority and reserves selection materialization for a
 fresh full-catalog receipt joined to receipt-named sets in the exact same
 future ephemeral database.
 
+Maintainer review accepted Milestone 10 at exact head `40054dab`. The first
+authorized preparation attempt then correctly stopped before Docker or live
+collection because the Phase 6 live artifact CLI still required migration
+`0003` while the accepted Phase 7 receipt boundary requires migration `0004`.
+The accepted correction changes only that script-owned live guard: new live
+artifact collections require exact migration `0004`, while generic parsing of
+valid historical migration-`0003` receipts remains compatible. No database,
+collection, materialization, provider, or Milestone 11 execution is part of
+the correction.
+
 ## Decision
 
 ### Candidate-owned, request-independent intelligence
@@ -672,6 +682,14 @@ receipt itself to record migration `0004`; this proof is validated before any
 database password, database construction, set load, authorization validation,
 output write, or provider possibility.
 
+The live artifact collector used to create a new Phase 7 preparation receipt
+also requires the verified latest migration to be exactly `0004`. Its
+script-owned guard admits no command-line or environment override and runs
+before transport, collector, collection, or receipt-write effects. It passes
+the narrowed exact value `4` through the existing collector input so receipt
+construction records the verified authority without changing the receipt
+version or historical parser.
+
 The materializer and non-dry operator verify PostgreSQL 18.4 and the exact
 accepted 0001–0004 inventory but never apply migrations. All file and
 cross-authority validation precedes database-password access; all database
@@ -940,8 +958,8 @@ second maintained schema.
 
 ## Deferred work
 
-- Maintainer acceptance of Milestone 10's offline pre-live authority and
-  synthetic/PostgreSQL evidence.
+- Renewed maintainer acceptance of the live artifact migration-authority
+  correction before retrying fresh preparation.
 - Fresh full-catalog artifact collection and receipt in the exact future
   ephemeral database, followed by untracked selection materialization.
 - Substantive retention and current pricing authority plus a separately
@@ -955,7 +973,7 @@ second maintained schema.
 
 ## Exit gates
 
-Milestones 1–9 passed maintainer review. Milestone 10 implements only the
+Milestones 1–10 passed maintainer review. Milestone 10 implements only the
 content-free offline pre-live authorities, future receipt-and-database
 materializer, and synthetic/ephemeral-PostgreSQL verification. The committed
 readiness state is `offline-verified-live-blocked`; neither dated profile is
