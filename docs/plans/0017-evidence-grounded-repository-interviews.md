@@ -3649,3 +3649,16 @@ suite passes 62 tests across eight files with four migrations and no skips.
 known vulnerabilities. All database tests used disposable test containers;
 no Phase 7 database, OpenAI credential, provider, or candidate repository was
 accessed.
+
+## Single additive specification revision reconciliation
+
+Both calibration profiles were diagnostically rejected under specification
+`1.0.0`: one with `provider-output-topic-coverage` and one with
+`provider-output-citation-range`. No shared operational blocker occurred.
+Immutable failed histories and stopped receipts were preserved, and combined
+observed calibration cost was `127935` micro-USD.
+
+The maintainer authorized exactly one additive specification revision. Further
+infrastructure expansion remains prohibited. No favorable rerun occurred. A
+future calibration cycle must use specification `1.0.1` with fresh external
+authority.

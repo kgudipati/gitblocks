@@ -38,6 +38,12 @@ beforeAll(async () => {
   specification = await loadRepositoryInterviewSpecification(
     SPECIFICATION_DIRECTORY,
   );
+  baseRequest = createSyntheticRequest(specification);
+});
+
+function createSyntheticRequest(
+  sourceSpecification: LoadedRepositoryInterviewSpecification,
+): RepositoryInterviewProviderRequestV1 {
   const content = 'synthetic repository evidence';
   const artifact = createArtifact(content);
   const artifactSet = createRepositoryArtifactSetV1({
@@ -61,19 +67,21 @@ beforeAll(async () => {
   const rendered = renderRepositoryInterviewPromptV1({
     artifactSet,
     artifacts: [artifact],
-    specification,
+    specification: sourceSpecification,
   });
   if (!rendered.ok) {
     throw new Error('Synthetic prompt fixture failed.');
   }
-  baseRequest = Object.freeze({
+  return Object.freeze({
     prompt: rendered.value,
     modelProfile: profile(AUTHORIZED_MODELS[0]),
-    providerProjectionVersion: specification.manifest.openAiProjection.version,
-    providerProjectionDigest: specification.manifest.openAiProjection.digest,
-    providerProjectionText: specification.openAiProjectionSnapshot,
+    providerProjectionVersion:
+      sourceSpecification.manifest.openAiProjection.version,
+    providerProjectionDigest:
+      sourceSpecification.manifest.openAiProjection.digest,
+    providerProjectionText: sourceSpecification.openAiProjectionSnapshot,
   });
-});
+}
 
 describe('OpenAI Responses repository-interview adapter preflight', () => {
   it.each([
@@ -154,6 +162,46 @@ describe('OpenAI Responses repository-interview adapter preflight', () => {
 });
 
 describe('OpenAI Responses request bytes and credential boundary', () => {
+  it('accepts an authenticated synthetic 1.0.1 prompt with unchanged request controls', async () => {
+    const additiveSpecification = await loadRepositoryInterviewSpecification(
+      'interviews/repository/specifications/1.0.1',
+    );
+    const request = createSyntheticRequest(additiveSpecification);
+    const harness = createHarness();
+    harness.responses.push(successResponse(AUTHORIZED_MODELS[0]));
+
+    await expect(harness.provider.execute(request)).resolves.toMatchObject({
+      status: 'response',
+    });
+    expect(request.prompt.specificationVersion).toBe('1.0.1');
+    expect(harness.fetchCalls).toHaveLength(1);
+    const body = JSON.parse(
+      requireBody(harness.fetchCalls[0]?.init.body),
+    ) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      model: AUTHORIZED_MODELS[0],
+      reasoning: { effort: 'low' },
+      max_output_tokens: 8_192,
+      store: false,
+      background: false,
+      stream: false,
+      tools: [],
+      truncation: 'disabled',
+      service_tier: 'default',
+      prompt_cache_retention: 'in_memory',
+    });
+    expect(body).not.toHaveProperty('conversation');
+    expect(body).not.toHaveProperty('previous_response_id');
+    expect(body).not.toHaveProperty('metadata');
+    expect(body['text']).toMatchObject({
+      format: {
+        type: 'json_schema',
+        name: 'repository_interview_v1',
+        strict: true,
+      },
+    });
+  });
+
   it.each(AUTHORIZED_MODELS)(
     'sends the exact deterministic request for %s',
     async (model) => {

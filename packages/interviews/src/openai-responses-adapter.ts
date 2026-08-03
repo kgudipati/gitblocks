@@ -23,7 +23,7 @@ import {
 } from './schema-projection.ts';
 import {
   REPOSITORY_INTERVIEW_RENDERER_VERSION,
-  REPOSITORY_INTERVIEW_SPECIFICATION_VERSION,
+  isSupportedRepositoryInterviewSpecificationVersion,
 } from './specification.ts';
 import { sha256Digest } from './canonical-json.ts';
 
@@ -617,8 +617,9 @@ function validatePrompt(value: unknown): RenderedRepositoryInterviewPromptV1 {
   const evidenceBytes = utf8ByteLength(evidenceText);
   if (
     fields['rendererVersion'] !== REPOSITORY_INTERVIEW_RENDERER_VERSION ||
-    fields['specificationVersion'] !==
-      REPOSITORY_INTERVIEW_SPECIFICATION_VERSION ||
+    !isSupportedRepositoryInterviewSpecificationVersion(
+      fields['specificationVersion'],
+    ) ||
     !isDigest(fields['specificationDigest']) ||
     !isDigest(fields['artifactSetIdentityDigest']) ||
     !isDigest(fields['promptDigest']) ||

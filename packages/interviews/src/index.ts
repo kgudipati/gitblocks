@@ -38,13 +38,17 @@ export {
 } from './schema-projection.ts';
 export {
   InterviewSpecificationError,
+  isSupportedRepositoryInterviewSpecificationVersion,
   loadRepositoryInterviewSpecification,
+  REPOSITORY_INTERVIEW_CURRENT_SPECIFICATION_VERSION,
   REPOSITORY_INTERVIEW_RENDERER_VERSION,
   REPOSITORY_INTERVIEW_SPECIFICATION_VERSION,
+  REPOSITORY_INTERVIEW_SUPPORTED_SPECIFICATION_VERSIONS,
   validateRepositoryInterviewSpecification,
   writeRepositoryInterviewSpecification,
   type LoadedRepositoryInterviewSpecification,
   type RepositoryInterviewQuestion,
+  type RepositoryInterviewSpecificationVersion,
   type SpecificationValidationSummary,
 } from './specification.ts';
 export {

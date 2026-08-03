@@ -19,6 +19,15 @@ import {
 } from './schema-projection.ts';
 
 export const REPOSITORY_INTERVIEW_SPECIFICATION_VERSION = '1.0.0' as const;
+export const REPOSITORY_INTERVIEW_CURRENT_SPECIFICATION_VERSION =
+  '1.0.1' as const;
+export const REPOSITORY_INTERVIEW_SUPPORTED_SPECIFICATION_VERSIONS =
+  Object.freeze([
+    REPOSITORY_INTERVIEW_SPECIFICATION_VERSION,
+    REPOSITORY_INTERVIEW_CURRENT_SPECIFICATION_VERSION,
+  ] as const);
+export type RepositoryInterviewSpecificationVersion =
+  (typeof REPOSITORY_INTERVIEW_SUPPORTED_SPECIFICATION_VERSIONS)[number];
 export const REPOSITORY_INTERVIEW_RENDERER_VERSION =
   'repository-interview-renderer-v1' as const;
 
@@ -38,6 +47,41 @@ const REQUIRED_INSTRUCTION_SENTENCES = Object.freeze([
   'Unknown means not established by this artifact set, not universally absent.',
   'Return only the required structured output.',
 ] as const);
+
+const ADDITIVE_REQUIRED_INSTRUCTION_TEXT = Object.freeze([
+  'Perform a mandatory topic-coverage check before returning.',
+  'Every topic must appear at least once across these five collections.',
+  'When the supplied artifacts do not establish a topic, add an `unknown` for that topic rather than omitting it.',
+  'The unknown must remain explicitly scoped to the supplied artifact set.',
+  'Do not return until all eight topics are represented.',
+  'A topic does not need to appear in every collection, and exactly one item per topic is not required.',
+  'Every citation is one-based and inclusive.',
+  'Use the narrowest sufficient interval.',
+  'When support spans more than 80 lines, use multiple nonduplicate citations, each independently no wider than 80 lines.',
+  'Never reverse a line interval.',
+  'Never cite beyond the alias’s supplied `lineCount`.',
+] as const);
+
+const ADDITIVE_REQUIRED_TOPIC_ORDER = REPOSITORY_INTERVIEW_TOPICS.map(
+  (topic, index) => `${String(index + 1)}. \`${topic}\``,
+).join('\n');
+
+const ADDITIVE_REQUIRED_COLLECTIONS = [
+  'documentedPositions',
+  'inferences',
+  'limitations',
+  'contradictions',
+  'unknowns',
+]
+  .map((collection) => `- \`${collection}\``)
+  .join('\n');
+
+const ADDITIVE_REQUIRED_CITATION_ARITHMETIC = [
+  '1 <= startLine',
+  'startLine <= endLine',
+  'endLine - startLine + 1 <= 80',
+  'endLine <= the cited artifact alias lineCount',
+].join('\n');
 
 const SOURCE_PATHS = Object.freeze({
   instructions: 'instructions.md',
@@ -63,7 +107,7 @@ export interface LoadedRepositoryInterviewSpecification {
 }
 
 export interface SpecificationValidationSummary {
-  readonly specificationVersion: typeof REPOSITORY_INTERVIEW_SPECIFICATION_VERSION;
+  readonly specificationVersion: RepositoryInterviewSpecificationVersion;
   readonly specificationDigest: string;
   readonly rendererVersion: typeof REPOSITORY_INTERVIEW_RENDERER_VERSION;
   readonly providerOutputSchemaVersion: typeof REPOSITORY_INTERVIEW_PROVIDER_OUTPUT_SCHEMA_VERSION;
@@ -97,6 +141,7 @@ interface SpecificationManifest {
 }
 
 interface ReviewedSources {
+  readonly specificationVersion: RepositoryInterviewSpecificationVersion;
   readonly instructions: string;
   readonly instructionsBytes: Uint8Array;
   readonly questions: readonly RepositoryInterviewQuestion[];
@@ -111,11 +156,25 @@ interface GeneratedSpecification {
   readonly summary: SpecificationValidationSummary;
 }
 
+interface ParsedQuestionsSource {
+  readonly specificationVersion: RepositoryInterviewSpecificationVersion;
+  readonly questions: readonly RepositoryInterviewQuestion[];
+}
+
 export class InterviewSpecificationError extends Error {
   public constructor() {
     super('Repository interview specification validation failed.');
     this.name = 'InterviewSpecificationError';
   }
+}
+
+export function isSupportedRepositoryInterviewSpecificationVersion(
+  value: unknown,
+): value is RepositoryInterviewSpecificationVersion {
+  return (
+    value === REPOSITORY_INTERVIEW_SPECIFICATION_VERSION ||
+    value === REPOSITORY_INTERVIEW_CURRENT_SPECIFICATION_VERSION
+  );
 }
 
 export async function loadRepositoryInterviewSpecification(
@@ -162,17 +221,22 @@ export function validateLoadedRepositoryInterviewSpecification(
     ) {
       throw new InterviewSpecificationError();
     }
-    validateInstructions(loaded.instructions);
     const parsedQuestions = parseQuestions(loaded.questionsSnapshot);
+    validateInstructions(
+      loaded.instructions,
+      parsedQuestions.specificationVersion,
+    );
     if (
-      canonicalizeJson(parsedQuestions) !== canonicalizeJson(loaded.questions)
+      canonicalizeJson(parsedQuestions.questions) !==
+      canonicalizeJson(loaded.questions)
     ) {
       throw new InterviewSpecificationError();
     }
     const generated = generateSpecification({
       instructions: loaded.instructions,
       instructionsBytes,
-      questions: parsedQuestions,
+      specificationVersion: parsedQuestions.specificationVersion,
+      questions: parsedQuestions.questions,
       questionsBytes,
     });
     if (
@@ -243,7 +307,7 @@ function generateSpecification(
   const openAiProjectionDigest = sha256Digest(openAiProjectionSnapshot);
   const specificationDigest = sha256Digest(
     canonicalizeJson({
-      specificationVersion: REPOSITORY_INTERVIEW_SPECIFICATION_VERSION,
+      specificationVersion: sources.specificationVersion,
       instructionsDigest,
       questionsDigest,
       rendererVersion: REPOSITORY_INTERVIEW_RENDERER_VERSION,
@@ -255,7 +319,7 @@ function generateSpecification(
     }),
   );
   const manifest: SpecificationManifest = {
-    specificationVersion: REPOSITORY_INTERVIEW_SPECIFICATION_VERSION,
+    specificationVersion: sources.specificationVersion,
     specificationDigest,
     rendererVersion: REPOSITORY_INTERVIEW_RENDERER_VERSION,
     instructions: {
@@ -283,7 +347,7 @@ function generateSpecification(
     providerOutputSchemaSnapshot,
     openAiProjectionSnapshot,
     summary: {
-      specificationVersion: REPOSITORY_INTERVIEW_SPECIFICATION_VERSION,
+      specificationVersion: sources.specificationVersion,
       specificationDigest,
       rendererVersion: REPOSITORY_INTERVIEW_RENDERER_VERSION,
       providerOutputSchemaVersion:
@@ -304,11 +368,13 @@ async function loadReviewedSources(
   ]);
   const instructions = decodeExactUtf8(instructionsBytes);
   const questionsText = decodeExactUtf8(questionsBytes);
-  validateInstructions(instructions);
+  const parsedQuestions = parseQuestions(questionsText);
+  validateInstructions(instructions, parsedQuestions.specificationVersion);
   return {
+    specificationVersion: parsedQuestions.specificationVersion,
     instructions,
     instructionsBytes,
-    questions: parseQuestions(questionsText),
+    questions: parsedQuestions.questions,
     questionsBytes,
   };
 }
@@ -325,7 +391,10 @@ function decodeExactUtf8(bytes: Uint8Array): string {
   return text;
 }
 
-function validateInstructions(instructions: string): void {
+function validateInstructions(
+  instructions: string,
+  specificationVersion: RepositoryInterviewSpecificationVersion,
+): void {
   if (
     instructions.length === 0 ||
     !instructions.endsWith('\n') ||
@@ -338,19 +407,37 @@ function validateInstructions(instructions: string): void {
       throw new InterviewSpecificationError();
     }
   }
+  if (
+    specificationVersion === REPOSITORY_INTERVIEW_CURRENT_SPECIFICATION_VERSION
+  ) {
+    for (const text of ADDITIVE_REQUIRED_INSTRUCTION_TEXT) {
+      if (!instructions.includes(text)) {
+        throw new InterviewSpecificationError();
+      }
+    }
+    for (const text of [
+      ADDITIVE_REQUIRED_TOPIC_ORDER,
+      ADDITIVE_REQUIRED_COLLECTIONS,
+      ADDITIVE_REQUIRED_CITATION_ARITHMETIC,
+    ]) {
+      if (!instructions.includes(text)) {
+        throw new InterviewSpecificationError();
+      }
+    }
+  }
 }
 
-function parseQuestions(text: string): readonly RepositoryInterviewQuestion[] {
+function parseQuestions(text: string): ParsedQuestionsSource {
   const root = parseJsonRecord(text);
   requireExactKeys(root, ['version', 'questions']);
   if (
-    root['version'] !== REPOSITORY_INTERVIEW_SPECIFICATION_VERSION ||
+    !isSupportedRepositoryInterviewSpecificationVersion(root['version']) ||
     !Array.isArray(root['questions']) ||
     root['questions'].length !== REPOSITORY_INTERVIEW_TOPICS.length
   ) {
     throw new InterviewSpecificationError();
   }
-  return root['questions'].map((value, index) => {
+  const questions = root['questions'].map((value, index) => {
     const question = requireRecord(value);
     requireExactKeys(question, ['topic', 'question']);
     const expectedTopic = REPOSITORY_INTERVIEW_TOPICS[index];
@@ -369,6 +456,10 @@ function parseQuestions(text: string): readonly RepositoryInterviewQuestion[] {
       question: question['question'],
     };
   });
+  return {
+    specificationVersion: root['version'],
+    questions,
+  };
 }
 
 function parseManifest(text: string): SpecificationManifest {

@@ -1,0 +1,23 @@
+{
+  "instructions": {
+    "digest": "de73fe68e170ecd577aa1a5f23ba24c48ccf88630a9d2f9ee0bfc79c630c1eee",
+    "path": "instructions.md"
+  },
+  "openAiProjection": {
+    "digest": "5d81e5e32cc4871f0068f691302282a4e5dd6dc656ee4be132c050fbc4228ed7",
+    "path": "providers/openai-responses.strict.schema.json",
+    "version": "1.0.0"
+  },
+  "providerOutputSchema": {
+    "digest": "5fa5d1c44a8924d8be3acc2ac74e58ec45ea134264c2245b7e158873b2e26b19",
+    "path": "provider-output.schema.json",
+    "version": "1.0.0"
+  },
+  "questions": {
+    "digest": "f000bab081ef1784af2aaa74affd41b9761b4266a66e933de0e29f620d9e80ab",
+    "path": "questions.json"
+  },
+  "rendererVersion": "repository-interview-renderer-v1",
+  "specificationDigest": "5d7dc686bce73d239c5f184b026ad7732b134da35d7f1bede2f0b8d68f20ee34",
+  "specificationVersion": "1.0.1"
+}

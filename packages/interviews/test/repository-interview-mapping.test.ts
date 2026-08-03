@@ -556,6 +556,34 @@ describe('deterministic repository interview rendering', () => {
     expect(rendered.evidenceUtf8Bytes).toBe(682);
   });
 
+  it('adds a separate deterministic 1.0.1 prompt identity without replacing the 1.0.0 golden', async () => {
+    const additiveSpecification = await loadRepositoryInterviewSpecification(
+      'interviews/repository/specifications/1.0.1',
+    );
+    const context = createPresentContext([
+      numberedContent(12, 'digest-example'),
+    ]);
+    const result = renderRepositoryInterviewPromptV1({
+      ...context,
+      specification: additiveSpecification,
+    });
+    expect(result).toMatchObject({ ok: true, issues: [] });
+    if (!result.ok) {
+      throw new Error(
+        'Synthetic additive prompt rendering unexpectedly failed.',
+      );
+    }
+    expect(result.value.specificationVersion).toBe('1.0.1');
+    expect(result.value.rendererVersion).toBe(
+      'repository-interview-renderer-v1',
+    );
+    expect(result.value.promptDigest).toBe(
+      '38301a41d048f9ff7ce7185f1bc2963d92c7b69f1bcea7c3976c379be2b99fde',
+    );
+    expect(result.value.instructionUtf8Bytes).toBe(4_284);
+    expect(result.value.evidenceUtf8Bytes).toBe(682);
+  });
+
   it('permits equivalent line-ending sources to render identical visible bytes', () => {
     const lf = render(createPresentContext(['alpha\nbeta\n']));
     const crlf = render(createPresentContext(['alpha\r\nbeta\r\n']));
