@@ -53,15 +53,19 @@
     migration authority correction required.”
   - PR #18 review: “Milestone 11 preparation stop accepted — catalog-only
     database seed boundary required.”
+  - Maintainer authorization dated 2026-08-03: record the final Phase 7
+    calibration decision and unblock artifact-first Phase 8 work.
 - Branch: `feat/17-evidence-grounded-repository-interviews`
 - Owner: repository maintainer
-- State: Milestones 1–10 are accepted. Two Milestone 11 preparation attempts
-  correctly stopped before external effects: first on stale migration-`0003`
-  artifact authority, then on the absence of a catalog-only durable provenance
-  seed for a fresh migration-`0004` database. The second correction adds only
-  that bounded seed application and CLI. Fresh preparation awaits renewed
-  review; Milestone 11 remains blocked.
-- Last updated: 2026-08-02
+- State: Milestones 1–10 are accepted, and their implemented interview engine
+  and fail-closed evidence infrastructure are retained. Specification `1.0.1`
+  was the single permitted additive calibration revision; both final profile
+  invocations were independently rejected with
+  `provider-output-citation-range`. Milestone 11 did not pass, Milestones
+  12–14 remain uncompleted, Phase 7 is not fully completed, and Gate A did not
+  pass. Phase 8 is unblocked on an artifact-first corpus without requiring a
+  successfully generated repository interview.
+- Last updated: 2026-08-03
 
 The latest maintainer comment amends broader or conflicting language in the
 issue body. Authority descends from Issue #17 and those comments, through
@@ -76,12 +80,13 @@ evidence.
 
 ## Purpose and user-visible outcome
 
-Phase 7 will establish one reusable candidate-owned semantic interview for one
-exact immutable repository artifact set. The eventual interview will summarize
-documented positions, bounded inferences, limitations, contradictions, and
-material unknowns with resolvable artifact-and-line citations. It will remain
-independent of any capability request, target repository, hard constraint,
-developer preference, ranking query, or recommendation task.
+Phase 7 originally intended to establish one reusable candidate-owned semantic
+interview for one exact immutable repository artifact set. The implemented
+engine can validate and persist bounded documented positions, inferences,
+limitations, contradictions, and material unknowns with resolvable
+artifact-and-line citations. Live calibration did not demonstrate successful
+interview generation, so the final product decision retains that capability
+without making it a prerequisite for Phase 8.
 
 Future ranking may join this semantic interview with the independently derived
 `CandidateDossierV1`. Neither input will absorb the other's identity or
@@ -1887,9 +1892,9 @@ already includes `apps/*` and will remain unchanged.
 
 ### 10. Complete offline/PostgreSQL pre-live verification
 
-- **Status:** accepted in substance under the candidate-plan/materialization
-  amendment; the requested correction is implemented and awaiting renewed
-  maintainer review. Milestone 11 is blocked.
+- **Status:** accepted. Later preparation, diagnostic, and single-additive-
+  specification corrections retained this authority but did not make
+  Milestone 11 pass.
 - **Red first:** operator-local candidate-plan, selection-materialization, and
   pre-live-authorization authorities; exact plan membership; complete raw
   artifact-receipt parsing; materialization; CLI closure; live-blocked policy;
@@ -1915,6 +1920,16 @@ already includes `apps/*` and will remain unchanged.
 
 ### 11. Six-candidate model calibration
 
+- **Status:** did not pass. Specification `1.0.1` was the single permitted
+  additive revision. Both final profile invocations were independently and
+  diagnostically rejected with `provider-output-citation-range`; each profile
+  made exactly one provider call, neither published an interview, and all
+  failed executions and stopped receipts reconstruct.
+- **Final gate facts:** no shared operational blocker occurred, no favorable
+  rerun occurred, and cumulative observed calibration cost was `188690`
+  micro-USD. Blind review and model selection were not performed.
+- **Final decision:** no additional Phase 7 calibration cycle, specification
+  `1.0.2`, new model profile, or further Phase 7 prompt tuning is permitted.
 - **Red first:** preflight/dry run on a fresh approved database and current
   official provider facts; no call until all checks and budget projections
   pass.
@@ -1933,6 +1948,7 @@ already includes `apps/*` and will remain unchanged.
 
 ### 12. Thirty-candidate Gate A and human audit
 
+- **Status:** uncompleted. Gate A was not performed or passed.
 - **Red first:** fresh database/seed/artifacts, exact cohort, reuse absence,
   token/cost/deadline preflight, frozen reviewer assignments.
 - **Likely files:** content-free Gate A receipt/audit aggregates and plan
@@ -1949,6 +1965,8 @@ already includes `apps/*` and will remain unchanged.
 
 ### 13. Full 150-candidate Gate B and zero-call reuse proof
 
+- **Status:** uncompleted. The 150-candidate generation and immediate-reuse
+  proof were not performed.
 - **Red first:** fresh authorized state, complete preflight, approved model
   profile, budget/deadline/rate capacity, zero unresolved Gate A findings.
 - **Likely files:** content-free full and immediate-reuse receipts, plan
@@ -1967,6 +1985,8 @@ already includes `apps/*` and will remain unchanged.
 
 ### 14. Completion evidence and final verification
 
+- **Status:** uncompleted. This closure record is a product decision, not
+  evidence that Phase 7 fully completed or Gate A passed.
 - **Red first:** completion-evidence parser/check rejects missing, unsafe, or
   contradictory facts.
 - **Likely files:** content-free completion document, plan/ADR status,
@@ -3618,12 +3638,14 @@ the synthetic artifact-publication catalog-provenance precondition. This
 correction provisioned only ephemeral test databases. It read no real database,
 GitHub, or OpenAI credential; ran no live seed or collection; created no
 receipt, selection, binding, or authorization; and began no calibration, gate,
-or other Milestone 11 work. Fresh preparation remains pending renewed review.
+or other Milestone 11 work. At that point, fresh preparation remained pending
+renewed review.
 
 ## Provider-output diagnostic and stopped-receipt reconciliation
 
-The accepted first live calibration execution remains immutable and no further
-provider request is authorized. Its durable failure code remains
+At the time of this reconciliation, the accepted first live calibration
+execution remained immutable and no further provider request was authorized.
+Its durable failure code remains
 `provider-output-invalid`; the historical subreason cannot be reconstructed.
 The correction preserves one closed, content-free diagnostic code only in the
 in-process interviews result, existing operator result-code telemetry fields,
@@ -3658,7 +3680,52 @@ Both calibration profiles were diagnostically rejected under specification
 Immutable failed histories and stopped receipts were preserved, and combined
 observed calibration cost was `127935` micro-USD.
 
-The maintainer authorized exactly one additive specification revision. Further
-infrastructure expansion remains prohibited. No favorable rerun occurred. A
-future calibration cycle must use specification `1.0.1` with fresh external
-authority.
+The maintainer authorized exactly one additive specification revision, which
+became specification `1.0.1`. Further infrastructure expansion remained
+prohibited. The resulting final calibration outcome is recorded below.
+
+## Final Phase 7 calibration closure and Phase 8 dependency decision
+
+### Retained implemented capability
+
+Milestones 1–10 delivered the repository-interview engine and its fail-closed
+evidence infrastructure. The retained implementation includes deterministic
+artifact-bound prompt construction, bounded provider execution, strict
+provider-output and citation validation, immutable failed-execution history,
+content-free stopped receipts, persistence and reconstruction, operator
+controls, and the separate evaluation authority. This implemented capability
+does not establish that live repository-interview generation succeeded.
+
+### Failed live calibration
+
+Specification `1.0.1` was the single permitted additive revision. The final
+invocation of each calibration profile made exactly one provider call. Both
+invocations were independently and diagnostically rejected with
+`provider-output-citation-range`; neither profile published an interview. All
+failed executions and stopped receipts reconstruct. No shared operational
+blocker occurred, and no favorable rerun occurred. Cumulative observed
+calibration cost was `188690` micro-USD.
+
+No additional Phase 7 calibration cycle is permitted. Specification `1.0.2`,
+a new model profile, and further Phase 7 prompt tuning are not permitted.
+
+### Deferred milestones
+
+Milestone 11 did not pass. Blind review, model selection, and Gate A were not
+performed. Milestones 12–14 remain uncompleted; the 150-candidate generation
+and immediate-reuse proof were not performed. Phase 7 is therefore not
+recorded as fully completed, and Gate A is not recorded as passed.
+
+### Revised Phase 8 dependency
+
+Successful repository-interview generation is removed from the critical path
+for retrieval and ranking. Phase 8 proceeds with immutable repository
+artifacts, deterministic artifact chunks, and catalog metadata as its
+authoritative corpus. Repository interviews are deferred as optional
+enrichment rather than a prerequisite.
+
+Any future interview redesign must replace model-authored citation arithmetic
+with deterministic evidence references that GitBlocks resolves to canonical
+artifact line ranges. That redesign is deferred and unimplemented. This
+closure operation does not authorize it; future authorization requires
+measured retrieval or ranking value.
