@@ -406,6 +406,35 @@ Severity drives response priority, but an unavailable formal score does not
 delay containment of credible secret exposure, remote execution, tenant
 escape, authentication bypass, or destructive-action vulnerability.
 
+## Phase 8 deterministic retrieval boundary
+
+Phase 8 taxonomy and query-normalization inputs are untrusted bounded data.
+Canonical taxonomy identifiers and lookup aliases are ASCII-only and exactly
+version-bound; Unicode is retained only in bounded display labels. Fuzzy
+matching, transliteration, confusable folding, and NFKC-based semantic merging
+are prohibited for hard constraints. Mixed-script or confusable terms become
+unknown or clarification-required. Alias collisions, deprecated-alias reuse,
+missing parents, cycles, excessive graph depth, and nondeterministic traversal
+fail closed.
+
+Local pre-contract query input may retain bounded original terminology,
+explicit requirements, preferences and prohibitions, exact candidate or brand
+references, and an optional minimized repository-fingerprint reference. It
+must not retain secrets, raw source, configuration values, or transcripts.
+Normalization preserves source and rule identity and never weakens a hard
+constraint. Candidate facts come only from approved deterministic inputs with
+explicit provenance and value state; dossier observation prose and repository
+interviews cannot populate deterministic profile authority.
+
+Retrieval/query evaluation is an outward consumer of product authority.
+Product packages must not import its schemas, corpus, gold, scorers, fixtures,
+or harness code. Ordinary Phase 8 implementation and validation are offline:
+they make no provider or model call and use no Phase 7 container, database,
+receipt, or repository-external evidence. Any final 150-candidate live
+materialization requires separate authorization, a fresh dedicated ephemeral
+PostgreSQL database, the existing approved public-source boundaries, no model
+call, and content-free receipts and coverage evidence.
+
 ## Security exceptions
 
 An exception must be a reviewed artifact linked from the PR and contain:

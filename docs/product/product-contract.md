@@ -7,9 +7,11 @@ alpha. GitBlocks remains in an engineering-foundation phase. The repository
 now contains private production-owned packages for the pure domain, versioned
 fixed-candidate contracts, and an injected PostgreSQL adapter for immutable
 public evidence, dossiers, and exact repository artifacts, plus a bounded
-public-source ingestion adapter. No repository-interview application, API, MCP
-service, scanner, discovery service, model integration, deployed database,
-deployment, or end-to-end adoption workflow is implemented or available yet.
+public-source ingestion adapter and a persistence-independent
+repository-interview application with an offline operator. Live calibration
+failed and selected no profile. No API, MCP service, scanner, discovery
+service, deployed database, deployment, or end-to-end adoption workflow is
+implemented or available yet.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -89,9 +91,12 @@ candidate tagged with more than one family does not increase the count.
 
 The planned workflow is:
 
-1. **Frame the request.** The coding agent and developer state the desired
-   capability, success conditions, explicit hard constraints, and which local
-   facts may be shared.
+1. **Frame and normalize the request locally.** The coding agent and developer
+   state the desired capability, success conditions, explicit hard constraints,
+   and which local facts may be shared. A bounded pre-contract input must
+   normalize deterministically or fail closed with exact clarification reasons
+   before the developer reviews and approves an authoritative capability
+   request for transmission.
 2. **Fingerprint locally.** A deterministic local scanner observes approved
    manifests, configuration shapes, structure, and dependency facts. It emits
    closed, bounded facts from a controlled, versioned vocabulary and does not
@@ -126,6 +131,38 @@ The planned workflow is:
 
 A useful response may be “no viable candidate” or “insufficient evidence.”
 GitBlocks must not manufacture certainty merely to return a ranked list.
+
+## Phase 8 deterministic retrieval foundation
+
+Project Phase 8 combines the original strategy's deterministic repository
+profiler and capability-taxonomy/query-understanding foundations with retrieval
+evaluation contracts, corpus, metrics, and non-production baselines. It does
+not implement the original strategy's production retrieval or production
+ranking phases.
+
+CapabilityQueryInputV1 is a bounded local pre-contract input, not a second
+adoption-request model. CapabilityQueryNormalizationResultV1 preserves each
+constraint's source identity and required, preferred, prohibited, unknown, or
+clarification-needed modality. Only after user review and transmission approval
+does an accepted result become CapabilityRequestV1 authority. Alias expansion
+and deterministic rules must never weaken a hard constraint.
+
+DeterministicCandidateProfileV1 will be candidate-owned, separately versioned,
+structured deterministic authority with known, unknown, not-applicable, and
+conflict value states plus extraction and source provenance. It does not
+replace or reinterpret CandidateDossierV1 evidence observations,
+RepositoryFingerprintV1 minimized target-codebase facts, RepositoryInterviewV1
+optional semantic enrichment, or FitAssessmentRequestV1. In particular,
+CandidateDossierV1 observation prose is never reparsed into structured profile
+facts, and repository interviews never populate deterministic profile
+authority.
+
+Candidate constraint evaluation is satisfied, conflict, or unresolved.
+Unresolved is neither satisfied nor conflict: such a candidate is not viable
+and must not be recommended, although it may remain in a separately typed
+evidence-needed lane with the unresolved constraint disclosed. Phase 8
+evaluation authority remains independent of fixed-candidate ranking gold and
+repository-interview audit data, and product packages must not import it.
 
 ## Relevance is not adoption fit
 

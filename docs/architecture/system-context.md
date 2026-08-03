@@ -39,6 +39,10 @@ lossless chunking, immutable artifact sets, and artifact operator receipt.
 candidate-owned repository interview, persistence-independent
 application package, provider/durable boundary, immutable specification,
 direct provider adapter, calibration, and live gates.
+[ADR 0008](decisions/0008-artifact-first-retrieval-foundation.md) proposes the
+Phase 8 deterministic candidate-profile, taxonomy, pre-contract query, and
+retrieval-evaluation boundaries. It does not approve production retrieval or
+ranking.
 
 ## Context and ownership
 
@@ -52,6 +56,23 @@ ingestion, evidence, and codebase-conditioned retrieval and ranking.
 The coding agent remains responsible for local repository reads authorized by
 the user, local code edits, and local validation. GitBlocks does not replace the
 agent runtime and does not receive blanket permission to change a repository.
+
+## Phase 8 foundation boundary
+
+Project Phase 8 combines only deterministic candidate-profile contracts and
+coverage, controlled capability taxonomy, local query admission and
+normalization, and independent retrieval/query evaluation with offline
+non-production baselines. The original strategy's production retrieval and
+production ranking remain later phases. Repository interviews are optional
+unselected semantic enrichment and are not inputs to deterministic profile,
+taxonomy, normalization, retrieval-evaluation, or baseline authority.
+
+The existing product-kernel dependency direction remains
+domain <- contracts <- persistence <- ingestion. Evaluation tooling may consume
+product packages, but no product package may import evaluation schemas,
+fixtures, gold, scorers, or harness code. Phase 8 adds no product package or
+database migration without separately reviewed evidence that existing
+ownership is incoherent or durable retrieval requirements demand one.
 
 ## Planned system context
 

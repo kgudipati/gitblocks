@@ -70,12 +70,13 @@ immutable PostgreSQL history, evaluation authority, a bounded direct Responses
 adapter, an explicit offline operator composition root, and a content-free
 Milestone 10 pre-live authority with exact 6/30/150 candidate plans, two
 unselected dated profiles, a live-blocked readiness policy, and synthetic
-materialization proofs. The repository still has no live provider
-configuration, materialized live selection, real pre-live authorization,
-approved retention or pricing authority, selected model, calibration or Gate A
-result, Agent Skill, scanner, MCP server, operational backend, discovery or
-product ranking engine, continuous crawler, deployment, production database,
-or product release. Phase 7 is governed by
+materialization proofs. Live calibration failed, neither profile was selected,
+and repository interviews are deferred as optional future enrichment. The
+repository still has no live provider configuration, materialized live
+selection, real pre-live authorization, approved retention or pricing
+authority, selected model or Gate A result, Agent Skill, scanner, MCP server,
+operational backend, discovery or product ranking engine, continuous crawler,
+deployment, production database, or product release. Phase 7 is governed by
 [Plan 0017](docs/plans/0017-evidence-grounded-repository-interviews.md) and
 [ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md).
 The strict Phase 7 materialization boundary requires a fresh complete receipt
@@ -112,8 +113,13 @@ owns immutable public artifacts, lossless chunks, closed artifact sets, and
 their operator.
 [ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md)
 owns the candidate-owned semantic interview, provider/application, evaluation,
-persistence, and offline operator boundaries; no live Phase 7 operation has
-occurred.
+persistence, and offline operator boundaries. Its retained engine does not make
+repository interviews a prerequisite for retrieval or ranking.
+[Plan 0019](docs/plans/0019-artifact-first-retrieval-foundation.md) and proposed
+[ADR 0008](docs/architecture/decisions/0008-artifact-first-retrieval-foundation.md)
+govern the Phase 8 artifact-first deterministic profile, controlled taxonomy,
+pre-contract query-normalization, and retrieval-evaluation foundation. Phase 8
+does not implement production retrieval or ranking.
 
 ## Repository map
 
