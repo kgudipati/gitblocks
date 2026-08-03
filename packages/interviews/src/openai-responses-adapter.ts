@@ -10,6 +10,7 @@ import {
   type RepositoryInterviewProviderPortV1,
   type RepositoryInterviewProviderRequestV1,
 } from './repository-interview-application.ts';
+import type { RepositoryInterviewProviderOutputDiagnosticCode } from './provider-output-diagnostics.ts';
 import {
   REPOSITORY_INTERVIEW_PROMPT_BOUNDS,
   isValidatedRenderedRepositoryInterviewPromptV1,
@@ -156,6 +157,7 @@ interface ProtocolResponse {
         readonly status: 'response';
         readonly usage: ModelExecutionUsageV1;
         readonly providerOutput: unknown;
+        readonly providerOutputDiagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode | null;
       }
     | {
         readonly status: 'failed';
@@ -173,6 +175,7 @@ interface AttemptResult {
         readonly status: 'response';
         readonly usage: ModelExecutionUsageV1;
         readonly providerOutput: unknown;
+        readonly providerOutputDiagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode | null;
       }
     | {
         readonly status: 'failed';
@@ -891,16 +894,19 @@ function parseSuccessfulResponse(
       status: 'response',
       usage,
       providerOutput: outputResult.providerOutput,
+      providerOutputDiagnosticCode: outputResult.providerOutputDiagnosticCode,
     },
     responseId,
     retryable: false,
   };
 }
 
-function parseCompletedOutput(
-  output: readonly unknown[],
-):
-  | { readonly status: 'valid'; readonly providerOutput: unknown }
+function parseCompletedOutput(output: readonly unknown[]):
+  | {
+      readonly status: 'valid';
+      readonly providerOutput: unknown;
+      readonly providerOutputDiagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode | null;
+    }
   | { readonly status: 'refused' }
   | { readonly status: 'invalid' } {
   let messageValue: unknown = null;
@@ -936,19 +942,34 @@ function parseCompletedOutput(
   ) {
     return { status: 'invalid' };
   }
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(text) as unknown;
+  } catch {
+    return {
+      status: 'valid',
+      providerOutput: null,
+      providerOutputDiagnosticCode: 'provider-output-json-decoding',
+    };
+  }
   try {
     return {
       status: 'valid',
-      providerOutput: copyOwnedJson(JSON.parse(text), {
+      providerOutput: copyOwnedJson(decoded, {
         maximumDepth: 32,
         maximumNodes: 10_000,
         maximumArrayItems: 1_000,
         maximumObjectProperties: 1_000,
         maximumStringBytes: 262_144,
       }),
+      providerOutputDiagnosticCode: null,
     };
   } catch {
-    return { status: 'valid', providerOutput: null };
+    return {
+      status: 'valid',
+      providerOutput: null,
+      providerOutputDiagnosticCode: 'provider-output-json-boundary',
+    };
   }
 }
 
@@ -1235,6 +1256,7 @@ function ownedResult(
         attempts: [...attempts],
         usage: { ...effect.usage },
         providerOutput: effect.providerOutput,
+        providerOutputDiagnosticCode: effect.providerOutputDiagnosticCode,
       })
     : deepFreeze({
         status: 'failed',

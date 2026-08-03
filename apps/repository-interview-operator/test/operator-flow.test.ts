@@ -16,7 +16,10 @@ import {
 import {
   createRepositoryInterviewOperatorPolicyV1,
   createRepositoryInterviewOperatorSelectionV1,
+  parseRepositoryInterviewOperatorReceiptV1,
+  repositoryInterviewOperatorReceiptDigestV1,
   runRepositoryInterviewOperatorV1,
+  serializeRepositoryInterviewOperatorReceiptV1,
   type RepositoryInterviewOperatorPersistencePortV1,
 } from '../src/index.ts';
 
@@ -143,6 +146,7 @@ describe('repository interview operator composition', () => {
                   totalTokens: 130,
                 },
                 providerOutput: providerOutput(),
+                providerOutputDiagnosticCode: null,
               });
             },
           }),
@@ -250,6 +254,198 @@ describe('repository interview operator composition', () => {
       unknowns: 0,
     });
     expect(JSON.stringify(failed)).not.toContain('observer sentinel');
+  });
+
+  it('publishes a truthful stopped receipt with only controlled provider-output diagnostics', async () => {
+    const artifactSet = createRepositoryArtifactSetV1({
+      contractVersion: '1.0.0',
+      candidateId: 'synthetic-stopped-candidate',
+      catalogVersion: 'public-v1',
+      catalogDigest: DIGEST,
+      artifactManifestVersion: 'public-artifacts-v1',
+      artifactManifestDigest: DIGEST,
+      collectorVersion: 'repository-artifacts-v1',
+      chunkerVersion: 'exact-lines-v1',
+      provider: 'github',
+      providerRepositoryId: '456',
+      providerCanonicalOwner: 'synthetic-owner',
+      providerCanonicalRepository: 'synthetic-repository',
+      gitObjectAlgorithm: 'sha1',
+      commitObjectId: '2'.repeat(40),
+      entries: [
+        {
+          selectionId: `selection-${'4'.repeat(48)}`,
+          ordinal: 0,
+          selector: 'root-readme',
+          artifactKind: 'readme',
+          requirement: 'optional',
+          rationale: null,
+          requestedPath: null,
+          resolvedPath: null,
+          outcome: 'not-found',
+          artifactId: null,
+        },
+      ],
+      publishedAt: '2026-07-31T12:00:00.000Z',
+    });
+    const selection = createRepositoryInterviewOperatorSelectionV1({
+      schemaVersion: '1.0.0',
+      selectionId: 'synthetic-stopped-selection',
+      catalogVersion: 'public-v1',
+      catalogDigest: DIGEST,
+      artifactManifestVersion: 'public-artifacts-v1',
+      artifactManifestDigest: DIGEST,
+      members: [
+        {
+          ordinal: 0,
+          candidateId: artifactSet.candidateId,
+          artifactSetId: artifactSet.artifactSetId,
+          artifactSetIdentityDigest: artifactSet.identityDigest,
+        },
+      ],
+    });
+    const profile = modelProfile();
+    const policy = createRepositoryInterviewOperatorPolicyV1(
+      policyDraft(profile),
+      profile,
+    );
+    let providerCalls = 0;
+    const publications: RepositoryInterviewPublicationCommandV1[] = [];
+    const persistence: RepositoryInterviewOperatorPersistencePortV1 = {
+      verifyMigrations: () => Promise.resolve(migrationAuthority()),
+      forCandidate: () => ({
+        loadArtifactContext: () =>
+          Promise.resolve({ artifactSet, artifacts: [] }),
+        record: {
+          findReusable: () => Promise.resolve(null),
+          publish: (command) => {
+            publications.push(command);
+            return Promise.resolve({ status: 'created' as const });
+          },
+        },
+      }),
+    };
+    const telemetryEvents: unknown[] = [];
+    let monotonic = 0;
+    const semanticSentinel = 'SEMANTIC_PROVIDER_VALUE_MUST_NOT_ESCAPE';
+    const result = await runRepositoryInterviewOperatorV1(
+      {
+        selection,
+        specification,
+        modelProfile: profile,
+        policy,
+        executionMode: 'normal',
+        forceReason: null,
+        verifyImmediateReuse: true,
+      },
+      {
+        persistence,
+        provider: {
+          forCandidate: () => ({
+            execute: () => {
+              providerCalls += 1;
+              return Promise.resolve({
+                status: 'response' as const,
+                attempts: [attempt()],
+                usage: {
+                  inputTokens: 100,
+                  cachedInputTokens: 20,
+                  outputTokens: 30,
+                  reasoningTokens: 10,
+                  totalTokens: 130,
+                },
+                providerOutput: { unexpected: semanticSentinel },
+                providerOutputDiagnosticCode: null,
+              });
+            },
+          }),
+        },
+        candidateControl: activeCandidateControlFactory(),
+        clock: { now: () => '2026-07-31T12:00:02.000Z' },
+        monotonicClock: { nowMilliseconds: () => monotonic++ },
+        nonce: { nextExecutionNonce: () => '3'.repeat(32) },
+        runId: { nextRunId: () => `interview-run-${'4'.repeat(48)}` },
+        observer: {
+          observe(event) {
+            telemetryEvents.push(event);
+          },
+        },
+      },
+    );
+
+    expect(result.ok).toBe(false);
+    expect(providerCalls).toBe(1);
+    expect(publications).toHaveLength(1);
+    expect(publications[0]?.interview).toBeNull();
+    expect(publications[0]?.execution.outcome).toMatchObject({
+      status: 'failed',
+      failureCode: 'provider-output-invalid',
+      providerOutputDigest: null,
+    });
+    expect(result.receipt).not.toBeNull();
+    expect(result.receipt).toMatchObject({
+      status: 'stopped',
+      stopCode: 'provider-output-structure',
+      counts: {
+        requestedCandidates: 1,
+        providerCalls: 1,
+        providerAttempts: 1,
+      },
+      candidateResults: [
+        {
+          status: 'provider-failed',
+          failureCode: 'provider-output-invalid',
+          interviewId: null,
+        },
+      ],
+      immediateReuse: {
+        requested: true,
+        passed: false,
+        candidateCount: 1,
+        reusedCount: 0,
+        providerCalls: 0,
+        providerAttempts: 0,
+        tokenUsage: 0,
+        costMicroUsd: 0,
+      },
+    });
+    const candidateCompleted = telemetryEvents.find(
+      (event) =>
+        typeof event === 'object' &&
+        event !== null &&
+        Reflect.get(event, 'event') === 'candidate-completed',
+    );
+    expect(candidateCompleted).toMatchObject({
+      resultCode: 'provider-output-structure',
+      failureCode: 'provider-output-invalid',
+    });
+    expect(telemetryEvents.at(-1)).toMatchObject({
+      event: 'operator-stopped',
+      resultCode: 'provider-output-structure',
+    });
+    const serialized = serializeRepositoryInterviewOperatorReceiptV1(
+      result.receipt!,
+    );
+    const parsed = parseRepositoryInterviewOperatorReceiptV1(
+      JSON.parse(serialized) as unknown,
+    );
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      const { receiptDigest, ...draft } = parsed.value;
+      expect(receiptDigest).toBe(
+        repositoryInterviewOperatorReceiptDigestV1(draft),
+      );
+    }
+    const retained = `${JSON.stringify(telemetryEvents)}${serialized}`;
+    expect(retained).not.toContain(semanticSentinel);
+    expect(retained).not.toContain('unexpected');
+    expect(retained).not.toContain('synthetic-repository');
+    expect(retained).not.toContain('synthetic-owner');
+    expect(retained).not.toContain('/documentedPositions');
+    expect(
+      JSON.stringify(telemetryEvents).match(/provider-output-structure/gu),
+    ).toHaveLength(2);
+    expect(serialized.match(/provider-output-structure/gu)).toHaveLength(1);
   });
 });
 

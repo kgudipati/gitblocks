@@ -291,6 +291,7 @@ async function executePlan(
             const inputTokens = options.overBudgetAt === ordinal ? 1_001 : 100;
             return {
               status: 'response' as const,
+              providerOutputDiagnosticCode: null,
               attempts: [attempt()],
               usage: {
                 inputTokens,

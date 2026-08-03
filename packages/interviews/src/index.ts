@@ -14,6 +14,10 @@ export type {
   ProviderOutputIssueMessage,
 } from './provider-output-issues.ts';
 export {
+  REPOSITORY_INTERVIEW_PROVIDER_OUTPUT_DIAGNOSTIC_CODES,
+  type RepositoryInterviewProviderOutputDiagnosticCode,
+} from './provider-output-diagnostics.ts';
+export {
   PROVIDER_OUTPUT_BOUNDS,
   PROVIDER_OUTPUT_SEMANTIC_POLICY,
   REPOSITORY_INTERVIEW_PROVIDER_OUTPUT_SCHEMA_VERSION,

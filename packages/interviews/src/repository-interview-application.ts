@@ -22,6 +22,10 @@ import {
 import { canonicalizeJson } from './canonical-json.ts';
 import { copyBoundedPlainArray } from './owned-array.ts';
 import {
+  isRepositoryInterviewProviderOutputDiagnosticCode,
+  type RepositoryInterviewProviderOutputDiagnosticCode,
+} from './provider-output-diagnostics.ts';
+import {
   finalizeRepositoryInterviewApplicationIssues,
   repositoryInterviewApplicationIssue,
   type RepositoryInterviewApplicationIssue,
@@ -62,6 +66,7 @@ export type RepositoryInterviewProviderEffectResultV1 =
       readonly attempts: readonly ModelExecutionAttemptV1[];
       readonly usage: ModelExecutionUsageV1;
       readonly providerOutput: unknown;
+      readonly providerOutputDiagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode | null;
     }
   | {
       readonly status: 'failed';
@@ -143,6 +148,7 @@ export type ExecuteRepositoryInterviewResultV1 =
       readonly request: RepositoryInterviewRequestV1;
       readonly execution: ModelExecutionV1;
       readonly interview: null;
+      readonly providerOutputDiagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode | null;
       readonly issues: readonly [];
     }
   | {
@@ -334,7 +340,7 @@ export async function executeRepositoryInterviewV1(
     if (execution === null) {
       return failure('provider-port-failure', '/provider');
     }
-    return publishProviderFailure(ownedRequest, execution, ports.record);
+    return publishProviderFailure(ownedRequest, execution, ports.record, null);
   }
 
   const responsePreflight = preflightProviderResponse(
@@ -362,7 +368,29 @@ export async function executeRepositoryInterviewV1(
     );
     return execution === null
       ? failure('provider-port-failure', '/provider')
-      : publishProviderFailure(ownedRequest, execution, ports.record);
+      : publishProviderFailure(ownedRequest, execution, ports.record, null);
+  }
+
+  if (parsedEffect.providerOutputDiagnosticCode !== null) {
+    const execution = createFailedExecution(
+      ownedRequest,
+      modelProfile,
+      executionNonce,
+      applicationInput.executionMode,
+      applicationInput.forceReason,
+      parsedEffect.attempts,
+      'provider-output-invalid',
+      parsedEffect.usage,
+    );
+    if (execution === null) {
+      return failure('provider-port-failure', '/provider');
+    }
+    return publishProviderFailure(
+      ownedRequest,
+      execution,
+      ports.record,
+      parsedEffect.providerOutputDiagnosticCode,
+    );
   }
 
   const mapped =
@@ -385,7 +413,12 @@ export async function executeRepositoryInterviewV1(
     if (execution === null) {
       return failure('provider-port-failure', '/provider');
     }
-    return publishProviderFailure(ownedRequest, execution, ports.record);
+    return publishProviderFailure(
+      ownedRequest,
+      execution,
+      ports.record,
+      mapped.diagnosticCode,
+    );
   }
 
   const execution = createSuccessfulExecution(
@@ -415,6 +448,7 @@ export async function executeRepositoryInterviewV1(
           ownedRequest,
           invalidUsageExecution,
           ports.record,
+          null,
         );
   }
 
@@ -520,6 +554,7 @@ function parseProviderEffect(
       'attempts',
       'usage',
       'providerOutput',
+      'providerOutputDiagnosticCode',
     ]);
     const attempts =
       fields === null ? null : copyBoundedPlainArray(fields['attempts'], 2);
@@ -528,7 +563,11 @@ function parseProviderEffect(
       attempts === null ||
       attempts.length < 1 ||
       fields['usage'] === null ||
-      typeof fields['usage'] !== 'object'
+      typeof fields['usage'] !== 'object' ||
+      (fields['providerOutputDiagnosticCode'] !== null &&
+        !isRepositoryInterviewProviderOutputDiagnosticCode(
+          fields['providerOutputDiagnosticCode'],
+        ))
     ) {
       return null;
     }
@@ -537,6 +576,7 @@ function parseProviderEffect(
       attempts: attempts as readonly ModelExecutionAttemptV1[],
       usage: fields['usage'] as ModelExecutionUsageV1,
       providerOutput: fields['providerOutput'],
+      providerOutputDiagnosticCode: fields['providerOutputDiagnosticCode'],
     };
   }
   if (status === 'failed') {
@@ -715,6 +755,7 @@ async function publishProviderFailure(
   request: RepositoryInterviewRequestV1,
   execution: ModelExecutionV1,
   recordPort: RepositoryInterviewRecordPortV1,
+  providerOutputDiagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode | null,
 ): Promise<ExecuteRepositoryInterviewResultV1> {
   const publication = await publish(
     deepFreeze({ request, execution, interview: null }),
@@ -729,6 +770,7 @@ async function publishProviderFailure(
     request: publication.record.request,
     execution: publication.record.execution,
     interview: null,
+    providerOutputDiagnosticCode,
     issues: [],
   };
 }

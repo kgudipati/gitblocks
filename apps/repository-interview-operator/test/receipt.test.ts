@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -10,6 +13,15 @@ import {
 const DIGEST = 'a'.repeat(64);
 
 describe('operator receipt authority', () => {
+  it('keeps the accepted receipt schema snapshot byte-identical', async () => {
+    const snapshot = await readFile(
+      'apps/repository-interview-operator/schemas/repository-interview-operator-receipt-v1.schema.json',
+    );
+    expect(createHash('sha256').update(snapshot).digest('hex')).toBe(
+      '934ba36ee7bf6640b1886507123978e0421dc56bc98c2fe02583f31a402187c5',
+    );
+  });
+
   it('parses, owns, freezes, and digest-binds a closed content-free receipt', () => {
     const draft = receiptDraft();
     const receipt = createRepositoryInterviewOperatorReceiptV1(draft);

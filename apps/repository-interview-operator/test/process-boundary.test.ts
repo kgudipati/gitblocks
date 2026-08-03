@@ -4,18 +4,51 @@ import { join, resolve } from 'node:path';
 
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { createRepositoryArtifactSetV1 } from '@gitblocks/contracts';
 import {
   loadRepositoryInterviewSpecification,
   type LoadedRepositoryInterviewSpecification,
 } from '@gitblocks/interviews';
+import type * as InterviewsModule from '@gitblocks/interviews';
+import type * as PersistenceModule from '@gitblocks/persistence';
+import type * as PersistenceAdapterModule from '../src/persistence-adapter.ts';
+
+const processBoundaryMocks = vi.hoisted(() => ({
+  createProvider: vi.fn(),
+  createPersistenceAdapter: vi.fn(),
+  validateSelectionPersistence: vi.fn(),
+  verifyMigrations: vi.fn(),
+}));
+
+vi.mock('@gitblocks/interviews', async (importOriginal) => ({
+  ...(await importOriginal<typeof InterviewsModule>()),
+  createOpenAiResponsesRepositoryInterviewProviderV1:
+    processBoundaryMocks.createProvider,
+}));
+
+vi.mock('@gitblocks/persistence', async (importOriginal) => ({
+  ...(await importOriginal<typeof PersistenceModule>()),
+  verifyMigrations: processBoundaryMocks.verifyMigrations,
+}));
+
+vi.mock('../src/persistence-adapter.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof PersistenceAdapterModule>()),
+  createRepositoryInterviewPersistenceAdapterV1:
+    processBoundaryMocks.createPersistenceAdapter,
+  validateRepositoryInterviewOperatorSelectionPersistenceV1:
+    processBoundaryMocks.validateSelectionPersistence,
+}));
 
 import { runRepositoryInterviewOperatorCliV1 } from '../src/cli.ts';
 import {
   createRepositoryInterviewOperatorPolicyV1,
   createRepositoryInterviewCandidatePlanV1,
+  createRepositoryInterviewOperatorSelectionV1,
   parseRepositoryInterviewOperatorArgumentsV1,
+  parseRepositoryInterviewOperatorReceiptV1,
   REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
   REPOSITORY_INTERVIEW_CATALOG_DIGEST,
+  repositoryInterviewOperatorReceiptDigestV1,
 } from '../src/index.ts';
 import {
   createExplicitGlobalFetchPortV1,
@@ -174,6 +207,186 @@ describe('operator process boundary', () => {
     expect(createClient).not.toHaveBeenCalled();
     expect(createFetch).not.toHaveBeenCalled();
     expect(receipt).not.toHaveBeenCalled();
+  });
+
+  it('writes one stopped receipt and exits one after a completed response fails mapping', async () => {
+    const profile = modelProfile();
+    const candidatePlan = createRepositoryInterviewCandidatePlanV1({
+      schemaVersion: '1.0.0',
+      planId: 'stopped-candidate-plan',
+      catalogVersion: 'public-v1',
+      catalogDigest: REPOSITORY_INTERVIEW_CATALOG_DIGEST,
+      artifactManifestVersion: 'public-artifacts-v1',
+      artifactManifestDigest: REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
+      candidateIds: ['stopped-candidate'],
+    });
+    const policy = createRepositoryInterviewOperatorPolicyV1(
+      policyDraft(profile),
+      profile,
+    );
+    const artifactSet = createRepositoryArtifactSetV1({
+      contractVersion: '1.0.0',
+      candidateId: 'stopped-candidate',
+      catalogVersion: 'public-v1',
+      catalogDigest: REPOSITORY_INTERVIEW_CATALOG_DIGEST,
+      artifactManifestVersion: 'public-artifacts-v1',
+      artifactManifestDigest: REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
+      collectorVersion: 'repository-artifacts-v1',
+      chunkerVersion: 'exact-lines-v1',
+      provider: 'github',
+      providerRepositoryId: '789',
+      providerCanonicalOwner: 'owner-safe',
+      providerCanonicalRepository: 'repository-safe',
+      gitObjectAlgorithm: 'sha1',
+      commitObjectId: '3'.repeat(40),
+      entries: [
+        {
+          selectionId: `selection-${'5'.repeat(48)}`,
+          ordinal: 0,
+          selector: 'root-readme',
+          artifactKind: 'readme',
+          requirement: 'optional',
+          rationale: null,
+          requestedPath: null,
+          resolvedPath: null,
+          outcome: 'not-found',
+          artifactId: null,
+        },
+      ],
+      publishedAt: '2026-07-31T12:00:00.000Z',
+    });
+    const selection = createRepositoryInterviewOperatorSelectionV1({
+      schemaVersion: '1.0.0',
+      selectionId: 'stopped-selection',
+      catalogVersion: 'public-v1',
+      catalogDigest: REPOSITORY_INTERVIEW_CATALOG_DIGEST,
+      artifactManifestVersion: 'public-artifacts-v1',
+      artifactManifestDigest: REPOSITORY_INTERVIEW_ARTIFACT_MANIFEST_DIGEST,
+      members: [
+        {
+          ordinal: 0,
+          candidateId: artifactSet.candidateId,
+          artifactSetId: artifactSet.artifactSetId,
+          artifactSetIdentityDigest: artifactSet.identityDigest,
+        },
+      ],
+    });
+    const files = new Map([
+      ['/tmp/candidate-plan.json', JSON.stringify(candidatePlan)],
+      ['/tmp/profile.json', JSON.stringify(profile)],
+      ['/tmp/policy.json', JSON.stringify(policy)],
+      ['/tmp/artifact-receipt.json', '{}'],
+      ['/tmp/selection.json', '{}'],
+      ['/tmp/materialization.json', '{}'],
+      ['/tmp/authorization.json', '{}'],
+    ]);
+    const migration = migrationAuthority();
+    const publications: unknown[] = [];
+    const persistence = {
+      verifyMigrations: () => Promise.resolve(migration),
+      forCandidate: () => ({
+        loadArtifactContext: () =>
+          Promise.resolve({ artifactSet, artifacts: [] }),
+        record: {
+          findReusable: () => Promise.resolve(null),
+          publish: (command: unknown) => {
+            publications.push(command);
+            return Promise.resolve({ status: 'created' as const });
+          },
+        },
+      }),
+    };
+    let providerCalls = 0;
+    processBoundaryMocks.verifyMigrations.mockResolvedValue(migration);
+    processBoundaryMocks.validateSelectionPersistence.mockResolvedValue(
+      undefined,
+    );
+    processBoundaryMocks.createPersistenceAdapter.mockReturnValue(persistence);
+    processBoundaryMocks.createProvider.mockReturnValue({
+      execute: () => {
+        providerCalls += 1;
+        return Promise.resolve({
+          status: 'response' as const,
+          attempts: [processAttempt()],
+          usage: {
+            inputTokens: 10,
+            cachedInputTokens: 0,
+            outputTokens: 5,
+            reasoningTokens: 1,
+            totalTokens: 15,
+          },
+          providerOutput: { unexpected: 'PROCESS_SEMANTIC_SENTINEL' },
+          providerOutputDiagnosticCode: null,
+        });
+      },
+    });
+    const receipts: string[] = [];
+    const environmentReads: string[] = [];
+    const fetch = vi.fn(() =>
+      Promise.reject(new Error('network transport must remain unused')),
+    );
+    const exit = await runRepositoryInterviewOperatorCliV1(liveArguments(), {
+      readTextFile: (path) => Promise.resolve(files.get(path) ?? ''),
+      readEnvironment: (name) => {
+        environmentReads.push(name);
+        return name === 'SYNTHETIC_DB_PASSWORD'
+          ? 'database-password'
+          : undefined;
+      },
+      createFetch: () => fetch,
+      writeStdout: () => undefined,
+      writeStderr: () => undefined,
+      writeReceipt: (_path, content) => {
+        receipts.push(content);
+        return Promise.resolve();
+      },
+      createPersistenceClient: (() => Object.freeze({})) as never,
+      closePersistenceClient: () => Promise.resolve(),
+      parseCompleteArtifactReceipt: () => ({}),
+      validatePreliveClosure: () => ({ selection }),
+      authorizationNow: () => '2026-07-31T12:00:00.000Z',
+    });
+
+    expect(exit).toBe(1);
+    expect(providerCalls).toBe(1);
+    expect(fetch).not.toHaveBeenCalled();
+    expect(environmentReads).toEqual(['SYNTHETIC_DB_PASSWORD']);
+    expect(publications).toHaveLength(1);
+    expect(receipts).toHaveLength(1);
+    const parsed = parseRepositoryInterviewOperatorReceiptV1(
+      JSON.parse(receipts[0]!) as unknown,
+    );
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value).toMatchObject({
+        status: 'stopped',
+        stopCode: 'provider-output-structure',
+        candidateResults: [
+          {
+            status: 'provider-failed',
+            failureCode: 'provider-output-invalid',
+            interviewId: null,
+          },
+        ],
+        immediateReuse: {
+          requested: true,
+          passed: false,
+          candidateCount: 1,
+          reusedCount: 0,
+          providerCalls: 0,
+          providerAttempts: 0,
+          tokenUsage: 0,
+          costMicroUsd: 0,
+        },
+      });
+      const { receiptDigest, ...draft } = parsed.value;
+      expect(receiptDigest).toBe(
+        repositoryInterviewOperatorReceiptDigestV1(draft),
+      );
+    }
+    expect(receipts[0]).not.toContain('PROCESS_SEMANTIC_SENTINEL');
+    expect(receipts[0]).not.toContain('owner-safe');
+    expect(receipts[0]).not.toContain('repository-safe');
   });
 
   it('writes one exclusive 0600 canonical receipt file and rejects files and symlinks', async () => {
@@ -343,6 +556,21 @@ function argumentsFor(): string[] {
   ];
 }
 
+function liveArguments(): string[] {
+  return [
+    ...argumentsFor().filter((argument) => argument !== '--dry-run'),
+    '--artifact-receipt-file',
+    '/tmp/artifact-receipt.json',
+    '--selection-file',
+    '/tmp/selection.json',
+    '--selection-materialization-file',
+    '/tmp/materialization.json',
+    '--prelive-authorization-file',
+    '/tmp/authorization.json',
+    '--verify-immediate-reuse',
+  ];
+}
+
 function replaceArgument(
   input: readonly string[],
   key: string,
@@ -403,5 +631,56 @@ function policyDraft(profile: ReturnType<typeof modelProfile>) {
       pricingAuthorityDate: '2026-07-31',
       pricingAuthorityDigest: DIGEST,
     },
+  };
+}
+
+function processAttempt() {
+  return {
+    ordinal: 1 as const,
+    startedAt: '2026-07-31T12:00:00.000Z',
+    completedAt: '2026-07-31T12:00:01.000Z',
+    transportOutcome: 'response' as const,
+    httpStatus: 200,
+    providerRequestId: null,
+    responseId: null,
+    responseBytes: 256,
+    providerProcessingMilliseconds: 100,
+    retryAfterMilliseconds: null,
+    remainingRequests: null,
+    remainingTokens: null,
+    resetRequestsMilliseconds: null,
+    resetTokensMilliseconds: null,
+  };
+}
+
+function migrationAuthority() {
+  return {
+    postgresqlVersion: '18.4',
+    migrations: [
+      {
+        version: 1,
+        name: 'evidence-persistence',
+        checksum:
+          '569d7a6d6db70b1b04cadfa8798516ce4239b1179bb2f7cdd84b27641e33755f',
+      },
+      {
+        version: 2,
+        name: 'runtime-migration-verification',
+        checksum:
+          'b61cf8ad8673663c646b77e8f0ebed452898aab795aa64f52217e1271e1dc2ae',
+      },
+      {
+        version: 3,
+        name: 'immutable-repository-artifacts',
+        checksum:
+          '0ea1e4698e8eec6d33320df7af4758ae6b3b4fcbe3da387bb042d074b86228dc',
+      },
+      {
+        version: 4,
+        name: 'repository-interviews',
+        checksum:
+          '2cd18e7d92373215b2a540cdf12e32a7e949bfb01866616e8a44ad326e45bca0',
+      },
+    ],
   };
 }

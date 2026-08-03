@@ -3619,3 +3619,33 @@ correction provisioned only ephemeral test databases. It read no real database,
 GitHub, or OpenAI credential; ran no live seed or collection; created no
 receipt, selection, binding, or authorization; and began no calibration, gate,
 or other Milestone 11 work. Fresh preparation remains pending renewed review.
+
+## Provider-output diagnostic and stopped-receipt reconciliation
+
+The accepted first live calibration execution remains immutable and no further
+provider request is authorized. Its durable failure code remains
+`provider-output-invalid`; the historical subreason cannot be reconstructed.
+The correction preserves one closed, content-free diagnostic code only in the
+in-process interviews result, existing operator result-code telemetry fields,
+and the existing top-level receipt stop code. It does not retain provider
+output, issue paths, semantic values, or repository content, and it does not
+change provider-output acceptance, retries, persistence, or production
+contracts.
+
+A normal first pass that stops while immediate reuse was requested now emits a
+truthful stopped receipt: reuse remains requested but not passed, selected
+candidate cardinality is retained, and second-pass calls, attempts, usage, and
+cost remain zero. The correction does not execute that second pass. The
+accepted Phase 7 database, failed execution, absent interview, and untouched
+mini state remain external immutable history; no calibration, scoring, model
+selection, Gate A, or Gate B action is part of this reconciliation.
+
+The red-first focused run recorded the absent diagnostic authority and the
+pre-correction adapter, application, operator, and process-boundary failures.
+After correction, the focused suite passes 231 tests across eight files, the
+ordinary suite passes 1,338 tests across 78 files, and the PostgreSQL 18.4
+suite passes 62 tests across eight files with four migrations and no skips.
+`pnpm verify` and `pnpm verify:ci` pass, including the registry audit with no
+known vulnerabilities. All database tests used disposable test containers;
+no Phase 7 database, OpenAI credential, provider, or candidate repository was
+accessed.

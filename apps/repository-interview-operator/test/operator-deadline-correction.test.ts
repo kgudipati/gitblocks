@@ -430,6 +430,7 @@ function createHarness(
           calls.providerCalls += 1;
           const effect = options.providerEffect ?? {
             status: 'response' as const,
+            providerOutputDiagnosticCode: null,
             attempts: [attempt()],
             usage: {
               inputTokens: 10,

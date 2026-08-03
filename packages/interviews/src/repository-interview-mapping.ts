@@ -21,6 +21,11 @@ import {
 } from './repository-interview-prompt.ts';
 import { parseRepositoryInterviewProviderOutputV1 } from './provider-output-parser.ts';
 import {
+  primaryProviderOutputDiagnosticCode,
+  primaryRepositoryInterviewMappingDiagnosticCode,
+  type RepositoryInterviewProviderOutputDiagnosticCode,
+} from './provider-output-diagnostics.ts';
+import {
   REPOSITORY_INTERVIEW_PROVIDER_OUTPUT_SCHEMA_VERSION,
   type ProviderCitationV1,
   type RepositoryInterviewProviderOutputV1,
@@ -38,6 +43,7 @@ export type RepositoryInterviewProviderOutputDigestResultV1 =
     }
   | {
       readonly ok: false;
+      readonly diagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode;
       readonly issues: readonly RepositoryInterviewMappingIssue[];
     };
 
@@ -68,6 +74,7 @@ export type ResolveRepositoryInterviewProviderOutputResultV1 =
     }
   | {
       readonly ok: false;
+      readonly diagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode;
       readonly issues: readonly RepositoryInterviewMappingIssue[];
     };
 
@@ -263,6 +270,7 @@ function parseAndDigestProviderOutput(
     }
   | {
       readonly ok: false;
+      readonly diagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode;
       readonly issues: readonly RepositoryInterviewMappingIssue[];
     } {
   try {
@@ -278,6 +286,7 @@ function parseAndDigestProviderOutput(
       parsed.issues.map((issue) =>
         repositoryInterviewMappingIssue('provider-output-invalid', issue.path),
       ),
+      primaryProviderOutputDiagnosticCode(parsed.issues),
     );
   }
   return {
@@ -500,13 +509,21 @@ function coordinateKey(value: RepositoryInterviewCitationInputV1): string {
   return `${value.artifactId}:${String(value.startLine)}:${String(value.endLine)}`;
 }
 
-function failure(issues: readonly RepositoryInterviewMappingIssue[]): {
+function failure(
+  issues: readonly RepositoryInterviewMappingIssue[],
+  diagnosticCode?: RepositoryInterviewProviderOutputDiagnosticCode,
+): {
   readonly ok: false;
+  readonly diagnosticCode: RepositoryInterviewProviderOutputDiagnosticCode;
   readonly issues: readonly RepositoryInterviewMappingIssue[];
 } {
+  const finalized = finalizeRepositoryInterviewMappingIssues(issues);
   return {
     ok: false,
-    issues: finalizeRepositoryInterviewMappingIssues(issues),
+    diagnosticCode:
+      diagnosticCode ??
+      primaryRepositoryInterviewMappingDiagnosticCode(finalized),
+    issues: finalized,
   };
 }
 

@@ -891,6 +891,7 @@ describe('provider responses, failures, and publication', () => {
       );
       expect(result).toMatchObject({
         disposition: 'provider-failed',
+        providerOutputDiagnosticCode: null,
         interview: null,
         execution: { outcome: { status: 'failed' } },
       });
@@ -908,6 +909,7 @@ describe('provider responses, failures, and publication', () => {
     {
       name: 'structurally invalid',
       output: { secret: PROVIDER_SENTINEL },
+      diagnosticCode: 'provider-output-structure',
     },
     {
       name: 'unknown alias',
@@ -916,6 +918,7 @@ describe('provider responses, failures, and publication', () => {
         startLine: 1,
         endLine: 1,
       }),
+      diagnosticCode: 'provider-output-unknown-artifact-alias',
     },
     {
       name: 'out-of-range citation',
@@ -924,10 +927,11 @@ describe('provider responses, failures, and publication', () => {
         startLine: 99,
         endLine: 99,
       }),
+      diagnosticCode: 'provider-output-citation-out-of-range',
     },
   ])(
     'maps $name provider output to content-free provider-output-invalid',
-    async ({ output }) => {
+    async ({ output, diagnosticCode }) => {
       const harness = createHarness();
       harness.provider.result = responseEffect(output);
       const result = expectCompleted(
@@ -935,6 +939,7 @@ describe('provider responses, failures, and publication', () => {
       );
       expect(result).toMatchObject({
         disposition: 'provider-failed',
+        providerOutputDiagnosticCode: diagnosticCode,
         interview: null,
         execution: {
           outcome: {
@@ -951,8 +956,38 @@ describe('provider responses, failures, and publication', () => {
       expect(harness.record.publications[0]).not.toHaveProperty(
         'providerOutput',
       );
+      expect(harness.record.publications[0]).not.toHaveProperty(
+        'providerOutputDiagnosticCode',
+      );
     },
   );
+
+  it('publishes an adapter-classified provider-output failure without persisting its diagnostic', async () => {
+    const harness = createHarness();
+    harness.provider.result = responseEffectWith({
+      providerOutput: null,
+      providerOutputDiagnosticCode: 'provider-output-json-decoding',
+    });
+    const result = expectCompleted(
+      await executeRepositoryInterviewV1(applicationInput(), harness.ports),
+    );
+    expect(result).toMatchObject({
+      disposition: 'provider-failed',
+      providerOutputDiagnosticCode: 'provider-output-json-decoding',
+      interview: null,
+      execution: {
+        outcome: {
+          status: 'failed',
+          failureCode: 'provider-output-invalid',
+          providerOutputDigest: null,
+        },
+      },
+    });
+    expect(harness.record.publications).toHaveLength(1);
+    expect(harness.record.publications[0]).not.toHaveProperty(
+      'providerOutputDiagnosticCode',
+    );
+  });
 });
 
 describe('application and effect-port failures', () => {
@@ -1207,6 +1242,7 @@ function responseEffect(
     attempts: [responseAttempt(200)],
     usage: usage(),
     providerOutput,
+    providerOutputDiagnosticCode: null,
   };
 }
 

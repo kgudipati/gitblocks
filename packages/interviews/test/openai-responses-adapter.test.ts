@@ -313,6 +313,7 @@ describe('OpenAI Responses completed output and data minimization', () => {
         totalTokens: 15,
       },
       providerOutput: output,
+      providerOutputDiagnosticCode: null,
       attempts: [
         {
           transportOutcome: 'response',
@@ -350,7 +351,7 @@ describe('OpenAI Responses completed output and data minimization', () => {
     expect(JSON.stringify(result)).not.toContain('request: unsafe');
   });
 
-  it('returns parsed invalid-schema JSON and null for malformed JSON for application-owned validation', async () => {
+  it('classifies malformed JSON without retaining provider text', async () => {
     const harness = createHarness();
     harness.responses.push(
       completedTextResponse(AUTHORIZED_MODELS[0], '{"unexpected":true}'),
@@ -361,9 +362,29 @@ describe('OpenAI Responses completed output and data minimization', () => {
     expect(first).toMatchObject({
       status: 'response',
       providerOutput: { unexpected: true },
+      providerOutputDiagnosticCode: null,
     });
-    expect(second).toMatchObject({ status: 'response', providerOutput: null });
+    expect(second).toMatchObject({
+      status: 'response',
+      providerOutput: null,
+      providerOutputDiagnosticCode: 'provider-output-json-decoding',
+    });
     expect(JSON.stringify(second)).not.toContain(SENTINEL);
+  });
+
+  it('classifies decoded JSON that exceeds the owned-data boundary', async () => {
+    const harness = createHarness();
+    let text = 'null';
+    for (let depth = 0; depth < 34; depth += 1) {
+      text = `{"value":${text}}`;
+    }
+    harness.responses.push(completedTextResponse(AUTHORIZED_MODELS[0], text));
+
+    expect(await harness.provider.execute(baseRequest)).toMatchObject({
+      status: 'response',
+      providerOutput: null,
+      providerOutputDiagnosticCode: 'provider-output-json-boundary',
+    });
   });
 
   it.each([

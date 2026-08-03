@@ -399,7 +399,18 @@ export async function runRepositoryInterviewOperatorV1(
   }
 
   let immediateReuse: RepositoryInterviewOperatorReceiptV1['immediateReuse'] =
-    Object.freeze({ requested: false });
+    input.verifyImmediateReuse
+      ? Object.freeze({
+          requested: true,
+          passed: false,
+          candidateCount: preflight.selection.members.length,
+          reusedCount: 0,
+          providerCalls: 0,
+          providerAttempts: 0,
+          tokenUsage: 0,
+          costMicroUsd: 0,
+        })
+      : Object.freeze({ requested: false });
   if (input.verifyImmediateReuse && state.stopCode === null) {
     const proof = await verifyImmediateReuse(
       preflight.selection,
@@ -654,6 +665,13 @@ async function executeMember(
       );
     }
     const attempts = result.execution.attempts;
+    const providerOutputDiagnosticCode =
+      result.disposition === 'provider-failed'
+        ? result.providerOutputDiagnosticCode
+        : null;
+    if (providerOutputDiagnosticCode !== null) {
+      state.stopCode ??= providerOutputDiagnosticCode;
+    }
     const usage =
       result.disposition === 'reused'
         ? ZERO_USAGE
@@ -753,6 +771,9 @@ async function executeMember(
           totalTokens: usage.totalTokens,
           costMicroUsd: cost,
           failureCode: candidate.failureCode,
+          ...(providerOutputDiagnosticCode === null
+            ? {}
+            : { resultCode: providerOutputDiagnosticCode }),
         },
       ),
     );

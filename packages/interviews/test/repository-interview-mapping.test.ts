@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
   createModelExecutionV1,
@@ -24,6 +24,11 @@ import {
   type LoadedRepositoryInterviewSpecification,
   type RenderedRepositoryInterviewPromptV1,
 } from '../src/index.ts';
+import {
+  primaryProviderOutputDiagnosticCode,
+  REPOSITORY_INTERVIEW_PROVIDER_OUTPUT_DIAGNOSTIC_CODES,
+} from '../src/provider-output-diagnostics.ts';
+import { providerOutputIssue } from '../src/provider-output-issues.ts';
 import {
   EXPECTED_QUESTIONS,
   EXPECTED_TOPICS,
@@ -759,6 +764,7 @@ describe('provider-output alias and citation resolution', () => {
     });
     expect(result).toEqual({
       ok: false,
+      diagnosticCode: 'provider-output-unknown-artifact-alias',
       issues: [
         {
           code: 'unknown-artifact-alias',
@@ -784,6 +790,7 @@ describe('provider-output alias and citation resolution', () => {
     });
     expect(result).toEqual({
       ok: false,
+      diagnosticCode: 'provider-output-citation-out-of-range',
       issues: [
         {
           code: 'citation-out-of-range',
@@ -827,6 +834,7 @@ describe('provider-output alias and citation resolution', () => {
     });
     expect(result).toMatchObject({
       ok: false,
+      diagnosticCode: 'provider-output-structure',
       issues: [{ code: 'provider-output-invalid' }],
     });
     expect(JSON.stringify(result)).not.toContain('artifact-');
@@ -874,6 +882,118 @@ describe('provider-output alias and citation resolution', () => {
     expect(diagnosticJson).not.toContain(providerSentinel);
     expect(diagnosticJson).not.toContain(CANDIDATE_ID);
     expect(diagnosticJson).not.toContain(PROVIDER_REPOSITORY);
+  });
+
+  it('preserves structural and semantic provider-output diagnostics', () => {
+    const prompt = render(createPresentContext([numberedContent(20, 'safe')]));
+    expect(
+      resolveRepositoryInterviewProviderOutputV1({
+        providerOutput: { unexpected: true },
+        prompt,
+        specification,
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnosticCode: 'provider-output-structure',
+    });
+
+    const incompleteCoverage = createValidProviderOutput();
+    readArray(incompleteCoverage, 'documentedPositions').pop();
+    expect(
+      resolveRepositoryInterviewProviderOutputV1({
+        providerOutput: incompleteCoverage,
+        prompt,
+        specification,
+      }),
+    ).toMatchObject({
+      ok: false,
+      diagnosticCode: 'provider-output-topic-coverage',
+    });
+  });
+
+  it('classifies an exception after citation closure as mapping closure', () => {
+    const prompt = render(createPresentContext([numberedContent(20, 'safe')]));
+    const output = createValidProviderOutput();
+    const originalGet = Reflect.get(Map.prototype, 'get') as (
+      this: Map<unknown, unknown>,
+      key: unknown,
+    ) => unknown;
+    let aliasLookups = 0;
+    const get = vi.spyOn(Map.prototype, 'get').mockImplementation(function (
+      this: Map<unknown, unknown>,
+      key: unknown,
+    ) {
+      const value = originalGet.call(this, key);
+      if (
+        key === 'A1' &&
+        typeof value === 'object' &&
+        value !== null &&
+        'lineCount' in value
+      ) {
+        aliasLookups += 1;
+        if (aliasLookups === EXPECTED_TOPICS.length + 1) return undefined;
+      }
+      return value;
+    });
+    try {
+      expect(
+        resolveRepositoryInterviewProviderOutputV1({
+          providerOutput: output,
+          prompt,
+          specification,
+        }),
+      ).toMatchObject({
+        ok: false,
+        diagnosticCode: 'provider-output-mapping-closure',
+        issues: [{ code: 'mapping-closure' }],
+      });
+    } finally {
+      get.mockRestore();
+    }
+  });
+});
+
+describe('provider-output diagnostic authority', () => {
+  it('owns the exact closed content-free code set', () => {
+    expect(REPOSITORY_INTERVIEW_PROVIDER_OUTPUT_DIAGNOSTIC_CODES).toEqual([
+      'provider-output-json-decoding',
+      'provider-output-json-boundary',
+      'provider-output-input-shape',
+      'provider-output-structure',
+      'provider-output-bounds',
+      'provider-output-string-policy',
+      'provider-output-limitation-basis',
+      'provider-output-citation-count',
+      'provider-output-citation-range',
+      'provider-output-duplicate-citation',
+      'provider-output-duplicate-item',
+      'provider-output-inference-rationale',
+      'provider-output-topic-coverage',
+      'provider-output-contradiction-sides',
+      'provider-output-unknown-scope',
+      'provider-output-unknown-artifact-alias',
+      'provider-output-citation-out-of-range',
+      'provider-output-mapping-closure',
+    ]);
+  });
+
+  it('selects the same finalized primary diagnostic for any caller ordering', () => {
+    const topicCoverage = providerOutputIssue(
+      'provider-output.topic-coverage',
+      '/z',
+      'Provider output topic coverage is incomplete.',
+    );
+    const duplicateItem = providerOutputIssue(
+      'provider-output.duplicate-item',
+      '/a',
+      'Provider output contains a duplicate semantic item.',
+    );
+    expect(
+      primaryProviderOutputDiagnosticCode([topicCoverage, duplicateItem]),
+    ).toBe(primaryProviderOutputDiagnosticCode([duplicateItem, topicCoverage]));
+    expect(
+      primaryProviderOutputDiagnosticCode([topicCoverage, duplicateItem]),
+    ).toBe('provider-output-duplicate-item');
   });
 });
 
