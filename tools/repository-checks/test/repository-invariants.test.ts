@@ -19,6 +19,18 @@ const REQUIRED_PATHS = [
   '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
+  'apps/repository-interview-operator/README.md',
+  'apps/repository-interview-operator/package.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-policy-v1.schema.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-receipt-v1.schema.json',
+  'apps/repository-interview-operator/schemas/repository-interview-operator-selection-v1.schema.json',
+  'apps/repository-interview-operator/scripts/operator-cli.ts',
+  'apps/repository-interview-operator/scripts/schema-cli.ts',
+  'apps/repository-interview-operator/scripts/tsconfig.json',
+  'apps/repository-interview-operator/src/index.ts',
+  'apps/repository-interview-operator/test/tsconfig.json',
+  'apps/repository-interview-operator/tsconfig.json',
+  'apps/repository-interview-operator/tsconfig.test.json',
   'catalog/public-v1/candidates.json',
   'catalog/public-v1/manifest.json',
   'CONTRIBUTING.md',
@@ -60,13 +72,25 @@ const REQUIRED_PATHS = [
   'packages/ingestion/README.md',
   'packages/ingestion/package.json',
   'packages/ingestion/scripts/catalog-cli.ts',
+  'packages/ingestion/scripts/catalog-seed-cli.ts',
+  'packages/ingestion/scripts/catalog-seed-command.ts',
   'packages/ingestion/scripts/live-cli.ts',
   'packages/ingestion/scripts/receipt-cli.ts',
   'packages/ingestion/scripts/tsconfig.json',
+  'packages/ingestion/src/catalog-persistence.ts',
+  'packages/ingestion/src/catalog-seed.ts',
   'packages/ingestion/src/index.ts',
   'packages/ingestion/test/tsconfig.json',
   'packages/ingestion/tsconfig.json',
   'packages/ingestion/tsconfig.test.json',
+  'packages/interviews/README.md',
+  'packages/interviews/package.json',
+  'packages/interviews/scripts/specification-cli.ts',
+  'packages/interviews/scripts/tsconfig.json',
+  'packages/interviews/src/index.ts',
+  'packages/interviews/test/tsconfig.json',
+  'packages/interviews/tsconfig.json',
+  'packages/interviews/tsconfig.test.json',
   'packages/persistence/README.md',
   'packages/persistence/migrations/0001_evidence_persistence.sql',
   'packages/persistence/migrations/0002_runtime_migration_verification.sql',
@@ -120,13 +144,16 @@ const ROOT_MANIFEST = JSON.stringify({
   },
   scripts: {
     build: 'pnpm build:product && pnpm build:tools',
-    'build:product': 'pnpm --filter @gitblocks/ingestion... build',
+    'build:product':
+      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/repository-interview-operator... build',
     'build:tools':
-      'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness build',
+      'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
+    'catalog:seed':
+      'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-seed-cli.ts',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':
@@ -137,6 +164,14 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build && node packages/persistence/scripts/db-verify.ts',
     'eval:fixtures':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures',
+    'eval:interviews:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
+    'eval:interviews:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts generate',
+    'eval:interviews:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
+    'eval:interviews:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && vitest run tools/evaluation-harness/test/repository-interview-*.test.ts --config vitest.config.ts && pnpm --filter @gitblocks/evaluation-harness typecheck && pnpm architecture:check',
     'eval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score',
     'eval:validate':
@@ -149,6 +184,30 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build:product && vitest run packages/ingestion/test --config vitest.config.ts',
     'ingestion:verify':
       'pnpm runtime:check && pnpm catalog:validate && pnpm ingestion:test && pnpm --filter @gitblocks/ingestion typecheck',
+    'interviews:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts generate',
+    'interviews:test':
+      'pnpm runtime:check && pnpm build:product && vitest run packages/interviews/test --config vitest.config.ts',
+    'interviews:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts validate',
+    'interviews:verify':
+      'pnpm runtime:check && pnpm interviews:validate && pnpm interviews:test && pnpm --filter @gitblocks/interviews typecheck && pnpm architecture:check',
+    'interviews:prelive:materialize':
+      'pnpm runtime:check && pnpm build:product && pnpm --filter @gitblocks/repository-interview-prelive build && node tools/repository-interview-prelive/src/materialize-cli.ts',
+    'interviews:prelive:test':
+      'pnpm runtime:check && pnpm build:product && pnpm build:tools && vitest run tools/repository-interview-prelive/test apps/repository-interview-operator/test/prelive-authorities.test.ts apps/repository-interview-operator/test/process-boundary.test.ts --config vitest.config.ts',
+    'interviews:prelive:validate':
+      'pnpm runtime:check && pnpm build:product && pnpm build:tools && node tools/repository-interview-prelive/src/prelive-cli.ts validate',
+    'interviews:prelive:verify':
+      'pnpm runtime:check && pnpm interviews:prelive:validate && pnpm interviews:prelive:test && pnpm operator:interviews:verify && pnpm interviews:verify && pnpm eval:interviews:verify',
+    'operator:interviews':
+      'pnpm runtime:check && pnpm build:product && pnpm --filter @gitblocks/repository-interview-prelive build && node tools/repository-interview-prelive/src/operator-cli.ts',
+    'operator:interviews:schema:validate':
+      'pnpm runtime:check && pnpm build:product && node apps/repository-interview-operator/scripts/schema-cli.ts validate',
+    'operator:interviews:test':
+      'pnpm runtime:check && pnpm build:product && vitest run apps/repository-interview-operator/test --config vitest.config.ts',
+    'operator:interviews:verify':
+      'pnpm runtime:check && pnpm operator:interviews:schema:validate && pnpm operator:interviews:test && pnpm --filter @gitblocks/repository-interview-operator lint && pnpm --filter @gitblocks/repository-interview-operator typecheck && pnpm architecture:check && pnpm db:verify',
     'repo:branch':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts branch',
     'repo:check':
@@ -162,13 +221,14 @@ const ROOT_MANIFEST = JSON.stringify({
     'lint:internal': 'eslint . --max-warnings 0',
     test: 'pnpm runtime:check && vitest run',
     'test:coverage': 'pnpm runtime:check && vitest run --coverage',
-    typecheck: 'pnpm build:product && pnpm typecheck:internal',
+    typecheck:
+      'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
-      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm typecheck:internal && pnpm build:tools && vitest run',
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run',
   },
   devDependencies: {
     typescript: '6.0.3',
@@ -191,6 +251,22 @@ const EVALUATION_MANIFEST = JSON.stringify({
     '@gitblocks/persistence': 'workspace:0.0.0',
     ajv: '8.20.0',
   },
+});
+
+const PRELIVE_MANIFEST = JSON.stringify({
+  name: '@gitblocks/repository-interview-prelive',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    '@gitblocks/evaluation-harness': 'workspace:0.0.0',
+    '@gitblocks/ingestion': 'workspace:0.0.0',
+    '@gitblocks/interviews': 'workspace:0.0.0',
+    '@gitblocks/persistence': 'workspace:0.0.0',
+    '@gitblocks/repository-interview-operator': 'workspace:0.0.0',
+  },
+  devDependencies: { vitest: '4.1.10' },
 });
 
 const DOMAIN_MANIFEST = JSON.stringify({
@@ -258,6 +334,42 @@ const INGESTION_MANIFEST = JSON.stringify({
   },
 });
 
+const INTERVIEWS_MANIFEST = JSON.stringify({
+  name: '@gitblocks/interviews',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    ajv: '8.20.0',
+    typebox: '1.3.8',
+  },
+});
+
+const OPERATOR_MANIFEST = JSON.stringify({
+  name: '@gitblocks/repository-interview-operator',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    '@gitblocks/interviews': 'workspace:0.0.0',
+    '@gitblocks/persistence': 'workspace:0.0.0',
+  },
+});
+
 const WORKSPACE_POLICY = `packages:
   - apps/*
   - packages/*
@@ -289,6 +401,8 @@ const CI_POLICY = `jobs:
       GITBLOCKS_TEST_DB_DATABASE: gitblocks_test
       GITBLOCKS_TEST_DB_OWNER: postgres
     steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
       - run: pnpm verify:ci
 `;
 
@@ -321,6 +435,8 @@ function validRepository() {
     ['packages/contracts/package.json', CONTRACTS_MANIFEST],
     ['packages/domain/package.json', DOMAIN_MANIFEST],
     ['packages/ingestion/package.json', INGESTION_MANIFEST],
+    ['packages/interviews/package.json', INTERVIEWS_MANIFEST],
+    ['apps/repository-interview-operator/package.json', OPERATOR_MANIFEST],
     ['packages/persistence/package.json', PERSISTENCE_MANIFEST],
     ['tools/evaluation-harness/package.json', EVALUATION_MANIFEST],
     ['tools/repository-checks/package.json', TOOL_MANIFEST],
@@ -330,8 +446,39 @@ function validRepository() {
 }
 
 describe('validateRepositoryInvariants', () => {
-  it('accepts the explicit Phase 4 repository shape', () => {
+  it('accepts the explicit approved repository shape', () => {
     expect(validateRepositoryInvariants(validRepository())).toEqual([]);
+  });
+
+  it('accepts the pre-live tool and only its explicit workspace direction', () => {
+    const repository = validRepository();
+    repository.trackedPaths.add(
+      'tools/repository-interview-prelive/package.json',
+    );
+    repository.trackedPaths.add(
+      'tools/repository-interview-prelive/src/index.ts',
+    );
+    repository.textFiles.set(
+      'tools/repository-interview-prelive/package.json',
+      PRELIVE_MANIFEST,
+    );
+    expect(validateRepositoryInvariants(repository)).toEqual([]);
+
+    repository.textFiles.set(
+      'tools/repository-interview-prelive/package.json',
+      PRELIVE_MANIFEST.replace(
+        '"@gitblocks/contracts":"workspace:0.0.0"',
+        '"@gitblocks/domain":"workspace:0.0.0"',
+      ),
+    );
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.dependency-version',
+          path: 'tools/repository-interview-prelive/package.json',
+        }),
+      ]),
+    );
   });
 
   it('requires the pinned PostgreSQL service in hosted verification', () => {
@@ -352,6 +499,31 @@ describe('validateRepositoryInvariants', () => {
         }),
       ]),
     );
+  });
+
+  it('requires standalone typecheck directly after frozen installation and before verification', () => {
+    for (const invalid of [
+      CI_POLICY.replace('      - run: pnpm typecheck\n', ''),
+      CI_POLICY.replace(
+        '      - run: pnpm typecheck\n      - run: pnpm verify:ci',
+        '      - run: pnpm verify:ci\n      - run: pnpm typecheck',
+      ),
+      CI_POLICY.replace(
+        '    steps:\n      - run: pnpm install --frozen-lockfile',
+        '    steps:\n      - run: pnpm build\n      - run: pnpm install --frozen-lockfile',
+      ),
+    ]) {
+      const repository = validRepository();
+      repository.textFiles.set('.github/workflows/ci.yml', invalid);
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'repository.ci-clean-typecheck',
+            path: '.github/workflows/ci.yml',
+          }),
+        ]),
+      );
+    }
   });
 
   it.each([
@@ -488,6 +660,23 @@ describe('validateRepositoryInvariants', () => {
     );
   });
 
+  it('requires the interviews runtime dependency allowlist exactly', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'packages/interviews/package.json',
+      INTERVIEWS_MANIFEST.replace('"ajv":"8.20.0"', '"ajv":"^8.20.0"'),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.product-dependency',
+          path: 'packages/interviews/package.json',
+        }),
+      ]),
+    );
+  });
+
   it.each([
     [
       'packages/contracts/package.json',
@@ -592,8 +781,8 @@ describe('validateRepositoryInvariants', () => {
     repository.textFiles.set(
       'package.json',
       ROOT_MANIFEST.replace(
-        'pnpm build:product && pnpm lint:internal && pnpm typecheck:internal',
-        'pnpm lint:internal && pnpm build:product && pnpm typecheck:internal',
+        'pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal',
+        'pnpm lint:internal && pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
       ),
     );
 
@@ -602,6 +791,44 @@ describe('validateRepositoryInvariants', () => {
         expect.objectContaining({ code: 'repository.runtime-script' }),
       ]),
     );
+  });
+
+  it('requires tool builds before internal typecheck on a clean checkout', () => {
+    const repository = validRepository();
+    repository.textFiles.set(
+      'package.json',
+      ROOT_MANIFEST.replace(
+        'pnpm build:tools && pnpm typecheck:internal',
+        'pnpm typecheck:internal && pnpm build:tools',
+      ),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'repository.runtime-script' }),
+      ]),
+    );
+  });
+
+  it('requires product and tool builds before standalone internal typecheck', () => {
+    for (const invalid of [
+      'pnpm build:product && pnpm typecheck:internal',
+      'pnpm build:product && pnpm typecheck:internal && pnpm build:tools',
+    ]) {
+      const repository = validRepository();
+      repository.textFiles.set(
+        'package.json',
+        ROOT_MANIFEST.replace(
+          'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
+          invalid,
+        ),
+      );
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ code: 'repository.runtime-script' }),
+        ]),
+      );
+    }
   });
 
   it('requires private package manifests', () => {

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "jobs-dagster",
+  "capabilityFamily": "background-jobs",
+  "catalogStatus": "active",
+  "selectionLabels": [
+    "complex-service-or-platform",
+    "rich-additional-documentation"
+  ],
+  "selectionRationaleCodes": [
+    "complex-operational-surface",
+    "documentation-richness"
+  ],
+  "calibrationMember": true,
+  "calibrationOrdinal": 3,
+  "artifactProfile": {
+    "presentArtifactCount": 2,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme",
+      "documentation"
+    ]
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/gate-policy/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "operationalMaximums": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "failures": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "contractInvalid": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "citationInvalid": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "crossCandidateReferences": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "crossArtifactSetReferences": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "promptInjectionViolations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "outsideKnowledgeViolations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "secretLeakage": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "prohibitedDataLeakage": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        }
+      },
+      "required": [
+        "failures",
+        "contractInvalid",
+        "citationInvalid",
+        "crossCandidateReferences",
+        "crossArtifactSetReferences",
+        "promptInjectionViolations",
+        "outsideKnowledgeViolations",
+        "secretLeakage",
+        "prohibitedDataLeakage"
+      ]
+    },
+    "semanticThresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "criticalDefectsMaximum": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "unsupportedNumerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "unsupportedDenominator": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "partialNumerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "partialDenominator": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "unknownRecallNumerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "unknownRecallDenominator": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "basisCorrectnessNumerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "basisCorrectnessDenominator": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "contradictionDefectsMaximum": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        }
+      },
+      "required": [
+        "criticalDefectsMaximum",
+        "unsupportedNumerator",
+        "unsupportedDenominator",
+        "partialNumerator",
+        "partialDenominator",
+        "unknownRecallNumerator",
+        "unknownRecallDenominator",
+        "basisCorrectnessNumerator",
+        "basisCorrectnessDenominator",
+        "contradictionDefectsMaximum"
+      ]
+    },
+    "zeroSemanticDenominator": {
+      "const": "invalid"
+    },
+    "operationalFailuresEnterSemanticDenominators": {
+      "const": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "operationalMaximums",
+    "semanticThresholds",
+    "zeroSemanticDenominator",
+    "operationalFailuresEnterSemanticDenominators"
+  ]
+}

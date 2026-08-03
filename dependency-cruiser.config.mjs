@@ -113,6 +113,32 @@ const configuration = {
       },
     },
     {
+      name: 'no-interviews-outward-dependency',
+      severity: 'error',
+      comment:
+        'Repository interviews may depend only on its own source, contracts, TypeBox, Ajv, and approved Node APIs.',
+      from: {
+        path: '^packages/interviews/src/',
+      },
+      to: {
+        pathNot:
+          '^(?:packages/interviews/src/|packages/contracts/|node:|crypto$|fs/promises$|path$)|node_modules/(?:@gitblocks/contracts|ajv|typebox)(?:/|$)',
+      },
+    },
+    {
+      name: 'operator-composition-root-dependencies',
+      severity: 'error',
+      comment:
+        'The repository interview operator composes only the accepted contracts, interviews, persistence, its own source, and Node APIs.',
+      from: {
+        path: '^apps/repository-interview-operator/(?:src|scripts)/',
+      },
+      to: {
+        pathNot:
+          '^(?:apps/repository-interview-operator/|packages/(?:contracts|interviews|persistence)/|node:|crypto$|fs/promises$|path$|url$)|node_modules/@gitblocks/(?:contracts|interviews|persistence)(?:/|$)',
+      },
+    },
+    {
       name: 'no-application-outward-dependency',
       severity: 'error',
       comment:
@@ -129,7 +155,7 @@ const configuration = {
       severity: 'error',
       comment: 'Product workspaces must not depend on repository tooling.',
       from: {
-        path: '^packages/(?:contracts|domain|persistence|ingestion)/',
+        path: '^(?:packages/(?:contracts|domain|persistence|ingestion|interviews)|apps/repository-interview-operator)/',
       },
       to: {
         path: '^tools/',
@@ -141,7 +167,7 @@ const configuration = {
       comment:
         'Product packages must not depend on evaluation corpus files, schemas, or implementation.',
       from: {
-        path: '^packages/(?:contracts|domain|persistence|ingestion)/',
+        path: '^(?:packages/(?:contracts|domain|persistence|ingestion|interviews)|apps/repository-interview-operator)/',
       },
       to: {
         path: '^(?:evals|schemas/evaluation)(?:/|$)',

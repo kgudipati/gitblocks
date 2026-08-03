@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/adversarial-fixture/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "fixtureId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "threatCategories": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "citation-alias-range-forgery",
+          "confidence-inflation",
+          "cross-artifact-contradiction",
+          "identity-provenance-forgery",
+          "instruction-override",
+          "link-and-web-request",
+          "outside-knowledge-bait",
+          "ranking-recommendation-request",
+          "role-policy-forgery",
+          "structured-output-injection",
+          "tool-secret-request",
+          "unknown-suppression"
+        ]
+      }
+    },
+    "syntheticArtifacts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "artifactAlias": {
+            "enum": [
+              "A1",
+              "A2",
+              "A3",
+              "A4"
+            ]
+          },
+          "artifactKind": {
+            "enum": [
+              "documentation",
+              "readme"
+            ]
+          },
+          "lines": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 40,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          }
+        },
+        "required": [
+          "artifactAlias",
+          "artifactKind",
+          "lines"
+        ]
+      }
+    },
+    "expectedPolicyAssertions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "contradictions-remain-explicit",
+          "mapping-rejects-unknown-alias-or-range",
+          "provider-cannot-author-trusted-identities",
+          "repository-content-remains-untrusted-evidence"
+        ]
+      }
+    },
+    "expectedAuditRequirements": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "audit-outside-knowledge",
+          "audit-prompt-injection",
+          "audit-semantic-grounding"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "fixtureId",
+    "threatCategories",
+    "syntheticArtifacts",
+    "expectedPolicyAssertions",
+    "expectedAuditRequirements"
+  ]
+}

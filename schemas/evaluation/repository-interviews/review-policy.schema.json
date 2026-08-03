@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/review-policy/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "calibrationReviewersPerCandidate": {
+      "const": 2
+    },
+    "calibrationBlind": {
+      "const": true
+    },
+    "gatePrimaryReviewersPerCandidate": {
+      "const": 1
+    },
+    "secondarySampleNumerator": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
+    },
+    "secondarySampleDenominator": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
+    },
+    "secondarySampleRounding": {
+      "enum": [
+        "ceiling",
+        "floor"
+      ]
+    },
+    "secondarySampleScope": {
+      "const": "complete-gate-a-cohort"
+    },
+    "mandatorySecondaryReasons": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "critical-not-clearly-supported",
+          "disputed-finding",
+          "prompt-injection-suspected-or-confirmed",
+          "outside-knowledge-suspected-or-confirmed"
+        ]
+      }
+    },
+    "adjudicationTrigger": {
+      "const": "material-human-disagreement"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "calibrationReviewersPerCandidate",
+    "calibrationBlind",
+    "gatePrimaryReviewersPerCandidate",
+    "secondarySampleNumerator",
+    "secondarySampleDenominator",
+    "secondarySampleRounding",
+    "secondarySampleScope",
+    "mandatorySecondaryReasons",
+    "adjudicationTrigger"
+  ]
+}

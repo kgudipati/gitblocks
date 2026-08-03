@@ -35,6 +35,16 @@ import {
   type RepositoryArtifactSetV1,
   type RepositoryArtifactV1,
 } from './schemas.ts';
+import {
+  modelExecutionModelProfileV1Schema,
+  modelExecutionV1Schema,
+  repositoryInterviewRequestV1Schema,
+  repositoryInterviewV1Schema,
+  type ModelExecutionModelProfileV1,
+  type ModelExecutionV1,
+  type RepositoryInterviewRequestV1,
+  type RepositoryInterviewV1,
+} from './repository-interview-schemas.ts';
 
 const ajv = new Ajv2020({
   allErrors: false,
@@ -69,6 +79,15 @@ export const repositoryArtifactChunkV1Validator =
   ajv.compile<RepositoryArtifactChunkV1>(repositoryArtifactChunkV1Schema);
 export const repositoryArtifactSetV1Validator =
   ajv.compile<RepositoryArtifactSetV1>(repositoryArtifactSetV1Schema);
+export const repositoryInterviewRequestV1Validator =
+  ajv.compile<RepositoryInterviewRequestV1>(repositoryInterviewRequestV1Schema);
+export const modelExecutionModelProfileV1Validator =
+  ajv.compile<ModelExecutionModelProfileV1>(modelExecutionModelProfileV1Schema);
+export const modelExecutionV1Validator = ajv.compile<ModelExecutionV1>(
+  modelExecutionV1Schema,
+);
+export const repositoryInterviewV1Validator =
+  ajv.compile<RepositoryInterviewV1>(repositoryInterviewV1Schema);
 
 export type StructuralValidationResult<T> =
   | {

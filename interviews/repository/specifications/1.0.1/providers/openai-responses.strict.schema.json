@@ -1,0 +1,817 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "contradictions": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "explanation": {
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+            "type": "string"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "const": "direct",
+                "type": "string"
+              },
+              {
+                "const": "scope-dependent",
+                "type": "string"
+              },
+              {
+                "const": "version-dependent",
+                "type": "string"
+              }
+            ]
+          },
+          "positionA": {
+            "additionalProperties": false,
+            "properties": {
+              "citations": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "artifactAlias": {
+                      "anyOf": [
+                        {
+                          "const": "A1",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A2",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A3",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A4",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "endLine": {
+                      "maximum": 10000,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "startLine": {
+                      "maximum": 10000,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "artifactAlias",
+                    "startLine",
+                    "endLine"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 2,
+                "minItems": 1,
+                "type": "array"
+              },
+              "statement": {
+                "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "statement",
+              "citations"
+            ],
+            "type": "object"
+          },
+          "positionB": {
+            "additionalProperties": false,
+            "properties": {
+              "citations": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "artifactAlias": {
+                      "anyOf": [
+                        {
+                          "const": "A1",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A2",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A3",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A4",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "endLine": {
+                      "maximum": 10000,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "startLine": {
+                      "maximum": 10000,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "artifactAlias",
+                    "startLine",
+                    "endLine"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 2,
+                "minItems": 1,
+                "type": "array"
+              },
+              "statement": {
+                "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "statement",
+              "citations"
+            ],
+            "type": "object"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "const": "purpose-and-scope",
+                "type": "string"
+              },
+              {
+                "const": "runtime-and-framework",
+                "type": "string"
+              },
+              {
+                "const": "integration-surface",
+                "type": "string"
+              },
+              {
+                "const": "data-and-state",
+                "type": "string"
+              },
+              {
+                "const": "deployment-and-operations",
+                "type": "string"
+              },
+              {
+                "const": "security-and-trust",
+                "type": "string"
+              },
+              {
+                "const": "maintenance-and-support",
+                "type": "string"
+              },
+              {
+                "const": "adoption-and-limitations",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "topic",
+          "kind",
+          "explanation",
+          "positionA",
+          "positionB"
+        ],
+        "type": "object"
+      },
+      "maxItems": 6,
+      "minItems": 0,
+      "type": "array"
+    },
+    "documentedPositions": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "citations": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "artifactAlias": {
+                  "anyOf": [
+                    {
+                      "const": "A1",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A2",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A3",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A4",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "endLine": {
+                  "maximum": 10000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "startLine": {
+                  "maximum": 10000,
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "artifactAlias",
+                "startLine",
+                "endLine"
+              ],
+              "type": "object"
+            },
+            "maxItems": 4,
+            "minItems": 1,
+            "type": "array"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "const": "high",
+                "type": "string"
+              },
+              {
+                "const": "medium",
+                "type": "string"
+              }
+            ]
+          },
+          "statement": {
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+            "type": "string"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "const": "purpose-and-scope",
+                "type": "string"
+              },
+              {
+                "const": "runtime-and-framework",
+                "type": "string"
+              },
+              {
+                "const": "integration-surface",
+                "type": "string"
+              },
+              {
+                "const": "data-and-state",
+                "type": "string"
+              },
+              {
+                "const": "deployment-and-operations",
+                "type": "string"
+              },
+              {
+                "const": "security-and-trust",
+                "type": "string"
+              },
+              {
+                "const": "maintenance-and-support",
+                "type": "string"
+              },
+              {
+                "const": "adoption-and-limitations",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "topic",
+          "statement",
+          "confidence",
+          "citations"
+        ],
+        "type": "object"
+      },
+      "maxItems": 24,
+      "minItems": 0,
+      "type": "array"
+    },
+    "inferences": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "citations": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "artifactAlias": {
+                  "anyOf": [
+                    {
+                      "const": "A1",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A2",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A3",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A4",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "endLine": {
+                  "maximum": 10000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "startLine": {
+                  "maximum": 10000,
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "artifactAlias",
+                "startLine",
+                "endLine"
+              ],
+              "type": "object"
+            },
+            "maxItems": 4,
+            "minItems": 1,
+            "type": "array"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "const": "medium",
+                "type": "string"
+              },
+              {
+                "const": "low",
+                "type": "string"
+              }
+            ]
+          },
+          "rationale": {
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+            "type": "string"
+          },
+          "statement": {
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+            "type": "string"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "const": "purpose-and-scope",
+                "type": "string"
+              },
+              {
+                "const": "runtime-and-framework",
+                "type": "string"
+              },
+              {
+                "const": "integration-surface",
+                "type": "string"
+              },
+              {
+                "const": "data-and-state",
+                "type": "string"
+              },
+              {
+                "const": "deployment-and-operations",
+                "type": "string"
+              },
+              {
+                "const": "security-and-trust",
+                "type": "string"
+              },
+              {
+                "const": "maintenance-and-support",
+                "type": "string"
+              },
+              {
+                "const": "adoption-and-limitations",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "topic",
+          "statement",
+          "rationale",
+          "confidence",
+          "citations"
+        ],
+        "type": "object"
+      },
+      "maxItems": 8,
+      "minItems": 0,
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "basis": {
+                "const": "documented-position",
+                "type": "string"
+              },
+              "citations": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "artifactAlias": {
+                      "anyOf": [
+                        {
+                          "const": "A1",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A2",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A3",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A4",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "endLine": {
+                      "maximum": 10000,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "startLine": {
+                      "maximum": 10000,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "artifactAlias",
+                    "startLine",
+                    "endLine"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 4,
+                "minItems": 1,
+                "type": "array"
+              },
+              "confidence": {
+                "anyOf": [
+                  {
+                    "const": "high",
+                    "type": "string"
+                  },
+                  {
+                    "const": "medium",
+                    "type": "string"
+                  }
+                ]
+              },
+              "rationale": {
+                "type": "null"
+              },
+              "statement": {
+                "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+                "type": "string"
+              },
+              "topic": {
+                "anyOf": [
+                  {
+                    "const": "purpose-and-scope",
+                    "type": "string"
+                  },
+                  {
+                    "const": "runtime-and-framework",
+                    "type": "string"
+                  },
+                  {
+                    "const": "integration-surface",
+                    "type": "string"
+                  },
+                  {
+                    "const": "data-and-state",
+                    "type": "string"
+                  },
+                  {
+                    "const": "deployment-and-operations",
+                    "type": "string"
+                  },
+                  {
+                    "const": "security-and-trust",
+                    "type": "string"
+                  },
+                  {
+                    "const": "maintenance-and-support",
+                    "type": "string"
+                  },
+                  {
+                    "const": "adoption-and-limitations",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "topic",
+              "basis",
+              "statement",
+              "rationale",
+              "confidence",
+              "citations"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "basis": {
+                "const": "inference",
+                "type": "string"
+              },
+              "citations": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "artifactAlias": {
+                      "anyOf": [
+                        {
+                          "const": "A1",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A2",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A3",
+                          "type": "string"
+                        },
+                        {
+                          "const": "A4",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "endLine": {
+                      "maximum": 10000,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "startLine": {
+                      "maximum": 10000,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "artifactAlias",
+                    "startLine",
+                    "endLine"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 4,
+                "minItems": 1,
+                "type": "array"
+              },
+              "confidence": {
+                "anyOf": [
+                  {
+                    "const": "medium",
+                    "type": "string"
+                  },
+                  {
+                    "const": "low",
+                    "type": "string"
+                  }
+                ]
+              },
+              "rationale": {
+                "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+                "type": "string"
+              },
+              "statement": {
+                "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+                "type": "string"
+              },
+              "topic": {
+                "anyOf": [
+                  {
+                    "const": "purpose-and-scope",
+                    "type": "string"
+                  },
+                  {
+                    "const": "runtime-and-framework",
+                    "type": "string"
+                  },
+                  {
+                    "const": "integration-surface",
+                    "type": "string"
+                  },
+                  {
+                    "const": "data-and-state",
+                    "type": "string"
+                  },
+                  {
+                    "const": "deployment-and-operations",
+                    "type": "string"
+                  },
+                  {
+                    "const": "security-and-trust",
+                    "type": "string"
+                  },
+                  {
+                    "const": "maintenance-and-support",
+                    "type": "string"
+                  },
+                  {
+                    "const": "adoption-and-limitations",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "topic",
+              "basis",
+              "statement",
+              "rationale",
+              "confidence",
+              "citations"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "maxItems": 12,
+      "minItems": 0,
+      "type": "array"
+    },
+    "unknowns": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "partialCitations": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "artifactAlias": {
+                  "anyOf": [
+                    {
+                      "const": "A1",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A2",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A3",
+                      "type": "string"
+                    },
+                    {
+                      "const": "A4",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "endLine": {
+                  "maximum": 10000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "startLine": {
+                  "maximum": 10000,
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "artifactAlias",
+                "startLine",
+                "endLine"
+              ],
+              "type": "object"
+            },
+            "maxItems": 4,
+            "minItems": 0,
+            "type": "array"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "const": "not-documented",
+                "type": "string"
+              },
+              {
+                "const": "ambiguous",
+                "type": "string"
+              },
+              {
+                "const": "conflicting",
+                "type": "string"
+              },
+              {
+                "const": "insufficient-detail",
+                "type": "string"
+              },
+              {
+                "const": "artifact-unavailable",
+                "type": "string"
+              }
+            ]
+          },
+          "statement": {
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+            "type": "string"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "const": "purpose-and-scope",
+                "type": "string"
+              },
+              {
+                "const": "runtime-and-framework",
+                "type": "string"
+              },
+              {
+                "const": "integration-surface",
+                "type": "string"
+              },
+              {
+                "const": "data-and-state",
+                "type": "string"
+              },
+              {
+                "const": "deployment-and-operations",
+                "type": "string"
+              },
+              {
+                "const": "security-and-trust",
+                "type": "string"
+              },
+              {
+                "const": "maintenance-and-support",
+                "type": "string"
+              },
+              {
+                "const": "adoption-and-limitations",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "topic",
+          "reason",
+          "statement",
+          "partialCitations"
+        ],
+        "type": "object"
+      },
+      "maxItems": 16,
+      "minItems": 0,
+      "type": "array"
+    }
+  },
+  "required": [
+    "documentedPositions",
+    "inferences",
+    "limitations",
+    "contradictions",
+    "unknowns"
+  ],
+  "type": "object"
+}

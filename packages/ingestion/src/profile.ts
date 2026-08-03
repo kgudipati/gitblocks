@@ -11,11 +11,11 @@ import type {
 
 import { StableIdRegistry } from './canonical-json.ts';
 import { ingestionError } from './errors.ts';
-import type {
-  CandidateSourceBundle,
-  CapabilityFamily,
-  ProfileResult,
-} from './types.ts';
+import type { CandidateSourceBundle, ProfileResult } from './types.ts';
+import {
+  catalogCandidateCapabilityFamilies,
+  catalogCandidateIdentity,
+} from './catalog-persistence.ts';
 
 const RULES_VERSION = 'public-profile-rules/1.0.0';
 
@@ -24,19 +24,7 @@ export function profileCandidate(
   priorObservations: readonly EvidenceObservationV1[] = [],
 ): ProfileResult {
   const ids = new StableIdRegistry();
-  const identity = {
-    candidateId: bundle.candidate.candidateId,
-    displayName: bundle.candidate.displayName,
-    repository: {
-      host: 'github' as const,
-      owner: bundle.candidate.github.owner,
-      name: bundle.candidate.github.repository,
-    },
-    package:
-      bundle.candidate.npmPackage === null
-        ? null
-        : { registry: 'npm' as const, name: bundle.candidate.npmPackage },
-  };
+  const identity = catalogCandidateIdentity(bundle.candidate);
   const priorById = new Map(
     priorObservations.map((observation) => [
       observation.evidenceId,
@@ -466,7 +454,7 @@ export function profileCandidate(
   ].sort();
   return {
     identity,
-    capabilityFamilies: uniqueFamilies(bundle),
+    capabilityFamilies: catalogCandidateCapabilityFamilies(bundle.candidate),
     dossier: parsed.value,
     observations: sortedObservations,
     limitations,
@@ -782,15 +770,6 @@ function maximumEvidenceTimestamp(
     timestamps.sort((left, right) => Date.parse(right) - Date.parse(left))[0] ??
     fallback
   );
-}
-
-function uniqueFamilies(
-  bundle: CandidateSourceBundle,
-): readonly CapabilityFamily[] {
-  return [
-    bundle.candidate.primaryCapabilityFamily,
-    ...bundle.candidate.additionalCapabilityFamilies,
-  ].sort();
 }
 
 function expects(

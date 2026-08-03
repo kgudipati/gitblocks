@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "jobs-graphile-worker",
+  "capabilityFamily": "background-jobs",
+  "catalogStatus": "active",
+  "selectionLabels": [
+    "rich-additional-documentation",
+    "simple-library-or-helper"
+  ],
+  "selectionRationaleCodes": [
+    "documentation-richness",
+    "simple-adoption-surface"
+  ],
+  "calibrationMember": false,
+  "calibrationOrdinal": null,
+  "artifactProfile": {
+    "presentArtifactCount": 2,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme",
+      "documentation"
+    ]
+  }
+}

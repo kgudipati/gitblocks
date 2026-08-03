@@ -18,6 +18,7 @@ import {
   repositoryArtifactRecordDigest,
   repositoryArtifactSetIdentityDigest,
   repositoryArtifactSetRecordDigest,
+  splitRepositoryArtifactLogicalLines,
   repositoryArtifactUtf8ByteLength,
 } from './artifact-identity.ts';
 import {
@@ -270,7 +271,11 @@ function validateRepositoryArtifact(
   if (value.content.includes('\0')) {
     issues.push(patternIssue('/content'));
   }
-  if (logicalLineCount(value.content) !== value.lineCount) {
+  if (
+    !invalidUnicode &&
+    splitRepositoryArtifactLogicalLines(value.content).length !==
+      value.lineCount
+  ) {
     issues.push(boundsIssue('/lineCount'));
   }
   if (!isSafeArtifactPath(value.path)) {
@@ -439,21 +444,6 @@ function validateRepositoryArtifactSet(
     issues.push(patternIssue('/recordDigest'));
   }
   return issues;
-}
-
-function logicalLineCount(content: string): number {
-  let count = 1;
-  for (let index = 0; index < content.length; index += 1) {
-    if (content[index] === '\r') {
-      count += 1;
-      if (content[index + 1] === '\n') {
-        index += 1;
-      }
-    } else if (content[index] === '\n') {
-      count += 1;
-    }
-  }
-  return count;
 }
 
 function isSafeArtifactPath(path: string): boolean {

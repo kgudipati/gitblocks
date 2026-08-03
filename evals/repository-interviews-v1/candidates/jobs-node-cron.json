@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "jobs-node-cron",
+  "capabilityFamily": "background-jobs",
+  "catalogStatus": "active",
+  "selectionLabels": [
+    "likely-material-unknown",
+    "readme-only",
+    "simple-library-or-helper"
+  ],
+  "selectionRationaleCodes": [
+    "material-unknown-pressure",
+    "documentation-sparsity",
+    "simple-adoption-surface"
+  ],
+  "calibrationMember": true,
+  "calibrationOrdinal": 2,
+  "artifactProfile": {
+    "presentArtifactCount": 1,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme"
+    ]
+  }
+}

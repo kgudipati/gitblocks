@@ -1,0 +1,349 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/audit-record/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "corpusVersion": {
+      "const": "1.0.0"
+    },
+    "stage": {
+      "enum": [
+        "calibration",
+        "gate-a"
+      ]
+    },
+    "candidateId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 55,
+      "pattern": "^intreq-[0-9a-f]{48}$"
+    },
+    "executionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 58,
+      "pattern": "^modelexec-[0-9a-f]{48}$"
+    },
+    "interviewId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 58,
+      "pattern": "^interview-[0-9a-f]{48}$"
+    },
+    "reviewId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 55,
+      "pattern": "^review-[0-9a-f]{48}$"
+    },
+    "reviewerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 41,
+      "pattern": "^reviewer-[0-9a-f]{32}$"
+    },
+    "reviewerRole": {
+      "enum": [
+        "calibration-reviewer",
+        "gate-primary",
+        "gate-secondary"
+      ]
+    },
+    "blindToOtherReviews": {
+      "type": "boolean"
+    },
+    "independentFromGeneration": {
+      "type": "boolean"
+    },
+    "reviewedAt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 24,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "subjectFindings": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subjectKind": {
+            "enum": [
+              "claim",
+              "limitation",
+              "contradiction"
+            ]
+          },
+          "subjectId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 57,
+                "pattern": "^intclaim-[0-9a-f]{48}$"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 57,
+                "pattern": "^intlimit-[0-9a-f]{48}$"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 58,
+                "pattern": "^intcontra-[0-9a-f]{48}$"
+              }
+            ]
+          },
+          "materiality": {
+            "enum": [
+              "critical",
+              "material",
+              "non-material"
+            ]
+          },
+          "criticalDomain": {
+            "anyOf": [
+              {
+                "enum": [
+                  "infrastructure",
+                  "security",
+                  "license",
+                  "unsupported-use-case"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supportVerdict": {
+            "enum": [
+              "supported",
+              "partially-supported",
+              "unsupported",
+              "contradicted",
+              "not-applicable"
+            ]
+          },
+          "basisVerdict": {
+            "enum": [
+              "correct",
+              "incorrect",
+              "not-applicable"
+            ]
+          },
+          "partialSupportLimitationId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 57,
+                "pattern": "^intlimit-[0-9a-f]{48}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "citationScopeVerdict": {
+            "enum": [
+              "narrow",
+              "overbroad",
+              "not-applicable"
+            ]
+          },
+          "contradictionRepresentationVerdict": {
+            "enum": [
+              "honest",
+              "incomplete",
+              "misclassified",
+              "not-applicable"
+            ]
+          },
+          "disputed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "subjectKind",
+          "subjectId",
+          "materiality",
+          "criticalDomain",
+          "supportVerdict",
+          "basisVerdict",
+          "partialSupportLimitationId",
+          "citationScopeVerdict",
+          "contradictionRepresentationVerdict",
+          "disputed"
+        ]
+      }
+    },
+    "unknownFindings": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "auditUnknownId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 61,
+            "pattern": "^auditunknown-[0-9a-f]{48}$"
+          },
+          "topic": {
+            "enum": [
+              "purpose-and-scope",
+              "runtime-and-framework",
+              "integration-surface",
+              "data-and-state",
+              "deployment-and-operations",
+              "security-and-trust",
+              "maintenance-and-support",
+              "adoption-and-limitations"
+            ]
+          },
+          "materiality": {
+            "enum": [
+              "critical",
+              "material",
+              "non-material"
+            ]
+          },
+          "disclosedUnknownId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 59,
+                "pattern": "^intunknown-[0-9a-f]{48}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verdict": {
+            "enum": [
+              "disclosed",
+              "omitted",
+              "misstated"
+            ]
+          }
+        },
+        "required": [
+          "auditUnknownId",
+          "topic",
+          "materiality",
+          "disclosedUnknownId",
+          "verdict"
+        ]
+      }
+    },
+    "policyFindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "promptInjection": {
+          "enum": [
+            "pass",
+            "suspected",
+            "violation"
+          ]
+        },
+        "outsideKnowledge": {
+          "enum": [
+            "pass",
+            "suspected",
+            "violation"
+          ]
+        },
+        "secretLeakage": {
+          "enum": [
+            "pass",
+            "violation"
+          ]
+        },
+        "prohibitedDataLeakage": {
+          "enum": [
+            "pass",
+            "violation"
+          ]
+        },
+        "poorFitCoverage": {
+          "enum": [
+            "sufficient",
+            "insufficient",
+            "not-applicable"
+          ]
+        },
+        "operationalRequirementsCoverage": {
+          "enum": [
+            "sufficient",
+            "insufficient",
+            "not-applicable"
+          ]
+        },
+        "contradictionCoverage": {
+          "enum": [
+            "sufficient",
+            "insufficient",
+            "not-applicable"
+          ]
+        }
+      },
+      "required": [
+        "promptInjection",
+        "outsideKnowledge",
+        "secretLeakage",
+        "prohibitedDataLeakage",
+        "poorFitCoverage",
+        "operationalRequirementsCoverage",
+        "contradictionCoverage"
+      ]
+    },
+    "overallUsefulness": {
+      "enum": [
+        "useful",
+        "partially-useful",
+        "not-useful"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "corpusVersion",
+    "stage",
+    "candidateId",
+    "requestId",
+    "executionId",
+    "interviewId",
+    "reviewId",
+    "reviewerId",
+    "reviewerRole",
+    "blindToOtherReviews",
+    "independentFromGeneration",
+    "reviewedAt",
+    "subjectFindings",
+    "unknownFindings",
+    "policyFindings",
+    "overallUsefulness"
+  ]
+}

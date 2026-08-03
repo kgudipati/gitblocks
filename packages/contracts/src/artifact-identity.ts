@@ -224,6 +224,13 @@ export function repositoryArtifactUtf8ByteLength(value: string): number {
   return utf8Bytes(value).byteLength;
 }
 
+export function splitRepositoryArtifactLogicalLines(
+  content: string,
+): readonly string[] {
+  utf8Bytes(content);
+  return content.split(/\r\n|\r|\n/u);
+}
+
 export function repositoryArtifactDisplayUrl(value: {
   readonly providerOwner: string;
   readonly providerRepository: string;
@@ -241,8 +248,12 @@ export function repositoryArtifactDisplayUrl(value: {
   }/${encodedPath}`;
 }
 
-function digestCanonicalJson(value: unknown): string {
+export function contractCanonicalDigest(value: unknown): string {
   return sha256Hex(utf8Bytes(serializeCanonicalJson(value, new Set<object>())));
+}
+
+function digestCanonicalJson(value: unknown): string {
+  return contractCanonicalDigest(value);
 }
 
 function serializeCanonicalJson(
@@ -322,7 +333,7 @@ function utf8Bytes(value: string): Uint8Array {
     let codePoint = value.charCodeAt(index);
     if (codePoint >= 0xd800 && codePoint <= 0xdbff) {
       const low = value.charCodeAt(index + 1);
-      if (low < 0xdc00 || low > 0xdfff) {
+      if (!Number.isInteger(low) || low < 0xdc00 || low > 0xdfff) {
         throw new Error('Artifact text contains invalid Unicode.');
       }
       codePoint = 0x10000 + ((codePoint - 0xd800) << 10) + (low - 0xdc00);

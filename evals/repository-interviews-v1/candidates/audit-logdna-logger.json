@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "audit-logdna-logger",
+  "capabilityFamily": "audit-logging",
+  "catalogStatus": "moved",
+  "selectionLabels": [
+    "likely-material-unknown",
+    "moved-repository",
+    "readme-only",
+    "simple-library-or-helper"
+  ],
+  "selectionRationaleCodes": [
+    "material-unknown-pressure",
+    "moved-identity-continuity",
+    "documentation-sparsity",
+    "simple-adoption-surface"
+  ],
+  "calibrationMember": false,
+  "calibrationOrdinal": null,
+  "artifactProfile": {
+    "presentArtifactCount": 1,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme"
+    ]
+  }
+}

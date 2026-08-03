@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "webhook-hookdeck",
+  "capabilityFamily": "webhooks",
+  "catalogStatus": "active",
+  "selectionLabels": [
+    "complex-service-or-platform",
+    "likely-material-unknown",
+    "rich-additional-documentation"
+  ],
+  "selectionRationaleCodes": [
+    "complex-operational-surface",
+    "material-unknown-pressure",
+    "documentation-richness"
+  ],
+  "calibrationMember": true,
+  "calibrationOrdinal": 5,
+  "artifactProfile": {
+    "presentArtifactCount": 2,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme",
+      "documentation"
+    ]
+  }
+}

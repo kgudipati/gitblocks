@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.test.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "references": [
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/persistence" },
+    { "path": "../../packages/ingestion" },
+    { "path": "../../packages/interviews" },
+    { "path": "../../apps/repository-interview-operator" },
+    { "path": "../evaluation-harness" }
+  ]
+}

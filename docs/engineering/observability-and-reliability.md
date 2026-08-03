@@ -8,10 +8,12 @@ or reproducing the user's sensitive content. GitBlocks currently has no
 services, workers, deployments, SLOs, or telemetry pipeline. Its persistence
 adapter returns stable value-free errors. The Phase 5 operator-run ingester
 accepts an injected observer and emits bounded request/candidate/batch events
-plus a durable secret-free receipt; it is not a deployed telemetry system. A
-future application/composition layer must select and instrument an export path
-before handling production traffic. This document sets the policy for those
-paths.
+plus a durable secret-free receipt; the Phase 6 artifact operator follows the
+same content-free pattern. Neither is a deployed telemetry system. Phase 7
+plans a separate repository-interview operator with injected telemetry and no
+service or deployment. A future production application/composition layer must
+select and instrument an export path before handling production traffic. This
+document sets the policy for those paths.
 
 The first stack and deployment ADRs must select instrumentation libraries,
 export path, sampling, retention, access, redaction, dashboards, and runbook
@@ -72,6 +74,25 @@ Only temporary optional unavailability emits a partial candidate outcome, with
 a bounded source code and no snapshot. Fatal outcomes emit `failed` with the
 stable value-free code. Repository/package names, URLs, response text, and
 headers remain excluded from events and receipts.
+
+The planned Phase 7 operation uses stable names
+`repository_interview.execute`, `.provider`, `.validate`, `.persist`, and
+`.reuse`. Allowed evidence includes specification/model-profile digests,
+bounded count/byte/token/cost/duration buckets, attempt/retry, semantic state,
+reuse outcome, and stable failure category. Artifact bodies, prompts, complete
+provider output, reasoning/refusal/error text, repository names, paths, URLs,
+credentials, SQL, and provider bodies/headers are prohibited. Input, cached,
+output, and reasoning-token usage must be structurally validated before cost
+accounting. Operational failures remain separate from responsible semantic
+states, and the immediate Gate B comparison must emit a provable zero-call
+reuse result.
+
+The concrete repository-interview persistence operations do not emit
+telemetry. They return only bounded dispositions, inserted-row counts, parsed
+records, or the adapter's stable value-free error taxonomy. The future
+composition root must instrument those results without recording contract
+payloads, semantic text, provider identifiers, SQL, connection data, prompts,
+or artifact content.
 
 ## Telemetry data contract
 
@@ -143,6 +164,60 @@ payloads, connection strings, URLs, driver details, or stack traces. Migration
 commands report only version, name, checksum, and PostgreSQL version.
 Application telemetry may record bounded operation/result categories,
 durations, and counts, but never SQL statements or persisted evidence content.
+
+The repository-interview OpenAI adapter is a narrow protocol component rather
+than a telemetry emitter. It returns only contract-safe attempt summaries,
+usage, controlled failure codes, and parsed structured output to the existing
+application boundary. It never returns raw prompts, response/error bodies,
+reasoning, refusal text, credentials, unparsed headers, or transport
+exceptions. The offline operator emits only closed, owned, frozen value-free
+events with contiguous sequence numbers and records observer failures as a
+bounded receipt count; observer exceptions never replace application or
+persistence outcomes. Its receipt aggregates authority digests, controlled
+outcomes, counts, usage, cost, and immutable record references but excludes
+prompts, artifacts, semantics, provider values, SQL, secrets, and database
+endpoints. The explicit
+`prompt_cache_retention: "in_memory"` request field records request intent; it
+is neither telemetry nor evidence of ZDR or absence of organization-level
+retention. That external retention authority is checked at the separate
+pre-live gate before calibration.
+
+Pre-live readiness-policy `1.0.0` is not a service-health or general provider
+readiness signal. `liveReady` means only that the exact six-candidate
+calibration prerequisites are satisfied; `model-calibration` records the
+result rather than gating its own start. Gate A and Gate B remain blocked
+regardless of that value. Required prerequisites marked `not-applicable` do
+not make calibration eligible.
+
+Attempt provenance distinguishes provider-envelope cancellation from external
+cancellation: a cancelled 2xx envelope remains a response attempt with only
+allowlisted HTTP metadata, while controller/transport cancellation retains no
+HTTP-derived values. Controller deadline or cancellation observed after body
+settlement or bounded parsing overrides a late response. Retry sleep is
+followed by an observed-clock deadline check, so scheduler delay or oversleep
+cannot start an attempt without the full configured attempt budget.
+
+The repository-interview operator starts a candidate control before
+candidate-started telemetry or artifact loading and composes it with the run
+signal. That exact signal governs persistence, provider attempt control, and
+retry sleep; authority is rechecked after awaited phases before later work is
+accepted. Deadline receipts distinguish `candidate-deadline` from
+`run-deadline`, preserve durable results completed before the stop, and report
+actual calls, returned attempts, publications, usage, and cost. The immediate
+reuse guard increments its local call counter before throwing so a failed proof
+cannot be reported as zero-call. Abort reasons and raw effect failures remain
+excluded.
+
+Pre-live plan/profile/manifest/report validation and plan-only dry-run emit no
+telemetry at all. Their sole summaries are canonical, compact, and
+content-free. The future materialization binding carries only plan, receipt,
+selection, catalog, artifact-manifest, count, and digest authority; it excludes
+member identities, database values, repository/source values, provider values,
+pricing and retention evidence, and free-form notes. Fixed value-free failures
+are scanned with distinct artifact, prompt, provider, credential, database,
+SQL, repository, URL, commit, artifact-ID, pricing/retention, and reviewer
+sentinels. A syntactically valid authorization is never treated as telemetry
+evidence that retention or pricing received substantive approval.
 
 ## Worker and job observability
 
@@ -235,6 +310,14 @@ After an incident, record impact, timeline, contributing system conditions,
 detection gaps, recovery, and owned preventive actions. Focus on system
 improvement. Material gaps become linked issues; emergency instrumentation is a
 signal that the relevant path did not meet this policy.
+
+For the repository-interview Responses adapter, reader cancellation and lock
+release are ephemeral cleanup, not provider or model evidence. A cleanup
+failure cannot replace the controlled attempt outcome and must not add stream,
+abort, body, or exception values to results or future telemetry. Deadline,
+external cancellation, network failure, and response-size outcomes remain the
+durable diagnostic authority after cleanup; returning from those paths leaves
+no adapter-owned active reader or retained late content.
 
 ## Validation and review evidence
 

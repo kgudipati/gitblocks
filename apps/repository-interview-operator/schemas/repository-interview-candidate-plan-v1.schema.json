@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifactManifestDigest": {
+      "const": "17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c"
+    },
+    "artifactManifestVersion": {
+      "const": "public-artifacts-v1"
+    },
+    "candidateIds": {
+      "items": {
+        "maxLength": 64,
+        "minLength": 1,
+        "pattern": "^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$",
+        "type": "string"
+      },
+      "maxItems": 150,
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "catalogDigest": {
+      "const": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634"
+    },
+    "catalogVersion": {
+      "const": "public-v1"
+    },
+    "planDigest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "planId": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "planId",
+    "catalogVersion",
+    "catalogDigest",
+    "artifactManifestVersion",
+    "artifactManifestDigest",
+    "candidateIds",
+    "planDigest"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/run-summary/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "corpusVersion": {
+      "const": "1.0.0"
+    },
+    "stage": {
+      "enum": [
+        "calibration",
+        "gate-a"
+      ]
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 56,
+      "pattern": "^evalrun-[0-9a-f]{48}$"
+    },
+    "modelProfileDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "corpusDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "cohortPolicyDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewPolicyDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "rubricDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "gatePolicyDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "candidateResults": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "candidateId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              "requestId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 55,
+                "pattern": "^intreq-[0-9a-f]{48}$"
+              },
+              "executionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 58,
+                "pattern": "^modelexec-[0-9a-f]{48}$"
+              },
+              "contractValid": {
+                "type": "boolean"
+              },
+              "citationClosed": {
+                "type": "boolean"
+              },
+              "crossCandidateReferenceCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "crossArtifactSetReferenceCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "status": {
+                "const": "completed"
+              },
+              "interviewId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 58,
+                "pattern": "^interview-[0-9a-f]{48}$"
+              },
+              "auditScope": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "schemaVersion": {
+                    "const": "1.0.0"
+                  },
+                  "candidateId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "requestId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 55,
+                    "pattern": "^intreq-[0-9a-f]{48}$"
+                  },
+                  "executionId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 58,
+                    "pattern": "^modelexec-[0-9a-f]{48}$"
+                  },
+                  "interviewId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 58,
+                    "pattern": "^interview-[0-9a-f]{48}$"
+                  },
+                  "requestRecordDigest": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "executionRecordDigest": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "interviewRecordDigest": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "claimIds": {
+                    "type": "array",
+                    "maxItems": 32,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 57,
+                      "pattern": "^intclaim-[0-9a-f]{48}$"
+                    }
+                  },
+                  "limitationIds": {
+                    "type": "array",
+                    "maxItems": 12,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 57,
+                      "pattern": "^intlimit-[0-9a-f]{48}$"
+                    }
+                  },
+                  "contradictionIds": {
+                    "type": "array",
+                    "maxItems": 6,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 58,
+                      "pattern": "^intcontra-[0-9a-f]{48}$"
+                    }
+                  },
+                  "unknownIds": {
+                    "type": "array",
+                    "maxItems": 16,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 59,
+                      "pattern": "^intunknown-[0-9a-f]{48}$"
+                    }
+                  },
+                  "inventoryDigest": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "schemaVersion",
+                  "candidateId",
+                  "requestId",
+                  "executionId",
+                  "interviewId",
+                  "requestRecordDigest",
+                  "executionRecordDigest",
+                  "interviewRecordDigest",
+                  "claimIds",
+                  "limitationIds",
+                  "contradictionIds",
+                  "unknownIds",
+                  "inventoryDigest"
+                ]
+              }
+            },
+            "required": [
+              "candidateId",
+              "requestId",
+              "executionId",
+              "contractValid",
+              "citationClosed",
+              "crossCandidateReferenceCount",
+              "crossArtifactSetReferenceCount",
+              "status",
+              "interviewId",
+              "auditScope"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "candidateId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              "requestId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 55,
+                "pattern": "^intreq-[0-9a-f]{48}$"
+              },
+              "executionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 58,
+                "pattern": "^modelexec-[0-9a-f]{48}$"
+              },
+              "contractValid": {
+                "type": "boolean"
+              },
+              "citationClosed": {
+                "type": "boolean"
+              },
+              "crossCandidateReferenceCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "crossArtifactSetReferenceCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "status": {
+                "enum": [
+                  "provider-failed",
+                  "schema-failed",
+                  "citation-failed",
+                  "persistence-failed",
+                  "policy-failed"
+                ]
+              },
+              "interviewId": {
+                "type": "null"
+              },
+              "auditScope": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "candidateId",
+              "requestId",
+              "executionId",
+              "contractValid",
+              "citationClosed",
+              "crossCandidateReferenceCount",
+              "crossArtifactSetReferenceCount",
+              "status",
+              "interviewId",
+              "auditScope"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "corpusVersion",
+    "stage",
+    "runId",
+    "modelProfileDigest",
+    "corpusDigest",
+    "cohortPolicyDigest",
+    "reviewPolicyDigest",
+    "rubricDigest",
+    "gatePolicyDigest",
+    "candidateResults"
+  ]
+}

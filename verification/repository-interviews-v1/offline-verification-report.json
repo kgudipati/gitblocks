@@ -1,0 +1,113 @@
+{
+  "artifactManifestDigest": "17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c",
+  "calibrationCandidateCount": 6,
+  "calibrationPlanDigest": "35ad2ec35dc8424aeaa20d3ae065ba3dea73cdff9dce7d2dd4a5962d1974d54a",
+  "candidatePlanSchemaDigest": "f50d4b73c2fc04f0c13b7b1288a215ecc4a740fc2e97433478e3ffcdbe352387",
+  "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+  "evaluationCorpusDigest": "82fefaa6428e2214caee4d88fd9c93b15782bf855cba1d8f69400028dd6a0dbf",
+  "fullCandidateCount": 150,
+  "gateACandidateCount": 30,
+  "gateAPlanDigest": "f4459ed13522c912b4614ee612f39552e5957cde6dcadca15392690b40b0cead",
+  "gateBPlanDigest": "a423f34c58f5def2a38029fe69918c4e8235d0bedd7c537aa65a2abe0fcf45ff",
+  "liveBlockers": [
+    "fresh-artifact-materialization-required",
+    "retention-authority-required",
+    "pricing-authority-required",
+    "model-calibration-not-run",
+    "maintainer-live-authorization-required",
+    "ephemeral-database-not-provisioned",
+    "provider-credential-not-configured",
+    "audit-assignments-not-instantiated"
+  ],
+  "modelProfileDigests": [
+    "7cc772a1641c2068253486a5bf5773ac29c28e78a39f24851283d9d69dc378f3",
+    "a9345d998c12079b3b6beacf60869867ddaf97a8ba449b0b0f42f98e51ff005c"
+  ],
+  "offlineChecks": [
+    {
+      "code": "candidate-plan-closure",
+      "status": "passed"
+    },
+    {
+      "code": "profile-closure",
+      "status": "passed"
+    },
+    {
+      "code": "synthetic-materialization-closure",
+      "status": "passed"
+    },
+    {
+      "code": "schema-drift",
+      "status": "passed"
+    },
+    {
+      "code": "contract-drift",
+      "status": "passed"
+    },
+    {
+      "code": "specification-drift",
+      "status": "passed"
+    },
+    {
+      "code": "evaluation-drift",
+      "status": "passed"
+    },
+    {
+      "code": "migration-drift",
+      "status": "passed"
+    },
+    {
+      "code": "architecture",
+      "status": "passed"
+    },
+    {
+      "code": "network-denial",
+      "status": "passed"
+    },
+    {
+      "code": "secret-denial",
+      "status": "passed"
+    },
+    {
+      "code": "dry-run-zero-effects",
+      "status": "passed"
+    },
+    {
+      "code": "operator-unit",
+      "status": "passed"
+    },
+    {
+      "code": "operator-postgresql",
+      "status": "passed"
+    },
+    {
+      "code": "reuse-proof",
+      "status": "passed"
+    },
+    {
+      "code": "deadline-proof",
+      "status": "passed"
+    },
+    {
+      "code": "receipt-closure",
+      "status": "passed"
+    },
+    {
+      "code": "telemetry-closure",
+      "status": "passed"
+    }
+  ],
+  "operatorPolicySchemaDigest": "6147c1a4e47680a6c5e6a760bbc27d4bdfea5e8b1a7dd93e67a080bb6ce7184e",
+  "operatorReceiptSchemaDigest": "934ba36ee7bf6640b1886507123978e0421dc56bc98c2fe02583f31a402187c5",
+  "operatorSelectionSchemaDigest": "e66956879ecfd3ef878513dcaa9f454d6b4cc7a035b5176c26a7b9f4a204c7a3",
+  "preliveAuthorizationSchemaDigest": "e55b4d7a64fae07fa7f9f93ce4271993170c1ebf61d0246654227c4055cd4c76",
+  "providerOutputSchemaDigest": "5fa5d1c44a8924d8be3acc2ac74e58ec45ea134264c2245b7e158873b2e26b19",
+  "providerProjectionDigest": "5d81e5e32cc4871f0068f691302282a4e5dd6dc656ee4be132c050fbc4228ed7",
+  "reportDigest": "163bd54ea05af7f07a337ac8db402507a4d9543c58dce5875a9a587c5ac38c7b",
+  "reportId": "repository-interviews-prelive-offline-v1",
+  "schemaVersion": "1.0.0",
+  "selectionMaterializationSchemaDigest": "1c2ef4968c9de9d8d0c34c74350fc418d2ce1407a2ead62bb58eb33b682d0fe2",
+  "specificationDigest": "da2c8560e0b6a2fc7bc8d79fd89f65984815236a54cbf49491911274db8168f9",
+  "status": "offline-verified-live-blocked",
+  "verificationVersion": "1.0.0"
+}

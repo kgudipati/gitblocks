@@ -1,9 +1,12 @@
 import type {
   CandidateDossierV1,
   EvidenceObservationV1,
+  ModelExecutionV1,
   RepositoryArtifactChunkV1,
   RepositoryArtifactSetV1,
   RepositoryArtifactV1,
+  RepositoryInterviewRequestV1,
+  RepositoryInterviewV1,
 } from '@gitblocks/contracts';
 
 export type CandidateIdentityV1 = CandidateDossierV1['identity'];
@@ -140,3 +143,52 @@ export interface LoadedRepositoryArtifact {
 export interface LoadRepositoryArtifactSetCommand {
   readonly artifactSetId: string;
 }
+
+export interface PublishRepositoryInterviewExchangeCommand {
+  readonly request: RepositoryInterviewRequestV1;
+  readonly execution: ModelExecutionV1;
+  readonly interview: RepositoryInterviewV1 | null;
+}
+
+export interface RepositoryInterviewStoredExchange {
+  readonly request: RepositoryInterviewRequestV1;
+  readonly execution: ModelExecutionV1;
+  readonly interview: RepositoryInterviewV1 | null;
+}
+
+export interface RepositoryInterviewReusableExchange {
+  readonly request: RepositoryInterviewRequestV1;
+  readonly execution: ModelExecutionV1;
+  readonly interview: RepositoryInterviewV1;
+}
+
+export interface PublishRepositoryInterviewExchangeResult {
+  readonly status: 'created' | 'idempotent';
+  readonly record: RepositoryInterviewStoredExchange;
+  readonly inserted: {
+    readonly requests: number;
+    readonly executions: number;
+    readonly interviews: number;
+    readonly citations: number;
+    readonly claims: number;
+    readonly limitations: number;
+    readonly contradictions: number;
+    readonly unknowns: number;
+  };
+}
+
+export interface FindReusableRepositoryInterviewCommand {
+  readonly requestIdentityDigest: string;
+  readonly modelProfileDigest: string;
+  readonly reuseKeyDigest: string;
+}
+
+export type LoadRepositoryInterviewExchangeCommand =
+  | {
+      readonly by: 'execution-id';
+      readonly executionId: string;
+    }
+  | {
+      readonly by: 'interview-id';
+      readonly interviewId: string;
+    };

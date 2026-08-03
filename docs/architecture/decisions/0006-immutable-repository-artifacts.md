@@ -450,12 +450,23 @@ rights are not granted. Tests use the non-owner, non-superuser role.
 Artifact collection is a separate command family:
 
 ```text
+pnpm catalog:seed
 pnpm artifacts:validate
 pnpm artifacts:test
 pnpm artifacts:verify
 pnpm artifacts:live
 pnpm artifacts:receipt
 ```
+
+For a fresh Phase 7 migration-`0004` artifact database, the catalog-only seed
+must run after migration verification and before live artifact collection. It
+authenticates the exact committed catalog and writes only catalog candidates
+and their capability-family assignments through the accepted persistence
+operations. It never invokes full ingestion, provider collection, profiling,
+evidence/dossier persistence, artifact publication, or interview behavior. A
+failed seed disqualifies the ephemeral database and requires discard. This
+correction ran only test-harness databases; no real preparation seed or
+artifact collection occurred.
 
 The live command requires explicit catalog/manifest/receipt paths, injected
 GitHub read credentials, acknowledged ephemeral non-production PostgreSQL

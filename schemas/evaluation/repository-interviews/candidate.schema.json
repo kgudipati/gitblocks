@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/candidate/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "candidateId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "capabilityFamily": {
+      "enum": [
+        "authorization",
+        "audit-logging",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ]
+    },
+    "catalogStatus": {
+      "enum": [
+        "active",
+        "archived",
+        "moved",
+        "negative-control"
+      ]
+    },
+    "selectionLabels": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "archived-lifecycle",
+          "complex-service-or-platform",
+          "likely-material-unknown",
+          "moved-repository",
+          "negative-control",
+          "readme-only",
+          "rich-additional-documentation",
+          "simple-library-or-helper"
+        ]
+      }
+    },
+    "selectionRationaleCodes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "archived-lifecycle-risk",
+          "complex-operational-surface",
+          "documentation-richness",
+          "documentation-sparsity",
+          "license-boundary-pressure",
+          "material-unknown-pressure",
+          "moved-identity-continuity",
+          "negative-control-boundary",
+          "security-boundary-pressure",
+          "simple-adoption-surface"
+        ]
+      }
+    },
+    "calibrationMember": {
+      "type": "boolean"
+    },
+    "calibrationOrdinal": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "artifactProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "presentArtifactCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "notFoundSelectionCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "presentArtifactKinds": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "enum": [
+              "documentation",
+              "readme"
+            ]
+          }
+        }
+      },
+      "required": [
+        "presentArtifactCount",
+        "notFoundSelectionCount",
+        "presentArtifactKinds"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "candidateId",
+    "capabilityFamily",
+    "catalogStatus",
+    "selectionLabels",
+    "selectionRationaleCodes",
+    "calibrationMember",
+    "calibrationOrdinal",
+    "artifactProfile"
+  ]
+}

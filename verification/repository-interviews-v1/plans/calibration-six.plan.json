@@ -1,0 +1,17 @@
+{
+  "artifactManifestDigest": "17d2a47f8d992275c95d55434bfc24776fb8ac51fc626e7610502f687bf3d02c",
+  "artifactManifestVersion": "public-artifacts-v1",
+  "candidateIds": [
+    "audit-datadog-trace-js",
+    "auth-warrant",
+    "jobs-dagster",
+    "jobs-node-cron",
+    "rate-redis-cell",
+    "webhook-hookdeck"
+  ],
+  "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+  "catalogVersion": "public-v1",
+  "planDigest": "35ad2ec35dc8424aeaa20d3ae065ba3dea73cdff9dce7d2dd4a5962d1974d54a",
+  "planId": "repository-interview-calibration-six-v1",
+  "schemaVersion": "1.0.0"
+}

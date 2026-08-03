@@ -16,6 +16,20 @@ export {
   parsePublicCatalog,
 } from './manifest.ts';
 export {
+  catalogCandidateCapabilityFamilies,
+  catalogCandidateIdentity,
+} from './catalog-persistence.ts';
+export {
+  createPublicCatalogSeedPlan,
+  PUBLIC_CATALOG_V1_CANDIDATE_COUNT,
+  PUBLIC_CATALOG_V1_DIGEST,
+  seedPublicCatalogV1,
+  type CatalogSeedPersistencePort,
+  type PublicCatalogSeedEntry,
+  type PublicCatalogSeedPlan,
+  type PublicCatalogSeedSummaryV1,
+} from './catalog-seed.ts';
+export {
   chunkRepositoryArtifact,
   verifyRepositoryArtifactChunks,
 } from './artifact-chunking.ts';
@@ -36,7 +50,10 @@ export {
 } from './artifact-provider.ts';
 export {
   createArtifactReceipt,
+  parseCompleteArtifactReceiptTextV1,
+  parseCompleteArtifactReceiptV1,
   parseArtifactReceipt,
+  type CompleteArtifactReceiptAuthorityV1,
 } from './artifact-receipt.ts';
 export {
   artifactManifestDigest,

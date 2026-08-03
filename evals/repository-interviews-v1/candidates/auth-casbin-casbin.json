@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "auth-casbin-casbin",
+  "capabilityFamily": "authorization",
+  "catalogStatus": "moved",
+  "selectionLabels": [
+    "complex-service-or-platform",
+    "moved-repository",
+    "readme-only"
+  ],
+  "selectionRationaleCodes": [
+    "complex-operational-surface",
+    "moved-identity-continuity",
+    "documentation-sparsity"
+  ],
+  "calibrationMember": false,
+  "calibrationOrdinal": null,
+  "artifactProfile": {
+    "presentArtifactCount": 1,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme"
+    ]
+  }
+}

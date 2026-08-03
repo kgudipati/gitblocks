@@ -46,6 +46,11 @@ const KNOWN_MIGRATIONS: readonly KnownMigration[] = Object.freeze([
     name: 'immutable-repository-artifacts',
     fileName: '0003_immutable_repository_artifacts.sql',
   }),
+  Object.freeze({
+    version: 4,
+    name: 'repository-interviews',
+    fileName: '0004_repository_interviews.sql',
+  }),
 ]);
 
 export async function applyMigrations(

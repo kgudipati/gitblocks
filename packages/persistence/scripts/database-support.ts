@@ -207,7 +207,7 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
         and class.relkind = 'r'
         and class.relname <> 'schema_migrations'
     `;
-    if (tables.length !== 17 || tables.some((table) => table.rowsecurity)) {
+    if (tables.length !== 25 || tables.some((table) => table.rowsecurity)) {
       throw new Error('PostgreSQL public-table catalog check failed.');
     }
     const roles = await sql<
@@ -286,6 +286,8 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
       'repository_artifact_chunks_reconstruction',
       'repository_artifact_sets_history',
       'repository_artifact_set_entries_resolved_path',
+      'repository_artifact_sets_interview_identity',
+      'model_executions_reuse',
     ] as const;
     const indexes = await sql<readonly { readonly indexname: string }[]>`
       select indexname
@@ -299,8 +301,8 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
     const triggerCount = triggers[0]?.count;
     if (
       policyCount !== 0 ||
-      functionCount !== 4 ||
-      triggerCount !== 25 ||
+      functionCount !== 7 ||
+      triggerCount !== 48 ||
       indexes.length !== requiredIndexNames.length
     ) {
       throw new Error('PostgreSQL public-schema invariant check failed.');

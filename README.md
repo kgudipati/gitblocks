@@ -60,15 +60,39 @@ repository-conditioned adoption fit over fixed candidate sets, and the first
 production-owned packages: a pure domain, versioned contracts, and a
 PostgreSQL persistence adapter for durable catalog identities, immutable
 public evidence, append-only lifecycle events, and reproducible public dossier
-snapshots. These packages do not implement a use case or service. Full tenant
-and organization persistence is intentionally deferred. The repository also
+snapshots. Full tenant and organization persistence is intentionally deferred.
+The repository also
 contains a curated 150-repository public catalog and a bounded deterministic
-operator-run GitHub/npm/advisory ingestion package. The repository still
-has no application scaffold, Agent Skill, scanner, MCP server, operational
-backend, discovery or product ranking engine, continuous crawler, deployment,
-production database, or product release. The first full live catalog ingestion
-and its immediate refresh completed against a dedicated ephemeral PostgreSQL
-18.4 test database; the bounded reviewed outcomes are recorded in
+operator-run GitHub/npm/advisory ingestion package, plus exact immutable public
+repository artifacts and lossless line-addressable chunks for all 150
+candidates. Phase 7 now includes repository-interview contracts, application,
+immutable PostgreSQL history, evaluation authority, a bounded direct Responses
+adapter, an explicit offline operator composition root, and a content-free
+Milestone 10 pre-live authority with exact 6/30/150 candidate plans, two
+unselected dated profiles, a live-blocked readiness policy, and synthetic
+materialization proofs. The repository still has no live provider
+configuration, materialized live selection, real pre-live authorization,
+approved retention or pricing authority, selected model, calibration or Gate A
+result, Agent Skill, scanner, MCP server, operational backend, discovery or
+product ranking engine, continuous crawler, deployment, production database,
+or product release. Phase 7 is governed by
+[Plan 0017](docs/plans/0017-evidence-grounded-repository-interviews.md) and
+[ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md).
+The strict Phase 7 materialization boundary requires a fresh complete receipt
+that records migration `0004`; historical migration-`0003` receipts remain
+generically parseable but cannot authorize pre-live materialization. Every
+fresh migration-`0004` artifact database must first receive the exact committed
+catalog provenance through the separately acknowledged catalog-only seed
+boundary. That boundary writes only catalog identities and capability-family
+assignments; it performs no provider collection, profiling, evidence, dossier,
+artifact, or interview work. No real preparation database has been provisioned
+or seeded by this correction, and fresh preparation remains pending renewed
+review. Every pre-live dry-run authenticates one of the two exact committed complete model
+profiles. Readiness-policy `1.0.0` can make only six-candidate calibration
+eligible; Gate A and Gate B remain blocked.
+The first full live catalog ingestion and its immediate refresh completed
+against a dedicated ephemeral PostgreSQL 18.4 test database; the bounded
+reviewed outcomes are recorded in
 [`catalog/public-v1/live-completion.md`](catalog/public-v1/live-completion.md).
 This is collection evidence, not a deployed or continuously fresh service. The
 pilot gold is authored and proposed, not independently accepted.
@@ -83,31 +107,42 @@ product contract mechanism and package boundaries.
 owns the PostgreSQL public-evidence storage and migration decisions.
 [ADR 0005](docs/architecture/decisions/0005-public-repository-ingestion.md)
 owns the curated catalog, provider, profiling, refresh, and receipt decisions.
+[ADR 0006](docs/architecture/decisions/0006-immutable-repository-artifacts.md)
+owns immutable public artifacts, lossless chunks, closed artifact sets, and
+their operator.
+[ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md)
+owns the candidate-owned semantic interview, provider/application, evaluation,
+persistence, and offline operator boundaries; no live Phase 7 operation has
+occurred.
 
 ## Repository map
 
-| Path                        | Purpose                                                                          |
-| --------------------------- | -------------------------------------------------------------------------------- |
-| `README.md`                 | Product orientation and honest project status                                    |
-| `AGENTS.md`                 | Concise durable instructions for coding agents                                   |
-| `PLANS.md`                  | Required structure and lifecycle for substantial execution plans                 |
-| `CONTRIBUTING.md`           | Issue-to-merge contributor workflow                                              |
-| `SECURITY.md`               | Private vulnerability-reporting and disclosure policy                            |
-| `docs/product/`             | Product contract, vocabulary, evaluation scope, and success criteria             |
-| `docs/architecture/`        | System context and architecture decisions                                        |
-| `docs/engineering/`         | Repository, development, testing, security, reliability, and completion policies |
-| `docs/evaluation/`          | Case authoring, deterministic scoring, and future baseline protocols             |
-| `docs/plans/`               | Active and historical version-controlled execution plans                         |
-| `packages/domain/`          | Pure product vocabulary, constructors, canonicalization, and invariants          |
-| `packages/contracts/`       | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
-| `packages/persistence/`     | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
-| `packages/ingestion/`       | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
-| `catalog/public-v1/`        | Curator-owned repository source and deterministically digested public manifest   |
-| `evals/pilot-v1/`           | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
-| `schemas/evaluation/`       | Versioned JSON Schema 2020-12 evaluation contracts                               |
-| `tools/evaluation-harness/` | Private bounded validator, deterministic scorer, CLI, and tests                  |
-| `tools/repository-checks/`  | Bounded repository-policy CLI and tests                                          |
-| `.github/`                  | Intake templates, read-only CI, and dependency update policy                     |
+| Path                                     | Purpose                                                                          |
+| ---------------------------------------- | -------------------------------------------------------------------------------- |
+| `README.md`                              | Product orientation and honest project status                                    |
+| `AGENTS.md`                              | Concise durable instructions for coding agents                                   |
+| `PLANS.md`                               | Required structure and lifecycle for substantial execution plans                 |
+| `CONTRIBUTING.md`                        | Issue-to-merge contributor workflow                                              |
+| `SECURITY.md`                            | Private vulnerability-reporting and disclosure policy                            |
+| `docs/product/`                          | Product contract, vocabulary, evaluation scope, and success criteria             |
+| `docs/architecture/`                     | System context and architecture decisions                                        |
+| `docs/engineering/`                      | Repository, development, testing, security, reliability, and completion policies |
+| `docs/evaluation/`                       | Case authoring, deterministic scoring, and future baseline protocols             |
+| `docs/plans/`                            | Active and historical version-controlled execution plans                         |
+| `packages/domain/`                       | Pure product vocabulary, constructors, canonicalization, and invariants          |
+| `packages/contracts/`                    | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
+| `packages/persistence/`                  | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
+| `packages/ingestion/`                    | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
+| `packages/interviews/`                   | Interview schema, prompt/mapping, application, and provider core                 |
+| `apps/repository-interview-operator/`    | Explicit offline composition, policy, receipt, and process ports                 |
+| `tools/repository-interview-prelive/`    | Content-free pre-live validation and future receipt/database materialization     |
+| `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority         |
+| `catalog/public-v1/`                     | Curator-owned repository source and deterministically digested public manifest   |
+| `evals/pilot-v1/`                        | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
+| `schemas/evaluation/`                    | Versioned JSON Schema 2020-12 evaluation contracts                               |
+| `tools/evaluation-harness/`              | Private bounded validator, deterministic scorer, CLI, and tests                  |
+| `tools/repository-checks/`               | Bounded repository-policy CLI and tests                                          |
+| `.github/`                               | Intake templates, read-only CI, and dependency update policy                     |
 
 ## Local development
 
@@ -134,37 +169,43 @@ Corepack reads the exact pnpm 11.17.0 pin and integrity digest from
 `package.json`; `pnpm --version` must report `11.17.0`. Do not use npm or Yarn,
 hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 
-| Command                               | Purpose                                                           |
-| ------------------------------------- | ----------------------------------------------------------------- |
-| `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin       |
-| `pnpm format:check`                   | Check formatting without changing files                           |
-| `pnpm lint`                           | Run typed ESLint with zero warnings                               |
-| `pnpm typecheck`                      | Type-check product packages, tooling, and tests                   |
-| `pnpm build`                          | Emit the private product and tooling packages                     |
-| `pnpm test`                           | Run the protected deterministic Vitest suite                      |
-| `pnpm test:coverage`                  | Record the V8 coverage baseline                                   |
-| `pnpm architecture:check`             | Enforce dependency directions                                     |
-| `pnpm repo:check`                     | Validate workflows, Markdown, and repository invariants           |
-| `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity            |
-| `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory                 |
-| `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                      |
-| `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings           |
-| `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB       |
-| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes       |
-| `pnpm db:test`                        | Run PostgreSQL integration and conformance tests                  |
-| `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks           |
-| `pnpm catalog:validate`               | Validate catalog bounds, balance, identity, paths, and digest     |
-| `pnpm artifacts:validate`             | Validate public artifact selections, coverage, and digest         |
-| `pnpm artifacts:test`                 | Run deterministic artifact manifest, collector, and receipt tests |
-| `pnpm artifacts:verify`               | Run complete offline artifact verification                        |
-| `pnpm artifacts:live`                 | Run the separately acknowledged public-artifact operator          |
-| `pnpm artifacts:receipt`              | Validate and compare content-free artifact receipts               |
-| `pnpm ingestion:test`                 | Run deterministic ingestion adapter and profile tests             |
-| `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                    |
-| `pnpm security:secrets`               | Scan tracked development content for secrets                      |
-| `pnpm security:audit`                 | Run the online registry dependency audit                          |
-| `pnpm verify`                         | Run one preflight plus authoritative offline verification         |
-| `pnpm verify:ci`                      | Run `verify`, audit, and real PostgreSQL verification             |
+| Command                               | Purpose                                                             |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin         |
+| `pnpm format:check`                   | Check formatting without changing files                             |
+| `pnpm lint`                           | Run typed ESLint with zero warnings                                 |
+| `pnpm typecheck`                      | Build required product/tool outputs, then type-check all workspaces |
+| `pnpm build`                          | Emit the private product and tooling packages                       |
+| `pnpm test`                           | Run the protected deterministic Vitest suite                        |
+| `pnpm test:coverage`                  | Record the V8 coverage baseline                                     |
+| `pnpm architecture:check`             | Enforce dependency directions                                       |
+| `pnpm repo:check`                     | Validate workflows, Markdown, and repository invariants             |
+| `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity              |
+| `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory                   |
+| `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                        |
+| `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings             |
+| `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB         |
+| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes         |
+| `pnpm db:test`                        | Run PostgreSQL integration and conformance tests                    |
+| `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks             |
+| `pnpm catalog:validate`               | Validate catalog bounds, balance, identity, paths, and digest       |
+| `pnpm catalog:seed -- --catalog …`    | Seed exact catalog provenance into an acknowledged ephemeral DB     |
+| `pnpm artifacts:validate`             | Validate public artifact selections, coverage, and digest           |
+| `pnpm artifacts:test`                 | Run deterministic artifact manifest, collector, and receipt tests   |
+| `pnpm artifacts:verify`               | Run complete offline artifact verification                          |
+| `pnpm artifacts:live`                 | Run the separately acknowledged public-artifact operator            |
+| `pnpm artifacts:receipt`              | Validate and compare content-free artifact receipts                 |
+| `pnpm ingestion:test`                 | Run deterministic ingestion adapter and profile tests               |
+| `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                      |
+| `pnpm operator:interviews`            | Require complete explicit acknowledged operator configuration       |
+| `pnpm operator:interviews:verify`     | Verify operator schemas, tests, architecture, and test PostgreSQL   |
+| `pnpm interviews:prelive:validate`    | Reproduce committed pre-live authorities read-only                  |
+| `pnpm interviews:prelive:verify`      | Run offline, denial, scale, operator, evaluation, and DB proofs     |
+| `pnpm interviews:prelive:materialize` | Future explicit fresh-receipt/same-database materialization         |
+| `pnpm security:secrets`               | Scan tracked development content for secrets                        |
+| `pnpm security:audit`                 | Run the online registry dependency audit                            |
+| `pnpm verify`                         | Run one preflight plus authoritative offline verification           |
+| `pnpm verify:ci`                      | Run `verify`, audit, and real PostgreSQL verification               |
 
 Contract and evaluation commands are offline and do not execute candidate code
 or call a model. Product schemas are deterministic JSON Schema 2020-12 runtime
@@ -185,3 +226,10 @@ remains an explicitly authorized non-production operation. The Phase 6
 controlled live proof is recorded in
 [`artifact-completion.md`](catalog/public-v1/artifact-completion.md); production
 deployment is not authorized.
+`pnpm catalog:seed` is the separate no-provider preparation boundary that must
+run after exact migration-0004 verification and before `pnpm artifacts:live`
+against a fresh artifact database. It requires an explicit catalog path,
+ephemeral non-production acknowledgement, and discrete PostgreSQL settings.
+It never applies migrations or reads GitHub/OpenAI credentials. A failed seed
+makes that ephemeral database ineligible for preparation and it must be
+discarded rather than repaired in place.

@@ -350,6 +350,14 @@ checkout credential persistence disabled, exact runtime/package-manager
 installation, a frozen lockfile, branch/PR-title validation for pull requests,
 `verify:ci`, and tracked-worktree drift checks.
 
+The public root `pnpm typecheck` is clean-checkout self-sufficient: it builds
+the product workspace graph, builds the tooling graph, and only then runs the
+internal workspace typechecks. Repository invariants enforce that exact order
+for both `typecheck` and `verify:core`. Hosted CI runs `pnpm typecheck`
+immediately after the frozen install and before any other build-producing
+verification command, so ignored or stale `dist/` output cannot establish a
+passing compiler result.
+
 Every external action uses a full 40-character commit with a same-line
 human-readable release. Node 24 includes
 [Corepack](https://github.com/nodejs/corepack), which obtains pnpm from the

@@ -1,0 +1,163 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "candidateDeadlineMilliseconds": {
+      "maximum": 86400000,
+      "minimum": 300000,
+      "type": "integer"
+    },
+    "concurrency": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "lockTimeoutMilliseconds": {
+      "maximum": 30000,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "maximumCandidates": {
+      "maximum": 150,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "maximumInputTokensPerProviderCall": {
+      "maximum": 10000000,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "maximumOutputTokensPerProviderCall": {
+      "maximum": 8192,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "maximumRunCachedInputTokens": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunCostMicroUsd": {
+      "maximum": 120000000,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunInputTokens": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunOutputTokens": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunReasoningTokens": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "maximumRunTotalTokens": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "policyDigest": {
+      "maxLength": 64,
+      "minLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "policyId": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "type": "string"
+    },
+    "pricing": {
+      "additionalProperties": false,
+      "properties": {
+        "cachedInputMicroUsdPerMillionTokens": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "inputMicroUsdPerMillionTokens": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "modelSnapshot": {
+          "maxLength": 128,
+          "minLength": 12,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,102}-[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "type": "string"
+        },
+        "outputMicroUsdPerMillionTokens": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pricingAuthorityDate": {
+          "maxLength": 10,
+          "minLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "type": "string"
+        },
+        "pricingAuthorityDigest": {
+          "maxLength": 64,
+          "minLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "provider": {
+          "const": "openai"
+        }
+      },
+      "required": [
+        "provider",
+        "modelSnapshot",
+        "inputMicroUsdPerMillionTokens",
+        "cachedInputMicroUsdPerMillionTokens",
+        "outputMicroUsdPerMillionTokens",
+        "pricingAuthorityDate",
+        "pricingAuthorityDigest"
+      ],
+      "type": "object"
+    },
+    "runDeadlineMilliseconds": {
+      "maximum": 86400000,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "statementTimeoutMilliseconds": {
+      "maximum": 60000,
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "policyId",
+    "maximumCandidates",
+    "concurrency",
+    "candidateDeadlineMilliseconds",
+    "runDeadlineMilliseconds",
+    "statementTimeoutMilliseconds",
+    "lockTimeoutMilliseconds",
+    "maximumInputTokensPerProviderCall",
+    "maximumOutputTokensPerProviderCall",
+    "maximumRunInputTokens",
+    "maximumRunCachedInputTokens",
+    "maximumRunOutputTokens",
+    "maximumRunReasoningTokens",
+    "maximumRunTotalTokens",
+    "maximumRunCostMicroUsd",
+    "pricing",
+    "policyDigest"
+  ],
+  "type": "object"
+}

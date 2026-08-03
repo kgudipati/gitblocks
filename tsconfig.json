@@ -13,10 +13,16 @@
       "path": "./packages/contracts"
     },
     {
+      "path": "./packages/interviews"
+    },
+    {
       "path": "./packages/persistence"
     },
     {
       "path": "./packages/ingestion"
+    },
+    {
+      "path": "./apps/repository-interview-operator"
     },
     {
       "path": "./tools/repository-checks"

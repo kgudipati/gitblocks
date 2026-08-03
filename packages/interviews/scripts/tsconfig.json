@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.test.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "tsBuildInfoFile": "../node_modules/.cache/tsconfig.test-scripts.tsbuildinfo"
+  },
+  "include": ["../src/**/*.ts", "./**/*.ts"]
+}

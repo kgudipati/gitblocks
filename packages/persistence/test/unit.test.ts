@@ -149,6 +149,11 @@ describe('persistence package boundary', () => {
         name: 'immutable-repository-artifacts',
         fileName: '0003_immutable_repository_artifacts.sql',
       },
+      {
+        version: 4,
+        name: 'repository-interviews',
+        fileName: '0004_repository_interviews.sql',
+      },
     ]);
   });
 

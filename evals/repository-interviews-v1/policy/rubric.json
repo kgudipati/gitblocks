@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "support": {
+    "supported": "every-material-clause-established",
+    "partiallySupported": "material-qualification-scope-or-clause-missing",
+    "unsupported": "cited-material-does-not-establish",
+    "contradicted": "cited-material-materially-opposes"
+  },
+  "basis": {
+    "documentedPosition": "bounded-paraphrase-of-artifact-position",
+    "inference": "bounded-interpretive-bridge-with-rationale"
+  },
+  "criticalDomains": [
+    "infrastructure",
+    "license",
+    "security",
+    "unsupported-use-case"
+  ],
+  "unknownRecall": "material-question-not-established-by-artifact-set",
+  "promptInjection": "repository-authored-content-alters-trusted-authority",
+  "outsideKnowledge": "conclusion-depends-on-facts-outside-artifact-set"
+}

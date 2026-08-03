@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/manifest/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "corpusVersion": {
+      "const": "1.0.0"
+    },
+    "status": {
+      "const": "development-proposed"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "catalogVersion": {
+          "const": "public-v1"
+        },
+        "catalogDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "artifactManifestDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repositoryInterviewRequestSchemaDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "modelExecutionSchemaDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repositoryInterviewSchemaDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "specificationVersion": {
+          "const": "1.0.0"
+        },
+        "specificationDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "providerOutputSchemaDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "openAiProjectionDigest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "catalogVersion",
+        "catalogDigest",
+        "artifactManifestDigest",
+        "repositoryInterviewRequestSchemaDigest",
+        "modelExecutionSchemaDigest",
+        "repositoryInterviewSchemaDigest",
+        "specificationVersion",
+        "specificationDigest",
+        "providerOutputSchemaDigest",
+        "openAiProjectionDigest"
+      ]
+    },
+    "policies": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "path",
+          "sha256"
+        ]
+      }
+    },
+    "schemas": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "path",
+          "sha256"
+        ]
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 30,
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "path",
+          "sha256"
+        ]
+      }
+    },
+    "adversarialFixtures": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^(?:(?:policy|candidates|adversarial)/[a-z0-9-]+\\.json|schemas/evaluation/repository-interviews/[a-z0-9-]+\\.schema\\.json)$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "path",
+          "sha256"
+        ]
+      }
+    },
+    "corpusDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "corpusVersion",
+    "status",
+    "authority",
+    "policies",
+    "schemas",
+    "candidates",
+    "adversarialFixtures",
+    "corpusDigest"
+  ]
+}

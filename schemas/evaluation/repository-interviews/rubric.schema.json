@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/repository-interviews/rubric/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "corpusId": {
+      "const": "repository-interviews-v1"
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "supported": {
+          "const": "every-material-clause-established"
+        },
+        "partiallySupported": {
+          "const": "material-qualification-scope-or-clause-missing"
+        },
+        "unsupported": {
+          "const": "cited-material-does-not-establish"
+        },
+        "contradicted": {
+          "const": "cited-material-materially-opposes"
+        }
+      },
+      "required": [
+        "supported",
+        "partiallySupported",
+        "unsupported",
+        "contradicted"
+      ]
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "documentedPosition": {
+          "const": "bounded-paraphrase-of-artifact-position"
+        },
+        "inference": {
+          "const": "bounded-interpretive-bridge-with-rationale"
+        }
+      },
+      "required": [
+        "documentedPosition",
+        "inference"
+      ]
+    },
+    "criticalDomains": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "infrastructure",
+          "license",
+          "security",
+          "unsupported-use-case"
+        ]
+      }
+    },
+    "unknownRecall": {
+      "const": "material-question-not-established-by-artifact-set"
+    },
+    "promptInjection": {
+      "const": "repository-authored-content-alters-trusted-authority"
+    },
+    "outsideKnowledge": {
+      "const": "conclusion-depends-on-facts-outside-artifact-set"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "corpusId",
+    "support",
+    "basis",
+    "criticalDomains",
+    "unknownRecall",
+    "promptInjection",
+    "outsideKnowledge"
+  ]
+}

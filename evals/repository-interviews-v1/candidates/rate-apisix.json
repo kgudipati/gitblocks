@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "corpusId": "repository-interviews-v1",
+  "candidateId": "rate-apisix",
+  "capabilityFamily": "rate-limiting",
+  "catalogStatus": "active",
+  "selectionLabels": [
+    "complex-service-or-platform",
+    "rich-additional-documentation"
+  ],
+  "selectionRationaleCodes": [
+    "complex-operational-surface",
+    "documentation-richness"
+  ],
+  "calibrationMember": false,
+  "calibrationOrdinal": null,
+  "artifactProfile": {
+    "presentArtifactCount": 2,
+    "notFoundSelectionCount": 0,
+    "presentArtifactKinds": [
+      "readme",
+      "documentation"
+    ]
+  }
+}

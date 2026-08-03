@@ -15,6 +15,11 @@ export {
   verifyMigrations,
 } from './migrations.ts';
 export {
+  findReusableRepositoryInterview,
+  loadRepositoryInterviewExchange,
+  publishRepositoryInterviewExchange,
+} from './repository-interview-operations.ts';
+export {
   appendCandidateLimitation,
   appendCandidateUnknown,
   appendEvidenceObservation,
@@ -36,20 +41,26 @@ export type {
   CandidateUnknownV1,
   CapabilityFamilyV1,
   CreateCandidateDossierSnapshotCommand,
+  FindReusableRepositoryInterviewCommand,
   LoadCandidateDossierSnapshotCommand,
   MigrationRecord,
   MigrationVerification,
   LoadedRepositoryArtifact,
   LoadRepositoryArtifactCommand,
   LoadRepositoryArtifactSetCommand,
+  LoadRepositoryInterviewExchangeCommand,
   OperationControl,
   PersistenceClientConfig,
   PutCatalogCandidateCommand,
   PublishRepositoryArtifactSetCommand,
   PublishRepositoryArtifactSetResult,
+  PublishRepositoryInterviewExchangeCommand,
+  PublishRepositoryInterviewExchangeResult,
   RecordEvidenceInvalidationCommand,
   RecordEvidenceSupersessionCommand,
   SelectActiveDossierMaterialCommand,
   SetCandidateCapabilityFamiliesCommand,
   RepositoryArtifactPublication,
+  RepositoryInterviewReusableExchange,
+  RepositoryInterviewStoredExchange,
 } from './types.ts';
