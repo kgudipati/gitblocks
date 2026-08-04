@@ -29,6 +29,45 @@ export type {
   CapabilityTaxonomyRecordStatus,
   CapabilityTaxonomyResolvedAlias,
 } from './capability-taxonomy.ts';
+export {
+  CAPABILITY_QUERY_CONSTRAINT_FACETS,
+  CAPABILITY_QUERY_LIMITS,
+  CAPABILITY_QUERY_NORMALIZER_VERSION,
+  canonicalizeCapabilityQueryInput,
+  validateCandidateReferenceAuthority,
+  validateCapabilityQueryInput,
+} from './capability-query.ts';
+export type {
+  CandidateReferenceAuthority,
+  CandidateReferenceAuthorityEntry,
+  CapabilityQueryCandidateReference,
+  CapabilityQueryCandidateReferenceKind,
+  CapabilityQueryConstraintFacet,
+  CapabilityQueryConstraintModality,
+  CapabilityQueryDraftConstraint,
+  CapabilityQueryInput,
+  CapabilityQueryOutcome,
+  CapabilityQueryRepositoryFingerprintReference,
+  CapabilityQuerySuccessCondition,
+  CapabilityQueryTerm,
+} from './capability-query.ts';
+export {
+  canonicalizeCapabilityQueryLookupTermV1,
+  normalizeCapabilityQuery,
+} from './capability-query-normalization.ts';
+export type {
+  CapabilityQueryClarification,
+  CapabilityQueryConstraintResolutionBasis,
+  CapabilityQueryNormalizationCore,
+  CapabilityQueryNormalizationNotice,
+  CapabilityQueryNormalizationStep,
+  CapabilityQueryTermCanonicalizationResult,
+  CapabilityQueryUnresolvedTerm,
+  NormalizedCapabilityConcept,
+  NormalizedCapabilityConstraint,
+  PreservedCapabilityQueryDeclaration,
+  ResolvedCapabilityQueryCandidateReference,
+} from './capability-query-normalization.ts';
 export { getCapabilityFamilies } from './model.ts';
 export {
   validateFitAssessmentExchange,

@@ -22,6 +22,10 @@ const EXPECTED_SCHEMA_DIGESTS = {
     'd8d4c875fc38696e6ead9dcc2821e04754135aa4af71f0fb85198a98187d3f70',
   'capability-taxonomy-source':
     '357f34187ff26ea70c663f6009b07841b8045493ad54d2393713f7329a9e7933',
+  'capability-query-input':
+    'd48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b',
+  'capability-query-normalization-result':
+    'b864d88ddbe3ae7ba2ea09919c4152089445f9facb2eb08eeb3a17e30aaca721',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
@@ -45,7 +49,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
-  it('exports existing roots plus the additive taxonomy source and authority', () => {
+  it('exports existing roots plus additive taxonomy and query roots', () => {
     expect(CONTRACT_SCHEMA_NAMES).toEqual([
       'candidate-dossier',
       'capability-request',
@@ -61,6 +65,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repository-interview',
       'capability-taxonomy',
       'capability-taxonomy-source',
+      'capability-query-input',
+      'capability-query-normalization-result',
     ]);
 
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -207,6 +213,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'REPOSITORY_INTERVIEW_BOUNDS',
       'REPOSITORY_INTERVIEW_TOPICS',
       'buildCapabilityTaxonomyV1',
+      'capabilityQueryInputDigest',
+      'capabilityQueryNormalizationSemanticDigest',
       'capabilityTaxonomySemanticDigest',
       'createModelExecutionV1',
       'createRepositoryArtifactChunkV1',
@@ -219,7 +227,10 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'modelExecutionModelProfileDigest',
       'modelExecutionRecordDigest',
       'modelExecutionReuseKeyDigest',
+      'normalizeCapabilityQueryV1',
       'parseCandidateDossierV1',
+      'parseCapabilityQueryInputV1',
+      'parseCapabilityQueryNormalizationResultV1',
       'parseCapabilityRequestV1',
       'parseCapabilityTaxonomySourceV1',
       'parseCapabilityTaxonomyV1',
@@ -257,6 +268,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'serializeCapabilityTaxonomyV1',
       'serializeContractSchemaV1',
       'splitRepositoryArtifactLogicalLines',
+      'validateCapabilityQueryNormalizationExchangeV1',
       'validateFitAssessmentExchangeV1',
       'validateRepositoryInterviewExecutionV1',
     ]);

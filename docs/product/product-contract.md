@@ -140,12 +140,15 @@ evaluation contracts, corpus, metrics, and non-production baselines. It does
 not implement the original strategy's production retrieval or production
 ranking phases.
 
-CapabilityQueryInputV1 is a bounded local pre-contract input, not a second
+CapabilityQueryInputV1 is now a bounded local pre-contract input, not a second
 adoption-request model. CapabilityQueryNormalizationResultV1 preserves each
-constraint's source identity and required, preferred, prohibited, unknown, or
-clarification-needed modality. Only after user review and transmission approval
-does an accepted result become CapabilityRequestV1 authority. Alias expansion
-and deterministic rules must never weaken a hard constraint.
+constraint's source identity and required, preferred, or prohibited modality;
+unresolved and clarification-needed states remain explicit separate records.
+The deterministic normalizer consumes only structured terms and declarations,
+not summary prose. Only after later user review and transmission approval may
+a reviewed result contribute to new CapabilityRequestV1 authority. No current
+helper performs that transition. Alias expansion and deterministic rules never
+weaken a hard constraint.
 
 DeterministicCandidateProfileV1 will be candidate-owned, separately versioned,
 structured deterministic authority with known, unknown, not-applicable, and

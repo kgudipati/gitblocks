@@ -63,6 +63,10 @@ export type DomainIssueCode =
   | 'reference.unknown-limitation'
   | 'reference.unknown-unknown'
   | 'reason.traceability'
+  | 'query.authority'
+  | 'query.exchange'
+  | 'query.input'
+  | 'query.normalization'
   | 'request.candidate-count'
   | 'request.candidate-family'
   | 'request.evidence-cutoff'
@@ -206,6 +210,13 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'Unknown reference does not resolve in the unknown catalog.',
   'reason.traceability':
     'Every candidate reason requires attributable candidate support.',
+  'query.authority':
+    'Candidate reference authority violates an exact bounded invariant.',
+  'query.exchange':
+    'Capability query normalization exchange is not exactly reproducible.',
+  'query.input': 'Capability query input violates a closed local invariant.',
+  'query.normalization':
+    'Capability query normalization cannot produce a closed result.',
   'request.candidate-count':
     'A fit-assessment request requires between one and twenty candidates.',
   'request.candidate-family':

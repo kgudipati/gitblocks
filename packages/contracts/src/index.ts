@@ -33,6 +33,25 @@ export type {
   CapabilityTaxonomyV1,
 } from './capability-taxonomy-schemas.ts';
 export {
+  capabilityQueryInputDigest,
+  capabilityQueryNormalizationSemanticDigest,
+  normalizeCapabilityQueryV1,
+  parseCapabilityQueryInputV1,
+  parseCapabilityQueryNormalizationResultV1,
+  validateCapabilityQueryNormalizationExchangeV1,
+  type CapabilityQueryNormalizationExchangeValidationResult,
+  type CapabilityQueryNormalizationOperationResult,
+} from './capability-query-contracts.ts';
+export type {
+  CapabilityQueryCandidateReferenceV1,
+  CapabilityQueryDraftConstraintV1,
+  CapabilityQueryInputV1,
+  CapabilityQueryNormalizationResultV1,
+  CapabilityQueryRepositoryFingerprintReferenceV1,
+  CapabilityQuerySuccessConditionV1,
+  CapabilityQueryTermV1,
+} from './capability-query-schemas.ts';
+export {
   createModelExecutionV1,
   createRepositoryInterviewRequestV1,
   createRepositoryInterviewV1,

@@ -7,9 +7,9 @@
   retrieval evaluation](https://github.com/kgudipati/gitblocks/issues/19)
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
-- State: Milestone 1 is accepted. Milestone 2 taxonomy implementation and its
-  exact-alias review correction are complete and awaiting maintainer review;
-  no Milestone 3 work or live materialization is authorized.
+- State: Milestones 1 and 2 are accepted. Milestone 3 local pre-contract query
+  input and deterministic normalization are complete and awaiting maintainer
+  review; Milestone 4 and live materialization are not authorized.
 - Last updated: 2026-08-03
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -25,9 +25,12 @@ The binding Phase 7 closure is:
 
 Milestone 1 was accepted at commit
 8679461bb7b4eb356ffec7c5e36f0e7ef5ea9eb8 after hosted CI run 30860512727
-completed successfully. ADR 0008 is accepted. Milestone 2 may implement only
-the controlled taxonomy authority and validation; exact query and profile DTO
-shapes remain later milestone decisions.
+completed successfully. ADR 0008 is accepted. Milestone 2, including its
+exact-alias correction, was accepted at commit
+5af650662ddbee0ddba8fb3788fb0d199a04b934 after hosted CI run 30868267854 and
+Verification job 91864676407 completed successfully. Milestone 3 may implement
+only the local pre-contract query and normalization boundary; exact profile DTO
+shapes remain a Milestone 4 decision.
 
 ## Purpose and user-visible outcome
 
@@ -1140,6 +1143,41 @@ These decisions may not weaken the accepted Issue #19 and ADR 0008 boundaries.
 - Milestone 2 remains awaiting maintainer acceptance. Milestone 3 has not
   begun.
 
+### 2026-08-03 — Milestone 2 acceptance and Milestone 3 start
+
+- Maintainer accepted Milestone 2 and its exact-alias correction at commit
+  5af650662ddbee0ddba8fb3788fb0d199a04b934 with successful hosted CI run
+  30868267854 and Verification job 91864676407.
+- Reverified the exact branch, head, base, clean worktree, runtime pins, open
+  Issue #19, draft mergeable PR #20, accepted taxonomy version/digest, empty
+  review-thread set, absent OPENAI_* variables, and stopped Phase 7 container
+  metadata before editing.
+- Began Milestone 3 local query contracts and pure normalization only.
+  Milestone 4 candidate profiles did not begin.
+
+### 2026-08-03 — Milestone 3 implementation complete
+
+- Added the closed local-pre-approval CapabilityQueryInputV1 and
+  CapabilityQueryNormalizationResultV1 roots, safe parsers, complete input and
+  result digests, deterministic result identity, and exact exchange
+  validation.
+- Added pure explicit-term canonicalization, taxonomy lookup, family outcome,
+  modality/source preservation, ambiguity/exclusion/unknown/contradiction
+  handling, and injected exact candidate-reference authority bounded to 200
+  candidates.
+- Preserved only repository-fingerprint ID/digest context. No fingerprint fact
+  is read or converted into a constraint.
+- Appended schema roots with input digest
+  `d48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b`
+  and normalization-result digest
+  `b864d88ddbe3ae7ba2ea09919c4152089445f9facb2eb08eeb3a17e30aaca721`.
+  Every preexisting schema digest, including both taxonomy roots, remains
+  exact.
+- Added no CapabilityRequestV1 construction, candidate filtering, profile,
+  persistence, ingestion, evaluation corpus, scorer, baseline, retrieval,
+  ranking, package, dependency, migration, provider/model operation, or Phase
+  7 access. Milestone 4 has not begun.
+
 ## Decision and deviation log
 
 ### 2026-08-03 — Seven milestones
@@ -1160,6 +1198,30 @@ would duplicate existing authority.
 Phase 8 records deterministic profile authority in additive contracts and
 committed generated files. SQL persistence is deferred until production
 retrieval supplies evidence for read/index requirements.
+
+### 2026-08-03 — Local query identity and exact normalization
+
+CapabilityQueryInputV1 and CapabilityQueryNormalizationResultV1 are additive
+`1.0.0` local-pre-approval roots. Explicit lookup terms use normalizer `1.0.0`:
+ASCII-space trimming/collapse, ASCII uppercase-to-lowercase conversion, and
+space/hyphen collapse into the existing stable-ID grammar. Punctuation,
+Unicode-to-ASCII conversion, locale rules, fuzzy matching, stemming, summary
+mining, and implicit target-fingerprint inference are absent.
+
+The complete canonical input has one digest. The result semantic digest binds
+that input digest, taxonomy version/digest, normalizer version, optional exact
+candidate-catalog version/digest, and every canonical result field. The stable
+normalization ID is `normalization-` plus the first 48 semantic-digest hex
+characters; no second record digest is added because there is no distinct
+record-only projection. An exchange validator deterministically recomputes the
+whole result and fails closed on any source, modality, outcome, authority,
+ordering, or digest drift.
+
+Candidate reference authority is an injected bounded domain value, not a new
+contract root or committed catalog. It permits only exact candidate ID,
+canonical owner/repository, and npm package keys for at most 200 candidates.
+Repository fingerprint references preserve only the exact ID and digest and
+cannot establish a family or constraint.
 
 ### 2026-08-03 — Taxonomy authority and intentional ambiguity
 
@@ -1266,3 +1328,35 @@ entries.
   4 migrations, verified 25 public product tables, and passed 8 files/62 tests
   without skips. The dependency audit found no known vulnerabilities. No
   provider, model, Phase 7, or Milestone 3 operation occurred.
+
+### 2026-08-03 — Milestone 3 local validation
+
+- Red-first domain tests failed 32 cases because the query APIs did not exist;
+  red-first contract tests then failed 22 cases because the DTO, parser,
+  identity, and exchange APIs did not exist. A final diff review also added two
+  red cases proving that leading and trailing hyphens are rejected rather than
+  silently discarded. The completed focused suites pass 74 tests: 35
+  pure-domain and 39 contract/exchange cases.
+- `pnpm runtime:check`, `pnpm format:check`, `pnpm taxonomy:validate`,
+  `pnpm contracts:validate`, and `pnpm catalog:validate` passed. Taxonomy
+  `1.0.0` retained semantic digest
+  `838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`;
+  product conformance remained 10 cases/40 supplied candidates; and the public
+  catalog remained 150 candidates at its unchanged digest.
+- `pnpm build`, `pnpm lint`, and `pnpm typecheck` passed. `pnpm test` passed 83
+  files and 1,448 tests.
+- The first two full coverage attempts exposed the existing 5-second timeout
+  in the unrelated 150-interview scale test at 5.167 and 5.178 seconds. The
+  exact isolated test passed. Removing repeated reads of the immutable taxonomy
+  fixture from the new contract suite eliminated the added contention without
+  changing the Phase 7 test or timeout. The authoritative rerun passed all 83
+  files/1,448 tests with 80.59% statements, 73.96% branches, 87.71% functions,
+  and 80.96% lines.
+- `pnpm architecture:check` passed across 771 modules and 2,465 dependency
+  edges with zero violations. `pnpm repo:check`, `pnpm security:secrets`, and
+  `git diff --check` passed.
+- `pnpm verify` and `pnpm verify:ci` passed. Disposable PostgreSQL 18.4 applied
+  4 migrations, verified 25 public product tables, and passed 8 files/62 tests
+  with zero skips. The moderate dependency audit found no known
+  vulnerabilities. No provider, model, candidate, taxonomy-network, Phase 7,
+  or Milestone 4 operation occurred.

@@ -36,6 +36,8 @@ values in diagnostics.
 
 The public V1 parsers are:
 
+- `parseCapabilityQueryInputV1`
+- `parseCapabilityQueryNormalizationResultV1`
 - `parseCapabilityTaxonomySourceV1`
 - `parseCapabilityTaxonomyV1`
 - `parseCapabilityRequestV1`
@@ -55,6 +57,33 @@ The public V1 parsers are:
 valid request and response agree on candidate set, constraints, evidence,
 unknowns, supplied candidate limitations, cutoff, request ID, and correlation
 ID.
+
+`normalizeCapabilityQueryV1` performs the local pre-approval transition using
+validated input, exact taxonomy authority, and an optional injected bounded
+candidate-reference authority.
+`validateCapabilityQueryNormalizationExchangeV1` recomputes the complete
+deterministic result and rejects input, taxonomy, catalog, source, modality,
+outcome, ordering, or digest drift. It does not create CapabilityRequestV1,
+grant transmission approval, filter candidates, or perform retrieval.
+
+The complete canonical query input has one digest. The normalization semantic
+digest binds it to taxonomy `1.0.0`, normalizer `1.0.0`, any used candidate
+catalog version/digest, all results, and the preserved fingerprint reference.
+`normalizationId` is derived from the first 48 semantic-digest hex characters;
+there is no redundant record digest.
+
+Input bounds are 1,000 summary code units, 1–8 explicit capability terms,
+1–20 success conditions, 0–32 draft constraints, 0–10 exact candidate
+references, 120 code units per lookup term, and 500 per statement. Result
+bounds are 8 normalized capability concepts, 32 normalized constraints, 40
+unresolved terms, 64 clarifications, 40 notices, and 64 normalization steps.
+The injected authority ceiling is 200 candidates.
+
+The additive JSON Schema digests are
+`d48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b`
+for CapabilityQueryInputV1 and
+`b864d88ddbe3ae7ba2ea09919c4152089445f9facb2eb08eeb3a17e30aaca721`
+for CapabilityQueryNormalizationResultV1.
 
 ## Capability taxonomy authority
 
@@ -188,9 +217,10 @@ newline-terminated representation. The public schema-name catalog is runtime
 frozen and cannot be widened through consumer mutation. Every root has an
 explicit `1.0.0` `$id`, uses Draft 2020-12, and is closed at every untrusted
 object shape. The six accepted fit-assessment roots, three repository-artifact
-roots, and three repository-interview roots retain their exact schema digests;
-the two capability-taxonomy roots are additive. A root shape change after publication
-requires a separately versioned schema/parser and explicit negotiation;
+roots, three repository-interview roots, and two capability-taxonomy roots
+retain their exact schema digests. The capability-query input and
+normalization-result roots append additively. A root shape change after
+publication requires a separately versioned schema/parser and explicit negotiation;
 controlled fact-vocabulary evolution is negotiated separately.
 
 The object-value preflight bounds depth at 32, scheduled/visited values at

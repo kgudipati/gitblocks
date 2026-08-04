@@ -74,6 +74,13 @@ fixtures, gold, scorers, or harness code. Phase 8 adds no product package or
 database migration without separately reviewed evidence that existing
 ownership is incoherent or durable retrieval requirements demand one.
 
+The local Milestone 3 boundary is implemented inside domain and contracts:
+pure rules consume only explicit structured query records, exact taxonomy
+authority, and an optional injected exact candidate-reference authority;
+contracts own closed local-pre-approval DTOs, digests, and complete exchange
+validation. It has no adapter, persistence, provider, model, retrieval, or
+ranking node and does not create CapabilityRequestV1.
+
 ## Planned system context
 
 All operational GitBlocks nodes in this diagram are planned, not implemented.

@@ -422,8 +422,16 @@ canonically generated authority. Resolved aliases, intentional ambiguities,
 and adjacent/excluded terms are disjoint record classes. An intentional
 ambiguity with two or more active possible concepts is valid authority, not an
 alias validation failure; exact lookup returns it as ambiguous and does not
-choose a meaning. Raw-term canonicalization and the resulting
-clarification-required flow remain Milestone 3 work.
+choose a meaning.
+
+Milestone 3 implements raw-term handling only for explicit term fields. It
+accepts bounded safe text, performs ASCII-only space/lowercase/hyphen
+canonicalization, and requires the stable-ID grammar. Unsupported punctuation,
+non-ASCII lookup text, mixed-script text, ambiguity, subjective terms, unknown
+hard declarations, conflicting modalities, and cross-family candidate
+references fail closed or require clarification. There is no summary mining,
+Unicode semantic merge, fuzzy lookup, target-fingerprint inference, provider,
+model, filesystem, database, or network path.
 
 The package-local authority command reads only the fixed versioned source and
 manifest paths, enforces one-MiB regular-file bounds, rejects symlink and root
@@ -436,7 +444,9 @@ explicit requirements, preferences and prohibitions, exact candidate or brand
 references, and an optional minimized repository-fingerprint reference. It
 must not retain secrets, raw source, configuration values, or transcripts.
 Normalization preserves source and rule identity and never weakens a hard
-constraint. Candidate facts come only from approved deterministic inputs with
+constraint. Exact candidate references use only an injected bounded authority;
+arbitrary URLs, display-name lookup, partial names, and search are absent.
+Candidate facts come only from approved deterministic inputs with
 explicit provenance and value state; dossier observation prose and repository
 interviews cannot populate deterministic profile authority.
 

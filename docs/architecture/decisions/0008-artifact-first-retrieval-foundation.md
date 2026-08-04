@@ -236,6 +236,34 @@ ambiguous, and excluded keys are disjoint. Milestone 2 exact lookup may return
 ambiguous but does not implement the Milestone 3 query flow that turns it into
 clarification-required.
 
+Milestone 3 implements the accepted local sequence with additive
+CapabilityQueryInputV1 and CapabilityQueryNormalizationResultV1 roots, both
+closed to `local-pre-approval`. Only explicit structured capability terms,
+constraints, and candidate references are normalized. Summary and success
+condition prose are retained but never mined for vocabulary or modality.
+
+Normalizer `1.0.0` trims and collapses ASCII spaces, lowercases ASCII A-Z,
+collapses spaces and repeated hyphens to one hyphen, then requires the existing
+stable-ID grammar. It does not remove punctuation, transliterate, use locale
+conversion, stem, pluralize, prefix/substring/fuzzy match, or normalize Unicode
+into ASCII. Required, preferred, and prohibited declarations retain every
+source ID; unresolved and clarification-needed states remain separately typed
+rather than becoming favorable constraints.
+
+An optional injected candidate-reference authority is bounded to 200 exact
+candidate, repository, and npm keys and binds its catalog version/digest only
+when references use it. It is neither a contract root nor candidate catalog.
+Repository-fingerprint references retain only identity and digest; no target
+fact becomes an implicit constraint.
+
+The complete canonical input has one digest. The result semantic digest binds
+the input digest, taxonomy authority, normalizer version, optional candidate
+authority, and all canonical outputs. The normalization ID is a stable prefix
+plus the first 48 semantic-digest characters. A separate record digest is not
+used because there is no record-only payload. Exact exchange validation
+recomputes the complete result and rejects source, modality, authority,
+outcome, ordering, or digest drift.
+
 Catalog negative controls are excluded from normal candidate generation and
 ordinary retrieval baselines by default. They may appear only in explicitly
 marked negative-control evaluation, hard-filter safety, false-positive, or
@@ -536,7 +564,7 @@ proof requires separate authorization and content-free evidence.
 
 ## Deferred work
 
-- Exact query and profile DTO shapes and bounds.
+- Exact profile DTO shape and bounds.
 - Production retrieval request/result contracts and application ports.
 - Production profile persistence and indexes.
 - Retrieval implementation and optimization.

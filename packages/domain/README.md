@@ -71,6 +71,17 @@ results, and produce deterministic value-safe issues.
   separation, and deprecation closure. Exact lookup accepts only an already
   canonical ASCII key and returns resolved, ambiguous, excluded, or unknown;
   it performs no raw-term normalization or clarification flow.
+- Capability-query normalizer `1.0.0` accepts only explicit structured terms,
+  constraints, and exact candidate references. Its ASCII-only term rule trims
+  and collapses spaces, lowercases A-Z, collapses repeated hyphens, and then
+  requires the existing stable-ID grammar. It preserves modality and every
+  source ID, keeps non-taxonomy declarations explicit, turns ambiguity and
+  blocking unknowns into bounded clarification, and distinguishes an excluded
+  primary capability from an unknown one. It never reads summary prose or
+  repository-fingerprint facts.
+- Candidate-reference resolution consumes an injected, exact-key authority
+  bounded to 200 candidates. Domain imports perform no catalog, filesystem,
+  ingestion, provider, database, environment, model, clock, or network work.
 
 Every successful validator returns a fresh canonical value; callers' objects
 and arrays are never mutated.

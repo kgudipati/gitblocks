@@ -51,6 +51,12 @@ import {
   type CapabilityTaxonomySourceV1,
   type CapabilityTaxonomyV1,
 } from './capability-taxonomy-schemas.ts';
+import {
+  capabilityQueryInputV1Schema,
+  capabilityQueryNormalizationResultV1Schema,
+  type CapabilityQueryInputV1,
+  type CapabilityQueryNormalizationResultV1,
+} from './capability-query-schemas.ts';
 
 const ajv = new Ajv2020({
   allErrors: false,
@@ -99,6 +105,12 @@ export const capabilityTaxonomySourceV1Validator =
 export const capabilityTaxonomyV1Validator = ajv.compile<CapabilityTaxonomyV1>(
   capabilityTaxonomyV1Schema,
 );
+export const capabilityQueryInputV1Validator =
+  ajv.compile<CapabilityQueryInputV1>(capabilityQueryInputV1Schema);
+export const capabilityQueryNormalizationResultV1Validator =
+  ajv.compile<CapabilityQueryNormalizationResultV1>(
+    capabilityQueryNormalizationResultV1Schema,
+  );
 
 export type StructuralValidationResult<T> =
   | {

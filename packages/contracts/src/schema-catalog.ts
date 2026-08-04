@@ -18,6 +18,10 @@ import {
   capabilityTaxonomySourceV1Schema,
   capabilityTaxonomyV1Schema,
 } from './capability-taxonomy-schemas.ts';
+import {
+  capabilityQueryInputV1Schema,
+  capabilityQueryNormalizationResultV1Schema,
+} from './capability-query-schemas.ts';
 
 export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-dossier',
@@ -34,6 +38,8 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'repository-interview',
   'capability-taxonomy',
   'capability-taxonomy-source',
+  'capability-query-input',
+  'capability-query-normalization-result',
 ] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
@@ -51,6 +57,9 @@ const SCHEMAS = {
   'capability-request': capabilityRequestV1Schema,
   'capability-taxonomy': capabilityTaxonomyV1Schema,
   'capability-taxonomy-source': capabilityTaxonomySourceV1Schema,
+  'capability-query-input': capabilityQueryInputV1Schema,
+  'capability-query-normalization-result':
+    capabilityQueryNormalizationResultV1Schema,
   'error-envelope': errorEnvelopeV1Schema,
   'fit-assessment-request': fitAssessmentRequestV1Schema,
   'fit-assessment-response': fitAssessmentResponseV1Schema,

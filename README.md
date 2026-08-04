@@ -115,7 +115,7 @@ their operator.
 owns the candidate-owned semantic interview, provider/application, evaluation,
 persistence, and offline operator boundaries. Its retained engine does not make
 repository interviews a prerequisite for retrieval or ranking.
-[Plan 0019](docs/plans/0019-artifact-first-retrieval-foundation.md) and proposed
+[Plan 0019](docs/plans/0019-artifact-first-retrieval-foundation.md) and accepted
 [ADR 0008](docs/architecture/decisions/0008-artifact-first-retrieval-foundation.md)
 govern the Phase 8 artifact-first deterministic profile, controlled taxonomy,
 pre-contract query-normalization, and retrieval-evaluation foundation. Phase 8
