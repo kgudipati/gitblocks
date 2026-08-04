@@ -61,12 +61,13 @@ Mapping tests inspect the exact `direct`, `declared`, or `derived` domain value.
 Persistence integration uses PostgreSQL 18 at the exact image digest recorded
 by ADR 0004. `pnpm db:verify` provisions an ephemeral no-volume container by
 default; an injected database requires an explicit ephemeral acknowledgment
-and a `_test` database name. Hosted `pnpm verify:ci` runs the same integration
-suite and may not skip it. SQLite, mocks, and compatibility layers do not
-substitute for PostgreSQL semantics. Migration tests cover clean/repeat apply,
-checksum drift, serialization, transactional failure, qualification, and the
-supported major version. Isolation tests connect as non-owner,
-non-superuser roles.
+and a `_test` database name. Hosted `Database and Audit` runs the same
+integration suite against the pinned service and may not skip it. Together the
+hosted jobs preserve every component of local `pnpm verify:ci`; SQLite, mocks,
+and compatibility layers do not substitute for PostgreSQL semantics. Migration
+tests cover clean/repeat apply, checksum drift, serialization, transactional
+failure, qualification, and the supported major version. Isolation tests
+connect as non-owner, non-superuser roles.
 
 Response-invariant tests require traceability for every reason and exact
 candidate ownership for its evidence and inference support. They prove that
@@ -154,9 +155,16 @@ profile-field drift with zero external effects.
 The public root `pnpm typecheck` builds required product and tool workspace
 outputs before internal typechecking. Repository-policy tests reject a missing
 or reordered tool build in both standalone typecheck and `verify:core`.
-Hosted CI runs the exact standalone command immediately after frozen install,
-before any build-producing verification command, so ignored local `dist/`
-state cannot satisfy the proof.
+Hosted CI uses three independent 20-minute jobs. `Standalone Typecheck` runs
+the exact standalone command after its own frozen install, so ignored local
+`dist/` state cannot satisfy the proof. `Verification` independently validates
+pull-request metadata and runs exactly `pnpm verify`. `Database and Audit`
+alone receives database credentials and provisions the pinned PostgreSQL
+service, then runs `pnpm db:verify` and `pnpm security:audit`; the database
+command already owns its deterministic build prerequisite. Every job proves
+its worktree unchanged. Workflow-policy tests reject missing gates, dependency
+edges, database authority outside the database job, unpinned actions, retries,
+ignored failures, and tolerance directives.
 
 The PostgreSQL 18.4 suite applies migrations through 0004 in the existing test
 harness, then proves 6/30/150 selection materialization from one complete

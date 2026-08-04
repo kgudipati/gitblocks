@@ -507,7 +507,19 @@ on:
 permissions:
   contents: read
 jobs:
+  typecheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: git diff --exit-code
   verification:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify
+      - run: git diff --exit-code
+  database-and-audit:
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -518,8 +530,9 @@ jobs:
       GITBLOCKS_TEST_DB_OWNER: postgres
     steps:
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm verify:ci
+      - run: pnpm db:verify
+      - run: pnpm security:audit
+      - run: git diff --exit-code
 `;
   }
   if (relativePath.endsWith('.md')) {

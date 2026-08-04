@@ -1,11 +1,74 @@
 import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
+import { parseDocument } from 'yaml';
 
 import { validateWorkflowFile } from '../src/workflow-policy.ts';
 
 const CHECKOUT_SHA = '3d3c42e5aac5ba805825da76410c181273ba90b1';
 const SETUP_NODE_SHA = '820762786026740c76f36085b0efc47a31fe5020';
+const POSTGRES_IMAGE =
+  'postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296';
+const TRACKED_CI_URL = new URL(
+  '../../../.github/workflows/ci.yml',
+  import.meta.url,
+);
+
+type UnknownRecord = Record<string, unknown>;
+
+function asRecord(value: unknown, label: string): UnknownRecord {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new TypeError(`${label} must be a mapping`);
+  }
+
+  return value as UnknownRecord;
+}
+
+function asArray(value: unknown, label: string): unknown[] {
+  if (!Array.isArray(value)) {
+    throw new TypeError(`${label} must be an array`);
+  }
+
+  return value;
+}
+
+function trackedCi(): UnknownRecord {
+  const document = parseDocument(readFileSync(TRACKED_CI_URL, 'utf8'), {
+    schema: 'core',
+    uniqueKeys: true,
+    version: '1.2',
+  });
+
+  if (document.errors.length > 0 || document.warnings.length > 0) {
+    throw new Error('tracked CI workflow must parse without YAML diagnostics');
+  }
+
+  return asRecord(document.toJS({ maxAliasCount: 0 }), 'workflow');
+}
+
+function trackedJobs(): UnknownRecord {
+  return asRecord(trackedCi()['jobs'], 'jobs');
+}
+
+function trackedJob(jobs: UnknownRecord, jobId: string): UnknownRecord {
+  return asRecord(jobs[jobId], `job ${jobId}`);
+}
+
+function jobSteps(job: UnknownRecord): UnknownRecord[] {
+  return asArray(job['steps'], 'job steps').map((step, index) =>
+    asRecord(step, `step ${String(index)}`),
+  );
+}
+
+function jobCommands(job: UnknownRecord): string[] {
+  return jobSteps(job).flatMap((step) =>
+    typeof step['run'] === 'string' ? [step['run']] : [],
+  );
+}
+
+function jobActionSteps(job: UnknownRecord): UnknownRecord[] {
+  return jobSteps(job).filter((step) => typeof step['uses'] === 'string');
+}
 
 function workflow(body: string): string {
   return `name: CI
@@ -303,11 +366,145 @@ copy: *shared
     ).toHaveLength(200);
   });
 
-  it('accepts the tracked CI workflow', () => {
-    const content = readFileSync(
-      new URL('../../../.github/workflows/ci.yml', import.meta.url),
-      'utf8',
+  it('partitions the tracked CI gate into three bounded independent jobs', () => {
+    const jobs = trackedJobs();
+
+    expect(Object.keys(jobs)).toEqual([
+      'typecheck',
+      'verification',
+      'database-and-audit',
+    ]);
+
+    expect(trackedJob(jobs, 'typecheck')['name']).toBe('Standalone Typecheck');
+    expect(trackedJob(jobs, 'verification')['name']).toBe('Verification');
+    expect(trackedJob(jobs, 'database-and-audit')['name']).toBe(
+      'Database and Audit',
     );
+
+    for (const jobId of Object.keys(jobs)) {
+      const job = trackedJob(jobs, jobId);
+
+      expect(job['runs-on']).toBe('ubuntu-24.04');
+      expect(job['timeout-minutes']).toBe(20);
+      expect(job).not.toHaveProperty('needs');
+      expect(job).not.toHaveProperty('continue-on-error');
+    }
+  });
+
+  it('preserves pinned setup, frozen installation, and worktree proof in every job', () => {
+    const jobs = trackedJobs();
+
+    for (const jobId of Object.keys(jobs)) {
+      const job = trackedJob(jobs, jobId);
+      const steps = jobSteps(job);
+      const actionSteps = jobActionSteps(job);
+      const commands = jobCommands(job);
+
+      expect(actionSteps.map((step) => step['uses'])).toEqual([
+        `actions/checkout@${CHECKOUT_SHA}`,
+        `actions/setup-node@${SETUP_NODE_SHA}`,
+      ]);
+      expect(
+        asRecord(actionSteps[0]?.['with'], 'checkout inputs'),
+      ).toMatchObject({
+        'persist-credentials': false,
+      });
+      expect(
+        asRecord(actionSteps[1]?.['with'], 'setup-node inputs'),
+      ).toMatchObject({
+        'node-version-file': '.node-version',
+        'package-manager-cache': false,
+      });
+      expect(commands).toContain('corepack enable pnpm');
+      expect(commands).toContain('test "$(pnpm --version)" = "11.17.0"');
+      expect(commands).toContain('pnpm install --frozen-lockfile');
+      expect(commands).toContain('git diff --exit-code');
+      expect(commands.at(-1)).toBe('git diff --exit-code');
+
+      for (const step of steps) {
+        expect(step).not.toHaveProperty('continue-on-error');
+        if (typeof step['if'] === 'string') {
+          expect(step['if']).not.toMatch(/always|cancelled|failure/i);
+        }
+      }
+    }
+  });
+
+  it('keeps verification, database, and failure-policy boundaries exact', () => {
+    const jobs = trackedJobs();
+    const typecheck = trackedJob(jobs, 'typecheck');
+    const verification = trackedJob(jobs, 'verification');
+    const databaseAndAudit = trackedJob(jobs, 'database-and-audit');
+    const typecheckCommands = jobCommands(typecheck);
+    const verificationCommands = jobCommands(verification);
+    const databaseCommands = jobCommands(databaseAndAudit);
+
+    expect(typecheckCommands).toContain('pnpm typecheck');
+    expect(typecheckCommands).not.toContain('pnpm verify');
+    expect(typecheckCommands).not.toContain('pnpm verify:ci');
+    expect(typecheckCommands).not.toContain('pnpm db:verify');
+    expect(typecheckCommands).not.toContain('pnpm security:audit');
+    expect(typecheckCommands.join('\n')).not.toMatch(
+      /\bpnpm[ \t]+test(?::\w+)?\b/u,
+    );
+
+    expect(verificationCommands).toContain('pnpm verify');
+    expect(verificationCommands).not.toContain('pnpm typecheck');
+    expect(verificationCommands).not.toContain('pnpm verify:ci');
+    expect(verificationCommands).not.toContain('pnpm db:verify');
+    expect(verificationCommands).not.toContain('pnpm security:audit');
+    expect(verificationCommands.join('\n')).toContain('pnpm repo:pr-branch');
+    expect(verificationCommands.join('\n')).toContain('pnpm repo:pr-title');
+
+    expect(databaseCommands).toContain('pnpm db:verify');
+    expect(databaseCommands).toContain('pnpm security:audit');
+    expect(databaseCommands).not.toContain('pnpm typecheck');
+    expect(databaseCommands).not.toContain('pnpm verify');
+    expect(databaseCommands).not.toContain('pnpm verify:ci');
+    expect(databaseCommands).not.toContain('pnpm build:product');
+
+    expect(typecheck).not.toHaveProperty('services');
+    expect(verification).not.toHaveProperty('services');
+    expect(asRecord(typecheck['env'], 'typecheck environment')).toEqual({
+      COREPACK_DEFAULT_TO_LATEST: '0',
+    });
+    expect(asRecord(verification['env'], 'verification environment')).toEqual({
+      COREPACK_DEFAULT_TO_LATEST: '0',
+    });
+    expect(asRecord(databaseAndAudit['env'], 'database environment')).toEqual({
+      COREPACK_DEFAULT_TO_LATEST: '0',
+      GITBLOCKS_DB_TEST_ACK: 'ephemeral',
+      GITBLOCKS_TEST_DB_DATABASE: 'gitblocks_test',
+      GITBLOCKS_TEST_DB_HOST: '127.0.0.1',
+      GITBLOCKS_TEST_DB_OWNER: 'postgres',
+      GITBLOCKS_TEST_DB_PASSWORD: 'postgres-test-only',
+      GITBLOCKS_TEST_DB_PORT: '5432',
+    });
+    const services = asRecord(databaseAndAudit['services'], 'services');
+    const postgres = asRecord(services['postgres'], 'postgres service');
+    expect(postgres['image']).toBe(POSTGRES_IMAGE);
+    expect(asRecord(postgres['env'], 'postgres service environment')).toEqual({
+      POSTGRES_DB: 'gitblocks_test',
+      POSTGRES_PASSWORD: 'postgres-test-only',
+    });
+    expect(postgres['ports']).toEqual(['5432:5432']);
+    expect(postgres['options']).toContain(
+      'pg_isready -U postgres -d gitblocks_test',
+    );
+
+    expect(JSON.stringify(typecheck)).not.toContain('GITBLOCKS_DB_');
+    expect(JSON.stringify(typecheck)).not.toContain('GITBLOCKS_TEST_DB_');
+    expect(JSON.stringify(verification)).not.toContain('GITBLOCKS_DB_');
+    expect(JSON.stringify(verification)).not.toContain('GITBLOCKS_TEST_DB_');
+    for (const job of [typecheck, verification, databaseAndAudit]) {
+      expect(jobCommands(job).join('\n')).not.toMatch(
+        /\|\|\s*true|\bset\s+\+e\b|\bretry\b|--rerun/i,
+      );
+    }
+  });
+
+  it('accepts the tracked CI workflow', () => {
+    const content = readFileSync(TRACKED_CI_URL, 'utf8');
 
     expect(
       validateWorkflowFile({

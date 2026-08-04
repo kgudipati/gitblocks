@@ -925,44 +925,75 @@ function validateCiPolicy(
       ),
     ];
   }
-  const requiredFragments = [
+  const jobSection = (jobId: string): string | undefined => {
+    const marker = `\n  ${jobId}:\n`;
+    const start = content.indexOf(marker);
+    if (start < 0) {
+      return undefined;
+    }
+    const sectionStart = start + marker.length;
+    const remaining = content.slice(sectionStart);
+    const nextJob = remaining.search(/\n {2}[a-z0-9][a-z0-9-]*:\n/u);
+    return nextJob < 0 ? remaining : remaining.slice(0, nextJob);
+  };
+  const typecheckJob = jobSection('typecheck');
+  const verificationJob = jobSection('verification');
+  const databaseJob = jobSection('database-and-audit');
+  const diagnostics: Diagnostic[] = [];
+  const databaseFragments = [
     `image: ${POSTGRES_TEST_IMAGE}`,
     'GITBLOCKS_DB_TEST_ACK: ephemeral',
     'GITBLOCKS_TEST_DB_DATABASE: gitblocks_test',
     'GITBLOCKS_TEST_DB_OWNER: postgres',
-    'run: pnpm verify:ci',
+    'run: pnpm db:verify',
+    'run: pnpm security:audit',
   ] as const;
-  const diagnostics: Diagnostic[] = [];
-  if (!requiredFragments.every((fragment) => content.includes(fragment))) {
+  if (
+    databaseJob === undefined ||
+    !databaseFragments.every((fragment) => databaseJob.includes(fragment)) ||
+    typecheckJob?.includes('GITBLOCKS_DB_') === true ||
+    typecheckJob?.includes('GITBLOCKS_TEST_DB_') === true ||
+    verificationJob?.includes('GITBLOCKS_DB_') === true ||
+    verificationJob?.includes('GITBLOCKS_TEST_DB_') === true
+  ) {
     diagnostics.push(
       diagnostic(
         'repository.ci-postgresql',
-        'CI must run verify:ci against the exact pinned ephemeral PostgreSQL service.',
+        'CI Database and Audit must exclusively own the pinned ephemeral PostgreSQL service, database verification, and dependency audit.',
         workflowPath,
       ),
     );
   }
   const install = 'run: pnpm install --frozen-lockfile';
   const typecheck = 'run: pnpm typecheck';
-  const verify = 'run: pnpm verify:ci';
-  const installIndex = content.indexOf(install);
-  const typecheckIndex = content.indexOf(typecheck);
-  const verifyIndex = content.indexOf(verify);
+  const verify = 'run: pnpm verify';
+  const installIndex = typecheckJob?.indexOf(install) ?? -1;
+  const typecheckIndex = typecheckJob?.indexOf(typecheck) ?? -1;
   if (
+    typecheckJob === undefined ||
+    verificationJob === undefined ||
+    databaseJob === undefined ||
     installIndex < 0 ||
     typecheckIndex <= installIndex ||
-    verifyIndex <= typecheckIndex ||
-    content.slice(installIndex + install.length).includes(install) ||
-    content.slice(typecheckIndex + typecheck.length).includes(typecheck) ||
-    content.slice(0, installIndex).includes('run: pnpm ') ||
-    content
+    typecheckJob.slice(installIndex + install.length).includes(install) ||
+    typecheckJob.slice(typecheckIndex + typecheck.length).includes(typecheck) ||
+    typecheckJob.slice(0, installIndex).includes('run: pnpm ') ||
+    typecheckJob
       .slice(installIndex + install.length, typecheckIndex)
-      .includes('run:')
+      .includes('run:') ||
+    !verificationJob.includes(install) ||
+    !verificationJob.includes(verify) ||
+    verificationJob.includes(typecheck) ||
+    !databaseJob.includes(install) ||
+    /(?:^|\n) {4}needs:/u.test(typecheckJob) ||
+    /(?:^|\n) {4}needs:/u.test(verificationJob) ||
+    /(?:^|\n) {4}needs:/u.test(databaseJob) ||
+    content.includes('run: pnpm verify:ci')
   ) {
     diagnostics.push(
       diagnostic(
         'repository.ci-clean-typecheck',
-        'CI must run standalone typecheck directly after frozen installation and before authoritative verification.',
+        'CI must partition frozen installation, standalone typecheck, and ordinary verification into independent bounded jobs.',
         workflowPath,
       ),
     );

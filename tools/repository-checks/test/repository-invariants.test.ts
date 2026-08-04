@@ -402,7 +402,17 @@ trustLockfile: false
 `;
 
 const CI_POLICY = `jobs:
+  typecheck:
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: git diff --exit-code
   verification:
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify
+      - run: git diff --exit-code
+  database-and-audit:
     services:
       postgres:
         image: postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296
@@ -412,8 +422,9 @@ const CI_POLICY = `jobs:
       GITBLOCKS_TEST_DB_OWNER: postgres
     steps:
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm verify:ci
+      - run: pnpm db:verify
+      - run: pnpm security:audit
+      - run: git diff --exit-code
 `;
 
 function dependabotPolicy(
@@ -491,36 +502,50 @@ describe('validateRepositoryInvariants', () => {
     );
   });
 
-  it('requires the pinned PostgreSQL service in hosted verification', () => {
-    const repository = validRepository();
-    repository.textFiles.set(
-      '.github/workflows/ci.yml',
+  it('requires the pinned PostgreSQL service and database gates in their dedicated job', () => {
+    for (const invalid of [
       CI_POLICY.replace(
         'postgres:18.4-bookworm@sha256:',
         'postgres:18.4@sha256:',
       ),
-    );
-
-    expect(validateRepositoryInvariants(repository)).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          code: 'repository.ci-postgresql',
-          path: '.github/workflows/ci.yml',
-        }),
-      ]),
-    );
+      CI_POLICY.replace('      - run: pnpm db:verify\n', ''),
+      CI_POLICY.replace('      - run: pnpm security:audit\n', ''),
+      CI_POLICY.replace(
+        '  typecheck:\n    steps:',
+        '  typecheck:\n    env:\n      GITBLOCKS_DB_TEST_ACK: ephemeral\n    steps:',
+      ),
+    ]) {
+      const repository = validRepository();
+      repository.textFiles.set('.github/workflows/ci.yml', invalid);
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'repository.ci-postgresql',
+            path: '.github/workflows/ci.yml',
+          }),
+        ]),
+      );
+    }
   });
 
-  it('requires standalone typecheck directly after frozen installation and before verification', () => {
+  it('requires standalone typecheck and ordinary verification in independent jobs', () => {
     for (const invalid of [
       CI_POLICY.replace('      - run: pnpm typecheck\n', ''),
       CI_POLICY.replace(
-        '      - run: pnpm typecheck\n      - run: pnpm verify:ci',
-        '      - run: pnpm verify:ci\n      - run: pnpm typecheck',
+        '      - run: pnpm typecheck\n      - run: git diff --exit-code',
+        '      - run: git diff --exit-code\n      - run: pnpm typecheck',
       ),
       CI_POLICY.replace(
-        '    steps:\n      - run: pnpm install --frozen-lockfile',
-        '    steps:\n      - run: pnpm build\n      - run: pnpm install --frozen-lockfile',
+        '  typecheck:\n    steps:\n      - run: pnpm install --frozen-lockfile',
+        '  typecheck:\n    steps:\n      - run: pnpm build\n      - run: pnpm install --frozen-lockfile',
+      ),
+      CI_POLICY.replace(
+        '      - run: pnpm verify\n',
+        '      - run: pnpm verify:ci\n',
+      ),
+      CI_POLICY.replace(
+        '  verification:\n',
+        '  verification:\n    needs: typecheck\n',
       ),
     ]) {
       const repository = validRepository();

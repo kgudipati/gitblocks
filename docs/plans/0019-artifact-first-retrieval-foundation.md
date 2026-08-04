@@ -9,10 +9,13 @@
 - Owner: repository maintainer
 - State: Milestones 1, 2, and 3 are accepted. Milestone 4 deterministic
   candidate profiles, offline generated authority, coverage measurement, and
-  conservative single-candidate constraint evaluation are implementation- and
-  validation-complete pending maintainer acceptance. ADR 0008 remains
-  accepted. Milestone 5 retrieval/query evaluation and live materialization
-  have not begun and are not authorized.
+  conservative single-candidate constraint evaluation passed substantive
+  maintainer review at commit
+  `66a4165c1239e7a46d72ccd6469d0856e815c410`. A separately authorized hosted-CI
+  review correction is in progress; Milestone 4 is not accepted until all
+  corrected hosted jobs pass. ADR 0008 remains accepted. Milestone 5
+  retrieval/query evaluation and live materialization have not begun and are
+  not authorized.
 - Last updated: 2026-08-04
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -1640,3 +1643,58 @@ entries.
   corpus/scorer, retrieval, ranking, provider, model, candidate-repository,
   artifact-body, external-corpus, or Phase 7 work occurred. Milestone 5 has
   not begun.
+
+### 2026-08-04 — Milestone 4 hosted-CI review correction
+
+- Milestone 4 product commit
+  `66a4165c1239e7a46d72ccd6469d0856e815c410` passed substantive maintainer
+  review. Workflow run 30927752409 job attempts 92054368305, 92056855786, and
+  92059271629 were unchanged attempts of that commit.
+- All three attempts started PostgreSQL successfully, installed with the frozen
+  lockfile, passed clean-checkout standalone typecheck, proved reproducible
+  installation, and passed pull-request metadata validation. Authoritative
+  verification entered Vitest and continued reporting passing suites before
+  the runner received a shutdown signal. No failed test assertion was
+  reported; database verification and dependency audit were not reached; and
+  the 20-minute workflow timeout was not reached. The immediate failure is
+  therefore classified as an externally canceled hosted runner, without
+  claiming a conclusive infrastructure root cause.
+- The former monolithic `Verification` job unnecessarily repeated standalone
+  typecheck/build work inside ordinary verification and kept PostgreSQL alive
+  while unrelated installation, typecheck, repository-policy, and ordinary
+  test work ran. The correction partitions the same collective authority into
+  three independent Ubuntu 24.04 jobs, each bounded to 20 minutes:
+  `Standalone Typecheck` runs frozen install and `pnpm typecheck`;
+  `Verification` retains pull-request metadata policy and runs exactly
+  `pnpm verify`; and `Database and Audit` alone provisions the pinned
+  PostgreSQL 18.4 service and runs `pnpm db:verify` followed by
+  `pnpm security:audit`. Every job proves an unchanged worktree.
+- `pnpm db:verify` already owns its runtime preflight and deterministic build,
+  so the database job adds no redundant build command. The jobs have no
+  dependency edges, retain the existing read-only permissions, pinned actions,
+  event boundaries, concurrency policy, and runner image, and add no retries,
+  tolerance, caches, artifacts, reduced suites, or optional gates.
+- This correction changes workflow policy, its repository regression coverage,
+  and testing documentation only. No product implementation, generated
+  profile authority, coverage report, contract, taxonomy, query authority,
+  package script, lockfile, dependency, migration, persistence, ingestion,
+  evaluation, provider/model, or Phase 7 behavior changes. Milestone 5 has not
+  begun.
+- The red-first tracked-workflow regression failed against the monolithic job
+  before the split. The first accumulated validation exposed four
+  `no-regex-spaces` findings in the new repository-invariant helper. The
+  separately authorized mechanical correction replaced one exact two-space
+  match with ` {2}` and three exact four-space matches with ` {4}`; it changed
+  no accepted or rejected workflow text and required no lint suppression or
+  additional test.
+- Final local validation passed `pnpm runtime:check`, the focused zero-warning
+  ESLint command, both required focused test invocations, `pnpm format:check`,
+  `pnpm repo:check`, `pnpm security:secrets`, and `pnpm verify`. Each focused
+  invocation and authoritative verification passed 88 files and 1,503 tests
+  with no skips or todos. Architecture validation covered 782 modules and
+  2,505 dependency edges with zero violations. Profile validation reproduced
+  150 profiles and the unchanged authority and coverage digests; taxonomy,
+  contract conformance, catalog, interview, schema, pre-live, and secret
+  validation also passed. Local Docker and `pnpm verify:ci` were not used; the
+  corrected hosted database job owns the fresh PostgreSQL and dependency-audit
+  proof.
