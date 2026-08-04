@@ -25,7 +25,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'capability-query-input':
     'd48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b',
   'capability-query-normalization-result':
-    'b864d88ddbe3ae7ba2ea09919c4152089445f9facb2eb08eeb3a17e30aaca721',
+    'bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':

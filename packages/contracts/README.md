@@ -65,6 +65,11 @@ candidate-reference authority.
 deterministic result and rejects input, taxonomy, catalog, source, modality,
 outcome, ordering, or digest drift. It does not create CapabilityRequestV1,
 grant transmission approval, filter candidates, or perform retrieval.
+Standalone result parsing first checks the closed schema, then pure semantic
+outcome, provenance, candidate-binding, capacity, generated-ID, and canonical
+ordering invariants, and only then verifies the semantic digest and
+normalization ID. A correctly re-digested but impossible result therefore
+fails without requiring the original input or authorities.
 
 The complete canonical query input has one digest. The normalization semantic
 digest binds it to taxonomy `1.0.0`, normalizer `1.0.0`, any used candidate
@@ -75,14 +80,16 @@ there is no redundant record digest.
 Input bounds are 1,000 summary code units, 1–8 explicit capability terms,
 1–20 success conditions, 0–32 draft constraints, 0–10 exact candidate
 references, 120 code units per lookup term, and 500 per statement. Result
-bounds are 8 normalized capability concepts, 32 normalized constraints, 40
+bounds are 8 normalized capability concepts, 32 normalized constraints, 50
 unresolved terms, 64 clarifications, 40 notices, and 64 normalization steps.
-The injected authority ceiling is 200 candidates.
+The unresolved maximum is derived from 8 capability terms, 32 constraints,
+and 10 candidate references. The injected authority ceiling is 200 candidates,
+and candidate-ID references index the exact candidate ID rather than an alias.
 
 The additive JSON Schema digests are
 `d48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b`
 for CapabilityQueryInputV1 and
-`b864d88ddbe3ae7ba2ea09919c4152089445f9facb2eb08eeb3a17e30aaca721`
+`bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b`
 for CapabilityQueryNormalizationResultV1.
 
 ## Capability taxonomy authority

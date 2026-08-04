@@ -433,6 +433,16 @@ references fail closed or require clarification. There is no summary mining,
 Unicode semantic merge, fuzzy lookup, target-fingerprint inference, provider,
 model, filesystem, database, or network path.
 
+Normalization outcomes fail closed over blocking unresolved state, not merely
+over the presence of clarification text. Every blocking unresolved record in a
+non-unsupported result requires clarification coverage for its exact source;
+mixed supported/excluded primary terms cannot become favorable. Candidate-ID
+resolution indexes the exact candidate ID, with no authority-provided alias.
+The standalone result parser rejects semantically impossible outcome,
+constraint, provenance, ordering, and candidate-binding combinations before
+checking their recomputed digest and normalization ID. The result bound covers
+all 50 independently unresolved input sources without unbounded allocation.
+
 The package-local authority command reads only the fixed versioned source and
 manifest paths, enforces one-MiB regular-file bounds, rejects symlink and root
 path escapes, returns bounded value-free errors, and writes only the manifest

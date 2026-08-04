@@ -10,18 +10,27 @@ import { isSupportedCapabilityFamily, type CapabilityFamily } from './model.ts';
 
 export const CAPABILITY_QUERY_NORMALIZER_VERSION = '1.0.0' as const;
 
+const MAX_CAPABILITY_QUERY_TERMS = 8;
+const MAX_CAPABILITY_QUERY_CONSTRAINTS = 32;
+const MAX_CAPABILITY_QUERY_CANDIDATE_REFERENCES = 10;
+
+export const CAPABILITY_QUERY_MAX_UNRESOLVED_TERMS =
+  MAX_CAPABILITY_QUERY_TERMS +
+  MAX_CAPABILITY_QUERY_CONSTRAINTS +
+  MAX_CAPABILITY_QUERY_CANDIDATE_REFERENCES;
+
 export const CAPABILITY_QUERY_LIMITS = Object.freeze({
   summaryCodeUnits: 1_000,
-  capabilityTerms: 8,
+  capabilityTerms: MAX_CAPABILITY_QUERY_TERMS,
   termCodeUnits: 120,
   successConditions: 20,
   statementCodeUnits: 500,
-  draftConstraints: 32,
-  candidateReferences: 10,
+  draftConstraints: MAX_CAPABILITY_QUERY_CONSTRAINTS,
+  candidateReferences: MAX_CAPABILITY_QUERY_CANDIDATE_REFERENCES,
   candidateAuthorityCandidates: 200,
   normalizedCapabilityConcepts: 8,
   normalizedConstraints: 32,
-  unresolvedTerms: 40,
+  unresolvedTerms: CAPABILITY_QUERY_MAX_UNRESOLVED_TERMS,
   clarifications: 64,
   notices: 40,
   normalizationSteps: 64,
@@ -101,7 +110,6 @@ export interface CapabilityQueryInput {
 export interface CandidateReferenceAuthorityEntry {
   readonly candidateId: string;
   readonly capabilityFamily: CapabilityFamily;
-  readonly candidateKey: string;
   readonly repositoryKey: string;
   readonly npmPackageKey: string | null;
 }
@@ -293,24 +301,15 @@ export function validateCandidateReferenceAuthority(
     issues,
   );
   const candidateIds = new Set<string>();
-  const candidateKeys = new Set<string>();
   const repositoryKeys = new Set<string>();
   const npmPackageKeys = new Set<string>();
   for (const [index, candidate] of authority.candidates.entries()) {
     const path = `candidates.${String(index)}`;
     addStableIdIssues(issues, candidate.candidateId, `${path}.candidateId`);
-    addStableIdIssues(issues, candidate.candidateKey, `${path}.candidateKey`);
     validateUnique(
       candidate.candidateId,
       candidateIds,
       `${path}.candidateId`,
-      issues,
-      'query.authority',
-    );
-    validateUnique(
-      candidate.candidateKey,
-      candidateKeys,
-      `${path}.candidateKey`,
       issues,
       'query.authority',
     );

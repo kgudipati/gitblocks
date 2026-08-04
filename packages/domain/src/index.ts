@@ -32,6 +32,7 @@ export type {
 export {
   CAPABILITY_QUERY_CONSTRAINT_FACETS,
   CAPABILITY_QUERY_LIMITS,
+  CAPABILITY_QUERY_MAX_UNRESOLVED_TERMS,
   CAPABILITY_QUERY_NORMALIZER_VERSION,
   canonicalizeCapabilityQueryInput,
   validateCandidateReferenceAuthority,
@@ -54,11 +55,14 @@ export type {
 export {
   canonicalizeCapabilityQueryLookupTermV1,
   normalizeCapabilityQuery,
+  validateCapabilityQueryNormalizationResult,
 } from './capability-query-normalization.ts';
 export type {
+  CapabilityQueryCandidateCatalogBinding,
   CapabilityQueryClarification,
   CapabilityQueryConstraintResolutionBasis,
   CapabilityQueryNormalizationCore,
+  CapabilityQueryNormalizationSemanticResult,
   CapabilityQueryNormalizationNotice,
   CapabilityQueryNormalizationStep,
   CapabilityQueryTermCanonicalizationResult,

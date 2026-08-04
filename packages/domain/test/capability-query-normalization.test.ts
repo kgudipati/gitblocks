@@ -8,6 +8,7 @@ import {
   normalizeCapabilityQuery,
   validateCandidateReferenceAuthority,
   validateCapabilityQueryInput,
+  validateCapabilityQueryNormalizationResult,
   type CandidateReferenceAuthority,
   type CapabilityQueryInput,
   type CapabilityTaxonomy,
@@ -169,6 +170,34 @@ function taxonomy(): CapabilityTaxonomy {
           'Authentication alone does not establish authorization semantics.',
       },
       {
+        termKey: 'generic-http-client',
+        applicableFamilyIds: ['webhooks'],
+        exclusionReasonCode: 'generic-utility',
+        explanation:
+          'A generic HTTP client does not establish webhook semantics.',
+      },
+      {
+        termKey: 'generic-log-formatting',
+        applicableFamilyIds: ['audit-logging'],
+        exclusionReasonCode: 'generic-utility',
+        explanation:
+          'Generic log formatting does not establish audit-trail semantics.',
+      },
+      {
+        termKey: 'promise-concurrency',
+        applicableFamilyIds: ['background-jobs'],
+        exclusionReasonCode: 'generic-utility',
+        explanation:
+          'Promise concurrency does not establish background-job semantics.',
+      },
+      {
+        termKey: 'broad-sdk-with-incidental-webhooks',
+        applicableFamilyIds: ['webhooks'],
+        exclusionReasonCode: 'incidental-capability',
+        explanation:
+          'Incidental webhook support does not establish a webhook product.',
+      },
+      {
         termKey: 'lightweight',
         applicableFamilyIds: [...families],
         exclusionReasonCode: 'subjective-term',
@@ -205,21 +234,18 @@ function candidateAuthority(): CandidateReferenceAuthority {
       {
         candidateId: 'auth-candidate-one',
         capabilityFamily: 'authorization',
-        candidateKey: 'auth-candidate-one',
         repositoryKey: 'example/auth-one',
         npmPackageKey: '@example/auth-one',
       },
       {
         candidateId: 'auth-candidate-two',
         capabilityFamily: 'authorization',
-        candidateKey: 'auth-candidate-two',
         repositoryKey: 'example/auth-two',
         npmPackageKey: null,
       },
       {
         candidateId: 'jobs-candidate-one',
         capabilityFamily: 'background-jobs',
-        candidateKey: 'jobs-candidate-one',
         repositoryKey: 'example/jobs-one',
         npmPackageKey: 'jobs-one',
       },
@@ -236,6 +262,7 @@ describe('capability-query term canonicalization', () => {
       draftConstraints: 32,
       candidateReferences: 10,
       candidateAuthorityCandidates: 200,
+      unresolvedTerms: 50,
       normalizationSteps: 64,
     });
   });
@@ -421,6 +448,70 @@ describe('deterministic capability-query normalization', () => {
     expect(unsupported.ok && unsupported.value.outcome).toBe('unsupported');
     expect(subjective.ok && subjective.value.outcome).toBe(
       'clarification-required',
+    );
+  });
+
+  it.each([
+    ['authorization', 'authentication', 'adjacent-capability'],
+    ['webhooks', 'generic-http-client', 'generic-utility'],
+    ['audit-logging', 'generic-log-formatting', 'generic-utility'],
+    ['background-jobs', 'promise-concurrency', 'generic-utility'],
+    ['webhooks', 'broad-sdk-with-incidental-webhooks', 'incidental-capability'],
+  ])(
+    'requires clarification for supported %s mixed with excluded %s',
+    (family, excludedTerm, reasonCode) => {
+      const result = normalizeCapabilityQuery(
+        input({
+          capabilityTerms: [
+            { termId: 'term-family', originalTerm: family },
+            { termId: 'term-excluded', originalTerm: excludedTerm },
+          ],
+        }),
+        taxonomy(),
+      );
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.value.outcome).toBe('clarification-required');
+      expect(result.value.unresolvedTerms).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            sourceIds: ['term-excluded'],
+            reasonCode,
+            blocking: true,
+          }),
+        ]),
+      );
+      expect(result.value.clarifications).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ sourceIds: ['term-excluded'] }),
+        ]),
+      );
+      expect(
+        result.value.outcome === 'normalized' &&
+          result.value.unresolvedTerms.some(({ blocking }) => blocking),
+      ).toBe(false);
+    },
+  );
+
+  it('keeps a wholly excluded primary capability request unsupported', () => {
+    const result = normalizeCapabilityQuery(
+      input({
+        capabilityTerms: [
+          { termId: 'term-authentication', originalTerm: 'authentication' },
+          {
+            termId: 'term-generic-http',
+            originalTerm: 'generic-http-client',
+          },
+        ],
+      }),
+      taxonomy(),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.outcome).toBe('unsupported');
+    expect(result.value.primaryFamilyId).toBeNull();
+    expect(result.value.unresolvedTerms.every(({ blocking }) => blocking)).toBe(
+      true,
     );
   });
 
@@ -631,11 +722,45 @@ describe('deterministic capability-query normalization', () => {
       normalizeCapabilityQuery(reversed, taxonomy()),
     );
   });
+
+  it('validates genuine semantic results and rejects incoherent standalone values', () => {
+    const normalized = normalizeCapabilityQuery(input(), taxonomy());
+    expect(normalized.ok).toBe(true);
+    if (!normalized.ok) return;
+    const semantic = {
+      ...normalized.value,
+      candidateCatalogBinding: null,
+    };
+    expect(validateCapabilityQueryNormalizationResult(semantic).ok).toBe(true);
+    expect(
+      validateCapabilityQueryNormalizationResult({
+        ...semantic,
+        primaryFamilyId: null,
+      }).ok,
+    ).toBe(false);
+    expect(
+      validateCapabilityQueryNormalizationResult({
+        ...semantic,
+        normalizationSteps: [...semantic.normalizationSteps].reverse(),
+      }).ok,
+    ).toBe(false);
+  });
 });
 
 describe('exact candidate-reference authority', () => {
   it('rejects collisions and enforces the candidate ceiling', () => {
     const base = candidateAuthority();
+    const duplicateId = {
+      ...base,
+      candidates: [
+        ...base.candidates,
+        {
+          ...base.candidates[0]!,
+          repositoryKey: 'example/auth-id-duplicate',
+          npmPackageKey: '@example/auth-id-duplicate',
+        },
+      ],
+    };
     const duplicate = {
       ...base,
       candidates: [
@@ -643,6 +768,7 @@ describe('exact candidate-reference authority', () => {
         { ...base.candidates[0]!, candidateId: 'auth-candidate-duplicate' },
       ],
     };
+    expect(validateCandidateReferenceAuthority(duplicateId).ok).toBe(false);
     expect(validateCandidateReferenceAuthority(duplicate).ok).toBe(false);
 
     const excessive = {
@@ -652,7 +778,6 @@ describe('exact candidate-reference authority', () => {
         (_, index) => ({
           ...base.candidates[0]!,
           candidateId: `candidate-${String(index)}`,
-          candidateKey: `candidate-${String(index)}`,
           repositoryKey: `example/candidate-${String(index)}`,
         }),
       ),
@@ -690,6 +815,71 @@ describe('exact candidate-reference authority', () => {
       expect(result.value.candidateAuthorityUsed).toBe(true);
     },
   );
+
+  it('uses candidateId itself and never an authority-defined alias', () => {
+    const authority = candidateAuthority();
+    const exact = normalizeCapabilityQuery(
+      input({
+        capabilityTerms: [{ termId: 'term-shared', originalTerm: 'redis' }],
+        candidateReferences: [
+          {
+            referenceId: 'reference-exact',
+            kind: 'candidate-id',
+            value: 'auth-candidate-one',
+            intent: 'compare',
+          },
+        ],
+      }),
+      taxonomy(),
+      authority,
+    );
+    const alias = normalizeCapabilityQuery(
+      input({
+        capabilityTerms: [{ termId: 'term-shared', originalTerm: 'redis' }],
+        candidateReferences: [
+          {
+            referenceId: 'reference-alias',
+            kind: 'candidate-id',
+            value: 'undeclared-auth-alias',
+            intent: 'compare',
+          },
+        ],
+      }),
+      taxonomy(),
+      authority,
+    );
+    expect(exact.ok && exact.value.outcome).toBe('normalized');
+    expect(
+      exact.ok && exact.value.resolvedCandidateReferences[0]?.candidateId,
+    ).toBe('auth-candidate-one');
+    expect(alias.ok && alias.value.outcome).toBe('clarification-required');
+    expect(alias.ok && alias.value.resolvedCandidateReferences).toEqual([]);
+  });
+
+  it('does not cross-resolve repository or npm keys as candidate IDs', () => {
+    for (const [kind, value] of [
+      ['candidate-id', 'jobs-one'],
+      ['npm-package', 'auth-candidate-one'],
+    ] as const) {
+      const result = normalizeCapabilityQuery(
+        input({
+          capabilityTerms: [{ termId: 'term-shared', originalTerm: 'redis' }],
+          candidateReferences: [
+            {
+              referenceId: 'reference-wrong-kind',
+              kind,
+              value,
+              intent: 'compare',
+            },
+          ],
+        }),
+        taxonomy(),
+        candidateAuthority(),
+      );
+      expect(result.ok && result.value.outcome).toBe('clarification-required');
+      expect(result.ok && result.value.resolvedCandidateReferences).toEqual([]);
+    }
+  });
 
   it('fails closed for partial, display-name, unknown, and cross-family references', () => {
     const unknown = normalizeCapabilityQuery(

@@ -264,6 +264,23 @@ used because there is no record-only payload. Exact exchange validation
 recomputes the complete result and rejects source, modality, authority,
 outcome, ordering, or digest drift.
 
+Milestone 3 result closure treats blocking unresolved records as authoritative:
+`normalized` requires one primary family, no blocking unresolved term, no
+clarification, and no contradiction. A supported primary capability mixed with
+adjacent, generic-utility, or incidental-capability terminology requires exact
+clarification; a wholly excluded primary request may terminate as
+`unsupported`. The unresolved result ceiling is the derived 8 + 32 + 10 input
+source maximum of 50. Candidate-ID lookup uses the exact `candidateId` and has
+no separately declared candidate alias.
+
+Standalone normalization-result parsing applies pure semantic validation
+between structural validation and identity verification. It closes generated
+IDs, canonical ordering, modality/provenance relationships, constraint shapes,
+clarification coverage, candidate-catalog binding, and outcome coherence even
+when an impossible object has been given a recomputed digest. Full exchange
+validation separately proves ownership by the supplied input, taxonomy, and
+optional candidate authority.
+
 Catalog negative controls are excluded from normal candidate generation and
 ordinary retrieval baselines by default. They may appear only in explicitly
 marked negative-control evaluation, hard-filter safety, false-positive, or

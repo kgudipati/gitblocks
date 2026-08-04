@@ -8,8 +8,9 @@
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
 - State: Milestones 1 and 2 are accepted. Milestone 3 local pre-contract query
-  input and deterministic normalization are complete and awaiting maintainer
-  review; Milestone 4 and live materialization are not authorized.
+  input and deterministic normalization, including its result-invariant review
+  correction, are complete and awaiting maintainer acceptance; Milestone 4 and
+  live materialization are not authorized.
 - Last updated: 2026-08-03
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -1178,6 +1179,28 @@ These decisions may not weaken the accepted Issue #19 and ADR 0008 boundaries.
   ranking, package, dependency, migration, provider/model operation, or Phase
   7 access. Milestone 4 has not begun.
 
+### 2026-08-03 — Milestone 3 result-invariant review correction
+
+- Made blocking unresolved records authoritative for outcome selection and
+  required source-matched clarification coverage for every non-unsupported
+  blocking record. Mixed supported and adjacent, generic-utility, or
+  incidental-capability terms now require clarification; wholly excluded
+  primary requests remain unsupported.
+- Derived the unresolved-result maximum as 8 capability terms + 32 constraints
+  - 10 candidate references = 50. CapabilityQueryInputV1 retained schema digest
+    `d48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b`;
+    CapabilityQueryNormalizationResultV1 changed to reviewed schema digest
+    `bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b`.
+- Removed the internal candidate-reference `candidateKey`; candidate-ID lookup
+  now indexes `candidateId` exactly while repository and npm keys remain
+  separate exact kinds.
+- Added pure standalone-result semantic validation between structural parsing
+  and digest/normalization-ID verification. Full exchange recomputation remains
+  the separate ownership proof against input, taxonomy, and candidate authority.
+- Taxonomy source, manifest, version, and semantic digest remain byte-identical.
+  Milestone 3 remains awaiting maintainer acceptance and Milestone 4 has not
+  begun.
+
 ## Decision and deviation log
 
 ### 2026-08-03 — Seven milestones
@@ -1222,6 +1245,18 @@ contract root or committed catalog. It permits only exact candidate ID,
 canonical owner/repository, and npm package keys for at most 200 candidates.
 Repository fingerprint references preserve only the exact ID and digest and
 cannot establish a family or constraint.
+
+### 2026-08-03 — Standalone normalization-result closure
+
+CapabilityQueryNormalizationResultV1 semantic validation is pure domain logic
+invoked after closed structural parsing and before digest/normalization-ID
+checks. It closes generated IDs, deterministic ordering, source/modalities,
+constraint shapes, clarification coverage, candidate binding, and outcome
+coherence. Correctly re-digesting an impossible result does not make it valid.
+
+The 50-record unresolved ceiling is derived from every independently
+unresolved input source rather than chosen separately. Candidate-ID references
+use exact `candidateId`; the injected authority owns no candidate aliases.
 
 ### 2026-08-03 — Taxonomy authority and intentional ambiguity
 
@@ -1360,3 +1395,39 @@ entries.
   with zero skips. The moderate dependency audit found no known
   vulnerabilities. No provider, model, candidate, taxonomy-network, Phase 7,
   or Milestone 4 operation occurred.
+
+### 2026-08-03 — Milestone 3 result-invariant correction validation
+
+- The focused red run failed 7 of 83 tests: four mixed generic/incidental
+  exclusions incorrectly normalized, an exact candidate ID failed to resolve
+  when a divergent arbitrary authority key was present, the 50-record
+  unresolved maximum exceeded the result schema, and correctly re-digested
+  semantic forgeries passed the standalone parser. The completed focused
+  domain, contract, and schema suites pass 99 tests. Complete diff review added
+  a correctly re-digested,
+  renumbered source-step permutation; standalone validation now rejects that
+  noncanonical ordering independently of exchange recomputation.
+- The initial complete-matrix formatting check found two new documentation
+  files needing repository formatting. After that mechanical correction, the
+  restarted matrix reached lint, which identified three unnecessary-condition
+  or type-assertion findings in the new correction. The minimal style fixes did
+  not change behavior; focused tests and lint passed before the authoritative
+  matrix was restarted from `pnpm runtime:check`.
+- `pnpm runtime:check`, `pnpm format:check`, `pnpm taxonomy:validate`,
+  `pnpm contracts:validate`, and `pnpm catalog:validate` passed. Taxonomy
+  `1.0.0` retained semantic digest
+  `838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`;
+  product conformance remained 10 cases/40 supplied candidates; and the public
+  catalog remained 150 candidates at its unchanged digest.
+- `pnpm build`, `pnpm lint`, and `pnpm typecheck` passed. `pnpm test` passed 83
+  files and 1,464 tests. `pnpm test:coverage` passed the same suite with 80.02%
+  statements, 73.14% branches, 86.84% functions, and 80.38% lines.
+- `pnpm architecture:check` passed across 771 modules and 2,465 dependency
+  edges with zero violations. `pnpm repo:check`, `pnpm security:secrets`, and
+  `git diff --check` passed.
+- `pnpm verify` and `pnpm verify:ci` passed. Disposable PostgreSQL 18.4 applied
+  4 migrations, verified 25 public product tables, and passed 8 files/62 tests
+  with zero skips. The moderate dependency audit found no known
+  vulnerabilities. The accepted taxonomy source and manifest remained
+  byte-identical; no provider, model, candidate, Phase 7, or Milestone 4
+  operation occurred.

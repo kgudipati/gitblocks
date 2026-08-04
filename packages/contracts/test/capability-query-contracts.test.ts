@@ -4,7 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-import type { CandidateReferenceAuthority } from '@gitblocks/domain';
+import {
+  CAPABILITY_QUERY_LIMITS,
+  type CandidateReferenceAuthority,
+} from '@gitblocks/domain';
 
 import {
   buildCapabilityTaxonomyV1,
@@ -82,21 +85,18 @@ function candidateAuthority(
       {
         candidateId: 'auth-candidate-one',
         capabilityFamily: 'authorization',
-        candidateKey: 'auth-candidate-one',
         repositoryKey: 'example/auth-one',
         npmPackageKey: '@example/auth-one',
       },
       {
         candidateId: 'auth-candidate-two',
         capabilityFamily: 'authorization',
-        candidateKey: 'auth-candidate-two',
         repositoryKey: 'example/auth-two',
         npmPackageKey: null,
       },
       {
         candidateId: 'jobs-candidate-one',
         capabilityFamily: 'background-jobs',
-        candidateKey: 'jobs-candidate-one',
         repositoryKey: 'example/jobs-one',
         npmPackageKey: 'jobs-one',
       },
@@ -115,6 +115,17 @@ async function normalize(
 
 function clone<Value>(value: Value): Value {
   return structuredClone(value);
+}
+
+function withRecomputedNormalizationIdentity(
+  value: CapabilityQueryNormalizationResultV1,
+): CapabilityQueryNormalizationResultV1 {
+  const semanticDigest = capabilityQueryNormalizationSemanticDigest(value);
+  return {
+    ...value,
+    normalizationId: `normalization-${semanticDigest.slice(0, 48)}`,
+    semanticDigest,
+  };
 }
 
 describe('CapabilityQueryInputV1', () => {
@@ -394,6 +405,40 @@ describe('CapabilityQueryNormalizationResultV1', () => {
     expect(unsupportedCharacters.outcome).toBe('clarification-required');
   });
 
+  it.each([
+    ['authorization', 'authentication'],
+    ['webhooks', 'generic-http-client'],
+    ['audit-logging', 'generic-log-formatting'],
+    ['background-jobs', 'promise-concurrency'],
+    ['webhooks', 'broad-sdk-with-incidental-webhooks'],
+  ])(
+    'requires clarification when supported %s is mixed with excluded %s',
+    async (family, excludedTerm) => {
+      const result = await normalize(
+        input({
+          capabilityTerms: [
+            { termId: 'term-family', originalTerm: family },
+            { termId: 'term-excluded', originalTerm: excludedTerm },
+          ],
+        }),
+      );
+      expect(result.outcome).toBe('clarification-required');
+      expect(result.unresolvedTerms).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            sourceIds: ['term-excluded'],
+            blocking: true,
+          }),
+        ]),
+      );
+      expect(result.clarifications).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ sourceIds: ['term-excluded'] }),
+        ]),
+      );
+    },
+  );
+
   it('requires clarification for an unclear hard self-hosting declaration', async () => {
     const result = await normalize(
       input({
@@ -561,6 +606,172 @@ describe('CapabilityQueryNormalizationResultV1', () => {
       },
     ]) {
       expect(parseCapabilityQueryNormalizationResultV1(invalid).ok).toBe(false);
+    }
+  });
+
+  it('represents the derived maximum of 50 independently unresolved sources', async () => {
+    const maximum = input({
+      capabilityTerms: Array.from(
+        { length: CAPABILITY_QUERY_LIMITS.capabilityTerms },
+        (_, index) => ({
+          termId: `term-${String(index).padStart(2, '0')}`,
+          originalTerm: `unknown-capability-${String(index)}`,
+        }),
+      ),
+      draftConstraints: Array.from(
+        { length: CAPABILITY_QUERY_LIMITS.draftConstraints },
+        (_, index) => ({
+          constraintId: `constraint-${String(index).padStart(2, '0')}`,
+          modality:
+            index % 2 === 0 ? ('required' as const) : ('prohibited' as const),
+          statement: `Hard unknown constraint ${String(index)}.`,
+          originalTerm: `unknown-feature-${String(index)}`,
+          facetHint: 'feature' as const,
+          reasonCode: `hard-reason-${String(index)}`,
+        }),
+      ),
+      candidateReferences: Array.from(
+        { length: CAPABILITY_QUERY_LIMITS.candidateReferences },
+        (_, index) => ({
+          referenceId: `reference-${String(index).padStart(2, '0')}`,
+          kind: 'candidate-id' as const,
+          value: `unknown-candidate-${String(index)}`,
+          intent: 'compare' as const,
+        }),
+      ),
+    });
+    const first = normalizeCapabilityQueryV1(maximum, await taxonomy());
+    const second = normalizeCapabilityQueryV1(maximum, await taxonomy());
+    expect(first.ok).toBe(true);
+    expect(second).toEqual(first);
+    if (!first.ok) return;
+    expect(first.value.outcome).toBe('clarification-required');
+    expect(first.value.unresolvedTerms).toHaveLength(50);
+    expect(first.value.normalizationSteps.length).toBeLessThanOrEqual(
+      CAPABILITY_QUERY_LIMITS.normalizationSteps,
+    );
+    expect(first.value.clarifications.length).toBeLessThanOrEqual(
+      CAPABILITY_QUERY_LIMITS.clarifications,
+    );
+    expect(parseCapabilityQueryNormalizationResultV1(first.value).ok).toBe(
+      true,
+    );
+  });
+
+  it('rejects correctly digested but semantically impossible standalone results', async () => {
+    const normalized = await normalize();
+    const withConstraint = await normalize(
+      input({
+        draftConstraints: [
+          {
+            constraintId: 'constraint-redis',
+            modality: 'required',
+            statement: 'Require Redis.',
+            originalTerm: 'redis',
+            facetHint: 'infrastructure',
+            reasonCode: 'redis-required',
+          },
+        ],
+      }),
+    );
+    const withCandidate = await normalize(
+      input({
+        capabilityTerms: [{ termId: 'term-shared', originalTerm: 'redis' }],
+        candidateReferences: [
+          {
+            referenceId: 'reference-auth',
+            kind: 'candidate-id',
+            value: 'auth-candidate-one',
+            intent: 'compare',
+          },
+        ],
+      }),
+      candidateAuthority(),
+    );
+    const [firstSourceStep, secondSourceStep, ...remainingSteps] =
+      withConstraint.normalizationSteps;
+    if (firstSourceStep === undefined || secondSourceStep === undefined) {
+      throw new Error('Test result must contain two source steps.');
+    }
+    const noncanonicalSteps = [
+      secondSourceStep,
+      firstSourceStep,
+      ...remainingSteps,
+    ].map((step, index) => ({
+      ...step,
+      stepId: `step-${String(index + 1).padStart(3, '0')}`,
+    }));
+    const forgeries = [
+      { ...normalized, primaryFamilyId: null },
+      {
+        ...normalized,
+        unresolvedTerms: [
+          {
+            unresolvedId: 'unresolved-001',
+            sourceKind: 'capability-term' as const,
+            sourceIds: ['term-family'],
+            canonicalTerm: 'unknown-capability',
+            reasonCode: 'unknown-primary-capability',
+            blocking: true,
+          },
+        ],
+      },
+      {
+        ...normalized,
+        clarifications: [
+          {
+            clarificationId: 'clarification-001',
+            reasonCode: 'invented-clarification',
+            sourceIds: ['term-family'],
+            possibleConceptIds: [],
+            context: 'This clarification contradicts normalized outcome.',
+          },
+        ],
+      },
+      { ...normalized, outcome: 'clarification-required' as const },
+      {
+        ...withCandidate,
+        outcome: 'unsupported' as const,
+        primaryFamilyId: null,
+      },
+      {
+        ...withConstraint,
+        normalizedConstraints: withConstraint.normalizedConstraints.map(
+          (constraint) => ({ ...constraint, conceptId: null }),
+        ),
+      },
+      { ...withCandidate, candidateCatalogBinding: null },
+      {
+        ...normalized,
+        normalizationSteps: [...normalized.normalizationSteps].reverse(),
+      },
+      { ...withConstraint, normalizationSteps: noncanonicalSteps },
+    ].map((forgery) => withRecomputedNormalizationIdentity(forgery));
+    for (const [index, forgery] of forgeries.entries()) {
+      expect(
+        parseCapabilityQueryNormalizationResultV1(forgery).ok,
+        `forgery ${String(index + 1)} must fail closed`,
+      ).toBe(false);
+    }
+
+    for (const genuine of [
+      normalized,
+      await normalize(
+        input({
+          capabilityTerms: [
+            { termId: 'term-family', originalTerm: 'job queue' },
+          ],
+        }),
+      ),
+      await normalize(
+        input({
+          capabilityTerms: [
+            { termId: 'term-family', originalTerm: 'authentication' },
+          ],
+        }),
+      ),
+    ]) {
+      expect(parseCapabilityQueryNormalizationResultV1(genuine).ok).toBe(true);
     }
   });
 });

@@ -20,6 +20,7 @@ import {
 } from './capability-query.ts';
 import {
   addIssue,
+  addStableIdIssues,
   compareText,
   prefixIssues,
   resultFromIssues,
@@ -125,6 +126,18 @@ export interface CapabilityQueryNormalizationCore {
   readonly candidateAuthorityUsed: boolean;
 }
 
+export interface CapabilityQueryCandidateCatalogBinding {
+  readonly catalogVersion: string;
+  readonly catalogDigest: string;
+}
+
+export type CapabilityQueryNormalizationSemanticResult = Omit<
+  CapabilityQueryNormalizationCore,
+  'candidateAuthorityUsed'
+> & {
+  readonly candidateCatalogBinding: CapabilityQueryCandidateCatalogBinding | null;
+};
+
 interface ClarificationDraft {
   readonly reasonCode: string;
   readonly sourceIds: readonly string[];
@@ -168,6 +181,12 @@ const TAXONOMY_FACETS = new Set<CapabilityQueryConstraintFacet>([
   'feature',
   'infrastructure',
   'deployment',
+]);
+
+const TERMINAL_PRIMARY_EXCLUSION_REASONS = new Set([
+  'adjacent-capability',
+  'generic-utility',
+  'incidental-capability',
 ]);
 
 export function canonicalizeCapabilityQueryLookupTermV1(
@@ -443,13 +462,13 @@ export function normalizeCapabilityQuery(
     candidateFamilySources,
     clarifications,
   );
-  const allAdjacentExcluded =
+  const allPrimaryTermsExcluded =
     input.candidateReferences.length === 0 &&
     primaryTermClassifications.length > 0 &&
     primaryTermClassifications.every(
       (classification) => classification === 'excluded',
     );
-  if (!allAdjacentExcluded) {
+  if (!allPrimaryTermsExcluded) {
     for (const term of input.capabilityTerms) {
       const unresolvedTerm = unresolved.find(
         (entry) =>
@@ -457,7 +476,8 @@ export function normalizeCapabilityQuery(
           entry.sourceIds.includes(term.termId),
       );
       if (
-        unresolvedTerm?.reasonCode === 'adjacent-capability' &&
+        unresolvedTerm !== undefined &&
+        TERMINAL_PRIMARY_EXCLUSION_REASONS.has(unresolvedTerm.reasonCode) &&
         !clarifications.some(({ sourceIds }) => sourceIds.includes(term.termId))
       ) {
         clarifications.push({
@@ -465,14 +485,14 @@ export function normalizeCapabilityQuery(
           sourceIds: [term.termId],
           possibleConceptIds: [],
           context:
-            'Remove the adjacent term or state an exact supported capability.',
+            'Remove the excluded term or state an exact supported capability meaning.',
         });
       }
     }
   }
   if (
     family === null &&
-    !allAdjacentExcluded &&
+    !allPrimaryTermsExcluded &&
     !clarifications.some(({ reasonCode }) =>
       [
         'cross-family-capability',
@@ -504,10 +524,19 @@ export function normalizeCapabilityQuery(
   const finalizedUnresolved = finalizeUnresolved(unresolved);
   const finalizedClarifications = finalizeClarifications(clarifications);
   const finalizedNotices = finalizeNotices(notices);
+  const hasBlockingUnresolved = finalizedUnresolved.some(
+    ({ blocking }) => blocking,
+  );
+  const hasContradiction = normalizedConstraints.some(
+    ({ resolutionBasis }) => resolutionBasis === 'contradiction',
+  );
   const outcome: CapabilityQueryOutcome =
-    allAdjacentExcluded && finalizedClarifications.length === 0
+    allPrimaryTermsExcluded && finalizedClarifications.length === 0
       ? 'unsupported'
-      : finalizedClarifications.length > 0 || family === null
+      : finalizedClarifications.length > 0 ||
+          hasBlockingUnresolved ||
+          hasContradiction ||
+          family === null
         ? 'clarification-required'
         : 'normalized';
   const coreWithoutSteps = {
@@ -536,6 +565,254 @@ export function normalizeCapabilityQuery(
     addIssue(issues, 'query.normalization', 'normalizationSteps');
   }
   return resultFromIssues({ ...coreWithoutSteps, normalizationSteps }, issues);
+}
+
+export function validateCapabilityQueryNormalizationResult<
+  Value extends CapabilityQueryNormalizationSemanticResult,
+>(value: Value): DomainResult<Value> {
+  const issues: DomainIssue[] = [];
+  validateResultCollectionBounds(value, issues);
+
+  const capabilitySourceIds = new Set<string>();
+  const constraintSourceIds = new Set<string>();
+  const candidateSourceIds = new Set<string>();
+  const allSourceIds = new Set<string>();
+
+  validateGeneratedCollectionIds(
+    value.normalizedConstraints,
+    'normalized-constraint',
+    'normalizedConstraints',
+    ({ normalizedConstraintId }) => normalizedConstraintId,
+    issues,
+  );
+  validateGeneratedCollectionIds(
+    value.unresolvedTerms,
+    'unresolved',
+    'unresolvedTerms',
+    ({ unresolvedId }) => unresolvedId,
+    issues,
+  );
+  validateGeneratedCollectionIds(
+    value.clarifications,
+    'clarification',
+    'clarifications',
+    ({ clarificationId }) => clarificationId,
+    issues,
+  );
+  validateGeneratedCollectionIds(
+    value.notices,
+    'notice',
+    'notices',
+    ({ noticeId }) => noticeId,
+    issues,
+  );
+  validateGeneratedCollectionIds(
+    value.normalizationSteps,
+    'step',
+    'normalizationSteps',
+    ({ stepId }) => stepId,
+    issues,
+  );
+
+  validateStrictOrdering(
+    value.normalizedCapabilityConcepts,
+    ({ conceptId }) => conceptId,
+    'normalizedCapabilityConcepts',
+    issues,
+  );
+  for (const [index, concept] of value.normalizedCapabilityConcepts.entries()) {
+    const path = `normalizedCapabilityConcepts.${String(index)}`;
+    addStableIdIssues(issues, concept.conceptId, `${path}.conceptId`);
+    addStableIdIssues(issues, concept.ruleId, `${path}.ruleId`);
+    validateCanonicalStableIds(
+      concept.sourceTermIds,
+      `${path}.sourceTermIds`,
+      issues,
+    );
+    addSources(
+      concept.sourceTermIds,
+      capabilitySourceIds,
+      allSourceIds,
+      issues,
+    );
+  }
+
+  validateStrictOrdering(
+    value.preservedDeclarations,
+    ({ constraintId }) => constraintId,
+    'preservedDeclarations',
+    issues,
+  );
+  const declarations = new Map<string, PreservedCapabilityQueryDeclaration>();
+  for (const [index, declaration] of value.preservedDeclarations.entries()) {
+    const path = `preservedDeclarations.${String(index)}`;
+    addStableIdIssues(issues, declaration.constraintId, `${path}.constraintId`);
+    if (declarations.has(declaration.constraintId)) {
+      addIssue(issues, 'query.normalization', `${path}.constraintId`);
+    }
+    declarations.set(declaration.constraintId, declaration);
+    constraintSourceIds.add(declaration.constraintId);
+    allSourceIds.add(declaration.constraintId);
+  }
+
+  validateStrictOrdering(
+    value.normalizedConstraints,
+    constraintSortKey,
+    'normalizedConstraints',
+    issues,
+  );
+  const constraintSourceOccurrences = new Map<string, number>();
+  for (const [index, constraint] of value.normalizedConstraints.entries()) {
+    const path = `normalizedConstraints.${String(index)}`;
+    validateCanonicalStableIds(
+      constraint.sourceConstraintIds,
+      `${path}.sourceConstraintIds`,
+      issues,
+    );
+    addStableIdIssues(issues, constraint.ruleId, `${path}.ruleId`);
+    if (constraint.conceptId !== null) {
+      addStableIdIssues(issues, constraint.conceptId, `${path}.conceptId`);
+    }
+    if (constraint.canonicalTerm !== null) {
+      addStableIdIssues(
+        issues,
+        constraint.canonicalTerm,
+        `${path}.canonicalTerm`,
+      );
+    }
+    validateConstraintResolutionShape(constraint, path, issues);
+    for (const sourceId of constraint.sourceConstraintIds) {
+      const declaration = declarations.get(sourceId);
+      if (declaration?.modality !== constraint.modality) {
+        addIssue(issues, 'query.normalization', `${path}.sourceConstraintIds`);
+      }
+      constraintSourceOccurrences.set(
+        sourceId,
+        (constraintSourceOccurrences.get(sourceId) ?? 0) + 1,
+      );
+    }
+  }
+  for (const constraintId of declarations.keys()) {
+    if (constraintSourceOccurrences.get(constraintId) !== 1) {
+      addIssue(
+        issues,
+        'query.normalization',
+        `preservedDeclarations.${constraintId}`,
+      );
+    }
+  }
+  validateContradictionPairs(value.normalizedConstraints, issues);
+
+  validateStrictOrdering(
+    value.resolvedCandidateReferences,
+    ({ referenceId }) => referenceId,
+    'resolvedCandidateReferences',
+    issues,
+  );
+  for (const [
+    index,
+    reference,
+  ] of value.resolvedCandidateReferences.entries()) {
+    const path = `resolvedCandidateReferences.${String(index)}`;
+    addStableIdIssues(issues, reference.referenceId, `${path}.referenceId`);
+    addStableIdIssues(issues, reference.candidateId, `${path}.candidateId`);
+    addStableIdIssues(issues, reference.ruleId, `${path}.ruleId`);
+    addUniqueSource(
+      reference.referenceId,
+      candidateSourceIds,
+      allSourceIds,
+      issues,
+    );
+  }
+
+  validateStrictOrdering(
+    value.unresolvedTerms,
+    unresolvedSortKey,
+    'unresolvedTerms',
+    issues,
+  );
+  for (const [index, unresolvedTerm] of value.unresolvedTerms.entries()) {
+    const path = `unresolvedTerms.${String(index)}`;
+    validateCanonicalStableIds(
+      unresolvedTerm.sourceIds,
+      `${path}.sourceIds`,
+      issues,
+    );
+    addStableIdIssues(issues, unresolvedTerm.reasonCode, `${path}.reasonCode`);
+    if (unresolvedTerm.canonicalTerm !== null) {
+      addStableIdIssues(
+        issues,
+        unresolvedTerm.canonicalTerm,
+        `${path}.canonicalTerm`,
+      );
+    }
+    const expectedSources =
+      unresolvedTerm.sourceKind === 'capability-term'
+        ? capabilitySourceIds
+        : unresolvedTerm.sourceKind === 'constraint'
+          ? constraintSourceIds
+          : candidateSourceIds;
+    for (const sourceId of unresolvedTerm.sourceIds) {
+      if (unresolvedTerm.sourceKind === 'constraint') {
+        if (!declarations.has(sourceId)) {
+          addIssue(issues, 'query.normalization', `${path}.sourceIds`);
+        }
+      } else {
+        addUniqueSource(sourceId, expectedSources, allSourceIds, issues);
+      }
+    }
+  }
+
+  validateStrictOrdering(
+    value.clarifications,
+    clarificationSortKey,
+    'clarifications',
+    issues,
+  );
+  for (const [index, clarification] of value.clarifications.entries()) {
+    const path = `clarifications.${String(index)}`;
+    validateCanonicalStableIds(
+      clarification.sourceIds,
+      `${path}.sourceIds`,
+      issues,
+    );
+    validateCanonicalStableIds(
+      clarification.possibleConceptIds,
+      `${path}.possibleConceptIds`,
+      issues,
+    );
+    addStableIdIssues(issues, clarification.reasonCode, `${path}.reasonCode`);
+    if (
+      clarification.sourceIds.some((sourceId) => !allSourceIds.has(sourceId)) ||
+      !clarificationHasSemanticCause(clarification, value)
+    ) {
+      addIssue(issues, 'query.normalization', path);
+    }
+  }
+
+  validateStrictOrdering(value.notices, noticeSortKey, 'notices', issues);
+  for (const [index, notice] of value.notices.entries()) {
+    const path = `notices.${String(index)}`;
+    validateCanonicalStableIds(notice.sourceIds, `${path}.sourceIds`, issues);
+    addStableIdIssues(issues, notice.reasonCode, `${path}.reasonCode`);
+    addStableIdIssues(
+      issues,
+      notice.replacementAliasKey,
+      `${path}.replacementAliasKey`,
+    );
+    if (
+      notice.reasonCode !== 'deprecated-taxonomy-alias' ||
+      notice.sourceIds.some((sourceId) => !allSourceIds.has(sourceId))
+    ) {
+      addIssue(issues, 'query.normalization', path);
+    }
+  }
+
+  validateNormalizationSteps(value, allSourceIds, issues);
+  validateCandidateBinding(value, issues);
+  validateOutcomeCoherence(value, issues);
+
+  return resultFromIssues(value, issues);
 }
 
 function normalizeConstraints(
@@ -1010,7 +1287,7 @@ function candidateIndexes(
   return {
     'candidate-id': new Map(
       authority.candidates.map((candidate) => [
-        candidate.candidateKey,
+        candidate.candidateId,
         candidate,
       ]),
     ),
@@ -1126,6 +1403,403 @@ function deduplicateBySemanticKey<Value>(
 
 function sequenceId(prefix: string, index: number): string {
   return `${prefix}-${String(index + 1).padStart(3, '0')}`;
+}
+
+function validateResultCollectionBounds(
+  value: CapabilityQueryNormalizationSemanticResult,
+  issues: DomainIssue[],
+): void {
+  const bounds = [
+    [
+      value.normalizedCapabilityConcepts.length,
+      CAPABILITY_QUERY_LIMITS.normalizedCapabilityConcepts,
+      'normalizedCapabilityConcepts',
+    ],
+    [
+      value.normalizedConstraints.length,
+      CAPABILITY_QUERY_LIMITS.normalizedConstraints,
+      'normalizedConstraints',
+    ],
+    [
+      value.preservedDeclarations.length,
+      CAPABILITY_QUERY_LIMITS.draftConstraints,
+      'preservedDeclarations',
+    ],
+    [
+      value.resolvedCandidateReferences.length,
+      CAPABILITY_QUERY_LIMITS.candidateReferences,
+      'resolvedCandidateReferences',
+    ],
+    [
+      value.unresolvedTerms.length,
+      CAPABILITY_QUERY_LIMITS.unresolvedTerms,
+      'unresolvedTerms',
+    ],
+    [
+      value.clarifications.length,
+      CAPABILITY_QUERY_LIMITS.clarifications,
+      'clarifications',
+    ],
+    [value.notices.length, CAPABILITY_QUERY_LIMITS.notices, 'notices'],
+    [
+      value.normalizationSteps.length,
+      CAPABILITY_QUERY_LIMITS.normalizationSteps,
+      'normalizationSteps',
+    ],
+  ] as const;
+  for (const [actual, maximum, path] of bounds) {
+    if (actual > maximum) {
+      addIssue(issues, 'query.normalization', path);
+    }
+  }
+  if (value.normalizationSteps.length < 1) {
+    addIssue(issues, 'query.normalization', 'normalizationSteps');
+  }
+}
+
+function validateGeneratedCollectionIds<Value>(
+  values: readonly Value[],
+  prefix: string,
+  path: string,
+  id: (value: Value) => string,
+  issues: DomainIssue[],
+): void {
+  const ids = new Set<string>();
+  for (const [index, value] of values.entries()) {
+    const actual = id(value);
+    addStableIdIssues(issues, actual, `${path}.${String(index)}`);
+    if (actual !== sequenceId(prefix, index) || ids.has(actual)) {
+      addIssue(issues, 'query.normalization', `${path}.${String(index)}`);
+    }
+    ids.add(actual);
+  }
+}
+
+function validateCanonicalStableIds(
+  values: readonly string[],
+  path: string,
+  issues: DomainIssue[],
+): void {
+  const seen = new Set<string>();
+  for (const [index, value] of values.entries()) {
+    addStableIdIssues(issues, value, `${path}.${String(index)}`);
+    if (seen.has(value)) {
+      addIssue(issues, 'query.normalization', path);
+    }
+    seen.add(value);
+    if (index > 0 && compareText(values[index - 1] ?? '', value) >= 0) {
+      addIssue(issues, 'query.normalization', path);
+    }
+  }
+}
+
+function validateStrictOrdering<Value>(
+  values: readonly Value[],
+  key: (value: Value) => string,
+  path: string,
+  issues: DomainIssue[],
+): void {
+  for (let index = 1; index < values.length; index += 1) {
+    if (
+      compareText(
+        key(values[index - 1] as Value),
+        key(values[index] as Value),
+      ) >= 0
+    ) {
+      addIssue(issues, 'query.normalization', path);
+      return;
+    }
+  }
+}
+
+function addSources(
+  values: readonly string[],
+  kindSources: Set<string>,
+  allSources: Set<string>,
+  issues: DomainIssue[],
+): void {
+  for (const value of values) {
+    addUniqueSource(value, kindSources, allSources, issues);
+  }
+}
+
+function addUniqueSource(
+  value: string,
+  kindSources: Set<string>,
+  allSources: Set<string>,
+  issues: DomainIssue[],
+): void {
+  if (kindSources.has(value) || allSources.has(value)) {
+    addIssue(issues, 'query.normalization', 'sourceIds');
+  }
+  kindSources.add(value);
+  allSources.add(value);
+}
+
+function validateConstraintResolutionShape(
+  constraint: NormalizedCapabilityConstraint,
+  path: string,
+  issues: DomainIssue[],
+): void {
+  const hasConcept = constraint.conceptId !== null;
+  const hasCanonicalTerm = constraint.canonicalTerm !== null;
+  const valid =
+    constraint.resolutionBasis === 'controlled-taxonomy'
+      ? hasConcept && hasCanonicalTerm
+      : constraint.resolutionBasis === 'preserved-declaration'
+        ? !hasConcept && !hasCanonicalTerm
+        : constraint.resolutionBasis === 'contradiction'
+          ? hasConcept && hasCanonicalTerm
+          : constraint.resolutionBasis === 'ambiguity' ||
+              constraint.resolutionBasis === 'exclusion'
+            ? !hasConcept && hasCanonicalTerm
+            : !hasConcept;
+  if (!valid) {
+    addIssue(issues, 'query.normalization', path);
+  }
+}
+
+function validateContradictionPairs(
+  constraints: readonly NormalizedCapabilityConstraint[],
+  issues: DomainIssue[],
+): void {
+  for (const [index, constraint] of constraints.entries()) {
+    if (constraint.resolutionBasis !== 'contradiction') continue;
+    const hasRequired = constraints.some(
+      (candidate) =>
+        candidate !== constraint &&
+        candidate.resolutionBasis === 'contradiction' &&
+        candidate.facet === constraint.facet &&
+        candidate.conceptId === constraint.conceptId &&
+        candidate.modality === 'required',
+    );
+    const hasProhibited = constraints.some(
+      (candidate) =>
+        candidate !== constraint &&
+        candidate.resolutionBasis === 'contradiction' &&
+        candidate.facet === constraint.facet &&
+        candidate.conceptId === constraint.conceptId &&
+        candidate.modality === 'prohibited',
+    );
+    if (!hasRequired || !hasProhibited) {
+      addIssue(
+        issues,
+        'query.normalization',
+        `normalizedConstraints.${String(index)}`,
+      );
+    }
+  }
+}
+
+function clarificationHasSemanticCause(
+  clarification: CapabilityQueryClarification,
+  value: CapabilityQueryNormalizationSemanticResult,
+): boolean {
+  const sharesBlockingSource = value.unresolvedTerms.some(
+    (unresolvedTerm) =>
+      unresolvedTerm.blocking &&
+      unresolvedTerm.sourceIds.some((sourceId) =>
+        clarification.sourceIds.includes(sourceId),
+      ),
+  );
+  const sharesContradictionSource = value.normalizedConstraints.some(
+    (constraint) =>
+      constraint.resolutionBasis === 'contradiction' &&
+      constraint.sourceConstraintIds.some((sourceId) =>
+        clarification.sourceIds.includes(sourceId),
+      ),
+  );
+  const familyReason = new Set([
+    'candidate-family-conflict',
+    'cross-family-capability',
+    'cross-family-candidate-reference',
+    'primary-family-not-established',
+  ]).has(clarification.reasonCode);
+  return (
+    sharesBlockingSource ||
+    sharesContradictionSource ||
+    (familyReason && value.primaryFamilyId === null)
+  );
+}
+
+function validateNormalizationSteps(
+  value: CapabilityQueryNormalizationSemanticResult,
+  allSourceIds: ReadonlySet<string>,
+  issues: DomainIssue[],
+): void {
+  const steps = value.normalizationSteps;
+  const outcomeStep = steps.at(-1);
+  validateStrictOrdering(
+    steps.slice(0, -1),
+    ({ inputSourceIds }) => inputSourceIds[0] ?? '',
+    'normalizationSteps',
+    issues,
+  );
+  if (
+    outcomeStep?.ruleId !== 'derive-normalization-outcome' ||
+    outcomeStep.outputIds.length !== 1 ||
+    outcomeStep.outputIds[0] !== value.outcome ||
+    !sameOrderedValues(
+      outcomeStep.inputSourceIds,
+      [...allSourceIds].sort(compareText),
+    )
+  ) {
+    addIssue(issues, 'query.normalization', 'normalizationSteps');
+  }
+  const representedSources = new Set<string>();
+  for (const [index, step] of steps.entries()) {
+    const path = `normalizationSteps.${String(index)}`;
+    addStableIdIssues(issues, step.ruleId, `${path}.ruleId`);
+    validateCanonicalStableIds(
+      step.inputSourceIds,
+      `${path}.inputSourceIds`,
+      issues,
+    );
+    validateCanonicalStableIds(step.outputIds, `${path}.outputIds`, issues);
+    if (index === steps.length - 1) continue;
+    if (
+      step.inputSourceIds.length !== 1 ||
+      !allSourceIds.has(step.inputSourceIds[0] ?? '') ||
+      representedSources.has(step.inputSourceIds[0] ?? '')
+    ) {
+      addIssue(issues, 'query.normalization', path);
+    }
+    representedSources.add(step.inputSourceIds[0] ?? '');
+  }
+  if (
+    representedSources.size !== allSourceIds.size ||
+    steps.length !== allSourceIds.size + 1
+  ) {
+    addIssue(issues, 'query.normalization', 'normalizationSteps');
+  }
+}
+
+function validateCandidateBinding(
+  value: CapabilityQueryNormalizationSemanticResult,
+  issues: DomainIssue[],
+): void {
+  const unresolvedCandidates = value.unresolvedTerms.filter(
+    ({ sourceKind }) => sourceKind === 'candidate-reference',
+  );
+  if (
+    value.resolvedCandidateReferences.length > 0 &&
+    value.candidateCatalogBinding === null
+  ) {
+    addIssue(issues, 'query.normalization', 'candidateCatalogBinding');
+  }
+  if (
+    value.candidateCatalogBinding !== null &&
+    value.resolvedCandidateReferences.length === 0 &&
+    !unresolvedCandidates.some(
+      ({ reasonCode }) => reasonCode === 'unknown-candidate-reference',
+    )
+  ) {
+    addIssue(issues, 'query.normalization', 'candidateCatalogBinding');
+  }
+  if (
+    value.candidateCatalogBinding === null &&
+    unresolvedCandidates.some(
+      ({ reasonCode }) => reasonCode === 'unknown-candidate-reference',
+    )
+  ) {
+    addIssue(issues, 'query.normalization', 'candidateCatalogBinding');
+  }
+  if (
+    value.candidateCatalogBinding !== null &&
+    unresolvedCandidates.some(
+      ({ reasonCode }) => reasonCode === 'candidate-authority-required',
+    )
+  ) {
+    addIssue(issues, 'query.normalization', 'candidateCatalogBinding');
+  }
+}
+
+function validateOutcomeCoherence(
+  value: CapabilityQueryNormalizationSemanticResult,
+  issues: DomainIssue[],
+): void {
+  const blockingUnresolved = value.unresolvedTerms.filter(
+    ({ blocking }) => blocking,
+  );
+  const contradictions = value.normalizedConstraints.filter(
+    ({ resolutionBasis }) => resolutionBasis === 'contradiction',
+  );
+  const ambiguities = value.normalizedConstraints.filter(
+    ({ resolutionBasis }) => resolutionBasis === 'ambiguity',
+  );
+
+  if (value.outcome !== 'unsupported') {
+    for (const unresolvedTerm of blockingUnresolved) {
+      if (
+        unresolvedTerm.sourceIds.some(
+          (sourceId) =>
+            !value.clarifications.some(({ sourceIds }) =>
+              sourceIds.includes(sourceId),
+            ),
+        )
+      ) {
+        addIssue(issues, 'query.normalization', 'unresolvedTerms');
+      }
+    }
+  }
+
+  if (value.outcome === 'normalized') {
+    const hardTaxonomyConstraintIsNotExact = value.normalizedConstraints.some(
+      (constraint) =>
+        TAXONOMY_FACETS.has(constraint.facet) &&
+        constraint.modality !== 'preferred' &&
+        constraint.resolutionBasis !== 'controlled-taxonomy',
+    );
+    if (
+      value.primaryFamilyId === null ||
+      value.clarifications.length > 0 ||
+      blockingUnresolved.length > 0 ||
+      contradictions.length > 0 ||
+      ambiguities.length > 0 ||
+      hardTaxonomyConstraintIsNotExact
+    ) {
+      addIssue(issues, 'query.normalization', 'outcome');
+    }
+    return;
+  }
+
+  if (value.outcome === 'clarification-required') {
+    if (
+      value.clarifications.length === 0 &&
+      blockingUnresolved.length === 0 &&
+      contradictions.length === 0
+    ) {
+      addIssue(issues, 'query.normalization', 'outcome');
+    }
+    return;
+  }
+
+  const terminalExclusions = blockingUnresolved.filter(
+    (unresolvedTerm) =>
+      unresolvedTerm.sourceKind === 'capability-term' &&
+      TERMINAL_PRIMARY_EXCLUSION_REASONS.has(unresolvedTerm.reasonCode),
+  );
+  if (
+    value.primaryFamilyId !== null ||
+    value.resolvedCandidateReferences.length > 0 ||
+    value.normalizedCapabilityConcepts.length > 0 ||
+    value.clarifications.length > 0 ||
+    contradictions.length > 0 ||
+    terminalExclusions.length < 1 ||
+    terminalExclusions.length !== blockingUnresolved.length
+  ) {
+    addIssue(issues, 'query.normalization', 'outcome');
+  }
+}
+
+function sameOrderedValues(
+  left: readonly string[],
+  right: readonly string[],
+): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
 }
 
 function emptyCore(

@@ -3,6 +3,7 @@ import {
   normalizeCapabilityQuery,
   validateCandidateReferenceAuthority,
   validateCapabilityQueryInput,
+  validateCapabilityQueryNormalizationResult,
   type CandidateReferenceAuthority,
   type CapabilityQueryInput,
 } from '@gitblocks/domain';
@@ -71,6 +72,10 @@ export function parseCapabilityQueryNormalizationResultV1(
     capabilityQueryNormalizationResultV1Validator,
   );
   if (!structural.ok) return structural;
+  const semantic = validateCapabilityQueryNormalizationResult(structural.value);
+  if (!semantic.ok) {
+    return { ok: false, issues: mapDomainIssues(semantic.issues) };
+  }
   const expectedDigest = capabilityQueryNormalizationSemanticDigest(
     structural.value,
   );

@@ -79,9 +79,16 @@ results, and produce deterministic value-safe issues.
   blocking unknowns into bounded clarification, and distinguishes an excluded
   primary capability from an unknown one. It never reads summary prose or
   repository-fingerprint facts.
+- Normalized outcome requires a primary family and rejects every blocking
+  unresolved, contradiction, ambiguity, or uncovered exclusion. The pure
+  standalone-result validator closes generated IDs, ordering, provenance,
+  constraint shapes, clarification coverage, candidate binding, and outcome
+  coherence independently of the full exchange validator.
 - Candidate-reference resolution consumes an injected, exact-key authority
-  bounded to 200 candidates. Domain imports perform no catalog, filesystem,
-  ingestion, provider, database, environment, model, clock, or network work.
+  bounded to 200 candidates. Candidate-ID lookup uses `candidateId` itself;
+  repository and npm keys remain separate exact kinds, with no candidate alias.
+  Domain imports perform no catalog, filesystem, ingestion, provider, database,
+  environment, model, clock, or network work.
 
 Every successful validator returns a fresh canonical value; callers' objects
 and arrays are never mutated.
