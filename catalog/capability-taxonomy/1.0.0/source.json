@@ -5,7 +5,7 @@
       "conceptId": "authorization",
       "kind": "family",
       "displayLabel": "Authorization",
-      "definition": "Controls which authenticated actors may perform actions on protected resources.",
+      "definition": "Controls which actors or principals may perform actions on protected resources.",
       "applicableFamilyIds": ["authorization"],
       "parentConceptId": null,
       "status": "active",
@@ -1498,7 +1498,7 @@
       "replacementAliasKey": null
     },
     {
-      "aliasKey": "log-router",
+      "aliasKey": "audit-log-router",
       "conceptId": "audit-pipeline-router",
       "status": "active",
       "replacementAliasKey": null
@@ -1516,20 +1516,8 @@
       "replacementAliasKey": null
     },
     {
-      "aliasKey": "job-queue",
-      "conceptId": "queue-worker-library",
-      "status": "active",
-      "replacementAliasKey": null
-    },
-    {
-      "aliasKey": "worker-queue",
-      "conceptId": "queue-worker-library",
-      "status": "active",
-      "replacementAliasKey": null
-    },
-    {
       "aliasKey": "cron-scheduler",
-      "conceptId": "in-process-scheduler",
+      "conceptId": "recurring-schedules",
       "status": "active",
       "replacementAliasKey": null
     },
@@ -1654,12 +1642,6 @@
       "replacementAliasKey": null
     },
     {
-      "aliasKey": "hosted-service",
-      "conceptId": "external-hosted-service",
-      "status": "active",
-      "replacementAliasKey": null
-    },
-    {
       "aliasKey": "worker-process",
       "conceptId": "always-on-worker",
       "status": "active",
@@ -1710,14 +1692,14 @@
     {
       "aliasKey": "authorisation",
       "conceptId": "authorization",
-      "status": "deprecated",
-      "replacementAliasKey": "authorization"
+      "status": "active",
+      "replacementAliasKey": null
     },
     {
       "aliasKey": "web-hook",
       "conceptId": "webhooks",
-      "status": "deprecated",
-      "replacementAliasKey": "webhook"
+      "status": "active",
+      "replacementAliasKey": null
     }
   ],
   "ambiguities": [
@@ -1732,6 +1714,22 @@
       "possibleConceptIds": ["audit-logging", "structured-audit-events"],
       "clarificationReasonCode": "capability-scope-ambiguous",
       "clarificationContext": "Event logging may mean an audit capability or only a structured event feature."
+    },
+    {
+      "aliasKey": "hosted-service",
+      "possibleConceptIds": ["external-hosted-service", "managed-service"],
+      "clarificationReasonCode": "adoption-unit-ambiguous",
+      "clarificationContext": "Hosted service does not establish an external infrastructure dependency versus a managed deployment preference."
+    },
+    {
+      "aliasKey": "job-queue",
+      "possibleConceptIds": [
+        "queue-worker-library",
+        "database-backed-job-queue",
+        "broker-backed-job-queue"
+      ],
+      "clarificationReasonCode": "adoption-unit-ambiguous",
+      "clarificationContext": "Job queue does not establish a library, database coordinator, or dedicated broker adoption unit."
     },
     {
       "aliasKey": "logging",
@@ -1750,9 +1748,13 @@
     },
     {
       "aliasKey": "task-queue",
-      "possibleConceptIds": ["broker-backed-job-queue", "queue-worker-library"],
+      "possibleConceptIds": [
+        "queue-worker-library",
+        "database-backed-job-queue",
+        "broker-backed-job-queue"
+      ],
       "clarificationReasonCode": "adoption-unit-ambiguous",
-      "clarificationContext": "Task queue does not establish whether the adopter wants a library or a broker-backed queue."
+      "clarificationContext": "Task queue does not establish a library, database coordinator, or dedicated broker adoption unit."
     },
     {
       "aliasKey": "task-runner",
@@ -1765,6 +1767,16 @@
       "possibleConceptIds": ["concurrency-control", "rate-limiting"],
       "clarificationReasonCode": "feature-scope-ambiguous",
       "clarificationContext": "Throttling may mean concurrent-work admission or time-based request-rate enforcement."
+    },
+    {
+      "aliasKey": "worker-queue",
+      "possibleConceptIds": [
+        "queue-worker-library",
+        "database-backed-job-queue",
+        "broker-backed-job-queue"
+      ],
+      "clarificationReasonCode": "adoption-unit-ambiguous",
+      "clarificationContext": "Worker queue does not establish a library, database coordinator, or dedicated broker adoption unit."
     },
     {
       "aliasKey": "webhook-platform",
@@ -1824,6 +1836,12 @@
       "applicableFamilyIds": ["audit-logging"],
       "exclusionReasonCode": "adjacent-capability",
       "explanation": "Broad observability does not alone establish audit-event semantics."
+    },
+    {
+      "termKey": "log-router",
+      "applicableFamilyIds": ["audit-logging"],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "Generic log routing requires explicit audit-trail intent before it may resolve to the audit taxonomy."
     },
     {
       "termKey": "promise-concurrency",

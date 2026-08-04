@@ -7,9 +7,9 @@
   retrieval evaluation](https://github.com/kgudipati/gitblocks/issues/19)
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
-- State: Milestone 1 is accepted. Milestone 2 taxonomy implementation is
-  complete and awaiting maintainer review; no Milestone 3 work or live
-  materialization is authorized.
+- State: Milestone 1 is accepted. Milestone 2 taxonomy implementation and its
+  exact-alias review correction are complete and awaiting maintainer review;
+  no Milestone 3 work or live materialization is authorized.
 - Last updated: 2026-08-03
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -1106,9 +1106,10 @@ These decisions may not weaken the accepted Issue #19 and ADR 0008 boundaries.
 
 ### 2026-08-03 — Milestone 2 implementation complete
 
-- Added taxonomy `1.0.0` as reviewed source plus generated product authority:
-  85 concepts, 135 resolved aliases, 8 intentional ambiguities, 25 exclusions,
-  2 deprecated aliases, and actual maximum hierarchy depth 2.
+- Added taxonomy `1.0.0` as reviewed source plus generated product authority.
+  After exact-alias review correction it contains 85 concepts, 132 active
+  resolved aliases, 11 intentional ambiguities, 26 exclusions, no live
+  deprecated aliases, and actual maximum hierarchy depth 2.
 - Added pure domain invariants and exact canonical-key lookup, additive TypeBox
   source/authority roots, deterministic generation/digest behavior, bounded
   fixed-path CLI validation, and the protected root command.
@@ -1119,6 +1120,25 @@ These decisions may not weaken the accepted Issue #19 and ADR 0008 boundaries.
   evaluation authority, scorer, baseline, provider call, model call, or Phase 7
   access.
 - Milestone 2 is awaiting maintainer review. Milestone 3 has not begun.
+
+### 2026-08-03 — Milestone 2 exact-alias review correction
+
+- Replaced the over-specific `job-queue`, `worker-queue`, and `hosted-service`
+  resolutions with explicit intentional ambiguities and expanded `task-queue`
+  to retain library, database-backed, and broker-backed adoption units.
+- Bound `cron-scheduler` to recurring behavior rather than in-process
+  deployment, replaced generic `log-router` resolution with exact
+  `audit-log-router`, and classified generic `log-router` as adjacent.
+- Recorded `authorisation` and `web-hook` as active spelling variants, retained
+  synthetic deprecated-alias validation, and removed all live deprecated
+  aliases without inventing replacements.
+- Removed the authentication precondition from the authorization-family
+  definition without otherwise changing the family.
+- Regenerated taxonomy `1.0.0` through the existing reviewed command. The
+  corrected semantic digest is
+  `838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`.
+- Milestone 2 remains awaiting maintainer acceptance. Milestone 3 has not
+  begun.
 
 ## Decision and deviation log
 
@@ -1198,7 +1218,7 @@ entries.
   size, path, and diagnostic behavior.
 - `pnpm runtime:check`, `pnpm format:check`, `pnpm taxonomy:validate`,
   `pnpm contracts:validate`, and `pnpm catalog:validate`: passed. Taxonomy
-  validation reproduced semantic digest
+  validation reproduced the pre-review semantic digest
   `0339c200098cfecebc493e4216df00ef55730f22a87e77a039530a0571006b5d`;
   existing product conformance remained 10 cases/40 candidates and the catalog
   remained 150 candidates with digest
@@ -1218,3 +1238,31 @@ entries.
   moderate dependency audit found no known vulnerabilities.
 - `git diff --check` passed. Final status and complete staged-diff review remain
   publication gates immediately before the single milestone commit.
+
+### 2026-08-03 — Milestone 2 exact-alias correction validation
+
+- The focused live-authority regression failed red because `job-queue`
+  resolved to `queue-worker-library`. After the reviewed source correction, 26
+  focused domain, contract, and command tests passed, including synthetic
+  deprecated-alias mechanics, source permutation, and source/manifest drift.
+- `pnpm runtime:check`, `pnpm format:check`, `pnpm taxonomy:validate`,
+  `pnpm contracts:validate`, and `pnpm catalog:validate` passed. Taxonomy
+  validation reproduced corrected digest
+  `838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`;
+  product conformance remained 10 cases/40 candidates and the public catalog
+  remained 150 candidates at its unchanged digest.
+- `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm architecture:check`,
+  `pnpm repo:check`, and `pnpm security:secrets` passed. Architecture remained
+  765 modules and 2,441 dependencies with zero violations.
+- `pnpm test` passed 81 files and 1,374 tests. `pnpm test:coverage` passed the
+  same suite with 80.26% statements, 73.78% branches, 87.52% functions, and
+  80.64% lines.
+- All existing contract schema digests remained unchanged, including taxonomy
+  authority schema
+  `d8d4c875fc38696e6ead9dcc2821e04754135aa4af71f0fb85198a98187d3f70`
+  and taxonomy source schema
+  `357f34187ff26ea70c663f6009b07841b8045493ad54d2393713f7329a9e7933`.
+- `pnpm verify` and `pnpm verify:ci` passed. Disposable PostgreSQL 18.4 applied
+  4 migrations, verified 25 public product tables, and passed 8 files/62 tests
+  without skips. The dependency audit found no known vulnerabilities. No
+  provider, model, Phase 7, or Milestone 3 operation occurred.

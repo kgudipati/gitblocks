@@ -4,6 +4,11 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import {
+  canonicalizeCapabilityTaxonomy,
+  lookupCapabilityTaxonomyTerm,
+} from '@gitblocks/domain';
+
+import {
   CONTRACT_SCHEMA_NAMES,
   buildCapabilityTaxonomyV1,
   capabilityTaxonomySemanticDigest,
@@ -60,7 +65,7 @@ describe('capability taxonomy contracts', () => {
       contractVersion: '1.0.0',
       taxonomyVersion: '1.0.0',
       semanticDigest:
-        '0339c200098cfecebc493e4216df00ef55730f22a87e77a039530a0571006b5d',
+        '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
     });
     expect(buildCapabilityTaxonomyV1(source)).toEqual(manifest);
     expect(serializeCapabilityTaxonomyV1(manifest)).toBe(
@@ -313,6 +318,93 @@ describe('capability taxonomy contracts', () => {
       'rate-limiting': { architectures: 5, features: 9 },
       webhooks: { architectures: 6, features: 9 },
     });
+  });
+
+  it('preserves reviewed ambiguity and adjacency instead of over-resolving terms', async () => {
+    const source = await loadSource();
+    const taxonomy = canonicalizeCapabilityTaxonomy(source);
+    const queueConcepts = [
+      'broker-backed-job-queue',
+      'database-backed-job-queue',
+      'queue-worker-library',
+    ];
+
+    for (const aliasKey of ['job-queue', 'worker-queue', 'task-queue']) {
+      expect(lookupCapabilityTaxonomyTerm(taxonomy, aliasKey)).toMatchObject({
+        kind: 'ambiguous',
+        aliasKey,
+        possibleConceptIds: queueConcepts,
+        clarificationReasonCode: 'adoption-unit-ambiguous',
+      });
+    }
+
+    const permuted = canonicalizeCapabilityTaxonomy({
+      ...source,
+      resolvedAliases: [...source.resolvedAliases].reverse(),
+      ambiguities: [...source.ambiguities].reverse(),
+      exclusions: [...source.exclusions].reverse(),
+    });
+    for (const aliasKey of ['job-queue', 'worker-queue', 'task-queue']) {
+      expect(lookupCapabilityTaxonomyTerm(permuted, aliasKey)).toEqual(
+        lookupCapabilityTaxonomyTerm(taxonomy, aliasKey),
+      );
+    }
+
+    expect(lookupCapabilityTaxonomyTerm(taxonomy, 'cron-scheduler')).toEqual({
+      kind: 'resolved',
+      aliasKey: 'cron-scheduler',
+      conceptId: 'recurring-schedules',
+      aliasStatus: 'active',
+      replacementAliasKey: null,
+    });
+    expect(
+      lookupCapabilityTaxonomyTerm(taxonomy, 'cron-scheduler'),
+    ).not.toMatchObject({ conceptId: 'in-process-scheduler' });
+
+    expect(lookupCapabilityTaxonomyTerm(taxonomy, 'log-router')).toMatchObject({
+      kind: 'excluded',
+      termKey: 'log-router',
+      applicableFamilyIds: ['audit-logging'],
+    });
+    expect(lookupCapabilityTaxonomyTerm(taxonomy, 'audit-log-router')).toEqual({
+      kind: 'resolved',
+      aliasKey: 'audit-log-router',
+      conceptId: 'audit-pipeline-router',
+      aliasStatus: 'active',
+      replacementAliasKey: null,
+    });
+
+    expect(
+      lookupCapabilityTaxonomyTerm(taxonomy, 'hosted-service'),
+    ).toMatchObject({
+      kind: 'ambiguous',
+      aliasKey: 'hosted-service',
+      possibleConceptIds: ['external-hosted-service', 'managed-service'],
+      clarificationReasonCode: 'adoption-unit-ambiguous',
+    });
+
+    for (const [aliasKey, conceptId] of [
+      ['authorisation', 'authorization'],
+      ['web-hook', 'webhooks'],
+    ] as const) {
+      expect(lookupCapabilityTaxonomyTerm(taxonomy, aliasKey)).toEqual({
+        kind: 'resolved',
+        aliasKey,
+        conceptId,
+        aliasStatus: 'active',
+        replacementAliasKey: null,
+      });
+    }
+    expect(
+      source.resolvedAliases.filter(({ status }) => status === 'deprecated'),
+    ).toEqual([]);
+
+    expect(
+      source.concepts.find(({ conceptId }) => conceptId === 'authorization')
+        ?.definition,
+    ).toBe(
+      'Controls which actors or principals may perform actions on protected resources.',
+    );
   });
 
   it('returns bounded diagnostics without rejected taxonomy values', async () => {

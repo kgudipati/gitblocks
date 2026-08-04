@@ -14,10 +14,11 @@ or rank results.
 - `pnpm taxonomy:generate` is the explicit maintainer command that writes only
   `manifest.json` from `source.json`.
 
-The generated authority contains 85 concepts, 135 resolved aliases, 8
-intentional ambiguity records, and 25 adjacent or excluded term records. Two
-resolved aliases are deprecated. The semantic digest is
-`0339c200098cfecebc493e4216df00ef55730f22a87e77a039530a0571006b5d`.
+The generated authority contains 85 concepts, 132 active resolved aliases, 11
+intentional ambiguity records, and 26 adjacent or excluded term records. The
+live V1 authority has no deprecated aliases; deprecation remains supported and
+validated for future authority versions. The semantic digest is
+`838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`.
 
 Canonical concept IDs and lookup keys use only lowercase ASCII letters,
 digits, and hyphens and are at most 64 characters. Display labels are bounded

@@ -99,9 +99,9 @@ describe('taxonomy authority command', () => {
     await expect(runTaxonomyCommand(root, 'validate')).resolves.toMatchObject({
       mode: 'validate',
       concepts: 85,
-      resolvedAliases: 135,
-      ambiguities: 8,
-      exclusions: 25,
+      resolvedAliases: 132,
+      ambiguities: 11,
+      exclusions: 26,
     });
     expect(await readFile(path, 'utf8')).toBe(before);
     await expect(runTaxonomyCommand(root, 'generate')).resolves.toMatchObject({
