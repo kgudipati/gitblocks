@@ -21,6 +21,12 @@ Milestone 1 and this decision were accepted at commit
 8679461bb7b4eb356ffec7c5e36f0e7ef5ea9eb8 after hosted CI run 30860512727
 completed successfully.
 
+Milestone 3, including its result-invariant correction, was accepted at commit
+a81aea020fde501c70bfffa85dad60113e4e71d1 after hosted CI run 30875378437 and
+Verification job 91885676773 completed successfully. This ADR remains
+accepted; Milestone 4 implements the profile portion without authorizing
+Milestone 5.
+
 ## Context
 
 Phases 5 and 6 established a curated 150-candidate catalog, deterministic
@@ -125,10 +131,9 @@ Normalization occurs locally before transmission approval. It preserves:
 Every normalized constraint retains its input source identity and deterministic
 rule identity. Alias resolution or inference never weakens a hard constraint.
 
-Exact DTO shapes, bounds, canonical projections, and concept IDs remain
-implementation decisions for Milestones 2–4. Their semantic ownership and
-sequence are accepted here; their code-level validity is not presumed by this
-proposed documentation decision.
+The accepted taxonomy and query DTO shapes remain version-bound. Milestone 4
+now fixes the profile DTO shapes, bounds, projections, and digests described
+below; later milestones may not silently widen them.
 
 ### Deterministic candidate profiles
 
@@ -161,6 +166,41 @@ masquerade as provider-derived or artifact-derived facts. Known runtime,
 framework, datastore, infrastructure, deployment, license, lifecycle, and
 security facts cannot be hand-authored to increase coverage.
 
+Milestone 4 adds exactly two product roots:
+DeterministicCandidateProfileV1 and
+DeterministicCandidateProfileAuthorityV1. Every profile contains the exact 27
+ordered fields once. Catalog role/status, capability family, repository
+identity, adoption unit, feature variants, and package identity mapping are
+candidate-wide; all other fields are version/snapshot-specific. Known and
+conflicting version-specific values require an exact non-null scope.
+
+Values are structurally and semantically closed per field ID. A field record
+retains field/scope/state, stable state reason and state rule, nullable value
+extraction rule, exact scope, and bounded source references. Catalog,
+structured-collection, artifact-set-entry, and acyclic derived references are
+the complete source union. There is no arbitrary JSON, universal string,
+narrative, provider-body, URL, or record-digest escape hatch. Repository
+identity is bound to the owning candidate, while package-dependent
+applicability and publication identity must agree with the known package
+mapping.
+
+The committed offline authority's only candidate-specific known-value source
+is the closed parsed `catalog/public-v1/manifest.json`. It extracts catalog
+status, primary/additional family, stable catalog candidate/display/GitHub
+identity, and mapped or known-unmapped npm identity. Catalog status is never
+provider lifecycle state. The taxonomy binds versions/digests and validates
+controlled concepts but assigns none to candidates. Dossier prose, rationale,
+selection sources, repository interviews, historical databases, completion
+Markdown, artifact declarations, and aggregate prose are prohibited fact
+sources. Artifact selection never proves materialization.
+
+For 70 known-unmapped packages, publication/version, runtime/package format,
+and package-repository linkage are not applicable. Those fields remain unknown
+for the 80 mapped packages because no structured provider values are committed.
+All other unpopulated fields retain distinct controlled unknown reasons. The
+authority is mostly unknown by design; historical live proofs are not
+reconstructed from prose.
+
 ### Coverage authority
 
 Retain the investigation's 27-field inventory as:
@@ -188,6 +228,13 @@ The original 70–80% deterministic target remains a later launch/readiness gate
 measured against fields actually consumed by the initial ranker. It cannot be
 claimed by representing all 27 planning fields.
 
+The generated closure is 150 profiles, 27 fields, and 4,050 candidate-field
+cells: 600 known, 210 not applicable, 3,240 unknown, and zero conflicts. Four
+of 27 fields have current known-value extraction. Candidate-side launch
+hard-filter readiness is 2/16 (12.5%); structured broad-retrieval readiness is
+2/9 (22.2%). These percentages remain separate and do not pass the original
+70–80% target.
+
 ### Candidate constraint epistemic state
 
 Candidate constraint evaluation is tri-state:
@@ -200,6 +247,16 @@ Unresolved is neither satisfied nor conflict. It does not pass viability and
 cannot be recommended. A future retrieval contract may preserve it only in a
 separately typed evidence-needed lane with exact unresolved constraints
 disclosed, so broad recall is not silently converted into false certainty.
+
+Milestone 4 evaluates one parsed profile against one accepted normalized query
+only. Exact supported mappings are primary family, architecture to adoption
+unit, feature to capability variants, and required infrastructure. Optional
+infrastructure support does not conflict with a prohibited dependency.
+Unknown/conflict states and non-taxonomy declarations are unresolved;
+not-applicable applies modality-specific conflict/satisfaction behavior.
+Preferred evaluations never change aggregate hard state. The evaluator does
+not accept candidate arrays or return filtering, retrieval, ranking, or
+recommendation results.
 
 ### Controlled taxonomy
 
@@ -581,7 +638,6 @@ proof requires separate authorization and content-free evidence.
 
 ## Deferred work
 
-- Exact profile DTO shape and bounds.
 - Production retrieval request/result contracts and application ports.
 - Production profile persistence and indexes.
 - Retrieval implementation and optimization.

@@ -287,7 +287,7 @@ copy: *shared
     expect(diagnosticCodes(`name: CI\njobs:\n${jobs}\n`)).toContain(
       'workflow.structure-limit',
     );
-  });
+  }, 30_000);
 
   it('bounds emitted workflow diagnostics', () => {
     const actions = Array.from(

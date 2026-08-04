@@ -22,6 +22,10 @@ import {
   capabilityQueryInputV1Schema,
   capabilityQueryNormalizationResultV1Schema,
 } from './capability-query-schemas.ts';
+import {
+  deterministicCandidateProfileAuthorityV1Schema,
+  deterministicCandidateProfileV1Schema,
+} from './deterministic-candidate-profile-schemas.ts';
 
 export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-dossier',
@@ -40,6 +44,8 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'capability-taxonomy-source',
   'capability-query-input',
   'capability-query-normalization-result',
+  'deterministic-candidate-profile',
+  'deterministic-candidate-profile-authority',
 ] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
@@ -60,6 +66,9 @@ const SCHEMAS = {
   'capability-query-input': capabilityQueryInputV1Schema,
   'capability-query-normalization-result':
     capabilityQueryNormalizationResultV1Schema,
+  'deterministic-candidate-profile': deterministicCandidateProfileV1Schema,
+  'deterministic-candidate-profile-authority':
+    deterministicCandidateProfileAuthorityV1Schema,
   'error-envelope': errorEnvelopeV1Schema,
   'fit-assessment-request': fitAssessmentRequestV1Schema,
   'fit-assessment-response': fitAssessmentResponseV1Schema,

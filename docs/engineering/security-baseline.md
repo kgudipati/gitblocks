@@ -460,6 +460,36 @@ Candidate facts come only from approved deterministic inputs with
 explicit provenance and value state; dossier observation prose and repository
 interviews cannot populate deterministic profile authority.
 
+Milestone 4 narrows the committed known-value boundary to typed fields from the
+closed parsed `catalog/public-v1/manifest.json`: catalog role/status,
+primary/additional family, stable catalog GitHub identity, and mapped or
+known-unmapped npm identity. Catalog rationale, selection-source prose,
+README/documentation, dossier observations/unknowns/limitations, historical
+completion Markdown, artifact declarations, and aggregate Markdown counts are
+not fact authority. Catalog `archived`, `moved`, and `negative-control` never
+masquerade as current provider lifecycle state, and an artifact selection never
+proves materialization or presence.
+
+Profile values are closed per field ID. Every known value requires a coherent
+extraction rule and bounded source reference; every version-specific known or
+conflicting claim requires an exact version/snapshot. Unknown never establishes
+compatibility, absence, safety, or satisfaction. Not-applicable requires
+positive source proof and must agree with the known package-mapping field;
+repository identity must retain the owning candidate. Conflict retains at
+least two distinct typed claims without a winner. Source references contain
+only controlled catalog codes,
+future structured snapshot/evidence/topic IDs, future artifact-set entry
+identity/outcome, or acyclic derivation inputs—never URLs, provider bodies,
+repository text, observations, or unrestricted metadata.
+
+`pnpm profiles:validate` reads fixed regular catalog, taxonomy, profile, and
+coverage paths within reviewed byte bounds, rejects symlinks/root escapes,
+regenerates in memory, compares exact bytes, and writes nothing. The explicit
+generation command can write only the fixed profile-authority and coverage
+paths. Both paths are offline and have no environment-derived semantics,
+clock, randomness, network, provider, model, database, candidate code, or
+Phase 7 access.
+
 Retrieval/query evaluation is an outward consumer of product authority.
 Product packages must not import its schemas, corpus, gold, scorers, fixtures,
 or harness code. Ordinary Phase 8 implementation and validation are offline:

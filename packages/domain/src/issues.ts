@@ -44,6 +44,11 @@ export type DomainIssueCode =
   | 'limitation.contradictory'
   | 'limitation.duplicate'
   | 'outcome.disposition'
+  | 'profile.authority'
+  | 'profile.evaluation'
+  | 'profile.invariant'
+  | 'profile.registry'
+  | 'profile.source'
   | 'ranking.candidate'
   | 'ranking.contradiction'
   | 'ranking.cycle'
@@ -174,6 +179,16 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'A semantic candidate limitation must appear only once.',
   'outcome.disposition':
     'Responsible outcome contradicts the candidate dispositions.',
+  'profile.authority':
+    'Deterministic candidate-profile authority violates a closed invariant.',
+  'profile.evaluation':
+    'Candidate constraint evaluation preconditions are not satisfied.',
+  'profile.invariant':
+    'Deterministic candidate profile violates a closed invariant.',
+  'profile.registry':
+    'Deterministic profile field registry does not match its versioned authority.',
+  'profile.source':
+    'Deterministic profile source reference violates an authority invariant.',
   'ranking.candidate':
     'Only supplied recommended or viable candidates may be ranked.',
   'ranking.contradiction':

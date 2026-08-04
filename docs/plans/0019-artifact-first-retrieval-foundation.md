@@ -7,11 +7,13 @@
   retrieval evaluation](https://github.com/kgudipati/gitblocks/issues/19)
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
-- State: Milestones 1 and 2 are accepted. Milestone 3 local pre-contract query
-  input and deterministic normalization, including its result-invariant review
-  correction, are complete and awaiting maintainer acceptance; Milestone 4 and
-  live materialization are not authorized.
-- Last updated: 2026-08-03
+- State: Milestones 1, 2, and 3 are accepted. Milestone 4 deterministic
+  candidate profiles, offline generated authority, coverage measurement, and
+  conservative single-candidate constraint evaluation are implementation- and
+  validation-complete pending maintainer acceptance. ADR 0008 remains
+  accepted. Milestone 5 retrieval/query evaluation and live materialization
+  have not begun and are not authorized.
+- Last updated: 2026-08-04
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
 decisions after acceptance. This plan owns execution order, likely file
@@ -32,6 +34,11 @@ exact-alias correction, was accepted at commit
 Verification job 91864676407 completed successfully. Milestone 3 may implement
 only the local pre-contract query and normalization boundary; exact profile DTO
 shapes remain a Milestone 4 decision.
+
+Milestone 3, including its result-invariant review correction, was accepted at
+commit a81aea020fde501c70bfffa85dad60113e4e71d1 after hosted CI run
+30875378437 and Verification job 91885676773 completed successfully. ADR 0008
+remains accepted. Milestone 4 is in progress; Milestone 5 has not begun.
 
 ## Purpose and user-visible outcome
 
@@ -750,8 +757,12 @@ versioned coverage report.
 - verification/retrieval-v1/profile-coverage.json
 - package.json
 
-Exact committed path names and DTO layout remain subject to Milestone 4
-review.
+The implemented fixed artifacts are
+`catalog/public-v1/candidate-profile-authority.json` and
+`verification/retrieval-v1/profile-coverage.json`. The only product roots are
+DeterministicCandidateProfileV1 and
+DeterministicCandidateProfileAuthorityV1; coverage remains an ingestion-owned
+content-free report rather than a product request/response root.
 
 **Red-first tests**
 
@@ -761,10 +772,24 @@ conflicting source values, source/candidate cross-reference, stale snapshot,
 digest collision, curator/provider authority confusion, hand-authored known
 facts, incomplete catalog closure, and family-coverage miscalculation.
 
+The implemented suites additionally bind the exact 27-field registry/order and
+scope partition, closed field-specific values, all four field states, bounded
+source variants, conflict claim typing, version scope, hostile object forms,
+canonicalization before identity, profile/authority digests, 150-candidate
+closure, byte-identical generation, fixed-path/symlink/size defenses, exact
+per-field/per-family arithmetic, catalog-only extraction, prose non-authority,
+schema-digest compatibility, and conservative single-candidate constraint
+evaluation.
+
 **Compatibility**
 
 CandidateDossierV1, RepositoryFingerprintV1, RepositoryInterviewV1, and
 FitAssessmentRequestV1 remain unchanged. Persistence remains unchanged.
+
+The accepted taxonomy version/digest and both query root schema digests remain
+unchanged. CandidateDossierV1, RepositoryFingerprintV1, existing
+`profileCandidate` behavior, persistence, migrations, packages, dependencies,
+and evaluation files are unchanged.
 
 **Security**
 
@@ -1201,6 +1226,52 @@ These decisions may not weaken the accepted Issue #19 and ADR 0008 boundaries.
   Milestone 3 remains awaiting maintainer acceptance and Milestone 4 has not
   begun.
 
+### 2026-08-03 — Milestone 3 acceptance and Milestone 4 start
+
+- Maintainer accepted Milestone 3 and its result-invariant review correction at
+  commit a81aea020fde501c70bfffa85dad60113e4e71d1 with successful hosted CI run
+  30875378437 and Verification job 91885676773.
+- Reverified the exact branch, head, base, clean worktree, runtime pins, open
+  Issue #19, open draft mergeable PR #20 based on `main`, accepted taxonomy and
+  query schema digests, zero unresolved review threads, and absent OpenAI
+  credential variables before editing. The Phase 7 container and database were
+  not inspected or queried.
+- Began Milestone 4 deterministic profiles and conservative single-candidate
+  constraint evaluation only. ADR 0008 remains accepted. Milestone 5
+  retrieval/query evaluation has not begun.
+
+### 2026-08-03 — Milestone 4 implementation
+
+- Added the immutable pure 27-field domain registry, closed field-specific
+  values and `known | unknown | not-applicable | conflict` records, bounded
+  catalog/structured/artifact/derived sources, canonicalization, semantic
+  profile invariants, and conservative single-candidate constraint evaluation.
+- Added only DeterministicCandidateProfileV1 and
+  DeterministicCandidateProfileAuthorityV1 as additive product roots, with safe
+  unknown-input parsers, domain mapping, deterministic JSON Schema export,
+  semantic digests, and 48-hex profile identities. Coverage is not a product
+  contract. The profile and authority schema digests are
+  `3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61`
+  and `7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf`.
+- Added the fixed-path offline projection, explicit generation command, and
+  read-only ordinary validator. The generated authority contains exactly 150
+  profiles at semantic digest
+  `fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879`;
+  the content-free coverage report digest is
+  `b313d7f7afc3f9324042fff965f9e63c4e0a347be2f7363808cb6107e913fb17`.
+- The first red run failed four focused surfaces because the registry, parsers,
+  and projection did not exist. A later permutation test exposed digesting
+  before canonical field ordering; the constructor now canonicalizes first and
+  then derives the digest and profile ID. No provider, model, database,
+  candidate repository, artifact body, external corpus, or Phase 7 operation
+  occurred. Milestone 5 has not begun.
+- Final semantic review reproduced two correctly re-digested cross-field
+  forgeries: repository identity could name a different candidate, and mapped
+  package identity could retain package-dependent not-applicable states. The
+  profile validator now binds repository identity to its profile owner, binds
+  package applicability to known mapped/unmapped identity, and requires a
+  known publication package name to match the mapped package.
+
 ## Decision and deviation log
 
 ### 2026-08-03 — Seven milestones
@@ -1274,6 +1345,68 @@ bounded context. Exact taxonomy lookup returns it as ambiguous and never
 selects a concept. Turning that result into `clarification-required`, handling
 raw user terms, and preserving query modalities belong exclusively to
 Milestone 3.
+
+### 2026-08-03 — Milestone 4 offline profile authority boundary
+
+The exact profile/authority/rules/denominator versions are
+`deterministic-candidate-profile/1.0.0`,
+`deterministic-candidate-profile-authority/1.0.0`,
+`deterministic-candidate-profile-rules/1.0.0`, and
+`deterministic-profile-coverage/1.0.0`. The domain-owned immutable registry is
+the only field/scope/value/use/facet mapping authority. Six fields are
+candidate-wide and 21 are version/snapshot-specific.
+
+The exact ordered registry and scope partition are:
+
+1. `catalog-role-status` — candidate-wide
+2. `capability-family` — candidate-wide
+3. `repository-identity` — candidate-wide
+4. `adoption-unit-type` — candidate-wide
+5. `capability-variants-features` — candidate-wide
+6. `repository-discovery-metadata` — version-specific
+7. `language-ecosystem` — version-specific
+8. `package-identity-mapping` — candidate-wide
+9. `package-publication-version` — version-specific
+10. `runtime-package-format` — version-specific
+11. `framework-compatibility` — version-specific
+12. `datastore-requirements` — version-specific
+13. `required-infrastructure` — version-specific
+14. `optional-infrastructure` — version-specific
+15. `deployment-self-hosting` — version-specific
+16. `license-identity` — version-specific
+17. `archived-state` — version-specific
+18. `fork-upstream-state` — version-specific
+19. `maintenance-activity` — version-specific
+20. `release-state-recency` — version-specific
+21. `security-advisory-state` — version-specific
+22. `security-policy-presence` — version-specific
+23. `documentation-presence` — version-specific
+24. `test-ci-presence` — version-specific
+25. `artifact-chunk-availability` — version-specific
+26. `package-repository-linkage` — version-specific
+27. `operational-complexity-primitives` — version-specific
+
+The committed offline projection uses only typed candidate-specific fields
+from the closed parsed public catalog manifest. Four extraction rules populate
+catalog role/status, capability family, stable catalog repository identity,
+and package identity mapping. Known-unmapped package mapping is a known value
+and proves not-applicability for exactly publication/version, runtime/package
+format, and package-repository linkage. Every other missing value retains a
+controlled source-specific unknown reason. No curator classification file was
+added.
+
+The generated closure is 150 profiles and 4,050 cells: 600 known, 210 not
+applicable, 3,240 unknown, and zero conflicts. Four of 27 fields have current
+known extraction. Launch hard-filter readiness is 2/16 (12.5%) and broad
+retrieval readiness is separately 2/9 (22.2%); neither is averaged or presented
+as passing the original 70–80% target.
+
+Constraint evaluation remains pure and single-candidate. It supports primary
+family, adoption-unit architecture, feature, and required-infrastructure
+mappings. Unknown/conflict state and preserved non-taxonomy declarations are
+unresolved; optional infrastructure is never treated as a prohibited
+dependency. It returns no candidate list, filtering, retrieval, ranking, or
+recommendation.
 
 ## Validation evidence
 
@@ -1431,3 +1564,79 @@ entries.
   vulnerabilities. The accepted taxonomy source and manifest remained
   byte-identical; no provider, model, candidate, Phase 7, or Milestone 4
   operation occurred.
+
+### 2026-08-03 — Milestone 4 local validation
+
+- The first focused red run failed four surfaces because the field-registry,
+  profile-parser, and projection APIs did not exist. The completed focused
+  Milestone 4 suites passed 5 files and 36 tests. A later input-permutation
+  case exposed profile digesting before canonical field ordering; the profile
+  constructor now canonicalizes first, then derives the semantic digest and
+  48-hex identity.
+- Complete diff review added a correctly re-digested red case proving that
+  unknown state reasons could previously be paired with the wrong state rule.
+  The correction binds every state reason/rule pair and gives future
+  structured, artifact-set, and derived known values distinct field-specific
+  extraction rules and authority-coherent sources; derived dependencies now
+  include conflict-claim sources in cycle detection.
+- A final cross-field probe showed that correctly re-digested repository-owner
+  and package-applicability forgeries were accepted before correction. The
+  regression now rejects both and also closes package-publication identity to
+  the exact mapped package without changing generated bytes or schema shape.
+- The complete matrix found one formatter mismatch in the new evaluator and
+  correctly rejected a formatter-modified generated coverage file. Both fixed
+  generated artifacts are now excluded from formatter ownership and the
+  generator restored byte-identical output. Repository policy also rejected
+  inserting profile validation into the protected `ingestion:verify` graph;
+  the read-only validator remains in ordinary top-level `verify` instead.
+- Adding two large closed strict schemas increased measured parallel-suite and
+  coverage-instrumentation runtimes. Targeted timeout allowances were added
+  only to the affected strict-schema compilation, isolated import, exhaustive
+  authority reparse, byte-identical generation, and existing 150-candidate
+  scale checks. No assertion behavior or production timeout changed.
+- `pnpm runtime:check`, `pnpm format:check`, `pnpm taxonomy:validate`,
+  `pnpm profiles:validate`, `pnpm contracts:validate`,
+  `pnpm catalog:validate`, `pnpm artifacts:validate`,
+  `pnpm ingestion:verify`, `pnpm build`, `pnpm lint`, and `pnpm typecheck`
+  passed. Ingestion verification passed 18 files/202 tests. The accepted
+  taxonomy remained `1.0.0` at semantic digest
+  `838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`;
+  catalog closure remained 150 candidates at digest
+  `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`.
+- `pnpm test` passed 88 files and 1,500 tests. `pnpm test:coverage` passed the
+  same suite with 79.94% statements, 71.98% branches, 86.76% functions, and
+  80.32% lines.
+- `pnpm architecture:check` passed across 782 modules and 2,504 dependency
+  edges with zero violations. `pnpm repo:check` and
+  `pnpm security:secrets` passed.
+- `pnpm verify` passed. The earlier complete `pnpm verify:ci` pass used only the
+  repository-owned disposable PostgreSQL 18.4 path: 8 files/62 tests passed
+  without skips, 4 migrations applied, and 25 public product tables verified;
+  the moderate dependency audit found no known vulnerabilities. A final
+  post-review rerun repeated all ordinary verification successfully but could
+  not provision its disposable database because the Docker daemon was
+  unavailable. The dependency audit was repeated separately and remained
+  clean. Docker Desktop was not started because doing so could violate the
+  Phase 7 stop boundary; Phase 7 was not inspected, started, attached to,
+  copied from, or queried. Hosted CI remains the final pinned-database rerun.
+- Profile validation reproduced 150 profiles and 4,050 cells: 27/27
+  represented fields, 4/27 extraction-capable fields, 600 known, 3,240
+  unknown, 210 not applicable, and zero conflicts. Per-family closure was:
+  authorization 120/639/51/0, audit-logging 120/660/30/0,
+  background-jobs 120/651/39/0, rate-limiting 120/624/66/0, and webhooks
+  120/666/24/0 for known/unknown/not-applicable/conflict. Candidate-side
+  launch hard-filter readiness remained 2/16 (12.5%) and broad-retrieval
+  readiness remained separately 2/9 (22.2%).
+- The two additive schema digests are
+  `3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61`
+  and `7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf`.
+  The generated profile authority and content-free coverage report retained
+  semantic digests
+  `fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879`
+  and `b313d7f7afc3f9324042fff965f9e63c4e0a347be2f7363808cb6107e913fb17`.
+  Accepted taxonomy/query authorities, query schema digests, dossier and
+  fingerprint semantics, and all preexisting contract schema digests remained
+  unchanged. No persistence, migration, dependency, package, evaluation
+  corpus/scorer, retrieval, ranking, provider, model, candidate-repository,
+  artifact-body, external-corpus, or Phase 7 work occurred. Milestone 5 has
+  not begun.

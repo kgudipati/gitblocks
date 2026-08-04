@@ -57,6 +57,12 @@ import {
   type CapabilityQueryInputV1,
   type CapabilityQueryNormalizationResultV1,
 } from './capability-query-schemas.ts';
+import {
+  deterministicCandidateProfileAuthorityV1Schema,
+  deterministicCandidateProfileV1Schema,
+  type DeterministicCandidateProfileAuthorityV1,
+  type DeterministicCandidateProfileV1,
+} from './deterministic-candidate-profile-schemas.ts';
 
 const ajv = new Ajv2020({
   allErrors: false,
@@ -110,6 +116,14 @@ export const capabilityQueryInputV1Validator =
 export const capabilityQueryNormalizationResultV1Validator =
   ajv.compile<CapabilityQueryNormalizationResultV1>(
     capabilityQueryNormalizationResultV1Schema,
+  );
+export const deterministicCandidateProfileV1Validator =
+  ajv.compile<DeterministicCandidateProfileV1>(
+    deterministicCandidateProfileV1Schema,
+  );
+export const deterministicCandidateProfileAuthorityV1Validator =
+  ajv.compile<DeterministicCandidateProfileAuthorityV1>(
+    deterministicCandidateProfileAuthorityV1Schema,
   );
 
 export type StructuralValidationResult<T> =

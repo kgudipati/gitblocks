@@ -52,6 +52,8 @@ The public V1 parsers are:
 - `parseRepositoryInterviewRequestV1`
 - `parseModelExecutionV1`
 - `parseRepositoryInterviewV1`
+- `parseDeterministicCandidateProfileV1`
+- `parseDeterministicCandidateProfileAuthorityV1`
 
 `validateFitAssessmentExchangeV1` additionally proves that one independently
 valid request and response agree on candidate set, constraints, evidence,
@@ -91,6 +93,18 @@ The additive JSON Schema digests are
 for CapabilityQueryInputV1 and
 `bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b`
 for CapabilityQueryNormalizationResultV1.
+
+The additive deterministic-profile roots are
+`DeterministicCandidateProfileV1` and
+`DeterministicCandidateProfileAuthorityV1`. Their JSON Schema digests are
+`3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61`
+and `7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf`.
+The field schemas are closed per field ID and preserve typed catalog,
+structured-snapshot, artifact-entry, or derived-field provenance without URLs,
+provider bodies, observations, or unrestricted metadata. Constructors
+canonicalize before deriving semantic digests and `profile-` identities from
+the first 48 digest hex characters. The authority has no redundant record
+digest or non-semantic payload.
 
 ## Capability taxonomy authority
 
@@ -225,10 +239,11 @@ frozen and cannot be widened through consumer mutation. Every root has an
 explicit `1.0.0` `$id`, uses Draft 2020-12, and is closed at every untrusted
 object shape. The six accepted fit-assessment roots, three repository-artifact
 roots, three repository-interview roots, and two capability-taxonomy roots
-retain their exact schema digests. The capability-query input and
-normalization-result roots append additively. A root shape change after
-publication requires a separately versioned schema/parser and explicit negotiation;
-controlled fact-vocabulary evolution is negotiated separately.
+retain their exact schema digests. The capability-query input/normalization
+result and two deterministic-profile roots append additively. A root shape
+change after publication requires a separately versioned schema/parser and
+explicit negotiation; controlled fact-vocabulary evolution is negotiated
+separately.
 
 The object-value preflight bounds depth at 32, scheduled/visited values at
 200,000, own properties at 64 per object, array width at 2,000, scalar strings

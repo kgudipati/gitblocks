@@ -14,6 +14,32 @@ manifest. Every entry supplies stable GitHub identity, stable `introducedAt`,
 candidate-specific rationale and selection sources, source declarations,
 status, capability families, and its own file allowlist.
 
+Milestone 4 adds a separate offline projection from the parsed committed
+`catalog/public-v1/manifest.json`. That manifest's typed status, family,
+GitHub identity, and npm mapping fields are the only candidate-specific known
+facts used. Rationale, selection sources, dossiers, observations, completion
+Markdown, artifact selections, provider output, databases, and repository text
+are never reparsed. The generated
+`catalog/public-v1/candidate-profile-authority.json` contains all 150 profiles;
+`verification/retrieval-v1/profile-coverage.json` is aggregate and
+content-free.
+
+`pnpm profiles:validate` regenerates both artifacts in memory, validates
+catalog/taxonomy/profile semantics, ordering, digests, 150-candidate closure,
+and arithmetic, then compares committed bytes without writing.
+`pnpm profiles:generate` is the only write mode and may write only those two
+fixed regular-file paths. Both commands reject symlinks/path escapes and use
+reviewed 2 MiB catalog, 1 MiB taxonomy, 4 MiB profile-authority, and 256 KiB
+coverage bounds. Imports remain effect-free; neither command uses environment
+semantics, a clock, randomness, a network, a provider, a model, persistence, or
+Phase 7 state.
+
+The offline authority is mostly unknown by design: 600 of 4,050 cells are
+known, 210 are not applicable because 70 candidates have no approved npm
+mapping, 3,240 are unknown, and none conflict. This is an honest deterministic
+foundation, not production readiness. Structured materialization remains the
+separately authorized Milestone 7; production retrieval remains unimplemented.
+
 Phase 6 adds a separate `public-artifacts-v1` selection authority without
 changing Phase 5 file allowlists. `artifact-selections.json` contains the
 review-focused proposed additional paths and rationales;

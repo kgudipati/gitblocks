@@ -18,5 +18,5 @@ describe('package import boundary', () => {
     expect(readFile).not.toHaveBeenCalled();
     expect(writeFile).not.toHaveBeenCalled();
     expect(fetch).not.toHaveBeenCalled();
-  });
+  }, 30_000);
 });

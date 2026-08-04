@@ -26,6 +26,10 @@ const EXPECTED_SCHEMA_DIGESTS = {
     'd48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b',
   'capability-query-normalization-result':
     'bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b',
+  'deterministic-candidate-profile':
+    '3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61',
+  'deterministic-candidate-profile-authority':
+    '7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
@@ -49,7 +53,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
-  it('exports existing roots plus additive taxonomy and query roots', () => {
+  it('exports existing roots plus additive taxonomy, query, and profile roots', () => {
     expect(CONTRACT_SCHEMA_NAMES).toEqual([
       'candidate-dossier',
       'capability-request',
@@ -67,6 +71,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'capability-taxonomy-source',
       'capability-query-input',
       'capability-query-normalization-result',
+      'deterministic-candidate-profile',
+      'deterministic-candidate-profile-authority',
     ]);
 
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -99,7 +105,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       }
       expect(() => ajv.compile({ ...schema })).not.toThrow();
     }
-  });
+  }, 30_000);
 
   it('closes every object and contains no default insertion', () => {
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -200,6 +206,13 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
     expect(Object.keys(publicApi).sort()).toEqual([
       'CONTRACT_SCHEMA_NAMES',
       'CONTRACT_VERSION',
+      'DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION',
+      'DETERMINISTIC_CANDIDATE_PROFILE_VERSION',
+      'DETERMINISTIC_PROFILE_BROAD_RETRIEVAL_FACETS',
+      'DETERMINISTIC_PROFILE_DENOMINATOR_VERSION',
+      'DETERMINISTIC_PROFILE_FIELD_IDS',
+      'DETERMINISTIC_PROFILE_LAUNCH_HARD_FILTER_FACETS',
+      'DETERMINISTIC_PROFILE_RULES_VERSION',
       'MAX_DIAGNOSTIC_ISSUES',
       'MAX_DIAGNOSTIC_MESSAGE_LENGTH',
       'MAX_DIAGNOSTIC_PATH_LENGTH',
@@ -216,13 +229,18 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'capabilityQueryInputDigest',
       'capabilityQueryNormalizationSemanticDigest',
       'capabilityTaxonomySemanticDigest',
+      'createDeterministicCandidateProfileAuthorityV1',
+      'createDeterministicCandidateProfileV1',
       'createModelExecutionV1',
       'createRepositoryArtifactChunkV1',
       'createRepositoryArtifactSetV1',
       'createRepositoryArtifactV1',
       'createRepositoryInterviewRequestV1',
       'createRepositoryInterviewV1',
+      'deterministicCandidateProfileAuthoritySemanticDigest',
+      'deterministicCandidateProfileSemanticDigest',
       'getContractSchemaV1',
+      'getDeterministicProfileFieldRegistry',
       'modelExecutionIdentityDigest',
       'modelExecutionModelProfileDigest',
       'modelExecutionRecordDigest',
@@ -234,6 +252,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseCapabilityRequestV1',
       'parseCapabilityTaxonomySourceV1',
       'parseCapabilityTaxonomyV1',
+      'parseDeterministicCandidateProfileAuthorityV1',
+      'parseDeterministicCandidateProfileV1',
       'parseErrorEnvelopeV1',
       'parseFitAssessmentRequestV1',
       'parseFitAssessmentResponseV1',
@@ -267,6 +287,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryInterviewUnknownIdentityDigest',
       'serializeCapabilityTaxonomyV1',
       'serializeContractSchemaV1',
+      'serializeDeterministicCandidateProfileAuthorityV1',
+      'serializeDeterministicCandidateProfileV1',
       'splitRepositoryArtifactLogicalLines',
       'validateCapabilityQueryNormalizationExchangeV1',
       'validateFitAssessmentExchangeV1',

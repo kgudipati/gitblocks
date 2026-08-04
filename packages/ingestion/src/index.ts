@@ -67,6 +67,13 @@ export {
 export { persistCandidateProfile, loadPriorMaterial } from './persist.ts';
 export { profileCandidate } from './profile.ts';
 export {
+  CANDIDATE_PROFILE_COVERAGE_REPORT_VERSION,
+  buildCandidateProfileArtifacts,
+  projectCandidateProfile,
+  type CandidateProfileCoverageReportV1,
+  type CandidateProfileGeneratedArtifacts,
+} from './candidate-profile-projection.ts';
+export {
   collectCandidateSources,
   providerRequestBudget,
   type ProviderTransport,

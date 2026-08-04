@@ -21,6 +21,12 @@ no live provider configuration, runtime service, deployed data store,
 continuous ingestion worker, or network service. Technology choices remain
 open unless an architecture decision record (ADR) approves them.
 
+The non-operational Phase 8 kernel now also contains the exact deterministic
+candidate-profile registry and two contract roots, an offline generated
+150-candidate profile authority, content-free coverage, and pure
+single-candidate constraint evaluation. It contains no candidate generation,
+filtering, retrieval, ranking, recommendation, or profile persistence.
+
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
 [ADR 0001](decisions/0001-agent-native-delivery.md) owns the headless,
@@ -39,7 +45,7 @@ lossless chunking, immutable artifact sets, and artifact operator receipt.
 candidate-owned repository interview, persistence-independent
 application package, provider/durable boundary, immutable specification,
 direct provider adapter, calibration, and live gates.
-[ADR 0008](decisions/0008-artifact-first-retrieval-foundation.md) proposes the
+[ADR 0008](decisions/0008-artifact-first-retrieval-foundation.md) accepts the
 Phase 8 deterministic candidate-profile, taxonomy, pre-contract query, and
 retrieval-evaluation boundaries. It does not approve production retrieval or
 ranking.
@@ -80,6 +86,16 @@ authority, and an optional injected exact candidate-reference authority;
 contracts own closed local-pre-approval DTOs, digests, and complete exchange
 validation. It has no adapter, persistence, provider, model, retrieval, or
 ranking node and does not create CapabilityRequestV1.
+
+The Milestone 4 boundary is also non-operational. Domain owns the immutable
+27-field registry, closed field/state/source invariants, canonicalization, and
+single-candidate constraint evaluation. Contracts own the two additive TypeBox
+roots, safe unknown-input parsers, domain mapping, deterministic schema export,
+semantic digests, and 48-hex profile identity. Ingestion reads only the fixed
+parsed catalog and taxonomy authorities to project all 150 profiles and an
+aggregate content-free coverage report. It performs no provider collection,
+database access, model call, retrieval, ranking, or import of evaluation data.
+Persistence and the repository-interview application are unchanged.
 
 ## Planned system context
 
@@ -136,7 +152,7 @@ flowchart LR
 
 | Component                                | Responsibility or approved direction                                                                                                                                                                                                 | Must not own                                                                                                                                                                                         |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product domain and contract kernel       | Define pure domain invariants plus versioned DTO parsing and deterministic JSON Schema exports                                                                                                                                       | Transport, storage, provider, evaluation-gold, discovery, ranking-engine, or service behavior                                                                                                        |
+| Product domain and contract kernel       | Define pure domain invariants, the deterministic-profile registry and single-candidate constraint semantics, plus versioned DTO parsing and deterministic JSON Schema exports                                                        | Transport, storage, provider, evaluation-gold, discovery, candidate-list filtering, ranking-engine, or service behavior                                                                              |
 | PostgreSQL persistence adapter           | Persist shared public catalog identity, immutable evidence and approved public artifacts, append-only lifecycle events, exact dossier/artifact-set snapshots, and immutable repository-interview request/execution/interview history | Application use cases or ports, provider behavior, review/selection policy, authentication, organization data, catalog administration, ingestion, retrieval, ranking, transport, or deployment       |
 | Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                                                                                                                                    | Proprietary ranking or silent expansion of GitBlocks permissions                                                                                                                                     |
 | Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure                                                                                                             | Proprietary ranking internals, hidden external writes, or direct production deployment                                                                                                               |
@@ -146,7 +162,7 @@ flowchart LR
 | Repository interview application         | Produce one candidate-owned semantic interview from one exact immutable public artifact set through injected provider and record/reuse ports                                                                                         | Target/request conditioning, dossier input, ranking, model-authored identity, concrete persistence imports, provider HTTP, or evaluation review                                                      |
 | Repository interview operator            | Compose exact offline selection/specification/model/policy/database inputs, persistence adaptation, bounded execution, reuse proof, content-free receipts, and injected telemetry                                                    | Implicit selection, migration application, model selection, live credentials by default, deployment, scheduling, ranking, or evaluation review                                                       |
 | Repository interview pre-live tool       | Bind exact candidate plans and dated profiles; verify offline readiness; materialize a future untracked selection only from a fresh complete receipt and receipt-named sets in the same ephemeral database                           | Historical inventory reconstruction, declaration-derived set identity, provider construction, migration application, pricing/retention approval, live authorization, or committed runtime selections |
-| Repository catalog and ingestion workers | Collect allowed public metadata, evidence, and manifest-selected exact public artifacts with provenance, freshness, bounds, and source policy                                                                                        | Execution/rendering of ingested content, following repository-authored links, or treating repository instructions as trusted                                                                         |
+| Repository catalog and ingestion workers | Collect allowed public metadata/evidence/artifacts; separately project the committed offline candidate-profile authority and content-free coverage from fixed parsed authorities                                                     | Execution/rendering of ingested content, profile fact recovery from prose, Phase 7 state, following repository-authored links, or treating repository instructions as trusted                        |
 | Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                                                                                                                                         | Popularity-only ranking or unsupported certainty                                                                                                                                                     |
 | Evidence store                           | Preserve shared public observations, exact provenance, normalized evidence times, freshness, limitations, unknowns, and reproducible dossier membership                                                                              | Private organization evidence, secrets, unnecessary raw target source, or unsourced conclusions                                                                                                      |
 | Outcome-learning loop                    | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals                                                                                                                                     | Self-modifying policy, undeclared model training, or outcome collection without consent                                                                                                              |

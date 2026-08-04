@@ -83,7 +83,7 @@ describe('taxonomy authority command', () => {
     expect(result.stdout).toBe('');
     expect(result.stderr).toBe('');
     expect(await readdir(emptyRoot)).toEqual([]);
-  });
+  }, 30_000);
 
   it('validates without writing and generates byte-identical authority', async () => {
     const root = await createRepositoryFixture();

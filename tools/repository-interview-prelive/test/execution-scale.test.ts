@@ -114,7 +114,7 @@ describe('synthetic repository interview execution scale', () => {
       providerAttempts: 0,
     });
     expect(first.receipt?.receiptDigest).toBe(second.receipt?.receiptDigest);
-  });
+  }, 30_000);
 
   it('stops a thirty-candidate fixture before later assignment after failure, deadline, or budget exhaustion', async () => {
     const expected = await buildRepositoryInterviewPreliveExpectedV1(

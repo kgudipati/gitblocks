@@ -119,7 +119,12 @@ repository interviews a prerequisite for retrieval or ranking.
 [ADR 0008](docs/architecture/decisions/0008-artifact-first-retrieval-foundation.md)
 govern the Phase 8 artifact-first deterministic profile, controlled taxonomy,
 pre-contract query-normalization, and retrieval-evaluation foundation. Phase 8
-does not implement production retrieval or ranking.
+now includes the exact 27-field deterministic profile registry, two additive
+profile contract roots, an offline generated 150-candidate authority, an
+aggregate coverage report, and conservative single-candidate constraint
+evaluation. The authority is mostly unknown by design and is not a production
+readiness claim. Phase 8 does not implement production retrieval or ranking;
+Milestone 5 retrieval/query evaluation has not begun.
 
 ## Repository map
 
@@ -145,6 +150,7 @@ does not implement production retrieval or ranking.
 | `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority         |
 | `catalog/public-v1/`                     | Curator-owned repository source and deterministically digested public manifest   |
 | `catalog/capability-taxonomy/1.0.0/`     | Reviewed taxonomy source and generated versioned capability authority            |
+| `verification/retrieval-v1/`             | Content-free deterministic profile coverage authority                            |
 | `evals/pilot-v1/`                        | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
 | `schemas/evaluation/`                    | Versioned JSON Schema 2020-12 evaluation contracts                               |
 | `tools/evaluation-harness/`              | Private bounded validator, deterministic scorer, CLI, and tests                  |
@@ -193,6 +199,8 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings             |
 | `pnpm taxonomy:validate`              | Validate taxonomy source, invariants, ordering, digest, and drift   |
 | `pnpm taxonomy:generate`              | Explicitly regenerate the reviewed taxonomy authority               |
+| `pnpm profiles:validate`              | Validate offline profiles, coverage, digests, closure, and drift    |
+| `pnpm profiles:generate`              | Explicitly regenerate the two fixed profile artifacts               |
 | `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB         |
 | `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes         |
 | `pnpm db:test`                        | Run PostgreSQL integration and conformance tests                    |

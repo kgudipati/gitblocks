@@ -8,7 +8,10 @@ now contains private production-owned packages for the pure domain, versioned
 fixed-candidate contracts, and an injected PostgreSQL adapter for immutable
 public evidence, dossiers, and exact repository artifacts, plus a bounded
 public-source ingestion adapter and a persistence-independent
-repository-interview application with an offline operator. Live calibration
+repository-interview application with an offline operator. Phase 8 also has a
+pure 27-field deterministic-profile registry, two additive profile roots, an
+offline generated 150-candidate authority, content-free coverage, and
+single-candidate constraint evaluation. Live calibration
 failed and selected no profile. No API, MCP service, scanner, discovery
 service, deployed database, deployment, or end-to-end adoption workflow is
 implemented or available yet.
@@ -150,9 +153,12 @@ a reviewed result contribute to new CapabilityRequestV1 authority. No current
 helper performs that transition. Alias expansion and deterministic rules never
 weaken a hard constraint.
 
-DeterministicCandidateProfileV1 will be candidate-owned, separately versioned,
+DeterministicCandidateProfileV1 is candidate-owned, separately versioned,
 structured deterministic authority with known, unknown, not-applicable, and
-conflict value states plus extraction and source provenance. It does not
+conflict value states plus extraction and bounded source provenance. The
+additive DeterministicCandidateProfileAuthorityV1 root canonically binds all
+150 catalog candidates to the exact catalog, taxonomy, denominator, and
+profile-rules versions and semantic digests. It does not
 replace or reinterpret CandidateDossierV1 evidence observations,
 RepositoryFingerprintV1 minimized target-codebase facts, RepositoryInterviewV1
 optional semantic enrichment, or FitAssessmentRequestV1. In particular,
@@ -160,12 +166,42 @@ CandidateDossierV1 observation prose is never reparsed into structured profile
 facts, and repository interviews never populate deterministic profile
 authority.
 
-Candidate constraint evaluation is satisfied, conflict, or unresolved.
+The exact denominator is `deterministic-profile-coverage/1.0.0` with 27
+ordered fields. Each profile contains every field exactly once. Six fields are
+candidate-wide—catalog role/status, capability family, repository identity,
+adoption unit, feature variants, and package identity mapping—and the other 21
+require a version or snapshot when known. Values are closed per field ID; no
+arbitrary JSON, universal string value, narrative, or URL provenance escape
+hatch exists.
+
+The committed offline authority uses only typed fields from the parsed
+`catalog/public-v1/manifest.json` for candidate-specific known values:
+catalog status, primary/additional family, stable catalog GitHub identity, and
+mapped or known-unmapped npm identity. The taxonomy validates controlled IDs
+and binds the authority but assigns no candidate concepts. An unmapped package
+makes publication, runtime/package format, and package-repository linkage not
+applicable; the mapped cases remain unknown without committed structured
+provider authority. All other fields remain controlled unknowns. The resulting
+600 known, 210 not-applicable, 3,240 unknown, and zero conflict cells are an
+honest foundation, not production readiness. Historical provider or artifact
+proofs are not reconstructed from prose. Repository identity remains bound to
+the profile's candidate, and package-dependent applicability and publication
+identity must agree with the profile's known mapped/unmapped package value.
+
+Candidate constraint evaluation for one profile and one accepted normalized
+query is satisfied, conflict, or unresolved.
 Unresolved is neither satisfied nor conflict: such a candidate is not viable
 and must not be recommended, although it may remain in a separately typed
 evidence-needed lane with the unresolved constraint disclosed. Phase 8
 evaluation authority remains independent of fixed-candidate ranking gold and
 repository-interview audit data, and product packages must not import it.
+The current exact mappings are primary family, architecture to adoption unit,
+feature to capability variants, and required infrastructure only. Optional
+infrastructure support does not become a prohibited dependency. Preserved
+runtime, framework, datastore, license, maintenance, release, or security
+declarations remain unresolved until an exact reviewed controlled mapping
+exists. The evaluator does not generate, filter, retrieve, rank, or recommend
+candidates.
 
 ## Relevance is not adoption fit
 
