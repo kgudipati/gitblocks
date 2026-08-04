@@ -12,6 +12,23 @@ export {
   MAXIMUM_DOMAIN_ISSUE_PATH_LENGTH,
   STABLE_ID_MAX_LENGTH,
 } from './issues.ts';
+export {
+  CAPABILITY_TAXONOMY_CONCEPT_KINDS,
+  CAPABILITY_TAXONOMY_LIMITS,
+  canonicalizeCapabilityTaxonomy,
+  lookupCapabilityTaxonomyTerm,
+  validateCapabilityTaxonomy,
+} from './capability-taxonomy.ts';
+export type {
+  CapabilityTaxonomy,
+  CapabilityTaxonomyAmbiguity,
+  CapabilityTaxonomyConcept,
+  CapabilityTaxonomyConceptKind,
+  CapabilityTaxonomyExclusion,
+  CapabilityTaxonomyLookupResult,
+  CapabilityTaxonomyRecordStatus,
+  CapabilityTaxonomyResolvedAlias,
+} from './capability-taxonomy.ts';
 export { getCapabilityFamilies } from './model.ts';
 export {
   validateFitAssessmentExchange,

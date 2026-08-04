@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsc --build",
-    "typecheck": "tsc --project tsconfig.test.json --noEmit"
+    "typecheck": "tsc --project tsconfig.test.json --noEmit && tsc --project scripts/tsconfig.json --noEmit"
   },
   "dependencies": {
     "@gitblocks/domain": "workspace:0.0.0",

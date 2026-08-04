@@ -17,6 +17,22 @@ export {
   splitRepositoryArtifactLogicalLines,
 } from './artifact-identity.ts';
 export {
+  buildCapabilityTaxonomyV1,
+  capabilityTaxonomySemanticDigest,
+  parseCapabilityTaxonomySourceV1,
+  parseCapabilityTaxonomyV1,
+  serializeCapabilityTaxonomyV1,
+} from './capability-taxonomy-contracts.ts';
+export type {
+  CapabilityTaxonomyAmbiguityV1,
+  CapabilityTaxonomyConceptV1,
+  CapabilityTaxonomyExclusionV1,
+  CapabilityTaxonomyReleaseMetadataV1,
+  CapabilityTaxonomyResolvedAliasV1,
+  CapabilityTaxonomySourceV1,
+  CapabilityTaxonomyV1,
+} from './capability-taxonomy-schemas.ts';
+export {
   createModelExecutionV1,
   createRepositoryInterviewRequestV1,
   createRepositoryInterviewV1,

@@ -45,6 +45,12 @@ import {
   type RepositoryInterviewRequestV1,
   type RepositoryInterviewV1,
 } from './repository-interview-schemas.ts';
+import {
+  capabilityTaxonomySourceV1Schema,
+  capabilityTaxonomyV1Schema,
+  type CapabilityTaxonomySourceV1,
+  type CapabilityTaxonomyV1,
+} from './capability-taxonomy-schemas.ts';
 
 const ajv = new Ajv2020({
   allErrors: false,
@@ -88,6 +94,11 @@ export const modelExecutionV1Validator = ajv.compile<ModelExecutionV1>(
 );
 export const repositoryInterviewV1Validator =
   ajv.compile<RepositoryInterviewV1>(repositoryInterviewV1Schema);
+export const capabilityTaxonomySourceV1Validator =
+  ajv.compile<CapabilityTaxonomySourceV1>(capabilityTaxonomySourceV1Schema);
+export const capabilityTaxonomyV1Validator = ajv.compile<CapabilityTaxonomyV1>(
+  capabilityTaxonomyV1Schema,
+);
 
 export type StructuralValidationResult<T> =
   | {

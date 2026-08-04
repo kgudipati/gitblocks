@@ -18,6 +18,10 @@ const EXPECTED_SCHEMA_DIGESTS = {
     'd16d0424ed45edcf61d8084cbd21ebbb396366522d1b1a425b6cf8405e0680af',
   'capability-request':
     '3d1f213efdacd6ff550a66a74703b94abc56aead59cdcb08b7a2769b5a5a1ab9',
+  'capability-taxonomy':
+    'd8d4c875fc38696e6ead9dcc2821e04754135aa4af71f0fb85198a98187d3f70',
+  'capability-taxonomy-source':
+    '357f34187ff26ea70c663f6009b07841b8045493ad54d2393713f7329a9e7933',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
@@ -41,7 +45,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
-  it('exports the six accepted roots and three additive artifact roots', () => {
+  it('exports existing roots plus the additive taxonomy source and authority', () => {
     expect(CONTRACT_SCHEMA_NAMES).toEqual([
       'candidate-dossier',
       'capability-request',
@@ -55,6 +59,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repository-interview-request',
       'model-execution',
       'repository-interview',
+      'capability-taxonomy',
+      'capability-taxonomy-source',
     ]);
 
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -200,6 +206,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'REPOSITORY_ARTIFACT_VERSION',
       'REPOSITORY_INTERVIEW_BOUNDS',
       'REPOSITORY_INTERVIEW_TOPICS',
+      'buildCapabilityTaxonomyV1',
+      'capabilityTaxonomySemanticDigest',
       'createModelExecutionV1',
       'createRepositoryArtifactChunkV1',
       'createRepositoryArtifactSetV1',
@@ -213,6 +221,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'modelExecutionReuseKeyDigest',
       'parseCandidateDossierV1',
       'parseCapabilityRequestV1',
+      'parseCapabilityTaxonomySourceV1',
+      'parseCapabilityTaxonomyV1',
       'parseErrorEnvelopeV1',
       'parseFitAssessmentRequestV1',
       'parseFitAssessmentResponseV1',
@@ -244,6 +254,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryInterviewRequestIdentityDigest',
       'repositoryInterviewRequestRecordDigest',
       'repositoryInterviewUnknownIdentityDigest',
+      'serializeCapabilityTaxonomyV1',
       'serializeContractSchemaV1',
       'splitRepositoryArtifactLogicalLines',
       'validateFitAssessmentExchangeV1',

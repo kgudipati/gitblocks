@@ -14,6 +14,10 @@ import {
   repositoryInterviewRequestV1Schema,
   repositoryInterviewV1Schema,
 } from './repository-interview-schemas.ts';
+import {
+  capabilityTaxonomySourceV1Schema,
+  capabilityTaxonomyV1Schema,
+} from './capability-taxonomy-schemas.ts';
 
 export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-dossier',
@@ -28,6 +32,8 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'repository-interview-request',
   'model-execution',
   'repository-interview',
+  'capability-taxonomy',
+  'capability-taxonomy-source',
 ] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
@@ -43,6 +49,8 @@ export type JsonSchemaValue =
 const SCHEMAS = {
   'candidate-dossier': candidateDossierV1Schema,
   'capability-request': capabilityRequestV1Schema,
+  'capability-taxonomy': capabilityTaxonomyV1Schema,
+  'capability-taxonomy-source': capabilityTaxonomySourceV1Schema,
   'error-envelope': errorEnvelopeV1Schema,
   'fit-assessment-request': fitAssessmentRequestV1Schema,
   'fit-assessment-response': fitAssessmentResponseV1Schema,

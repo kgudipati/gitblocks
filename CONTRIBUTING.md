@@ -149,6 +149,12 @@ check proves that all ten pilot cases map without losing decision-relevant
 fields and that proposed gold is representable; it neither scores quality nor
 changes the gold's proposed/not-reviewed status.
 
+Run `pnpm taxonomy:validate` for any capability-taxonomy source, domain
+invariant, schema, parser, generator, or authority change. The command is
+offline and no-write. Maintainers use `pnpm taxonomy:generate` explicitly after
+reviewing `catalog/capability-taxonomy/1.0.0/source.json`; it writes only the
+matching generated manifest.
+
 ### 6. Review and validation
 
 Run every exact command in the plan and record the outcome in the plan and PR.

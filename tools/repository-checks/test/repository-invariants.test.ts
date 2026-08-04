@@ -33,6 +33,9 @@ const REQUIRED_PATHS = [
   'apps/repository-interview-operator/tsconfig.test.json',
   'catalog/public-v1/candidates.json',
   'catalog/public-v1/manifest.json',
+  'catalog/capability-taxonomy/1.0.0/README.md',
+  'catalog/capability-taxonomy/1.0.0/manifest.json',
+  'catalog/capability-taxonomy/1.0.0/source.json',
   'CONTRIBUTING.md',
   'PLANS.md',
   'README.md',
@@ -65,6 +68,9 @@ const REQUIRED_PATHS = [
   'package.json',
   'packages/contracts/README.md',
   'packages/contracts/package.json',
+  'packages/contracts/scripts/taxonomy-cli.ts',
+  'packages/contracts/scripts/taxonomy-command.ts',
+  'packages/contracts/scripts/tsconfig.json',
   'packages/contracts/src/index.ts',
   'packages/domain/README.md',
   'packages/domain/package.json',
@@ -150,6 +156,10 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'taxonomy:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts --write',
+    'taxonomy:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
     'catalog:seed':
@@ -228,7 +238,7 @@ const ROOT_MANIFEST = JSON.stringify({
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
-      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run',
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && node packages/contracts/scripts/taxonomy-cli.ts',
   },
   devDependencies: {
     typescript: '6.0.3',

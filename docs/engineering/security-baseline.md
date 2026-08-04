@@ -417,6 +417,20 @@ unknown or clarification-required. Alias collisions, deprecated-alias reuse,
 missing parents, cycles, excessive graph depth, and nondeterministic traversal
 fail closed.
 
+Milestone 2 implements this taxonomy boundary as reviewed source plus a
+canonically generated authority. Resolved aliases, intentional ambiguities,
+and adjacent/excluded terms are disjoint record classes. An intentional
+ambiguity with two or more active possible concepts is valid authority, not an
+alias validation failure; exact lookup returns it as ambiguous and does not
+choose a meaning. Raw-term canonicalization and the resulting
+clarification-required flow remain Milestone 3 work.
+
+The package-local authority command reads only the fixed versioned source and
+manifest paths, enforces one-MiB regular-file bounds, rejects symlink and root
+path escapes, returns bounded value-free errors, and writes only the manifest
+under an explicit generation command. Ordinary validation performs no write
+and reads no candidate artifact or provider data.
+
 Local pre-contract query input may retain bounded original terminology,
 explicit requirements, preferences and prohibitions, exact candidate or brand
 references, and an optional minimized repository-fingerprint reference. It

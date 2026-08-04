@@ -36,6 +36,8 @@ values in diagnostics.
 
 The public V1 parsers are:
 
+- `parseCapabilityTaxonomySourceV1`
+- `parseCapabilityTaxonomyV1`
 - `parseCapabilityRequestV1`
 - `parseRepositoryFingerprintV1`
 - `parseCandidateDossierV1`
@@ -53,6 +55,23 @@ The public V1 parsers are:
 valid request and response agree on candidate set, constraints, evidence,
 unknowns, supplied candidate limitations, cutoff, request ID, and correlation
 ID.
+
+## Capability taxonomy authority
+
+The additive `CapabilityTaxonomySourceV1` and `CapabilityTaxonomyV1` roots own
+the reviewed source and generated authority shapes. The source parser accepts
+unknown, performs closed structural validation, and delegates semantic
+invariants to `@gitblocks/domain`. `buildCapabilityTaxonomyV1` canonically
+orders every top-level and nested set, attaches `contractVersion`, and derives
+the semantic digest. The generated parser additionally rejects order, digest,
+or source-projection drift.
+
+The semantic digest excludes only `semanticDigest` itself and the explicitly
+non-semantic `releaseMetadata`; it includes contract version, taxonomy version,
+concepts, resolved aliases, ambiguities, and exclusions. Package-local scripts
+own bounded fixed-path filesystem access. Contract and domain imports remain
+free of filesystem, environment, network, database, model, provider, clock,
+locale, and randomness effects.
 
 `validateRepositoryInterviewExecutionV1` proves that one independently valid
 request, successful model execution, and durable interview agree on candidate
@@ -168,9 +187,9 @@ schema value. `serializeContractSchemaV1(name)` returns its deterministic
 newline-terminated representation. The public schema-name catalog is runtime
 frozen and cannot be widened through consumer mutation. Every root has an
 explicit `1.0.0` `$id`, uses Draft 2020-12, and is closed at every untrusted
-object shape. The six accepted fit-assessment roots and three
-repository-artifact roots retain their exact schema digests; the three
-repository-interview roots are additive. A root shape change after publication
+object shape. The six accepted fit-assessment roots, three repository-artifact
+roots, and three repository-interview roots retain their exact schema digests;
+the two capability-taxonomy roots are additive. A root shape change after publication
 requires a separately versioned schema/parser and explicit negotiation;
 controlled fact-vocabulary evolution is negotiated separately.
 

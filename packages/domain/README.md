@@ -65,6 +65,12 @@ results, and produce deterministic value-safe issues.
   canonicalized.
 - Capability-family inspection also returns a fresh array; live membership
   authority is never exported.
+- Capability-taxonomy invariants own the five exact family roots, the closed
+  `family | architecture | feature | infrastructure | deployment` concept
+  kinds, bounded parent forest, cross-family applicability, term-class
+  separation, and deprecation closure. Exact lookup accepts only an already
+  canonical ASCII key and returns resolved, ambiguous, excluded, or unknown;
+  it performs no raw-term normalization or clarification flow.
 
 Every successful validator returns a fresh canonical value; callers' objects
 and arrays are never mutated.

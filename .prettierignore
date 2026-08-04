@@ -7,3 +7,4 @@ interviews/repository/specifications/*/providers/*.schema.json
 evals/repository-interviews-v1/**/*.json
 schemas/evaluation/repository-interviews/*.schema.json
 apps/repository-interview-operator/schemas/*.schema.json
+catalog/capability-taxonomy/*/manifest.json

@@ -1145,7 +1145,7 @@ describe('RepositoryInterviewV1', () => {
 });
 
 describe('schema compatibility', () => {
-  it('appends exactly three roots and keeps the existing nine unchanged', () => {
+  it('retains interview roots alongside additive taxonomy roots', () => {
     expect(CONTRACT_SCHEMA_NAMES).toEqual([
       'candidate-dossier',
       'capability-request',
@@ -1159,6 +1159,8 @@ describe('schema compatibility', () => {
       'repository-interview-request',
       'model-execution',
       'repository-interview',
+      'capability-taxonomy',
+      'capability-taxonomy-source',
     ]);
     for (const [name, digest] of Object.entries(EXISTING_SCHEMA_DIGESTS)) {
       expect(

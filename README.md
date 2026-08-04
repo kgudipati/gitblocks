@@ -144,6 +144,7 @@ does not implement production retrieval or ranking.
 | `tools/repository-interview-prelive/`    | Content-free pre-live validation and future receipt/database materialization     |
 | `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority         |
 | `catalog/public-v1/`                     | Curator-owned repository source and deterministically digested public manifest   |
+| `catalog/capability-taxonomy/1.0.0/`     | Reviewed taxonomy source and generated versioned capability authority            |
 | `evals/pilot-v1/`                        | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
 | `schemas/evaluation/`                    | Versioned JSON Schema 2020-12 evaluation contracts                               |
 | `tools/evaluation-harness/`              | Private bounded validator, deterministic scorer, CLI, and tests                  |
@@ -190,6 +191,8 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory                   |
 | `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                        |
 | `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings             |
+| `pnpm taxonomy:validate`              | Validate taxonomy source, invariants, ordering, digest, and drift   |
+| `pnpm taxonomy:generate`              | Explicitly regenerate the reviewed taxonomy authority               |
 | `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB         |
 | `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes         |
 | `pnpm db:test`                        | Run PostgreSQL integration and conformance tests                    |

@@ -1,0 +1,2187 @@
+{
+  "contractVersion": "1.0.0",
+  "taxonomyVersion": "1.0.0",
+  "concepts": [
+    {
+      "conceptId": "actor-request-context",
+      "kind": "feature",
+      "displayLabel": "Actor and request-context enrichment",
+      "definition": "Attachment of actor, request, tenant, or correlation context to an audit event.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "always-on-worker",
+      "kind": "infrastructure",
+      "displayLabel": "Always-on worker",
+      "definition": "A continuously running worker process separate from request handling.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "background-jobs",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "attribute-based-access-control",
+      "kind": "feature",
+      "displayLabel": "Attribute-based access control",
+      "definition": "Authorization decisions based on attributes of actors, resources, actions, or context.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "audit-collector-agent",
+      "kind": "architecture",
+      "displayLabel": "Audit collector or agent",
+      "definition": "A resident collector that receives or tails audit events for forwarding.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "audit-event-emitter",
+      "kind": "architecture",
+      "displayLabel": "Application audit-event emitter or library",
+      "definition": "An application-integrated library that emits explicit audit events.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "audit-logging",
+      "kind": "family",
+      "displayLabel": "Audit logging",
+      "definition": "Creates attributable records of security-relevant or business-relevant actions and outcomes.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "audit-pipeline-router",
+      "kind": "architecture",
+      "displayLabel": "Audit pipeline or router",
+      "definition": "A pipeline component that transforms or routes audit events between producers and sinks.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "audit-querying",
+      "kind": "feature",
+      "displayLabel": "Audit querying",
+      "definition": "Search or query facilities designed for stored audit records.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "audit-retention",
+      "kind": "feature",
+      "displayLabel": "Audit retention",
+      "definition": "Controlled retention or lifecycle behavior for audit records.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "audit-storage-search-service",
+      "kind": "architecture",
+      "displayLabel": "Audit storage and search service",
+      "definition": "A service that durably stores audit trails and exposes controlled search or query.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "authorization",
+      "kind": "family",
+      "displayLabel": "Authorization",
+      "definition": "Controls which authenticated actors may perform actions on protected resources.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "background-jobs",
+      "kind": "family",
+      "displayLabel": "Background jobs",
+      "definition": "Schedules or executes deferred, queued, recurring, or durable work outside a request path.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "broker-backed-job-queue",
+      "kind": "architecture",
+      "displayLabel": "Broker-backed job queue",
+      "definition": "A job queue coordinated through a dedicated message broker.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "centralized-authorization-service",
+      "kind": "architecture",
+      "displayLabel": "Centralized authorization service",
+      "definition": "A shared network service that evaluates authorization decisions for multiple applications.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "centralized-rate-limit-service",
+      "kind": "architecture",
+      "displayLabel": "Centralized rate-limit service",
+      "definition": "A network service that evaluates limits for multiple callers or gateways.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "concurrency-control",
+      "kind": "feature",
+      "displayLabel": "Concurrency control",
+      "definition": "A bound on simultaneously executing jobs or admitted requests.",
+      "applicableFamilyIds": [
+        "background-jobs",
+        "rate-limiting"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "database-audit-extension",
+      "kind": "architecture",
+      "displayLabel": "Database audit extension",
+      "definition": "An extension or plugin that records auditable activity within a database boundary.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "database-backed-job-queue",
+      "kind": "architecture",
+      "displayLabel": "Database-backed job queue",
+      "definition": "A job queue whose durable coordination state is stored in a database.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "database-extension",
+      "kind": "deployment",
+      "displayLabel": "Database extension",
+      "definition": "Installed and operated as an extension within a database boundary.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "background-jobs",
+        "rate-limiting"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "datastore-rate-limit-extension",
+      "kind": "architecture",
+      "displayLabel": "Datastore rate-limit extension",
+      "definition": "Rate-limit state and atomic enforcement implemented through datastore-side operations.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "decision-caching",
+      "kind": "feature",
+      "displayLabel": "Decision caching",
+      "definition": "Caching of authorization decisions or policy data under explicit invalidation behavior.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "delayed-jobs",
+      "kind": "feature",
+      "displayLabel": "Delayed jobs",
+      "definition": "Deferral of a job until a future time or delay has elapsed.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "delivery-ordering",
+      "kind": "feature",
+      "displayLabel": "Delivery ordering behavior",
+      "definition": "Explicit guarantees or non-guarantees about event delivery order.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "distributed-enforcement",
+      "kind": "feature",
+      "displayLabel": "Distributed or global enforcement",
+      "definition": "Coordinated enforcement across more than one process or node.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "durable-audit-delivery",
+      "kind": "feature",
+      "displayLabel": "Durable audit delivery",
+      "definition": "Delivery behavior that retains or retries audit events across transient failures.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "durable-execution-platform",
+      "kind": "architecture",
+      "displayLabel": "Durable-execution platform",
+      "definition": "A platform that persists execution history so long-running work can recover deterministically.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "endpoint-management",
+      "kind": "feature",
+      "displayLabel": "Endpoint management",
+      "definition": "Registration, lifecycle, secret, or status management for webhook endpoints.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "external-hosted-service",
+      "kind": "infrastructure",
+      "displayLabel": "External hosted service",
+      "definition": "A provider-operated network service outside the adopting deployment.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "external-policy-decision-point",
+      "kind": "architecture",
+      "displayLabel": "External policy decision point",
+      "definition": "A separately invoked policy decision component that returns authorization decisions.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "failed-delivery-handling",
+      "kind": "feature",
+      "displayLabel": "Dead-letter or failed-delivery handling",
+      "definition": "Retention or routing of webhook deliveries that exhaust ordinary attempts.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "fixed-window",
+      "kind": "feature",
+      "displayLabel": "Fixed window",
+      "definition": "Counting requests in non-overlapping fixed time windows.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "framework-audit-middleware",
+      "kind": "architecture",
+      "displayLabel": "Framework audit middleware",
+      "definition": "Middleware that captures request or application context into audit events.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "framework-authorization-middleware",
+      "kind": "architecture",
+      "displayLabel": "Framework authorization middleware",
+      "definition": "Authorization enforcement integrated through framework middleware or guards.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "gateway-plugin",
+      "kind": "deployment",
+      "displayLabel": "Gateway or plugin",
+      "definition": "Deployed as an API gateway, reverse-proxy, or gateway plugin.",
+      "applicableFamilyIds": [
+        "authorization",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "gateway-rate-limit-plugin",
+      "kind": "architecture",
+      "displayLabel": "Gateway or proxy rate-limit plugin",
+      "definition": "Rate-limit enforcement integrated at an API gateway or reverse proxy.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "gcra",
+      "kind": "feature",
+      "displayLabel": "Generic cell rate algorithm",
+      "definition": "Virtual-scheduling rate enforcement using the generic cell rate algorithm.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "in-process-authorization-library",
+      "kind": "architecture",
+      "displayLabel": "In-process authorization library",
+      "definition": "Authorization logic linked into the application process.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "in-process-embedded",
+      "kind": "deployment",
+      "displayLabel": "In-process or embedded",
+      "definition": "Deployed inside the adopting application process.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "in-process-limiter",
+      "kind": "architecture",
+      "displayLabel": "In-process limiter",
+      "definition": "A rate limiter whose enforcement state is local to one application process.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "in-process-scheduler",
+      "kind": "architecture",
+      "displayLabel": "In-process scheduler",
+      "definition": "A scheduler that runs inside the application process.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "inbound-webhook-receiver",
+      "kind": "architecture",
+      "displayLabel": "Inbound webhook receiver",
+      "definition": "An endpoint or application component that receives webhook requests.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "job-uniqueness-deduplication",
+      "kind": "feature",
+      "displayLabel": "Job uniqueness or deduplication",
+      "definition": "Prevention or coalescing of duplicate queued work under a controlled identity.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "kubernetes",
+      "kind": "infrastructure",
+      "displayLabel": "Kubernetes",
+      "definition": "A Kubernetes cluster required by the adoption or deployment form.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "leaky-bucket",
+      "kind": "feature",
+      "displayLabel": "Leaky bucket",
+      "definition": "Rate smoothing through a bounded bucket drained at a controlled rate.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "managed-service",
+      "kind": "deployment",
+      "displayLabel": "Managed service",
+      "definition": "Operated as an externally managed service.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "message-broker",
+      "kind": "infrastructure",
+      "displayLabel": "Message broker",
+      "definition": "A dedicated broker used to queue or route messages.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "background-jobs",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "missed-schedule-backfill",
+      "kind": "feature",
+      "displayLabel": "Missed-schedule backfill",
+      "definition": "Controlled creation of scheduled work missed while a scheduler was unavailable.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "multi-tenant-policy-modeling",
+      "kind": "feature",
+      "displayLabel": "Multi-tenant policy modeling",
+      "definition": "Policy isolation and modeling for multiple tenants within one deployment.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "outbound-webhook-dispatcher",
+      "kind": "architecture",
+      "displayLabel": "Outbound webhook dispatcher",
+      "definition": "A component that sends event notifications to registered webhook endpoints.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "payload-transformation",
+      "kind": "feature",
+      "displayLabel": "Payload transformation",
+      "definition": "Controlled transformation of outbound or routed webhook payloads.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "policy-as-code",
+      "kind": "feature",
+      "displayLabel": "Policy as code",
+      "definition": "Authorization policy represented as versionable machine-evaluated policy source.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "policy-distribution",
+      "kind": "feature",
+      "displayLabel": "Policy distribution",
+      "definition": "Controlled distribution or synchronization of policy bundles or policy data.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "postgresql",
+      "kind": "infrastructure",
+      "displayLabel": "PostgreSQL",
+      "definition": "A PostgreSQL database used for durable or coordinated state.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "priority",
+      "kind": "feature",
+      "displayLabel": "Job priority",
+      "definition": "Controlled ordering preference between queued jobs.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "queue-worker-library",
+      "kind": "architecture",
+      "displayLabel": "Queue and worker library",
+      "definition": "A library providing producer queues and worker execution within application-managed processes.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "quota",
+      "kind": "feature",
+      "displayLabel": "Quota",
+      "definition": "A bounded allowance of operations over a defined period or allocation.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "rate-limit-failure-mode",
+      "kind": "feature",
+      "displayLabel": "Fail-open or fail-closed behavior",
+      "definition": "Explicit behavior when rate-limit state or the enforcement service is unavailable.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "rate-limiting",
+      "kind": "family",
+      "displayLabel": "Rate limiting",
+      "definition": "Enforces request rates, concurrency bounds, or quotas over a defined key and interval.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "recurring-schedules",
+      "kind": "feature",
+      "displayLabel": "Cron or recurring schedules",
+      "definition": "Time-based creation of work on recurring calendar or interval schedules.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "redelivery",
+      "kind": "feature",
+      "displayLabel": "Manual or automatic redelivery",
+      "definition": "Operator-triggered or policy-triggered repetition of a prior webhook delivery.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "redis",
+      "kind": "infrastructure",
+      "displayLabel": "Redis",
+      "definition": "A Redis-compatible shared datastore.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "relationship-authorization-service",
+      "kind": "architecture",
+      "displayLabel": "Relationship or tuple-based authorization service",
+      "definition": "A service that evaluates authorization from stored subject-resource relationships or tuples.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "relationship-based-access-control",
+      "kind": "feature",
+      "displayLabel": "Relationship-based access control",
+      "definition": "Authorization decisions based on relationships between actors and resources.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "replay-protection",
+      "kind": "feature",
+      "displayLabel": "Replay protection",
+      "definition": "Rejection or detection of repeated signed webhook messages outside accepted replay rules.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "retries",
+      "kind": "feature",
+      "displayLabel": "Retries and backoff",
+      "definition": "Repeated execution after failure with controlled delay or backoff behavior.",
+      "applicableFamilyIds": [
+        "background-jobs",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "role-based-access-control",
+      "kind": "feature",
+      "displayLabel": "Role-based access control",
+      "definition": "Authorization decisions based on controlled roles and role assignments.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "self-hosted-service",
+      "kind": "deployment",
+      "displayLabel": "Self-hosted service",
+      "definition": "Operated as a service within infrastructure controlled by the adopter.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "sensitive-field-handling",
+      "kind": "feature",
+      "displayLabel": "Redaction or sensitive-field handling",
+      "definition": "Controlled removal, masking, or protection of sensitive audit fields.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "separate-control-plane",
+      "kind": "infrastructure",
+      "displayLabel": "Separate control plane",
+      "definition": "A separately operated component that owns policy, coordination, or configuration state.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "shared-store-limiter",
+      "kind": "architecture",
+      "displayLabel": "Shared-store limiter",
+      "definition": "A limiter that coordinates enforcement state through a shared datastore.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "sidecar",
+      "kind": "deployment",
+      "displayLabel": "Sidecar",
+      "definition": "Deployed beside an application process with a local boundary.",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "rate-limiting"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "sidecar-policy-engine",
+      "kind": "architecture",
+      "displayLabel": "Sidecar policy engine",
+      "definition": "A policy engine deployed beside an application and reached through a local process boundary.",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "parentConceptId": "authorization",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "signature-verification",
+      "kind": "feature",
+      "displayLabel": "Signature verification",
+      "definition": "Verification of webhook message authenticity and integrity using a controlled signature scheme.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "signature-verification-library",
+      "kind": "architecture",
+      "displayLabel": "Signature-verification library",
+      "definition": "A library focused on validating webhook authenticity and integrity.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "sliding-window",
+      "kind": "feature",
+      "displayLabel": "Sliding window",
+      "definition": "Counting or estimating requests over a continuously moving time interval.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "structured-audit-events",
+      "kind": "feature",
+      "displayLabel": "Structured audit events",
+      "definition": "Audit records with controlled machine-readable fields rather than unstructured debug text.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "tamper-evidence",
+      "kind": "feature",
+      "displayLabel": "Tamper evidence",
+      "definition": "Mechanisms that make unauthorized audit-record alteration detectable.",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "parentConceptId": "audit-logging",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "token-bucket",
+      "kind": "feature",
+      "displayLabel": "Token bucket",
+      "definition": "Rate enforcement using tokens replenished at a controlled rate.",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "parentConceptId": "rate-limiting",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "webhook-delivery-service",
+      "kind": "architecture",
+      "displayLabel": "Managed or self-hosted delivery service",
+      "definition": "A service that manages outbound webhook delivery and delivery state.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "webhook-gateway-router",
+      "kind": "architecture",
+      "displayLabel": "Webhook gateway or router",
+      "definition": "A gateway that receives, routes, forwards, or fans out webhook traffic.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "webhook-idempotency",
+      "kind": "feature",
+      "displayLabel": "Webhook idempotency",
+      "definition": "Controlled handling that prevents repeated delivery from causing duplicate effects.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "webhook-protocol-toolkit",
+      "kind": "architecture",
+      "displayLabel": "Webhook protocol toolkit",
+      "definition": "A toolkit for interoperable webhook message, signature, or delivery conventions.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": "webhooks",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "webhooks",
+      "kind": "family",
+      "displayLabel": "Webhooks",
+      "definition": "Receives, verifies, routes, or delivers event notifications over HTTP webhook protocols.",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "parentConceptId": null,
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "workflow-dag-engine",
+      "kind": "architecture",
+      "displayLabel": "Workflow or DAG engine",
+      "definition": "An engine that coordinates multi-step workflows or directed acyclic task graphs.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    },
+    {
+      "conceptId": "workflow-state",
+      "kind": "feature",
+      "displayLabel": "Workflow state",
+      "definition": "Persisted state describing progress through a multi-step workflow.",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "parentConceptId": "background-jobs",
+      "status": "active",
+      "replacementConceptId": null
+    }
+  ],
+  "resolvedAliases": [
+    {
+      "aliasKey": "abac",
+      "conceptId": "attribute-based-access-control",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "actor-request-context",
+      "conceptId": "actor-request-context",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "always-on-worker",
+      "conceptId": "always-on-worker",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "attribute-based-access-control",
+      "conceptId": "attribute-based-access-control",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-collector-agent",
+      "conceptId": "audit-collector-agent",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-event-emitter",
+      "conceptId": "audit-event-emitter",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-events",
+      "conceptId": "structured-audit-events",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-log",
+      "conceptId": "audit-logging",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-logging",
+      "conceptId": "audit-logging",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-middleware",
+      "conceptId": "framework-audit-middleware",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-pipeline-router",
+      "conceptId": "audit-pipeline-router",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-querying",
+      "conceptId": "audit-querying",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-retention",
+      "conceptId": "audit-retention",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-storage-search-service",
+      "conceptId": "audit-storage-search-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-store",
+      "conceptId": "audit-storage-search-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "audit-trail",
+      "conceptId": "audit-logging",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "authorisation",
+      "conceptId": "authorization",
+      "status": "deprecated",
+      "replacementAliasKey": "authorization"
+    },
+    {
+      "aliasKey": "authorization",
+      "conceptId": "authorization",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "authorization-library",
+      "conceptId": "in-process-authorization-library",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "authorization-middleware",
+      "conceptId": "framework-authorization-middleware",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "authz",
+      "conceptId": "authorization",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "background-job",
+      "conceptId": "background-jobs",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "background-jobs",
+      "conceptId": "background-jobs",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "broker-backed-job-queue",
+      "conceptId": "broker-backed-job-queue",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "centralized-authorization-service",
+      "conceptId": "centralized-authorization-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "centralized-rate-limit-service",
+      "conceptId": "centralized-rate-limit-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "concurrency-control",
+      "conceptId": "concurrency-control",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "control-plane",
+      "conceptId": "separate-control-plane",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "cron-scheduler",
+      "conceptId": "in-process-scheduler",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "dag-engine",
+      "conceptId": "workflow-dag-engine",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "database-audit-extension",
+      "conceptId": "database-audit-extension",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "database-backed-job-queue",
+      "conceptId": "database-backed-job-queue",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "database-extension",
+      "conceptId": "database-extension",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "datastore-rate-limit-extension",
+      "conceptId": "datastore-rate-limit-extension",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "db-extension",
+      "conceptId": "database-extension",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "decision-caching",
+      "conceptId": "decision-caching",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "delayed-job",
+      "conceptId": "delayed-jobs",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "delayed-jobs",
+      "conceptId": "delayed-jobs",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "delivery-ordering",
+      "conceptId": "delivery-ordering",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "distributed-enforcement",
+      "conceptId": "distributed-enforcement",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "distributed-rate-limiting",
+      "conceptId": "distributed-enforcement",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "durable-audit-delivery",
+      "conceptId": "durable-audit-delivery",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "durable-execution",
+      "conceptId": "durable-execution-platform",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "durable-execution-platform",
+      "conceptId": "durable-execution-platform",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "embedded",
+      "conceptId": "in-process-embedded",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "endpoint-management",
+      "conceptId": "endpoint-management",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "external-hosted-service",
+      "conceptId": "external-hosted-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "external-policy-decision-point",
+      "conceptId": "external-policy-decision-point",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "failed-delivery-handling",
+      "conceptId": "failed-delivery-handling",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "fixed-window",
+      "conceptId": "fixed-window",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "framework-audit-middleware",
+      "conceptId": "framework-audit-middleware",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "framework-authorization-middleware",
+      "conceptId": "framework-authorization-middleware",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "gateway-extension",
+      "conceptId": "gateway-plugin",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "gateway-plugin",
+      "conceptId": "gateway-plugin",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "gateway-rate-limit-plugin",
+      "conceptId": "gateway-rate-limit-plugin",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "gcra",
+      "conceptId": "gcra",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "gcra-limiter",
+      "conceptId": "gcra",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "hosted-service",
+      "conceptId": "external-hosted-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "in-process-authorization-library",
+      "conceptId": "in-process-authorization-library",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "in-process-embedded",
+      "conceptId": "in-process-embedded",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "in-process-limiter",
+      "conceptId": "in-process-limiter",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "in-process-scheduler",
+      "conceptId": "in-process-scheduler",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "inbound-webhook",
+      "conceptId": "inbound-webhook-receiver",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "inbound-webhook-receiver",
+      "conceptId": "inbound-webhook-receiver",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "job-queue",
+      "conceptId": "queue-worker-library",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "job-uniqueness-deduplication",
+      "conceptId": "job-uniqueness-deduplication",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "k8s",
+      "conceptId": "kubernetes",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "kubernetes",
+      "conceptId": "kubernetes",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "leaky-bucket",
+      "conceptId": "leaky-bucket",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "log-router",
+      "conceptId": "audit-pipeline-router",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "managed-service",
+      "conceptId": "managed-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "message-broker",
+      "conceptId": "message-broker",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "message-queue",
+      "conceptId": "message-broker",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "missed-schedule-backfill",
+      "conceptId": "missed-schedule-backfill",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "multi-tenant-policy-modeling",
+      "conceptId": "multi-tenant-policy-modeling",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "outbound-webhook",
+      "conceptId": "outbound-webhook-dispatcher",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "outbound-webhook-dispatcher",
+      "conceptId": "outbound-webhook-dispatcher",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "payload-transformation",
+      "conceptId": "payload-transformation",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "pdp",
+      "conceptId": "external-policy-decision-point",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "policy-as-code",
+      "conceptId": "policy-as-code",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "policy-code",
+      "conceptId": "policy-as-code",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "policy-distribution",
+      "conceptId": "policy-distribution",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "postgres",
+      "conceptId": "postgresql",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "postgresql",
+      "conceptId": "postgresql",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "priority",
+      "conceptId": "priority",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "queue-worker-library",
+      "conceptId": "queue-worker-library",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "quota",
+      "conceptId": "quota",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "rate-limit",
+      "conceptId": "rate-limiting",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "rate-limit-failure-mode",
+      "conceptId": "rate-limit-failure-mode",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "rate-limiter",
+      "conceptId": "rate-limiting",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "rate-limiting",
+      "conceptId": "rate-limiting",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "rbac",
+      "conceptId": "role-based-access-control",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "rebac",
+      "conceptId": "relationship-based-access-control",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "recurring-schedules",
+      "conceptId": "recurring-schedules",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "redelivery",
+      "conceptId": "redelivery",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "redis",
+      "conceptId": "redis",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "redis-store",
+      "conceptId": "redis",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "relationship-authorization-service",
+      "conceptId": "relationship-authorization-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "relationship-based-access-control",
+      "conceptId": "relationship-based-access-control",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "replay-protection",
+      "conceptId": "replay-protection",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "request-quota",
+      "conceptId": "quota",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "retries",
+      "conceptId": "retries",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "role-based-access-control",
+      "conceptId": "role-based-access-control",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "saas",
+      "conceptId": "managed-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "self-hosted",
+      "conceptId": "self-hosted-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "self-hosted-service",
+      "conceptId": "self-hosted-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "sensitive-field-handling",
+      "conceptId": "sensitive-field-handling",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "separate-control-plane",
+      "conceptId": "separate-control-plane",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "shared-store-limiter",
+      "conceptId": "shared-store-limiter",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "sidecar",
+      "conceptId": "sidecar",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "sidecar-policy-engine",
+      "conceptId": "sidecar-policy-engine",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "signature-verification",
+      "conceptId": "signature-verification",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "signature-verification-library",
+      "conceptId": "signature-verification-library",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "sliding-window",
+      "conceptId": "sliding-window",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "sliding-window-limiter",
+      "conceptId": "sliding-window",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "structured-audit-events",
+      "conceptId": "structured-audit-events",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "tamper-evidence",
+      "conceptId": "tamper-evidence",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "token-bucket",
+      "conceptId": "token-bucket",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "token-bucket-limiter",
+      "conceptId": "token-bucket",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "tuple-based-authorization",
+      "conceptId": "relationship-authorization-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "web-hook",
+      "conceptId": "webhooks",
+      "status": "deprecated",
+      "replacementAliasKey": "webhook"
+    },
+    {
+      "aliasKey": "webhook",
+      "conceptId": "webhooks",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhook-delivery",
+      "conceptId": "webhook-delivery-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhook-delivery-service",
+      "conceptId": "webhook-delivery-service",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhook-dispatcher",
+      "conceptId": "outbound-webhook-dispatcher",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhook-gateway-router",
+      "conceptId": "webhook-gateway-router",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhook-idempotency",
+      "conceptId": "webhook-idempotency",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhook-protocol-toolkit",
+      "conceptId": "webhook-protocol-toolkit",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhook-receiver",
+      "conceptId": "inbound-webhook-receiver",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhook-signature",
+      "conceptId": "signature-verification",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "webhooks",
+      "conceptId": "webhooks",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "worker-process",
+      "conceptId": "always-on-worker",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "worker-queue",
+      "conceptId": "queue-worker-library",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "workflow-dag-engine",
+      "conceptId": "workflow-dag-engine",
+      "status": "active",
+      "replacementAliasKey": null
+    },
+    {
+      "aliasKey": "workflow-state",
+      "conceptId": "workflow-state",
+      "status": "active",
+      "replacementAliasKey": null
+    }
+  ],
+  "ambiguities": [
+    {
+      "aliasKey": "access-control",
+      "possibleConceptIds": [
+        "authorization",
+        "role-based-access-control"
+      ],
+      "clarificationReasonCode": "capability-scope-ambiguous",
+      "clarificationContext": "Access control may name the authorization family or a specific role-based control model."
+    },
+    {
+      "aliasKey": "event-logging",
+      "possibleConceptIds": [
+        "audit-logging",
+        "structured-audit-events"
+      ],
+      "clarificationReasonCode": "capability-scope-ambiguous",
+      "clarificationContext": "Event logging may mean an audit capability or only a structured event feature."
+    },
+    {
+      "aliasKey": "logging",
+      "possibleConceptIds": [
+        "audit-logging",
+        "audit-pipeline-router"
+      ],
+      "clarificationReasonCode": "capability-scope-ambiguous",
+      "clarificationContext": "Logging does not establish whether the request is for an audit trail or a general log pipeline."
+    },
+    {
+      "aliasKey": "policy-engine",
+      "possibleConceptIds": [
+        "external-policy-decision-point",
+        "sidecar-policy-engine"
+      ],
+      "clarificationReasonCode": "adoption-unit-ambiguous",
+      "clarificationContext": "Policy engine does not establish whether the component is a remote decision point or a locally deployed sidecar."
+    },
+    {
+      "aliasKey": "task-queue",
+      "possibleConceptIds": [
+        "broker-backed-job-queue",
+        "queue-worker-library"
+      ],
+      "clarificationReasonCode": "adoption-unit-ambiguous",
+      "clarificationContext": "Task queue does not establish whether the adopter wants a library or a broker-backed queue."
+    },
+    {
+      "aliasKey": "task-runner",
+      "possibleConceptIds": [
+        "in-process-scheduler",
+        "queue-worker-library"
+      ],
+      "clarificationReasonCode": "adoption-unit-ambiguous",
+      "clarificationContext": "Task runner does not establish scheduled in-process execution versus queued worker execution."
+    },
+    {
+      "aliasKey": "throttling",
+      "possibleConceptIds": [
+        "concurrency-control",
+        "rate-limiting"
+      ],
+      "clarificationReasonCode": "feature-scope-ambiguous",
+      "clarificationContext": "Throttling may mean concurrent-work admission or time-based request-rate enforcement."
+    },
+    {
+      "aliasKey": "webhook-platform",
+      "possibleConceptIds": [
+        "webhook-delivery-service",
+        "webhook-gateway-router"
+      ],
+      "clarificationReasonCode": "adoption-unit-ambiguous",
+      "clarificationContext": "Webhook platform does not establish delivery-service versus gateway/router responsibilities."
+    }
+  ],
+  "exclusions": [
+    {
+      "termKey": "authentication",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "Authentication establishes identity and does not alone establish authorization."
+    },
+    {
+      "termKey": "broad-sdk-with-incidental-webhooks",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "exclusionReasonCode": "incidental-capability",
+      "explanation": "Incidental webhook helpers in a broad SDK do not alone identify a webhook adoption unit."
+    },
+    {
+      "termKey": "build-runner",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "A build runner does not alone identify application background-job processing."
+    },
+    {
+      "termKey": "ci-workflow",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "A CI workflow runner is not an application background-job adoption unit."
+    },
+    {
+      "termKey": "client-concurrency-helper",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "exclusionReasonCode": "generic-utility",
+      "explanation": "A client concurrency helper without request quota enforcement is not rate limiting."
+    },
+    {
+      "termKey": "debounce-only",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "exclusionReasonCode": "generic-utility",
+      "explanation": "Local debouncing alone does not establish controlled request-rate enforcement."
+    },
+    {
+      "termKey": "easy",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "exclusionReasonCode": "subjective-term",
+      "explanation": "Easy is subjective and does not identify a controlled capability concept."
+    },
+    {
+      "termKey": "enterprise",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "exclusionReasonCode": "subjective-term",
+      "explanation": "Enterprise is a marketing category rather than a controlled capability concept."
+    },
+    {
+      "termKey": "generic-async-helper",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "exclusionReasonCode": "generic-utility",
+      "explanation": "A generic asynchronous helper does not alone provide scheduling or job coordination."
+    },
+    {
+      "termKey": "generic-http-client",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "exclusionReasonCode": "generic-utility",
+      "explanation": "A generic HTTP client does not alone provide webhook protocol or delivery behavior."
+    },
+    {
+      "termKey": "generic-log-formatting",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "exclusionReasonCode": "generic-utility",
+      "explanation": "Formatting operational logs does not alone create an attributable audit trail."
+    },
+    {
+      "termKey": "generic-observability",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "Broad observability does not alone establish audit-event semantics."
+    },
+    {
+      "termKey": "identity-provider",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "An identity provider establishes identity and does not alone define resource authorization."
+    },
+    {
+      "termKey": "jwt-validation",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "JWT validation verifies a credential and does not alone enforce authorization policy."
+    },
+    {
+      "termKey": "lightweight",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "exclusionReasonCode": "subjective-term",
+      "explanation": "Lightweight requires clarification into concrete infrastructure or deployment preferences."
+    },
+    {
+      "termKey": "load-balancing",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "Load balancing distributes traffic and does not alone enforce a request quota."
+    },
+    {
+      "termKey": "metrics-only",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "Metrics without attributable event records do not establish audit logging."
+    },
+    {
+      "termKey": "production-ready",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "exclusionReasonCode": "subjective-term",
+      "explanation": "Production-ready is an unsupported subjective claim rather than a controlled concept."
+    },
+    {
+      "termKey": "promise-concurrency",
+      "applicableFamilyIds": [
+        "background-jobs"
+      ],
+      "exclusionReasonCode": "generic-utility",
+      "explanation": "Promise concurrency helpers do not alone provide durable queued background work."
+    },
+    {
+      "termKey": "retry-policy",
+      "applicableFamilyIds": [
+        "rate-limiting"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "Retry policy controls client repetition and does not alone enforce a request rate."
+    },
+    {
+      "termKey": "scalable",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "exclusionReasonCode": "subjective-term",
+      "explanation": "Scalable requires explicit workload and deployment constraints rather than an opaque label."
+    },
+    {
+      "termKey": "session-management",
+      "applicableFamilyIds": [
+        "authorization"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "Session management maintains identity state and does not alone establish authorization."
+    },
+    {
+      "termKey": "simple",
+      "applicableFamilyIds": [
+        "audit-logging",
+        "authorization",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "exclusionReasonCode": "subjective-term",
+      "explanation": "Simple is subjective and does not identify a controlled capability concept."
+    },
+    {
+      "termKey": "tracing",
+      "applicableFamilyIds": [
+        "audit-logging"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "Distributed tracing observes request flow and is not by itself an audit trail."
+    },
+    {
+      "termKey": "tunnel-only",
+      "applicableFamilyIds": [
+        "webhooks"
+      ],
+      "exclusionReasonCode": "adjacent-capability",
+      "explanation": "An HTTP tunnel alone does not receive, verify, route, or deliver webhooks as a product capability."
+    }
+  ],
+  "releaseMetadata": {
+    "name": "GitBlocks private-alpha capability taxonomy",
+    "notes": "Reviewed V1 authority for the five catalog capability families; candidate assignments are outside this authority."
+  },
+  "semanticDigest": "0339c200098cfecebc493e4216df00ef55730f22a87e77a039530a0571006b5d"
+}

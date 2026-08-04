@@ -7,8 +7,9 @@
   retrieval evaluation](https://github.com/kgudipati/gitblocks/issues/19)
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
-- State: Milestone 1 documentation is in progress. No Phase 8 product
-  implementation or live materialization is authorized.
+- State: Milestone 1 is accepted. Milestone 2 taxonomy implementation is
+  complete and awaiting maintainer review; no Milestone 3 work or live
+  materialization is authorized.
 - Last updated: 2026-08-03
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -22,11 +23,11 @@ The binding Phase 7 closure is:
 > Interview engine retained; live calibration failed; repository interviews
 > deferred; Phase 8 proceeds artifact-first.
 
-Milestone 1 may change documentation and GitHub workflow metadata only. ADR
-0008 remains proposed until this documentation milestone receives maintainer
-review. Exact taxonomy identifiers and the exact serialized shapes of future
-contracts remain later milestone decisions and are not represented as
-code-validated in this plan.
+Milestone 1 was accepted at commit
+8679461bb7b4eb356ffec7c5e36f0e7ef5ea9eb8 after hosted CI run 30860512727
+completed successfully. ADR 0008 is accepted. Milestone 2 may implement only
+the controlled taxonomy authority and validation; exact query and profile DTO
+shapes remain later milestone decisions.
 
 ## Purpose and user-visible outcome
 
@@ -318,7 +319,8 @@ bounded presentation data only. Hard constraints do not use fuzzy matching,
 transliteration, NFKC semantic merging, or confusable folding.
 
 Mixed-script and confusable lookup input becomes unknown or
-clarification-needed. Alias collision, ambiguous aliases, graph cycles, missing
+clarification-needed. Alias collision, accidental ambiguity, term-class
+overlap, graph cycles, missing
 parents, deprecated alias reuse, excessive depth, and nondeterministic
 traversal fail validation.
 
@@ -564,7 +566,8 @@ docs: define Phase 8 retrieval foundation
 
 **Review gate**
 
-ADR 0008 remains proposed. Maintainer review must accept Milestone 1 before
+Completed. ADR 0008 remained proposed through the documentation commit;
+maintainer review accepted Milestone 1 and ADR 0008 before authorizing
 Milestone 2.
 
 **Stop conditions**
@@ -587,17 +590,24 @@ concept IDs during review.
 - packages/domain/src/index.ts
 - packages/domain/test/capability-taxonomy.test.ts
 - packages/contracts/src/capability-taxonomy-schemas.ts
-- packages/contracts/src/parsers.ts
+- packages/contracts/src/capability-taxonomy-contracts.ts
 - packages/contracts/src/structural-validation.ts
 - packages/contracts/src/schema-catalog.ts
 - packages/contracts/src/index.ts
 - packages/contracts/test/capability-taxonomy-contracts.test.ts
-- catalog/capability-taxonomy/1.0.0.json
+- packages/contracts/test/taxonomy-command.test.ts
+- packages/contracts/scripts/taxonomy-command.ts
+- packages/contracts/scripts/taxonomy-cli.ts
+- packages/contracts/scripts/tsconfig.json
+- catalog/capability-taxonomy/1.0.0/source.json
+- catalog/capability-taxonomy/1.0.0/manifest.json
+- catalog/capability-taxonomy/1.0.0/README.md
 - package.json
 
 **Red-first tests**
 
-Duplicate IDs, alias collision, ambiguity, non-ASCII canonical lookup,
+Duplicate IDs, alias collision, valid intentional ambiguity, accidental
+ambiguity, non-ASCII canonical lookup,
 mixed-script/confusable lookup, missing parent, cycle, excessive depth,
 deprecated alias reuse, traversal-order variation, unknown concepts, and
 digest drift.
@@ -617,10 +627,19 @@ merging, network, or model.
 ```text
 pnpm taxonomy:validate
 pnpm contracts:validate
-pnpm test -- packages/domain/test/capability-taxonomy.test.ts packages/contracts/test/capability-taxonomy-contracts.test.ts
+pnpm catalog:validate
 pnpm build
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:coverage
 pnpm architecture:check
+pnpm repo:check
+pnpm security:secrets
 pnpm verify
+pnpm verify:ci
+git diff --check
+git status --short --branch
 ```
 
 **Commit**
@@ -1041,14 +1060,11 @@ is not established.
 
 ## Open implementation decisions
 
-Reserved for Milestone 2 or later review:
+Reserved for Milestone 3 or later review:
 
-- exact taxonomy concept IDs, aliases, display labels, graph bounds, and
-  deprecated-term inventory;
 - exact TypeBox layouts, bounds, and digest projections for
   CapabilityQueryInputV1, CapabilityQueryNormalizationResultV1, and
   DeterministicCandidateProfileV1;
-- exact location and generation workflow for product taxonomy authority;
 - exact generated profile-authority and coverage-report paths;
 - exact extraction rule vocabulary and version;
 - exact controlled license, runtime, framework, datastore, infrastructure, and
@@ -1074,6 +1090,36 @@ These decisions may not weaken the accepted Issue #19 and ADR 0008 boundaries.
 - No product implementation, provider/model call, Phase 7 state access, or
   Milestone 2 work occurred.
 
+### 2026-08-03 — Milestone 1 acceptance and Milestone 2 start
+
+- Maintainer accepted Milestone 1 at commit
+  8679461bb7b4eb356ffec7c5e36f0e7ef5ea9eb8 with successful hosted CI run 30860512727.
+- Transitioned ADR 0008 to accepted.
+- Reverified the exact branch/head/base, clean worktree, runtime pins, open
+  Issue #19, draft PR #20, successful CI, empty review-thread set, absent
+  OPENAI_* variables, and stopped Phase 7 container metadata before editing.
+- Inspected every catalog rationale and artifact selection as inert curator
+  classification input. No provider, candidate, model, database, or Phase 7
+  evidence access occurred.
+- Began Milestone 2 taxonomy authority and validation only. Milestone 3 did not
+  begin.
+
+### 2026-08-03 — Milestone 2 implementation complete
+
+- Added taxonomy `1.0.0` as reviewed source plus generated product authority:
+  85 concepts, 135 resolved aliases, 8 intentional ambiguities, 25 exclusions,
+  2 deprecated aliases, and actual maximum hierarchy depth 2.
+- Added pure domain invariants and exact canonical-key lookup, additive TypeBox
+  source/authority roots, deterministic generation/digest behavior, bounded
+  fixed-path CLI validation, and the protected root command.
+- Preserved the 12 prior schema roots in their prior order and with their exact
+  schema digests. The two taxonomy roots append additively.
+- Added no package, dependency, migration, persistence behavior, ingestion
+  behavior, candidate assignment, query parser, query normalizer, profile,
+  evaluation authority, scorer, baseline, provider call, model call, or Phase 7
+  access.
+- Milestone 2 is awaiting maintainer review. Milestone 3 has not begun.
+
 ## Decision and deviation log
 
 ### 2026-08-03 — Seven milestones
@@ -1094,6 +1140,23 @@ would duplicate existing authority.
 Phase 8 records deterministic profile authority in additive contracts and
 committed generated files. SQL persistence is deferred until production
 retrieval supplies evidence for read/index requirements.
+
+### 2026-08-03 — Taxonomy authority and intentional ambiguity
+
+Taxonomy `1.0.0` uses reviewed `source.json` and generated `manifest.json`
+under `catalog/capability-taxonomy/1.0.0/`. The generated authority has five
+closed concept kinds, an eight-level bounded parent forest, exact cross-family
+applicability, disjoint resolved-alias, ambiguity, and exclusion records, and a
+semantic digest that excludes only its digest field and explicit
+`releaseMetadata`.
+
+An intentional ambiguity is accepted controlled authority, not an invalid
+alias. Exactly one ambiguity record owns a canonical ASCII key, two or more
+distinct active possible concepts, one stable clarification reason, and
+bounded context. Exact taxonomy lookup returns it as ambiguous and never
+selects a concept. Turning that result into `clarification-required`, handling
+raw user terms, and preserving query modalities belong exclusively to
+Milestone 3.
 
 ## Validation evidence
 
@@ -1126,3 +1189,32 @@ therefore remains PR-owned evidence and is recorded in the PR checks and final
 Milestone 1 handoff rather than by adding a second milestone commit. No later
 milestone may overwrite this local evidence; later results append dated
 entries.
+
+### 2026-08-03 — Milestone 2 local validation
+
+- Red-first taxonomy domain tests initially failed all 11 cases because no
+  taxonomy API existed. The completed suites pass 25 focused domain, contract,
+  and command cases covering graph, term-class, ordering, digest, boundary,
+  size, path, and diagnostic behavior.
+- `pnpm runtime:check`, `pnpm format:check`, `pnpm taxonomy:validate`,
+  `pnpm contracts:validate`, and `pnpm catalog:validate`: passed. Taxonomy
+  validation reproduced semantic digest
+  `0339c200098cfecebc493e4216df00ef55730f22a87e77a039530a0571006b5d`;
+  existing product conformance remained 10 cases/40 candidates and the catalog
+  remained 150 candidates with digest
+  `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`.
+- `pnpm build`, `pnpm lint`, and `pnpm typecheck`: passed. Package-local script
+  typechecking is active without a new dependency.
+- `pnpm test`: passed 81 files and 1,373 tests.
+- `pnpm test:coverage`: passed the same 81 files and 1,373 tests with 80.26%
+  statements, 73.78% branches, 87.52% functions, and 80.64% lines.
+- `pnpm architecture:check`: passed across 765 modules and 2,440 dependencies
+  with zero violations. `pnpm repo:check` and `pnpm security:secrets` passed.
+- `pnpm verify`: passed, including the new no-write taxonomy validator in the
+  ordinary aggregate graph.
+- `pnpm verify:ci`: passed. Its repository-owned disposable PostgreSQL 18.4
+  verification passed 8 files and 62 tests, applied 4 migrations, verified 25
+  public product tables without skips, and did not use Phase 7 state. The
+  moderate dependency audit found no known vulnerabilities.
+- `git diff --check` passed. Final status and complete staged-diff review remain
+  publication gates immediately before the single milestone commit.

@@ -70,6 +70,13 @@ export type DomainIssueCode =
   | 'request.transmission-approval'
   | 'result.processing-state'
   | 'result.temporal-order'
+  | 'taxonomy.ambiguity'
+  | 'taxonomy.collision'
+  | 'taxonomy.coverage'
+  | 'taxonomy.deprecation'
+  | 'taxonomy.family-root'
+  | 'taxonomy.hierarchy'
+  | 'taxonomy.invariant'
   | 'timestamp.invalid';
 
 export interface DomainIssue {
@@ -213,6 +220,14 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'Assessment processing state must disclose bounded incompleteness reasons.',
   'result.temporal-order':
     'Assessment production must not precede its evidence cutoff.',
+  'taxonomy.ambiguity': 'Taxonomy ambiguity record is invalid.',
+  'taxonomy.collision': 'Taxonomy authority contains a semantic collision.',
+  'taxonomy.coverage': 'Taxonomy family coverage is incomplete.',
+  'taxonomy.deprecation': 'Taxonomy deprecation replacement is invalid.',
+  'taxonomy.family-root':
+    'Taxonomy family roots do not match product authority.',
+  'taxonomy.hierarchy': 'Taxonomy parent forest is invalid.',
+  'taxonomy.invariant': 'Taxonomy authority violates a closed invariant.',
   'timestamp.invalid': 'Timestamp is not a real canonical UTC date and time.',
 };
 

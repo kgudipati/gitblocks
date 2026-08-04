@@ -1,6 +1,6 @@
 # ADR 0008: Artifact-first deterministic retrieval foundation
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-08-03
 - Decision owners: GitBlocks maintainers
 - Governing issue:
@@ -16,6 +16,10 @@
   [ADR 0005](0005-public-repository-ingestion.md),
   [ADR 0006](0006-immutable-repository-artifacts.md), and
   [ADR 0007](0007-evidence-grounded-repository-interviews.md)
+
+Milestone 1 and this decision were accepted at commit
+8679461bb7b4eb356ffec7c5e36f0e7ef5ea9eb8 after hosted CI run 30860512727
+completed successfully.
 
 ## Context
 
@@ -212,9 +216,25 @@ Hard-constraint lookup does not use:
 Mixed-script or confusable lookup terms become unknown or
 clarification-needed.
 
-Validation fails on alias collision, ambiguous alias, missing parent, graph
-cycle, deprecated alias reuse, excessive depth, or nondeterministic traversal.
+Validation fails on alias collision, accidental ambiguity or term-class
+overlap, missing parent, graph cycle, deprecated alias reuse, excessive depth,
+or nondeterministic traversal.
 Taxonomy versions and digests bind historical normalization.
+
+Taxonomy `1.0.0` implements five closed concept kinds: family, architecture,
+feature, infrastructure, and deployment. It uses a parent forest bounded to
+eight levels, with cross-family applicability represented once through exact
+family memberships. Authority is split into reviewed source and one generated,
+canonically ordered manifest. Its semantic digest covers contract version,
+taxonomy version, concepts, aliases, ambiguities, and exclusions; only the
+digest field itself and explicit non-semantic release metadata are excluded.
+
+Intentional ambiguity is a separate valid record class. One ASCII key names
+two or more exact active possible concepts plus a stable clarification reason
+and bounded context. It never resolves through declaration order. Resolved,
+ambiguous, and excluded keys are disjoint. Milestone 2 exact lookup may return
+ambiguous but does not implement the Milestone 3 query flow that turns it into
+clarification-required.
 
 Catalog negative controls are excluded from normal candidate generation and
 ordinary retrieval baselines by default. They may appear only in explicitly
@@ -516,7 +536,6 @@ proof requires separate authorization and content-free evidence.
 
 ## Deferred work
 
-- Exact taxonomy identifiers and aliases.
 - Exact query and profile DTO shapes and bounds.
 - Production retrieval request/result contracts and application ports.
 - Production profile persistence and indexes.
@@ -527,9 +546,9 @@ proof requires separate authorization and content-free evidence.
 
 ## Review and exit
 
-This ADR remains proposed through Milestone 1. Acceptance authorizes only the
-documented Phase 8 architecture and the next separately reviewed milestone; it
-does not authorize every later implementation or the live proof.
+This ADR was accepted with Milestone 1. Acceptance authorizes the documented
+Phase 8 architecture and only the next separately reviewed milestone; it does
+not authorize every later implementation or the live proof.
 
 Each milestone requires one ordinary commit and maintainer acceptance.
 Published history is not amended, rebased, or force-pushed.
