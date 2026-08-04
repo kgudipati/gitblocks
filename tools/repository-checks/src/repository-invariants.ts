@@ -936,9 +936,24 @@ function validateCiPolicy(
     const nextJob = remaining.search(/\n {2}[a-z0-9][a-z0-9-]*:\n/u);
     return nextJob < 0 ? remaining : remaining.slice(0, nextJob);
   };
-  const typecheckJob = jobSection('typecheck');
-  const verificationJob = jobSection('verification');
+  const workerJobIds = [
+    'typecheck',
+    'verification-static',
+    'verification-tests-core',
+    'verification-tests-interviews',
+    'verification-tests-tools',
+    'database-and-audit',
+  ] as const;
+  const workerJobs = new Map(
+    workerJobIds.map((jobId) => [jobId, jobSection(jobId)]),
+  );
+  const typecheckJob = workerJobs.get('typecheck');
+  const staticJob = workerJobs.get('verification-static');
+  const coreTestsJob = workerJobs.get('verification-tests-core');
+  const interviewTestsJob = workerJobs.get('verification-tests-interviews');
+  const toolsTestsJob = workerJobs.get('verification-tests-tools');
   const databaseJob = jobSection('database-and-audit');
+  const aggregateJob = jobSection('verification');
   const diagnostics: Diagnostic[] = [];
   const databaseFragments = [
     `image: ${POSTGRES_TEST_IMAGE}`,
@@ -953,8 +968,15 @@ function validateCiPolicy(
     !databaseFragments.every((fragment) => databaseJob.includes(fragment)) ||
     typecheckJob?.includes('GITBLOCKS_DB_') === true ||
     typecheckJob?.includes('GITBLOCKS_TEST_DB_') === true ||
-    verificationJob?.includes('GITBLOCKS_DB_') === true ||
-    verificationJob?.includes('GITBLOCKS_TEST_DB_') === true
+    [...workerJobs]
+      .filter(([jobId]) => jobId !== 'database-and-audit')
+      .some(
+        ([, job]) =>
+          job?.includes('GITBLOCKS_DB_') === true ||
+          job?.includes('GITBLOCKS_TEST_DB_') === true,
+      ) ||
+    aggregateJob?.includes('GITBLOCKS_DB_') === true ||
+    aggregateJob?.includes('GITBLOCKS_TEST_DB_') === true
   ) {
     diagnostics.push(
       diagnostic(
@@ -966,13 +988,104 @@ function validateCiPolicy(
   }
   const install = 'run: pnpm install --frozen-lockfile';
   const typecheck = 'run: pnpm typecheck';
-  const verify = 'run: pnpm verify';
+  const unchangedWorktree = 'run: git diff --exit-code';
+  const staticCommands = [
+    'run: pnpm runtime:check',
+    'run: pnpm format:check',
+    'run: pnpm build:product',
+    'run: pnpm lint:internal',
+    'run: pnpm build:tools',
+    'run: pnpm typecheck:internal',
+    'run: pnpm architecture:check',
+    'run: node tools/repository-checks/src/cli.ts repository',
+    'run: node tools/evaluation-harness/src/cli.ts validate',
+    'run: node tools/evaluation-harness/src/cli.ts fixtures',
+    'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
+    'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
+    'run: node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'run: node packages/contracts/scripts/taxonomy-cli.ts',
+    'run: node packages/ingestion/scripts/candidate-profile-cli.ts',
+    'run: node packages/ingestion/scripts/catalog-cli.ts',
+    'run: node packages/interviews/scripts/specification-cli.ts validate',
+    'run: node apps/repository-interview-operator/scripts/schema-cli.ts validate',
+    'run: node tools/repository-interview-prelive/src/prelive-cli.ts validate',
+    'run: pnpm security:secrets',
+    unchangedWorktree,
+  ] as const;
+  const hasExactlyOnce = (section: string, fragment: string): boolean =>
+    section.includes(fragment) &&
+    section.indexOf(fragment) === section.lastIndexOf(fragment);
+  const containsInOrder = (
+    section: string | undefined,
+    fragments: readonly string[],
+  ): boolean => {
+    if (section === undefined) {
+      return false;
+    }
+    let cursor = 0;
+    for (const fragment of fragments) {
+      const next = section.indexOf(fragment, cursor);
+      if (next < 0) {
+        return false;
+      }
+      cursor = next + fragment.length;
+    }
+    return true;
+  };
+  const shardRequirements = [
+    {
+      section: coreTestsJob,
+      roots: [
+        'packages/contracts/test',
+        'packages/domain/test',
+        'packages/persistence/test',
+        'packages/ingestion/test',
+      ],
+    },
+    {
+      section: interviewTestsJob,
+      roots: [
+        'packages/interviews/test',
+        'apps/repository-interview-operator/test',
+      ],
+    },
+    {
+      section: toolsTestsJob,
+      roots: [
+        'tools/evaluation-harness/test',
+        'tools/repository-interview-prelive/test',
+        'tools/repository-checks/test',
+      ],
+    },
+  ] as const;
+  const aggregateFragments = [
+    'name: Verification',
+    'needs:',
+    '- verification-static',
+    '- verification-tests-core',
+    '- verification-tests-interviews',
+    '- verification-tests-tools',
+    'if: ${{ always() }}',
+    'timeout-minutes: 5',
+    'STATIC_RESULT: ${{ needs.verification-static.result }}',
+    'CORE_TEST_RESULT: ${{ needs.verification-tests-core.result }}',
+    'INTERVIEW_TEST_RESULT: ${{ needs.verification-tests-interviews.result }}',
+    'TOOL_TEST_RESULT: ${{ needs.verification-tests-tools.result }}',
+    'test "$STATIC_RESULT" = "success"',
+    'test "$CORE_TEST_RESULT" = "success"',
+    'test "$INTERVIEW_TEST_RESULT" = "success"',
+    'test "$TOOL_TEST_RESULT" = "success"',
+  ] as const;
   const installIndex = typecheckJob?.indexOf(install) ?? -1;
   const typecheckIndex = typecheckJob?.indexOf(typecheck) ?? -1;
   if (
     typecheckJob === undefined ||
-    verificationJob === undefined ||
+    staticJob === undefined ||
+    coreTestsJob === undefined ||
+    interviewTestsJob === undefined ||
+    toolsTestsJob === undefined ||
     databaseJob === undefined ||
+    aggregateJob === undefined ||
     installIndex < 0 ||
     typecheckIndex <= installIndex ||
     typecheckJob.slice(installIndex + install.length).includes(install) ||
@@ -981,19 +1094,46 @@ function validateCiPolicy(
     typecheckJob
       .slice(installIndex + install.length, typecheckIndex)
       .includes('run:') ||
-    !verificationJob.includes(install) ||
-    !verificationJob.includes(verify) ||
-    verificationJob.includes(typecheck) ||
-    !databaseJob.includes(install) ||
-    /(?:^|\n) {4}needs:/u.test(typecheckJob) ||
-    /(?:^|\n) {4}needs:/u.test(verificationJob) ||
-    /(?:^|\n) {4}needs:/u.test(databaseJob) ||
-    content.includes('run: pnpm verify:ci')
+    [...workerJobs.values()].some(
+      (job) =>
+        job === undefined ||
+        !job.includes(install) ||
+        !job.includes(unchangedWorktree) ||
+        /(?:^|\n) {4}needs:/u.test(job) ||
+        job.includes('always()') ||
+        job.includes('continue-on-error'),
+    ) ||
+    !containsInOrder(staticJob, staticCommands) ||
+    staticCommands.some((command) => !hasExactlyOnce(staticJob, command)) ||
+    staticJob.includes('run: pnpm verify') ||
+    staticJob.includes('vitest') ||
+    staticJob.includes('run: pnpm db:verify') ||
+    staticJob.includes('run: pnpm security:audit') ||
+    shardRequirements.some(
+      ({ section, roots }) =>
+        section === undefined ||
+        !section.includes('pnpm exec vitest run') ||
+        !section.includes('--config vitest.config.ts') ||
+        !roots.every((root) => hasExactlyOnce(section, root)) ||
+        section.includes('pnpm verify') ||
+        section.includes('db:verify') ||
+        section.includes('security:audit'),
+    ) ||
+    !aggregateFragments.every((fragment) =>
+      hasExactlyOnce(aggregateJob, fragment),
+    ) ||
+    aggregateJob.includes('uses:') ||
+    aggregateJob.includes(install) ||
+    aggregateJob.includes(unchangedWorktree) ||
+    aggregateJob.includes('GITBLOCKS_DB_') ||
+    aggregateJob.includes('GITBLOCKS_TEST_DB_') ||
+    content.includes('run: pnpm verify:ci') ||
+    content.includes('\n        run: pnpm verify\n')
   ) {
     diagnostics.push(
       diagnostic(
         'repository.ci-clean-typecheck',
-        'CI must partition frozen installation, standalone typecheck, and ordinary verification into independent bounded jobs.',
+        'CI must partition frozen installation, standalone typecheck, static authority checks, exact ordinary test shards, and the aggregate Verification gate.',
         workflowPath,
       ),
     );

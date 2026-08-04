@@ -513,11 +513,63 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: git diff --exit-code
-  verification:
+  verification-static:
     runs-on: ubuntu-24.04
     steps:
       - run: pnpm install --frozen-lockfile
-      - run: pnpm verify
+      - run: pnpm runtime:check
+      - run: pnpm format:check
+      - run: pnpm build:product
+      - run: pnpm lint:internal
+      - run: pnpm build:tools
+      - run: pnpm typecheck:internal
+      - run: pnpm architecture:check
+      - run: node tools/repository-checks/src/cli.ts repository
+      - run: node tools/evaluation-harness/src/cli.ts validate
+      - run: node tools/evaluation-harness/src/cli.ts fixtures
+      - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
+      - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
+      - run: node tools/evaluation-harness/src/contract-conformance-cli.ts
+      - run: node packages/contracts/scripts/taxonomy-cli.ts
+      - run: node packages/ingestion/scripts/candidate-profile-cli.ts
+      - run: node packages/ingestion/scripts/catalog-cli.ts
+      - run: node packages/interviews/scripts/specification-cli.ts validate
+      - run: node apps/repository-interview-operator/scripts/schema-cli.ts validate
+      - run: node tools/repository-interview-prelive/src/prelive-cli.ts validate
+      - run: pnpm security:secrets
+      - run: git diff --exit-code
+  verification-tests-core:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: >-
+          pnpm exec vitest run
+          packages/contracts/test
+          packages/domain/test
+          packages/persistence/test
+          packages/ingestion/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-interviews:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: >-
+          pnpm exec vitest run
+          packages/interviews/test
+          apps/repository-interview-operator/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-tools:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: >-
+          pnpm exec vitest run
+          tools/evaluation-harness/test
+          tools/repository-interview-prelive/test
+          tools/repository-checks/test
+          --config vitest.config.ts
       - run: git diff --exit-code
   database-and-audit:
     runs-on: ubuntu-24.04
@@ -533,6 +585,26 @@ jobs:
       - run: pnpm db:verify
       - run: pnpm security:audit
       - run: git diff --exit-code
+  verification:
+    name: Verification
+    needs:
+      - verification-static
+      - verification-tests-core
+      - verification-tests-interviews
+      - verification-tests-tools
+    if: \${{ always() }}
+    timeout-minutes: 5
+    env:
+      STATIC_RESULT: \${{ needs.verification-static.result }}
+      CORE_TEST_RESULT: \${{ needs.verification-tests-core.result }}
+      INTERVIEW_TEST_RESULT: \${{ needs.verification-tests-interviews.result }}
+      TOOL_TEST_RESULT: \${{ needs.verification-tests-tools.result }}
+    steps:
+      - run: |
+          test "$STATIC_RESULT" = "success"
+          test "$CORE_TEST_RESULT" = "success"
+          test "$INTERVIEW_TEST_RESULT" = "success"
+          test "$TOOL_TEST_RESULT" = "success"
 `;
   }
   if (relativePath.endsWith('.md')) {

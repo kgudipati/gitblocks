@@ -13,6 +13,69 @@ const TRACKED_CI_URL = new URL(
   '../../../.github/workflows/ci.yml',
   import.meta.url,
 );
+const WORKER_JOB_IDS = [
+  'typecheck',
+  'verification-static',
+  'verification-tests-core',
+  'verification-tests-interviews',
+  'verification-tests-tools',
+  'database-and-audit',
+] as const;
+const AGGREGATE_DEPENDENCIES = [
+  'verification-static',
+  'verification-tests-core',
+  'verification-tests-interviews',
+  'verification-tests-tools',
+] as const;
+const STATIC_VERIFICATION_COMMANDS = [
+  'pnpm runtime:check',
+  'pnpm format:check',
+  'pnpm build:product',
+  'pnpm lint:internal',
+  'pnpm build:tools',
+  'pnpm typecheck:internal',
+  'pnpm architecture:check',
+  'node tools/repository-checks/src/cli.ts repository',
+  'node tools/evaluation-harness/src/cli.ts validate',
+  'node tools/evaluation-harness/src/cli.ts fixtures',
+  'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
+  'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
+  'node tools/evaluation-harness/src/contract-conformance-cli.ts',
+  'node packages/contracts/scripts/taxonomy-cli.ts',
+  'node packages/ingestion/scripts/candidate-profile-cli.ts',
+  'node packages/ingestion/scripts/catalog-cli.ts',
+  'node packages/interviews/scripts/specification-cli.ts validate',
+  'node apps/repository-interview-operator/scripts/schema-cli.ts validate',
+  'node tools/repository-interview-prelive/src/prelive-cli.ts validate',
+  'pnpm security:secrets',
+  'git diff --exit-code',
+] as const;
+const TEST_SHARDS = {
+  'verification-tests-core': {
+    name: 'Verification — Core Product Tests',
+    roots: [
+      'packages/contracts/test',
+      'packages/domain/test',
+      'packages/persistence/test',
+      'packages/ingestion/test',
+    ],
+  },
+  'verification-tests-interviews': {
+    name: 'Verification — Interview and Operator Tests',
+    roots: [
+      'packages/interviews/test',
+      'apps/repository-interview-operator/test',
+    ],
+  },
+  'verification-tests-tools': {
+    name: 'Verification — Tooling Tests',
+    roots: [
+      'tools/evaluation-harness/test',
+      'tools/repository-interview-prelive/test',
+      'tools/repository-checks/test',
+    ],
+  },
+} as const;
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -68,6 +131,28 @@ function jobCommands(job: UnknownRecord): string[] {
 
 function jobActionSteps(job: UnknownRecord): UnknownRecord[] {
   return jobSteps(job).filter((step) => typeof step['uses'] === 'string');
+}
+
+function normalizedCommand(command: string): string {
+  return command.replace(/\s+/gu, ' ').trim();
+}
+
+function shardRoots(command: string): string[] {
+  const tokens = normalizedCommand(command).split(' ');
+  const vitestIndex = tokens.indexOf('vitest');
+  const configIndex = tokens.indexOf('--config');
+  if (
+    vitestIndex < 0 ||
+    tokens[vitestIndex + 1] !== 'run' ||
+    configIndex <= vitestIndex + 2 ||
+    tokens[configIndex + 1] !== 'vitest.config.ts'
+  ) {
+    throw new Error(
+      'test shard must use vitest run with tracked configuration',
+    );
+  }
+
+  return tokens.slice(vitestIndex + 2, configIndex);
 }
 
 function workflow(body: string): string {
@@ -366,22 +451,28 @@ copy: *shared
     ).toHaveLength(200);
   });
 
-  it('partitions the tracked CI gate into three bounded independent jobs', () => {
+  it('defines the exact worker graph and aggregate Verification gate', () => {
     const jobs = trackedJobs();
 
     expect(Object.keys(jobs)).toEqual([
       'typecheck',
-      'verification',
+      'verification-static',
+      'verification-tests-core',
+      'verification-tests-interviews',
+      'verification-tests-tools',
       'database-and-audit',
+      'verification',
     ]);
 
     expect(trackedJob(jobs, 'typecheck')['name']).toBe('Standalone Typecheck');
-    expect(trackedJob(jobs, 'verification')['name']).toBe('Verification');
+    expect(trackedJob(jobs, 'verification-static')['name']).toBe(
+      'Verification — Static and Authorities',
+    );
     expect(trackedJob(jobs, 'database-and-audit')['name']).toBe(
       'Database and Audit',
     );
 
-    for (const jobId of Object.keys(jobs)) {
+    for (const jobId of WORKER_JOB_IDS) {
       const job = trackedJob(jobs, jobId);
 
       expect(job['runs-on']).toBe('ubuntu-24.04');
@@ -389,12 +480,17 @@ copy: *shared
       expect(job).not.toHaveProperty('needs');
       expect(job).not.toHaveProperty('continue-on-error');
     }
-  });
 
-  it('preserves pinned setup, frozen installation, and worktree proof in every job', () => {
-    const jobs = trackedJobs();
+    const aggregate = trackedJob(jobs, 'verification');
+    expect(aggregate['name']).toBe('Verification');
+    expect(aggregate['runs-on']).toBe('ubuntu-24.04');
+    expect(aggregate['timeout-minutes']).toBe(5);
+    expect(aggregate['needs']).toEqual([...AGGREGATE_DEPENDENCIES]);
+    expect(aggregate['if']).toBe('${{ always() }}');
+    expect(aggregate).not.toHaveProperty('continue-on-error');
+    expect(jobCommands(aggregate)).not.toContain('pnpm verify');
 
-    for (const jobId of Object.keys(jobs)) {
+    for (const jobId of WORKER_JOB_IDS) {
       const job = trackedJob(jobs, jobId);
       const steps = jobSteps(job);
       const actionSteps = jobActionSteps(job);
@@ -430,13 +526,74 @@ copy: *shared
     }
   });
 
-  it('keeps verification, database, and failure-policy boundaries exact', () => {
+  it('moves every accepted non-test verify:core command into the static worker exactly once', () => {
+    const jobs = trackedJobs();
+    const staticJob = trackedJob(jobs, 'verification-static');
+    const commands = jobCommands(staticJob);
+    const staticStart = commands.indexOf('pnpm runtime:check');
+
+    expect(commands.join('\n')).toContain('pnpm repo:pr-branch');
+    expect(commands.join('\n')).toContain('pnpm repo:pr-title');
+    expect(staticStart).toBeGreaterThanOrEqual(0);
+    expect(commands.slice(staticStart)).toEqual([
+      ...STATIC_VERIFICATION_COMMANDS,
+    ]);
+    for (const expected of STATIC_VERIFICATION_COMMANDS) {
+      expect(commands.filter((command) => command === expected)).toHaveLength(
+        1,
+      );
+    }
+    expect(commands).not.toContain('pnpm verify');
+    expect(commands).not.toContain('pnpm verify:core');
+    expect(commands).not.toContain('pnpm verify:ci');
+    expect(commands.join('\n')).not.toContain('vitest');
+    expect(commands).not.toContain('pnpm db:verify');
+    expect(commands).not.toContain('pnpm security:audit');
+    const assignedRoots: string[] = [];
+
+    for (const [jobId, expected] of Object.entries(TEST_SHARDS)) {
+      const job = trackedJob(jobs, jobId);
+      const commands = jobCommands(job);
+      const runtimeIndex = commands.indexOf('pnpm runtime:check');
+      const testCommand = commands[runtimeIndex + 2];
+
+      expect(job['name']).toBe(expected.name);
+      expect(runtimeIndex).toBeGreaterThanOrEqual(0);
+      expect(commands[runtimeIndex + 1]).toBe('pnpm build');
+      expect(typeof testCommand).toBe('string');
+      expect(commands[runtimeIndex + 3]).toBe('git diff --exit-code');
+      expect(commands.slice(runtimeIndex)).toHaveLength(4);
+
+      const normalizedTestCommand = normalizedCommand(testCommand ?? '');
+      expect(normalizedTestCommand).toMatch(/^pnpm exec vitest run /u);
+      expect(normalizedTestCommand).toContain('--config vitest.config.ts');
+      expect(normalizedTestCommand).not.toMatch(
+        /--coverage|--retry|--passWithNoTests|--testNamePattern|(?:^| )-t(?: |$)|pnpm verify|db:verify|security:audit/iu,
+      );
+      expect(shardRoots(testCommand ?? '')).toEqual([...expected.roots]);
+      assignedRoots.push(...expected.roots);
+    }
+
+    expect(assignedRoots).toEqual([
+      'packages/contracts/test',
+      'packages/domain/test',
+      'packages/persistence/test',
+      'packages/ingestion/test',
+      'packages/interviews/test',
+      'apps/repository-interview-operator/test',
+      'tools/evaluation-harness/test',
+      'tools/repository-interview-prelive/test',
+      'tools/repository-checks/test',
+    ]);
+    expect(new Set(assignedRoots).size).toBe(assignedRoots.length);
+  });
+
+  it('keeps typecheck, database, aggregate, and failure-policy boundaries exact', () => {
     const jobs = trackedJobs();
     const typecheck = trackedJob(jobs, 'typecheck');
-    const verification = trackedJob(jobs, 'verification');
     const databaseAndAudit = trackedJob(jobs, 'database-and-audit');
+    const aggregate = trackedJob(jobs, 'verification');
     const typecheckCommands = jobCommands(typecheck);
-    const verificationCommands = jobCommands(verification);
     const databaseCommands = jobCommands(databaseAndAudit);
 
     expect(typecheckCommands).toContain('pnpm typecheck');
@@ -448,14 +605,6 @@ copy: *shared
       /\bpnpm[ \t]+test(?::\w+)?\b/u,
     );
 
-    expect(verificationCommands).toContain('pnpm verify');
-    expect(verificationCommands).not.toContain('pnpm typecheck');
-    expect(verificationCommands).not.toContain('pnpm verify:ci');
-    expect(verificationCommands).not.toContain('pnpm db:verify');
-    expect(verificationCommands).not.toContain('pnpm security:audit');
-    expect(verificationCommands.join('\n')).toContain('pnpm repo:pr-branch');
-    expect(verificationCommands.join('\n')).toContain('pnpm repo:pr-title');
-
     expect(databaseCommands).toContain('pnpm db:verify');
     expect(databaseCommands).toContain('pnpm security:audit');
     expect(databaseCommands).not.toContain('pnpm typecheck');
@@ -464,11 +613,7 @@ copy: *shared
     expect(databaseCommands).not.toContain('pnpm build:product');
 
     expect(typecheck).not.toHaveProperty('services');
-    expect(verification).not.toHaveProperty('services');
     expect(asRecord(typecheck['env'], 'typecheck environment')).toEqual({
-      COREPACK_DEFAULT_TO_LATEST: '0',
-    });
-    expect(asRecord(verification['env'], 'verification environment')).toEqual({
       COREPACK_DEFAULT_TO_LATEST: '0',
     });
     expect(asRecord(databaseAndAudit['env'], 'database environment')).toEqual({
@@ -494,12 +639,51 @@ copy: *shared
 
     expect(JSON.stringify(typecheck)).not.toContain('GITBLOCKS_DB_');
     expect(JSON.stringify(typecheck)).not.toContain('GITBLOCKS_TEST_DB_');
-    expect(JSON.stringify(verification)).not.toContain('GITBLOCKS_DB_');
-    expect(JSON.stringify(verification)).not.toContain('GITBLOCKS_TEST_DB_');
-    for (const job of [typecheck, verification, databaseAndAudit]) {
+    for (const jobId of WORKER_JOB_IDS.filter(
+      (jobId) => jobId !== 'database-and-audit',
+    )) {
+      const job = trackedJob(jobs, jobId);
+      expect(job).not.toHaveProperty('services');
+      expect(JSON.stringify(job)).not.toContain('GITBLOCKS_DB_');
+      expect(JSON.stringify(job)).not.toContain('GITBLOCKS_TEST_DB_');
+    }
+
+    expect(jobActionSteps(aggregate)).toEqual([]);
+    expect(jobSteps(aggregate)).toHaveLength(1);
+    expect(asRecord(aggregate['env'], 'aggregate environment')).toEqual({
+      STATIC_RESULT: '${{ needs.verification-static.result }}',
+      CORE_TEST_RESULT: '${{ needs.verification-tests-core.result }}',
+      INTERVIEW_TEST_RESULT:
+        '${{ needs.verification-tests-interviews.result }}',
+      TOOL_TEST_RESULT: '${{ needs.verification-tests-tools.result }}',
+    });
+    const aggregateCommand = jobCommands(aggregate)[0] ?? '';
+    expect(aggregateCommand.trim().split('\n')).toEqual([
+      'test "$STATIC_RESULT" = "success"',
+      'test "$CORE_TEST_RESULT" = "success"',
+      'test "$INTERVIEW_TEST_RESULT" = "success"',
+      'test "$TOOL_TEST_RESULT" = "success"',
+    ]);
+    expect(aggregateCommand).not.toContain('git diff');
+    expect(aggregateCommand).not.toContain('pnpm');
+    expect(JSON.stringify(aggregate)).not.toContain('GITBLOCKS_DB_');
+    expect(JSON.stringify(aggregate)).not.toContain('GITBLOCKS_TEST_DB_');
+
+    for (const jobId of Object.keys(jobs)) {
+      const job = trackedJob(jobs, jobId);
       expect(jobCommands(job).join('\n')).not.toMatch(
         /\|\|\s*true|\bset\s+\+e\b|\bretry\b|--rerun/i,
       );
+      expect(job).not.toHaveProperty('continue-on-error');
+      for (const step of jobSteps(job)) {
+        expect(step).not.toHaveProperty('continue-on-error');
+        if (jobId === 'verification') {
+          continue;
+        }
+        if (typeof step['if'] === 'string') {
+          expect(step['if']).not.toMatch(/always|cancelled|failure/i);
+        }
+      }
     }
   });
 

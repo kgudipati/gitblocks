@@ -11,9 +11,9 @@
   candidate profiles, offline generated authority, coverage measurement, and
   conservative single-candidate constraint evaluation passed substantive
   maintainer review at commit
-  `66a4165c1239e7a46d72ccd6469d0856e815c410`. A separately authorized hosted-CI
-  review correction is in progress; Milestone 4 is not accepted until all
-  corrected hosted jobs pass. ADR 0008 remains accepted. Milestone 5
+  `66a4165c1239e7a46d72ccd6469d0856e815c410`. A separately authorized final
+  hosted-CI review correction is in progress; Milestone 4 is not accepted
+  until all corrected hosted jobs pass. ADR 0008 remains accepted. Milestone 5
   retrieval/query evaluation and live materialization have not begun and are
   not authorized.
 - Last updated: 2026-08-04
@@ -1698,3 +1698,71 @@ entries.
   validation also passed. Local Docker and `pnpm verify:ci` were not used; the
   corrected hosted database job owns the fresh PostgreSQL and dependency-audit
   proof.
+
+### 2026-08-04 — Milestone 4 final hosted-CI correction
+
+- The first CI-only correction commit
+  `2983194504253ca76697a93abd744e3300522785` successfully isolated standalone
+  typechecking and database/audit work. In hosted run 30934627491, Standalone
+  Typecheck job 92077512701 passed frozen installation, `pnpm typecheck`, and
+  unchanged-worktree proof. Database and Audit job 92077512655 passed frozen
+  installation, PostgreSQL verification, dependency audit,
+  unchanged-worktree proof, and service shutdown.
+- Verification job 92077512607 passed frozen installation and pull-request
+  metadata validation, then completed formatting, product builds, lint, tool
+  builds, and internal typechecking. Vitest entered normally and continued
+  reporting passing suites; no failed assertion appeared. The runner received
+  a shutdown signal before the suite completed, before the 20-minute timeout,
+  so its final unchanged-worktree proof was skipped. This records the immediate
+  externally canceled runner failure without claiming a conclusive GitHub
+  infrastructure root cause.
+- Local `pnpm verify`, `pnpm verify:core`, and `pnpm verify:ci` remain canonical
+  and unchanged. Hosted ordinary verification is instead partitioned across
+  one static/authority worker and three exact Vitest root shards. The static
+  worker owns runtime preflight, formatting, product build, internal lint, tool
+  build, internal typecheck, architecture, repository validation, general and
+  interview evaluation validation and fixtures, contract conformance,
+  taxonomy, profiles, catalog, interview specification, operator schemas,
+  pre-live authority, secret scanning, and unchanged-worktree proof in the
+  accepted sequence.
+- Core Product Tests owns `packages/contracts/test`, `packages/domain/test`,
+  `packages/persistence/test`, and `packages/ingestion/test`. Interview and
+  Operator Tests owns `packages/interviews/test` and
+  `apps/repository-interview-operator/test`. Tooling Tests owns
+  `tools/evaluation-harness/test`, `tools/repository-interview-prelive/test`,
+  and `tools/repository-checks/test`. The three assignments cover each of the
+  nine ordinary test roots exactly once and retain the tracked
+  `vitest.config.ts`.
+- The exact displayed `Verification` name now belongs to a five-minute pure
+  aggregate required check. It has no checkout, Node setup, package install,
+  external action, database authority, or worktree; with `always()` it checks
+  the four ordinary worker results explicitly and succeeds only when every
+  result is `success`. Standalone Typecheck and Database and Audit remain
+  independent required hosted evidence. All repository-code workers retain
+  pinned setup, frozen installation, bounded execution, and final
+  unchanged-worktree proof.
+- This final correction changes only hosted workflow policy, its tests, and
+  testing/plan documentation. The Milestone 4 product implementation,
+  generated profile authority and coverage report, established contract and
+  authority digests, package scripts, Vitest configuration, lockfile,
+  dependencies, persistence, migrations, ingestion behavior, and evaluation
+  implementation remain unchanged. Milestone 5 has not begun.
+- Red-first workflow-policy validation against the first correction produced
+  seven focused failures: the old three-job graph, retained monolithic
+  `pnpm verify`, absent aggregate dependencies, missing static worker, and
+  missing test shards. The final assertions were consolidated into the
+  existing test-count envelope without reducing their coverage. Required
+  focused invocations and canonical `pnpm verify` each pass 88 files and 1,503
+  tests. The explicit shard results are 42 files/711 tests for core product,
+  13/326 for interviews and operator, and 33/466 for tooling, totaling exactly
+  88/1,503.
+- Local runtime, zero-warning focused ESLint, build, formatting, repository
+  policy, secret scan, diff, and all three shard checks pass. Architecture
+  validation covers 782 modules and 2,505 dependency edges with zero
+  violations. Profile validation reproduces 150 profiles, state counts
+  600/3,240/210/0, profile-authority digest
+  `fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879`,
+  and coverage digest
+  `b313d7f7afc3f9324042fff965f9e63c4e0a347be2f7363808cb6107e913fb17`.
+  Local Docker and `pnpm verify:ci` were not used; Database and Audit retains
+  the hosted PostgreSQL and registry-backed dependency-audit proof.

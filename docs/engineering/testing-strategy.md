@@ -155,16 +155,31 @@ profile-field drift with zero external effects.
 The public root `pnpm typecheck` builds required product and tool workspace
 outputs before internal typechecking. Repository-policy tests reject a missing
 or reordered tool build in both standalone typecheck and `verify:core`.
-Hosted CI uses three independent 20-minute jobs. `Standalone Typecheck` runs
-the exact standalone command after its own frozen install, so ignored local
-`dist/` state cannot satisfy the proof. `Verification` independently validates
-pull-request metadata and runs exactly `pnpm verify`. `Database and Audit`
-alone receives database credentials and provisions the pinned PostgreSQL
-service, then runs `pnpm db:verify` and `pnpm security:audit`; the database
-command already owns its deterministic build prerequisite. Every job proves
-its worktree unchanged. Workflow-policy tests reject missing gates, dependency
-edges, database authority outside the database job, unpinned actions, retries,
-ignored failures, and tolerance directives.
+Hosted CI partitions the same authority into six independent 20-minute worker
+jobs and one five-minute aggregate gate. `Standalone Typecheck` runs the exact
+standalone command after its own frozen install, so ignored local `dist/` state
+cannot satisfy the proof. `Verification — Static and Authorities` validates
+pull-request metadata and runs every non-test, non-database component of
+`verify:core` in its accepted order. Three test workers build the workspaces
+and use exact path filters over the tracked `vitest.config.ts`: core product
+tests own the contracts, domain, persistence, and ingestion roots; interview
+tests own the interviews and operator roots; and tooling tests own the
+evaluation harness, pre-live, and repository-policy roots. Their union is the
+ordinary 88-file, 1,503-test suite with no overlap.
+
+The displayed `Verification` job is a pure required-check compatibility gate:
+it checks out no worktree, installs nothing, and succeeds only when the static
+worker and all three test workers report `success`. This is the sole narrow
+exception to worker checkout, frozen-installation, and unchanged-worktree
+requirements. `Database and Audit` alone receives database credentials and
+provisions the pinned PostgreSQL service, then runs `pnpm db:verify` and
+`pnpm security:audit`; the database command already owns its deterministic
+build prerequisite. Every repository-code worker proves its worktree
+unchanged. Workflow-policy tests reject missing gates or roots, overlapping
+shards, worker dependency edges, invalid aggregate dependencies, database
+authority outside the database job, unpinned actions, retries, ignored
+failures, and tolerance directives. Local `pnpm verify`, `pnpm verify:core`,
+and `pnpm verify:ci` remain canonical and unchanged.
 
 The PostgreSQL 18.4 suite applies migrations through 0004 in the existing test
 harness, then proves 6/30/150 selection materialization from one complete
