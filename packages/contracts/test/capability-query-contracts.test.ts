@@ -777,6 +777,97 @@ describe('CapabilityQueryNormalizationResultV1', () => {
 });
 
 describe('capability-query normalization exchange closure', () => {
+  it('accepts canonical contradiction pairs and rejects re-digested missing or split pairs', async () => {
+    const taxonomyAuthority = await taxonomy();
+    const query = input({
+      draftConstraints: [
+        {
+          constraintId: 'constraint-prohibited',
+          modality: 'prohibited',
+          statement: 'Do not require Redis.',
+          originalTerm: 'redis',
+          facetHint: 'infrastructure',
+          reasonCode: 'redis-prohibited',
+        },
+        {
+          constraintId: 'constraint-required',
+          modality: 'required',
+          statement: 'Require Redis.',
+          originalTerm: 'redis',
+          facetHint: 'infrastructure',
+          reasonCode: 'redis-required',
+        },
+      ],
+    });
+    const created = normalizeCapabilityQueryV1(query, taxonomyAuthority);
+    expect(created).toMatchObject({ ok: true });
+    if (!created.ok) return;
+    expect(created.value.outcome).toBe('clarification-required');
+    expect(
+      created.value.normalizedConstraints.map(
+        ({ modality, resolutionBasis, ruleId }) => ({
+          modality,
+          resolutionBasis,
+          ruleId,
+        }),
+      ),
+    ).toEqual([
+      {
+        modality: 'prohibited',
+        resolutionBasis: 'contradiction',
+        ruleId: 'constraint-modality-conflict',
+      },
+      {
+        modality: 'required',
+        resolutionBasis: 'contradiction',
+        ruleId: 'constraint-modality-conflict',
+      },
+    ]);
+    expect(
+      parseCapabilityQueryNormalizationResultV1(created.value),
+    ).toMatchObject({ ok: true });
+    expect(
+      validateCapabilityQueryNormalizationExchangeV1(
+        query,
+        created.value,
+        taxonomyAuthority,
+      ),
+    ).toEqual({ ok: true, issues: [] });
+
+    for (const removedModality of ['required', 'prohibited'] as const) {
+      const forged = withRecomputedNormalizationIdentity({
+        ...created.value,
+        normalizedConstraints: created.value.normalizedConstraints.filter(
+          ({ modality }) => modality !== removedModality,
+        ),
+      });
+      expect(parseCapabilityQueryNormalizationResultV1(forged)).toMatchObject({
+        ok: false,
+        issues: expect.arrayContaining([
+          expect.objectContaining({
+            path: expect.stringContaining('normalizedConstraints'),
+          }),
+        ]),
+      });
+    }
+
+    for (const change of [
+      { conceptId: 'token-bucket', canonicalTerm: 'token-bucket' },
+      { facet: 'feature' as const },
+    ]) {
+      const forged = withRecomputedNormalizationIdentity({
+        ...created.value,
+        normalizedConstraints: created.value.normalizedConstraints.map(
+          (constraint) =>
+            constraint.modality === 'prohibited'
+              ? { ...constraint, ...change }
+              : constraint,
+        ),
+      });
+      expect(parseCapabilityQueryNormalizationResultV1(forged).ok).toBe(false);
+    }
+  });
+
   it('reproduces the exact exchange and rejects source, modality, outcome, and authority drift', async () => {
     const taxonomyAuthority = await taxonomy();
     const query = input({

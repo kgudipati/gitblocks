@@ -1543,7 +1543,7 @@ function validateConstraintResolutionShape(
 ): void {
   const hasConcept = constraint.conceptId !== null;
   const hasCanonicalTerm = constraint.canonicalTerm !== null;
-  const valid =
+  const shapeIsValid =
     constraint.resolutionBasis === 'controlled-taxonomy'
       ? hasConcept && hasCanonicalTerm
       : constraint.resolutionBasis === 'preserved-declaration'
@@ -1554,7 +1554,10 @@ function validateConstraintResolutionShape(
               constraint.resolutionBasis === 'exclusion'
             ? !hasConcept && hasCanonicalTerm
             : !hasConcept;
-  if (!valid) {
+  const contradictionRuleIsValid =
+    (constraint.resolutionBasis === 'contradiction') ===
+    (constraint.ruleId === 'constraint-modality-conflict');
+  if (!shapeIsValid || !contradictionRuleIsValid) {
     addIssue(issues, 'query.normalization', path);
   }
 }
@@ -1567,7 +1570,6 @@ function validateContradictionPairs(
     if (constraint.resolutionBasis !== 'contradiction') continue;
     const hasRequired = constraints.some(
       (candidate) =>
-        candidate !== constraint &&
         candidate.resolutionBasis === 'contradiction' &&
         candidate.facet === constraint.facet &&
         candidate.conceptId === constraint.conceptId &&
@@ -1575,7 +1577,6 @@ function validateContradictionPairs(
     );
     const hasProhibited = constraints.some(
       (candidate) =>
-        candidate !== constraint &&
         candidate.resolutionBasis === 'contradiction' &&
         candidate.facet === constraint.facet &&
         candidate.conceptId === constraint.conceptId &&

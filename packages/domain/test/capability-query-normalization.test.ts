@@ -660,6 +660,14 @@ describe('deterministic capability-query normalization', () => {
             facetHint: 'infrastructure',
             reasonCode: 'redis-prohibited',
           },
+          {
+            constraintId: 'constraint-preferred',
+            modality: 'preferred',
+            statement: 'Prefer Redis.',
+            originalTerm: 'redis',
+            facetHint: 'infrastructure',
+            reasonCode: 'redis-preferred',
+          },
         ],
       }),
       taxonomy(),
@@ -682,6 +690,87 @@ describe('deterministic capability-query normalization', () => {
           ({ resolutionBasis }) => resolutionBasis === 'contradiction',
         ),
     ).toBe(true);
+    if (!contradiction.ok) return;
+    expect(
+      contradiction.value.normalizedConstraints.map(({ modality }) => modality),
+    ).toEqual(['preferred', 'prohibited', 'required']);
+    const semantic = {
+      ...contradiction.value,
+      candidateCatalogBinding: null,
+    };
+    expect(validateCapabilityQueryNormalizationResult(semantic)).toMatchObject({
+      ok: true,
+    });
+
+    for (const missingModality of ['required', 'prohibited'] as const) {
+      const forged = {
+        ...semantic,
+        normalizedConstraints: semantic.normalizedConstraints.filter(
+          ({ modality }) => modality !== missingModality,
+        ),
+      };
+      expect(validateCapabilityQueryNormalizationResult(forged)).toMatchObject({
+        ok: false,
+        issues: expect.arrayContaining([
+          expect.objectContaining({
+            path: expect.stringContaining('normalizedConstraints'),
+          }),
+        ]),
+      });
+    }
+
+    const preferredOnly = {
+      ...semantic,
+      normalizedConstraints: semantic.normalizedConstraints.filter(
+        ({ modality }) => modality === 'preferred',
+      ),
+    };
+    expect(validateCapabilityQueryNormalizationResult(preferredOnly).ok).toBe(
+      false,
+    );
+
+    const splitConcept = {
+      ...semantic,
+      normalizedConstraints: semantic.normalizedConstraints.map((constraint) =>
+        constraint.modality === 'prohibited'
+          ? {
+              ...constraint,
+              conceptId: 'authorization-test-feature',
+              canonicalTerm: 'authorization-test-feature',
+            }
+          : constraint,
+      ),
+    };
+    expect(validateCapabilityQueryNormalizationResult(splitConcept).ok).toBe(
+      false,
+    );
+
+    const splitFacet = {
+      ...semantic,
+      normalizedConstraints: semantic.normalizedConstraints.map((constraint) =>
+        constraint.modality === 'prohibited'
+          ? { ...constraint, facet: 'feature' as const }
+          : constraint,
+      ),
+    };
+    expect(validateCapabilityQueryNormalizationResult(splitFacet).ok).toBe(
+      false,
+    );
+
+    const falseRule = {
+      ...semantic,
+      normalizedConstraints: semantic.normalizedConstraints.map((constraint) =>
+        constraint.modality === 'preferred'
+          ? {
+              ...constraint,
+              resolutionBasis: 'controlled-taxonomy' as const,
+            }
+          : constraint,
+      ),
+    };
+    expect(validateCapabilityQueryNormalizationResult(falseRule).ok).toBe(
+      false,
+    );
   });
 
   it('requires a unique family and rejects cross-family explicit concepts', () => {
