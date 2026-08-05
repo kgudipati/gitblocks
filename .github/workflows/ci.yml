@@ -121,6 +121,9 @@ jobs:
       - name: Validate retrieval scorer fixtures
         run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
 
+      - name: Verify retrieval baselines and committed report
+        run: node tools/evaluation-harness/src/retrieval/cli.ts verify
+
       - name: Validate interview evaluation cases
         run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
 

@@ -76,7 +76,7 @@ describe('retrieval evaluation architecture', () => {
     expect(productText).not.toContain('evaluation-harness/src/retrieval');
   });
 
-  it('keeps the retrieval harness offline and outside ingestion, Phase 7, models, and baselines', () => {
+  it('keeps the retrieval harness offline and outside ingestion, Phase 7, and models', () => {
     const root = new URL('../src/retrieval', import.meta.url).pathname;
     const text = sourceFiles(root)
       .map((path) => readFileSync(path, 'utf8'))
@@ -90,7 +90,6 @@ describe('retrieval evaluation architecture', () => {
       'repository-interviews-v1',
       'CandidateDossier',
       'model-provider',
-      'baseline-report',
     ]) {
       expect(text).not.toContain(forbidden);
     }
@@ -100,6 +99,28 @@ describe('retrieval evaluation architecture', () => {
     expect(readFileSync(join(root, 'scoring.ts'), 'utf8')).not.toContain(
       'writeFile',
     );
+  });
+
+  it('keeps the report evaluation-only and commits no prediction set', () => {
+    const root = new URL('../../..', import.meta.url).pathname;
+    const productSchemaCatalog = readFileSync(
+      join(root, 'packages/contracts/src/schema-catalog.ts'),
+      'utf8',
+    );
+    expect(productSchemaCatalog).not.toContain('baseline-report');
+    expect(
+      existsSync(
+        join(root, 'schemas/evaluation/retrieval/baseline-report.schema.json'),
+      ),
+    ).toBe(true);
+    const verificationFiles = readdirSync(
+      join(root, 'verification/retrieval-v1'),
+    ).sort();
+    expect(verificationFiles).toEqual([
+      'baseline-report.json',
+      'profile-coverage.json',
+    ]);
+    expect(verificationFiles.join('\n')).not.toContain('prediction');
   });
 
   it('makes the blind loader the only permitted baseline-style input boundary', () => {

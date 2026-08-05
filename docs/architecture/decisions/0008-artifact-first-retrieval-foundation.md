@@ -28,9 +28,13 @@ accepted. Milestone 4 was accepted at
 `66a4165c1239e7a46d72ccd6469d0856e815c410` under the documented hosted-CI
 infrastructure exception, retaining corrections
 `2983194504253ca76697a93abd744e3300522785` and
-`2ddedf73f38fb25f625b5fd0793605d807f1ee93`. Milestone 5 implements the
-evaluation-only retrieval authority. Milestone 6 baselines remain unstarted
-and require separate authorization.
+`2ddedf73f38fb25f625b5fd0793605d807f1ee93`. Milestone 5 was accepted through
+correction commit `4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. Its independent
+corpus/scorer architecture is accepted, while relevance and hard-filter audit
+provenance remains proposed/not-reviewed; this establishes deterministic
+development authority, not independently accepted retrieval truth. Milestone
+6 evaluation-only baselines are in progress. Milestone 7 remains unstarted and
+unauthorized.
 
 ## Context
 
@@ -383,8 +387,9 @@ and semantically separate. Ranking judgments are prohibited.
 
 `loadRetrievalBlindQuerySetV1` validates and returns only manifest bindings and
 the 50 blind query records. It exposes no gold, equivalence, or audit
-classification metadata and is the only permitted future Milestone 6 baseline
-input. Full-corpus loading is restricted to validation and scoring.
+classification metadata and is the only permitted Milestone 6 baseline input.
+Full-corpus loading is restricted to validation, frozen-prediction scoring, and
+content-free report aggregation.
 
 Do not hand-author a 50 by 150 hard-filter label matrix. Expected membership is
 generated deterministically from the normalized query, exact candidate-profile
@@ -447,9 +452,20 @@ re-digested missing or split pairs remain rejected.
 
 ### Offline baselines and evidence
 
-Milestone 6 may implement evaluation-only deterministic baselines after
-separate authorization. They are not a
-production retrieval service and cannot be imported by product packages.
+Milestone 6 implements evaluation-only deterministic family-only,
+exact-keyword, and alias-expanded baselines; an always-abstain weak control; a
+constraint-violating safety control; and a synthetic fixture oracle. They are
+not a production retrieval service and cannot be imported by product packages.
+
+The binding sequence is blind query loading, accepted normalization, safe
+structured candidate/profile projection, baseline prediction generation,
+prediction validation and immutable digest, and only then full gold-bearing
+corpus loading, deterministic scoring, and content-free aggregation. Strategy
+views contain only case kind, structured terms/constraints, accepted
+normalization concepts/constraints/family, resolved candidate identities, and
+safe structured candidate identity/family/status/hard-state/lane fields. Case
+and source IDs, corpus-assigned family, prose, classifications, reviewer data,
+catalog rationale/selection sources, artifacts, and gold are unavailable.
 
 Generate and drift-check the content-free report:
 
@@ -458,7 +474,7 @@ verification/retrieval-v1/baseline-report.json
 It may contain only:
 
 - exact authority versions and digests;
-- baseline versions;
+- baseline/control versions and prediction/score semantic digests;
 - exact metric results;
 - case counts and denominators;
 - runtime/tool versions; and
@@ -466,6 +482,15 @@ It may contain only:
 
 It contains no artifact body, target source, unrestricted rationale, raw
 reviewer note, provider response, model output, or credential.
+
+The report explicitly labels proposed/not-reviewed gold and all scores as
+development measurements rather than production-quality evidence. It records
+aggregate and per-family numeric metrics and safety counts, never per-case or
+candidate content, a winner, rank, composite, recommendation, quality/launch
+threshold, or production-readiness status. Shared accepted-normalization
+metrics are disclosed as a common deterministic component. The explicit
+writer owns only the fixed report path; ordinary verification is read-only and
+compares canonical bytes and semantic digest with a no-write effect audit.
 
 ### Persistence
 

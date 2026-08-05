@@ -115,6 +115,7 @@ const REQUIRED_PATHS = [
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
+  'schemas/evaluation/retrieval/baseline-report.schema.json',
   'schemas/evaluation/evidence.schema.json',
   'schemas/evaluation/gold.schema.json',
   'schemas/evaluation/manifest.schema.json',
@@ -141,6 +142,7 @@ const REQUIRED_PATHS = [
   'tsconfig.json',
   'vitest.config.ts',
   'vitest.db.config.ts',
+  'verification/retrieval-v1/baseline-report.json',
 ] as const;
 
 const ROOT_MANIFEST = JSON.stringify({
@@ -189,6 +191,12 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate',
     'eval:retrieval:fixtures':
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'eval:retrieval:baselines':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines',
+    'eval:retrieval:baselines:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate',
+    'eval:retrieval:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify',
     'eval:retrieval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score',
     'eval:score':
@@ -429,6 +437,9 @@ const CI_POLICY = `jobs:
       - run: node tools/repository-checks/src/cli.ts repository
       - run: node tools/evaluation-harness/src/cli.ts validate
       - run: node tools/evaluation-harness/src/cli.ts fixtures
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts verify
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
       - run: node tools/evaluation-harness/src/contract-conformance-cli.ts

@@ -220,8 +220,19 @@ separate evidence-needed lane. All new gold is proposed/not independently
 reviewed, so the corpus and scorer establish evaluation authority—not
 retrieval quality. Proposed relevance is candidate/query-specific from
 committed curation, and real-corpus equivalence is limited to true result
-redundancy; zero groups is valid. Milestone 6 owns baselines and any baseline
-report.
+redundancy; zero groups is valid. Milestone 5 was accepted through
+`4f4c1e4522f7db85d2a0a422b5c78ac8665a4840` with that limitation intact.
+
+Milestone 6 baselines are evaluation-only outward consumers. They generate and
+freeze complete predictions from blind queries, accepted normalization, and a
+safe structured profile projection before loading gold for scoring. Strategy
+inputs omit case/source identities, assigned corpus family, prose, rationale,
+artifacts, audit metadata, and gold. The committed baseline report contains
+only bindings, opaque prediction/score digests, aggregate/per-family numeric
+measurements and denominators, safety counts, control evidence, and its digest.
+It makes no winner, recommendation, quality threshold, production-readiness,
+or product-contract claim. Production retrieval and Milestone 7 remain
+unimplemented.
 
 ## Relevance is not adoption fit
 

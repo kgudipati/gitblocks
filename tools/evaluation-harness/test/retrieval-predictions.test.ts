@@ -82,8 +82,16 @@ describe('retrieval prediction validation', () => {
         readonly lane: 'eligible' | 'evidence-needed';
       } => decision.lane !== 'excluded',
     );
+    const generated = corpus.retrievalCases.find(
+      ({ query }) => query.caseId === retrieval.caseId,
+    )?.generatedProjection.decisions;
+    const generatedById = new Map(
+      (generated ?? []).map((decision) => [decision.candidateId, decision]),
+    );
     const laneTargetIndex = retrieval.candidateDecisions.findIndex(
-      ({ lane }) => lane !== 'eligible',
+      ({ candidateId, lane }) =>
+        lane !== 'eligible' &&
+        generatedById.get(candidateId)?.negativeControl === false,
     );
     const mutations: RetrievalCasePrediction[] = [
       {

@@ -31,6 +31,9 @@
     "eval:fixtures": "pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures",
     "eval:retrieval:validate": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate",
     "eval:retrieval:fixtures": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures",
+    "eval:retrieval:baselines": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines",
+    "eval:retrieval:baselines:generate": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate",
+    "eval:retrieval:verify": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify",
     "eval:retrieval:score": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score",
     "eval:interviews:generate": "pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts generate",
     "eval:interviews:validate": "pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate",
@@ -70,7 +73,7 @@
     "db:verify": "pnpm runtime:check && pnpm build && node packages/persistence/scripts/db-verify.ts",
     "security:secrets": "secretlint \"**/*\"",
     "security:audit": "pnpm audit --audit-level=moderate",
-    "verify:core": "pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && pnpm architecture:check && node tools/repository-checks/src/cli.ts repository && node tools/evaluation-harness/src/cli.ts validate && node tools/evaluation-harness/src/cli.ts fixtures && node tools/evaluation-harness/src/retrieval/cli.ts validate && node tools/evaluation-harness/src/retrieval/cli.ts fixtures && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && node tools/evaluation-harness/src/contract-conformance-cli.ts && node packages/contracts/scripts/taxonomy-cli.ts && node packages/ingestion/scripts/candidate-profile-cli.ts && node packages/ingestion/scripts/catalog-cli.ts && node packages/interviews/scripts/specification-cli.ts validate && node apps/repository-interview-operator/scripts/schema-cli.ts validate && node tools/repository-interview-prelive/src/prelive-cli.ts validate && pnpm security:secrets",
+    "verify:core": "pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && pnpm architecture:check && node tools/repository-checks/src/cli.ts repository && node tools/evaluation-harness/src/cli.ts validate && node tools/evaluation-harness/src/cli.ts fixtures && node tools/evaluation-harness/src/retrieval/cli.ts validate && node tools/evaluation-harness/src/retrieval/cli.ts fixtures && node tools/evaluation-harness/src/retrieval/cli.ts verify && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && node tools/evaluation-harness/src/contract-conformance-cli.ts && node packages/contracts/scripts/taxonomy-cli.ts && node packages/ingestion/scripts/candidate-profile-cli.ts && node packages/ingestion/scripts/catalog-cli.ts && node packages/interviews/scripts/specification-cli.ts validate && node apps/repository-interview-operator/scripts/schema-cli.ts validate && node tools/repository-interview-prelive/src/prelive-cli.ts validate && pnpm security:secrets",
     "verify": "pnpm runtime:check && pnpm verify:core",
     "verify:ci": "pnpm verify && pnpm db:verify && pnpm security:audit"
   },

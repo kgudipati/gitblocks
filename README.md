@@ -124,12 +124,17 @@ profile contract roots, an offline generated 150-candidate authority, an
 aggregate coverage report, and conservative single-candidate constraint
 evaluation. It also contains the separate immutable `retrieval-v1` authority:
 30 retrieval and 20 normalization/adversarial blind cases, physically separate
-case-classification audit metadata and proposed gold, a blind-only future
+case-classification audit metadata and proposed gold, a blind-only
 baseline loader, generated 150-candidate hard-filter projections, closed
-prediction/report schemas, and deterministic scorer fixtures. The profile and
+prediction/report schemas, deterministic scorer fixtures, three offline
+ordinary baselines, weak/safety controls, a synthetic oracle, and one
+reproducible aggregate/per-family content-free baseline report. The profile and
 evaluation authorities are not production-readiness or retrieval-quality
-claims. Phase 8 does not implement production retrieval or ranking; Milestone
-6 baselines and a baseline report have not begun.
+claims; relevance and hard-filter audit provenance remains
+proposed/not-reviewed. Baseline predictions freeze before gold-bearing corpus
+loading, and shared-normalization metrics are not independent achievements.
+Phase 8 does not implement production retrieval or ranking. Milestone 7 is
+unstarted and unauthorized.
 
 ## Repository map
 
@@ -155,7 +160,7 @@ claims. Phase 8 does not implement production retrieval or ranking; Milestone
 | `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority         |
 | `catalog/public-v1/`                     | Curator-owned repository source and deterministically digested public manifest   |
 | `catalog/capability-taxonomy/1.0.0/`     | Reviewed taxonomy source and generated versioned capability authority            |
-| `verification/retrieval-v1/`             | Content-free deterministic profile coverage authority                            |
+| `verification/retrieval-v1/`             | Content-free deterministic profile coverage and baseline reports                 |
 | `evals/pilot-v1/`                        | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
 | `evals/retrieval-v1/`                    | Fifty blind retrieval/query cases with physically separate proposed gold         |
 | `schemas/evaluation/`                    | Versioned JSON Schema 2020-12 evaluation contracts                               |
@@ -188,50 +193,53 @@ Corepack reads the exact pnpm 11.17.0 pin and integrity digest from
 `package.json`; `pnpm --version` must report `11.17.0`. Do not use npm or Yarn,
 hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 
-| Command                               | Purpose                                                             |
-| ------------------------------------- | ------------------------------------------------------------------- |
-| `pnpm runtime:check`                  | Quietly validate the active Node process and repository pin         |
-| `pnpm format:check`                   | Check formatting without changing files                             |
-| `pnpm lint`                           | Run typed ESLint with zero warnings                                 |
-| `pnpm typecheck`                      | Build required product/tool outputs, then type-check all workspaces |
-| `pnpm build`                          | Emit the private product and tooling packages                       |
-| `pnpm test`                           | Run the protected deterministic Vitest suite                        |
-| `pnpm test:coverage`                  | Record the V8 coverage baseline                                     |
-| `pnpm architecture:check`             | Enforce dependency directions                                       |
-| `pnpm repo:check`                     | Validate workflows, Markdown, and repository invariants             |
-| `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity              |
-| `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory                   |
-| `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                        |
-| `pnpm eval:retrieval:validate`        | Validate retrieval-v1 authority and generated hard-filter closure   |
-| `pnpm eval:retrieval:fixtures`        | Run hand-calculated retrieval scorer fixtures                       |
-| `pnpm eval:retrieval:score -- …`      | Validate and score one repository-relative prediction set           |
-| `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings             |
-| `pnpm taxonomy:validate`              | Validate taxonomy source, invariants, ordering, digest, and drift   |
-| `pnpm taxonomy:generate`              | Explicitly regenerate the reviewed taxonomy authority               |
-| `pnpm profiles:validate`              | Validate offline profiles, coverage, digests, closure, and drift    |
-| `pnpm profiles:generate`              | Explicitly regenerate the two fixed profile artifacts               |
-| `pnpm db:migrate`                     | Apply checked forward migrations to an acknowledged test DB         |
-| `pnpm db:check`                       | Verify migration history, public schema, roles, and indexes         |
-| `pnpm db:test`                        | Run PostgreSQL integration and conformance tests                    |
-| `pnpm db:verify`                      | Provision pinned PostgreSQL and run all database checks             |
-| `pnpm catalog:validate`               | Validate catalog bounds, balance, identity, paths, and digest       |
-| `pnpm catalog:seed -- --catalog …`    | Seed exact catalog provenance into an acknowledged ephemeral DB     |
-| `pnpm artifacts:validate`             | Validate public artifact selections, coverage, and digest           |
-| `pnpm artifacts:test`                 | Run deterministic artifact manifest, collector, and receipt tests   |
-| `pnpm artifacts:verify`               | Run complete offline artifact verification                          |
-| `pnpm artifacts:live`                 | Run the separately acknowledged public-artifact operator            |
-| `pnpm artifacts:receipt`              | Validate and compare content-free artifact receipts                 |
-| `pnpm ingestion:test`                 | Run deterministic ingestion adapter and profile tests               |
-| `pnpm ingestion:verify`               | Run catalog and ingestion offline verification                      |
-| `pnpm operator:interviews`            | Require complete explicit acknowledged operator configuration       |
-| `pnpm operator:interviews:verify`     | Verify operator schemas, tests, architecture, and test PostgreSQL   |
-| `pnpm interviews:prelive:validate`    | Reproduce committed pre-live authorities read-only                  |
-| `pnpm interviews:prelive:verify`      | Run offline, denial, scale, operator, evaluation, and DB proofs     |
-| `pnpm interviews:prelive:materialize` | Future explicit fresh-receipt/same-database materialization         |
-| `pnpm security:secrets`               | Scan tracked development content for secrets                        |
-| `pnpm security:audit`                 | Run the online registry dependency audit                            |
-| `pnpm verify`                         | Run one preflight plus authoritative offline verification           |
-| `pnpm verify:ci`                      | Run `verify`, audit, and real PostgreSQL verification               |
+| Command                                  | Purpose                                                             |
+| ---------------------------------------- | ------------------------------------------------------------------- |
+| `pnpm runtime:check`                     | Quietly validate the active Node process and repository pin         |
+| `pnpm format:check`                      | Check formatting without changing files                             |
+| `pnpm lint`                              | Run typed ESLint with zero warnings                                 |
+| `pnpm typecheck`                         | Build required product/tool outputs, then type-check all workspaces |
+| `pnpm build`                             | Emit the private product and tooling packages                       |
+| `pnpm test`                              | Run the protected deterministic Vitest suite                        |
+| `pnpm test:coverage`                     | Record the V8 coverage baseline                                     |
+| `pnpm architecture:check`                | Enforce dependency directions                                       |
+| `pnpm repo:check`                        | Validate workflows, Markdown, and repository invariants             |
+| `pnpm eval:validate`                     | Validate the corpus, hashes, references, and diversity              |
+| `pnpm eval:score --prediction <path>`    | Score one prediction file or a complete directory                   |
+| `pnpm eval:fixtures`                     | Exercise deterministic weak fixture profiles                        |
+| `pnpm eval:retrieval:validate`           | Validate retrieval-v1 authority and generated hard-filter closure   |
+| `pnpm eval:retrieval:fixtures`           | Run hand-calculated retrieval scorer fixtures                       |
+| `pnpm eval:retrieval:baselines`          | Print the deterministic content-free baseline report without writes |
+| `pnpm eval:retrieval:baselines:generate` | Explicitly write only the fixed baseline report path                |
+| `pnpm eval:retrieval:verify`             | Read-only reproduce and drift-check baselines and report            |
+| `pnpm eval:retrieval:score -- …`         | Validate and score one repository-relative prediction set           |
+| `pnpm contracts:validate`                | Validate schemas and all ten corpus-to-product mappings             |
+| `pnpm taxonomy:validate`                 | Validate taxonomy source, invariants, ordering, digest, and drift   |
+| `pnpm taxonomy:generate`                 | Explicitly regenerate the reviewed taxonomy authority               |
+| `pnpm profiles:validate`                 | Validate offline profiles, coverage, digests, closure, and drift    |
+| `pnpm profiles:generate`                 | Explicitly regenerate the two fixed profile artifacts               |
+| `pnpm db:migrate`                        | Apply checked forward migrations to an acknowledged test DB         |
+| `pnpm db:check`                          | Verify migration history, public schema, roles, and indexes         |
+| `pnpm db:test`                           | Run PostgreSQL integration and conformance tests                    |
+| `pnpm db:verify`                         | Provision pinned PostgreSQL and run all database checks             |
+| `pnpm catalog:validate`                  | Validate catalog bounds, balance, identity, paths, and digest       |
+| `pnpm catalog:seed -- --catalog …`       | Seed exact catalog provenance into an acknowledged ephemeral DB     |
+| `pnpm artifacts:validate`                | Validate public artifact selections, coverage, and digest           |
+| `pnpm artifacts:test`                    | Run deterministic artifact manifest, collector, and receipt tests   |
+| `pnpm artifacts:verify`                  | Run complete offline artifact verification                          |
+| `pnpm artifacts:live`                    | Run the separately acknowledged public-artifact operator            |
+| `pnpm artifacts:receipt`                 | Validate and compare content-free artifact receipts                 |
+| `pnpm ingestion:test`                    | Run deterministic ingestion adapter and profile tests               |
+| `pnpm ingestion:verify`                  | Run catalog and ingestion offline verification                      |
+| `pnpm operator:interviews`               | Require complete explicit acknowledged operator configuration       |
+| `pnpm operator:interviews:verify`        | Verify operator schemas, tests, architecture, and test PostgreSQL   |
+| `pnpm interviews:prelive:validate`       | Reproduce committed pre-live authorities read-only                  |
+| `pnpm interviews:prelive:verify`         | Run offline, denial, scale, operator, evaluation, and DB proofs     |
+| `pnpm interviews:prelive:materialize`    | Future explicit fresh-receipt/same-database materialization         |
+| `pnpm security:secrets`                  | Scan tracked development content for secrets                        |
+| `pnpm security:audit`                    | Run the online registry dependency audit                            |
+| `pnpm verify`                            | Run one preflight plus authoritative offline verification           |
+| `pnpm verify:ci`                         | Run `verify`, audit, and real PostgreSQL verification               |
 
 Contract and evaluation commands are offline and do not execute candidate code
 or call a model. Product schemas are deterministic JSON Schema 2020-12 runtime

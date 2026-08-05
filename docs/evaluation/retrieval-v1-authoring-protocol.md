@@ -34,9 +34,9 @@ candidate-constraint evaluator and domain profile types. Contracts do not
 re-export that evaluator on behalf of evaluation code.
 
 Production candidate generation, hard filtering, retrieval, ranking,
-reranking, vector search, recommendation, and baseline execution remain
-unimplemented. Milestone 6 exclusively owns deterministic baselines and any
-committed baseline report.
+reranking, vector search, recommendation, API/MCP, and profile materialization
+remain unimplemented. Milestone 6 owns only evaluation-time deterministic
+baselines and the committed content-free baseline report.
 
 ## Manifest and physical separation
 
@@ -71,9 +71,10 @@ Case slot and diversity classifications live only in
 `retrieval-case-classification/1.0.0`, under proposed/not-reviewed provenance.
 The dedicated read-only `loadRetrievalBlindQuerySetV1` boundary validates only
 manifest bindings and the 50 query documents and returns no gold,
-classification, equivalence, or path that exposes those records. A future
-Milestone 6 baseline may consume only that blind loader; the full corpus loader
-is reserved for corpus validation and scoring.
+classification, equivalence, or path that exposes those records. Every
+Milestone 6 real-corpus baseline consumes only that blind loader; the full
+corpus loader is reserved for corpus validation, scoring frozen prediction
+sets, and content-free aggregation.
 
 Normalization, clarification, hard-filter, relevance, no-result, and
 equivalence authority remain physically separate. Every gold record has
@@ -221,6 +222,108 @@ allowed. Milestone 5 commits no prediction or score report.
 profile, projection, relevance, equivalence, no-result, and provenance closure.
 `pnpm eval:retrieval:fixtures` runs only 26 hand-calculated synthetic scorer
 fixtures. `pnpm eval:retrieval:score -- --prediction <repository-relative-json-path>`
-validates and prints canonical content-free JSON without writing. All three are
+validates and prints canonical closed score-report JSON without writing. All three are
 offline and make no network, provider, model, database, candidate-repository,
 artifact-body, target-source, package-registry, or Phase 7 access.
+
+## Deterministic offline baselines and report
+
+Milestone 5 was accepted through correction commit
+`4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. Its independent corpus/scorer
+architecture is accepted, but relevance and hard-filter audit provenance
+remains proposed/not-reviewed. Baseline scores are development measurements
+against that proposed authority, not independently reviewed truth or
+production-retrieval quality evidence.
+
+Exact evaluation-only versions are:
+
+- runner: `retrieval-baseline-runner/1.0.0`;
+- family-only: `retrieval-family-only-baseline/1.0.0`;
+- exact-keyword: `retrieval-exact-keyword-baseline/1.0.0`;
+- alias-expanded: `retrieval-alias-expanded-baseline/1.0.0`;
+- always-abstain: `retrieval-always-abstain-control/1.0.0`;
+- constraint-violating: `retrieval-constraint-violating-control/1.0.0`;
+- fixture oracle: `retrieval-fixture-oracle-control/1.0.0`; and
+- report: `retrieval-baseline-report/1.0.0`.
+
+These versions and the baseline-report schema remain evaluation-only and never
+enter the product-contract schema catalog.
+
+The binding two-phase sequence is:
+
+```text
+blind query loading
+  -> accepted normalization
+  -> safe candidate/profile projection
+  -> baseline prediction generation
+  -> prediction validation and immutable digest
+  -> only then load full gold-bearing corpus
+  -> deterministic scoring
+  -> aggregate content-free report
+```
+
+The closed strategy query view contains only `caseKind`, raw structured terms,
+raw structured constraints (`modality`, `facet`, `originalTerm`), normalized
+primary family, normalized concept IDs, normalized constraints (`modality`,
+`facet`, `resolutionBasis`, `conceptId`, `canonicalTerm`), and resolved
+candidate IDs. It contains no case/query/source/reference/condition ID,
+assigned corpus family, slot, path, summary/success prose, classification,
+audit metadata, or gold. The orchestration layer retains source identities only
+to run the accepted normalizer and project its exact prediction, and attaches
+the case ID only after strategy output is complete.
+
+The safe candidate view contains only candidate ID, primary/additional family,
+structured catalog status, repository owner/name, mapped npm package or null,
+and the generated hard state and lane. Those values come only from the parsed
+candidate-profile authority and accepted candidate-constraint evaluator.
+Catalog rationale, selection sources, documentation/artifact text, interview,
+provider/model output, and reviewer notes are never loaded. Ordinary baselines
+exclude negative controls and excluded lanes, preserve all 150 generated
+decisions exactly, never call unresolved eligible, emit no duplicate, cap
+results at ten, and use exact ASCII candidate-ID ties.
+
+Family-only uses only the accepted normalized primary family and orders primary
+then additional family matches. Exact-keyword creates exact ASCII keys from
+structured input and exact accepted candidate references and matches only full
+candidate-ID segments, repository/package identity, and primary/additional
+family keys; substring, stemming, morphology, fuzzy/edit-distance, Unicode
+folding, transliteration, and semantic matching are prohibited. Alias-expanded
+adds only accepted normalized family/concepts/active-alias resolution and exact
+resolved references; it never traverses or relearns taxonomy semantics. No
+relative performance or minimum Recall/MRR/NDCG requirement applies.
+
+Always-abstain preserves accepted normalization and all generated decisions,
+emits no result, and predicts no eligible result for every retrieval case. The
+constraint-violating safety control deterministically forges the first actual
+negative control and first distinct non-negative hard conflict as
+satisfied/eligible, emits both, and must trigger hard-filter, negative-control,
+conflict, lane, and applicable no-result errors. The fixture oracle uses only
+hand-calculated synthetic data, never loads `retrieval-v1` or the blind loader,
+and never creates a real-corpus prediction set.
+
+All five real prediction sets contain 50 canonical predictions and exact 150
+decision closure per retrieval case, but no prediction set is committed. The
+committed `verification/retrieval-v1/baseline-report.json` retains only exact
+authority/tool versions and digests, case counts/denominators, baseline/control
+and opaque prediction/score IDs/digests, aggregate and per-family numeric
+metrics, family coverage, safety counts, synthetic-oracle summary, the shared
+normalization indicator, and its semantic digest. It contains no per-case,
+query, source, candidate, result, decision, relevance-reason, classification,
+reviewer, rationale, URL, artifact/provider/model, timestamp/machine/runner,
+winner/rank/composite/recommendation/threshold/readiness content.
+
+Normalization, clarification, alias, and prohibited-modality metrics partly
+measure the shared accepted public normalizer. The report marks them as a
+shared component; they are not independent baseline achievements. Candidate
+generation and result ordering remain separately visible.
+
+`pnpm eval:retrieval:baselines` prints canonical report JSON and writes
+nothing. `pnpm eval:retrieval:baselines:generate` accepts no output path and
+writes canonical bounded bytes only to the fixed report path after rejecting
+root/parent/report symlink aliases. `pnpm eval:retrieval:verify` is read-only:
+it validates corpus and fixtures, repeats prediction generation and scoring,
+checks reversed safe-authority order, validates report schema/digest/content,
+compares committed bytes, and proves the report path was not changed. All are
+offline and use no environment-derived semantics, clock, randomness, network,
+database, provider/model, artifact body, or Phase 7 input. Milestone 7 remains
+separately authorized and has not begun.

@@ -507,9 +507,33 @@ network or database access, candidate repository or artifact-body read, or use
 of any Phase 7 container, database, receipt, or repository-external evidence.
 Gold and case-classification audit metadata are physically separated from
 blind queries, proposed/not-reviewed, and unavailable through the dedicated
-blind loader that is the only permitted future baseline boundary. Unknown profiles remain
+blind loader that is the only permitted baseline boundary. Baseline strategies
+receive no case/query/source/reference/condition identity, corpus-assigned
+family, slot/path, prose, classification, reviewer metadata, or gold. Their
+candidate view contains only structured identity/family/status and exact
+generated hard-state/lane authority; rationale, selection-source URLs,
+documentation/artifacts, interview/provider/model content, and reviewer notes
+are excluded. All real-corpus predictions validate and freeze before full gold
+loads for scoring. Unknown profiles remain
 unresolved, negative controls remain excluded, and no-result authority derives
-from generated hard-filter state rather than relevance. Any final 150-candidate live
+from generated hard-filter state rather than relevance.
+
+Ordinary baselines cannot emit negative controls or excluded candidates, call
+unresolved eligible, duplicate results, exceed ten results, or use fuzzy,
+Unicode-folded, semantic, locale, clock, random, environment, network, or
+filesystem-enumerated semantics. The intentionally unsafe control remains
+structurally valid but is isolated and must produce nonzero safety violations.
+The synthetic oracle cannot load real authority.
+
+The committed report is aggregate/per-family and content-free. It excludes all
+case/query/source/candidate/result/decision content, URLs, reviewer/rationale,
+artifacts/provider/model output, mutable environment data, per-case scores,
+winner/rank/composite/recommendation/threshold/readiness fields, NaN, Infinity,
+and zero-denominator coercion. Its digest excludes only itself. The explicit
+writer accepts no arbitrary path, rejects canonical-root/parent/report symlink
+aliases, performs one bounded no-follow regular-file write, and leaves no
+temporary file. Ordinary verification compares exact bytes and metadata in a
+read-only no-write effect audit. Any final 150-candidate live
 materialization requires separate authorization, a fresh dedicated ephemeral
 PostgreSQL database, the existing approved public-source boundaries, no model
 call, and content-free receipts and coverage evidence.

@@ -100,7 +100,10 @@ aggregate content-free coverage report. It performs no provider collection,
 database access, model call, retrieval, ranking, or import of evaluation data.
 Persistence and the repository-interview application are unchanged.
 
-The Milestone 5 boundary is evaluation-only and non-operational. The harness
+The Milestone 5 boundary is evaluation-only and non-operational. It was
+accepted through `4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`; relevance and
+hard-filter audit provenance remains proposed/not-reviewed, so it is
+development authority rather than accepted retrieval truth. The harness
 parses accepted query, taxonomy, and profile authority through public contract
 exports, while its direct domain dependency supplies profile types and the
 single-candidate constraint evaluator. It owns a blind-only query loader,
@@ -110,7 +113,16 @@ validation, numeric scoring, and content-free reporting. Blind query inputs
 contain no tags or audit classifications and never read gold; product packages
 never depend on this outward consumer. The
 evidence-needed lane preserves unresolved state without calling it eligible.
-No baseline or baseline report exists; those remain Milestone 6 work.
+The Milestone 6 boundary is also evaluation-only and non-operational. Its blind
+phase runs accepted normalization and structured profile/constraint projection,
+passes only closed identifier-free strategy views, validates and freezes five
+complete prediction sets, and only then loads full gold for scoring. It owns
+three ordinary baselines, weak and safety controls, a synthetic-only oracle,
+and one aggregate/per-family content-free report. Product packages import none
+of it. The print and verification paths are read-only; only an explicit fixed
+writer can replace the committed report. There is no production candidate
+generation, filtering, retrieval, ranking, API/MCP, persistence, provider,
+model, database, or Phase 7 node. Milestone 7 is unstarted and unauthorized.
 
 ## Planned system context
 

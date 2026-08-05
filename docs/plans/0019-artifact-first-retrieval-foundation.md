@@ -7,14 +7,18 @@
   retrieval evaluation](https://github.com/kgudipati/gitblocks/issues/19)
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
-- State: Milestones 1–4 are accepted. Milestone 4 product implementation was
+- State: Milestones 1–5 are accepted. Milestone 4 product implementation was
   accepted at `66a4165c1239e7a46d72ccd6469d0856e815c410`; its retained CI-policy
   corrections are `2983194504253ca76697a93abd744e3300522785` and
   `2ddedf73f38fb25f625b5fd0793605d807f1ee93`. The maintainer accepted the
   milestone under the hosted-infrastructure exception documented below.
-  Milestone 5 retrieval/query evaluation is in progress. Milestone 6
-  deterministic baselines and the baseline report remain unstarted and
-  unauthorized.
+  Milestone 5 was accepted through correction commit
+  `4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. Its independent corpus/scorer
+  architecture is accepted, while relevance and hard-filter audit provenance
+  remains proposed/not-reviewed. That acceptance establishes deterministic
+  development authority, not independently accepted retrieval truth.
+  Milestone 6 deterministic baselines and the content-free report are in
+  progress. Milestone 7 is unstarted and unauthorized.
 - Last updated: 2026-08-04
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -41,8 +45,9 @@ Milestone 3, including its result-invariant review correction, was accepted at
 commit a81aea020fde501c70bfffa85dad60113e4e71d1 after hosted CI run
 30875378437 and Verification job 91885676773 completed successfully. ADR 0008
 remains accepted. Milestone 4 is accepted under the documented hosted
-infrastructure exception; Milestone 5 is in progress and Milestone 6 has not
-begun.
+infrastructure exception. Milestone 5 is accepted through
+`4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`; Milestone 6 is in progress, and
+Milestone 7 remains unstarted and unauthorized.
 
 ## Purpose and user-visible outcome
 
@@ -891,6 +896,12 @@ test(retrieval): add retrieval evaluation authority
 Independent review accepts case balance, gold separation, relevance judgment,
 generated filter expectations, audit samples, and metric math.
 
+Accepted through correction commit
+`4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. The independent corpus/scorer
+architecture is accepted. Relevance and hard-filter audit provenance remains
+proposed/not-reviewed, so the accepted result is deterministic development
+authority rather than independently accepted retrieval truth.
+
 **Stop conditions**
 
 Gold contamination, product dependency on evaluation, zero-denominator gaming,
@@ -907,9 +918,10 @@ generate the drift-checked content-free report.
 **Exact likely files**
 
 - tools/evaluation-harness/src/retrieval/baselines/**
-- tools/evaluation-harness/src/retrieval/report.ts
+- tools/evaluation-harness/src/retrieval/baseline-report.ts
+- tools/evaluation-harness/src/retrieval/baseline-runner.ts
 - tools/evaluation-harness/test/retrieval-baselines.test.ts
-- tools/evaluation-harness/test/retrieval-report.test.ts
+- tools/evaluation-harness/test/retrieval-baseline-report.test.ts
 - verification/retrieval-v1/baseline-report.json
 - package.json
 
@@ -926,12 +938,19 @@ or imported into product packages.
 
 **Security**
 
-No raw artifact/target/reviewer/provider/model content in report; no network,
-database, provider, model, or Phase 7 input.
+Prediction generation completes through the blind loader, accepted normalizer,
+safe structured candidate projection, strategy execution, closed prediction
+validation, and immutable digest before the full gold-bearing corpus is loaded
+for scoring. Strategy views exclude case/source identities, assigned corpus
+family, prose, audit metadata, and gold. No raw artifact, target, reviewer,
+provider, or model content enters the report; no network, database, provider,
+model, or Phase 7 input exists.
 
 **Validation**
 
 ```text
+pnpm eval:retrieval:baselines
+pnpm eval:retrieval:baselines:generate
 pnpm eval:retrieval:verify
 pnpm eval:validate
 pnpm eval:fixtures
@@ -940,7 +959,6 @@ pnpm contracts:validate
 pnpm build
 pnpm architecture:check
 pnpm verify
-pnpm verify:ci
 ```
 
 **Commit**
@@ -1898,6 +1916,71 @@ entries.
   from generated authority, and strengthened prohibited preservation to exact
   one-record semantic equality. Mechanical regeneration preserves all 30
   relevance files and equivalence bytes.
-- Milestone 5 implementation and complete local verification are ready for
-  maintainer review; its status remains in progress until review. Milestone 6
-  remains unstarted and unauthorized.
+- This Milestone 5 implementation record was subsequently accepted through
+  correction commit `4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`; the transition
+  and retained proposed/not-reviewed limitation are recorded below.
+
+### 2026-08-04 — Milestone 5 acceptance and Milestone 6 implementation
+
+- Milestone 5 was accepted through review correction commit
+  `4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. The independent 50-case
+  corpus/scorer architecture is accepted. Relevance and hard-filter audit
+  provenance remains proposed/not-reviewed, so this is deterministic
+  development authority rather than independently accepted retrieval truth.
+- Milestone 6 adds evaluation-only runner
+  `retrieval-baseline-runner/1.0.0`; ordinary baselines
+  `retrieval-family-only-baseline/1.0.0`,
+  `retrieval-exact-keyword-baseline/1.0.0`, and
+  `retrieval-alias-expanded-baseline/1.0.0`; weak control
+  `retrieval-always-abstain-control/1.0.0`; safety control
+  `retrieval-constraint-violating-control/1.0.0`; synthetic control
+  `retrieval-fixture-oracle-control/1.0.0`; and report
+  `retrieval-baseline-report/1.0.0`.
+- The binding two-phase boundary loads only blind queries and safe structured
+  taxonomy/profile authority during prediction generation. Strategies receive
+  no case/source identity, assigned corpus family, prose, classifications,
+  rationale, selection source, artifact, or gold. All five real-corpus
+  prediction sets close, validate, digest, and freeze before the full corpus is
+  loaded for deterministic scoring.
+- Prediction-set semantic digests are family-only
+  `fcb1aa2ad3f48835dc75e30f59ae1482ca273aab854eb71e579454a67db59210`,
+  exact-keyword
+  `06b588add9f27c0f30e6c32491a2341f64d6f66df1537f6b31d99555968e4ffe`,
+  alias-expanded
+  `47024301697d758d436d578939bfdd35b9424a3a343b7c6be9a05a9b4e04815e`,
+  always-abstain
+  `25b7b145e5b97c376174639a3fa370d6d91048452e3271bee322401dcd8639cb`,
+  and constraint-violating
+  `21a6807b426e7814b8f501ea88f5da8dec855e9e91e8383bfbdec87b79ff0d47`.
+  Prediction sets are never committed.
+- The content-free report at
+  `verification/retrieval-v1/baseline-report.json` has semantic digest
+  `6a16353159fb2e30e424ee20fb2e4eeda640ae2248a50580fd162ab012ddf1ed`.
+  It contains aggregate/per-family numeric measurements and denominators,
+  safety counts, bindings, versions, and opaque prediction/score digests only;
+  it contains no case/query/source/candidate/result/decision/reason/reviewer,
+  rationale, URL, artifact/provider/model content, timestamp, winner, rank,
+  composite, recommendation, threshold, readiness claim, or per-case score.
+- Ordinary baselines have zero hard-filter, negative-control, conflict, lane,
+  and duplicate violations. Always-abstain emits zero results, retains null
+  duplicate denominators, and scores 5/30 no-eligible accuracy. The unsafe
+  control records 55 hard-filter errors and 54 conflict, 30 negative-control,
+  and 60 lane violations. The synthetic oracle has exact perfect fixture
+  metrics without loading `retrieval-v1` or creating a real prediction set.
+- Shared normalization, clarification, alias, and prohibited-modality metrics
+  use the accepted public normalizer and are disclosed as shared-component
+  measurements, not independent baseline achievements. No baseline winner,
+  relative-performance requirement, quality threshold, recommendation, or
+  production-readiness conclusion is selected.
+- `pnpm eval:retrieval:baselines` is print-only;
+  `pnpm eval:retrieval:baselines:generate` writes only the fixed report path
+  with canonical/symlink/bound checks; and `pnpm eval:retrieval:verify` is
+  read-only, performs repeated/reversed-order generation and scoring, compares
+  exact committed bytes/digest, and proves a no-write effect audit. Ordinary
+  verification and only the existing Static and Authorities worker run the
+  read-only verifier; the hosted graph and policies remain unchanged.
+- Milestone 6 remains in progress until maintainer review. Production
+  retrieval, candidate generation, hard filtering, ranking/reranking,
+  recommendation, vector/embedding search, API/MCP, persistence, migration,
+  ingestion behavior, provider/model access, database work, and Phase 7 work
+  remain absent. Milestone 7 is unstarted and unauthorized.

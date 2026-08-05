@@ -1,0 +1,425 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/baseline-report/1.0.0",
+  "$defs": {
+    "metric": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+    },
+    "violations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conflict", "negativeControl", "laneError"],
+      "properties": {
+        "conflict": { "type": "integer", "minimum": 0, "maximum": 300 },
+        "negativeControl": { "type": "integer", "minimum": 0, "maximum": 300 },
+        "laneError": { "type": "integer", "minimum": 0, "maximum": 300 }
+      }
+    },
+    "macroMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recallAt10",
+        "meanReciprocalRank",
+        "ndcgAt10",
+        "clarificationAccuracy",
+        "aliasExpansionCorrectness",
+        "prohibitedConstraintPreservation",
+        "hardFilterAccuracy",
+        "noEligibleCandidateAccuracy"
+      ],
+      "properties": {
+        "recallAt10": { "$ref": "#/$defs/metric" },
+        "meanReciprocalRank": { "$ref": "#/$defs/metric" },
+        "ndcgAt10": { "$ref": "#/$defs/metric" },
+        "clarificationAccuracy": { "$ref": "#/$defs/metric" },
+        "aliasExpansionCorrectness": { "$ref": "#/$defs/metric" },
+        "prohibitedConstraintPreservation": { "$ref": "#/$defs/metric" },
+        "hardFilterAccuracy": { "$ref": "#/$defs/metric" },
+        "noEligibleCandidateAccuracy": { "$ref": "#/$defs/metric" }
+      }
+    },
+    "microMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recallAt10",
+        "exactDuplicateRate",
+        "equivalenceDuplicateRate",
+        "hardFilterAccuracy",
+        "noEligibleCandidateAccuracy",
+        "clarificationAccuracy",
+        "aliasExpansionCorrectness",
+        "prohibitedConstraintPreservation"
+      ],
+      "properties": {
+        "recallAt10": { "$ref": "#/$defs/metric" },
+        "exactDuplicateRate": { "$ref": "#/$defs/metric" },
+        "equivalenceDuplicateRate": { "$ref": "#/$defs/metric" },
+        "hardFilterAccuracy": { "$ref": "#/$defs/metric" },
+        "noEligibleCandidateAccuracy": { "$ref": "#/$defs/metric" },
+        "clarificationAccuracy": { "$ref": "#/$defs/metric" },
+        "aliasExpansionCorrectness": { "$ref": "#/$defs/metric" },
+        "prohibitedConstraintPreservation": { "$ref": "#/$defs/metric" }
+      }
+    },
+    "familyMetrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recallAt10",
+        "meanReciprocalRank",
+        "ndcgAt10",
+        "exactDuplicateRate",
+        "equivalenceDuplicateRate",
+        "positiveCaseHitRate",
+        "hardFilterAccuracy",
+        "noEligibleCandidateAccuracy",
+        "clarificationAccuracy",
+        "aliasExpansionCorrectness",
+        "prohibitedConstraintPreservation"
+      ],
+      "properties": {
+        "recallAt10": { "$ref": "#/$defs/metric" },
+        "meanReciprocalRank": { "$ref": "#/$defs/metric" },
+        "ndcgAt10": { "$ref": "#/$defs/metric" },
+        "exactDuplicateRate": { "$ref": "#/$defs/metric" },
+        "equivalenceDuplicateRate": { "$ref": "#/$defs/metric" },
+        "positiveCaseHitRate": { "$ref": "#/$defs/metric" },
+        "hardFilterAccuracy": { "$ref": "#/$defs/metric" },
+        "noEligibleCandidateAccuracy": { "$ref": "#/$defs/metric" },
+        "clarificationAccuracy": { "$ref": "#/$defs/metric" },
+        "aliasExpansionCorrectness": { "$ref": "#/$defs/metric" },
+        "prohibitedConstraintPreservation": { "$ref": "#/$defs/metric" }
+      }
+    },
+    "familyMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family",
+        "retrievalCases",
+        "positiveCases",
+        "metrics",
+        "safety"
+      ],
+      "properties": {
+        "family": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+        },
+        "retrievalCases": { "const": 6 },
+        "positiveCases": { "type": "integer", "minimum": 0, "maximum": 6 },
+        "metrics": { "$ref": "#/$defs/familyMetrics" },
+        "safety": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hardFilterErrors", "top10Violations"],
+          "properties": {
+            "hardFilterErrors": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 900
+            },
+            "top10Violations": { "$ref": "#/$defs/violations" }
+          }
+        }
+      }
+    },
+    "realMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baselineId",
+        "baselineVersion",
+        "predictionSetId",
+        "predictionSetDigest",
+        "scoreReportDigest",
+        "sharedNormalizationComponent",
+        "candidateDecisionCount",
+        "emittedResultCount",
+        "aggregateMetrics",
+        "perFamily",
+        "safety"
+      ],
+      "properties": {
+        "baselineId": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+        },
+        "baselineVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "predictionSetId": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+        },
+        "predictionSetDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "scoreReportDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "sharedNormalizationComponent": { "const": true },
+        "candidateDecisionCount": { "const": 4500 },
+        "emittedResultCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 300
+        },
+        "aggregateMetrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["macro", "micro", "familyCoverage"],
+          "properties": {
+            "macro": { "$ref": "#/$defs/macroMetrics" },
+            "micro": { "$ref": "#/$defs/microMetrics" },
+            "familyCoverage": { "$ref": "#/$defs/metric" }
+          }
+        },
+        "perFamily": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/familyMeasurement" }
+        },
+        "safety": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hardFilterErrors", "top10Violations"],
+          "properties": {
+            "hardFilterErrors": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4500
+            },
+            "top10Violations": { "$ref": "#/$defs/violations" }
+          }
+        }
+      }
+    },
+    "syntheticControl": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "controlId",
+        "controlVersion",
+        "fixtureVersion",
+        "fixtureDigest",
+        "scoreDigest",
+        "sharedNormalizationComponent",
+        "realCorpusUsed",
+        "producedRealPredictionSet",
+        "metrics",
+        "expectationsSatisfied"
+      ],
+      "properties": {
+        "controlId": { "const": "fixture-oracle" },
+        "controlVersion": { "const": "retrieval-fixture-oracle-control/1.0.0" },
+        "fixtureVersion": {
+          "const": "retrieval-baseline-oracle-fixture/1.0.0"
+        },
+        "fixtureDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "scoreDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "sharedNormalizationComponent": { "const": false },
+        "realCorpusUsed": { "const": false },
+        "producedRealPredictionSet": { "const": false },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "recallAt10",
+            "meanReciprocalRank",
+            "ndcgAt10",
+            "exactDuplicateRate",
+            "equivalenceDuplicateRate",
+            "hardFilterAccuracy",
+            "noEligibleCandidateAccuracy",
+            "top10Violations"
+          ],
+          "properties": {
+            "recallAt10": { "$ref": "#/$defs/metric" },
+            "meanReciprocalRank": { "$ref": "#/$defs/metric" },
+            "ndcgAt10": { "$ref": "#/$defs/metric" },
+            "exactDuplicateRate": { "$ref": "#/$defs/metric" },
+            "equivalenceDuplicateRate": { "$ref": "#/$defs/metric" },
+            "hardFilterAccuracy": { "$ref": "#/$defs/metric" },
+            "noEligibleCandidateAccuracy": { "$ref": "#/$defs/metric" },
+            "top10Violations": { "$ref": "#/$defs/violations" }
+          }
+        },
+        "expectationsSatisfied": { "const": true }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reportVersion",
+    "goldStatus",
+    "measurementStatement",
+    "corpus",
+    "taxonomy",
+    "querySchemas",
+    "profileAuthority",
+    "catalog",
+    "equivalenceAuthority",
+    "baselineRunnerVersion",
+    "toolchain",
+    "caseCounts",
+    "ordinaryBaselines",
+    "weakControls",
+    "safetyControls",
+    "syntheticControls",
+    "reportSemanticDigest"
+  ],
+  "properties": {
+    "reportVersion": { "const": "retrieval-baseline-report/1.0.0" },
+    "goldStatus": { "const": "proposed-not-reviewed" },
+    "measurementStatement": {
+      "const": "Development measurements against proposed, not independently reviewed authority; not production-retrieval quality evidence."
+    },
+    "corpus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "semanticDigest"],
+      "properties": {
+        "id": { "const": "retrieval-v1" },
+        "version": { "const": "retrieval-evaluation-corpus/1.0.0" },
+        "semanticDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        }
+      }
+    },
+    "taxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "semanticDigest"],
+      "properties": {
+        "version": { "const": "1.0.0" },
+        "semanticDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        }
+      }
+    },
+    "querySchemas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputDigest", "normalizationResultDigest"],
+      "properties": {
+        "inputDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "normalizationResultDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        }
+      }
+    },
+    "profileAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profileSchemaDigest",
+        "authoritySchemaDigest",
+        "version",
+        "semanticDigest",
+        "coverageReportVersion",
+        "coverageReportDigest"
+      ],
+      "properties": {
+        "profileSchemaDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "authoritySchemaDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "version": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "semanticDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "coverageReportVersion": {
+          "const": "deterministic-profile-coverage-report/1.0.0"
+        },
+        "coverageReportDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        }
+      }
+    },
+    "catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "semanticDigest"],
+      "properties": {
+        "version": { "const": "public-v1" },
+        "semanticDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        }
+      }
+    },
+    "equivalenceAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "groupCount"],
+      "properties": {
+        "version": { "const": "retrieval-equivalence-authority/1.0.0" },
+        "groupCount": { "type": "integer", "minimum": 0, "maximum": 150 }
+      }
+    },
+    "baselineRunnerVersion": { "const": "retrieval-baseline-runner/1.0.0" },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node", "pnpm"],
+      "properties": {
+        "node": { "const": "24.18.0" },
+        "pnpm": { "const": "11.17.0" }
+      }
+    },
+    "caseCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "normalization",
+        "retrieval",
+        "positiveRetrieval",
+        "noEligibleRetrieval"
+      ],
+      "properties": {
+        "normalization": { "const": 20 },
+        "retrieval": { "const": 30 },
+        "positiveRetrieval": { "const": 25 },
+        "noEligibleRetrieval": { "const": 5 }
+      }
+    },
+    "ordinaryBaselines": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/realMeasurement" }
+    },
+    "weakControls": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": { "$ref": "#/$defs/realMeasurement" }
+    },
+    "safetyControls": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": { "$ref": "#/$defs/realMeasurement" }
+    },
+    "syntheticControls": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": { "$ref": "#/$defs/syntheticControl" }
+    },
+    "reportSemanticDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    }
+  }
+}

@@ -1,4 +1,7 @@
 import type { RetrievalPredictionSet } from './contracts.ts';
+import { runRetrievalBaselinesV1 } from './baseline-runner.ts';
+import { writeRetrievalBaselineReportV1 } from './baseline-writer.ts';
+import { verifyRetrievalBaselinesV1 } from './baseline-verification.ts';
 import { loadRetrievalCorpusV1 } from './corpus.ts';
 import { runRetrievalScorerFixtures } from './fixtures.ts';
 import { loadRetrievalJsonFile } from './json-boundary.ts';
@@ -18,6 +21,16 @@ export function runRetrievalCli(
   startDirectory = process.cwd(),
   output: RetrievalCliOutput = console,
 ): number {
+  const command = args[0];
+  if (
+    (command === 'baselines' ||
+      command === 'baselines-generate' ||
+      command === 'verify') &&
+    args.length !== 1
+  ) {
+    output.error('Unexpected retrieval baseline arguments.');
+    return 1;
+  }
   let repositoryRoot: string;
   try {
     repositoryRoot = findGitBlocksRoot(startDirectory);
@@ -25,7 +38,43 @@ export function runRetrievalCli(
     output.error('Retrieval evaluation repository root was not found.');
     return 1;
   }
-  const command = args[0];
+  if (command === 'baselines') {
+    try {
+      output.log(
+        retrievalStableJson(
+          runRetrievalBaselinesV1(repositoryRoot).report,
+        ).trimEnd(),
+      );
+      return 0;
+    } catch {
+      output.error('Retrieval baseline run failed.');
+      return 1;
+    }
+  }
+  if (command === 'baselines-generate') {
+    try {
+      const report = runRetrievalBaselinesV1(repositoryRoot).report;
+      writeRetrievalBaselineReportV1(repositoryRoot, report);
+      output.log('Retrieval baseline report generated at its fixed path.');
+      return 0;
+    } catch {
+      output.error('Retrieval baseline report generation failed.');
+      return 1;
+    }
+  }
+  if (command === 'verify') {
+    try {
+      output.log(
+        retrievalStableJson(
+          verifyRetrievalBaselinesV1(repositoryRoot),
+        ).trimEnd(),
+      );
+      return 0;
+    } catch {
+      output.error('Retrieval baseline verification failed.');
+      return 1;
+    }
+  }
   if (command === 'fixtures') {
     try {
       output.log(retrievalStableJson(runRetrievalScorerFixtures()).trimEnd());
@@ -36,7 +85,9 @@ export function runRetrievalCli(
     }
   }
   if (command !== 'score' && command !== 'validate') {
-    output.error('Use validate, fixtures, or score --prediction <path>.');
+    output.error(
+      'Use validate, fixtures, baselines, baselines-generate, verify, or score --prediction <path>.',
+    );
     return 1;
   }
   const predictionFlag = args.indexOf('--prediction');

@@ -2,10 +2,13 @@ import { findGitBlocksRoot } from '../repository-root.ts';
 import {
   RETRIEVAL_CORPUS_ID,
   RETRIEVAL_VERSIONS,
+  type GeneratedCandidateDecision,
   type NormalizationPrediction,
+  type RetrievalBlindQuerySet,
   type RetrievalCasePrediction,
   type RetrievalDiagnostic,
   type RetrievalPredictionSet,
+  type RetrievalQueryDocument,
   type ValidatedRetrievalCorpus,
 } from './contracts.ts';
 import { createRetrievalSchemaRegistry } from './schema-registry.ts';
@@ -43,14 +46,78 @@ export function validateRetrievalPredictionSetV1(
     return diagnostics.slice(0, 500);
   }
   const predictionSet = value as RetrievalPredictionSet;
+  const cases = [...corpus.normalizationCases, ...corpus.retrievalCases].sort(
+    (left, right) => compareText(left.query.caseId, right.query.caseId),
+  );
+  return validateAgainstAuthority(
+    predictionSet,
+    {
+      corpusVersion: corpus.manifest.corpusVersion,
+      corpusSemanticDigest: corpus.manifest.corpusSemanticDigest,
+      queries: cases.map(({ query }) => query),
+      candidateIds: corpus.candidateIds,
+      conceptIds: corpus.conceptIds,
+      generatedDecisionsByCase: new Map(
+        corpus.retrievalCases.map((bundle) => [
+          bundle.query.caseId,
+          bundle.generatedProjection.decisions,
+        ]),
+      ),
+    },
+    diagnostics,
+  );
+}
+
+export interface RetrievalBlindPredictionValidationAuthority {
+  readonly corpusVersion: RetrievalBlindQuerySet['corpusVersion'];
+  readonly corpusSemanticDigest: string;
+  readonly queries: readonly RetrievalQueryDocument[];
+  readonly candidateIds: readonly string[];
+  readonly conceptIds: readonly string[];
+  readonly generatedDecisionsByCase: ReadonlyMap<
+    string,
+    readonly GeneratedCandidateDecision[]
+  >;
+}
+
+export function validateRetrievalPredictionSetAgainstBlindAuthorityV1(
+  value: unknown,
+  authority: RetrievalBlindPredictionValidationAuthority,
+  startDirectory = process.cwd(),
+): readonly RetrievalDiagnostic[] {
+  let repositoryRoot: string;
+  try {
+    repositoryRoot = findGitBlocksRoot(startDirectory);
+  } catch {
+    return [diagnostic('retrieval.prediction.root', '')];
+  }
+  const diagnostics = [
+    ...createRetrievalSchemaRegistry(repositoryRoot).validate(
+      'prediction-set',
+      value,
+    ),
+  ];
+  if (diagnostics.length > 0) return diagnostics.slice(0, 500);
+  return validateAgainstAuthority(
+    value as RetrievalPredictionSet,
+    authority,
+    diagnostics,
+  );
+}
+
+function validateAgainstAuthority(
+  predictionSet: RetrievalPredictionSet,
+  authority: RetrievalBlindPredictionValidationAuthority,
+  diagnostics: RetrievalDiagnostic[],
+): readonly RetrievalDiagnostic[] {
   const predictionSetVersion: unknown = predictionSet.predictionSetVersion;
   const corpusId: unknown = predictionSet.corpusId;
   const corpusVersion: unknown = predictionSet.corpusVersion;
   if (
     predictionSetVersion !== RETRIEVAL_VERSIONS.predictionSet ||
     corpusId !== RETRIEVAL_CORPUS_ID ||
-    corpusVersion !== corpus.manifest.corpusVersion ||
-    predictionSet.corpusSemanticDigest !== corpus.manifest.corpusSemanticDigest
+    corpusVersion !== authority.corpusVersion ||
+    predictionSet.corpusSemanticDigest !== authority.corpusSemanticDigest
   )
     add(diagnostics, 'retrieval.prediction.binding', '');
   if (
@@ -59,48 +126,48 @@ export function validateRetrievalPredictionSetV1(
   ) {
     add(diagnostics, 'retrieval.prediction.digest', '/semanticDigest');
   }
-  const cases = [...corpus.normalizationCases, ...corpus.retrievalCases].sort(
-    (left, right) => compareText(left.query.caseId, right.query.caseId),
+  const cases = [...authority.queries].sort((left, right) =>
+    compareText(left.caseId, right.caseId),
   );
-  const expectedCaseIds = cases.map(({ query }) => query.caseId);
+  const expectedCaseIds = cases.map(({ caseId }) => caseId);
   const predictedCaseIds = predictionSet.predictions.map(
     ({ caseId }) => caseId,
   );
   if (!sameValues(expectedCaseIds, predictedCaseIds)) {
     add(diagnostics, 'retrieval.prediction.case-closure', '/predictions');
   }
-  const casesById = new Map(
-    cases.map((bundle) => [bundle.query.caseId, bundle]),
-  );
-  const candidateIds = corpus.candidateIds;
+  const casesById = new Map(cases.map((query) => [query.caseId, query]));
+  const candidateIds = authority.candidateIds;
   const candidateSet = new Set(candidateIds);
-  const conceptSet = new Set(corpus.conceptIds);
+  const conceptSet = new Set(authority.conceptIds);
   for (const [index, prediction] of predictionSet.predictions.entries()) {
     const path = `/predictions/${String(index)}`;
-    const bundle = casesById.get(prediction.caseId);
-    if (bundle === undefined) {
+    const query = casesById.get(prediction.caseId);
+    if (query === undefined) {
       add(diagnostics, 'retrieval.prediction.unknown-case', path);
       continue;
     }
-    if (prediction.caseKind !== bundle.query.caseKind) {
+    if (prediction.caseKind !== query.caseKind) {
       add(diagnostics, 'retrieval.prediction.case-kind', path);
       continue;
     }
     validateNormalizationPrediction(
       prediction.normalization,
-      bundle.query,
+      query,
       conceptSet,
       diagnostics,
       `${path}/normalization`,
     );
-    if (
-      prediction.caseKind !== 'retrieval' ||
-      !('generatedProjection' in bundle)
-    )
+    if (prediction.caseKind !== 'retrieval' || query.caseKind !== 'retrieval')
       continue;
+    const generated = authority.generatedDecisionsByCase.get(query.caseId);
+    if (generated === undefined) {
+      add(diagnostics, 'retrieval.prediction.generated-authority', path);
+      continue;
+    }
     validateRetrievalPrediction(
       prediction,
-      bundle.generatedProjection.decisions,
+      generated,
       candidateIds,
       candidateSet,
       diagnostics,
@@ -112,7 +179,7 @@ export function validateRetrievalPredictionSetV1(
 
 function validateNormalizationPrediction(
   prediction: NormalizationPrediction,
-  query: ValidatedRetrievalCorpus['retrievalCases'][number]['query'],
+  query: RetrievalQueryDocument,
   conceptIds: ReadonlySet<string>,
   diagnostics: RetrievalDiagnostic[],
   path: string,
@@ -176,7 +243,7 @@ function validateNormalizationPrediction(
 
 function validateRetrievalPrediction(
   prediction: RetrievalCasePrediction,
-  generated: ValidatedRetrievalCorpus['retrievalCases'][number]['generatedProjection']['decisions'],
+  generated: readonly GeneratedCandidateDecision[],
   candidateIds: readonly string[],
   candidateSet: ReadonlySet<string>,
   diagnostics: RetrievalDiagnostic[],
@@ -214,13 +281,16 @@ function validateRetrievalPrediction(
       );
     }
     predictedById.set(decision.candidateId, decision);
-    const expectedLane =
-      decision.hardState === 'conflict' || authority?.negativeControl === true
+    const stateLane =
+      decision.hardState === 'conflict'
         ? 'excluded'
         : decision.hardState === 'unresolved'
           ? 'evidence-needed'
           : 'eligible';
-    if (decision.lane !== expectedLane) {
+    const laneIsValid =
+      decision.lane === stateLane ||
+      (authority?.negativeControl === true && decision.lane === 'excluded');
+    if (!laneIsValid) {
       add(
         diagnostics,
         'retrieval.prediction.decision-lane',

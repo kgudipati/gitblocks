@@ -22,6 +22,13 @@ export { stableJson } from './stable-json.ts';
 export { createWeakPredictionSet, WEAK_STRATEGIES } from './weak-fixtures.ts';
 export type * from './retrieval/contracts.ts';
 export { loadRetrievalBlindQuerySetV1 } from './retrieval/blind-query.ts';
+export { generateRetrievalBaselinePredictionSetsV1 } from './retrieval/baseline-generation.ts';
+export {
+  retrievalBaselineReportSemanticDigest,
+  validateRetrievalBaselineReportV1,
+  type RetrievalBaselineReport,
+} from './retrieval/baseline-report.ts';
+export { runRetrievalBaselinesV1 } from './retrieval/baseline-runner.ts';
 export {
   loadRetrievalCorpusV1,
   retrievalCorpusSemanticDigest,
