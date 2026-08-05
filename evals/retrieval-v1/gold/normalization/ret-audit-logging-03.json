@@ -1,0 +1,40 @@
+{
+  "caseId": "ret-audit-logging-03",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [
+      {
+        "conceptId": "audit-logging",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "ret-audit-logging-03-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "actor-request-context",
+        "conceptId": "actor-request-context",
+        "facet": "feature",
+        "modality": "preferred",
+        "resolutionBasis": "controlled-taxonomy",
+        "ruleId": "taxonomy-active-alias",
+        "sourceConstraintIds": [
+          "ret-audit-logging-03-constraint-4406"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "normalized",
+    "primaryFamily": "audit-logging",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

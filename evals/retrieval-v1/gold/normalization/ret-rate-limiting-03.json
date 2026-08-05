@@ -1,0 +1,40 @@
+{
+  "caseId": "ret-rate-limiting-03",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [
+      {
+        "conceptId": "rate-limiting",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "ret-rate-limiting-03-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "token-bucket",
+        "conceptId": "token-bucket",
+        "facet": "feature",
+        "modality": "preferred",
+        "resolutionBasis": "controlled-taxonomy",
+        "ruleId": "taxonomy-active-alias",
+        "sourceConstraintIds": [
+          "ret-rate-limiting-03-constraint-3649"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "normalized",
+    "primaryFamily": "rate-limiting",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

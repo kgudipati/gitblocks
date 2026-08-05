@@ -1,0 +1,30 @@
+{
+  "capabilityFamily": "rate-limiting",
+  "caseId": "norm-rate-limiting-01",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "rate-limiter",
+        "termId": "norm-rate-limiting-01-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-norm-rate-limiting-01",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-rate-limiting-01-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Structured alias fields own meaning."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "alias-evaluation"
+  ]
+}

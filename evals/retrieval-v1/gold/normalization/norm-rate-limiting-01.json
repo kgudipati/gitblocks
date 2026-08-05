@@ -1,0 +1,28 @@
+{
+  "caseId": "norm-rate-limiting-01",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [
+      {
+        "conceptId": "rate-limiting",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-rate-limiting-01-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [],
+    "notices": [],
+    "outcome": "normalized",
+    "primaryFamily": "rate-limiting",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

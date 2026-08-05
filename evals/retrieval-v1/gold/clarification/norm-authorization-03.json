@@ -1,0 +1,25 @@
+{
+  "caseId": "norm-authorization-03",
+  "clarificationGoldVersion": "retrieval-clarification-gold/1.0.0",
+  "clarificationRequired": true,
+  "clarifications": [
+    {
+      "possibleConceptIds": [
+        "role-based-access-control"
+      ],
+      "reasonCode": "constraint-modality-conflict",
+      "sourceIds": [
+        "norm-authorization-03-constraint-2512",
+        "norm-authorization-03-constraint-7233"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "terminalUnsupported": false
+}

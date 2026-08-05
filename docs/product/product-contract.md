@@ -11,10 +11,12 @@ public-source ingestion adapter and a persistence-independent
 repository-interview application with an offline operator. Phase 8 also has a
 pure 27-field deterministic-profile registry, two additive profile roots, an
 offline generated 150-candidate authority, content-free coverage, and
-single-candidate constraint evaluation. Live calibration
+single-candidate constraint evaluation, plus the separate evaluation-only
+`retrieval-v1` corpus and deterministic scorer. Live calibration
 failed and selected no profile. No API, MCP service, scanner, discovery
-service, deployed database, deployment, or end-to-end adoption workflow is
-implemented or available yet.
+service, production hard-filter pipeline, retrieval/ranking service, deployed
+database, deployment, or end-to-end adoption workflow is implemented or
+available yet.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -202,6 +204,18 @@ runtime, framework, datastore, license, maintenance, release, or security
 declarations remain unresolved until an exact reviewed controlled mapping
 exists. The evaluator does not generate, filter, retrieve, rank, or recommend
 candidates.
+
+`retrieval-v1` is evaluation-only authority, not a product contract root. Its
+30 retrieval and 20 normalization/adversarial blind cases are exactly balanced
+six/four per family. Normalization, clarification, generated hard-filter,
+proposed relevance, equivalence, and no-result gold are physically separate.
+Product packages do not import those records, schemas, fixtures, or scorers.
+Relevance means capability-query relevance only; it does not establish
+viability, target compatibility, quality, ranking preference, or
+recommendation. Unresolved candidates remain outside eligibility in a
+separate evidence-needed lane. All new gold is proposed/not independently
+reviewed, so the corpus and scorer establish evaluation authority—not
+retrieval quality. Milestone 6 owns baselines and any baseline report.
 
 ## Relevance is not adoption fit
 

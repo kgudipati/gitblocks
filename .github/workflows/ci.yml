@@ -115,6 +115,12 @@ jobs:
       - name: Validate general evaluation fixtures
         run: node tools/evaluation-harness/src/cli.ts fixtures
 
+      - name: Validate retrieval evaluation authority
+        run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+
+      - name: Validate retrieval scorer fixtures
+        run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
+
       - name: Validate interview evaluation cases
         run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
 

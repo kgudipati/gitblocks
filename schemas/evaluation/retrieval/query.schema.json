@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/query/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "queryVersion",
+    "caseId",
+    "caseKind",
+    "capabilityFamily",
+    "tags",
+    "queryInput"
+  ],
+  "properties": {
+    "queryVersion": { "const": "retrieval-evaluation-query/1.0.0" },
+    "caseId": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+    },
+    "caseKind": { "enum": ["retrieval", "normalization-adversarial"] },
+    "capabilityFamily": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+    },
+    "tags": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "active-alias",
+          "alias-evaluation",
+          "ambiguous-primary-family",
+          "cross-family-comparison",
+          "deployment-self-hosting",
+          "equivalence-safety",
+          "evidence-needed",
+          "family-balanced",
+          "infrastructure-exclusion",
+          "intentional-ambiguity",
+          "negative-control-safety",
+          "no-eligible-candidate",
+          "positive-multiple-relevant",
+          "preferred-constraint",
+          "prohibited-constraint",
+          "prohibited-preservation",
+          "required-constraint",
+          "required-prohibited-conflict",
+          "same-family-comparison",
+          "slot-active-alias",
+          "slot-candidate-comparison",
+          "slot-exact-family",
+          "slot-hard-constraint",
+          "slot-narrower-intent",
+          "slot-negative-control",
+          "subjective-lightweight",
+          "summary-inert",
+          "unicode-confusable",
+          "unclear-self-hosting",
+          "unknown-hard-blocking",
+          "unknown-preferred-nonblocking",
+          "unsupported-adjacent"
+        ]
+      }
+    },
+    "queryInput": { "type": "object" }
+  }
+}

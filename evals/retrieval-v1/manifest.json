@@ -1,0 +1,1316 @@
+{
+  "caseCounts": {
+    "normalization": 20,
+    "retrieval": 30
+  },
+  "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+  "catalogVersion": "public-v1",
+  "corpusId": "retrieval-v1",
+  "corpusSemanticDigest": "e133c0fa00b6063e7360ce5ebfdf27893f72ee5ca5e39fbe5d82c1e944831917",
+  "corpusVersion": "retrieval-evaluation-corpus/1.0.0",
+  "familyCounts": {
+    "audit-logging": {
+      "normalization": 4,
+      "retrieval": 6
+    },
+    "authorization": {
+      "normalization": 4,
+      "retrieval": 6
+    },
+    "background-jobs": {
+      "normalization": 4,
+      "retrieval": 6
+    },
+    "rate-limiting": {
+      "normalization": 4,
+      "retrieval": 6
+    },
+    "webhooks": {
+      "normalization": 4,
+      "retrieval": 6
+    }
+  },
+  "files": [
+    {
+      "caseId": null,
+      "kind": "equivalence",
+      "path": "equivalence.json",
+      "sha256": "d6868302a3945db51ed396c782ec4ad3d7aaedc3581c0d961ddf10dd6b7ccfba"
+    },
+    {
+      "caseId": "norm-audit-logging-01",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-audit-logging-01.json",
+      "sha256": "49c64f61b2ed4eb571ad97a80cbf714accc401e579c04c3aec356fd3593ae80a"
+    },
+    {
+      "caseId": "norm-audit-logging-02",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-audit-logging-02.json",
+      "sha256": "738bf1c369d53ede460d56090c34d2a97f3c233d89eed434f5ea1cddb8cc7c78"
+    },
+    {
+      "caseId": "norm-audit-logging-03",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-audit-logging-03.json",
+      "sha256": "236db56380ec3e284c8ca0cc5fc37e164ae1c940aea15266f87e6ecbe1c0af01"
+    },
+    {
+      "caseId": "norm-audit-logging-04",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-audit-logging-04.json",
+      "sha256": "ad279e365a2196afa717c40067e594149042d25cbaedcb8dc77d67c1d625e638"
+    },
+    {
+      "caseId": "norm-authorization-01",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-authorization-01.json",
+      "sha256": "28b55b30726a7c236a5417cebf4b3e8060bc08789499bdc7ca5de09e73d69524"
+    },
+    {
+      "caseId": "norm-authorization-02",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-authorization-02.json",
+      "sha256": "df3ff726e7a9bd47cdf79fa35b15573f8cfbee9175479b3960cbe8454083c29d"
+    },
+    {
+      "caseId": "norm-authorization-03",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-authorization-03.json",
+      "sha256": "fd6b8914ebd645297b1ea81f421f50eab0826a95a9b004788d5a5bd74255e0ba"
+    },
+    {
+      "caseId": "norm-authorization-04",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-authorization-04.json",
+      "sha256": "ec748166ae697f14eee802e2d9163ec2aab7f9ff6962d91c64691acb6f47d6ea"
+    },
+    {
+      "caseId": "norm-background-jobs-01",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-background-jobs-01.json",
+      "sha256": "7a24368dcb0ce4b96fa9fa9d6ac815ab6e50c5e8649af6d10f84d2cc668f64c0"
+    },
+    {
+      "caseId": "norm-background-jobs-02",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-background-jobs-02.json",
+      "sha256": "86bafda3461aa1bdf93a38765a04d41e3a6721a5b9f18883fde6dd8b04c958b4"
+    },
+    {
+      "caseId": "norm-background-jobs-03",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-background-jobs-03.json",
+      "sha256": "0953eebfa7bd3ce2b1a0e6c7e4379a7148625b837657f535f6779ddac11f8b31"
+    },
+    {
+      "caseId": "norm-background-jobs-04",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-background-jobs-04.json",
+      "sha256": "b86bcc956991c0975ec356c18715afa9ff6d1aed20d2ca71ff2e15f2fbb7b3ed"
+    },
+    {
+      "caseId": "norm-rate-limiting-01",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-rate-limiting-01.json",
+      "sha256": "94cb8d548231212d9df5913272489b22223db3339320d8f34690254e4304963e"
+    },
+    {
+      "caseId": "norm-rate-limiting-02",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-rate-limiting-02.json",
+      "sha256": "37f3cf7954fd6169b1317808b7885885708391111c057a25f992bfbba6f77528"
+    },
+    {
+      "caseId": "norm-rate-limiting-03",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-rate-limiting-03.json",
+      "sha256": "a978794f680f2d169298a1c63565b05167bbf21cd92d72dc75f0f7760b9943a5"
+    },
+    {
+      "caseId": "norm-rate-limiting-04",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-rate-limiting-04.json",
+      "sha256": "d35d50ede355e5badfe32dd01693a5e1b8b62da245c8e3a41843f4aff4e972bc"
+    },
+    {
+      "caseId": "norm-webhooks-01",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-webhooks-01.json",
+      "sha256": "09a5fb9fdf10c71a4fb0a904a8f6faf1df4cff5c7e43f0527bb0845872d39ef0"
+    },
+    {
+      "caseId": "norm-webhooks-02",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-webhooks-02.json",
+      "sha256": "8d560ade578956f693e2329edb33da5a0fbc26f68d6b06b6659c3ba35481b441"
+    },
+    {
+      "caseId": "norm-webhooks-03",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-webhooks-03.json",
+      "sha256": "d64f5df0b6f2c21b22ff085aa0314e964417db0c9e1ec1cdb5fa742fa999336e"
+    },
+    {
+      "caseId": "norm-webhooks-04",
+      "kind": "clarification-gold",
+      "path": "gold/clarification/norm-webhooks-04.json",
+      "sha256": "10afecfbc8bf6a5fe9b8c74a89eb8e7fdd2ac2f73fc3e18ef93399ce9ebb114c"
+    },
+    {
+      "caseId": "ret-audit-logging-01",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-audit-logging-01.json",
+      "sha256": "b8e585e71d3466646c562870fd0272835f5ee08b9a5f9190ce1f80c45e8a64e9"
+    },
+    {
+      "caseId": "ret-audit-logging-02",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-audit-logging-02.json",
+      "sha256": "ec525698b7915d2c0178975021d2c8dc327b7cbcf196e151feb9ccc273c21175"
+    },
+    {
+      "caseId": "ret-audit-logging-03",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-audit-logging-03.json",
+      "sha256": "23b8256f95778f56a3aa89157bdc19d7073df1b1ba4432d5be115a21d287c64a"
+    },
+    {
+      "caseId": "ret-audit-logging-04",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-audit-logging-04.json",
+      "sha256": "f58e4540147598bb398e57f0a7f4ad3a7629c1b962e0731c62a9d2e9f2799bc5"
+    },
+    {
+      "caseId": "ret-audit-logging-05",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-audit-logging-05.json",
+      "sha256": "0662ec79db0728303af71383ea14f98e88b792965c061ac70147998924710e8d"
+    },
+    {
+      "caseId": "ret-audit-logging-06",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-audit-logging-06.json",
+      "sha256": "6288e372603b7c688ec934823d21e4a66e27cd345bdc05e070ee7cbe10853fa0"
+    },
+    {
+      "caseId": "ret-authorization-01",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-authorization-01.json",
+      "sha256": "4a3714fe8fae732659b358bc0c8aa1b74f59ba270e17f762cb37f1538ab582be"
+    },
+    {
+      "caseId": "ret-authorization-02",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-authorization-02.json",
+      "sha256": "da7568312e78f401fd40b33fd8e52db5b25bc6e37bba07c07bd4ff35986459a9"
+    },
+    {
+      "caseId": "ret-authorization-03",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-authorization-03.json",
+      "sha256": "b321ded770a83cb450c0e3adbb3f607f2dc45ba74089737575de368895ec048b"
+    },
+    {
+      "caseId": "ret-authorization-04",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-authorization-04.json",
+      "sha256": "5f56a0abb68bb7d85f0f993de4ac6e2ef32dee3af3f7dbe066108ac0d8cb683a"
+    },
+    {
+      "caseId": "ret-authorization-05",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-authorization-05.json",
+      "sha256": "45c900e1c0568bc469208dceb9f4eec3416b1f394f494eb7aec61c9c33881b38"
+    },
+    {
+      "caseId": "ret-authorization-06",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-authorization-06.json",
+      "sha256": "d41fa55bfdd0cbaf569bd5bcc48d8712550f44e474b61146a2306dd36acfb843"
+    },
+    {
+      "caseId": "ret-background-jobs-01",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-background-jobs-01.json",
+      "sha256": "98abdbbe3c87f23cd984e9ccbbcb4b43dc17ed544a84d53a789cc323f9e32c98"
+    },
+    {
+      "caseId": "ret-background-jobs-02",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-background-jobs-02.json",
+      "sha256": "8497c09826a95f3159b8b36fece41b341647556adf303d62d8b05f8a4c2ec0d6"
+    },
+    {
+      "caseId": "ret-background-jobs-03",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-background-jobs-03.json",
+      "sha256": "8b2909f74e8ccb4fee5c880375b35bed0c4d5ba82bef7530cbe4f58f40e6a0f1"
+    },
+    {
+      "caseId": "ret-background-jobs-04",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-background-jobs-04.json",
+      "sha256": "73f79f2f816fe03c961cea5fffc77066a1609c426fa7a1166367943dceacb6d6"
+    },
+    {
+      "caseId": "ret-background-jobs-05",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-background-jobs-05.json",
+      "sha256": "b4c45b28f21d94f4fc11b341f88f5d21a336082418a08945f3d1a907a526b5a8"
+    },
+    {
+      "caseId": "ret-background-jobs-06",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-background-jobs-06.json",
+      "sha256": "4de71598a39b043db391d07729330c4865f33ac35d888f4af2967b3d2a21c707"
+    },
+    {
+      "caseId": "ret-rate-limiting-01",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-rate-limiting-01.json",
+      "sha256": "44f8a03547d348564f242a68b6d741f6e2cc294fbe1cd1c04456d322f8891a1c"
+    },
+    {
+      "caseId": "ret-rate-limiting-02",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-rate-limiting-02.json",
+      "sha256": "e92f29ffdf91c30aaad067fad352af34ef60374b14ad4a21f15ac4f438ea2f80"
+    },
+    {
+      "caseId": "ret-rate-limiting-03",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-rate-limiting-03.json",
+      "sha256": "fa08fc0f9ef08ab3b06b2fd07760e08df24cd25f243ccb5d4e9225c8fbc9af53"
+    },
+    {
+      "caseId": "ret-rate-limiting-04",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-rate-limiting-04.json",
+      "sha256": "7bd01c19b5c0b166a7aa08c4daf40b812c5d8dd0afa586357ba68a0a936531a4"
+    },
+    {
+      "caseId": "ret-rate-limiting-05",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-rate-limiting-05.json",
+      "sha256": "ecb2159018343723db3b2f6a27a1849e54e124c362b17a71d763ac6b33851923"
+    },
+    {
+      "caseId": "ret-rate-limiting-06",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-rate-limiting-06.json",
+      "sha256": "42591e6b151497ae9f828ff999ef9fac5a66afc4769f768f5b7df9ade09a0118"
+    },
+    {
+      "caseId": "ret-webhooks-01",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-webhooks-01.json",
+      "sha256": "4933ad6ac1eb8d432a4c12831b0e7b6e8c8a2267201808ad43b750bf28c7f410"
+    },
+    {
+      "caseId": "ret-webhooks-02",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-webhooks-02.json",
+      "sha256": "9f3ffac827cfdf9b865b1897faffa29581e2aeb9a761a362671420d00a8e98fe"
+    },
+    {
+      "caseId": "ret-webhooks-03",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-webhooks-03.json",
+      "sha256": "f96322b0c458c1f6191cbfd70f8896da56bd39ec940d387455300bbac7caea9b"
+    },
+    {
+      "caseId": "ret-webhooks-04",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-webhooks-04.json",
+      "sha256": "8095a4f7d8f657403511945c8bc522febf349c52aee77a407bf44c04fba3eaa6"
+    },
+    {
+      "caseId": "ret-webhooks-05",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-webhooks-05.json",
+      "sha256": "5cffcda68e758df4368012e66a6676cab3b779155fa003a572333a5dbcb5408f"
+    },
+    {
+      "caseId": "ret-webhooks-06",
+      "kind": "hard-filter-gold",
+      "path": "gold/hard-filters/ret-webhooks-06.json",
+      "sha256": "c28019aaa83aff8a5bde6aa936bdf43a6f240947f8aa24d832faf429c0f21ff2"
+    },
+    {
+      "caseId": "ret-audit-logging-01",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-audit-logging-01.json",
+      "sha256": "e6ea2d5fb63e33b45172fb8f640d5c171a828b84be92b31db41a77a1039c921d"
+    },
+    {
+      "caseId": "ret-audit-logging-02",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-audit-logging-02.json",
+      "sha256": "28741bdf1bacb42a165bfb58f02eea449abb8f0ab4f6dd6f28c48135c81c1c80"
+    },
+    {
+      "caseId": "ret-audit-logging-03",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-audit-logging-03.json",
+      "sha256": "9dbfb6d419cb41285d161a6aa98c02935e1a63eb48074d8a67f41bc38ff1b16a"
+    },
+    {
+      "caseId": "ret-audit-logging-04",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-audit-logging-04.json",
+      "sha256": "d1f81d1e525f50601d6e8d0755e7868de2727eadb9f70fd8e2041b777db7f9c4"
+    },
+    {
+      "caseId": "ret-audit-logging-05",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-audit-logging-05.json",
+      "sha256": "09907a36afc0900cb146f362bc85234d1c3de89a7168a6974b9917b575873478"
+    },
+    {
+      "caseId": "ret-audit-logging-06",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-audit-logging-06.json",
+      "sha256": "031171ba75cd03b4d548d50b0fd374457ec6902d7176f7812337eac656c85772"
+    },
+    {
+      "caseId": "ret-authorization-01",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-authorization-01.json",
+      "sha256": "3b04c376631f1a0d3b4a2ba7ae1cbd3dbbe4bd7ede5b5fcd650d09d6ec97e88d"
+    },
+    {
+      "caseId": "ret-authorization-02",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-authorization-02.json",
+      "sha256": "3306737148e492bf21bd1b7a2e268f87fa0a782d9e3a3098f8615a0ab0e911fa"
+    },
+    {
+      "caseId": "ret-authorization-03",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-authorization-03.json",
+      "sha256": "5699ea271a49d8ca02f9f52ded1f7a1bc783ea354920102fd67bcf8a86b17568"
+    },
+    {
+      "caseId": "ret-authorization-04",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-authorization-04.json",
+      "sha256": "97bc72badadfa34e111e72d6c46a8bb48aa5160a9c35b4407821d90e037f7ebe"
+    },
+    {
+      "caseId": "ret-authorization-05",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-authorization-05.json",
+      "sha256": "f571db4716cf99ca69decb98129b8d198e4d19e90c130de0354e25428e5ec095"
+    },
+    {
+      "caseId": "ret-authorization-06",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-authorization-06.json",
+      "sha256": "10275f103544dfc8b247e5d0f36e1a4e34016479e1f19aced61430fe9b95d017"
+    },
+    {
+      "caseId": "ret-background-jobs-01",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-background-jobs-01.json",
+      "sha256": "840c975c5b6c2b80538e828f991ba2086bf104a7051c910adba2bd744d8aa088"
+    },
+    {
+      "caseId": "ret-background-jobs-02",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-background-jobs-02.json",
+      "sha256": "f38b2954520b88a460a59c3ca5454f1220813bfed63e77e5c7704b0a97df0713"
+    },
+    {
+      "caseId": "ret-background-jobs-03",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-background-jobs-03.json",
+      "sha256": "aa4110a9f5c28fb441cb42c365e7ebce514dfea154108c153e5dac567be16068"
+    },
+    {
+      "caseId": "ret-background-jobs-04",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-background-jobs-04.json",
+      "sha256": "b333c5db7493860ebf0be24da3eff727746a7626b98eb779fa65c4b12a5c5906"
+    },
+    {
+      "caseId": "ret-background-jobs-05",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-background-jobs-05.json",
+      "sha256": "34d83a7b52dad23219fdb7312e71ceabb922e7194d47fa1a4c3adc285d118a17"
+    },
+    {
+      "caseId": "ret-background-jobs-06",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-background-jobs-06.json",
+      "sha256": "b5007b9746ccb48c66edd71db8bcfbf99fc9555acba488db8bd06fa8a42f17f6"
+    },
+    {
+      "caseId": "ret-rate-limiting-01",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-rate-limiting-01.json",
+      "sha256": "a6b9aad8da06d18f314c43d7cdcdb2714f0f916848fa13782dfd9684b09ffe94"
+    },
+    {
+      "caseId": "ret-rate-limiting-02",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-rate-limiting-02.json",
+      "sha256": "8c56e98d79ee0580a42685f1d5d0052e8385f31a739127d729821b8e6fe9d37e"
+    },
+    {
+      "caseId": "ret-rate-limiting-03",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-rate-limiting-03.json",
+      "sha256": "1ea5f166ba6b4ffc7f29973d3fa89a12b08cdd71bc693823b3e85f11b29720cf"
+    },
+    {
+      "caseId": "ret-rate-limiting-04",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-rate-limiting-04.json",
+      "sha256": "cfb6fe3d66563cf3d05dacf4d2fcbe0f0faa4a6302b9c58bafadca99224b04bd"
+    },
+    {
+      "caseId": "ret-rate-limiting-05",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-rate-limiting-05.json",
+      "sha256": "162b89177c85144eeb7da6be87fc0754ff6f870dc7a880af14ec301f30325256"
+    },
+    {
+      "caseId": "ret-rate-limiting-06",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-rate-limiting-06.json",
+      "sha256": "5b394f3d9c00d8d84827117b32ced9bf1e9241b42c1f3d357c14652218b86dac"
+    },
+    {
+      "caseId": "ret-webhooks-01",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-webhooks-01.json",
+      "sha256": "c2bf7a2026de938755b5103a61568f46da0d7571c008d1026e30cb95b30676f4"
+    },
+    {
+      "caseId": "ret-webhooks-02",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-webhooks-02.json",
+      "sha256": "3c7122af085fd3b18db205e4a55cdfdec267fa1d7ba7f8b3adb8799b6daed6a2"
+    },
+    {
+      "caseId": "ret-webhooks-03",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-webhooks-03.json",
+      "sha256": "5934486c24193ef8f7537bcde3f3f1fc26c49e4fd3baa9781b77ea60f4cec966"
+    },
+    {
+      "caseId": "ret-webhooks-04",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-webhooks-04.json",
+      "sha256": "481cb2e590bf8f3de3a2889fd64d3819c24d285952e49eab7b23e09a081e93ee"
+    },
+    {
+      "caseId": "ret-webhooks-05",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-webhooks-05.json",
+      "sha256": "9caddcfdf82a9432767f5f36283b4d26eacdcc7f8699d7ba95cbde95947e58e8"
+    },
+    {
+      "caseId": "ret-webhooks-06",
+      "kind": "no-result-gold",
+      "path": "gold/no-result/ret-webhooks-06.json",
+      "sha256": "ca525e7c3915095b43640b89b73ec29eda8803ee8e6c7b1155878d780005f90e"
+    },
+    {
+      "caseId": "norm-audit-logging-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-audit-logging-01.json",
+      "sha256": "f19ff7c2660f18a5265ba84aa50f7d4607c13bd9dfc12a238c782b93c7d1f368"
+    },
+    {
+      "caseId": "norm-audit-logging-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-audit-logging-02.json",
+      "sha256": "8fa067386e75c372eb30a9d5f8fa27af854779e3014aa957d6f148e5820b9e6c"
+    },
+    {
+      "caseId": "norm-audit-logging-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-audit-logging-03.json",
+      "sha256": "842675a1fd16751f089174636dbb08f504e07745655d25327090eb1f9b8bd154"
+    },
+    {
+      "caseId": "norm-audit-logging-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-audit-logging-04.json",
+      "sha256": "7645e895cb4e6fc38fc0510ec46836c304880e17e0872533127a0960e5d245f2"
+    },
+    {
+      "caseId": "norm-authorization-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-authorization-01.json",
+      "sha256": "8f84e78947e1cd4f4acf692901c10fbf668b35b560678d44e1c295bf09b3295d"
+    },
+    {
+      "caseId": "norm-authorization-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-authorization-02.json",
+      "sha256": "ad4f8e817c3b79cbecb97c7de72ca13ced8042c2c31230d8b0912797c383ffaf"
+    },
+    {
+      "caseId": "norm-authorization-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-authorization-03.json",
+      "sha256": "c6373467650e2545466101a9e101e62aeede74a5cd1da1ba3fb6e3708ad77050"
+    },
+    {
+      "caseId": "norm-authorization-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-authorization-04.json",
+      "sha256": "0df115d2d6f943bcf83979d2ceafb14b04c8ec1e9666594ed7345925a2a834a9"
+    },
+    {
+      "caseId": "norm-background-jobs-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-background-jobs-01.json",
+      "sha256": "82e1ee65a0aac313f5fd6a96df29c1536827f2ab1c2824dbb19bac9ca598ce66"
+    },
+    {
+      "caseId": "norm-background-jobs-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-background-jobs-02.json",
+      "sha256": "9de96a861e829a05a1124c7ea9764ad0cc062648a52cca52d90fc4e0509698f0"
+    },
+    {
+      "caseId": "norm-background-jobs-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-background-jobs-03.json",
+      "sha256": "02069ce13630631613d93e393c25a9a9d09f8fc52566b5d6cd1f61b223cd04a9"
+    },
+    {
+      "caseId": "norm-background-jobs-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-background-jobs-04.json",
+      "sha256": "649be685cc2ee845225bc605f1103d95d9638d3ed5dad8aff89fd163dfec45d8"
+    },
+    {
+      "caseId": "norm-rate-limiting-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-rate-limiting-01.json",
+      "sha256": "f9af52bc85e7083667c523fcc88aedcb6a92a49f1bd3dcfd6cdb1b72a435416e"
+    },
+    {
+      "caseId": "norm-rate-limiting-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-rate-limiting-02.json",
+      "sha256": "442d0a37d6307e372406a60494e9011aa88a0bcd37d8d6b0c976a98141163122"
+    },
+    {
+      "caseId": "norm-rate-limiting-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-rate-limiting-03.json",
+      "sha256": "55ebfaed00fe9a0c4d7e5e41d5909ca8e9b83891767412a99fe836360bdeea2b"
+    },
+    {
+      "caseId": "norm-rate-limiting-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-rate-limiting-04.json",
+      "sha256": "259b5b7b01b4b1cda72d38cf6d1def15220df3bfafe6f66ec69bcbaab7da9269"
+    },
+    {
+      "caseId": "norm-webhooks-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-webhooks-01.json",
+      "sha256": "bc121c8342982d95d1e292541def174e8e7b41da4a5e1a2f832fa226ca2342f5"
+    },
+    {
+      "caseId": "norm-webhooks-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-webhooks-02.json",
+      "sha256": "64ddbb08a7792c5e2162c0032f9b062af1bc6035be24d8eb34057bca1b3d3abb"
+    },
+    {
+      "caseId": "norm-webhooks-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-webhooks-03.json",
+      "sha256": "f17b85fb3f2601415878ae23a89cd77c8fb6074291aa1adf0d3b47ef7523570a"
+    },
+    {
+      "caseId": "norm-webhooks-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/norm-webhooks-04.json",
+      "sha256": "d709025d053f96ace2c7b72b85af2ae3aedf83a39b480d97a4ae1c4c1fc3cb83"
+    },
+    {
+      "caseId": "ret-audit-logging-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-audit-logging-01.json",
+      "sha256": "e9fc5a55d24088019850d9b7eeca7a11edc3810cfbe4a2d3069c6ef160c0f149"
+    },
+    {
+      "caseId": "ret-audit-logging-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-audit-logging-02.json",
+      "sha256": "380ecc265a5c0f051aad403b6d39b5ebe9ba3462d2943f8e1c23b5da38a8c405"
+    },
+    {
+      "caseId": "ret-audit-logging-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-audit-logging-03.json",
+      "sha256": "0ad2078692e71271f1c6c21c8f75ee6ed6c771caf9be3e8578eb258e2c618592"
+    },
+    {
+      "caseId": "ret-audit-logging-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-audit-logging-04.json",
+      "sha256": "b212ede2bcf186f4dc90f5cb73fec9a7b66f234a09b277eb466f51b4f1e60601"
+    },
+    {
+      "caseId": "ret-audit-logging-05",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-audit-logging-05.json",
+      "sha256": "4e86358b6ef98a9b95127a4e85f2dea6e4d83d6ae31e54a5b91fcca339315b2c"
+    },
+    {
+      "caseId": "ret-audit-logging-06",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-audit-logging-06.json",
+      "sha256": "cbd86097d5e3100403f602c372f1bbfb31f6692b0a5357f16d8013bc58059c46"
+    },
+    {
+      "caseId": "ret-authorization-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-authorization-01.json",
+      "sha256": "6264e31ca29637c8ff678d0ce591d0185b3c96211e743856595f86da80279be5"
+    },
+    {
+      "caseId": "ret-authorization-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-authorization-02.json",
+      "sha256": "96faa1f4265a7f8c2c2fcc23a17c859b8d870b67c9d384cead01de1dc9b6e75f"
+    },
+    {
+      "caseId": "ret-authorization-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-authorization-03.json",
+      "sha256": "30643d880e453fd8d1bb9fb971eb5eacfa9857053f84cdc08a963b3ac2e3e871"
+    },
+    {
+      "caseId": "ret-authorization-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-authorization-04.json",
+      "sha256": "20686d7b12d1499ec8e48615d07b2b60bd3838101d9ee926e20a13102d722c5e"
+    },
+    {
+      "caseId": "ret-authorization-05",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-authorization-05.json",
+      "sha256": "a4bcd28ef6145293375cbf244f1960445496c148eeb6fb6845019571507579b5"
+    },
+    {
+      "caseId": "ret-authorization-06",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-authorization-06.json",
+      "sha256": "70545e528fa8c85f45d7bdc6ee9223aed63263602f2a576be6e2f96afd58c68e"
+    },
+    {
+      "caseId": "ret-background-jobs-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-background-jobs-01.json",
+      "sha256": "87830c36093b23230182a60221f8fa56d337c6f839db38b0063144f4a5a67f14"
+    },
+    {
+      "caseId": "ret-background-jobs-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-background-jobs-02.json",
+      "sha256": "bfd713b5b59e00f814580ad18fbe1a3bfe43bdb153ab3a6845888027651e31d9"
+    },
+    {
+      "caseId": "ret-background-jobs-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-background-jobs-03.json",
+      "sha256": "b3863b26cdb31ae21191275325d89ff9e0b952b28fee87cfb761ed9a57a49b0a"
+    },
+    {
+      "caseId": "ret-background-jobs-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-background-jobs-04.json",
+      "sha256": "dfb3035f1efc20f79f37fff09d2023d98290747f7836cabdab950e6863d70d20"
+    },
+    {
+      "caseId": "ret-background-jobs-05",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-background-jobs-05.json",
+      "sha256": "cf8d7391e9fcabaab2f688f361d968053ead4705c2b5a69c826d6b632cc886a2"
+    },
+    {
+      "caseId": "ret-background-jobs-06",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-background-jobs-06.json",
+      "sha256": "7558597dc9ba945f9cd6ad9203b02821629c3378b9f9644c37c79245f6675e3d"
+    },
+    {
+      "caseId": "ret-rate-limiting-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-rate-limiting-01.json",
+      "sha256": "037b2d4c35e8a16e1aa285ec1806ce60e8b8c0913cf82775d6c0bf33ec667188"
+    },
+    {
+      "caseId": "ret-rate-limiting-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-rate-limiting-02.json",
+      "sha256": "7e89d61961954234b3e55af02904991cc040b61929950eef5260b1044596420b"
+    },
+    {
+      "caseId": "ret-rate-limiting-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-rate-limiting-03.json",
+      "sha256": "a43dc0d51150adb40bd202c22b8f14a0a2be0db1f671523dcb19a8b7eb2a285e"
+    },
+    {
+      "caseId": "ret-rate-limiting-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-rate-limiting-04.json",
+      "sha256": "719f2f38bbfbc09fa5ea77e58a26d9206e654fcbdb9532de286909e5fa7623bc"
+    },
+    {
+      "caseId": "ret-rate-limiting-05",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-rate-limiting-05.json",
+      "sha256": "427a1218da3689fcb7f9fb791ba84624cfebe8e29485b55b25e02b5eda856e82"
+    },
+    {
+      "caseId": "ret-rate-limiting-06",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-rate-limiting-06.json",
+      "sha256": "3d7ee78920f98b1476b86de5715a1c8bccadc0ef9a0e5d18ebc13165bfcc47b5"
+    },
+    {
+      "caseId": "ret-webhooks-01",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-webhooks-01.json",
+      "sha256": "b99506b58d57f46212445971ead2d324345c04ee05d86793734f4ec31e9e8fc8"
+    },
+    {
+      "caseId": "ret-webhooks-02",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-webhooks-02.json",
+      "sha256": "9923bdff957f00dfad2fb989a9b559e39b41d1bf57577d033d90fdf191c2d4d7"
+    },
+    {
+      "caseId": "ret-webhooks-03",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-webhooks-03.json",
+      "sha256": "3a1df8f9fa555fee0e63f3803b5cd911fdf00c8905b0d06f84d60e86d679be6a"
+    },
+    {
+      "caseId": "ret-webhooks-04",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-webhooks-04.json",
+      "sha256": "dd5ab11ce0c5309adb2b4cd4ce18f51924c93e3928daa71d982916fd55d2cc65"
+    },
+    {
+      "caseId": "ret-webhooks-05",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-webhooks-05.json",
+      "sha256": "c00e4fd9aac39c07168a879dd0e54d153cb9c6faec342c0584edceda6b824946"
+    },
+    {
+      "caseId": "ret-webhooks-06",
+      "kind": "normalization-gold",
+      "path": "gold/normalization/ret-webhooks-06.json",
+      "sha256": "a0b705934e19635d460667f3d90ab0955bfb186a204c0f659f56fe821033a3ce"
+    },
+    {
+      "caseId": "ret-audit-logging-01",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-audit-logging-01.json",
+      "sha256": "3e2e42b8f3be61f9c2ae06274319cc2f2be1486235634b5462263fe340738ab3"
+    },
+    {
+      "caseId": "ret-audit-logging-02",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-audit-logging-02.json",
+      "sha256": "e8453cc134bfe930007da7af4bafa077663ab187b999276ffe886400a537e385"
+    },
+    {
+      "caseId": "ret-audit-logging-03",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-audit-logging-03.json",
+      "sha256": "9b46bfcac1f6ee7c9bf4deb32a9c74beb14a6173b9ca8c5e69e1f4e35ea2df46"
+    },
+    {
+      "caseId": "ret-audit-logging-04",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-audit-logging-04.json",
+      "sha256": "905c388b23b2c079e5ea16148319dce80091eb186765c4b84a842261aa8b35ae"
+    },
+    {
+      "caseId": "ret-audit-logging-05",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-audit-logging-05.json",
+      "sha256": "943abde440626e42af3ec52ee6eabf10873fb5264826aa5bb75849c39a4f41b6"
+    },
+    {
+      "caseId": "ret-audit-logging-06",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-audit-logging-06.json",
+      "sha256": "aad2f8c9f734f299a581df81c5846af562c5c080ab10c3a8391c7e42a3ad0430"
+    },
+    {
+      "caseId": "ret-authorization-01",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-authorization-01.json",
+      "sha256": "85200b6ac7becbed62112fb7558c5d93cef8a6c4cc6248f76f2f26b21934b69f"
+    },
+    {
+      "caseId": "ret-authorization-02",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-authorization-02.json",
+      "sha256": "2271808cb3bb3557fb606dc8ba59dc0a011af561c593f3d34f6432e110532695"
+    },
+    {
+      "caseId": "ret-authorization-03",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-authorization-03.json",
+      "sha256": "7e0db36e48a2e8e678906766f4d674b4285590c5b97b3a9ccc90539b5ad77020"
+    },
+    {
+      "caseId": "ret-authorization-04",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-authorization-04.json",
+      "sha256": "77379da3097a8dfb72879b75d3328624956b36b5d407e549f3f2bc80b03bc11b"
+    },
+    {
+      "caseId": "ret-authorization-05",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-authorization-05.json",
+      "sha256": "7077d080f486c20ee5707e806f65a5c3d43a8d107a31adcf8e4514cbf60dee12"
+    },
+    {
+      "caseId": "ret-authorization-06",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-authorization-06.json",
+      "sha256": "f62deb6b9f949b96448fac505c44e45bd721333aa98c17e2041889c3cfb9cf8b"
+    },
+    {
+      "caseId": "ret-background-jobs-01",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-background-jobs-01.json",
+      "sha256": "f3c64f8f647922ba873e42e224d982e7739b2bae0e81b7034132efe1bc952b12"
+    },
+    {
+      "caseId": "ret-background-jobs-02",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-background-jobs-02.json",
+      "sha256": "73e686bc513e537c7afab92334d66693bf7725558ce7bedcb6979abd72296263"
+    },
+    {
+      "caseId": "ret-background-jobs-03",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-background-jobs-03.json",
+      "sha256": "3eee6911e88bc9f7842f2130b1e055d00653c1d2fd4773f677eb4c5ad40af091"
+    },
+    {
+      "caseId": "ret-background-jobs-04",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-background-jobs-04.json",
+      "sha256": "fcdb7367b8e1523cef17871b27b157d0ced9afe47b37c3db395b72f9b483dd77"
+    },
+    {
+      "caseId": "ret-background-jobs-05",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-background-jobs-05.json",
+      "sha256": "a1d95c542bc0295317a525d0f5cbb56e59df30b55786f5020f1bed1864a74418"
+    },
+    {
+      "caseId": "ret-background-jobs-06",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-background-jobs-06.json",
+      "sha256": "bcd81b14643b5914cdb103aeb184b284a072dfeb926243600ec66232a35f566a"
+    },
+    {
+      "caseId": "ret-rate-limiting-01",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-rate-limiting-01.json",
+      "sha256": "3d3b7d9ea86a2157ec281bceb2c7bac1056ad229ffee380a284c6985576fec92"
+    },
+    {
+      "caseId": "ret-rate-limiting-02",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-rate-limiting-02.json",
+      "sha256": "78f1e3d2ff4991ea811dbdcdecf6c0cd03dd5d4e0320184c3faadff0853bfe99"
+    },
+    {
+      "caseId": "ret-rate-limiting-03",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-rate-limiting-03.json",
+      "sha256": "3b5ca77322fc312f1618a4134a8f0bbfcd159b9e4b49e810649b704d8a226d62"
+    },
+    {
+      "caseId": "ret-rate-limiting-04",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-rate-limiting-04.json",
+      "sha256": "6ed6455de5298757c5c4c6d67b7b31f45dd5d52bce705014e4181bc6e672a99f"
+    },
+    {
+      "caseId": "ret-rate-limiting-05",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-rate-limiting-05.json",
+      "sha256": "9fef2e9f1967e8b5943cc6d243d636c35442ab28e4e482e4bad5366da5483a04"
+    },
+    {
+      "caseId": "ret-rate-limiting-06",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-rate-limiting-06.json",
+      "sha256": "b48e5f4f3f9b930e81ee1499ac42a2defeab977169fac5489348c21ea368b15e"
+    },
+    {
+      "caseId": "ret-webhooks-01",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-webhooks-01.json",
+      "sha256": "c92efce6fc1b40e3300b72f6fb72158ec1a1f052a534122b069d90e8c7ef2dd5"
+    },
+    {
+      "caseId": "ret-webhooks-02",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-webhooks-02.json",
+      "sha256": "0718c100495f7d10bb226c440310e785849c413e7ca6dfb04ba75e630bec7791"
+    },
+    {
+      "caseId": "ret-webhooks-03",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-webhooks-03.json",
+      "sha256": "56407ef1e9c6166eeef0590f1606355d31375c376393ced819735946ee4ddd69"
+    },
+    {
+      "caseId": "ret-webhooks-04",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-webhooks-04.json",
+      "sha256": "3529595386ce5d0d1981d9afe557cf172568532e67874a9ea16bb49b63faf469"
+    },
+    {
+      "caseId": "ret-webhooks-05",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-webhooks-05.json",
+      "sha256": "ade319ba44bdad20ab042376c78ab688bed75c92a885a8a522c484faad7e009c"
+    },
+    {
+      "caseId": "ret-webhooks-06",
+      "kind": "relevance-gold",
+      "path": "gold/relevance/ret-webhooks-06.json",
+      "sha256": "0ae5dfadbd9ea05a550fd9bc32c16eb5af6b17efd6d358cc931d39cb1548fbbe"
+    },
+    {
+      "caseId": "norm-audit-logging-01",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-audit-logging-01.json",
+      "sha256": "c73f0d2e4880bc5d6bfd574ded486c93de7af2fb8a96baa94df29660de0fdfda"
+    },
+    {
+      "caseId": "norm-audit-logging-02",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-audit-logging-02.json",
+      "sha256": "b959f4799aec83b7e67f3bae7a25e6e17fac9ac0496b2e235bee05a2ab162a68"
+    },
+    {
+      "caseId": "norm-audit-logging-03",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-audit-logging-03.json",
+      "sha256": "d784f6f5dafe1c499ca8238d436598fe8a74d0cc9c7b988e6f604d0f25f9d5b0"
+    },
+    {
+      "caseId": "norm-audit-logging-04",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-audit-logging-04.json",
+      "sha256": "6de5742a512de237088c7d33c4e86233beb1b08f458f3ecec11a1cc78c0f7e03"
+    },
+    {
+      "caseId": "norm-authorization-01",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-authorization-01.json",
+      "sha256": "ff0d4134d315ccdfa44de2ca35f49b35d0babcf0af5f10caa31f4fc7917181d3"
+    },
+    {
+      "caseId": "norm-authorization-02",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-authorization-02.json",
+      "sha256": "5a0b1ec9274f8fc0857802365e84a61f73ed5ed99860b4f80e28dacf04f20c1d"
+    },
+    {
+      "caseId": "norm-authorization-03",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-authorization-03.json",
+      "sha256": "c02c7767d14ae6a4b34a16dc3a971e59830e2167653b4e0224a5f85ea0dbf1cf"
+    },
+    {
+      "caseId": "norm-authorization-04",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-authorization-04.json",
+      "sha256": "cdf2f03c444e6dceb3d4a7d5756e844940312cce54dac461ec3507e86f6d19ff"
+    },
+    {
+      "caseId": "norm-background-jobs-01",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-background-jobs-01.json",
+      "sha256": "6310b90714c11d7542b7cc9de6dfd42eb2bb9fd05f126b42c31d42ea2c7b0031"
+    },
+    {
+      "caseId": "norm-background-jobs-02",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-background-jobs-02.json",
+      "sha256": "d5b9e2b3325ec2674f611a026a8ea7b99c6efb764a5ff237e3bbb6f756adf280"
+    },
+    {
+      "caseId": "norm-background-jobs-03",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-background-jobs-03.json",
+      "sha256": "ff14477aa3c634f827e71e39250b9d700553a2ced1ae5217e6a89dd32b9ff7ac"
+    },
+    {
+      "caseId": "norm-background-jobs-04",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-background-jobs-04.json",
+      "sha256": "6d2215c14de98959b02eafb0f0d86e40064ad68b3225db357156d827609c6666"
+    },
+    {
+      "caseId": "norm-rate-limiting-01",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-rate-limiting-01.json",
+      "sha256": "0a8f01af1d1604d418898cab88d6b080a6574f4fac36b7979e16c361a27e7288"
+    },
+    {
+      "caseId": "norm-rate-limiting-02",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-rate-limiting-02.json",
+      "sha256": "b5489b29ce5874cc383f9a2c0a3242bd50f9e6fb08550114f6889d1564549888"
+    },
+    {
+      "caseId": "norm-rate-limiting-03",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-rate-limiting-03.json",
+      "sha256": "3e9b529ed39541d99d60871eb48f01a9f5fea4b890aee161cb0a43f24602c0db"
+    },
+    {
+      "caseId": "norm-rate-limiting-04",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-rate-limiting-04.json",
+      "sha256": "3930567d93a9f1c06e558416be1438ff23020fe145d537e5845a7450d867c4c3"
+    },
+    {
+      "caseId": "norm-webhooks-01",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-webhooks-01.json",
+      "sha256": "ec5ccba631c472f06d14a4f8c2e872b994cb27da600e2baa080ee89b3de38a58"
+    },
+    {
+      "caseId": "norm-webhooks-02",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-webhooks-02.json",
+      "sha256": "d832c18ab5afab8a8f34ac5f5ea07ef366f13e5766c1f334e88f81dfa070b4b4"
+    },
+    {
+      "caseId": "norm-webhooks-03",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-webhooks-03.json",
+      "sha256": "205287623555a5212e67535f26680ae1e819de4132b3786b2181e342e2ee4efb"
+    },
+    {
+      "caseId": "norm-webhooks-04",
+      "kind": "normalization-query",
+      "path": "queries/normalization/norm-webhooks-04.json",
+      "sha256": "3b939a9d445a1364202b43299d4767ea854e234bc0b86337a66cfbda08d77638"
+    },
+    {
+      "caseId": "ret-audit-logging-01",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-audit-logging-01.json",
+      "sha256": "af411ac6610dcbaf85942177a73cb24a6d859fceeb613f4765eb55bbf20a0d3b"
+    },
+    {
+      "caseId": "ret-audit-logging-02",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-audit-logging-02.json",
+      "sha256": "fd4296596b600f1b12d4bfd0540f513dc22d60f7a48e6567bc508bb3e9954b52"
+    },
+    {
+      "caseId": "ret-audit-logging-03",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-audit-logging-03.json",
+      "sha256": "853ee22d41fb48d82613be48144f9dc2477ac7322113117712b646db93e0e800"
+    },
+    {
+      "caseId": "ret-audit-logging-04",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-audit-logging-04.json",
+      "sha256": "1667442aecc4e06ff70419a1697b48a432b19d95ce316304e6ec7cbcbe3db8a0"
+    },
+    {
+      "caseId": "ret-audit-logging-05",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-audit-logging-05.json",
+      "sha256": "768e2edba79014cccca2d384ab8a02c03556ef885799c907b572026e89fcd0b5"
+    },
+    {
+      "caseId": "ret-audit-logging-06",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-audit-logging-06.json",
+      "sha256": "80ea7ecc91564eb0915a3ae6afbb409780954e9effa8c0d0264a0e126fd0b134"
+    },
+    {
+      "caseId": "ret-authorization-01",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-authorization-01.json",
+      "sha256": "a00d1ce58833d8ccfd57e5b1011b03b1c8a0fa195ea49ebefef8f788a71c1266"
+    },
+    {
+      "caseId": "ret-authorization-02",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-authorization-02.json",
+      "sha256": "55c9306e839d3ed64dd03952f935249e5e8c09389412b7f21883919c6190139f"
+    },
+    {
+      "caseId": "ret-authorization-03",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-authorization-03.json",
+      "sha256": "853aec4e31ad53baacd833d1a37a651ba053386ca54a5f212b5e2fa17aaded12"
+    },
+    {
+      "caseId": "ret-authorization-04",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-authorization-04.json",
+      "sha256": "f64899b684c011cb98321deb4b34ebe507adb2883abd6758203c0ed9bcf97ee2"
+    },
+    {
+      "caseId": "ret-authorization-05",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-authorization-05.json",
+      "sha256": "e81035af6e184273a6ff3ef9058208f46f2e5ecdcacdd0c3606954d39fe8653b"
+    },
+    {
+      "caseId": "ret-authorization-06",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-authorization-06.json",
+      "sha256": "073f481c78bf81c605f8da9b6f071e2db96dc4f945440045fa93e084aa7f27fe"
+    },
+    {
+      "caseId": "ret-background-jobs-01",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-background-jobs-01.json",
+      "sha256": "ebbd114b4eeaf77588b0145c8754ca45e7480bd60682a5af4f2000d19441a474"
+    },
+    {
+      "caseId": "ret-background-jobs-02",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-background-jobs-02.json",
+      "sha256": "15561afdfba942b1d573cd09054925f0945fe37c581bc36b5fe58bb36f87e3ba"
+    },
+    {
+      "caseId": "ret-background-jobs-03",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-background-jobs-03.json",
+      "sha256": "721443bfc265bc008bb343e09799ed31855e6b818d3536d20239daf8a0329315"
+    },
+    {
+      "caseId": "ret-background-jobs-04",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-background-jobs-04.json",
+      "sha256": "e6d17b3a7be0cb8338937048a91a1892d83564423a408a190bbfd5c77ed49ce0"
+    },
+    {
+      "caseId": "ret-background-jobs-05",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-background-jobs-05.json",
+      "sha256": "ae770a2ce69e2964703fe86cb914bc32a76a3e438de42ce2226bba56ad18de97"
+    },
+    {
+      "caseId": "ret-background-jobs-06",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-background-jobs-06.json",
+      "sha256": "8f0b0e5cb783341c47bea1ca1adf9e201c1556f8aca207d846b6cf0c75706659"
+    },
+    {
+      "caseId": "ret-rate-limiting-01",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-rate-limiting-01.json",
+      "sha256": "5f4921d4990988baca439a624fa288369d25e9f3e9a584feeecfd6e64c5ee8f7"
+    },
+    {
+      "caseId": "ret-rate-limiting-02",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-rate-limiting-02.json",
+      "sha256": "2017d72de1fb116f429ca9bd90ecbfccf2f2c67fe9f58a0a90267bf143d42d2c"
+    },
+    {
+      "caseId": "ret-rate-limiting-03",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-rate-limiting-03.json",
+      "sha256": "9bd7200021c3fe2ffd0d3c7ba202ba1038510649104194a2bbf9f5e8c8a8e9a9"
+    },
+    {
+      "caseId": "ret-rate-limiting-04",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-rate-limiting-04.json",
+      "sha256": "6af68414964dbbd02ad5b8f6fcbfe0d8c308c3fb5928f17e5400066de7108ee0"
+    },
+    {
+      "caseId": "ret-rate-limiting-05",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-rate-limiting-05.json",
+      "sha256": "6f057081a3ac7c8e3065c643ed47858c9bf9cf53870c28b84ca25d3aadff5777"
+    },
+    {
+      "caseId": "ret-rate-limiting-06",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-rate-limiting-06.json",
+      "sha256": "f419f3a1bcd0ef3553c9ca5bc7cda54398ddaf369d9c997f700edfc5f644ab44"
+    },
+    {
+      "caseId": "ret-webhooks-01",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-webhooks-01.json",
+      "sha256": "645be99fa62f67367ba18be5450c3d4057fd5f15722bf443285f15c053d7fa80"
+    },
+    {
+      "caseId": "ret-webhooks-02",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-webhooks-02.json",
+      "sha256": "24bfe91b3e1461869fbb0f26e3507b11549d394418af63a7d7f62bbb6e54ceb9"
+    },
+    {
+      "caseId": "ret-webhooks-03",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-webhooks-03.json",
+      "sha256": "35052416007d8f8e85ab1d63762af9e1e21fdff2fb60d8f7f8007dd99d488bfe"
+    },
+    {
+      "caseId": "ret-webhooks-04",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-webhooks-04.json",
+      "sha256": "7a78ff20aac0552450693421ab8743e03cd3b004fd9c0b8c17876e09aeead22e"
+    },
+    {
+      "caseId": "ret-webhooks-05",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-webhooks-05.json",
+      "sha256": "b2ac2ffad7d97ec0922011b85d4811629e9deed701104e74d90501a815c66ca4"
+    },
+    {
+      "caseId": "ret-webhooks-06",
+      "kind": "retrieval-query",
+      "path": "queries/retrieval/ret-webhooks-06.json",
+      "sha256": "beb7d94b111c034daf423e9a0faf83225f3f4a003ab54682aeb38ba388dbf525"
+    }
+  ],
+  "normalizationResultSchemaDigest": "bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b",
+  "profileAuthorityDigest": "fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879",
+  "profileAuthoritySchemaDigest": "7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf",
+  "profileAuthorityVersion": "deterministic-candidate-profile-authority/1.0.0",
+  "profileSchemaDigest": "3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "queryInputSchemaDigest": "d48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b",
+  "taxonomyDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+  "taxonomyVersion": "1.0.0"
+}

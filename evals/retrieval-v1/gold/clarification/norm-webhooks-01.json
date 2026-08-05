@@ -1,0 +1,14 @@
+{
+  "caseId": "norm-webhooks-01",
+  "clarificationGoldVersion": "retrieval-clarification-gold/1.0.0",
+  "clarificationRequired": false,
+  "clarifications": [],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "terminalUnsupported": false
+}

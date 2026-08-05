@@ -55,6 +55,7 @@ const REQUIRED_PATHS = [
   'docs/engineering/testing-strategy.md',
   'docs/evaluation/baseline-protocol.md',
   'docs/evaluation/case-authoring-protocol.md',
+  'docs/evaluation/retrieval-v1-authoring-protocol.md',
   'docs/evaluation/scoring.md',
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
@@ -64,6 +65,7 @@ const REQUIRED_PATHS = [
   'docs/plans/0013-public-repository-ingestion.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
+  'evals/retrieval-v1/manifest.json',
   'eslint.config.mjs',
   'package.json',
   'packages/contracts/README.md',
@@ -122,6 +124,7 @@ const REQUIRED_PATHS = [
   'tools/evaluation-harness/src/cli.ts',
   'tools/evaluation-harness/src/contract-conformance-cli.ts',
   'tools/evaluation-harness/src/index.ts',
+  'tools/evaluation-harness/src/retrieval/cli.ts',
   'tools/evaluation-harness/test/persistence-conformance.persistence-integration.ts',
   'tools/evaluation-harness/test/tsconfig.json',
   'tools/evaluation-harness/tsconfig.json',
@@ -182,6 +185,12 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
     'eval:interviews:verify':
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && vitest run tools/evaluation-harness/test/repository-interview-*.test.ts --config vitest.config.ts && pnpm --filter @gitblocks/evaluation-harness typecheck && pnpm architecture:check',
+    'eval:retrieval:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'eval:retrieval:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'eval:retrieval:score':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score',
     'eval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score',
     'eval:validate':

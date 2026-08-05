@@ -1,0 +1,40 @@
+{
+  "caseId": "ret-webhooks-03",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [
+      {
+        "conceptId": "webhooks",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "ret-webhooks-03-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "signature-verification",
+        "conceptId": "signature-verification",
+        "facet": "feature",
+        "modality": "preferred",
+        "resolutionBasis": "controlled-taxonomy",
+        "ruleId": "taxonomy-active-alias",
+        "sourceConstraintIds": [
+          "ret-webhooks-03-constraint-9347"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "normalized",
+    "primaryFamily": "webhooks",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

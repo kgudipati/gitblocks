@@ -7,15 +7,14 @@
   retrieval evaluation](https://github.com/kgudipati/gitblocks/issues/19)
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
-- State: Milestones 1, 2, and 3 are accepted. Milestone 4 deterministic
-  candidate profiles, offline generated authority, coverage measurement, and
-  conservative single-candidate constraint evaluation passed substantive
-  maintainer review at commit
-  `66a4165c1239e7a46d72ccd6469d0856e815c410`. A separately authorized final
-  hosted-CI review correction is in progress; Milestone 4 is not accepted
-  until all corrected hosted jobs pass. ADR 0008 remains accepted. Milestone 5
-  retrieval/query evaluation and live materialization have not begun and are
-  not authorized.
+- State: Milestones 1–4 are accepted. Milestone 4 product implementation was
+  accepted at `66a4165c1239e7a46d72ccd6469d0856e815c410`; its retained CI-policy
+  corrections are `2983194504253ca76697a93abd744e3300522785` and
+  `2ddedf73f38fb25f625b5fd0793605d807f1ee93`. The maintainer accepted the
+  milestone under the hosted-infrastructure exception documented below.
+  Milestone 5 retrieval/query evaluation is in progress. Milestone 6
+  deterministic baselines and the baseline report remain unstarted and
+  unauthorized.
 - Last updated: 2026-08-04
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -41,7 +40,9 @@ shapes remain a Milestone 4 decision.
 Milestone 3, including its result-invariant review correction, was accepted at
 commit a81aea020fde501c70bfffa85dad60113e4e71d1 after hosted CI run
 30875378437 and Verification job 91885676773 completed successfully. ADR 0008
-remains accepted. Milestone 4 is in progress; Milestone 5 has not begun.
+remains accepted. Milestone 4 is accepted under the documented hosted
+infrastructure exception; Milestone 5 is in progress and Milestone 6 has not
+begun.
 
 ## Purpose and user-visible outcome
 
@@ -379,7 +380,8 @@ and semantically separate. Ranking judgments are prohibited.
 Do not hand-author a 50 by 150 eligibility matrix. Expected hard-filter
 membership is generated from the normalized query, exact candidate-profile
 authority, and versioned constraint-evaluation rules. Selected generated
-results receive independent human audit.
+entries currently retain bounded proposed/not-reviewed audit samples;
+independent review remains future work.
 
 Metrics are deterministic:
 
@@ -391,13 +393,14 @@ Metrics are deterministic:
 - category coverage;
 - hard-filter correctness;
 - top-10 hard-filter violation count;
-- no-viable-candidate accuracy;
+- no-eligible-candidate accuracy;
 - clarification accuracy;
 - alias-expansion correctness; and
 - prohibited-constraint preservation.
 
-Zero denominators are null or N/A and excluded from macro means. They never
-become 1.0.
+Zero denominators retain numerator/denominator, have null value and
+`not-applicable` status, and are excluded from macro means. They never become
+0, 1, NaN, or Infinity.
 
 Milestone 6 generates and drift-checks:
 
@@ -1766,3 +1769,120 @@ entries.
   `b313d7f7afc3f9324042fff965f9e63c4e0a347be2f7363808cb6107e913fb17`.
   Local Docker and `pnpm verify:ci` were not used; Database and Audit retains
   the hosted PostgreSQL and registry-backed dependency-audit proof.
+
+### 2026-08-04 — Milestone 4 acceptance and Milestone 5 start
+
+- The maintainer accepted Milestone 4 product implementation at
+  `66a4165c1239e7a46d72ccd6469d0856e815c410` and retained CI-policy
+  corrections `2983194504253ca76697a93abd744e3300522785` and
+  `2ddedf73f38fb25f625b5fd0793605d807f1ee93`.
+- Complete local verification passed 88 files and 1,503 tests. Hosted
+  Standalone Typecheck, Database and Audit, Interview and Operator Tests, and
+  Tooling Tests workers passed. Repeated independent hosted workers were
+  externally canceled without a failed test assertion, repository error,
+  timeout, authority mismatch, or digest failure.
+- The maintainer accepted Milestone 4 under a documented hosted-infrastructure
+  exception. The existing required aggregate gate remains intact and
+  fail-closed. Hosted CI is an operational follow-up rather than a Milestone 5
+  start gate; no retry, tolerance, cancellation, timeout, shard, or graph
+  redesign is authorized.
+- The continuation gate reverified branch/head/base, local/remote head
+  equality, Node 24.18.0, pnpm 11.17.0, draft mergeable PR #20 based on
+  `main`, open Issue #19, zero review threads, all established authority
+  digests, absent OpenAI credential variables, and the Phase 7 no-access
+  boundary. The existing partial Milestone 5 red-first worktree was preserved.
+- Milestone 5 began. Milestone 6 remains unstarted and unauthorized.
+
+### 2026-08-04 — Contradiction-validator compatibility correction
+
+- Honest authoring of required/prohibited adversarial cases triggered the stop
+  condition because the public normalizer constructed its intended canonical
+  clarification result and then rejected that result while parsing it. The
+  generated content already contained one required and one prohibited
+  constraint with `resolutionBasis: contradiction` and
+  `ruleId: constraint-modality-conflict`.
+- `validateContradictionPairs` incorrectly excluded the constraint being
+  validated while independently searching its canonical group for both hard
+  modalities. Because canonical normalization has one record per modality,
+  each record could not find another record of its own modality.
+- The separately authorized correction removes those self-exclusions and
+  binds the conflict rule to contradiction basis. A group is valid when the
+  complete same-facet, same-non-null-concept contradiction group contains at
+  least one required and one prohibited member; a legitimate preferred member
+  may coexist. Generation, merging, order, IDs, clarifications, outcomes,
+  source IDs, modalities, rule IDs, schemas, versions, and digest projections
+  did not change.
+- Focused domain and contract regressions prove core/public normalization,
+  standalone parsing, exchange validation, both hard modalities, preferred
+  coexistence, lone/split/falsely marked groups, and correctly re-digested
+  missing-pair forgeries. They pass 2 files and 91 tests. The exact three-file
+  correction is commit
+  `e0f8c2a6368d5765661ffb78dafdd0b7c51ca907`
+  (`fix(query): validate contradiction pairs`).
+- CapabilityQueryInputV1 and CapabilityQueryNormalizationResultV1 retain
+  schema digests
+  `d48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b`
+  and
+  `bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b`;
+  normalizer `1.0.0` and every established taxonomy, profile, authority,
+  coverage, catalog, and product schema digest remain unchanged. This repairs
+  validation of already intended output; it is not a normalization feature.
+
+### 2026-08-04 — Milestone 5 implementation
+
+- Added evaluation-only `retrieval-v1` contract
+  `retrieval-evaluation-corpus/1.0.0` at semantic digest
+  `e133c0fa00b6063e7360ce5ebfdf27893f72ee5ca5e39fbe5d82c1e944831917`.
+  Its 212 JSON files close through one nonrecursive manifest and 211 exact
+  byte-hashed entries. The corpus contains 30 retrieval and 20
+  normalization/adversarial cases, exactly six/four per family.
+- Blind queries remain separate from 50 normalization, 20 clarification, 30
+  generated hard-filter, 30 relevance, and 30 no-result gold files plus one
+  equivalence authority. All gold remains proposed/not-reviewed. Relevance is
+  capability-query relevance rather than viability, fit, ranking, quality, or
+  recommendation.
+- The harness reruns the accepted public normalizer for every case and the
+  accepted single-candidate evaluator for every retrieval case/profile pair.
+  It preserves tri-state product results, maps unresolved only to the separate
+  evidence-needed lane, excludes negative controls, and regenerates the full
+  30 by 150 decision projection in memory.
+- Added a closed exact-closure prediction set, content-free score-report
+  schema, deterministic metrics with explicit null/not-applicable zero
+  denominators, and 20 hand-calculated synthetic scorer fixtures. No real
+  corpus oracle, deterministic baseline, baseline report, production
+  retrieval, candidate generator, ranking, provider, model, database,
+  migration, dependency, package, ingestion behavior, or Phase 7 work exists.
+- Ordinary `pnpm verify` and the existing Static and Authorities worker add
+  only retrieval authority validation and scorer fixtures. The hosted job
+  graph, shards, concurrency, timeouts, runners, aggregate behavior, database
+  isolation, actions, and permissions remain unchanged.
+- Red-first boundary, corpus, projection, prediction, scoring, architecture,
+  repository-policy, and workflow-policy coverage passes 13 focused files and
+  146 tests. The complete workspace passes 98 files and 1,543 tests. Final
+  coverage is 81.12% statements, 73.22% branches, 88.24% functions, and
+  81.51% lines; retrieval scorer statement coverage is 98.34%.
+- Material red-to-green corrections retained strict boundaries: canonical
+  corpus JSON was excluded from Prettier rewriting so manifest byte hashes
+  remain authoritative; the contracts runtime-surface allowlist now binds the
+  two accepted evaluator re-exports; invalid retrieval CLI commands reject
+  before loading corpus authority; and retrieval authority tests use the
+  repository's existing 60-second bounded test limit under full-suite worker
+  contention. A subsequent compile-only path narrowing failure was corrected
+  with a non-optional local after the existing score-argument guard. No
+  product evaluator, normalizer, corpus, schema, metric, or workflow timeout
+  semantics changed.
+- The complete required local matrix passes: runtime, formatting, retrieval
+  validation/fixtures, pilot validation/fixtures, interview verification,
+  taxonomy, profiles, contracts, catalog, artifacts, ingestion, build, lint,
+  typecheck, tests, coverage, architecture, repository policy, secrets, and
+  authoritative `pnpm verify`. Architecture covers 804 modules and 2,588
+  dependency edges with zero violations. Focused contradiction regressions
+  pass 2 files and 91 tests from the final staged state.
+- Pilot-v1 and repository-interviews-v1 remain byte-identical. Taxonomy,
+  query-schema, profile-schema, generated profile-authority, profile-coverage,
+  and catalog semantic digests remain unchanged. No lockfile, persistence,
+  migration, ingestion implementation, provider/model, database, candidate
+  repository, external corpus, or Phase 7 state changed or was accessed.
+- Milestone 5 implementation and complete local verification are ready for
+  maintainer review; its status remains in progress until review. Milestone 6
+  remains unstarted and unauthorized.

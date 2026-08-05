@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/prediction-set/1.0.0",
+  "$defs": {
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateId", "hardState", "lane"],
+      "properties": {
+        "candidateId": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+        },
+        "hardState": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/hardState"
+        },
+        "lane": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/lane"
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateId", "claimedLane"],
+      "properties": {
+        "candidateId": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+        },
+        "claimedLane": { "enum": ["eligible", "evidence-needed"] }
+      }
+    },
+    "normalizationCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["caseId", "caseKind", "normalization"],
+      "properties": {
+        "caseId": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+        },
+        "caseKind": { "const": "normalization-adversarial" },
+        "normalization": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/normalizationProjection"
+        }
+      }
+    },
+    "retrievalCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "caseKind",
+        "normalization",
+        "candidateDecisions",
+        "results",
+        "noEligibleCandidate"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+        },
+        "caseKind": { "const": "retrieval" },
+        "normalization": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/normalizationProjection"
+        },
+        "candidateDecisions": {
+          "type": "array",
+          "minItems": 150,
+          "maxItems": 150,
+          "items": { "$ref": "#/$defs/decision" }
+        },
+        "results": {
+          "type": "array",
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/result" }
+        },
+        "noEligibleCandidate": { "type": "boolean" }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "predictionSetVersion",
+    "predictionSetId",
+    "corpusId",
+    "corpusVersion",
+    "corpusSemanticDigest",
+    "predictions",
+    "semanticDigest"
+  ],
+  "properties": {
+    "predictionSetVersion": {
+      "const": "retrieval-evaluation-prediction-set/1.0.0"
+    },
+    "predictionSetId": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+    },
+    "corpusId": { "const": "retrieval-v1" },
+    "corpusVersion": { "const": "retrieval-evaluation-corpus/1.0.0" },
+    "corpusSemanticDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "predictions": {
+      "type": "array",
+      "minItems": 50,
+      "maxItems": 50,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/normalizationCase" },
+          { "$ref": "#/$defs/retrievalCase" }
+        ]
+      }
+    },
+    "semanticDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    }
+  }
+}

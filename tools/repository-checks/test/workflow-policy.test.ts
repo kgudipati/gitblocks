@@ -38,6 +38,8 @@ const STATIC_VERIFICATION_COMMANDS = [
   'node tools/repository-checks/src/cli.ts repository',
   'node tools/evaluation-harness/src/cli.ts validate',
   'node tools/evaluation-harness/src/cli.ts fixtures',
+  'node tools/evaluation-harness/src/retrieval/cli.ts validate',
+  'node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
   'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
   'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
   'node tools/evaluation-harness/src/contract-conformance-cli.ts',

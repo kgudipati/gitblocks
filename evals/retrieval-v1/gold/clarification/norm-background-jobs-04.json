@@ -1,0 +1,29 @@
+{
+  "caseId": "norm-background-jobs-04",
+  "clarificationGoldVersion": "retrieval-clarification-gold/1.0.0",
+  "clarificationRequired": true,
+  "clarifications": [
+    {
+      "possibleConceptIds": [],
+      "reasonCode": "primary-family-not-established",
+      "sourceIds": [
+        "norm-background-jobs-04-term-01"
+      ]
+    },
+    {
+      "possibleConceptIds": [],
+      "reasonCode": "unsupported-term-characters",
+      "sourceIds": [
+        "norm-background-jobs-04-term-01"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "terminalUnsupported": false
+}

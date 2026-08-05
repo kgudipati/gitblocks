@@ -1,0 +1,100 @@
+{
+  "auditSample": [
+    {
+      "candidateId": "audit-bunyan",
+      "hardState": "conflict",
+      "lane": "excluded",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCode": "generated-primary-family-conflict",
+      "sampleRole": "cross-family"
+    },
+    {
+      "candidateId": "webhook-adnanh",
+      "hardState": "satisfied",
+      "lane": "eligible",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCode": "generated-hard-state-satisfied",
+      "sampleRole": "eligible"
+    },
+    {
+      "candidateId": "audit-bunyan",
+      "hardState": "conflict",
+      "lane": "excluded",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCode": "generated-primary-family-conflict",
+      "sampleRole": "hard-conflict"
+    },
+    {
+      "candidateId": "webhook-localtunnel",
+      "hardState": "satisfied",
+      "lane": "excluded",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCode": "proposed-material-edge-sample",
+      "sampleRole": "material-edge"
+    },
+    {
+      "candidateId": "audit-datadog-trace-js",
+      "hardState": "conflict",
+      "lane": "excluded",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCode": "catalog-negative-control-exclusion",
+      "sampleRole": "negative-control"
+    }
+  ],
+  "caseId": "ret-webhooks-02",
+  "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+  "catalogVersion": "public-v1",
+  "hardStateCounts": {
+    "conflict": 120,
+    "satisfied": 30,
+    "unresolved": 0
+  },
+  "laneCounts": {
+    "eligible": 13,
+    "evidence-needed": 0,
+    "excluded": 137
+  },
+  "profileAuthorityDigest": "fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879",
+  "profileAuthorityVersion": "deterministic-candidate-profile-authority/1.0.0",
+  "projectionDigest": "740e7520b8f08a73165db43c4c79a4b91865243c82f17545ce732085b98a6398",
+  "projectionVersion": "retrieval-hard-filter-projection/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "taxonomyDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+  "taxonomyVersion": "1.0.0"
+}

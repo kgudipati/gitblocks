@@ -1,0 +1,58 @@
+{
+  "caseId": "norm-webhooks-04",
+  "expected": {
+    "clarifications": [
+      {
+        "possibleConceptIds": [],
+        "reasonCode": "candidate-family-conflict",
+        "sourceIds": [
+          "norm-webhooks-04-reference-01",
+          "norm-webhooks-04-reference-02",
+          "norm-webhooks-04-term-01"
+        ]
+      },
+      {
+        "possibleConceptIds": [],
+        "reasonCode": "cross-family-candidate-reference",
+        "sourceIds": [
+          "norm-webhooks-04-reference-01",
+          "norm-webhooks-04-reference-02"
+        ]
+      }
+    ],
+    "normalizedConcepts": [
+      {
+        "conceptId": "webhooks",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-webhooks-04-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": null,
+        "conceptId": null,
+        "facet": "other",
+        "modality": "required",
+        "resolutionBasis": "preserved-declaration",
+        "ruleId": "preserve-explicit-declaration",
+        "sourceConstraintIds": [
+          "norm-webhooks-04-constraint-7649"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "clarification-required",
+    "primaryFamily": null,
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

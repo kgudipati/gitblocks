@@ -1,0 +1,34 @@
+{
+  "capabilityFamily": "authorization",
+  "caseId": "norm-authorization-04",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "authorization",
+        "termId": "norm-authorization-04-term-01"
+      },
+      {
+        "originalTerm": "lightweight",
+        "termId": "norm-authorization-04-term-02"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-norm-authorization-04",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-authorization-04-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Subjective terminology is not a capability fact."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "subjective-lightweight"
+  ]
+}

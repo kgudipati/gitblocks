@@ -1,0 +1,42 @@
+{
+  "capabilityFamily": "audit-logging",
+  "caseId": "ret-audit-logging-03",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "audit-logging",
+        "termId": "ret-audit-logging-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "ret-audit-logging-03-constraint-4406",
+        "facetHint": "feature",
+        "modality": "preferred",
+        "originalTerm": "actor-request-context",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "preferred capability detail"
+      }
+    ],
+    "queryInputId": "query-ret-audit-logging-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-audit-logging-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "family-balanced",
+    "positive-multiple-relevant",
+    "preferred-constraint",
+    "slot-narrower-intent"
+  ]
+}

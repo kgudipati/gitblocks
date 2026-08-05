@@ -122,9 +122,13 @@ pre-contract query-normalization, and retrieval-evaluation foundation. Phase 8
 now includes the exact 27-field deterministic profile registry, two additive
 profile contract roots, an offline generated 150-candidate authority, an
 aggregate coverage report, and conservative single-candidate constraint
-evaluation. The authority is mostly unknown by design and is not a production
-readiness claim. Phase 8 does not implement production retrieval or ranking;
-Milestone 5 retrieval/query evaluation has not begun.
+evaluation. It also contains the separate immutable `retrieval-v1` authority:
+30 retrieval and 20 normalization/adversarial blind cases, physically separate
+proposed gold, generated 150-candidate hard-filter projections, closed
+prediction/report schemas, and deterministic scorer fixtures. The profile and
+evaluation authorities are not production-readiness or retrieval-quality
+claims. Phase 8 does not implement production retrieval or ranking; Milestone
+6 baselines and a baseline report have not begun.
 
 ## Repository map
 
@@ -152,6 +156,7 @@ Milestone 5 retrieval/query evaluation has not begun.
 | `catalog/capability-taxonomy/1.0.0/`     | Reviewed taxonomy source and generated versioned capability authority            |
 | `verification/retrieval-v1/`             | Content-free deterministic profile coverage authority                            |
 | `evals/pilot-v1/`                        | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest    |
+| `evals/retrieval-v1/`                    | Fifty blind retrieval/query cases with physically separate proposed gold         |
 | `schemas/evaluation/`                    | Versioned JSON Schema 2020-12 evaluation contracts                               |
 | `tools/evaluation-harness/`              | Private bounded validator, deterministic scorer, CLI, and tests                  |
 | `tools/repository-checks/`               | Bounded repository-policy CLI and tests                                          |
@@ -196,6 +201,9 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm eval:validate`                  | Validate the corpus, hashes, references, and diversity              |
 | `pnpm eval:score --prediction <path>` | Score one prediction file or a complete directory                   |
 | `pnpm eval:fixtures`                  | Exercise deterministic weak fixture profiles                        |
+| `pnpm eval:retrieval:validate`        | Validate retrieval-v1 authority and generated hard-filter closure   |
+| `pnpm eval:retrieval:fixtures`        | Run hand-calculated retrieval scorer fixtures                       |
+| `pnpm eval:retrieval:score -- …`      | Validate and score one repository-relative prediction set           |
 | `pnpm contracts:validate`             | Validate schemas and all ten corpus-to-product mappings             |
 | `pnpm taxonomy:validate`              | Validate taxonomy source, invariants, ordering, digest, and drift   |
 | `pnpm taxonomy:generate`              | Explicitly regenerate the reviewed taxonomy authority               |

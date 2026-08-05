@@ -1,0 +1,30 @@
+{
+  "capabilityFamily": "background-jobs",
+  "caseId": "norm-background-jobs-04",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "background-jоbs",
+        "termId": "norm-background-jobs-04-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-norm-background-jobs-04",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-background-jobs-04-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "A Cyrillic confusable must not resolve as ASCII."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "unicode-confusable"
+  ]
+}

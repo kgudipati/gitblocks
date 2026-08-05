@@ -1,0 +1,28 @@
+{
+  "caseId": "ret-background-jobs-06",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [
+      {
+        "conceptId": "background-jobs",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "ret-background-jobs-06-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [],
+    "notices": [],
+    "outcome": "normalized",
+    "primaryFamily": "background-jobs",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

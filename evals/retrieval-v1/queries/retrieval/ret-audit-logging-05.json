@@ -1,0 +1,62 @@
+{
+  "capabilityFamily": "audit-logging",
+  "caseId": "ret-audit-logging-05",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "audit-logging",
+        "termId": "ret-audit-logging-05-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "ret-audit-logging-05-constraint-1478",
+        "facetHint": "infrastructure",
+        "modality": "prohibited",
+        "originalTerm": "external-hosted-service",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must not require an external hosted service"
+      },
+      {
+        "constraintId": "ret-audit-logging-05-constraint-6081",
+        "facetHint": "infrastructure",
+        "modality": "prohibited",
+        "originalTerm": "kubernetes",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must not require kubernetes"
+      },
+      {
+        "constraintId": "ret-audit-logging-05-constraint-8270",
+        "facetHint": "deployment",
+        "modality": "required",
+        "originalTerm": "self-hosted",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must be self hosted"
+      }
+    ],
+    "queryInputId": "query-ret-audit-logging-05",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-audit-logging-05-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "deployment-self-hosting",
+    "evidence-needed",
+    "family-balanced",
+    "infrastructure-exclusion",
+    "no-eligible-candidate",
+    "prohibited-constraint",
+    "required-constraint",
+    "slot-hard-constraint"
+  ]
+}

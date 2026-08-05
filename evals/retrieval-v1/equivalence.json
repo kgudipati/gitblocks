@@ -1,0 +1,97 @@
+{
+  "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+  "catalogVersion": "public-v1",
+  "equivalenceVersion": "retrieval-equivalence-authority/1.0.0",
+  "groups": [
+    {
+      "candidateIds": [
+        "auth-casbin-casbin",
+        "auth-casbin-casbin-js",
+        "auth-casbin-node-casbin"
+      ],
+      "groupId": "equiv-casbin-implementations",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "relationshipKind": "ecosystem-implementation-variant"
+    },
+    {
+      "candidateIds": [
+        "rate-envoy",
+        "rate-envoy-ratelimit"
+      ],
+      "groupId": "equiv-envoy-rate-limit-companions",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "relationshipKind": "parent-focused-companion"
+    },
+    {
+      "candidateIds": [
+        "jobs-bree",
+        "jobs-node-cron",
+        "jobs-node-schedule",
+        "jobs-toad-scheduler"
+      ],
+      "groupId": "equiv-in-process-job-schedulers",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "relationshipKind": "functional-overlap"
+    },
+    {
+      "candidateIds": [
+        "webhook-octokit-app",
+        "webhook-octokit-methods",
+        "webhook-octokit-webhooks"
+      ],
+      "groupId": "equiv-octokit-webhook-ecosystem",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "relationshipKind": "ecosystem-companion"
+    },
+    {
+      "candidateIds": [
+        "audit-google-logging-winston",
+        "audit-winston",
+        "audit-winston-daily",
+        "audit-winston-logform",
+        "audit-winston-syslog",
+        "audit-winston-transport"
+      ],
+      "groupId": "equiv-winston-ecosystem",
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "relationshipKind": "ecosystem-companion"
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

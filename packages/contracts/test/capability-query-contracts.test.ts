@@ -841,14 +841,15 @@ describe('capability-query normalization exchange closure', () => {
           ({ modality }) => modality !== removedModality,
         ),
       });
-      expect(parseCapabilityQueryNormalizationResultV1(forged)).toMatchObject({
-        ok: false,
-        issues: expect.arrayContaining([
-          expect.objectContaining({
-            path: expect.stringContaining('normalizedConstraints'),
-          }),
-        ]),
-      });
+      const parsed = parseCapabilityQueryNormalizationResultV1(forged);
+      expect(parsed.ok).toBe(false);
+      if (!parsed.ok) {
+        expect(
+          parsed.issues.some(({ path }) =>
+            path.includes('normalizedConstraints'),
+          ),
+        ).toBe(true);
+      }
     }
 
     for (const change of [

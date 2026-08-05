@@ -24,8 +24,13 @@ completed successfully.
 Milestone 3, including its result-invariant correction, was accepted at commit
 a81aea020fde501c70bfffa85dad60113e4e71d1 after hosted CI run 30875378437 and
 Verification job 91885676773 completed successfully. This ADR remains
-accepted; Milestone 4 implements the profile portion without authorizing
-Milestone 5.
+accepted. Milestone 4 was accepted at
+`66a4165c1239e7a46d72ccd6469d0856e815c410` under the documented hosted-CI
+infrastructure exception, retaining corrections
+`2983194504253ca76697a93abd744e3300522785` and
+`2ddedf73f38fb25f625b5fd0793605d807f1ee93`. Milestone 5 implements the
+evaluation-only retrieval authority. Milestone 6 baselines remain unstarted
+and require separate authorization.
 
 ## Context
 
@@ -355,7 +360,7 @@ deployment preference is inferred when the user did not state or confirm it.
 
 ### Independent retrieval evaluation
 
-Create a separate retrieval-v1 authority containing exactly:
+The separate `retrieval-v1` authority contains exactly:
 
 - 30 retrieval cases, 6 per capability family; and
 - 20 normalization, clarification, and adversarial cases, 4 per family.
@@ -375,8 +380,17 @@ and semantically separate. Ranking judgments are prohibited.
 
 Do not hand-author a 50 by 150 hard-filter label matrix. Expected membership is
 generated deterministically from the normalized query, exact candidate-profile
-authority, and versioned candidate-constraint rules. Selected results receive
-independent human audit.
+authority, and versioned candidate-constraint rules. Bounded selected results
+currently have proposed/not-reviewed audit samples; independent human review
+must be recorded before any accepted-quality claim.
+
+The implemented evaluation lane projects accepted product tri-state without
+changing it. Satisfied non-negative-control candidates are eligible;
+unresolved non-negative-control candidates are evidence-needed; conflicts and
+negative controls are excluded. Evidence-needed is not viable and unknown is
+never satisfied. Relevance measures only capability-query relevance and stays
+separate from hard eligibility, adoption fit, quality, ranking, preference,
+and recommendation.
 
 The evaluation harness defines deterministic:
 
@@ -388,17 +402,37 @@ The evaluation harness defines deterministic:
 - category coverage;
 - hard-filter correctness;
 - top-10 hard-filter violation count;
-- no-viable-candidate accuracy;
+- no-eligible-candidate accuracy;
 - clarification accuracy;
 - alias-expansion correctness; and
 - prohibited-constraint preservation.
 
-Zero denominators serialize as null or N/A and are excluded from macro means.
-They never silently become 1.0.
+Every metric retains numerator, denominator, value, and status. Zero
+denominators serialize with null value and `not-applicable` status and are
+excluded from macro means. They never silently become 0, 1, NaN, or Infinity;
+an all-null macro remains null.
+
+The corpus, schemas, proposed gold, predictions, and score reports are
+evaluation-only. Product packages never import them. Ordinary validation is
+bounded, fixed-path, no-symlink, read-only, offline, and has no provider,
+model, database, candidate-repository, artifact-body, target-source, or Phase 7
+path. The exact corpus contracts, manifest closure, scoring definitions, and
+semantic digest are recorded in the
+[retrieval-v1 protocol](../../evaluation/retrieval-v1-authoring-protocol.md).
+
+Honest contradiction-case authoring exposed a pure validation defect: the
+accepted normalizer generated the intended required/prohibited contradiction
+group, then `validateContradictionPairs` excluded the current canonical member
+from its own modality search. The minimal correction validates the complete
+same-facet, same-concept contradiction group and binds the conflict rule to
+contradiction basis. It changes no generation, canonical output, schema,
+normalizer version, taxonomy behavior, or digest projection; correctly
+re-digested missing or split pairs remain rejected.
 
 ### Offline baselines and evidence
 
-Phase 8 may implement evaluation-only deterministic baselines. They are not a
+Milestone 6 may implement evaluation-only deterministic baselines after
+separate authorization. They are not a
 production retrieval service and cannot be imported by product packages.
 
 Generate and drift-check the content-free report:

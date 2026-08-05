@@ -239,6 +239,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'createRepositoryInterviewV1',
       'deterministicCandidateProfileAuthoritySemanticDigest',
       'deterministicCandidateProfileSemanticDigest',
+      'evaluateCandidateConstraintProfileState',
+      'evaluateCandidateConstraints',
       'getContractSchemaV1',
       'getDeterministicProfileFieldRegistry',
       'modelExecutionIdentityDigest',

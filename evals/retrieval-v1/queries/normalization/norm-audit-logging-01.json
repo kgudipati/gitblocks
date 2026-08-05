@@ -1,0 +1,40 @@
+{
+  "capabilityFamily": "audit-logging",
+  "caseId": "norm-audit-logging-01",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "audit-trail",
+        "termId": "norm-audit-logging-01-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "norm-audit-logging-01-constraint-9454",
+        "facetHint": "other",
+        "modality": "preferred",
+        "originalTerm": "quiet-mode-unknown",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "prefer an unclassified quiet mode"
+      }
+    ],
+    "queryInputId": "query-norm-audit-logging-01",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-audit-logging-01-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Structured alias fields own meaning."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "alias-evaluation",
+    "unknown-preferred-nonblocking"
+  ]
+}

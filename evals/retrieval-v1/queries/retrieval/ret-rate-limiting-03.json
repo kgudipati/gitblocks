@@ -1,0 +1,42 @@
+{
+  "capabilityFamily": "rate-limiting",
+  "caseId": "ret-rate-limiting-03",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "rate-limiting",
+        "termId": "ret-rate-limiting-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "ret-rate-limiting-03-constraint-3649",
+        "facetHint": "feature",
+        "modality": "preferred",
+        "originalTerm": "token-bucket",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "preferred capability detail"
+      }
+    ],
+    "queryInputId": "query-ret-rate-limiting-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-rate-limiting-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "family-balanced",
+    "positive-multiple-relevant",
+    "preferred-constraint",
+    "slot-narrower-intent"
+  ]
+}

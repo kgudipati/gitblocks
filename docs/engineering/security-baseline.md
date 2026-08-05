@@ -492,9 +492,23 @@ Phase 7 access.
 
 Retrieval/query evaluation is an outward consumer of product authority.
 Product packages must not import its schemas, corpus, gold, scorers, fixtures,
-or harness code. Ordinary Phase 8 implementation and validation are offline:
-they make no provider or model call and use no Phase 7 container, database,
-receipt, or repository-external evidence. Any final 150-candidate live
+or harness code. Its fixed repository-contained JSON boundary requires regular
+files, rejects symlinks, traversal, duplicate keys, excessive depth/nodes,
+wrong membership, and byte/hash drift, and bounds each corpus document to 256
+KiB, the complete corpus to 16 MiB, and diagnostics to 500. The exact accepted
+profile authority uses only its separate fixed 4 MiB bound. Public predictions
+are closed, require complete case and 150-candidate decision closure, limit
+results to ten, and contain no URL, artifact/target content, arbitrary score,
+rationale, reviewer content, or provider output.
+
+Ordinary Phase 8 implementation and validation are read-only and offline:
+they make no environment-derived semantic decision, provider or model call,
+network or database access, candidate repository or artifact-body read, or use
+of any Phase 7 container, database, receipt, or repository-external evidence.
+Gold is physically separated from blind queries, proposed/not-reviewed, and
+unavailable to any future baseline input loader. Unknown profiles remain
+unresolved, negative controls remain excluded, and no-result authority derives
+from generated hard-filter state rather than relevance. Any final 150-candidate live
 materialization requires separate authorization, a fresh dedicated ephemeral
 PostgreSQL database, the existing approved public-source boundaries, no model
 call, and content-free receipts and coverage evidence.

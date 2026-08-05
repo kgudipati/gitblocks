@@ -1,0 +1,42 @@
+{
+  "capabilityFamily": "authorization",
+  "caseId": "ret-authorization-03",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "authorization",
+        "termId": "ret-authorization-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "ret-authorization-03-constraint-9358",
+        "facetHint": "feature",
+        "modality": "preferred",
+        "originalTerm": "role-based-access-control",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "preferred capability detail"
+      }
+    ],
+    "queryInputId": "query-ret-authorization-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-authorization-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "family-balanced",
+    "positive-multiple-relevant",
+    "preferred-constraint",
+    "slot-narrower-intent"
+  ]
+}

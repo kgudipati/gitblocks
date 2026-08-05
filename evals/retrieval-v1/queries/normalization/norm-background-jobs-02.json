@@ -1,0 +1,31 @@
+{
+  "capabilityFamily": "background-jobs",
+  "caseId": "norm-background-jobs-02",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "job-queue",
+        "termId": "norm-background-jobs-02-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-norm-background-jobs-02",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-background-jobs-02-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "The controlled ambiguity must be clarified exactly."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "ambiguous-primary-family",
+    "intentional-ambiguity"
+  ]
+}

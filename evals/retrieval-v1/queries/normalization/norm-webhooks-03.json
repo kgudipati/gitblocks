@@ -1,0 +1,48 @@
+{
+  "capabilityFamily": "webhooks",
+  "caseId": "norm-webhooks-03",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "webhooks",
+        "termId": "norm-webhooks-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "norm-webhooks-03-constraint-0395",
+        "facetHint": "feature",
+        "modality": "required",
+        "originalTerm": "signature-verification",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must provide the controlled feature"
+      },
+      {
+        "constraintId": "norm-webhooks-03-constraint-8218",
+        "facetHint": "feature",
+        "modality": "prohibited",
+        "originalTerm": "signature-verification",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must not provide the controlled feature"
+      }
+    ],
+    "queryInputId": "query-norm-webhooks-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-webhooks-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Contradictory modalities must remain explicit."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "prohibited-preservation",
+    "required-prohibited-conflict"
+  ]
+}

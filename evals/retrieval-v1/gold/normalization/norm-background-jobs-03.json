@@ -1,0 +1,62 @@
+{
+  "caseId": "norm-background-jobs-03",
+  "expected": {
+    "clarifications": [
+      {
+        "possibleConceptIds": [
+          "delayed-jobs"
+        ],
+        "reasonCode": "constraint-modality-conflict",
+        "sourceIds": [
+          "norm-background-jobs-03-constraint-3303",
+          "norm-background-jobs-03-constraint-9654"
+        ]
+      }
+    ],
+    "normalizedConcepts": [
+      {
+        "conceptId": "background-jobs",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-background-jobs-03-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "delayed-jobs",
+        "conceptId": "delayed-jobs",
+        "facet": "feature",
+        "modality": "prohibited",
+        "resolutionBasis": "contradiction",
+        "ruleId": "constraint-modality-conflict",
+        "sourceConstraintIds": [
+          "norm-background-jobs-03-constraint-3303"
+        ]
+      },
+      {
+        "canonicalTerm": "delayed-jobs",
+        "conceptId": "delayed-jobs",
+        "facet": "feature",
+        "modality": "required",
+        "resolutionBasis": "contradiction",
+        "ruleId": "constraint-modality-conflict",
+        "sourceConstraintIds": [
+          "norm-background-jobs-03-constraint-9654"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "clarification-required",
+    "primaryFamily": "background-jobs",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

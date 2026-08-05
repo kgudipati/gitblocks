@@ -24,8 +24,11 @@ open unless an architecture decision record (ADR) approves them.
 The non-operational Phase 8 kernel now also contains the exact deterministic
 candidate-profile registry and two contract roots, an offline generated
 150-candidate profile authority, content-free coverage, and pure
-single-candidate constraint evaluation. It contains no candidate generation,
-filtering, retrieval, ranking, recommendation, or profile persistence.
+single-candidate constraint evaluation. The outward evaluation harness now
+owns an independent 50-case `retrieval-v1` authority, generated hard-filter
+projection validation, closed prediction/report schemas, and deterministic
+scoring fixtures. It contains no product candidate generation, filtering,
+retrieval, ranking, recommendation, baseline, or profile persistence.
 
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
@@ -96,6 +99,16 @@ parsed catalog and taxonomy authorities to project all 150 profiles and an
 aggregate content-free coverage report. It performs no provider collection,
 database access, model call, retrieval, ranking, or import of evaluation data.
 Persistence and the repository-interview application are unchanged.
+
+The Milestone 5 boundary is evaluation-only and non-operational. The harness
+parses accepted query, taxonomy, and profile authority through public contract
+exports and evaluates one candidate at a time through the accepted public
+constraint evaluator. It owns bounded corpus loading, proposed gold,
+equivalence groups, generated in-memory 150-candidate projections, prediction
+validation, numeric scoring, and content-free reporting. Query inputs never
+read gold, and product packages never depend on this outward consumer. The
+evidence-needed lane preserves unresolved state without calling it eligible.
+No baseline or baseline report exists; those remain Milestone 6 work.
 
 ## Planned system context
 

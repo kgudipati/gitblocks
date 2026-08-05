@@ -1,0 +1,48 @@
+{
+  "capabilityFamily": "rate-limiting",
+  "caseId": "norm-rate-limiting-03",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "rate-limiting",
+        "termId": "norm-rate-limiting-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "norm-rate-limiting-03-constraint-4812",
+        "facetHint": "feature",
+        "modality": "prohibited",
+        "originalTerm": "token-bucket",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must not provide the controlled feature"
+      },
+      {
+        "constraintId": "norm-rate-limiting-03-constraint-8461",
+        "facetHint": "feature",
+        "modality": "required",
+        "originalTerm": "token-bucket",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must provide the controlled feature"
+      }
+    ],
+    "queryInputId": "query-norm-rate-limiting-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-rate-limiting-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Contradictory modalities must remain explicit."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "prohibited-preservation",
+    "required-prohibited-conflict"
+  ]
+}

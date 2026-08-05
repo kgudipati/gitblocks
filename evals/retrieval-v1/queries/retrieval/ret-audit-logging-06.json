@@ -1,0 +1,41 @@
+{
+  "capabilityFamily": "audit-logging",
+  "caseId": "ret-audit-logging-06",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "ret-audit-logging-06-reference-01",
+        "value": "audit-datadog-trace-js"
+      }
+    ],
+    "capabilityTerms": [
+      {
+        "originalTerm": "audit-logging",
+        "termId": "ret-audit-logging-06-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-ret-audit-logging-06",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-audit-logging-06-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "equivalence-safety",
+    "family-balanced",
+    "negative-control-safety",
+    "positive-multiple-relevant",
+    "slot-negative-control"
+  ]
+}

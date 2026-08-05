@@ -1,0 +1,32 @@
+{
+  "caseId": "norm-webhooks-04",
+  "clarificationGoldVersion": "retrieval-clarification-gold/1.0.0",
+  "clarificationRequired": true,
+  "clarifications": [
+    {
+      "possibleConceptIds": [],
+      "reasonCode": "candidate-family-conflict",
+      "sourceIds": [
+        "norm-webhooks-04-reference-01",
+        "norm-webhooks-04-reference-02",
+        "norm-webhooks-04-term-01"
+      ]
+    },
+    {
+      "possibleConceptIds": [],
+      "reasonCode": "cross-family-candidate-reference",
+      "sourceIds": [
+        "norm-webhooks-04-reference-01",
+        "norm-webhooks-04-reference-02"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "terminalUnsupported": false
+}

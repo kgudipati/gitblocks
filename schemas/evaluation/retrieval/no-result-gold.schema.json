@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/no-result-gold/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "noResultGoldVersion",
+    "caseId",
+    "expectedOutcome",
+    "eligibleCount",
+    "evidenceNeededCount",
+    "excludedCount",
+    "provenance"
+  ],
+  "properties": {
+    "noResultGoldVersion": { "const": "retrieval-no-result-gold/1.0.0" },
+    "caseId": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+    },
+    "expectedOutcome": {
+      "enum": ["eligible-candidates-present", "no-eligible-candidate"]
+    },
+    "eligibleCount": { "type": "integer", "minimum": 0, "maximum": 150 },
+    "evidenceNeededCount": { "type": "integer", "minimum": 0, "maximum": 150 },
+    "excludedCount": { "type": "integer", "minimum": 0, "maximum": 150 },
+    "provenance": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+    }
+  }
+}

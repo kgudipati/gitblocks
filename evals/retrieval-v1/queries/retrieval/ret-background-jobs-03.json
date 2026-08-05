@@ -1,0 +1,42 @@
+{
+  "capabilityFamily": "background-jobs",
+  "caseId": "ret-background-jobs-03",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "background-jobs",
+        "termId": "ret-background-jobs-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "ret-background-jobs-03-constraint-5532",
+        "facetHint": "feature",
+        "modality": "preferred",
+        "originalTerm": "delayed-jobs",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "preferred capability detail"
+      }
+    ],
+    "queryInputId": "query-ret-background-jobs-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-background-jobs-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "family-balanced",
+    "positive-multiple-relevant",
+    "preferred-constraint",
+    "slot-narrower-intent"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "capabilityFamily": "webhooks",
+  "caseId": "ret-webhooks-06",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "ret-webhooks-06-reference-01",
+        "value": "webhook-localtunnel"
+      }
+    ],
+    "capabilityTerms": [
+      {
+        "originalTerm": "webhooks",
+        "termId": "ret-webhooks-06-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-ret-webhooks-06",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-webhooks-06-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0",
+  "tags": [
+    "equivalence-safety",
+    "family-balanced",
+    "negative-control-safety",
+    "positive-multiple-relevant",
+    "slot-negative-control"
+  ]
+}

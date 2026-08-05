@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/normalization-gold/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["normalizationGoldVersion", "caseId", "expected", "provenance"],
+  "properties": {
+    "normalizationGoldVersion": {
+      "const": "retrieval-normalization-gold/1.0.0"
+    },
+    "caseId": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+    },
+    "expected": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/normalizationProjection"
+    },
+    "provenance": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+    }
+  }
+}

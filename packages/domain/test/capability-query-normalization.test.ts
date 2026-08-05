@@ -709,14 +709,15 @@ describe('deterministic capability-query normalization', () => {
           ({ modality }) => modality !== missingModality,
         ),
       };
-      expect(validateCapabilityQueryNormalizationResult(forged)).toMatchObject({
-        ok: false,
-        issues: expect.arrayContaining([
-          expect.objectContaining({
-            path: expect.stringContaining('normalizedConstraints'),
-          }),
-        ]),
-      });
+      const validation = validateCapabilityQueryNormalizationResult(forged);
+      expect(validation.ok).toBe(false);
+      if (!validation.ok) {
+        expect(
+          validation.issues.some(({ path }) =>
+            path.includes('normalizedConstraints'),
+          ),
+        ).toBe(true);
+      }
     }
 
     const preferredOnly = {
