@@ -134,6 +134,7 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
     'tools/evaluation-harness/package.json',
     new Map([
       ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
       ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
     ]),
   ],

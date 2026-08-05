@@ -1,9 +1,9 @@
+import { type CapabilityQueryNormalizationResultV1 } from '@gitblocks/contracts';
 import {
   evaluateCandidateConstraints,
-  type CapabilityQueryNormalizationResultV1,
   type DeterministicCandidateProfileAuthority,
   type DeterministicProfileFieldRecord,
-} from '@gitblocks/contracts';
+} from '@gitblocks/domain';
 
 import type {
   GeneratedCandidateDecision,

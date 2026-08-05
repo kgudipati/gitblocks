@@ -40,9 +40,5 @@
     ],
     "summary": "Contradictory modalities must remain explicit."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "prohibited-preservation",
-    "required-prohibited-conflict"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

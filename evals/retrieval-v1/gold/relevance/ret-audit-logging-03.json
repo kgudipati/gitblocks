@@ -12,12 +12,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "audit-cabin",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -26,12 +26,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "audit-express-morgan",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -40,12 +40,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "audit-fluent-bit",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -54,12 +54,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "audit-fluentd",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -68,12 +68,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "audit-google-logging-winston",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -82,12 +82,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "audit-grafana-loki",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -96,7 +96,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -110,12 +110,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "audit-logdna-logger",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -124,7 +124,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -138,7 +138,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
@@ -152,12 +152,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "audit-openobserve",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -166,12 +166,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "audit-pgaudit",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -180,7 +180,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -194,81 +194,11 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "audit-pino-http",
-      "grade": 1,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "family-adjacent-narrow-intent"
-      ]
-    },
-    {
-      "candidateId": "audit-roarr",
-      "grade": 1,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "family-adjacent-narrow-intent"
-      ]
-    },
-    {
-      "candidateId": "audit-sematext-logagent",
-      "grade": 1,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "family-adjacent-narrow-intent"
-      ]
-    },
-    {
-      "candidateId": "audit-syslog-ng",
-      "grade": 1,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "family-adjacent-narrow-intent"
-      ]
-    },
-    {
-      "candidateId": "audit-vector",
-      "grade": 1,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "family-adjacent-narrow-intent"
-      ]
-    },
-    {
-      "candidateId": "audit-winston",
       "grade": 3,
       "provenance": {
         "reviewReference": null,
@@ -278,7 +208,77 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
+      ]
+    },
+    {
+      "candidateId": "audit-roarr",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "audit-sematext-logagent",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-unsupported-intent"
+      ]
+    },
+    {
+      "candidateId": "audit-syslog-ng",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-unsupported-intent"
+      ]
+    },
+    {
+      "candidateId": "audit-vector",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-unsupported-intent"
+      ]
+    },
+    {
+      "candidateId": "audit-winston",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-adjacent-match"
       ]
     },
     {
@@ -292,12 +292,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "audit-winston-syslog",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -306,12 +306,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "audit-winston-transport",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -320,7 +320,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     }
   ],

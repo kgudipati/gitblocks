@@ -45,10 +45,5 @@
     ],
     "summary": "This prose says authorization, but structured webhook terms own deterministic meaning."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "cross-family-comparison",
-    "summary-inert",
-    "unknown-hard-blocking"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

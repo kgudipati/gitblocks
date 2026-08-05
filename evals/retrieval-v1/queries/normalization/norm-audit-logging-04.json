@@ -23,8 +23,5 @@
     ],
     "summary": "Adjacent capability must remain unsupported."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "unsupported-adjacent"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

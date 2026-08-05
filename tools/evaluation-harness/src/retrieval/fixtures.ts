@@ -19,7 +19,7 @@ import { retrievalSemanticDigest, retrievalStableJson } from './stable-json.ts';
 
 export interface RetrievalFixtureEvidence {
   readonly fixtureVersion: 'retrieval-scorer-fixtures/1.0.0';
-  readonly fixtureCount: 20;
+  readonly fixtureCount: 26;
   readonly perfectRecall: number;
   readonly partialRecall: number;
   readonly knownRankMrr: number;
@@ -169,6 +169,40 @@ export function runRetrievalScorerFixtures(): RetrievalFixtureEvidence {
     ),
     metric(0, 1),
   );
+  for (const forged of [
+    prohibited.expected.map((constraint) => ({
+      ...constraint,
+      sourceConstraintIds: [
+        ...constraint.sourceConstraintIds,
+        'constraint-invented',
+      ],
+    })),
+    [...prohibited.expected, ...prohibited.expected],
+    prohibited.expected.map((constraint) => ({
+      ...constraint,
+      facet: 'deployment',
+    })),
+    prohibited.expected.map((constraint) => ({
+      ...constraint,
+      ruleId: 'constraint-preserved-declaration',
+    })),
+    prohibited.expected.map((constraint) => ({
+      ...constraint,
+      resolutionBasis: 'preserved-declaration',
+    })),
+    prohibited.expected.map((constraint) => ({
+      ...constraint,
+      conceptId: null,
+      canonicalTerm: 'redis',
+      resolutionBasis: 'preserved-declaration',
+      ruleId: 'constraint-preserved-declaration',
+    })),
+  ]) {
+    assertEqual(
+      scoreProhibited(prohibited.query, prohibited.expected, forged),
+      metric(0, 1),
+    );
+  }
 
   const empty = scoreRetrievalFixture(
     baseFixture({ judgments: [], results: [] }),
@@ -208,7 +242,7 @@ export function runRetrievalScorerFixtures(): RetrievalFixtureEvidence {
 
   const projection = {
     fixtureVersion: 'retrieval-scorer-fixtures/1.0.0' as const,
-    fixtureCount: 20 as const,
+    fixtureCount: 26 as const,
     perfectRecall: perfect.recallAt10.value ?? 0,
     partialRecall: partial.recallAt10.value ?? 0,
     knownRankMrr: partial.meanReciprocalRank.value ?? 0,
@@ -254,7 +288,6 @@ function syntheticReportFixture(): {
           caseId,
           caseKind: 'retrieval',
           capabilityFamily: family,
-          tags: ['family-balanced'],
           queryInput: {
             contractVersion: '1.0.0',
             queryInputId: `query-${caseId}`,
@@ -273,6 +306,19 @@ function syntheticReportFixture(): {
             candidateReferences: [],
             repositoryFingerprintReference: null,
           },
+        },
+        classification: {
+          caseId,
+          slotId: [
+            'retrieval-exact-family',
+            'retrieval-active-alias',
+            'retrieval-narrower-intent',
+            'retrieval-candidate-comparison',
+            'retrieval-hard-constraint',
+            'retrieval-negative-control',
+          ][caseIndex],
+          classifications: caseIndex === 1 ? ['alias-evaluation'] : [],
+          provenance: proposedProvenance(),
         },
         normalizationResult: null,
         normalizationGold: {
@@ -324,7 +370,6 @@ function syntheticReportFixture(): {
           caseId,
           caseKind: 'normalization-adversarial',
           capabilityFamily: family,
-          tags: [],
           queryInput: {
             contractVersion: '1.0.0',
             queryInputId: `query-${caseId}`,
@@ -343,6 +388,17 @@ function syntheticReportFixture(): {
             candidateReferences: [],
             repositoryFingerprintReference: null,
           },
+        },
+        classification: {
+          caseId,
+          slotId: [
+            'normalization-alias',
+            'normalization-ambiguity',
+            'normalization-contradiction',
+            'normalization-adversarial-special',
+          ][caseIndex],
+          classifications: caseIndex === 0 ? ['alias-evaluation'] : [],
+          provenance: proposedProvenance(),
         },
         normalizationResult: null,
         normalizationGold: {
@@ -521,7 +577,6 @@ function prohibitedFixture() {
       caseId: 'norm-authorization-fixture',
       caseKind: 'normalization-adversarial' as const,
       capabilityFamily: 'authorization' as const,
-      tags: ['prohibited-preservation' as const],
       queryInput: {
         contractVersion: '1.0.0' as const,
         queryInputId: 'query-prohibited-fixture',

@@ -124,7 +124,8 @@ profile contract roots, an offline generated 150-candidate authority, an
 aggregate coverage report, and conservative single-candidate constraint
 evaluation. It also contains the separate immutable `retrieval-v1` authority:
 30 retrieval and 20 normalization/adversarial blind cases, physically separate
-proposed gold, generated 150-candidate hard-filter projections, closed
+case-classification audit metadata and proposed gold, a blind-only future
+baseline loader, generated 150-candidate hard-filter projections, closed
 prediction/report schemas, and deterministic scorer fixtures. The profile and
 evaluation authorities are not production-readiness or retrieval-quality
 claims. Phase 8 does not implement production retrieval or ranking; Milestone

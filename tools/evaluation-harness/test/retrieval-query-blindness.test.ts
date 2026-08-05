@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
@@ -9,6 +9,7 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { findGitBlocksRoot } from '../src/repository-root.ts';
+import { loadRetrievalBlindQuerySetV1 } from '../src/retrieval/blind-query.ts';
 import type { RetrievalQueryDocument } from '../src/retrieval/contracts.ts';
 import { projectNormalization } from '../src/retrieval/normalization.ts';
 import { createRetrievalSchemaRegistry } from '../src/retrieval/schema-registry.ts';
@@ -22,6 +23,51 @@ const taxonomy = readJson(
 ) as CapabilityTaxonomyV1;
 
 describe('retrieval query blindness', () => {
+  it('loads only the physically separate blind set without gold or audit metadata', () => {
+    expect(
+      existsSync(
+        join(root, 'evals/retrieval-v1/audit/case-classification.json'),
+      ),
+    ).toBe(true);
+    const loaded = loadRetrievalBlindQuerySetV1(root);
+    expect(loaded.ok).toBe(true);
+    if (!loaded.ok) return;
+    expect(loaded.querySet.queries).toHaveLength(50);
+    const serialized = JSON.stringify(loaded.querySet);
+    for (const forbidden of [
+      'tags',
+      'classification',
+      'normalizationGold',
+      'clarificationGold',
+      'hardFilterGold',
+      'relevanceGold',
+      'noResultGold',
+      'equivalence',
+      'gold/',
+      'audit/',
+    ]) {
+      expect(serialized).not.toContain(forbidden);
+    }
+  });
+
+  it('rejects every audit or outcome classification on a blind query', () => {
+    const registry = createRetrievalSchemaRegistry(root);
+    for (const classification of [
+      'no-eligible-candidate',
+      'evidence-needed',
+      'required-prohibited-conflict',
+      'slot-exact-family',
+    ]) {
+      expect(
+        registry.validate('query', {
+          ...query,
+          tags: [classification],
+        }).length,
+        classification,
+      ).toBeGreaterThan(0);
+    }
+  });
+
   it('rejects expected outcomes, judgments, winners, filter gold, review conclusions, URLs, and target source', () => {
     const registry = createRetrievalSchemaRegistry(root);
     for (const forbidden of [
@@ -40,7 +86,7 @@ describe('retrieval query blindness', () => {
     }
   });
 
-  it('uses the accepted closed query-input parser and controlled case tags', () => {
+  it('uses the accepted closed query-input parser', () => {
     for (const forbidden of [
       { arbitraryUrl: 'https://example.invalid' },
       { targetSource: 'repository-source' },
@@ -51,12 +97,6 @@ describe('retrieval query blindness', () => {
         parseCapabilityQueryInputV1({ ...query.queryInput, ...forbidden }).ok,
       ).toBe(false);
     }
-    expect(
-      createRetrievalSchemaRegistry(root).validate('query', {
-        ...query,
-        tags: [...query.tags, 'fabricated-diversity-label'],
-      }).length,
-    ).toBeGreaterThan(0);
   });
 
   it('proves summary prose is inert while structured terms retain meaning', () => {

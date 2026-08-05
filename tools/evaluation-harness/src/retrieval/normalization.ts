@@ -2,9 +2,11 @@ import {
   normalizeCapabilityQueryV1,
   parseCapabilityQueryInputV1,
   type CapabilityQueryNormalizationResultV1,
-  type DeterministicCandidateProfileAuthority,
-  type DeterministicProfileFieldRecord,
 } from '@gitblocks/contracts';
+import type {
+  DeterministicCandidateProfileAuthority,
+  DeterministicProfileFieldRecord,
+} from '@gitblocks/domain';
 
 import type {
   NormalizationProjection,

@@ -13,6 +13,7 @@ export const RETRIEVAL_VERSIONS = {
   relevanceGold: 'retrieval-relevance-gold/1.0.0',
   noResultGold: 'retrieval-no-result-gold/1.0.0',
   equivalence: 'retrieval-equivalence-authority/1.0.0',
+  caseClassification: 'retrieval-case-classification/1.0.0',
   predictionSet: 'retrieval-evaluation-prediction-set/1.0.0',
   scorer: 'retrieval-evaluation-scorer/1.0.0',
   scoreReport: 'retrieval-evaluation-score-report/1.0.0',
@@ -26,7 +27,7 @@ export const RETRIEVAL_FAMILIES = [
   'webhooks',
 ] as const;
 
-export const RETRIEVAL_CASE_TAGS = [
+export const RETRIEVAL_CASE_CLASSIFICATIONS = [
   'active-alias',
   'alias-evaluation',
   'ambiguous-primary-family',
@@ -46,12 +47,6 @@ export const RETRIEVAL_CASE_TAGS = [
   'required-constraint',
   'required-prohibited-conflict',
   'same-family-comparison',
-  'slot-active-alias',
-  'slot-candidate-comparison',
-  'slot-exact-family',
-  'slot-hard-constraint',
-  'slot-narrower-intent',
-  'slot-negative-control',
   'subjective-lightweight',
   'summary-inert',
   'unicode-confusable',
@@ -61,8 +56,23 @@ export const RETRIEVAL_CASE_TAGS = [
   'unsupported-adjacent',
 ] as const;
 
+export const RETRIEVAL_CASE_SLOTS = [
+  'normalization-adversarial-special',
+  'normalization-alias',
+  'normalization-ambiguity',
+  'normalization-contradiction',
+  'retrieval-active-alias',
+  'retrieval-candidate-comparison',
+  'retrieval-exact-family',
+  'retrieval-hard-constraint',
+  'retrieval-narrower-intent',
+  'retrieval-negative-control',
+] as const;
+
 export type RetrievalFamily = (typeof RETRIEVAL_FAMILIES)[number];
-export type RetrievalCaseTag = (typeof RETRIEVAL_CASE_TAGS)[number];
+export type RetrievalCaseClassification =
+  (typeof RETRIEVAL_CASE_CLASSIFICATIONS)[number];
+export type RetrievalCaseSlot = (typeof RETRIEVAL_CASE_SLOTS)[number];
 export type RetrievalCaseKind = 'normalization-adversarial' | 'retrieval';
 export type HardState = 'conflict' | 'satisfied' | 'unresolved';
 export type RetrievalLane = 'eligible' | 'evidence-needed' | 'excluded';
@@ -80,8 +90,20 @@ export interface RetrievalQueryDocument {
   readonly caseId: string;
   readonly caseKind: RetrievalCaseKind;
   readonly capabilityFamily: RetrievalFamily;
-  readonly tags: readonly RetrievalCaseTag[];
   readonly queryInput: CapabilityQueryInputV1;
+}
+
+export interface RetrievalCaseClassificationEntry {
+  readonly caseId: string;
+  readonly slotId: RetrievalCaseSlot;
+  readonly classifications: readonly RetrievalCaseClassification[];
+  readonly provenance: ProposedProvenance;
+}
+
+export interface RetrievalCaseClassificationAuthority {
+  readonly classificationVersion: typeof RETRIEVAL_VERSIONS.caseClassification;
+  readonly entries: readonly RetrievalCaseClassificationEntry[];
+  readonly provenance: ProposedProvenance;
 }
 
 export interface NormalizedConceptProjection {
@@ -164,12 +186,16 @@ export interface HardFilterAuditSample {
     | 'eligible'
     | 'evidence-needed'
     | 'hard-conflict'
-    | 'material-edge'
     | 'negative-control';
   readonly candidateId: string;
   readonly hardState: HardState;
   readonly lane: RetrievalLane;
-  readonly reasonCode: string;
+  readonly reasonCode:
+    | 'catalog-negative-control-exclusion'
+    | 'generated-cross-family'
+    | 'generated-eligible-lane'
+    | 'generated-evidence-needed-lane'
+    | 'generated-hard-conflict';
   readonly provenance: ProposedProvenance;
 }
 
@@ -217,10 +243,11 @@ export interface NoResultGoldDocument {
 export interface EquivalenceGroup {
   readonly groupId: string;
   readonly relationshipKind:
-    | 'ecosystem-companion'
-    | 'ecosystem-implementation-variant'
-    | 'functional-overlap'
-    | 'parent-focused-companion';
+    | 'actual-fork'
+    | 'duplicate-catalog-identity'
+    | 'interchangeable-distribution-variant'
+    | 'mirror'
+    | 'superseding-alias';
   readonly candidateIds: readonly string[];
   readonly provenance: ProposedProvenance;
 }
@@ -234,6 +261,7 @@ export interface EquivalenceAuthority {
 }
 
 export type RetrievalManifestFileKind =
+  | 'case-classification'
   | 'clarification-gold'
   | 'equivalence'
   | 'hard-filter-gold'
@@ -277,6 +305,7 @@ export interface RetrievalCorpusManifest {
 
 export interface RetrievalCaseBundle {
   readonly query: RetrievalQueryDocument;
+  readonly classification: RetrievalCaseClassificationEntry;
   readonly normalizationResult: CapabilityQueryNormalizationResultV1;
   readonly normalizationGold: NormalizationGoldDocument;
   readonly hardFilterGold: HardFilterGoldDocument;
@@ -287,6 +316,7 @@ export interface RetrievalCaseBundle {
 
 export interface NormalizationCaseBundle {
   readonly query: RetrievalQueryDocument;
+  readonly classification: RetrievalCaseClassificationEntry;
   readonly normalizationResult: CapabilityQueryNormalizationResultV1;
   readonly normalizationGold: NormalizationGoldDocument;
   readonly clarificationGold: ClarificationGoldDocument;
@@ -294,6 +324,7 @@ export interface NormalizationCaseBundle {
 
 export interface ValidatedRetrievalCorpus {
   readonly manifest: RetrievalCorpusManifest;
+  readonly caseClassification: RetrievalCaseClassificationAuthority;
   readonly equivalence: EquivalenceAuthority;
   readonly retrievalCases: readonly RetrievalCaseBundle[];
   readonly normalizationCases: readonly NormalizationCaseBundle[];
@@ -301,6 +332,22 @@ export interface ValidatedRetrievalCorpus {
   readonly candidateIds: readonly string[];
   readonly conceptIds: readonly string[];
 }
+
+export interface RetrievalBlindQuerySet {
+  readonly corpusId: typeof RETRIEVAL_CORPUS_ID;
+  readonly corpusVersion: typeof RETRIEVAL_VERSIONS.corpus;
+  readonly corpusSemanticDigest: string;
+  readonly caseCounts: RetrievalCorpusManifest['caseCounts'];
+  readonly familyCounts: RetrievalCorpusManifest['familyCounts'];
+  readonly queries: readonly RetrievalQueryDocument[];
+}
+
+export type RetrievalBlindQuerySetLoadResult =
+  | { readonly ok: true; readonly querySet: RetrievalBlindQuerySet }
+  | {
+      readonly ok: false;
+      readonly diagnostics: readonly RetrievalDiagnostic[];
+    };
 
 export interface RetrievalDiagnostic {
   readonly code: string;

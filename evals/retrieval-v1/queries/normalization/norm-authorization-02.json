@@ -23,9 +23,5 @@
     ],
     "summary": "The controlled ambiguity must be clarified exactly."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "ambiguous-primary-family",
-    "intentional-ambiguity"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

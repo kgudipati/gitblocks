@@ -3,7 +3,7 @@
   "judgments": [
     {
       "candidateId": "webhook-adnanh",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -12,12 +12,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "webhook-convoy",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -26,12 +26,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "webhook-go-playground",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -40,12 +40,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "webhook-hook0",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -54,12 +54,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "webhook-hookdeck",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -68,7 +68,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
@@ -87,7 +87,7 @@
     },
     {
       "candidateId": "webhook-octokit-methods",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -96,7 +96,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
@@ -115,7 +115,7 @@
     },
     {
       "candidateId": "webhook-standard-webhooks",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -124,12 +124,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "webhook-stripe-node",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -138,12 +138,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "webhook-svix",
-      "grade": 3,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -152,12 +152,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "webhook-webhook-site",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -166,12 +166,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "webhook-webhookx",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -180,7 +180,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     }
   ],

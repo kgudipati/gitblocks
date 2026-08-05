@@ -30,12 +30,5 @@
     ],
     "summary": "Evaluate the structured capability query without reading gold."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "equivalence-safety",
-    "family-balanced",
-    "negative-control-safety",
-    "positive-multiple-relevant",
-    "slot-negative-control"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

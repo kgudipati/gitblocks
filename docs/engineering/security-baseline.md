@@ -505,8 +505,9 @@ Ordinary Phase 8 implementation and validation are read-only and offline:
 they make no environment-derived semantic decision, provider or model call,
 network or database access, candidate repository or artifact-body read, or use
 of any Phase 7 container, database, receipt, or repository-external evidence.
-Gold is physically separated from blind queries, proposed/not-reviewed, and
-unavailable to any future baseline input loader. Unknown profiles remain
+Gold and case-classification audit metadata are physically separated from
+blind queries, proposed/not-reviewed, and unavailable through the dedicated
+blind loader that is the only permitted future baseline boundary. Unknown profiles remain
 unresolved, negative controls remain excluded, and no-result authority derives
 from generated hard-filter state rather than relevance. Any final 150-candidate live
 materialization requires separate authorization, a fresh dedicated ephemeral

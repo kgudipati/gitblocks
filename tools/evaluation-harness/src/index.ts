@@ -21,6 +21,7 @@ export { scoreCorpus, scoreSingleCase } from './scoring.ts';
 export { stableJson } from './stable-json.ts';
 export { createWeakPredictionSet, WEAK_STRATEGIES } from './weak-fixtures.ts';
 export type * from './retrieval/contracts.ts';
+export { loadRetrievalBlindQuerySetV1 } from './retrieval/blind-query.ts';
 export {
   loadRetrievalCorpusV1,
   retrievalCorpusSemanticDigest,

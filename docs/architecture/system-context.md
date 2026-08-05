@@ -102,11 +102,13 @@ Persistence and the repository-interview application are unchanged.
 
 The Milestone 5 boundary is evaluation-only and non-operational. The harness
 parses accepted query, taxonomy, and profile authority through public contract
-exports and evaluates one candidate at a time through the accepted public
-constraint evaluator. It owns bounded corpus loading, proposed gold,
+exports, while its direct domain dependency supplies profile types and the
+single-candidate constraint evaluator. It owns a blind-only query loader,
+bounded full-corpus loading, proposed gold,
 equivalence groups, generated in-memory 150-candidate projections, prediction
-validation, numeric scoring, and content-free reporting. Query inputs never
-read gold, and product packages never depend on this outward consumer. The
+validation, numeric scoring, and content-free reporting. Blind query inputs
+contain no tags or audit classifications and never read gold; product packages
+never depend on this outward consumer. The
 evidence-needed lane preserves unresolved state without calling it eligible.
 No baseline or baseline report exists; those remain Milestone 6 work.
 

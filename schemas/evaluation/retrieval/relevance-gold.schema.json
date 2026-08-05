@@ -29,9 +29,13 @@
             "uniqueItems": true,
             "items": {
               "enum": [
-                "catalog-family-capability-match",
+                "committed-curation-adjacent-match",
+                "committed-curation-direct-match",
+                "committed-curation-relevant-match",
+                "committed-curation-unsupported-intent",
+                "comparison-non-target",
                 "explicit-candidate-intent",
-                "family-adjacent-narrow-intent"
+                "negative-control-comparison-alternative"
               ]
             }
           },

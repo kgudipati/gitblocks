@@ -82,8 +82,7 @@
               "evidence-needed",
               "hard-conflict",
               "cross-family",
-              "negative-control",
-              "material-edge"
+              "negative-control"
             ]
           },
           "candidateId": {
@@ -96,7 +95,13 @@
             "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/lane"
           },
           "reasonCode": {
-            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+            "enum": [
+              "catalog-negative-control-exclusion",
+              "generated-cross-family",
+              "generated-eligible-lane",
+              "generated-evidence-needed-lane",
+              "generated-hard-conflict"
+            ]
           },
           "provenance": {
             "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"

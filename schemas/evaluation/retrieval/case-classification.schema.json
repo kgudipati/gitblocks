@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/case-classification/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["classificationVersion", "entries", "provenance"],
+  "properties": {
+    "classificationVersion": {
+      "const": "retrieval-case-classification/1.0.0"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 50,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["caseId", "slotId", "classifications", "provenance"],
+        "properties": {
+          "caseId": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+          },
+          "slotId": {
+            "enum": [
+              "normalization-adversarial-special",
+              "normalization-alias",
+              "normalization-ambiguity",
+              "normalization-contradiction",
+              "retrieval-active-alias",
+              "retrieval-candidate-comparison",
+              "retrieval-exact-family",
+              "retrieval-hard-constraint",
+              "retrieval-narrower-intent",
+              "retrieval-negative-control"
+            ]
+          },
+          "classifications": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "active-alias",
+                "alias-evaluation",
+                "ambiguous-primary-family",
+                "cross-family-comparison",
+                "deployment-self-hosting",
+                "equivalence-safety",
+                "evidence-needed",
+                "family-balanced",
+                "infrastructure-exclusion",
+                "intentional-ambiguity",
+                "negative-control-safety",
+                "no-eligible-candidate",
+                "positive-multiple-relevant",
+                "preferred-constraint",
+                "prohibited-constraint",
+                "prohibited-preservation",
+                "required-constraint",
+                "required-prohibited-conflict",
+                "same-family-comparison",
+                "subjective-lightweight",
+                "summary-inert",
+                "unicode-confusable",
+                "unclear-self-hosting",
+                "unknown-hard-blocking",
+                "unknown-preferred-nonblocking",
+                "unsupported-adjacent"
+              ]
+            }
+          },
+          "provenance": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+          }
+        }
+      }
+    },
+    "provenance": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+    }
+  }
+}

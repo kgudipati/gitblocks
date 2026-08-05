@@ -23,8 +23,5 @@
     ],
     "summary": "A Cyrillic confusable must not resolve as ASCII."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "unicode-confusable"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

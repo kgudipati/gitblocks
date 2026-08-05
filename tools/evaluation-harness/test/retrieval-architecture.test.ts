@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -19,6 +19,50 @@ describe('retrieval evaluation architecture', () => {
     );
     expect(contractCatalog).not.toContain('retrieval-evaluation');
     expect(productIndex).not.toContain('evals/retrieval-v1');
+    expect(productIndex).not.toContain('evaluateCandidateConstraints');
+    expect(productIndex).not.toContain(
+      'evaluateCandidateConstraintProfileState',
+    );
+  });
+
+  it('declares and uses the domain evaluator directly', () => {
+    const root = new URL('../../..', import.meta.url).pathname;
+    const manifest = JSON.parse(
+      readFileSync(join(root, 'tools/evaluation-harness/package.json'), 'utf8'),
+    ) as { dependencies: Record<string, string> };
+    expect(manifest.dependencies['@gitblocks/domain']).toBe('workspace:0.0.0');
+    const hardFilter = readFileSync(
+      join(root, 'tools/evaluation-harness/src/retrieval/hard-filter.ts'),
+      'utf8',
+    );
+    expect(hardFilter).toContain("from '@gitblocks/domain'");
+    expect(hardFilter).not.toMatch(
+      /evaluateCandidateConstraints[\s\S]*from '@gitblocks\/contracts'/u,
+    );
+  });
+
+  it('keeps mechanical authoring from owning relevance or equivalence judgments', () => {
+    const root = new URL('../../..', import.meta.url).pathname;
+    const source = readFileSync(
+      join(root, 'tools/evaluation-harness/scripts/author-retrieval-v1.mjs'),
+      'utf8',
+    );
+    expect(source).not.toContain('familyDesign.anchor');
+    expect(source).not.toMatch(/\banchor\s*:/u);
+    expect(source).not.toContain('rmSync(corpusRoot');
+    expect(source).not.toContain('write(\n    `gold/relevance/');
+    expect(source).not.toContain("write('equivalence.json'");
+    expect(source).toContain('registerExisting(\n    `gold/relevance/');
+    expect(source).toContain("registerExisting('equivalence.json'");
+    const registration = source.slice(
+      source.indexOf('function registerExisting'),
+      source.indexOf('function write(path'),
+    );
+    expect(registration).toContain('lstatSync');
+    expect(registration).toContain('readFileSync');
+    expect(registration).toContain('files.set');
+    expect(registration).not.toContain('writeFile');
+    expect(registration).not.toContain('rmSync');
   });
 
   it('keeps product sources independent from retrieval evaluation authority', () => {
@@ -56,6 +100,30 @@ describe('retrieval evaluation architecture', () => {
     expect(readFileSync(join(root, 'scoring.ts'), 'utf8')).not.toContain(
       'writeFile',
     );
+  });
+
+  it('makes the blind loader the only permitted baseline-style input boundary', () => {
+    const root = new URL('../src/retrieval', import.meta.url).pathname;
+    const blindSource = readFileSync(join(root, 'blind-query.ts'), 'utf8');
+    expect(blindSource).toContain('loadRetrievalBlindQuerySetV1');
+    expect(blindSource).not.toContain('gold/');
+    expect(blindSource).not.toContain('equivalence.json');
+    expect(isPermittedBaselineStyleSource(blindSource)).toBe(true);
+    expect(
+      isPermittedBaselineStyleSource(
+        "import { loadRetrievalCorpusV1 } from '../corpus.ts';",
+      ),
+    ).toBe(false);
+
+    const futureBaselineRoot = join(root, 'baselines');
+    if (existsSync(futureBaselineRoot)) {
+      for (const path of sourceFiles(futureBaselineRoot)) {
+        expect(
+          isPermittedBaselineStyleSource(readFileSync(path, 'utf8')),
+          path,
+        ).toBe(true);
+      }
+    }
   });
 
   it('leaves pilot-v1 and repository-interviews-v1 byte-identical', () => {
@@ -111,6 +179,15 @@ function sourceFiles(root: string): string[] {
           ? [path]
           : [];
     });
+}
+
+function isPermittedBaselineStyleSource(source: string): boolean {
+  return (
+    !source.includes('loadRetrievalCorpusV1') &&
+    !source.includes("from '../corpus") &&
+    !source.includes('gold/') &&
+    !source.includes('equivalence.json')
+  );
 }
 
 function directoryDigest(root: string): string {

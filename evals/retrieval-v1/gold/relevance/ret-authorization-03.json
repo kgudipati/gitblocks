@@ -12,12 +12,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "auth-authzed-spicedb",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -26,12 +26,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "auth-casbin-casbin",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -40,12 +40,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "auth-casbin-casbin-js",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -54,12 +54,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "auth-casbin-node-casbin",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -68,12 +68,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "auth-casdoor-casdoor",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -82,7 +82,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -96,25 +96,11 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "auth-koa-roles",
-      "grade": 1,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "family-adjacent-narrow-intent"
-      ]
-    },
-    {
-      "candidateId": "auth-open-policy-agent",
       "grade": 3,
       "provenance": {
         "reviewReference": null,
@@ -124,12 +110,26 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
+      ]
+    },
+    {
+      "candidateId": "auth-open-policy-agent",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "auth-openfga",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -138,12 +138,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "auth-ory-keto",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -152,7 +152,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -166,12 +166,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "auth-permify",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -180,7 +180,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -194,7 +194,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
@@ -208,7 +208,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
@@ -222,12 +222,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "auth-warrant",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -236,7 +236,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     }
   ],

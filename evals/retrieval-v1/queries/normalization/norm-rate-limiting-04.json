@@ -32,8 +32,5 @@
     ],
     "summary": "Ambiguous hosting must be clarified."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "unclear-self-hosting"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

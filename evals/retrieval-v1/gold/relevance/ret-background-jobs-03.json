@@ -3,7 +3,7 @@
   "judgments": [
     {
       "candidateId": "jobs-actionhero-node-resque",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -12,7 +12,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
@@ -26,12 +26,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "jobs-agenda",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -40,7 +40,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -54,12 +54,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "jobs-asynq",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -68,12 +68,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "jobs-bee-queue",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -82,12 +82,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "jobs-bree",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -96,12 +96,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "jobs-bull",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -110,7 +110,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
@@ -124,12 +124,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "jobs-celery",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -138,7 +138,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -152,12 +152,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "jobs-graphile-worker",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -166,12 +166,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "jobs-hatchet",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -180,12 +180,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "jobs-inngest",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -194,7 +194,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -208,12 +208,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "jobs-kue",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -222,7 +222,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -236,7 +236,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
@@ -250,12 +250,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "jobs-node-schedule",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -264,12 +264,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "jobs-pg-boss",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -278,7 +278,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -292,12 +292,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "jobs-resque",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -306,12 +306,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "jobs-river",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -320,12 +320,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "jobs-rq",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -334,12 +334,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "jobs-sidekiq",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -348,7 +348,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -362,7 +362,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
@@ -376,12 +376,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "jobs-trigger-dev",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -390,7 +390,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -404,7 +404,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     }
   ],

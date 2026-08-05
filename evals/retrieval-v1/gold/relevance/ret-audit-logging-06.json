@@ -12,7 +12,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -26,7 +26,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -40,12 +40,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-fluent-bit",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -54,12 +54,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-fluentd",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -68,12 +68,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-google-logging-winston",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -82,12 +82,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-grafana-loki",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -96,7 +96,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -110,12 +110,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-logdna-logger",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -124,7 +124,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -138,7 +138,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -152,12 +152,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-openobserve",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -166,7 +166,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -180,7 +180,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -194,7 +194,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -208,7 +208,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -222,12 +222,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-sematext-logagent",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -236,12 +236,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-syslog-ng",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -250,11 +250,25 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-vector",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-winston",
       "grade": 2,
       "provenance": {
         "reviewReference": null,
@@ -264,21 +278,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
-      ]
-    },
-    {
-      "candidateId": "audit-winston",
-      "grade": 3,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -292,12 +292,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-winston-syslog",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -306,12 +306,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "audit-winston-transport",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -320,7 +320,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     }
   ],

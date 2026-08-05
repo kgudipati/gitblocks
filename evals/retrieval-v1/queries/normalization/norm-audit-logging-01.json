@@ -32,9 +32,5 @@
     ],
     "summary": "Structured alias fields own meaning."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "alias-evaluation",
-    "unknown-preferred-nonblocking"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

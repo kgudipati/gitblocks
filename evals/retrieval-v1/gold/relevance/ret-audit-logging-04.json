@@ -3,7 +3,7 @@
   "judgments": [
     {
       "candidateId": "audit-bunyan",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -12,12 +12,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-cabin",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -26,12 +26,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-express-morgan",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -40,12 +40,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-fluent-bit",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -54,12 +54,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-fluentd",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -68,12 +68,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-google-logging-winston",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -82,12 +82,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-grafana-loki",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -96,12 +96,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-log4js",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -110,12 +110,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-logdna-logger",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -124,12 +124,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-loglevel",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -138,12 +138,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-npm-npmlog",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -152,12 +152,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-openobserve",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -166,12 +166,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-pgaudit",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -180,12 +180,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-pino",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -194,12 +194,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-pino-http",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -208,12 +208,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-roarr",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -222,12 +222,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-sematext-logagent",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -236,12 +236,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-syslog-ng",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -250,12 +250,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-vector",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -264,7 +264,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
@@ -297,7 +297,7 @@
     },
     {
       "candidateId": "audit-winston-syslog",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -306,12 +306,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     },
     {
       "candidateId": "audit-winston-transport",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -320,7 +320,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "comparison-non-target"
       ]
     }
   ],

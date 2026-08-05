@@ -268,6 +268,7 @@ const EVALUATION_MANIFEST = JSON.stringify({
   private: true,
   dependencies: {
     '@gitblocks/contracts': 'workspace:0.0.0',
+    '@gitblocks/domain': 'workspace:0.0.0',
     '@gitblocks/persistence': 'workspace:0.0.0',
     ajv: '8.20.0',
   },

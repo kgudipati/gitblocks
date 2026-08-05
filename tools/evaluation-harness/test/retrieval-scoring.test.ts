@@ -166,7 +166,7 @@ describe('retrieval scorer', () => {
   it('reproduces the complete hand-calculated fixture evidence and digest', () => {
     expect(runRetrievalScorerFixtures()).toEqual({
       fixtureVersion: 'retrieval-scorer-fixtures/1.0.0',
-      fixtureCount: 20,
+      fixtureCount: 26,
       perfectRecall: 1,
       partialRecall: 0.5,
       knownRankMrr: 0.5,
@@ -175,9 +175,9 @@ describe('retrieval scorer', () => {
       equivalenceDuplicateRate: 0.666667,
       zeroDenominatorStatus: 'not-applicable',
       reportDigest:
-        '7f818e2e2221420f89c804bcae5a07789f13776a9c20917087ed42bf109fd04f',
+        '77f2354a40bcbc6c1fe4b57f77145207639cc27a6621c792d3a7609d449333fc',
       semanticDigest:
-        'edce8d9b3f5436a46af4cd33493730e4c58f491bcec027634a43bb3b3669c2f7',
+        '681074536322773991e532ce9ce83c72137a4d61a51e3afd2cb7a3b4ebb604f8',
     });
   });
 });

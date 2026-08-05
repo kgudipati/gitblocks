@@ -1,0 +1,811 @@
+{
+  "classificationVersion": "retrieval-case-classification/1.0.0",
+  "entries": [
+    {
+      "caseId": "norm-audit-logging-01",
+      "classifications": [
+        "alias-evaluation",
+        "unknown-preferred-nonblocking"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-alias"
+    },
+    {
+      "caseId": "norm-audit-logging-02",
+      "classifications": [
+        "ambiguous-primary-family",
+        "intentional-ambiguity"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-ambiguity"
+    },
+    {
+      "caseId": "norm-audit-logging-03",
+      "classifications": [
+        "prohibited-preservation",
+        "required-prohibited-conflict"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-contradiction"
+    },
+    {
+      "caseId": "norm-audit-logging-04",
+      "classifications": [
+        "unsupported-adjacent"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-adversarial-special"
+    },
+    {
+      "caseId": "norm-authorization-01",
+      "classifications": [
+        "alias-evaluation",
+        "same-family-comparison"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-alias"
+    },
+    {
+      "caseId": "norm-authorization-02",
+      "classifications": [
+        "ambiguous-primary-family",
+        "intentional-ambiguity"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-ambiguity"
+    },
+    {
+      "caseId": "norm-authorization-03",
+      "classifications": [
+        "prohibited-preservation",
+        "required-prohibited-conflict"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-contradiction"
+    },
+    {
+      "caseId": "norm-authorization-04",
+      "classifications": [
+        "subjective-lightweight"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-adversarial-special"
+    },
+    {
+      "caseId": "norm-background-jobs-01",
+      "classifications": [
+        "alias-evaluation"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-alias"
+    },
+    {
+      "caseId": "norm-background-jobs-02",
+      "classifications": [
+        "ambiguous-primary-family",
+        "intentional-ambiguity"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-ambiguity"
+    },
+    {
+      "caseId": "norm-background-jobs-03",
+      "classifications": [
+        "prohibited-preservation",
+        "required-prohibited-conflict"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-contradiction"
+    },
+    {
+      "caseId": "norm-background-jobs-04",
+      "classifications": [
+        "unicode-confusable"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-adversarial-special"
+    },
+    {
+      "caseId": "norm-rate-limiting-01",
+      "classifications": [
+        "alias-evaluation"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-alias"
+    },
+    {
+      "caseId": "norm-rate-limiting-02",
+      "classifications": [
+        "ambiguous-primary-family",
+        "intentional-ambiguity"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-ambiguity"
+    },
+    {
+      "caseId": "norm-rate-limiting-03",
+      "classifications": [
+        "prohibited-preservation",
+        "required-prohibited-conflict"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-contradiction"
+    },
+    {
+      "caseId": "norm-rate-limiting-04",
+      "classifications": [
+        "unclear-self-hosting"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-adversarial-special"
+    },
+    {
+      "caseId": "norm-webhooks-01",
+      "classifications": [
+        "alias-evaluation"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-alias"
+    },
+    {
+      "caseId": "norm-webhooks-02",
+      "classifications": [
+        "ambiguous-primary-family",
+        "intentional-ambiguity"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-ambiguity"
+    },
+    {
+      "caseId": "norm-webhooks-03",
+      "classifications": [
+        "prohibited-preservation",
+        "required-prohibited-conflict"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-contradiction"
+    },
+    {
+      "caseId": "norm-webhooks-04",
+      "classifications": [
+        "cross-family-comparison",
+        "summary-inert",
+        "unknown-hard-blocking"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "normalization-adversarial-special"
+    },
+    {
+      "caseId": "ret-audit-logging-01",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-exact-family"
+    },
+    {
+      "caseId": "ret-audit-logging-02",
+      "classifications": [
+        "active-alias",
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-active-alias"
+    },
+    {
+      "caseId": "ret-audit-logging-03",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant",
+        "preferred-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-narrower-intent"
+    },
+    {
+      "caseId": "ret-audit-logging-04",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "positive-multiple-relevant",
+        "same-family-comparison"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-candidate-comparison"
+    },
+    {
+      "caseId": "ret-audit-logging-05",
+      "classifications": [
+        "deployment-self-hosting",
+        "evidence-needed",
+        "family-balanced",
+        "infrastructure-exclusion",
+        "no-eligible-candidate",
+        "prohibited-constraint",
+        "required-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-hard-constraint"
+    },
+    {
+      "caseId": "ret-audit-logging-06",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "negative-control-safety",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-negative-control"
+    },
+    {
+      "caseId": "ret-authorization-01",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-exact-family"
+    },
+    {
+      "caseId": "ret-authorization-02",
+      "classifications": [
+        "active-alias",
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-active-alias"
+    },
+    {
+      "caseId": "ret-authorization-03",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant",
+        "preferred-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-narrower-intent"
+    },
+    {
+      "caseId": "ret-authorization-04",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "positive-multiple-relevant",
+        "same-family-comparison"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-candidate-comparison"
+    },
+    {
+      "caseId": "ret-authorization-05",
+      "classifications": [
+        "deployment-self-hosting",
+        "evidence-needed",
+        "family-balanced",
+        "infrastructure-exclusion",
+        "no-eligible-candidate",
+        "prohibited-constraint",
+        "required-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-hard-constraint"
+    },
+    {
+      "caseId": "ret-authorization-06",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "negative-control-safety",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-negative-control"
+    },
+    {
+      "caseId": "ret-background-jobs-01",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-exact-family"
+    },
+    {
+      "caseId": "ret-background-jobs-02",
+      "classifications": [
+        "active-alias",
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-active-alias"
+    },
+    {
+      "caseId": "ret-background-jobs-03",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant",
+        "preferred-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-narrower-intent"
+    },
+    {
+      "caseId": "ret-background-jobs-04",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "positive-multiple-relevant",
+        "same-family-comparison"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-candidate-comparison"
+    },
+    {
+      "caseId": "ret-background-jobs-05",
+      "classifications": [
+        "deployment-self-hosting",
+        "evidence-needed",
+        "family-balanced",
+        "infrastructure-exclusion",
+        "no-eligible-candidate",
+        "prohibited-constraint",
+        "required-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-hard-constraint"
+    },
+    {
+      "caseId": "ret-background-jobs-06",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "negative-control-safety",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-negative-control"
+    },
+    {
+      "caseId": "ret-rate-limiting-01",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-exact-family"
+    },
+    {
+      "caseId": "ret-rate-limiting-02",
+      "classifications": [
+        "active-alias",
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-active-alias"
+    },
+    {
+      "caseId": "ret-rate-limiting-03",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant",
+        "preferred-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-narrower-intent"
+    },
+    {
+      "caseId": "ret-rate-limiting-04",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "positive-multiple-relevant",
+        "same-family-comparison"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-candidate-comparison"
+    },
+    {
+      "caseId": "ret-rate-limiting-05",
+      "classifications": [
+        "deployment-self-hosting",
+        "evidence-needed",
+        "family-balanced",
+        "infrastructure-exclusion",
+        "no-eligible-candidate",
+        "prohibited-constraint",
+        "required-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-hard-constraint"
+    },
+    {
+      "caseId": "ret-rate-limiting-06",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "negative-control-safety",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-negative-control"
+    },
+    {
+      "caseId": "ret-webhooks-01",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-exact-family"
+    },
+    {
+      "caseId": "ret-webhooks-02",
+      "classifications": [
+        "active-alias",
+        "family-balanced",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-active-alias"
+    },
+    {
+      "caseId": "ret-webhooks-03",
+      "classifications": [
+        "family-balanced",
+        "positive-multiple-relevant",
+        "preferred-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-narrower-intent"
+    },
+    {
+      "caseId": "ret-webhooks-04",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "positive-multiple-relevant",
+        "same-family-comparison"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-candidate-comparison"
+    },
+    {
+      "caseId": "ret-webhooks-05",
+      "classifications": [
+        "deployment-self-hosting",
+        "evidence-needed",
+        "family-balanced",
+        "infrastructure-exclusion",
+        "no-eligible-candidate",
+        "prohibited-constraint",
+        "required-constraint"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-hard-constraint"
+    },
+    {
+      "caseId": "ret-webhooks-06",
+      "classifications": [
+        "equivalence-safety",
+        "family-balanced",
+        "negative-control-safety",
+        "positive-multiple-relevant"
+      ],
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "slotId": "retrieval-negative-control"
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

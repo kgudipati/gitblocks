@@ -137,18 +137,9 @@ describe('retrieval separated-gold referential integrity', () => {
         'equivalence.json',
         (value) => ({
           ...value,
-          groups: (value['groups'] as Record<string, unknown>[]).map(
-            (group, index) =>
-              index === 0
-                ? {
-                    ...group,
-                    candidateIds: [
-                      ...(group['candidateIds'] as string[]).slice(0, -1),
-                      'unknown-candidate',
-                    ].sort(),
-                  }
-                : group,
-          ),
+          groups: [
+            equivalenceGroup(['auth-casbin-casbin', 'unknown-candidate']),
+          ],
         }),
       ],
     ];
@@ -159,9 +150,69 @@ describe('retrieval separated-gold referential integrity', () => {
     }
   }, 90_000);
 
+  it('rejects audit roles that generated authority does not prove and duplicate samples', () => {
+    const semanticRoot = createRetrievalRepositoryFixture();
+    mutateRetrievalDocument(
+      semanticRoot,
+      'gold/hard-filters/ret-authorization-01.json',
+      (value) => {
+        const samples = value['auditSample'] as Record<string, unknown>[];
+        const eligible = samples.find(
+          ({ sampleRole }) => sampleRole === 'eligible',
+        )!;
+        const conflict = samples.find(
+          ({ sampleRole }) => sampleRole === 'hard-conflict',
+        )!;
+        return {
+          ...value,
+          auditSample: samples.map((sample) =>
+            sample === eligible
+              ? {
+                  ...sample,
+                  candidateId: conflict['candidateId'],
+                  hardState: conflict['hardState'],
+                  lane: conflict['lane'],
+                }
+              : sample === conflict
+                ? {
+                    ...sample,
+                    candidateId: eligible['candidateId'],
+                    hardState: eligible['hardState'],
+                    lane: eligible['lane'],
+                  }
+                : sample,
+          ),
+        };
+      },
+    );
+    expect(loadRetrievalCorpusV1(semanticRoot).ok).toBe(false);
+
+    const duplicateRoot = createRetrievalRepositoryFixture();
+    mutateRetrievalDocument(
+      duplicateRoot,
+      'gold/hard-filters/ret-authorization-01.json',
+      (value) => {
+        const samples = value['auditSample'] as Record<string, unknown>[];
+        return {
+          ...value,
+          auditSample: samples.map((sample, index) =>
+            index === 1
+              ? {
+                  ...sample,
+                  candidateId: samples[0]!['candidateId'],
+                  hardState: samples[0]!['hardState'],
+                  lane: samples[0]!['lane'],
+                }
+              : sample,
+          ),
+        };
+      },
+    );
+    expect(loadRetrievalCorpusV1(duplicateRoot).ok).toBe(false);
+  }, 60_000);
+
   it('rejects fabricated case balance and retrieval family assignment', () => {
     for (const removedTag of [
-      'slot-exact-family',
       'required-constraint',
       'preferred-constraint',
       'prohibited-constraint',
@@ -170,22 +221,36 @@ describe('retrieval separated-gold referential integrity', () => {
       'same-family-comparison',
     ]) {
       const root = createRetrievalRepositoryFixture();
-      const path =
+      const caseId =
         removedTag === 'preferred-constraint'
-          ? 'queries/retrieval/ret-authorization-03.json'
+          ? 'ret-authorization-03'
           : removedTag === 'required-constraint' ||
               removedTag === 'prohibited-constraint' ||
               removedTag === 'evidence-needed'
-            ? 'queries/retrieval/ret-authorization-05.json'
+            ? 'ret-authorization-05'
             : removedTag === 'negative-control-safety'
-              ? 'queries/retrieval/ret-authorization-06.json'
+              ? 'ret-authorization-06'
               : removedTag === 'same-family-comparison'
-                ? 'queries/retrieval/ret-authorization-04.json'
-                : 'queries/retrieval/ret-authorization-01.json';
-      mutateRetrievalDocument(root, path, (value) => ({
-        ...value,
-        tags: (value['tags'] as string[]).filter((tag) => tag !== removedTag),
-      }));
+                ? 'ret-authorization-04'
+                : 'ret-authorization-04';
+      mutateRetrievalDocument(
+        root,
+        'audit/case-classification.json',
+        (value) => ({
+          ...value,
+          entries: (value['entries'] as Record<string, unknown>[]).map(
+            (entry) =>
+              entry['caseId'] === caseId
+                ? {
+                    ...entry,
+                    classifications: (
+                      entry['classifications'] as string[]
+                    ).filter((classification) => classification !== removedTag),
+                  }
+                : entry,
+          ),
+        }),
+      );
       expect(loadRetrievalCorpusV1(root).ok, removedTag).toBe(false);
     }
 
@@ -246,51 +311,66 @@ describe('retrieval separated-gold referential integrity', () => {
       root,
       'evals/retrieval-v1/equivalence.json',
     ) as Record<string, unknown>;
-    const groups = equivalence['groups'] as Record<string, unknown>[];
+    const validGroup = equivalenceGroup([
+      'auth-casbin-casbin',
+      'auth-casbin-casbin-js',
+    ]);
     for (const value of [
       {
         ...equivalence,
-        groups: [
-          { ...groups[0], candidateIds: ['auth-casbin-casbin'] },
-          ...groups.slice(1),
-        ],
+        groups: [{ ...validGroup, candidateIds: ['auth-casbin-casbin'] }],
       },
       {
         ...equivalence,
         groups: [
           {
-            ...groups[0],
+            ...validGroup,
             candidateIds: ['auth-casbin-casbin', 'auth-casbin-casbin'],
           },
-          ...groups.slice(1),
         ],
       },
       {
         ...equivalence,
-        groups: [
-          { ...groups[0], relationshipKind: 'similar-name-only' },
-          ...groups.slice(1),
-        ],
+        groups: [{ ...validGroup, relationshipKind: 'similar-name-only' }],
       },
       {
         ...equivalence,
-        groups: [{ ...groups[0], inferredFromName: true }, ...groups.slice(1)],
+        groups: [{ ...validGroup, inferredFromName: true }],
       },
       {
         ...equivalence,
         groups: [
           Object.fromEntries(
-            Object.entries(groups[0]!).filter(([key]) => key !== 'provenance'),
+            Object.entries(validGroup).filter(([key]) => key !== 'provenance'),
           ),
-          ...groups.slice(1),
         ],
+      },
+      {
+        ...equivalence,
+        groups: [{ ...validGroup, relationshipKind: 'ecosystem-companion' }],
+      },
+      {
+        ...equivalence,
+        groups: [{ ...validGroup, relationshipKind: 'functional-overlap' }],
       },
     ]) {
       expect(registry.validate('equivalence', value).length).toBeGreaterThan(0);
     }
   });
 
-  it('rejects zero-positive ordinary cases and cross-group equivalence collisions', () => {
+  it('allows empty real equivalence and rejects zero-positive cases and group collisions', () => {
+    const registry = createRetrievalSchemaRegistry(
+      createRetrievalRepositoryFixture(),
+    );
+    expect(
+      registry.validate('equivalence', {
+        equivalenceVersion: 'retrieval-equivalence-authority/1.0.0',
+        catalogVersion: 'public-v1',
+        catalogDigest: 'a'.repeat(64),
+        groups: [],
+        provenance: proposedProvenance(),
+      }),
+    ).toEqual([]);
     const relevanceRoot = createRetrievalRepositoryFixture();
     mutateRetrievalDocument(
       relevanceRoot,
@@ -318,43 +398,47 @@ describe('retrieval separated-gold referential integrity', () => {
     );
     expect(loadRetrievalCorpusV1(duplicateRoot).ok).toBe(false);
 
-    for (const mutate of [
-      (groups: Record<string, unknown>[]) => {
-        const shared = (groups[0]!['candidateIds'] as string[])[0]!;
-        return groups.map((group, index) =>
-          index === 1
-            ? {
-                ...group,
-                candidateIds: [
-                  ...(group['candidateIds'] as string[]),
-                  shared,
-                ].sort(),
-              }
-            : group,
-        );
-      },
-      (groups: Record<string, unknown>[]) =>
-        groups.map((group, index) =>
-          index === 1 ? { ...group, groupId: groups[0]!['groupId'] } : group,
-        ),
-      (groups: Record<string, unknown>[]) =>
-        groups.map((group, index) =>
-          index === 0
-            ? {
-                ...group,
-                candidateIds: [
-                  ...(group['candidateIds'] as string[]),
-                ].reverse(),
-              }
-            : group,
-        ),
+    const first = equivalenceGroup([
+      'auth-casbin-casbin',
+      'auth-casbin-casbin-js',
+    ]);
+    const second = {
+      ...equivalenceGroup(['auth-cerbos-cerbos', 'auth-koa-roles']),
+      groupId: 'equiv-second',
+    };
+    for (const groups of [
+      [
+        first,
+        { ...second, candidateIds: ['auth-casbin-casbin', 'auth-koa-roles'] },
+      ],
+      [first, { ...second, groupId: first.groupId }],
+      [{ ...first, candidateIds: [...first.candidateIds].reverse() }],
     ]) {
       const root = createRetrievalRepositoryFixture();
       mutateRetrievalDocument(root, 'equivalence.json', (value) => ({
         ...value,
-        groups: mutate(value['groups'] as Record<string, unknown>[]),
+        groups,
       }));
       expect(loadRetrievalCorpusV1(root).ok).toBe(false);
     }
   }, 30_000);
 });
+
+function proposedProvenance() {
+  return {
+    status: 'proposed',
+    reviewStatus: 'not-reviewed',
+    reviewer: null,
+    reviewedAt: null,
+    reviewReference: null,
+  };
+}
+
+function equivalenceGroup(candidateIds: readonly string[]) {
+  return {
+    groupId: 'equiv-fixture',
+    relationshipKind: 'actual-fork',
+    candidateIds: [...candidateIds],
+    provenance: proposedProvenance(),
+  };
+}

@@ -12,7 +12,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -26,7 +26,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -40,7 +40,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -54,7 +54,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -68,12 +68,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "auth-casdoor-casdoor",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -82,7 +82,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -96,7 +96,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -110,12 +110,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "auth-open-policy-agent",
-      "grade": 3,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -124,7 +124,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -138,7 +138,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -152,7 +152,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -166,7 +166,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -180,7 +180,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -194,12 +194,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
       "candidateId": "auth-permit-opal",
-      "grade": 2,
+      "grade": 1,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -208,7 +208,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -222,7 +222,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     },
     {
@@ -236,7 +236,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "negative-control-comparison-alternative"
       ]
     }
   ],

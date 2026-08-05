@@ -12,7 +12,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -26,7 +26,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -40,7 +40,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -54,7 +54,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -68,7 +68,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -82,7 +82,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -96,7 +96,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -110,7 +110,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -124,7 +124,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-direct-match"
       ]
     },
     {
@@ -138,7 +138,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -152,7 +152,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -166,7 +166,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -180,7 +180,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -194,7 +194,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -208,7 +208,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -222,7 +222,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -236,7 +236,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -250,7 +250,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -264,12 +264,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "jobs-pg-boss",
-      "grade": 2,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -278,7 +278,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-direct-match"
       ]
     },
     {
@@ -292,7 +292,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -306,7 +306,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -320,7 +320,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -334,7 +334,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -348,7 +348,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -362,7 +362,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -376,7 +376,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -390,7 +390,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -404,7 +404,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "catalog-family-capability-match"
+        "committed-curation-relevant-match"
       ]
     }
   ],

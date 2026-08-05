@@ -78,18 +78,6 @@ export {
   DETERMINISTIC_PROFILE_RULES_VERSION,
   getDeterministicProfileFieldRegistry,
 } from '@gitblocks/domain';
-export {
-  evaluateCandidateConstraintProfileState,
-  evaluateCandidateConstraints,
-} from '@gitblocks/domain';
-export type {
-  CandidateConstraintEvaluation,
-  CandidateConstraintEvaluationInput,
-  CandidateConstraintEvaluationItem,
-  CandidateConstraintMatch,
-  CandidateConstraintNormalizationInput,
-  CandidateConstraintState,
-} from '@gitblocks/domain';
 export type {
   DeterministicCandidateProfile,
   DeterministicCandidateProfileAuthority,

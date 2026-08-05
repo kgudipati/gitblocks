@@ -34,8 +34,9 @@ describe('generated retrieval hard-filter authority', () => {
   });
 
   it('keeps unknown hard evidence unresolved and never calls it eligible', () => {
-    const constrained = corpus.retrievalCases.filter(({ query }) =>
-      query.tags.includes('slot-hard-constraint'),
+    const constrained = corpus.retrievalCases.filter(
+      ({ classification }) =>
+        classification.slotId === 'retrieval-hard-constraint',
     );
     expect(constrained).toHaveLength(5);
     for (const bundle of constrained) {
@@ -127,10 +128,16 @@ describe('generated retrieval hard-filter authority', () => {
         expect.arrayContaining([
           'cross-family',
           'hard-conflict',
-          'material-edge',
           'negative-control',
         ]),
       );
+      expect(
+        new Set(
+          bundle.hardFilterGold.auditSample.map(
+            ({ candidateId }) => candidateId,
+          ),
+        ).size,
+      ).toBe(bundle.hardFilterGold.auditSample.length);
       expect(
         bundle.hardFilterGold.auditSample.map(({ provenance }) => provenance),
       ).toEqual(

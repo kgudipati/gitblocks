@@ -1,7 +1,7 @@
 {
   "auditSample": [
     {
-      "candidateId": "audit-bunyan",
+      "candidateId": "audit-cabin",
       "hardState": "conflict",
       "lane": "excluded",
       "provenance": {
@@ -11,7 +11,7 @@
         "reviewer": null,
         "status": "proposed"
       },
-      "reasonCode": "generated-primary-family-conflict",
+      "reasonCode": "generated-cross-family",
       "sampleRole": "cross-family"
     },
     {
@@ -25,7 +25,7 @@
         "reviewer": null,
         "status": "proposed"
       },
-      "reasonCode": "generated-hard-state-satisfied",
+      "reasonCode": "generated-eligible-lane",
       "sampleRole": "eligible"
     },
     {
@@ -39,22 +39,8 @@
         "reviewer": null,
         "status": "proposed"
       },
-      "reasonCode": "generated-primary-family-conflict",
+      "reasonCode": "generated-hard-conflict",
       "sampleRole": "hard-conflict"
-    },
-    {
-      "candidateId": "auth-auth0-node-jsonwebtoken",
-      "hardState": "satisfied",
-      "lane": "excluded",
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCode": "proposed-material-edge-sample",
-      "sampleRole": "material-edge"
     },
     {
       "candidateId": "audit-datadog-trace-js",

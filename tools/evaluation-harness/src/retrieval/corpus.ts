@@ -3,9 +3,11 @@ import { join } from 'node:path';
 import {
   parseCapabilityTaxonomyV1,
   parseDeterministicCandidateProfileAuthorityV1,
-  type DeterministicCandidateProfileAuthority,
-  type DeterministicProfileFieldRecord,
 } from '@gitblocks/contracts';
+import type {
+  DeterministicCandidateProfileAuthority,
+  DeterministicProfileFieldRecord,
+} from '@gitblocks/domain';
 
 import {
   RETRIEVAL_CORPUS_ID,
@@ -20,6 +22,7 @@ import {
   type ProposedProvenance,
   type RelevanceGoldDocument,
   type RetrievalCaseBundle,
+  type RetrievalCaseClassificationAuthority,
   type RetrievalCorpusManifest,
   type RetrievalDiagnostic,
   type RetrievalManifestFile,
@@ -38,10 +41,14 @@ import {
   projectNormalization,
 } from './normalization.ts';
 import { createRetrievalSchemaRegistry } from './schema-registry.ts';
-import { retrievalSemanticDigest, retrievalStableJson } from './stable-json.ts';
+import {
+  retrievalCorpusSemanticDigest,
+  retrievalStableJson,
+} from './stable-json.ts';
+export { retrievalCorpusSemanticDigest } from './stable-json.ts';
 
-const EXPECTED_LISTED_FILE_COUNT = 211;
-const EXPECTED_JSON_FILE_COUNT = 212;
+const EXPECTED_LISTED_FILE_COUNT = 212;
+const EXPECTED_JSON_FILE_COUNT = 213;
 const EXPECTED_PROFILE_COUNT = 150;
 const EXPECTED_QUERY_INPUT_SCHEMA_DIGEST =
   'd48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b';
@@ -58,17 +65,6 @@ export type RetrievalCorpusLoadResult =
       readonly ok: false;
       readonly diagnostics: readonly RetrievalDiagnostic[];
     };
-
-export function retrievalCorpusSemanticDigest(
-  manifest:
-    | Omit<RetrievalCorpusManifest, 'corpusSemanticDigest'>
-    | RetrievalCorpusManifest,
-): string {
-  const { corpusSemanticDigest, ...projection } =
-    manifest as RetrievalCorpusManifest;
-  void corpusSemanticDigest;
-  return retrievalSemanticDigest(projection);
-}
 
 export function loadRetrievalCorpusV1(
   repositoryRoot: string,
@@ -98,6 +94,16 @@ export function loadRetrievalCorpusV1(
     const profiles = parsedProfiles.domain;
     validateBindings(manifest, profiles);
     const candidateAuthority = buildCandidateReferenceAuthority(profiles);
+    const caseClassification = loadTyped(
+      corpusRoot,
+      registry,
+      'audit/case-classification.json',
+      'case-classification',
+    ) as RetrievalCaseClassificationAuthority;
+    validateCaseClassification(caseClassification, manifest);
+    const classificationsByCaseId = new Map(
+      caseClassification.entries.map((entry) => [entry.caseId, entry]),
+    );
     const equivalence = loadTyped(
       corpusRoot,
       registry,
@@ -110,6 +116,8 @@ export function loadRetrievalCorpusV1(
     const normalizationCases: NormalizationCaseBundle[] = [];
     const allProvenance: ProposedProvenance[] = [
       manifest.provenance,
+      caseClassification.provenance,
+      ...caseClassification.entries.map(({ provenance }) => provenance),
       equivalence.provenance,
       ...equivalence.groups.flatMap((group) => [group.provenance]),
     ];
@@ -125,6 +133,10 @@ export function loadRetrievalCorpusV1(
         'query',
       ) as RetrievalQueryDocument;
       validateCaseFilename(query, entry);
+      const classification = classificationsByCaseId.get(query.caseId);
+      if (classification === undefined) {
+        fail('retrieval.classification.case-closure', query.caseId);
+      }
       const normalizationResult = normalizeRetrievalQuery(
         query,
         taxonomy.value,
@@ -163,6 +175,7 @@ export function loadRetrievalCorpusV1(
         allProvenance.push(clarificationGold.provenance);
         normalizationCases.push({
           query,
+          classification,
           normalizationResult,
           normalizationGold,
           clarificationGold,
@@ -185,6 +198,7 @@ export function loadRetrievalCorpusV1(
         generatedProjection,
         profiles,
         manifest,
+        query,
       );
       const relevanceGold = loadGold(
         corpusRoot,
@@ -216,6 +230,7 @@ export function loadRetrievalCorpusV1(
       );
       retrievalCases.push({
         query,
+        classification,
         normalizationResult,
         normalizationGold,
         hardFilterGold,
@@ -225,11 +240,13 @@ export function loadRetrievalCorpusV1(
       });
     }
     validateCorpusBalance(retrievalCases, normalizationCases);
+    validateRelevanceVariation(retrievalCases);
     validateProvenance(allProvenance);
     return {
       ok: true,
       corpus: {
         manifest,
+        caseClassification,
         equivalence,
         retrievalCases,
         normalizationCases,
@@ -342,6 +359,7 @@ function validateManifest(
   const expectedKindCounts: Readonly<
     Record<RetrievalManifestFile['kind'], number>
   > = {
+    'case-classification': 1,
     'clarification-gold': 20,
     equivalence: 1,
     'hard-filter-gold': 30,
@@ -367,6 +385,7 @@ function validateManifest(
 
 function validateManifestEntry(entry: RetrievalManifestFile): void {
   const expectedPrefix: Record<RetrievalManifestFile['kind'], string> = {
+    'case-classification': 'audit/case-classification.json',
     'clarification-gold': 'gold/clarification/',
     equivalence: 'equivalence.json',
     'hard-filter-gold': 'gold/hard-filters/',
@@ -376,10 +395,12 @@ function validateManifestEntry(entry: RetrievalManifestFile): void {
     'relevance-gold': 'gold/relevance/',
     'retrieval-query': 'queries/retrieval/',
   };
+  const corpusLevelKind =
+    entry.kind === 'equivalence' || entry.kind === 'case-classification';
   if (
-    (entry.kind === 'equivalence' &&
-      (entry.path !== 'equivalence.json' || entry.caseId !== null)) ||
-    (entry.kind !== 'equivalence' &&
+    (corpusLevelKind &&
+      (entry.path !== expectedPrefix[entry.kind] || entry.caseId !== null)) ||
+    (!corpusLevelKind &&
       (!entry.path.startsWith(expectedPrefix[entry.kind]) ||
         entry.caseId === null))
   ) {
@@ -390,6 +411,62 @@ function validateManifestEntry(entry: RetrievalManifestFile): void {
     entry.path.slice(entry.path.lastIndexOf('/') + 1) !== `${entry.caseId}.json`
   ) {
     fail('retrieval.manifest.case-filename', entry.path);
+  }
+}
+
+function validateCaseClassification(
+  authority: RetrievalCaseClassificationAuthority,
+  manifest: RetrievalCorpusManifest,
+): void {
+  const classificationVersion: unknown = authority.classificationVersion;
+  const manifestCaseIds = manifest.files
+    .filter(
+      ({ kind }) =>
+        kind === 'retrieval-query' || kind === 'normalization-query',
+    )
+    .map(({ caseId }) => caseId)
+    .filter((caseId): caseId is string => caseId !== null);
+  const authorityCaseIds = authority.entries.map(({ caseId }) => caseId);
+  if (
+    classificationVersion !== RETRIEVAL_VERSIONS.caseClassification ||
+    authority.entries.length !== 50 ||
+    !isSortedUnique(authorityCaseIds) ||
+    retrievalStableJson(authorityCaseIds) !==
+      retrievalStableJson(manifestCaseIds)
+  ) {
+    fail(
+      'retrieval.classification.case-closure',
+      'audit/case-classification.json',
+    );
+  }
+  for (const entry of authority.entries) {
+    const suffix = Number(entry.caseId.slice(-2));
+    const expectedSlot = entry.caseId.startsWith('ret-')
+      ? (
+          [
+            'retrieval-exact-family',
+            'retrieval-active-alias',
+            'retrieval-narrower-intent',
+            'retrieval-candidate-comparison',
+            'retrieval-hard-constraint',
+            'retrieval-negative-control',
+          ] as const
+        )[suffix - 1]
+      : (
+          [
+            'normalization-alias',
+            'normalization-ambiguity',
+            'normalization-contradiction',
+            'normalization-adversarial-special',
+          ] as const
+        )[suffix - 1];
+    if (
+      expectedSlot === undefined ||
+      entry.slotId !== expectedSlot ||
+      !isSortedUnique(entry.classifications)
+    ) {
+      fail('retrieval.classification.order', entry.caseId);
+    }
   }
 }
 
@@ -451,6 +528,7 @@ function validateHardFilterGold(
   generated: ReturnType<typeof generateHardFilterProjection>,
   profiles: DeterministicCandidateProfileAuthority,
   manifest: RetrievalCorpusManifest,
+  query: RetrievalQueryDocument,
 ): void {
   if (
     gold.projectionDigest !== generated.digest ||
@@ -474,11 +552,51 @@ function validateHardFilterGold(
   if (!isSortedUnique(gold.auditSample.map(({ sampleRole }) => sampleRole))) {
     fail('retrieval.gold.audit-order', gold.caseId);
   }
+  if (
+    !isSortedUnique(
+      gold.auditSample.map(({ candidateId }) => candidateId).sort(compareText),
+    )
+  ) {
+    fail('retrieval.gold.audit-candidate-uniqueness', gold.caseId);
+  }
+  const profilesByCandidateId = new Map(
+    profiles.profiles.map((profile) => [profile.candidateId, profile]),
+  );
+  const reasonByRole = {
+    'cross-family': 'generated-cross-family',
+    eligible: 'generated-eligible-lane',
+    'evidence-needed': 'generated-evidence-needed-lane',
+    'hard-conflict': 'generated-hard-conflict',
+    'negative-control': 'catalog-negative-control-exclusion',
+  } as const;
   for (const sample of gold.auditSample) {
     const expected = decisions.get(sample.candidateId);
+    const profile = profilesByCandidateId.get(sample.candidateId);
+    const family = profile?.fields.find(
+      (field) => field.fieldId === 'capability-family',
+    ) as DeterministicProfileFieldRecord<'capability-family'> | undefined;
+    const roleValid =
+      (sample.sampleRole === 'eligible' &&
+        expected?.lane === 'eligible' &&
+        expected.hardState === 'satisfied' &&
+        !expected.negativeControl) ||
+      (sample.sampleRole === 'evidence-needed' &&
+        expected?.lane === 'evidence-needed' &&
+        expected.hardState === 'unresolved' &&
+        !expected.negativeControl) ||
+      (sample.sampleRole === 'hard-conflict' &&
+        expected?.hardState === 'conflict') ||
+      (sample.sampleRole === 'negative-control' &&
+        expected?.negativeControl === true &&
+        expected.lane === 'excluded') ||
+      (sample.sampleRole === 'cross-family' &&
+        family?.state === 'known' &&
+        family.value.primaryFamily !== query.capabilityFamily);
     if (
       sample.hardState !== expected?.hardState ||
-      sample.lane !== expected.lane
+      sample.lane !== expected.lane ||
+      sample.reasonCode !== reasonByRole[sample.sampleRole] ||
+      !roleValid
     ) {
       fail('retrieval.gold.audit-sample', gold.caseId);
     }
@@ -497,11 +615,7 @@ function validateHardFilterGold(
       fail('retrieval.gold.audit-coverage', gold.caseId);
     }
   }
-  if (
-    !roles.has('negative-control') ||
-    !roles.has('cross-family') ||
-    !roles.has('material-edge')
-  ) {
+  if (!roles.has('negative-control') || !roles.has('cross-family')) {
     fail('retrieval.gold.audit-coverage', gold.caseId);
   }
 }
@@ -568,6 +682,83 @@ function validateNoResultGold(
   }
 }
 
+function validateRelevanceVariation(
+  cases: readonly RetrievalCaseBundle[],
+): void {
+  if (
+    cases
+      .flatMap(({ relevanceGold }) => relevanceGold.judgments)
+      .every(({ grade }) => grade > 0)
+  ) {
+    fail('retrieval.gold.relevance-degenerate', 'gold/relevance');
+  }
+  for (const family of RETRIEVAL_FAMILIES) {
+    const familyCases = cases.filter(
+      ({ query }) => query.capabilityFamily === family,
+    );
+    const vectors = new Set(
+      familyCases.map(({ relevanceGold }) =>
+        retrievalStableJson(
+          relevanceGold.judgments.map(({ candidateId, grade }) => ({
+            candidateId,
+            grade,
+          })),
+        ),
+      ),
+    );
+    if (vectors.size < 3) {
+      fail('retrieval.gold.relevance-case-variation', family);
+    }
+    const fixedGradeThree = familyCases
+      .map(
+        ({ relevanceGold }) =>
+          new Set(
+            relevanceGold.judgments
+              .filter(({ grade }) => grade === 3)
+              .map(({ candidateId }) => candidateId),
+          ),
+      )
+      .reduce(
+        (intersection, values) =>
+          new Set(
+            [...intersection].filter((candidateId) => values.has(candidateId)),
+          ),
+      );
+    if (fixedGradeThree.size > 0) {
+      fail('retrieval.gold.relevance-fixed-anchor', family);
+    }
+    const narrower = familyCases.find(
+      ({ classification }) =>
+        classification.slotId === 'retrieval-narrower-intent',
+    );
+    if (
+      narrower === undefined ||
+      new Set(narrower.relevanceGold.judgments.map(({ grade }) => grade)).size <
+        3 ||
+      !narrower.relevanceGold.judgments.some(({ grade }) => grade === 0)
+    ) {
+      fail('retrieval.gold.relevance-narrower-differentiation', family);
+    }
+    const comparison = familyCases.find(
+      ({ classification }) =>
+        classification.slotId === 'retrieval-candidate-comparison',
+    );
+    const named = new Set(
+      comparison?.query.queryInput.candidateReferences.map(({ value }) =>
+        value.toLowerCase(),
+      ) ?? [],
+    );
+    if (
+      comparison === undefined ||
+      comparison.relevanceGold.judgments.some(
+        ({ candidateId, grade }) => grade === 3 && !named.has(candidateId),
+      )
+    ) {
+      fail('retrieval.gold.relevance-comparison-anchor', family);
+    }
+  }
+}
+
 function validateEquivalence(
   authority: EquivalenceAuthority,
   profiles: DeterministicCandidateProfileAuthority,
@@ -576,7 +767,6 @@ function validateEquivalence(
   if (
     authority.catalogVersion !== manifest.catalogVersion ||
     authority.catalogDigest !== manifest.catalogDigest ||
-    authority.groups.length < 5 ||
     authority.groups.length > 100 ||
     !isSortedUnique(authority.groups.map(({ groupId }) => groupId))
   )
@@ -631,17 +821,18 @@ function validateCorpusBalance(
     if (familyRetrieval.length !== 6 || familyNormalization.length !== 4) {
       fail('retrieval.balance.family', family);
     }
-    for (const tag of [
-      'slot-exact-family',
-      'slot-active-alias',
-      'slot-narrower-intent',
-      'slot-candidate-comparison',
-      'slot-hard-constraint',
-      'slot-negative-control',
+    for (const slotId of [
+      'retrieval-exact-family',
+      'retrieval-active-alias',
+      'retrieval-narrower-intent',
+      'retrieval-candidate-comparison',
+      'retrieval-hard-constraint',
+      'retrieval-negative-control',
     ] as const) {
       if (
-        familyRetrieval.filter(({ query }) => query.tags.includes(tag))
-          .length !== 1
+        familyRetrieval.filter(
+          ({ classification }) => classification.slotId === slotId,
+        ).length !== 1
       ) {
         fail('retrieval.balance.family-slot', family);
       }
@@ -651,21 +842,21 @@ function validateCorpusBalance(
       'intentional-ambiguity',
       'required-prohibited-conflict',
     ] as const) {
-      if (!familyNormalization.some(({ query }) => query.tags.includes(tag))) {
+      if (
+        !familyNormalization.some(({ classification }) =>
+          classification.classifications.includes(tag),
+        )
+      ) {
         fail('retrieval.balance.family-slot', family);
       }
     }
   }
   const retrievalTags = new Set(
-    retrievalCases.flatMap(({ query }) => query.tags),
+    retrievalCases.flatMap(
+      ({ classification }) => classification.classifications,
+    ),
   );
   for (const tag of [
-    'slot-exact-family',
-    'slot-active-alias',
-    'slot-narrower-intent',
-    'slot-candidate-comparison',
-    'slot-hard-constraint',
-    'slot-negative-control',
     'required-constraint',
     'preferred-constraint',
     'prohibited-constraint',
@@ -699,7 +890,7 @@ function validateCorpusBalance(
     fail('retrieval.balance.tag-count', 'retrieval-diversity');
   }
   for (const bundle of retrievalCases) {
-    const { query } = bundle;
+    const { classification, query } = bundle;
     const modalities = new Set(
       query.queryInput.draftConstraints.map(({ modality }) => modality),
     );
@@ -708,12 +899,15 @@ function validateCorpusBalance(
       ['preferred-constraint', 'preferred'],
       ['prohibited-constraint', 'prohibited'],
     ] as const) {
-      if (query.tags.includes(tag) && !modalities.has(modality)) {
+      if (
+        classification.classifications.includes(tag) &&
+        !modalities.has(modality)
+      ) {
         fail('retrieval.balance.modality', query.caseId);
       }
     }
     if (
-      query.tags.includes('infrastructure-exclusion') &&
+      classification.classifications.includes('infrastructure-exclusion') &&
       !query.queryInput.draftConstraints.some(
         ({ facetHint, modality }) =>
           facetHint === 'infrastructure' && modality === 'prohibited',
@@ -722,7 +916,7 @@ function validateCorpusBalance(
       fail('retrieval.balance.infrastructure', query.caseId);
     }
     if (
-      query.tags.includes('deployment-self-hosting') &&
+      classification.classifications.includes('deployment-self-hosting') &&
       !query.queryInput.draftConstraints.some(
         ({ facetHint }) => facetHint === 'deployment',
       )
@@ -730,13 +924,13 @@ function validateCorpusBalance(
       fail('retrieval.balance.deployment', query.caseId);
     }
     if (
-      query.tags.includes('same-family-comparison') &&
+      classification.classifications.includes('same-family-comparison') &&
       query.queryInput.candidateReferences.length < 2
     ) {
       fail('retrieval.balance.comparison', query.caseId);
     }
     if (
-      query.tags.includes('active-alias') &&
+      classification.classifications.includes('active-alias') &&
       !bundle.normalizationGold.expected.normalizedConcepts.some(
         ({ ruleId }) => ruleId === 'taxonomy-active-alias',
       )
@@ -744,13 +938,13 @@ function validateCorpusBalance(
       fail('retrieval.balance.alias', query.caseId);
     }
     if (
-      query.tags.includes('evidence-needed') &&
+      classification.classifications.includes('evidence-needed') &&
       bundle.generatedProjection.laneCounts['evidence-needed'] === 0
     ) {
       fail('retrieval.balance.evidence-needed', query.caseId);
     }
     if (
-      query.tags.includes('negative-control-safety') &&
+      classification.classifications.includes('negative-control-safety') &&
       !query.queryInput.candidateReferences.some(({ value }) =>
         bundle.generatedProjection.decisions.some(
           ({ candidateId, negativeControl, lane }) =>
@@ -762,7 +956,9 @@ function validateCorpusBalance(
     }
   }
   const normalizationTags = new Set(
-    normalizationCases.flatMap(({ query }) => query.tags),
+    normalizationCases.flatMap(
+      ({ classification }) => classification.classifications,
+    ),
   );
   for (const tag of [
     'alias-evaluation',
@@ -833,9 +1029,11 @@ function validateCorpusBalance(
 
 function countTagged(
   cases: readonly RetrievalCaseBundle[],
-  tag: RetrievalCaseBundle['query']['tags'][number],
+  tag: RetrievalCaseBundle['classification']['classifications'][number],
 ): number {
-  return cases.filter(({ query }) => query.tags.includes(tag)).length;
+  return cases.filter(({ classification }) =>
+    classification.classifications.includes(tag),
+  ).length;
 }
 
 function validateProvenance(values: readonly unknown[]): void {

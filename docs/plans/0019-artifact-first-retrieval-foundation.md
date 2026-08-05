@@ -1832,11 +1832,13 @@ entries.
 
 - Added evaluation-only `retrieval-v1` contract
   `retrieval-evaluation-corpus/1.0.0` at semantic digest
-  `e133c0fa00b6063e7360ce5ebfdf27893f72ee5ca5e39fbe5d82c1e944831917`.
-  Its 212 JSON files close through one nonrecursive manifest and 211 exact
+  `3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de`.
+  Its 213 JSON files close through one nonrecursive manifest and 212 exact
   byte-hashed entries. The corpus contains 30 retrieval and 20
   normalization/adversarial cases, exactly six/four per family.
-- Blind queries remain separate from 50 normalization, 20 clarification, 30
+- Blind queries contain no tags or audit classifications. A separate
+  `retrieval-case-classification/1.0.0` audit authority remains outside the
+  blind-only future baseline loader and separate from 50 normalization, 20 clarification, 30
   generated hard-filter, 30 relevance, and 30 no-result gold files plus one
   equivalence authority. All gold remains proposed/not-reviewed. Relevance is
   capability-query relevance rather than viability, fit, ranking, quality, or
@@ -1848,41 +1850,54 @@ entries.
   30 by 150 decision projection in memory.
 - Added a closed exact-closure prediction set, content-free score-report
   schema, deterministic metrics with explicit null/not-applicable zero
-  denominators, and 20 hand-calculated synthetic scorer fixtures. No real
+  denominators, and 26 hand-calculated synthetic scorer fixtures. No real
   corpus oracle, deterministic baseline, baseline report, production
   retrieval, candidate generator, ranking, provider, model, database,
-  migration, dependency, package, ingestion behavior, or Phase 7 work exists.
+  migration, external dependency, new package, ingestion behavior, or Phase 7
+  work exists. The authorized direct domain workspace dependency changes only
+  the evaluation-harness lockfile importer.
 - Ordinary `pnpm verify` and the existing Static and Authorities worker add
   only retrieval authority validation and scorer fixtures. The hosted job
   graph, shards, concurrency, timeouts, runners, aggregate behavior, database
   isolation, actions, and permissions remain unchanged.
 - Red-first boundary, corpus, projection, prediction, scoring, architecture,
   repository-policy, and workflow-policy coverage passes 13 focused files and
-  146 tests. The complete workspace passes 98 files and 1,543 tests. Final
-  coverage is 81.12% statements, 73.22% branches, 88.24% functions, and
-  81.51% lines; retrieval scorer statement coverage is 98.34%.
+  153 tests. The complete workspace passes 98 files and 1,550 tests. Final
+  coverage is 81.13% statements, 73.30% branches, 88.25% functions, and
+  81.52% lines; retrieval scorer statement coverage is 98.35%.
 - Material red-to-green corrections retained strict boundaries: canonical
   corpus JSON was excluded from Prettier rewriting so manifest byte hashes
-  remain authoritative; the contracts runtime-surface allowlist now binds the
-  two accepted evaluator re-exports; invalid retrieval CLI commands reject
+  remain authoritative; the harness directly declares `@gitblocks/domain` and
+  the contracts API no longer re-exports the evaluator for evaluation use;
+  invalid retrieval CLI commands reject
   before loading corpus authority; and retrieval authority tests use the
   repository's existing 60-second bounded test limit under full-suite worker
   contention. A subsequent compile-only path narrowing failure was corrected
   with a non-optional local after the existing score-argument guard. No
-  product evaluator, normalizer, corpus, schema, metric, or workflow timeout
-  semantics changed.
+  product evaluator, normalizer, product schema, or workflow timeout semantics
+  changed; evaluation-only corpus and prohibited-preservation scorer semantics
+  were corrected before acceptance.
 - The complete required local matrix passes: runtime, formatting, retrieval
   validation/fixtures, pilot validation/fixtures, interview verification,
   taxonomy, profiles, contracts, catalog, artifacts, ingestion, build, lint,
   typecheck, tests, coverage, architecture, repository policy, secrets, and
-  authoritative `pnpm verify`. Architecture covers 804 modules and 2,588
+  authoritative `pnpm verify`. Architecture covers 805 modules and 2,596
   dependency edges with zero violations. Focused contradiction regressions
   pass 2 files and 91 tests from the final staged state.
 - Pilot-v1 and repository-interviews-v1 remain byte-identical. Taxonomy,
   query-schema, profile-schema, generated profile-authority, profile-coverage,
-  and catalog semantic digests remain unchanged. No lockfile, persistence,
-  migration, ingestion implementation, provider/model, database, candidate
-  repository, external corpus, or Phase 7 state changed or was accessed.
+  and catalog semantic digests remain unchanged. Apart from the authorized
+  evaluation-harness domain importer, no lock resolution changed; no
+  persistence, migration, ingestion implementation, provider/model, database,
+  candidate repository, external corpus, or Phase 7 state changed or was
+  accessed.
+- Review correction removed leaked query classifications, replaced formulaic
+  relevance with 636 candidate/query-specific proposed judgments distributed
+  130/62/388/56 across grades 0/1/2/3, narrowed real equivalence to true
+  result redundancy (zero defensible committed groups), validated audit roles
+  from generated authority, and strengthened prohibited preservation to exact
+  one-record semantic equality. Mechanical regeneration preserves all 30
+  relevance files and equivalence bytes.
 - Milestone 5 implementation and complete local verification are ready for
   maintainer review; its status remains in progress until review. Milestone 6
   remains unstarted and unauthorized.

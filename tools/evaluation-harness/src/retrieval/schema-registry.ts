@@ -11,6 +11,7 @@ import type { RetrievalDiagnostic } from './contracts.ts';
 import { loadRetrievalJsonFile } from './json-boundary.ts';
 
 const SCHEMA_NAMES = [
+  'case-classification',
   'clarification-gold',
   'equivalence',
   'hard-filter-projection',

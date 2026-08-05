@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 
+import type { RetrievalCorpusManifest } from './contracts.ts';
+
 const MAXIMUM_SERIALIZED_BYTES = 16 * 1024 * 1024;
 
 export function retrievalStableJson(value: unknown): string {
@@ -12,6 +14,17 @@ export function retrievalStableJson(value: unknown): string {
 
 export function retrievalSemanticDigest(value: unknown): string {
   return createHash('sha256').update(retrievalStableJson(value)).digest('hex');
+}
+
+export function retrievalCorpusSemanticDigest(
+  manifest:
+    | Omit<RetrievalCorpusManifest, 'corpusSemanticDigest'>
+    | RetrievalCorpusManifest,
+): string {
+  const { corpusSemanticDigest, ...projection } =
+    manifest as RetrievalCorpusManifest;
+  void corpusSemanticDigest;
+  return retrievalSemanticDigest(projection);
 }
 
 function sortObjectKeys(value: unknown): unknown {

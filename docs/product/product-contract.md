@@ -207,7 +207,10 @@ candidates.
 
 `retrieval-v1` is evaluation-only authority, not a product contract root. Its
 30 retrieval and 20 normalization/adversarial blind cases are exactly balanced
-six/four per family. Normalization, clarification, generated hard-filter,
+six/four per family. Blind records contain no tags or audit classifications;
+those classifications live in a separate proposed audit authority, and the
+blind-only loader is the sole permitted future baseline input. Normalization,
+clarification, generated hard-filter,
 proposed relevance, equivalence, and no-result gold are physically separate.
 Product packages do not import those records, schemas, fixtures, or scorers.
 Relevance means capability-query relevance only; it does not establish
@@ -215,7 +218,10 @@ viability, target compatibility, quality, ranking preference, or
 recommendation. Unresolved candidates remain outside eligibility in a
 separate evidence-needed lane. All new gold is proposed/not independently
 reviewed, so the corpus and scorer establish evaluation authority—not
-retrieval quality. Milestone 6 owns baselines and any baseline report.
+retrieval quality. Proposed relevance is candidate/query-specific from
+committed curation, and real-corpus equivalence is limited to true result
+redundancy; zero groups is valid. Milestone 6 owns baselines and any baseline
+report.
 
 ## Relevance is not adoption fit
 

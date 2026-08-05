@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import process from 'node:process';
 
@@ -18,8 +18,10 @@ import {
   normalizeRetrievalQuery,
   projectNormalization,
 } from '../dist/src/retrieval/normalization.js';
-import { retrievalCorpusSemanticDigest } from '../dist/src/retrieval/corpus.js';
-import { retrievalStableJson } from '../dist/src/retrieval/stable-json.js';
+import {
+  retrievalCorpusSemanticDigest,
+  retrievalStableJson,
+} from '../dist/src/retrieval/stable-json.js';
 
 const repositoryRoot = process.cwd();
 const corpusRoot = join(repositoryRoot, 'evals/retrieval-v1');
@@ -61,7 +63,6 @@ const familyDesign = {
     negative: 'auth-auth0-node-jsonwebtoken',
     ambiguity: 'access-control',
     contradiction: 'role-based-access-control',
-    anchor: 'auth-open-policy-agent',
   },
   'audit-logging': {
     alias: 'audit-trail',
@@ -70,7 +71,6 @@ const familyDesign = {
     negative: 'audit-datadog-trace-js',
     ambiguity: 'event-logging',
     contradiction: 'structured-audit-events',
-    anchor: 'audit-winston',
   },
   'background-jobs': {
     alias: 'background-job',
@@ -79,7 +79,6 @@ const familyDesign = {
     negative: 'jobs-p-queue',
     ambiguity: 'job-queue',
     contradiction: 'delayed-jobs',
-    anchor: 'jobs-bullmq',
   },
   'rate-limiting': {
     alias: 'rate-limiter',
@@ -88,7 +87,6 @@ const familyDesign = {
     negative: 'rate-envoy',
     ambiguity: 'throttling',
     contradiction: 'token-bucket',
-    anchor: 'rate-express-rate-limit',
   },
   webhooks: {
     alias: 'web-hook',
@@ -97,18 +95,17 @@ const familyDesign = {
     negative: 'webhook-localtunnel',
     ambiguity: 'webhook-platform',
     contradiction: 'signature-verification',
-    anchor: 'webhook-svix',
   },
 };
 
-rmSync(corpusRoot, { recursive: true, force: true });
 const files = new Map();
+const classifications = [];
 
 for (const family of RETRIEVAL_FAMILIES) {
   const design = familyDesign[family];
   for (let slot = 1; slot <= 6; slot += 1) {
     const caseId = `ret-${family}-${String(slot).padStart(2, '0')}`;
-    const tags = retrievalTags(slot);
+    const auditClassifications = retrievalClassifications(slot);
     const constraints = [];
     const references = [];
     let term = family;
@@ -161,13 +158,26 @@ for (const family of RETRIEVAL_FAMILIES) {
       caseId,
       'retrieval',
       family,
-      tags,
       [term],
       constraints,
       references,
     );
+    classifications.push(
+      classificationEntry(
+        caseId,
+        [
+          'retrieval-exact-family',
+          'retrieval-active-alias',
+          'retrieval-narrower-intent',
+          'retrieval-candidate-comparison',
+          'retrieval-hard-constraint',
+          'retrieval-negative-control',
+        ][slot - 1],
+        auditClassifications,
+      ),
+    );
     write(`queries/retrieval/${caseId}.json`, query, 'retrieval-query', caseId);
-    authorGold(query, slot, design);
+    authorGold(query);
   }
   for (let slot = 1; slot <= 4; slot += 1) {
     const caseId = `norm-${family}-${String(slot).padStart(2, '0')}`;
@@ -176,11 +186,22 @@ for (const family of RETRIEVAL_FAMILIES) {
       caseId,
       'normalization-adversarial',
       family,
-      authored.tags,
       authored.terms,
       authored.constraints,
       authored.references,
       authored.summary,
+    );
+    classifications.push(
+      classificationEntry(
+        caseId,
+        [
+          'normalization-alias',
+          'normalization-ambiguity',
+          'normalization-contradiction',
+          'normalization-adversarial-special',
+        ][slot - 1],
+        authored.classifications,
+      ),
     );
     write(
       `queries/normalization/${caseId}.json`,
@@ -192,43 +213,19 @@ for (const family of RETRIEVAL_FAMILIES) {
   }
 }
 
-const equivalence = {
-  equivalenceVersion: RETRIEVAL_VERSIONS.equivalence,
-  catalogVersion: profiles.catalogVersion,
-  catalogDigest: profiles.catalogDigest,
-  groups: [
-    group('equiv-casbin-implementations', 'ecosystem-implementation-variant', [
-      'auth-casbin-casbin',
-      'auth-casbin-casbin-js',
-      'auth-casbin-node-casbin',
-    ]),
-    group('equiv-envoy-rate-limit-companions', 'parent-focused-companion', [
-      'rate-envoy',
-      'rate-envoy-ratelimit',
-    ]),
-    group('equiv-in-process-job-schedulers', 'functional-overlap', [
-      'jobs-bree',
-      'jobs-node-cron',
-      'jobs-node-schedule',
-      'jobs-toad-scheduler',
-    ]),
-    group('equiv-octokit-webhook-ecosystem', 'ecosystem-companion', [
-      'webhook-octokit-app',
-      'webhook-octokit-methods',
-      'webhook-octokit-webhooks',
-    ]),
-    group('equiv-winston-ecosystem', 'ecosystem-companion', [
-      'audit-google-logging-winston',
-      'audit-winston',
-      'audit-winston-daily',
-      'audit-winston-logform',
-      'audit-winston-syslog',
-      'audit-winston-transport',
-    ]),
-  ],
-  provenance,
-};
-write('equivalence.json', equivalence, 'equivalence', null);
+write(
+  'audit/case-classification.json',
+  {
+    classificationVersion: RETRIEVAL_VERSIONS.caseClassification,
+    entries: classifications.sort((left, right) =>
+      compare(left.caseId, right.caseId),
+    ),
+    provenance,
+  },
+  'case-classification',
+  null,
+);
+registerExisting('equivalence.json', 'equivalence', null);
 
 const sortedFiles = [...files.values()].sort((a, b) => compare(a.path, b.path));
 const manifestWithoutDigest = {
@@ -265,15 +262,15 @@ const manifest = {
 writeFile('manifest.json', manifest);
 writeText(
   'README.md',
-  `# retrieval-v1\n\nThis immutable, offline evaluation-only corpus contains 30 retrieval cases and\n20 normalization/adversarial cases, exactly six and four per capability family.\nIts version is \`retrieval-evaluation-corpus/1.0.0\`, and its semantic digest is\n\`e133c0fa00b6063e7360ce5ebfdf27893f72ee5ca5e39fbe5d82c1e944831917\`.\n\nQuery inputs are blind. Normalization, clarification, hard-filter, relevance,\nequivalence, and no-result gold are physically separate and proposed/not\nindependently reviewed. Hard-filter matrices are regenerated from the accepted\n150-profile authority; they are not committed. Relevance measures\ncapability-query relevance, not viability, adoption fit, quality, ranking, or\nrecommendation. See the\n[authoring and scoring protocol](../../docs/evaluation/retrieval-v1-authoring-protocol.md).\nMilestone 6 owns all deterministic baselines and any baseline report.\n`,
+  `# retrieval-v1\n\nThis immutable, offline evaluation-only corpus contains 30 retrieval cases and\n20 normalization/adversarial cases, exactly six and four per capability family.\nIts version is \`retrieval-evaluation-corpus/1.0.0\`, and its semantic digest is\n\`${manifest.corpusSemanticDigest}\`.\n\nBlind query records contain no audit classifications or expected outcomes. Case\nclassifications live in a separate audit authority that is unavailable through\nthe blind loader. Normalization, clarification, hard-filter, relevance,\nequivalence, and no-result gold are physically separate and proposed/not\nindependently reviewed. Mechanical regeneration preserves the manually proposed\nrelevance and equivalence bytes. Hard-filter matrices are regenerated from the\naccepted 150-profile authority; they are not committed. Relevance measures\ncapability-query relevance, not viability, adoption fit, quality, ranking, or\nrecommendation. See the\n[authoring and scoring protocol](../../docs/evaluation/retrieval-v1-authoring-protocol.md).\nMilestone 6 owns all deterministic baselines and any baseline report.\n`,
 );
 
-function authorGold(query, slot, design) {
+function authorGold(query) {
   const normalized = authorNormalizationGold(query, false);
   if (normalized.outcome !== 'normalized')
     throw new Error(`Retrieval case did not normalize: ${query.caseId}`);
   const generated = generateHardFilterProjection(normalized, profiles);
-  const auditSample = auditSamples(query, generated, design);
+  const auditSample = auditSamples(query, generated);
   write(
     `gold/hard-filters/${query.caseId}.json`,
     {
@@ -294,43 +291,8 @@ function authorGold(query, slot, design) {
     'hard-filter-gold',
     query.caseId,
   );
-  const universe = profiles.profiles
-    .filter((profile) => {
-      const record = candidateRecords.get(profile.candidateId);
-      return (
-        record.status !== 'negative-control' &&
-        (record.family === query.capabilityFamily ||
-          record.additional.includes(query.capabilityFamily))
-      );
-    })
-    .map(({ candidateId }) => candidateId);
-  const named = new Set(
-    query.queryInput.candidateReferences.map(({ value }) => value),
-  );
-  const judgments = universe.map((candidateId) => {
-    let grade = slot === 3 || slot === 4 ? 1 : 2;
-    if (candidateId === design.anchor || named.has(candidateId)) grade = 3;
-    return {
-      candidateId,
-      grade,
-      reasonCodes: [
-        named.has(candidateId)
-          ? 'explicit-candidate-intent'
-          : slot === 3
-            ? 'family-adjacent-narrow-intent'
-            : 'catalog-family-capability-match',
-      ],
-      provenance,
-    };
-  });
-  write(
+  registerExisting(
     `gold/relevance/${query.caseId}.json`,
-    {
-      relevanceGoldVersion: RETRIEVAL_VERSIONS.relevanceGold,
-      caseId: query.caseId,
-      judgments,
-      provenance,
-    },
     'relevance-gold',
     query.caseId,
   );
@@ -389,8 +351,16 @@ function authorNormalizationGold(query, clarification) {
   return result;
 }
 
-function auditSamples(query, generated, design) {
-  const pick = (predicate) => generated.decisions.find(predicate);
+function auditSamples(query, generated) {
+  const selected = new Set();
+  const pick = (predicate) => {
+    const entry = generated.decisions.find(
+      (candidate) =>
+        !selected.has(candidate.candidateId) && predicate(candidate),
+    );
+    if (entry !== undefined) selected.add(entry.candidateId);
+    return entry;
+  };
   const familyOf = (candidateId) => candidateRecords.get(candidateId).family;
   const roles = [
     ['eligible', pick((entry) => entry.lane === 'eligible')],
@@ -401,12 +371,6 @@ function auditSamples(query, generated, design) {
       pick((entry) => familyOf(entry.candidateId) !== query.capabilityFamily),
     ],
     ['negative-control', pick((entry) => entry.negativeControl)],
-    [
-      'material-edge',
-      generated.decisions.find(
-        ({ candidateId }) => candidateId === design.negative,
-      ) ?? generated.decisions[0],
-    ],
   ];
   return roles
     .filter(([, entry]) => entry !== undefined)
@@ -415,46 +379,31 @@ function auditSamples(query, generated, design) {
       candidateId: entry.candidateId,
       hardState: entry.hardState,
       lane: entry.lane,
-      reasonCode:
-        sampleRole === 'negative-control'
-          ? 'catalog-negative-control-exclusion'
-          : sampleRole === 'cross-family' || sampleRole === 'hard-conflict'
-            ? 'generated-primary-family-conflict'
-            : sampleRole === 'evidence-needed'
-              ? 'generated-hard-state-unresolved'
-              : sampleRole === 'eligible'
-                ? 'generated-hard-state-satisfied'
-                : 'proposed-material-edge-sample',
+      reasonCode: {
+        'cross-family': 'generated-cross-family',
+        eligible: 'generated-eligible-lane',
+        'evidence-needed': 'generated-evidence-needed-lane',
+        'hard-conflict': 'generated-hard-conflict',
+        'negative-control': 'catalog-negative-control-exclusion',
+      }[sampleRole],
       provenance,
     }))
     .sort((left, right) => compare(left.sampleRole, right.sampleRole));
 }
 
-function retrievalTags(slot) {
+function retrievalClassifications(slot) {
   const common = ['family-balanced'];
-  if (slot === 1)
-    return [...common, 'positive-multiple-relevant', 'slot-exact-family'];
+  if (slot === 1) return [...common, 'positive-multiple-relevant'];
   if (slot === 2)
-    return [
-      ...common,
-      'active-alias',
-      'positive-multiple-relevant',
-      'slot-active-alias',
-    ];
+    return [...common, 'active-alias', 'positive-multiple-relevant'];
   if (slot === 3)
-    return [
-      ...common,
-      'preferred-constraint',
-      'positive-multiple-relevant',
-      'slot-narrower-intent',
-    ];
+    return [...common, 'preferred-constraint', 'positive-multiple-relevant'];
   if (slot === 4)
     return [
       ...common,
       'equivalence-safety',
       'positive-multiple-relevant',
       'same-family-comparison',
-      'slot-candidate-comparison',
     ];
   if (slot === 5)
     return [
@@ -465,24 +414,22 @@ function retrievalTags(slot) {
       'no-eligible-candidate',
       'prohibited-constraint',
       'required-constraint',
-      'slot-hard-constraint',
     ];
   return [
     ...common,
     'equivalence-safety',
     'negative-control-safety',
     'positive-multiple-relevant',
-    'slot-negative-control',
   ];
 }
 
 function normalizationCase(caseId, family, slot, design) {
   if (slot === 1) {
-    const tags = ['alias-evaluation'];
+    const classifications = ['alias-evaluation'];
     const constraints = [];
     const references = [];
     if (family === 'authorization') {
-      tags.push('same-family-comparison');
+      classifications.push('same-family-comparison');
       references.push(
         ...design.compare.map((candidateId, index) =>
           reference(caseId, candidateId, index),
@@ -490,7 +437,7 @@ function normalizationCase(caseId, family, slot, design) {
       );
     }
     if (family === 'audit-logging') {
-      tags.push('unknown-preferred-nonblocking');
+      classifications.push('unknown-preferred-nonblocking');
       constraints.push(
         constraint(
           caseId,
@@ -502,7 +449,7 @@ function normalizationCase(caseId, family, slot, design) {
       );
     }
     return {
-      tags,
+      classifications,
       terms: [design.alias],
       constraints,
       references,
@@ -511,7 +458,7 @@ function normalizationCase(caseId, family, slot, design) {
   }
   if (slot === 2)
     return {
-      tags: ['ambiguous-primary-family', 'intentional-ambiguity'],
+      classifications: ['ambiguous-primary-family', 'intentional-ambiguity'],
       terms: [design.ambiguity],
       constraints: [],
       references: [],
@@ -519,7 +466,10 @@ function normalizationCase(caseId, family, slot, design) {
     };
   if (slot === 3)
     return {
-      tags: ['prohibited-preservation', 'required-prohibited-conflict'],
+      classifications: [
+        'prohibited-preservation',
+        'required-prohibited-conflict',
+      ],
       terms: [family],
       constraints: [
         constraint(
@@ -542,7 +492,7 @@ function normalizationCase(caseId, family, slot, design) {
     };
   if (family === 'authorization')
     return {
-      tags: ['subjective-lightweight'],
+      classifications: ['subjective-lightweight'],
       terms: [family, 'lightweight'],
       constraints: [],
       references: [],
@@ -550,7 +500,7 @@ function normalizationCase(caseId, family, slot, design) {
     };
   if (family === 'audit-logging')
     return {
-      tags: ['unsupported-adjacent'],
+      classifications: ['unsupported-adjacent'],
       terms: ['generic-observability'],
       constraints: [],
       references: [],
@@ -558,7 +508,7 @@ function normalizationCase(caseId, family, slot, design) {
     };
   if (family === 'background-jobs')
     return {
-      tags: ['unicode-confusable'],
+      classifications: ['unicode-confusable'],
       terms: ['background-jоbs'],
       constraints: [],
       references: [],
@@ -566,7 +516,7 @@ function normalizationCase(caseId, family, slot, design) {
     };
   if (family === 'rate-limiting')
     return {
-      tags: ['unclear-self-hosting'],
+      classifications: ['unclear-self-hosting'],
       terms: [family],
       constraints: [
         constraint(
@@ -581,7 +531,11 @@ function normalizationCase(caseId, family, slot, design) {
       summary: 'Ambiguous hosting must be clarified.',
     };
   return {
-    tags: ['cross-family-comparison', 'summary-inert', 'unknown-hard-blocking'],
+    classifications: [
+      'cross-family-comparison',
+      'summary-inert',
+      'unknown-hard-blocking',
+    ],
     terms: [family],
     constraints: [
       constraint(
@@ -605,7 +559,6 @@ function queryDocument(
   caseId,
   caseKind,
   family,
-  tags,
   terms,
   constraints,
   references,
@@ -616,7 +569,6 @@ function queryDocument(
     caseId,
     caseKind,
     capabilityFamily: family,
-    tags: [...tags].sort(compare),
     queryInput: {
       contractVersion: '1.0.0',
       queryInputId: `query-${caseId}`,
@@ -667,13 +619,27 @@ function reference(caseId, candidateId, index) {
   };
 }
 
-function group(groupId, relationshipKind, candidateIds) {
+function classificationEntry(caseId, slotId, auditClassifications) {
   return {
-    groupId,
-    relationshipKind,
-    candidateIds: [...candidateIds].sort(compare),
+    caseId,
+    slotId,
+    classifications: [...auditClassifications].sort(compare),
     provenance,
   };
+}
+
+function registerExisting(path, kind, caseId) {
+  const absolute = join(corpusRoot, path);
+  const stat = lstatSync(absolute);
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 256 * 1024)
+    throw new Error('Manual retrieval authority is unavailable or unbounded.');
+  const bytes = readFileSync(absolute);
+  files.set(path, {
+    path,
+    sha256: createHash('sha256').update(bytes).digest('hex'),
+    kind,
+    caseId,
+  });
 }
 
 function write(path, value, kind, caseId) {

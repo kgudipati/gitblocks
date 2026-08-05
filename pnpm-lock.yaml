@@ -106,6 +106,9 @@ importers:
       '@gitblocks/contracts':
         specifier: workspace:0.0.0
         version: link:../../packages/contracts
+      '@gitblocks/domain':
+        specifier: workspace:0.0.0
+        version: link:../../packages/domain
       '@gitblocks/persistence':
         specifier: workspace:0.0.0
         version: link:../../packages/persistence

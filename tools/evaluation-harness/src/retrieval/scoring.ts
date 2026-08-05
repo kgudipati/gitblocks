@@ -402,7 +402,7 @@ function scoreAlias(
   prediction: NormalizationCasePrediction['normalization'],
 ): MetricValue {
   return scoreAliasExpansionCorrectness(
-    bundle.query.tags.includes('alias-evaluation'),
+    bundle.classification.classifications.includes('alias-evaluation'),
     bundle.normalizationGold.expected.normalizedConcepts,
     prediction.normalizedConcepts,
   );
@@ -421,14 +421,21 @@ export function scoreProhibited(
     const gold = expected.find(({ sourceConstraintIds }) =>
       sourceConstraintIds.includes(sourceId),
     );
-    const candidate = predicted.find(({ sourceConstraintIds }) =>
+    const candidates = predicted.filter(({ sourceConstraintIds }) =>
       sourceConstraintIds.includes(sourceId),
     );
+    const candidate = candidates[0];
     if (
       gold !== undefined &&
-      candidate?.modality === 'prohibited' &&
+      candidates.length === 1 &&
+      retrievalStableJson(candidate?.sourceConstraintIds) ===
+        retrievalStableJson(gold.sourceConstraintIds) &&
+      candidate?.modality === gold.modality &&
+      candidate.facet === gold.facet &&
       candidate.conceptId === gold.conceptId &&
-      candidate.resolutionBasis === gold.resolutionBasis
+      candidate.canonicalTerm === gold.canonicalTerm &&
+      candidate.resolutionBasis === gold.resolutionBasis &&
+      candidate.ruleId === gold.ruleId
     )
       preserved += 1;
   }

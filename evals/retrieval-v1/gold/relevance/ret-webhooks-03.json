@@ -3,7 +3,7 @@
   "judgments": [
     {
       "candidateId": "webhook-adnanh",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -12,12 +12,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "webhook-convoy",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -26,7 +26,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -40,12 +40,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "webhook-hook0",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -54,7 +54,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -68,12 +68,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "webhook-octokit-app",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -82,12 +82,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
       "candidateId": "webhook-octokit-methods",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -96,12 +96,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "webhook-octokit-webhooks",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -110,12 +110,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "webhook-standard-webhooks",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -124,12 +124,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "webhook-stripe-node",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -138,7 +138,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
@@ -152,12 +152,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "webhook-webhook-site",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -166,7 +166,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -180,7 +180,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     }
   ],

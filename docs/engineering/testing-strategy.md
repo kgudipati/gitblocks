@@ -354,7 +354,9 @@ Phase 7 calibration candidates. Its initial corpus contains exactly 50 cases:
 clarification, and adversarial cases, exactly four per family. Normalization
 gold, clarification gold, hard-filter expectations, graded relevance,
 duplicate equivalence, and no-result expectations remain physically and
-semantically separate. Future ranking judgments are prohibited. Expected
+semantically separate. Blind query records contain no tags or audit
+classifications; a separate classification authority is excluded from the
+blind-only future baseline loader. Future ranking judgments are prohibited. Expected
 hard-filter membership is generated from normalized queries, exact candidate
 profiles, and versioned evaluation rules; it is not a hand-authored 50 by 150
 matrix. Selected generated entries currently have bounded
@@ -367,9 +369,10 @@ hard-filter violations, no-eligible-candidate accuracy, clarification accuracy,
 alias-expansion correctness, and prohibited-constraint preservation. A zero
 denominator retains numerator 0 and denominator 0, has null value and
 `not-applicable` status, and is excluded from macro means, never silently 0,
-1, NaN, or Infinity. The 20 synthetic hand-calculated fixtures cover graded
+1, NaN, or Infinity. The 26 synthetic hand-calculated fixtures cover graded
 gain, known rank, exact/equivalence duplicates, tri-state/lane safety,
-negative controls, no-result, exact clarification/alias/prohibition, null
+negative controls, no-result, exact clarification/alias/prohibition including
+source-set, facet, basis, rule, and representation forgeries, null
 macros, stable rounding, ordering, and report digest. Milestone 6—not this
 corpus-authoring milestone—owns deterministic baselines and a drift-checked
 content-free verification report. Ordinary validation performs no provider or

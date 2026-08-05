@@ -48,15 +48,5 @@
     ],
     "summary": "Evaluate the structured capability query without reading gold."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "deployment-self-hosting",
-    "evidence-needed",
-    "family-balanced",
-    "infrastructure-exclusion",
-    "no-eligible-candidate",
-    "prohibited-constraint",
-    "required-constraint",
-    "slot-hard-constraint"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

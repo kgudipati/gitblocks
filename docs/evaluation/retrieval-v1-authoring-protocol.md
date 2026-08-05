@@ -5,7 +5,7 @@
 `retrieval-v1` is an immutable, evaluation-only authority created before any
 production retrieval implementation. Its corpus contract is
 `retrieval-evaluation-corpus/1.0.0`, and its semantic digest is
-`e133c0fa00b6063e7360ce5ebfdf27893f72ee5ca5e39fbe5d82c1e944831917`.
+`3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de`.
 It contains exactly 30 retrieval cases and 20 normalization/adversarial cases:
 six and four, respectively, for each of authorization, audit logging,
 background jobs, rate limiting, and webhooks.
@@ -13,6 +13,7 @@ background jobs, rate limiting, and webhooks.
 The remaining exact evaluation versions are:
 
 - query: `retrieval-evaluation-query/1.0.0`;
+- case classification: `retrieval-case-classification/1.0.0`;
 - normalization gold: `retrieval-normalization-gold/1.0.0`;
 - clarification gold: `retrieval-clarification-gold/1.0.0`;
 - hard-filter projection: `retrieval-hard-filter-projection/1.0.0`;
@@ -27,7 +28,10 @@ These versions and the JSON Schemas under `schemas/evaluation/retrieval/` are
 not product contracts and are not members of the `@gitblocks/contracts`
 product-schema catalog. Product packages must not import retrieval corpus
 types, schemas, cases, gold, fixtures, equivalence authority, or scorer code.
-The evaluation harness consumes only accepted public product exports.
+The evaluation harness consumes accepted contract parsers and DTOs from
+`@gitblocks/contracts` and declares `@gitblocks/domain` directly for the
+candidate-constraint evaluator and domain profile types. Contracts do not
+re-export that evaluator on behalf of evaluation code.
 
 Production candidate generation, hard filtering, retrieval, ranking,
 reranking, vector search, recommendation, and baseline execution remain
@@ -36,8 +40,9 @@ committed baseline report.
 
 ## Manifest and physical separation
 
-The corpus has 212 JSON files: one manifest and exactly 211 manifest entries.
-The manifest lists the equivalence authority, all 50 blind queries, 50
+The corpus has 213 JSON files: one manifest and exactly 212 manifest entries.
+The manifest lists the separate case-classification audit authority, the
+equivalence authority, all 50 blind queries, 50
 normalization-gold files, 20 clarification-gold files, 30 hard-filter
 projections, 30 relevance-gold files, and 30 no-result-gold files. Each entry
 binds its exact path, document kind, case ID where applicable, and SHA-256 byte
@@ -45,8 +50,8 @@ hash. The manifest does not list itself; its documented canonical semantic
 projection excludes only `corpusSemanticDigest`. README bytes are not semantic
 corpus input.
 
-The current JSON corpus is 493,468 bytes, and its largest JSON file is the
-50,222-byte manifest. The boundary allows at most 256 KiB per corpus JSON file,
+The current JSON corpus is 495,003 bytes, and its largest JSON file is the
+50,425-byte manifest. The boundary allows at most 256 KiB per corpus JSON file,
 16 MiB for the complete corpus, 500 files before exact membership checks, depth
 64, 50,000 JSON nodes per document, and 500 diagnostics. The exact accepted
 profile authority has a separately fixed 4 MiB read cap. Reads require fixed
@@ -54,12 +59,21 @@ repository-contained regular files, reject symlinks, duplicate keys, traversal,
 aliases, missing or unlisted JSON, and noncanonical membership.
 
 Blind query documents contain only a version, stable case ID, case kind,
-assigned family, controlled tags, and an exact `CapabilityQueryInputV1` parsed
-by the accepted product parser. They contain no expected outcome, relevance
-grade, winner, recommendation, hard-filter expectation, clarification answer,
-ranking hint, reviewer conclusion, URL, or target source. Summary and success
-condition prose are retained inertly; only structured term, constraint, and
-candidate-reference records own deterministic meaning.
+assigned family, and an exact `CapabilityQueryInputV1` parsed by the accepted
+product parser. They contain no tags, classifications, expected outcome,
+relevance grade, winner, recommendation, hard-filter expectation,
+clarification answer, ranking hint, reviewer conclusion, URL, or target source.
+Summary and success-condition prose are retained inertly; only structured term,
+constraint, and candidate-reference records own deterministic meaning.
+
+Case slot and diversity classifications live only in
+`audit/case-classification.json`, version
+`retrieval-case-classification/1.0.0`, under proposed/not-reviewed provenance.
+The dedicated read-only `loadRetrievalBlindQuerySetV1` boundary validates only
+manifest bindings and the 50 query documents and returns no gold,
+classification, equivalence, or path that exposes those records. A future
+Milestone 6 baseline may consume only that blind loader; the full corpus loader
+is reserved for corpus validation and scoring.
 
 Normalization, clarification, hard-filter, relevance, no-result, and
 equivalence authority remain physically separate. Every gold record has
@@ -110,9 +124,11 @@ is not viable.
 The committed hard-filter record contains only bindings, the complete
 150-decision digest, state/lane counts, bounded audit samples, and proposed
 provenance. The complete matrix is regenerated in memory. Each audit sample
-uses actual generated entries and controlled roles/reasons to cover every
-present state plus cross-family, negative-control, and material-edge behavior;
-it never claims independent review.
+uses a distinct actual generated entry and a controlled role/reason. The
+validator proves eligible, evidence-needed, hard-conflict, cross-family, and
+negative-control role semantics from generated state, profile family, and
+catalog status. No generic material-edge role exists, and samples never claim
+independent review.
 
 Relevance is capability-query relevance only. Grades are 0 irrelevant or
 false-positive, 1 adjacent/weak, 2 relevant, and 3 strong direct match. They do
@@ -121,16 +137,23 @@ preference, recommendation, or adoption quality. For each case the complete
 judgment universe is mechanically every non-negative-control profile whose
 known primary or additional family contains the case family. All members have
 exactly one proposed judgment; candidates outside the universe have structural
-gain zero. The current 636 judgments comprise 0 grade-0, 194 grade-1, 404
-grade-2, and 38 grade-3 records. The absence of grade-0 records within this
-family-derived universe does not turn outside-family or negative-control
-candidates into relevant candidates.
+gain zero. The current 636 judgments comprise 130 grade-0, 62 grade-1, 388
+grade-2, and 56 grade-3 records. They were deliberately proposed candidate by
+candidate from structured query fields, committed catalog identity,
+family/status and curator rationale, exact candidate references, and accepted
+taxonomy. No family/slot formula or fixed anchor remains. Narrower and
+comparison queries have case-specific differentiation in every family. The
+mechanical authoring command does not create or overwrite relevance files and
+preserves their bytes.
 
-Five proposed equivalence groups use four controlled relationship kinds:
-ecosystem companion, ecosystem implementation variant, functional overlap,
-and parent/focused companion. Membership is based only on explicit committed
-catalog curation, includes no candidate twice, and is not a product profile
-fact. Exactly five retrieval cases—one per family—expect
+Real-corpus equivalence means result-level redundancy only: actual fork,
+mirror, superseding alias, duplicate catalog identity, or genuinely
+interchangeable distribution variant. Generic functional overlap, ecosystem
+companions, parent/focused companions, and composable transport/plugin/core
+packages are not duplicates. The committed authority currently has zero
+defensible groups; zero through 100 groups is valid, and synthetic fixtures
+prove metric math. Mechanical authoring preserves the equivalence bytes.
+Exactly five retrieval cases—one per family—expect
 `no-eligible-candidate`; that result is derived from the hard-filter projection,
 not relevance. Relevant unresolved candidates therefore remain possible in a
 no-eligible case.
@@ -173,11 +196,13 @@ hard state satisfied, and a non-negative-control candidate. The scorer defines:
   emitting evidence-needed does not make the boolean false.
 - Clarification accuracy: exact outcome/reason/source/possible-concept equality
   for normalization/adversarial cases.
-- Alias correctness: exact source-term-to-concept projection on tagged cases,
-  with no unintended concept.
-- Prohibited preservation: exact source constraint, prohibited modality, and
-  controlled concept or preserved-declaration basis without omission or
-  weakening.
+- Alias correctness: exact source-term-to-concept projection on cases selected
+  by the separate audit classification authority, with no unintended concept.
+- Prohibited preservation: exactly one predicted record for each prohibited
+  source, with exact source-ID set, modality, facet, resolution basis, rule ID,
+  concept ID, and canonical term. Extra or duplicate source claims,
+  controlled/preserved-declaration substitution, omission, and weakening are
+  incorrect.
 
 Every metric serializes numerator, denominator, rounded value, and status.
 When a denominator is zero, the value is `null`, status is
@@ -194,7 +219,7 @@ allowed. Milestone 5 commits no prediction or score report.
 
 `pnpm eval:retrieval:validate` performs read-only corpus, schema, normalizer,
 profile, projection, relevance, equivalence, no-result, and provenance closure.
-`pnpm eval:retrieval:fixtures` runs only 20 hand-calculated synthetic scorer
+`pnpm eval:retrieval:fixtures` runs only 26 hand-calculated synthetic scorer
 fixtures. `pnpm eval:retrieval:score -- --prediction <repository-relative-json-path>`
 validates and prints canonical content-free JSON without writing. All three are
 offline and make no network, provider, model, database, candidate-repository,

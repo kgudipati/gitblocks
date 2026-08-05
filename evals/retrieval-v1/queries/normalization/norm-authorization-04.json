@@ -27,8 +27,5 @@
     ],
     "summary": "Subjective terminology is not a capability fact."
   },
-  "queryVersion": "retrieval-evaluation-query/1.0.0",
-  "tags": [
-    "subjective-lightweight"
-  ]
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
 }

@@ -3,7 +3,7 @@
   "judgments": [
     {
       "candidateId": "rate-apisix",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -12,7 +12,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -26,12 +26,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "rate-envoy-ratelimit",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -40,11 +40,39 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "rate-express-rate-limit",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-unsupported-intent"
+      ]
+    },
+    {
+      "candidateId": "rate-fastify-rate-limit",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-unsupported-intent"
+      ]
+    },
+    {
+      "candidateId": "rate-go-limiter",
       "grade": 3,
       "provenance": {
         "reviewReference": null,
@@ -54,35 +82,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
-      ]
-    },
-    {
-      "candidateId": "rate-fastify-rate-limit",
-      "grade": 1,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "family-adjacent-narrow-intent"
-      ]
-    },
-    {
-      "candidateId": "rate-go-limiter",
-      "grade": 1,
-      "provenance": {
-        "reviewReference": null,
-        "reviewStatus": "not-reviewed",
-        "reviewedAt": null,
-        "reviewer": null,
-        "status": "proposed"
-      },
-      "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
@@ -96,12 +96,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "rate-gravitee",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -110,12 +110,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "rate-gubernator",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -124,12 +124,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "rate-juju",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -138,12 +138,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "rate-koa-ratelimit",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -152,12 +152,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "rate-kong",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -166,12 +166,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "rate-krakend",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -180,7 +180,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -194,12 +194,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "rate-nestjs-throttler",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -208,7 +208,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -222,12 +222,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "rate-node-ratelimiter",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -236,12 +236,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
       "candidateId": "rate-redis-cell",
-      "grade": 1,
+      "grade": 2,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -250,7 +250,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-relevant-match"
       ]
     },
     {
@@ -264,12 +264,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "rate-tollbooth",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -278,12 +278,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     },
     {
       "candidateId": "rate-tyk",
-      "grade": 1,
+      "grade": 0,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -292,7 +292,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-unsupported-intent"
       ]
     },
     {
@@ -306,7 +306,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
@@ -320,12 +320,12 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-adjacent-match"
       ]
     },
     {
       "candidateId": "rate-upstash",
-      "grade": 1,
+      "grade": 3,
       "provenance": {
         "reviewReference": null,
         "reviewStatus": "not-reviewed",
@@ -334,7 +334,7 @@
         "status": "proposed"
       },
       "reasonCodes": [
-        "family-adjacent-narrow-intent"
+        "committed-curation-direct-match"
       ]
     }
   ],
