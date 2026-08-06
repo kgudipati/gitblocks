@@ -400,7 +400,10 @@ export async function collectProfileMaterializationSources(
         tags: tags?.value ?? [],
         license: license?.value ?? null,
         community: community?.value ?? null,
-        files,
+        files: files.map((file) => ({
+          ...file,
+          htmlUrl: repository.htmlUrl,
+        })),
         npm,
         advisories,
       };

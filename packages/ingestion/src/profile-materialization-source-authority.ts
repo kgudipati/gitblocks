@@ -278,14 +278,27 @@ export function reconcileProfileMaterializationSourceAuthority(
       record,
     ]),
   );
-  const reconciled = collectedRecords.map((input) => {
-    const current = createProfileMaterializationSourceRecord(input);
+  const currentRecords = collectedRecords.map(
+    createProfileMaterializationSourceRecord,
+  );
+  const currentlyQualifiedCandidates = new Set(
+    currentRecords
+      .filter((record) => record.outcome === 'unavailable')
+      .map((record) => record.candidateId),
+  );
+  const reconciled = currentRecords.map((current) => {
     const previous = priorByIdentity.get(current.logicalSourceIdentityDigest);
     if (previous === undefined) return sourceRecordInput(current);
     if (
       sourceRecordContentDigest(previous) === sourceRecordContentDigest(current)
     ) {
-      return sourceRecordInput(previous);
+      return sourceRecordInput(
+        selectEqualProviderContentRecord(
+          previous,
+          current,
+          currentlyQualifiedCandidates.has(current.candidateId),
+        ),
+      );
     }
     if (
       previous.sourceMutability === 'immutable' &&
@@ -300,6 +313,27 @@ export function reconcileProfileMaterializationSourceAuthority(
     ...bindings,
     sourceRecords: reconciled,
   });
+}
+
+function selectEqualProviderContentRecord(
+  previous: ProfileMaterializationSourceRecord,
+  current: ProfileMaterializationSourceRecord,
+  currentCandidateIsQualified: boolean,
+): ProfileMaterializationSourceRecord {
+  if (
+    canonicalizeJson(previous.evidenceIds).text ===
+    canonicalizeJson(current.evidenceIds).text
+  ) {
+    return previous;
+  }
+  if (previous.evidenceIds.length === 0 && current.evidenceIds.length > 0) {
+    return current;
+  }
+  if (previous.evidenceIds.length > 0 && current.evidenceIds.length === 0) {
+    if (currentCandidateIsQualified) return previous;
+    throw ingestionError('ingestion.invalid-manifest');
+  }
+  throw ingestionError('ingestion.invalid-manifest');
 }
 
 function isEstablishedFact(

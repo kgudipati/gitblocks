@@ -418,6 +418,19 @@ prove the shared release selector preserves legacy behavior, changed
 observation prose is irrelevant, qualified transitions remain qualified, and
 an earlier controlled failure remains in two-collection receipt accounting.
 
+The qualified-recovery correction adds an injected two-collection journey in
+both directions. A first qualified/unpersisted candidate that later succeeds
+must create durable candidate/snapshot material and retain every generated
+evidence identifier through reconciliation, proof parsing, idempotency
+derivation, and receipt parsing; the earlier failure remains qualified and
+cannot be called unchanged. The reverse complete-to-qualified journey retains
+prior durable evidence only on unchanged facts, keeps the current unavailable
+record, and claims no second mutation. Unit denials cover different nonempty
+evidence lists, unqualified evidence loss, and evidence-only drift.
+Repository-file mapping additionally rejects owner/repository mismatch, unsafe
+source or immutable URLs, wrong commits/paths/topics, and percent-encoding
+ambiguity.
+
 Taxonomy validation is active from Milestone 2. Its no-write command rebuilds
 the expected generated authority in memory and compares exact committed bytes.
 Tests cover closed TypeBox roots, existing schema-digest preservation, graph

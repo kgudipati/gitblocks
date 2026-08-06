@@ -222,6 +222,94 @@ describe('profile-materialization source authority', () => {
     );
   });
 
+  it.each(['github-repository-metadata', 'npm-package'] as const)(
+    'retains newly established %s evidence when equal provider content recovers',
+    async (operation) => {
+      const candidateId = 'auth-casbin-casbin-js';
+      const first = await buildFakeSourceAuthority({
+        mutate: (records) => {
+          const index = records.findIndex(
+            (record) =>
+              record.candidateId === candidateId &&
+              record.operation === operation,
+          );
+          records[index] = { ...records[index]!, evidenceIds: [] };
+        },
+      });
+      const recovered = await buildFakeSourceAuthority({
+        collectedAt: '2026-08-05T01:00:00.000Z',
+      });
+      const current = candidateOperationRecord(
+        recovered.authority.sourceRecords,
+        candidateId,
+        operation,
+      );
+      const reconciled = reconcileProfileMaterializationSourceAuthority(
+        first.authority,
+        recovered.authority.sourceRecords,
+        first,
+      );
+      const retained = candidateOperationRecord(
+        reconciled.sourceRecords,
+        candidateId,
+        operation,
+      );
+      expect(retained.evidenceIds).toEqual(current.evidenceIds);
+      expect(retained.evidenceIds.length).toBeGreaterThan(0);
+      expect(retained.collectedAt).toBe(current.collectedAt);
+      expect(retained.sourceRecordDigest).toBe(current.sourceRecordDigest);
+    },
+  );
+
+  it('rejects different nonempty evidence identities for equal provider content', async () => {
+    const candidateId = 'auth-casbin-casbin-js';
+    const first = await buildFakeSourceAuthority();
+    const changedEvidence = await buildFakeSourceAuthority({
+      collectedAt: '2026-08-05T01:00:00.000Z',
+      mutate: (records) => {
+        const index = records.findIndex(
+          (record) =>
+            record.candidateId === candidateId &&
+            record.operation === 'github-repository-metadata',
+        );
+        records[index] = {
+          ...records[index]!,
+          evidenceIds: ['ev-different-evidence'],
+        };
+      },
+    });
+    expect(() =>
+      reconcileProfileMaterializationSourceAuthority(
+        first.authority,
+        changedEvidence.authority.sourceRecords,
+        first,
+      ),
+    ).toThrow();
+  });
+
+  it('rejects missing current evidence for a complete candidate', async () => {
+    const candidateId = 'auth-casbin-casbin-js';
+    const first = await buildFakeSourceAuthority();
+    const missingEvidence = await buildFakeSourceAuthority({
+      collectedAt: '2026-08-05T01:00:00.000Z',
+      mutate: (records) => {
+        const index = records.findIndex(
+          (record) =>
+            record.candidateId === candidateId &&
+            record.operation === 'github-repository-metadata',
+        );
+        records[index] = { ...records[index]!, evidenceIds: [] };
+      },
+    });
+    expect(() =>
+      reconcileProfileMaterializationSourceAuthority(
+        first.authority,
+        missingEvidence.authority.sourceRecords,
+        first,
+      ),
+    ).toThrow();
+  });
+
   it('binds immutable license and file identities to the exact head commit', async () => {
     const { authority } = await buildFakeSourceAuthority();
     for (const record of authority.sourceRecords.filter((entry) =>
@@ -550,5 +638,24 @@ function firstOperationRecord(
 ) {
   const record = records.find((entry) => entry.operation === operation);
   if (record === undefined) throw new Error('Missing operation fixture.');
+  return record;
+}
+
+function candidateOperationRecord(
+  records: readonly {
+    readonly candidateId: string;
+    readonly operation: ProfileMaterializationOperation;
+    readonly evidenceIds: readonly string[];
+    readonly collectedAt: string;
+    readonly sourceRecordDigest: string;
+  }[],
+  candidateId: string,
+  operation: ProfileMaterializationOperation,
+) {
+  const record = records.find(
+    (entry) =>
+      entry.candidateId === candidateId && entry.operation === operation,
+  );
+  if (record === undefined) throw new Error('Missing candidate operation.');
   return record;
 }

@@ -391,7 +391,7 @@ describe('profile-materialization durable persistence proof', () => {
   });
 
   it('requires the exact repository-file topic, commit, and encoded path', () => {
-    const bundle = testBundle();
+    const bundle = materializationBundle();
     const profile = profileCandidate(bundle);
     const record = repositoryFileRecord(bundle, 'package.json');
     const exactTopic = repositoryFileTopic('package.json');
@@ -451,6 +451,121 @@ describe('profile-materialization durable persistence proof', () => {
     );
     expect(() =>
       attachProfileMaterializationEvidenceIds([record], prefixOnlyTopic),
+    ).toThrow();
+
+    for (const immutableUrl of [
+      `https://github.com/different-owner/candidate/blob/${bundle.commit.sha}/package.json`,
+      `https://github.com/gitblocks-test/different-repository/blob/${bundle.commit.sha}/package.json`,
+    ]) {
+      const wrongRepository = replaceObservation(
+        profile,
+        fileObservation.evidenceId,
+        {
+          source: { ...fileObservation.source, immutableUrl },
+        },
+      );
+      expect(() =>
+        attachProfileMaterializationEvidenceIds([record], wrongRepository),
+      ).toThrow();
+    }
+
+    const mismatchedSourceRepository = replaceObservation(
+      profile,
+      fileObservation.evidenceId,
+      {
+        source: {
+          ...fileObservation.source,
+          sourceUrl: 'https://github.com/different-owner/candidate',
+        },
+      },
+    );
+    expect(() =>
+      attachProfileMaterializationEvidenceIds(
+        [record],
+        mismatchedSourceRepository,
+      ),
+    ).toThrow();
+
+    for (const sourceUrl of [
+      `${fileObservation.source.sourceUrl}?view=1`,
+      `${fileObservation.source.sourceUrl}#readme`,
+    ]) {
+      const unsafeSourceUrl = replaceObservation(
+        profile,
+        fileObservation.evidenceId,
+        {
+          source: { ...fileObservation.source, sourceUrl },
+        },
+      );
+      expect(() =>
+        attachProfileMaterializationEvidenceIds([record], unsafeSourceUrl),
+      ).toThrow();
+    }
+
+    for (const immutableUrl of [
+      `${fileObservation.source.immutableUrl}?view=1`,
+      `${fileObservation.source.immutableUrl}#readme`,
+      `https://github.com/gitblocks-test/candidate/blob/${bundle.commit.sha}/%70ackage.json`,
+    ]) {
+      const ambiguousImmutableUrl = replaceObservation(
+        profile,
+        fileObservation.evidenceId,
+        {
+          source: { ...fileObservation.source, immutableUrl },
+        },
+      );
+      expect(() =>
+        attachProfileMaterializationEvidenceIds(
+          [record],
+          ambiguousImmutableUrl,
+        ),
+      ).toThrow();
+    }
+  });
+
+  it('rejects a different immutable GitHub repository with the correct commit and path', () => {
+    const bundle = materializationBundle();
+    const profile = profileCandidate(bundle);
+    const record = repositoryFileRecord(bundle, 'package.json');
+    const observation = profile.observations.find(
+      (entry) => entry.topic === repositoryFileTopic('package.json'),
+    );
+    if (observation?.source.kind !== 'git-commit') {
+      throw new Error('Missing repository-file fixture observation.');
+    }
+    const wrongRepository = replaceObservation(
+      profile,
+      observation.evidenceId,
+      {
+        source: {
+          ...observation.source,
+          immutableUrl: `https://github.com/different-owner/candidate/blob/${bundle.commit.sha}/package.json`,
+        },
+      },
+    );
+    expect(() =>
+      attachProfileMaterializationEvidenceIds([record], wrongRepository),
+    ).toThrow();
+  });
+
+  it('rejects a repository mismatch between source and immutable URLs', () => {
+    const bundle = materializationBundle();
+    const profile = profileCandidate(bundle);
+    const record = repositoryFileRecord(bundle, 'package.json');
+    const observation = profile.observations.find(
+      (entry) => entry.topic === repositoryFileTopic('package.json'),
+    );
+    if (observation?.source.kind !== 'git-commit') {
+      throw new Error('Missing repository-file fixture observation.');
+    }
+    const mismatched = replaceObservation(profile, observation.evidenceId, {
+      source: {
+        ...observation.source,
+        sourceUrl: 'https://github.com/different-owner/candidate',
+      },
+    });
+    expect(() =>
+      attachProfileMaterializationEvidenceIds([record], mismatched),
     ).toThrow();
   });
 
@@ -791,6 +906,16 @@ function repositoryFileRecord(
     controlledCode: null,
     evidenceIds: [],
   };
+}
+
+function materializationBundle(): CandidateSourceBundle {
+  const bundle = testBundle();
+  return testBundle({
+    files: bundle.files.map((file) => ({
+      ...file,
+      htmlUrl: bundle.repository.htmlUrl,
+    })),
+  });
 }
 
 function replaceObservation(

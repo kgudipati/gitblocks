@@ -477,7 +477,12 @@ function observationApplies(
         observation.topic === repositoryFileTopic(path) &&
         observation.source.kind === 'git-commit' &&
         observation.source.commitSha === commitSha &&
-        exactRepositoryFileUrl(observation.source.immutableUrl, commitSha, path)
+        exactRepositoryFileUrl(
+          observation.source.sourceUrl,
+          observation.source.immutableUrl,
+          commitSha,
+          path,
+        )
       );
     }
     case 'npm-package':
@@ -556,33 +561,59 @@ function exactRepositoryFileIdentity(
 }
 
 function exactRepositoryFileUrl(
+  sourceUrl: string,
   immutableUrl: string,
   commitSha: string,
   path: string,
 ): boolean {
-  let url: URL;
-  try {
-    url = new URL(immutableUrl);
-  } catch {
-    return false;
-  }
+  const repository = exactGithubRepositoryUrl(sourceUrl);
+  if (repository === undefined) return false;
   const encodedPath = path
     .split('/')
     .map((part) => encodeURIComponent(part))
     .join('/');
-  const suffix = `/blob/${commitSha}/${encodedPath}`;
-  if (!url.pathname.endsWith(suffix)) return false;
-  const repositoryPrefix = url.pathname.slice(0, -suffix.length);
   return (
-    url.protocol === 'https:' &&
-    url.hostname === 'github.com' &&
-    url.port === '' &&
-    url.username === '' &&
-    url.password === '' &&
-    url.search === '' &&
-    url.hash === '' &&
-    /^\/[^/]+\/[^/]+$/u.test(repositoryPrefix)
+    immutableUrl ===
+    `https://github.com/${repository.owner}/${repository.repository}/blob/${commitSha}/${encodedPath}`
   );
+}
+
+function exactGithubRepositoryUrl(
+  value: string,
+): { readonly owner: string; readonly repository: string } | undefined {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return undefined;
+  }
+  const match = /^\/([A-Za-z0-9_.-]{1,100})\/([A-Za-z0-9_.-]{1,100})$/u.exec(
+    url.pathname,
+  );
+  if (
+    match?.[1] === undefined ||
+    match[2] === undefined ||
+    ['.', '..'].includes(match[1]) ||
+    ['.', '..'].includes(match[2])
+  ) {
+    return undefined;
+  }
+  const owner = match[1];
+  const repository = match[2];
+  const expected = `https://github.com/${owner}/${repository}`;
+  if (
+    value !== expected ||
+    url.protocol !== 'https:' ||
+    url.hostname !== 'github.com' ||
+    url.port !== '' ||
+    url.username !== '' ||
+    url.password !== '' ||
+    url.search !== '' ||
+    url.hash !== ''
+  ) {
+    return undefined;
+  }
+  return { owner, repository };
 }
 
 function candidateSourcesUnchanged(

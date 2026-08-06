@@ -1022,8 +1022,14 @@ maintainer explicitly authorizes deletion.
 
 The second collection reconciles against the validated first authority by
 logical source identity. Content equality excludes only collection time,
-evidence identifiers, and the record digest; equal records reuse the complete
-first record byte-for-byte. Repository/head/release/tag/community/npm-latest/
+evidence identifiers, and the record digest. When provider content is equal,
+identical evidence lists reuse the complete first record byte-for-byte, an
+empty-to-nonempty transition retains the complete current record as recovery
+evidence enrichment, a nonempty-to-empty transition reuses the durable first
+record only when the complete current candidate record set contains an
+`unavailable` outcome, and different nonempty lists fail closed. Qualification
+derives only from those current unavailable outcomes; evidence enrichment is
+not provider drift. Repository/head/release/tag/community/npm-latest/
 advisory selectors are mutable singletons. License and allowlisted-file
 records are immutable exact-commit identities, so ordinary head advancement
 withdraws the old snapshot identities and adds new ones while conflicting
@@ -1045,7 +1051,11 @@ snapshot; unchanged reconciled records may retain exact previously persisted
 evidence IDs. Release evidence uses the same non-draft, bounded-tag,
 non-moving-marker selection helper as `profileCandidate`. Allowlisted-file
 evidence requires the exact controlled path topic, candidate, git-commit SHA,
-and encoded immutable path. Both private proof files follow the
+safe exact GitHub repository source URL, and an immutable URL with that same
+owner/repository plus the exact commit and canonical encoded path. The new
+materialization collector projects only that repository source identity into
+the legacy profile input while the legacy public collector remains unchanged.
+Both private proof files follow the
 source-authority retention and 0600 fixed-write policy.
 
 Pure materialization consumes only the accepted catalog, taxonomy, and one
@@ -2166,3 +2176,48 @@ entries.
   live evidence paths remain unchanged. No materialization command, Docker,
   PostgreSQL, credential, provider, model, retrieval/ranking, or Phase 7 effect
   occurred; Milestone 7B remains unauthorized.
+
+### 2026-08-06 — Milestone 7A qualified-recovery correction
+
+- Review found an asymmetric recovery defect: when a first optional-source
+  failure left a candidate qualified/unpersisted and the second collection
+  succeeded, provider-content equality caused reconciliation to reuse the
+  empty-evidence first records and discard newly persisted evidence IDs.
+- Red-first execution failed six of 45 tests across the source-authority,
+  persistence-proof, and injected system-effects suites. The failures exposed
+  repository and npm evidence loss, acceptance of different nonempty evidence
+  lists, silent rescue of a complete current candidate with missing evidence,
+  the recovered persistence-proof failure, and repository identity mismatch.
+  Separate repository fixtures also failed for a wrong immutable repository
+  and a source/immutable repository mismatch.
+- Equal-provider-content reconciliation now applies the reviewed evidence
+  matrix. It retains current nonempty recovery evidence, preserves prior
+  durable evidence only for a currently qualified candidate, rejects different
+  nonempty evidence identities and unqualified evidence loss, and derives
+  qualification solely from current `unavailable` records. Availability drift
+  behavior remains unchanged.
+- The injected recovery journey exercises collection, persistence, evidence
+  attachment, reconciliation, source authority, persistence proof,
+  idempotency derivation, and receipt parsing. The recovered candidate creates
+  its durable candidate/snapshot and retains all exact generated evidence;
+  the earlier controlled failure keeps both live idempotency and receipt
+  qualification at `qualified-optional-source-failures`. The reverse
+  complete-to-qualified journey retains prior evidence on unchanged facts,
+  keeps the current unavailable record, and performs no second persistence
+  mutation for that candidate.
+- Repository-file evidence now requires an exact safe GitHub repository source
+  URL and an immutable URL with the same owner/repository, exact commit, and
+  exact encoded path. Wrong owner/repository, source/immutable mismatch,
+  query/fragment, percent ambiguity, suffix, path, commit, and topic-prefix
+  substitutions fail without reading observation prose.
+- Final offline evidence: the required focused gate passes 76 tests in six
+  files; ingestion verification passes 293 tests in 29 files; the complete
+  suite and authoritative `pnpm verify` pass 1,698 tests in 115 files. V8
+  coverage is 80.13% statements, 73.49% branches, 87.67% functions, and 80.51%
+  lines. Architecture checks 847 modules and 2,808 dependencies with zero
+  violations. The provider policy, operational/product schemas, catalog,
+  accepted profile/evaluation authorities, package/lock files, migrations,
+  persistence database implementation, workflow, and live evidence paths are
+  unchanged. No materialization command, Docker, PostgreSQL, provider,
+  credential, model, retrieval/ranking, or Phase 7 effect occurred; Milestone
+  7B remains unauthorized.

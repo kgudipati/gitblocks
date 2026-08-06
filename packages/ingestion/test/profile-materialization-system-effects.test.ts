@@ -22,8 +22,19 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import {
+  PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS,
   PROFILE_MATERIALIZATION_FIXED_PATHS,
+  buildProfileMaterializationArtifacts,
+  buildProfileMaterializationReceipt,
+  compareProfileMaterializationSources,
+  controlledFailureCounts,
+  deriveProfileMaterializationLiveIdempotency,
+  parseProfileMaterializationPersistenceProof,
+  parseProfileMaterializationSourceAuthority,
   persistenceProofCounts,
+  sourceOutcomeCounts,
+  sourceRecordCounts,
+  validateProfileMaterializationReceipt,
   type ProfileMaterializationArguments,
   type ProfileMaterializationPreflightResult,
 } from '../src/index.ts';
@@ -274,13 +285,13 @@ describe('profile-materialization fixed filesystem boundary', () => {
       second.sourceAuthority.authoritySemanticDigest,
     );
     expect(first.sourceAuthority.authoritySemanticDigest).toBe(
-      '2d8137fae2f22c167232d9086df07e8f737dab0208edb9e384bfb2cc6219f54b',
+      'bc9543ba9e7910939b349f214c312e65ad2546742d0f65e61e93a825cc64f614',
     );
     expect(first.persistenceProof.proofSemanticDigest).toBe(
-      'ba1cfb1144aa0492f153c999c33cee9f5ff903ac04d0f9415fb5c7c1e5e7dca6',
+      '4b959ff17e6141166d45209c12a0242fcb2f1eb15ae15d00a81d8999279e9669',
     );
     expect(second.persistenceProof.proofSemanticDigest).toBe(
-      '7ce52187715f088381a476626b7953f887fc3ae9c7961124775e88129c36ea8d',
+      '83f46fefa08e095b01b66cea3c9aed08bdb60a2331eedee4d79f49ee309138b4',
     );
     expect(persistenceProofCounts(first.persistenceProof)).toMatchObject({
       persistedCandidateCount: 150,
@@ -328,6 +339,137 @@ describe('profile-materialization fixed filesystem boundary', () => {
     expect(events.filter((event) => event === 'seed-runtime')).toHaveLength(1);
     expect(events.filter((event) => event === 'close')).toHaveLength(3);
     expect(clients.size).toBe(0);
+  }, 30_000);
+
+  it('preserves newly persisted evidence when a qualified first collection recovers', async () => {
+    const scenario = await collectQualifiedRecoveryScenario('first');
+    const candidateId = 'auth-casbin-casbin-js';
+    const firstEntry = scenario.first.persistenceProof.entries.find(
+      (entry) => entry.candidateId === candidateId,
+    );
+    const secondEntry = scenario.second.persistenceProof.entries.find(
+      (entry) => entry.candidateId === candidateId,
+    );
+    expect(firstEntry).toMatchObject({
+      disposition: 'qualified-not-persisted',
+      evidenceAppended: 0,
+      snapshotId: null,
+    });
+    expect(secondEntry).toMatchObject({
+      disposition: 'persisted',
+      outcome: 'created',
+      candidateState: 'created',
+      snapshotState: 'created',
+      evidenceAppended: 10,
+    });
+
+    const recoveredRecords =
+      scenario.second.sourceAuthority.sourceRecords.filter(
+        (record) => record.candidateId === candidateId,
+      );
+    expect(recoveredRecords).toHaveLength(7);
+    expect(
+      recoveredRecords.every(
+        (record) =>
+          record.outcome === 'established-value' &&
+          record.evidenceIds.length > 0,
+      ),
+    ).toBe(true);
+    const recoveredEvidenceIds = recoveredRecords.flatMap(
+      (record) => record.evidenceIds,
+    );
+    expect(recoveredEvidenceIds).toHaveLength(10);
+    expect(new Set(recoveredEvidenceIds)).toEqual(
+      new Set(
+        scenario.prior
+          .get(candidateId)
+          ?.observations.map((observation) => observation.evidenceId) ?? [],
+      ),
+    );
+    expect(
+      parseProfileMaterializationSourceAuthority(
+        scenario.second.sourceAuthority,
+        scenario.fixture,
+      ),
+    ).toEqual(scenario.second.sourceAuthority);
+    expect(
+      parseProfileMaterializationPersistenceProof(
+        scenario.second.persistenceProof,
+        {
+          collection: 'second',
+          sourceAuthority: scenario.second.sourceAuthority,
+          candidateIds: scenario.second.sourceAuthority.candidates.map(
+            (candidate) => candidate.candidateId,
+          ),
+        },
+      ),
+    ).toEqual(scenario.second.persistenceProof);
+    expect(scenario.liveIdempotency).toBe('qualified-optional-source-failures');
+    expect(scenario.receipt.qualification).toBe(
+      'qualified-optional-source-failures',
+    );
+    expect(scenario.receipt.controlledFailureCounts).toEqual([
+      { code: 'provider-temporarily-unavailable', count: 1 },
+    ]);
+    expect(scenario.receipt.sourceDriftCounts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ sourceType: 'github-license', changed: 1 }),
+      ]),
+    );
+    expect(
+      scenario.receipt.sourceDriftCounts.reduce(
+        (total, entry) => total + entry.changed,
+        0,
+      ),
+    ).toBe(1);
+    expect(secondEntry?.outcome).not.toBe('unchanged');
+  }, 30_000);
+
+  it('preserves prior evidence while a complete first collection becomes qualified', async () => {
+    const scenario = await collectQualifiedRecoveryScenario('second');
+    const candidateId = 'auth-casbin-casbin-js';
+    const firstRecords = scenario.first.sourceAuthority.sourceRecords.filter(
+      (record) => record.candidateId === candidateId,
+    );
+    const secondRecords = scenario.second.sourceAuthority.sourceRecords.filter(
+      (record) => record.candidateId === candidateId,
+    );
+    const secondLicense = secondRecords.find(
+      (record) => record.operation === 'github-license',
+    );
+    expect(secondLicense).toMatchObject({
+      outcome: 'unavailable',
+      controlledCode: 'provider-temporarily-unavailable',
+      evidenceIds: [],
+    });
+    for (const firstRecord of firstRecords.filter(
+      (record) => record.operation !== 'github-license',
+    )) {
+      const secondRecord = secondRecords.find(
+        (record) =>
+          record.logicalSourceIdentityDigest ===
+          firstRecord.logicalSourceIdentityDigest,
+      );
+      expect(secondRecord?.sourceRecordDigest).toBe(
+        firstRecord.sourceRecordDigest,
+      );
+      expect(secondRecord?.evidenceIds).toEqual(firstRecord.evidenceIds);
+    }
+    expect(
+      scenario.second.persistenceProof.entries.find(
+        (entry) => entry.candidateId === candidateId,
+      ),
+    ).toMatchObject({
+      disposition: 'qualified-not-persisted',
+      evidenceAppended: 0,
+      evidenceSuperseded: 0,
+      evidenceInvalidated: 0,
+    });
+    expect(scenario.persistenceCalls.get(candidateId)).toBe(1);
+    expect(scenario.liveIdempotency).toBe('qualified-optional-source-failures');
+    expect(scenario.receipt.qualification).toBe(
+      'qualified-optional-source-failures',
+    );
   }, 30_000);
 
   it('publishes each untracked persistence proof with a private fixed path and mode', async () => {
@@ -386,5 +528,268 @@ function deniedDatabase() {
     prepare: denied,
     dispose: denied,
     proveDisposed: denied,
+  };
+}
+
+async function collectQualifiedRecoveryScenario(
+  qualifiedCollection: 'first' | 'second',
+) {
+  const fixture = await buildFakeSourceAuthority();
+  const candidateId = 'auth-casbin-casbin-js';
+  const databasePlan = createProfileMaterializationDatabasePlan({
+    runId: 'm7-abcdefghijklmnopqrstuvwxyz',
+    image: PROFILE_MATERIALIZATION_POSTGRES_IMAGE,
+    host: '127.0.0.1',
+    port: 55432,
+    ownerPasswordEnvironmentName:
+      'GITBLOCKS_PROFILE_MATERIALIZATION_DB_OWNER_PASSWORD',
+  });
+  const runtimeConfig: PersistenceClientConfig = {
+    host: '127.0.0.1',
+    port: 55432,
+    database: databasePlan.identity.databaseName,
+    username: databasePlan.identity.runtimeRoleName,
+    password: 'fake-runtime-password',
+    ssl: false,
+    maximumConnections: 3,
+    connectTimeoutMilliseconds: 5_000,
+    idleTimeoutMilliseconds: 5_000,
+    statementTimeoutMilliseconds: 10_000,
+    lockTimeoutMilliseconds: 5_000,
+  };
+  const preflight = {
+    arguments: {
+      concurrency: 3,
+      candidateDeadlineMilliseconds: 90_000,
+    } as ProfileMaterializationArguments,
+    catalog: fixture.catalog,
+    taxonomy: fixture.taxonomy,
+    policy: fixture.policy,
+    databasePlan,
+    commandPlanDigest: '0'.repeat(64),
+  } satisfies ProfileMaterializationPreflightResult;
+  const prior = new Map<string, ActiveDossierMaterial>();
+  const persistenceCalls = new Map<string, number>();
+  const persistenceAdapter: ProfileMaterializationPersistenceAdapter = {
+    createClient: () => ({}) as PersistenceClient,
+    closeClient: () => Promise.resolve(),
+    seedCatalog: () => Promise.resolve(),
+    loadPriorMaterial: (_client, id) =>
+      Promise.resolve(
+        prior.get(id) ?? { observations: [], limitations: [], unknowns: [] },
+      ),
+    persistCandidateProfile: (_client, profile) => {
+      const id = profile.identity.candidateId;
+      const existing = prior.get(id);
+      const created = existing === undefined;
+      persistenceCalls.set(id, (persistenceCalls.get(id) ?? 0) + 1);
+      prior.set(id, {
+        observations: profile.observations,
+        limitations: profile.limitations,
+        unknowns: profile.unknowns,
+      });
+      return Promise.resolve({
+        candidateId: id,
+        outcome: created ? ('created' as const) : ('unchanged' as const),
+        snapshotId: profile.snapshotId,
+        evidenceAppended: created ? profile.observations.length : 0,
+        evidenceIdempotent: created ? 0 : profile.observations.length,
+        evidenceSuperseded: 0,
+        evidenceInvalidated: 0,
+        limitationCount: profile.limitations.length,
+        unknownCount: profile.unknowns.length,
+        candidateState: created
+          ? ('created' as const)
+          : ('idempotent' as const),
+        snapshotState: created ? ('created' as const) : ('idempotent' as const),
+        incompleteSourceCodes: [],
+        safeErrorCode: null,
+      });
+    },
+  };
+  let collectionClock = 0;
+  const effects = createProfileMaterializationSystemEffects({
+    repositoryRoot: process.cwd(),
+    environment: {},
+    fetch: () => {
+      throw new Error('fetch was not expected');
+    },
+    now: () =>
+      new Date(
+        collectionClock++ === 0
+          ? '2026-08-05T00:00:00.000Z'
+          : '2026-08-05T01:00:00.000Z',
+      ),
+    databaseOperator: {
+      ...deniedDatabase(),
+      prepare: () =>
+        Promise.resolve({
+          runtimeConfig,
+          migrationInventoryDigest:
+            PROFILE_MATERIALIZATION_MIGRATION_INVENTORY_DIGEST,
+          migrationCount: 4,
+          databaseSchemaDigest:
+            PROFILE_MATERIALIZATION_EXPECTED_DATABASE_SCHEMA_DIGEST,
+          productTableCount: 25,
+        }),
+    },
+    persistenceAdapter,
+    collectCandidateSources: (candidate, collectedAt) => {
+      const complete = fakeCollectionForCandidate(
+        fixture.authority,
+        candidate,
+        collectedAt,
+      );
+      const isFirstCollection = collectedAt === '2026-08-05T00:00:00.000Z';
+      const isQualified =
+        candidate.candidateId === candidateId &&
+        ((qualifiedCollection === 'first' && isFirstCollection) ||
+          (qualifiedCollection === 'second' && !isFirstCollection));
+      if (!isQualified) return Promise.resolve(complete);
+      return Promise.resolve({
+        sourceRecords: complete.sourceRecords.map((record) =>
+          record.operation === 'github-license'
+            ? {
+                ...record,
+                outcome: 'unavailable' as const,
+                normalizedValue: null,
+                controlledCode: 'provider-temporarily-unavailable',
+                evidenceIds: [],
+              }
+            : record,
+        ),
+        qualifiedFailureCodes: ['provider-temporarily-unavailable'],
+        legacyBundle: null,
+      });
+    },
+  });
+  const credentials = {
+    githubToken: 'fake-github-token',
+    ownerUrl: 'unused-owner-url',
+    ownerPassword: 'unused-owner-password',
+    runtimeUrl: 'unused-runtime-url',
+    runtimePassword: 'unused-runtime-password',
+  };
+  const signal = new AbortController().signal;
+  await effects.prepareDatabase(preflight, credentials, signal);
+  const first = await effects.collectSourceAuthority(
+    'first',
+    preflight,
+    credentials,
+    null,
+    signal,
+  );
+  const second = await effects.collectSourceAuthority(
+    'second',
+    preflight,
+    credentials,
+    first.sourceAuthority,
+    signal,
+  );
+  const liveIdempotency = deriveProfileMaterializationLiveIdempotency({
+    firstAuthority: first.sourceAuthority,
+    secondAuthority: second.sourceAuthority,
+    firstProof: first.persistenceProof,
+    secondProof: second.persistenceProof,
+  });
+  const firstArtifacts = buildProfileMaterializationArtifacts(
+    fixture.catalog,
+    fixture.taxonomy,
+    first.sourceAuthority,
+  );
+  const secondArtifacts = buildProfileMaterializationArtifacts(
+    fixture.catalog,
+    fixture.taxonomy,
+    second.sourceAuthority,
+  );
+  const drift = compareProfileMaterializationSources(
+    first.sourceAuthority,
+    second.sourceAuthority,
+  );
+  const failures = controlledFailureCounts([
+    first.sourceAuthority,
+    second.sourceAuthority,
+  ]);
+  const receipt = validateProfileMaterializationReceipt(
+    buildProfileMaterializationReceipt({
+      receiptVersion: 'profile-materialization-receipt/1.0.0',
+      operatorVersion: 'profile-materialization-operator/1.0.0',
+      providerPolicyVersion: 'profile-materialization-provider-policy/1.0.0',
+      providerPolicyDigest: fixture.policy.policySemanticDigest,
+      sourceAuthorityVersion: 'profile-materialization-source-authority/1.0.0',
+      persistenceProofVersion:
+        'profile-materialization-persistence-proof/1.0.0',
+      firstPersistenceProofSemanticDigest:
+        first.persistenceProof.proofSemanticDigest,
+      secondPersistenceProofSemanticDigest:
+        second.persistenceProof.proofSemanticDigest,
+      firstPersistenceCounts: persistenceProofCounts(first.persistenceProof),
+      secondPersistenceCounts: persistenceProofCounts(second.persistenceProof),
+      firstSourceAuthoritySemanticDigest:
+        first.sourceAuthority.authoritySemanticDigest,
+      secondSourceAuthoritySemanticDigest:
+        second.sourceAuthority.authoritySemanticDigest,
+      finalSourceAuthoritySemanticDigest:
+        second.sourceAuthority.authoritySemanticDigest,
+      firstSourceRecordCounts: sourceRecordCounts(first.sourceAuthority),
+      secondSourceRecordCounts: sourceRecordCounts(second.sourceAuthority),
+      firstSourceOutcomeCounts: sourceOutcomeCounts(first.sourceAuthority),
+      secondSourceOutcomeCounts: sourceOutcomeCounts(second.sourceAuthority),
+      sourceDriftComparisonDigest: drift.comparisonDigest,
+      sourceDriftCounts: drift.counts,
+      firstPassA: passDigests(firstArtifacts),
+      firstPassB: passDigests(firstArtifacts),
+      secondPassA: passDigests(secondArtifacts),
+      secondPassB: passDigests(secondArtifacts),
+      sameEvidenceReproduction: 'passed',
+      liveIdempotency,
+      qualification: 'qualified-optional-source-failures',
+      catalogVersion: 'public-v1',
+      catalogDigest: fixture.catalog.manifestDigest,
+      taxonomyVersion: '1.0.0',
+      taxonomyDigest: fixture.taxonomy.semanticDigest,
+      profileSchemaDigest:
+        PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS.profileSchemaDigest,
+      profileAuthoritySchemaDigest:
+        PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS.profileAuthoritySchemaDigest,
+      profileRulesVersion: 'deterministic-candidate-profile-rules/1.0.0',
+      projectionVersion: 'profile-materialization-projection/1.0.0',
+      migrationInventoryDigest:
+        PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS.migrationInventoryDigest,
+      migrationCount: 4,
+      databaseSchemaDigest:
+        PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS.databaseSchemaDigest,
+      productTableCount: 25,
+      candidateCount: 150,
+      aggregateFieldStates: secondArtifacts.coverage.aggregate.final,
+      fieldCoverage: secondArtifacts.coverage.perField.map((field) => ({
+        fieldId: field.fieldId,
+        ...field.final,
+      })),
+      familyCoverage: secondArtifacts.coverage.perFamily.map((family) => ({
+        family: family.family,
+        ...family.final,
+      })),
+      controlledFailureCounts: failures,
+      runIdDigest: 'c'.repeat(64),
+    }),
+  );
+  return {
+    fixture,
+    first,
+    second,
+    prior,
+    persistenceCalls,
+    liveIdempotency,
+    receipt,
+  };
+}
+
+function passDigests(
+  artifacts: ReturnType<typeof buildProfileMaterializationArtifacts>,
+) {
+  return {
+    profileAuthorityDigest: artifacts.authority.semanticAuthorityDigest,
+    profileCoverageDigest: artifacts.coverage.coverageSemanticDigest,
   };
 }

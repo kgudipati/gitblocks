@@ -521,8 +521,13 @@ identity.
 The head and other latest/listing/query selectors are mutable singleton
 identities. License and allowlisted-file sources are immutable identities bound
 to the exact head commit (and file path). The second collection reconciles
-against the first: semantically unchanged records reuse the original complete
-record byte-for-byte and mutable changes become explicit drift. For one
+against the first. Provider-content comparison excludes collection time,
+evidence identifiers, and record digest. Equal content with equal evidence
+reuses the original complete record; empty-to-nonempty evidence retains the
+current recovery record; nonempty-to-empty evidence reuses the durable first
+record only for a candidate currently qualified by an `unavailable` record;
+different nonempty evidence identities fail closed. Evidence-only enrichment
+is not provider drift. Mutable provider changes remain explicit drift. For one
 immutable exact-snapshot identity, different established values or transitions
 between an established value and established absence fail closed. Temporary
 `unavailable` outcomes establish no provider fact and may transition to or from
@@ -538,7 +543,10 @@ Optional-source-qualified bundles remain explicitly unpersisted. Reconciled
 unchanged records may retain exact evidence identifiers from an earlier
 durable pass, but no qualified pass invents new evidence. Release mapping uses
 the exact legacy release-selection helper; allowlisted-file mapping requires
-the exact controlled topic, candidate, commit, and encoded immutable path.
+the exact controlled topic, candidate, commit, a safe exact GitHub repository
+source URL, and an immutable URL with the same owner/repository and encoded
+commit/path. The dedicated materialization collector supplies that repository
+source identity without changing the legacy public collector.
 Receipt live idempotency requires the reconciled source comparison and matching
 second persistence dispositions, so catalog seed alone cannot pass.
 

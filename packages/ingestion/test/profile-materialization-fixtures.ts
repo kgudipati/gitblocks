@@ -162,7 +162,7 @@ export function fakeCollectionForCandidate(
           return {
             path: String(file['path']),
             sha: String(file['sha']),
-            htmlUrl: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/blob/${sha}/${String(file['path'])}`,
+            htmlUrl: `https://github.com/${candidate.github.owner}/${candidate.github.repository}`,
             text: '',
           };
         }),

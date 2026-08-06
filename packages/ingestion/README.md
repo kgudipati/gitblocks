@@ -77,8 +77,12 @@ identity. They must remain local and immutable until 7B review, final Milestone
 7 acceptance, and explicit maintainer deletion approval.
 
 The second authority reconciles against the first. Equal normalized source
-content reuses the complete first record, including its original collection
-fact, evidence IDs, and record digest. Repository/head/release/tag/community/
+content with equal evidence reuses the complete first record. Equal content
+with newly established evidence retains the current recovery record; missing
+current evidence reuses durable prior IDs only when the complete current
+candidate record set contains an unavailable source; different nonempty
+evidence lists fail closed. Qualification derives from current unavailable
+records, and evidence-only enrichment is not provider drift. Repository/head/release/tag/community/
 npm/advisory records are mutable singleton selectors. License and file records
 bind immutable exact-commit logical identities; head advancement therefore
 produces ordinary selector drift and old/new snapshot identities rather than
@@ -97,8 +101,11 @@ qualified candidates create no new evidence and retain an explicit
 evidence IDs from an earlier durable collection. A selected release requires
 the exact `release-current` evidence chosen by the shared legacy selector. An
 allowlisted file requires the exact controlled path topic, candidate,
-git-commit SHA, and encoded immutable path rather than a topic prefix or
-filename suffix. The future content-free receipt binds both proof digests and
+git-commit SHA, exact safe GitHub repository source URL, and immutable URL with
+the same owner/repository plus exact encoded commit/path rather than a topic
+prefix or filename suffix. The dedicated materialization collector supplies
+that repository source identity without changing legacy public collection.
+The future content-free receipt binds both proof digests and
 aggregate dispositions; source reconciliation plus the second persistence
 result, not provider drift alone, determines live idempotency.
 
