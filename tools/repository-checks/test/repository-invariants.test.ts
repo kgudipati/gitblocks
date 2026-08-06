@@ -235,6 +235,12 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build:product && vitest run apps/repository-interview-operator/test --config vitest.config.ts',
     'operator:interviews:verify':
       'pnpm runtime:check && pnpm operator:interviews:schema:validate && pnpm operator:interviews:test && pnpm --filter @gitblocks/repository-interview-operator lint && pnpm --filter @gitblocks/repository-interview-operator typecheck && pnpm architecture:check && pnpm db:verify',
+    'profiles:materialization:preflight':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts preflight',
+    'profiles:materialization:execute':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts execute',
+    'profiles:materialization:verify':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts verify',
     'repo:branch':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts branch',
     'repo:check':
@@ -304,6 +310,7 @@ const DOMAIN_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },
@@ -317,6 +324,7 @@ const CONTRACTS_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },
@@ -335,6 +343,7 @@ const PERSISTENCE_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },
@@ -1088,5 +1097,73 @@ describe('validateRepositoryInvariants', () => {
         (diagnostic) => diagnostic.code,
       ),
     ).toContain('repository.product-capitalization');
+  });
+
+  it('keeps live profile materialization outside ordinary and hosted verification', () => {
+    const repository = validRepository();
+    const manifest = JSON.parse(
+      repository.textFiles.get('package.json') ?? '{}',
+    ) as { scripts: Record<string, string> };
+    const verifyCore = manifest.scripts['verify:core'];
+    if (verifyCore === undefined)
+      throw new Error('Fixture verify:core missing.');
+    manifest.scripts['verify:core'] =
+      `${verifyCore} && pnpm profiles:materialization:execute`;
+    repository.textFiles.set('package.json', JSON.stringify(manifest));
+    repository.textFiles.set(
+      '.github/workflows/ci.yml',
+      `${repository.textFiles.get('.github/workflows/ci.yml') ?? ''}\n# pnpm profiles:materialization:execute\n`,
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.profile-materialization-command-boundary',
+        }),
+        expect.objectContaining({
+          code: 'repository.profile-materialization-hosted-execution',
+        }),
+      ]),
+    );
+  });
+
+  it('rejects writable preflight wrappers and separately exposed internal stages', () => {
+    const repository = validRepository();
+    const manifest = JSON.parse(
+      repository.textFiles.get('package.json') ?? '{}',
+    ) as { scripts: Record<string, string> };
+    manifest.scripts['profiles:materialization:preflight'] =
+      'pnpm build:product && node packages/ingestion/scripts/profile-materialization-cli.ts preflight';
+    manifest.scripts['profiles:materialization:collect-first'] =
+      'node packages/ingestion/scripts/profile-materialization-cli.ts collect-first';
+    repository.textFiles.set('package.json', JSON.stringify(manifest));
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.profile-materialization-command-boundary',
+        }),
+      ]),
+    );
+  });
+
+  it('rejects Milestone 7B evidence, source authorities, and migration 0005', () => {
+    const repository = validRepository();
+    for (const path of [
+      'verification/retrieval-v1/profile-materialization-receipt.json',
+      'verification/retrieval-v1/.profile-materialization-runs/m7-abcdefghijklmnopqrstuvwxyz/first-source-authority.json',
+      'packages/persistence/migrations/0005_profile_materialization.sql',
+    ]) {
+      repository.trackedPaths.add(path);
+      repository.textFiles.set(path, '{}');
+    }
+
+    expect(
+      validateRepositoryInvariants(repository).filter(
+        (entry) =>
+          entry.code ===
+          'repository.profile-materialization-prohibited-live-artifact',
+      ),
+    ).toHaveLength(3);
   });
 });

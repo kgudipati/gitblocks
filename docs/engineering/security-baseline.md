@@ -538,6 +538,34 @@ materialization requires separate authorization, a fresh dedicated ephemeral
 PostgreSQL database, the existing approved public-source boundaries, no model
 call, and content-free receipts and coverage evidence.
 
+Milestone 7A implements that boundary without exercising it. Its independently
+digested provider policy permits only HTTPS GET to `api.github.com` and
+`registry.npmjs.org`, manual same-host redirects, bounded JSON, and the existing
+retry/cancellation rules. The new collector is separate from legacy public
+ingestion. Repository bodies, arbitrary documentation, dossier prose,
+credentials, headers, unrestricted errors, and model output cannot enter the
+closed operational source authority.
+
+The live command accepts only complete named arguments and the five reviewed
+credential-variable names. Preflight validates all paths, authority bindings,
+acknowledgements, run/database identity, pinned PostgreSQL image, and bounds
+before any lazy credential read. It rejects defaults, `.env`, localhost
+discovery, positional/duplicate arguments, Phase 7-like identity, symlink/path
+aliases, and arbitrary outputs. The future isolated database uses no volume,
+an internal network, tmpfs data, a loopback-only port, a non-owner runtime
+login, and exact labels. Owner authority ends after bootstrap, migrations,
+schema proof, and runtime-role creation.
+
+Future source-authority directories are 0700 and files 0600, canonical,
+bounded, exclusive, and no-follow. Authorities stay untracked and retained
+until independent evidence review and explicit deletion approval. Receipt and
+coverage output is quarantined. Signal cancellation propagates to provider,
+sleep, database, and process work; any stage failure enters bounded cleanup,
+and cleanup or post-disposal failure prevents fixed-file publication. No repair
+SQL is allowed. Repository policy rejects the live execute command from every
+ordinary verify script and hosted workflow and rejects source authorities,
+Milestone 7B evidence, and migration 0005 from the Milestone 7A commit.
+
 ## Security exceptions
 
 An exception must be a reviewed artifact linked from the PR and contain:

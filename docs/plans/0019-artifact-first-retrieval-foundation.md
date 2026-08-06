@@ -7,7 +7,7 @@
   retrieval evaluation](https://github.com/kgudipati/gitblocks/issues/19)
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
-- State: Milestones 1–5 are accepted. Milestone 4 product implementation was
+- State: Milestones 1–6 are accepted. Milestone 4 product implementation was
   accepted at `66a4165c1239e7a46d72ccd6469d0856e815c410`; its retained CI-policy
   corrections are `2983194504253ca76697a93abd744e3300522785` and
   `2ddedf73f38fb25f625b5fd0793605d807f1ee93`. The maintainer accepted the
@@ -17,9 +17,13 @@
   architecture is accepted, while relevance and hard-filter audit provenance
   remains proposed/not-reviewed. That acceptance establishes deterministic
   development authority, not independently accepted retrieval truth.
-  Milestone 6 deterministic baselines and the content-free report are in
-  progress. Milestone 7 is unstarted and unauthorized.
-- Last updated: 2026-08-04
+  Milestone 6 deterministic baselines and the content-free report were
+  accepted at `ea27f11432513ec352ce43821eb95b8da0886182`. The maintainer
+  explicitly split Milestone 7 into offline implementation-only Milestone 7A
+  and separately authorized live/evidence Milestone 7B. Milestone 7A
+  implementation is complete pending maintainer review; Milestone 7B and every
+  live effect remain unauthorized.
+- Last updated: 2026-08-05
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
 decisions after acceptance. This plan owns execution order, likely file
@@ -46,8 +50,10 @@ commit a81aea020fde501c70bfffa85dad60113e4e71d1 after hosted CI run
 30875378437 and Verification job 91885676773 completed successfully. ADR 0008
 remains accepted. Milestone 4 is accepted under the documented hosted
 infrastructure exception. Milestone 5 is accepted through
-`4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`; Milestone 6 is in progress, and
-Milestone 7 remains unstarted and unauthorized.
+`4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. Milestone 6 is accepted at
+`ea27f11432513ec352ce43821eb95b8da0886182`. Milestone 7A may implement only
+the offline controlled operator and fake-effect proof; Milestone 7B remains
+unauthorized.
 
 ## Purpose and user-visible outcome
 
@@ -432,14 +438,14 @@ Ordinary Phase 8 work is offline. No model call is authorized anywhere in
 Phase 8. No Phase 7 database, container, receipt, or repository-external
 evidence is an input.
 
-Milestone 7 is separately authorized. If later authorized, it may contact only
-the existing GitHub, npm, and advisory provider boundaries, uses a fresh
-dedicated ephemeral PostgreSQL database, never uses Phase 7 state, makes no
-model call, retains structured source values, generates or reproduces all 150
-profiles, emits content-free receipts and coverage, preserves unknowns, and
-stays outside ordinary verification and hosted deterministic CI.
+Milestone 7A is offline implementation only. Milestone 7B is separately
+authorized; only if later authorized may its single atomic command contact the
+existing exact GitHub/npm host boundaries, create a fresh dedicated ephemeral
+PostgreSQL database, retain structured source values, generate/reproduce all
+150 profiles, and emit content-free receipts and coverage. It never uses Phase
+7 state or a model and stays outside ordinary verification and hosted CI.
 
-If Milestone 7 remains unauthorized or blocked, the phase may claim completion
+If Milestone 7B remains unauthorized or blocked, the phase may claim completion
 of its offline foundation only, not deterministic population or production
 retrieval readiness.
 
@@ -975,86 +981,137 @@ audit, and offline foundation completion before considering Milestone 7.
 Nondeterminism, hidden external state, favorable rerun, report content leakage,
 or production-service scope.
 
-### Milestone 7 — Separately authorized live materialization
+### Milestone 7A — Offline controlled materialization operator
 
 **Goal**
 
-After all offline milestones pass, optionally generate/reproduce all 150
-candidate profiles from approved structured providers in a fresh dedicated
-ephemeral database and record honest content-free coverage.
-
-**Exact likely files**
-
-- docs/plans/0019-artifact-first-retrieval-foundation.md
-- docs/architecture/decisions/0008-artifact-first-retrieval-foundation.md
-- packages/ingestion/src/candidate-profile-materialization.ts
-- packages/ingestion/scripts/candidate-profile-materialization-cli.ts
-- packages/ingestion/test/candidate-profile-materialization.test.ts
-- packages/ingestion/test/candidate-profile-materialization.persistence-integration.ts
-- catalog/public-v1/profile-materialization-completion.md
-- verification/retrieval-v1/profile-coverage.json
-- package.json
-
-No file may be created until the pre-live design and authorization are
-reviewed. These are provisional likely paths, not present authority. Their
-exact final set and commands must be frozen in the plan before execution.
-
-**Red-first tests**
-
-Missing authorization, Phase 7 container/database identity, non-fresh
-database, migration drift, wrong provider host, model configuration,
-observation-only retention, partial catalog, known-value invention,
-non-content-free receipt, second-run non-idempotency, and unknown suppression.
-
-**Compatibility**
-
-No migration 0005, no production retrieval, no model, no Phase 7 state, and no
-change to existing contract meanings. Structured source retention remains an
-ingestion concern until a later production retrieval persistence design.
-
-**Security**
-
-Separate immediate authorization; fixed approved providers only; fresh
-ephemeral PostgreSQL; injected minimum credentials; no model; no candidate
-code; content-free receipts; no ordinary CI or verify integration.
-
-**Validation**
-
-Before authorization, the plan must replace these provisional names with the
-exact reviewed operator commands:
+Implement and fake-effect test the reviewed operator without Docker, a
+database, credentials, provider requests, source-authority output, or live
+completion evidence. This milestone is one implementation commit:
 
 ```text
-pnpm profiles:materialize -- <reviewed explicit arguments>
-pnpm profiles:receipt -- <reviewed receipt paths>
-pnpm profiles:validate
-pnpm ingestion:verify
-pnpm contracts:validate
-pnpm db:verify
-pnpm verify
-pnpm verify:ci
+feat(profiles): add controlled materialization operator
 ```
 
-The live commands remain outside pnpm verify and hosted CI.
+The operational authority is
+`profile-materialization-provider-policy/1.0.0`. It permits nine controlled
+GET operations over only `api.github.com` and `registry.npmjs.org`, manual
+same-host redirects with a maximum of two, existing bounded transport and
+retry/cancellation behavior, and a mechanically derived 913-request maximum
+for the committed 150-candidate catalog. GitHub tag and allowlisted-file
+operations remain persistence-audit-only; repository-file bodies never enter
+profile authority, source authority, receipt, coverage, or completion output.
+The policy semantic digest is
+`f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9`.
 
-**Commit**
+The separate `collectProfileMaterializationSources` endpoint retains granular
+outcomes, normalized structured values, primary language, exact fork parent,
+source identity, immutable reference, and mutability. The existing
+`collectCandidateSources`, public bundle/result types, profile projection,
+batch ingestion, and public receipts remain unchanged.
 
-docs: record deterministic profile materialization
+`profile-materialization-source-authority/1.0.0` is ingestion-owned,
+operational, untracked, closed to exactly 150 candidates and the mechanically
+expected logical sources, and independent of the run ID. Future local
+authorities live only below
+`verification/retrieval-v1/.profile-materialization-runs/<run-id>/` with 0700
+directory and 0600 file modes, canonical bounded exclusive no-follow writes,
+and no symlink/path alias. They remain immutable and must be retained until
+Milestone 7B is independently reviewed, Milestone 7 is accepted, and the
+maintainer explicitly authorizes deletion.
+
+Pure materialization consumes only the accepted catalog, taxonomy, and one
+validated source authority. It preserves the four accepted catalog fields and
+may change only repository discovery, package publication/version, runtime
+package format, license, archived, fork/upstream, release recency, advisory,
+security-policy, and package/repository-linkage fields. Every known/conflict
+field has an exact repository-snapshot or package-version scope and only
+`structured-collection` references. The other 13 non-catalog fields preserve
+their accepted unknown/not-applicable semantics. No coverage target applies.
+
+`profile-materialization-coverage/1.0.0` compares the accepted offline and
+future live authorities without candidate content.
+`profile-materialization-receipt/1.0.0` binds both source collections, all four
+A/B materialization passes, provider drift, database/migration proof, field and
+family counts, failures, and final coverage. Its semantic digest excludes only
+the semantic/record digest fields and run-ID digest; its record digest excludes
+only itself and therefore authenticates run isolation.
+
+Expose exactly:
+
+```text
+pnpm profiles:materialization:preflight -- <all reviewed named arguments>
+pnpm profiles:materialization:execute -- <all reviewed named arguments>
+pnpm profiles:materialization:verify
+```
+
+Preflight is read-only, emits no compilation output, and never reads
+credentials. The command uses an explicit internal source-resolution condition
+without changing ordinary compiled package exports. Execute remains present but
+unauthorized in 7A; it owns one try/finally sequence from zero-effect
+validation through lazy credential reads, fresh database creation, zero-state
+proof, four migrations/25-table proof, runtime role/catalog seed, two source
+collections, four materialization passes, quarantined evidence, exact cleanup,
+post-disposal proof, and only then fixed-file publication. Verify is read-only
+and expects future 7B evidence, so it is not invoked by ordinary verification
+while those files do not exist.
+
+The database plan pins
+`postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296`,
+requires `m7-[a-z2-7]{26}`, derives isolated container/network/database and
+owner/runtime-role identities, uses an internal network and tmpfs with only an
+explicit `127.0.0.1:<port>` binding, and rejects preexisting exact identities.
+It proves 0/0 initial migrations/product tables and then 4/25, zero RLS
+policies, seven schema functions, 48 noninternal triggers, 15 required indexes,
+and exact migration checksums. No volume or migration 0005 exists.
+
+Only the five `GITBLOCKS_PROFILE_MATERIALIZATION_*` credential names frozen by
+the reviewed contract are accepted. Values are lazy, never argv/default/.env
+inputs, and never enter logs, errors, persistence, evidence, or digests.
+Required repository/head/mapped-package identity, auth, safety, malformed,
+overflow, immutable-conflict, catalog, database, cancellation, and deadline
+failures abort. Optional temporary failures may qualify completion only when
+all profiles close, affected values remain controlled unknown, A/B and
+idempotency checks pass, and failure counts are explicit.
+
+Ordinary tests cover pure schemas/projection, strict parsing, legacy
+compatibility, authority/digest closure, receipt authentication, fake database
+plans, orchestration cleanup/publication denial, and repository scope. The live
+execute command is prohibited from `verify`, `verify:core`, `verify:ci`, and
+hosted workflows. No preflight/execute/evidence verification command runs in
+ordinary verification.
 
 **Review gate**
 
-Separate maintainer authorization is required before any database, credential,
-provider, clock, receipt, or live output effect. Final review independently
-audits selected generated results and coverage.
+Accept the implementation commit and independently review its exact policy,
+schema digests, fake-effect proof, and zero-live-effect audit before authorizing
+Milestone 7B.
 
-**Stop conditions**
+### Milestone 7B — Separately authorized live proof and evidence
 
-No explicit authorization; any Phase 7 reference; any model path; non-fresh
-database; unapproved host; incomplete 150-candidate closure; invented value;
-content leakage; ordinary CI dependency; or failed/idempotency-inconsistent
-receipt.
+Milestone 7B remains unauthorized. If later authorized, one acknowledged
+`profiles:materialization:execute` invocation may collect two immutable local
+source authorities, prove same-evidence reproduction and live idempotency,
+dispose the fresh database resources, and publish only:
 
-If the milestone does not run, Phase 8 stops with an offline-foundation-only
-claim.
+```text
+verification/retrieval-v1/profile-materialization-receipt.json
+verification/retrieval-v1/profile-materialization-coverage.json
+catalog/public-v1/profile-materialization-completion.md
+```
+
+Those files may be committed only after exact read-only verification, content
+audit, disposal proof, and maintainer review, in a separate commit:
+
+```text
+docs(profiles): record deterministic materialization evidence
+```
+
+No successful materialization, improved coverage, retrieval readiness, or
+production-quality claim exists before that commit. A failed run publishes no
+fixed evidence, uses no repair SQL, and leaves its isolated database to exact
+bounded disposal. If 7B does not run, Phase 8 stops with an
+offline-foundation-only claim.
 
 ## Testing and validation strategy
 
@@ -1107,27 +1164,29 @@ Phase 8 completes only when:
 - no 70–80% readiness claim exists without known-value deterministic coverage
   against the actual initial-ranker consumer denominator.
 
-If Milestone 7 remains unauthorized or blocked, the completion statement must
+If Milestone 7B remains unauthorized or blocked, the completion statement must
 say the offline foundation is complete and deterministic population/readiness
 is not established.
 
 ## Open implementation decisions
 
-Reserved for Milestone 3 or later review:
+Reserved for immediate Milestone 7B/live review:
 
-- exact TypeBox layouts, bounds, and digest projections for
-  CapabilityQueryInputV1, CapabilityQueryNormalizationResultV1, and
-  DeterministicCandidateProfileV1;
-- exact generated profile-authority and coverage-report paths;
-- exact extraction rule vocabulary and version;
-- exact controlled license, runtime, framework, datastore, infrastructure, and
-  deployment values supported by initial deterministic rules;
-- exact evidence-needed retrieval-lane shape for later production retrieval;
-- exact corpus case IDs and reviewer identities;
-- exact scorer serialization and baseline versions; and
-- exact Milestone 7 operator, receipt, database, and authorization contract.
+- whether the exact local credential injection and selected loopback port are
+  operationally ready for one acknowledged run;
+- whether optional provider failures, if any, permit qualified evidence or
+  require discarding the run;
+- whether the independently reviewed first/second source-authority drift is
+  acceptable before fixed evidence publication;
+- the post-run independent source-retention and eventual deletion decision;
+- whether the three fixed committed evidence files enter ordinary read-only
+  verification only after the 7B evidence commit; and
+- whether live evidence is accepted without implying coverage, retrieval,
+  ranking, candidate-quality, or production-readiness thresholds.
 
-These decisions may not weaken the accepted Issue #19 and ADR 0008 boundaries.
+Production retrieval/ranking contracts, application ports, profile SQL
+persistence, and broader structured source authorities remain later-phase
+decisions. These decisions may not weaken Issue #19 or ADR 0008.
 
 ## Progress log
 
@@ -1979,8 +2038,34 @@ entries.
   exact committed bytes/digest, and proves a no-write effect audit. Ordinary
   verification and only the existing Static and Authorities worker run the
   read-only verifier; the hosted graph and policies remain unchanged.
-- Milestone 6 remains in progress until maintainer review. Production
+- Milestone 6 was accepted at
+  `ea27f11432513ec352ce43821eb95b8da0886182`. Production
   retrieval, candidate generation, hard filtering, ranking/reranking,
   recommendation, vector/embedding search, API/MCP, persistence, migration,
   ingestion behavior, provider/model access, database work, and Phase 7 work
-  remain absent. Milestone 7 is unstarted and unauthorized.
+  remain absent. Milestone 7A is implementation-only; Milestone 7B and live
+  execution remain unauthorized.
+
+### 2026-08-05 — Milestone 7A offline implementation
+
+- The maintainer approved the two-commit split: one offline implementation
+  commit `feat(profiles): add controlled materialization operator`, followed
+  only after separate live authorization by
+  `docs(profiles): record deterministic materialization evidence`.
+- Milestone 7A adds the independently digested nine-operation provider policy,
+  separate granular collector, closed untracked source authority, pure
+  150-profile projection, coverage comparison, replay receipt, fresh-database
+  plan, atomic runner, three-command surface, and fake-effect/denial tests.
+- Legacy ingestion contracts and results remain unchanged. Existing four
+  migrations and 25 product tables suffice; no migration/table meaning,
+  product schema, new package, dependency, provider host, workflow, or accepted
+  authority changes.
+- No live source authority, profile materialization, receipt, coverage, or
+  completion file exists. No Docker, PostgreSQL, credential, provider, model,
+  candidate repository, retrieval/ranking, or Phase 7 effect is authorized or
+  used. Milestone 7B remains unauthorized.
+- The focused offline gate passes 147 tests in 14 files; the complete suite
+  passes 1,657 tests in 114 files. Final V8 coverage is 79.87% statements,
+  72.89% branches, 87.39% functions, and 80.26% lines. `pnpm verify`,
+  architecture, repository policy, and secret scanning pass without invoking
+  any materialization command.

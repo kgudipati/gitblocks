@@ -33,8 +33,10 @@ correction commit `4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. Its independent
 corpus/scorer architecture is accepted, while relevance and hard-filter audit
 provenance remains proposed/not-reviewed; this establishes deterministic
 development authority, not independently accepted retrieval truth. Milestone
-6 evaluation-only baselines are in progress. Milestone 7 remains unstarted and
-unauthorized.
+6 was accepted at `ea27f11432513ec352ce43821eb95b8da0886182`. The maintainer
+approved an explicit two-commit split: Milestone 7A implements only the offline
+controlled operator and fake-effect proof; Milestone 7B owns any later live
+execution and evidence. Milestone 7B remains unauthorized.
 
 ## Context
 
@@ -491,6 +493,59 @@ threshold, or production-readiness status. Shared accepted-normalization
 metrics are disclosed as a common deterministic component. The explicit
 writer owns only the fixed report path; ordinary verification is read-only and
 compares canonical bytes and semantic digest with a no-write effect audit.
+
+### Controlled profile-materialization operator
+
+Milestone 7A adds an operational ingestion boundary without changing any
+product contract or legacy public-ingestion result. The separately digested
+`profile-materialization-provider-policy/1.0.0` closes the operation set to
+repository metadata, default-branch head, release, tag, license, community
+profile, exact allowlisted file, npm package, and GitHub advisory. Only HTTPS
+GET requests to `api.github.com` and `registry.npmjs.org` are permitted.
+Redirects remain manual, same-host, and bounded to two; transport, retries,
+deadlines, response bytes, JSON nodes, concurrency, mutability, retained
+properties, and permitted profile consumers are explicit per operation. Tag
+and file operations are persistence-audit-only, and file bodies are excluded
+from every profile/evidence authority.
+
+The new collector produces a closed
+`profile-materialization-source-authority/1.0.0`; it does not widen
+`collectCandidateSources` or its DTOs and receipts. Source records bind logical
+identity, record digest, mutability, controlled outcome, immutable reference,
+collection fact, normalized structured value, controlled code, and exact
+legacy evidence identifiers when such observations exist. They exclude raw
+bodies, headers, credentials, arbitrary errors, database/operator/Phase 7
+identity, and model output. Run isolation never contributes to source semantic
+identity.
+
+Pure materialization consumes only the accepted catalog/taxonomy and one
+validated source authority, performs no I/O, and closes exactly 150 profiles.
+It preserves accepted catalog-role, capability-family, repository-identity,
+and package-mapping fields. Only ten reviewed structured fields may change:
+repository discovery, package publication/version, runtime package format,
+license, archived state, fork/upstream, release recency, advisory state,
+security-policy presence, and package/repository linkage. Known/conflict values
+bind deterministic repository-snapshot or package-version scopes and
+`structured-collection` references. No README/dossier prose, topic inference,
+npm-only SPDX claim, zero-advisory absence, or failed-provider negative fact is
+accepted.
+
+The exact command surface is `profiles:materialization:preflight`,
+`profiles:materialization:execute`, and `profiles:materialization:verify`.
+Preflight is zero-effect, uses the explicit internal source export instead of a
+writing build step, and reads no credential. Execute is one atomic
+try/finally boundary; fixed evidence cannot publish before exact resource
+disposal and post-disposal proof. Verify is read-only. Execute and future
+evidence verification remain outside ordinary verification and hosted CI.
+
+The fresh database plan pins the existing PostgreSQL 18.4 bookworm image
+digest, derives all identities from an explicit `m7-[a-z2-7]{26}` run ID,
+uses a tmpfs-only container on an isolated internal network with explicit
+loopback port binding, and rejects existing resources. Existing four migrations
+and table meanings suffice; no migration 0005 or durable profile table is
+introduced. Source authorities remain untracked local operational evidence
+until independent 7B review, Milestone 7 acceptance, and explicit maintainer
+deletion authorization.
 
 ### Persistence
 

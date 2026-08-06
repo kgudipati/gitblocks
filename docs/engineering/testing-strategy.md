@@ -385,6 +385,20 @@ model call and reads no Phase 7 database or repository-external evidence. A
 final 150-candidate deterministic materialization proof remains separately
 authorized and outside ordinary verification and hosted deterministic CI.
 
+Milestone 7A adds only offline and fake-effect coverage. Tests lock legacy
+collector/profile/batch/receipt bytes and existing semantic suites, compile and
+validate closed operational policy/source/coverage/receipt structures, prove
+the mechanically derived 150-candidate request/source closure, strict language,
+fork, community, license, runtime, and advisory parsing, and reproduce the pure
+150-profile authority across input reversal, repeated calls, and a fresh
+process. Receipt tests bind two collections and four A/B passes, provider drift,
+semantic-versus-record digest behavior, run-ID tampering, failure
+qualification, and content exclusion. Injected process/database/provider/
+filesystem/signal boundaries prove validation-before-credential-read,
+fresh-database planning, cancellation, cleanup, quarantine, disposal-before-
+publication, and failure denial. These tests may run ordinarily; the preflight,
+execute, and future fixed-evidence verifier commands themselves do not.
+
 Taxonomy validation is active from Milestone 2. Its no-write command rebuilds
 the expected generated authority in memory and compares exact committed bytes.
 Tests cover closed TypeBox roots, existing schema-digest preservation, graph

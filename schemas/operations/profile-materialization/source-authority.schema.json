@@ -1,0 +1,434 @@
+{
+  "$id": "https://schemas.gitblocks.dev/operations/profile-materialization/source-authority.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authoritySemanticDigest": { "$ref": "#/$defs/digest" },
+    "authorityVersion": {
+      "const": "profile-materialization-source-authority/1.0.0"
+    },
+    "candidateCount": { "const": 150 },
+    "candidates": {
+      "items": { "$ref": "#/$defs/candidate" },
+      "maxItems": 150,
+      "minItems": 150,
+      "type": "array"
+    },
+    "catalogDigest": {
+      "const": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634"
+    },
+    "catalogVersion": { "const": "public-v1" },
+    "providerPolicyDigest": {
+      "const": "f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9"
+    },
+    "providerPolicyVersion": {
+      "const": "profile-materialization-provider-policy/1.0.0"
+    },
+    "sourceRecords": {
+      "items": { "$ref": "#/$defs/sourceRecord" },
+      "maxItems": 2000,
+      "minItems": 300,
+      "type": "array"
+    },
+    "taxonomyDigest": {
+      "const": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9"
+    },
+    "taxonomyVersion": { "const": "1.0.0" }
+  },
+  "required": [
+    "authoritySemanticDigest",
+    "authorityVersion",
+    "candidateCount",
+    "candidates",
+    "catalogDigest",
+    "catalogVersion",
+    "providerPolicyDigest",
+    "providerPolicyVersion",
+    "sourceRecords",
+    "taxonomyDigest",
+    "taxonomyVersion"
+  ],
+  "title": "Profile materialization source authority 1.0.0",
+  "type": "object",
+  "$defs": {
+    "candidate": {
+      "additionalProperties": false,
+      "properties": {
+        "candidateId": { "$ref": "#/$defs/stableId" },
+        "sourceRecordDigests": {
+          "items": { "$ref": "#/$defs/digest" },
+          "maxItems": 32,
+          "minItems": 2,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": ["candidateId", "sourceRecordDigests"],
+      "type": "object"
+    },
+    "digest": {
+      "maxLength": 64,
+      "minLength": 64,
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "advisoryValue": {
+      "additionalProperties": false,
+      "properties": {
+        "advisories": {
+          "items": { "$ref": "#/$defs/advisoryValueItem" },
+          "maxItems": 200,
+          "type": "array"
+        },
+        "complete": { "type": "boolean" },
+        "limitationCode": {
+          "oneOf": [{ "$ref": "#/$defs/stableId" }, { "type": "null" }]
+        },
+        "packageName": { "maxLength": 201, "minLength": 1, "type": "string" },
+        "packageVersion": { "maxLength": 100, "minLength": 1, "type": "string" }
+      },
+      "required": [
+        "advisories",
+        "complete",
+        "limitationCode",
+        "packageName",
+        "packageVersion"
+      ],
+      "type": "object"
+    },
+    "advisoryValueItem": {
+      "additionalProperties": false,
+      "properties": {
+        "advisoryId": { "$ref": "#/$defs/stableId" },
+        "publishedAt": { "format": "date-time", "type": "string" },
+        "severity": { "maxLength": 32, "minLength": 1, "type": "string" },
+        "updatedAt": { "format": "date-time", "type": "string" },
+        "withdrawnAt": {
+          "oneOf": [
+            { "format": "date-time", "type": "string" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": [
+        "advisoryId",
+        "publishedAt",
+        "severity",
+        "updatedAt",
+        "withdrawnAt"
+      ],
+      "type": "object"
+    },
+    "communityValue": {
+      "additionalProperties": false,
+      "properties": {
+        "healthPercentage": { "maximum": 100, "minimum": 0, "type": "integer" },
+        "securityPolicyPresent": { "type": "boolean" }
+      },
+      "required": ["healthPercentage", "securityPolicyPresent"],
+      "type": "object"
+    },
+    "fileValue": {
+      "additionalProperties": false,
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha": { "$ref": "#/$defs/sha" }
+      },
+      "required": ["path", "sha"],
+      "type": "object"
+    },
+    "headValue": {
+      "additionalProperties": false,
+      "properties": {
+        "committedAt": { "format": "date-time", "type": "string" },
+        "sha": { "$ref": "#/$defs/sha" }
+      },
+      "required": ["committedAt", "sha"],
+      "type": "object"
+    },
+    "licenseValue": {
+      "additionalProperties": false,
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha": {
+          "oneOf": [{ "$ref": "#/$defs/sha" }, { "type": "null" }]
+        },
+        "spdxId": {
+          "oneOf": [
+            { "maxLength": 100, "minLength": 1, "type": "string" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": ["path", "sha", "spdxId"],
+      "type": "object"
+    },
+    "npmValue": {
+      "additionalProperties": false,
+      "properties": {
+        "deprecated": { "type": "boolean" },
+        "distTags": { "$ref": "#/$defs/stringMap" },
+        "exportsDeclared": { "type": "boolean" },
+        "licenseDeclaration": { "$ref": "#/$defs/nullableString" },
+        "moduleType": { "$ref": "#/$defs/nullableString" },
+        "name": { "maxLength": 201, "minLength": 1, "type": "string" },
+        "nodeEngine": { "$ref": "#/$defs/nullableString" },
+        "publishedAt": { "format": "date-time", "type": "string" },
+        "repositoryIdentity": {
+          "oneOf": [
+            { "$ref": "#/$defs/repositoryIdentity" },
+            { "type": "null" }
+          ]
+        },
+        "selectedVersion": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "deprecated",
+        "distTags",
+        "exportsDeclared",
+        "licenseDeclaration",
+        "moduleType",
+        "name",
+        "nodeEngine",
+        "publishedAt",
+        "repositoryIdentity",
+        "selectedVersion"
+      ],
+      "type": "object"
+    },
+    "nullableString": {
+      "oneOf": [
+        { "maxLength": 100, "minLength": 1, "type": "string" },
+        { "type": "null" }
+      ]
+    },
+    "releaseValue": {
+      "additionalProperties": false,
+      "properties": {
+        "releases": {
+          "items": { "$ref": "#/$defs/releaseValueItem" },
+          "maxItems": 5,
+          "type": "array"
+        }
+      },
+      "required": ["releases"],
+      "type": "object"
+    },
+    "releaseValueItem": {
+      "additionalProperties": false,
+      "properties": {
+        "isDraft": { "type": "boolean" },
+        "isPrerelease": { "type": "boolean" },
+        "publishedAt": { "format": "date-time", "type": "string" },
+        "tag": { "maxLength": 255, "minLength": 1, "type": "string" }
+      },
+      "required": ["isDraft", "isPrerelease", "publishedAt", "tag"],
+      "type": "object"
+    },
+    "repositoryIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "owner": { "maxLength": 100, "minLength": 1, "type": "string" },
+        "repository": { "maxLength": 100, "minLength": 1, "type": "string" }
+      },
+      "required": ["owner", "repository"],
+      "type": "object"
+    },
+    "repositoryMetadataValue": {
+      "additionalProperties": false,
+      "properties": {
+        "canonicalOwner": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        "canonicalRepository": {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        "defaultBranch": { "maxLength": 255, "minLength": 1, "type": "string" },
+        "isArchived": { "type": "boolean" },
+        "isFork": { "type": "boolean" },
+        "isPublic": { "type": "boolean" },
+        "licenseSpdxId": { "$ref": "#/$defs/nullableString" },
+        "primaryLanguage": { "$ref": "#/$defs/nullableString" },
+        "pushedAt": { "format": "date-time", "type": "string" },
+        "topics": {
+          "items": { "maxLength": 100, "minLength": 1, "type": "string" },
+          "maxItems": 32,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "updatedAt": { "format": "date-time", "type": "string" },
+        "upstreamRepository": {
+          "oneOf": [
+            { "maxLength": 201, "minLength": 3, "type": "string" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": [
+        "canonicalOwner",
+        "canonicalRepository",
+        "defaultBranch",
+        "isArchived",
+        "isFork",
+        "isPublic",
+        "licenseSpdxId",
+        "primaryLanguage",
+        "pushedAt",
+        "topics",
+        "updatedAt",
+        "upstreamRepository"
+      ],
+      "type": "object"
+    },
+    "repositoryPath": {
+      "maxLength": 255,
+      "minLength": 1,
+      "type": "string"
+    },
+    "sha": { "pattern": "^[a-f0-9]{40}$", "type": "string" },
+    "sourceRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "candidateId": { "$ref": "#/$defs/stableId" },
+        "collectedAt": { "format": "date-time", "type": "string" },
+        "controlledCode": {
+          "oneOf": [{ "$ref": "#/$defs/stableId" }, { "type": "null" }]
+        },
+        "evidenceIds": {
+          "items": { "$ref": "#/$defs/stableId" },
+          "maxItems": 64,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "immutableReference": {
+          "oneOf": [
+            { "maxLength": 300, "minLength": 1, "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "logicalSourceIdentityDigest": { "$ref": "#/$defs/digest" },
+        "logicalSourceKey": {
+          "maxLength": 255,
+          "minLength": 1,
+          "type": "string"
+        },
+        "normalizedValue": {
+          "oneOf": [
+            { "$ref": "#/$defs/advisoryValue" },
+            { "$ref": "#/$defs/communityValue" },
+            { "$ref": "#/$defs/fileValue" },
+            { "$ref": "#/$defs/headValue" },
+            { "$ref": "#/$defs/licenseValue" },
+            { "$ref": "#/$defs/npmValue" },
+            { "$ref": "#/$defs/releaseValue" },
+            { "$ref": "#/$defs/repositoryMetadataValue" },
+            { "$ref": "#/$defs/tagValue" },
+            { "type": "null" }
+          ]
+        },
+        "operation": {
+          "enum": [
+            "github-advisory",
+            "github-allowlisted-file",
+            "github-community-profile",
+            "github-default-branch-head",
+            "github-license",
+            "github-release",
+            "github-repository-metadata",
+            "github-tag",
+            "npm-package"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "established-absence",
+            "established-value",
+            "fatal",
+            "unavailable"
+          ]
+        },
+        "sourceMutability": { "enum": ["immutable", "mutable"] },
+        "sourceRecordDigest": { "$ref": "#/$defs/digest" },
+        "sourceType": {
+          "enum": [
+            "github-advisory",
+            "github-community",
+            "github-file",
+            "github-head-commit",
+            "github-license",
+            "github-release",
+            "github-repository",
+            "github-tag",
+            "npm-package"
+          ]
+        }
+      },
+      "required": [
+        "candidateId",
+        "collectedAt",
+        "controlledCode",
+        "evidenceIds",
+        "immutableReference",
+        "logicalSourceIdentityDigest",
+        "logicalSourceKey",
+        "normalizedValue",
+        "operation",
+        "outcome",
+        "sourceMutability",
+        "sourceRecordDigest",
+        "sourceType"
+      ],
+      "type": "object"
+    },
+    "stringMap": {
+      "additionalProperties": {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxProperties": 20,
+      "minProperties": 1,
+      "propertyNames": {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "stableId": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9-]{0,63}$",
+      "type": "string"
+    },
+    "tagValue": {
+      "additionalProperties": false,
+      "properties": {
+        "tags": {
+          "items": { "$ref": "#/$defs/tagValueItem" },
+          "maxItems": 5,
+          "type": "array"
+        }
+      },
+      "required": ["tags"],
+      "type": "object"
+    },
+    "tagValueItem": {
+      "additionalProperties": false,
+      "properties": {
+        "commitSha": { "$ref": "#/$defs/sha" },
+        "name": { "maxLength": 255, "minLength": 1, "type": "string" }
+      },
+      "required": ["commitSha", "name"],
+      "type": "object"
+    }
+  }
+}

@@ -79,6 +79,95 @@ export {
   type ProviderTransport,
   type PublicProviderConfig,
 } from './providers.ts';
+export {
+  PROFILE_MATERIALIZATION_AUTHORIZED_FIELD_IDS,
+  PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS,
+  PROFILE_MATERIALIZATION_COVERAGE_VERSION,
+  PROFILE_MATERIALIZATION_OPERATIONS,
+  PROFILE_MATERIALIZATION_OPERATOR_VERSION,
+  PROFILE_MATERIALIZATION_PROJECTION_VERSION,
+  PROFILE_MATERIALIZATION_PROVIDER_POLICY_VERSION,
+  PROFILE_MATERIALIZATION_RECEIPT_VERSION,
+  PROFILE_MATERIALIZATION_SOURCE_AUTHORITY_VERSION,
+  PROFILE_MATERIALIZATION_SOURCE_TYPES,
+  createProfileMaterializationReceipt,
+  parseProfileMaterializationReceipt,
+  type ProfileMaterializationAuthorizedFieldId,
+  type ProfileMaterializationOperation,
+  type ProfileMaterializationProviderOperationPolicy,
+  type ProfileMaterializationProviderPolicy,
+  type ProfileMaterializationReceipt,
+  type ProfileMaterializationSourceAuthority,
+  type ProfileMaterializationSourceRecord,
+  type ProfileMaterializationSourceType,
+} from './profile-materialization-contracts.ts';
+export {
+  PROFILE_MATERIALIZATION_PROVIDER_POLICY_PATH,
+  deriveProfileMaterializationRequestBudget,
+  operationPolicy,
+  parseProfileMaterializationProviderPolicy,
+  validateProfileMaterializationProviderPolicy,
+} from './profile-materialization-policy.ts';
+export {
+  createProfileMaterializationSourceAuthority,
+  createProfileMaterializationSourceRecord,
+  parseProfileMaterializationSourceAuthority,
+  sourceAuthoritySemanticDigest,
+  type CreateProfileMaterializationSourceAuthorityInput,
+  type ProfileMaterializationSourceRecordInput,
+} from './profile-materialization-source-authority.ts';
+export {
+  collectProfileMaterializationSources,
+  mapProfilePrimaryLanguage,
+  parseProfileMaterializationCommunityResponse,
+  parseProfileMaterializationRepositoryResponse,
+  projectForkUpstreamState,
+  type ProfileMaterializationCollectionResult,
+  type ProfileMaterializationProviderConfig,
+  type ProfileMaterializationRepositorySource,
+} from './profile-materialization-providers.ts';
+export {
+  materializeCandidateProfile,
+  materializeCandidateProfiles,
+  type MaterializedCandidateProfileAuthority,
+} from './candidate-profile-materialization.ts';
+export {
+  ACCEPTED_OFFLINE_PROFILE_AUTHORITY_DIGEST,
+  ACCEPTED_OFFLINE_PROFILE_COVERAGE_DIGEST,
+  buildProfileMaterializationArtifacts,
+  compareProfileMaterializationCoverage,
+  parseProfileMaterializationCoverage,
+  type ProfileMaterializationArtifacts,
+  type ProfileMaterializationCoverageReport,
+} from './profile-materialization-coverage.ts';
+export {
+  buildProfileMaterializationReceipt,
+  compareProfileMaterializationSources,
+  controlledFailureCounts,
+  renderProfileMaterializationCompletion,
+  sourceOutcomeCounts,
+  sourceRecordCounts,
+  validateProfileMaterializationCompletion,
+  validateProfileMaterializationReceipt,
+  type ProfileMaterializationSourceDrift,
+} from './profile-materialization-receipt.ts';
+export {
+  EXECUTE_STAGES,
+  PROFILE_MATERIALIZATION_CREDENTIAL_NAMES,
+  PROFILE_MATERIALIZATION_FIXED_PATHS,
+  PROFILE_MATERIALIZATION_LIVE_ACKNOWLEDGEMENT,
+  executeProfileMaterialization,
+  parseProfileMaterializationArguments,
+  preflightProfileMaterialization,
+  verifyProfileMaterializationEvidence,
+  type ProfileMaterializationArguments,
+  type ProfileMaterializationCompletionEvidence,
+  type ProfileMaterializationCredentials,
+  type ProfileMaterializationDatabaseProof,
+  type ProfileMaterializationLiveEffects,
+  type ProfileMaterializationPreflightEffects,
+  type ProfileMaterializationPreflightResult,
+} from './profile-materialization-runner.ts';
 export { planCandidateRefresh } from './refresh.ts';
 export { createIngestionReceipt, parseIngestionReceipt } from './receipt.ts';
 export {

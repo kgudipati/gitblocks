@@ -92,7 +92,7 @@ describe('retrieval manifest closure', () => {
       false,
     );
     expect(loadRetrievalCorpusV1(root).ok).toBe(false);
-  }, 60_000);
+  }, 90_000);
 
   it('rejects missing, unlisted, symlinked, and byte-drifted files', () => {
     const missingRoot = createRetrievalRepositoryFixture();

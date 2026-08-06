@@ -231,8 +231,18 @@ artifacts, audit metadata, and gold. The committed baseline report contains
 only bindings, opaque prediction/score digests, aggregate/per-family numeric
 measurements and denominators, safety counts, control evidence, and its digest.
 It makes no winner, recommendation, quality threshold, production-readiness,
-or product-contract claim. Production retrieval and Milestone 7 remain
-unimplemented.
+or product-contract claim. Production retrieval remains unimplemented.
+
+Milestone 7A adds no product contract root and changes none of the 27 field
+definitions, profile DTOs, schema digests, or accepted offline authority. Its
+provider policy, source authority, coverage comparison, and receipt are
+versioned operational ingestion contracts under `schemas/operations`, not
+product schemas. Pure materialization still emits the accepted deterministic
+profile DTO and may populate only ten already-defined fields from exact
+structured public-source values with repository-snapshot or package-version
+scope. The offline authority remains the accepted product-facing authority
+until a separately authorized Milestone 7B evidence commit is reviewed. This
+operator is neither retrieval/ranking nor a production-readiness claim.
 
 ## Relevance is not adoption fit
 

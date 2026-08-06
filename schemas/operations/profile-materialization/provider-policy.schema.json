@@ -1,0 +1,213 @@
+{
+  "$id": "https://schemas.gitblocks.dev/operations/profile-materialization/provider-policy.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "catalogBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "catalogDigest": {
+          "const": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634"
+        },
+        "catalogVersion": { "const": "public-v1" }
+      },
+      "required": ["catalogDigest", "catalogVersion"],
+      "type": "object"
+    },
+    "maximumRequestBudget": { "$ref": "#/$defs/requestBudget" },
+    "operations": {
+      "items": { "$ref": "#/$defs/operation" },
+      "maxItems": 9,
+      "minItems": 9,
+      "type": "array"
+    },
+    "policySemanticDigest": {
+      "const": "f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9"
+    },
+    "policyVersion": {
+      "const": "profile-materialization-provider-policy/1.0.0"
+    },
+    "transport": {
+      "additionalProperties": false,
+      "properties": {
+        "allowedHosts": {
+          "const": ["api.github.com", "registry.npmjs.org"]
+        },
+        "cache": { "const": "none" },
+        "cancellation": { "const": "abort-signal" },
+        "effectivePort": { "const": 443 },
+        "methods": { "const": ["GET"] },
+        "redirectPolicy": { "const": "manual-same-host" },
+        "retryPolicy": { "const": "existing-bounded-deterministic" },
+        "scheme": { "const": "https" }
+      },
+      "required": [
+        "allowedHosts",
+        "cache",
+        "cancellation",
+        "effectivePort",
+        "methods",
+        "redirectPolicy",
+        "retryPolicy",
+        "scheme"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "catalogBinding",
+    "maximumRequestBudget",
+    "operations",
+    "policySemanticDigest",
+    "policyVersion",
+    "transport"
+  ],
+  "title": "Profile materialization provider policy 1.0.0",
+  "type": "object",
+  "$defs": {
+    "digest": {
+      "maxLength": 64,
+      "minLength": 64,
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "operation": {
+      "additionalProperties": false,
+      "properties": {
+        "authentication": { "enum": ["none", "required"] },
+        "candidateDeadlineMilliseconds": { "const": 90000 },
+        "concurrency": { "const": 3 },
+        "controlledAbsence": { "enum": ["established-absence", "fatal"] },
+        "endpointTemplate": {
+          "maxLength": 512,
+          "minLength": 1,
+          "type": "string"
+        },
+        "fatalErrorCodes": {
+          "items": { "$ref": "#/$defs/safeCode" },
+          "maxItems": 32,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "host": { "enum": ["api.github.com", "registry.npmjs.org"] },
+        "maximumAttempts": { "const": 3 },
+        "maximumJsonNodes": {
+          "maximum": 500000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maximumRedirects": { "const": 2 },
+        "maximumRequestsPerCandidate": { "enum": [1, 2] },
+        "maximumResponseBytes": {
+          "maximum": 16777216,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "method": { "const": "GET" },
+        "operation": {
+          "enum": [
+            "github-advisory",
+            "github-allowlisted-file",
+            "github-community-profile",
+            "github-default-branch-head",
+            "github-license",
+            "github-release",
+            "github-repository-metadata",
+            "github-tag",
+            "npm-package"
+          ]
+        },
+        "profileFields": {
+          "items": { "$ref": "#/$defs/fieldId" },
+          "maxItems": 10,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "provider": { "enum": ["github", "npm"] },
+        "purpose": { "enum": ["persistence-audit-only", "profile-input"] },
+        "requestTimeoutMilliseconds": { "const": 10000 },
+        "retainedStructuredProperties": {
+          "items": { "$ref": "#/$defs/safeCode" },
+          "maxItems": 32,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "runDeadlineMilliseconds": { "const": 3600000 },
+        "sourceMutability": { "enum": ["immutable", "mutable"] },
+        "sourceType": { "$ref": "#/$defs/sourceType" },
+        "temporaryUnavailability": { "enum": ["fatal", "qualified-unknown"] }
+      },
+      "required": [
+        "authentication",
+        "candidateDeadlineMilliseconds",
+        "concurrency",
+        "controlledAbsence",
+        "endpointTemplate",
+        "fatalErrorCodes",
+        "host",
+        "maximumAttempts",
+        "maximumJsonNodes",
+        "maximumRedirects",
+        "maximumRequestsPerCandidate",
+        "maximumResponseBytes",
+        "method",
+        "operation",
+        "profileFields",
+        "provider",
+        "purpose",
+        "requestTimeoutMilliseconds",
+        "retainedStructuredProperties",
+        "runDeadlineMilliseconds",
+        "sourceMutability",
+        "sourceType",
+        "temporaryUnavailability"
+      ],
+      "type": "object"
+    },
+    "fieldId": {
+      "enum": [
+        "archived-state",
+        "fork-upstream-state",
+        "license-identity",
+        "package-publication-version",
+        "package-repository-linkage",
+        "release-state-recency",
+        "repository-discovery-metadata",
+        "runtime-package-format",
+        "security-advisory-state",
+        "security-policy-presence"
+      ]
+    },
+    "requestBudget": {
+      "additionalProperties": false,
+      "properties": {
+        "github": { "minimum": 1, "type": "integer" },
+        "npm": { "minimum": 1, "type": "integer" },
+        "total": { "minimum": 1, "type": "integer" }
+      },
+      "required": ["github", "npm", "total"],
+      "type": "object"
+    },
+    "safeCode": {
+      "maxLength": 200,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9.-]*$",
+      "type": "string"
+    },
+    "sourceType": {
+      "enum": [
+        "github-advisory",
+        "github-community",
+        "github-file",
+        "github-head-commit",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag",
+        "npm-package"
+      ]
+    }
+  }
+}

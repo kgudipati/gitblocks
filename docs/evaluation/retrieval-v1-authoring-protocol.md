@@ -326,4 +326,6 @@ checks reversed safe-authority order, validates report schema/digest/content,
 compares committed bytes, and proves the report path was not changed. All are
 offline and use no environment-derived semantics, clock, randomness, network,
 database, provider/model, artifact body, or Phase 7 input. Milestone 7 remains
-separately authorized and has not begun.
+separately authorized: Milestone 7A adds only the dormant, effect-denied
+profile-materialization implementation, while Milestone 7B live execution and
+evidence remain unauthorized. Neither changes this baseline authority.

@@ -236,6 +236,12 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build:product && vitest run apps/repository-interview-operator/test --config vitest.config.ts',
     'operator:interviews:verify':
       'pnpm runtime:check && pnpm operator:interviews:schema:validate && pnpm operator:interviews:test && pnpm --filter @gitblocks/repository-interview-operator lint && pnpm --filter @gitblocks/repository-interview-operator typecheck && pnpm architecture:check && pnpm db:verify',
+    'profiles:materialization:preflight':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts preflight',
+    'profiles:materialization:execute':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts execute',
+    'profiles:materialization:verify':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts verify',
     'repo:branch':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts branch',
     'repo:check':
@@ -290,6 +296,7 @@ const DOMAIN_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },
@@ -303,6 +310,7 @@ const CONTRACTS_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },
@@ -321,6 +329,7 @@ const PERSISTENCE_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },

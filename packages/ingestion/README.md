@@ -37,8 +37,58 @@ Phase 7 state.
 The offline authority is mostly unknown by design: 600 of 4,050 cells are
 known, 210 are not applicable because 70 candidates have no approved npm
 mapping, 3,240 are unknown, and none conflict. This is an honest deterministic
-foundation, not production readiness. Structured materialization remains the
-separately authorized Milestone 7; production retrieval remains unimplemented.
+foundation, not production readiness. Milestone 7A now implements the
+controlled materialization operator without running it; production retrieval
+remains unimplemented and Milestone 7B live execution remains unauthorized.
+
+The separately digested
+`profile-materialization-provider-policy/1.0.0` permits nine exact operations
+using only HTTPS GET to `api.github.com` and `registry.npmjs.org`. It binds
+manual same-host redirects, two redirects, bounded bytes/JSON nodes, existing
+retry/cancellation, deadlines, concurrency, retained properties, mutability,
+absence/failure semantics, and the exact permitted profile consumers. The
+committed catalog mechanically derives a maximum budget of 913 requests.
+Repository tag and exact allowlisted-file collection are persistence-audit-only;
+file bodies never enter source/profile/receipt/coverage output.
+Its semantic digest is
+`f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9`.
+The closed operational schema byte digests are:
+
+- provider policy:
+  `39be981d31acc0e8437087edb13ebb3e441e654a9ce6b3692eb1d657aa345dc1`;
+- source authority:
+  `af4fa351c882fbb34c6379f1ee06522dc5367a1ee5eadc6db2ee90b5992acff1`;
+- coverage:
+  `79a3147a6e78cd5adc7a19ac06916820c9091e943ee8161695b31eeea67936eb`;
+- receipt:
+  `c91fbea628bbf890e88b12a5c682f4ce64733e0750c788ebd9174899d5e4a8a2`.
+
+`collectProfileMaterializationSources` is separate from the unchanged
+`collectCandidateSources` API. It produces granular normalized records for the
+closed, operational, untracked
+`profile-materialization-source-authority/1.0.0`. Future authorities live only
+below `verification/retrieval-v1/.profile-materialization-runs/<run-id>/` with
+private modes, bounded canonical no-follow writes, and no run ID in semantic
+identity. They must remain local and immutable until 7B review, final Milestone
+7 acceptance, and explicit maintainer deletion approval.
+
+Pure materialization reads only the accepted catalog, taxonomy, and source
+authority and returns exactly 150 accepted profile DTOs plus
+`profile-materialization-coverage/1.0.0`. It preserves the four catalog-derived
+fields and may populate only repository discovery, package publication/version,
+runtime package format, license, archived, fork/upstream, release recency,
+advisory, security-policy, and package/repository-linkage fields. Conservative
+rules leave unsupported language/module/SPDX/advisory/provider outcomes unknown
+and never turn failed detection into a negative fact.
+
+The only command surface is preflight, execute, and verify. Preflight is
+read-only, emits no build output, and reads no credential; an explicit internal
+source-resolution condition preserves the ordinary compiled package exports.
+Execute owns all future effects in one
+cleanup-protected boundary and cannot publish fixed evidence before exact
+database/container/network disposal proof. Verify is read-only. None of these
+commands is invoked by ordinary `pnpm verify` or hosted CI during Milestone 7A;
+execute remains unauthorized.
 
 Phase 6 adds a separate `public-artifacts-v1` selection authority without
 changing Phase 5 file allowlists. `artifact-selections.json` contains the

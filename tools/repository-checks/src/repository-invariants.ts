@@ -333,6 +333,7 @@ export function validateRepositoryInvariants(
   diagnostics.push(...validateDependabotPolicy(repository.textFiles));
   diagnostics.push(...validateCiPolicy(repository.textFiles));
   diagnostics.push(...validateNodePinPolicy(repository.textFiles));
+  diagnostics.push(...validateProfileMaterializationBoundary(repository));
 
   const markdownInspection =
     repository.markdownInspection ??
@@ -563,6 +564,9 @@ function validateRuntimeScripts(
     'operator:interviews:schema:validate',
     'operator:interviews:test',
     'operator:interviews:verify',
+    'profiles:materialization:execute',
+    'profiles:materialization:preflight',
+    'profiles:materialization:verify',
     'repo:check',
     'repo:branch',
     'repo:pr-branch',
@@ -627,6 +631,12 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && vitest run apps/repository-interview-operator/test --config vitest.config.ts',
     'operator:interviews:verify':
       'pnpm runtime:check && pnpm operator:interviews:schema:validate && pnpm operator:interviews:test && pnpm --filter @gitblocks/repository-interview-operator lint && pnpm --filter @gitblocks/repository-interview-operator typecheck && pnpm architecture:check && pnpm db:verify',
+    'profiles:materialization:preflight':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts preflight',
+    'profiles:materialization:execute':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts execute',
+    'profiles:materialization:verify':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts verify',
     'eval:interviews:generate':
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts generate',
     'eval:interviews:validate':
@@ -685,6 +695,127 @@ function validateRuntimeScripts(
     'pnpm verify && pnpm db:verify && pnpm security:audit'
   ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:ci', manifestPath));
+  }
+  return diagnostics;
+}
+
+function validateProfileMaterializationBoundary(
+  repository: RepositoryInvariantInput,
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  const manifestText = repository.textFiles.get('package.json');
+  if (manifestText !== undefined) {
+    try {
+      const manifest = JSON.parse(manifestText) as unknown;
+      const scripts =
+        isRecord(manifest) && isRecord(manifest['scripts'])
+          ? manifest['scripts']
+          : undefined;
+      const allowed = new Set([
+        'profiles:materialization:preflight',
+        'profiles:materialization:execute',
+        'profiles:materialization:verify',
+      ]);
+      const expectedScripts = {
+        'profiles:materialization:preflight':
+          'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts preflight',
+        'profiles:materialization:execute':
+          'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts execute',
+        'profiles:materialization:verify':
+          'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts verify',
+      } as const;
+      if (
+        scripts === undefined ||
+        Object.keys(scripts)
+          .filter((name) => name.startsWith('profiles:materialization:'))
+          .some((name) => !allowed.has(name)) ||
+        Object.entries(expectedScripts).some(
+          ([name, expected]) => scripts[name] !== expected,
+        ) ||
+        ['verify', 'verify:core', 'verify:ci'].some(
+          (name) =>
+            typeof scripts[name] !== 'string' ||
+            scripts[name].includes('profiles:materialization:'),
+        )
+      ) {
+        diagnostics.push(
+          diagnostic(
+            'repository.profile-materialization-command-boundary',
+            'Profile materialization exposes only preflight, execute, and verify; live execution must remain outside ordinary verification.',
+            'package.json',
+          ),
+        );
+      }
+    } catch {
+      // The package manifest parser reports the syntax failure separately.
+    }
+  }
+
+  for (const manifestPath of [
+    'packages/contracts/package.json',
+    'packages/domain/package.json',
+    'packages/persistence/package.json',
+  ]) {
+    const text = repository.textFiles.get(manifestPath);
+    try {
+      const manifest: unknown =
+        text === undefined ? undefined : JSON.parse(text);
+      const sourceExport = isRecord(manifest)
+        ? (manifest['exports'] as Record<string, unknown> | undefined)?.['.']
+        : undefined;
+      if (
+        !isRecord(sourceExport) ||
+        sourceExport['gitblocks-source'] !== './src/index.ts'
+      ) {
+        diagnostics.push(
+          diagnostic(
+            'repository.profile-materialization-command-boundary',
+            'The read-only source condition must resolve the product dependency chain without compiling during preflight.',
+            manifestPath,
+          ),
+        );
+      }
+    } catch {
+      // The package manifest parser reports the syntax failure separately.
+    }
+  }
+
+  for (const [path, content] of repository.textFiles) {
+    if (
+      /^\.github\/workflows\/.+\.ya?ml$/u.test(path) &&
+      content.includes('profiles:materialization:')
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'repository.profile-materialization-hosted-execution',
+          'Hosted workflows must not invoke the live profile-materialization operator.',
+          path,
+        ),
+      );
+    }
+  }
+
+  const prohibitedEvidence = new Set([
+    'catalog/public-v1/profile-materialization-completion.md',
+    'verification/retrieval-v1/profile-materialization-coverage.json',
+    'verification/retrieval-v1/profile-materialization-receipt.json',
+  ]);
+  for (const path of repository.trackedPaths) {
+    if (
+      prohibitedEvidence.has(path) ||
+      path.startsWith(
+        'verification/retrieval-v1/.profile-materialization-runs/',
+      ) ||
+      /^packages\/persistence\/migrations\/0005/iu.test(path)
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'repository.profile-materialization-prohibited-live-artifact',
+          'Milestone 7A must not track live profile evidence, source authorities, or migration 0005.',
+          path,
+        ),
+      );
+    }
   }
   return diagnostics;
 }
@@ -1236,12 +1367,19 @@ function validateProductPackage(
   }
 
   const exports = manifest['exports'];
+  const sourceConditionRequired = new Set([
+    'packages/contracts/package.json',
+    'packages/domain/package.json',
+    'packages/persistence/package.json',
+  ]).has(manifestPath);
   if (
     !isRecord(exports) ||
     Object.keys(exports).length !== 1 ||
     !isRecord(exports['.']) ||
-    Object.keys(exports['.']).length !== 2 ||
+    Object.keys(exports['.']).length !== (sourceConditionRequired ? 3 : 2) ||
     exports['.']['types'] !== './dist/src/index.d.ts' ||
+    (sourceConditionRequired &&
+      exports['.']['gitblocks-source'] !== './src/index.ts') ||
     exports['.']['import'] !== './dist/src/index.js'
   ) {
     diagnostics.push(

@@ -9,6 +9,7 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
+      "gitblocks-source": "./src/index.ts",
       "import": "./dist/src/index.js"
     }
   },

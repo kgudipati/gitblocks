@@ -122,7 +122,20 @@ and one aggregate/per-family content-free report. Product packages import none
 of it. The print and verification paths are read-only; only an explicit fixed
 writer can replace the committed report. There is no production candidate
 generation, filtering, retrieval, ranking, API/MCP, persistence, provider,
-model, database, or Phase 7 node. Milestone 7 is unstarted and unauthorized.
+model, database, or Phase 7 node. Milestone 6 is accepted at
+`ea27f11432513ec352ce43821eb95b8da0886182`.
+
+Milestone 7A adds an effect-denied implementation within the existing ingestion
+and persistence adapters. Ingestion owns the separate provider policy,
+structured-source collector/authority, pure profile and coverage projection,
+receipt, fixed evidence verifier, and one atomic orchestration boundary.
+Persistence owns only the exact fresh-database command/verification plan; the
+existing four migrations and table meanings are unchanged. The operator has no
+running node in ordinary development or CI. All provider, Docker, PostgreSQL,
+credential, clock, source-authority publication, and completion-evidence
+effects remain dormant until Milestone 7B is separately authorized. Production
+retrieval/ranking, API/MCP, durable profile storage, models, and Phase 7 state
+remain outside this context.
 
 ## Planned system context
 
