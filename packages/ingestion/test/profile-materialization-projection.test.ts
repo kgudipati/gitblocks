@@ -223,6 +223,7 @@ describe('pure profile materialization', () => {
           outcome: 'established-absence',
           normalizedValue: null,
           controlledCode: 'provider-not-found',
+          evidenceIds: [],
         };
       },
     });

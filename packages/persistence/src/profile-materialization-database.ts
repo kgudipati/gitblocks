@@ -91,6 +91,7 @@ export interface ProfileMaterializationDatabasePlan {
   readonly createNetwork: ProfileMaterializationProcessCommand;
   readonly createContainer: ProfileMaterializationProcessCommand;
   readonly inspectContainer: ProfileMaterializationProcessCommand;
+  readonly inspectNetwork: ProfileMaterializationProcessCommand;
   readonly removeContainer: ProfileMaterializationProcessCommand;
   readonly removeNetwork: ProfileMaterializationProcessCommand;
   readonly expectations: typeof PROFILE_MATERIALIZATION_DATABASE_EXPECTATIONS;
@@ -269,6 +270,7 @@ export function createProfileMaterializationDatabasePlan(
       '{{json .State.Health.Status}}',
       identity.containerName,
     ]),
+    inspectNetwork: command(['network', 'inspect', identity.networkName]),
     removeContainer: command([
       'rm',
       '--force',
@@ -308,16 +310,8 @@ export function createProfileMaterializationDatabaseOperator(
     create: async (plan, credentials, signal) => {
       validateProfileMaterializationDatabasePlan(plan);
       validateCredentials(plan, credentials);
-      await requireResourceAbsent(
-        adapters,
-        command(['container', 'inspect', plan.identity.containerName]),
-        signal,
-      );
-      await requireResourceAbsent(
-        adapters,
-        command(['network', 'inspect', plan.identity.networkName]),
-        signal,
-      );
+      await requireResourceAbsent(adapters, plan.inspectContainer, signal);
+      await requireResourceAbsent(adapters, plan.inspectNetwork, signal);
       await requireSuccess(adapters, plan.createNetwork, {}, signal);
       await requireSuccess(
         adapters,
@@ -452,25 +446,28 @@ export function createProfileMaterializationDatabaseOperator(
       }
     },
     dispose: async (plan, signal) => {
-      const results = await Promise.allSettled([
-        adapters.runProcess(plan.removeContainer, {}, signal),
-        adapters.runProcess(plan.removeNetwork, {}, signal),
-      ]);
-      if (results.some((result) => result.status === 'rejected')) {
-        throw new Error('profile-materialization.cleanup-failed');
+      const containerPresent = await inspectResourcePresence(
+        adapters,
+        plan.inspectContainer,
+        signal,
+      );
+      if (containerPresent) {
+        await requireSuccess(adapters, plan.removeContainer, {}, signal);
       }
+      await requireResourceAbsent(adapters, plan.inspectContainer, signal);
+      const networkPresent = await inspectResourcePresence(
+        adapters,
+        plan.inspectNetwork,
+        signal,
+      );
+      if (networkPresent) {
+        await requireSuccess(adapters, plan.removeNetwork, {}, signal);
+      }
+      await requireResourceAbsent(adapters, plan.inspectNetwork, signal);
     },
     proveDisposed: async (plan, signal) => {
-      await requireResourceAbsent(
-        adapters,
-        command(['container', 'inspect', plan.identity.containerName]),
-        signal,
-      );
-      await requireResourceAbsent(
-        adapters,
-        command(['network', 'inspect', plan.identity.networkName]),
-        signal,
-      );
+      await requireResourceAbsent(adapters, plan.inspectContainer, signal);
+      await requireResourceAbsent(adapters, plan.inspectNetwork, signal);
     },
   };
 }
@@ -540,29 +537,25 @@ function imageDigest(image: string): string {
   return image.split('@sha256:')[1] ?? '';
 }
 
-function command(
-  arguments_: readonly string[],
-): ProfileMaterializationProcessCommand {
-  return {
-    program: 'docker',
-    arguments: arguments_,
-    allowedEnvironmentNames: [],
-    maximumOutputBytes: 1_048_576,
-  };
-}
-
 async function requireResourceAbsent(
   adapters: ProfileMaterializationDatabaseEffectAdapters,
   inspect: ProfileMaterializationProcessCommand,
   signal: AbortSignal,
 ): Promise<void> {
-  const result = await adapters.runProcess(inspect, {}, signal);
-  if (result.exitCode === 0) {
+  if (await inspectResourcePresence(adapters, inspect, signal)) {
     throw new Error('profile-materialization.database-identity-collision');
   }
-  if (result.exitCode !== 1) {
-    throw new Error('profile-materialization.resource-inspection-failed');
-  }
+}
+
+async function inspectResourcePresence(
+  adapters: ProfileMaterializationDatabaseEffectAdapters,
+  inspect: ProfileMaterializationProcessCommand,
+  signal: AbortSignal,
+): Promise<boolean> {
+  const result = await adapters.runProcess(inspect, {}, signal);
+  if (result.exitCode === 0) return true;
+  if (result.exitCode === 1) return false;
+  throw new Error('profile-materialization.resource-inspection-failed');
 }
 
 async function requireSuccess(

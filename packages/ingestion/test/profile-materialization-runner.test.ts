@@ -17,7 +17,10 @@ import {
   preflightProfileMaterialization,
   type ProfileMaterializationLiveEffects,
 } from '../src/index.ts';
-import { buildFakeSourceAuthority } from './profile-materialization-fixtures.ts';
+import {
+  buildFakePersistenceProof,
+  buildFakeSourceAuthority,
+} from './profile-materialization-fixtures.ts';
 
 const ROOT = new URL('../../../', import.meta.url);
 const RUN_ID = 'm7-abcdefghijklmnopqrstuvwxyz';
@@ -83,8 +86,10 @@ describe('profile-materialization atomic runner', () => {
       'prepare',
       'collect-first',
       'source-first',
+      'persistence-first',
       'collect-second',
       'source-second',
+      'persistence-second',
       'quarantine',
       'cancel',
       'dispose',
@@ -176,6 +181,50 @@ describe('profile-materialization atomic runner', () => {
       ),
     ).rejects.toThrow();
     expect(cleanupEvents).not.toContain('publish');
+  });
+
+  it('requires a valid persistence proof from both collections before publication', async () => {
+    const fixture = await buildFakeSourceAuthority();
+    for (const missingCollection of ['first', 'second'] as const) {
+      const events: string[] = [];
+      const effects = fakeEffects(fixture, events);
+      const collect = effects.collectSourceAuthority.bind(effects);
+      effects.collectSourceAuthority = async (...arguments_) => {
+        const result = await collect(...arguments_);
+        return arguments_[0] === missingCollection
+          ? ({ sourceAuthority: result.sourceAuthority } as never)
+          : result;
+      };
+      await expect(
+        executeProfileMaterialization(
+          argv(fixture),
+          effects,
+          new AbortController().signal,
+        ),
+      ).rejects.toThrow();
+      expect(events).toContain('dispose');
+      expect(events).not.toContain('publish');
+    }
+  });
+
+  it('treats a persistence-stage failure as fatal and blocks final evidence', async () => {
+    const fixture = await buildFakeSourceAuthority();
+    const events: string[] = [];
+    const effects = fakeEffects(fixture, events);
+    effects.collectSourceAuthority = () => {
+      events.push('persistence-failure');
+      return Promise.reject(new Error('controlled fake persistence failure'));
+    };
+    await expect(
+      executeProfileMaterialization(
+        argv(fixture),
+        effects,
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow('controlled fake persistence failure');
+    expect(events).toContain('dispose');
+    expect(events).toContain('prove-disposed');
+    expect(events).not.toContain('publish');
   });
 
   it.each([
@@ -358,12 +407,27 @@ function fakeEffects(
         productTableCount: 25,
       });
     },
-    collectSourceAuthority: (collection) => {
+    collectSourceAuthority: (collection, _preflight, _credentials, first) => {
       events.push(`collect-${collection}`);
-      return Promise.resolve(fixture.authority);
+      expect(first?.authoritySemanticDigest ?? null).toBe(
+        collection === 'second'
+          ? fixture.authority.authoritySemanticDigest
+          : null,
+      );
+      return Promise.resolve({
+        sourceAuthority: fixture.authority,
+        persistenceProof: buildFakePersistenceProof(
+          fixture.authority,
+          collection,
+        ),
+      });
     },
     publishSourceAuthority: (collection) => {
       events.push(`source-${collection}`);
+      return Promise.resolve();
+    },
+    publishPersistenceProof: (collection) => {
+      events.push(`persistence-${collection}`);
       return Promise.resolve();
     },
     materializeProfiles: (preflight, authority) =>

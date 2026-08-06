@@ -8,10 +8,13 @@ import {
 
 import {
   createProfileMaterializationSourceAuthority,
+  createProfileMaterializationPersistenceProof,
   operationPolicy,
   parsePublicCatalog,
   parseProfileMaterializationProviderPolicy,
   type ProfileMaterializationProviderPolicy,
+  type ProfileMaterializationCollectionResult,
+  type ProfileMaterializationPersistenceProof,
   type ProfileMaterializationSourceAuthority,
   type ProfileMaterializationSourceRecordInput,
   type PublicCatalog,
@@ -23,6 +26,203 @@ export async function loadCatalogFixture(): Promise<PublicCatalog> {
   return parsePublicCatalog(
     await readFile(new URL('catalog/public-v1/manifest.json', ROOT), 'utf8'),
   );
+}
+
+export function fakeCollectionForCandidate(
+  authority: ProfileMaterializationSourceAuthority,
+  candidate: PublicCatalog['candidates'][number],
+  collectedAt: string,
+): ProfileMaterializationCollectionResult {
+  const records = authority.sourceRecords.filter(
+    (record) => record.candidateId === candidate.candidateId,
+  );
+  const value = (operation: string): Record<string, unknown> =>
+    records.find((record) => record.operation === operation)
+      ?.normalizedValue as Record<string, unknown>;
+  const optionalValue = (
+    operation: string,
+  ): Record<string, unknown> | undefined =>
+    records.find((record) => record.operation === operation)
+      ?.normalizedValue as Record<string, unknown> | undefined;
+  const repository = value('github-repository-metadata');
+  const head = value('github-default-branch-head');
+  const sha = String(head['sha']);
+  const releases = optionalValue('github-release')?.['releases'] as
+    readonly Record<string, unknown>[] | undefined;
+  const tags = optionalValue('github-tag')?.['tags'] as
+    readonly Record<string, unknown>[] | undefined;
+  const license = records.find(
+    (record) => record.operation === 'github-license',
+  );
+  const community = records.find(
+    (record) => record.operation === 'github-community-profile',
+  );
+  const npm = records.find((record) => record.operation === 'npm-package');
+  const npmValue = npm?.normalizedValue as Record<string, unknown> | undefined;
+  const advisory = records.find(
+    (record) => record.operation === 'github-advisory',
+  );
+  const advisoryValue = advisory?.normalizedValue as
+    Record<string, unknown> | undefined;
+  return {
+    sourceRecords: records.map((record) => ({
+      candidateId: record.candidateId,
+      sourceType: record.sourceType,
+      operation: record.operation,
+      logicalSourceKey: record.logicalSourceKey,
+      sourceMutability: record.sourceMutability,
+      outcome: record.outcome,
+      immutableReference: record.immutableReference,
+      collectedAt,
+      normalizedValue: record.normalizedValue,
+      controlledCode: record.controlledCode,
+      evidenceIds: [],
+    })),
+    qualifiedFailureCodes: [],
+    legacyBundle: {
+      candidate,
+      collectedAt,
+      repository: {
+        canonicalOwner: String(repository['canonicalOwner']),
+        canonicalRepository: String(repository['canonicalRepository']),
+        htmlUrl: `https://github.com/${candidate.github.owner}/${candidate.github.repository}`,
+        description: null,
+        homepage: null,
+        topics: repository['topics'] as readonly string[],
+        defaultBranch: String(repository['defaultBranch']),
+        isPublic: Boolean(repository['isPublic']),
+        isFork: Boolean(repository['isFork']),
+        isArchived: Boolean(repository['isArchived']),
+        pushedAt: String(repository['pushedAt']),
+        updatedAt: String(repository['updatedAt']),
+        licenseSpdxId: nullableFixtureString(repository['licenseSpdxId']),
+      },
+      commit: {
+        sha,
+        htmlUrl: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/commit/${sha}`,
+        committedAt: String(head['committedAt']),
+      },
+      releases: (releases ?? []).map((release) => ({
+        tag: String(release['tag']),
+        htmlUrl: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/releases/tag/${String(release['tag'])}`,
+        publishedAt: String(release['publishedAt']),
+        isDraft: Boolean(release['isDraft']),
+        isPrerelease: Boolean(release['isPrerelease']),
+      })),
+      tags: (tags ?? []).map((tag) => ({
+        name: String(tag['name']),
+        commitSha: String(tag['commitSha']),
+      })),
+      license:
+        license?.outcome === 'established-value'
+          ? {
+              spdxId:
+                (license.normalizedValue as Record<string, unknown>)[
+                  'spdxId'
+                ] === null
+                  ? null
+                  : String(
+                      (license.normalizedValue as Record<string, unknown>)[
+                        'spdxId'
+                      ],
+                    ),
+              path: String(
+                (license.normalizedValue as Record<string, unknown>)['path'],
+              ),
+              sha: String(
+                (license.normalizedValue as Record<string, unknown>)['sha'],
+              ),
+              sourceUrl: `https://api.github.com/repos/${candidate.github.owner}/${candidate.github.repository}/license`,
+              immutableUrl: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/blob/${sha}/LICENSE`,
+            }
+          : null,
+      community:
+        community?.outcome === 'established-value'
+          ? {
+              healthPercentage: Number(
+                (community.normalizedValue as Record<string, unknown>)[
+                  'healthPercentage'
+                ],
+              ),
+              hasSecurityPolicy: Boolean(
+                (community.normalizedValue as Record<string, unknown>)[
+                  'securityPolicyPresent'
+                ],
+              ),
+            }
+          : null,
+      files: records
+        .filter(
+          (record) =>
+            record.operation === 'github-allowlisted-file' &&
+            record.outcome === 'established-value',
+        )
+        .map((record) => {
+          const file = record.normalizedValue as Record<string, unknown>;
+          return {
+            path: String(file['path']),
+            sha: String(file['sha']),
+            htmlUrl: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/blob/${sha}/${String(file['path'])}`,
+            text: '',
+          };
+        }),
+      npm:
+        npmValue === undefined
+          ? null
+          : {
+              name: String(npmValue['name']),
+              latestVersion: String(npmValue['selectedVersion']),
+              publishedAt: String(npmValue['publishedAt']),
+              registryUrl: `https://registry.npmjs.org/${encodeURIComponent(String(npmValue['name']))}/${String(npmValue['selectedVersion'])}`,
+              repositoryUrl: `https://github.com/${candidate.github.owner}/${candidate.github.repository}`,
+              license: nullableFixtureString(npmValue['licenseDeclaration']),
+              nodeEngine: nullableFixtureString(npmValue['nodeEngine']),
+              moduleType: nullableFixtureString(npmValue['moduleType']),
+              exportShape:
+                npmValue['exportsDeclared'] === true
+                  ? ('declared' as const)
+                  : ('not-declared' as const),
+              deprecated: Boolean(npmValue['deprecated']),
+              distTags: npmValue['distTags'] as Readonly<
+                Record<string, string>
+              >,
+            },
+      advisories:
+        advisoryValue === undefined
+          ? {
+              advisories: [],
+              complete: false,
+              limitationCode: 'advisory-not-requested',
+            }
+          : {
+              advisories: (
+                advisoryValue['advisories'] as readonly Record<
+                  string,
+                  unknown
+                >[]
+              ).map((entry) => ({
+                advisoryId: String(entry['advisoryId']),
+                htmlUrl: `https://github.com/advisories/${String(entry['advisoryId'])}`,
+                publishedAt: String(entry['publishedAt']),
+                updatedAt: String(entry['updatedAt']),
+                withdrawnAt: nullableFixtureString(entry['withdrawnAt']),
+                severity: String(entry['severity']),
+              })),
+              complete: Boolean(advisoryValue['complete']),
+              limitationCode: nullableFixtureString(
+                advisoryValue['limitationCode'],
+              ),
+            },
+    },
+  };
+}
+
+function nullableFixtureString(value: unknown): string | null {
+  if (value === null) return null;
+  if (typeof value !== 'string') {
+    throw new Error('Expected a nullable string in the controlled fixture.');
+  }
+  return value;
 }
 
 export async function loadTaxonomyFixture(): Promise<CapabilityTaxonomyV1> {
@@ -96,7 +296,14 @@ export async function buildFakeSourceAuthority(
         collectedAt,
         normalizedValue,
         controlledCode: null,
-        evidenceIds: [],
+        evidenceIds: [
+          `ev-${createHash('sha256')
+            .update(
+              `${candidate.candidateId}\u0000${operation}\u0000${logicalSourceKey}`,
+            )
+            .digest('hex')
+            .slice(0, 40)}`,
+        ],
       });
     };
     add('github-repository-metadata', {
@@ -138,7 +345,7 @@ export async function buildFakeSourceAuthority(
       add(
         'github-license',
         { spdxId: 'MIT', path: 'LICENSE', sha },
-        'singleton',
+        `commit:${sha}`,
         sha,
       );
     }
@@ -150,7 +357,12 @@ export async function buildFakeSourceAuthority(
     }
     if (candidate.expectedSourceTypes.includes('github-file')) {
       for (const path of candidate.allowlistedFiles) {
-        add('github-allowlisted-file', { path, sha }, path, `${sha}:${path}`);
+        add(
+          'github-allowlisted-file',
+          { path, sha },
+          `commit:${sha}:path:${path}`,
+          `${sha}:${path}`,
+        );
       }
     }
     if (candidate.expectedSourceTypes.includes('npm-package')) {
@@ -210,4 +422,53 @@ export async function buildFakeSourceAuthority(
       sourceRecords: records,
     }),
   };
+}
+
+export function buildFakePersistenceProof(
+  authority: ProfileMaterializationSourceAuthority,
+  collection: 'first' | 'second',
+  outcome: 'created' | 'unchanged' = collection === 'first'
+    ? 'created'
+    : 'unchanged',
+): ProfileMaterializationPersistenceProof {
+  return createProfileMaterializationPersistenceProof(
+    {
+      collection,
+      databaseSchemaDigest:
+        '265fa5f21dbeaa1b80dd78bd6bdd678b27e5971f2852042a30cb872ba44a2952',
+      migrationInventoryDigest:
+        '6c2523252496b2e99c7034a109ac4c672fe347af10b8502ad098a0bd619926f4',
+      catalogDigest: authority.catalogDigest,
+      sourceAuthoritySemanticDigest: authority.authoritySemanticDigest,
+      candidateCount: 150,
+      entries: authority.candidates.map((candidate) => {
+        const evidenceCount = candidate.sourceRecordDigests.length;
+        return {
+          candidateId: candidate.candidateId,
+          disposition: 'persisted' as const,
+          controlledOptionalSourceCodes: [],
+          outcome,
+          candidateState:
+            outcome === 'created'
+              ? ('created' as const)
+              : ('idempotent' as const),
+          snapshotState:
+            outcome === 'created'
+              ? ('created' as const)
+              : ('idempotent' as const),
+          snapshotId: `snap-${createHash('sha256')
+            .update(candidate.candidateId)
+            .digest('hex')
+            .slice(0, 40)}`,
+          evidenceAppended: outcome === 'created' ? evidenceCount : 0,
+          evidenceIdempotent: outcome === 'unchanged' ? evidenceCount : 0,
+          evidenceSuperseded: 0,
+          evidenceInvalidated: 0,
+          limitationCount: 0,
+          unknownCount: 1,
+        };
+      }),
+    },
+    authority.candidates.map((entry) => entry.candidateId),
+  );
 }

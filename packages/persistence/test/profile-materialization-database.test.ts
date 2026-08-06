@@ -94,11 +94,7 @@ describe('profile-materialization fresh database planning', () => {
     await expect(
       operator.create(plan, credentials(), new AbortController().signal),
     ).rejects.toThrow('profile-materialization.database-identity-collision');
-    expect(calls[0]).toEqual([
-      'container',
-      'inspect',
-      plan.identity.containerName,
-    ]);
+    expect(calls[0]).toEqual([...plan.inspectContainer.arguments]);
   });
 
   it('rejects named/bind volumes, label drift, and expectation drift', () => {
@@ -211,25 +207,168 @@ describe('profile-materialization fresh database planning', () => {
     ).rejects.toThrow('profile-materialization.resource-inspection-failed');
   });
 
-  it('attempts both exact cleanup targets even when one process fails', async () => {
+  it('orders exact container removal and absence before network removal', async () => {
     const plan = createPlan();
     const calls: string[][] = [];
+    let containerPresent = true;
+    let networkPresent = true;
     const operator = createProfileMaterializationDatabaseOperator({
       runProcess: (processPlan) => {
         calls.push([...processPlan.arguments]);
-        return processPlan.arguments[0] === 'rm'
-          ? Promise.reject(new Error('controlled fake process failure'))
-          : Promise.resolve({ exitCode: 0, stdout: '' });
+        if (processPlan.arguments[0] === 'inspect') {
+          return Promise.resolve({
+            exitCode: containerPresent ? 0 : 1,
+            stdout: '',
+          });
+        }
+        if (processPlan.arguments[0] === 'container') {
+          return Promise.resolve({
+            exitCode: containerPresent ? 0 : 1,
+            stdout: '',
+          });
+        }
+        if (processPlan.arguments[0] === 'rm') {
+          containerPresent = false;
+          return Promise.resolve({ exitCode: 0, stdout: '' });
+        }
+        if (
+          processPlan.arguments[0] === 'network' &&
+          processPlan.arguments[1] === 'inspect'
+        ) {
+          return Promise.resolve({
+            exitCode: networkPresent ? 0 : 1,
+            stdout: '',
+          });
+        }
+        if (
+          processPlan.arguments[0] === 'network' &&
+          processPlan.arguments[1] === 'rm'
+        ) {
+          expect(containerPresent).toBe(false);
+          networkPresent = false;
+          return Promise.resolve({ exitCode: 0, stdout: '' });
+        }
+        throw new Error('unexpected fake process');
       },
       sleep: () => Promise.resolve(),
     });
     await expect(
       operator.dispose(plan, new AbortController().signal),
-    ).rejects.toThrow('profile-materialization.cleanup-failed');
+    ).resolves.toBeUndefined();
     expect(calls).toEqual([
+      [...plan.inspectContainer.arguments],
       [...plan.removeContainer.arguments],
+      [...plan.inspectContainer.arguments],
+      [...plan.inspectNetwork.arguments],
       [...plan.removeNetwork.arguments],
+      [...plan.inspectNetwork.arguments],
     ]);
+  });
+
+  it('stops before network cleanup when container removal fails', async () => {
+    const plan = createPlan();
+    const calls: string[][] = [];
+    const operator = createProfileMaterializationDatabaseOperator({
+      runProcess: (processPlan) => {
+        calls.push([...processPlan.arguments]);
+        if (processPlan.arguments[0] === 'inspect') {
+          return Promise.resolve({ exitCode: 0, stdout: '' });
+        }
+        return Promise.resolve({ exitCode: 1, stdout: '' });
+      },
+      sleep: () => Promise.resolve(),
+    });
+    await expect(
+      operator.dispose(plan, new AbortController().signal),
+    ).rejects.toThrow('profile-materialization.process-failed');
+    expect(calls).toEqual([
+      [...plan.inspectContainer.arguments],
+      [...plan.removeContainer.arguments],
+    ]);
+  });
+
+  it('handles absent container with present network and both resources absent', async () => {
+    const plan = createPlan();
+    for (const networkPresent of [true, false]) {
+      const calls: string[][] = [];
+      const operator = createProfileMaterializationDatabaseOperator({
+        runProcess: (processPlan) => {
+          calls.push([...processPlan.arguments]);
+          if (processPlan.arguments[0] === 'inspect') {
+            return Promise.resolve({ exitCode: 1, stdout: '' });
+          }
+          if (
+            processPlan.arguments[0] === 'network' &&
+            processPlan.arguments[1] === 'inspect'
+          ) {
+            const priorRemoval = calls.some(
+              (entry) => entry[0] === 'network' && entry[1] === 'rm',
+            );
+            return Promise.resolve({
+              exitCode: networkPresent && !priorRemoval ? 0 : 1,
+              stdout: '',
+            });
+          }
+          return Promise.resolve({ exitCode: 0, stdout: '' });
+        },
+        sleep: () => Promise.resolve(),
+      });
+      await expect(
+        operator.dispose(plan, new AbortController().signal),
+      ).resolves.toBeUndefined();
+      expect(calls.some((entry) => entry[0] === 'rm')).toBe(false);
+      expect(
+        calls.some((entry) => entry[0] === 'network' && entry[1] === 'rm'),
+      ).toBe(networkPresent);
+    }
+  });
+
+  it('rejects network removal failure and a failed final absence proof', async () => {
+    const plan = createPlan();
+    for (const finalInspectionExitCode of [0, 125]) {
+      let networkInspections = 0;
+      const operator = createProfileMaterializationDatabaseOperator({
+        runProcess: (processPlan) => {
+          if (processPlan.arguments[0] === 'inspect') {
+            return Promise.resolve({ exitCode: 1, stdout: '' });
+          }
+          if (
+            processPlan.arguments[0] === 'network' &&
+            processPlan.arguments[1] === 'inspect'
+          ) {
+            networkInspections += 1;
+            return Promise.resolve({
+              exitCode: networkInspections === 1 ? 0 : finalInspectionExitCode,
+              stdout: '',
+            });
+          }
+          return Promise.resolve({ exitCode: 0, stdout: '' });
+        },
+        sleep: () => Promise.resolve(),
+      });
+      await expect(
+        operator.dispose(plan, new AbortController().signal),
+      ).rejects.toThrow();
+    }
+
+    const removalFailure = createProfileMaterializationDatabaseOperator({
+      runProcess: (processPlan) => {
+        if (processPlan.arguments[0] === 'inspect') {
+          return Promise.resolve({ exitCode: 1, stdout: '' });
+        }
+        if (
+          processPlan.arguments[0] === 'network' &&
+          processPlan.arguments[1] === 'inspect'
+        ) {
+          return Promise.resolve({ exitCode: 0, stdout: '' });
+        }
+        return Promise.resolve({ exitCode: 1, stdout: '' });
+      },
+      sleep: () => Promise.resolve(),
+    });
+    await expect(
+      removalFailure.dispose(plan, new AbortController().signal),
+    ).rejects.toThrow('profile-materialization.process-failed');
   });
 });
 

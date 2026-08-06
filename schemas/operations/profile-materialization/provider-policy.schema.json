@@ -22,7 +22,7 @@
       "type": "array"
     },
     "policySemanticDigest": {
-      "const": "f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9"
+      "const": "0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede"
     },
     "policyVersion": {
       "const": "profile-materialization-provider-policy/1.0.0"

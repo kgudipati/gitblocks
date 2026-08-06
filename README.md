@@ -136,8 +136,11 @@ loading, and shared-normalization metrics are not independent achievements.
 Phase 8 does not implement production retrieval or ranking. Milestone 6 is
 accepted at `ea27f11432513ec352ce43821eb95b8da0886182`. Milestone 7A contains
 only the effect-denied controlled profile-materialization implementation and
-fake-effect tests. Milestone 7B, Docker/database/provider execution, and live
-completion evidence remain separately authorized.
+fake-effect tests. Its corrected design binds both future collections to the
+existing runtime-role evidence/snapshot persistence, reconciles unchanged
+source records byte-for-byte, and disposes the exact container before its
+network. Milestone 7B, Docker/database/provider execution, and live completion
+evidence remain separately authorized.
 
 ## Repository map
 

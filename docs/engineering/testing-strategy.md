@@ -399,6 +399,15 @@ fresh-database planning, cancellation, cleanup, quarantine, disposal-before-
 publication, and failure denial. These tests may run ordinarily; the preflight,
 execute, and future fixed-evidence verifier commands themselves do not.
 
+The Milestone 7A review-correction suites additionally prove runtime-login-only
+catalog/profile persistence, exact observation-topic-to-evidence mapping,
+150-entry first/second persistence-proof closure, qualified-not-persisted
+behavior, source/persistence agreement, seeded-only denial, later-clock
+unchanged-record reuse, mutable head drift, exact-commit immutable conflict,
+and strict container-before-network cleanup including partial creation and
+nonzero/final-absence failures. All persistence/process/provider effects remain
+injected fakes; no database or network-backed test is authorized in 7A.
+
 Taxonomy validation is active from Milestone 2. Its no-write command rebuilds
 the expected generated authority in memory and compares exact committed bytes.
 Tests cover closed TypeBox roots, existing schema-digest preservation, graph

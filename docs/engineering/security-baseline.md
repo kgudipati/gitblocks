@@ -566,6 +566,16 @@ SQL is allowed. Repository policy rejects the live execute command from every
 ordinary verify script and hosted workflow and rejects source authorities,
 Milestone 7B evidence, and migration 0005 from the Milestone 7A commit.
 
+Both future collections persist complete legacy projections only through the
+verified non-owner runtime login and retain a private, candidate-scoped
+`profile-materialization-persistence-proof/1.0.0`. Source evidence identifiers
+come from exact controlled observation topics, never observation prose.
+Second-collection reconciliation reuses unchanged first records byte-for-byte;
+mutable selector drift is explicit and exact-commit immutable conflicts fail
+closed. Disposal is sequential: exact container inspection/removal/absence,
+then exact network inspection/removal/absence. Any unexpected inspection,
+nonzero removal, or client-close/cleanup failure blocks final publication.
+
 ## Security exceptions
 
 An exception must be a reviewed artifact linked from the PR and contain:

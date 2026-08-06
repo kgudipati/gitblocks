@@ -8,11 +8,13 @@ const OPERATIONAL_SCHEMAS = {
   'coverage.schema.json':
     '79a3147a6e78cd5adc7a19ac06916820c9091e943ee8161695b31eeea67936eb',
   'provider-policy.schema.json':
-    '39be981d31acc0e8437087edb13ebb3e441e654a9ce6b3692eb1d657aa345dc1',
+    'deac5cee0d921aabeb013ceecfa0730f878d5bd6cc451cd6fb865cd4257f4458',
+  'persistence-proof.schema.json':
+    '96974cfd824cc9e14ca1f2e61ffdf4bb8f14edbae5f1c268fb1d92d041f51b96',
   'receipt.schema.json':
-    'c91fbea628bbf890e88b12a5c682f4ce64733e0750c788ebd9174899d5e4a8a2',
+    '53b546ad92e36499a344874d146bd2ffd9c8b0ef340f7a9524d05cb54054e955',
   'source-authority.schema.json':
-    'af4fa351c882fbb34c6379f1ee06522dc5367a1ee5eadc6db2ee90b5992acff1',
+    '8483a9564a668de709180b97868b115a49fe209fc54abe4b1614c88912d6c7ab',
 } as const;
 
 describe('profile-materialization operational schemas', () => {

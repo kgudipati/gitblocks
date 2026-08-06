@@ -130,8 +130,13 @@ and persistence adapters. Ingestion owns the separate provider policy,
 structured-source collector/authority, pure profile and coverage projection,
 receipt, fixed evidence verifier, and one atomic orchestration boundary.
 Persistence owns only the exact fresh-database command/verification plan; the
-existing four migrations and table meanings are unchanged. The operator has no
-running node in ordinary development or CI. All provider, Docker, PostgreSQL,
+existing four migrations and table meanings are unchanged. During a future
+authorized run, ingestion reuses existing runtime-role persistence for prior
+material, evidence, and dossier snapshots and emits private per-collection
+persistence proofs; no new persistence node or table is introduced. Source
+reconciliation and profile projection remain pure after collection. The
+operator has no running node in ordinary development or CI. All provider,
+Docker, PostgreSQL,
 credential, clock, source-authority publication, and completion-evidence
 effects remain dormant until Milestone 7B is separately authorized. Production
 retrieval/ranking, API/MCP, durable profile storage, models, and Phase 7 state

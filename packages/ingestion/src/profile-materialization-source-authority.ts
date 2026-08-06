@@ -262,6 +262,52 @@ export function sourceAuthoritySemanticDigest(
     .authoritySemanticDigest;
 }
 
+export function reconcileProfileMaterializationSourceAuthority(
+  first: ProfileMaterializationSourceAuthority,
+  collectedRecords: readonly ProfileMaterializationSourceRecordInput[],
+  bindings: {
+    readonly policy: ProfileMaterializationProviderPolicy;
+    readonly catalog: PublicCatalog;
+    readonly taxonomy: CapabilityTaxonomyV1;
+  },
+): ProfileMaterializationSourceAuthority {
+  const prior = parseProfileMaterializationSourceAuthority(first, bindings);
+  const priorByIdentity = new Map(
+    prior.sourceRecords.map((record) => [
+      record.logicalSourceIdentityDigest,
+      record,
+    ]),
+  );
+  const reconciled = collectedRecords.map((input) => {
+    const current = createProfileMaterializationSourceRecord(input);
+    const previous = priorByIdentity.get(current.logicalSourceIdentityDigest);
+    if (previous === undefined) return sourceRecordInput(current);
+    if (
+      sourceRecordContentDigest(previous) === sourceRecordContentDigest(current)
+    ) {
+      return sourceRecordInput(previous);
+    }
+    if (previous.sourceMutability === 'immutable') {
+      throw ingestionError('ingestion.invalid-manifest');
+    }
+    return sourceRecordInput(current);
+  });
+  return createProfileMaterializationSourceAuthority({
+    ...bindings,
+    sourceRecords: reconciled,
+  });
+}
+
+export function sourceRecordContentDigest(
+  record: ProfileMaterializationSourceRecord,
+): string {
+  const content = { ...record } as Record<string, unknown>;
+  delete content['collectedAt'];
+  delete content['evidenceIds'];
+  delete content['sourceRecordDigest'];
+  return canonicalizeJson(content).digest;
+}
+
 function parseCandidateRecord(
   value: unknown,
 ): ProfileMaterializationCandidateSourceRecord {
@@ -328,8 +374,10 @@ function validateRecordInput(
     !isTimestamp(input.collectedAt) ||
     (input.controlledCode !== null && !isSafeCode(input.controlledCode)) ||
     !Array.isArray(input.evidenceIds ?? []) ||
-    (input.evidenceIds ?? []).length > 64 ||
+    (input.evidenceIds ?? []).length > 200 ||
     (input.evidenceIds ?? []).some((entry) => !isStableId(entry)) ||
+    (input.outcome !== 'established-value' &&
+      (input.evidenceIds ?? []).length !== 0) ||
     (input.outcome === 'established-value') !==
       (input.normalizedValue !== null) ||
     (input.outcome === 'established-value' && input.controlledCode !== null) ||
@@ -355,6 +403,20 @@ function validateRecordClosure(
   );
   const expectedLogical = new Set<string>();
   for (const candidate of catalog.candidates) {
+    const candidateRecords = records.filter(
+      (record) => record.candidateId === candidate.candidateId,
+    );
+    const head = candidateRecords.find(
+      (record) => record.operation === 'github-default-branch-head',
+    );
+    const headValue =
+      head?.outcome === 'established-value'
+        ? requireRecord(head.normalizedValue)
+        : undefined;
+    const headSha = headValue?.['sha'];
+    if (typeof headSha !== 'string' || !isSha(headSha)) {
+      throw ingestionError('ingestion.invalid-manifest');
+    }
     const operations: readonly (readonly [
       ProfileMaterializationOperation,
       string,
@@ -368,14 +430,18 @@ function validateRecordClosure(
         ? ([['github-tag', 'singleton']] as const)
         : []),
       ...(candidate.expectedSourceTypes.includes('github-license')
-        ? ([['github-license', 'singleton']] as const)
+        ? ([['github-license', `commit:${headSha}`]] as const)
         : []),
       ...(candidate.expectedSourceTypes.includes('github-community')
         ? ([['github-community-profile', 'singleton']] as const)
         : []),
       ...(candidate.expectedSourceTypes.includes('github-file')
         ? candidate.allowlistedFiles.map(
-            (path) => ['github-allowlisted-file', path] as const,
+            (path) =>
+              [
+                'github-allowlisted-file',
+                `commit:${headSha}:path:${path}`,
+              ] as const,
           )
         : []),
       ...(candidate.expectedSourceTypes.includes('npm-package')
@@ -455,11 +521,20 @@ function validateCandidateSourceRelationships(
     for (const record of candidateRecords.filter((entry) =>
       ['github-allowlisted-file', 'github-license'].includes(entry.operation),
     )) {
-      const expectedReference =
+      const filePath =
         record.operation === 'github-allowlisted-file'
-          ? `${headSha}:${record.logicalSourceKey}`
-          : headSha;
-      if (record.immutableReference !== expectedReference) {
+          ? exactCommitFilePath(record.logicalSourceKey, headSha)
+          : null;
+      const expectedReference =
+        filePath === null ? headSha : `${headSha}:${filePath}`;
+      const expectedLogicalKey =
+        filePath === null
+          ? `commit:${headSha}`
+          : `commit:${headSha}:path:${filePath}`;
+      if (
+        record.immutableReference !== expectedReference ||
+        record.logicalSourceKey !== expectedLogicalKey
+      ) {
         throw ingestionError('ingestion.invalid-manifest');
       }
     }
@@ -722,8 +797,46 @@ function isStableId(value: unknown): value is string {
 function isLogicalKey(value: unknown): value is string {
   return (
     value === 'singleton' ||
-    (typeof value === 'string' && isRepositoryPath(value))
+    (typeof value === 'string' &&
+      value.length <= 308 &&
+      (/^commit:[a-f0-9]{40}$/u.test(value) ||
+        /^commit:[a-f0-9]{40}:path:.+$/u.test(value)) &&
+      (value.includes(':path:')
+        ? isRepositoryPath(value.split(':path:')[1])
+        : true))
   );
+}
+
+function exactCommitFilePath(
+  logicalSourceKey: string,
+  headSha: string,
+): string {
+  const prefix = `commit:${headSha}:path:`;
+  const path = logicalSourceKey.startsWith(prefix)
+    ? logicalSourceKey.slice(prefix.length)
+    : '';
+  if (!isRepositoryPath(path)) {
+    throw ingestionError('ingestion.invalid-manifest');
+  }
+  return path;
+}
+
+function sourceRecordInput(
+  record: ProfileMaterializationSourceRecord,
+): ProfileMaterializationSourceRecordInput {
+  return {
+    candidateId: record.candidateId,
+    sourceType: record.sourceType,
+    operation: record.operation,
+    logicalSourceKey: record.logicalSourceKey,
+    sourceMutability: record.sourceMutability,
+    outcome: record.outcome,
+    immutableReference: record.immutableReference,
+    collectedAt: record.collectedAt,
+    normalizedValue: record.normalizedValue,
+    controlledCode: record.controlledCode,
+    evidenceIds: record.evidenceIds,
+  };
 }
 
 function isTimestamp(value: unknown): value is string {

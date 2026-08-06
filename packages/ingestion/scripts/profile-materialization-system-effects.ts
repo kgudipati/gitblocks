@@ -18,16 +18,31 @@ import {
   createProfileMaterializationDatabaseOperator,
   putCatalogCandidate,
   setCandidateCapabilityFamilies,
+  type PersistenceClient,
+  type PersistenceClientConfig,
   type ProfileMaterializationDatabaseOperator,
   type ProfileMaterializationProcessCommand,
   type ProfileMaterializationProcessResult,
 } from '@gitblocks/persistence';
 
 import { canonicalizeJson } from '../src/canonical-json.ts';
+import {
+  PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS,
+  type ProfileMaterializationPersistenceEntry,
+} from '../src/profile-materialization-contracts.ts';
 import { buildProfileMaterializationArtifacts } from '../src/profile-materialization-coverage.ts';
 import { collectProfileMaterializationSources } from '../src/profile-materialization-providers.ts';
 import {
+  attachProfileMaterializationEvidenceIds,
+  createProfileMaterializationPersistenceProof,
+  persistenceEntryFromResult,
+  qualifiedNotPersistedEntry,
+} from '../src/profile-materialization-persistence-proof.ts';
+import { loadPriorMaterial, persistCandidateProfile } from '../src/persist.ts';
+import { profileCandidate } from '../src/profile.ts';
+import {
   createProfileMaterializationSourceAuthority,
+  reconcileProfileMaterializationSourceAuthority,
   type ProfileMaterializationSourceRecordInput,
 } from '../src/profile-materialization-source-authority.ts';
 import {
@@ -50,6 +65,20 @@ export interface ProfileMaterializationSystemEffectsConfig {
   readonly fetch: typeof fetch;
   readonly now: () => Date;
   readonly databaseOperator?: ProfileMaterializationDatabaseOperator;
+  readonly persistenceAdapter?: ProfileMaterializationPersistenceAdapter;
+  readonly collectCandidateSources?: typeof collectProfileMaterializationSources;
+}
+
+export interface ProfileMaterializationPersistenceAdapter {
+  readonly createClient: (config: PersistenceClientConfig) => PersistenceClient;
+  readonly closeClient: (client: PersistenceClient) => Promise<void>;
+  readonly seedCatalog: (
+    preflight: ProfileMaterializationPreflightResult,
+    client: PersistenceClient,
+    signal: AbortSignal,
+  ) => Promise<void>;
+  readonly loadPriorMaterial: typeof loadPriorMaterial;
+  readonly persistCandidateProfile: typeof persistCandidateProfile;
 }
 
 export function createProfileMaterializationSystemEffects(
@@ -61,6 +90,10 @@ export function createProfileMaterializationSystemEffects(
       runProcess: runProfileMaterializationProcess,
       sleep: abortableSleep,
     });
+  const persistenceAdapter =
+    config.persistenceAdapter ?? defaultPersistenceAdapter();
+  const collectCandidateSources =
+    config.collectCandidateSources ?? collectProfileMaterializationSources;
   const cancellation = new AbortController();
   let quarantinePaths:
     | {
@@ -69,6 +102,7 @@ export function createProfileMaterializationSystemEffects(
         readonly completion: string;
       }
     | undefined;
+  let runtimePersistenceConfig: PersistenceClientConfig | undefined;
   return {
     readFixedFile: async (path) => {
       const fullPath = await fixedPath(config.repositoryRoot, path, false);
@@ -116,21 +150,14 @@ export function createProfileMaterializationSystemEffects(
         databaseCredentials(credentials),
         signal,
       );
-      const persistence = createPersistenceClient(prepared.runtimeConfig);
+      runtimePersistenceConfig = prepared.runtimeConfig;
+      const persistence = persistenceAdapter.createClient(
+        prepared.runtimeConfig,
+      );
       try {
-        await seedPublicCatalogV1({
-          catalog: preflight.catalog,
-          databaseMigrationVersion: 4,
-          persistence: {
-            putCatalogCandidate: (command, control) =>
-              putCatalogCandidate(persistence, command, control),
-            setCandidateCapabilityFamilies: (command, control) =>
-              setCandidateCapabilityFamilies(persistence, command, control),
-          },
-          signal,
-        });
+        await persistenceAdapter.seedCatalog(preflight, persistence, signal);
       } finally {
-        await closePersistenceClient(persistence);
+        await persistenceAdapter.closeClient(persistence);
       }
       return {
         migrationInventoryDigest: prepared.migrationInventoryDigest,
@@ -140,11 +167,15 @@ export function createProfileMaterializationSystemEffects(
       };
     },
     collectSourceAuthority: async (
-      _collection,
+      collection,
       preflight,
       credentials,
+      firstAuthority,
       signal,
     ) => {
+      if (runtimePersistenceConfig === undefined) {
+        throw ingestionError('ingestion.internal-invariant');
+      }
       const transport = createTransport({
         fetch: config.fetch,
         sleep: abortableSleep,
@@ -154,19 +185,58 @@ export function createProfileMaterializationSystemEffects(
         maximumAttempts: preflight.arguments.maximumAttempts,
         nowMilliseconds: () => config.now().getTime(),
       });
-      const records = await collectCatalog(
-        preflight,
-        credentials.githubToken,
-        transport,
-        config.now().toISOString(),
-        AbortSignal.any([signal, cancellation.signal]),
+      const persistence = persistenceAdapter.createClient(
+        runtimePersistenceConfig,
       );
-      return createProfileMaterializationSourceAuthority({
-        policy: preflight.policy,
-        catalog: preflight.catalog,
-        taxonomy: preflight.taxonomy,
-        sourceRecords: records,
-      });
+      try {
+        const collected = await collectCatalog(
+          preflight,
+          credentials.githubToken,
+          transport,
+          config.now().toISOString(),
+          persistence,
+          persistenceAdapter,
+          collectCandidateSources,
+          AbortSignal.any([signal, cancellation.signal]),
+        );
+        const sourceAuthority =
+          collection === 'second'
+            ? reconcileProfileMaterializationSourceAuthority(
+                requireFirstAuthority(firstAuthority),
+                collected.records,
+                preflight,
+              )
+            : createProfileMaterializationSourceAuthority({
+                policy: preflight.policy,
+                catalog: preflight.catalog,
+                taxonomy: preflight.taxonomy,
+                sourceRecords: collected.records,
+              });
+        const persistenceProof = createProfileMaterializationPersistenceProof(
+          {
+            collection,
+            databaseSchemaDigest:
+              PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS.databaseSchemaDigest,
+            migrationInventoryDigest:
+              PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS.migrationInventoryDigest,
+            catalogDigest: preflight.catalog.manifestDigest,
+            sourceAuthoritySemanticDigest:
+              sourceAuthority.authoritySemanticDigest,
+            candidateCount: 150,
+            entries: collected.entries.sort((left, right) =>
+              left.candidateId < right.candidateId
+                ? -1
+                : left.candidateId > right.candidateId
+                  ? 1
+                  : 0,
+            ),
+          },
+          sourceAuthority.candidates.map((entry) => entry.candidateId),
+        );
+        return { sourceAuthority, persistenceProof };
+      } finally {
+        await persistenceAdapter.closeClient(persistence);
+      }
     },
     publishSourceAuthority: async (collection, authority, preflight) => {
       const directory = await ensureRunDirectory(
@@ -179,6 +249,22 @@ export function createProfileMaterializationSystemEffects(
         `${canonicalizeJson(authority).text}\n`,
         0o600,
         32 * 1_024 * 1_024,
+      );
+    },
+    publishPersistenceProof: async (collection, proof, preflight) => {
+      const directory = await ensureRunDirectory(
+        config.repositoryRoot,
+        preflight,
+      );
+      const proofPath = resolve(
+        directory,
+        `${collection}-persistence-proof.json`,
+      );
+      await exclusiveWrite(
+        proofPath,
+        `${canonicalizeJson(proof).text}\n`,
+        0o600,
+        8 * 1_024 * 1_024,
       );
     },
     materializeProfiles: (preflight, authority) =>
@@ -286,9 +372,16 @@ async function collectCatalog(
   githubToken: string,
   transport: ReturnType<typeof createTransport>,
   collectedAt: string,
+  persistence: PersistenceClient,
+  persistenceAdapter: ProfileMaterializationPersistenceAdapter,
+  collectCandidateSources: typeof collectProfileMaterializationSources,
   signal: AbortSignal,
-) {
+): Promise<{
+  readonly records: ProfileMaterializationSourceRecordInput[];
+  readonly entries: ProfileMaterializationPersistenceEntry[];
+}> {
   const records: ProfileMaterializationSourceRecordInput[] = [];
+  const entries: ProfileMaterializationPersistenceEntry[] = [];
   let nextIndex = 0;
   const workers = Array.from(
     { length: preflight.arguments.concurrency },
@@ -302,7 +395,7 @@ async function collectCatalog(
           preflight.arguments.candidateDeadlineMilliseconds,
         );
         const candidateSignal = AbortSignal.any([signal, deadline]);
-        const collected = await collectProfileMaterializationSources(
+        const collected = await collectCandidateSources(
           candidate,
           collectedAt,
           {
@@ -314,17 +407,85 @@ async function collectCatalog(
             deadlineSignal: signal,
           },
         );
-        records.push(
-          ...collected.sourceRecords.map((record) => ({
-            ...record,
-            evidenceIds: [],
-          })),
+        if (collected.legacyBundle === null) {
+          if (collected.qualifiedFailureCodes.length === 0) {
+            throw ingestionError('ingestion.provider-unavailable');
+          }
+          records.push(
+            ...collected.sourceRecords.map((record) => ({
+              ...record,
+              evidenceIds: [],
+            })),
+          );
+          entries.push(
+            qualifiedNotPersistedEntry(
+              candidate.candidateId,
+              collected.qualifiedFailureCodes,
+            ),
+          );
+          continue;
+        }
+        const prior = await persistenceAdapter.loadPriorMaterial(
+          persistence,
+          candidate.candidateId,
+          collectedAt,
+          candidateSignal,
         );
+        const profile = profileCandidate(
+          collected.legacyBundle,
+          prior.observations,
+        );
+        const persisted = await persistenceAdapter.persistCandidateProfile(
+          persistence,
+          profile,
+          prior,
+          candidate.introducedAt,
+          candidateSignal,
+        );
+        records.push(
+          ...attachProfileMaterializationEvidenceIds(
+            collected.sourceRecords,
+            profile,
+          ),
+        );
+        entries.push(persistenceEntryFromResult(persisted));
       }
     },
   );
   await Promise.all(workers);
-  return records;
+  return { records, entries };
+}
+
+function defaultPersistenceAdapter(): ProfileMaterializationPersistenceAdapter {
+  return {
+    createClient: createPersistenceClient,
+    closeClient: closePersistenceClient,
+    seedCatalog: async (preflight, persistence, signal) => {
+      await seedPublicCatalogV1({
+        catalog: preflight.catalog,
+        databaseMigrationVersion: 4,
+        persistence: {
+          putCatalogCandidate: (command, control) =>
+            putCatalogCandidate(persistence, command, control),
+          setCandidateCapabilityFamilies: (command, control) =>
+            setCandidateCapabilityFamilies(persistence, command, control),
+        },
+        signal,
+      });
+    },
+    loadPriorMaterial,
+    persistCandidateProfile,
+  };
+}
+
+function requireFirstAuthority(
+  authority:
+    Parameters<typeof reconcileProfileMaterializationSourceAuthority>[0] | null,
+) {
+  if (authority === null) {
+    throw ingestionError('ingestion.internal-invariant');
+  }
+  return authority;
 }
 
 function databaseCredentials(credentials: ProfileMaterializationCredentials) {

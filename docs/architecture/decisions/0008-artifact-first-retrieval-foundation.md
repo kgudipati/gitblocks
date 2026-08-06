@@ -518,6 +518,22 @@ bodies, headers, credentials, arbitrary errors, database/operator/Phase 7
 identity, and model output. Run isolation never contributes to source semantic
 identity.
 
+The head and other latest/listing/query selectors are mutable singleton
+identities. License and allowlisted-file sources are immutable identities bound
+to the exact head commit (and file path). The second collection reconciles
+against the first: semantically unchanged records reuse the original complete
+record byte-for-byte, mutable changes become explicit drift, and conflicting
+content for one immutable exact-snapshot identity fails closed.
+
+Each collection also produces the retained operational
+`profile-materialization-persistence-proof/1.0.0`. Complete legacy bundles use
+the existing runtime-role `loadPriorMaterial`, `profileCandidate`, and
+`persistCandidateProfile` semantics; controlled topic mapping binds exact
+generated/reused evidence identifiers without inspecting observation prose.
+Optional-source-qualified bundles remain explicitly unpersisted. Receipt live
+idempotency requires the reconciled source comparison and matching second
+persistence dispositions, so catalog seed alone cannot pass.
+
 Pure materialization consumes only the accepted catalog/taxonomy and one
 validated source authority, performs no I/O, and closes exactly 150 profiles.
 It preserves accepted catalog-role, capability-family, repository-identity,
@@ -543,7 +559,12 @@ digest, derives all identities from an explicit `m7-[a-z2-7]{26}` run ID,
 uses a tmpfs-only container on an isolated internal network with explicit
 loopback port binding, and rejects existing resources. Existing four migrations
 and table meanings suffice; no migration 0005 or durable profile table is
-introduced. Source authorities remain untracked local operational evidence
+introduced. All catalog seed, prior-material reads, and profile persistence use
+the verified derived runtime login; owner access remains limited to bootstrap,
+migration, schema proof, and runtime-role creation. Disposal strictly removes
+and proves absence of the exact container before inspecting/removing/proving
+the exact network. Source authorities and persistence proofs remain untracked
+local operational evidence
 until independent 7B review, Milestone 7 acceptance, and explicit maintainer
 deletion authorization.
 

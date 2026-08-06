@@ -24,13 +24,20 @@ import { parsePublicCatalog } from './manifest.ts';
 import {
   PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS,
   PROFILE_MATERIALIZATION_OPERATOR_VERSION,
+  PROFILE_MATERIALIZATION_PERSISTENCE_PROOF_VERSION,
   PROFILE_MATERIALIZATION_PROVIDER_POLICY_VERSION,
   PROFILE_MATERIALIZATION_SOURCE_AUTHORITY_VERSION,
   parseProfileMaterializationReceipt,
   type ProfileMaterializationProviderPolicy,
+  type ProfileMaterializationPersistenceProof,
   type ProfileMaterializationReceipt,
   type ProfileMaterializationSourceAuthority,
 } from './profile-materialization-contracts.ts';
+import {
+  deriveProfileMaterializationLiveIdempotency,
+  parseProfileMaterializationPersistenceProof,
+  persistenceProofCounts,
+} from './profile-materialization-persistence-proof.ts';
 import {
   PROFILE_MATERIALIZATION_PROVIDER_POLICY_PATH,
   validateProfileMaterializationProviderPolicy,
@@ -116,6 +123,11 @@ export interface ProfileMaterializationDatabaseProof {
   readonly productTableCount: 25;
 }
 
+export interface ProfileMaterializationCollectionAuthority {
+  readonly sourceAuthority: ProfileMaterializationSourceAuthority;
+  readonly persistenceProof: ProfileMaterializationPersistenceProof;
+}
+
 export interface ProfileMaterializationLiveEffects extends ProfileMaterializationPreflightEffects {
   readCredential(name: string): string;
   createDatabase(
@@ -137,11 +149,17 @@ export interface ProfileMaterializationLiveEffects extends ProfileMaterializatio
     collection: 'first' | 'second',
     preflight: ProfileMaterializationPreflightResult,
     credentials: ProfileMaterializationCredentials,
+    firstAuthority: ProfileMaterializationSourceAuthority | null,
     signal: AbortSignal,
-  ): Promise<ProfileMaterializationSourceAuthority>;
+  ): Promise<ProfileMaterializationCollectionAuthority>;
   publishSourceAuthority(
     collection: 'first' | 'second',
     authority: ProfileMaterializationSourceAuthority,
+    preflight: ProfileMaterializationPreflightResult,
+  ): Promise<void>;
+  publishPersistenceProof(
+    collection: 'first' | 'second',
+    proof: ProfileMaterializationPersistenceProof,
     preflight: ProfileMaterializationPreflightResult,
   ): Promise<void>;
   materializeProfiles(
@@ -369,10 +387,12 @@ export const EXECUTE_STAGES = [
   'migrate-schema-runtime-role-catalog-seed',
   'first-collection',
   'first-source-authority-publication',
+  'first-persistence-proof-publication',
   'first-materialization-a',
   'first-materialization-b',
   'second-collection',
   'second-source-authority-publication-and-drift',
+  'second-persistence-proof-publication',
   'second-materialization-a',
   'second-materialization-b',
   'quarantined-completion-evidence',
@@ -415,40 +435,77 @@ export async function executeProfileMaterialization(
       combinedSignal,
     );
     validateDatabaseProof(databaseProof);
+    const firstCollected = await effects.collectSourceAuthority(
+      'first',
+      preflight,
+      credentials,
+      null,
+      combinedSignal,
+    );
     const first = parseProfileMaterializationSourceAuthority(
-      await effects.collectSourceAuthority(
-        'first',
-        preflight,
-        credentials,
-        combinedSignal,
-      ),
+      firstCollected.sourceAuthority,
       preflight,
     );
+    const candidateIds = first.candidates.map((entry) => entry.candidateId);
+    const firstPersistenceProof = parseProfileMaterializationPersistenceProof(
+      firstCollected.persistenceProof,
+      { collection: 'first', sourceAuthority: first, candidateIds },
+    );
     await effects.publishSourceAuthority('first', first, preflight);
+    await effects.publishPersistenceProof(
+      'first',
+      firstPersistenceProof,
+      preflight,
+    );
     const firstA = effects.materializeProfiles(preflight, first);
     const firstB = effects.materializeProfiles(preflight, first);
     assertSamePass(firstA, firstB);
+    const secondCollected = await effects.collectSourceAuthority(
+      'second',
+      preflight,
+      credentials,
+      first,
+      combinedSignal,
+    );
     const second = parseProfileMaterializationSourceAuthority(
-      await effects.collectSourceAuthority(
-        'second',
-        preflight,
-        credentials,
-        combinedSignal,
-      ),
+      secondCollected.sourceAuthority,
       preflight,
     );
+    const secondPersistenceProof = parseProfileMaterializationPersistenceProof(
+      secondCollected.persistenceProof,
+      { collection: 'second', sourceAuthority: second, candidateIds },
+    );
     await effects.publishSourceAuthority('second', second, preflight);
+    await effects.publishPersistenceProof(
+      'second',
+      secondPersistenceProof,
+      preflight,
+    );
     const drift = compareProfileMaterializationSources(first, second);
     const secondA = effects.materializeProfiles(preflight, second);
     const secondB = effects.materializeProfiles(preflight, second);
     assertSamePass(secondA, secondB);
     const failures = controlledFailureCounts([first, second]);
+    const liveIdempotency = deriveProfileMaterializationLiveIdempotency({
+      firstAuthority: first,
+      secondAuthority: second,
+      firstProof: firstPersistenceProof,
+      secondProof: secondPersistenceProof,
+    });
     const receipt = buildProfileMaterializationReceipt({
       receiptVersion: 'profile-materialization-receipt/1.0.0',
       operatorVersion: PROFILE_MATERIALIZATION_OPERATOR_VERSION,
       providerPolicyVersion: preflight.policy.policyVersion,
       providerPolicyDigest: preflight.policy.policySemanticDigest,
       sourceAuthorityVersion: PROFILE_MATERIALIZATION_SOURCE_AUTHORITY_VERSION,
+      persistenceProofVersion:
+        PROFILE_MATERIALIZATION_PERSISTENCE_PROOF_VERSION,
+      firstPersistenceProofSemanticDigest:
+        firstPersistenceProof.proofSemanticDigest,
+      secondPersistenceProofSemanticDigest:
+        secondPersistenceProof.proofSemanticDigest,
+      firstPersistenceCounts: persistenceProofCounts(firstPersistenceProof),
+      secondPersistenceCounts: persistenceProofCounts(secondPersistenceProof),
       firstSourceAuthoritySemanticDigest: first.authoritySemanticDigest,
       secondSourceAuthoritySemanticDigest: second.authoritySemanticDigest,
       finalSourceAuthoritySemanticDigest: second.authoritySemanticDigest,
@@ -463,11 +520,7 @@ export async function executeProfileMaterialization(
       secondPassA: passDigests(secondA),
       secondPassB: passDigests(secondB),
       sameEvidenceReproduction: 'passed',
-      liveIdempotency: drift.counts.some(
-        (count) => count.changed + count.new + count.withdrawn > 0,
-      )
-        ? 'passed-with-provider-drift'
-        : 'passed',
+      liveIdempotency,
       qualification:
         failures.length === 0
           ? 'complete'

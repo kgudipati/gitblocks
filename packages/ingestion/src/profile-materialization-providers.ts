@@ -212,7 +212,7 @@ export async function collectProfileMaterializationSources(
               path: license.value.path,
               sha: license.value.sha,
             },
-        'singleton',
+        `commit:${commit.sha}`,
         commit.sha,
       ),
     );
@@ -288,7 +288,7 @@ export async function collectProfileMaterializationSources(
           collected.value === null
             ? null
             : { path: collected.value.path, sha: collected.value.sha },
-          path,
+          `commit:${commit.sha}:path:${path}`,
           `${commit.sha}:${path}`,
         ),
       );

@@ -30,17 +30,28 @@
       "type": "array"
     },
     "finalSourceAuthoritySemanticDigest": { "$ref": "#/$defs/digest" },
+    "firstPersistenceCounts": { "$ref": "#/$defs/persistenceCounts" },
+    "firstPersistenceProofSemanticDigest": { "$ref": "#/$defs/digest" },
     "firstPassA": { "$ref": "#/$defs/pass" },
     "firstPassB": { "$ref": "#/$defs/pass" },
     "firstSourceAuthoritySemanticDigest": { "$ref": "#/$defs/digest" },
     "firstSourceOutcomeCounts": { "$ref": "#/$defs/outcomeCounts" },
     "firstSourceRecordCounts": { "$ref": "#/$defs/sourceCounts" },
-    "liveIdempotency": { "enum": ["passed", "passed-with-provider-drift"] },
+    "liveIdempotency": {
+      "enum": [
+        "passed",
+        "passed-with-provider-drift",
+        "qualified-optional-source-failures"
+      ]
+    },
     "migrationCount": { "const": 4 },
     "migrationInventoryDigest": {
       "const": "6c2523252496b2e99c7034a109ac4c672fe347af10b8502ad098a0bd619926f4"
     },
     "operatorVersion": { "const": "profile-materialization-operator/1.0.0" },
+    "persistenceProofVersion": {
+      "const": "profile-materialization-persistence-proof/1.0.0"
+    },
     "productTableCount": { "const": 25 },
     "profileAuthoritySchemaDigest": {
       "const": "7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf"
@@ -55,7 +66,7 @@
       "const": "profile-materialization-projection/1.0.0"
     },
     "providerPolicyDigest": {
-      "const": "f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9"
+      "const": "0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede"
     },
     "providerPolicyVersion": {
       "const": "profile-materialization-provider-policy/1.0.0"
@@ -70,6 +81,8 @@
     "sameEvidenceReproduction": { "const": "passed" },
     "secondPassA": { "$ref": "#/$defs/pass" },
     "secondPassB": { "$ref": "#/$defs/pass" },
+    "secondPersistenceCounts": { "$ref": "#/$defs/persistenceCounts" },
+    "secondPersistenceProofSemanticDigest": { "$ref": "#/$defs/digest" },
     "secondSourceAuthoritySemanticDigest": { "$ref": "#/$defs/digest" },
     "secondSourceOutcomeCounts": { "$ref": "#/$defs/outcomeCounts" },
     "secondSourceRecordCounts": { "$ref": "#/$defs/sourceCounts" },
@@ -98,6 +111,8 @@
     "familyCoverage",
     "fieldCoverage",
     "finalSourceAuthoritySemanticDigest",
+    "firstPersistenceCounts",
+    "firstPersistenceProofSemanticDigest",
     "firstPassA",
     "firstPassB",
     "firstSourceAuthoritySemanticDigest",
@@ -107,6 +122,7 @@
     "migrationCount",
     "migrationInventoryDigest",
     "operatorVersion",
+    "persistenceProofVersion",
     "productTableCount",
     "profileAuthoritySchemaDigest",
     "profileRulesVersion",
@@ -122,6 +138,8 @@
     "sameEvidenceReproduction",
     "secondPassA",
     "secondPassB",
+    "secondPersistenceCounts",
+    "secondPersistenceProofSemanticDigest",
     "secondSourceAuthoritySemanticDigest",
     "secondSourceOutcomeCounts",
     "secondSourceRecordCounts",
@@ -224,6 +242,40 @@
         "profileCoverageDigest": { "$ref": "#/$defs/digest" }
       },
       "required": ["profileAuthorityDigest", "profileCoverageDigest"],
+      "type": "object"
+    },
+    "persistenceCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "candidateCreated": { "minimum": 0, "type": "integer" },
+        "candidateIdempotent": { "minimum": 0, "type": "integer" },
+        "created": { "minimum": 0, "type": "integer" },
+        "evidenceAppended": { "minimum": 0, "type": "integer" },
+        "evidenceIdempotent": { "minimum": 0, "type": "integer" },
+        "evidenceInvalidated": { "minimum": 0, "type": "integer" },
+        "evidenceSuperseded": { "minimum": 0, "type": "integer" },
+        "persistedCandidateCount": { "minimum": 0, "type": "integer" },
+        "qualifiedNotPersistedCount": { "minimum": 0, "type": "integer" },
+        "snapshotCreated": { "minimum": 0, "type": "integer" },
+        "snapshotIdempotent": { "minimum": 0, "type": "integer" },
+        "unchanged": { "minimum": 0, "type": "integer" },
+        "updated": { "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "candidateCreated",
+        "candidateIdempotent",
+        "created",
+        "evidenceAppended",
+        "evidenceIdempotent",
+        "evidenceInvalidated",
+        "evidenceSuperseded",
+        "persistedCandidateCount",
+        "qualifiedNotPersistedCount",
+        "snapshotCreated",
+        "snapshotIdempotent",
+        "unchanged",
+        "updated"
+      ],
       "type": "object"
     },
     "safeCode": {

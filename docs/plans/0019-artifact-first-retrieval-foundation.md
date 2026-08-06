@@ -1002,7 +1002,7 @@ for the committed 150-candidate catalog. GitHub tag and allowlisted-file
 operations remain persistence-audit-only; repository-file bodies never enter
 profile authority, source authority, receipt, coverage, or completion output.
 The policy semantic digest is
-`f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9`.
+`0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede`.
 
 The separate `collectProfileMaterializationSources` endpoint retains granular
 outcomes, normalized structured values, primary language, exact fork parent,
@@ -1020,6 +1020,26 @@ and no symlink/path alias. They remain immutable and must be retained until
 Milestone 7B is independently reviewed, Milestone 7 is accepted, and the
 maintainer explicitly authorizes deletion.
 
+The second collection reconciles against the validated first authority by
+logical source identity. Content equality excludes only collection time,
+evidence identifiers, and the record digest; equal records reuse the complete
+first record byte-for-byte. Repository/head/release/tag/community/npm-latest/
+advisory selectors are mutable singletons. License and allowlisted-file
+records are immutable exact-commit identities, so ordinary head advancement
+withdraws the old snapshot identities and adds new ones while conflicting
+content for the same commit fails closed.
+
+`profile-materialization-persistence-proof/1.0.0` closes each collection to
+150 canonical candidate dispositions and binds the database schema, migration
+inventory, catalog, and reconciled source authority. A complete legacy bundle
+is profiled and persisted through the existing runtime-role-only
+`loadPriorMaterial`, `profileCandidate`, and `persistCandidateProfile`
+semantics. Controlled observation topics attach only generated/reused evidence
+identifiers; observation prose is never parsed. Optional-source qualified
+candidates remain `qualified-not-persisted` with no invented evidence or
+snapshot. Both private proof files follow the source-authority retention and
+0600 fixed-write policy.
+
 Pure materialization consumes only the accepted catalog, taxonomy, and one
 validated source authority. It preserves the four accepted catalog fields and
 may change only repository discovery, package publication/version, runtime
@@ -1031,10 +1051,13 @@ their accepted unknown/not-applicable semantics. No coverage target applies.
 
 `profile-materialization-coverage/1.0.0` compares the accepted offline and
 future live authorities without candidate content.
-`profile-materialization-receipt/1.0.0` binds both source collections, all four
-A/B materialization passes, provider drift, database/migration proof, field and
-family counts, failures, and final coverage. Its semantic digest excludes only
-the semantic/record digest fields and run-ID digest; its record digest excludes
+`profile-materialization-receipt/1.0.0` binds both source collections, both
+persistence-proof digests and content-free aggregate persistence counts, all
+four A/B materialization passes, provider drift, database/migration proof,
+field and family counts, failures, and final coverage. Live idempotency derives
+from reconciled source behavior and the second durable persistence results; a
+seeded-only database cannot pass. Its semantic digest excludes only the
+semantic/record digest fields and run-ID digest; its record digest excludes
 only itself and therefore authenticates run isolation.
 
 Expose exactly:
@@ -1051,8 +1074,11 @@ without changing ordinary compiled package exports. Execute remains present but
 unauthorized in 7A; it owns one try/finally sequence from zero-effect
 validation through lazy credential reads, fresh database creation, zero-state
 proof, four migrations/25-table proof, runtime role/catalog seed, two source
-collections, four materialization passes, quarantined evidence, exact cleanup,
-post-disposal proof, and only then fixed-file publication. Verify is read-only
+collections, two durable persistence proofs, four materialization passes,
+quarantined evidence, exact cleanup, post-disposal proof, and only then
+fixed-file publication. The runtime login owns all catalog seed, prior-material
+loads, and profile persistence and every runtime client closes before cleanup.
+Verify is read-only
 and expects future 7B evidence, so it is not invoked by ordinary verification
 while those files do not exist.
 
@@ -1064,6 +1090,10 @@ explicit `127.0.0.1:<port>` binding, and rejects preexisting exact identities.
 It proves 0/0 initial migrations/product tables and then 4/25, zero RLS
 policies, seven schema functions, 48 noninternal triggers, 15 required indexes,
 and exact migration checksums. No volume or migration 0005 exists.
+Cleanup inspects and removes only the exact container, proves it absent, then
+inspects and removes only the exact network and proves it absent. Every
+unexpected inspection or nonzero removal is fatal; container-removal failure
+prevents network removal.
 
 Only the five `GITBLOCKS_PROFILE_MATERIALIZATION_*` credential names frozen by
 the reviewed contract are accepted. Values are lazy, never argv/default/.env
@@ -1075,8 +1105,10 @@ all profiles close, affected values remain controlled unknown, A/B and
 idempotency checks pass, and failure counts are explicit.
 
 Ordinary tests cover pure schemas/projection, strict parsing, legacy
-compatibility, authority/digest closure, receipt authentication, fake database
-plans, orchestration cleanup/publication denial, and repository scope. The live
+compatibility, authority/digest closure and reconciliation, persistence proof
+and evidence-topic binding, receipt authentication, fake database plans,
+ordered cleanup, orchestration cleanup/publication denial, and repository
+scope. The live
 execute command is prohibited from `verify`, `verify:core`, `verify:ci`, and
 hosted workflows. No preflight/execute/evidence verification command runs in
 ordinary verification.
@@ -2064,8 +2096,30 @@ entries.
   completion file exists. No Docker, PostgreSQL, credential, provider, model,
   candidate repository, retrieval/ranking, or Phase 7 effect is authorized or
   used. Milestone 7B remains unauthorized.
-- The focused offline gate passes 147 tests in 14 files; the complete suite
-  passes 1,657 tests in 114 files. Final V8 coverage is 79.87% statements,
-  72.89% branches, 87.39% functions, and 80.26% lines. `pnpm verify`,
+- The focused offline gate passes 166 tests in 14 files; the complete suite
+  passes 1,677 tests in 115 files. Final V8 coverage is 80.09% statements,
+  73.36% branches, 87.59% functions, and 80.47% lines. `pnpm verify`,
   architecture, repository policy, and secret scanning pass without invoking
   any materialization command.
+
+### 2026-08-05 — Milestone 7A persistence-idempotency review correction
+
+- Review found that the initial 7A operator seeded and verified the fresh
+  database but did not persist collected legacy profiles, attached empty
+  evidence lists, equated provider drift with live idempotency, assigned
+  incorrect identity semantics to the head/license/file sources, and removed
+  container/network resources concurrently.
+- The correction binds each collection to accepted runtime-role persistence,
+  adds the private
+  `profile-materialization-persistence-proof/1.0.0`, maps exact controlled
+  observation topics to generated/reused evidence identifiers, reconciles the
+  second source authority against the first, and derives live idempotency from
+  both source drift and the second persistence dispositions.
+- Unchanged records retain their first collection bytes and semantic identity;
+  the head is a mutable singleton and license/file identities bind the exact
+  head commit. Cleanup is strictly container-before-network with absence proof
+  after each resource.
+- The review correction remains offline and fake-effect only. It adds no live
+  authority/evidence, migration, table, product schema, provider, dependency,
+  workflow, retrieval/ranking scope, or Phase 7 effect. Milestone 7B remains
+  unauthorized.

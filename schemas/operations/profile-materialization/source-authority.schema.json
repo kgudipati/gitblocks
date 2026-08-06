@@ -19,7 +19,7 @@
     },
     "catalogVersion": { "const": "public-v1" },
     "providerPolicyDigest": {
-      "const": "f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9"
+      "const": "0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede"
     },
     "providerPolicyVersion": {
       "const": "profile-materialization-provider-policy/1.0.0"
@@ -304,7 +304,7 @@
         },
         "evidenceIds": {
           "items": { "$ref": "#/$defs/stableId" },
-          "maxItems": 64,
+          "maxItems": 200,
           "type": "array",
           "uniqueItems": true
         },
@@ -316,7 +316,7 @@
         },
         "logicalSourceIdentityDigest": { "$ref": "#/$defs/digest" },
         "logicalSourceKey": {
-          "maxLength": 255,
+          "maxLength": 308,
           "minLength": 1,
           "type": "string"
         },

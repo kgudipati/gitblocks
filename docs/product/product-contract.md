@@ -235,7 +235,7 @@ or product-contract claim. Production retrieval remains unimplemented.
 
 Milestone 7A adds no product contract root and changes none of the 27 field
 definitions, profile DTOs, schema digests, or accepted offline authority. Its
-provider policy, source authority, coverage comparison, and receipt are
+provider policy, source authority, persistence proof, coverage comparison, and receipt are
 versioned operational ingestion contracts under `schemas/operations`, not
 product schemas. Pure materialization still emits the accepted deterministic
 profile DTO and may populate only ten already-defined fields from exact
@@ -243,6 +243,13 @@ structured public-source values with repository-snapshot or package-version
 scope. The offline authority remains the accepted product-facing authority
 until a separately authorized Milestone 7B evidence commit is reviewed. This
 operator is neither retrieval/ranking nor a production-readiness claim.
+
+The operational source and persistence proofs do not create a product DTO or
+durable profile table. They reuse existing ingestion evidence/dossier snapshot
+semantics only to audit collection replay, retain their candidate-scoped files
+outside version control, and expose only content-free aggregate bindings in a
+future receipt. Existing product schema roots and table meanings remain
+unchanged.
 
 ## Relevance is not adoption fit
 

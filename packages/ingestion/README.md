@@ -51,17 +51,21 @@ committed catalog mechanically derives a maximum budget of 913 requests.
 Repository tag and exact allowlisted-file collection are persistence-audit-only;
 file bodies never enter source/profile/receipt/coverage output.
 Its semantic digest is
-`f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9`.
+`0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede`
+and its committed byte digest is
+`1590d72b97e4e2b51f010192df98ba1b247e7ce55d0032057ad43e9a8568713c`.
 The closed operational schema byte digests are:
 
 - provider policy:
-  `39be981d31acc0e8437087edb13ebb3e441e654a9ce6b3692eb1d657aa345dc1`;
+  `deac5cee0d921aabeb013ceecfa0730f878d5bd6cc451cd6fb865cd4257f4458`;
 - source authority:
-  `af4fa351c882fbb34c6379f1ee06522dc5367a1ee5eadc6db2ee90b5992acff1`;
+  `8483a9564a668de709180b97868b115a49fe209fc54abe4b1614c88912d6c7ab`;
+- persistence proof:
+  `96974cfd824cc9e14ca1f2e61ffdf4bb8f14edbae5f1c268fb1d92d041f51b96`;
 - coverage:
   `79a3147a6e78cd5adc7a19ac06916820c9091e943ee8161695b31eeea67936eb`;
 - receipt:
-  `c91fbea628bbf890e88b12a5c682f4ce64733e0750c788ebd9174899d5e4a8a2`.
+  `53b546ad92e36499a344874d146bd2ffd9c8b0ef340f7a9524d05cb54054e955`.
 
 `collectProfileMaterializationSources` is separate from the unchanged
 `collectCandidateSources` API. It produces granular normalized records for the
@@ -71,6 +75,25 @@ below `verification/retrieval-v1/.profile-materialization-runs/<run-id>/` with
 private modes, bounded canonical no-follow writes, and no run ID in semantic
 identity. They must remain local and immutable until 7B review, final Milestone
 7 acceptance, and explicit maintainer deletion approval.
+
+The second authority reconciles against the first. Equal normalized source
+content reuses the complete first record, including its original collection
+fact, evidence IDs, and record digest. Repository/head/release/tag/community/
+npm/advisory records are mutable singleton selectors. License and file records
+bind immutable exact-commit logical identities; head advancement therefore
+produces ordinary selector drift and old/new snapshot identities rather than
+an immutable conflict.
+
+Each collection also retains
+`profile-materialization-persistence-proof/1.0.0` in the same private run
+directory. Complete legacy bundles are profiled and persisted through the
+existing runtime-role-only path. Exact controlled observation topics bind the
+resulting generated/reused evidence IDs without parsing prose. Optional-source
+qualified candidates retain empty evidence and an explicit
+`qualified-not-persisted` disposition. The future content-free receipt binds
+both proof digests and aggregate dispositions; source reconciliation plus the
+second persistence result, not provider drift alone, determines live
+idempotency.
 
 Pure materialization reads only the accepted catalog, taxonomy, and source
 authority and returns exactly 150 accepted profile DTOs plus
@@ -86,7 +109,9 @@ read-only, emits no build output, and reads no credential; an explicit internal
 source-resolution condition preserves the ordinary compiled package exports.
 Execute owns all future effects in one
 cleanup-protected boundary and cannot publish fixed evidence before exact
-database/container/network disposal proof. Verify is read-only. None of these
+database/container/network disposal proof. Cleanup removes and proves absence
+of the exact container before it can remove and prove the exact network; every
+nonzero removal or unexpected inspection fails. Verify is read-only. None of these
 commands is invoked by ordinary `pnpm verify` or hosted CI during Milestone 7A;
 execute remains unauthorized.
 

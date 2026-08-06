@@ -6,22 +6,35 @@ import {
   buildProfileMaterializationReceipt,
   compareProfileMaterializationSources,
   controlledFailureCounts,
+  persistenceProofCounts,
+  reconcileProfileMaterializationSourceAuthority,
   renderProfileMaterializationCompletion,
   sourceOutcomeCounts,
   sourceRecordCounts,
   validateProfileMaterializationCompletion,
   validateProfileMaterializationReceipt,
 } from '../src/index.ts';
-import { buildFakeSourceAuthority } from './profile-materialization-fixtures.ts';
+import {
+  buildFakePersistenceProof,
+  buildFakeSourceAuthority,
+} from './profile-materialization-fixtures.ts';
 
 describe('profile-materialization replay receipt', () => {
   it('binds both collections, all four passes, drift, and fixed completion text', async () => {
     const first = await buildFakeSourceAuthority({
       collectedAt: '2026-08-05T00:00:00.000Z',
     });
-    const second = await buildFakeSourceAuthority({
+    const secondCollected = await buildFakeSourceAuthority({
       collectedAt: '2026-08-05T01:00:00.000Z',
     });
+    const second = {
+      ...secondCollected,
+      authority: reconcileProfileMaterializationSourceAuthority(
+        first.authority,
+        secondCollected.authority.sourceRecords,
+        first,
+      ),
+    };
     const firstArtifacts = buildProfileMaterializationArtifacts(
       first.catalog,
       first.taxonomy,
@@ -39,12 +52,28 @@ describe('profile-materialization replay receipt', () => {
     expect(
       drift.counts.reduce((total, count) => total + count.unchanged, 0),
     ).toBe(833);
+    const firstPersistenceProof = buildFakePersistenceProof(
+      first.authority,
+      'first',
+    );
+    const secondPersistenceProof = buildFakePersistenceProof(
+      second.authority,
+      'second',
+    );
     const receipt = buildProfileMaterializationReceipt({
       receiptVersion: 'profile-materialization-receipt/1.0.0',
       operatorVersion: 'profile-materialization-operator/1.0.0',
       providerPolicyVersion: 'profile-materialization-provider-policy/1.0.0',
       providerPolicyDigest: first.policy.policySemanticDigest,
       sourceAuthorityVersion: 'profile-materialization-source-authority/1.0.0',
+      persistenceProofVersion:
+        'profile-materialization-persistence-proof/1.0.0',
+      firstPersistenceProofSemanticDigest:
+        firstPersistenceProof.proofSemanticDigest,
+      secondPersistenceProofSemanticDigest:
+        secondPersistenceProof.proofSemanticDigest,
+      firstPersistenceCounts: persistenceProofCounts(firstPersistenceProof),
+      secondPersistenceCounts: persistenceProofCounts(secondPersistenceProof),
       firstSourceAuthoritySemanticDigest:
         first.authority.authoritySemanticDigest,
       secondSourceAuthoritySemanticDigest:
@@ -134,6 +163,17 @@ describe('profile-materialization replay receipt', () => {
         runIdDigest: '2'.repeat(64),
       }),
     ).toThrow();
+    const proofChanged = buildProfileMaterializationReceipt({
+      ...input,
+      firstPersistenceProofSemanticDigest: 'a'.repeat(64),
+      runIdDigest: '1'.repeat(64),
+    });
+    expect(proofChanged.receiptSemanticDigest).not.toBe(
+      first.receiptSemanticDigest,
+    );
+    expect(proofChanged.receiptRecordDigest).not.toBe(
+      first.receiptRecordDigest,
+    );
   });
 
   it('rejects source, database, timestamp, and unauthenticated-field leakage', async () => {
@@ -241,6 +281,29 @@ describe('profile-materialization replay receipt', () => {
       }),
     ).toThrow();
   });
+
+  it('rejects missing persistence bindings and seeded-catalog-only success claims', async () => {
+    const fixture = await buildFakeSourceAuthority();
+    const artifacts = buildProfileMaterializationArtifacts(
+      fixture.catalog,
+      fixture.taxonomy,
+      fixture.authority,
+    );
+    const input = minimalReceiptInput(fixture, artifacts);
+    const missingProof = { ...input } as Record<string, unknown>;
+    delete missingProof['secondPersistenceProofSemanticDigest'];
+    expect(() =>
+      buildProfileMaterializationReceipt(missingProof as never),
+    ).toThrow();
+    expect(() =>
+      buildProfileMaterializationReceipt({
+        ...input,
+        secondPersistenceCounts: input.firstPersistenceCounts,
+        liveIdempotency: 'passed',
+        runIdDigest: '6'.repeat(64),
+      }),
+    ).toThrow();
+  });
 });
 
 function pass(
@@ -260,6 +323,14 @@ function minimalReceiptInput(
     fixture.authority,
     fixture.authority,
   );
+  const firstPersistenceProof = buildFakePersistenceProof(
+    fixture.authority,
+    'first',
+  );
+  const secondPersistenceProof = buildFakePersistenceProof(
+    fixture.authority,
+    'second',
+  );
   return {
     receiptVersion: 'profile-materialization-receipt/1.0.0' as const,
     operatorVersion: 'profile-materialization-operator/1.0.0' as const,
@@ -268,6 +339,14 @@ function minimalReceiptInput(
     providerPolicyDigest: fixture.policy.policySemanticDigest,
     sourceAuthorityVersion:
       'profile-materialization-source-authority/1.0.0' as const,
+    persistenceProofVersion:
+      'profile-materialization-persistence-proof/1.0.0' as const,
+    firstPersistenceProofSemanticDigest:
+      firstPersistenceProof.proofSemanticDigest,
+    secondPersistenceProofSemanticDigest:
+      secondPersistenceProof.proofSemanticDigest,
+    firstPersistenceCounts: persistenceProofCounts(firstPersistenceProof),
+    secondPersistenceCounts: persistenceProofCounts(secondPersistenceProof),
     firstSourceAuthoritySemanticDigest:
       fixture.authority.authoritySemanticDigest,
     secondSourceAuthoritySemanticDigest:

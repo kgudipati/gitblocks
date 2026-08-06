@@ -11,6 +11,8 @@ export const PROFILE_MATERIALIZATION_PROVIDER_POLICY_VERSION =
   'profile-materialization-provider-policy/1.0.0' as const;
 export const PROFILE_MATERIALIZATION_SOURCE_AUTHORITY_VERSION =
   'profile-materialization-source-authority/1.0.0' as const;
+export const PROFILE_MATERIALIZATION_PERSISTENCE_PROOF_VERSION =
+  'profile-materialization-persistence-proof/1.0.0' as const;
 export const PROFILE_MATERIALIZATION_COVERAGE_VERSION =
   'profile-materialization-coverage/1.0.0' as const;
 export const PROFILE_MATERIALIZATION_RECEIPT_VERSION =
@@ -19,7 +21,7 @@ export const PROFILE_MATERIALIZATION_PROJECTION_VERSION =
   'profile-materialization-projection/1.0.0' as const;
 export const PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS = {
   providerPolicyDigest:
-    'f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9',
+    '0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede',
   catalogDigest:
     '4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634',
   taxonomyDigest:
@@ -195,12 +197,61 @@ export interface ProfileMaterializationPassDigests {
   readonly profileCoverageDigest: string;
 }
 
+export interface ProfileMaterializationPersistenceEntry {
+  readonly candidateId: string;
+  readonly disposition: 'persisted' | 'qualified-not-persisted';
+  readonly controlledOptionalSourceCodes: readonly string[];
+  readonly outcome: 'created' | 'updated' | 'unchanged' | null;
+  readonly candidateState: 'created' | 'idempotent' | null;
+  readonly snapshotState: 'created' | 'idempotent' | null;
+  readonly snapshotId: string | null;
+  readonly evidenceAppended: number;
+  readonly evidenceIdempotent: number;
+  readonly evidenceSuperseded: number;
+  readonly evidenceInvalidated: number;
+  readonly limitationCount: number;
+  readonly unknownCount: number;
+}
+
+export interface ProfileMaterializationPersistenceProof {
+  readonly proofVersion: typeof PROFILE_MATERIALIZATION_PERSISTENCE_PROOF_VERSION;
+  readonly collection: 'first' | 'second';
+  readonly databaseSchemaDigest: string;
+  readonly migrationInventoryDigest: string;
+  readonly catalogDigest: string;
+  readonly sourceAuthoritySemanticDigest: string;
+  readonly candidateCount: 150;
+  readonly entries: readonly ProfileMaterializationPersistenceEntry[];
+  readonly proofSemanticDigest: string;
+}
+
+export interface ProfileMaterializationPersistenceCounts {
+  readonly persistedCandidateCount: number;
+  readonly qualifiedNotPersistedCount: number;
+  readonly created: number;
+  readonly updated: number;
+  readonly unchanged: number;
+  readonly candidateCreated: number;
+  readonly candidateIdempotent: number;
+  readonly snapshotCreated: number;
+  readonly snapshotIdempotent: number;
+  readonly evidenceAppended: number;
+  readonly evidenceIdempotent: number;
+  readonly evidenceSuperseded: number;
+  readonly evidenceInvalidated: number;
+}
+
 export interface ProfileMaterializationReceipt {
   readonly receiptVersion: typeof PROFILE_MATERIALIZATION_RECEIPT_VERSION;
   readonly operatorVersion: typeof PROFILE_MATERIALIZATION_OPERATOR_VERSION;
   readonly providerPolicyVersion: typeof PROFILE_MATERIALIZATION_PROVIDER_POLICY_VERSION;
   readonly providerPolicyDigest: string;
   readonly sourceAuthorityVersion: typeof PROFILE_MATERIALIZATION_SOURCE_AUTHORITY_VERSION;
+  readonly persistenceProofVersion: typeof PROFILE_MATERIALIZATION_PERSISTENCE_PROOF_VERSION;
+  readonly firstPersistenceProofSemanticDigest: string;
+  readonly secondPersistenceProofSemanticDigest: string;
+  readonly firstPersistenceCounts: ProfileMaterializationPersistenceCounts;
+  readonly secondPersistenceCounts: ProfileMaterializationPersistenceCounts;
   readonly firstSourceAuthoritySemanticDigest: string;
   readonly secondSourceAuthoritySemanticDigest: string;
   readonly finalSourceAuthoritySemanticDigest: string;
@@ -215,7 +266,10 @@ export interface ProfileMaterializationReceipt {
   readonly secondPassA: ProfileMaterializationPassDigests;
   readonly secondPassB: ProfileMaterializationPassDigests;
   readonly sameEvidenceReproduction: 'passed';
-  readonly liveIdempotency: 'passed' | 'passed-with-provider-drift';
+  readonly liveIdempotency:
+    | 'passed'
+    | 'passed-with-provider-drift'
+    | 'qualified-optional-source-failures';
   readonly qualification: 'complete' | 'qualified-optional-source-failures';
   readonly catalogVersion: 'public-v1';
   readonly catalogDigest: string;
@@ -276,6 +330,8 @@ const RECEIPT_INPUT_KEYS = [
   'familyCoverage',
   'fieldCoverage',
   'finalSourceAuthoritySemanticDigest',
+  'firstPersistenceCounts',
+  'firstPersistenceProofSemanticDigest',
   'firstPassA',
   'firstPassB',
   'firstSourceAuthoritySemanticDigest',
@@ -286,6 +342,7 @@ const RECEIPT_INPUT_KEYS = [
   'migrationInventoryDigest',
   'operatorVersion',
   'productTableCount',
+  'persistenceProofVersion',
   'profileAuthoritySchemaDigest',
   'profileRulesVersion',
   'profileSchemaDigest',
@@ -298,6 +355,8 @@ const RECEIPT_INPUT_KEYS = [
   'sameEvidenceReproduction',
   'secondPassA',
   'secondPassB',
+  'secondPersistenceCounts',
+  'secondPersistenceProofSemanticDigest',
   'secondSourceAuthoritySemanticDigest',
   'secondSourceOutcomeCounts',
   'secondSourceRecordCounts',
@@ -359,6 +418,8 @@ function validateReceiptInput(input: ProfileMaterializationReceiptInput): void {
       PROFILE_MATERIALIZATION_PROVIDER_POLICY_VERSION ||
     input.sourceAuthorityVersion !==
       PROFILE_MATERIALIZATION_SOURCE_AUTHORITY_VERSION ||
+    input.persistenceProofVersion !==
+      PROFILE_MATERIALIZATION_PERSISTENCE_PROOF_VERSION ||
     input.projectionVersion !== PROFILE_MATERIALIZATION_PROJECTION_VERSION ||
     input.catalogVersion !== 'public-v1' ||
     input.taxonomyVersion !== '1.0.0' ||
@@ -372,6 +433,8 @@ function validateReceiptInput(input: ProfileMaterializationReceiptInput): void {
     !isDigest(input.firstSourceAuthoritySemanticDigest) ||
     !isDigest(input.secondSourceAuthoritySemanticDigest) ||
     !isDigest(input.finalSourceAuthoritySemanticDigest) ||
+    !isDigest(input.firstPersistenceProofSemanticDigest) ||
+    !isDigest(input.secondPersistenceProofSemanticDigest) ||
     !isDigest(input.sourceDriftComparisonDigest) ||
     input.catalogDigest !==
       PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS.catalogDigest ||
@@ -387,7 +450,11 @@ function validateReceiptInput(input: ProfileMaterializationReceiptInput): void {
       PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS.databaseSchemaDigest ||
     !isDigest(input.runIdDigest) ||
     input.sameEvidenceReproduction !== 'passed' ||
-    !['passed', 'passed-with-provider-drift'].includes(input.liveIdempotency) ||
+    ![
+      'passed',
+      'passed-with-provider-drift',
+      'qualified-optional-source-failures',
+    ].includes(input.liveIdempotency) ||
     !['complete', 'qualified-optional-source-failures'].includes(
       input.qualification,
     ) ||
@@ -422,6 +489,8 @@ function validateReceiptInput(input: ProfileMaterializationReceiptInput): void {
   validateOutcomeClosure(input.firstSourceOutcomeCounts);
   validateOutcomeClosure(input.secondSourceOutcomeCounts);
   validateDriftClosure(input.sourceDriftCounts);
+  validatePersistenceCounts(input.firstPersistenceCounts);
+  validatePersistenceCounts(input.secondPersistenceCounts);
   requireExactKeys(requireRecord(input.aggregateFieldStates), [
     'conflict',
     'known',
@@ -517,15 +586,96 @@ function validateReceiptInput(input: ProfileMaterializationReceiptInput): void {
   const providerDrift = input.sourceDriftCounts.some(
     (entry) => entry.changed + entry.new + entry.withdrawn > 0,
   );
+  const firstPersistence = input.firstPersistenceCounts;
+  const secondPersistence = input.secondPersistenceCounts;
+  const qualifiedPersistence =
+    firstPersistence.qualifiedNotPersistedCount +
+    secondPersistence.qualifiedNotPersistedCount;
+  const secondMutationCount =
+    secondPersistence.evidenceAppended +
+    secondPersistence.evidenceSuperseded +
+    secondPersistence.evidenceInvalidated;
+  const completePersistence =
+    firstPersistence.persistedCandidateCount === 150 &&
+    secondPersistence.persistedCandidateCount === 150 &&
+    qualifiedPersistence === 0;
+  const exactUnchangedReplay =
+    completePersistence &&
+    secondPersistence.unchanged === 150 &&
+    secondPersistence.created === 0 &&
+    secondPersistence.updated === 0 &&
+    secondPersistence.candidateCreated === 0 &&
+    secondPersistence.candidateIdempotent === 150 &&
+    secondPersistence.snapshotCreated === 0 &&
+    secondPersistence.snapshotIdempotent === 150 &&
+    secondMutationCount === 0;
   if (
     fatalSources !== 0 ||
     optionalFailures !== unavailableSources ||
-    (providerDrift
-      ? input.liveIdempotency !== 'passed-with-provider-drift'
-      : input.liveIdempotency !== 'passed') ||
+    (input.liveIdempotency === 'passed' &&
+      (providerDrift || !exactUnchangedReplay)) ||
+    (input.liveIdempotency === 'passed-with-provider-drift' &&
+      (!providerDrift ||
+        !completePersistence ||
+        secondPersistence.created !== 0)) ||
+    (input.liveIdempotency === 'qualified-optional-source-failures' &&
+      qualifiedPersistence === 0) ||
     (input.qualification === 'complete' && optionalFailures !== 0) ||
     (input.qualification === 'qualified-optional-source-failures' &&
-      optionalFailures === 0)
+      optionalFailures === 0) ||
+    (input.qualification === 'complete' && qualifiedPersistence !== 0) ||
+    (input.qualification === 'qualified-optional-source-failures' &&
+      qualifiedPersistence === 0) ||
+    (qualifiedPersistence > 0 &&
+      input.liveIdempotency !== 'qualified-optional-source-failures')
+  ) {
+    throw ingestionError('ingestion.invalid-receipt');
+  }
+}
+
+function validatePersistenceCounts(
+  counts: ProfileMaterializationPersistenceCounts,
+): void {
+  requireExactKeys(requireRecord(counts), [
+    'candidateCreated',
+    'candidateIdempotent',
+    'created',
+    'evidenceAppended',
+    'evidenceIdempotent',
+    'evidenceInvalidated',
+    'evidenceSuperseded',
+    'persistedCandidateCount',
+    'qualifiedNotPersistedCount',
+    'snapshotCreated',
+    'snapshotIdempotent',
+    'unchanged',
+    'updated',
+  ]);
+  const values = [
+    counts.candidateCreated,
+    counts.candidateIdempotent,
+    counts.created,
+    counts.evidenceAppended,
+    counts.evidenceIdempotent,
+    counts.evidenceInvalidated,
+    counts.evidenceSuperseded,
+    counts.persistedCandidateCount,
+    counts.qualifiedNotPersistedCount,
+    counts.snapshotCreated,
+    counts.snapshotIdempotent,
+    counts.unchanged,
+    counts.updated,
+  ];
+  if (
+    values.some((value) => !isNonnegativeInteger(value)) ||
+    counts.persistedCandidateCount + counts.qualifiedNotPersistedCount !==
+      150 ||
+    counts.created + counts.updated + counts.unchanged !==
+      counts.persistedCandidateCount ||
+    counts.candidateCreated + counts.candidateIdempotent !==
+      counts.persistedCandidateCount ||
+    counts.snapshotCreated + counts.snapshotIdempotent !==
+      counts.persistedCandidateCount
   ) {
     throw ingestionError('ingestion.invalid-receipt');
   }

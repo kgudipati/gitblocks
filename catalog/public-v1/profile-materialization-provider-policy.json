@@ -103,7 +103,7 @@
       "requestTimeoutMilliseconds": 10000,
       "retainedStructuredProperties": ["committed-at", "sha"],
       "runDeadlineMilliseconds": 3600000,
-      "sourceMutability": "immutable",
+      "sourceMutability": "mutable",
       "sourceType": "github-head-commit",
       "temporaryUnavailability": "fatal"
     },
@@ -402,7 +402,7 @@
       "temporaryUnavailability": "qualified-unknown"
     }
   ],
-  "policySemanticDigest": "f8346dae699196bd35570089e0b73bb56b8664265981dca76f4bec2b1e1899e9",
+  "policySemanticDigest": "0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede",
   "policyVersion": "profile-materialization-provider-policy/1.0.0",
   "transport": {
     "allowedHosts": ["api.github.com", "registry.npmjs.org"],
