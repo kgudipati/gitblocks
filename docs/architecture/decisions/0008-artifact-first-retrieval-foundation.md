@@ -36,7 +36,9 @@ development authority, not independently accepted retrieval truth. Milestone
 6 was accepted at `ea27f11432513ec352ce43821eb95b8da0886182`. The maintainer
 approved an explicit two-commit split: Milestone 7A implements only the offline
 controlled operator and fake-effect proof; Milestone 7B owns any later live
-execution and evidence. Milestone 7B remains unauthorized.
+execution and evidence. Two separately authorized execute attempts have failed
+without evidence; Milestone 7B remains incomplete and no fresh execution is
+authorized.
 
 ## Context
 
@@ -580,24 +582,37 @@ uses a tmpfs-only container on an isolated internal network with explicit
 loopback port binding, and rejects existing resources. PostgreSQL 18's
 image-declared `/var/lib/postgresql` volume root is the sole tmpfs target, with
 `/var/lib/postgresql/18/docker` as PGDATA inside it. A bounded, plan-digested
-inspection of the exact container must prove exactly one writable tmpfs at the
-volume root, an empty source, and no volume, bind, second mount, or alternative
-tmpfs destination before empty-state proof or migrations. Existing four migrations
-and table meanings suffice; no migration 0005 or durable profile table is
-introduced. All catalog seed, prior-material reads, and profile persistence use
-the verified derived runtime login; owner access remains limited to bootstrap,
-migration, schema proof, and runtime-role creation. Disposal strictly removes
-and proves absence of the exact container before inspecting/removing/proving
-the exact network. Source authorities and persistence proofs remain untracked
-local operational evidence
+inspection of the exact container must prove either one structured writable
+tmpfs mount with empty source at the volume root or one `--tmpfs`
+destination/options-map entry at that root containing exactly `rw`, `noexec`,
+`nosuid`, `nodev`, and `size=1073741824`. Both representations reject volume,
+bind, second/wrong destination, host source, missing/duplicate/contradictory or
+unknown option, malformed JSON, and oversized output before empty-state proof
+or migrations. Existing four migrations and table meanings suffice; no
+migration 0005 or durable profile table is introduced. All catalog seed,
+prior-material reads, and profile persistence use the verified derived runtime
+login; owner access remains limited to bootstrap, migration, schema proof, and
+runtime-role creation. Disposal strictly removes and proves absence of the
+exact container before inspecting/removing/proving the exact network. Source
+authorities and persistence proofs remain untracked local operational evidence
 until independent 7B review, Milestone 7 acceptance, and explicit maintainer
 deletion authorization.
 
 The first separately authorized live execute attempt failed safely before any
 first source authority or fixed evidence was published. The prior generic CLI
 made its exact internal stage unknowable, so this ADR records no inferred
-stage. Exact resource absence was proven, no retry occurred, and any future
-live proof requires separate authorization after this offline correction.
+stage. A second separately authorized execute on the PostgreSQL 18 boundary
+correction failed at `fresh-database-create` with
+`ingestion.internal-invariant`, before any provider request or authority. A
+read-only Docker boundary diagnostic excluded executable, local context, and
+daemon routing. An isolated accepted-operator create probe then reproduced the
+failure after network/container creation: Docker inspection exited successfully
+but the validator rejected Docker's documented `--tmpfs` destination/options
+map before health, SQL, or migration. Cleanup and independent absence proofs
+passed. The creation mechanism remains the hardened `--tmpfs` form; this
+forward correction aligns bounded validation with both strict Docker tmpfs
+representations. Neither execute was retried, no completion evidence exists,
+and any future live proof requires separate authorization.
 
 ### Persistence
 

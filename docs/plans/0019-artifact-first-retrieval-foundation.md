@@ -20,9 +20,12 @@
   Milestone 6 deterministic baselines and the content-free report were
   accepted at `ea27f11432513ec352ce43821eb95b8da0886182`. The maintainer
   explicitly split Milestone 7 into offline implementation-only Milestone 7A
-  and separately authorized live/evidence Milestone 7B. Milestone 7A
-  implementation is complete pending maintainer review; Milestone 7B and every
-  live effect remain unauthorized.
+  and separately authorized live/evidence Milestone 7B. Milestone 7A was
+  accepted through the PostgreSQL 18 boundary correction at
+  `3f957e14c592d5ad11f576887c135ba4191da522`; the later Docker tmpfs-inspection
+  representation correction is pending maintainer review. Milestone 7B remains
+  incomplete after two consumed failed execute attempts, and no fresh live
+  effect is authorized.
 - Last updated: 2026-08-06
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -1112,10 +1115,14 @@ explicit `127.0.0.1:<port>` binding, and rejects preexisting exact identities.
 For PostgreSQL 18, the tmpfs overrides the image-declared volume root at
 `/var/lib/postgresql`, containing `PGDATA=/var/lib/postgresql/18/docker`.
 Immediately after container creation, one bounded exact-container inspection
-must prove that `.Mounts` contains exactly one writable `tmpfs` at that root,
-with no volume, bind, second mount, or host source, before health, empty-state,
-or migration work can continue. The database-plan digest authenticates that
-inspection command.
+must prove the Docker tmpfs configuration in one of two strict engine
+representations: either one structured writable `tmpfs` mount with empty
+source at that root, or one destination/options-map entry at that root with
+exactly `rw`, `noexec`, `nosuid`, `nodev`, and `size=1073741824`. Volume, bind,
+second/wrong destination, missing or contradictory option, duplicate/unknown
+option, host source, malformed JSON, and oversized output fail closed before
+health, empty-state, or migration work can continue. The database-plan digest
+authenticates the unchanged inspection command.
 It proves 0/0 initial migrations/product tables and then 4/25, zero RLS
 policies, seven schema functions, 48 noninternal triggers, 15 required indexes,
 and exact migration checksums. No volume or migration 0005 exists.
@@ -1150,9 +1157,12 @@ Milestone 7B.
 
 ### Milestone 7B — Separately authorized live proof and evidence
 
-Milestone 7B remains incomplete. One acknowledged live execute invocation was
-consumed and failed safely before first-source-authority publication; it
-published no retained run authority or fixed completion evidence and was not
+Milestone 7B remains incomplete. The first acknowledged live execute invocation
+failed safely before first-source-authority publication under the prior generic
+CLI; its exact stage remains unknowable. After the PostgreSQL 18 boundary
+correction, one separately authorized execute failed at
+`fresh-database-create` with `ingestion.internal-invariant`, before any
+provider request, authority, proof, or fixed evidence. Neither attempt was
 retried. A future proof requires fresh maintainer authorization. If later
 authorized, one acknowledged
 `profiles:materialization:execute` invocation may collect two immutable local
@@ -2285,3 +2295,33 @@ entries.
   repository checks and secret scanning pass. All validation was offline; no
   materialization command, Docker, PostgreSQL, provider, credential, carrier,
   model, or Phase 7 access occurred.
+
+### 2026-08-06 — Docker tmpfs inspection representation correction
+
+- Permanent history preserves the first failed execute on
+  `bca0dfef9ca6004c08f863948f1b56a4ce176243` with its unknowable prior-CLI
+  stage and the separately authorized corrected execute on
+  `3f957e14c592d5ad11f576887c135ba4191da522`, which failed safely at
+  `fresh-database-create` with `ingestion.internal-invariant`. Both published
+  zero authority/evidence and were not retried; the second made zero provider
+  requests.
+- A read-only Docker process-boundary diagnostic proved that the fixed operator
+  PATH resolves Docker, reaches the local `desktop-linux` context over a local
+  Unix endpoint, and therefore does not explain the corrected-run failure.
+- One separately authorized isolated accepted-operator database-create probe
+  proved local pinned-image availability, exact initial resource absence,
+  successful network and container creation, and successful Docker storage
+  inspection execution. The accepted validator then rejected the returned
+  storage representation before health, SQL, or migration. Accepted cleanup
+  and independent container/network/volume/process absence proofs passed.
+- The plan intentionally retains Docker `--tmpfs` at
+  `/var/lib/postgresql:rw,noexec,nosuid,nodev,size=1073741824`. Docker may
+  represent this form as a single destination/options map rather than the
+  structured mount array used by `--mount type=tmpfs`. Storage validation now
+  accepts either strict representation while requiring the same root, writable
+  tmpfs semantics, hardened options, bounded size, and single-mount closure.
+- Red-first fake-process evidence ran 39 persistence tests: the two new valid
+  options-map cases failed with `database-storage-drift`, while 37 existing and
+  new fail-closed cases passed. After correction, the required four-file
+  focused gate passes 67 tests. No third live materialization attempt is
+  authorized, and Milestone 7B remains incomplete.

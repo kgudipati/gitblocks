@@ -11,6 +11,13 @@ export const PROFILE_MATERIALIZATION_POSTGRES_IMAGE =
 export const PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT =
   '/var/lib/postgresql' as const;
 const PROFILE_MATERIALIZATION_STORAGE_INSPECTION_MAXIMUM_BYTES = 16_384;
+const PROFILE_MATERIALIZATION_REQUIRED_TMPFS_OPTIONS = [
+  'rw',
+  'noexec',
+  'nosuid',
+  'nodev',
+  'size=1073741824',
+] as const;
 export const PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS = [
   {
     version: 1,
@@ -562,31 +569,76 @@ export function validateProfileMaterializationStorageInspection(
   ) {
     throw new Error('profile-materialization.database-storage-drift');
   }
-  let mounts: unknown;
+  let inspection: unknown;
   try {
-    mounts = JSON.parse(text);
+    inspection = JSON.parse(text);
   } catch {
     throw new Error('profile-materialization.database-storage-drift');
   }
-  if (!Array.isArray(mounts) || mounts.length !== 1) {
-    throw new Error('profile-materialization.database-storage-drift');
+  if (Array.isArray(inspection)) {
+    validateStructuredTmpfsMount(inspection);
+    return;
   }
-  const mount: unknown = mounts[0];
+  validateTmpfsOptionsMap(inspection);
+}
+
+function validateStructuredTmpfsMount(mounts: readonly unknown[]): void {
+  const mount = mounts[0];
   if (
-    typeof mount !== 'object' ||
-    mount === null ||
-    Array.isArray(mount) ||
-    !('Type' in mount) ||
-    mount.Type !== 'tmpfs' ||
-    !('Destination' in mount) ||
-    mount.Destination !== PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT ||
-    !('RW' in mount) ||
-    mount.RW !== true ||
-    !('Source' in mount) ||
-    mount.Source !== ''
+    mounts.length !== 1 ||
+    !isOrdinaryJsonObject(mount) ||
+    !Object.hasOwn(mount, 'Type') ||
+    mount['Type'] !== 'tmpfs' ||
+    !Object.hasOwn(mount, 'Source') ||
+    mount['Source'] !== '' ||
+    !Object.hasOwn(mount, 'Destination') ||
+    mount['Destination'] !== PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT ||
+    !Object.hasOwn(mount, 'RW') ||
+    mount['RW'] !== true
   ) {
     throw new Error('profile-materialization.database-storage-drift');
   }
+}
+
+function validateTmpfsOptionsMap(inspection: unknown): void {
+  if (!isOrdinaryJsonObject(inspection)) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  const destinations = Reflect.ownKeys(inspection);
+  if (
+    destinations.length !== 1 ||
+    destinations[0] !== PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  const optionText = inspection[PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT];
+  if (typeof optionText !== 'string') {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  const options = optionText.split(',');
+  const uniqueOptions = new Set(options);
+  if (
+    options.some((option) => option === '') ||
+    uniqueOptions.size !== options.length ||
+    uniqueOptions.size !==
+      PROFILE_MATERIALIZATION_REQUIRED_TMPFS_OPTIONS.length ||
+    PROFILE_MATERIALIZATION_REQUIRED_TMPFS_OPTIONS.some(
+      (option) => !uniqueOptions.has(option),
+    )
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+}
+
+function isOrdinaryJsonObject(
+  value: unknown,
+): value is Record<string, unknown> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
 }
 
 function imageDigest(image: string): string {

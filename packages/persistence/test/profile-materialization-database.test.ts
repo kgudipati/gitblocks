@@ -14,6 +14,7 @@ import {
 } from '../src/index.ts';
 
 const RUN_ID = 'm7-abcdefghijklmnopqrstuvwxyz';
+const REQUIRED_TMPFS_OPTIONS = 'rw,noexec,nosuid,nodev,size=1073741824';
 
 describe('profile-materialization fresh database planning', () => {
   it('derives isolated names and the exact tmpfs-only Docker plan', () => {
@@ -172,82 +173,20 @@ describe('profile-materialization fresh database planning', () => {
 
   it.each([
     {
-      name: 'anonymous volume',
-      mounts: [
-        {
-          Type: 'volume',
-          Source: '/var/lib/docker/volumes/opaque/_data',
-          Destination: '/var/lib/postgresql',
-          RW: true,
-        },
-      ],
+      name: 'documented --tmpfs map at the PostgreSQL 18 volume root',
+      inspection: {
+        '/var/lib/postgresql': REQUIRED_TMPFS_OPTIONS,
+      },
     },
     {
-      name: 'bind mount',
-      mounts: [
-        {
-          Type: 'bind',
-          Source: '/tmp/postgresql',
-          Destination: '/var/lib/postgresql',
-          RW: true,
-        },
-      ],
+      name: 'documented --tmpfs map with reordered options',
+      inspection: {
+        '/var/lib/postgresql': 'size=1073741824,nodev,rw,nosuid,noexec',
+      },
     },
     {
-      name: 'pre-18 tmpfs target',
-      mounts: [
-        {
-          Type: 'tmpfs',
-          Source: '',
-          Destination: '/var/lib/postgresql/data',
-          RW: true,
-        },
-      ],
-    },
-    {
-      name: 'PGDATA-only tmpfs target',
-      mounts: [
-        {
-          Type: 'tmpfs',
-          Source: '',
-          Destination: '/var/lib/postgresql/18/docker',
-          RW: true,
-        },
-      ],
-    },
-    {
-      name: 'second storage mount',
-      mounts: [
-        {
-          Type: 'tmpfs',
-          Source: '',
-          Destination: '/var/lib/postgresql',
-          RW: true,
-        },
-        {
-          Type: 'tmpfs',
-          Source: '',
-          Destination: '/unexpected',
-          RW: true,
-        },
-      ],
-    },
-  ])('rejects $name storage inspection', async ({ mounts }) => {
-    const plan = createPlan();
-    const { operator } = storageInspectionOperator(plan, {
-      exitCode: 0,
-      stdout: JSON.stringify(mounts),
-    });
-    await expect(
-      operator.create(plan, credentials(), new AbortController().signal),
-    ).rejects.toThrow('profile-materialization.database-storage-drift');
-  });
-
-  it('accepts exactly one writable tmpfs at the PostgreSQL 18 volume root', async () => {
-    const plan = createPlan();
-    const { operator, calls } = storageInspectionOperator(plan, {
-      exitCode: 0,
-      stdout: JSON.stringify([
+      name: 'structured mount-array compatibility representation',
+      inspection: [
         {
           Type: 'tmpfs',
           Source: '',
@@ -256,7 +195,13 @@ describe('profile-materialization fresh database planning', () => {
           RW: true,
           Propagation: '',
         },
-      ]),
+      ],
+    },
+  ])('accepts $name', async ({ inspection }) => {
+    const plan = createPlan();
+    const { operator, calls } = storageInspectionOperator(plan, {
+      exitCode: 0,
+      stdout: JSON.stringify(inspection),
     });
     await expect(
       operator.create(plan, credentials(), new AbortController().signal),
@@ -271,7 +216,183 @@ describe('profile-materialization fresh database planning', () => {
   });
 
   it.each([
+    {
+      name: 'empty --tmpfs map',
+      inspection: {},
+    },
+    {
+      name: 'second --tmpfs destination',
+      inspection: {
+        '/var/lib/postgresql': REQUIRED_TMPFS_OPTIONS,
+        '/unexpected': REQUIRED_TMPFS_OPTIONS,
+      },
+    },
+    {
+      name: 'pre-18 --tmpfs map target',
+      inspection: {
+        '/var/lib/postgresql/data': REQUIRED_TMPFS_OPTIONS,
+      },
+    },
+    {
+      name: 'PGDATA-only --tmpfs map target',
+      inspection: {
+        '/var/lib/postgresql/18/docker': REQUIRED_TMPFS_OPTIONS,
+      },
+    },
+    {
+      name: 'read-only --tmpfs map',
+      inspection: {
+        '/var/lib/postgresql': 'ro,noexec,nosuid,nodev,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map without noexec',
+      inspection: {
+        '/var/lib/postgresql': 'rw,nosuid,nodev,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map without nosuid',
+      inspection: {
+        '/var/lib/postgresql': 'rw,noexec,nodev,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map without nodev',
+      inspection: {
+        '/var/lib/postgresql': 'rw,noexec,nosuid,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map with the wrong size',
+      inspection: {
+        '/var/lib/postgresql': 'rw,noexec,nosuid,nodev,size=536870912',
+      },
+    },
+    {
+      name: '--tmpfs map with duplicate size options',
+      inspection: {
+        '/var/lib/postgresql':
+          'rw,noexec,nosuid,nodev,size=1073741824,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map with a duplicate ordinary option',
+      inspection: {
+        '/var/lib/postgresql': 'rw,noexec,noexec,nosuid,nodev,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map with an empty option component',
+      inspection: {
+        '/var/lib/postgresql': 'rw,noexec,,nosuid,nodev,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map with exec',
+      inspection: {
+        '/var/lib/postgresql': 'rw,noexec,exec,nosuid,nodev,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map with suid',
+      inspection: {
+        '/var/lib/postgresql': 'rw,noexec,nosuid,suid,nodev,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map with dev',
+      inspection: {
+        '/var/lib/postgresql': 'rw,noexec,nosuid,nodev,dev,size=1073741824',
+      },
+    },
+    {
+      name: '--tmpfs map with a non-string value',
+      inspection: {
+        '/var/lib/postgresql': true,
+      },
+    },
+    {
+      name: '--tmpfs map with a prototype-pollution key',
+      inspection: JSON.parse(
+        `{"/var/lib/postgresql":"${REQUIRED_TMPFS_OPTIONS}","__proto__":"unexpected"}`,
+      ) as unknown,
+    },
+    {
+      name: 'anonymous volume array',
+      inspection: [
+        {
+          Type: 'volume',
+          Source: '/var/lib/docker/volumes/opaque/_data',
+          Destination: '/var/lib/postgresql',
+          RW: true,
+        },
+      ],
+    },
+    {
+      name: 'bind mount array',
+      inspection: [
+        {
+          Type: 'bind',
+          Source: '/tmp/postgresql',
+          Destination: '/var/lib/postgresql',
+          RW: true,
+        },
+      ],
+    },
+    {
+      name: 'pre-18 tmpfs array target',
+      inspection: [
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/var/lib/postgresql/data',
+          RW: true,
+        },
+      ],
+    },
+    {
+      name: 'PGDATA-only tmpfs array target',
+      inspection: [
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/var/lib/postgresql/18/docker',
+          RW: true,
+        },
+      ],
+    },
+    {
+      name: 'multiple mount-array entries',
+      inspection: [
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/var/lib/postgresql',
+          RW: true,
+        },
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/unexpected',
+          RW: true,
+        },
+      ],
+    },
+  ])('rejects $name storage inspection', async ({ inspection }) => {
+    const plan = createPlan();
+    const { operator } = storageInspectionOperator(plan, {
+      exitCode: 0,
+      stdout: JSON.stringify(inspection),
+    });
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).rejects.toThrow('profile-materialization.database-storage-drift');
+  });
+
+  it.each([
     { exitCode: 0, stdout: '{not-json' },
+    { exitCode: 0, stdout: JSON.stringify('x'.repeat(16_385)) },
     { exitCode: 125, stdout: '' },
   ])('fails closed for an invalid storage inspect result', async (result) => {
     const plan = createPlan();
