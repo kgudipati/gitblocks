@@ -8,9 +8,13 @@ import {
   parseProfileMaterializationPersistenceProof,
   persistenceProofCounts,
   profileCandidate,
+  qualifiedNotPersistedEntry,
   reconcileProfileMaterializationSourceAuthority,
+  repositoryFileTopic,
+  selectCurrentRelease,
   type ProfileMaterializationPersistenceEntry,
   type ProfileMaterializationSourceRecordInput,
+  type CandidateSourceBundle,
 } from '../src/index.ts';
 import { buildFakeSourceAuthority } from './profile-materialization-fixtures.ts';
 import { testBundle } from './fixtures.ts';
@@ -300,6 +304,156 @@ describe('profile-materialization durable persistence proof', () => {
     ).not.toContain('invented-evidence-id');
   });
 
+  it('requires release-current evidence exactly when the shared rule selects a release', () => {
+    const bundle = testBundle();
+    const profile = profileCandidate(bundle);
+    const record = releaseRecord(bundle, bundle.releases);
+    expect(
+      attachProfileMaterializationEvidenceIds([record], profile)[0]
+        ?.evidenceIds,
+    ).toEqual(evidenceFor(profile, ['release-current']));
+
+    const withoutReleaseEvidence = {
+      ...profile,
+      observations: profile.observations.filter(
+        (observation) => observation.topic !== 'release-current',
+      ),
+    };
+    expect(() =>
+      attachProfileMaterializationEvidenceIds([record], withoutReleaseEvidence),
+    ).toThrow();
+
+    const releaseObservation = profile.observations.find(
+      (observation) => observation.topic === 'release-current',
+    );
+    if (releaseObservation?.source.kind !== 'release') {
+      throw new Error('Missing selected-release fixture observation.');
+    }
+    const wrongSelectedRelease = replaceObservation(
+      profile,
+      releaseObservation.evidenceId,
+      {
+        source: { ...releaseObservation.source, release: 'v9.9.9' },
+      },
+    );
+    expect(() =>
+      attachProfileMaterializationEvidenceIds([record], wrongSelectedRelease),
+    ).toThrow();
+
+    const changedProse = {
+      ...profile,
+      observations: profile.observations.map((observation) =>
+        observation.topic === 'release-current'
+          ? { ...observation, observation: 'Changed untrusted release prose.' }
+          : observation,
+      ),
+    };
+    expect(
+      attachProfileMaterializationEvidenceIds([record], changedProse)[0]
+        ?.evidenceIds,
+    ).toEqual(evidenceFor(profile, ['release-current']));
+  });
+
+  it('does not fabricate release evidence when no release is selected', () => {
+    const bundle = testBundle({
+      releases: [
+        { ...testBundle().releases[0]!, tag: 'latest' },
+        { ...testBundle().releases[0]!, tag: 'v2.0.0', isDraft: true },
+      ],
+    });
+    const profile = profileCandidate(bundle);
+    expect(profile.observations).not.toContainEqual(
+      expect.objectContaining({ topic: 'release-current' }),
+    );
+    expect(
+      attachProfileMaterializationEvidenceIds(
+        [releaseRecord(bundle, bundle.releases)],
+        profile,
+      )[0]?.evidenceIds,
+    ).toEqual([]);
+  });
+
+  it('shares the exact legacy release-selection rule with profileCandidate', () => {
+    const original = testBundle().releases[0]!;
+    const releases = [
+      { ...original, tag: 'v9.0.0', isDraft: true },
+      { ...original, tag: 'latest' },
+      { ...original, tag: 'v1.2.3' },
+    ];
+    const selected = selectCurrentRelease(releases);
+    expect(selected).toBe(releases[2]);
+    const profile = profileCandidate(testBundle({ releases }));
+    expect(
+      profile.observations.find(
+        (observation) => observation.topic === 'release-current',
+      )?.source,
+    ).toMatchObject({ kind: 'release', release: selected?.tag });
+  });
+
+  it('requires the exact repository-file topic, commit, and encoded path', () => {
+    const bundle = testBundle();
+    const profile = profileCandidate(bundle);
+    const record = repositoryFileRecord(bundle, 'package.json');
+    const exactTopic = repositoryFileTopic('package.json');
+    const fileObservation = profile.observations.find(
+      (observation) => observation.topic === exactTopic,
+    );
+    if (fileObservation?.source.kind !== 'git-commit') {
+      throw new Error('Missing repository-file fixture observation.');
+    }
+    expect(
+      attachProfileMaterializationEvidenceIds([record], profile)[0]
+        ?.evidenceIds,
+    ).toEqual([fileObservation.evidenceId]);
+
+    const suffixCollision = replaceObservation(
+      profile,
+      fileObservation.evidenceId,
+      {
+        source: {
+          ...fileObservation.source,
+          immutableUrl: `https://github.com/gitblocks-test/candidate/blob/${bundle.commit.sha}/docs/package.json`,
+        },
+      },
+    );
+    expect(() =>
+      attachProfileMaterializationEvidenceIds([record], suffixCollision),
+    ).toThrow();
+
+    const wrongCommit = replaceObservation(
+      profile,
+      fileObservation.evidenceId,
+      {
+        source: {
+          ...fileObservation.source,
+          commitSha: '2'.repeat(40),
+        },
+      },
+    );
+    expect(() =>
+      attachProfileMaterializationEvidenceIds([record], wrongCommit),
+    ).toThrow();
+
+    const wrongPath = replaceObservation(profile, fileObservation.evidenceId, {
+      source: {
+        ...fileObservation.source,
+        immutableUrl: `https://github.com/gitblocks-test/candidate/blob/${bundle.commit.sha}/other.json`,
+      },
+    });
+    expect(() =>
+      attachProfileMaterializationEvidenceIds([record], wrongPath),
+    ).toThrow();
+
+    const prefixOnlyTopic = replaceObservation(
+      profile,
+      fileObservation.evidenceId,
+      { topic: `${fileObservation.topic}-unrelated` },
+    );
+    expect(() =>
+      attachProfileMaterializationEvidenceIds([record], prefixOnlyTopic),
+    ).toThrow();
+  });
+
   it('permits empty evidence for established absence but rejects unrelated value mapping', () => {
     const bundle = testBundle();
     const profile = profileCandidate(bundle);
@@ -318,6 +472,18 @@ describe('profile-materialization durable persistence proof', () => {
     };
     expect(
       attachProfileMaterializationEvidenceIds([absent], profile)[0]
+        ?.evidenceIds,
+    ).toEqual([]);
+
+    const absentFile: ProfileMaterializationSourceRecordInput = {
+      ...repositoryFileRecord(bundle, 'package.json'),
+      outcome: 'established-absence',
+      normalizedValue: null,
+      controlledCode: 'provider-not-found',
+      evidenceIds: [],
+    };
+    expect(
+      attachProfileMaterializationEvidenceIds([absentFile], profile)[0]
         ?.evidenceIds,
     ).toEqual([]);
 
@@ -433,6 +599,53 @@ describe('profile-materialization durable persistence proof', () => {
       }),
     ).toBe('qualified-optional-source-failures');
   });
+
+  it('qualifies an immutable value-to-unavailable transition after a durable first pass', async () => {
+    const candidateId = 'auth-casbin-casbin-js';
+    const first = await buildFakeSourceAuthority();
+    const secondCollected = await buildFakeSourceAuthority({
+      collectedAt: '2026-08-05T01:00:00.000Z',
+      mutate: (records) => {
+        const index = records.findIndex(
+          (record) =>
+            record.candidateId === candidateId &&
+            record.operation === 'github-license',
+        );
+        records[index] = {
+          ...records[index]!,
+          outcome: 'unavailable',
+          normalizedValue: null,
+          controlledCode: 'provider-temporarily-unavailable',
+          evidenceIds: [],
+        };
+      },
+    });
+    const second = reconcileProfileMaterializationSourceAuthority(
+      first.authority,
+      secondCollected.authority.sourceRecords,
+      first,
+    );
+    const secondEntries = persistedEntries(second.candidates, 'unchanged').map(
+      (entry) =>
+        entry.candidateId === candidateId
+          ? qualifiedNotPersistedEntry(candidateId, [
+              'provider-temporarily-unavailable',
+            ])
+          : entry,
+    );
+    expect(
+      deriveProfileMaterializationLiveIdempotency({
+        firstAuthority: first.authority,
+        secondAuthority: second,
+        firstProof: proofFor(
+          first.authority,
+          'first',
+          persistedEntries(first.authority.candidates, 'created'),
+        ),
+        secondProof: proofFor(second, 'second', secondEntries),
+      }),
+    ).toBe('qualified-optional-source-failures');
+  });
 });
 
 function persistedEntries(
@@ -530,4 +743,69 @@ function evidenceFor(
     .filter((observation) => topics.includes(observation.topic))
     .map((observation) => observation.evidenceId)
     .sort();
+}
+
+function releaseRecord(
+  bundle: CandidateSourceBundle,
+  releases: CandidateSourceBundle['releases'],
+): ProfileMaterializationSourceRecordInput {
+  return {
+    candidateId: bundle.candidate.candidateId,
+    sourceType: 'github-release',
+    operation: 'github-release',
+    logicalSourceKey: 'singleton',
+    sourceMutability: 'mutable',
+    outcome: 'established-value',
+    immutableReference: null,
+    collectedAt: bundle.collectedAt,
+    normalizedValue: {
+      releases: releases.map((release) => ({
+        tag: release.tag,
+        publishedAt: release.publishedAt,
+        isDraft: release.isDraft,
+        isPrerelease: release.isPrerelease,
+      })),
+    },
+    controlledCode: null,
+    evidenceIds: [],
+  };
+}
+
+function repositoryFileRecord(
+  bundle: CandidateSourceBundle,
+  path: string,
+): ProfileMaterializationSourceRecordInput {
+  return {
+    candidateId: bundle.candidate.candidateId,
+    sourceType: 'github-file',
+    operation: 'github-allowlisted-file',
+    logicalSourceKey: `commit:${bundle.commit.sha}:path:${path}`,
+    sourceMutability: 'immutable',
+    outcome: 'established-value',
+    immutableReference: `${bundle.commit.sha}:${path}`,
+    collectedAt: bundle.collectedAt,
+    normalizedValue: {
+      path,
+      sha: bundle.files[0]?.sha ?? '2'.repeat(40),
+    },
+    controlledCode: null,
+    evidenceIds: [],
+  };
+}
+
+function replaceObservation(
+  profile: ReturnType<typeof profileCandidate>,
+  evidenceId: string,
+  replacement: Partial<
+    ReturnType<typeof profileCandidate>['observations'][number]
+  >,
+): ReturnType<typeof profileCandidate> {
+  return {
+    ...profile,
+    observations: profile.observations.map((observation) =>
+      observation.evidenceId === evidenceId
+        ? { ...observation, ...replacement }
+        : observation,
+    ),
+  };
 }

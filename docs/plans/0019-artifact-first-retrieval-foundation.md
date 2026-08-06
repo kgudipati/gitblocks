@@ -23,7 +23,7 @@
   and separately authorized live/evidence Milestone 7B. Milestone 7A
   implementation is complete pending maintainer review; Milestone 7B and every
   live effect remain unauthorized.
-- Last updated: 2026-08-05
+- Last updated: 2026-08-06
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
 decisions after acceptance. This plan owns execution order, likely file
@@ -1027,7 +1027,11 @@ first record byte-for-byte. Repository/head/release/tag/community/npm-latest/
 advisory selectors are mutable singletons. License and allowlisted-file
 records are immutable exact-commit identities, so ordinary head advancement
 withdraws the old snapshot identities and adds new ones while conflicting
-content for the same commit fails closed.
+established facts for the same commit fail closed. `unavailable` is a
+controlled collection limitation, not an established immutable fact, so a
+value or established absence may transition to/from unavailability as changed
+drift while both authorities retain their exact outcomes. Fatal authority
+records remain prohibited.
 
 `profile-materialization-persistence-proof/1.0.0` closes each collection to
 150 canonical candidate dispositions and binds the database schema, migration
@@ -1037,8 +1041,12 @@ is profiled and persisted through the existing runtime-role-only
 semantics. Controlled observation topics attach only generated/reused evidence
 identifiers; observation prose is never parsed. Optional-source qualified
 candidates remain `qualified-not-persisted` with no invented evidence or
-snapshot. Both private proof files follow the source-authority retention and
-0600 fixed-write policy.
+snapshot; unchanged reconciled records may retain exact previously persisted
+evidence IDs. Release evidence uses the same non-draft, bounded-tag,
+non-moving-marker selection helper as `profileCandidate`. Allowlisted-file
+evidence requires the exact controlled path topic, candidate, git-commit SHA,
+and encoded immutable path. Both private proof files follow the
+source-authority retention and 0600 fixed-write policy.
 
 Pure materialization consumes only the accepted catalog, taxonomy, and one
 validated source authority. It preserves the four accepted catalog fields and
@@ -2123,3 +2131,38 @@ entries.
   authority/evidence, migration, table, product schema, provider, dependency,
   workflow, retrieval/ranking scope, or Phase 7 effect. Milestone 7B remains
   unauthorized.
+
+### 2026-08-06 — Milestone 7A final source-reconciliation correction
+
+- Review found that reconciliation rejected temporary unavailability changes
+  for immutable exact-snapshot license/file identities even though the drift
+  comparator correctly treated unavailability as non-factual. It also found
+  that release evidence did not require a selected release and repository-file
+  evidence used a generic topic prefix plus filename suffix.
+- Red-first execution produced nine failures across the source-authority and
+  persistence-proof suites: direct value/absence-to-unavailable transitions,
+  selected-release evidence removal, and repository-file suffix matching.
+  Established-fact contradiction, head advancement, and unchanged-byte tests
+  remained green.
+- Reconciliation now rejects only differing established immutable facts;
+  transitions involving controlled `unavailable` retain the current record as
+  changed drift. Equal content still reuses the first record byte-for-byte, and
+  both collection authorities still contribute to controlled-failure receipt
+  counts.
+- `profileCandidate` and persistence proof validation share the exact existing
+  release selector and repository-file topic generator. A selected release
+  requires matching `release-current` evidence. A file requires the exact
+  candidate, controlled topic, commit SHA, and encoded immutable path; prose is
+  never inspected.
+- Final offline evidence: the required focused gate passes 68 tests in six
+  files; ingestion passes 285 tests in 29 files; the complete suite and
+  `pnpm verify` pass 1,690 tests in 115 files. V8 coverage is 80.11% statements,
+  73.43% branches, 87.68% functions, and 80.49% lines. Architecture checks 847
+  modules and 2,808 dependencies with zero violations. The initial complete
+  suite exposed only the expected legacy `profile.ts` byte lock, which was
+  updated to the reviewed helper-export digest before the clean rerun.
+- Provider policy, operational schemas, product/evaluation authorities,
+  package and lock files, migrations, persistence database code, workflow, and
+  live evidence paths remain unchanged. No materialization command, Docker,
+  PostgreSQL, credential, provider, model, retrieval/ranking, or Phase 7 effect
+  occurred; Milestone 7B remains unauthorized.

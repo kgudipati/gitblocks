@@ -65,7 +65,11 @@ export {
   selectionId,
 } from './artifact-manifest.ts';
 export { persistCandidateProfile, loadPriorMaterial } from './persist.ts';
-export { profileCandidate } from './profile.ts';
+export {
+  profileCandidate,
+  repositoryFileTopic,
+  selectCurrentRelease,
+} from './profile.ts';
 export {
   CANDIDATE_PROFILE_COVERAGE_REPORT_VERSION,
   buildCandidateProfileArtifacts,

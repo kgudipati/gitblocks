@@ -175,7 +175,7 @@ describe('retrieval evaluation architecture', () => {
       'packages/ingestion/src/candidate-profile-projection.ts':
         'b7a8146372bb0077b3591d03c2cd5a29cd77b5b101ac570b89f50e329b8dbf68',
       'packages/ingestion/src/profile.ts':
-        '80322be6a7562d2afdfc86e931bdcab2b927fe74153b57be03bbf927ae37b4b7',
+        '735ae75a1509c9fa909bd1a97ff3d3be06bb628d4197561984924132290e92d9',
       'packages/domain/src/deterministic-candidate-profile.ts':
         'c019b67b3a436f64fc440b0152bfc98f575ae1d6fa62ae5479b5257e3462dbce',
       'packages/contracts/src/deterministic-candidate-profile-contracts.ts':

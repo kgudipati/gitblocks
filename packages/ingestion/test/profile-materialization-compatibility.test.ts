@@ -14,7 +14,7 @@ const ACCEPTED_LEGACY_SOURCE_DIGESTS = {
   'src/batch.ts':
     'e0352de946c1dc232cbbf417f701ff3a698c36d8ea0d5772095ed00b1a57d0b7',
   'src/profile.ts':
-    '80322be6a7562d2afdfc86e931bdcab2b927fe74153b57be03bbf927ae37b4b7',
+    '735ae75a1509c9fa909bd1a97ff3d3be06bb628d4197561984924132290e92d9',
   'src/providers.ts':
     '1e4495e077b6e1d81a27df664c298dd526d61efbf222271ade435196e9f817fe',
   'src/receipt.ts':

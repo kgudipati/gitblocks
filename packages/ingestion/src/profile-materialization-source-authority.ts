@@ -287,7 +287,11 @@ export function reconcileProfileMaterializationSourceAuthority(
     ) {
       return sourceRecordInput(previous);
     }
-    if (previous.sourceMutability === 'immutable') {
+    if (
+      previous.sourceMutability === 'immutable' &&
+      isEstablishedFact(previous.outcome) &&
+      isEstablishedFact(current.outcome)
+    ) {
       throw ingestionError('ingestion.invalid-manifest');
     }
     return sourceRecordInput(current);
@@ -296,6 +300,12 @@ export function reconcileProfileMaterializationSourceAuthority(
     ...bindings,
     sourceRecords: reconciled,
   });
+}
+
+function isEstablishedFact(
+  outcome: ProfileMaterializationSourceOutcome,
+): boolean {
+  return outcome === 'established-value' || outcome === 'established-absence';
 }
 
 export function sourceRecordContentDigest(

@@ -408,6 +408,16 @@ and strict container-before-network cleanup including partial creation and
 nonzero/final-absence failures. All persistence/process/provider effects remain
 injected fakes; no database or network-backed test is authorized in 7A.
 
+The final Milestone 7A correction directly exercises source-authority
+reconciliation for exact-snapshot value/absence-to-unavailable transitions in
+both directions while retaining established-fact contradiction denial and
+head-advancement closure. Evidence tests remove a selected release's exact
+`release-current` observation and challenge allowlisted-file mapping with
+same-suffix paths, wrong commits, wrong paths, and prefix-only topics. They also
+prove the shared release selector preserves legacy behavior, changed
+observation prose is irrelevant, qualified transitions remain qualified, and
+an earlier controlled failure remains in two-collection receipt accounting.
+
 Taxonomy validation is active from Milestone 2. Its no-write command rebuilds
 the expected generated authority in memory and compares exact committed bytes.
 Tests cover closed TypeBox roots, existing schema-digest preservation, graph

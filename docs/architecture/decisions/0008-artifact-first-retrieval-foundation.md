@@ -522,17 +522,25 @@ The head and other latest/listing/query selectors are mutable singleton
 identities. License and allowlisted-file sources are immutable identities bound
 to the exact head commit (and file path). The second collection reconciles
 against the first: semantically unchanged records reuse the original complete
-record byte-for-byte, mutable changes become explicit drift, and conflicting
-content for one immutable exact-snapshot identity fails closed.
+record byte-for-byte and mutable changes become explicit drift. For one
+immutable exact-snapshot identity, different established values or transitions
+between an established value and established absence fail closed. Temporary
+`unavailable` outcomes establish no provider fact and may transition to or from
+an established outcome as explicit changed drift without rewriting either
+collection authority.
 
 Each collection also produces the retained operational
 `profile-materialization-persistence-proof/1.0.0`. Complete legacy bundles use
 the existing runtime-role `loadPriorMaterial`, `profileCandidate`, and
 `persistCandidateProfile` semantics; controlled topic mapping binds exact
 generated/reused evidence identifiers without inspecting observation prose.
-Optional-source-qualified bundles remain explicitly unpersisted. Receipt live
-idempotency requires the reconciled source comparison and matching second
-persistence dispositions, so catalog seed alone cannot pass.
+Optional-source-qualified bundles remain explicitly unpersisted. Reconciled
+unchanged records may retain exact evidence identifiers from an earlier
+durable pass, but no qualified pass invents new evidence. Release mapping uses
+the exact legacy release-selection helper; allowlisted-file mapping requires
+the exact controlled topic, candidate, commit, and encoded immutable path.
+Receipt live idempotency requires the reconciled source comparison and matching
+second persistence dispositions, so catalog seed alone cannot pass.
 
 Pure materialization consumes only the accepted catalog/taxonomy and one
 validated source authority, performs no I/O, and closes exactly 150 profiles.

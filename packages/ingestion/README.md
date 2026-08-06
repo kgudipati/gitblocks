@@ -82,18 +82,25 @@ fact, evidence IDs, and record digest. Repository/head/release/tag/community/
 npm/advisory records are mutable singleton selectors. License and file records
 bind immutable exact-commit logical identities; head advancement therefore
 produces ordinary selector drift and old/new snapshot identities rather than
-an immutable conflict.
+an immutable conflict. Different established facts for one exact-snapshot
+identity fail closed. `unavailable` establishes no immutable fact, so a value
+or established absence may transition to/from controlled unavailability as
+changed drift without rewriting either collection authority.
 
 Each collection also retains
 `profile-materialization-persistence-proof/1.0.0` in the same private run
 directory. Complete legacy bundles are profiled and persisted through the
 existing runtime-role-only path. Exact controlled observation topics bind the
 resulting generated/reused evidence IDs without parsing prose. Optional-source
-qualified candidates retain empty evidence and an explicit
-`qualified-not-persisted` disposition. The future content-free receipt binds
-both proof digests and aggregate dispositions; source reconciliation plus the
-second persistence result, not provider drift alone, determines live
-idempotency.
+qualified candidates create no new evidence and retain an explicit
+`qualified-not-persisted` disposition; unchanged records may retain exact
+evidence IDs from an earlier durable collection. A selected release requires
+the exact `release-current` evidence chosen by the shared legacy selector. An
+allowlisted file requires the exact controlled path topic, candidate,
+git-commit SHA, and encoded immutable path rather than a topic prefix or
+filename suffix. The future content-free receipt binds both proof digests and
+aggregate dispositions; source reconciliation plus the second persistence
+result, not provider drift alone, determines live idempotency.
 
 Pure materialization reads only the accepted catalog, taxonomy, and source
 authority and returns exactly 150 accepted profile DTOs plus

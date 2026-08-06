@@ -21,6 +21,7 @@ import {
   sourceRecordContentDigest,
   type ProfileMaterializationSourceRecordInput,
 } from './profile-materialization-source-authority.ts';
+import { repositoryFileTopic, selectCurrentRelease } from './profile.ts';
 import type { IngestionReceiptCandidate, ProfileResult } from './types.ts';
 
 export type ProfileMaterializationPersistenceProofInput = Omit<
@@ -330,7 +331,18 @@ function validateDispositionEvidence(
   records: readonly ProfileMaterializationSourceRecord[],
 ): void {
   if (entry.disposition === 'qualified-not-persisted') {
-    if (records.some((record) => record.evidenceIds.length !== 0)) {
+    const expectedCodes = [
+      ...new Set(
+        records
+          .filter((record) => record.outcome === 'unavailable')
+          .map((record) => record.controlledCode)
+          .filter((code): code is string => code !== null),
+      ),
+    ].sort(compareText);
+    if (
+      canonicalizeJson(expectedCodes).text !==
+      canonicalizeJson(entry.controlledOptionalSourceCodes).text
+    ) {
       throw ingestionError('ingestion.invalid-receipt');
     }
     return;
@@ -436,6 +448,7 @@ function observationApplies(
   record: ProfileMaterializationSourceRecordInput,
   observation: ProfileResult['observations'][number],
 ): boolean {
+  if (observation.candidateId !== record.candidateId) return false;
   switch (record.operation) {
     case 'github-repository-metadata':
       return ['repository-identity', 'repository-state'].includes(
@@ -443,8 +456,15 @@ function observationApplies(
       );
     case 'github-default-branch-head':
       return observation.topic === 'repository-head';
-    case 'github-release':
-      return observation.topic === 'release-current';
+    case 'github-release': {
+      const selected = selectedReleaseFromRecord(record);
+      return (
+        selected !== undefined &&
+        observation.topic === 'release-current' &&
+        observation.source.kind === 'release' &&
+        observation.source.release === selected.tag
+      );
+    }
     case 'github-tag':
       return observation.topic.startsWith('repository-tag-');
     case 'github-license':
@@ -452,16 +472,12 @@ function observationApplies(
     case 'github-community-profile':
       return observation.topic === 'security-policy';
     case 'github-allowlisted-file': {
-      const value = requireRecord(record.normalizedValue);
-      const path = String(value['path']);
-      const encodedPath = path
-        .split('/')
-        .map((part) => encodeURIComponent(part))
-        .join('/');
+      const { commitSha, path } = exactRepositoryFileIdentity(record);
       return (
-        observation.topic.startsWith('repository-file-') &&
+        observation.topic === repositoryFileTopic(path) &&
         observation.source.kind === 'git-commit' &&
-        observation.source.immutableUrl.endsWith(`/${encodedPath}`)
+        observation.source.commitSha === commitSha &&
+        exactRepositoryFileUrl(observation.source.immutableUrl, commitSha, path)
       );
     }
     case 'npm-package':
@@ -494,7 +510,79 @@ function requiresExistingEvidence(
   if (record.operation === 'github-advisory') {
     return Array.isArray(value['advisories']) && value['advisories'].length > 0;
   }
+  if (record.operation === 'github-release') {
+    return selectedReleaseFromRecord(record) !== undefined;
+  }
   return false;
+}
+
+function selectedReleaseFromRecord(
+  record: ProfileMaterializationSourceRecordInput,
+): { readonly isDraft: boolean; readonly tag: string } | undefined {
+  const value = requireRecord(record.normalizedValue);
+  if (!Array.isArray(value['releases'])) {
+    throw ingestionError('ingestion.invalid-input');
+  }
+  const releases = value['releases'].map((entry) => {
+    const release = requireRecord(entry);
+    if (
+      typeof release['tag'] !== 'string' ||
+      typeof release['isDraft'] !== 'boolean'
+    ) {
+      throw ingestionError('ingestion.invalid-input');
+    }
+    return { tag: release['tag'], isDraft: release['isDraft'] };
+  });
+  return selectCurrentRelease(releases);
+}
+
+function exactRepositoryFileIdentity(
+  record: ProfileMaterializationSourceRecordInput,
+): { readonly commitSha: string; readonly path: string } {
+  const value = requireRecord(record.normalizedValue);
+  const path = value['path'];
+  const match = /^commit:([a-f0-9]{40}):path:(.+)$/u.exec(
+    record.logicalSourceKey,
+  );
+  if (
+    typeof path !== 'string' ||
+    match?.[1] === undefined ||
+    match[2] !== path ||
+    record.immutableReference !== `${match[1]}:${path}`
+  ) {
+    throw ingestionError('ingestion.invalid-input');
+  }
+  return { commitSha: match[1], path };
+}
+
+function exactRepositoryFileUrl(
+  immutableUrl: string,
+  commitSha: string,
+  path: string,
+): boolean {
+  let url: URL;
+  try {
+    url = new URL(immutableUrl);
+  } catch {
+    return false;
+  }
+  const encodedPath = path
+    .split('/')
+    .map((part) => encodeURIComponent(part))
+    .join('/');
+  const suffix = `/blob/${commitSha}/${encodedPath}`;
+  if (!url.pathname.endsWith(suffix)) return false;
+  const repositoryPrefix = url.pathname.slice(0, -suffix.length);
+  return (
+    url.protocol === 'https:' &&
+    url.hostname === 'github.com' &&
+    url.port === '' &&
+    url.username === '' &&
+    url.password === '' &&
+    url.search === '' &&
+    url.hash === '' &&
+    /^\/[^/]+\/[^/]+$/u.test(repositoryPrefix)
+  );
 }
 
 function candidateSourcesUnchanged(

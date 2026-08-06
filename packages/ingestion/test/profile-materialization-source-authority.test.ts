@@ -6,8 +6,11 @@ import { describe, expect, it } from 'vitest';
 import {
   canonicalizeJson,
   compareProfileMaterializationSources,
+  controlledFailureCounts,
   parseProfileMaterializationSourceAuthority,
   reconcileProfileMaterializationSourceAuthority,
+  type ProfileMaterializationOperation,
+  type ProfileMaterializationSourceRecordInput,
 } from '../src/index.ts';
 import { buildFakeSourceAuthority } from './profile-materialization-fixtures.ts';
 
@@ -162,10 +165,15 @@ describe('profile-materialization source authority', () => {
         ];
       },
     });
+    const reconciledMutable = reconcileProfileMaterializationSourceAuthority(
+      first.authority,
+      mutable.authority.sourceRecords,
+      first,
+    );
     expect(
       compareProfileMaterializationSources(
         first.authority,
-        mutable.authority,
+        reconciledMutable,
       ).counts.reduce((total, entry) => total + entry.changed, 0),
     ).toBe(1);
 
@@ -178,10 +186,15 @@ describe('profile-materialization source authority', () => {
           '2026-08-02T00:00:00.000Z';
       },
     });
+    const reconciledHead = reconcileProfileMaterializationSourceAuthority(
+      first.authority,
+      headDrift.authority.sourceRecords,
+      first,
+    );
     expect(
       compareProfileMaterializationSources(
         first.authority,
-        headDrift.authority,
+        reconciledHead,
       ).counts.reduce((total, entry) => total + entry.changed, 0),
     ).toBe(1);
   });
@@ -316,29 +329,158 @@ describe('profile-materialization source authority', () => {
     ).toThrow();
   });
 
-  it('retains controlled unavailability without calling a later immutable value a conflict', async () => {
-    const complete = await buildFakeSourceAuthority();
-    const unavailable = await buildFakeSourceAuthority({
-      mutate: (records) => {
-        const index = records.findIndex(
-          (record) => record.operation === 'github-license',
-        );
-        records[index] = {
-          ...records[index]!,
-          outcome: 'unavailable',
-          normalizedValue: null,
-          controlledCode: 'provider-temporarily-unavailable',
-          evidenceIds: [],
-        };
-      },
+  it.each(['github-license', 'github-allowlisted-file'] as const)(
+    'reconciles established %s value to controlled unavailability',
+    async (operation) => {
+      const established = await buildFakeSourceAuthority();
+      const unavailable = await authorityWithOutcome(operation, 'unavailable');
+      const reconciled = reconcileProfileMaterializationSourceAuthority(
+        established.authority,
+        unavailable.authority.sourceRecords,
+        established,
+      );
+      expect(
+        firstOperationRecord(reconciled.sourceRecords, operation),
+      ).toMatchObject({
+        outcome: 'unavailable',
+        controlledCode: 'provider-temporarily-unavailable',
+        normalizedValue: null,
+      });
+      expect(
+        compareProfileMaterializationSources(
+          established.authority,
+          reconciled,
+        ).counts.reduce((total, entry) => total + entry.changed, 0),
+      ).toBe(1);
+    },
+  );
+
+  it('retains an earlier controlled failure when the later collection succeeds', async () => {
+    const unavailable = await authorityWithOutcome(
+      'github-license',
+      'unavailable',
+    );
+    const successful = await buildFakeSourceAuthority({
+      collectedAt: '2026-08-05T01:00:00.000Z',
     });
-    const drift = compareProfileMaterializationSources(
+    const reconciled = reconcileProfileMaterializationSourceAuthority(
       unavailable.authority,
-      complete.authority,
+      successful.authority.sourceRecords,
+      unavailable,
     );
     expect(
-      drift.counts.reduce((total, entry) => total + entry.changed, 0),
-    ).toBe(1);
+      firstOperationRecord(reconciled.sourceRecords, 'github-license').outcome,
+    ).toBe('established-value');
+    expect(
+      controlledFailureCounts([unavailable.authority, reconciled]),
+    ).toEqual([{ code: 'provider-temporarily-unavailable', count: 1 }]);
+  });
+
+  it.each(['github-license', 'github-allowlisted-file'] as const)(
+    'reconciles controlled %s unavailability to an established value',
+    async (operation) => {
+      const unavailable = await authorityWithOutcome(operation, 'unavailable');
+      const established = await buildFakeSourceAuthority();
+      const reconciled = reconcileProfileMaterializationSourceAuthority(
+        unavailable.authority,
+        established.authority.sourceRecords,
+        unavailable,
+      );
+      expect(
+        firstOperationRecord(reconciled.sourceRecords, operation).outcome,
+      ).toBe('established-value');
+    },
+  );
+
+  it.each(['github-license', 'github-allowlisted-file'] as const)(
+    'reconciles established %s absence to and from controlled unavailability',
+    async (operation) => {
+      const absent = await authorityWithOutcome(
+        operation,
+        'established-absence',
+      );
+      const unavailable = await authorityWithOutcome(operation, 'unavailable');
+      const toUnavailable = reconcileProfileMaterializationSourceAuthority(
+        absent.authority,
+        unavailable.authority.sourceRecords,
+        absent,
+      );
+      expect(
+        firstOperationRecord(toUnavailable.sourceRecords, operation).outcome,
+      ).toBe('unavailable');
+      const toAbsence = reconcileProfileMaterializationSourceAuthority(
+        unavailable.authority,
+        absent.authority.sourceRecords,
+        unavailable,
+      );
+      expect(
+        firstOperationRecord(toAbsence.sourceRecords, operation).outcome,
+      ).toBe('established-absence');
+    },
+  );
+
+  it('reuses identical immutable unavailability but retains a changed controlled code', async () => {
+    const first = await authorityWithOutcome(
+      'github-license',
+      'unavailable',
+      '2026-08-05T00:00:00.000Z',
+    );
+    const later = await authorityWithOutcome(
+      'github-license',
+      'unavailable',
+      '2026-08-05T01:00:00.000Z',
+    );
+    const reused = reconcileProfileMaterializationSourceAuthority(
+      first.authority,
+      later.authority.sourceRecords,
+      first,
+    );
+    expect(canonicalizeJson(reused).text).toBe(
+      canonicalizeJson(first.authority).text,
+    );
+
+    const changed = await buildFakeSourceAuthority({
+      collectedAt: '2026-08-05T02:00:00.000Z',
+      mutate: (records) => {
+        setOperationOutcome(
+          records,
+          'github-license',
+          'unavailable',
+          'provider-rate-limited',
+        );
+      },
+    });
+    const reconciled = reconcileProfileMaterializationSourceAuthority(
+      first.authority,
+      changed.authority.sourceRecords,
+      first,
+    );
+    expect(
+      firstOperationRecord(reconciled.sourceRecords, 'github-license')
+        .controlledCode,
+    ).toBe('provider-rate-limited');
+  });
+
+  it('rejects every contradiction between established immutable facts', async () => {
+    const established = await buildFakeSourceAuthority();
+    const absent = await authorityWithOutcome(
+      'github-license',
+      'established-absence',
+    );
+    expect(() =>
+      reconcileProfileMaterializationSourceAuthority(
+        established.authority,
+        absent.authority.sourceRecords,
+        established,
+      ),
+    ).toThrow();
+    expect(() =>
+      reconcileProfileMaterializationSourceAuthority(
+        absent.authority,
+        established.authority.sourceRecords,
+        absent,
+      ),
+    ).toThrow();
   });
 
   it('reproduces the authority digest in a fresh process', async () => {
@@ -362,3 +504,51 @@ describe('profile-materialization source authority', () => {
     expect(canonicalizeJson(authority).text).not.toContain('runId');
   });
 });
+
+async function authorityWithOutcome(
+  operation: Extract<
+    ProfileMaterializationOperation,
+    'github-allowlisted-file' | 'github-license'
+  >,
+  outcome: 'established-absence' | 'unavailable',
+  collectedAt = '2026-08-05T00:00:00.000Z',
+) {
+  return buildFakeSourceAuthority({
+    collectedAt,
+    mutate: (records) => {
+      setOperationOutcome(
+        records,
+        operation,
+        outcome,
+        outcome === 'unavailable'
+          ? 'provider-temporarily-unavailable'
+          : 'provider-not-found',
+      );
+    },
+  });
+}
+
+function setOperationOutcome(
+  records: ProfileMaterializationSourceRecordInput[],
+  operation: ProfileMaterializationOperation,
+  outcome: 'established-absence' | 'unavailable',
+  controlledCode: string,
+): void {
+  const index = records.findIndex((record) => record.operation === operation);
+  records[index] = {
+    ...records[index]!,
+    outcome,
+    normalizedValue: null,
+    controlledCode,
+    evidenceIds: [],
+  };
+}
+
+function firstOperationRecord(
+  records: readonly ProfileMaterializationSourceRecordInput[],
+  operation: ProfileMaterializationOperation,
+) {
+  const record = records.find((entry) => entry.operation === operation);
+  if (record === undefined) throw new Error('Missing operation fixture.');
+  return record;
+}
