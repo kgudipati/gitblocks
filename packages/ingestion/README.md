@@ -118,16 +118,25 @@ advisory, security-policy, and package/repository-linkage fields. Conservative
 rules leave unsupported language/module/SPDX/advisory/provider outcomes unknown
 and never turn failed detection into a negative fact.
 
-The only command surface is preflight, execute, and verify. Preflight is
+The only command surface is preflight, execute, and verify. Named arguments are
+passed directly after the pnpm script alias without a standalone `--` separator.
+Preflight is
 read-only, emits no build output, and reads no credential; an explicit internal
 source-resolution condition preserves the ordinary compiled package exports.
-Execute owns all future effects in one
+Execute owns all authorized effects in one
 cleanup-protected boundary and cannot publish fixed evidence before exact
-database/container/network disposal proof. Cleanup removes and proves absence
+database/container/network disposal proof. The PostgreSQL 18 container mounts
+tmpfs only at `/var/lib/postgresql`; a bounded exact-container inspection must
+prove that its sole mount is writable tmpfs at that root before database proof
+or migration. Cleanup removes and proves absence
 of the exact container before it can remove and prove the exact network; every
-nonzero removal or unexpected inspection fails. Verify is read-only. None of these
+nonzero removal or unexpected inspection fails. Failed execute output contains
+only a fixed stage and safe ingestion code, never raw exception or secret text.
+Verify is read-only. None of these
 commands is invoked by ordinary `pnpm verify` or hosted CI during Milestone 7A;
-execute remains unauthorized.
+one live execute attempt failed before authority/evidence publication and was
+not retried. Milestone 7B remains incomplete, and no fresh execute is
+authorized.
 
 Phase 6 adds a separate `public-artifacts-v1` selection authority without
 changing Phase 5 file allowlists. `artifact-selections.json` contains the

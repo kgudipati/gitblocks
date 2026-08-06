@@ -8,6 +8,9 @@ import type { PersistenceClientConfig } from './types.ts';
 
 export const PROFILE_MATERIALIZATION_POSTGRES_IMAGE =
   'postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296' as const;
+export const PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT =
+  '/var/lib/postgresql' as const;
+const PROFILE_MATERIALIZATION_STORAGE_INSPECTION_MAXIMUM_BYTES = 16_384;
 export const PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS = [
   {
     version: 1,
@@ -90,6 +93,7 @@ export interface ProfileMaterializationDatabasePlan {
   readonly labels: readonly string[];
   readonly createNetwork: ProfileMaterializationProcessCommand;
   readonly createContainer: ProfileMaterializationProcessCommand;
+  readonly inspectStorage: ProfileMaterializationProcessCommand;
   readonly inspectContainer: ProfileMaterializationProcessCommand;
   readonly inspectNetwork: ProfileMaterializationProcessCommand;
   readonly removeContainer: ProfileMaterializationProcessCommand;
@@ -214,11 +218,12 @@ export function createProfileMaterializationDatabasePlan(
   const command = (
     arguments_: readonly string[],
     allowedEnvironmentNames: readonly string[] = [],
+    maximumOutputBytes = 1_048_576,
   ): ProfileMaterializationProcessCommand => ({
     program: 'docker',
     arguments: arguments_,
     allowedEnvironmentNames,
-    maximumOutputBytes: 1_048_576,
+    maximumOutputBytes,
   });
   const withoutDigest = {
     image: PROFILE_MATERIALIZATION_POSTGRES_IMAGE,
@@ -242,7 +247,7 @@ export function createProfileMaterializationDatabasePlan(
         '--network',
         identity.networkName,
         '--tmpfs',
-        '/var/lib/postgresql/data:rw,noexec,nosuid,nodev,size=1073741824',
+        `${PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT}:rw,noexec,nosuid,nodev,size=1073741824`,
         '--publish',
         `127.0.0.1:${String(input.port)}:5432`,
         ...labels.flatMap((label) => ['--label', label]),
@@ -263,6 +268,11 @@ export function createProfileMaterializationDatabasePlan(
         PROFILE_MATERIALIZATION_POSTGRES_IMAGE,
       ],
       ['POSTGRES_DB', 'POSTGRES_PASSWORD', 'POSTGRES_USER'],
+    ),
+    inspectStorage: command(
+      ['inspect', '--format', '{{json .Mounts}}', identity.containerName],
+      [],
+      PROFILE_MATERIALIZATION_STORAGE_INSPECTION_MAXIMUM_BYTES,
     ),
     inspectContainer: command([
       'inspect',
@@ -323,6 +333,15 @@ export function createProfileMaterializationDatabaseOperator(
         },
         signal,
       );
+      const storageInspection = await adapters.runProcess(
+        plan.inspectStorage,
+        {},
+        signal,
+      );
+      if (storageInspection.exitCode !== 0) {
+        throw new Error('profile-materialization.database-storage-drift');
+      }
+      validateProfileMaterializationStorageInspection(storageInspection.stdout);
       for (let attempt = 0; attempt < 30; attempt += 1) {
         const result = await adapters.runProcess(
           plan.inspectContainer,
@@ -530,6 +549,43 @@ export function validateProfileMaterializationSchemaInspection(
     !value.runtimeMembership
   ) {
     throw new Error('profile-materialization.database-schema-drift');
+  }
+}
+
+export function validateProfileMaterializationStorageInspection(
+  text: string,
+): void {
+  if (
+    Buffer.byteLength(text, 'utf8') < 2 ||
+    Buffer.byteLength(text, 'utf8') >
+      PROFILE_MATERIALIZATION_STORAGE_INSPECTION_MAXIMUM_BYTES
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  let mounts: unknown;
+  try {
+    mounts = JSON.parse(text);
+  } catch {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  if (!Array.isArray(mounts) || mounts.length !== 1) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  const mount: unknown = mounts[0];
+  if (
+    typeof mount !== 'object' ||
+    mount === null ||
+    Array.isArray(mount) ||
+    !('Type' in mount) ||
+    mount.Type !== 'tmpfs' ||
+    !('Destination' in mount) ||
+    mount.Destination !== PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT ||
+    !('RW' in mount) ||
+    mount.RW !== true ||
+    !('Source' in mount) ||
+    mount.Source !== ''
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
   }
 }
 

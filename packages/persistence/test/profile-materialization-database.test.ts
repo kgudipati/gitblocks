@@ -28,8 +28,20 @@ describe('profile-materialization fresh database planning', () => {
     });
     expect(plan.identity).toEqual(identity);
     expect(plan.createContainer.arguments).toContain('--tmpfs');
+    expect(
+      plan.createContainer.arguments[
+        plan.createContainer.arguments.indexOf('--tmpfs') + 1
+      ],
+    ).toBe('/var/lib/postgresql:rw,noexec,nosuid,nodev,size=1073741824');
     expect(plan.createContainer.arguments).not.toContain('--volume');
     expect(plan.createContainer.arguments).not.toContain('--mount');
+    expect(plan.inspectStorage.arguments).toEqual([
+      'inspect',
+      '--format',
+      '{{json .Mounts}}',
+      identity.containerName,
+    ]);
+    expect(plan.inspectStorage.maximumOutputBytes).toBe(16_384);
     expect(plan.image).toBe(
       'postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296',
     );
@@ -107,6 +119,10 @@ describe('profile-materialization fresh database planning', () => {
         );
       },
       (value: Record<string, unknown>) => {
+        (value['inspectStorage'] as { arguments: string[] }).arguments[2] =
+          '{{json .Config}}';
+      },
+      (value: Record<string, unknown>) => {
         (value['createContainer'] as { arguments: string[] }).arguments.push(
           '--mount',
           'type=bind,source=/tmp,target=/var/lib/postgresql/data',
@@ -152,6 +168,117 @@ describe('profile-materialization fresh database planning', () => {
         ),
       );
     }).toThrow('profile-materialization.migration-drift');
+  });
+
+  it.each([
+    {
+      name: 'anonymous volume',
+      mounts: [
+        {
+          Type: 'volume',
+          Source: '/var/lib/docker/volumes/opaque/_data',
+          Destination: '/var/lib/postgresql',
+          RW: true,
+        },
+      ],
+    },
+    {
+      name: 'bind mount',
+      mounts: [
+        {
+          Type: 'bind',
+          Source: '/tmp/postgresql',
+          Destination: '/var/lib/postgresql',
+          RW: true,
+        },
+      ],
+    },
+    {
+      name: 'pre-18 tmpfs target',
+      mounts: [
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/var/lib/postgresql/data',
+          RW: true,
+        },
+      ],
+    },
+    {
+      name: 'PGDATA-only tmpfs target',
+      mounts: [
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/var/lib/postgresql/18/docker',
+          RW: true,
+        },
+      ],
+    },
+    {
+      name: 'second storage mount',
+      mounts: [
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/var/lib/postgresql',
+          RW: true,
+        },
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/unexpected',
+          RW: true,
+        },
+      ],
+    },
+  ])('rejects $name storage inspection', async ({ mounts }) => {
+    const plan = createPlan();
+    const { operator } = storageInspectionOperator(plan, {
+      exitCode: 0,
+      stdout: JSON.stringify(mounts),
+    });
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).rejects.toThrow('profile-materialization.database-storage-drift');
+  });
+
+  it('accepts exactly one writable tmpfs at the PostgreSQL 18 volume root', async () => {
+    const plan = createPlan();
+    const { operator, calls } = storageInspectionOperator(plan, {
+      exitCode: 0,
+      stdout: JSON.stringify([
+        {
+          Type: 'tmpfs',
+          Source: '',
+          Destination: '/var/lib/postgresql',
+          Mode: '',
+          RW: true,
+          Propagation: '',
+        },
+      ]),
+    });
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).resolves.toBeUndefined();
+    expect(
+      calls.filter(
+        (arguments_) =>
+          JSON.stringify(arguments_) ===
+          JSON.stringify(plan.inspectStorage.arguments),
+      ),
+    ).toHaveLength(1);
+  });
+
+  it.each([
+    { exitCode: 0, stdout: '{not-json' },
+    { exitCode: 125, stdout: '' },
+  ])('fails closed for an invalid storage inspect result', async (result) => {
+    const plan = createPlan();
+    const { operator } = storageInspectionOperator(plan, result);
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).rejects.toThrow('profile-materialization.database-storage-drift');
   });
 
   it('rejects every schema-count and runtime-role privilege drift', () => {
@@ -400,4 +527,33 @@ function credentials(
     runtimePassword: 'runtime-password',
     ...override,
   };
+}
+
+function storageInspectionOperator(
+  plan: ReturnType<typeof createPlan>,
+  storageResult: { readonly exitCode: number; readonly stdout: string },
+) {
+  const calls: string[][] = [];
+  let initialContainerInspection = true;
+  const operator = createProfileMaterializationDatabaseOperator({
+    runProcess: (command) => {
+      calls.push([...command.arguments]);
+      if (command === plan.inspectStorage) {
+        return Promise.resolve(storageResult);
+      }
+      if (command === plan.inspectContainer) {
+        if (initialContainerInspection) {
+          initialContainerInspection = false;
+          return Promise.resolve({ exitCode: 1, stdout: '' });
+        }
+        return Promise.resolve({ exitCode: 0, stdout: '"healthy"' });
+      }
+      if (command === plan.inspectNetwork) {
+        return Promise.resolve({ exitCode: 1, stdout: '' });
+      }
+      return Promise.resolve({ exitCode: 0, stdout: '' });
+    },
+    sleep: () => Promise.resolve(),
+  });
+  return { operator, calls };
 }

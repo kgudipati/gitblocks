@@ -11,6 +11,7 @@ import {
   PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS,
   PROFILE_MATERIALIZATION_CREDENTIAL_NAMES,
   PROFILE_MATERIALIZATION_LIVE_ACKNOWLEDGEMENT,
+  IngestionError,
   buildProfileMaterializationArtifacts,
   executeProfileMaterialization,
   parseProfileMaterializationArguments,
@@ -183,6 +184,122 @@ describe('profile-materialization atomic runner', () => {
     expect(cleanupEvents).not.toContain('publish');
   });
 
+  it('reports exact bounded stages and safe codes for controlled execute failures', async () => {
+    const fixture = await buildFakeSourceAuthority();
+    const cases: readonly {
+      readonly stage: string;
+      readonly code: string;
+      readonly configure: (effects: ProfileMaterializationLiveEffects) => void;
+    }[] = [
+      {
+        stage: 'lazy-credential-read',
+        code: 'ingestion.invalid-input',
+        configure: (effects) => {
+          effects.readCredential = () => {
+            throw new IngestionError('ingestion.invalid-input');
+          };
+        },
+      },
+      {
+        stage: 'fresh-database-create',
+        code: 'ingestion.internal-invariant',
+        configure: (effects) => {
+          effects.createDatabase = () =>
+            Promise.reject(new Error('raw database create failure'));
+        },
+      },
+      {
+        stage: 'zero-state-proof',
+        code: 'ingestion.internal-invariant',
+        configure: (effects) => {
+          effects.proveEmptyDatabase = () =>
+            Promise.reject(new Error('raw empty database failure'));
+        },
+      },
+      {
+        stage: 'migrate-schema-runtime-role-catalog-seed',
+        code: 'ingestion.internal-invariant',
+        configure: (effects) => {
+          effects.prepareDatabase = () =>
+            Promise.reject(new Error('raw schema failure'));
+        },
+      },
+      {
+        stage: 'first-collection',
+        code: 'ingestion.provider-authentication',
+        configure: (effects) => {
+          effects.collectSourceAuthority = () =>
+            Promise.reject(
+              new IngestionError('ingestion.provider-authentication'),
+            );
+        },
+      },
+      {
+        stage: 'first-source-authority-publication',
+        code: 'ingestion.internal-invariant',
+        configure: (effects) => {
+          effects.publishSourceAuthority = () =>
+            Promise.reject(new Error('raw source publication failure'));
+        },
+      },
+      {
+        stage: 'database-container-network-disposal',
+        code: 'ingestion.internal-invariant',
+        configure: (effects) => {
+          effects.disposeDatabase = () =>
+            Promise.reject(new Error('raw cleanup failure'));
+        },
+      },
+      {
+        stage: 'post-disposal-proof',
+        code: 'ingestion.internal-invariant',
+        configure: (effects) => {
+          effects.proveDisposed = () =>
+            Promise.reject(new Error('raw post-disposal failure'));
+        },
+      },
+    ];
+    for (const testCase of cases) {
+      const effects = fakeEffects(fixture, []);
+      testCase.configure(effects);
+      await expect(
+        executeProfileMaterialization(
+          argv(fixture),
+          effects,
+          new AbortController().signal,
+        ),
+      ).rejects.toMatchObject({
+        stage: testCase.stage,
+        code: testCase.code,
+      });
+    }
+  }, 20_000);
+
+  it('cleans exact resources after the runtime storage proof fails', async () => {
+    const fixture = await buildFakeSourceAuthority();
+    const events: string[] = [];
+    const effects = fakeEffects(fixture, events);
+    effects.createDatabase = () => {
+      events.push('storage-proof-failure');
+      return Promise.reject(
+        new Error('profile-materialization.database-storage-drift'),
+      );
+    };
+    await expect(
+      executeProfileMaterialization(
+        argv(fixture),
+        effects,
+        new AbortController().signal,
+      ),
+    ).rejects.toMatchObject({
+      stage: 'fresh-database-create',
+      code: 'ingestion.internal-invariant',
+    });
+    expect(events).toContain('dispose');
+    expect(events).toContain('prove-disposed');
+    expect(events).not.toContain('publish');
+  });
+
   it('requires a valid persistence proof from both collections before publication', async () => {
     const fixture = await buildFakeSourceAuthority();
     for (const missingCollection of ['first', 'second'] as const) {
@@ -221,7 +338,10 @@ describe('profile-materialization atomic runner', () => {
         effects,
         new AbortController().signal,
       ),
-    ).rejects.toThrow('controlled fake persistence failure');
+    ).rejects.toMatchObject({
+      stage: 'first-collection',
+      code: 'ingestion.internal-invariant',
+    });
     expect(events).toContain('dispose');
     expect(events).toContain('prove-disposed');
     expect(events).not.toContain('publish');

@@ -552,9 +552,14 @@ acknowledgements, run/database identity, pinned PostgreSQL image, and bounds
 before any lazy credential read. It rejects defaults, `.env`, localhost
 discovery, positional/duplicate arguments, Phase 7-like identity, symlink/path
 aliases, and arbitrary outputs. The future isolated database uses no volume,
-an internal network, tmpfs data, a loopback-only port, a non-owner runtime
-login, and exact labels. Owner authority ends after bootstrap, migrations,
-schema proof, and runtime-role creation.
+an internal network, a loopback-only port, a non-owner runtime login, and exact
+labels. For PostgreSQL 18, the sole storage boundary is tmpfs at the
+image-declared `/var/lib/postgresql` volume root, containing its
+`/var/lib/postgresql/18/docker` PGDATA. A bounded exact-container `.Mounts`
+inspection must prove one writable tmpfs with an empty source at that exact
+root and reject anonymous volumes, bind mounts, second mounts, and alternate
+tmpfs destinations before database proof or migration. Owner authority ends
+after bootstrap, migrations, schema proof, and runtime-role creation.
 
 Future source-authority directories are 0700 and files 0600, canonical,
 bounded, exclusive, and no-follow. Authorities stay untracked and retained
@@ -565,6 +570,11 @@ and cleanup or post-disposal failure prevents fixed-file publication. No repair
 SQL is allowed. Repository policy rejects the live execute command from every
 ordinary verify script and hosted workflow and rejects source authorities,
 Milestone 7B evidence, and migration 0005 from the Milestone 7A commit.
+Execute failures expose only one fixed execute stage and one existing safe
+ingestion code. Raw exceptions, stacks, provider/process output, host paths,
+credentials, run/database identity, candidate identity, and source values are
+never rendered. A cleanup or post-disposal failure replaces the primary stage
+so the operator cannot claim successful disposal.
 
 Both future collections persist complete legacy projections only through the
 verified non-owner runtime login and retain a private, candidate-scoped

@@ -569,11 +569,20 @@ writing build step, and reads no credential. Execute is one atomic
 try/finally boundary; fixed evidence cannot publish before exact resource
 disposal and post-disposal proof. Verify is read-only. Execute and future
 evidence verification remain outside ordinary verification and hosted CI.
+Failed execute operations expose only a bounded in-memory envelope containing
+one exact execute-stage value and one existing safe ingestion code. Cleanup or
+post-disposal failure replaces a prior stage; raw exception, process, provider,
+credential, path, database, candidate, and source details never enter stderr.
 
 The fresh database plan pins the existing PostgreSQL 18.4 bookworm image
 digest, derives all identities from an explicit `m7-[a-z2-7]{26}` run ID,
 uses a tmpfs-only container on an isolated internal network with explicit
-loopback port binding, and rejects existing resources. Existing four migrations
+loopback port binding, and rejects existing resources. PostgreSQL 18's
+image-declared `/var/lib/postgresql` volume root is the sole tmpfs target, with
+`/var/lib/postgresql/18/docker` as PGDATA inside it. A bounded, plan-digested
+inspection of the exact container must prove exactly one writable tmpfs at the
+volume root, an empty source, and no volume, bind, second mount, or alternative
+tmpfs destination before empty-state proof or migrations. Existing four migrations
 and table meanings suffice; no migration 0005 or durable profile table is
 introduced. All catalog seed, prior-material reads, and profile persistence use
 the verified derived runtime login; owner access remains limited to bootstrap,
@@ -583,6 +592,12 @@ the exact network. Source authorities and persistence proofs remain untracked
 local operational evidence
 until independent 7B review, Milestone 7 acceptance, and explicit maintainer
 deletion authorization.
+
+The first separately authorized live execute attempt failed safely before any
+first source authority or fixed evidence was published. The prior generic CLI
+made its exact internal stage unknowable, so this ADR records no inferred
+stage. Exact resource absence was proven, no retry occurred, and any future
+live proof requires separate authorization after this offline correction.
 
 ### Persistence
 

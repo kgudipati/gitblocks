@@ -6,6 +6,8 @@ import {
   PROFILE_MATERIALIZATION_FIXED_PATHS,
   executeProfileMaterialization,
   preflightProfileMaterialization,
+  renderProfileMaterializationCliFailure,
+  renderProfileMaterializationExecuteSuccess,
   verifyProfileMaterializationEvidence,
 } from '../src/index.ts';
 import { createProfileMaterializationSystemEffects } from './profile-materialization-system-effects.ts';
@@ -36,7 +38,7 @@ try {
         cancellation.signal,
       );
       process.stdout.write(
-        `Profile materialization completed (${evidence.receipt.receiptSemanticDigest}; ${evidence.receipt.receiptRecordDigest}).\n`,
+        renderProfileMaterializationExecuteSuccess(evidence),
       );
     } finally {
       process.removeListener('SIGINT', cancel);
@@ -94,8 +96,8 @@ try {
     );
     process.exitCode = 2;
   }
-} catch {
-  process.stderr.write('Profile materialization command failed safely.\n');
+} catch (error) {
+  process.stderr.write(renderProfileMaterializationCliFailure(mode, error));
   process.exitCode = 1;
 }
 

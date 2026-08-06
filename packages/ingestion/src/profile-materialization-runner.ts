@@ -19,7 +19,11 @@ import {
   type ProfileMaterializationCoverageReport,
 } from './profile-materialization-coverage.ts';
 import { canonicalizeJson } from './canonical-json.ts';
-import { ingestionError } from './errors.ts';
+import {
+  asSafeErrorCode,
+  ingestionError,
+  type IngestionErrorCode,
+} from './errors.ts';
 import { parsePublicCatalog } from './manifest.ts';
 import {
   PROFILE_MATERIALIZATION_ACCEPTED_BINDINGS,
@@ -401,40 +405,88 @@ export const EXECUTE_STAGES = [
   'fixed-completion-evidence-publication',
 ] as const;
 
+export type ProfileMaterializationExecuteStage =
+  (typeof EXECUTE_STAGES)[number];
+
+export class ProfileMaterializationExecuteFailure extends Error {
+  public readonly stage: ProfileMaterializationExecuteStage;
+  public readonly code: IngestionErrorCode;
+
+  public constructor(
+    stage: ProfileMaterializationExecuteStage,
+    code: IngestionErrorCode,
+  ) {
+    super('Profile materialization command failed safely.');
+    this.name = 'ProfileMaterializationExecuteFailure';
+    this.stage = stage;
+    this.code = code;
+    Object.defineProperty(this, 'stack', {
+      configurable: false,
+      enumerable: false,
+      value: undefined,
+      writable: false,
+    });
+  }
+}
+
+export function renderProfileMaterializationCliFailure(
+  mode: string | undefined,
+  error: unknown,
+): string {
+  return mode === 'execute' &&
+    error instanceof ProfileMaterializationExecuteFailure
+    ? `Profile materialization command failed safely (stage=${error.stage}; code=${error.code}).\n`
+    : 'Profile materialization command failed safely.\n';
+}
+
+export function renderProfileMaterializationExecuteSuccess(
+  evidence: ProfileMaterializationCompletionEvidence,
+): string {
+  return `Profile materialization completed (${evidence.receipt.receiptSemanticDigest}; ${evidence.receipt.receiptRecordDigest}).\n`;
+}
+
 export async function executeProfileMaterialization(
   argv: readonly string[],
   effects: ProfileMaterializationLiveEffects,
   signal: AbortSignal,
 ): Promise<ProfileMaterializationCompletionEvidence> {
-  const preflight = await preflightProfileMaterialization(argv, effects);
-  if (signal.aborted) throw ingestionError('ingestion.cancelled');
-  const credentials = readCredentials(preflight.arguments, effects);
-  const runDeadline = AbortSignal.timeout(
-    preflight.arguments.runDeadlineMilliseconds,
-  );
-  const combinedSignal = AbortSignal.any([signal, runDeadline]);
+  let stage: ProfileMaterializationExecuteStage = 'zero-effect-validation';
+  let preflight: ProfileMaterializationPreflightResult | undefined;
   let databaseCreationAttempted = false;
   let disposed = false;
   let evidence: ProfileMaterializationCompletionEvidence | undefined;
-  let failure: unknown;
+  let failure: ProfileMaterializationExecuteFailure | undefined;
   try {
+    stage = 'zero-effect-validation';
+    preflight = await preflightProfileMaterialization(argv, effects);
+    if (signal.aborted) throw ingestionError('ingestion.cancelled');
+    stage = 'lazy-credential-read';
+    const credentials = readCredentials(preflight.arguments, effects);
+    const runDeadline = AbortSignal.timeout(
+      preflight.arguments.runDeadlineMilliseconds,
+    );
+    const combinedSignal = AbortSignal.any([signal, runDeadline]);
+    stage = 'fresh-database-create';
     databaseCreationAttempted = true;
     await effects.createDatabase(
       preflight.databasePlan,
       credentials,
       combinedSignal,
     );
+    stage = 'zero-state-proof';
     await effects.proveEmptyDatabase(
       preflight.databasePlan,
       credentials,
       combinedSignal,
     );
+    stage = 'migrate-schema-runtime-role-catalog-seed';
     const databaseProof = await effects.prepareDatabase(
       preflight,
       credentials,
       combinedSignal,
     );
     validateDatabaseProof(databaseProof);
+    stage = 'first-collection';
     const firstCollected = await effects.collectSourceAuthority(
       'first',
       preflight,
@@ -442,24 +494,31 @@ export async function executeProfileMaterialization(
       null,
       combinedSignal,
     );
+    stage = 'first-source-authority-publication';
     const first = parseProfileMaterializationSourceAuthority(
       firstCollected.sourceAuthority,
       preflight,
     );
     const candidateIds = first.candidates.map((entry) => entry.candidateId);
+    stage = 'first-persistence-proof-publication';
     const firstPersistenceProof = parseProfileMaterializationPersistenceProof(
       firstCollected.persistenceProof,
       { collection: 'first', sourceAuthority: first, candidateIds },
     );
+    stage = 'first-source-authority-publication';
     await effects.publishSourceAuthority('first', first, preflight);
+    stage = 'first-persistence-proof-publication';
     await effects.publishPersistenceProof(
       'first',
       firstPersistenceProof,
       preflight,
     );
+    stage = 'first-materialization-a';
     const firstA = effects.materializeProfiles(preflight, first);
+    stage = 'first-materialization-b';
     const firstB = effects.materializeProfiles(preflight, first);
     assertSamePass(firstA, firstB);
+    stage = 'second-collection';
     const secondCollected = await effects.collectSourceAuthority(
       'second',
       preflight,
@@ -467,24 +526,32 @@ export async function executeProfileMaterialization(
       first,
       combinedSignal,
     );
+    stage = 'second-source-authority-publication-and-drift';
     const second = parseProfileMaterializationSourceAuthority(
       secondCollected.sourceAuthority,
       preflight,
     );
+    stage = 'second-persistence-proof-publication';
     const secondPersistenceProof = parseProfileMaterializationPersistenceProof(
       secondCollected.persistenceProof,
       { collection: 'second', sourceAuthority: second, candidateIds },
     );
+    stage = 'second-source-authority-publication-and-drift';
     await effects.publishSourceAuthority('second', second, preflight);
+    stage = 'second-persistence-proof-publication';
     await effects.publishPersistenceProof(
       'second',
       secondPersistenceProof,
       preflight,
     );
+    stage = 'second-source-authority-publication-and-drift';
     const drift = compareProfileMaterializationSources(first, second);
+    stage = 'second-materialization-a';
     const secondA = effects.materializeProfiles(preflight, second);
+    stage = 'second-materialization-b';
     const secondB = effects.materializeProfiles(preflight, second);
     assertSamePass(secondA, secondB);
+    stage = 'quarantined-completion-evidence';
     const failures = controlledFailureCounts([first, second]);
     const liveIdempotency = deriveProfileMaterializationLiveIdempotency({
       firstAuthority: first,
@@ -559,27 +626,47 @@ export async function executeProfileMaterialization(
     };
     await effects.quarantineCompletionEvidence(evidence, preflight);
   } catch (error) {
-    failure = error;
+    failure = toProfileMaterializationExecuteFailure(stage, error);
   } finally {
-    if (databaseCreationAttempted) {
+    if (databaseCreationAttempted && preflight !== undefined) {
       try {
+        stage = 'database-container-network-disposal';
         effects.cancel();
         const cleanupSignal = AbortSignal.timeout(30_000);
         await effects.disposeDatabase(preflight.databasePlan, cleanupSignal);
+        stage = 'post-disposal-proof';
         await effects.proveDisposed(preflight.databasePlan, cleanupSignal);
         disposed = true;
       } catch (cleanupError) {
-        failure = cleanupError;
+        failure = toProfileMaterializationExecuteFailure(stage, cleanupError);
       }
     }
   }
-  if (failure !== undefined || !disposed || evidence === undefined) {
-    throw failure instanceof Error
-      ? failure
-      : ingestionError('ingestion.internal-invariant');
+  if (failure !== undefined) {
+    throw failure;
   }
-  await effects.publishCompletionEvidence(preflight);
+  if (preflight === undefined || !disposed || evidence === undefined) {
+    throw new ProfileMaterializationExecuteFailure(
+      stage,
+      'ingestion.internal-invariant',
+    );
+  }
+  stage = 'fixed-completion-evidence-publication';
+  try {
+    await effects.publishCompletionEvidence(preflight);
+  } catch (error) {
+    throw toProfileMaterializationExecuteFailure(stage, error);
+  }
   return evidence;
+}
+
+function toProfileMaterializationExecuteFailure(
+  stage: ProfileMaterializationExecuteStage,
+  error: unknown,
+): ProfileMaterializationExecuteFailure {
+  return error instanceof ProfileMaterializationExecuteFailure
+    ? error
+    : new ProfileMaterializationExecuteFailure(stage, asSafeErrorCode(error));
 }
 
 export function verifyProfileMaterializationEvidence(

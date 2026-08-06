@@ -1081,10 +1081,14 @@ only itself and therefore authenticates run isolation.
 Expose exactly:
 
 ```text
-pnpm profiles:materialization:preflight -- <all reviewed named arguments>
-pnpm profiles:materialization:execute -- <all reviewed named arguments>
+pnpm profiles:materialization:preflight <all reviewed named arguments>
+pnpm profiles:materialization:execute <all reviewed named arguments>
 pnpm profiles:materialization:verify
 ```
+
+The pnpm script aliases forward arguments immediately after the script name;
+a standalone `--` must not be inserted because it becomes an extra positional
+argument at the accepted 50-entry parser boundary.
 
 Preflight is read-only, emits no compilation output, and never reads
 credentials. The command uses an explicit internal source-resolution condition
@@ -1105,6 +1109,13 @@ The database plan pins
 requires `m7-[a-z2-7]{26}`, derives isolated container/network/database and
 owner/runtime-role identities, uses an internal network and tmpfs with only an
 explicit `127.0.0.1:<port>` binding, and rejects preexisting exact identities.
+For PostgreSQL 18, the tmpfs overrides the image-declared volume root at
+`/var/lib/postgresql`, containing `PGDATA=/var/lib/postgresql/18/docker`.
+Immediately after container creation, one bounded exact-container inspection
+must prove that `.Mounts` contains exactly one writable `tmpfs` at that root,
+with no volume, bind, second mount, or host source, before health, empty-state,
+or migration work can continue. The database-plan digest authenticates that
+inspection command.
 It proves 0/0 initial migrations/product tables and then 4/25, zero RLS
 policies, seven schema functions, 48 noninternal triggers, 15 required indexes,
 and exact migration checksums. No volume or migration 0005 exists.
@@ -1139,7 +1150,11 @@ Milestone 7B.
 
 ### Milestone 7B — Separately authorized live proof and evidence
 
-Milestone 7B remains unauthorized. If later authorized, one acknowledged
+Milestone 7B remains incomplete. One acknowledged live execute invocation was
+consumed and failed safely before first-source-authority publication; it
+published no retained run authority or fixed completion evidence and was not
+retried. A future proof requires fresh maintainer authorization. If later
+authorized, one acknowledged
 `profiles:materialization:execute` invocation may collect two immutable local
 source authorities, prove same-evidence reproduction and live idempotency,
 dispose the fresh database resources, and publish only:
@@ -2221,3 +2236,52 @@ entries.
   unchanged. No materialization command, Docker, PostgreSQL, provider,
   credential, model, retrieval/ranking, or Phase 7 effect occurred; Milestone
   7B remains unauthorized.
+
+### 2026-08-06 — Live-discovered PostgreSQL 18 boundary correction
+
+- Permanent attempt history retains two public-preflight wrapper failures from
+  an incorrectly forwarded standalone `--`, one successful direct zero-effect
+  diagnostic, one corrected successful public preflight, and exactly one live
+  execute invocation. The corrected command-plan digest was
+  `8b509c4b0de1b161b28bc46450d317f38c2c57cdff5f104d06392175a1bb116d`;
+  the consumed run's database-plan digest was
+  `9895c9231074ef3bd6be4e18326da64b075005b75c88727fce6a0a14994aab67`.
+- Execute failed safely under the prior generic CLI before any first source
+  authority was published. Its exact internal failure stage is unknowable and
+  is not inferred. Cleanup proved exact container, network, volume, and process
+  absence; no run directory or fixed completion evidence remained, no commit
+  resulted, the execute authorization was consumed, and no retry occurred.
+- Review found that the pinned PostgreSQL 18 image declares its volume at
+  `/var/lib/postgresql` and uses `PGDATA=/var/lib/postgresql/18/docker`, while
+  the prior plan placed tmpfs at the pre-18 `/var/lib/postgresql/data` path.
+  Final anonymous-volume removal could not prove that live database bytes had
+  remained off a Docker volume during execution.
+- The offline correction moves the sole tmpfs to `/var/lib/postgresql` and
+  adds a bounded authenticated `.Mounts` inspection of the exact container.
+  Only one writable tmpfs at that root with an empty source is accepted;
+  anonymous volumes, bind mounts, wrong destinations, multiple mounts,
+  malformed JSON, and nonzero inspection exits fail closed before database
+  proof or migration. The existing outer runner still disposes the exact
+  container before the exact network after storage-proof failure.
+- Execute failures now carry only one existing fixed stage and one existing
+  safe ingestion code. Raw exception messages, stacks, provider/Docker output,
+  credentials, URLs, run/database identity, candidate identity, and source
+  values remain excluded. Cleanup and post-disposal failures override a prior
+  stage so the CLI never claims successful disposal.
+- This correction is offline and fake-process-only. It changes no provider
+  policy or operational schema, source/persistence/profile/coverage/receipt
+  semantics, product contract, migration, product table, dependency, lockfile,
+  workflow, accepted catalog/taxonomy/profile/evaluation authority, or Phase 7
+  state. Milestone 7B remains incomplete and no fresh live execution is
+  authorized.
+- Red-first evidence added the storage-boundary and safe-stage fixtures before
+  implementation: the focused three-file run failed 15 new assertions while
+  26 existing tests passed. After correction, the required six-file focused
+  gate passes 88 tests. Catalog, taxonomy, profile, contract, and ingestion
+  validation pass, including 298 ingestion tests; the complete suite and clean
+  coverage recheck pass 1,711 tests in 115 files. V8 coverage is 80.23%
+  statements, 73.58% branches, 87.68% functions, and 80.60% lines.
+  Architecture checks 847 modules and 2,809 dependencies with zero violations;
+  repository checks and secret scanning pass. All validation was offline; no
+  materialization command, Docker, PostgreSQL, provider, credential, carrier,
+  model, or Phase 7 access occurred.
