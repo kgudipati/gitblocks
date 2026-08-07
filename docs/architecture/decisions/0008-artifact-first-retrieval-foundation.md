@@ -45,7 +45,8 @@ invalid parameterized runtime-role utility DDL inside that stage. The bounded
 correction is validated offline only. Its formerly planned isolated complete
 prepare-stage proof was not completed, the live path remains unproven, and
 materialization execute 5 is deferred and unauthorized. Milestone 7B remains
-incomplete.
+incomplete. Phase 8's deterministic foundation is complete within the explicit
+claim boundary below; deterministic live population is deferred.
 
 ## Context
 
@@ -97,8 +98,8 @@ The original strategy separates:
 
 Project Phase 8 combines only:
 
-1. deterministic candidate-profile contracts, extraction rules, coverage, and
-   later controlled materialization;
+1. deterministic candidate-profile contracts, extraction rules, and offline
+   coverage;
 2. controlled taxonomy;
 3. deterministic query admission, normalization, and clarification; and
 4. retrieval evaluation contracts, corpus, metrics, and non-production
@@ -107,6 +108,51 @@ Project Phase 8 combines only:
 Production retrieval and production ranking remain later phases. Phase 8 adds
 no API, MCP, scanner, deployment, recommendation path, vector search,
 embedding, or reranker.
+
+### Phase 8 foundation closure
+
+The durable decision is:
+
+- Phase 8 deterministic foundation is complete;
+- Milestone 7B deterministic live population is deferred;
+- live deterministic population coverage is not established;
+- production retrieval readiness is not established;
+- production ranking readiness is not established; and
+- the 70–80% ranker-consumed deterministic-field gate was not evaluated
+  because no initial ranker or consumer denominator exists.
+
+Completion claims are limited to the controlled capability taxonomy,
+deterministic pre-contract query normalization and clarification,
+deterministic candidate-profile representation, deterministic extraction rules
+with explicit unknown/conflict behavior, offline candidate-profile authority
+and coverage, the independent retrieval/query evaluation corpus, deterministic
+evaluation metrics, and deterministic offline baselines.
+
+This decision explicitly withholds claims of successful live 150-candidate
+materialization, final live coverage, production profile population,
+production retrieval, production ranking, ranking readiness, and passage of
+the 70–80% deterministic launch gate. No further materialization execute is
+authorized under Phase 8; execute 5 remains unauthorized.
+
+Milestones 1–6 are accepted. Milestone 7A established the controlled
+materialization design and exposed useful integration defects. The exact
+four-execute history remains durable: each execute advanced the boundary, none
+was retried, and none produced fixed completion evidence. Continuing to harden
+the Docker-specific one-shot evidence harness is no longer proportionate to
+the Phase 8 product objective, and the local harness is not the production
+persistence/deployment architecture.
+
+Deterministic live population is a future successor triggered only when a
+concrete production ingestion/retrieval consumer establishes its consumed
+field denominator, indexing requirements, refresh requirements, managed
+persistence topology, runtime-role/provisioning policy, and operational
+observability requirements. The successor must reuse the durable deterministic
+contracts and preserve deterministic provider-derived population, explicit
+unknowns, candidate/source evidence provenance, idempotent persistence,
+source-drift handling, coverage reporting, and the prohibition on model-derived
+deterministic facts. It must reconsider the environment-specific harness;
+Docker Desktop implementation details are historical evidence, not future
+architectural requirements.
 
 ### Contract ownership and sequence
 
@@ -937,8 +983,9 @@ can own the Phase 8 foundations coherently.
 
 ### Run profile collection during ordinary verification
 
-Rejected because provider state is external and nondeterministic. The final
-proof requires separate authorization and content-free evidence.
+Rejected because provider state is external and nondeterministic. Any deferred
+successor requires separate authority and content-free evidence appropriate to
+the production ingestion/retrieval design.
 
 ## Recovery and forward correction
 
@@ -955,6 +1002,8 @@ proof requires separate authorization and content-free evidence.
 
 ## Deferred work
 
+- Deterministic provider-derived live population under a concrete production
+  ingestion/retrieval consumer and managed persistence design.
 - Production retrieval request/result contracts and application ports.
 - Production profile persistence and indexes.
 - Retrieval implementation and optimization.
@@ -971,6 +1020,8 @@ not authorize every later implementation or the live proof.
 Each milestone requires one ordinary commit and maintainer acceptance.
 Published history is not amended, rebased, or force-pushed.
 
-Phase 8 exits only when every issue acceptance criterion and the plan's exact
-exit gates pass. If the separately authorized materialization does not run,
-the completion statement must remain limited to the offline foundation.
+Phase 8's deterministic foundation exits complete under the explicit closure
+claim boundary above. Milestone 7B live population is deferred, not accepted or
+silently waived; the completion statement remains limited to the deterministic
+offline foundation. Independent review, the separate retained dependency-audit
+gate, and final PR merge-readiness review remain outside this decision.

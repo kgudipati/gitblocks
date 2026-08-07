@@ -7,7 +7,9 @@
   retrieval evaluation](https://github.com/kgudipati/gitblocks/issues/19)
 - Branch: feat/19-artifact-first-retrieval-foundation
 - Owner: repository maintainer
-- State: Milestones 1–6 are accepted. Milestone 4 product implementation was
+- State: Phase 8's deterministic foundation is complete, and Milestone 7B
+  deterministic live population is deferred. Milestones 1–6 are accepted.
+  Milestone 4 product implementation was
   accepted at `66a4165c1239e7a46d72ccd6469d0856e815c410`; its retained CI-policy
   corrections are `2983194504253ca76697a93abd744e3300522785` and
   `2ddedf73f38fb25f625b5fd0793605d807f1ee93`. The maintainer accepted the
@@ -65,23 +67,70 @@ infrastructure exception. Milestone 5 is accepted through
 `4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. Milestone 6 is accepted at
 `ea27f11432513ec352ce43821eb95b8da0886182`. Milestone 7A may implement only
 the offline controlled operator and its separately authorized bounded
-corrections. Milestone 7B remains incomplete; materialization execute number
-five is not authorized.
+corrections. Milestone 7B is deferred and remains incomplete; no further
+materialization execute is authorized under Phase 8, including execute number
+five.
+
+## Phase 8 foundation closure
+
+The durable outcome is:
+
+- Phase 8 deterministic foundation: complete;
+- Milestone 7B deterministic live population: deferred;
+- live deterministic population coverage: not established;
+- production retrieval readiness: not established;
+- production ranking readiness: not established; and
+- the 70–80% ranker-consumed deterministic-field gate: not evaluated because
+  no initial ranker or consumer denominator exists.
+
+Phase 8 completion is limited to:
+
+- controlled capability taxonomy;
+- deterministic pre-contract query normalization and clarification;
+- deterministic candidate-profile representation;
+- deterministic extraction rules and explicit unknown/conflict behavior;
+- offline candidate-profile authority and coverage;
+- an independent retrieval/query evaluation corpus;
+- deterministic evaluation metrics; and
+- deterministic offline baselines.
+
+Phase 8 explicitly withholds claims of successful live 150-candidate
+materialization, final live coverage, production profile population,
+production retrieval, production ranking, ranking readiness, and passage of
+the 70–80% deterministic launch gate.
+
+Milestones 1–6 are accepted. Milestone 7A established the controlled
+materialization design and exposed useful integration defects. Four separately
+authorized live executes advanced progressively but were never retried and
+never produced fixed completion evidence. Continuing to harden the
+Docker-specific one-shot evidence harness is no longer proportionate to the
+Phase 8 product objective: the local harness is not the production
+persistence/deployment architecture.
+
+Deterministic live population becomes a deferred successor triggered by a
+concrete production ingestion/retrieval consumer that establishes the consumed
+field denominator, indexing and refresh requirements, managed persistence
+topology, runtime-role/provisioning policy, and operational observability
+requirements. That successor must reuse the durable deterministic contracts
+while reconsidering the environment-specific harness. It must preserve
+deterministic provider-derived population, explicit unknowns, candidate/source
+evidence provenance, idempotent persistence, source-drift handling, coverage
+reporting, and the prohibition on model-derived deterministic facts. Docker
+Desktop implementation details are historical integration evidence, not future
+architectural requirements.
 
 ## Purpose and user-visible outcome
 
 Phase 8 establishes the deterministic foundations required to evaluate future
 candidate retrieval before a production retrieval or ranking service exists.
-The completed phase will provide:
+The completed deterministic foundation provides:
 
 - controlled capability taxonomy and aliases;
 - local pre-contract query admission, normalization, and clarification;
 - candidate-owned deterministic profile authority;
 - honest deterministic profile coverage measurements;
-- an independent retrieval/query evaluation authority;
-- deterministic offline baselines and a content-free report; and
-- only after separate authorization, a controlled deterministic
-  150-candidate profile-materialization proof.
+- an independent retrieval/query evaluation authority; and
+- deterministic offline baselines and a content-free report.
 
 Phase 8 does not implement production retrieval, production ranking,
 recommendation, vector search, embeddings, reranking, an API, MCP, scanner,
@@ -1314,25 +1363,20 @@ If Milestone 7B remains unauthorized or blocked, the completion statement must
 say the offline foundation is complete and deterministic population/readiness
 is not established.
 
-## Open implementation decisions
+## Deferred successor requirements
 
-Reserved for immediate Milestone 7B/live review:
-
-- whether the exact local credential injection and selected loopback port are
-  operationally ready for one acknowledged run;
-- whether optional provider failures, if any, permit qualified evidence or
-  require discarding the run;
-- whether the independently reviewed first/second source-authority drift is
-  acceptable before fixed evidence publication;
-- the post-run independent source-retention and eventual deletion decision;
-- whether the three fixed committed evidence files enter ordinary read-only
-  verification only after the 7B evidence commit; and
-- whether live evidence is accepted without implying coverage, retrieval,
-  ranking, candidate-quality, or production-readiness thresholds.
+Milestone 7B is no longer an active Phase 8 gate. A future production
+ingestion/retrieval design must first define its consumer denominator, indexes,
+refresh behavior, managed persistence topology, role/provisioning policy, and
+operational observability. Only then may a separately authorized successor
+decide provider-failure qualification, source-retention policy, fixed evidence
+publication, and the environment-specific execution harness.
 
 Production retrieval/ranking contracts, application ports, profile SQL
 persistence, and broader structured source authorities remain later-phase
-decisions. These decisions may not weaken Issue #19 or ADR 0008.
+decisions. Future work must reuse the durable deterministic contracts and may
+not weaken Issue #19 or ADR 0008. Docker Desktop topology, tmpfs, port, and
+one-shot wrapper details are not successor architectural requirements.
 
 ## Progress log
 
