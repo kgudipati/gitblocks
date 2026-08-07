@@ -21,11 +21,11 @@
   accepted at `ea27f11432513ec352ce43821eb95b8da0886182`. The maintainer
   explicitly split Milestone 7 into offline implementation-only Milestone 7A
   and separately authorized live/evidence Milestone 7B. Milestone 7A was
-  accepted through the PostgreSQL 18 boundary correction at
-  `3f957e14c592d5ad11f576887c135ba4191da522`; the later Docker tmpfs-inspection
-  representation correction is pending maintainer review. Milestone 7B remains
-  incomplete after two consumed failed execute attempts, and no fresh live
-  effect is authorized.
+  accepted through the Docker tmpfs-inspection representation correction at
+  `38cd1d8d8d3177cdd5301b33f17fe4be80e67e2e`; the final live-discovered
+  effective-storage correction is pending maintainer review. Milestone 7B
+  remains incomplete after two consumed failed execute attempts, and no third
+  materialization execute is authorized.
 - Last updated: 2026-08-06
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -1114,15 +1114,20 @@ owner/runtime-role identities, uses an internal network and tmpfs with only an
 explicit `127.0.0.1:<port>` binding, and rejects preexisting exact identities.
 For PostgreSQL 18, the tmpfs overrides the image-declared volume root at
 `/var/lib/postgresql`, containing `PGDATA=/var/lib/postgresql/18/docker`.
-Immediately after container creation, one bounded exact-container inspection
-must prove the Docker tmpfs configuration in one of two strict engine
-representations: either one structured writable `tmpfs` mount with empty
-source at that root, or one destination/options-map entry at that root with
-exactly `rw`, `noexec`, `nosuid`, `nodev`, and `size=1073741824`. Volume, bind,
-second/wrong destination, missing or contradictory option, duplicate/unknown
-option, host source, malformed JSON, and oversized output fail closed before
-health, empty-state, or migration work can continue. The database-plan digest
-authenticates the unchanged inspection command.
+Immediately after container creation, three bounded, plan-digested inspections
+must pass before health polling. `HostConfig.Tmpfs` authenticates exactly one
+requested root with the unordered option set `rw`, `noexec`, `nosuid`, `nodev`,
+and `size=1073741824`. `.Mounts` is negative conflict authority: Docker
+Desktop's observed empty array is valid, every volume or bind is rejected, and
+an explicit root tmpfs is compatible only when it is the sole entry, writable,
+and has an empty source. One exact `docker exec ... cat
+/proc/self/mountinfo` command then proves exactly one effective writable
+`tmpfs` at `/var/lib/postgresql` with `noexec`, `nosuid`, `nodev`, and a
+kernel-rendered `size=` super-option. Wrong/conflicting roots, missing,
+contradictory, duplicate, or extra requested options, malformed/oversized
+output, and failed inspection commands all fail closed before health,
+empty-state, or migration work. The database-plan digest authenticates all
+three commands and bounds.
 It proves 0/0 initial migrations/product tables and then 4/25, zero RLS
 policies, seven schema functions, 48 noninternal triggers, 15 required indexes,
 and exact migration checksums. No volume or migration 0005 exists.
@@ -2325,3 +2330,23 @@ entries.
   new fail-closed cases passed. After correction, the required four-file
   focused gate passes 67 tests. No third live materialization attempt is
   authorized, and Milestone 7B remains incomplete.
+
+### 2026-08-06 — Effective tmpfs storage authority correction
+
+- A separately authorized storage-shape diagnostic established the actual
+  Docker Desktop boundary for the accepted `--tmpfs` plan. `.Mounts` was an
+  empty array, `HostConfig.Tmpfs` contained exactly the PostgreSQL 18 root and
+  hardened requested options, and `/proc/self/mountinfo` proved one effective
+  writable `tmpfs` at that root with `noexec`, `nosuid`, `nodev`, and a `size=`
+  super-option. The image declares the same volume root, but Docker instantiated
+  no volume or bind object; exact cleanup and independent absence proof passed.
+- The database plan now authenticates three separate read-only commands rather
+  than treating `.Mounts` as positive tmpfs authority. Configuration proof
+  comes from `HostConfig.Tmpfs`, effective security proof comes from mountinfo,
+  and `.Mounts` is only a bounded negative audit for volume, bind, or conflicting
+  storage attachments. All three must pass before health polling.
+- Permanent history still contains exactly two failed materialization execute
+  attempts, neither retried and neither producing authority or completion
+  evidence. This correction authorizes only one isolated accepted-operator
+  database-create proof as its commit gate; Milestone 7B remains incomplete and
+  no third materialization execute is authorized.

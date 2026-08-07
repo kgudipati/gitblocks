@@ -10,7 +10,10 @@ export const PROFILE_MATERIALIZATION_POSTGRES_IMAGE =
   'postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296' as const;
 export const PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT =
   '/var/lib/postgresql' as const;
-const PROFILE_MATERIALIZATION_STORAGE_INSPECTION_MAXIMUM_BYTES = 16_384;
+const PROFILE_MATERIALIZATION_STORAGE_CONFIGURATION_MAXIMUM_BYTES = 16_384;
+const PROFILE_MATERIALIZATION_STORAGE_MOUNTS_MAXIMUM_BYTES = 16_384;
+const PROFILE_MATERIALIZATION_STORAGE_RUNTIME_MAXIMUM_BYTES = 1_048_576;
+const PROFILE_MATERIALIZATION_STORAGE_MOUNT_MAXIMUM_ENTRIES = 16;
 const PROFILE_MATERIALIZATION_REQUIRED_TMPFS_OPTIONS = [
   'rw',
   'noexec',
@@ -18,6 +21,11 @@ const PROFILE_MATERIALIZATION_REQUIRED_TMPFS_OPTIONS = [
   'nodev',
   'size=1073741824',
 ] as const;
+const PROFILE_MATERIALIZATION_STORAGE_CONFLICT_DESTINATIONS = new Set([
+  PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT,
+  '/var/lib/postgresql/18/docker',
+  '/var/lib/postgresql/data',
+]);
 export const PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS = [
   {
     version: 1,
@@ -100,7 +108,9 @@ export interface ProfileMaterializationDatabasePlan {
   readonly labels: readonly string[];
   readonly createNetwork: ProfileMaterializationProcessCommand;
   readonly createContainer: ProfileMaterializationProcessCommand;
-  readonly inspectStorage: ProfileMaterializationProcessCommand;
+  readonly inspectStorageConfiguration: ProfileMaterializationProcessCommand;
+  readonly inspectStorageMounts: ProfileMaterializationProcessCommand;
+  readonly inspectStorageRuntime: ProfileMaterializationProcessCommand;
   readonly inspectContainer: ProfileMaterializationProcessCommand;
   readonly inspectNetwork: ProfileMaterializationProcessCommand;
   readonly removeContainer: ProfileMaterializationProcessCommand;
@@ -276,10 +286,25 @@ export function createProfileMaterializationDatabasePlan(
       ],
       ['POSTGRES_DB', 'POSTGRES_PASSWORD', 'POSTGRES_USER'],
     ),
-    inspectStorage: command(
+    inspectStorageConfiguration: command(
+      [
+        'inspect',
+        '--format',
+        '{{json .HostConfig.Tmpfs}}',
+        identity.containerName,
+      ],
+      [],
+      PROFILE_MATERIALIZATION_STORAGE_CONFIGURATION_MAXIMUM_BYTES,
+    ),
+    inspectStorageMounts: command(
       ['inspect', '--format', '{{json .Mounts}}', identity.containerName],
       [],
-      PROFILE_MATERIALIZATION_STORAGE_INSPECTION_MAXIMUM_BYTES,
+      PROFILE_MATERIALIZATION_STORAGE_MOUNTS_MAXIMUM_BYTES,
+    ),
+    inspectStorageRuntime: command(
+      ['exec', identity.containerName, 'cat', '/proc/self/mountinfo'],
+      [],
+      PROFILE_MATERIALIZATION_STORAGE_RUNTIME_MAXIMUM_BYTES,
     ),
     inspectContainer: command([
       'inspect',
@@ -340,15 +365,35 @@ export function createProfileMaterializationDatabaseOperator(
         },
         signal,
       );
-      const storageInspection = await adapters.runProcess(
-        plan.inspectStorage,
+      const storageConfiguration = await adapters.runProcess(
+        plan.inspectStorageConfiguration,
         {},
         signal,
       );
-      if (storageInspection.exitCode !== 0) {
+      if (storageConfiguration.exitCode !== 0) {
         throw new Error('profile-materialization.database-storage-drift');
       }
-      validateProfileMaterializationStorageInspection(storageInspection.stdout);
+      validateProfileMaterializationStorageConfiguration(
+        storageConfiguration.stdout,
+      );
+      const storageMounts = await adapters.runProcess(
+        plan.inspectStorageMounts,
+        {},
+        signal,
+      );
+      if (storageMounts.exitCode !== 0) {
+        throw new Error('profile-materialization.database-storage-drift');
+      }
+      validateProfileMaterializationStorageMounts(storageMounts.stdout);
+      const storageRuntime = await adapters.runProcess(
+        plan.inspectStorageRuntime,
+        {},
+        signal,
+      );
+      if (storageRuntime.exitCode !== 0) {
+        throw new Error('profile-materialization.database-storage-drift');
+      }
+      validateProfileMaterializationStorageRuntime(storageRuntime.stdout);
       for (let attempt = 0; attempt < 30; attempt += 1) {
         const result = await adapters.runProcess(
           plan.inspectContainer,
@@ -562,45 +607,16 @@ export function validateProfileMaterializationSchemaInspection(
 export function validateProfileMaterializationStorageInspection(
   text: string,
 ): void {
-  if (
-    Buffer.byteLength(text, 'utf8') < 2 ||
-    Buffer.byteLength(text, 'utf8') >
-      PROFILE_MATERIALIZATION_STORAGE_INSPECTION_MAXIMUM_BYTES
-  ) {
-    throw new Error('profile-materialization.database-storage-drift');
-  }
-  let inspection: unknown;
-  try {
-    inspection = JSON.parse(text);
-  } catch {
-    throw new Error('profile-materialization.database-storage-drift');
-  }
-  if (Array.isArray(inspection)) {
-    validateStructuredTmpfsMount(inspection);
-    return;
-  }
-  validateTmpfsOptionsMap(inspection);
+  validateProfileMaterializationStorageConfiguration(text);
 }
 
-function validateStructuredTmpfsMount(mounts: readonly unknown[]): void {
-  const mount = mounts[0];
-  if (
-    mounts.length !== 1 ||
-    !isOrdinaryJsonObject(mount) ||
-    !Object.hasOwn(mount, 'Type') ||
-    mount['Type'] !== 'tmpfs' ||
-    !Object.hasOwn(mount, 'Source') ||
-    mount['Source'] !== '' ||
-    !Object.hasOwn(mount, 'Destination') ||
-    mount['Destination'] !== PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT ||
-    !Object.hasOwn(mount, 'RW') ||
-    mount['RW'] !== true
-  ) {
-    throw new Error('profile-materialization.database-storage-drift');
-  }
-}
-
-function validateTmpfsOptionsMap(inspection: unknown): void {
+function validateProfileMaterializationStorageConfiguration(
+  text: string,
+): void {
+  const inspection = parseBoundedStorageJson(
+    text,
+    PROFILE_MATERIALIZATION_STORAGE_CONFIGURATION_MAXIMUM_BYTES,
+  );
   if (!isOrdinaryJsonObject(inspection)) {
     throw new Error('profile-materialization.database-storage-drift');
   }
@@ -628,6 +644,132 @@ function validateTmpfsOptionsMap(inspection: unknown): void {
   ) {
     throw new Error('profile-materialization.database-storage-drift');
   }
+}
+
+function validateProfileMaterializationStorageMounts(text: string): void {
+  const inspection = parseBoundedStorageJson(
+    text,
+    PROFILE_MATERIALIZATION_STORAGE_MOUNTS_MAXIMUM_BYTES,
+  );
+  if (
+    !Array.isArray(inspection) ||
+    inspection.length > PROFILE_MATERIALIZATION_STORAGE_MOUNT_MAXIMUM_ENTRIES
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  let explicitRootTmpfsCount = 0;
+  for (const mount of inspection) {
+    if (
+      !isOrdinaryJsonObject(mount) ||
+      typeof mount['Type'] !== 'string' ||
+      typeof mount['Destination'] !== 'string'
+    ) {
+      throw new Error('profile-materialization.database-storage-drift');
+    }
+    if (mount['Type'] === 'volume' || mount['Type'] === 'bind') {
+      throw new Error('profile-materialization.database-storage-drift');
+    }
+    if (
+      !PROFILE_MATERIALIZATION_STORAGE_CONFLICT_DESTINATIONS.has(
+        mount['Destination'],
+      )
+    ) {
+      continue;
+    }
+    if (
+      mount['Destination'] !== PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT ||
+      mount['Type'] !== 'tmpfs' ||
+      !Object.hasOwn(mount, 'Source') ||
+      mount['Source'] !== '' ||
+      !Object.hasOwn(mount, 'RW') ||
+      mount['RW'] !== true
+    ) {
+      throw new Error('profile-materialization.database-storage-drift');
+    }
+    explicitRootTmpfsCount += 1;
+  }
+  if (
+    explicitRootTmpfsCount > 1 ||
+    (explicitRootTmpfsCount === 1 && inspection.length !== 1)
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+}
+
+function validateProfileMaterializationStorageRuntime(text: string): void {
+  if (
+    Buffer.byteLength(text, 'utf8') < 1 ||
+    Buffer.byteLength(text, 'utf8') >
+      PROFILE_MATERIALIZATION_STORAGE_RUNTIME_MAXIMUM_BYTES
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  const rootMounts: {
+    readonly filesystemType: string;
+    readonly mountOptions: readonly string[];
+    readonly superOptions: readonly string[];
+  }[] = [];
+  for (const line of text.split('\n')) {
+    if (line === '') continue;
+    const separatorIndex = line.indexOf(' - ');
+    if (separatorIndex < 0) {
+      throw new Error('profile-materialization.database-storage-drift');
+    }
+    const mountFields = line.slice(0, separatorIndex).split(' ');
+    const filesystemFields = line.slice(separatorIndex + 3).split(' ');
+    if (mountFields.length < 6 || filesystemFields.length < 3) {
+      throw new Error('profile-materialization.database-storage-drift');
+    }
+    if (
+      decodeMountInfoPath(mountFields[4] ?? '') !==
+      PROFILE_MATERIALIZATION_POSTGRES_STORAGE_ROOT
+    ) {
+      continue;
+    }
+    rootMounts.push({
+      filesystemType: filesystemFields[0] ?? '',
+      mountOptions: (mountFields[5] ?? '').split(','),
+      superOptions: (filesystemFields[2] ?? '').split(','),
+    });
+  }
+  const rootMount = rootMounts[0];
+  if (
+    rootMounts.length !== 1 ||
+    rootMount?.filesystemType !== 'tmpfs' ||
+    !rootMount.mountOptions.includes('rw') ||
+    rootMount.mountOptions.includes('ro') ||
+    !rootMount.mountOptions.includes('noexec') ||
+    rootMount.mountOptions.includes('exec') ||
+    !rootMount.mountOptions.includes('nosuid') ||
+    rootMount.mountOptions.includes('suid') ||
+    !rootMount.mountOptions.includes('nodev') ||
+    rootMount.mountOptions.includes('dev') ||
+    !rootMount.superOptions.some(
+      (option) => option.startsWith('size=') && option.length > 5,
+    )
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+}
+
+function parseBoundedStorageJson(text: string, maximumBytes: number): unknown {
+  if (
+    Buffer.byteLength(text, 'utf8') < 2 ||
+    Buffer.byteLength(text, 'utf8') > maximumBytes
+  ) {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('profile-materialization.database-storage-drift');
+  }
+}
+
+function decodeMountInfoPath(value: string): string {
+  return value.replace(/\\([0-7]{3})/gu, (_match, octal: string) =>
+    String.fromCodePoint(Number.parseInt(octal, 8)),
+  );
 }
 
 function isOrdinaryJsonObject(

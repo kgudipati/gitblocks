@@ -126,12 +126,16 @@ source-resolution condition preserves the ordinary compiled package exports.
 Execute owns all authorized effects in one
 cleanup-protected boundary and cannot publish fixed evidence before exact
 database/container/network disposal proof. The PostgreSQL 18 container mounts
-tmpfs only at `/var/lib/postgresql`; a bounded exact-container inspection must
-prove either one structured writable tmpfs mount with empty source at that root
-or one `--tmpfs` destination/options-map entry containing exactly `rw`,
-`noexec`, `nosuid`, `nodev`, and `size=1073741824`. Wrong/second roots,
-volume/bind mounts, missing/duplicate/contradictory or unknown options,
-malformed JSON, and oversized output fail before database proof or migration.
+tmpfs only at `/var/lib/postgresql`. Before health polling, three bounded,
+plan-authenticated commands must agree: `HostConfig.Tmpfs` proves the exact
+requested root and `rw,noexec,nosuid,nodev,size=1073741824` option set;
+`/proc/self/mountinfo` proves one effective writable root tmpfs with the four
+security flags and a `size=` super-option; and `.Mounts` rejects any volume,
+bind, or conflicting storage attachment while accepting Docker Desktop's
+observed empty array. Another engine may expose one compatible explicit root
+tmpfs entry, but it is not required. Wrong/conflicting roots,
+missing/duplicate/contradictory/extra options, malformed or oversized output,
+and failed inspections all fail before database proof or migration.
 Cleanup removes and proves absence
 of the exact container before it can remove and prove the exact network; every
 nonzero removal or unexpected inspection fails. Failed execute output contains
@@ -140,11 +144,12 @@ Verify is read-only. None of these
 commands is invoked by ordinary `pnpm verify` or hosted CI during Milestone 7A.
 The first live execute failed before authority/evidence publication with its
 prior-CLI stage unknowable. A second corrected execute failed at
-`fresh-database-create` before provider access; an isolated create probe traced
-that boundary to the validator accepting only the structured `--mount`
-representation while the retained hardened `--tmpfs` form produced a
-destination/options map. Neither execute was retried. Milestone 7B remains
-incomplete, and no fresh execute is authorized.
+`fresh-database-create` before provider access. Isolated probes traced that
+boundary to an incorrect positive `.Mounts` assertion: the accepted `--tmpfs`
+plan produced `.Mounts=[]`, exact `HostConfig.Tmpfs` configuration, and one
+hardened effective root tmpfs in mountinfo, with no Docker volume object.
+Neither execute was retried. Milestone 7B remains incomplete, and no third
+materialization execute is authorized.
 
 Phase 6 adds a separate `public-artifacts-v1` selection authority without
 changing Phase 5 file allowlists. `artifact-selections.json` contains the

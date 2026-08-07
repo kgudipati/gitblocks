@@ -15,6 +15,8 @@ import {
 
 const RUN_ID = 'm7-abcdefghijklmnopqrstuvwxyz';
 const REQUIRED_TMPFS_OPTIONS = 'rw,noexec,nosuid,nodev,size=1073741824';
+const SECURE_TMPFS_MOUNTINFO =
+  '41 30 0:39 / /var/lib/postgresql rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=1048576k,inode64';
 
 describe('profile-materialization fresh database planning', () => {
   it('derives isolated names and the exact tmpfs-only Docker plan', () => {
@@ -36,13 +38,27 @@ describe('profile-materialization fresh database planning', () => {
     ).toBe('/var/lib/postgresql:rw,noexec,nosuid,nodev,size=1073741824');
     expect(plan.createContainer.arguments).not.toContain('--volume');
     expect(plan.createContainer.arguments).not.toContain('--mount');
-    expect(plan.inspectStorage.arguments).toEqual([
+    expect(plan.inspectStorageConfiguration.arguments).toEqual([
+      'inspect',
+      '--format',
+      '{{json .HostConfig.Tmpfs}}',
+      identity.containerName,
+    ]);
+    expect(plan.inspectStorageConfiguration.maximumOutputBytes).toBe(16_384);
+    expect(plan.inspectStorageMounts.arguments).toEqual([
       'inspect',
       '--format',
       '{{json .Mounts}}',
       identity.containerName,
     ]);
-    expect(plan.inspectStorage.maximumOutputBytes).toBe(16_384);
+    expect(plan.inspectStorageMounts.maximumOutputBytes).toBe(16_384);
+    expect(plan.inspectStorageRuntime.arguments).toEqual([
+      'exec',
+      identity.containerName,
+      'cat',
+      '/proc/self/mountinfo',
+    ]);
+    expect(plan.inspectStorageRuntime.maximumOutputBytes).toBe(1_048_576);
     expect(plan.image).toBe(
       'postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296',
     );
@@ -120,10 +136,6 @@ describe('profile-materialization fresh database planning', () => {
         );
       },
       (value: Record<string, unknown>) => {
-        (value['inspectStorage'] as { arguments: string[] }).arguments[2] =
-          '{{json .Config}}';
-      },
-      (value: Record<string, unknown>) => {
         (value['createContainer'] as { arguments: string[] }).arguments.push(
           '--mount',
           'type=bind,source=/tmp,target=/var/lib/postgresql/data',
@@ -147,6 +159,56 @@ describe('profile-materialization fresh database planning', () => {
       expect(() => {
         validateProfileMaterializationDatabasePlan(changed as never);
       }).toThrow('profile-materialization.invalid-database-plan');
+    }
+  });
+
+  it('authenticates every storage command, argument, and output bound in the plan digest', () => {
+    const plan = createPlan();
+    const commandNames = [
+      'inspectStorageConfiguration',
+      'inspectStorageMounts',
+      'inspectStorageRuntime',
+    ] as const;
+    for (const commandName of commandNames) {
+      const mutations: ((command: {
+        program: string;
+        arguments: string[];
+        maximumOutputBytes: number;
+      }) => void)[] = [
+        (command) => {
+          command.program = 'unexpected';
+        },
+        (command) => {
+          command.arguments[0] = 'unexpected';
+        },
+        (command) => {
+          const containerArgumentIndex =
+            commandName === 'inspectStorageRuntime' ? 1 : 3;
+          command.arguments[containerArgumentIndex] = 'wrong-container';
+        },
+        (command) => {
+          command.maximumOutputBytes += 1;
+        },
+      ];
+      if (commandName === 'inspectStorageRuntime') {
+        mutations.push((command) => {
+          command.arguments[3] = '/unexpected';
+        });
+      } else {
+        mutations.push((command) => {
+          command.arguments[2] = '{{json .Unexpected}}';
+        });
+      }
+      for (const mutate of mutations) {
+        const changed = structuredClone(plan) as unknown as Record<
+          string,
+          unknown
+        >;
+        mutate(changed[commandName] as never);
+        expect(() => {
+          validateProfileMaterializationDatabasePlan(changed as never);
+        }).toThrow('profile-materialization.invalid-database-plan');
+      }
     }
   });
 
@@ -184,19 +246,6 @@ describe('profile-materialization fresh database planning', () => {
         '/var/lib/postgresql': 'size=1073741824,nodev,rw,nosuid,noexec',
       },
     },
-    {
-      name: 'structured mount-array compatibility representation',
-      inspection: [
-        {
-          Type: 'tmpfs',
-          Source: '',
-          Destination: '/var/lib/postgresql',
-          Mode: '',
-          RW: true,
-          Propagation: '',
-        },
-      ],
-    },
   ])('accepts $name', async ({ inspection }) => {
     const plan = createPlan();
     const { operator, calls } = storageInspectionOperator(plan, {
@@ -210,9 +259,11 @@ describe('profile-materialization fresh database planning', () => {
       calls.filter(
         (arguments_) =>
           JSON.stringify(arguments_) ===
-          JSON.stringify(plan.inspectStorage.arguments),
+          JSON.stringify(plan.inspectStorageConfiguration.arguments),
       ),
     ).toHaveLength(1);
+    expect(calls).toContainEqual([...plan.inspectStorageMounts.arguments]);
+    expect(calls).toContainEqual([...plan.inspectStorageRuntime.arguments]);
   });
 
   it.each([
@@ -400,6 +451,172 @@ describe('profile-materialization fresh database planning', () => {
     await expect(
       operator.create(plan, credentials(), new AbortController().signal),
     ).rejects.toThrow('profile-materialization.database-storage-drift');
+  });
+
+  it('accepts the observed empty .Mounts representation with secure runtime mountinfo', async () => {
+    const plan = createPlan();
+    const { operator, calls } = storageInspectionOperator(plan, {
+      configuration: {
+        exitCode: 0,
+        stdout: JSON.stringify({
+          '/var/lib/postgresql': REQUIRED_TMPFS_OPTIONS,
+        }),
+      },
+      mounts: { exitCode: 0, stdout: '[]' },
+      runtime: { exitCode: 0, stdout: SECURE_TMPFS_MOUNTINFO },
+    });
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).resolves.toBeUndefined();
+    expect(calls).toContainEqual([
+      ...plan.inspectStorageConfiguration.arguments,
+    ]);
+    expect(calls).toContainEqual([...plan.inspectStorageMounts.arguments]);
+    expect(calls).toContainEqual([...plan.inspectStorageRuntime.arguments]);
+  });
+
+  it('accepts one compatible explicit root tmpfs mount', async () => {
+    const plan = createPlan();
+    const { operator } = storageInspectionOperator(plan, {
+      mounts: {
+        exitCode: 0,
+        stdout: JSON.stringify([
+          {
+            Type: 'tmpfs',
+            Source: '',
+            Destination: '/var/lib/postgresql',
+            Mode: 'rw,noexec,nosuid,nodev,size=1073741824',
+            RW: true,
+            Propagation: '',
+          },
+        ]),
+      },
+    });
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).resolves.toBeUndefined();
+  });
+
+  it.each([
+    { name: 'null map', value: null },
+    {
+      name: 'missing rw',
+      value: {
+        '/var/lib/postgresql': 'noexec,nosuid,nodev,size=1073741824',
+      },
+    },
+    {
+      name: 'extra option',
+      value: {
+        '/var/lib/postgresql':
+          'rw,noexec,nosuid,nodev,size=1073741824,relatime',
+      },
+    },
+    {
+      name: 'contradictory option',
+      value: {
+        '/var/lib/postgresql': 'rw,ro,noexec,nosuid,nodev,size=1073741824',
+      },
+    },
+  ])('rejects HostConfig $name before health polling', async ({ value }) => {
+    await expectStorageDrift({
+      configuration: { exitCode: 0, stdout: JSON.stringify(value) },
+    });
+  });
+
+  it.each([
+    {
+      name: 'volume at PostgreSQL root',
+      value: [mount('volume', '/var/lib/postgresql')],
+    },
+    {
+      name: 'volume anywhere',
+      value: [mount('volume', '/unrelated')],
+    },
+    {
+      name: 'bind at PostgreSQL root',
+      value: [mount('bind', '/var/lib/postgresql')],
+    },
+    {
+      name: 'bind anywhere',
+      value: [mount('bind', '/unrelated')],
+    },
+    {
+      name: 'PGDATA conflict',
+      value: [mount('tmpfs', '/var/lib/postgresql/18/docker')],
+    },
+    {
+      name: 'pre-18 root conflict',
+      value: [mount('tmpfs', '/var/lib/postgresql/data')],
+    },
+    {
+      name: 'multiple storage conflicts',
+      value: [
+        mount('tmpfs', '/var/lib/postgresql'),
+        mount('tmpfs', '/var/lib/postgresql/18/docker'),
+      ],
+    },
+  ])('rejects .Mounts $name before health polling', async ({ value }) => {
+    await expectStorageDrift({
+      mounts: { exitCode: 0, stdout: JSON.stringify(value) },
+    });
+  });
+
+  it.each([
+    { name: 'malformed JSON', result: { exitCode: 0, stdout: '{not-json' } },
+    {
+      name: 'oversized JSON',
+      result: { exitCode: 0, stdout: JSON.stringify('x'.repeat(16_385)) },
+    },
+    { name: 'failed inspection', result: { exitCode: 125, stdout: '' } },
+  ])('rejects .Mounts $name before health polling', async ({ result }) => {
+    await expectStorageDrift({ mounts: result });
+  });
+
+  it.each([
+    { name: 'missing root', value: secureMountinfo('/unrelated') },
+    {
+      name: 'duplicate root',
+      value: `${SECURE_TMPFS_MOUNTINFO}\n${SECURE_TMPFS_MOUNTINFO}`,
+    },
+    {
+      name: 'non-tmpfs filesystem',
+      value:
+        '41 30 0:39 / /var/lib/postgresql rw,nosuid,nodev,noexec - ext4 /dev/root rw,size=1048576k',
+    },
+    { name: 'read-only root', value: secureMountinfo(undefined, 'ro') },
+    {
+      name: 'exec permitted',
+      value: secureMountinfo(undefined, 'rw,nosuid,nodev'),
+    },
+    {
+      name: 'suid permitted',
+      value: secureMountinfo(undefined, 'rw,nodev,noexec'),
+    },
+    {
+      name: 'device permitted',
+      value: secureMountinfo(undefined, 'rw,nosuid,noexec'),
+    },
+    {
+      name: 'size absent',
+      value:
+        '41 30 0:39 / /var/lib/postgresql rw,nosuid,nodev,noexec - tmpfs tmpfs rw,inode64',
+    },
+    { name: 'malformed mountinfo', value: 'not mountinfo' },
+    { name: 'oversized mountinfo', value: 'x'.repeat(1_048_577) },
+  ])(
+    'rejects runtime mountinfo with $name before health polling',
+    async ({ value }) => {
+      await expectStorageDrift({
+        runtime: { exitCode: 0, stdout: value },
+      });
+    },
+  );
+
+  it('rejects failed runtime docker exec before health polling', async () => {
+    await expectStorageDrift({
+      runtime: { exitCode: 125, stdout: '' },
+    });
   });
 
   it('rejects every schema-count and runtime-role privilege drift', () => {
@@ -652,15 +869,41 @@ function credentials(
 
 function storageInspectionOperator(
   plan: ReturnType<typeof createPlan>,
-  storageResult: { readonly exitCode: number; readonly stdout: string },
+  storageResults:
+    | { readonly exitCode: number; readonly stdout: string }
+    | Partial<{
+        configuration: { readonly exitCode: number; readonly stdout: string };
+        mounts: { readonly exitCode: number; readonly stdout: string };
+        runtime: { readonly exitCode: number; readonly stdout: string };
+      }>,
 ) {
   const calls: string[][] = [];
   let initialContainerInspection = true;
+  const defaults = {
+    configuration: {
+      exitCode: 0,
+      stdout: JSON.stringify({
+        '/var/lib/postgresql': REQUIRED_TMPFS_OPTIONS,
+      }),
+    },
+    mounts: { exitCode: 0, stdout: '[]' },
+    runtime: { exitCode: 0, stdout: SECURE_TMPFS_MOUNTINFO },
+  };
+  const resolvedResults =
+    'exitCode' in storageResults
+      ? { ...defaults, configuration: storageResults }
+      : { ...defaults, ...storageResults };
   const operator = createProfileMaterializationDatabaseOperator({
     runProcess: (command) => {
       calls.push([...command.arguments]);
-      if (command === plan.inspectStorage) {
-        return Promise.resolve(storageResult);
+      if (command === plan.inspectStorageConfiguration) {
+        return Promise.resolve(resolvedResults.configuration);
+      }
+      if (command === plan.inspectStorageMounts) {
+        return Promise.resolve(resolvedResults.mounts);
+      }
+      if (command === plan.inspectStorageRuntime) {
+        return Promise.resolve(resolvedResults.runtime);
       }
       if (command === plan.inspectContainer) {
         if (initialContainerInspection) {
@@ -677,4 +920,41 @@ function storageInspectionOperator(
     sleep: () => Promise.resolve(),
   });
   return { operator, calls };
+}
+
+async function expectStorageDrift(
+  storageResults: Partial<{
+    configuration: { readonly exitCode: number; readonly stdout: string };
+    mounts: { readonly exitCode: number; readonly stdout: string };
+    runtime: { readonly exitCode: number; readonly stdout: string };
+  }>,
+) {
+  const plan = createPlan();
+  const { operator, calls } = storageInspectionOperator(plan, storageResults);
+  await expect(
+    operator.create(plan, credentials(), new AbortController().signal),
+  ).rejects.toThrow('profile-materialization.database-storage-drift');
+  expect(
+    calls.filter(
+      (arguments_) =>
+        JSON.stringify(arguments_) ===
+        JSON.stringify(plan.inspectContainer.arguments),
+    ),
+  ).toHaveLength(1);
+}
+
+function mount(type: string, destination: string) {
+  return {
+    Type: type,
+    Source: type === 'tmpfs' ? '' : '/opaque',
+    Destination: destination,
+    RW: true,
+  };
+}
+
+function secureMountinfo(
+  destination = '/var/lib/postgresql',
+  options = 'rw,nosuid,nodev,noexec',
+) {
+  return `41 30 0:39 / ${destination} ${options} - tmpfs tmpfs rw,size=1048576k,inode64`;
 }

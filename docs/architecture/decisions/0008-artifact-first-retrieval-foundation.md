@@ -581,15 +581,19 @@ digest, derives all identities from an explicit `m7-[a-z2-7]{26}` run ID,
 uses a tmpfs-only container on an isolated internal network with explicit
 loopback port binding, and rejects existing resources. PostgreSQL 18's
 image-declared `/var/lib/postgresql` volume root is the sole tmpfs target, with
-`/var/lib/postgresql/18/docker` as PGDATA inside it. A bounded, plan-digested
-inspection of the exact container must prove either one structured writable
-tmpfs mount with empty source at the volume root or one `--tmpfs`
-destination/options-map entry at that root containing exactly `rw`, `noexec`,
-`nosuid`, `nodev`, and `size=1073741824`. Both representations reject volume,
-bind, second/wrong destination, host source, missing/duplicate/contradictory or
-unknown option, malformed JSON, and oversized output before empty-state proof
-or migrations. Existing four migrations and table meanings suffice; no
-migration 0005 or durable profile table is introduced. All catalog seed,
+`/var/lib/postgresql/18/docker` as PGDATA inside it. Three bounded,
+plan-digested inspections close distinct facts before health polling.
+`HostConfig.Tmpfs` must contain exactly that root and the unordered requested
+options `rw`, `noexec`, `nosuid`, `nodev`, and `size=1073741824`. The effective
+Linux mountinfo must contain exactly one writable `tmpfs` at that root with
+`noexec`, `nosuid`, `nodev`, and a normalized `size=` super-option. `.Mounts`
+is negative conflict authority: an empty array is valid, volume and bind entries
+are always rejected, and another engine may expose one compatible explicit
+root tmpfs only when it is writable, source-empty, and the sole entry. Wrong or
+conflicting roots, missing/duplicate/contradictory/extra requested options,
+malformed or oversized output, and nonzero inspection exits fail closed before
+empty-state proof or migrations. Existing four migrations and table meanings
+suffice; no migration 0005 or durable profile table is introduced. All catalog seed,
 prior-material reads, and profile persistence use the verified derived runtime
 login; owner access remains limited to bootstrap, migration, schema proof, and
 runtime-role creation. Disposal strictly removes and proves absence of the
@@ -607,12 +611,16 @@ correction failed at `fresh-database-create` with
 read-only Docker boundary diagnostic excluded executable, local context, and
 daemon routing. An isolated accepted-operator create probe then reproduced the
 failure after network/container creation: Docker inspection exited successfully
-but the validator rejected Docker's documented `--tmpfs` destination/options
-map before health, SQL, or migration. Cleanup and independent absence proofs
-passed. The creation mechanism remains the hardened `--tmpfs` form; this
-forward correction aligns bounded validation with both strict Docker tmpfs
-representations. Neither execute was retried, no completion evidence exists,
-and any future live proof requires separate authorization.
+but the validator rejected the engine representation before health, SQL, or
+migration. A later storage-shape diagnostic established the complete engine
+truth: `.Mounts` was empty, `HostConfig.Tmpfs` held the exact hardened request,
+mountinfo proved one secure runtime tmpfs at the PostgreSQL root, and no Docker
+volume or bind object existed despite the image volume declaration. Cleanup and
+independent absence proofs passed. The creation mechanism remains the hardened
+`--tmpfs` form; this forward correction separates configuration, runtime, and
+conflict authorities instead of inferring them from one Docker representation.
+Neither execute was retried, no completion evidence exists, and any future live
+proof requires separate authorization.
 
 ### Persistence
 
