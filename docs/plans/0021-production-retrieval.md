@@ -705,10 +705,12 @@ Components sum using integers only. Channel provenance follows the fixed
 channel order; candidates sort by descending retrieval score and final ASCII
 candidate ID. There is no popularity, quality, target, floating-point, locale,
 clock, or random input. Exact repository and package identities form
-deterministic transitive groups; the highest score and then ASCII candidate ID
-selects the representative, and later distinct candidates backfill each lane.
-Forks, semantic near-equivalence, evaluation equivalence, expansion, lexical
-metadata, and advanced fusion remain unimplemented.
+deterministic transitive groups independently within each hard lane; the
+highest score and then ASCII candidate ID selects the representative, and
+later distinct candidates backfill that same lane. An identity present once in
+each lane is not a duplicate and neither representative can suppress the
+other. Forks, semantic near-equivalence, evaluation equivalence, expansion,
+lexical metadata, and advanced fusion remain unimplemented.
 
 The fixed read-only production command is:
 
@@ -1017,6 +1019,17 @@ a separate reviewed decision authorizes the change.
   latency `12.497 ms`, and the remaining macro/audit/rate recall gaps without
   tuning. Milestone 2 remains pending independent review and Milestone 3 has
   not begun.
+- 2026-08-07: Independent Milestone 2 review accepted the implementation except
+  for one exact-identity defect: the union-find pass ran across both hard lanes
+  and allowed a higher-scoring candidate to suppress a different-lane record
+  with the same repository or package identity. Four red-first assertions
+  failed against that behavior. The corrected implementation partitions scored
+  candidates by hard lane, performs the unchanged transitive identity grouping
+  and representative selection separately within each partition, and sums the
+  lane-local diagnostics. The focused retrieval file now passes 24/24 tests,
+  including both score directions, both identity kinds, both within-lane
+  representative paths, transitivity, backfill, and permutation-stable
+  diagnostics. Milestone 2 remains pending independent acceptance.
 
 ## Decision and deviation log
 
@@ -1070,6 +1083,13 @@ a separate reviewed decision authorizes the change.
   measurement is not the final 100-build p95 protocol, while query p95/max and
   heap already fit their initial budgets. Owner: Milestone 2 implementation
   review.
+- 2026-08-07 — Preserve `deterministic-candidate-retrieval/1.0.0` while fixing
+  exact-identity deduplication. Reason: the branch is unpublished and unmerged,
+  ADR 0009 already defines deduplication as lane-local, the result contract and
+  accepted serialized values do not change, and the correction makes the V1
+  implementation conform to that existing semantic promise. The current
+  authority has no exact identity duplicate groups, so its prediction/result
+  digests remain unchanged. Owner: Milestone 2 correction review.
 - 2026-08-07 — No deviation from the governing issue or protected Phase 8
   boundary has been identified.
 
@@ -1322,3 +1342,75 @@ equivalence, gold, scorer, baseline output, migration, database, materialization
 provider, model, expansion, vector, persistent index, cache, search service,
 ranking, target-codebase, API, MCP, or Skill change. The production package has
 no corresponding dependency or runtime access. Milestone 7B remains deferred.
+
+### Milestone 2 lane-local deduplication correction — pending independent review
+
+The red-first focused retrieval run exited 1 with 4 intended failures and 20
+passes. The failures demonstrated that the prior global union-find pass removed
+the lower-scoring member when eligible and evidence-needed candidates shared an
+exact repository or package identity. After partitioning by lane before exact
+identity grouping, the same focused command exited 0 with 24/24 tests passing:
+
+```bash
+pnpm exec vitest run packages/retrieval/test/retrieval-engine.test.ts
+```
+
+The correction retains the within-lane transitive union of exact repository and
+package identities, descending integer score, final ASCII candidate-ID
+tie-break, and deterministic backfill. Aggregate
+`exactRepositoryIdentityGroups`, `exactPackageIdentityGroups`, and
+`exactIdentityDuplicatesRemoved` now sum the independently computed eligible
+and evidence-needed diagnostics. An identity occurring once in each lane adds
+zero groups and zero removals. `preRetrievalLaneCounts` remain calculated before
+channels, fusion, deduplication, and truncation and are untouched by this
+change.
+
+The first post-correction `pnpm eval:retrieval:production` run preserved
+prediction digest
+`3bba6372d211e88ba6f62fe3d948312c4f1daf7184ba639248337323dc559e1a`
+and score digest
+`7babb9b08467bfa91c35ce277ad776f2450806d21cf2418e46dd8c80b1c4d265`.
+It reproduced macro Recall@10 `0.612295`, 25/25 positive hits, family recall
+`0.686274` authorization, `0.544203` audit logging, `0.478897` background
+jobs, `0.526923` rate limiting, and `0.825175` webhooks, MRR `0.960000`, and
+NDCG@10 `0.769561`. Hard-filter decisions remained 4,500/4,500, prohibited
+preservation 15/15, no-eligible correctness 30/30, and conflict, lane, and
+negative-control violations zero. Product repository groups, package groups,
+and removals remained 0/0/0; evaluation exact/equivalence duplicate rates
+remained 0.000000/0.000000.
+
+That representative run evaluated 150 candidates once, executed five channels,
+and remained byte-repeatable. It measured p95 `11.993 ms`, maximum `17.489 ms`,
+one cold engine/search-view build `161.045 ms`, and post-GC search-view heap
+delta `397,256` bytes. This is a no-obvious-regression sanity sample, not the
+later fixed cold-build protocol and not evidence for infrastructure work.
+
+The complete correction validation sequence then passed without a repository
+or authority failure:
+
+- `pnpm runtime:check`, `pnpm format:check`, and `pnpm repo:check`: exit 0;
+- `pnpm contracts:validate`: exit 0 with 10 conformance cases and 40 supplied
+  candidates;
+- `pnpm eval:validate`, `pnpm eval:fixtures`,
+  `pnpm eval:retrieval:validate`, `pnpm eval:retrieval:fixtures`, and
+  `pnpm eval:retrieval:verify`: exit 0 with the unchanged corpus, scorer
+  fixtures, baseline report digest, and reversed-authority-order proof;
+- `pnpm eval:retrieval:production`: exit 0 with all 30 differential cases,
+  unchanged prediction/score digests, and unchanged quality and safety values;
+- `pnpm architecture:check`: exit 0 across 857 modules and 2,855 dependencies;
+- `pnpm security:secrets`: exit 0 with no finding;
+- `pnpm security:audit`: exit 0 with no known vulnerability at the `moderate`
+  threshold; and
+- `pnpm verify`: exit 0 with 118 test files and 1,851 tests passing plus every
+  configured authority, product build, type, lint, architecture, repository,
+  evaluation, retrieval, contract, catalog, profile, interview, operator,
+  pre-live, and secret check.
+
+The standalone production command in that sequence measured p95 `11.232 ms`,
+maximum `18.697 ms`, cold build `163.086 ms`, and post-GC search-view heap
+delta `392,904` bytes. The production sample within authoritative
+`pnpm verify` measured p95 `12.209 ms`, maximum `17.852 ms`, cold build
+`153.286 ms`, and heap delta `460,224` bytes. Both samples evaluated 150
+candidates once, ran five channels, returned at most ten candidates, and were
+byte-repeatable. No contract, algorithm binding, gold, scorer, baseline,
+threshold, CI worker setting, dependency, or lockfile changed.

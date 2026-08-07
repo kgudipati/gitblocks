@@ -642,6 +642,30 @@ function isMaterialUnresolvedEvaluation(
 export function deduplicateExactIdentities(
   scored: readonly ScoredCandidate[],
 ): DeduplicationResult {
+  const eligible = deduplicateLaneExactIdentities(
+    scored.filter(({ candidate }) => candidate.lane === 'eligible'),
+  );
+  const evidenceNeeded = deduplicateLaneExactIdentities(
+    scored.filter(({ candidate }) => candidate.lane === 'evidence-needed'),
+  );
+  return {
+    candidates: [...eligible.candidates, ...evidenceNeeded.candidates].sort(
+      compareScoredCandidates,
+    ),
+    exactRepositoryIdentityGroups:
+      eligible.exactRepositoryIdentityGroups +
+      evidenceNeeded.exactRepositoryIdentityGroups,
+    exactPackageIdentityGroups:
+      eligible.exactPackageIdentityGroups +
+      evidenceNeeded.exactPackageIdentityGroups,
+    duplicatesRemoved:
+      eligible.duplicatesRemoved + evidenceNeeded.duplicatesRemoved,
+  };
+}
+
+function deduplicateLaneExactIdentities(
+  scored: readonly ScoredCandidate[],
+): DeduplicationResult {
   const parent = new Map(
     scored.map(({ candidate }) => [
       candidate.candidateId,

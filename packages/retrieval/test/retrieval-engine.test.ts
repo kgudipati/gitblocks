@@ -471,6 +471,208 @@ describe('deterministic production retrieval vertical slice', () => {
     expect(Number.isInteger(left.candidate.retrievalScore)).toBe(true);
   });
 
+  it.each([
+    [200, 900],
+    [900, 200],
+  ])(
+    'preserves both hard lanes when a shared repository has scores %s and %s',
+    (eligibleScore, evidenceNeededScore) => {
+      const result = deduplicateExactIdentities([
+        scored(
+          'eligible-repository-candidate',
+          eligibleScore,
+          'owner/shared',
+          'eligible-package',
+          'eligible',
+        ),
+        scored(
+          'evidence-repository-candidate',
+          evidenceNeededScore,
+          'owner/shared',
+          'evidence-package',
+          'evidence-needed',
+        ),
+      ]);
+
+      expect(candidateIdsInLane(result.candidates, 'eligible')).toEqual([
+        'eligible-repository-candidate',
+      ]);
+      expect(candidateIdsInLane(result.candidates, 'evidence-needed')).toEqual([
+        'evidence-repository-candidate',
+      ]);
+      expect(result.exactRepositoryIdentityGroups).toBe(0);
+      expect(result.exactPackageIdentityGroups).toBe(0);
+      expect(result.duplicatesRemoved).toBe(0);
+    },
+  );
+
+  it('preserves both hard lanes when distinct repositories share one exact package identity', () => {
+    const result = deduplicateExactIdentities([
+      scored(
+        'eligible-package-candidate',
+        200,
+        'owner/eligible',
+        'shared-package',
+        'eligible',
+      ),
+      scored(
+        'evidence-package-candidate',
+        900,
+        'owner/evidence',
+        'shared-package',
+        'evidence-needed',
+      ),
+    ]);
+
+    expect(candidateIdsInLane(result.candidates, 'eligible')).toEqual([
+      'eligible-package-candidate',
+    ]);
+    expect(candidateIdsInLane(result.candidates, 'evidence-needed')).toEqual([
+      'evidence-package-candidate',
+    ]);
+    expect(result.exactRepositoryIdentityGroups).toBe(0);
+    expect(result.exactPackageIdentityGroups).toBe(0);
+    expect(result.duplicatesRemoved).toBe(0);
+  });
+
+  it.each(['eligible', 'evidence-needed'] as const)(
+    'selects and backfills exact repository duplicates within %s only',
+    (lane) => {
+      const result = deduplicateExactIdentities([
+        scored(
+          'repository-low',
+          200,
+          'owner/shared',
+          'repository-low-package',
+          lane,
+        ),
+        scored(
+          'repository-tie-b',
+          500,
+          'owner/shared',
+          'repository-tie-b-package',
+          lane,
+        ),
+        scored(
+          'repository-tie-a',
+          500,
+          'owner/shared',
+          'repository-tie-a-package',
+          lane,
+        ),
+        scored(
+          'repository-backfill',
+          300,
+          'owner/backfill',
+          'repository-backfill-package',
+          lane,
+        ),
+      ]);
+
+      expect(candidateIdsInLane(result.candidates, lane)).toEqual([
+        'repository-tie-a',
+        'repository-backfill',
+      ]);
+      expect(result.exactRepositoryIdentityGroups).toBe(1);
+      expect(result.exactPackageIdentityGroups).toBe(0);
+      expect(result.duplicatesRemoved).toBe(2);
+    },
+  );
+
+  it.each(['eligible', 'evidence-needed'] as const)(
+    'selects and backfills exact package duplicates within %s only',
+    (lane) => {
+      const result = deduplicateExactIdentities([
+        scored('package-low', 200, 'owner/package-low', 'shared-package', lane),
+        scored(
+          'package-tie-b',
+          500,
+          'owner/package-tie-b',
+          'shared-package',
+          lane,
+        ),
+        scored(
+          'package-tie-a',
+          500,
+          'owner/package-tie-a',
+          'shared-package',
+          lane,
+        ),
+        scored(
+          'package-backfill',
+          300,
+          'owner/package-backfill',
+          'package-backfill',
+          lane,
+        ),
+      ]);
+
+      expect(candidateIdsInLane(result.candidates, lane)).toEqual([
+        'package-tie-a',
+        'package-backfill',
+      ]);
+      expect(result.exactRepositoryIdentityGroups).toBe(0);
+      expect(result.exactPackageIdentityGroups).toBe(1);
+      expect(result.duplicatesRemoved).toBe(2);
+    },
+  );
+
+  it('keeps transitive identity grouping lane-local with permutation-stable diagnostics', () => {
+    const eligibleA = scored(
+      'eligible-a',
+      500,
+      'owner/eligible-shared',
+      'eligible-package-a',
+      'eligible',
+    );
+    const eligibleB = scored(
+      'eligible-b',
+      400,
+      'owner/eligible-shared',
+      'eligible-shared-package',
+      'eligible',
+    );
+    const eligibleC = scored(
+      'eligible-c',
+      300,
+      'owner/eligible-c',
+      'eligible-shared-package',
+      'eligible',
+    );
+    const evidenceBridge = scored(
+      'evidence-bridge',
+      900,
+      'owner/eligible-shared',
+      'cross-lane-package',
+      'evidence-needed',
+    );
+    const evidencePeer = scored(
+      'evidence-peer',
+      800,
+      'owner/evidence-peer',
+      'cross-lane-package',
+      'evidence-needed',
+    );
+    const permutations = [
+      [eligibleA, eligibleB, eligibleC, evidenceBridge, evidencePeer],
+      [evidencePeer, eligibleC, evidenceBridge, eligibleB, eligibleA],
+      [eligibleB, evidenceBridge, eligibleA, evidencePeer, eligibleC],
+    ];
+
+    for (const permutation of permutations) {
+      const result = deduplicateExactIdentities(permutation);
+      expect(candidateIdsInLane(result.candidates, 'eligible')).toEqual([
+        'eligible-a',
+      ]);
+      expect(candidateIdsInLane(result.candidates, 'evidence-needed')).toEqual([
+        'evidence-bridge',
+      ]);
+      expect(result.exactRepositoryIdentityGroups).toBe(1);
+      expect(result.exactPackageIdentityGroups).toBe(2);
+      expect(result.duplicatesRemoved).toBe(3);
+    }
+  });
+
   it.each([1, 10])('obeys an explicit %s-result lane limit', (limit) => {
     const operation = requireEngine().retrieve(
       makeRequest([], undefined, limit),
@@ -786,10 +988,11 @@ function scored(
   score: number,
   repositoryIdentity: string,
   packageIdentity: string,
+  lane: CandidateRetrievalCandidateV1['lane'] = 'eligible',
 ): ScoredCandidate {
   const candidate: CandidateRetrievalCandidateV1 = {
     candidateId,
-    lane: 'eligible',
+    lane,
     retrievalScore: score,
     matchedCapabilityConceptIds: ['authorization'],
     matchedProfileFieldIds: ['capability-family'],
@@ -802,7 +1005,31 @@ function scored(
         matchedProfileFieldIds: ['capability-family'],
       },
     ],
-    unresolvedHardEvaluations: [],
+    unresolvedHardEvaluations:
+      lane === 'eligible'
+        ? []
+        : [
+            {
+              evaluationId: 'synthetic-unresolved-evaluation',
+              sourceKind: 'normalized-constraint',
+              modality: 'required',
+              facet: 'deployment',
+              conceptId: 'self-hosted-service',
+              profileFieldId: 'deployment-self-hosting',
+              match: 'unresolved',
+              state: 'unresolved',
+              ruleId: 'synthetic-unresolved-rule',
+            },
+          ],
   };
   return { candidate, repositoryIdentity, packageIdentity };
+}
+
+function candidateIdsInLane(
+  candidates: readonly ScoredCandidate[],
+  lane: CandidateRetrievalCandidateV1['lane'],
+): readonly string[] {
+  return candidates
+    .filter(({ candidate }) => candidate.lane === lane)
+    .map(({ candidate }) => candidate.candidateId);
 }
