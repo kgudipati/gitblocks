@@ -63,6 +63,12 @@ import {
   type DeterministicCandidateProfileAuthorityV1,
   type DeterministicCandidateProfileV1,
 } from './deterministic-candidate-profile-schemas.ts';
+import {
+  candidateRetrievalRequestV1Schema,
+  candidateRetrievalResultV1Schema,
+  type CandidateRetrievalRequestV1,
+  type CandidateRetrievalResultV1,
+} from './candidate-retrieval-schemas.ts';
 
 const ajv = new Ajv2020({
   allErrors: false,
@@ -125,6 +131,10 @@ export const deterministicCandidateProfileAuthorityV1Validator =
   ajv.compile<DeterministicCandidateProfileAuthorityV1>(
     deterministicCandidateProfileAuthorityV1Schema,
   );
+export const candidateRetrievalRequestV1Validator =
+  ajv.compile<CandidateRetrievalRequestV1>(candidateRetrievalRequestV1Schema);
+export const candidateRetrievalResultV1Validator =
+  ajv.compile<CandidateRetrievalResultV1>(candidateRetrievalResultV1Schema);
 
 export type StructuralValidationResult<T> =
   | {

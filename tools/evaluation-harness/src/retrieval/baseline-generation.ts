@@ -1,10 +1,4 @@
-import { join } from 'node:path';
-
-import {
-  parseCapabilityTaxonomyV1,
-  parseDeterministicCandidateProfileAuthorityV1,
-  type CapabilityQueryNormalizationResultV1,
-} from '@gitblocks/contracts';
+import { type CapabilityQueryNormalizationResultV1 } from '@gitblocks/contracts';
 import type {
   DeterministicCandidateProfileAuthority,
   DeterministicProfileFieldRecord,
@@ -19,7 +13,6 @@ import {
   type BaselineCandidateView,
   type BaselineQueryView,
   type BaselineStrategyResult,
-  compareAscii,
 } from './baselines/contracts.ts';
 import { runExactKeywordBaseline } from './baselines/exact-keyword.ts';
 import { runFamilyOnlyBaseline } from './baselines/family-only.ts';
@@ -33,7 +26,6 @@ import {
   type RetrievalQueryDocument,
 } from './contracts.ts';
 import { generateHardFilterProjection } from './hard-filter.ts';
-import { loadRetrievalJsonFile } from './json-boundary.ts';
 import {
   buildCandidateReferenceAuthority,
   normalizeRetrievalQuery,
@@ -44,15 +36,7 @@ import {
   validateRetrievalPredictionSetAgainstBlindAuthorityV1,
   type RetrievalBlindPredictionValidationAuthority,
 } from './predictions.ts';
-
-const EXPECTED_PROFILE_COUNT = 150;
-const EXPECTED_TAXONOMY_VERSION = '1.0.0';
-const EXPECTED_TAXONOMY_DIGEST =
-  '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9';
-const EXPECTED_PROFILE_AUTHORITY_DIGEST =
-  'fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879';
-const EXPECTED_CATALOG_DIGEST =
-  '4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634';
+import { loadRetrievalSafeAuthorityV1 } from './safe-authority.ts';
 
 export interface RetrievalBaselinePredictionSets {
   readonly familyOnly: RetrievalPredictionSet;
@@ -64,12 +48,6 @@ export interface RetrievalBaselinePredictionSets {
 
 export interface RetrievalBaselineGenerationOptions {
   readonly authorityOrder?: 'canonical' | 'reverse';
-}
-
-interface SafeAuthority {
-  readonly taxonomy: unknown;
-  readonly conceptIds: readonly string[];
-  readonly profiles: DeterministicCandidateProfileAuthority;
 }
 
 interface PreparedQuery {
@@ -92,7 +70,7 @@ export function generateRetrievalBaselinePredictionSetsV1(
   const blind = loadRetrievalBlindQuerySetV1(repositoryRoot);
   if (!blind.ok) throw new Error('Retrieval blind query authority is invalid.');
 
-  const authority = loadSafeAuthority(
+  const authority = loadRetrievalSafeAuthorityV1(
     repositoryRoot,
     options.authorityOrder ?? 'canonical',
   );
@@ -188,56 +166,6 @@ export function generateRetrievalBaselinePredictionSetsV1(
       validationAuthority,
     ),
   });
-}
-
-function loadSafeAuthority(
-  repositoryRoot: string,
-  order: 'canonical' | 'reverse',
-): SafeAuthority {
-  const taxonomyValue = loadRetrievalJsonFile(
-    join(repositoryRoot, 'catalog/capability-taxonomy/1.0.0'),
-    'manifest.json',
-  );
-  const taxonomy = parseCapabilityTaxonomyV1(taxonomyValue);
-  if (
-    !taxonomy.ok ||
-    taxonomy.value.taxonomyVersion !== EXPECTED_TAXONOMY_VERSION ||
-    taxonomy.value.semanticDigest !== EXPECTED_TAXONOMY_DIGEST
-  ) {
-    throw new Error('Baseline taxonomy authority is invalid.');
-  }
-  const profileValue = loadRetrievalJsonFile(
-    join(repositoryRoot, 'catalog/public-v1'),
-    'candidate-profile-authority.json',
-    { maximumFileBytes: 4 * 1024 * 1024 },
-  );
-  const parsed = parseDeterministicCandidateProfileAuthorityV1(profileValue);
-  if (
-    !parsed.ok ||
-    parsed.domain.profiles.length !== EXPECTED_PROFILE_COUNT ||
-    parsed.domain.semanticAuthorityDigest !==
-      EXPECTED_PROFILE_AUTHORITY_DIGEST ||
-    parsed.domain.catalogDigest !== EXPECTED_CATALOG_DIGEST
-  ) {
-    throw new Error('Baseline candidate-profile authority is invalid.');
-  }
-  const inputProfiles =
-    order === 'reverse'
-      ? [...parsed.domain.profiles].reverse()
-      : [...parsed.domain.profiles];
-  const profiles = {
-    ...parsed.domain,
-    profiles: inputProfiles.sort((left, right) =>
-      compareAscii(left.candidateId, right.candidateId),
-    ),
-  };
-  return {
-    taxonomy: taxonomy.value,
-    conceptIds: taxonomy.value.concepts
-      .map(({ conceptId }) => conceptId)
-      .sort(compareAscii),
-    profiles,
-  };
 }
 
 function createBaselineQueryView(

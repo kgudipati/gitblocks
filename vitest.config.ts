@@ -2,11 +2,14 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // Bound concurrent authority parsing as the product test matrix grows.
+    maxWorkers: 8,
     coverage: {
       enabled: false,
       exclude: [
         'packages/contracts/src/index.ts',
         'packages/domain/src/index.ts',
+        'packages/retrieval/src/index.ts',
         'packages/interviews/src/index.ts',
         'apps/repository-interview-operator/src/index.ts',
         'packages/persistence/src/index.ts',
@@ -24,6 +27,7 @@ export default defineConfig({
       include: [
         'packages/contracts/src/**/*.ts',
         'packages/domain/src/**/*.ts',
+        'packages/retrieval/src/**/*.ts',
         'packages/persistence/src/**/*.ts',
         'packages/ingestion/src/**/*.ts',
         'packages/interviews/src/**/*.ts',
@@ -40,6 +44,7 @@ export default defineConfig({
     include: [
       'packages/contracts/test/**/*.test.ts',
       'packages/domain/test/**/*.test.ts',
+      'packages/retrieval/test/**/*.test.ts',
       'packages/persistence/test/**/*.test.ts',
       'packages/ingestion/test/**/*.test.ts',
       'packages/interviews/test/**/*.test.ts',

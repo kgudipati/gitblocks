@@ -41,6 +41,7 @@ const STATIC_VERIFICATION_COMMANDS = [
   'node tools/evaluation-harness/src/retrieval/cli.ts validate',
   'node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
   'node tools/evaluation-harness/src/retrieval/cli.ts verify',
+  'node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production',
   'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
   'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
   'node tools/evaluation-harness/src/contract-conformance-cli.ts',
@@ -59,6 +60,7 @@ const TEST_SHARDS = {
     roots: [
       'packages/contracts/test',
       'packages/domain/test',
+      'packages/retrieval/test',
       'packages/persistence/test',
       'packages/ingestion/test',
     ],
@@ -580,6 +582,7 @@ copy: *shared
     expect(assignedRoots).toEqual([
       'packages/contracts/test',
       'packages/domain/test',
+      'packages/retrieval/test',
       'packages/persistence/test',
       'packages/ingestion/test',
       'packages/interviews/test',

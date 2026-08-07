@@ -30,6 +30,10 @@ const EXPECTED_SCHEMA_DIGESTS = {
     '3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61',
   'deterministic-candidate-profile-authority':
     '7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf',
+  'candidate-retrieval-request':
+    '60cb601e5603c31a657d776e14b6de3751d40948db5c6893dbe8d7f1b347463c',
+  'candidate-retrieval-result':
+    'dcc53cbaf91384b861217748fe60fee1e0be289a611db90236e3c95503283ba3',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
@@ -73,6 +77,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'capability-query-normalization-result',
       'deterministic-candidate-profile',
       'deterministic-candidate-profile-authority',
+      'candidate-retrieval-request',
+      'candidate-retrieval-result',
     ]);
 
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -204,6 +210,10 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
 
   it('keeps the runtime package surface narrow', () => {
     expect(Object.keys(publicApi).sort()).toEqual([
+      'CANDIDATE_RETRIEVAL_ALGORITHM_VERSION',
+      'CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS',
+      'CANDIDATE_RETRIEVAL_REQUEST_VERSION',
+      'CANDIDATE_RETRIEVAL_RESULT_VERSION',
       'CONTRACT_SCHEMA_NAMES',
       'CONTRACT_VERSION',
       'DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION',
@@ -226,9 +236,14 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'REPOSITORY_INTERVIEW_BOUNDS',
       'REPOSITORY_INTERVIEW_TOPICS',
       'buildCapabilityTaxonomyV1',
+      'candidateRetrievalAuthorityBindingsDigest',
+      'candidateRetrievalRequestSemanticDigest',
+      'candidateRetrievalResultSemanticDigest',
       'capabilityQueryInputDigest',
       'capabilityQueryNormalizationSemanticDigest',
       'capabilityTaxonomySemanticDigest',
+      'createCandidateRetrievalRequestV1',
+      'createCandidateRetrievalResultV1',
       'createDeterministicCandidateProfileAuthorityV1',
       'createDeterministicCandidateProfileV1',
       'createModelExecutionV1',
@@ -247,6 +262,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'modelExecutionReuseKeyDigest',
       'normalizeCapabilityQueryV1',
       'parseCandidateDossierV1',
+      'parseCandidateRetrievalRequestV1',
+      'parseCandidateRetrievalResultV1',
       'parseCapabilityQueryInputV1',
       'parseCapabilityQueryNormalizationResultV1',
       'parseCapabilityRequestV1',
@@ -285,11 +302,14 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryInterviewRequestIdentityDigest',
       'repositoryInterviewRequestRecordDigest',
       'repositoryInterviewUnknownIdentityDigest',
+      'serializeCandidateRetrievalRequestV1',
+      'serializeCandidateRetrievalResultV1',
       'serializeCapabilityTaxonomyV1',
       'serializeContractSchemaV1',
       'serializeDeterministicCandidateProfileAuthorityV1',
       'serializeDeterministicCandidateProfileV1',
       'splitRepositoryArtifactLogicalLines',
+      'validateCandidateRetrievalExchangeV1',
       'validateCapabilityQueryNormalizationExchangeV1',
       'validateFitAssessmentExchangeV1',
       'validateRepositoryInterviewExecutionV1',

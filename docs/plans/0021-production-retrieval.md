@@ -6,25 +6,27 @@
   [#21 — Phase 9: Establish production candidate retrieval](https://github.com/kgudipati/gitblocks/issues/21)
 - Branch: `feat/21-production-retrieval`
 - Owner: repository maintainer
-- State: the independent Milestone 1 review requires the documented evaluation
-  lane-semantics correction; the correction remains proposed for independent
-  rereview, and Milestones 2–4 remain blocked pending explicit maintainer
-  acceptance of Milestone 1.
+- State: Milestone 1 was independently accepted at
+  `18dae5adf821f0c998c02d4829416d655b9da1a1` after rereview of the corrected
+  evaluation-lane semantics. Milestone 2 is implemented and pending
+  independent review; Milestones 3–4 remain blocked pending independent review
+  of each preceding milestone.
 - Last updated: 2026-08-07
 
-Issue #21 is the requirements authority. Proposed
+Issue #21 is the requirements authority. Accepted
 [ADR 0009](../architecture/decisions/0009-production-retrieval.md) owns the
-durable production retrieval architecture after maintainer acceptance. This
-plan owns execution order, review gates, stop conditions, file placement, and
-validation evidence. Accepted ADRs, the product contract, repository
+durable production retrieval architecture. This plan owns execution order,
+review gates, stop conditions, file placement, and validation evidence.
+Accepted ADRs, the product contract, repository
 engineering standards, and the governing issue win over this plan if they
 conflict.
 
 This plan implements Project Phase 9, corresponding to Phase 11 — Retrieval
-Engine in the original end-to-end strategy. It does not authorize Milestone 2
-until an independent maintainer accepts the proposed architecture and every
-pre-registered threshold in ADR 0009. No later milestone begins without
-independent review of the preceding milestone.
+Engine in the original end-to-end strategy. Independent maintainer rereview
+accepted the architecture and every pre-registered threshold in ADR 0009 at
+`18dae5adf821f0c998c02d4829416d655b9da1a1`, authorizing Milestone 2. No later
+milestone begins without independent review of the preceding milestone.
+Milestone 2 implementation evidence below does not constitute its acceptance.
 
 ## Purpose and user-visible outcome
 
@@ -41,11 +43,12 @@ comparison. Phase 10 ranking will answer which retrieved candidate best fits a
 particular target codebase. Phase 9 does not recommend a winner, assess
 codebase-conditioned adoption fit, or plan integration.
 
-Milestone 1 delivers only reviewed governance and architecture: one governing
-issue, this plan, proposed ADR 0009, package and contract decisions, exact
+Milestone 1 delivered only reviewed governance and architecture: one governing
+issue, this plan, accepted ADR 0009, package and contract decisions, exact
 retrieval semantics, and thresholds selected before production retrieval
-exists. The later observable product outcome requires Milestones 2–4 and their
-independent review gates.
+existed. Milestone 2 now supplies the first measurable production vertical
+slice. The final observable product outcome still requires Milestones 3–4 and
+their independent review gates.
 
 ## Verified current repository state
 
@@ -129,7 +132,7 @@ package:
   baseline implementations and outputs; and
 - the independent scorer, metric implementations, loaders, reports, and gold.
 
-The future harness may depend on `@gitblocks/retrieval`; the reverse dependency
+The harness depends on `@gitblocks/retrieval`; the reverse dependency
 is prohibited. The existing generated hard-filter projection remains the
 source of the complete `RetrievalCasePrediction.candidateDecisions` array
 because it delegates constraint semantics to product-owned
@@ -212,7 +215,7 @@ results or accepted relevance claims.
 Phase 9 may eventually change:
 
 - proposed ADR 0009 and this execution plan;
-- one narrow future `packages/retrieval` product package;
+- one narrow `packages/retrieval` product package;
 - additive V1 retrieval request/result schemas, types, parsers, deterministic
   JSON Schema exports, and contract validation;
 - deterministic family, concept, identity, package, structured-profile, and
@@ -316,10 +319,10 @@ pre-registered reconsideration path; it does not silently broaden scope.
 | current sparse profiles conceal missing authority           | known-only signals, explicit unknowns, and no Phase 8 artifact rewriting   |
 | untrusted repository metadata acts as instructions          | inert bounded text normalization; no code execution, links, or model calls |
 
-### Decisions awaiting review
+### Accepted Milestone 1 decisions
 
-No implementation-shape decision may remain open after Milestone 1 review.
-The maintainer must explicitly accept or amend:
+Independent maintainer rereview accepted all of the following at
+`18dae5adf821f0c998c02d4829416d655b9da1a1`:
 
 - the one-package ownership and dependency direction;
 - the two product contract roots and two-lane bounds;
@@ -329,8 +332,9 @@ The maintainer must explicitly accept or amend:
   and
 - the independent evaluation-authority review protocol.
 
-ADR 0009 remains proposed until that review. Milestone 2 cannot begin while
-any item is unresolved.
+This acceptance authorizes only the Milestone 2 vertical slice. It does not
+accept production retrieval quality, evaluation gold, Milestone 2 behavior, or
+Phase 9 completion.
 
 ## Applicable ADRs and contracts
 
@@ -357,7 +361,7 @@ any item is unresolved.
 - [ADR 0008](../architecture/decisions/0008-artifact-first-retrieval-foundation.md):
   accepted normalization, profile, taxonomy, domain evaluation, and evaluation
   boundaries remain unchanged; Milestone 7B remains deferred.
-- [ADR 0009](../architecture/decisions/0009-production-retrieval.md): proposed
+- [ADR 0009](../architecture/decisions/0009-production-retrieval.md): accepted
   Phase 9 package, contract, lane, channel, acceptance, and infrastructure
   decisions. It creates no authority until accepted.
 
@@ -368,17 +372,17 @@ evaluation schemas, and every persisted schema remain untouched.
 
 ## Architecture, data-flow, and performance impact
 
-### Future component graph
+### Milestone 2 component graph
 
 ```text
 tools/evaluation-harness
         ↓
-@gitblocks/retrieval (future pure package)
+@gitblocks/retrieval (pure package)
         ↓
 @gitblocks/contracts → @gitblocks/domain
 ```
 
-The future retrieval function accepts parsed authorities and one parsed
+The production retrieval function accepts parsed authorities and one parsed
 request. It validates the normalized outcome and authority bindings, invokes
 the domain constraint evaluator once per candidate, excludes hard conflicts
 and negative controls, assigns satisfied and unresolved candidates to separate
@@ -558,8 +562,8 @@ Completion evidence:
 - hosted CI is observed without manual reruns of unrelated cancellations; and
 - independent maintainer review accepts or amends ADR 0009 and the thresholds.
 
-The PR remains draft. Milestone 2 stays blocked after this task even if local
-and hosted validation pass; maintainer review is a separate authority.
+The PR remains draft. This historical Milestone 1 exit required maintainer
+review as a separate authority; that review is now recorded above.
 
 ### Milestone 2 — Deterministic production retrieval vertical slice
 
@@ -580,7 +584,7 @@ Only after Milestone 1 acceptance:
 - record unit, property, negative/abuse, contract, dependency, and initial
   performance evidence.
 
-The future adapter derives the no-eligible state and selects the ordinary
+The adapter derives the no-eligible state and selects the ordinary
 result lane exactly as follows:
 
 ```text
@@ -629,6 +633,138 @@ independent review:
 
 No expansion authority, advanced fusion/diversity, ranking, model, API, MCP,
 database, vector, or persistent index belongs in this milestone.
+
+#### Milestone 2 implementation evidence — pending independent review
+
+The implemented product direction is:
+
+```text
+tools/evaluation-harness
+        ↓
+@gitblocks/retrieval
+        ├──→ @gitblocks/contracts ──→ @gitblocks/domain
+        └──→ @gitblocks/domain
+```
+
+`@gitblocks/retrieval` has exactly the two shown workspace dependencies. It is
+a synchronous, injected, in-process package with no filesystem, network,
+database, environment, model, provider, persistence, ingestion, interview,
+transport, MCP, Skill, ranking, or process-global mutable-state dependency.
+The architecture and repository-policy suites enforce that boundary.
+
+The two additive root contracts are now registered and digest-pinned: request
+schema `60cb601e5603c31a657d776e14b6de3751d40948db5c6893dbe8d7f1b347463c`
+and result schema
+`dcc53cbaf91384b861217748fe60fee1e0be289a611db90236e3c95503283ba3`.
+
+- `CandidateRetrievalRequestV1` contains its contract/request versions and
+  semantic ID; one complete `CapabilityQueryNormalizationResultV1`; closed
+  taxonomy, profile-authority, catalog, profile-rule, and
+  `candidate-constraint-evaluation/1.0.0` bindings; and explicit eligible and
+  evidence-needed limits, each from 1 through 10.
+- `CandidateRetrievalResultV1` contains its contract/result versions and
+  semantic ID/digest; request and normalization bindings; the same closed
+  authority bindings; `deterministic-candidate-retrieval/1.0.0`; the five exact
+  channel bindings; the two request limits; complete pre-retrieval lane counts;
+  separate arrays of at most ten candidates; and bounded diagnostics. Each
+  candidate contains only its ID, lane, integer retrieval score, controlled
+  concept/profile-field matches, bounded component provenance, and material
+  unresolved hard evaluations where applicable. It contains no full candidate
+  decision projection or ranking field.
+
+Admission parses and owns both injected authorities, requires their taxonomy
+bindings to agree, validates the complete request and semantic IDs, requires a
+normalized outcome and primary family, rejects non-null target repository
+fingerprint state, checks taxonomy/profile/catalog/rule bindings, rejects
+unknown controlled concepts and unresolved candidate references, requires the
+four identity/safety profile fields to be known, and rejects invalid or
+duplicate candidate authority. The admitted profile authority remains
+canonically ordered under its existing Phase 8 invariant; the retrieval
+algorithm sorts its internal view and is result-identical across 20 fixed
+post-admission view permutations.
+
+Every admitted candidate is passed exactly once to product-owned
+`evaluateCandidateConstraints`. Conflict and catalog negative-control records
+increment `excluded` and cannot reach a channel. Unresolved records can enter
+only `evidence-needed`, with material required/prohibited unresolved
+evaluations disclosed. Satisfied non-negative-control records can enter only
+`eligible`. The three counts are complete before channel execution and sum to
+150 on the bound authority; returned-array emptiness cannot change them.
+
+The vertical slice implements exactly these five versioned integer channels:
+
+| Channel            | Component rule                                                                  |
+| ------------------ | ------------------------------------------------------------------------------- |
+| capability-family  | exact primary `200`; each exact applicable additional-family overlap `25`       |
+| taxonomy-concept   | exact known controlled concept `400` each, capped at `1,200`                    |
+| candidate-identity | exact resolved candidate/repository identity `1,000`                            |
+| package-identity   | exact resolved current package identity `900`                                   |
+| structured-profile | exact known non-prohibited controlled constraint concept `300`, capped at `900` |
+
+Components sum using integers only. Channel provenance follows the fixed
+channel order; candidates sort by descending retrieval score and final ASCII
+candidate ID. There is no popularity, quality, target, floating-point, locale,
+clock, or random input. Exact repository and package identities form
+deterministic transitive groups; the highest score and then ASCII candidate ID
+selects the representative, and later distinct candidates backfill each lane.
+Forks, semantic near-equivalence, evaluation equivalence, expansion, lexical
+metadata, and advanced fusion remain unimplemented.
+
+The fixed read-only production command is:
+
+```bash
+pnpm eval:retrieval:production
+```
+
+It builds the product package, loads blind query inputs first, freezes and
+schema-validates real product predictions, obtains the complete 150-candidate
+decision array from the existing evaluation-side generated projection, then
+loads gold and invokes the existing scorer. It writes no report, gold, model,
+provider, or fixture output. The adapter derives `noEligibleCandidate` only
+from `preRetrievalLaneCounts.eligible === 0` and selects evidence-needed results
+only for that zero-pool state.
+
+All nine pre-registered differential assertions pass across 30/30 retrieval
+cases: lane counts, eligible membership, evidence-needed membership, excluded
+and negative-control non-leakage, domain/product lane agreement,
+count-derived no-eligible mapping, the nonzero-pool empty-result miss, the
+zero-pool evidence-needed mapping, and production blindness to every gold and
+scorer field. Complete candidate decisions remain evaluation-side.
+
+The first blind production measurement is:
+
+| Metric                              | Milestone 2 result  |
+| ----------------------------------- | ------------------- |
+| macro Recall@10                     | `0.612295`          |
+| positive-case hit rate              | `25/25`             |
+| authorization Recall@10             | `0.686274`          |
+| audit-logging Recall@10             | `0.544203`          |
+| background-jobs Recall@10           | `0.478897`          |
+| rate-limiting Recall@10             | `0.526923`          |
+| webhooks Recall@10                  | `0.825175`          |
+| MRR                                 | `0.960000`          |
+| NDCG@10                             | `0.769561`          |
+| hard-filter correctness             | `4,500/4,500`       |
+| prohibited preservation             | `15/15`             |
+| no-eligible correctness             | `30/30`             |
+| top-10 conflict/lane/negative leaks | `0/0/0`             |
+| exact/equivalence duplicate rate    | `0.000000/0.000000` |
+
+The macro, audit-logging, and rate-limiting values remain below their final
+pre-registered gates and are reserved for Milestone 3. No threshold, corpus,
+gold, fixture, baseline, or scorer was changed in response.
+
+The initial 30-query Node 24.18.0 measurement examined and constraint-evaluated
+exactly 150 candidates at most once per request, ran five channels, returned at
+most ten total candidates on the current corpus, and reproduced byte-identical
+results on the immediate repeat. It measured p95 `12.497 ms`, maximum
+`16.334 ms`, one cold engine/search-view build at `182.262 ms`, and a
+post-GC search-view heap delta of `392,528` bytes. Query latency and heap are
+inside the final budgets in this initial sample. The single cold build is not
+the pre-registered 100-build p95 proof and exceeds the final 100 ms target as
+an individual observation; full warm-up, 1,000-query retained-memory, and
+fresh-process evidence remains M3/M4 work. This is correction evidence, not
+permission for an index, cache, vector, database, or service.
 
 ### Milestone 3 — Recall, fusion, and diversity
 
@@ -732,10 +868,9 @@ git diff --check
 git status --short --branch
 ```
 
-Milestone 2 will add one fixed read-only command that generates production
-predictions through `@gitblocks/retrieval` and scores them with the existing
-scorer; its final name and exact invocation must be recorded in this plan in
-the same reviewed contract change. It must not create a second scorer.
+Milestone 2 adds the fixed read-only `pnpm eval:retrieval:production` command.
+It generates production predictions through `@gitblocks/retrieval` and scores
+them with the existing scorer; it creates no second scorer.
 
 `pnpm db:verify` is not part of the planned path because Phase 9 creates no
 persistence change. If an independently accepted trigger authorizes a
@@ -745,9 +880,9 @@ before that work. No database test may skip.
 
 ## Observability and operations
 
-Milestone 1 has no production path and therefore emits no runtime telemetry.
-The future pure package returns bounded diagnostics/provenance and does not log
-or trace. Stable planned operation/error concepts include retrieval request
+Milestone 1 had no production path and emitted no runtime telemetry. The
+Milestone 2 pure package returns bounded diagnostics/provenance and does not
+log or trace. Stable operation/error concepts include retrieval request
 validation, authority-view construction, candidate constraint evaluation,
 channel execution, identity merge, diversity suppression, result truncation,
 and result serialization; failures use stable redacted codes.
@@ -862,6 +997,26 @@ a separate reviewed decision authorizes the change.
   count, keep full decisions in the evaluation-side projection, and
   pre-register nine Milestone 2 differential assertions. The correction
   requires independent rereview; Milestone 2 remains blocked.
+- 2026-08-07: Independent rereview accepted ADR 0009, all pre-registered gates,
+  and the corrected evaluation-lane boundary at
+  `18dae5adf821f0c998c02d4829416d655b9da1a1`. The Milestone 1 correction's
+  hosted aggregate failure is accepted as a runner-infrastructure exception:
+  Standalone Typecheck, Interview/Operator Tests, and Database/Audit passed;
+  the other deterministic workers were terminated by hosted-runner shutdown,
+  including exit 143 during retrieval validation; and authoritative local
+  `pnpm verify` passed 115 files and 1,802 tests with no deterministic failing
+  assertion. Milestone 2 is authorized, while evaluation gold remains
+  `proposed-not-reviewed` and Milestones 3–4 remain blocked.
+- 2026-08-07: Implemented the Milestone 2 vertical slice: two additive product
+  contract roots, pure `@gitblocks/retrieval`, five exact deterministic
+  channels, one hard evaluation per candidate, complete pre-retrieval lane
+  counts, exact identity deduplication, bounded provenance, and the blind
+  production evaluation adapter. All nine differential assertions and focused
+  package/contract/adapter tests pass. The first production run records macro
+  Recall@10 `0.612295`, 25/25 positive hits, zero safety violations, p95 query
+  latency `12.497 ms`, and the remaining macro/audit/rate recall gaps without
+  tuning. Milestone 2 remains pending independent review and Milestone 3 has
+  not begun.
 
 ## Decision and deviation log
 
@@ -905,6 +1060,16 @@ a separate reviewed decision authorizes the change.
   emptiness is a retrieval failure when safe eligible candidates exist, while
   the projection already delegates hard semantics to product domain authority.
   Owner: independent correction review.
+- 2026-08-07 — Keep production authority admission canonical while proving
+  algorithm order independence over 20 fixed post-admission search-view
+  permutations. Reason: the Phase 8 profile authority already requires sorted
+  profiles and a matching semantic digest; retrieval must not weaken that
+  authority invariant. Owner: Milestone 2 implementation review.
+- 2026-08-07 — Keep the cold engine-build observation as explicit performance
+  evidence rather than adding infrastructure. Reason: one `182.262 ms` cold
+  measurement is not the final 100-build p95 protocol, while query p95/max and
+  heap already fit their initial budgets. Owner: Milestone 2 implementation
+  review.
 - 2026-08-07 — No deviation from the governing issue or protected Phase 8
   boundary has been identified.
 
@@ -974,7 +1139,7 @@ authority-order output matched, and pre-live status remained
 `offline-verified-live-blocked` with no model selected. No provider collection,
 database operation, migration, materialization, or model operation ran.
 
-### Diff and prohibited-scope review
+### Milestone 1 diff and prohibited-scope review
 
 The exact changed files are:
 
@@ -993,5 +1158,130 @@ live materialization was run.
 
 The commit SHA, normal push result, draft PR number/state, and naturally
 triggered hosted CI results cannot be self-recorded inside the single commit;
-they are retained in the draft PR and Milestone 1 delivery report. The ADR
-remains proposed and Milestone 2 remains blocked after publication.
+they are retained in the draft PR and Milestone 1 delivery report. Subsequent
+independent rereview accepted Milestone 1 at the correction commit, as recorded
+in the current status and progress log above.
+
+### Milestone 2 validation evidence — pending independent review
+
+The complete Milestone 2 validation sequence was rerun after the implementation
+and this evidence record. Its authoritative results are:
+
+| Command                                                                                        | Result                                                                                                       |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `pnpm runtime:check`                                                                           | exit 0; Node 24.18.0 and pnpm 11.17.0 pins passed                                                            |
+| `pnpm format:check`                                                                            | exit 0; all matched files use repository formatting                                                          |
+| `pnpm repo:check`                                                                              | exit 0; runtime and repository policy checks passed                                                          |
+| `pnpm contracts:validate`                                                                      | exit 0; 10 product-conformance cases and 40 candidate mappings passed                                        |
+| `pnpm eval:validate` / `pnpm eval:fixtures`                                                    | exit 0; existing evaluation authority and hand-calculated fixtures passed unchanged                          |
+| `pnpm eval:retrieval:validate` / `pnpm eval:retrieval:fixtures` / `pnpm eval:retrieval:verify` | exit 0; retrieval-v1 and existing scorer/baseline authority passed unchanged                                 |
+| `pnpm eval:retrieval:production`                                                               | exit 0; real production predictions, all nine differentials, safety scoring, quality metrics, and timing ran |
+| focused contract/retrieval/adapter Vitest command                                              | exit 0; 3 files and 39 tests passed                                                                          |
+| `pnpm architecture:check`                                                                      | exit 0; 857 modules and 2,855 dependencies had no violation                                                  |
+| `pnpm security:secrets`                                                                        | exit 0; Secretlint reported no finding                                                                       |
+| `pnpm security:audit`                                                                          | exit 0; no known vulnerability at the `moderate` threshold                                                   |
+| `pnpm verify`                                                                                  | exit 0; 118 test files and 1,843 tests passed, plus every configured authority and architecture check        |
+| `git diff --check`                                                                             | exit 0; no whitespace error or diagnostic                                                                    |
+| `git status --short --branch`                                                                  | exact tracking branch plus only the intended Milestone 2 worktree changes                                    |
+
+The focused command was:
+
+```bash
+pnpm exec vitest run \
+  packages/contracts/test/candidate-retrieval-contracts.test.ts \
+  packages/retrieval/test/retrieval-engine.test.ts \
+  tools/evaluation-harness/test/retrieval-production-adapter.test.ts
+```
+
+The standalone production-validation run reproduced prediction digest
+`3bba6372d211e88ba6f62fe3d948312c4f1daf7184ba639248337323dc559e1a`
+and score digest
+`7babb9b08467bfa91c35ce277ad776f2450806d21cf2418e46dd8c80b1c4d265`.
+It again examined and constraint-evaluated at most 150 candidates, ran five
+channels, returned at most ten candidates, and produced byte-identical repeat
+results. This run measured p95 query latency `11.024 ms`, maximum query latency
+`16.419 ms`, cold engine/search-view construction `165.947 ms`, and post-GC
+search-view heap delta `394,024` bytes. Exact repository/package identity group
+counts and removals were all zero for the current authority.
+
+The final authoritative `pnpm verify` sample measured p95 query latency
+`12.659 ms`, maximum query latency `17.864 ms`, cold engine/search-view
+construction `155.567 ms`, and post-GC search-view heap delta `459,680` bytes;
+the deterministic prediction and score digests remained unchanged.
+
+An initial full-suite run exposed no product assertion failure. It found three
+stale exact repository-policy expectations for the intentionally added CI
+command, lockfile/workflow scope pins, and renamed blind-input helper, plus
+test-hook timeouts under the local default of 14 concurrent workers while
+several suites parsed the 150-profile authority. The exact expectations were
+updated without weakening policy, and Vitest concurrency was bounded at eight.
+The subsequent raw suite and authoritative `pnpm verify` passed all 1,843 tests.
+
+A later pre-final `pnpm verify` stopped during the product build after result
+provenance was closed from arbitrary stable IDs to the domain-owned profile
+field-ID union: the retrieval sorting helper widened that union back to
+`string[]`. The helper now preserves its generic string subtype, and the
+immediate `pnpm build:product` rerun passed. The next pre-final run stopped at
+the lint rule requiring `T[]` notation in one synthetic test helper; that type
+notation was corrected without changing behavior. No runtime assertion,
+authority, metric, or dependency rule failed.
+
+The exact Milestone 2 changed-file set relative to the accepted Milestone 1
+commit is:
+
+```text
+.github/workflows/ci.yml
+dependency-cruiser.config.mjs
+docs/architecture/decisions/0009-production-retrieval.md
+docs/plans/0021-production-retrieval.md
+package.json
+packages/contracts/src/candidate-retrieval-contracts.ts
+packages/contracts/src/candidate-retrieval-schemas.ts
+packages/contracts/src/index.ts
+packages/contracts/src/schema-catalog.ts
+packages/contracts/src/structural-validation.ts
+packages/contracts/test/candidate-retrieval-contracts.test.ts
+packages/contracts/test/repository-interview-contracts.test.ts
+packages/contracts/test/schema-artifacts.test.ts
+packages/domain/src/candidate-constraint-evaluation.ts
+packages/domain/src/index.ts
+packages/ingestion/test/profile-materialization-scope.test.ts
+packages/retrieval/README.md
+packages/retrieval/package.json
+packages/retrieval/src/index.ts
+packages/retrieval/src/retrieval-engine.ts
+packages/retrieval/test/retrieval-engine.test.ts
+packages/retrieval/test/tsconfig.json
+packages/retrieval/tsconfig.json
+packages/retrieval/tsconfig.test.json
+pnpm-lock.yaml
+tools/evaluation-harness/package.json
+tools/evaluation-harness/src/retrieval/baseline-generation.ts
+tools/evaluation-harness/src/retrieval/cli.ts
+tools/evaluation-harness/src/retrieval/production-generation.ts
+tools/evaluation-harness/src/retrieval/production-runner.ts
+tools/evaluation-harness/src/retrieval/safe-authority.ts
+tools/evaluation-harness/test/retrieval-baseline-boundary.test.ts
+tools/evaluation-harness/test/retrieval-baseline-cli.test.ts
+tools/evaluation-harness/test/retrieval-production-adapter.test.ts
+tools/evaluation-harness/tsconfig.json
+tools/evaluation-harness/tsconfig.test.json
+tools/repository-checks/architecture-fixtures/allowed-product-direction/packages/retrieval/index.mjs
+tools/repository-checks/architecture-fixtures/allowed-product-direction/packages/retrieval/src/index.mjs
+tools/repository-checks/architecture-fixtures/allowed-product-direction/tools/evaluation-harness/src/index.mjs
+tools/repository-checks/architecture-fixtures/retrieval-disallowed-package/packages/persistence/src/index.mjs
+tools/repository-checks/architecture-fixtures/retrieval-disallowed-package/packages/retrieval/src/index.mjs
+tools/repository-checks/src/repository-invariants.ts
+tools/repository-checks/test/architecture-rules.test.ts
+tools/repository-checks/test/repository-invariants.test.ts
+tools/repository-checks/test/temp-repository.ts
+tools/repository-checks/test/workflow-policy.test.ts
+tsconfig.json
+vitest.config.ts
+```
+
+Complete diff review found no evaluation case, relevance, no-result,
+equivalence, gold, scorer, baseline output, migration, database, materialization,
+provider, model, expansion, vector, persistent index, cache, search service,
+ranking, target-codebase, API, MCP, or Skill change. The production package has
+no corresponding dependency or runtime access. Milestone 7B remains deferred.

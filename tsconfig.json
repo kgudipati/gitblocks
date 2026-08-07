@@ -13,6 +13,9 @@
       "path": "./packages/contracts"
     },
     {
+      "path": "./packages/retrieval"
+    },
+    {
       "path": "./packages/interviews"
     },
     {

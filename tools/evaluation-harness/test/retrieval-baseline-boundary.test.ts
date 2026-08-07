@@ -37,7 +37,7 @@ describe('retrieval baseline gold isolation', () => {
       'utf8',
     );
     expect(source.indexOf('loadRetrievalBlindQuerySetV1')).toBeLessThan(
-      source.indexOf('loadSafeAuthority('),
+      source.indexOf('loadRetrievalSafeAuthorityV1('),
     );
     for (const token of [
       'loadRetrievalCorpusV1',

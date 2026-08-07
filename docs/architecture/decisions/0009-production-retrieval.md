@@ -1,6 +1,6 @@
 # ADR 0009: Production candidate retrieval
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-08-07
 - Decision owners: GitBlocks maintainers
 - Governing issue:
@@ -17,9 +17,23 @@
   [ADR 0007](0007-evidence-grounded-repository-interviews.md), and
   [ADR 0008](0008-artifact-first-retrieval-foundation.md)
 
-This decision remains proposed. Independent maintainer review must accept this
-architecture and the pre-registered acceptance gates before Milestone 2 may
-create production retrieval contracts or code.
+Independent maintainer rereview accepted this decision and every pre-registered
+Milestone 1 gate at commit
+`18dae5adf821f0c998c02d4829416d655b9da1a1`. The associated hosted aggregate
+failure is accepted as a runner-infrastructure exception: three workers passed,
+the remaining deterministic workers were terminated by the hosted-runner
+shutdown, and the authoritative local `pnpm verify` passed 115 files and 1,802
+tests without a failing assertion. This acceptance authorizes Milestone 2 only;
+it does not accept production retrieval quality, the `proposed-not-reviewed`
+evaluation gold, a Milestone 2 implementation, or Phase 9 completion.
+
+Milestone 2 is now implemented on the Phase 9 branch and is pending independent
+review. The blind production benchmark currently measures macro Recall@10
+`0.612295`, 25/25 positive-case hits, MRR `0.960000`, and NDCG@10 `0.769561`,
+with every zero-tolerance safety metric passing. The macro, audit-logging, and
+rate-limiting recall gaps remain explicit Milestone 3 work. These measurements
+do not alter the accepted gates, authorize Milestone 3, establish Phase 9
+completion, or accept the evaluation gold.
 
 ## Context
 
@@ -96,20 +110,20 @@ bounded retrieval result
 
 The result is candidate retrieval. It is not recommendation, an adoption-fit
 assessment, codebase-conditioned fit, winner selection, integration planning,
-or ranking. A repository fingerprint reference that happens to be preserved
-on the normalization result is not a retrieval input. Phase 9 neither reads a
+or ranking. Request admission rejects a non-null repository fingerprint
+reference preserved on the normalization result. Phase 9 neither reads a
 target repository nor changes `RepositoryFingerprintV1` semantics.
 
 ### Product package ownership
 
-Milestone 2 will introduce exactly one narrow product package:
+Milestone 2 introduces exactly one narrow product package:
 
 ```text
 packages/retrieval
 @gitblocks/retrieval
 ```
 
-Milestone 1 creates no package or TypeScript implementation. The future
+Milestone 1 created no package or TypeScript implementation. The Milestone 2
 package is a pure, injected, in-process retrieval core. Its allowed workspace
 dependencies are `@gitblocks/contracts` and `@gitblocks/domain`; contracts
 already depend on domain, and retrieval may also depend directly on domain to
@@ -143,7 +157,7 @@ equivalence records, baselines, scorers, or harness utilities.
 
 ### Additive product contracts
 
-Milestone 2 will add exactly two transport-neutral product contract roots to
+Milestone 2 adds exactly two transport-neutral product contract roots to
 `@gitblocks/contracts`:
 
 - `CandidateRetrievalRequestV1`; and
@@ -230,7 +244,7 @@ weight.
 
 ### Authority read set and access pattern
 
-The future retrieval package consumes already parsed and validated taxonomy
+The retrieval package consumes already parsed and validated taxonomy
 and deterministic-profile authorities through explicit constructor or
 function inputs. The pure query operation performs no filesystem, database,
 network, provider, or model access.
@@ -340,7 +354,7 @@ never imported into product code. No semantic equivalence is fabricated.
 
 ### Evaluation integration and acceptance authority
 
-Milestone 2 adds a harness-side adapter that executes the real production
+Milestone 2 provides a harness-side adapter that executes the real production
 package against blind `retrieval-v1` inputs and maps its two bounded product
 lanes into the existing closed prediction schema. The existing Phase 8
 ordinary-lane rule is based on the complete safe post-hard-filter candidate
@@ -629,5 +643,6 @@ corpus size.
 
 Vectors, persistent search infrastructure, target-codebase ranking, and
 external APIs are not required unless activated by an explicitly
-pre-registered measured failure. This proposed ADR does not authorize
-Milestone 2 until independent maintainer acceptance is recorded.
+pre-registered measured failure. Milestone 1 acceptance authorizes the
+Milestone 2 vertical slice; each later milestone still requires independent
+review of the preceding implementation.

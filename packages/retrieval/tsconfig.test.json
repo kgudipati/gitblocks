@@ -3,15 +3,16 @@
   "compilerOptions": {
     "noEmit": true,
     "rootDir": ".",
-    "tsBuildInfoFile": "node_modules/.cache/tsconfig.test.tsbuildinfo"
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.test.tsbuildinfo",
+    "types": ["node"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "references": [
     {
-      "path": "../../packages/retrieval"
+      "path": "../contracts"
     },
     {
-      "path": "../../packages/persistence"
+      "path": "../domain"
     }
   ]
 }

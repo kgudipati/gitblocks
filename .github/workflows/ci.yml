@@ -124,6 +124,9 @@ jobs:
       - name: Verify retrieval baselines and committed report
         run: node tools/evaluation-harness/src/retrieval/cli.ts verify
 
+      - name: Evaluate production retrieval vertical slice
+        run: node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production
+
       - name: Validate interview evaluation cases
         run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
 
@@ -195,6 +198,7 @@ jobs:
           pnpm exec vitest run
           packages/contracts/test
           packages/domain/test
+          packages/retrieval/test
           packages/persistence/test
           packages/ingestion/test
           --config vitest.config.ts

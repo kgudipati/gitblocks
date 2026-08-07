@@ -10,6 +10,7 @@ import { scoreRetrievalPredictionSet } from './scoring.ts';
 import { createRetrievalSchemaRegistry } from './schema-registry.ts';
 import { retrievalStableJson } from './stable-json.ts';
 import { findGitBlocksRoot } from '../repository-root.ts';
+import { runProductionRetrievalEvaluationV1 } from './production-runner.ts';
 
 export interface RetrievalCliOutput {
   readonly error: (line: string) => void;
@@ -25,7 +26,8 @@ export function runRetrievalCli(
   if (
     (command === 'baselines' ||
       command === 'baselines-generate' ||
-      command === 'verify') &&
+      command === 'verify' ||
+      command === 'production') &&
     args.length !== 1
   ) {
     output.error('Unexpected retrieval baseline arguments.');
@@ -75,6 +77,19 @@ export function runRetrievalCli(
       return 1;
     }
   }
+  if (command === 'production') {
+    try {
+      output.log(
+        retrievalStableJson(
+          runProductionRetrievalEvaluationV1(repositoryRoot),
+        ).trimEnd(),
+      );
+      return 0;
+    } catch {
+      output.error('Production retrieval evaluation failed.');
+      return 1;
+    }
+  }
   if (command === 'fixtures') {
     try {
       output.log(retrievalStableJson(runRetrievalScorerFixtures()).trimEnd());
@@ -86,7 +101,7 @@ export function runRetrievalCli(
   }
   if (command !== 'score' && command !== 'validate') {
     output.error(
-      'Use validate, fixtures, baselines, baselines-generate, verify, or score --prediction <path>.',
+      'Use validate, fixtures, baselines, baselines-generate, verify, production, or score --prediction <path>.',
     );
     return 1;
   }

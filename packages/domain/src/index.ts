@@ -73,6 +73,7 @@ export {
   validateDeterministicProfileFieldRegistry,
 } from './deterministic-candidate-profile.ts';
 export {
+  CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
   evaluateCandidateConstraintProfileState,
   evaluateCandidateConstraints,
 } from './candidate-constraint-evaluation.ts';
