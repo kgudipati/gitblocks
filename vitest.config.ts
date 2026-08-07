@@ -2,8 +2,8 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    // Bound concurrent authority parsing as the product test matrix grows.
-    maxWorkers: 8,
+    // Bound concurrent authority parsing to the hosted runner CPU allocation.
+    maxWorkers: 4,
     coverage: {
       enabled: false,
       exclude: [

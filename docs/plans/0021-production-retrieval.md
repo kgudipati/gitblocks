@@ -1226,6 +1226,42 @@ the lint rule requiring `T[]` notation in one synthetic test helper; that type
 notation was corrected without changing behavior. No runtime assertion,
 authority, metric, or dependency rule failed.
 
+The naturally triggered hosted run `31218374163` subsequently found one
+resource-sensitive validation failure rather than a retrieval or interview
+assertion failure. The Interview and Operator worker passed 325 tests, but the
+existing interview import-boundary test exceeded its explicit 30-second limit
+at `32.027 s` while the branch's eight Vitest workers contended on a four-vCPU
+hosted runner. The worker-cap change already introduced by this milestone was
+corrected from eight to four; no interview test, timeout, or product behavior
+was changed. The exact failed shard then passed locally with 13 files and 326
+tests in `11.07 s`. Because the milestone commit was already published, this
+configuration correction must use an ordinary follow-up commit rather than
+rewriting shared history.
+
+The authoritative post-correction `pnpm verify` rerun exited 0 with all 118
+test files and 1,843 tests passing and with no dependency violation across 857
+modules and 2,855 dependencies. Its production sample preserved both semantic
+digests and all recorded quality/safety results while measuring p95 query
+latency `12.036 ms`, maximum query latency `18.824 ms`, cold engine/search-view
+construction `159.238 ms`, and post-GC search-view heap delta `459,704` bytes.
+
+The registry-backed audit then began reporting `GHSA-2v37-7h3g-55p8` against
+transitive `nanoid 3.3.16` in the unchanged Vitest/Vite development toolchain.
+The accepted `postcss` range admits the patched `3.3.17`; a root pnpm override
+now pins that exact version across every transitive path, and pnpm regenerated
+only the corresponding lockfile resolution. No direct or product dependency
+changed. The Phase 8 scope guard's exact lockfile digest was advanced to
+`e34dcbb858b8522d66cf5577efa7e21fc4aa6a407d8e3998dff8113d8ac626af`
+without changing any other protected byte authority.
+
+The final post-override `pnpm verify` rerun exited 0 with the same 118 files,
+1,843 tests, architecture counts, prediction/score digests, quality metrics,
+and zero-violation safety results. Its production sample measured p95 query
+latency `13.351 ms`, maximum query latency `17.950 ms`, cold
+engine/search-view construction `171.244 ms`, and post-GC search-view heap
+delta `388,936` bytes. A frozen pnpm install, the four-test protected scope
+guard, and the registry-backed audit also passed on the exact final lockfile.
+
 The exact Milestone 2 changed-file set relative to the accepted Milestone 1
 commit is:
 
@@ -1255,6 +1291,7 @@ packages/retrieval/test/tsconfig.json
 packages/retrieval/tsconfig.json
 packages/retrieval/tsconfig.test.json
 pnpm-lock.yaml
+pnpm-workspace.yaml
 tools/evaluation-harness/package.json
 tools/evaluation-harness/src/retrieval/baseline-generation.ts
 tools/evaluation-harness/src/retrieval/cli.ts
