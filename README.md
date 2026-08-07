@@ -142,6 +142,15 @@ source records byte-for-byte, and disposes the exact container before its
 network. Milestone 7B, Docker/database/provider execution, and live completion
 evidence remain separately authorized.
 
+[Plan 0021](docs/plans/0021-production-retrieval.md) and proposed
+[ADR 0009](docs/architecture/decisions/0009-production-retrieval.md) begin
+Project Phase 9, corresponding to the original strategy's Phase 11 retrieval
+engine. Milestone 1 establishes architecture and pre-registered acceptance
+authority only: no production retrieval implementation exists yet, ranking
+remains Phase 10, and vectors or persistent search remain conditional on
+measured evidence. Independent maintainer acceptance is required before
+Milestone 2.
+
 ## Repository map
 
 | Path                                     | Purpose                                                                          |

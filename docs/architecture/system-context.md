@@ -30,6 +30,11 @@ projection validation, closed prediction/report schemas, and deterministic
 scoring fixtures. It contains no product candidate generation, filtering,
 retrieval, ranking, recommendation, baseline, or profile persistence.
 
+Project Phase 9 Milestone 1 adds only proposed retrieval architecture and
+pre-registered acceptance gates. No production retrieval package, contract, or
+service exists yet; ranking remains Phase 10, and vector or persistent search
+infrastructure remains conditional on measured evidence and later review.
+
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
 [ADR 0001](decisions/0001-agent-native-delivery.md) owns the headless,
@@ -52,6 +57,10 @@ direct provider adapter, calibration, and live gates.
 Phase 8 deterministic candidate-profile, taxonomy, pre-contract query, and
 retrieval-evaluation boundaries. It does not approve production retrieval or
 ranking.
+[ADR 0009](decisions/0009-production-retrieval.md) proposes the Phase 9 pure
+retrieval-package, transport-neutral contract, hard-lane, evaluation, and
+acceptance boundaries. It remains proposed and does not authorize production
+implementation before independent maintainer review.
 
 ## Context and ownership
 
