@@ -425,6 +425,28 @@ first connection attempt. Exact disposal and independent container, network,
 and volume absence also passed. This proof accepts the fresh-database boundary;
 it is not a profile-materialization execution.
 
+Execute 4 later passed that fresh-database and 0/0 boundary, then failed at the
+coarse `migrate-schema-runtime-role-catalog-seed` stage before provider work.
+Static review independently rejected the stage's `CREATE ROLE ... PASSWORD $1`
+utility-command parameterization without inferring that it was execute 4's
+exact failing statement. Runtime-role regressions exercise the real
+Postgres.js transaction/tag/unsafe mock seam. They require transaction-local
+bound role/password settings, fixed `%I`/`%L` PostgreSQL-side formatting,
+exact least-privilege attributes and membership, password-safe SQL shape,
+rollback, cancellation before schema inspection, value-free database failure,
+and CLI redaction. The prior implementation produced 12 expected failures and
+126 passes in the required four-file focused run; the corrected path passes all
+138 focused tests.
+
+Mocks do not establish the PostgreSQL utility grammar against a live server.
+The runtime-role correction is therefore claimed only as deterministic offline
+correctness: the required focused suite, complete normal suite, architecture,
+and authoritative verification pass. The formerly planned real
+`createProfileMaterializationSystemEffects` create/zero-state/complete
+`prepareDatabase` correction gate was not completed. The live path remains
+unproven, Milestone 7B is deferred, and no further Phase 8 materialization
+diagnostic or execute 5 is authorized.
+
 The Milestone 7A review-correction suites additionally prove runtime-login-only
 catalog/profile persistence, exact observation-topic-to-evidence mapping,
 150-entry first/second persistence-proof closure, qualified-not-persisted

@@ -22,12 +22,20 @@
   explicitly split Milestone 7 into offline implementation-only Milestone 7A
   and separately authorized live/evidence Milestone 7B. Milestone 7A was
   accepted through the Docker tmpfs-inspection representation correction at
-  `38cd1d8d8d3177cdd5301b33f17fe4be80e67e2e`, followed by the effective
-  storage proof at `fa2262da249ee9ed43af5b89df5f95223675308d`. Milestone 7B
-  remains incomplete after three consumed failed execute attempts. A staged
-  diagnostic localized the next reproducible boundary to the fresh database
-  zero-state proof; no fourth materialization execute is authorized.
-- Last updated: 2026-08-06
+  `38cd1d8d8d3177cdd5301b33f17fe4be80e67e2e`, the effective storage proof at
+  `fa2262da249ee9ed43af5b89df5f95223675308d`, and the host-reachability
+  correction at `2f71d1dcebf1dfdd3c060e7fc4a0d71ff6e36130`. Milestone 7B
+  remains incomplete after exactly four consumed failed execute attempts. The
+  fourth passed database creation and the 0/0 zero-state proof, then failed at
+  the coarse `migrate-schema-runtime-role-catalog-seed` stage with
+  `ingestion.internal-invariant`; it made zero provider requests, published no
+  authority or evidence, and was not retried. Static review independently
+  identified invalid parameterized runtime-role utility DDL inside that stage.
+  The correction is validated as deterministic offline correctness only. Its
+  formerly planned isolated prepare-stage proof was not completed, the live
+  correction path remains unproven, and materialization execute number five is
+  deferred and unauthorized.
+- Last updated: 2026-08-07
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
 decisions after acceptance. This plan owns execution order, likely file
@@ -56,8 +64,9 @@ remains accepted. Milestone 4 is accepted under the documented hosted
 infrastructure exception. Milestone 5 is accepted through
 `4f4c1e4522f7db85d2a0a422b5c78ac8665a4840`. Milestone 6 is accepted at
 `ea27f11432513ec352ce43821eb95b8da0886182`. Milestone 7A may implement only
-the offline controlled operator and fake-effect proof; Milestone 7B remains
-unauthorized.
+the offline controlled operator and its separately authorized bounded
+corrections. Milestone 7B remains incomplete; materialization execute number
+five is not authorized.
 
 ## Purpose and user-visible outcome
 
@@ -1187,20 +1196,46 @@ Milestone 7B.
 
 ### Milestone 7B — Separately authorized live proof and evidence
 
-Milestone 7B remains incomplete. The first acknowledged live execute invocation
-failed safely before first-source-authority publication under the prior generic
-CLI; its exact stage remains unknowable. After the PostgreSQL 18 boundary
-correction, one separately authorized execute failed at
-`fresh-database-create` with `ingestion.internal-invariant`, before any
-provider request, authority, proof, or fixed evidence. Neither attempt was
-retried. A third separately authorized execute on the effective-storage
-correction also failed before any authority, proof, run directory, or fixed
-evidence; its wrapper lost the already-bounded failure line, so its stage is
-not inferred. A later Node-only staged diagnostic passed database creation and
-localized the next reproducible failure to `zero-state-proof` with
-`ingestion.internal-invariant`, before migration or provider work. None of the
-three attempts was retried. A future proof requires fresh maintainer
-authorization. If later authorized, one acknowledged
+Milestone 7B remains incomplete. Permanent history contains exactly four
+consumed materialization executes, and none was retried. Execute 1 on
+`bca0dfef9ca6004c08f863948f1b56a4ce176243` failed safely under the prior
+generic CLI without a knowable stage. Execute 2 on
+`3f957e14c592d5ad11f576887c135ba4191da522` failed at
+`fresh-database-create / ingestion.internal-invariant`. Execute 3 on
+`fa2262da249ee9ed43af5b89df5f95223675308d` lost its already-bounded stage/code
+in the operational wrapper. Execute 4 on
+`2f71d1dcebf1dfdd3c060e7fc4a0d71ff6e36130` returned
+`migrate-schema-runtime-role-catalog-seed / ingestion.internal-invariant` after
+fresh database creation and the exact 0/0 zero-state proof had passed. Execute
+4's public command-plan digest was
+`b9c0eae449e14a41d3cd4fd22d36b7f7ff174c964e9541410c8f0e14fccacc93`,
+database-plan digest was
+`eac3f5dc9e3cdebf24789cccd941623ff912f75625cc9175fcb827ff2e0520ec`,
+and run-ID digest was
+`caa2e585c00608ba46f53906f9c8d7759d00bf6275f90c51578420dca29654d8`.
+It made zero provider requests and produced no source authority, persistence
+proof, run directory, receipt, coverage, or fixed evidence. The coarse stage
+does not establish its exact failing statement.
+
+Static review independently identified that the accepted `prepare()` path
+authored `CREATE ROLE ... PASSWORD $1` as PostgreSQL utility DDL through
+`transaction.unsafe`. The correction keeps role and password as ordinary
+Postgres.js bound values in transaction-local `gitblocks.runtime_role` and
+`gitblocks.runtime_password` settings. One fixed PL/pgSQL `DO` body uses
+`pg_catalog.format('%I', ...)` for the identifier and `%L` for the password,
+creates the exact least-privilege login, and grants only
+`gitblocks_persistence`. Both configuration and utility queries use the
+cancellation-aware pending-query boundary under transaction-local statement
+and lock timeouts. Raw passwords never enter Node-authored utility SQL,
+diagnostics, snapshots, or CLI failures.
+
+The correction is accepted only as deterministic offline correctness. The
+formerly planned isolated real system-effects gate was not completed, so the
+corrected full `prepareDatabase` and 150-candidate runtime-role catalog-seed
+path remain unproven live. Milestone 7B is deferred, no further Phase 8 live
+materialization diagnostic is authorized, and execute 5 remains unauthorized.
+A future successor requires fresh maintainer authority. If later authorized,
+one acknowledged
 `profiles:materialization:execute` invocation may collect two immutable local
 source authorities, prove same-evidence reproduction and live idempotency,
 dispose the fresh database resources, and publish only:
@@ -2444,3 +2479,39 @@ entries.
   volume absence passed. The gate executed no migration, catalog seed, provider
   collection, public materialization preflight, or materialization execute;
   Milestone 7B remains incomplete and execute number four remains unauthorized.
+
+### 2026-08-07 — Runtime-role utility-DDL correction
+
+- Permanent history now contains exactly four consumed materialization
+  executes. Execute 4 passed fresh database creation and zero-state with 0
+  migrations and 0 product tables, then failed at the coarse
+  `migrate-schema-runtime-role-catalog-seed / ingestion.internal-invariant`
+  boundary. It made zero provider requests, produced no authority, proof, run
+  directory, receipt, coverage, or fixed evidence, passed exact cleanup, and
+  was not retried. This correction does not authorize execute 5.
+- Static review independently found that `prepare()` passed a bound password
+  marker inside `CREATE ROLE` utility DDL through `transaction.unsafe`. That
+  statement is not accepted PostgreSQL utility-command parameterization. The
+  coarse execute stage does not prove that this exact statement caused execute
+  4 to fail.
+- The correction binds the runtime role and password through ordinary
+  Postgres.js interpolation into transaction-local two-part custom settings.
+  A fixed PL/pgSQL `DO` body obtains both with `current_setting`, formats the
+  role with `%I`, formats the password with `%L`, creates the exact login
+  attributes, and grants only `gitblocks_persistence`. The configuration query
+  projects only boolean success metadata. Neither raw password nor role name is
+  concatenated into Node-authored utility SQL.
+- Both provisioning statements use the accepted cancellation-aware
+  pending-query boundary inside an owner transaction with transaction-local
+  statement and lock timeouts. Database failures normalize to the existing
+  value-free persistence taxonomy; failure or cancellation rolls back and
+  prevents schema inspection and runtime migration verification.
+- Fourteen red-first cases were added across the persistence mock seam and CLI
+  denial boundary. Against the prior implementation, the required four-file
+  run produced 12 expected failures and 126 passes. After correction, the same
+  focused gate passes all 138 tests in four files. The complete normal suite
+  passes all 1,802 tests in 115 files; `pnpm verify` and architecture with zero
+  dependency violations pass. This establishes deterministic offline
+  correctness only. The formerly planned isolated complete prepare-stage proof
+  was not completed, the live path remains unproven, and Milestone 7B is being
+  deferred without authorizing execute 5.

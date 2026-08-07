@@ -37,9 +37,10 @@ Phase 7 state.
 The offline authority is mostly unknown by design: 600 of 4,050 cells are
 known, 210 are not applicable because 70 candidates have no approved npm
 mapping, 3,240 are unknown, and none conflict. This is an honest deterministic
-foundation, not production readiness. Milestone 7A now implements the
-controlled materialization operator without running it; production retrieval
-remains unimplemented and Milestone 7B live execution remains unauthorized.
+foundation, not production readiness. Milestone 7A implements the controlled
+materialization operator. Four permanent live executes have been consumed, but
+none established accepted completion evidence; production retrieval remains
+unimplemented and Milestone 7B remains incomplete.
 
 The separately digested
 `profile-materialization-provider-policy/1.0.0` permits nine exact operations
@@ -159,8 +160,8 @@ transport codes are retryable; authentication, SQL/protocol, nonempty-state,
 cancellation, and unknown failures fail immediately. The caller signal cancels
 the pending query and sleep, every attempt closes its client, and exhausted
 host readiness is exposed only as `zero-state-proof` with
-`ingestion.persistence`. All three executes remain permanent, none was retried,
-Milestone 7B remains incomplete, and execute number four is not authorized.
+`ingestion.persistence`. All four executes remain permanent, none was retried,
+Milestone 7B remains incomplete, and execute number five is not authorized.
 
 The first isolated exercise of that correction passed internal health but
 exhausted all ten connection-class attempts. A bounded Docker Desktop port
@@ -175,7 +176,7 @@ This bridge is not described as egress-isolated. The ephemeral database holds
 only transient public-materialization state, receives no provider credential,
 uses a digest-pinned image and hardened tmpfs with no volume/bind, and is
 disposed before fixed evidence publication. The bounded zero-state policy and
-safe error mapping above remain unchanged. Execute number four is still not
+safe error mapping above remain unchanged. Execute number five is not
 authorized.
 
 The isolated acceptance gate for this correction passed on diagnostic run-ID
@@ -187,6 +188,31 @@ the 0/0 host proof completed on its first connection attempt. Disposal and
 post-disposal container, network, and volume absence passed. No migration,
 catalog seed, provider collection, public materialization preflight, or
 materialization execute occurred.
+
+Permanent execute number four then passed database creation and the zero-state
+proof with zero migrations and zero product tables before failing at the
+coarse `migrate-schema-runtime-role-catalog-seed` stage with
+`ingestion.internal-invariant`. It made zero provider requests, created no
+retained run directory, and published no fixed evidence. Static review found an
+independently invalid utility-DDL boundary inside that stage: `CREATE ROLE ...
+PASSWORD $1` was sent through `unsafe`. The coarse stage does not prove that
+this exact statement caused the execute failure.
+
+Runtime-role provisioning now binds the role and password through
+transaction-local `pg_catalog.set_config` calls, then uses a fixed PL/pgSQL
+`DO` body whose dynamic commands quote the identifier with
+`pg_catalog.format('%I', ...)` and the password literal with
+`pg_catalog.format('%L', ...)`. The password never enters Node-created utility
+SQL or a failure line. The login retains exactly the required restricted role
+attributes and exactly one direct `gitblocks_persistence` membership. Both
+statements retain the caller cancellation boundary, and transaction failure
+cannot expose a partially accepted prepare result. The correction is validated
+as deterministic offline correctness only. Its formerly planned isolated real
+system-effects `createDatabase`, `proveEmptyDatabase`, and complete
+`prepareDatabase` gate was not completed, so the corrected live path remains
+unproven. Milestone 7B is deferred; no further Phase 8 materialization
+diagnostic, provider request, source collection, receipt, fixed evidence, or
+execute number five is authorized.
 
 Phase 6 adds a separate `public-artifacts-v1` selection authority without
 changing Phase 5 file allowlists. `artifact-selections.json` contains the

@@ -241,6 +241,182 @@ describe('profile-materialization zero-state host boundary', () => {
   });
 });
 
+describe('profile-materialization runtime-role provisioning', () => {
+  it('never authors PASSWORD $1 inside CREATE ROLE utility SQL', async () => {
+    const harness = prepareDatabaseHarness();
+
+    await harness.prepare();
+
+    expect(harness.provisioningUnsafeSql()).not.toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/create role[\s\S]*password \$1/iu),
+      ]),
+    );
+  });
+
+  it('never places the raw runtime password in unsafe SQL text', async () => {
+    const runtimePassword = String.raw`hostile-'\\-runtime-password`;
+    const harness = prepareDatabaseHarness({ runtimePassword });
+
+    await harness.prepare();
+
+    for (const text of harness.provisioningUnsafeSql()) {
+      expect(text).not.toContain(runtimePassword);
+    }
+  });
+
+  it('keeps hostile password characters bound without changing utility SQL shape', async () => {
+    const ordinary = prepareDatabaseHarness({
+      runtimePassword: 'ordinary-runtime-password',
+    });
+    await ordinary.prepare();
+    const ordinaryUnsafeSql = ordinary.provisioningUnsafeSql();
+    const ordinaryConfigurationSql = ordinary.runtimeConfigurationSql()?.text;
+    const hostile = prepareDatabaseHarness({
+      runtimePassword: String.raw`quote-'\\-semicolon-;--runtime-password`,
+    });
+    await hostile.prepare();
+
+    expect(hostile.provisioningUnsafeSql()).toEqual(ordinaryUnsafeSql);
+    expect(hostile.runtimeConfigurationSql()?.text).toBe(
+      ordinaryConfigurationSql,
+    );
+    expect(hostile.runtimeConfigurationSql()?.values).toContain(
+      String.raw`quote-'\\-semicolon-;--runtime-password`,
+    );
+  });
+
+  it('formats the runtime role only as a PostgreSQL identifier', async () => {
+    const harness = prepareDatabaseHarness();
+
+    await harness.prepare();
+
+    const utilitySql = harness.provisioningUtilitySql();
+    expect(utilitySql).toContain('pg_catalog.format');
+    expect(utilitySql).toContain('create role %I');
+    expect(utilitySql).not.toContain(harness.plan.identity.runtimeRoleName);
+    expect(harness.runtimeConfigurationSql()?.values).toContain(
+      harness.plan.identity.runtimeRoleName,
+    );
+  });
+
+  it('formats the runtime password only as a PostgreSQL literal', async () => {
+    const harness = prepareDatabaseHarness();
+
+    await harness.prepare();
+
+    expect(harness.provisioningUtilitySql()).toContain('password %L');
+    expect(harness.runtimeConfigurationSql()?.values).toContain(
+      credentials().runtimePassword,
+    );
+  });
+
+  it('sets the custom runtime password only for the owner transaction', async () => {
+    const harness = prepareDatabaseHarness();
+
+    await harness.prepare();
+
+    const configuration = normalizeSql(
+      harness.runtimeConfigurationSql()?.text ?? '',
+    );
+    expect(configuration).toMatch(
+      /set_config\( 'gitblocks\.runtime_password', \?\?, true \) is not null as runtime_password_configured/iu,
+    );
+  });
+
+  it('sets the custom runtime role only for the owner transaction', async () => {
+    const harness = prepareDatabaseHarness();
+
+    await harness.prepare();
+
+    const configuration = normalizeSql(
+      harness.runtimeConfigurationSql()?.text ?? '',
+    );
+    expect(configuration).toMatch(
+      /set_config\( 'gitblocks\.runtime_role', \?\?, true \) is not null as runtime_role_configured/iu,
+    );
+  });
+
+  it('keeps the runtime role attributes exact', async () => {
+    const harness = prepareDatabaseHarness();
+
+    await harness.prepare();
+
+    expect(normalizeSql(harness.provisioningUtilitySql())).toContain(
+      'create role %I login password %L nosuperuser nocreatedb nocreaterole inherit noreplication nobypassrls',
+    );
+  });
+
+  it('grants only gitblocks_persistence membership to the runtime role', async () => {
+    const harness = prepareDatabaseHarness();
+
+    await harness.prepare();
+
+    const utilitySql = normalizeSql(harness.provisioningUtilitySql());
+    expect(utilitySql).toContain('grant gitblocks_persistence to %I');
+    expect(utilitySql.match(/\bgrant\b/giu)).toHaveLength(1);
+  });
+
+  it('rolls back failed provisioning without returning a partial stage result', async () => {
+    const harness = prepareDatabaseHarness({
+      provisioningError: databaseError(
+        'XX000',
+        'private role-provisioning database failure',
+      ),
+    });
+
+    await expect(harness.prepare()).rejects.toBeInstanceOf(PersistenceError);
+    expect(harness.provisioningEvents).toContain('rollback');
+    expect(harness.provisioningEvents).not.toContain('commit');
+    expect(harness.schemaInspectionCount()).toBe(0);
+    expect(harness.runtimeVerificationCount()).toBe(0);
+  });
+
+  it('cancels pending provisioning and never continues to schema inspection', async () => {
+    const controller = new AbortController();
+    const harness = prepareDatabaseHarness({
+      cancellation: { controller },
+    });
+
+    await expect(harness.prepare(controller.signal)).rejects.toMatchObject({
+      name: 'PersistenceError',
+      code: 'persistence.deadline',
+    });
+    expect(harness.provisioningCancelCount()).toBe(1);
+    expect(harness.schemaInspectionCount()).toBe(0);
+    expect(harness.runtimeVerificationCount()).toBe(0);
+  });
+
+  it('bounds arbitrary role-provisioning database failures with a value-free error', async () => {
+    const privateText =
+      'private role failure password=raw-runtime-password postgresql://private';
+    const harness = prepareDatabaseHarness({
+      provisioningError: databaseError('XX000', privateText),
+    });
+
+    const failure = await harness.prepare().catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(PersistenceError);
+    expect(String(failure)).not.toContain(privateText);
+    expect(String(failure)).not.toContain('raw-runtime-password');
+    expect((failure as Error).stack).toBeUndefined();
+  });
+
+  it('returns only harmless configuration metadata before fixed utility SQL', async () => {
+    const harness = prepareDatabaseHarness();
+
+    await harness.prepare();
+
+    const configuration = normalizeSql(
+      harness.runtimeConfigurationSql()?.text ?? '',
+    );
+    expect(configuration).toContain('is not null as runtime_role_configured');
+    expect(configuration).toContain(
+      'is not null as runtime_password_configured',
+    );
+    expect(configuration).not.toContain('as runtime_password ');
+  });
+});
+
 describe('profile-materialization fresh database planning', () => {
   it('uses a fresh labeled dedicated bridge without the Docker internal flag', () => {
     const plan = createPlan();
@@ -1276,6 +1452,222 @@ function credentials(
   };
 }
 
+interface RecordedSqlCall {
+  readonly kind: 'tag' | 'unsafe';
+  readonly text: string;
+  readonly values: readonly unknown[];
+}
+
+interface FakePendingQuery<Rows> extends Promise<Rows> {
+  cancel(): void;
+  execute(): FakePendingQuery<Rows>;
+  simple(): FakePendingQuery<Rows>;
+}
+
+function prepareDatabaseHarness(
+  options: {
+    readonly runtimePassword?: string;
+    readonly provisioningError?: Error;
+    readonly cancellation?: { readonly controller: AbortController };
+  } = {},
+) {
+  const plan = createPlan();
+  const runtimePassword =
+    options.runtimePassword ?? credentials().runtimePassword;
+  const preparationCredentials = credentials({ runtimePassword });
+  const provisioningCalls: RecordedSqlCall[] = [];
+  const provisioningEvents: string[] = [];
+  let schemaInspections = 0;
+  let runtimeVerifications = 0;
+  let provisioningCancellations = 0;
+
+  const migrationSql = fakeSql({
+    taggedRows: (text) => {
+      if (text.includes("current_setting('server_version')")) {
+        return [{ server_version: '18.4', server_version_num: 180_004 }];
+      }
+      if (text.includes('from gitblocks.schema_migrations')) return [];
+      return [];
+    },
+  });
+  const provisioningSql = fakeSql({
+    calls: provisioningCalls,
+    events: provisioningEvents,
+    taggedRows: (text) => {
+      if (text.includes('runtime_role_safe')) {
+        schemaInspections += 1;
+        return [
+          {
+            product_table_count: 25,
+            policy_count: 0,
+            function_count: 7,
+            trigger_count: 48,
+            index_count: 15,
+            runtime_role_safe: true,
+            runtime_membership: true,
+          },
+        ];
+      }
+      return [];
+    },
+    unsafeQuery: () => {
+      if (options.provisioningError !== undefined) {
+        return rejectedPendingQuery(options.provisioningError);
+      }
+      if (options.cancellation !== undefined) {
+        return cancellationPendingQuery(options.cancellation.controller, () => {
+          provisioningCancellations += 1;
+        });
+      }
+      return resolvedPendingQuery([]);
+    },
+  });
+  const runtimeSql = fakeSql({
+    onBegin: () => {
+      runtimeVerifications += 1;
+    },
+    taggedRows: (text) => {
+      if (text.includes("current_setting('server_version')")) {
+        return [{ server_version: '18.4', server_version_num: 180_004 }];
+      }
+      if (text.includes('from gitblocks.schema_migrations')) {
+        return PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS.map((migration) => ({
+          ...migration,
+        }));
+      }
+      return [];
+    },
+  });
+  const sqlInstances = [migrationSql, provisioningSql, runtimeSql];
+  let sqlInstanceIndex = 0;
+  postgresFactory.mockReset();
+  postgresFactory.mockImplementation(() => {
+    const sql = sqlInstances[sqlInstanceIndex];
+    sqlInstanceIndex += 1;
+    if (sql === undefined) throw new Error('unexpected PostgreSQL client');
+    return sql;
+  });
+  const operator = createProfileMaterializationDatabaseOperator({
+    runProcess: () => Promise.reject(new Error('unexpected process effect')),
+    sleep: () => Promise.resolve(),
+  });
+
+  return {
+    plan,
+    provisioningEvents,
+    prepare: (signal = new AbortController().signal) =>
+      operator.prepare(plan, preparationCredentials, signal),
+    provisioningUnsafeSql: () =>
+      provisioningCalls
+        .filter((call) => call.kind === 'unsafe')
+        .map((call) => call.text),
+    provisioningUtilitySql: () =>
+      provisioningCalls.find((call) => call.kind === 'unsafe')?.text ?? '',
+    runtimeConfigurationSql: () =>
+      provisioningCalls.find(
+        (call) =>
+          call.kind === 'tag' && call.text.includes('gitblocks.runtime_role'),
+      ),
+    schemaInspectionCount: () => schemaInspections,
+    runtimeVerificationCount: () => runtimeVerifications,
+    provisioningCancelCount: () => provisioningCancellations,
+  };
+}
+
+function fakeSql(options: {
+  readonly calls?: RecordedSqlCall[];
+  readonly events?: string[];
+  readonly onBegin?: () => void;
+  readonly taggedRows: (text: string) => readonly Record<string, unknown>[];
+  readonly unsafeQuery?: (
+    text: string,
+    values: readonly unknown[],
+  ) => FakePendingQuery<readonly Record<string, unknown>[]>;
+}) {
+  const transaction = Object.assign(
+    (strings: TemplateStringsArray, ...values: readonly unknown[]) => {
+      const text = strings.join('??');
+      options.calls?.push({ kind: 'tag', text, values });
+      return resolvedPendingQuery(options.taggedRows(text));
+    },
+    {
+      unsafe: (text: string, values: readonly unknown[] = []) => {
+        options.calls?.push({ kind: 'unsafe', text, values });
+        return options.unsafeQuery?.(text, values) ?? resolvedPendingQuery([]);
+      },
+    },
+  );
+  return Object.assign(transaction, {
+    begin: async (...arguments_: readonly unknown[]) => {
+      options.onBegin?.();
+      const callback = arguments_.at(-1);
+      if (typeof callback !== 'function') {
+        throw new Error('unexpected transaction callback');
+      }
+      options.events?.push('begin');
+      try {
+        const result = await (
+          callback as (value: typeof transaction) => Promise<unknown>
+        )(transaction);
+        options.events?.push('commit');
+        return result;
+      } catch (error) {
+        options.events?.push('rollback');
+        throw error;
+      }
+    },
+    end: () => Promise.resolve(),
+  });
+}
+
+function resolvedPendingQuery<Rows>(rows: Rows): FakePendingQuery<Rows> {
+  return decoratePendingQuery(Promise.resolve(rows), () => undefined);
+}
+
+function rejectedPendingQuery<Rows>(error: Error): FakePendingQuery<Rows> {
+  return decoratePendingQuery(Promise.reject(error), () => undefined);
+}
+
+function cancellationPendingQuery(
+  controller: AbortController,
+  onCancel: () => void,
+): FakePendingQuery<readonly Record<string, unknown>[]> {
+  let resolveQuery: (rows: readonly Record<string, unknown>[]) => void = () =>
+    undefined;
+  let rejectQuery: (error: Error) => void = () => undefined;
+  const promise = new Promise<readonly Record<string, unknown>[]>(
+    (resolve, reject) => {
+      resolveQuery = resolve;
+      rejectQuery = reject;
+    },
+  );
+  queueMicrotask(() => {
+    controller.abort();
+    queueMicrotask(() => {
+      resolveQuery([]);
+    });
+  });
+  return decoratePendingQuery(promise, () => {
+    onCancel();
+    rejectQuery(databaseError('57014'));
+  });
+}
+
+function decoratePendingQuery<Rows>(
+  promise: Promise<Rows>,
+  cancel: () => void,
+): FakePendingQuery<Rows> {
+  const pending = promise as FakePendingQuery<Rows>;
+  pending.cancel = cancel;
+  pending.execute = () => pending;
+  pending.simple = () => pending;
+  return pending;
+}
+
+function normalizeSql(text: string): string {
+  return text.replace(/\s+/gu, ' ').trim();
+}
+
 function storageInspectionOperator(
   plan: ReturnType<typeof createPlan>,
   storageResults:
@@ -1401,8 +1793,11 @@ function emptyInspection(): ZeroStateInspectionFixture {
   return { migrationTableCount: 0, productTableCount: 0 };
 }
 
-function databaseError(code: string): Error {
-  const error = new Error('private database error text');
+function databaseError(
+  code: string,
+  message = 'private database error text',
+): Error {
+  const error = new Error(message);
   Object.defineProperty(error, 'code', {
     configurable: false,
     enumerable: true,

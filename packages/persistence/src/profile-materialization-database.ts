@@ -37,6 +37,21 @@ const PROFILE_MATERIALIZATION_ZERO_STATE_RETRYABLE_CODES = new Set([
   'CONNECTION_CLOSED',
   'CONNECTION_DESTROYED',
 ]);
+const PROFILE_MATERIALIZATION_RUNTIME_ROLE_PROVISIONING_SQL = `
+do $gitblocks$
+begin
+  execute pg_catalog.format(
+    'create role %I login password %L nosuperuser nocreatedb nocreaterole inherit noreplication nobypassrls',
+    pg_catalog.current_setting('gitblocks.runtime_role'),
+    pg_catalog.current_setting('gitblocks.runtime_password')
+  );
+  execute pg_catalog.format(
+    'grant gitblocks_persistence to %I',
+    pg_catalog.current_setting('gitblocks.runtime_role')
+  );
+end
+$gitblocks$
+`;
 const PROFILE_MATERIALIZATION_REQUIRED_TMPFS_OPTIONS = [
   'rw',
   'noexec',
@@ -556,19 +571,49 @@ export function createProfileMaterializationDatabaseOperator(
       }
       const sql = sqlFor(ownerConfig);
       try {
-        await sql.begin(async (transaction) => {
-          await transaction`
-            select pg_catalog.set_config('statement_timeout', '10000', true)
-          `.execute();
-          await transaction.unsafe(
-            `create role ${quoteIdentifier(plan.identity.runtimeRoleName)} login password $1 nosuperuser nocreatedb nocreaterole inherit noreplication nobypassrls`,
-            [credentials.runtimePassword],
-          );
-          await transaction.unsafe(
-            `grant gitblocks_persistence to ${quoteIdentifier(plan.identity.runtimeRoleName)}`,
-          );
-        });
-        const schema = await inspectSchema(sql, plan.identity.runtimeRoleName);
+        try {
+          await sql.begin(async (transaction) => {
+            await executePending(
+              transaction`
+                select
+                  pg_catalog.set_config(
+                    'statement_timeout',
+                    ${'10000'},
+                    true
+                  ) is not null as statement_timeout_configured,
+                  pg_catalog.set_config(
+                    'lock_timeout',
+                    ${'5000'},
+                    true
+                  ) is not null as lock_timeout_configured,
+                  pg_catalog.set_config(
+                    'gitblocks.runtime_role',
+                    ${plan.identity.runtimeRoleName},
+                    true
+                  ) is not null as runtime_role_configured,
+                  pg_catalog.set_config(
+                    'gitblocks.runtime_password',
+                    ${credentials.runtimePassword},
+                    true
+                  ) is not null as runtime_password_configured
+              `,
+              signal,
+            );
+            await executePending(
+              transaction.unsafe(
+                PROFILE_MATERIALIZATION_RUNTIME_ROLE_PROVISIONING_SQL,
+              ),
+              signal,
+            );
+          });
+        } catch (error) {
+          throw normalizePersistenceError(error);
+        }
+        const schema = await inspectSchema(
+          sql,
+          plan.identity.runtimeRoleName,
+          signal,
+        );
         validateProfileMaterializationSchemaInspection(schema);
         const runtimeClient = createPersistenceClient(runtimeConfig);
         try {
@@ -1119,18 +1164,20 @@ function databaseErrorCode(error: unknown): string | undefined {
 async function inspectSchema(
   sql: postgres.Sql,
   runtimeRoleName: string,
+  signal: AbortSignal,
 ): Promise<ProfileMaterializationSchemaInspection> {
-  const rows = await sql<
-    readonly {
-      readonly product_table_count: number;
-      readonly policy_count: number;
-      readonly function_count: number;
-      readonly trigger_count: number;
-      readonly index_count: number;
-      readonly runtime_role_safe: boolean;
-      readonly runtime_membership: boolean;
-    }[]
-  >`
+  const rows = await executePending(
+    sql<
+      readonly {
+        readonly product_table_count: number;
+        readonly policy_count: number;
+        readonly function_count: number;
+        readonly trigger_count: number;
+        readonly index_count: number;
+        readonly runtime_role_safe: boolean;
+        readonly runtime_membership: boolean;
+      }[]
+    >`
     select
       (
         select pg_catalog.count(*)::integer
@@ -1194,16 +1241,27 @@ async function inspectSchema(
           and role.rolcanlogin
           and not role.rolcreatedb
           and not role.rolcreaterole
+          and role.rolinherit
           and not role.rolreplication
         from pg_catalog.pg_roles as role
         where role.rolname = ${runtimeRoleName}
       ), false) as runtime_role_safe,
-      pg_catalog.pg_has_role(
-        ${runtimeRoleName},
-        'gitblocks_persistence',
-        'member'
-      ) as runtime_membership
-  `.execute();
+      coalesce((
+        select
+          pg_catalog.count(*) = 1
+          and pg_catalog.bool_and(
+            granted_role.rolname = 'gitblocks_persistence'
+          )
+        from pg_catalog.pg_auth_members as membership
+        join pg_catalog.pg_roles as member_role
+          on member_role.oid = membership.member
+        join pg_catalog.pg_roles as granted_role
+          on granted_role.oid = membership.roleid
+        where member_role.rolname = ${runtimeRoleName}
+      ), false) as runtime_membership
+  `,
+    signal,
+  );
   const row = rows[0];
   if (row === undefined) {
     throw new Error('profile-materialization.database-schema-drift');
@@ -1217,13 +1275,6 @@ async function inspectSchema(
     runtimeRoleSafe: row.runtime_role_safe,
     runtimeMembership: row.runtime_membership,
   };
-}
-
-function quoteIdentifier(value: string): string {
-  if (!/^[a-z][a-z0-9_]{0,62}$/u.test(value)) {
-    throw new Error('profile-materialization.invalid-database-plan');
-  }
-  return `"${value}"`;
 }
 
 function digestJson(value: unknown): string {

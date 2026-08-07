@@ -77,6 +77,18 @@ describe('profile-materialization CLI denial boundary', () => {
     expect(output).not.toContain('private-host');
   });
 
+  it('never renders a hostile runtime password from role provisioning', () => {
+    const runtimePassword = String.raw`role-'\\-password-;--private`;
+    const output = renderProfileMaterializationCliFailure(
+      'execute',
+      new Error(`runtime role provisioning failed: ${runtimePassword}`),
+    );
+
+    expect(output).toBe('Profile materialization command failed safely.\n');
+    expect(output).not.toContain(runtimePassword);
+    expect(output).not.toContain('role provisioning failed');
+  });
+
   it('keeps successful execute output unchanged', () => {
     expect(
       renderProfileMaterializationExecuteSuccess({

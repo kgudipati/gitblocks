@@ -36,10 +36,16 @@ development authority, not independently accepted retrieval truth. Milestone
 6 was accepted at `ea27f11432513ec352ce43821eb95b8da0886182`. The maintainer
 approved an explicit two-commit split: Milestone 7A implements only the offline
 controlled operator and fake-effect proof; Milestone 7B owns any later live
-execution and evidence. Three separately authorized execute attempts have
-failed without evidence; none was retried. A staged diagnostic after the third
-localized the next reproducible failure to the fresh database zero-state host
-boundary. Milestone 7B remains incomplete and no fresh execution is authorized.
+execution and evidence. Exactly four separately authorized execute attempts
+have failed without evidence; none was retried. Execute 4 passed fresh database
+creation and the exact 0/0 zero-state proof, then failed at the coarse
+`migrate-schema-runtime-role-catalog-seed / ingestion.internal-invariant`
+boundary before provider collection. Static review independently identified
+invalid parameterized runtime-role utility DDL inside that stage. The bounded
+correction is validated offline only. Its formerly planned isolated complete
+prepare-stage proof was not completed, the live path remains unproven, and
+materialization execute 5 is deferred and unauthorized. Milestone 7B remains
+incomplete.
 
 ## Context
 
@@ -687,6 +693,46 @@ zero-state query returned 0 migrations and 0 product tables on its first
 connection attempt. Exact disposal and independent resource absence passed.
 This closes the fresh-database bootstrap boundary only; it does not authorize
 or qualify materialization execute number four.
+
+Materialization execute 4 subsequently ran on
+`2f71d1dcebf1dfdd3c060e7fc4a0d71ff6e36130`. It passed that accepted database
+creation boundary and returned the exact 0/0 migration/product-table proof,
+then failed at the bounded coarse stage
+`migrate-schema-runtime-role-catalog-seed` with
+`ingestion.internal-invariant`. It did not reach provider collection, source
+authority, persistence proof, a run directory, receipt, coverage, or fixed
+evidence; provider requests remained zero, exact cleanup passed, and the
+execute was not retried. The coarse stage does not identify the exact failing
+statement.
+
+Static review separately found that the accepted `prepare()` path authored
+`CREATE ROLE ... PASSWORD $1` through Postgres.js `transaction.unsafe`. A bound
+parameter marker inside that PostgreSQL utility command is not the accepted
+parameterization boundary. Runtime-role provisioning now remains inside one
+owner transaction but first uses ordinary Postgres.js value interpolation with
+`pg_catalog.set_config` to set transaction-local
+`gitblocks.runtime_role` and `gitblocks.runtime_password`. The SELECT projects
+only boolean configuration-success metadata and returns no password.
+
+One fixed PL/pgSQL `DO` body reads those settings and uses
+`pg_catalog.format('%I', ...)` for the runtime-role identifier and
+`pg_catalog.format('%L', ...)` for the password before dynamic `EXECUTE`. It
+creates exactly `LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT
+NOREPLICATION NOBYPASSRLS` and grants only `gitblocks_persistence`. Node code
+never concatenates the password or role into utility SQL. Both the
+configuration query and fixed utility body use the cancellation-aware pending
+query boundary under transaction-local statement and lock timeouts. Failure or
+cancellation rolls back the transaction, normalizes database detail to the
+existing value-free persistence errors, and prevents schema inspection.
+
+The correction is accepted as deterministic offline correctness only. The
+formerly planned isolated invocation of the real system effects' database
+create, zero-state, complete `prepareDatabase`, runtime read-only proof, and
+cleanup sequence was not completed. The corrected live path therefore remains
+unproven and is not evidence of Milestone 7B completion. Milestone 7B is
+deferred; no further Phase 8 live materialization diagnostic, provider request,
+source collection, receipt, fixed evidence, or materialization execute 5 is
+authorized.
 
 ### Persistence
 
