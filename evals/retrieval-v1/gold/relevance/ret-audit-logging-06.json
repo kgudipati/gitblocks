@@ -1,0 +1,335 @@
+{
+  "caseId": "ret-audit-logging-06",
+  "judgments": [
+    {
+      "candidateId": "audit-bunyan",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-cabin",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-express-morgan",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-fluent-bit",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-fluentd",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-google-logging-winston",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-grafana-loki",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-log4js",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-logdna-logger",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-loglevel",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-npm-npmlog",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-openobserve",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-pgaudit",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-pino",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-pino-http",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-roarr",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-sematext-logagent",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-syslog-ng",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-vector",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-winston",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-winston-daily",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-winston-syslog",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "audit-winston-transport",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "relevanceGoldVersion": "retrieval-relevance-gold/1.0.0"
+}

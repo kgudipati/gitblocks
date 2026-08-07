@@ -1,0 +1,349 @@
+{
+  "caseId": "ret-rate-limiting-01",
+  "judgments": [
+    {
+      "candidateId": "rate-apisix",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-bottleneck",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-envoy-ratelimit",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-express-rate-limit",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-fastify-rate-limit",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-go-limiter",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-governor",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-gravitee",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-gubernator",
+      "grade": 3,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-direct-match"
+      ]
+    },
+    {
+      "candidateId": "rate-juju",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-koa-ratelimit",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-kong",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-krakend",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-limiters",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-nestjs-throttler",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-node-rate-limiter-flexible",
+      "grade": 3,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-direct-match"
+      ]
+    },
+    {
+      "candidateId": "rate-node-ratelimiter",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-redis-cell",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-throttled",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-tollbooth",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-tyk",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-uber-go",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-ulule-limiter",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    },
+    {
+      "candidateId": "rate-upstash",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "committed-curation-relevant-match"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "relevanceGoldVersion": "retrieval-relevance-gold/1.0.0"
+}

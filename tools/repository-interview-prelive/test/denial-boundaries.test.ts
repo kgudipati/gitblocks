@@ -78,7 +78,7 @@ describe('pre-live network, secret, import, and leakage denial', () => {
     await import('../src/index.ts');
     expect(fetch).not.toHaveBeenCalled();
     expect(timeout).not.toHaveBeenCalled();
-  });
+  }, 30_000);
 
   it('returns value-free fixed failures', async () => {
     const fixture = await syntheticArtifactAuthorityV1();

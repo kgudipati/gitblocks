@@ -1,0 +1,195 @@
+{
+  "caseId": "ret-webhooks-06",
+  "judgments": [
+    {
+      "candidateId": "webhook-adnanh",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-convoy",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-go-playground",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-hook0",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-hookdeck",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-octokit-app",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-octokit-methods",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-octokit-webhooks",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-standard-webhooks",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-stripe-node",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-svix",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-webhook-site",
+      "grade": 1,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    },
+    {
+      "candidateId": "webhook-webhookx",
+      "grade": 2,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "negative-control-comparison-alternative"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "relevanceGoldVersion": "retrieval-relevance-gold/1.0.0"
+}

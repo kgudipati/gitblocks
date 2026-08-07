@@ -34,6 +34,9 @@ const REQUIRED_PATHS = [
   'apps/repository-interview-operator/tsconfig.test.json',
   'catalog/public-v1/candidates.json',
   'catalog/public-v1/manifest.json',
+  'catalog/capability-taxonomy/1.0.0/README.md',
+  'catalog/capability-taxonomy/1.0.0/manifest.json',
+  'catalog/capability-taxonomy/1.0.0/source.json',
   'CONTRIBUTING.md',
   'PLANS.md',
   'README.md',
@@ -53,6 +56,7 @@ const REQUIRED_PATHS = [
   'docs/engineering/testing-strategy.md',
   'docs/evaluation/baseline-protocol.md',
   'docs/evaluation/case-authoring-protocol.md',
+  'docs/evaluation/retrieval-v1-authoring-protocol.md',
   'docs/evaluation/scoring.md',
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
@@ -62,10 +66,14 @@ const REQUIRED_PATHS = [
   'docs/plans/0013-public-repository-ingestion.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
+  'evals/retrieval-v1/manifest.json',
   'eslint.config.mjs',
   'package.json',
   'packages/contracts/README.md',
   'packages/contracts/package.json',
+  'packages/contracts/scripts/taxonomy-cli.ts',
+  'packages/contracts/scripts/taxonomy-command.ts',
+  'packages/contracts/scripts/tsconfig.json',
   'packages/contracts/src/index.ts',
   'packages/domain/README.md',
   'packages/domain/package.json',
@@ -108,6 +116,7 @@ const REQUIRED_PATHS = [
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
+  'schemas/evaluation/retrieval/baseline-report.schema.json',
   'schemas/evaluation/evidence.schema.json',
   'schemas/evaluation/gold.schema.json',
   'schemas/evaluation/manifest.schema.json',
@@ -117,6 +126,7 @@ const REQUIRED_PATHS = [
   'tools/evaluation-harness/src/cli.ts',
   'tools/evaluation-harness/src/contract-conformance-cli.ts',
   'tools/evaluation-harness/src/index.ts',
+  'tools/evaluation-harness/src/retrieval/cli.ts',
   'tools/evaluation-harness/test/persistence-conformance.persistence-integration.ts',
   'tools/evaluation-harness/test/tsconfig.json',
   'tools/evaluation-harness/tsconfig.json',
@@ -133,6 +143,7 @@ const REQUIRED_PATHS = [
   'tsconfig.json',
   'vitest.config.ts',
   'vitest.db.config.ts',
+  'verification/retrieval-v1/baseline-report.json',
 ] as const;
 
 const ROOT_MANIFEST = JSON.stringify({
@@ -151,6 +162,10 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'taxonomy:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts --write',
+    'taxonomy:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
     'catalog:seed':
@@ -173,6 +188,18 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
     'eval:interviews:verify':
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && vitest run tools/evaluation-harness/test/repository-interview-*.test.ts --config vitest.config.ts && pnpm --filter @gitblocks/evaluation-harness typecheck && pnpm architecture:check',
+    'eval:retrieval:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'eval:retrieval:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'eval:retrieval:baselines':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines',
+    'eval:retrieval:baselines:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate',
+    'eval:retrieval:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify',
+    'eval:retrieval:score':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score',
     'eval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score',
     'eval:validate':
@@ -209,6 +236,12 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build:product && vitest run apps/repository-interview-operator/test --config vitest.config.ts',
     'operator:interviews:verify':
       'pnpm runtime:check && pnpm operator:interviews:schema:validate && pnpm operator:interviews:test && pnpm --filter @gitblocks/repository-interview-operator lint && pnpm --filter @gitblocks/repository-interview-operator typecheck && pnpm architecture:check && pnpm db:verify',
+    'profiles:materialization:preflight':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts preflight',
+    'profiles:materialization:execute':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts execute',
+    'profiles:materialization:verify':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts verify',
     'repo:branch':
       'pnpm runtime:check && node tools/repository-checks/src/cli.ts branch',
     'repo:check':
@@ -229,7 +262,7 @@ const ROOT_MANIFEST = JSON.stringify({
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
-      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run',
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && node packages/contracts/scripts/taxonomy-cli.ts',
   },
   devDependencies: {
     typescript: '6.0.3',
@@ -249,6 +282,7 @@ const EVALUATION_MANIFEST = JSON.stringify({
   private: true,
   dependencies: {
     '@gitblocks/contracts': 'workspace:0.0.0',
+    '@gitblocks/domain': 'workspace:0.0.0',
     '@gitblocks/persistence': 'workspace:0.0.0',
     ajv: '8.20.0',
   },
@@ -262,6 +296,7 @@ const DOMAIN_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },
@@ -275,6 +310,7 @@ const CONTRACTS_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },
@@ -293,6 +329,7 @@ const PERSISTENCE_MANIFEST = JSON.stringify({
   exports: {
     '.': {
       types: './dist/src/index.d.ts',
+      'gitblocks-source': './src/index.ts',
       import: './dist/src/index.js',
     },
   },
@@ -497,7 +534,74 @@ on:
 permissions:
   contents: read
 jobs:
-  verification:
+  typecheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: git diff --exit-code
+  verification-static:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm format:check
+      - run: pnpm build:product
+      - run: pnpm lint:internal
+      - run: pnpm build:tools
+      - run: pnpm typecheck:internal
+      - run: pnpm architecture:check
+      - run: node tools/repository-checks/src/cli.ts repository
+      - run: node tools/evaluation-harness/src/cli.ts validate
+      - run: node tools/evaluation-harness/src/cli.ts fixtures
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts verify
+      - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
+      - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
+      - run: node tools/evaluation-harness/src/contract-conformance-cli.ts
+      - run: node packages/contracts/scripts/taxonomy-cli.ts
+      - run: node packages/ingestion/scripts/candidate-profile-cli.ts
+      - run: node packages/ingestion/scripts/catalog-cli.ts
+      - run: node packages/interviews/scripts/specification-cli.ts validate
+      - run: node apps/repository-interview-operator/scripts/schema-cli.ts validate
+      - run: node tools/repository-interview-prelive/src/prelive-cli.ts validate
+      - run: pnpm security:secrets
+      - run: git diff --exit-code
+  verification-tests-core:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: >-
+          pnpm exec vitest run
+          packages/contracts/test
+          packages/domain/test
+          packages/persistence/test
+          packages/ingestion/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-interviews:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: >-
+          pnpm exec vitest run
+          packages/interviews/test
+          apps/repository-interview-operator/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-tools:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: >-
+          pnpm exec vitest run
+          tools/evaluation-harness/test
+          tools/repository-interview-prelive/test
+          tools/repository-checks/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  database-and-audit:
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -508,8 +612,29 @@ jobs:
       GITBLOCKS_TEST_DB_OWNER: postgres
     steps:
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm verify:ci
+      - run: pnpm db:verify
+      - run: pnpm security:audit
+      - run: git diff --exit-code
+  verification:
+    name: Verification
+    needs:
+      - verification-static
+      - verification-tests-core
+      - verification-tests-interviews
+      - verification-tests-tools
+    if: \${{ always() }}
+    timeout-minutes: 5
+    env:
+      STATIC_RESULT: \${{ needs.verification-static.result }}
+      CORE_TEST_RESULT: \${{ needs.verification-tests-core.result }}
+      INTERVIEW_TEST_RESULT: \${{ needs.verification-tests-interviews.result }}
+      TOOL_TEST_RESULT: \${{ needs.verification-tests-tools.result }}
+    steps:
+      - run: |
+          test "$STATIC_RESULT" = "success"
+          test "$CORE_TEST_RESULT" = "success"
+          test "$INTERVIEW_TEST_RESULT" = "success"
+          test "$TOOL_TEST_RESULT" = "success"
 `;
   }
   if (relativePath.endsWith('.md')) {

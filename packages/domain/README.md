@@ -65,6 +65,54 @@ results, and produce deterministic value-safe issues.
   canonicalized.
 - Capability-family inspection also returns a fresh array; live membership
   authority is never exported.
+- Capability-taxonomy invariants own the five exact family roots, the closed
+  `family | architecture | feature | infrastructure | deployment` concept
+  kinds, bounded parent forest, cross-family applicability, term-class
+  separation, and deprecation closure. Exact lookup accepts only an already
+  canonical ASCII key and returns resolved, ambiguous, excluded, or unknown;
+  it performs no raw-term normalization or clarification flow.
+- Capability-query normalizer `1.0.0` accepts only explicit structured terms,
+  constraints, and exact candidate references. Its ASCII-only term rule trims
+  and collapses spaces, lowercases A-Z, collapses repeated hyphens, and then
+  requires the existing stable-ID grammar. It preserves modality and every
+  source ID, keeps non-taxonomy declarations explicit, turns ambiguity and
+  blocking unknowns into bounded clarification, and distinguishes an excluded
+  primary capability from an unknown one. It never reads summary prose or
+  repository-fingerprint facts.
+- Normalized outcome requires a primary family and rejects every blocking
+  unresolved, contradiction, ambiguity, or uncovered exclusion. The pure
+  standalone-result validator closes generated IDs, ordering, provenance,
+  constraint shapes, clarification coverage, candidate binding, and outcome
+  coherence independently of the full exchange validator.
+- Candidate-reference resolution consumes an injected, exact-key authority
+  bounded to 200 candidates. Candidate-ID lookup uses `candidateId` itself;
+  repository and npm keys remain separate exact kinds, with no candidate alias.
+  Domain imports perform no catalog, filesystem, ingestion, provider, database,
+  environment, model, clock, or network work.
+- Deterministic candidate-profile authority uses the immutable
+  `deterministic-profile-coverage/1.0.0` registry of 27 ordered fields. The
+  registry binds each field to candidate-wide or version-specific scope, one
+  closed value kind, not-applicable eligibility, intended uses, and any launch
+  hard-filter or broad-retrieval facet. The six candidate-wide fields are
+  catalog role/status, capability family, repository identity, adoption unit,
+  feature variants, and package identity mapping; the remaining 21 are
+  version/snapshot-specific.
+- Profile fields are a closed `known | unknown | not-applicable | conflict`
+  union with bounded source references and no narrative or arbitrary JSON.
+  Known values require a field-coherent extraction rule and approved source;
+  version-specific known/conflicting values require an exact version or
+  snapshot. Repository identity is bound to the owning profile candidate, and
+  package-dependent applicability and publication identity must agree with the
+  known mapped/unmapped package field. Conflict retains distinct typed claims
+  without selecting a winner.
+- Pure single-candidate constraint evaluation accepts only a normalized query
+  result with an exact taxonomy binding. It supports primary family,
+  architecture/adoption-unit, feature, and required-infrastructure mappings.
+  Unknown and conflicting profile state remain unresolved; optional
+  infrastructure never becomes a prohibited dependency; preserved
+  non-taxonomy declarations remain unresolved. Preferred mismatches never
+  change the aggregate hard state. It performs no candidate generation,
+  filtering, retrieval, ranking, or recommendation.
 
 Every successful validator returns a fresh canonical value; callers' objects
 and arrays are never mutated.

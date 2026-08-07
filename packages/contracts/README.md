@@ -36,6 +36,10 @@ values in diagnostics.
 
 The public V1 parsers are:
 
+- `parseCapabilityQueryInputV1`
+- `parseCapabilityQueryNormalizationResultV1`
+- `parseCapabilityTaxonomySourceV1`
+- `parseCapabilityTaxonomyV1`
 - `parseCapabilityRequestV1`
 - `parseRepositoryFingerprintV1`
 - `parseCandidateDossierV1`
@@ -48,11 +52,76 @@ The public V1 parsers are:
 - `parseRepositoryInterviewRequestV1`
 - `parseModelExecutionV1`
 - `parseRepositoryInterviewV1`
+- `parseDeterministicCandidateProfileV1`
+- `parseDeterministicCandidateProfileAuthorityV1`
 
 `validateFitAssessmentExchangeV1` additionally proves that one independently
 valid request and response agree on candidate set, constraints, evidence,
 unknowns, supplied candidate limitations, cutoff, request ID, and correlation
 ID.
+
+`normalizeCapabilityQueryV1` performs the local pre-approval transition using
+validated input, exact taxonomy authority, and an optional injected bounded
+candidate-reference authority.
+`validateCapabilityQueryNormalizationExchangeV1` recomputes the complete
+deterministic result and rejects input, taxonomy, catalog, source, modality,
+outcome, ordering, or digest drift. It does not create CapabilityRequestV1,
+grant transmission approval, filter candidates, or perform retrieval.
+Standalone result parsing first checks the closed schema, then pure semantic
+outcome, provenance, candidate-binding, capacity, generated-ID, and canonical
+ordering invariants, and only then verifies the semantic digest and
+normalization ID. A correctly re-digested but impossible result therefore
+fails without requiring the original input or authorities.
+
+The complete canonical query input has one digest. The normalization semantic
+digest binds it to taxonomy `1.0.0`, normalizer `1.0.0`, any used candidate
+catalog version/digest, all results, and the preserved fingerprint reference.
+`normalizationId` is derived from the first 48 semantic-digest hex characters;
+there is no redundant record digest.
+
+Input bounds are 1,000 summary code units, 1–8 explicit capability terms,
+1–20 success conditions, 0–32 draft constraints, 0–10 exact candidate
+references, 120 code units per lookup term, and 500 per statement. Result
+bounds are 8 normalized capability concepts, 32 normalized constraints, 50
+unresolved terms, 64 clarifications, 40 notices, and 64 normalization steps.
+The unresolved maximum is derived from 8 capability terms, 32 constraints,
+and 10 candidate references. The injected authority ceiling is 200 candidates,
+and candidate-ID references index the exact candidate ID rather than an alias.
+
+The additive JSON Schema digests are
+`d48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b`
+for CapabilityQueryInputV1 and
+`bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b`
+for CapabilityQueryNormalizationResultV1.
+
+The additive deterministic-profile roots are
+`DeterministicCandidateProfileV1` and
+`DeterministicCandidateProfileAuthorityV1`. Their JSON Schema digests are
+`3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61`
+and `7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf`.
+The field schemas are closed per field ID and preserve typed catalog,
+structured-snapshot, artifact-entry, or derived-field provenance without URLs,
+provider bodies, observations, or unrestricted metadata. Constructors
+canonicalize before deriving semantic digests and `profile-` identities from
+the first 48 digest hex characters. The authority has no redundant record
+digest or non-semantic payload.
+
+## Capability taxonomy authority
+
+The additive `CapabilityTaxonomySourceV1` and `CapabilityTaxonomyV1` roots own
+the reviewed source and generated authority shapes. The source parser accepts
+unknown, performs closed structural validation, and delegates semantic
+invariants to `@gitblocks/domain`. `buildCapabilityTaxonomyV1` canonically
+orders every top-level and nested set, attaches `contractVersion`, and derives
+the semantic digest. The generated parser additionally rejects order, digest,
+or source-projection drift.
+
+The semantic digest excludes only `semanticDigest` itself and the explicitly
+non-semantic `releaseMetadata`; it includes contract version, taxonomy version,
+concepts, resolved aliases, ambiguities, and exclusions. Package-local scripts
+own bounded fixed-path filesystem access. Contract and domain imports remain
+free of filesystem, environment, network, database, model, provider, clock,
+locale, and randomness effects.
 
 `validateRepositoryInterviewExecutionV1` proves that one independently valid
 request, successful model execution, and durable interview agree on candidate
@@ -168,11 +237,13 @@ schema value. `serializeContractSchemaV1(name)` returns its deterministic
 newline-terminated representation. The public schema-name catalog is runtime
 frozen and cannot be widened through consumer mutation. Every root has an
 explicit `1.0.0` `$id`, uses Draft 2020-12, and is closed at every untrusted
-object shape. The six accepted fit-assessment roots and three
-repository-artifact roots retain their exact schema digests; the three
-repository-interview roots are additive. A root shape change after publication
-requires a separately versioned schema/parser and explicit negotiation;
-controlled fact-vocabulary evolution is negotiated separately.
+object shape. The six accepted fit-assessment roots, three repository-artifact
+roots, three repository-interview roots, and two capability-taxonomy roots
+retain their exact schema digests. The capability-query input/normalization
+result and two deterministic-profile roots append additively. A root shape
+change after publication requires a separately versioned schema/parser and
+explicit negotiation; controlled fact-vocabulary evolution is negotiated
+separately.
 
 The object-value preflight bounds depth at 32, scheduled/visited values at
 200,000, own properties at 64 per object, array width at 2,000, scalar strings

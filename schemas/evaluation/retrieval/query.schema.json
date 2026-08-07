@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/query/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "queryVersion",
+    "caseId",
+    "caseKind",
+    "capabilityFamily",
+    "queryInput"
+  ],
+  "properties": {
+    "queryVersion": { "const": "retrieval-evaluation-query/1.0.0" },
+    "caseId": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+    },
+    "caseKind": { "enum": ["retrieval", "normalization-adversarial"] },
+    "capabilityFamily": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+    },
+    "queryInput": { "type": "object" }
+  }
+}

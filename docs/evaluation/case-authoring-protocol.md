@@ -98,6 +98,11 @@ structurally and semantically representable by the product contracts; it does
 not accept the gold, score product quality, expose gold to prediction
 workflows, or replace the independent scorer.
 
+The independent discovery/query corpus has its own stricter blind-input,
+generated hard-filter, separated-gold, prediction, and scoring rules in the
+[retrieval-v1 protocol](retrieval-v1-authoring-protocol.md). Those rules do not
+reinterpret this fixed-candidate pilot.
+
 ## Versioning and change control
 
 Schemas and the corpus use explicit semantic versions. A changed case,

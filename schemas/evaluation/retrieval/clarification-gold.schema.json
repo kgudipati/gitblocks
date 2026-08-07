@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/clarification-gold/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "clarificationGoldVersion",
+    "caseId",
+    "clarificationRequired",
+    "clarifications",
+    "terminalUnsupported",
+    "provenance"
+  ],
+  "properties": {
+    "clarificationGoldVersion": {
+      "const": "retrieval-clarification-gold/1.0.0"
+    },
+    "caseId": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+    },
+    "clarificationRequired": { "type": "boolean" },
+    "clarifications": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/clarification"
+      }
+    },
+    "terminalUnsupported": { "type": "boolean" },
+    "provenance": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+    }
+  }
+}

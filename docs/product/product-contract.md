@@ -7,9 +7,16 @@ alpha. GitBlocks remains in an engineering-foundation phase. The repository
 now contains private production-owned packages for the pure domain, versioned
 fixed-candidate contracts, and an injected PostgreSQL adapter for immutable
 public evidence, dossiers, and exact repository artifacts, plus a bounded
-public-source ingestion adapter. No repository-interview application, API, MCP
-service, scanner, discovery service, model integration, deployed database,
-deployment, or end-to-end adoption workflow is implemented or available yet.
+public-source ingestion adapter and a persistence-independent
+repository-interview application with an offline operator. Phase 8 also has a
+pure 27-field deterministic-profile registry, two additive profile roots, an
+offline generated 150-candidate authority, content-free coverage, and
+single-candidate constraint evaluation, plus the separate evaluation-only
+`retrieval-v1` corpus and deterministic scorer. Live calibration
+failed and selected no profile. No API, MCP service, scanner, discovery
+service, production hard-filter pipeline, retrieval/ranking service, deployed
+database, deployment, or end-to-end adoption workflow is implemented or
+available yet.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -89,9 +96,12 @@ candidate tagged with more than one family does not increase the count.
 
 The planned workflow is:
 
-1. **Frame the request.** The coding agent and developer state the desired
-   capability, success conditions, explicit hard constraints, and which local
-   facts may be shared.
+1. **Frame and normalize the request locally.** The coding agent and developer
+   state the desired capability, success conditions, explicit hard constraints,
+   and which local facts may be shared. A bounded pre-contract input must
+   normalize deterministically or fail closed with exact clarification reasons
+   before the developer reviews and approves an authoritative capability
+   request for transmission.
 2. **Fingerprint locally.** A deterministic local scanner observes approved
    manifests, configuration shapes, structure, and dependency facts. It emits
    closed, bounded facts from a controlled, versioned vocabulary and does not
@@ -126,6 +136,120 @@ The planned workflow is:
 
 A useful response may be “no viable candidate” or “insufficient evidence.”
 GitBlocks must not manufacture certainty merely to return a ranked list.
+
+## Phase 8 deterministic retrieval foundation
+
+Project Phase 8 combines the original strategy's deterministic repository
+profiler and capability-taxonomy/query-understanding foundations with retrieval
+evaluation contracts, corpus, metrics, and non-production baselines. It does
+not implement the original strategy's production retrieval or production
+ranking phases.
+
+CapabilityQueryInputV1 is now a bounded local pre-contract input, not a second
+adoption-request model. CapabilityQueryNormalizationResultV1 preserves each
+constraint's source identity and required, preferred, or prohibited modality;
+unresolved and clarification-needed states remain explicit separate records.
+The deterministic normalizer consumes only structured terms and declarations,
+not summary prose. Only after later user review and transmission approval may
+a reviewed result contribute to new CapabilityRequestV1 authority. No current
+helper performs that transition. Alias expansion and deterministic rules never
+weaken a hard constraint.
+
+DeterministicCandidateProfileV1 is candidate-owned, separately versioned,
+structured deterministic authority with known, unknown, not-applicable, and
+conflict value states plus extraction and bounded source provenance. The
+additive DeterministicCandidateProfileAuthorityV1 root canonically binds all
+150 catalog candidates to the exact catalog, taxonomy, denominator, and
+profile-rules versions and semantic digests. It does not
+replace or reinterpret CandidateDossierV1 evidence observations,
+RepositoryFingerprintV1 minimized target-codebase facts, RepositoryInterviewV1
+optional semantic enrichment, or FitAssessmentRequestV1. In particular,
+CandidateDossierV1 observation prose is never reparsed into structured profile
+facts, and repository interviews never populate deterministic profile
+authority.
+
+The exact denominator is `deterministic-profile-coverage/1.0.0` with 27
+ordered fields. Each profile contains every field exactly once. Six fields are
+candidate-wide—catalog role/status, capability family, repository identity,
+adoption unit, feature variants, and package identity mapping—and the other 21
+require a version or snapshot when known. Values are closed per field ID; no
+arbitrary JSON, universal string value, narrative, or URL provenance escape
+hatch exists.
+
+The committed offline authority uses only typed fields from the parsed
+`catalog/public-v1/manifest.json` for candidate-specific known values:
+catalog status, primary/additional family, stable catalog GitHub identity, and
+mapped or known-unmapped npm identity. The taxonomy validates controlled IDs
+and binds the authority but assigns no candidate concepts. An unmapped package
+makes publication, runtime/package format, and package-repository linkage not
+applicable; the mapped cases remain unknown without committed structured
+provider authority. All other fields remain controlled unknowns. The resulting
+600 known, 210 not-applicable, 3,240 unknown, and zero conflict cells are an
+honest foundation, not production readiness. Historical provider or artifact
+proofs are not reconstructed from prose. Repository identity remains bound to
+the profile's candidate, and package-dependent applicability and publication
+identity must agree with the profile's known mapped/unmapped package value.
+
+Candidate constraint evaluation for one profile and one accepted normalized
+query is satisfied, conflict, or unresolved.
+Unresolved is neither satisfied nor conflict: such a candidate is not viable
+and must not be recommended, although it may remain in a separately typed
+evidence-needed lane with the unresolved constraint disclosed. Phase 8
+evaluation authority remains independent of fixed-candidate ranking gold and
+repository-interview audit data, and product packages must not import it.
+The current exact mappings are primary family, architecture to adoption unit,
+feature to capability variants, and required infrastructure only. Optional
+infrastructure support does not become a prohibited dependency. Preserved
+runtime, framework, datastore, license, maintenance, release, or security
+declarations remain unresolved until an exact reviewed controlled mapping
+exists. The evaluator does not generate, filter, retrieve, rank, or recommend
+candidates.
+
+`retrieval-v1` is evaluation-only authority, not a product contract root. Its
+30 retrieval and 20 normalization/adversarial blind cases are exactly balanced
+six/four per family. Blind records contain no tags or audit classifications;
+those classifications live in a separate proposed audit authority, and the
+blind-only loader is the sole permitted future baseline input. Normalization,
+clarification, generated hard-filter,
+proposed relevance, equivalence, and no-result gold are physically separate.
+Product packages do not import those records, schemas, fixtures, or scorers.
+Relevance means capability-query relevance only; it does not establish
+viability, target compatibility, quality, ranking preference, or
+recommendation. Unresolved candidates remain outside eligibility in a
+separate evidence-needed lane. All new gold is proposed/not independently
+reviewed, so the corpus and scorer establish evaluation authority—not
+retrieval quality. Proposed relevance is candidate/query-specific from
+committed curation, and real-corpus equivalence is limited to true result
+redundancy; zero groups is valid. Milestone 5 was accepted through
+`4f4c1e4522f7db85d2a0a422b5c78ac8665a4840` with that limitation intact.
+
+Milestone 6 baselines are evaluation-only outward consumers. They generate and
+freeze complete predictions from blind queries, accepted normalization, and a
+safe structured profile projection before loading gold for scoring. Strategy
+inputs omit case/source identities, assigned corpus family, prose, rationale,
+artifacts, audit metadata, and gold. The committed baseline report contains
+only bindings, opaque prediction/score digests, aggregate/per-family numeric
+measurements and denominators, safety counts, control evidence, and its digest.
+It makes no winner, recommendation, quality threshold, production-readiness,
+or product-contract claim. Production retrieval remains unimplemented.
+
+Milestone 7A adds no product contract root and changes none of the 27 field
+definitions, profile DTOs, schema digests, or accepted offline authority. Its
+provider policy, source authority, persistence proof, coverage comparison, and receipt are
+versioned operational ingestion contracts under `schemas/operations`, not
+product schemas. Pure materialization still emits the accepted deterministic
+profile DTO and may populate only ten already-defined fields from exact
+structured public-source values with repository-snapshot or package-version
+scope. The offline authority remains the accepted product-facing authority
+until a separately authorized Milestone 7B evidence commit is reviewed. This
+operator is neither retrieval/ranking nor a production-readiness claim.
+
+The operational source and persistence proofs do not create a product DTO or
+durable profile table. They reuse existing ingestion evidence/dossier snapshot
+semantics only to audit collection replay, retain their candidate-scoped files
+outside version control, and expose only content-free aggregate bindings in a
+future receipt. Existing product schema roots and table meanings remain
+unchanged.
 
 ## Relevance is not adoption fit
 

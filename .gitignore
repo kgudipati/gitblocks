@@ -39,6 +39,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+verification/retrieval-v1/.profile-materialization-runs/
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)

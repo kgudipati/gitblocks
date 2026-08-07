@@ -17,6 +17,77 @@ export {
   splitRepositoryArtifactLogicalLines,
 } from './artifact-identity.ts';
 export {
+  buildCapabilityTaxonomyV1,
+  capabilityTaxonomySemanticDigest,
+  parseCapabilityTaxonomySourceV1,
+  parseCapabilityTaxonomyV1,
+  serializeCapabilityTaxonomyV1,
+} from './capability-taxonomy-contracts.ts';
+export type {
+  CapabilityTaxonomyAmbiguityV1,
+  CapabilityTaxonomyConceptV1,
+  CapabilityTaxonomyExclusionV1,
+  CapabilityTaxonomyReleaseMetadataV1,
+  CapabilityTaxonomyResolvedAliasV1,
+  CapabilityTaxonomySourceV1,
+  CapabilityTaxonomyV1,
+} from './capability-taxonomy-schemas.ts';
+export {
+  capabilityQueryInputDigest,
+  capabilityQueryNormalizationSemanticDigest,
+  normalizeCapabilityQueryV1,
+  parseCapabilityQueryInputV1,
+  parseCapabilityQueryNormalizationResultV1,
+  validateCapabilityQueryNormalizationExchangeV1,
+  type CapabilityQueryNormalizationExchangeValidationResult,
+  type CapabilityQueryNormalizationOperationResult,
+} from './capability-query-contracts.ts';
+export type {
+  CapabilityQueryCandidateReferenceV1,
+  CapabilityQueryDraftConstraintV1,
+  CapabilityQueryInputV1,
+  CapabilityQueryNormalizationResultV1,
+  CapabilityQueryRepositoryFingerprintReferenceV1,
+  CapabilityQuerySuccessConditionV1,
+  CapabilityQueryTermV1,
+} from './capability-query-schemas.ts';
+export {
+  createDeterministicCandidateProfileAuthorityV1,
+  createDeterministicCandidateProfileV1,
+  deterministicCandidateProfileAuthoritySemanticDigest,
+  deterministicCandidateProfileSemanticDigest,
+  parseDeterministicCandidateProfileAuthorityV1,
+  parseDeterministicCandidateProfileV1,
+  serializeDeterministicCandidateProfileAuthorityV1,
+  serializeDeterministicCandidateProfileV1,
+  type DeterministicCandidateProfileInputV1,
+} from './deterministic-candidate-profile-contracts.ts';
+export type {
+  DeterministicCandidateProfileAuthorityV1,
+  DeterministicCandidateProfileV1,
+  DeterministicProfileFieldRecordV1,
+  DeterministicProfileSourceReferenceV1,
+} from './deterministic-candidate-profile-schemas.ts';
+export {
+  DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION,
+  DETERMINISTIC_CANDIDATE_PROFILE_VERSION,
+  DETERMINISTIC_PROFILE_BROAD_RETRIEVAL_FACETS,
+  DETERMINISTIC_PROFILE_DENOMINATOR_VERSION,
+  DETERMINISTIC_PROFILE_FIELD_IDS,
+  DETERMINISTIC_PROFILE_LAUNCH_HARD_FILTER_FACETS,
+  DETERMINISTIC_PROFILE_RULES_VERSION,
+  getDeterministicProfileFieldRegistry,
+} from '@gitblocks/domain';
+export type {
+  DeterministicCandidateProfile,
+  DeterministicCandidateProfileAuthority,
+  DeterministicProfileBroadRetrievalFacet,
+  DeterministicProfileFieldDefinition,
+  DeterministicProfileFieldId,
+  DeterministicProfileFieldRecord,
+  DeterministicProfileLaunchHardFilterFacet,
+} from '@gitblocks/domain';
+export {
   createModelExecutionV1,
   createRepositoryInterviewRequestV1,
   createRepositoryInterviewV1,

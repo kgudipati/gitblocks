@@ -255,11 +255,11 @@ export function profileCandidate(
 
   for (const file of bundle.files) {
     add(
-      { topic: fileTopic(file.path), sha: file.sha },
+      { topic: repositoryFileTopic(file.path), sha: file.sha },
       {
         kind: 'evidence',
         candidateId: identity.candidateId,
-        topic: fileTopic(file.path),
+        topic: repositoryFileTopic(file.path),
         dimension:
           file.path.toLowerCase() === 'security.md'
             ? 'security'
@@ -449,7 +449,7 @@ export function profileCandidate(
       ? ['security-advisory-*']
       : []),
     ...(expects(bundle, 'github-file')
-      ? bundle.candidate.allowlistedFiles.map(fileTopic)
+      ? bundle.candidate.allowlistedFiles.map(repositoryFileTopic)
       : []),
   ].sort();
   return {
@@ -727,7 +727,7 @@ function buildUnknowns(
     for (const path of bundle.candidate.allowlistedFiles) {
       if (!returnedPaths.has(path)) {
         add(
-          `${fileTopic(path)}-absence`,
+          `${repositoryFileTopic(path)}-absence`,
           `The exact-commit lookup established that allowlisted file ${path} is absent.`,
           [],
         );
@@ -779,7 +779,7 @@ function expects(
   return bundle.candidate.expectedSourceTypes.includes(sourceType);
 }
 
-function fileTopic(path: string): string {
+export function repositoryFileTopic(path: string): string {
   return `repository-file-${path
     .toLowerCase()
     .replaceAll(/[^a-z0-9]+/gu, '-')
@@ -798,7 +798,13 @@ function tagTopic(tag: string): string {
 function selectedRelease(
   bundle: CandidateSourceBundle,
 ): CandidateSourceBundle['releases'][number] | undefined {
-  return bundle.releases.find(
+  return selectCurrentRelease(bundle.releases);
+}
+
+export function selectCurrentRelease<
+  Release extends { readonly isDraft: boolean; readonly tag: string },
+>(releases: readonly Release[]): Release | undefined {
+  return releases.find(
     (release) =>
       !release.isDraft &&
       /^[A-Za-z0-9][A-Za-z0-9._+/@-]{0,99}$/u.test(release.tag) &&

@@ -105,6 +105,24 @@ current-source correction. Such a finding must be corrected in
 `candidates.json`, deterministically revalidated, and reviewed from a clean
 ephemeral database; receipt values are never edited.
 
+## Deterministic candidate-profile authority
+
+`candidate-profile-authority.json` is generated offline from the closed parsed
+`manifest.json` plus the exact taxonomy version/digest binding. Only typed
+catalog status, primary/additional families, candidate/display/GitHub identity,
+and npm mapping become known values. Catalog status is catalog role only:
+`archived` and `moved` do not populate provider lifecycle or current canonical
+repository state.
+
+Every one of the 150 profiles contains all 27 versioned denominator fields.
+The current projection has 600 known cells, 210 not-applicable package cells,
+3,240 unknown cells, and zero conflicts. Historical live proofs are not
+reconstructed from rationale, selection sources, dossier observations,
+completion Markdown, or artifact declarations; artifact selection does not
+prove materialization. Run `pnpm profiles:validate` for read-only regeneration
+and byte comparison, or the explicit `pnpm profiles:generate` command after a
+reviewed authority/rule change.
+
 ## Proposed Phase 6 artifact selections
 
 `artifact-selections.json` is the review-focused curator source for additional

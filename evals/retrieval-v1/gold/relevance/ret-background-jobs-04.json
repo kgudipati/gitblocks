@@ -1,0 +1,419 @@
+{
+  "caseId": "ret-background-jobs-04",
+  "judgments": [
+    {
+      "candidateId": "jobs-actionhero-node-resque",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-activepieces",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-agenda",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-airflow",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-asynq",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-bee-queue",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-bree",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-bull",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-bullmq",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-celery",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-dagster",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-graphile-worker",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-hatchet",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-inngest",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-kestra",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-kue",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-n8n",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-node-cron",
+      "grade": 3,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "explicit-candidate-intent"
+      ]
+    },
+    {
+      "candidateId": "jobs-node-schedule",
+      "grade": 3,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "explicit-candidate-intent"
+      ]
+    },
+    {
+      "candidateId": "jobs-pg-boss",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-prefect",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-resque",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-river",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-rq",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-sidekiq",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-temporal-typescript",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-toad-scheduler",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-trigger-dev",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-windmill",
+      "grade": 0,
+      "provenance": {
+        "reviewReference": null,
+        "reviewStatus": "not-reviewed",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "proposed"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "relevanceGoldVersion": "retrieval-relevance-gold/1.0.0"
+}

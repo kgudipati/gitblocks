@@ -44,6 +44,11 @@ export type DomainIssueCode =
   | 'limitation.contradictory'
   | 'limitation.duplicate'
   | 'outcome.disposition'
+  | 'profile.authority'
+  | 'profile.evaluation'
+  | 'profile.invariant'
+  | 'profile.registry'
+  | 'profile.source'
   | 'ranking.candidate'
   | 'ranking.contradiction'
   | 'ranking.cycle'
@@ -63,6 +68,10 @@ export type DomainIssueCode =
   | 'reference.unknown-limitation'
   | 'reference.unknown-unknown'
   | 'reason.traceability'
+  | 'query.authority'
+  | 'query.exchange'
+  | 'query.input'
+  | 'query.normalization'
   | 'request.candidate-count'
   | 'request.candidate-family'
   | 'request.evidence-cutoff'
@@ -70,6 +79,13 @@ export type DomainIssueCode =
   | 'request.transmission-approval'
   | 'result.processing-state'
   | 'result.temporal-order'
+  | 'taxonomy.ambiguity'
+  | 'taxonomy.collision'
+  | 'taxonomy.coverage'
+  | 'taxonomy.deprecation'
+  | 'taxonomy.family-root'
+  | 'taxonomy.hierarchy'
+  | 'taxonomy.invariant'
   | 'timestamp.invalid';
 
 export interface DomainIssue {
@@ -163,6 +179,16 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'A semantic candidate limitation must appear only once.',
   'outcome.disposition':
     'Responsible outcome contradicts the candidate dispositions.',
+  'profile.authority':
+    'Deterministic candidate-profile authority violates a closed invariant.',
+  'profile.evaluation':
+    'Candidate constraint evaluation preconditions are not satisfied.',
+  'profile.invariant':
+    'Deterministic candidate profile violates a closed invariant.',
+  'profile.registry':
+    'Deterministic profile field registry does not match its versioned authority.',
+  'profile.source':
+    'Deterministic profile source reference violates an authority invariant.',
   'ranking.candidate':
     'Only supplied recommended or viable candidates may be ranked.',
   'ranking.contradiction':
@@ -199,6 +225,13 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'Unknown reference does not resolve in the unknown catalog.',
   'reason.traceability':
     'Every candidate reason requires attributable candidate support.',
+  'query.authority':
+    'Candidate reference authority violates an exact bounded invariant.',
+  'query.exchange':
+    'Capability query normalization exchange is not exactly reproducible.',
+  'query.input': 'Capability query input violates a closed local invariant.',
+  'query.normalization':
+    'Capability query normalization cannot produce a closed result.',
   'request.candidate-count':
     'A fit-assessment request requires between one and twenty candidates.',
   'request.candidate-family':
@@ -213,6 +246,14 @@ const ISSUE_MESSAGES: Readonly<Record<DomainIssueCode, string>> = {
     'Assessment processing state must disclose bounded incompleteness reasons.',
   'result.temporal-order':
     'Assessment production must not precede its evidence cutoff.',
+  'taxonomy.ambiguity': 'Taxonomy ambiguity record is invalid.',
+  'taxonomy.collision': 'Taxonomy authority contains a semantic collision.',
+  'taxonomy.coverage': 'Taxonomy family coverage is incomplete.',
+  'taxonomy.deprecation': 'Taxonomy deprecation replacement is invalid.',
+  'taxonomy.family-root':
+    'Taxonomy family roots do not match product authority.',
+  'taxonomy.hierarchy': 'Taxonomy parent forest is invalid.',
+  'taxonomy.invariant': 'Taxonomy authority violates a closed invariant.',
   'timestamp.invalid': 'Timestamp is not a real canonical UTC date and time.',
 };
 

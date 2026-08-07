@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/hard-filter-projection/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "projectionVersion",
+    "caseId",
+    "profileAuthorityVersion",
+    "profileAuthorityDigest",
+    "taxonomyVersion",
+    "taxonomyDigest",
+    "catalogVersion",
+    "catalogDigest",
+    "projectionDigest",
+    "hardStateCounts",
+    "laneCounts",
+    "auditSample",
+    "provenance"
+  ],
+  "properties": {
+    "projectionVersion": { "const": "retrieval-hard-filter-projection/1.0.0" },
+    "caseId": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+    },
+    "profileAuthorityVersion": {
+      "const": "deterministic-candidate-profile-authority/1.0.0"
+    },
+    "profileAuthorityDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "taxonomyVersion": { "const": "1.0.0" },
+    "taxonomyDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "catalogVersion": { "const": "public-v1" },
+    "catalogDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "projectionDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "hardStateCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conflict", "satisfied", "unresolved"],
+      "properties": {
+        "conflict": { "type": "integer", "minimum": 0, "maximum": 150 },
+        "satisfied": { "type": "integer", "minimum": 0, "maximum": 150 },
+        "unresolved": { "type": "integer", "minimum": 0, "maximum": 150 }
+      }
+    },
+    "laneCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible", "evidence-needed", "excluded"],
+      "properties": {
+        "eligible": { "type": "integer", "minimum": 0, "maximum": 150 },
+        "evidence-needed": { "type": "integer", "minimum": 0, "maximum": 150 },
+        "excluded": { "type": "integer", "minimum": 0, "maximum": 150 }
+      }
+    },
+    "auditSample": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sampleRole",
+          "candidateId",
+          "hardState",
+          "lane",
+          "reasonCode",
+          "provenance"
+        ],
+        "properties": {
+          "sampleRole": {
+            "enum": [
+              "eligible",
+              "evidence-needed",
+              "hard-conflict",
+              "cross-family",
+              "negative-control"
+            ]
+          },
+          "candidateId": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+          },
+          "hardState": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/hardState"
+          },
+          "lane": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/lane"
+          },
+          "reasonCode": {
+            "enum": [
+              "catalog-negative-control-exclusion",
+              "generated-cross-family",
+              "generated-eligible-lane",
+              "generated-evidence-needed-lane",
+              "generated-hard-conflict"
+            ]
+          },
+          "provenance": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+          }
+        }
+      }
+    },
+    "provenance": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+    }
+  }
+}

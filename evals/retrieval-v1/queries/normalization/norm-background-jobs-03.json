@@ -1,0 +1,44 @@
+{
+  "capabilityFamily": "background-jobs",
+  "caseId": "norm-background-jobs-03",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "background-jobs",
+        "termId": "norm-background-jobs-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "norm-background-jobs-03-constraint-3303",
+        "facetHint": "feature",
+        "modality": "prohibited",
+        "originalTerm": "delayed-jobs",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must not provide the controlled feature"
+      },
+      {
+        "constraintId": "norm-background-jobs-03-constraint-9654",
+        "facetHint": "feature",
+        "modality": "required",
+        "originalTerm": "delayed-jobs",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must provide the controlled feature"
+      }
+    ],
+    "queryInputId": "query-norm-background-jobs-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-background-jobs-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Contradictory modalities must remain explicit."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

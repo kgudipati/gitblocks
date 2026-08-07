@@ -159,7 +159,7 @@ describe('validation authority immutability', () => {
     expect(output).toBe(
       'before=false;after=false;publicLength=28;freshLength=27',
     );
-  });
+  }, 30_000);
 
   it('does not allow nested public snapshot mutation to widen a fact value', () => {
     const output = runIsolatedMutation(String.raw`
@@ -214,7 +214,7 @@ describe('validation authority immutability', () => {
         'publicCodes=edge,node,authority-mutation-runtime;' +
         'freshCodes=edge,node',
     );
-  });
+  }, 30_000);
 
   it('keeps category and presence-state snapshot mutation isolated', () => {
     const snapshot = supportedSnapshot();

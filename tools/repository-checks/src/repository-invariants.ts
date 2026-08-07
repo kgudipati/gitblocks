@@ -134,6 +134,7 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
     'tools/evaluation-harness/package.json',
     new Map([
       ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
       ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
     ]),
   ],
@@ -180,6 +181,9 @@ const REQUIRED_PATHS = [
   'apps/repository-interview-operator/tsconfig.test.json',
   'catalog/public-v1/candidates.json',
   'catalog/public-v1/manifest.json',
+  'catalog/capability-taxonomy/1.0.0/README.md',
+  'catalog/capability-taxonomy/1.0.0/manifest.json',
+  'catalog/capability-taxonomy/1.0.0/source.json',
   'CONTRIBUTING.md',
   'PLANS.md',
   'README.md',
@@ -199,6 +203,7 @@ const REQUIRED_PATHS = [
   'docs/engineering/testing-strategy.md',
   'docs/evaluation/baseline-protocol.md',
   'docs/evaluation/case-authoring-protocol.md',
+  'docs/evaluation/retrieval-v1-authoring-protocol.md',
   'docs/evaluation/scoring.md',
   'docs/plans/0001-foundation.md',
   'docs/plans/0003-typescript-toolchain.md',
@@ -208,10 +213,14 @@ const REQUIRED_PATHS = [
   'docs/plans/0013-public-repository-ingestion.md',
   'docs/product/product-contract.md',
   'evals/pilot-v1/manifest.json',
+  'evals/retrieval-v1/manifest.json',
   'eslint.config.mjs',
   'package.json',
   'packages/contracts/README.md',
   'packages/contracts/package.json',
+  'packages/contracts/scripts/taxonomy-cli.ts',
+  'packages/contracts/scripts/taxonomy-command.ts',
+  'packages/contracts/scripts/tsconfig.json',
   'packages/contracts/src/index.ts',
   'packages/domain/README.md',
   'packages/domain/package.json',
@@ -254,6 +263,7 @@ const REQUIRED_PATHS = [
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
+  'schemas/evaluation/retrieval/baseline-report.schema.json',
   'schemas/evaluation/evidence.schema.json',
   'schemas/evaluation/gold.schema.json',
   'schemas/evaluation/manifest.schema.json',
@@ -263,6 +273,7 @@ const REQUIRED_PATHS = [
   'tools/evaluation-harness/src/cli.ts',
   'tools/evaluation-harness/src/contract-conformance-cli.ts',
   'tools/evaluation-harness/src/index.ts',
+  'tools/evaluation-harness/src/retrieval/cli.ts',
   'tools/evaluation-harness/test/persistence-conformance.persistence-integration.ts',
   'tools/evaluation-harness/test/tsconfig.json',
   'tools/evaluation-harness/tsconfig.json',
@@ -279,6 +290,7 @@ const REQUIRED_PATHS = [
   'tsconfig.json',
   'vitest.config.ts',
   'vitest.db.config.ts',
+  'verification/retrieval-v1/baseline-report.json',
 ] as const;
 
 export interface RepositoryInvariantInput {
@@ -321,6 +333,7 @@ export function validateRepositoryInvariants(
   diagnostics.push(...validateDependabotPolicy(repository.textFiles));
   diagnostics.push(...validateCiPolicy(repository.textFiles));
   diagnostics.push(...validateNodePinPolicy(repository.textFiles));
+  diagnostics.push(...validateProfileMaterializationBoundary(repository));
 
   const markdownInspection =
     repository.markdownInspection ??
@@ -523,10 +536,18 @@ function validateRuntimeScripts(
     'eval:interviews:generate',
     'eval:interviews:validate',
     'eval:interviews:verify',
+    'eval:retrieval:baselines',
+    'eval:retrieval:baselines:generate',
+    'eval:retrieval:fixtures',
+    'eval:retrieval:score',
+    'eval:retrieval:validate',
+    'eval:retrieval:verify',
     'eval:score',
     'eval:validate',
     'test',
     'test:coverage',
+    'taxonomy:generate',
+    'taxonomy:validate',
     'ingest:live',
     'ingest:receipt',
     'ingestion:test',
@@ -543,6 +564,9 @@ function validateRuntimeScripts(
     'operator:interviews:schema:validate',
     'operator:interviews:test',
     'operator:interviews:verify',
+    'profiles:materialization:execute',
+    'profiles:materialization:preflight',
+    'profiles:materialization:verify',
     'repo:check',
     'repo:branch',
     'repo:pr-branch',
@@ -571,6 +595,10 @@ function validateRuntimeScripts(
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive build',
     'contracts:validate':
       'pnpm runtime:check && pnpm build:product && node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'taxonomy:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts --write',
+    'taxonomy:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
     'catalog:seed':
@@ -603,6 +631,12 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && vitest run apps/repository-interview-operator/test --config vitest.config.ts',
     'operator:interviews:verify':
       'pnpm runtime:check && pnpm operator:interviews:schema:validate && pnpm operator:interviews:test && pnpm --filter @gitblocks/repository-interview-operator lint && pnpm --filter @gitblocks/repository-interview-operator typecheck && pnpm architecture:check && pnpm db:verify',
+    'profiles:materialization:preflight':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts preflight',
+    'profiles:materialization:execute':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts execute',
+    'profiles:materialization:verify':
+      'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts verify',
     'eval:interviews:generate':
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts generate',
     'eval:interviews:validate':
@@ -611,6 +645,18 @@ function validateRuntimeScripts(
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
     'eval:interviews:verify':
       'pnpm runtime:check && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate && node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures && vitest run tools/evaluation-harness/test/repository-interview-*.test.ts --config vitest.config.ts && pnpm --filter @gitblocks/evaluation-harness typecheck && pnpm architecture:check',
+    'eval:retrieval:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'eval:retrieval:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'eval:retrieval:baselines':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines',
+    'eval:retrieval:baselines:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate',
+    'eval:retrieval:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify',
+    'eval:retrieval:score':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':
@@ -639,7 +685,8 @@ function validateRuntimeScripts(
     (verifyCore.match(/pnpm build:product/gu)?.length ?? 0) !== 1 ||
     !verifyCore.includes(
       'pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal',
-    )
+    ) ||
+    !verifyCore.includes('node packages/contracts/scripts/taxonomy-cli.ts')
   ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:core', manifestPath));
   }
@@ -648,6 +695,127 @@ function validateRuntimeScripts(
     'pnpm verify && pnpm db:verify && pnpm security:audit'
   ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:ci', manifestPath));
+  }
+  return diagnostics;
+}
+
+function validateProfileMaterializationBoundary(
+  repository: RepositoryInvariantInput,
+): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  const manifestText = repository.textFiles.get('package.json');
+  if (manifestText !== undefined) {
+    try {
+      const manifest = JSON.parse(manifestText) as unknown;
+      const scripts =
+        isRecord(manifest) && isRecord(manifest['scripts'])
+          ? manifest['scripts']
+          : undefined;
+      const allowed = new Set([
+        'profiles:materialization:preflight',
+        'profiles:materialization:execute',
+        'profiles:materialization:verify',
+      ]);
+      const expectedScripts = {
+        'profiles:materialization:preflight':
+          'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts preflight',
+        'profiles:materialization:execute':
+          'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts execute',
+        'profiles:materialization:verify':
+          'pnpm runtime:check && node --conditions=gitblocks-source packages/ingestion/scripts/profile-materialization-cli.ts verify',
+      } as const;
+      if (
+        scripts === undefined ||
+        Object.keys(scripts)
+          .filter((name) => name.startsWith('profiles:materialization:'))
+          .some((name) => !allowed.has(name)) ||
+        Object.entries(expectedScripts).some(
+          ([name, expected]) => scripts[name] !== expected,
+        ) ||
+        ['verify', 'verify:core', 'verify:ci'].some(
+          (name) =>
+            typeof scripts[name] !== 'string' ||
+            scripts[name].includes('profiles:materialization:'),
+        )
+      ) {
+        diagnostics.push(
+          diagnostic(
+            'repository.profile-materialization-command-boundary',
+            'Profile materialization exposes only preflight, execute, and verify; live execution must remain outside ordinary verification.',
+            'package.json',
+          ),
+        );
+      }
+    } catch {
+      // The package manifest parser reports the syntax failure separately.
+    }
+  }
+
+  for (const manifestPath of [
+    'packages/contracts/package.json',
+    'packages/domain/package.json',
+    'packages/persistence/package.json',
+  ]) {
+    const text = repository.textFiles.get(manifestPath);
+    try {
+      const manifest: unknown =
+        text === undefined ? undefined : JSON.parse(text);
+      const sourceExport = isRecord(manifest)
+        ? (manifest['exports'] as Record<string, unknown> | undefined)?.['.']
+        : undefined;
+      if (
+        !isRecord(sourceExport) ||
+        sourceExport['gitblocks-source'] !== './src/index.ts'
+      ) {
+        diagnostics.push(
+          diagnostic(
+            'repository.profile-materialization-command-boundary',
+            'The read-only source condition must resolve the product dependency chain without compiling during preflight.',
+            manifestPath,
+          ),
+        );
+      }
+    } catch {
+      // The package manifest parser reports the syntax failure separately.
+    }
+  }
+
+  for (const [path, content] of repository.textFiles) {
+    if (
+      /^\.github\/workflows\/.+\.ya?ml$/u.test(path) &&
+      content.includes('profiles:materialization:')
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'repository.profile-materialization-hosted-execution',
+          'Hosted workflows must not invoke the live profile-materialization operator.',
+          path,
+        ),
+      );
+    }
+  }
+
+  const prohibitedEvidence = new Set([
+    'catalog/public-v1/profile-materialization-completion.md',
+    'verification/retrieval-v1/profile-materialization-coverage.json',
+    'verification/retrieval-v1/profile-materialization-receipt.json',
+  ]);
+  for (const path of repository.trackedPaths) {
+    if (
+      prohibitedEvidence.has(path) ||
+      path.startsWith(
+        'verification/retrieval-v1/.profile-materialization-runs/',
+      ) ||
+      /^packages\/persistence\/migrations\/0005/iu.test(path)
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'repository.profile-materialization-prohibited-live-artifact',
+          'Milestone 7A must not track live profile evidence, source authorities, or migration 0005.',
+          path,
+        ),
+      );
+    }
   }
   return diagnostics;
 }
@@ -912,44 +1080,218 @@ function validateCiPolicy(
       ),
     ];
   }
-  const requiredFragments = [
+  const jobSection = (jobId: string): string | undefined => {
+    const marker = `\n  ${jobId}:\n`;
+    const start = content.indexOf(marker);
+    if (start < 0) {
+      return undefined;
+    }
+    const sectionStart = start + marker.length;
+    const remaining = content.slice(sectionStart);
+    const nextJob = remaining.search(/\n {2}[a-z0-9][a-z0-9-]*:\n/u);
+    return nextJob < 0 ? remaining : remaining.slice(0, nextJob);
+  };
+  const workerJobIds = [
+    'typecheck',
+    'verification-static',
+    'verification-tests-core',
+    'verification-tests-interviews',
+    'verification-tests-tools',
+    'database-and-audit',
+  ] as const;
+  const workerJobs = new Map(
+    workerJobIds.map((jobId) => [jobId, jobSection(jobId)]),
+  );
+  const typecheckJob = workerJobs.get('typecheck');
+  const staticJob = workerJobs.get('verification-static');
+  const coreTestsJob = workerJobs.get('verification-tests-core');
+  const interviewTestsJob = workerJobs.get('verification-tests-interviews');
+  const toolsTestsJob = workerJobs.get('verification-tests-tools');
+  const databaseJob = jobSection('database-and-audit');
+  const aggregateJob = jobSection('verification');
+  const diagnostics: Diagnostic[] = [];
+  const databaseFragments = [
     `image: ${POSTGRES_TEST_IMAGE}`,
     'GITBLOCKS_DB_TEST_ACK: ephemeral',
     'GITBLOCKS_TEST_DB_DATABASE: gitblocks_test',
     'GITBLOCKS_TEST_DB_OWNER: postgres',
-    'run: pnpm verify:ci',
+    'run: pnpm db:verify',
+    'run: pnpm security:audit',
   ] as const;
-  const diagnostics: Diagnostic[] = [];
-  if (!requiredFragments.every((fragment) => content.includes(fragment))) {
+  if (
+    databaseJob === undefined ||
+    !databaseFragments.every((fragment) => databaseJob.includes(fragment)) ||
+    typecheckJob?.includes('GITBLOCKS_DB_') === true ||
+    typecheckJob?.includes('GITBLOCKS_TEST_DB_') === true ||
+    [...workerJobs]
+      .filter(([jobId]) => jobId !== 'database-and-audit')
+      .some(
+        ([, job]) =>
+          job?.includes('GITBLOCKS_DB_') === true ||
+          job?.includes('GITBLOCKS_TEST_DB_') === true,
+      ) ||
+    aggregateJob?.includes('GITBLOCKS_DB_') === true ||
+    aggregateJob?.includes('GITBLOCKS_TEST_DB_') === true
+  ) {
     diagnostics.push(
       diagnostic(
         'repository.ci-postgresql',
-        'CI must run verify:ci against the exact pinned ephemeral PostgreSQL service.',
+        'CI Database and Audit must exclusively own the pinned ephemeral PostgreSQL service, database verification, and dependency audit.',
         workflowPath,
       ),
     );
   }
   const install = 'run: pnpm install --frozen-lockfile';
   const typecheck = 'run: pnpm typecheck';
-  const verify = 'run: pnpm verify:ci';
-  const installIndex = content.indexOf(install);
-  const typecheckIndex = content.indexOf(typecheck);
-  const verifyIndex = content.indexOf(verify);
+  const unchangedWorktree = 'run: git diff --exit-code';
+  const staticCommands = [
+    'run: pnpm runtime:check',
+    'run: pnpm format:check',
+    'run: pnpm build:product',
+    'run: pnpm lint:internal',
+    'run: pnpm build:tools',
+    'run: pnpm typecheck:internal',
+    'run: pnpm architecture:check',
+    'run: node tools/repository-checks/src/cli.ts repository',
+    'run: node tools/evaluation-harness/src/cli.ts validate',
+    'run: node tools/evaluation-harness/src/cli.ts fixtures',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts verify',
+    'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
+    'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
+    'run: node tools/evaluation-harness/src/contract-conformance-cli.ts',
+    'run: node packages/contracts/scripts/taxonomy-cli.ts',
+    'run: node packages/ingestion/scripts/candidate-profile-cli.ts',
+    'run: node packages/ingestion/scripts/catalog-cli.ts',
+    'run: node packages/interviews/scripts/specification-cli.ts validate',
+    'run: node apps/repository-interview-operator/scripts/schema-cli.ts validate',
+    'run: node tools/repository-interview-prelive/src/prelive-cli.ts validate',
+    'run: pnpm security:secrets',
+    unchangedWorktree,
+  ] as const;
+  const hasExactlyOnce = (section: string, fragment: string): boolean =>
+    section.includes(fragment) &&
+    section.indexOf(fragment) === section.lastIndexOf(fragment);
+  const containsInOrder = (
+    section: string | undefined,
+    fragments: readonly string[],
+  ): boolean => {
+    if (section === undefined) {
+      return false;
+    }
+    let cursor = 0;
+    for (const fragment of fragments) {
+      const next = section.indexOf(fragment, cursor);
+      if (next < 0) {
+        return false;
+      }
+      cursor = next + fragment.length;
+    }
+    return true;
+  };
+  const shardRequirements = [
+    {
+      section: coreTestsJob,
+      roots: [
+        'packages/contracts/test',
+        'packages/domain/test',
+        'packages/persistence/test',
+        'packages/ingestion/test',
+      ],
+    },
+    {
+      section: interviewTestsJob,
+      roots: [
+        'packages/interviews/test',
+        'apps/repository-interview-operator/test',
+      ],
+    },
+    {
+      section: toolsTestsJob,
+      roots: [
+        'tools/evaluation-harness/test',
+        'tools/repository-interview-prelive/test',
+        'tools/repository-checks/test',
+      ],
+    },
+  ] as const;
+  const aggregateFragments = [
+    'name: Verification',
+    'needs:',
+    '- verification-static',
+    '- verification-tests-core',
+    '- verification-tests-interviews',
+    '- verification-tests-tools',
+    'if: ${{ always() }}',
+    'timeout-minutes: 5',
+    'STATIC_RESULT: ${{ needs.verification-static.result }}',
+    'CORE_TEST_RESULT: ${{ needs.verification-tests-core.result }}',
+    'INTERVIEW_TEST_RESULT: ${{ needs.verification-tests-interviews.result }}',
+    'TOOL_TEST_RESULT: ${{ needs.verification-tests-tools.result }}',
+    'test "$STATIC_RESULT" = "success"',
+    'test "$CORE_TEST_RESULT" = "success"',
+    'test "$INTERVIEW_TEST_RESULT" = "success"',
+    'test "$TOOL_TEST_RESULT" = "success"',
+  ] as const;
+  const installIndex = typecheckJob?.indexOf(install) ?? -1;
+  const typecheckIndex = typecheckJob?.indexOf(typecheck) ?? -1;
   if (
+    typecheckJob === undefined ||
+    staticJob === undefined ||
+    coreTestsJob === undefined ||
+    interviewTestsJob === undefined ||
+    toolsTestsJob === undefined ||
+    databaseJob === undefined ||
+    aggregateJob === undefined ||
     installIndex < 0 ||
     typecheckIndex <= installIndex ||
-    verifyIndex <= typecheckIndex ||
-    content.slice(installIndex + install.length).includes(install) ||
-    content.slice(typecheckIndex + typecheck.length).includes(typecheck) ||
-    content.slice(0, installIndex).includes('run: pnpm ') ||
-    content
+    typecheckJob.slice(installIndex + install.length).includes(install) ||
+    typecheckJob.slice(typecheckIndex + typecheck.length).includes(typecheck) ||
+    typecheckJob.slice(0, installIndex).includes('run: pnpm ') ||
+    typecheckJob
       .slice(installIndex + install.length, typecheckIndex)
-      .includes('run:')
+      .includes('run:') ||
+    [...workerJobs.values()].some(
+      (job) =>
+        job === undefined ||
+        !job.includes(install) ||
+        !job.includes(unchangedWorktree) ||
+        /(?:^|\n) {4}needs:/u.test(job) ||
+        job.includes('always()') ||
+        job.includes('continue-on-error'),
+    ) ||
+    !containsInOrder(staticJob, staticCommands) ||
+    staticCommands.some((command) => !hasExactlyOnce(staticJob, command)) ||
+    staticJob.includes('run: pnpm verify') ||
+    staticJob.includes('vitest') ||
+    staticJob.includes('run: pnpm db:verify') ||
+    staticJob.includes('run: pnpm security:audit') ||
+    shardRequirements.some(
+      ({ section, roots }) =>
+        section === undefined ||
+        !section.includes('pnpm exec vitest run') ||
+        !section.includes('--config vitest.config.ts') ||
+        !roots.every((root) => hasExactlyOnce(section, root)) ||
+        section.includes('pnpm verify') ||
+        section.includes('db:verify') ||
+        section.includes('security:audit'),
+    ) ||
+    !aggregateFragments.every((fragment) =>
+      hasExactlyOnce(aggregateJob, fragment),
+    ) ||
+    aggregateJob.includes('uses:') ||
+    aggregateJob.includes(install) ||
+    aggregateJob.includes(unchangedWorktree) ||
+    aggregateJob.includes('GITBLOCKS_DB_') ||
+    aggregateJob.includes('GITBLOCKS_TEST_DB_') ||
+    content.includes('run: pnpm verify:ci') ||
+    content.includes('\n        run: pnpm verify\n')
   ) {
     diagnostics.push(
       diagnostic(
         'repository.ci-clean-typecheck',
-        'CI must run standalone typecheck directly after frozen installation and before authoritative verification.',
+        'CI must partition frozen installation, standalone typecheck, static authority checks, exact ordinary test shards, and the aggregate Verification gate.',
         workflowPath,
       ),
     );
@@ -1025,12 +1367,19 @@ function validateProductPackage(
   }
 
   const exports = manifest['exports'];
+  const sourceConditionRequired = new Set([
+    'packages/contracts/package.json',
+    'packages/domain/package.json',
+    'packages/persistence/package.json',
+  ]).has(manifestPath);
   if (
     !isRecord(exports) ||
     Object.keys(exports).length !== 1 ||
     !isRecord(exports['.']) ||
-    Object.keys(exports['.']).length !== 2 ||
+    Object.keys(exports['.']).length !== (sourceConditionRequired ? 3 : 2) ||
     exports['.']['types'] !== './dist/src/index.d.ts' ||
+    (sourceConditionRequired &&
+      exports['.']['gitblocks-source'] !== './src/index.ts') ||
     exports['.']['import'] !== './dist/src/index.js'
   ) {
     diagnostics.push(

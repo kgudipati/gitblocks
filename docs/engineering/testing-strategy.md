@@ -61,12 +61,13 @@ Mapping tests inspect the exact `direct`, `declared`, or `derived` domain value.
 Persistence integration uses PostgreSQL 18 at the exact image digest recorded
 by ADR 0004. `pnpm db:verify` provisions an ephemeral no-volume container by
 default; an injected database requires an explicit ephemeral acknowledgment
-and a `_test` database name. Hosted `pnpm verify:ci` runs the same integration
-suite and may not skip it. SQLite, mocks, and compatibility layers do not
-substitute for PostgreSQL semantics. Migration tests cover clean/repeat apply,
-checksum drift, serialization, transactional failure, qualification, and the
-supported major version. Isolation tests connect as non-owner,
-non-superuser roles.
+and a `_test` database name. Hosted `Database and Audit` runs the same
+integration suite against the pinned service and may not skip it. Together the
+hosted jobs preserve every component of local `pnpm verify:ci`; SQLite, mocks,
+and compatibility layers do not substitute for PostgreSQL semantics. Migration
+tests cover clean/repeat apply, checksum drift, serialization, transactional
+failure, qualification, and the supported major version. Isolation tests
+connect as non-owner, non-superuser roles.
 
 Response-invariant tests require traceability for every reason and exact
 candidate ownership for its evidence and inference support. They prove that
@@ -154,9 +155,31 @@ profile-field drift with zero external effects.
 The public root `pnpm typecheck` builds required product and tool workspace
 outputs before internal typechecking. Repository-policy tests reject a missing
 or reordered tool build in both standalone typecheck and `verify:core`.
-Hosted CI runs the exact standalone command immediately after frozen install,
-before any build-producing verification command, so ignored local `dist/`
-state cannot satisfy the proof.
+Hosted CI partitions the same authority into six independent 20-minute worker
+jobs and one five-minute aggregate gate. `Standalone Typecheck` runs the exact
+standalone command after its own frozen install, so ignored local `dist/` state
+cannot satisfy the proof. `Verification — Static and Authorities` validates
+pull-request metadata and runs every non-test, non-database component of
+`verify:core` in its accepted order. Three test workers build the workspaces
+and use exact path filters over the tracked `vitest.config.ts`: core product
+tests own the contracts, domain, persistence, and ingestion roots; interview
+tests own the interviews and operator roots; and tooling tests own the
+evaluation harness, pre-live, and repository-policy roots. Their union is the
+ordinary 88-file, 1,503-test suite with no overlap.
+
+The displayed `Verification` job is a pure required-check compatibility gate:
+it checks out no worktree, installs nothing, and succeeds only when the static
+worker and all three test workers report `success`. This is the sole narrow
+exception to worker checkout, frozen-installation, and unchanged-worktree
+requirements. `Database and Audit` alone receives database credentials and
+provisions the pinned PostgreSQL service, then runs `pnpm db:verify` and
+`pnpm security:audit`; the database command already owns its deterministic
+build prerequisite. Every repository-code worker proves its worktree
+unchanged. Workflow-policy tests reject missing gates or roots, overlapping
+shards, worker dependency edges, invalid aggregate dependencies, database
+authority outside the database job, unpinned actions, retries, ignored
+failures, and tolerance directives. Local `pnpm verify`, `pnpm verify:core`,
+and `pnpm verify:ci` remain canonical and unchanged.
 
 The PostgreSQL 18.4 suite applies migrations through 0004 in the existing test
 harness, then proves 6/30/150 selection materialization from one complete
@@ -197,19 +220,20 @@ license branch races.
 
 ## Test matrix by responsibility
 
-| Responsibility              | Minimum evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product contract kernel     | Pure domain-invariant tests; non-corpus representability fixtures; source-aware provenance matrices; traceability and preservation invariants; valid and exploit-oriented parser cases; schema closure and deterministic-export checks; package dependency-boundary enforcement                                                                                                                                                                                                                                                                                                                                        |
-| PostgreSQL persistence      | Unit tests for bounds and stable errors; real PostgreSQL migration, public identity uniqueness, complete-record idempotency, concurrency, evidence-world cutoff, lifecycle, active-reference closure, exact historical snapshots, cancellation, and conformance through a non-owner role                                                                                                                                                                                                                                                                                                                               |
-| Deterministic local scanner | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Skill procedure             | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| MCP surface                 | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Catalog ingestion           | Explicit curated-source and closed manifest/receipt tests; shared catalog-to-persistence identity/family mapping; complete catalog-only seed planning and CLI authority; migration-3/5 zero-write denial; full 150-candidate PostgreSQL seed closure and idempotent replay; declared-source/request agreement; closed provider outcome taxonomy; host, redirect, auth, content, rate, cancellation, deadline and byte bounds; exact-commit license races; deterministic profile/refresh tests; real PostgreSQL transient recovery, move, introduction-time, idempotency/lifecycle reconstruction; source non-execution |
-| Repository interviews       | Provider-output and durable-contract separation; exact schema projections; deterministic prompt/alias/line rendering; full-scope and no-truncation checks; citation/semantic closure; no trusted model IDs; fake-port application tests; fixed-host provider protocol, refusal/incomplete/error/usage/retry tests; immutable PostgreSQL history/reuse; offline operator selection/policy/budget/receipt/telemetry tests; fake-provider ephemeral PostgreSQL composition and immediate zero-call reuse; adversarial injection/leakage fixtures; independent human audit                                                 |
-| Retrieval and ranking       | Unit/golden evaluations for hard constraints, evidence attribution, inference/unknown separation, deterministic tie behavior, and quality baselines                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Future private data storage | Integration tests for authorization, tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery after a concrete private-data design exists                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Adoption workflow           | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Fixed-candidate evaluation  | Schema valid/invalid forms, bounded and inert JSON, manifest hashes, reference integrity, hard-safety gate, deterministic metrics, blind inputs, weak fixtures, and CLI exits                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Responsibility               | Minimum evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product contract kernel      | Pure domain-invariant tests; non-corpus representability fixtures; source-aware provenance matrices; traceability and preservation invariants; valid and exploit-oriented parser cases; schema closure and deterministic-export checks; package dependency-boundary enforcement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| PostgreSQL persistence       | Unit tests for bounds and stable errors; real PostgreSQL migration, public identity uniqueness, complete-record idempotency, concurrency, evidence-world cutoff, lifecycle, active-reference closure, exact historical snapshots, cancellation, and conformance through a non-owner role                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Deterministic local scanner  | Golden and property tests for path handling, manifests, symlinks, encodings, bounds, secret redaction, and proof that scanned code is not executed                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Skill procedure              | Contract scenarios for approval gates, data preview/minimization, prompt-injection resistance, unknown handling, and safe stop behavior                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| MCP surface                  | Schema and compatibility tests, authentication/authorization, tenant isolation, cancellation, pagination, size bounds, stable errors, and tool-goal semantics                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Catalog ingestion            | Explicit curated-source and closed manifest/receipt tests; shared catalog-to-persistence identity/family mapping; complete catalog-only seed planning and CLI authority; migration-3/5 zero-write denial; full 150-candidate PostgreSQL seed closure and idempotent replay; declared-source/request agreement; closed provider outcome taxonomy; host, redirect, auth, content, rate, cancellation, deadline and byte bounds; exact-commit license races; deterministic profile/refresh tests; real PostgreSQL transient recovery, move, introduction-time, idempotency/lifecycle reconstruction; source non-execution                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Repository interviews        | Provider-output and durable-contract separation; exact schema projections; deterministic prompt/alias/line rendering; full-scope and no-truncation checks; citation/semantic closure; no trusted model IDs; fake-port application tests; fixed-host provider protocol, refusal/incomplete/error/usage/retry tests; immutable PostgreSQL history/reuse; offline operator selection/policy/budget/receipt/telemetry tests; fake-provider ephemeral PostgreSQL composition and immediate zero-call reuse; adversarial injection/leakage fixtures; independent human audit                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Phase 8 retrieval foundation | `pnpm taxonomy:validate` and `pnpm profiles:validate` preserve exact authority/schema/digest closure; `pnpm eval:retrieval:validate` proves exact 30/20 balance, manifest/hash/membership, blind input, accepted-normalizer drift, generated 30-by-150 hard-filter projections, separate proposed gold, relevance/equivalence/no-result closure, and adversarial bounds; `pnpm eval:retrieval:fixtures` proves hand-calculated scorer math and zero denominators; `pnpm eval:retrieval:baselines` proves blind-first frozen prediction generation and content-free print output; `pnpm eval:retrieval:verify` repeats/reverses generation, validation, scoring, aggregation, schema/content/digest checks, committed-byte comparison, and no-write audit; focused tests reject identity/gold/rationale leakage, fuzzy/locale/clock/random/environment/network semantics, unsafe ordinary emission, imperfect controls, report content, arbitrary/symlinked writes, prediction commits, and production/Phase 7 scope; fake-process Milestone 7 tests require three bounded pre-health storage authorities: exact `HostConfig.Tmpfs` configuration for PostgreSQL 18's `/var/lib/postgresql` root and `rw,noexec,nosuid,nodev,size=1073741824`, a `.Mounts` negative audit that accepts the observed empty array while rejecting every volume, bind, and conflicting storage entry, and effective mountinfo proving exactly one writable root tmpfs with `noexec`, `nosuid`, `nodev`, and a `size=` super-option; malformed, oversized, duplicate, contradictory, missing, extra, or failed inspection variants fail closed; tests authenticate all three commands and bounds in the plan digest, prove cleanup after storage drift, and constrain failed execute output to fixed stage/safe-code pairs without raw error or secret text |
+| Future retrieval and ranking | Production candidate generation, retrieval, ranking, deterministic tie behavior, performance, and codebase-conditioned quality evidence after separate architecture approval                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Future private data storage  | Integration tests for authorization, tenant isolation, retention/deletion, redaction, migrations, concurrency, and recovery after a concrete private-data design exists                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Adoption workflow            | A small end-to-end corpus across the five selected capability families, including “no viable candidate” and withheld-data paths                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Fixed-candidate evaluation   | Schema valid/invalid forms, bounded and inert JSON, manifest hashes, reference integrity, hard-safety gate, deterministic metrics, blind inputs, weak fixtures, and CLI exits                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 Each phase selects only applicable rows and records why omitted rows are
 irrelevant.
@@ -322,6 +346,163 @@ Operational failures fail separately and never enter semantic denominators;
 empty unknown-recall or basis denominators are invalid. Synthetic
 prompt-injection fixtures test deterministic boundaries but do not substitute
 for later blinded behavioral review.
+
+Phase 8 uses a separately versioned retrieval/query authority rather than
+reinterpreting pilot-v1 ranking gold, repository-interviews-v1 audit data, or
+Phase 7 calibration candidates. Its initial corpus contains exactly 50 cases:
+30 retrieval cases, exactly six per capability family, and 20 normalization,
+clarification, and adversarial cases, exactly four per family. Normalization
+gold, clarification gold, hard-filter expectations, graded relevance,
+duplicate equivalence, and no-result expectations remain physically and
+semantically separate. Blind query records contain no tags or audit
+classifications; a separate classification authority is excluded from the
+blind-only future baseline loader. Future ranking judgments are prohibited. Expected
+hard-filter membership is generated from normalized queries, exact candidate
+profiles, and versioned evaluation rules; it is not a hand-authored 50 by 150
+matrix. Selected generated entries currently have bounded
+proposed/not-reviewed audit samples; they do not claim independent human
+review.
+
+The authority defines Recall@10, MRR, NDCG@10, exact and equivalence-group
+duplicate rates, category coverage, hard-filter correctness, top-10
+hard-filter violations, no-eligible-candidate accuracy, clarification accuracy,
+alias-expansion correctness, and prohibited-constraint preservation. A zero
+denominator retains numerator 0 and denominator 0, has null value and
+`not-applicable` status, and is excluded from macro means, never silently 0,
+1, NaN, or Infinity. The 26 synthetic hand-calculated fixtures cover graded
+gain, known rank, exact/equivalence duplicates, tri-state/lane safety,
+negative controls, no-result, exact clarification/alias/prohibition including
+source-set, facet, basis, rule, and representation forgeries, null
+macros, stable rounding, ordering, and report digest. Milestone 6 adds three
+ordinary deterministic baselines, weak/safety controls, a synthetic oracle,
+and a drift-checked aggregate/per-family content-free verification report. It
+tests byte-identical repeated and fresh-process output, reversed safe-authority
+order, immutable inputs, exact ASCII ties, fixed-path writer denial, and a
+read-only effect audit. Shared accepted-normalization metrics are explicitly
+not independent baseline achievements, and no relative quality threshold or
+winner is tested. Ordinary validation performs no provider or
+model call and reads no Phase 7 database or repository-external evidence. A
+final 150-candidate deterministic materialization proof remains separately
+authorized and outside ordinary verification and hosted deterministic CI.
+
+Milestone 7A adds only offline and fake-effect coverage. Tests lock legacy
+collector/profile/batch/receipt bytes and existing semantic suites, compile and
+validate closed operational policy/source/coverage/receipt structures, prove
+the mechanically derived 150-candidate request/source closure, strict language,
+fork, community, license, runtime, and advisory parsing, and reproduce the pure
+150-profile authority across input reversal, repeated calls, and a fresh
+process. Receipt tests bind two collections and four A/B passes, provider drift,
+semantic-versus-record digest behavior, run-ID tampering, failure
+qualification, and content exclusion. Injected process/database/provider/
+filesystem/signal boundaries prove validation-before-credential-read,
+fresh-database planning, cancellation, cleanup, quarantine, disposal-before-
+publication, and failure denial. These tests may run ordinarily; the preflight,
+execute, and future fixed-evidence verifier commands themselves do not.
+
+The post-health fresh-database boundary is tested independently from storage
+startup. Its 0/0 host proof fixtures cover the fixed transient-code allowlist,
+ten-attempt exhaustion, deterministic 250 ms sleeps, query and sleep
+cancellation, per-attempt client teardown, nonretryable authentication,
+arbitrary SQL, and nonempty-state failures, typed persistence-to-ingestion safe
+conversion, and raw database-text denial. The isolated live correction gate may
+exercise only accepted database creation, the 0/0 proof, and exact disposal; it
+does not authorize migration, provider collection, or materialization execute.
+
+Docker Desktop published-port regression tests additionally reject the former
+`--internal` network plan, default/host/second-network widening, non-loopback
+publication, and any unauthenticated `docker port` command mutation. Fake
+process tests require exactly one loopback runtime mapping after health and
+before host SQL, rejecting missing, wildcard, IPv6, wrong-port, multiline,
+malformed, oversized, and nonzero results. One separately authorized isolated
+gate may then exercise only database create, runtime port proof, the exact 0/0
+host query, and disposal; provider, migration, catalog, and materialization CLI
+effects remain prohibited.
+
+The accepted isolated gate used the corrected non-internal bridge and passed
+storage configuration, mount-conflict, runtime-tmpfs, internal-health, and
+runtime loopback-publication checks before completing the host 0/0 query on its
+first connection attempt. Exact disposal and independent container, network,
+and volume absence also passed. This proof accepts the fresh-database boundary;
+it is not a profile-materialization execution.
+
+Execute 4 later passed that fresh-database and 0/0 boundary, then failed at the
+coarse `migrate-schema-runtime-role-catalog-seed` stage before provider work.
+Static review independently rejected the stage's `CREATE ROLE ... PASSWORD $1`
+utility-command parameterization without inferring that it was execute 4's
+exact failing statement. Runtime-role regressions exercise the real
+Postgres.js transaction/tag/unsafe mock seam. They require transaction-local
+bound role/password settings, fixed `%I`/`%L` PostgreSQL-side formatting,
+exact least-privilege attributes and membership, password-safe SQL shape,
+rollback, cancellation before schema inspection, value-free database failure,
+and CLI redaction. The prior implementation produced 12 expected failures and
+126 passes in the required four-file focused run; the corrected path passes all
+138 focused tests.
+
+Mocks do not establish the PostgreSQL utility grammar against a live server.
+The runtime-role correction is therefore claimed only as deterministic offline
+correctness: the required focused suite, complete normal suite, architecture,
+and authoritative verification pass. The formerly planned real
+`createProfileMaterializationSystemEffects` create/zero-state/complete
+`prepareDatabase` correction gate was not completed. The live path remains
+unproven, Milestone 7B is deferred, and no further Phase 8 materialization
+diagnostic or execute 5 is authorized.
+
+The Milestone 7A review-correction suites additionally prove runtime-login-only
+catalog/profile persistence, exact observation-topic-to-evidence mapping,
+150-entry first/second persistence-proof closure, qualified-not-persisted
+behavior, source/persistence agreement, seeded-only denial, later-clock
+unchanged-record reuse, mutable head drift, exact-commit immutable conflict,
+and strict container-before-network cleanup including partial creation and
+nonzero/final-absence failures. All persistence/process/provider effects remain
+injected fakes; no database or network-backed test is authorized in 7A.
+
+The final Milestone 7A correction directly exercises source-authority
+reconciliation for exact-snapshot value/absence-to-unavailable transitions in
+both directions while retaining established-fact contradiction denial and
+head-advancement closure. Evidence tests remove a selected release's exact
+`release-current` observation and challenge allowlisted-file mapping with
+same-suffix paths, wrong commits, wrong paths, and prefix-only topics. They also
+prove the shared release selector preserves legacy behavior, changed
+observation prose is irrelevant, qualified transitions remain qualified, and
+an earlier controlled failure remains in two-collection receipt accounting.
+
+The qualified-recovery correction adds an injected two-collection journey in
+both directions. A first qualified/unpersisted candidate that later succeeds
+must create durable candidate/snapshot material and retain every generated
+evidence identifier through reconciliation, proof parsing, idempotency
+derivation, and receipt parsing; the earlier failure remains qualified and
+cannot be called unchanged. The reverse complete-to-qualified journey retains
+prior durable evidence only on unchanged facts, keeps the current unavailable
+record, and claims no second mutation. Unit denials cover different nonempty
+evidence lists, unqualified evidence loss, and evidence-only drift.
+Repository-file mapping additionally rejects owner/repository mismatch, unsafe
+source or immutable URLs, wrong commits/paths/topics, and percent-encoding
+ambiguity.
+
+Taxonomy validation is active from Milestone 2. Its no-write command rebuilds
+the expected generated authority in memory and compares exact committed bytes.
+Tests cover closed TypeBox roots, existing schema-digest preservation, graph
+and deprecation closure, term-class collisions, ASCII-only exact lookup,
+source permutations, locale independence, digest projection, fixed-path and
+symlink rejection, bounded value-free diagnostics, and the semantic boundary
+between each family and its adjacent negative-control terminology.
+
+Deterministic profile validation is active from Milestone 4. Red-first suites
+bind the exact immutable 27-field registry and scope partition; every closed
+field/value/state/source variant; candidate ownership; version scope;
+canonicalization-before-digest; hostile prototypes, accessors, cycles, and
+sparse arrays; profile/authority ordering and digest drift; and fixed-path
+generation defenses. Re-digested negative cases bind repository identity to
+the profile owner and package-dependent applicability/publication identity to
+the known package mapping. Projection tests prove that only four catalog extraction
+rules are implemented, all 150 candidates close exactly, the three
+package-dependent fields derive not-applicable solely from 70 known-unmapped
+packages, and edits to rationale/prose-only inputs cannot change a profile.
+Coverage tests close every per-field and per-family row and separately assert
+2/16 candidate-side hard-filter readiness and 2/9 broad-retrieval readiness.
+Evaluation tests keep unknown/conflict unresolved, apply not-applicable by
+modality, ignore optional infrastructure for prohibited-dependency semantics,
+and preserve non-taxonomy declarations without parsing their text.
 
 Repository-interview audit tests authenticate both committed evaluation
 authority and runtime provenance. They use only a loader-branded, deeply owned

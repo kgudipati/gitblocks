@@ -1,0 +1,327 @@
+{
+  "$id": "https://schemas.gitblocks.dev/operations/profile-materialization/receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "aggregateFieldStates": { "$ref": "#/$defs/stateCounts" },
+    "candidateCount": { "const": 150 },
+    "catalogDigest": {
+      "const": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634"
+    },
+    "catalogVersion": { "const": "public-v1" },
+    "controlledFailureCounts": {
+      "items": { "$ref": "#/$defs/codeCount" },
+      "maxItems": 64,
+      "type": "array"
+    },
+    "databaseSchemaDigest": {
+      "const": "265fa5f21dbeaa1b80dd78bd6bdd678b27e5971f2852042a30cb872ba44a2952"
+    },
+    "familyCoverage": {
+      "items": { "$ref": "#/$defs/familyCoverage" },
+      "maxItems": 5,
+      "minItems": 5,
+      "type": "array"
+    },
+    "fieldCoverage": {
+      "items": { "$ref": "#/$defs/fieldCoverage" },
+      "maxItems": 27,
+      "minItems": 27,
+      "type": "array"
+    },
+    "finalSourceAuthoritySemanticDigest": { "$ref": "#/$defs/digest" },
+    "firstPersistenceCounts": { "$ref": "#/$defs/persistenceCounts" },
+    "firstPersistenceProofSemanticDigest": { "$ref": "#/$defs/digest" },
+    "firstPassA": { "$ref": "#/$defs/pass" },
+    "firstPassB": { "$ref": "#/$defs/pass" },
+    "firstSourceAuthoritySemanticDigest": { "$ref": "#/$defs/digest" },
+    "firstSourceOutcomeCounts": { "$ref": "#/$defs/outcomeCounts" },
+    "firstSourceRecordCounts": { "$ref": "#/$defs/sourceCounts" },
+    "liveIdempotency": {
+      "enum": [
+        "passed",
+        "passed-with-provider-drift",
+        "qualified-optional-source-failures"
+      ]
+    },
+    "migrationCount": { "const": 4 },
+    "migrationInventoryDigest": {
+      "const": "6c2523252496b2e99c7034a109ac4c672fe347af10b8502ad098a0bd619926f4"
+    },
+    "operatorVersion": { "const": "profile-materialization-operator/1.0.0" },
+    "persistenceProofVersion": {
+      "const": "profile-materialization-persistence-proof/1.0.0"
+    },
+    "productTableCount": { "const": 25 },
+    "profileAuthoritySchemaDigest": {
+      "const": "7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf"
+    },
+    "profileRulesVersion": {
+      "const": "deterministic-candidate-profile-rules/1.0.0"
+    },
+    "profileSchemaDigest": {
+      "const": "3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61"
+    },
+    "projectionVersion": {
+      "const": "profile-materialization-projection/1.0.0"
+    },
+    "providerPolicyDigest": {
+      "const": "0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede"
+    },
+    "providerPolicyVersion": {
+      "const": "profile-materialization-provider-policy/1.0.0"
+    },
+    "qualification": {
+      "enum": ["complete", "qualified-optional-source-failures"]
+    },
+    "receiptRecordDigest": { "$ref": "#/$defs/digest" },
+    "receiptSemanticDigest": { "$ref": "#/$defs/digest" },
+    "receiptVersion": { "const": "profile-materialization-receipt/1.0.0" },
+    "runIdDigest": { "$ref": "#/$defs/digest" },
+    "sameEvidenceReproduction": { "const": "passed" },
+    "secondPassA": { "$ref": "#/$defs/pass" },
+    "secondPassB": { "$ref": "#/$defs/pass" },
+    "secondPersistenceCounts": { "$ref": "#/$defs/persistenceCounts" },
+    "secondPersistenceProofSemanticDigest": { "$ref": "#/$defs/digest" },
+    "secondSourceAuthoritySemanticDigest": { "$ref": "#/$defs/digest" },
+    "secondSourceOutcomeCounts": { "$ref": "#/$defs/outcomeCounts" },
+    "secondSourceRecordCounts": { "$ref": "#/$defs/sourceCounts" },
+    "sourceAuthorityVersion": {
+      "const": "profile-materialization-source-authority/1.0.0"
+    },
+    "sourceDriftComparisonDigest": { "$ref": "#/$defs/digest" },
+    "sourceDriftCounts": {
+      "items": { "$ref": "#/$defs/driftCount" },
+      "maxItems": 9,
+      "minItems": 9,
+      "type": "array"
+    },
+    "taxonomyDigest": {
+      "const": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9"
+    },
+    "taxonomyVersion": { "const": "1.0.0" }
+  },
+  "required": [
+    "aggregateFieldStates",
+    "candidateCount",
+    "catalogDigest",
+    "catalogVersion",
+    "controlledFailureCounts",
+    "databaseSchemaDigest",
+    "familyCoverage",
+    "fieldCoverage",
+    "finalSourceAuthoritySemanticDigest",
+    "firstPersistenceCounts",
+    "firstPersistenceProofSemanticDigest",
+    "firstPassA",
+    "firstPassB",
+    "firstSourceAuthoritySemanticDigest",
+    "firstSourceOutcomeCounts",
+    "firstSourceRecordCounts",
+    "liveIdempotency",
+    "migrationCount",
+    "migrationInventoryDigest",
+    "operatorVersion",
+    "persistenceProofVersion",
+    "productTableCount",
+    "profileAuthoritySchemaDigest",
+    "profileRulesVersion",
+    "profileSchemaDigest",
+    "projectionVersion",
+    "providerPolicyDigest",
+    "providerPolicyVersion",
+    "qualification",
+    "receiptRecordDigest",
+    "receiptSemanticDigest",
+    "receiptVersion",
+    "runIdDigest",
+    "sameEvidenceReproduction",
+    "secondPassA",
+    "secondPassB",
+    "secondPersistenceCounts",
+    "secondPersistenceProofSemanticDigest",
+    "secondSourceAuthoritySemanticDigest",
+    "secondSourceOutcomeCounts",
+    "secondSourceRecordCounts",
+    "sourceAuthorityVersion",
+    "sourceDriftComparisonDigest",
+    "sourceDriftCounts",
+    "taxonomyDigest",
+    "taxonomyVersion"
+  ],
+  "title": "Profile materialization receipt 1.0.0",
+  "type": "object",
+  "$defs": {
+    "codeCount": {
+      "additionalProperties": false,
+      "properties": {
+        "code": { "$ref": "#/$defs/safeCode" },
+        "count": { "minimum": 1, "type": "integer" }
+      },
+      "required": ["code", "count"],
+      "type": "object"
+    },
+    "digest": {
+      "maxLength": 64,
+      "minLength": 64,
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "driftCount": {
+      "additionalProperties": false,
+      "properties": {
+        "changed": { "minimum": 0, "type": "integer" },
+        "new": { "minimum": 0, "type": "integer" },
+        "sourceType": { "$ref": "#/$defs/sourceType" },
+        "unchanged": { "minimum": 0, "type": "integer" },
+        "withdrawn": { "minimum": 0, "type": "integer" }
+      },
+      "required": ["changed", "new", "sourceType", "unchanged", "withdrawn"],
+      "type": "object"
+    },
+    "familyCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict": { "minimum": 0, "type": "integer" },
+        "family": {
+          "enum": [
+            "authorization",
+            "audit-logging",
+            "background-jobs",
+            "rate-limiting",
+            "webhooks"
+          ]
+        },
+        "known": { "minimum": 0, "type": "integer" },
+        "notApplicable": { "minimum": 0, "type": "integer" },
+        "unknown": { "minimum": 0, "type": "integer" }
+      },
+      "required": ["conflict", "family", "known", "notApplicable", "unknown"],
+      "type": "object"
+    },
+    "fieldCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict": { "minimum": 0, "type": "integer" },
+        "fieldId": { "$ref": "#/$defs/safeCode" },
+        "known": { "minimum": 0, "type": "integer" },
+        "notApplicable": { "minimum": 0, "type": "integer" },
+        "unknown": { "minimum": 0, "type": "integer" }
+      },
+      "required": ["conflict", "fieldId", "known", "notApplicable", "unknown"],
+      "type": "object"
+    },
+    "outcomeCount": {
+      "additionalProperties": false,
+      "properties": {
+        "establishedAbsence": { "minimum": 0, "type": "integer" },
+        "establishedValue": { "minimum": 0, "type": "integer" },
+        "fatal": { "minimum": 0, "type": "integer" },
+        "sourceType": { "$ref": "#/$defs/sourceType" },
+        "unavailable": { "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "establishedAbsence",
+        "establishedValue",
+        "fatal",
+        "sourceType",
+        "unavailable"
+      ],
+      "type": "object"
+    },
+    "outcomeCounts": {
+      "items": { "$ref": "#/$defs/outcomeCount" },
+      "maxItems": 9,
+      "minItems": 9,
+      "type": "array"
+    },
+    "pass": {
+      "additionalProperties": false,
+      "properties": {
+        "profileAuthorityDigest": { "$ref": "#/$defs/digest" },
+        "profileCoverageDigest": { "$ref": "#/$defs/digest" }
+      },
+      "required": ["profileAuthorityDigest", "profileCoverageDigest"],
+      "type": "object"
+    },
+    "persistenceCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "candidateCreated": { "minimum": 0, "type": "integer" },
+        "candidateIdempotent": { "minimum": 0, "type": "integer" },
+        "created": { "minimum": 0, "type": "integer" },
+        "evidenceAppended": { "minimum": 0, "type": "integer" },
+        "evidenceIdempotent": { "minimum": 0, "type": "integer" },
+        "evidenceInvalidated": { "minimum": 0, "type": "integer" },
+        "evidenceSuperseded": { "minimum": 0, "type": "integer" },
+        "persistedCandidateCount": { "minimum": 0, "type": "integer" },
+        "qualifiedNotPersistedCount": { "minimum": 0, "type": "integer" },
+        "snapshotCreated": { "minimum": 0, "type": "integer" },
+        "snapshotIdempotent": { "minimum": 0, "type": "integer" },
+        "unchanged": { "minimum": 0, "type": "integer" },
+        "updated": { "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "candidateCreated",
+        "candidateIdempotent",
+        "created",
+        "evidenceAppended",
+        "evidenceIdempotent",
+        "evidenceInvalidated",
+        "evidenceSuperseded",
+        "persistedCandidateCount",
+        "qualifiedNotPersistedCount",
+        "snapshotCreated",
+        "snapshotIdempotent",
+        "unchanged",
+        "updated"
+      ],
+      "type": "object"
+    },
+    "safeCode": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9.-]*$",
+      "type": "string"
+    },
+    "sourceCount": {
+      "additionalProperties": false,
+      "properties": {
+        "count": { "minimum": 0, "type": "integer" },
+        "sourceType": { "$ref": "#/$defs/sourceType" }
+      },
+      "required": ["count", "sourceType"],
+      "type": "object"
+    },
+    "sourceCounts": {
+      "items": { "$ref": "#/$defs/sourceCount" },
+      "maxItems": 9,
+      "minItems": 9,
+      "type": "array"
+    },
+    "sourceType": {
+      "enum": [
+        "github-advisory",
+        "github-community",
+        "github-file",
+        "github-head-commit",
+        "github-license",
+        "github-release",
+        "github-repository",
+        "github-tag",
+        "npm-package"
+      ]
+    },
+    "stateCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict": { "minimum": 0, "type": "integer" },
+        "known": { "minimum": 0, "type": "integer" },
+        "notApplicable": { "minimum": 0, "type": "integer" },
+        "unknown": { "minimum": 0, "type": "integer" }
+      },
+      "required": ["conflict", "known", "notApplicable", "unknown"],
+      "type": "object"
+    }
+  }
+}

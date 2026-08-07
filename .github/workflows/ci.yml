@@ -15,8 +15,282 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verification:
-    name: Verification
+  typecheck:
+    name: Standalone Typecheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prove standalone typecheck from a clean checkout
+        run: pnpm typecheck
+
+      - name: Prove typecheck leaves the worktree unchanged
+        run: git diff --exit-code
+
+  verification-static:
+    name: Verification — Static and Authorities
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate pull request metadata
+        if: github.event_name == 'pull_request'
+        env:
+          PR_ACTOR: ${{ github.event.pull_request.user.login }}
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pnpm repo:pr-branch -- "$PR_ACTOR" "$PR_BRANCH"
+          pnpm repo:pr-title -- "$PR_TITLE"
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Build product packages
+        run: pnpm build:product
+
+      - name: Lint internal source
+        run: pnpm lint:internal
+
+      - name: Build repository tools
+        run: pnpm build:tools
+
+      - name: Typecheck internal source
+        run: pnpm typecheck:internal
+
+      - name: Check architecture
+        run: pnpm architecture:check
+
+      - name: Validate repository policy
+        run: node tools/repository-checks/src/cli.ts repository
+
+      - name: Validate general evaluation cases
+        run: node tools/evaluation-harness/src/cli.ts validate
+
+      - name: Validate general evaluation fixtures
+        run: node tools/evaluation-harness/src/cli.ts fixtures
+
+      - name: Validate retrieval evaluation authority
+        run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+
+      - name: Validate retrieval scorer fixtures
+        run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
+
+      - name: Verify retrieval baselines and committed report
+        run: node tools/evaluation-harness/src/retrieval/cli.ts verify
+
+      - name: Validate interview evaluation cases
+        run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
+
+      - name: Validate interview evaluation fixtures
+        run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
+
+      - name: Validate contract conformance
+        run: node tools/evaluation-harness/src/contract-conformance-cli.ts
+
+      - name: Validate taxonomy authority
+        run: node packages/contracts/scripts/taxonomy-cli.ts
+
+      - name: Validate candidate-profile authority
+        run: node packages/ingestion/scripts/candidate-profile-cli.ts
+
+      - name: Validate catalog authority
+        run: node packages/ingestion/scripts/catalog-cli.ts
+
+      - name: Validate interview specification
+        run: node packages/interviews/scripts/specification-cli.ts validate
+
+      - name: Validate operator schemas
+        run: node apps/repository-interview-operator/scripts/schema-cli.ts validate
+
+      - name: Validate pre-live authority
+        run: node tools/repository-interview-prelive/src/prelive-cli.ts validate
+
+      - name: Scan for secrets
+        run: pnpm security:secrets
+
+      - name: Prove static and authority verification leaves the worktree unchanged
+        run: git diff --exit-code
+
+  verification-tests-core:
+    name: Verification — Core Product Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Build all workspaces
+        run: pnpm build
+
+      - name: Run core product tests
+        run: >-
+          pnpm exec vitest run
+          packages/contracts/test
+          packages/domain/test
+          packages/persistence/test
+          packages/ingestion/test
+          --config vitest.config.ts
+
+      - name: Prove core product tests leave the worktree unchanged
+        run: git diff --exit-code
+
+  verification-tests-interviews:
+    name: Verification — Interview and Operator Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Build all workspaces
+        run: pnpm build
+
+      - name: Run interview and operator tests
+        run: >-
+          pnpm exec vitest run
+          packages/interviews/test
+          apps/repository-interview-operator/test
+          --config vitest.config.ts
+
+      - name: Prove interview and operator tests leave the worktree unchanged
+        run: git diff --exit-code
+
+  verification-tests-tools:
+    name: Verification — Tooling Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Build all workspaces
+        run: pnpm build
+
+      - name: Run tooling tests
+        run: >-
+          pnpm exec vitest run
+          tools/evaluation-harness/test
+          tools/repository-interview-prelive/test
+          tools/repository-checks/test
+          --config vitest.config.ts
+
+      - name: Prove tooling tests leave the worktree unchanged
+        run: git diff --exit-code
+
+  database-and-audit:
+    name: Database and Audit
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
@@ -61,24 +335,34 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Prove standalone typecheck from a clean checkout
-        run: pnpm typecheck
+      - name: Verify PostgreSQL integration and conformance
+        run: pnpm db:verify
 
-      - name: Prove installation is reproducible
+      - name: Audit production dependencies
+        run: pnpm security:audit
+
+      - name: Prove database verification and audit leave the worktree unchanged
         run: git diff --exit-code
 
-      - name: Validate pull request metadata
-        if: github.event_name == 'pull_request'
-        env:
-          PR_ACTOR: ${{ github.event.pull_request.user.login }}
-          PR_BRANCH: ${{ github.head_ref }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
+  verification:
+    name: Verification
+    needs:
+      - verification-static
+      - verification-tests-core
+      - verification-tests-interviews
+      - verification-tests-tools
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      STATIC_RESULT: ${{ needs.verification-static.result }}
+      CORE_TEST_RESULT: ${{ needs.verification-tests-core.result }}
+      INTERVIEW_TEST_RESULT: ${{ needs.verification-tests-interviews.result }}
+      TOOL_TEST_RESULT: ${{ needs.verification-tests-tools.result }}
+    steps:
+      - name: Require every ordinary verification worker to succeed
         run: |
-          pnpm repo:pr-branch -- "$PR_ACTOR" "$PR_BRANCH"
-          pnpm repo:pr-title -- "$PR_TITLE"
-
-      - name: Run authoritative verification
-        run: pnpm verify:ci
-
-      - name: Prove verification leaves the worktree unchanged
-        run: git diff --exit-code
+          test "$STATIC_RESULT" = "success"
+          test "$CORE_TEST_RESULT" = "success"
+          test "$INTERVIEW_TEST_RESULT" = "success"
+          test "$TOOL_TEST_RESULT" = "success"

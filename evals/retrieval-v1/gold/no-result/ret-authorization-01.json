@@ -1,0 +1,15 @@
+{
+  "caseId": "ret-authorization-01",
+  "eligibleCount": 17,
+  "evidenceNeededCount": 0,
+  "excludedCount": 133,
+  "expectedOutcome": "eligible-candidates-present",
+  "noResultGoldVersion": "retrieval-no-result-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

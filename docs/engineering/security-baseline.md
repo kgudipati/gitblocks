@@ -406,6 +406,192 @@ Severity drives response priority, but an unavailable formal score does not
 delay containment of credible secret exposure, remote execution, tenant
 escape, authentication bypass, or destructive-action vulnerability.
 
+## Phase 8 deterministic retrieval boundary
+
+Phase 8 taxonomy and query-normalization inputs are untrusted bounded data.
+Canonical taxonomy identifiers and lookup aliases are ASCII-only and exactly
+version-bound; Unicode is retained only in bounded display labels. Fuzzy
+matching, transliteration, confusable folding, and NFKC-based semantic merging
+are prohibited for hard constraints. Mixed-script or confusable terms become
+unknown or clarification-required. Alias collisions, deprecated-alias reuse,
+missing parents, cycles, excessive graph depth, and nondeterministic traversal
+fail closed.
+
+Milestone 2 implements this taxonomy boundary as reviewed source plus a
+canonically generated authority. Resolved aliases, intentional ambiguities,
+and adjacent/excluded terms are disjoint record classes. An intentional
+ambiguity with two or more active possible concepts is valid authority, not an
+alias validation failure; exact lookup returns it as ambiguous and does not
+choose a meaning.
+
+Milestone 3 implements raw-term handling only for explicit term fields. It
+accepts bounded safe text, performs ASCII-only space/lowercase/hyphen
+canonicalization, and requires the stable-ID grammar. Unsupported punctuation,
+non-ASCII lookup text, mixed-script text, ambiguity, subjective terms, unknown
+hard declarations, conflicting modalities, and cross-family candidate
+references fail closed or require clarification. There is no summary mining,
+Unicode semantic merge, fuzzy lookup, target-fingerprint inference, provider,
+model, filesystem, database, or network path.
+
+Normalization outcomes fail closed over blocking unresolved state, not merely
+over the presence of clarification text. Every blocking unresolved record in a
+non-unsupported result requires clarification coverage for its exact source;
+mixed supported/excluded primary terms cannot become favorable. Candidate-ID
+resolution indexes the exact candidate ID, with no authority-provided alias.
+The standalone result parser rejects semantically impossible outcome,
+constraint, provenance, ordering, and candidate-binding combinations before
+checking their recomputed digest and normalization ID. The result bound covers
+all 50 independently unresolved input sources without unbounded allocation.
+
+The package-local authority command reads only the fixed versioned source and
+manifest paths, enforces one-MiB regular-file bounds, rejects symlink and root
+path escapes, returns bounded value-free errors, and writes only the manifest
+under an explicit generation command. Ordinary validation performs no write
+and reads no candidate artifact or provider data.
+
+Local pre-contract query input may retain bounded original terminology,
+explicit requirements, preferences and prohibitions, exact candidate or brand
+references, and an optional minimized repository-fingerprint reference. It
+must not retain secrets, raw source, configuration values, or transcripts.
+Normalization preserves source and rule identity and never weakens a hard
+constraint. Exact candidate references use only an injected bounded authority;
+arbitrary URLs, display-name lookup, partial names, and search are absent.
+Candidate facts come only from approved deterministic inputs with
+explicit provenance and value state; dossier observation prose and repository
+interviews cannot populate deterministic profile authority.
+
+Milestone 4 narrows the committed known-value boundary to typed fields from the
+closed parsed `catalog/public-v1/manifest.json`: catalog role/status,
+primary/additional family, stable catalog GitHub identity, and mapped or
+known-unmapped npm identity. Catalog rationale, selection-source prose,
+README/documentation, dossier observations/unknowns/limitations, historical
+completion Markdown, artifact declarations, and aggregate Markdown counts are
+not fact authority. Catalog `archived`, `moved`, and `negative-control` never
+masquerade as current provider lifecycle state, and an artifact selection never
+proves materialization or presence.
+
+Profile values are closed per field ID. Every known value requires a coherent
+extraction rule and bounded source reference; every version-specific known or
+conflicting claim requires an exact version/snapshot. Unknown never establishes
+compatibility, absence, safety, or satisfaction. Not-applicable requires
+positive source proof and must agree with the known package-mapping field;
+repository identity must retain the owning candidate. Conflict retains at
+least two distinct typed claims without a winner. Source references contain
+only controlled catalog codes,
+future structured snapshot/evidence/topic IDs, future artifact-set entry
+identity/outcome, or acyclic derivation inputs—never URLs, provider bodies,
+repository text, observations, or unrestricted metadata.
+
+`pnpm profiles:validate` reads fixed regular catalog, taxonomy, profile, and
+coverage paths within reviewed byte bounds, rejects symlinks/root escapes,
+regenerates in memory, compares exact bytes, and writes nothing. The explicit
+generation command can write only the fixed profile-authority and coverage
+paths. Both paths are offline and have no environment-derived semantics,
+clock, randomness, network, provider, model, database, candidate code, or
+Phase 7 access.
+
+Retrieval/query evaluation is an outward consumer of product authority.
+Product packages must not import its schemas, corpus, gold, scorers, fixtures,
+or harness code. Its fixed repository-contained JSON boundary requires regular
+files, rejects symlinks, traversal, duplicate keys, excessive depth/nodes,
+wrong membership, and byte/hash drift, and bounds each corpus document to 256
+KiB, the complete corpus to 16 MiB, and diagnostics to 500. The exact accepted
+profile authority uses only its separate fixed 4 MiB bound. Public predictions
+are closed, require complete case and 150-candidate decision closure, limit
+results to ten, and contain no URL, artifact/target content, arbitrary score,
+rationale, reviewer content, or provider output.
+
+Ordinary Phase 8 implementation and validation are read-only and offline:
+they make no environment-derived semantic decision, provider or model call,
+network or database access, candidate repository or artifact-body read, or use
+of any Phase 7 container, database, receipt, or repository-external evidence.
+Gold and case-classification audit metadata are physically separated from
+blind queries, proposed/not-reviewed, and unavailable through the dedicated
+blind loader that is the only permitted baseline boundary. Baseline strategies
+receive no case/query/source/reference/condition identity, corpus-assigned
+family, slot/path, prose, classification, reviewer metadata, or gold. Their
+candidate view contains only structured identity/family/status and exact
+generated hard-state/lane authority; rationale, selection-source URLs,
+documentation/artifacts, interview/provider/model content, and reviewer notes
+are excluded. All real-corpus predictions validate and freeze before full gold
+loads for scoring. Unknown profiles remain
+unresolved, negative controls remain excluded, and no-result authority derives
+from generated hard-filter state rather than relevance.
+
+Ordinary baselines cannot emit negative controls or excluded candidates, call
+unresolved eligible, duplicate results, exceed ten results, or use fuzzy,
+Unicode-folded, semantic, locale, clock, random, environment, network, or
+filesystem-enumerated semantics. The intentionally unsafe control remains
+structurally valid but is isolated and must produce nonzero safety violations.
+The synthetic oracle cannot load real authority.
+
+The committed report is aggregate/per-family and content-free. It excludes all
+case/query/source/candidate/result/decision content, URLs, reviewer/rationale,
+artifacts/provider/model output, mutable environment data, per-case scores,
+winner/rank/composite/recommendation/threshold/readiness fields, NaN, Infinity,
+and zero-denominator coercion. Its digest excludes only itself. The explicit
+writer accepts no arbitrary path, rejects canonical-root/parent/report symlink
+aliases, performs one bounded no-follow regular-file write, and leaves no
+temporary file. Ordinary verification compares exact bytes and metadata in a
+read-only no-write effect audit. Any final 150-candidate live
+materialization requires separate authorization, a fresh dedicated ephemeral
+PostgreSQL database, the existing approved public-source boundaries, no model
+call, and content-free receipts and coverage evidence.
+
+Milestone 7A implements that boundary without exercising it. Its independently
+digested provider policy permits only HTTPS GET to `api.github.com` and
+`registry.npmjs.org`, manual same-host redirects, bounded JSON, and the existing
+retry/cancellation rules. The new collector is separate from legacy public
+ingestion. Repository bodies, arbitrary documentation, dossier prose,
+credentials, headers, unrestricted errors, and model output cannot enter the
+closed operational source authority.
+
+The live command accepts only complete named arguments and the five reviewed
+credential-variable names. Preflight validates all paths, authority bindings,
+acknowledgements, run/database identity, pinned PostgreSQL image, and bounds
+before any lazy credential read. It rejects defaults, `.env`, localhost
+discovery, positional/duplicate arguments, Phase 7-like identity, symlink/path
+aliases, and arbitrary outputs. The future isolated database uses no volume,
+an internal network, a loopback-only port, a non-owner runtime login, and exact
+labels. For PostgreSQL 18, the sole storage boundary is tmpfs at the
+image-declared `/var/lib/postgresql` volume root, containing its
+`/var/lib/postgresql/18/docker` PGDATA. A bounded exact-container `.Mounts`
+inspection must prove one writable tmpfs with an empty source at that exact
+root and reject anonymous volumes, bind mounts, second mounts, and alternate
+tmpfs destinations before database proof or migration. Owner authority ends
+after bootstrap, migrations, schema proof, and runtime-role creation.
+
+Future source-authority directories are 0700 and files 0600, canonical,
+bounded, exclusive, and no-follow. Authorities stay untracked and retained
+until independent evidence review and explicit deletion approval. Receipt and
+coverage output is quarantined. Signal cancellation propagates to provider,
+sleep, database, and process work; any stage failure enters bounded cleanup,
+and cleanup or post-disposal failure prevents fixed-file publication. No repair
+SQL is allowed. Repository policy rejects the live execute command from every
+ordinary verify script and hosted workflow and rejects source authorities,
+Milestone 7B evidence, and migration 0005 from the Milestone 7A commit.
+Execute failures expose only one fixed execute stage and one existing safe
+ingestion code. Raw exceptions, stacks, provider/process output, host paths,
+credentials, run/database identity, candidate identity, and source values are
+never rendered. A cleanup or post-disposal failure replaces the primary stage
+so the operator cannot claim successful disposal.
+
+Both future collections persist complete legacy projections only through the
+verified non-owner runtime login and retain a private, candidate-scoped
+`profile-materialization-persistence-proof/1.0.0`. Source evidence identifiers
+come from exact controlled observation topics, never observation prose.
+Second-collection reconciliation reuses unchanged first records byte-for-byte;
+mutable selector drift is explicit and exact-commit immutable conflicts fail
+closed. Equal provider content may retain a current record only to preserve
+newly persisted recovery evidence; missing current evidence may reuse prior
+durable IDs only when the current candidate is explicitly qualified by an
+unavailable source, and divergent nonempty evidence identities fail closed.
+Allowlisted-file mapping binds the exact source repository to the immutable
+repository/commit/path and rejects URL ambiguity. Disposal is sequential:
+exact container inspection/removal/absence,
+then exact network inspection/removal/absence. Any unexpected inspection,
+nonzero removal, or client-close/cleanup failure blocks final publication.
+
 ## Security exceptions
 
 An exception must be a reviewed artifact linked from the PR and contain:

@@ -1,0 +1,28 @@
+{
+  "caseId": "norm-audit-logging-04",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [],
+    "normalizedConstraints": [],
+    "notices": [],
+    "outcome": "unsupported",
+    "primaryFamily": null,
+    "unresolved": [
+      {
+        "blocking": true,
+        "reasonCode": "adjacent-capability",
+        "sourceIds": [
+          "norm-audit-logging-04-term-01"
+        ]
+      }
+    ]
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

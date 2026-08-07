@@ -5,6 +5,30 @@ scoring. `pilot-v1` remains the target-repository ranking authority. The
 separate `repository-interviews-v1` modules validate candidate-owned interview
 audit authority and never reinterpret pilot gold.
 
+`retrieval-v1` is a third independent evaluation authority. It owns 30 blind
+retrieval and 20 blind normalization/adversarial cases, exactly six/four per
+capability family. Blind records contain no tags or audit classifications;
+`loadRetrievalBlindQuerySetV1` returns only manifest bindings and blind query
+documents and is the only future baseline input boundary. A separate
+case-classification audit authority and physically separate proposed normalization,
+clarification, generated hard-filter, relevance, equivalence, and no-result
+gold; exact manifest byte hashes; and a semantic digest. The harness invokes
+the accepted public normalizer and single-candidate evaluator rather than
+duplicating their semantics or importing ingestion implementation. Contract
+DTOs/parsers come from `@gitblocks/contracts`; the constraint evaluator and
+domain profile types come through the harness's direct `@gitblocks/domain`
+dependency.
+
+Retrieval scoring validates complete 50-case predictions and exact
+150-candidate decisions for each retrieval case. It reports Recall@10, MRR,
+NDCG@10, exact/equivalence duplicates, family coverage, tri-state hard-filter
+accuracy, top-ten safety, no-eligible accuracy, exact clarification and alias
+accuracy, and prohibited-modality preservation. Every metric retains
+numerator/denominator/value/status; zero denominators are null and
+not-applicable. Twenty-six synthetic hand-calculated fixtures prove the math and
+stable report digest without running an oracle over the real corpus. Milestone
+6 owns all baselines and any committed baseline report.
+
 Repository-interview evaluation support includes an independently named JSON
 Schema registry, bounded corpus loader, exact catalog/artifact authority
 closure, durable content-free audit-scope construction from validated product
@@ -30,7 +54,9 @@ exercise public contracts and interview utilities only in the inward,
 evaluation-consumer direction.
 
 Ordinary validation is read-only and uses the existing 256 KiB file, bounded
-JSON depth/node, safe path, and no-symlink boundary. CLI output contains only
+JSON depth/node, safe path, and no-symlink boundary. Retrieval additionally
+caps its entire corpus at 16 MiB and requires exact 212-entry/213-JSON
+membership. CLI output contains only
 corpus identities/counts/digests and fixture scenario names/results; it never
 prints candidate rationale, hostile fixture text, semantic content, reviewer
 values, prompts, or provider data.

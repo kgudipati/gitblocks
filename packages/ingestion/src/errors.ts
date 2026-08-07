@@ -1,3 +1,5 @@
+import { PersistenceError } from '@gitblocks/persistence';
+
 export type IngestionErrorCode =
   | 'ingestion.invalid-input'
   | 'ingestion.invalid-manifest'
@@ -112,9 +114,9 @@ export function ingestionError(
 }
 
 export function asSafeErrorCode(error: unknown): IngestionErrorCode {
-  return error instanceof IngestionError
-    ? error.code
-    : 'ingestion.internal-invariant';
+  if (error instanceof IngestionError) return error.code;
+  if (error instanceof PersistenceError) return 'ingestion.persistence';
+  return 'ingestion.internal-invariant';
 }
 
 export function providerOutcomeClass(

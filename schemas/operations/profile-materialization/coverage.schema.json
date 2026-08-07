@@ -1,0 +1,183 @@
+{
+  "$id": "https://schemas.gitblocks.dev/operations/profile-materialization/coverage.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "aggregate": { "$ref": "#/$defs/comparison" },
+    "broadRetrievalReadiness": { "$ref": "#/$defs/readiness" },
+    "catalogDigest": {
+      "const": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634"
+    },
+    "catalogVersion": { "const": "public-v1" },
+    "coverageSemanticDigest": { "$ref": "#/$defs/digest" },
+    "coverageVersion": { "const": "profile-materialization-coverage/1.0.0" },
+    "finalProfileAuthorityDigest": { "$ref": "#/$defs/digest" },
+    "finalSourceAuthorityDigest": { "$ref": "#/$defs/digest" },
+    "hardFilterReadiness": { "$ref": "#/$defs/readiness" },
+    "offlineProfileAuthorityDigest": {
+      "const": "fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879"
+    },
+    "offlineProfileCoverageDigest": {
+      "const": "b313d7f7afc3f9324042fff965f9e63c4e0a347be2f7363808cb6107e913fb17"
+    },
+    "perFamily": {
+      "items": { "$ref": "#/$defs/family" },
+      "maxItems": 5,
+      "minItems": 5,
+      "type": "array"
+    },
+    "perField": {
+      "items": { "$ref": "#/$defs/field" },
+      "maxItems": 27,
+      "minItems": 27,
+      "type": "array"
+    },
+    "remainingUnknownReasons": {
+      "items": { "$ref": "#/$defs/reason" },
+      "maxItems": 64,
+      "type": "array"
+    },
+    "taxonomyDigest": {
+      "const": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9"
+    },
+    "taxonomyVersion": { "const": "1.0.0" }
+  },
+  "required": [
+    "aggregate",
+    "broadRetrievalReadiness",
+    "catalogDigest",
+    "catalogVersion",
+    "coverageSemanticDigest",
+    "coverageVersion",
+    "finalProfileAuthorityDigest",
+    "finalSourceAuthorityDigest",
+    "hardFilterReadiness",
+    "offlineProfileAuthorityDigest",
+    "offlineProfileCoverageDigest",
+    "perFamily",
+    "perField",
+    "remainingUnknownReasons",
+    "taxonomyDigest",
+    "taxonomyVersion"
+  ],
+  "title": "Profile materialization coverage comparison 1.0.0",
+  "type": "object",
+  "$defs": {
+    "comparison": {
+      "additionalProperties": false,
+      "properties": {
+        "final": { "$ref": "#/$defs/states" },
+        "offline": { "$ref": "#/$defs/states" },
+        "transitions": { "$ref": "#/$defs/transitions" }
+      },
+      "required": ["final", "offline", "transitions"],
+      "type": "object"
+    },
+    "digest": {
+      "maxLength": 64,
+      "minLength": 64,
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "family": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "enum": [
+            "authorization",
+            "audit-logging",
+            "background-jobs",
+            "rate-limiting",
+            "webhooks"
+          ]
+        },
+        "final": { "$ref": "#/$defs/states" },
+        "offline": { "$ref": "#/$defs/states" },
+        "transitions": { "$ref": "#/$defs/transitions" }
+      },
+      "required": ["family", "final", "offline", "transitions"],
+      "type": "object"
+    },
+    "field": {
+      "additionalProperties": false,
+      "properties": {
+        "extractionRule": { "$ref": "#/$defs/safeCode" },
+        "fieldId": { "$ref": "#/$defs/safeCode" },
+        "final": { "$ref": "#/$defs/states" },
+        "offline": { "$ref": "#/$defs/states" },
+        "remainingUnknown": { "minimum": 0, "type": "integer" },
+        "transitions": { "$ref": "#/$defs/transitions" }
+      },
+      "required": [
+        "extractionRule",
+        "fieldId",
+        "final",
+        "offline",
+        "remainingUnknown",
+        "transitions"
+      ],
+      "type": "object"
+    },
+    "readiness": {
+      "additionalProperties": false,
+      "properties": {
+        "finalReadyFacets": {
+          "items": { "$ref": "#/$defs/safeCode" },
+          "maxItems": 32,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "offlineReadyFacets": {
+          "items": { "$ref": "#/$defs/safeCode" },
+          "maxItems": 32,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "totalFacets": { "minimum": 1, "type": "integer" }
+      },
+      "required": ["finalReadyFacets", "offlineReadyFacets", "totalFacets"],
+      "type": "object"
+    },
+    "reason": {
+      "additionalProperties": false,
+      "properties": {
+        "count": { "minimum": 1, "type": "integer" },
+        "reasonCode": { "$ref": "#/$defs/safeCode" }
+      },
+      "required": ["count", "reasonCode"],
+      "type": "object"
+    },
+    "safeCode": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "type": "string"
+    },
+    "states": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict": { "minimum": 0, "type": "integer" },
+        "known": { "minimum": 0, "type": "integer" },
+        "notApplicable": { "minimum": 0, "type": "integer" },
+        "unknown": { "minimum": 0, "type": "integer" }
+      },
+      "required": ["conflict", "known", "notApplicable", "unknown"],
+      "type": "object"
+    },
+    "transition": {
+      "additionalProperties": false,
+      "properties": {
+        "count": { "minimum": 1, "type": "integer" },
+        "from": { "enum": ["conflict", "known", "not-applicable", "unknown"] },
+        "to": { "enum": ["conflict", "known", "not-applicable", "unknown"] }
+      },
+      "required": ["count", "from", "to"],
+      "type": "object"
+    },
+    "transitions": {
+      "items": { "$ref": "#/$defs/transition" },
+      "maxItems": 16,
+      "type": "array"
+    }
+  }
+}

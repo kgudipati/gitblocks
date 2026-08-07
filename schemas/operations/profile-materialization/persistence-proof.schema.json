@@ -1,0 +1,114 @@
+{
+  "$id": "https://schemas.gitblocks.dev/operations/profile-materialization/persistence-proof.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidateCount": { "const": 150 },
+    "catalogDigest": {
+      "const": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634"
+    },
+    "collection": { "enum": ["first", "second"] },
+    "databaseSchemaDigest": {
+      "const": "265fa5f21dbeaa1b80dd78bd6bdd678b27e5971f2852042a30cb872ba44a2952"
+    },
+    "entries": {
+      "items": { "$ref": "#/$defs/entry" },
+      "maxItems": 150,
+      "minItems": 150,
+      "type": "array"
+    },
+    "migrationInventoryDigest": {
+      "const": "6c2523252496b2e99c7034a109ac4c672fe347af10b8502ad098a0bd619926f4"
+    },
+    "proofSemanticDigest": { "$ref": "#/$defs/digest" },
+    "proofVersion": {
+      "const": "profile-materialization-persistence-proof/1.0.0"
+    },
+    "sourceAuthoritySemanticDigest": { "$ref": "#/$defs/digest" }
+  },
+  "required": [
+    "candidateCount",
+    "catalogDigest",
+    "collection",
+    "databaseSchemaDigest",
+    "entries",
+    "migrationInventoryDigest",
+    "proofSemanticDigest",
+    "proofVersion",
+    "sourceAuthoritySemanticDigest"
+  ],
+  "title": "Profile materialization persistence proof 1.0.0",
+  "type": "object",
+  "$defs": {
+    "digest": {
+      "maxLength": 64,
+      "minLength": 64,
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "entry": {
+      "additionalProperties": false,
+      "properties": {
+        "candidateId": { "$ref": "#/$defs/stableId" },
+        "candidateState": {
+          "oneOf": [{ "enum": ["created", "idempotent"] }, { "type": "null" }]
+        },
+        "controlledOptionalSourceCodes": {
+          "items": { "$ref": "#/$defs/safeCode" },
+          "maxItems": 32,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "disposition": {
+          "enum": ["persisted", "qualified-not-persisted"]
+        },
+        "evidenceAppended": { "minimum": 0, "type": "integer" },
+        "evidenceIdempotent": { "minimum": 0, "type": "integer" },
+        "evidenceInvalidated": { "minimum": 0, "type": "integer" },
+        "evidenceSuperseded": { "minimum": 0, "type": "integer" },
+        "limitationCount": { "minimum": 0, "type": "integer" },
+        "outcome": {
+          "oneOf": [
+            { "enum": ["created", "updated", "unchanged"] },
+            { "type": "null" }
+          ]
+        },
+        "snapshotId": {
+          "oneOf": [{ "$ref": "#/$defs/stableId" }, { "type": "null" }]
+        },
+        "snapshotState": {
+          "oneOf": [{ "enum": ["created", "idempotent"] }, { "type": "null" }]
+        },
+        "unknownCount": { "minimum": 0, "type": "integer" }
+      },
+      "required": [
+        "candidateId",
+        "candidateState",
+        "controlledOptionalSourceCodes",
+        "disposition",
+        "evidenceAppended",
+        "evidenceIdempotent",
+        "evidenceInvalidated",
+        "evidenceSuperseded",
+        "limitationCount",
+        "outcome",
+        "snapshotId",
+        "snapshotState",
+        "unknownCount"
+      ],
+      "type": "object"
+    },
+    "safeCode": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9.-]*$",
+      "type": "string"
+    },
+    "stableId": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "type": "string"
+    }
+  }
+}

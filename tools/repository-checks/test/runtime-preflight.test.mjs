@@ -322,6 +322,8 @@ describe('root command graph', () => {
       'db:verify',
       'test',
       'test:coverage',
+      'taxonomy:generate',
+      'taxonomy:validate',
       'repo:check',
       'repo:branch',
       'repo:pr-branch',

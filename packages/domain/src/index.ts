@@ -12,6 +12,120 @@ export {
   MAXIMUM_DOMAIN_ISSUE_PATH_LENGTH,
   STABLE_ID_MAX_LENGTH,
 } from './issues.ts';
+export {
+  CAPABILITY_TAXONOMY_CONCEPT_KINDS,
+  CAPABILITY_TAXONOMY_LIMITS,
+  canonicalizeCapabilityTaxonomy,
+  lookupCapabilityTaxonomyTerm,
+  validateCapabilityTaxonomy,
+} from './capability-taxonomy.ts';
+export type {
+  CapabilityTaxonomy,
+  CapabilityTaxonomyAmbiguity,
+  CapabilityTaxonomyConcept,
+  CapabilityTaxonomyConceptKind,
+  CapabilityTaxonomyExclusion,
+  CapabilityTaxonomyLookupResult,
+  CapabilityTaxonomyRecordStatus,
+  CapabilityTaxonomyResolvedAlias,
+} from './capability-taxonomy.ts';
+export {
+  CAPABILITY_QUERY_CONSTRAINT_FACETS,
+  CAPABILITY_QUERY_LIMITS,
+  CAPABILITY_QUERY_MAX_UNRESOLVED_TERMS,
+  CAPABILITY_QUERY_NORMALIZER_VERSION,
+  canonicalizeCapabilityQueryInput,
+  validateCandidateReferenceAuthority,
+  validateCapabilityQueryInput,
+} from './capability-query.ts';
+export type {
+  CandidateReferenceAuthority,
+  CandidateReferenceAuthorityEntry,
+  CapabilityQueryCandidateReference,
+  CapabilityQueryCandidateReferenceKind,
+  CapabilityQueryConstraintFacet,
+  CapabilityQueryConstraintModality,
+  CapabilityQueryDraftConstraint,
+  CapabilityQueryInput,
+  CapabilityQueryOutcome,
+  CapabilityQueryRepositoryFingerprintReference,
+  CapabilityQuerySuccessCondition,
+  CapabilityQueryTerm,
+} from './capability-query.ts';
+export {
+  canonicalizeCapabilityQueryLookupTermV1,
+  normalizeCapabilityQuery,
+  validateCapabilityQueryNormalizationResult,
+} from './capability-query-normalization.ts';
+export {
+  DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION,
+  DETERMINISTIC_CANDIDATE_PROFILE_VERSION,
+  DETERMINISTIC_PROFILE_BROAD_RETRIEVAL_FACETS,
+  DETERMINISTIC_PROFILE_DENOMINATOR_VERSION,
+  DETERMINISTIC_PROFILE_FIELD_IDS,
+  DETERMINISTIC_PROFILE_LAUNCH_HARD_FILTER_FACETS,
+  DETERMINISTIC_PROFILE_RULES_VERSION,
+  canonicalizeDeterministicCandidateProfile,
+  getDeterministicProfileFieldRegistry,
+  isFieldValue,
+  validateDeterministicCandidateProfile,
+  validateDeterministicCandidateProfileAuthority,
+  validateDeterministicProfileFieldRegistry,
+} from './deterministic-candidate-profile.ts';
+export {
+  evaluateCandidateConstraintProfileState,
+  evaluateCandidateConstraints,
+} from './candidate-constraint-evaluation.ts';
+export type {
+  CandidateConstraintEvaluation,
+  CandidateConstraintEvaluationInput,
+  CandidateConstraintEvaluationItem,
+  CandidateConstraintMatch,
+  CandidateConstraintNormalizationInput,
+  CandidateConstraintState,
+} from './candidate-constraint-evaluation.ts';
+export type {
+  DeterministicCandidateProfile,
+  DeterministicCandidateProfileAuthority,
+  DeterministicProfileBroadRetrievalFacet,
+  DeterministicProfileConflictClaim,
+  DeterministicProfileExtractionRuleId,
+  DeterministicProfileFieldDefinition,
+  DeterministicProfileFieldId,
+  DeterministicProfileFieldRecord,
+  DeterministicProfileFieldScope,
+  DeterministicProfileFieldState,
+  DeterministicProfileIntendedUse,
+  DeterministicProfileLaunchHardFilterFacet,
+  DeterministicProfileSourceReference,
+  DeterministicProfileStateReasonCode,
+  DeterministicProfileStateRuleId,
+  DeterministicProfileValue,
+  DeterministicProfileValueByFieldId,
+  DeterministicProfileValueKind,
+  DeterministicProfileVersionScope,
+  ProfileAdvisorySeverity,
+  ProfileCatalogFieldCode,
+  ProfileDatastore,
+  ProfileFramework,
+  ProfileLanguageEcosystem,
+  ProfileProcessRole,
+} from './deterministic-candidate-profile.ts';
+export type {
+  CapabilityQueryCandidateCatalogBinding,
+  CapabilityQueryClarification,
+  CapabilityQueryConstraintResolutionBasis,
+  CapabilityQueryNormalizationCore,
+  CapabilityQueryNormalizationSemanticResult,
+  CapabilityQueryNormalizationNotice,
+  CapabilityQueryNormalizationStep,
+  CapabilityQueryTermCanonicalizationResult,
+  CapabilityQueryUnresolvedTerm,
+  NormalizedCapabilityConcept,
+  NormalizedCapabilityConstraint,
+  PreservedCapabilityQueryDeclaration,
+  ResolvedCapabilityQueryCandidateReference,
+} from './capability-query-normalization.ts';
 export { getCapabilityFamilies } from './model.ts';
 export {
   validateFitAssessmentExchange,

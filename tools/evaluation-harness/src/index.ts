@@ -20,6 +20,31 @@ export { createSchemaRegistry } from './schema-registry.ts';
 export { scoreCorpus, scoreSingleCase } from './scoring.ts';
 export { stableJson } from './stable-json.ts';
 export { createWeakPredictionSet, WEAK_STRATEGIES } from './weak-fixtures.ts';
+export type * from './retrieval/contracts.ts';
+export { loadRetrievalBlindQuerySetV1 } from './retrieval/blind-query.ts';
+export { generateRetrievalBaselinePredictionSetsV1 } from './retrieval/baseline-generation.ts';
+export {
+  retrievalBaselineReportSemanticDigest,
+  validateRetrievalBaselineReportV1,
+  type RetrievalBaselineReport,
+} from './retrieval/baseline-report.ts';
+export { runRetrievalBaselinesV1 } from './retrieval/baseline-runner.ts';
+export {
+  loadRetrievalCorpusV1,
+  retrievalCorpusSemanticDigest,
+  type RetrievalCorpusLoadResult,
+} from './retrieval/corpus.ts';
+export { runRetrievalScorerFixtures } from './retrieval/fixtures.ts';
+export {
+  retrievalPredictionSetSemanticDigest,
+  validateRetrievalPredictionSetV1,
+} from './retrieval/predictions.ts';
+export {
+  metric as retrievalMetric,
+  scoreRetrievalFixture,
+  scoreRetrievalPredictionSet,
+  summarizeMetrics as summarizeRetrievalMetrics,
+} from './retrieval/scoring.ts';
 export type * from './repository-interview-evaluation-contracts.ts';
 export {
   selectRepositoryInterviewSecondarySampleV1,

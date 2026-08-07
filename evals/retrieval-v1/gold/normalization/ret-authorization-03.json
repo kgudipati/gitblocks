@@ -1,0 +1,40 @@
+{
+  "caseId": "ret-authorization-03",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [
+      {
+        "conceptId": "authorization",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "ret-authorization-03-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "role-based-access-control",
+        "conceptId": "role-based-access-control",
+        "facet": "feature",
+        "modality": "preferred",
+        "resolutionBasis": "controlled-taxonomy",
+        "ruleId": "taxonomy-active-alias",
+        "sourceConstraintIds": [
+          "ret-authorization-03-constraint-9358"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "normalized",
+    "primaryFamily": "authorization",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/equivalence/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "equivalenceVersion",
+    "catalogVersion",
+    "catalogDigest",
+    "groups",
+    "provenance"
+  ],
+  "properties": {
+    "equivalenceVersion": { "const": "retrieval-equivalence-authority/1.0.0" },
+    "catalogVersion": { "const": "public-v1" },
+    "catalogDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "groups": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "groupId",
+          "relationshipKind",
+          "candidateIds",
+          "provenance"
+        ],
+        "properties": {
+          "groupId": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+          },
+          "relationshipKind": {
+            "enum": [
+              "actual-fork",
+              "duplicate-catalog-identity",
+              "interchangeable-distribution-variant",
+              "mirror",
+              "superseding-alias"
+            ]
+          },
+          "candidateIds": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 20,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+            }
+          },
+          "provenance": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+          }
+        }
+      }
+    },
+    "provenance": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+    }
+  }
+}
