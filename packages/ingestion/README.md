@@ -147,9 +147,46 @@ prior-CLI stage unknowable. A second corrected execute failed at
 `fresh-database-create` before provider access. Isolated probes traced that
 boundary to an incorrect positive `.Mounts` assertion: the accepted `--tmpfs`
 plan produced `.Mounts=[]`, exact `HostConfig.Tmpfs` configuration, and one
-hardened effective root tmpfs in mountinfo, with no Docker volume object.
-Neither execute was retried. Milestone 7B remains incomplete, and no third
-materialization execute is authorized.
+hardened effective root tmpfs in mountinfo, with no Docker volume object. A
+third execute on the corrected storage boundary also failed without authority
+or evidence; its wrapper lost the bounded stage/code, so the failure stage is
+not inferred. A later staged diagnostic passed database creation and localized
+the next reproducible boundary to `zero-state-proof`.
+
+The fresh 0/0 migration/product-table proof now permits at most ten one-second
+host connection attempts separated by fixed 250 ms sleeps. Only seven fixed
+transport codes are retryable; authentication, SQL/protocol, nonempty-state,
+cancellation, and unknown failures fail immediately. The caller signal cancels
+the pending query and sleep, every attempt closes its client, and exhausted
+host readiness is exposed only as `zero-state-proof` with
+`ingestion.persistence`. All three executes remain permanent, none was retried,
+Milestone 7B remains incomplete, and execute number four is not authorized.
+
+The first isolated exercise of that correction passed internal health but
+exhausted all ten connection-class attempts. A bounded Docker Desktop port
+diagnostic then found the requested HostConfig binding but no runtime
+NetworkSettings mapping on the dedicated `--internal` topology. The fresh
+database now uses an exactly named, labeled, non-internal user-defined bridge;
+it remains separate from the default bridge and publishes only
+`127.0.0.1:<fresh-port>:5432`. After health, a plan-digested `docker port`
+command must prove exactly that loopback mapping before host SQL may begin.
+
+This bridge is not described as egress-isolated. The ephemeral database holds
+only transient public-materialization state, receives no provider credential,
+uses a digest-pinned image and hardened tmpfs with no volume/bind, and is
+disposed before fixed evidence publication. The bounded zero-state policy and
+safe error mapping above remain unchanged. Execute number four is still not
+authorized.
+
+The isolated acceptance gate for this correction passed on diagnostic run-ID
+digest
+`c5511e5a26eded10fe9e66da6a2734d150d38b26eeeaada414edfe70889fce58`.
+The dedicated bridge was non-internal; storage configuration, mount conflict,
+runtime tmpfs, internal health, and exact loopback publication all passed; and
+the 0/0 host proof completed on its first connection attempt. Disposal and
+post-disposal container, network, and volume absence passed. No migration,
+catalog seed, provider collection, public materialization preflight, or
+materialization execute occurred.
 
 Phase 6 adds a separate `public-artifacts-v1` selection authority without
 changing Phase 5 file allowlists. `artifact-selections.json` contains the

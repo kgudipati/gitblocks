@@ -22,10 +22,11 @@
   explicitly split Milestone 7 into offline implementation-only Milestone 7A
   and separately authorized live/evidence Milestone 7B. Milestone 7A was
   accepted through the Docker tmpfs-inspection representation correction at
-  `38cd1d8d8d3177cdd5301b33f17fe4be80e67e2e`; the final live-discovered
-  effective-storage correction is pending maintainer review. Milestone 7B
-  remains incomplete after two consumed failed execute attempts, and no third
-  materialization execute is authorized.
+  `38cd1d8d8d3177cdd5301b33f17fe4be80e67e2e`, followed by the effective
+  storage proof at `fa2262da249ee9ed43af5b89df5f95223675308d`. Milestone 7B
+  remains incomplete after three consumed failed execute attempts. A staged
+  diagnostic localized the next reproducible boundary to the fresh database
+  zero-state proof; no fourth materialization execute is authorized.
 - Last updated: 2026-08-06
 
 Issue #19 is the requirements authority. ADR 0008 owns the durable architecture
@@ -1110,8 +1111,11 @@ while those files do not exist.
 The database plan pins
 `postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296`,
 requires `m7-[a-z2-7]{26}`, derives isolated container/network/database and
-owner/runtime-role identities, uses an internal network and tmpfs with only an
-explicit `127.0.0.1:<port>` binding, and rejects preexisting exact identities.
+owner/runtime-role identities, uses a fresh labeled user-defined bridge and
+tmpfs with only an explicit `127.0.0.1:<port>` binding, and rejects preexisting
+exact identities. The bridge is not `--internal`: Docker Desktop did not
+materialize its requested host publication on that topology. It is never the
+default long-lived bridge, host networking, or a second network.
 For PostgreSQL 18, the tmpfs overrides the image-declared volume root at
 `/var/lib/postgresql`, containing `PGDATA=/var/lib/postgresql/18/docker`.
 Immediately after container creation, three bounded, plan-digested inspections
@@ -1128,9 +1132,30 @@ contradictory, duplicate, or extra requested options, malformed/oversized
 output, and failed inspection commands all fail closed before health,
 empty-state, or migration work. The database-plan digest authenticates all
 three commands and bounds.
+After internal health, one plan-digested `docker port <exact-container>
+5432/tcp` command with a 4,096-byte output bound must return exactly one
+`127.0.0.1:<plan-port>` mapping, with only an optional terminal newline. Empty,
+wildcard, IPv6, wrong-port, multiline, malformed, oversized, or failed output
+prevents database creation from returning and therefore prevents host SQL.
 It proves 0/0 initial migrations/product tables and then 4/25, zero RLS
 policies, seven schema functions, 48 noninternal triggers, 15 required indexes,
 and exact migration checksums. No volume or migration 0005 exists.
+After container-internal health passes, the fresh-database 0/0 proof uses a
+bounded host-side SQL boundary: at most ten one-second connection attempts,
+nine fixed 250 ms sleeps, and one-second teardown per attempt. Only
+`ECONNREFUSED`, `ECONNRESET`, `ETIMEDOUT`, `EPIPE`, `CONNECT_TIMEOUT`,
+`CONNECTION_CLOSED`, and `CONNECTION_DESTROYED` are retryable. Authentication,
+authorization, protocol/SQL, nonempty-database, cancellation, and unknown
+failures are never retried. The caller signal cancels a pending query and every
+temporary client is closed; exhausted transport readiness becomes
+`persistence.connection` and the execute envelope renders it only as
+`zero-state-proof` plus `ingestion.persistence`.
+The database bridge is not claimed to be egress-isolated. Its bounded security
+model combines a fresh dedicated bridge, loopback-only publication, fresh
+random database/roles/passwords, a digest-pinned image, hardened tmpfs, no
+volume or bind, no provider credential in the container, exact identities, and
+disposal before fixed evidence. The transient database contains only public
+materialization state; only PostgreSQL bootstrap variables enter the container.
 Cleanup inspects and removes only the exact container, proves it absent, then
 inspects and removes only the exact network and proves it absent. Every
 unexpected inspection or nonzero removal is fatal; container-removal failure
@@ -1168,8 +1193,14 @@ CLI; its exact stage remains unknowable. After the PostgreSQL 18 boundary
 correction, one separately authorized execute failed at
 `fresh-database-create` with `ingestion.internal-invariant`, before any
 provider request, authority, proof, or fixed evidence. Neither attempt was
-retried. A future proof requires fresh maintainer authorization. If later
-authorized, one acknowledged
+retried. A third separately authorized execute on the effective-storage
+correction also failed before any authority, proof, run directory, or fixed
+evidence; its wrapper lost the already-bounded failure line, so its stage is
+not inferred. A later Node-only staged diagnostic passed database creation and
+localized the next reproducible failure to `zero-state-proof` with
+`ingestion.internal-invariant`, before migration or provider work. None of the
+three attempts was retried. A future proof requires fresh maintainer
+authorization. If later authorized, one acknowledged
 `profiles:materialization:execute` invocation may collect two immutable local
 source authorities, prove same-evidence reproduction and live idempotency,
 dispose the fresh database resources, and publish only:
@@ -2350,3 +2381,66 @@ entries.
   evidence. This correction authorizes only one isolated accepted-operator
   database-create proof as its commit gate; Milestone 7B remains incomplete and
   no third materialization execute is authorized.
+
+### 2026-08-06 — Fresh zero-state host boundary correction
+
+- Permanent history now contains exactly three consumed materialization
+  executes. The third ran on
+  `fa2262da249ee9ed43af5b89df5f95223675308d`; its public preflight passed, but
+  an operational wrapper lost the bounded execute failure line after the
+  command, so its stage remains unknown. It produced no authority, proof, run
+  directory, or fixed evidence and was not retried.
+- A separately authorized Node-only staged diagnostic passed the accepted
+  three-part tmpfs proof and PostgreSQL health, then reproduced the next failure
+  at `zero-state-proof` with `ingestion.internal-invariant`. It never reached
+  migration, catalog seed, or provider collection, and exact cleanup passed.
+- Static review found that the 0/0 proof made one uncancellable host SQL attempt
+  immediately after container-internal health and allowed raw Postgres.js
+  connection failures to escape. The corrected boundary permits at most ten
+  one-second connections separated by fixed 250 ms sleeps, observes the caller
+  signal in the query and sleep, closes every attempt, and retries only the
+  seven fixed transport codes listed in the Milestone 7A contract above.
+  Exhaustion becomes `persistence.connection`, mapped to the bounded
+  `ingestion.persistence` execute code; authentication, SQL/protocol, nonempty,
+  cancellation, and unknown failures do not retry.
+- This correction changes no Docker/bootstrap/storage, migration, schema,
+  provider, source-authority, persistence-proof, coverage, receipt, dependency,
+  or workflow authority. Its commit gate is one isolated
+  create-to-zero-state-to-disposal proof; Milestone 7B remains incomplete and
+  materialization execute number four is not authorized.
+
+### 2026-08-06 — Docker Desktop published-port boundary correction
+
+- The retained zero-state correction was exercised against the accepted fresh
+  database path. Internal PostgreSQL health and all three storage proofs passed,
+  but all ten allowlisted host connection attempts ended in the connection
+  class before any 0/0 row, migration, catalog seed, or provider request.
+- A later minimal published-port diagnostic observed the exact requested
+  `HostConfig.PortBindings` entry but a missing runtime
+  `NetworkSettings.Ports` mapping for the dedicated `--internal` topology.
+  Raw TCP was deliberately not attempted after that failed configuration gate.
+  This is recorded as the observed Docker Desktop behavior, not a claim about
+  every Docker engine.
+- The corrected plan keeps a fresh, labeled, exactly named user-defined bridge
+  but removes only `--internal`. The host publication remains exactly
+  `127.0.0.1:<fresh-port>:5432`; host, default-bridge, wildcard, and second-
+  network alternatives remain prohibited. A bounded, plan-authenticated
+  `docker port` proof must establish the exact loopback mapping after health and
+  before host SQL.
+- Outbound capability of this ephemeral bridge is accepted because the pinned
+  database receives no provider credential, stores only transient public-
+  materialization state on hardened tmpfs, and is removed before fixed evidence
+  publication. The database network is no longer described as egress-isolated.
+  The existing bounded zero-state retry/cancellation/teardown/error behavior is
+  retained. One isolated create/port/0/0/disposal proof gates any commit; no
+  materialization execute number four is authorized.
+- The one isolated commit gate passed with diagnostic run-ID digest
+  `c5511e5a26eded10fe9e66da6a2734d150d38b26eeeaada414edfe70889fce58`.
+  The exact dedicated bridge was non-internal; storage configuration, mount
+  conflict, runtime tmpfs, PostgreSQL internal health, and the plan-authenticated
+  loopback publication all passed. The host 0/0 proof succeeded on its first
+  connection attempt with zero migration-table rows and zero product tables.
+  Exact disposal, post-disposal proof, and independent container, network, and
+  volume absence passed. The gate executed no migration, catalog seed, provider
+  collection, public materialization preflight, or materialization execute;
+  Milestone 7B remains incomplete and execute number four remains unauthorized.

@@ -49,7 +49,7 @@ describe('profile-materialization CLI denial boundary', () => {
 
   it('never renders a raw error, token, password, or database URL', () => {
     const secretText =
-      'token=fake-token password=fake-password postgresql://owner@127.0.0.1/private';
+      'database refused private-host:6543 token=fake-token password=fake-password postgresql://owner@127.0.0.1/private';
     const output = renderProfileMaterializationCliFailure(
       'execute',
       new Error(secretText),
@@ -59,6 +59,22 @@ describe('profile-materialization CLI denial boundary', () => {
     expect(output).not.toContain('fake-token');
     expect(output).not.toContain('fake-password');
     expect(output).not.toContain('postgresql://');
+    expect(output).not.toContain('private-host');
+  });
+
+  it('renders a zero-state persistence failure without raw database text', () => {
+    const output = renderProfileMaterializationCliFailure(
+      'execute',
+      new ProfileMaterializationExecuteFailure(
+        'zero-state-proof',
+        'ingestion.persistence',
+      ),
+    );
+    expect(output).toBe(
+      'Profile materialization command failed safely (stage=zero-state-proof; code=ingestion.persistence).\n',
+    );
+    expect(output).not.toContain('ECONNREFUSED');
+    expect(output).not.toContain('private-host');
   });
 
   it('keeps successful execute output unchanged', () => {

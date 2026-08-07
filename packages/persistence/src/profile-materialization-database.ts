@@ -2,7 +2,16 @@ import { createHash } from 'node:crypto';
 
 import postgres from 'postgres';
 
-import { closePersistenceClient, createPersistenceClient } from './client.ts';
+import {
+  closePersistenceClient,
+  createPersistenceClient,
+  executePending,
+} from './client.ts';
+import {
+  PersistenceError,
+  normalizePersistenceError,
+  persistenceError,
+} from './errors.ts';
 import { applyMigrations, verifyMigrations } from './migrations.ts';
 import type { PersistenceClientConfig } from './types.ts';
 
@@ -14,6 +23,20 @@ const PROFILE_MATERIALIZATION_STORAGE_CONFIGURATION_MAXIMUM_BYTES = 16_384;
 const PROFILE_MATERIALIZATION_STORAGE_MOUNTS_MAXIMUM_BYTES = 16_384;
 const PROFILE_MATERIALIZATION_STORAGE_RUNTIME_MAXIMUM_BYTES = 1_048_576;
 const PROFILE_MATERIALIZATION_STORAGE_MOUNT_MAXIMUM_ENTRIES = 16;
+const PROFILE_MATERIALIZATION_PORT_BINDING_MAXIMUM_BYTES = 4_096;
+const PROFILE_MATERIALIZATION_ZERO_STATE_MAXIMUM_ATTEMPTS = 10;
+const PROFILE_MATERIALIZATION_ZERO_STATE_RETRY_DELAY_MILLISECONDS = 250;
+const PROFILE_MATERIALIZATION_ZERO_STATE_CONNECT_TIMEOUT_MILLISECONDS = 1_000;
+const PROFILE_MATERIALIZATION_ZERO_STATE_CLOSE_TIMEOUT_SECONDS = 1;
+const PROFILE_MATERIALIZATION_ZERO_STATE_RETRYABLE_CODES = new Set([
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'EPIPE',
+  'CONNECT_TIMEOUT',
+  'CONNECTION_CLOSED',
+  'CONNECTION_DESTROYED',
+]);
 const PROFILE_MATERIALIZATION_REQUIRED_TMPFS_OPTIONS = [
   'rw',
   'noexec',
@@ -111,6 +134,7 @@ export interface ProfileMaterializationDatabasePlan {
   readonly inspectStorageConfiguration: ProfileMaterializationProcessCommand;
   readonly inspectStorageMounts: ProfileMaterializationProcessCommand;
   readonly inspectStorageRuntime: ProfileMaterializationProcessCommand;
+  readonly inspectPublishedPort: ProfileMaterializationProcessCommand;
   readonly inspectContainer: ProfileMaterializationProcessCommand;
   readonly inspectNetwork: ProfileMaterializationProcessCommand;
   readonly removeContainer: ProfileMaterializationProcessCommand;
@@ -165,6 +189,18 @@ export interface ProfileMaterializationDatabaseEffectAdapters {
     signal: AbortSignal,
   ) => Promise<ProfileMaterializationProcessResult>;
   readonly sleep: (milliseconds: number, signal: AbortSignal) => Promise<void>;
+  readonly createZeroStateClient?: (
+    config: PersistenceClientConfig,
+  ) => ProfileMaterializationZeroStateClient;
+}
+
+/** Package-private live-boundary seam used by deterministic adapter tests. */
+export interface ProfileMaterializationZeroStateClient {
+  inspect(signal: AbortSignal): Promise<{
+    readonly migrationTableCount: number | undefined;
+    readonly productTableCount: number | undefined;
+  }>;
+  close(): Promise<void>;
 }
 
 export interface ProfileMaterializationDatabaseOperator {
@@ -251,7 +287,6 @@ export function createProfileMaterializationDatabasePlan(
     createNetwork: command([
       'network',
       'create',
-      '--internal',
       ...labels.flatMap((label) => ['--label', label]),
       identity.networkName,
     ]),
@@ -305,6 +340,11 @@ export function createProfileMaterializationDatabasePlan(
       ['exec', identity.containerName, 'cat', '/proc/self/mountinfo'],
       [],
       PROFILE_MATERIALIZATION_STORAGE_RUNTIME_MAXIMUM_BYTES,
+    ),
+    inspectPublishedPort: command(
+      ['port', identity.containerName, '5432/tcp'],
+      [],
+      PROFILE_MATERIALIZATION_PORT_BINDING_MAXIMUM_BYTES,
     ),
     inspectContainer: command([
       'inspect',
@@ -394,6 +434,7 @@ export function createProfileMaterializationDatabaseOperator(
         throw new Error('profile-materialization.database-storage-drift');
       }
       validateProfileMaterializationStorageRuntime(storageRuntime.stdout);
+      let healthy = false;
       for (let attempt = 0; attempt < 30; attempt += 1) {
         const result = await adapters.runProcess(
           plan.inspectContainer,
@@ -403,60 +444,95 @@ export function createProfileMaterializationDatabaseOperator(
         if (result.exitCode !== 0) {
           throw new Error('profile-materialization.database-create-failed');
         }
-        if (result.stdout.trim() === '"healthy"') return;
+        if (result.stdout.trim() === '"healthy"') {
+          healthy = true;
+          break;
+        }
         if (result.stdout.trim() === '"unhealthy"') {
           throw new Error('profile-materialization.database-unhealthy');
         }
         await adapters.sleep(1_000, signal);
       }
-      throw new Error('profile-materialization.database-health-timeout');
+      if (!healthy) {
+        throw new Error('profile-materialization.database-health-timeout');
+      }
+      const publishedPort = await adapters.runProcess(
+        plan.inspectPublishedPort,
+        {},
+        signal,
+      );
+      if (publishedPort.exitCode !== 0) {
+        throw new Error('profile-materialization.database-port-binding-drift');
+      }
+      validateProfileMaterializationPublishedPort(
+        publishedPort.stdout,
+        plan.port,
+      );
     },
     proveEmpty: async (plan, credentials, signal) => {
-      if (signal.aborted) {
-        throw new Error('profile-materialization.cancelled');
-      }
       const owner = parseDatabaseUrl(
         credentials.ownerUrl,
         credentials.ownerPassword,
         plan,
         plan.identity.ownerRoleName,
       );
-      const sql = sqlFor(owner);
-      try {
-        const rows = await sql<
-          readonly {
-            readonly migration_table_count: number;
-            readonly product_table_count: number;
-          }[]
-        >`
-          select
-            (
-              select pg_catalog.count(*)::integer
-              from pg_catalog.pg_class as class
-              join pg_catalog.pg_namespace as namespace
-                on namespace.oid = class.relnamespace
-              where namespace.nspname = 'gitblocks'
-                and class.relkind = 'r'
-                and class.relname = 'schema_migrations'
-            ) as migration_table_count,
-            (
-              select pg_catalog.count(*)::integer
-              from pg_catalog.pg_class as class
-              join pg_catalog.pg_namespace as namespace
-                on namespace.oid = class.relnamespace
-              where namespace.nspname = 'gitblocks'
-                and class.relkind = 'r'
-                and class.relname <> 'schema_migrations'
-            ) as product_table_count
-        `.execute();
-        const row = rows[0];
-        validateProfileMaterializationEmptyDatabaseInspection({
-          migrationTableCount: row?.migration_table_count,
-          productTableCount: row?.product_table_count,
-        });
-      } finally {
-        await sql.end({ timeout: 5 });
+      const createZeroStateClient =
+        adapters.createZeroStateClient ??
+        createProfileMaterializationZeroStateClient;
+      for (
+        let attempt = 1;
+        attempt <= PROFILE_MATERIALIZATION_ZERO_STATE_MAXIMUM_ATTEMPTS;
+        attempt += 1
+      ) {
+        requireZeroStateSignal(signal);
+        let client: ProfileMaterializationZeroStateClient;
+        try {
+          client = createZeroStateClient(owner);
+        } catch (error) {
+          if (
+            isRetryableZeroStateConnectionError(error) &&
+            attempt < PROFILE_MATERIALIZATION_ZERO_STATE_MAXIMUM_ATTEMPTS
+          ) {
+            await sleepBeforeZeroStateRetry(adapters, signal);
+            continue;
+          }
+          throw normalizeZeroStateError(error);
+        }
+
+        let primaryError: unknown;
+        try {
+          const inspection = await client.inspect(signal);
+          validateProfileMaterializationEmptyDatabaseInspection(inspection);
+        } catch (error) {
+          primaryError = error;
+        }
+
+        let closeError: unknown;
+        try {
+          await client.close();
+        } catch (error) {
+          closeError = error;
+        }
+
+        if (primaryError === undefined) {
+          if (closeError !== undefined) {
+            throw persistenceError('persistence.connection');
+          }
+          return;
+        }
+        if (closeError !== undefined) {
+          throw normalizeZeroStateError(primaryError);
+        }
+        if (
+          isRetryableZeroStateConnectionError(primaryError) &&
+          attempt < PROFILE_MATERIALIZATION_ZERO_STATE_MAXIMUM_ATTEMPTS
+        ) {
+          await sleepBeforeZeroStateRetry(adapters, signal);
+          continue;
+        }
+        throw normalizeZeroStateError(primaryError);
       }
+      throw persistenceError('persistence.connection');
     },
     prepare: async (plan, credentials, signal) => {
       const ownerConfig = parseDatabaseUrl(
@@ -539,6 +615,78 @@ export function createProfileMaterializationDatabaseOperator(
     proveDisposed: async (plan, signal) => {
       await requireResourceAbsent(adapters, plan.inspectContainer, signal);
       await requireResourceAbsent(adapters, plan.inspectNetwork, signal);
+    },
+  };
+}
+
+/**
+ * Creates one bounded host-side zero-state client. Ten one-second connection
+ * attempts plus nine fixed 250 ms delays and bounded teardown cap this stage's
+ * connection schedule at 22.25 seconds before the caller's outer deadline.
+ */
+export function createProfileMaterializationZeroStateClient(
+  config: PersistenceClientConfig,
+): ProfileMaterializationZeroStateClient {
+  const sql = postgres({
+    host: config.host,
+    port: config.port,
+    database: config.database,
+    user: config.username,
+    password: config.password,
+    ssl: config.ssl,
+    max: 1,
+    connect_timeout: Math.ceil(
+      PROFILE_MATERIALIZATION_ZERO_STATE_CONNECT_TIMEOUT_MILLISECONDS / 1_000,
+    ),
+    idle_timeout: 5,
+    onnotice: () => undefined,
+    debug: false,
+  });
+  return {
+    inspect: async (signal) => {
+      const rows = await executePending<
+        readonly {
+          readonly migration_table_count: number;
+          readonly product_table_count: number;
+        }[]
+      >(
+        sql`
+          select
+            (
+              select pg_catalog.count(*)::integer
+              from pg_catalog.pg_class as class
+              join pg_catalog.pg_namespace as namespace
+                on namespace.oid = class.relnamespace
+              where namespace.nspname = 'gitblocks'
+                and class.relkind = 'r'
+                and class.relname = 'schema_migrations'
+            ) as migration_table_count,
+            (
+              select pg_catalog.count(*)::integer
+              from pg_catalog.pg_class as class
+              join pg_catalog.pg_namespace as namespace
+                on namespace.oid = class.relnamespace
+              where namespace.nspname = 'gitblocks'
+                and class.relkind = 'r'
+                and class.relname <> 'schema_migrations'
+            ) as product_table_count
+        `,
+        signal,
+      );
+      const row = rows[0];
+      return {
+        migrationTableCount: row?.migration_table_count,
+        productTableCount: row?.product_table_count,
+      };
+    },
+    close: async () => {
+      try {
+        await sql.end({
+          timeout: PROFILE_MATERIALIZATION_ZERO_STATE_CLOSE_TIMEOUT_SECONDS,
+        });
+      } catch {
+        throw persistenceError('persistence.connection');
+      }
     },
   };
 }
@@ -752,6 +900,21 @@ function validateProfileMaterializationStorageRuntime(text: string): void {
   }
 }
 
+function validateProfileMaterializationPublishedPort(
+  text: string,
+  port: number,
+): void {
+  const expected = `127.0.0.1:${String(port)}`;
+  if (
+    Buffer.byteLength(text, 'utf8') < expected.length ||
+    Buffer.byteLength(text, 'utf8') >
+      PROFILE_MATERIALIZATION_PORT_BINDING_MAXIMUM_BYTES ||
+    (text !== expected && text !== `${expected}\n`)
+  ) {
+    throw new Error('profile-materialization.database-port-binding-drift');
+  }
+}
+
 function parseBoundedStorageJson(text: string, maximumBytes: number): unknown {
   if (
     Buffer.byteLength(text, 'utf8') < 2 ||
@@ -893,6 +1056,64 @@ function sqlFor(config: PersistenceClientConfig): postgres.Sql {
     onnotice: () => undefined,
     debug: false,
   });
+}
+
+function requireZeroStateSignal(signal: AbortSignal): void {
+  if (signal.aborted) {
+    throw persistenceError('persistence.deadline');
+  }
+}
+
+async function sleepBeforeZeroStateRetry(
+  adapters: ProfileMaterializationDatabaseEffectAdapters,
+  signal: AbortSignal,
+): Promise<void> {
+  requireZeroStateSignal(signal);
+  try {
+    await adapters.sleep(
+      PROFILE_MATERIALIZATION_ZERO_STATE_RETRY_DELAY_MILLISECONDS,
+      signal,
+    );
+  } catch (error) {
+    if (signal.aborted) {
+      throw persistenceError('persistence.deadline');
+    }
+    throw error;
+  }
+  requireZeroStateSignal(signal);
+}
+
+function isRetryableZeroStateConnectionError(error: unknown): boolean {
+  const code = databaseErrorCode(error);
+  return (
+    code !== undefined &&
+    PROFILE_MATERIALIZATION_ZERO_STATE_RETRYABLE_CODES.has(code)
+  );
+}
+
+function normalizeZeroStateError(error: unknown): unknown {
+  if (error instanceof PersistenceError) {
+    return error;
+  }
+  return databaseErrorCode(error) === undefined
+    ? error
+    : normalizePersistenceError(error);
+}
+
+function databaseErrorCode(error: unknown): string | undefined {
+  if (
+    typeof error !== 'object' ||
+    error === null ||
+    !Object.hasOwn(error, 'code')
+  ) {
+    return undefined;
+  }
+  try {
+    const code = Reflect.get(error, 'code') as unknown;
+    return typeof code === 'string' && code.length <= 32 ? code : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function inspectSchema(

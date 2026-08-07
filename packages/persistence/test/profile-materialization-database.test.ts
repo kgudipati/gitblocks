@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
+  PersistenceError,
   PROFILE_MATERIALIZATION_DATABASE_EXPECTATIONS,
   PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS,
   PROFILE_MATERIALIZATION_POSTGRES_IMAGE,
@@ -13,12 +14,420 @@ import {
   validateProfileMaterializationSchemaInspection,
 } from '../src/index.ts';
 
+const postgresFactory = vi.hoisted(() => vi.fn());
+
+vi.mock('postgres', () => ({ default: postgresFactory }));
+
 const RUN_ID = 'm7-abcdefghijklmnopqrstuvwxyz';
 const REQUIRED_TMPFS_OPTIONS = 'rw,noexec,nosuid,nodev,size=1073741824';
 const SECURE_TMPFS_MOUNTINFO =
   '41 30 0:39 / /var/lib/postgresql rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=1048576k,inode64';
 
+describe('profile-materialization zero-state host boundary', () => {
+  it('retries one transient host connection failure and then proves zero state', async () => {
+    const harness = zeroStateHarness([
+      { error: databaseError('ECONNREFUSED') },
+      { inspection: emptyInspection() },
+    ]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).resolves.toBeUndefined();
+    expect(harness.attemptCount()).toBe(2);
+    expect(harness.sleepDurations).toEqual([250]);
+  });
+
+  it('permits multiple bounded transient failures before success', async () => {
+    const harness = zeroStateHarness([
+      { error: databaseError('ECONNRESET') },
+      { error: databaseError('ETIMEDOUT') },
+      { error: databaseError('EPIPE') },
+      { inspection: emptyInspection() },
+    ]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).resolves.toBeUndefined();
+    expect(harness.attemptCount()).toBe(4);
+    expect(harness.sleepDurations).toEqual([250, 250, 250]);
+  });
+
+  it('returns a typed persistence connection failure after retry exhaustion', async () => {
+    const harness = zeroStateHarness(
+      Array.from({ length: 10 }, () => ({
+        error: databaseError('CONNECTION_CLOSED'),
+      })),
+    );
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).rejects.toMatchObject({
+      name: 'PersistenceError',
+      code: 'persistence.connection',
+    });
+    expect(harness.attemptCount()).toBe(10);
+    expect(harness.sleepDurations).toHaveLength(9);
+  });
+
+  it.each(['ECONNREFUSED', 'CONNECT_TIMEOUT'])(
+    'classifies %s as a retryable connection-establishment failure',
+    async (code) => {
+      const harness = zeroStateHarness([
+        { error: databaseError(code) },
+        { inspection: emptyInspection() },
+      ]);
+
+      await expect(
+        harness.operator.proveEmpty(
+          harness.plan,
+          credentials(),
+          new AbortController().signal,
+        ),
+      ).resolves.toBeUndefined();
+      expect(harness.attemptCount()).toBe(2);
+    },
+  );
+
+  it('does not retry PostgreSQL authentication failure', async () => {
+    const harness = zeroStateHarness([
+      { error: databaseError('28P01') },
+      { inspection: emptyInspection() },
+    ]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).rejects.toBeInstanceOf(PersistenceError);
+    expect(harness.attemptCount()).toBe(1);
+    expect(harness.sleepDurations).toEqual([]);
+  });
+
+  it('does not retry an arbitrary SQL failure', async () => {
+    const primary = new Error('private database failure');
+    const harness = zeroStateHarness([
+      { error: primary },
+      { inspection: emptyInspection() },
+    ]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).rejects.toBe(primary);
+    expect(harness.attemptCount()).toBe(1);
+    expect(harness.sleepDurations).toEqual([]);
+  });
+
+  it('does not retry a deterministic nonempty zero-state result', async () => {
+    const harness = zeroStateHarness([
+      { inspection: { migrationTableCount: 0, productTableCount: 1 } },
+      { inspection: emptyInspection() },
+    ]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow('profile-materialization.database-not-empty');
+    expect(harness.attemptCount()).toBe(1);
+    expect(harness.sleepDurations).toEqual([]);
+  });
+
+  it('performs no SQL effect when already cancelled', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const harness = zeroStateHarness([{ inspection: emptyInspection() }]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        controller.signal,
+      ),
+    ).rejects.toBeInstanceOf(PersistenceError);
+    expect(harness.attemptCount()).toBe(0);
+  });
+
+  it('does not start another attempt after cancellation during retry sleep', async () => {
+    const controller = new AbortController();
+    const harness = zeroStateHarness(
+      [
+        { error: databaseError('ECONNREFUSED') },
+        { inspection: emptyInspection() },
+      ],
+      {
+        onSleep: () => {
+          controller.abort();
+          throw new PersistenceError('persistence.deadline');
+        },
+      },
+    );
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        controller.signal,
+      ),
+    ).rejects.toBeInstanceOf(PersistenceError);
+    expect(harness.attemptCount()).toBe(1);
+  });
+
+  it('accepts the exact 0/0 empty-state result', async () => {
+    const harness = zeroStateHarness([{ inspection: emptyInspection() }]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).resolves.toBeUndefined();
+    expect(harness.attemptCount()).toBe(1);
+  });
+
+  it.each([
+    { migrationTableCount: 0, productTableCount: 1 },
+    { migrationTableCount: 1, productTableCount: 0 },
+  ])('rejects nonempty zero state without retry: %o', async (inspection) => {
+    const harness = zeroStateHarness([{ inspection }]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow('profile-materialization.database-not-empty');
+    expect(harness.attemptCount()).toBe(1);
+  });
+
+  it('preserves the primary query failure when teardown also fails', async () => {
+    const primary = new Error('private primary query failure');
+    const harness = zeroStateHarness([
+      {
+        error: primary,
+        closeError: new Error('private teardown failure'),
+      },
+    ]);
+
+    await expect(
+      harness.operator.proveEmpty(
+        harness.plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).rejects.toBe(primary);
+    expect(harness.attemptCount()).toBe(1);
+  });
+});
+
 describe('profile-materialization fresh database planning', () => {
+  it('uses a fresh labeled dedicated bridge without the Docker internal flag', () => {
+    const plan = createPlan();
+
+    expect(plan.createNetwork.arguments).toEqual([
+      'network',
+      'create',
+      ...plan.labels.flatMap((label) => ['--label', label]),
+      plan.identity.networkName,
+    ]);
+    expect(plan.createNetwork.arguments).not.toContain('--internal');
+    expect(plan.createNetwork.arguments).not.toContain('bridge');
+    expect(plan.createContainer.arguments).toContain(plan.identity.networkName);
+  });
+
+  it('retains an exact loopback-only host publication', () => {
+    const plan = createPlan();
+    const publishIndex = plan.createContainer.arguments.indexOf('--publish');
+
+    expect(plan.createContainer.arguments[publishIndex + 1]).toBe(
+      '127.0.0.1:55432:5432',
+    );
+    expect(plan.createContainer.arguments).not.toContain('0.0.0.0:55432:5432');
+    expect(plan.createContainer.arguments).not.toContain(':::55432:5432');
+  });
+
+  it('plans an exact bounded runtime published-port proof', () => {
+    const plan = createPlan();
+    const command = publishedPortCommand(plan);
+
+    expect(command).toEqual({
+      program: 'docker',
+      arguments: ['port', plan.identity.containerName, '5432/tcp'],
+      allowedEnvironmentNames: [],
+      maximumOutputBytes: 4_096,
+    });
+  });
+
+  it('rejects the former internal-network plan and every published-port command mutation', () => {
+    const plan = createPlan();
+    const mutations: ((value: Record<string, unknown>) => void)[] = [
+      (value) => {
+        (value['createNetwork'] as { arguments: string[] }).arguments.splice(
+          2,
+          0,
+          '--internal',
+        );
+      },
+      (value) => {
+        (value['inspectPublishedPort'] as { program: string }).program =
+          'unexpected';
+      },
+      (value) => {
+        (
+          value['inspectPublishedPort'] as { arguments: string[] }
+        ).arguments[0] = 'inspect';
+      },
+      (value) => {
+        (
+          value['inspectPublishedPort'] as { arguments: string[] }
+        ).arguments[1] = 'wrong-container';
+      },
+      (value) => {
+        (
+          value['inspectPublishedPort'] as { arguments: string[] }
+        ).arguments[2] = '5433/tcp';
+      },
+      (value) => {
+        (
+          value['inspectPublishedPort'] as { maximumOutputBytes: number }
+        ).maximumOutputBytes += 1;
+      },
+    ];
+
+    expect(publishedPortCommand(plan)).toBeDefined();
+    for (const mutate of mutations) {
+      const changed = structuredClone(plan) as unknown as Record<
+        string,
+        unknown
+      >;
+      mutate(changed);
+      expect(() => {
+        validateProfileMaterializationDatabasePlan(changed as never);
+      }).toThrow('profile-materialization.invalid-database-plan');
+    }
+  });
+
+  it('accepts one exact loopback runtime mapping after health', async () => {
+    const plan = createPlan();
+    const { operator, calls } = storageInspectionOperator(plan, {
+      port: { exitCode: 0, stdout: '127.0.0.1:55432\n' },
+    });
+
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).resolves.toBeUndefined();
+    expect(calls.at(-1)).toEqual([...publishedPortCommand(plan).arguments]);
+  });
+
+  it.each([
+    { name: 'missing mapping', result: { exitCode: 0, stdout: '' } },
+    {
+      name: 'wildcard IPv4 mapping',
+      result: { exitCode: 0, stdout: '0.0.0.0:55432\n' },
+    },
+    {
+      name: 'wildcard IPv6 mapping',
+      result: { exitCode: 0, stdout: ':::55432\n' },
+    },
+    {
+      name: 'wrong host port',
+      result: { exitCode: 0, stdout: '127.0.0.1:55433\n' },
+    },
+    {
+      name: 'second mapping',
+      result: {
+        exitCode: 0,
+        stdout: '127.0.0.1:55432\n127.0.0.1:55433\n',
+      },
+    },
+    {
+      name: 'malformed mapping',
+      result: { exitCode: 0, stdout: 'localhost:55432\n' },
+    },
+    {
+      name: 'oversized mapping',
+      result: { exitCode: 0, stdout: 'x'.repeat(4_097) },
+    },
+    {
+      name: 'failed docker port command',
+      result: { exitCode: 125, stdout: '' },
+    },
+  ])('rejects $name after health', async ({ result }) => {
+    const plan = createPlan();
+    const { operator } = storageInspectionOperator(plan, { port: result });
+
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).rejects.toThrow('profile-materialization.database-port-binding-drift');
+  });
+
+  it('does not return after health until the published-port proof passes', async () => {
+    const plan = createPlan();
+    const { operator, calls } = storageInspectionOperator(plan, {
+      port: { exitCode: 125, stdout: '' },
+    });
+
+    await expect(
+      operator.create(plan, credentials(), new AbortController().signal),
+    ).rejects.toThrow('profile-materialization.database-port-binding-drift');
+    expect(calls).toContainEqual([...publishedPortCommand(plan).arguments]);
+  });
+
+  it('proves the published port before beginning host zero-state SQL', async () => {
+    const plan = createPlan();
+    const { operator: createOperator, calls } = storageInspectionOperator(
+      plan,
+      { port: { exitCode: 0, stdout: '127.0.0.1:55432\n' } },
+    );
+    await createOperator.create(
+      plan,
+      credentials(),
+      new AbortController().signal,
+    );
+    const zeroStateOperator = createProfileMaterializationDatabaseOperator({
+      runProcess: () => Promise.reject(new Error('unexpected process effect')),
+      sleep: () => Promise.resolve(),
+      createZeroStateClient: () => ({
+        inspect: () => {
+          expect(calls).toContainEqual([
+            ...publishedPortCommand(plan).arguments,
+          ]);
+          return Promise.resolve(emptyInspection());
+        },
+        close: () => Promise.resolve(),
+      }),
+    });
+
+    await expect(
+      zeroStateOperator.proveEmpty(
+        plan,
+        credentials(),
+        new AbortController().signal,
+      ),
+    ).resolves.toBeUndefined();
+  });
+
   it('derives isolated names and the exact tmpfs-only Docker plan', () => {
     const identity = deriveProfileMaterializationDatabaseIdentity(RUN_ID);
     const plan = createProfileMaterializationDatabasePlan({
@@ -875,6 +1284,7 @@ function storageInspectionOperator(
         configuration: { readonly exitCode: number; readonly stdout: string };
         mounts: { readonly exitCode: number; readonly stdout: string };
         runtime: { readonly exitCode: number; readonly stdout: string };
+        port: { readonly exitCode: number; readonly stdout: string };
       }>,
 ) {
   const calls: string[][] = [];
@@ -888,6 +1298,7 @@ function storageInspectionOperator(
     },
     mounts: { exitCode: 0, stdout: '[]' },
     runtime: { exitCode: 0, stdout: SECURE_TMPFS_MOUNTINFO },
+    port: { exitCode: 0, stdout: '127.0.0.1:55432\n' },
   };
   const resolvedResults =
     'exitCode' in storageResults
@@ -905,6 +1316,9 @@ function storageInspectionOperator(
       if (command === plan.inspectStorageRuntime) {
         return Promise.resolve(resolvedResults.runtime);
       }
+      if (command === publishedPortCommand(plan)) {
+        return Promise.resolve(resolvedResults.port);
+      }
       if (command === plan.inspectContainer) {
         if (initialContainerInspection) {
           initialContainerInspection = false;
@@ -920,6 +1334,19 @@ function storageInspectionOperator(
     sleep: () => Promise.resolve(),
   });
   return { operator, calls };
+}
+
+function publishedPortCommand(plan: ReturnType<typeof createPlan>) {
+  return (
+    plan as unknown as {
+      readonly inspectPublishedPort: {
+        readonly program: 'docker';
+        readonly arguments: readonly string[];
+        readonly allowedEnvironmentNames: readonly string[];
+        readonly maximumOutputBytes: number;
+      };
+    }
+  ).inspectPublishedPort;
 }
 
 async function expectStorageDrift(
@@ -957,4 +1384,97 @@ function secureMountinfo(
   options = 'rw,nosuid,nodev,noexec',
 ) {
   return `41 30 0:39 / ${destination} ${options} - tmpfs tmpfs rw,size=1048576k,inode64`;
+}
+
+interface ZeroStateInspectionFixture {
+  readonly migrationTableCount: number;
+  readonly productTableCount: number;
+}
+
+interface ZeroStateAttemptFixture {
+  readonly inspection?: ZeroStateInspectionFixture;
+  readonly error?: Error;
+  readonly closeError?: Error;
+}
+
+function emptyInspection(): ZeroStateInspectionFixture {
+  return { migrationTableCount: 0, productTableCount: 0 };
+}
+
+function databaseError(code: string): Error {
+  const error = new Error('private database error text');
+  Object.defineProperty(error, 'code', {
+    configurable: false,
+    enumerable: true,
+    value: code,
+    writable: false,
+  });
+  return error;
+}
+
+function zeroStateHarness(
+  outcomes: readonly ZeroStateAttemptFixture[],
+  options: { readonly onSleep?: () => void } = {},
+) {
+  const plan = createPlan();
+  let attempts = 0;
+  const sleepDurations: number[] = [];
+  const createZeroStateClient = () => {
+    const outcome = outcomes[attempts];
+    attempts += 1;
+    if (outcome === undefined) {
+      throw new Error('unexpected zero-state attempt');
+    }
+    return {
+      inspect: (signal: AbortSignal) => {
+        if (signal.aborted) {
+          return Promise.reject(new PersistenceError('persistence.deadline'));
+        }
+        if (outcome.error !== undefined) {
+          return Promise.reject(outcome.error);
+        }
+        return Promise.resolve(outcome.inspection ?? emptyInspection());
+      },
+      close: () =>
+        outcome.closeError === undefined
+          ? Promise.resolve()
+          : Promise.reject(outcome.closeError),
+    };
+  };
+
+  postgresFactory.mockReset();
+  postgresFactory.mockImplementation(() => {
+    const client = createZeroStateClient();
+    return Object.assign(
+      () => ({
+        execute: () =>
+          client.inspect(new AbortController().signal).then((inspection) => [
+            {
+              migration_table_count: inspection.migrationTableCount,
+              product_table_count: inspection.productTableCount,
+            },
+          ]),
+      }),
+      { end: () => client.close() },
+    );
+  });
+
+  const adapters = {
+    runProcess: () =>
+      Promise.reject(new Error('unexpected process effect during zero state')),
+    sleep: (milliseconds: number, signal: AbortSignal) => {
+      sleepDurations.push(milliseconds);
+      options.onSleep?.();
+      return signal.aborted
+        ? Promise.reject(new PersistenceError('persistence.deadline'))
+        : Promise.resolve();
+    },
+    createZeroStateClient: () => createZeroStateClient(),
+  };
+  return {
+    plan,
+    operator: createProfileMaterializationDatabaseOperator(adapters),
+    attemptCount: () => attempts,
+    sleepDurations,
+  };
 }

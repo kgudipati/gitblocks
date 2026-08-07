@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 
 import {
+  PersistenceError,
   PROFILE_MATERIALIZATION_EXPECTED_DATABASE_SCHEMA_DIGEST,
   PROFILE_MATERIALIZATION_MIGRATION_INVENTORY_DIGEST,
   PROFILE_MATERIALIZATION_POSTGRES_IMAGE,
@@ -214,6 +215,14 @@ describe('profile-materialization atomic runner', () => {
         configure: (effects) => {
           effects.proveEmptyDatabase = () =>
             Promise.reject(new Error('raw empty database failure'));
+        },
+      },
+      {
+        stage: 'zero-state-proof',
+        code: 'ingestion.persistence',
+        configure: (effects) => {
+          effects.proveEmptyDatabase = () =>
+            Promise.reject(new PersistenceError('persistence.connection'));
         },
       },
       {

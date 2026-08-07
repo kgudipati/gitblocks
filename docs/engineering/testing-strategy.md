@@ -399,6 +399,32 @@ fresh-database planning, cancellation, cleanup, quarantine, disposal-before-
 publication, and failure denial. These tests may run ordinarily; the preflight,
 execute, and future fixed-evidence verifier commands themselves do not.
 
+The post-health fresh-database boundary is tested independently from storage
+startup. Its 0/0 host proof fixtures cover the fixed transient-code allowlist,
+ten-attempt exhaustion, deterministic 250 ms sleeps, query and sleep
+cancellation, per-attempt client teardown, nonretryable authentication,
+arbitrary SQL, and nonempty-state failures, typed persistence-to-ingestion safe
+conversion, and raw database-text denial. The isolated live correction gate may
+exercise only accepted database creation, the 0/0 proof, and exact disposal; it
+does not authorize migration, provider collection, or materialization execute.
+
+Docker Desktop published-port regression tests additionally reject the former
+`--internal` network plan, default/host/second-network widening, non-loopback
+publication, and any unauthenticated `docker port` command mutation. Fake
+process tests require exactly one loopback runtime mapping after health and
+before host SQL, rejecting missing, wildcard, IPv6, wrong-port, multiline,
+malformed, oversized, and nonzero results. One separately authorized isolated
+gate may then exercise only database create, runtime port proof, the exact 0/0
+host query, and disposal; provider, migration, catalog, and materialization CLI
+effects remain prohibited.
+
+The accepted isolated gate used the corrected non-internal bridge and passed
+storage configuration, mount-conflict, runtime-tmpfs, internal-health, and
+runtime loopback-publication checks before completing the host 0/0 query on its
+first connection attempt. Exact disposal and independent container, network,
+and volume absence also passed. This proof accepts the fresh-database boundary;
+it is not a profile-materialization execution.
+
 The Milestone 7A review-correction suites additionally prove runtime-login-only
 catalog/profile persistence, exact observation-topic-to-evidence mapping,
 150-entry first/second persistence-proof closure, qualified-not-persisted
