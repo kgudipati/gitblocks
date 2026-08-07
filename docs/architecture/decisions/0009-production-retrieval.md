@@ -178,10 +178,22 @@ total. Every candidate record contains only bounded retrieval information:
 - authority, algorithm, channel, expansion, and diversity version/digest
   bindings sufficient to reproduce the result.
 
-The result also includes bounded counts and diagnostics for candidates
-examined, hard states, negative controls excluded, channels run, deduplication,
-diversity suppression, and truncation. Diagnostics are safe product output,
-not evaluation scores or gold labels. The contract exposes no recommendation,
+The result also includes a closed `preRetrievalLaneCounts` diagnostic with
+exactly `eligible`, `evidence-needed`, and `excluded` non-negative integer
+counts. It is calculated across the complete bound profile authority after
+domain-owned hard-constraint evaluation and application of catalog
+negative-control exclusion, but before retrieval-channel matching, fusion,
+deduplication, diversity, or truncation. `eligible` counts satisfied
+non-negative-control candidates; `evidence-needed` counts unresolved
+non-negative-control candidates; and `excluded` counts conflicts and catalog
+negative controls. The three counts sum to the number of profiles in the
+bound authority.
+
+These counts do not expand the bounded candidate arrays or expose the complete
+per-candidate decisions. Other bounded diagnostics cover candidates examined,
+hard states, negative controls excluded, channels run, deduplication, diversity
+suppression, and truncation. Diagnostics are safe product output, not
+evaluation scores or gold labels. The contract exposes no recommendation,
 target-codebase fit, adoption-fit score, winner, integration advice, hidden
 universal repository-quality score, or ranking concept.
 
@@ -329,16 +341,42 @@ never imported into product code. No semantic equivalence is fabricated.
 ### Evaluation integration and acceptance authority
 
 Milestone 2 adds a harness-side adapter that executes the real production
-package against blind `retrieval-v1` inputs and maps its two product lanes into
-the existing closed prediction schema. When the product result contains at
-least one eligible candidate, the adapter emits only the eligible lane; when it
-contains none, the adapter emits only the evidence-needed lane and marks the
-case no-eligible-candidate. This preserves the scorer's existing ordinary
-prediction semantics without changing product output. The existing independent
-scorer remains the sole metric authority; Phase 9 creates no second
-production-specific scorer. Production code never receives case
-classifications, relevance, no-result gold, equivalence gold, baseline outputs,
-or score reports.
+package against blind `retrieval-v1` inputs and maps its two bounded product
+lanes into the existing closed prediction schema. The existing Phase 8
+ordinary-lane rule is based on the complete safe post-hard-filter candidate
+pool, not retrieval success:
+
+```text
+const noEligibleCandidate =
+  result.preRetrievalLaneCounts.eligible === 0
+
+const ordinaryResults =
+  noEligibleCandidate
+    ? result.evidenceNeededCandidates
+    : result.eligibleCandidates
+```
+
+If the pre-retrieval eligible count is nonzero but production retrieval returns
+no eligible candidates, the adapter emits `noEligibleCandidate = false` and an
+empty ordinary result list. Recall and hit-rate then record a retrieval failure.
+Returned-array emptiness must never be reinterpreted as a no-eligible outcome.
+When the pre-retrieval eligible count is zero, the adapter emits
+`noEligibleCandidate = true` and maps the bounded production evidence-needed
+lane into ordinary evaluation results.
+
+`RetrievalCasePrediction.candidateDecisions` still contains one entry for every
+candidate in the bound authority. The harness obtains those complete decisions
+from its existing generated hard-filter projection, which delegates constraint
+semantics to product-owned `evaluateCandidateConstraints`; it does not obtain
+them from `CandidateRetrievalResultV1`. The production result remains bounded,
+the production package does not import that evaluation-side projection, and no
+hard-filter rule is copied into retrieval.
+
+This preserves the scorer's existing prediction contract without changing the
+scorer or Phase 8 schemas. The existing independent scorer remains the sole
+metric authority; Phase 9 creates no second production-specific scorer.
+Production code never receives case classifications, relevance, no-result
+gold, equivalence gold, baseline outputs, or score reports.
 
 The current `proposed-not-reviewed` gold cannot authorize Phase 9 closure.
 Before the final Milestone 4 benchmark, an independent maintainer who is not
@@ -378,6 +416,13 @@ independently accepted `retrieval-v1` authority:
 | explicit no-eligible cases classified correctly    | 5 / 5 = 1.000000                             |
 | exact duplicate rate                               | 0.000000                                     |
 | controlled-equivalence duplicate rate              | 0.000000 for every applicable accepted group |
+
+The 4,500 / 4,500 gate validates the complete domain-authoritative generated
+candidate-decision projection against the independently reviewed evaluation
+authority. It is not, by itself, proof that production retrieval integrates
+with that authority correctly. Milestone 2 separately proves exact agreement
+between production pre-retrieval lane counts and the generated projection,
+returned-lane membership, exclusions, and evaluation-adapter lane selection.
 
 Every returned `eligible` record must bind a satisfied domain hard state and a
 non-negative-control candidate. Every returned `evidence-needed` record must

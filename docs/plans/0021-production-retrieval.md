@@ -6,9 +6,10 @@
   [#21 — Phase 9: Establish production candidate retrieval](https://github.com/kgudipati/gitblocks/issues/21)
 - Branch: `feat/21-production-retrieval`
 - Owner: repository maintainer
-- State: Milestone 1 governance and local validation are complete and proposed
-  for independent review; Milestones 2–4 are blocked pending independent
-  maintainer acceptance of Milestone 1.
+- State: the independent Milestone 1 review requires the documented evaluation
+  lane-semantics correction; the correction remains proposed for independent
+  rereview, and Milestones 2–4 remain blocked pending explicit maintainer
+  acceptance of Milestone 1.
 - Last updated: 2026-08-07
 
 Issue #21 is the requirements authority. Proposed
@@ -129,7 +130,12 @@ package:
 - the independent scorer, metric implementations, loaders, reports, and gold.
 
 The future harness may depend on `@gitblocks/retrieval`; the reverse dependency
-is prohibited. The existing scorer remains the measurement authority.
+is prohibited. The existing generated hard-filter projection remains the
+source of the complete `RetrievalCasePrediction.candidateDecisions` array
+because it delegates constraint semantics to product-owned
+`evaluateCandidateConstraints`. The bounded product retrieval result does not
+return all candidate decisions. The existing scorer remains the measurement
+authority.
 
 ### Current data authority and read shape
 
@@ -258,6 +264,8 @@ Neither Milestone 1 nor Phase 9 includes:
 | controlled expansion without constraint weakening            | ADR 0009, Controlled expansion        | M3 generated-authority and metamorphic tests   |
 | deterministic diversity without fabricated equivalence       | ADR 0009, Deduplication and diversity | M3 identity/equivalence properties             |
 | evaluation harness executes product, product stays blind     | ADR 0009, Evaluation integration      | M2 dependency checks and blind adapter tests   |
+| no-eligible state uses the complete pre-retrieval lane count | ADR 0009, Evaluation integration      | M2 differential and adapter tests              |
+| complete candidate decisions stay evaluation-side            | ADR 0009, Evaluation integration      | M2 prediction-contract and dependency tests    |
 | pre-registered benchmark gates                               | ADR 0009 and this plan                | M1 independent threshold acceptance; M4 report |
 | pre-registered performance and determinism budgets           | ADR 0009 and this plan                | M3 correction evidence; M4 fixed benchmark     |
 | vectors and search infrastructure conditional                | ADR 0009, Conditional triggers        | M3/M4 trigger audit; separate ADR if activated |
@@ -284,8 +292,10 @@ Neither Milestone 1 nor Phase 9 includes:
   candidates.
 - Exact family, concept, identity, structured matching, controlled expansion,
   and deterministic fusion can close the observed development recall gap.
-- Separate eligible and evidence-needed product arrays can map losslessly into
-  the existing evaluation prediction lane without changing the scorer.
+- Separate eligible and evidence-needed product arrays plus exact
+  `preRetrievalLaneCounts` can map losslessly into the existing evaluation
+  prediction lane without changing the scorer; complete candidate decisions
+  remain supplied by the existing evaluation-side generated projection.
 
 Each assumption is tested in Milestones 2–4. Failure activates correction or a
 pre-registered reconsideration path; it does not silently broaden scope.
@@ -373,8 +383,12 @@ request. It validates the normalized outcome and authority bindings, invokes
 the domain constraint evaluator once per candidate, excludes hard conflicts
 and negative controls, assigns satisfied and unresolved candidates to separate
 lanes, executes bounded channels, fuses integer signals, merges exact
-identities, diversifies, truncates, and returns a closed result with
-provenance. It has no side effects.
+identities, diversifies, truncates, and returns a closed result with provenance.
+Before channel matching, it records `preRetrievalLaneCounts` with exactly
+`eligible`, `evidence-needed`, and `excluded` counts across the complete bound
+authority. The counts reflect domain hard evaluation plus catalog
+negative-control exclusion and therefore precede retrieval success, fusion,
+diversity, and result bounds. It has no side effects.
 
 ### Direct field reads
 
@@ -452,6 +466,13 @@ independent maintainer acceptance before Milestone 2.
 
 Hard conflicts, negative controls, or unresolved candidates in `eligible` are
 correctness failures regardless of recall.
+
+The 4,500/4,500 candidate hard-filter gate validates the complete
+domain-authoritative generated candidate-decision projection against the
+independently reviewed evaluation authority. It does not alone prove that the
+production retrieval package or its harness adapter agrees with that
+projection; the Milestone 2 differential assertions below provide that separate
+integration proof.
 
 ### Retrieval quality
 
@@ -559,10 +580,52 @@ Only after Milestone 1 acceptance:
 - record unit, property, negative/abuse, contract, dependency, and initial
   performance evidence.
 
-The adapter emits the product eligible lane when it is nonempty; only when the
-eligible lane is empty does it emit the evidence-needed lane and the existing
-no-eligible marker. It never sends product output, case identity, or gold back
-into the product call.
+The future adapter derives the no-eligible state and selects the ordinary
+result lane exactly as follows:
+
+```text
+const noEligibleCandidate =
+  result.preRetrievalLaneCounts.eligible === 0
+
+const ordinaryResults =
+  noEligibleCandidate
+    ? result.evidenceNeededCandidates
+    : result.eligibleCandidates
+```
+
+It constructs the complete existing
+`RetrievalCasePrediction.candidateDecisions` array from the evaluation-side
+generated hard-filter projection, not from the bounded product result. If the
+eligible pool is nonzero and production retrieval returns zero eligible
+results, it emits `noEligibleCandidate = false` and an empty ordinary result
+list so recall and hit-rate record the retrieval failure. It never sends
+product output, case identity, or gold back into the product call.
+
+#### Milestone 2 production/evaluation differential assertions
+
+Milestone 2 must add tests that prove all of the following before its own
+independent review:
+
+1. Production `preRetrievalLaneCounts` exactly match the existing generated
+   hard-filter projection lane counts for the same normalized query and profile
+   authority.
+2. Every returned `eligible` candidate has generated
+   `hardState = satisfied` and `lane = eligible`.
+3. Every returned `evidence-needed` candidate has generated
+   `hardState = unresolved` and `lane = evidence-needed`.
+4. No generated excluded candidate or catalog negative control appears in
+   either production result lane.
+5. No production result lane claim can disagree with domain authority.
+6. Evaluation prediction `noEligibleCandidate` is derived exclusively from
+   `preRetrievalLaneCounts.eligible === 0`.
+7. When the pre-retrieval eligible pool is nonzero but production retrieval
+   returns zero eligible candidates, the adapter emits
+   `noEligibleCandidate = false` and an empty ordinary result list so recall and
+   hit-rate record a retrieval failure.
+8. When the pre-retrieval eligible pool is zero, the adapter emits the bounded
+   production evidence-needed results and `noEligibleCandidate = true`.
+9. Production code remains blind to case classifications, relevance gold,
+   no-result gold, equivalence gold, scorer output, and baseline output.
 
 No expansion authority, advanced fusion/diversity, ranking, model, API, MCP,
 database, vector, or persistent index belongs in this milestone.
@@ -792,6 +855,13 @@ a separate reviewed decision authorizes the change.
 - 2026-08-07: The complete required local validation suite passed. Milestone 1
   is ready for publication as a draft and independent review; Milestone 2
   remains blocked.
+- 2026-08-07: Independent review retained the architecture and every numeric
+  gate but required correction of no-eligible semantics and the related
+  complete-candidate-decision boundary. The ADR and plan now derive
+  `noEligibleCandidate` only from the complete pre-retrieval eligible-pool
+  count, keep full decisions in the evaluation-side projection, and
+  pre-register nine Milestone 2 differential assertions. The correction
+  requires independent rereview; Milestone 2 remains blocked.
 
 ## Decision and deviation log
 
@@ -829,6 +899,12 @@ a separate reviewed decision authorizes the change.
   triggers. Reason: 150 profiles and a 2.05 MB formatted authority do not
   establish a current need for persistence, vectors, caching, or a service.
   Owner: independent architecture review.
+- 2026-08-07 — Derive evaluation `noEligibleCandidate` exclusively from
+  `preRetrievalLaneCounts.eligible === 0` and retain complete candidate
+  decisions in the existing evaluation-side projection. Reason: bounded result
+  emptiness is a retrieval failure when safe eligible candidates exist, while
+  the projection already delegates hard semantics to product domain authority.
+  Owner: independent correction review.
 - 2026-08-07 — No deviation from the governing issue or protected Phase 8
   boundary has been identified.
 
@@ -870,6 +946,33 @@ conflict=0, and authority digest
 `fc85d7ea71c69cd5e56e5a73936ceba6263c4ea0ba8fc2d0802556d79cf9e879`.
 The pre-live check remained `offline-verified-live-blocked`, selected no model,
 and performed no live operation.
+
+### Correction validation evidence
+
+The correction's first required sequence passed `pnpm runtime:check` and then
+stopped at `pnpm format:check`, which named only this plan. The repository
+formatter was applied to the two authorized correction documents; ADR 0009 was
+already formatted and remained byte-identical in that formatter invocation.
+The complete sequence then passed and is rerun once more after this evidence
+entry so the record itself is covered:
+
+- `pnpm runtime:check`: exit 0;
+- `pnpm format:check`: exit 0;
+- `pnpm repo:check`: exit 0;
+- `pnpm security:secrets`: exit 0 with no finding;
+- `pnpm security:audit`: exit 0 with no known vulnerability at the `moderate`
+  threshold;
+- `pnpm verify`: exit 0 with 115 test files and 1,802 tests passed and no
+  architecture violation across 847 modules and 2,810 dependencies;
+- `git diff --check`: exit 0; and
+- `git status --short --branch`: the exact tracking branch plus only ADR 0009
+  and this plan modified.
+
+The deterministic retrieval report digest remained
+`6a16353159fb2e30e424ee20fb2e4eeda640ae2248a50580fd162ab012ddf1ed`,
+authority-order output matched, and pre-live status remained
+`offline-verified-live-blocked` with no model selected. No provider collection,
+database operation, migration, materialization, or model operation ran.
 
 ### Diff and prohibited-scope review
 
