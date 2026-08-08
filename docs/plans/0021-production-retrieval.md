@@ -1097,32 +1097,41 @@ file, remove staging, and sync the directory. Controlled collection, staging,
 interruption, and publication-conflict tests leave no partial final authority;
 a crash-left staging entry blocks later preflight for review.
 
-`pnpm retrieval:metadata:validate` is separately pre-registered as a read-only
-post-collection validator. It reads only fixed, no-follow bounded files and
+`pnpm retrieval:metadata:validate` is the read-only post-collection validator.
+It reads only fixed, no-follow bounded files and
 checks canonical serialization, all contract digests and snapshot identity,
 the exact accepted catalog and both provider policies, source operation, 150
 candidate/repository closure, and record/topic ordering. Synthetic 150-record
-fixtures pass; policy and repository drift fail. The real command currently
-fails safely with `authority-missing`, as required, because no live authority
-exists. It performs no network, credential, write, database, Docker, or model
-operation and is not yet part of ordinary `pnpm verify`.
+fixtures pass; policy and repository drift fail. It passed against the real
+attempt-#2 snapshot with no network, credential, write, database, Docker, or
+model operation.
 
-The separate identity-only diagnostic is prepared as
+The separate identity-only diagnostic is
 `pnpm retrieval:metadata:identity-probe`, with zero-effect preflight
-`pnpm retrieval:metadata:identity-probe:preflight`. A future separately
-authorized probe may issue only the same 150 repository-metadata requests with
-450 worst-case attempts and the accepted fixed-host transport, parser, bounds,
-timeouts, redirects, retries, cancellation, and credential boundary. It writes
-nothing and reports only aggregate request/identity counts plus bounded
-candidate ID, stable catalog identity/status, provider-canonical identity, and
-identity-state differences. It excludes descriptions, topics, language,
-bodies, headers, credentials, raw errors, evaluation data, database, Docker,
-models, npm, and artifact bodies. Its zero-effect preflight passed with zero
-network calls, credential reads, and writes. The real probe was not run.
+`pnpm retrieval:metadata:identity-probe:preflight`. Its single authorized run
+completed 150 requested and 150 completed candidates in 150 attempts with zero
+retries, failures, non-public repositories, or provider-canonical duplicates.
+It observed 146 unchanged identities and these four redirects:
 
-No second collection attempt occurred. Live authorization remains blocked
-pending independent rereview; Milestone 3 remains open and Milestone 4 remains
-blocked.
+```text
+auth-casbin-casbin: casbin/casbin -> apache/casbin
+auth-casbin-casbin-js: casbin/casbin.js -> apache/casbin-casbin.js
+auth-casbin-node-casbin: casbin/node-casbin -> apache/casbin-node-casbin
+webhook-mux-node: muxinc/mux-node-sdk -> muxinc/mux-ts
+```
+
+The probe wrote nothing and excluded descriptions, topics, language, bodies,
+headers, credentials, raw errors, evaluation data, database, Docker, models,
+npm, and artifact bodies. Authorized collection attempt #2 then succeeded once
+without a manual rerun and published the validated 150-record authority. Its
+snapshot ID is
+`retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f`, semantic
+digest is
+`23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1`,
+file SHA-256 is
+`9f9aef7a399e5472444be90fa9de7de4f2884648b7eaf857cdce0a348046e894`,
+and serialized size is 105,291 bytes. The lexical channel remains inactive,
+Milestone 3 remains open, and Milestone 4 remains blocked.
 
 The future sixth channel is pre-registered as
 `approved-metadata-lexical/1.0.0` but remains absent from the five active
@@ -1152,9 +1161,10 @@ metric effect. The current prediction digest is
 and the score digest is
 `6a383a501303fcf4b939e2dd7fa5de130a01a933de196cc0c552c4cfe1d74c8d`.
 
-Apart from the permanently recorded failed metadata collection attempt #1, no
-second live collection or identity probe occurred. The authorized process
-credential was never rendered. No profile mutation, evaluation-authority
+The permanently recorded failed metadata collection attempt #1 was not erased
+or retried. The identity probe ran exactly once, and collection attempt #2 ran
+exactly once and succeeded. The authorized process credential was never
+rendered. No profile mutation, evaluation-authority
 mutation, database, Docker, model, vector, index, cache, search service,
 ranking, API, MCP, or Skill work occurred. Milestone 7B remains deferred,
 Milestone 3 remains open, and Milestone 4 remains blocked.
@@ -1458,9 +1468,31 @@ a separate reviewed decision authorizes the change.
 - 2026-08-07: Prepared the identity-only probe and its zero-effect preflight.
   Synthetic tests cover only the accepted repository-metadata operation,
   150/450 bounds, identity-only output, duplicate diagnostics, credential
-  redaction, and no-write behavior. The real probe was not run, no second
-  collection occurred, the lexical channel remains inactive, Milestone 3
-  remains open, and Milestone 4 remains blocked.
+  redaction, and no-write behavior. At that point the real probe was not run
+  and no second collection occurred.
+- 2026-08-08: The separately authorized identity probe completed all 150
+  candidates in 150 attempts with zero retries, failures, non-public
+  repositories, or provider-canonical duplicates. It observed 146 unchanged
+  identities and the three reviewed Casbin-to-Apache redirects plus
+  `muxinc/mux-node-sdk -> muxinc/mux-ts`; it wrote no repository file.
+- 2026-08-08: Authorized metadata collection attempt #2 ran exactly once and
+  succeeded. Atomic publication left the final authority present and staging
+  absent; the independent validator passed all 150 records. The snapshot was
+  collected at `2026-08-08T17:10:33.311Z` with ID
+  `retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f`, semantic
+  digest
+  `23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1`,
+  file SHA-256
+  `9f9aef7a399e5472444be90fa9de7de4f2884648b7eaf857cdce0a348046e894`,
+  and 105,291 serialized bytes. Identity state matched the probe exactly at
+  146 unchanged, four redirected, and zero provider-canonical duplicates.
+  Evaluation-blind intrinsic coverage was 148 descriptions, 121 candidates
+  with topics, 1,230 topics, 631 unique normalized topics, all 150 primary
+  languages, all 150 candidates with some approved lexical metadata, and
+  4,944 distinct candidate-side normalized terms. No evaluation/gold was
+  loaded and no metadata-aware retrieval benchmark or activation occurred.
+  The lexical channel remains inactive, Milestone 3 remains open, and
+  Milestone 4 remains blocked.
 
 ## Decision and deviation log
 

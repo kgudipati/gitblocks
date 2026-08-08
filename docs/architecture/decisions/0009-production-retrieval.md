@@ -66,6 +66,17 @@ separates stable catalog ownership from provider-canonical location, and
 prepares an identity-only diagnostic offline. It does not accept Milestone 3,
 activate the lexical channel, or authorize Milestone 4.
 
+The subsequently authorized identity-only probe completed all 150 candidates
+in 150 attempts with no retries, failures, non-public repositories, or
+provider-canonical collisions. It observed 146 unchanged identities and four
+redirects: the three stable Casbin locators resolve to their reviewed Apache
+locations, while the negative-control `muxinc/mux-node-sdk` locator resolves
+to `muxinc/mux-ts`. The latter is the likely explanation for attempt #1 under
+the former status-gated behavior; it is not permission to mutate the catalog.
+Authorized collection attempt #2 then published and validated the real
+150-record metadata snapshot. The lexical channel remains inactive,
+Milestone 3 remains open, and Milestone 4 remains blocked.
+
 ## Context
 
 Phase 8 established deterministic query normalization, a controlled taxonomy,
@@ -216,7 +227,7 @@ separate from `catalog/public-v1/candidate-profile-authority.json`; the Phase 8
 profile digest and evaluation hard-filter bindings do not change. This avoids
 silently turning retrieval-quality enrichment into hard-filter authority.
 
-The future canonical artifact path is
+The canonical artifact path is
 `catalog/public-v1/candidate-retrieval-metadata-authority.json`. It contains
 exactly the 150 `public-v1` candidate IDs and case-insensitive stable catalog
 repository identities once each, sorted by candidate ID. Each record retains
@@ -261,14 +272,14 @@ bound to Phase 8 provider policy digest
 Only HTTPS `GET api.github.com/repos/{owner}/{repository}` is allowed: 150
 logical requests, at most 450 attempts, concurrency three, 2 MiB and 100,000
 JSON-node response bounds, 10-second request timeout, two redirects, three
-attempts, 90-second candidate deadline, and one-hour run deadline. The future
+attempts, 90-second candidate deadline, and one-hour run deadline. The
 credential name is `GITBLOCKS_RETRIEVAL_METADATA_GITHUB_TOKEN`. Releases,
 tags, license, community profile, commits, files, npm, advisories, artifacts,
 database, Docker, and model operations are prohibited.
 
-The future lexical consumer is pre-registered as
-`approved-metadata-lexical/1.0.0` and remains inactive until an independently
-reviewed real snapshot exists. Query terms may come only from normalized
+The lexical consumer is pre-registered as
+`approved-metadata-lexical/1.0.0` and remains inactive pending independent
+snapshot review and separate activation authority. Query terms may come only from normalized
 capability concept IDs, active taxonomy aliases for those concepts, reviewed
 one-hop expansion targets, and controlled normalized constraint canonical
 terms. Candidate terms may come only from description, topics, and primary
@@ -288,7 +299,7 @@ but cannot substitute for this external ownership binding. Retrieval owns the
 comparison contract and imports neither ingestion policy artifacts nor
 evaluation tooling.
 
-Future canonical publication uses the fixed sibling staging path
+Canonical publication uses the fixed sibling staging path
 `catalog/public-v1/.candidate-retrieval-metadata-authority.json.staging`.
 Complete validated bytes are created exclusively and synced there before a
 same-directory hard link publishes them without replacement; the staging link
@@ -298,20 +309,18 @@ absent before credential or network access. A read-only
 snapshot against the catalog, both accepted policies, the source operation,
 repository closure, record/root digests, snapshot ID, bounds, and canonical
 ordering. The validator is intentionally outside ordinary verification until
-a real snapshot is independently accepted.
+a real snapshot is independently accepted. Collection remains outside ordinary
+verification.
 
-The identity-only diagnostic is prepared as
+The identity-only diagnostic is
 `pnpm retrieval:metadata:identity-probe`, with zero-effect preflight
-`pnpm retrieval:metadata:identity-probe:preflight`. A future separately
-authorized probe may use exactly the same 150 repository-metadata requests and
-450-attempt bound through the accepted transport/parser. It creates no
-authority or staging state and reports only bounded aggregate request/identity
-counts and identity differences containing candidate ID, stable catalog
-owner/repository/status, provider-canonical owner/repository, and controlled
-identity state. It excludes description, topics, language, body, headers,
-credential, raw errors, evaluation data, database, Docker, model, npm, and
-artifact bodies. The zero-effect preflight is authorized for offline proof;
-the real diagnostic was not executed and requires independent authorization.
+`pnpm retrieval:metadata:identity-probe:preflight`. Its single authorized live
+run used exactly 150 repository-metadata requests and 150 attempts through the
+accepted transport/parser, with zero retries. It created no authority or
+staging state and reported only bounded aggregate request/identity counts and
+the four identity differences. It excluded description, topics, language,
+body, headers, credential, raw errors, evaluation data, database, Docker,
+model, npm, and artifact bodies.
 
 The permanent attempt record is:
 
@@ -325,6 +334,33 @@ staging authority: absent
 collection rerun: not performed
 worktree after failure: clean
 ```
+
+Authorized metadata collection attempt #2 is separately recorded as:
+
+```text
+authorized metadata collection attempt #2
+result: succeeded
+collectedAt: 2026-08-08T17:10:33.311Z
+authority: candidate-retrieval-metadata-authority/1.1.0
+provider policy: candidate-retrieval-metadata-provider-policy/1.1.0
+provider policy digest: b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e
+candidate count: 150
+identity state: 146 unchanged / 4 redirected / 0 provider-canonical duplicates
+snapshot ID: retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f
+authority semantic digest: 23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1
+file SHA-256: 9f9aef7a399e5472444be90fa9de7de4f2884648b7eaf857cdce0a348046e894
+serialized bytes: 105291
+validation: passed
+evaluation/gold exposure: none
+retrieval activation: none
+```
+
+The evaluation-blind intrinsic audit found 148 descriptions and two nulls;
+121 candidates with topics, 1,230 total topics, and 631 unique normalized
+topics; primary language for all 150 candidates across 11 values; approved
+lexical terms from at least one metadata field for all 150 candidates; and
+4,944 distinct candidate-side normalized terms. No retrieval evaluation or
+gold was loaded, and no query was applied or candidate scored.
 
 The existing `repository-identity` field authorizes `displayName`; candidate
 identity therefore projects it under the same general lexical identity rule.

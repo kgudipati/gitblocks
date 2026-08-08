@@ -10,4 +10,5 @@ schemas/evaluation/repository-interviews/*.schema.json
 apps/repository-interview-operator/schemas/*.schema.json
 catalog/capability-taxonomy/*/manifest.json
 catalog/public-v1/candidate-profile-authority.json
+catalog/public-v1/candidate-retrieval-metadata-authority.json
 verification/retrieval-v1/profile-coverage.json
