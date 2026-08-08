@@ -1,0 +1,40 @@
+{
+  "capabilityFamily": "authorization",
+  "caseId": "norm-authorization-01",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "norm-authorization-01-reference-01",
+        "value": "auth-casbin-casbin-js"
+      },
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "norm-authorization-01-reference-02",
+        "value": "auth-casbin-node-casbin"
+      }
+    ],
+    "capabilityTerms": [
+      {
+        "originalTerm": "authz",
+        "termId": "norm-authorization-01-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-norm-authorization-01",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-authorization-01-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Structured alias fields own meaning."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

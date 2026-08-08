@@ -1,0 +1,40 @@
+{
+  "capabilityFamily": "authorization",
+  "caseId": "ret-authorization-04",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "ret-authorization-04-reference-01",
+        "value": "auth-casbin-casbin-js"
+      },
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "ret-authorization-04-reference-02",
+        "value": "auth-casbin-node-casbin"
+      }
+    ],
+    "capabilityTerms": [
+      {
+        "originalTerm": "authorization",
+        "termId": "ret-authorization-04-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-ret-authorization-04",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-authorization-04-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

@@ -1,0 +1,15 @@
+{
+  "caseId": "ret-audit-logging-04",
+  "eligibleCount": 23,
+  "evidenceNeededCount": 0,
+  "excludedCount": 127,
+  "expectedOutcome": "eligible-candidates-present",
+  "noResultGoldVersion": "retrieval-no-result-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

@@ -176,6 +176,12 @@ export function createRetrievalBaselineReportV1(
   inputs: RetrievalBaselineReportInputs,
   startDirectory = process.cwd(),
 ): RetrievalBaselineReport {
+  if (
+    inputs.corpus.manifest.corpusId !== 'retrieval-v1' ||
+    inputs.corpus.manifest.corpusVersion !== 'retrieval-evaluation-corpus/1.0.0'
+  ) {
+    throw new Error('Retrieval-v1 baseline report requires retrieval-v1.');
+  }
   const ordinaryBaselines = [
     measurement(
       'family-only',
@@ -217,8 +223,8 @@ export function createRetrievalBaselineReportV1(
     goldStatus: 'proposed-not-reviewed' as const,
     measurementStatement: MEASUREMENT_STATEMENT,
     corpus: {
-      id: inputs.corpus.manifest.corpusId,
-      version: inputs.corpus.manifest.corpusVersion,
+      id: 'retrieval-v1' as const,
+      version: 'retrieval-evaluation-corpus/1.0.0' as const,
       semanticDigest: inputs.corpus.manifest.corpusSemanticDigest,
     },
     taxonomy: {

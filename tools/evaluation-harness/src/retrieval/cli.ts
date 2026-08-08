@@ -2,7 +2,7 @@ import type { RetrievalPredictionSet } from './contracts.ts';
 import { runRetrievalBaselinesV1 } from './baseline-runner.ts';
 import { writeRetrievalBaselineReportV1 } from './baseline-writer.ts';
 import { verifyRetrievalBaselinesV1 } from './baseline-verification.ts';
-import { loadRetrievalCorpusV1 } from './corpus.ts';
+import { loadRetrievalCorpusV1, loadRetrievalCorpusV2 } from './corpus.ts';
 import { runRetrievalScorerFixtures } from './fixtures.ts';
 import { loadRetrievalJsonFile } from './json-boundary.ts';
 import { validateRetrievalPredictionSetV1 } from './predictions.ts';
@@ -84,9 +84,13 @@ export function runRetrievalCli(
       return 1;
     }
   }
-  if (command !== 'score' && command !== 'validate') {
+  if (
+    command !== 'score' &&
+    command !== 'validate' &&
+    command !== 'validate-v2'
+  ) {
     output.error(
-      'Use validate, fixtures, baselines, baselines-generate, verify, or score --prediction <path>.',
+      'Use validate, validate-v2, fixtures, baselines, baselines-generate, verify, or score --prediction <path>.',
     );
     return 1;
   }
@@ -100,16 +104,19 @@ export function runRetrievalCli(
     return 1;
   }
   const scorePredictionPath = predictionPath ?? '';
-  const loaded = loadRetrievalCorpusV1(repositoryRoot);
+  const loaded =
+    command === 'validate-v2'
+      ? loadRetrievalCorpusV2(repositoryRoot)
+      : loadRetrievalCorpusV1(repositoryRoot);
   if (!loaded.ok) {
     for (const diagnostic of loaded.diagnostics) {
       output.error(`${diagnostic.code} ${diagnostic.path}`.trim());
     }
     return 1;
   }
-  if (command === 'validate') {
+  if (command === 'validate' || command === 'validate-v2') {
     output.log(
-      `retrieval-v1 valid (${String(loaded.corpus.retrievalCases.length)} retrieval; ${String(loaded.corpus.normalizationCases.length)} normalization; ${loaded.corpus.manifest.corpusSemanticDigest}).`,
+      `${loaded.corpus.manifest.corpusId} valid (${String(loaded.corpus.retrievalCases.length)} retrieval; ${String(loaded.corpus.normalizationCases.length)} normalization; ${loaded.corpus.manifest.corpusSemanticDigest}).`,
     );
     return 0;
   }

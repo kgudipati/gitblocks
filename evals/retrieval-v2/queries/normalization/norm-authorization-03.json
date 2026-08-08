@@ -1,0 +1,44 @@
+{
+  "capabilityFamily": "authorization",
+  "caseId": "norm-authorization-03",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "authorization",
+        "termId": "norm-authorization-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "norm-authorization-03-constraint-2512",
+        "facetHint": "feature",
+        "modality": "required",
+        "originalTerm": "role-based-access-control",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must provide the controlled feature"
+      },
+      {
+        "constraintId": "norm-authorization-03-constraint-7233",
+        "facetHint": "feature",
+        "modality": "prohibited",
+        "originalTerm": "role-based-access-control",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "must not provide the controlled feature"
+      }
+    ],
+    "queryInputId": "query-norm-authorization-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-authorization-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Contradictory modalities must remain explicit."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

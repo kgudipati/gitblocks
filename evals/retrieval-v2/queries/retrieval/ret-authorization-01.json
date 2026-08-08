@@ -1,0 +1,27 @@
+{
+  "capabilityFamily": "authorization",
+  "caseId": "ret-authorization-01",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "authorization",
+        "termId": "ret-authorization-01-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-ret-authorization-01",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-authorization-01-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

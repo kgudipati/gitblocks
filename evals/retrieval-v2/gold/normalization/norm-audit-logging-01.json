@@ -1,0 +1,40 @@
+{
+  "caseId": "norm-audit-logging-01",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [
+      {
+        "conceptId": "audit-logging",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-audit-logging-01-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": null,
+        "conceptId": null,
+        "facet": "other",
+        "modality": "preferred",
+        "resolutionBasis": "preserved-declaration",
+        "ruleId": "preserve-explicit-declaration",
+        "sourceConstraintIds": [
+          "norm-audit-logging-01-constraint-9454"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "normalized",
+    "primaryFamily": "audit-logging",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

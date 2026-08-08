@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewedRelevanceProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "reviewStatus",
+        "reviewAuthorityVersion",
+        "reviewAuthorityDigest",
+        "reviewReference"
+      ],
+      "properties": {
+        "status": { "const": "accepted" },
+        "reviewStatus": { "const": "independently-reviewed" },
+        "reviewAuthorityVersion": {
+          "const": "retrieval-relevance-independent-review/1.0.0"
+        },
+        "reviewAuthorityDigest": {
+          "$ref": "#/$defs/digest"
+        },
+        "reviewReference": { "const": "issue-23" }
+      }
+    }
+  }
+}

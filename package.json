@@ -30,6 +30,7 @@
     "eval:score": "pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score",
     "eval:fixtures": "pnpm runtime:check && node tools/evaluation-harness/src/cli.ts fixtures",
     "eval:retrieval:validate": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate",
+    "eval:retrieval:v2:validate": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate-v2",
     "eval:retrieval:fixtures": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures",
     "eval:retrieval:baselines": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines",
     "eval:retrieval:baselines:generate": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate",

@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/independent-review/1.0.0",
+  "$defs": {
+    "gradeDistribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grade0", "grade1", "grade2", "grade3"],
+      "properties": {
+        "grade0": { "type": "integer", "minimum": 0, "maximum": 636 },
+        "grade1": { "type": "integer", "minimum": 0, "maximum": 636 },
+        "grade2": { "type": "integer", "minimum": 0, "maximum": 636 },
+        "grade3": { "type": "integer", "minimum": 0, "maximum": 636 }
+      }
+    },
+    "matrixRow": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "type": "integer", "minimum": 0, "maximum": 636 }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reviewVersion",
+    "sourceAuthority",
+    "evidence",
+    "scope",
+    "comparison",
+    "reconciliation",
+    "semanticDigest"
+  ],
+  "properties": {
+    "reviewVersion": {
+      "const": "retrieval-relevance-independent-review/1.0.0"
+    },
+    "sourceAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["corpusVersion", "corpusSemanticDigest"],
+      "properties": {
+        "corpusVersion": { "const": "retrieval-evaluation-corpus/1.0.0" },
+        "corpusSemanticDigest": {
+          "const": "3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blindBundleSha256",
+        "independentReviewSha256",
+        "comparisonSummarySha256",
+        "gradeDisagreementsSha256",
+        "binaryRelevanceDisagreementsSha256"
+      ],
+      "properties": {
+        "blindBundleSha256": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+        },
+        "independentReviewSha256": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+        },
+        "comparisonSummarySha256": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+        },
+        "gradeDisagreementsSha256": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+        },
+        "binaryRelevanceDisagreementsSha256": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewedCases", "reviewedJudgments"],
+      "properties": {
+        "reviewedCases": { "const": 30 },
+        "reviewedJudgments": { "const": 636 }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposedGradeDistribution",
+        "independentGradeDistribution",
+        "exactGradeAgreements",
+        "exactGradeDisagreements",
+        "binaryAgreements",
+        "binaryDisagreements",
+        "proposedIrrelevantIndependentRelevant",
+        "proposedRelevantIndependentIrrelevant",
+        "preferredCaseBinaryDisagreements",
+        "namedComparisonBinaryDisagreements",
+        "proposedToIndependentMatrix"
+      ],
+      "properties": {
+        "proposedGradeDistribution": { "$ref": "#/$defs/gradeDistribution" },
+        "independentGradeDistribution": { "$ref": "#/$defs/gradeDistribution" },
+        "exactGradeAgreements": { "const": 274 },
+        "exactGradeDisagreements": { "const": 362 },
+        "binaryAgreements": { "const": 595 },
+        "binaryDisagreements": { "const": 41 },
+        "proposedIrrelevantIndependentRelevant": { "const": 41 },
+        "proposedRelevantIndependentIrrelevant": { "const": 0 },
+        "preferredCaseBinaryDisagreements": { "const": 33 },
+        "namedComparisonBinaryDisagreements": { "const": 8 },
+        "proposedToIndependentMatrix": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/matrixRow" }
+        }
+      }
+    },
+    "reconciliation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rules",
+        "acceptedPreferredCorrections",
+        "rejectedComparisonCompanionChanges",
+        "retainedSameBinaryCalibrationJudgments",
+        "unchangedProposedGrades",
+        "finalGradeDistribution"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "preferred-is-soft" },
+            { "const": "strict-graded-calibration" },
+            { "const": "explicit-named-comparison-remains-narrow" }
+          ],
+          "items": false,
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "acceptedPreferredCorrections": { "const": 33 },
+        "rejectedComparisonCompanionChanges": { "const": 8 },
+        "retainedSameBinaryCalibrationJudgments": { "const": 321 },
+        "unchangedProposedGrades": { "const": 603 },
+        "finalGradeDistribution": { "$ref": "#/$defs/gradeDistribution" }
+      }
+    },
+    "semanticDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+    }
+  }
+}

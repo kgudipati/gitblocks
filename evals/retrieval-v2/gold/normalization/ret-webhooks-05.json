@@ -1,0 +1,62 @@
+{
+  "caseId": "ret-webhooks-05",
+  "expected": {
+    "clarifications": [],
+    "normalizedConcepts": [
+      {
+        "conceptId": "webhooks",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "ret-webhooks-05-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "self-hosted",
+        "conceptId": "self-hosted-service",
+        "facet": "deployment",
+        "modality": "required",
+        "resolutionBasis": "controlled-taxonomy",
+        "ruleId": "taxonomy-active-alias",
+        "sourceConstraintIds": [
+          "ret-webhooks-05-constraint-8270"
+        ]
+      },
+      {
+        "canonicalTerm": "external-hosted-service",
+        "conceptId": "external-hosted-service",
+        "facet": "infrastructure",
+        "modality": "prohibited",
+        "resolutionBasis": "controlled-taxonomy",
+        "ruleId": "taxonomy-active-alias",
+        "sourceConstraintIds": [
+          "ret-webhooks-05-constraint-1478"
+        ]
+      },
+      {
+        "canonicalTerm": "kubernetes",
+        "conceptId": "kubernetes",
+        "facet": "infrastructure",
+        "modality": "prohibited",
+        "resolutionBasis": "controlled-taxonomy",
+        "ruleId": "taxonomy-active-alias",
+        "sourceConstraintIds": [
+          "ret-webhooks-05-constraint-6081"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "normalized",
+    "primaryFamily": "webhooks",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

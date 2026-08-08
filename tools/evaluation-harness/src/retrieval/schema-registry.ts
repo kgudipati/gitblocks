@@ -8,6 +8,7 @@ import {
 } from 'ajv/dist/2020.js';
 
 import type { RetrievalDiagnostic } from './contracts.ts';
+import type { RetrievalAuthorityVersion } from './contracts.ts';
 import { loadRetrievalJsonFile } from './json-boundary.ts';
 
 const SCHEMA_NAMES = [
@@ -16,6 +17,7 @@ const SCHEMA_NAMES = [
   'clarification-gold',
   'equivalence',
   'hard-filter-projection',
+  'independent-review',
   'manifest',
   'no-result-gold',
   'normalization-gold',
@@ -36,6 +38,7 @@ export interface RetrievalSchemaRegistry {
 
 export function createRetrievalSchemaRegistry(
   repositoryRoot: string,
+  authorityVersion: RetrievalAuthorityVersion = 'v1',
 ): RetrievalSchemaRegistry {
   const schemaRoot = join(repositoryRoot, 'schemas/evaluation/retrieval');
   const ajv = new Ajv2020({
@@ -49,12 +52,21 @@ export function createRetrievalSchemaRegistry(
   });
   const definitions = loadSchema(schemaRoot, 'definitions.schema.json');
   ajv.addSchema(definitions);
+  const definitionsV2 = loadSchema(schemaRoot, 'definitions-v2.schema.json');
+  ajv.addSchema(definitionsV2);
   const validators = new Map<RetrievalSchemaName, ValidateFunction>();
   for (const name of SCHEMA_NAMES) {
-    const schema = loadSchema(schemaRoot, `${name}.schema.json`);
+    const versioned =
+      authorityVersion === 'v2' &&
+      (name === 'manifest' || name === 'relevance-gold');
+    const schema = loadSchema(
+      schemaRoot,
+      `${name}${versioned ? '-v2' : ''}.schema.json`,
+    );
     ajv.addSchema(schema);
+    const schemaVersion = versioned ? '2.0.0' : '1.0.0';
     const validator = ajv.getSchema(
-      `https://gitblocks.dev/schemas/evaluation/retrieval/${name}/1.0.0`,
+      `https://gitblocks.dev/schemas/evaluation/retrieval/${name}/${schemaVersion}`,
     );
     if (validator === undefined) {
       throw new Error('Retrieval evaluation schema could not be registered.');

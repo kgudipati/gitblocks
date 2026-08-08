@@ -1,0 +1,349 @@
+{
+  "caseId": "ret-rate-limiting-04",
+  "judgments": [
+    {
+      "candidateId": "rate-apisix",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-bottleneck",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-envoy-ratelimit",
+      "grade": 3,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "explicit-candidate-intent"
+      ]
+    },
+    {
+      "candidateId": "rate-express-rate-limit",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-fastify-rate-limit",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-go-limiter",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-governor",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-gravitee",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-gubernator",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-juju",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-koa-ratelimit",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-kong",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-krakend",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-limiters",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-nestjs-throttler",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-node-rate-limiter-flexible",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-node-ratelimiter",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-redis-cell",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-throttled",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-tollbooth",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-tyk",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-uber-go",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-ulule-limiter",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "rate-upstash",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+    "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+    "reviewReference": "issue-23",
+    "reviewStatus": "independently-reviewed",
+    "status": "accepted"
+  },
+  "relevanceGoldVersion": "retrieval-relevance-gold/2.0.0"
+}

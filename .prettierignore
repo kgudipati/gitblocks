@@ -6,8 +6,10 @@ interviews/repository/specifications/*/provider-output.schema.json
 interviews/repository/specifications/*/providers/*.schema.json
 evals/repository-interviews-v1/**/*.json
 evals/retrieval-v1/**/*.json
+evals/retrieval-v2/**/*.json
 schemas/evaluation/repository-interviews/*.schema.json
 apps/repository-interview-operator/schemas/*.schema.json
 catalog/capability-taxonomy/*/manifest.json
 catalog/public-v1/candidate-profile-authority.json
 verification/retrieval-v1/profile-coverage.json
+verification/retrieval-v2/*.json

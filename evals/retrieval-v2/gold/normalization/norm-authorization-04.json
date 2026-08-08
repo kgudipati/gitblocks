@@ -1,0 +1,44 @@
+{
+  "caseId": "norm-authorization-04",
+  "expected": {
+    "clarifications": [
+      {
+        "possibleConceptIds": [],
+        "reasonCode": "subjective-term",
+        "sourceIds": [
+          "norm-authorization-04-term-02"
+        ]
+      }
+    ],
+    "normalizedConcepts": [
+      {
+        "conceptId": "authorization",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-authorization-04-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [],
+    "notices": [],
+    "outcome": "clarification-required",
+    "primaryFamily": "authorization",
+    "unresolved": [
+      {
+        "blocking": true,
+        "reasonCode": "subjective-term",
+        "sourceIds": [
+          "norm-authorization-04-term-02"
+        ]
+      }
+    ]
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}
