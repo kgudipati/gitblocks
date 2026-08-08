@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS,
+  CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_VERSION,
   CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_VERSION,
   CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION,
   CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_VERSION,
@@ -25,6 +26,7 @@ import {
   createApprovedMetadataLexicalChannelV1,
   normalizeApprovedMetadataLexicalTerms,
   scoreApprovedMetadataLexicalRecordV1,
+  type ExpectedCandidateRetrievalMetadataAuthorityBindingV1,
 } from '../src/index.ts';
 
 const catalogPath = fileURLToPath(
@@ -197,9 +199,8 @@ describe('approved metadata lexical channel pre-registration', () => {
       metadataAuthority: authority,
       taxonomy,
       retrievalExpansionAuthority: expansion,
-      catalogVersion: catalog.catalogVersion,
-      catalogDigest: catalog.manifestDigest,
-      candidateIds: catalog.candidates.map(({ candidateId }) => candidateId),
+      expectedMetadataAuthorityBinding: expectedBinding(),
+      expectedCandidates: expectedCandidates(),
     });
     expect(valid.ok).toBe(true);
     if (!valid.ok) return;
@@ -218,9 +219,8 @@ describe('approved metadata lexical channel pre-registration', () => {
         },
         taxonomy,
         retrievalExpansionAuthority: expansion,
-        catalogVersion: catalog.catalogVersion,
-        catalogDigest: catalog.manifestDigest,
-        candidateIds: catalog.candidates.map(({ candidateId }) => candidateId),
+        expectedMetadataAuthorityBinding: expectedBinding(),
+        expectedCandidates: expectedCandidates(),
       }),
     ).toEqual({ ok: false, issue: 'invalid-authority' });
     expect(
@@ -228,9 +228,112 @@ describe('approved metadata lexical channel pre-registration', () => {
         metadataAuthority: authority,
         taxonomy,
         retrievalExpansionAuthority: expansion,
-        catalogVersion: catalog.catalogVersion,
-        catalogDigest: '0'.repeat(64),
-        candidateIds: catalog.candidates.map(({ candidateId }) => candidateId),
+        expectedMetadataAuthorityBinding: expectedBinding({
+          catalogDigest: '0'.repeat(64),
+        }),
+        expectedCandidates: expectedCandidates(),
+      }),
+    ).toEqual({ ok: false, issue: 'authority-binding-mismatch' });
+    const duplicateRepositoryProjection = expectedCandidates().map(
+      (candidate, index, candidates) =>
+        index === 1
+          ? {
+              ...candidate,
+              canonicalOwner: candidates[0]?.canonicalOwner ?? '',
+              canonicalRepository: candidates[0]?.canonicalRepository ?? '',
+            }
+          : candidate,
+    );
+    expect(
+      createApprovedMetadataLexicalChannelV1({
+        metadataAuthority: authority,
+        taxonomy,
+        retrievalExpansionAuthority: expansion,
+        expectedMetadataAuthorityBinding: expectedBinding(),
+        expectedCandidates: duplicateRepositoryProjection,
+      }),
+    ).toEqual({ ok: false, issue: 'authority-binding-mismatch' });
+  });
+
+  it('rejects a self-consistent authority with the wrong narrow policy digest', () => {
+    const wrongAuthority = authorityWith(catalog.candidates, 'authorization', {
+      providerPolicyDigest: 'a'.repeat(64),
+    });
+    expect(
+      createApprovedMetadataLexicalChannelV1({
+        metadataAuthority: wrongAuthority,
+        taxonomy,
+        retrievalExpansionAuthority: expansion,
+        expectedMetadataAuthorityBinding: expectedBinding(),
+        expectedCandidates: expectedCandidates(),
+      }),
+    ).toEqual({ ok: false, issue: 'authority-binding-mismatch' });
+  });
+
+  it('rejects a self-consistent authority with the wrong source policy digest', () => {
+    const wrongAuthority = authorityWith(catalog.candidates, 'authorization', {
+      sourceProviderPolicyDigest: 'b'.repeat(64),
+    });
+    expect(
+      createApprovedMetadataLexicalChannelV1({
+        metadataAuthority: wrongAuthority,
+        taxonomy,
+        retrievalExpansionAuthority: expansion,
+        expectedMetadataAuthorityBinding: expectedBinding(),
+        expectedCandidates: expectedCandidates(),
+      }),
+    ).toEqual({ ok: false, issue: 'authority-binding-mismatch' });
+  });
+
+  it('rejects a self-consistent authority with one wrong repository binding', () => {
+    const wrongAuthority = authorityWithRepositoryProjection(
+      (candidate, index) =>
+        index === 0
+          ? {
+              canonicalOwner: 'valid-owner',
+              canonicalRepository: 'valid-repository',
+            }
+          : {
+              canonicalOwner: candidate.github.owner,
+              canonicalRepository: candidate.github.repository,
+            },
+    );
+    expect(
+      createApprovedMetadataLexicalChannelV1({
+        metadataAuthority: wrongAuthority,
+        taxonomy,
+        retrievalExpansionAuthority: expansion,
+        expectedMetadataAuthorityBinding: expectedBinding(),
+        expectedCandidates: expectedCandidates(),
+      }),
+    ).toEqual({ ok: false, issue: 'authority-binding-mismatch' });
+  });
+
+  it('rejects a self-consistent repository identity permutation', () => {
+    const wrongAuthority = authorityWithRepositoryProjection(
+      (candidate, index) => {
+        const identityCandidate =
+          index === 0
+            ? catalog.candidates[1]
+            : index === 1
+              ? catalog.candidates[0]
+              : candidate;
+        if (identityCandidate === undefined) {
+          throw new Error('Catalog identity fixture unavailable.');
+        }
+        return {
+          canonicalOwner: identityCandidate.github.owner,
+          canonicalRepository: identityCandidate.github.repository,
+        };
+      },
+    );
+    expect(
+      createApprovedMetadataLexicalChannelV1({
+        metadataAuthority: wrongAuthority,
+        taxonomy,
+        retrievalExpansionAuthority: expansion,
+        expectedMetadataAuthorityBinding: expectedBinding(),
+        expectedCandidates: expectedCandidates(),
       }),
     ).toEqual({ ok: false, issue: 'authority-binding-mismatch' });
   });
@@ -244,9 +347,8 @@ describe('approved metadata lexical channel pre-registration', () => {
       metadataAuthority: authority,
       taxonomy,
       retrievalExpansionAuthority: expansion,
-      catalogVersion: catalog.catalogVersion,
-      catalogDigest: catalog.manifestDigest,
-      candidateIds: catalog.candidates.map(({ candidateId }) => candidateId),
+      expectedMetadataAuthorityBinding: expectedBinding(),
+      expectedCandidates: expectedCandidates(),
     });
     if (!created.ok) throw new Error('Synthetic channel creation failed.');
     const result = created.channel.score(
@@ -288,6 +390,15 @@ describe('approved metadata lexical channel pre-registration', () => {
           channelId === ('approved-metadata-lexical' as string),
       ),
     ).toBe(false);
+    expect(
+      createApprovedMetadataLexicalChannelV1({
+        metadataAuthority: reversed,
+        taxonomy,
+        retrievalExpansionAuthority: expansion,
+        expectedMetadataAuthorityBinding: expectedBinding(),
+        expectedCandidates: [...expectedCandidates()].reverse(),
+      }).ok,
+    ).toBe(true);
   });
 
   it('has no evaluation, gold, or catalog-rationale dependency', async () => {
@@ -298,16 +409,16 @@ describe('approved metadata lexical channel pre-registration', () => {
       'utf8',
     );
     expect(source).not.toMatch(
-      /evals\/|evaluation-harness|relevance|no-result|equivalence|\.rationale/u,
+      /@gitblocks\/ingestion|evals\/|evaluation-harness|relevance|no-result|equivalence|\.rationale/u,
     );
   });
 });
 
-function authorityWith(
-  candidates = catalog.candidates,
-  firstTopic = 'authorization',
-): CandidateRetrievalMetadataAuthorityV1 {
-  return createCandidateRetrievalMetadataAuthorityV1({
+function expectedBinding(
+  overrides: Partial<ExpectedCandidateRetrievalMetadataAuthorityBindingV1> = {},
+): ExpectedCandidateRetrievalMetadataAuthorityBindingV1 {
+  return {
+    authorityVersion: CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_VERSION,
     catalogVersion: catalog.catalogVersion,
     catalogDigest: catalog.manifestDigest,
     providerPolicyVersion: CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_VERSION,
@@ -315,6 +426,36 @@ function authorityWith(
     sourceProviderPolicyVersion:
       CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_VERSION,
     sourceProviderPolicyDigest: sourcePolicyDigest,
+    sourceOperation: CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION,
+    ...overrides,
+  };
+}
+
+function expectedCandidates() {
+  return catalog.candidates.map((candidate) => ({
+    candidateId: candidate.candidateId,
+    canonicalOwner: candidate.github.owner,
+    canonicalRepository: candidate.github.repository,
+  }));
+}
+
+function authorityWith(
+  candidates = catalog.candidates,
+  firstTopic = 'authorization',
+  bindingOverrides: Readonly<{
+    providerPolicyDigest?: string;
+    sourceProviderPolicyDigest?: string;
+  }> = {},
+): CandidateRetrievalMetadataAuthorityV1 {
+  return createCandidateRetrievalMetadataAuthorityV1({
+    catalogVersion: catalog.catalogVersion,
+    catalogDigest: catalog.manifestDigest,
+    providerPolicyVersion: CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_VERSION,
+    providerPolicyDigest: bindingOverrides.providerPolicyDigest ?? policyDigest,
+    sourceProviderPolicyVersion:
+      CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_VERSION,
+    sourceProviderPolicyDigest:
+      bindingOverrides.sourceProviderPolicyDigest ?? sourcePolicyDigest,
     sourceOperation: CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION,
     collectedAt: '2026-08-07T00:00:00.000Z',
     candidates: candidates.map((candidate) => ({
@@ -329,6 +470,35 @@ function authorityWith(
         candidate.candidateId === catalog.candidates[0]?.candidateId
           ? [firstTopic]
           : [],
+      primaryLanguage: null,
+    })),
+  });
+}
+
+function authorityWithRepositoryProjection(
+  project: (
+    candidate: CatalogShape['candidates'][number],
+    index: number,
+  ) => Readonly<{
+    canonicalOwner: string;
+    canonicalRepository: string;
+  }>,
+): CandidateRetrievalMetadataAuthorityV1 {
+  return createCandidateRetrievalMetadataAuthorityV1({
+    catalogVersion: catalog.catalogVersion,
+    catalogDigest: catalog.manifestDigest,
+    providerPolicyVersion: CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_VERSION,
+    providerPolicyDigest: policyDigest,
+    sourceProviderPolicyVersion:
+      CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_VERSION,
+    sourceProviderPolicyDigest: sourcePolicyDigest,
+    sourceOperation: CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION,
+    collectedAt: '2026-08-07T00:00:00.000Z',
+    candidates: catalog.candidates.map((candidate, index) => ({
+      candidateId: candidate.candidateId,
+      ...project(candidate, index),
+      description: null,
+      topics: [],
       primaryLanguage: null,
     })),
   });

@@ -1035,6 +1035,42 @@ reports zero network calls, credential reads, and writes. The separate
 `collect` mode is implemented for later authorization but was not executed.
 No real credential was read and no authority snapshot was fabricated.
 
+Independent review accepted that offline preparation but required two
+pre-live hardening corrections before collection can be authorized. First,
+the inactive lexical consumer now requires a caller-owned expected binding for
+authority version, catalog version/digest, narrow provider-policy
+version/digest, source provider-policy version/digest, and source operation.
+It also requires the complete expected candidate ID and canonical repository
+identity projection, rejects duplicate case-insensitive repository identities,
+and verifies every metadata record against that external projection. Retrieval
+continues to import neither ingestion nor evaluation; a later caller must
+derive and inject the accepted product-owned binding.
+
+Second, future publication no longer writes the canonical path directly. The
+fixed same-directory staging path is
+`catalog/public-v1/.candidate-retrieval-metadata-authority.json.staging`.
+Preflight requires both staging and final paths to be absent before credential
+access. After complete in-memory construction and validation, the collector
+will create and durably sync the staging file exclusively, publish it with a
+same-filesystem hard link that fails rather than replacing an existing final
+file, remove staging, and sync the directory. Controlled collection, staging,
+interruption, and publication-conflict tests leave no partial final authority;
+a crash-left staging entry blocks later preflight for review.
+
+`pnpm retrieval:metadata:validate` is separately pre-registered as a read-only
+post-collection validator. It reads only fixed, no-follow bounded files and
+checks canonical serialization, all contract digests and snapshot identity,
+the exact accepted catalog and both provider policies, source operation, 150
+candidate/repository closure, and record/topic ordering. Synthetic 150-record
+fixtures pass; policy and repository drift fail. The real command currently
+fails safely with `authority-missing`, as required, because no live authority
+exists. It performs no network, credential, write, database, Docker, or model
+operation and is not yet part of ordinary `pnpm verify`.
+
+No live collection occurred during this hardening correction. Live
+authorization remains blocked pending independent rereview; Milestone 3
+remains open and Milestone 4 remains blocked.
+
 The future sixth channel is pre-registered as
 `approved-metadata-lexical/1.0.0` but remains absent from the five active
 production bindings. Query terms are limited to normalized capability concept

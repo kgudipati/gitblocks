@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition -- Caller-owned authority bindings are rechecked at the runtime trust boundary. */
+
 import {
   parseCandidateRetrievalMetadataAuthorityV1,
   parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
+  type CandidateRetrievalMetadataAuthorityV1,
   type CandidateRetrievalMetadataRecordV1,
   type CapabilityQueryNormalizationResultV1,
 } from '@gitblocks/contracts';
@@ -67,9 +70,25 @@ export interface ApprovedMetadataLexicalAuthorityInputV1 {
   readonly metadataAuthority: unknown;
   readonly taxonomy: unknown;
   readonly retrievalExpansionAuthority: unknown;
+  readonly expectedMetadataAuthorityBinding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1;
+  readonly expectedCandidates: readonly ExpectedCandidateRetrievalMetadataCandidateV1[];
+}
+
+export interface ExpectedCandidateRetrievalMetadataAuthorityBindingV1 {
+  readonly authorityVersion: CandidateRetrievalMetadataAuthorityV1['authorityVersion'];
   readonly catalogVersion: string;
   readonly catalogDigest: string;
-  readonly candidateIds: readonly string[];
+  readonly providerPolicyVersion: CandidateRetrievalMetadataAuthorityV1['providerPolicyVersion'];
+  readonly providerPolicyDigest: string;
+  readonly sourceProviderPolicyVersion: CandidateRetrievalMetadataAuthorityV1['sourceProviderPolicyVersion'];
+  readonly sourceProviderPolicyDigest: string;
+  readonly sourceOperation: CandidateRetrievalMetadataAuthorityV1['sourceOperation'];
+}
+
+export interface ExpectedCandidateRetrievalMetadataCandidateV1 {
+  readonly candidateId: string;
+  readonly canonicalOwner: string;
+  readonly canonicalRepository: string;
 }
 
 /**
@@ -89,17 +108,33 @@ export function createApprovedMetadataLexicalChannelV1(
   if (!metadata.ok || !taxonomy.ok || !expansion.ok) {
     return { ok: false, issue: 'invalid-authority' };
   }
-  const expectedCandidateIds = uniqueSorted(input.candidateIds);
-  const authorityCandidateIds = metadata.value.candidates.map(
-    ({ candidateId }) => candidateId,
-  );
+  const expectedBinding = input.expectedMetadataAuthorityBinding;
+  const expectedCandidates = expectedCandidatesById(input.expectedCandidates);
   if (
-    expectedCandidateIds.length !== input.candidateIds.length ||
-    metadata.value.catalogVersion !== input.catalogVersion ||
-    metadata.value.catalogDigest !== input.catalogDigest ||
+    !validExpectedBinding(expectedBinding) ||
+    expectedCandidates === null ||
+    metadata.value.authorityVersion !== expectedBinding.authorityVersion ||
+    metadata.value.catalogVersion !== expectedBinding.catalogVersion ||
+    metadata.value.catalogDigest !== expectedBinding.catalogDigest ||
+    metadata.value.providerPolicyVersion !==
+      expectedBinding.providerPolicyVersion ||
+    metadata.value.providerPolicyDigest !==
+      expectedBinding.providerPolicyDigest ||
+    metadata.value.sourceProviderPolicyVersion !==
+      expectedBinding.sourceProviderPolicyVersion ||
+    metadata.value.sourceProviderPolicyDigest !==
+      expectedBinding.sourceProviderPolicyDigest ||
+    metadata.value.sourceOperation !== expectedBinding.sourceOperation ||
     taxonomy.value.taxonomyVersion !== expansion.value.taxonomyVersion ||
     taxonomy.value.semanticDigest !== expansion.value.taxonomySemanticDigest ||
-    !sameStrings(authorityCandidateIds, expectedCandidateIds)
+    metadata.value.candidates.length !== input.expectedCandidates.length ||
+    metadata.value.candidates.some((candidate) => {
+      const expected = expectedCandidates.get(candidate.candidateId);
+      return (
+        expected === undefined ||
+        repositoryIdentityKey(candidate) !== repositoryIdentityKey(expected)
+      );
+    })
   ) {
     return { ok: false, issue: 'authority-binding-mismatch' };
   }
@@ -285,14 +320,50 @@ function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort(compareAscii);
 }
 
-function sameStrings(
-  left: readonly string[],
-  right: readonly string[],
+function expectedCandidatesById(
+  candidates: readonly ExpectedCandidateRetrievalMetadataCandidateV1[],
+): ReadonlyMap<string, ExpectedCandidateRetrievalMetadataCandidateV1> | null {
+  const byId = new Map<string, ExpectedCandidateRetrievalMetadataCandidateV1>();
+  const repositories = new Set<string>();
+  for (const candidate of candidates) {
+    const repositoryKey = repositoryIdentityKey(candidate);
+    if (
+      !/^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u.test(candidate.candidateId) ||
+      !/^[A-Za-z0-9_.-]{1,100}$/u.test(candidate.canonicalOwner) ||
+      !/^[A-Za-z0-9_.-]{1,100}$/u.test(candidate.canonicalRepository) ||
+      byId.has(candidate.candidateId) ||
+      repositories.has(repositoryKey)
+    ) {
+      return null;
+    }
+    byId.set(candidate.candidateId, candidate);
+    repositories.add(repositoryKey);
+  }
+  return byId;
+}
+
+function validExpectedBinding(
+  binding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1,
 ): boolean {
+  const safeVersion = /^[a-z0-9][a-z0-9./-]{0,127}$/u;
+  const digest = /^[a-f0-9]{64}$/u;
   return (
-    left.length === right.length &&
-    left.every((value, index) => value === right[index])
+    safeVersion.test(binding.authorityVersion) &&
+    /^[a-z0-9](?:[a-z0-9.-]{0,62}[a-z0-9])?$/u.test(binding.catalogVersion) &&
+    digest.test(binding.catalogDigest) &&
+    safeVersion.test(binding.providerPolicyVersion) &&
+    digest.test(binding.providerPolicyDigest) &&
+    safeVersion.test(binding.sourceProviderPolicyVersion) &&
+    digest.test(binding.sourceProviderPolicyDigest) &&
+    safeVersion.test(binding.sourceOperation)
   );
+}
+
+function repositoryIdentityKey(candidate: {
+  readonly canonicalOwner: string;
+  readonly canonicalRepository: string;
+}): string {
+  return `${candidate.canonicalOwner}/${candidate.canonicalRepository}`.toLowerCase();
 }
 
 function compareAscii(left: string, right: string): number {

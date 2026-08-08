@@ -9,6 +9,7 @@ import {
   CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT,
   CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_PATH,
   CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_PATH,
+  CANDIDATE_RETRIEVAL_METADATA_STAGING_PATH,
   collectCandidateRetrievalMetadataAuthority,
   executeCandidateRetrievalMetadataCollection,
   parseCandidateRetrievalMetadataProviderPolicy,
@@ -28,13 +29,18 @@ describe('candidate retrieval metadata collection boundary', () => {
     const credential = vi.fn(() => 'must-not-be-read');
     const network = vi.fn();
     const write = vi.fn();
+    const missingChecks: string[] = [];
     const result = await preflightCandidateRetrievalMetadataCollection({
       readFixedFile,
-      requireOutputMissing: (path) => {
-        expect(path).toBe(CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH);
+      requirePathMissing: (path) => {
+        missingChecks.push(path);
         return Promise.resolve();
       },
     });
+    expect(missingChecks).toEqual([
+      CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH,
+      CANDIDATE_RETRIEVAL_METADATA_STAGING_PATH,
+    ]);
     expect(result.catalog.candidates).toHaveLength(150);
     expect(result.envelope.policy.allowedOperations).toEqual([
       'github-repository-metadata',
@@ -126,14 +132,14 @@ describe('candidate retrieval metadata collection boundary', () => {
 
   it('binds the policy digest and accesses a fake credential only after preflight', async () => {
     const reads: string[] = [];
-    const writes: string[] = [];
+    const publications: string[] = [];
     const fakeAuthority = vi.fn();
     const base: CandidateRetrievalMetadataCollectionEffects = {
       readFixedFile: async (path) => {
         reads.push(path);
         return readFixedFile(path);
       },
-      requireOutputMissing: () => Promise.resolve(),
+      requirePathMissing: () => Promise.resolve(),
       readCredential: (name) => {
         expect(name).toBe(
           CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT,
@@ -172,8 +178,17 @@ describe('candidate retrieval metadata collection boundary', () => {
         fakeAuthority(authority);
         return authority;
       },
-      writeExclusive: (path) => {
-        writes.push(path);
+      stageExclusive: (path, text) => {
+        expect(text.endsWith('\n')).toBe(true);
+        publications.push(`stage:${path}`);
+        return Promise.resolve();
+      },
+      publishStagedExclusive: (stagingPath, finalPath) => {
+        publications.push(`publish:${stagingPath}:${finalPath}`);
+        return Promise.resolve();
+      },
+      removeOwnedStaging: (path) => {
+        publications.push(`cleanup:${path}`);
         return Promise.resolve();
       },
     };
@@ -187,7 +202,10 @@ describe('candidate retrieval metadata collection boundary', () => {
       CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_PATH,
     ]);
     expect(fakeAuthority).toHaveBeenCalledOnce();
-    expect(writes).toEqual([CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH]);
+    expect(publications).toEqual([
+      `stage:${CANDIDATE_RETRIEVAL_METADATA_STAGING_PATH}`,
+      `publish:${CANDIDATE_RETRIEVAL_METADATA_STAGING_PATH}:${CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH}`,
+    ]);
   }, 30_000);
 
   it('rejects drift in the narrow policy before collection', async () => {

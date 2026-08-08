@@ -251,6 +251,26 @@ primary language 100 only when query-authorized; a term uses its strongest
 source once and the component cap is 900. The rule is global and fixed before
 live collection.
 
+The metadata consumer authenticates a supplied snapshot against a separately
+injected caller-owned binding: authority and catalog identity, both provider
+policy identities, source operation, and the complete candidate-to-canonical-
+repository projection. Internal snapshot digests establish self-integrity but
+cannot substitute for this external authority binding. Retrieval owns the
+comparison contract and imports neither ingestion policy artifacts nor
+evaluation tooling.
+
+Future canonical publication uses the fixed sibling staging path
+`catalog/public-v1/.candidate-retrieval-metadata-authority.json.staging`.
+Complete validated bytes are created exclusively and synced there before a
+same-directory hard link publishes them without replacement; the staging link
+is then removed and the directory synced. Both final and staging paths must be
+absent before credential or network access. A read-only
+`pnpm retrieval:metadata:validate` command independently rechecks the fixed
+snapshot against the catalog, both accepted policies, the source operation,
+repository closure, record/root digests, snapshot ID, bounds, and canonical
+ordering. The validator is intentionally outside ordinary verification until
+a real snapshot is independently accepted.
+
 The existing `repository-identity` field authorizes `displayName`; candidate
 identity therefore projects it under the same general lexical identity rule.
 The retrieval result, algorithm, and candidate-identity channel advance to

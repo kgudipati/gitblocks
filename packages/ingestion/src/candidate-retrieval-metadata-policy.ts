@@ -27,10 +27,14 @@ export const CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_PATH =
   'catalog/public-v1/candidate-retrieval-metadata-provider-policy.json' as const;
 export const CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH =
   'catalog/public-v1/candidate-retrieval-metadata-authority.json' as const;
+export const CANDIDATE_RETRIEVAL_METADATA_STAGING_PATH =
+  'catalog/public-v1/.candidate-retrieval-metadata-authority.json.staging' as const;
 export const CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT =
   'GITBLOCKS_RETRIEVAL_METADATA_GITHUB_TOKEN' as const;
 export const CANDIDATE_RETRIEVAL_METADATA_FUTURE_COLLECTION_COMMAND =
   'pnpm retrieval:metadata:collect' as const;
+export const CANDIDATE_RETRIEVAL_METADATA_VALIDATION_COMMAND =
+  'pnpm retrieval:metadata:validate' as const;
 
 export const CANDIDATE_RETRIEVAL_METADATA_RETAINED_FIELDS = Object.freeze([
   'canonical-owner',
