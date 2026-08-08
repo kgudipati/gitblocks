@@ -27,13 +27,29 @@ tests without a failing assertion. This acceptance authorizes Milestone 2 only;
 it does not accept production retrieval quality, the `proposed-not-reviewed`
 evaluation gold, a Milestone 2 implementation, or Phase 9 completion.
 
-Milestone 2 is now implemented on the Phase 9 branch and is pending independent
-review. The blind production benchmark currently measures macro Recall@10
+Independent maintainer rereview accepted Milestone 2 at
+`ce533e39588027048a522417782ada98afeb1489`, including its lane-local
+exact-identity correction. The latest hosted aggregate failure is accepted as
+a runner-infrastructure exception: the complete local authoritative suite
+passed, while unchanged workers were terminated under severe hosted-runner
+slowdown and the later explicit runner shutdown. This acceptance authorizes
+Milestone 3 only; it does not accept the evaluation gold, establish final
+production retrieval quality, authorize ranking or search infrastructure, or
+complete Phase 9.
+
+The accepted Milestone 2 blind production benchmark measures macro Recall@10
 `0.612295`, 25/25 positive-case hits, MRR `0.960000`, and NDCG@10 `0.769561`,
 with every zero-tolerance safety metric passing. The macro, audit-logging, and
 rate-limiting recall gaps remain explicit Milestone 3 work. These measurements
-do not alter the accepted gates, authorize Milestone 3, establish Phase 9
-completion, or accept the evaluation gold.
+do not alter the accepted gates, establish Phase 9 completion, or accept the
+evaluation gold.
+
+Milestone 3 implementation is pending independent review. Its development
+benchmark remains below the macro, audit-logging, and rate-limiting gates, so
+it does not authorize Milestone 4 or establish final retrieval quality. The
+measured limitation is sparse candidate-owned signal authority rather than a
+semantic-recall failure; the conditional vector trigger therefore remains
+inactive.
 
 ## Context
 
@@ -211,6 +227,17 @@ evaluation scores or gold labels. The contract exposes no recommendation,
 target-codebase fit, adoption-fit score, winner, integration advice, hidden
 universal repository-quality score, or ranking concept.
 
+Milestone 3 evolves the two existing contract families from `1.0.0` to
+`1.1.0` and the deterministic retrieval algorithm from `1.0.0` to `1.1.0`.
+This is a coordinated additive minor evolution on the unmerged, pre-public
+Phase 9 branch: request and result authority bindings now require the active
+expansion version and semantic digest; result diagnostics expose only bounded
+expansion counts; and identity-channel provenance may expose bounded matched
+expansion-edge IDs. It does not create another request or result root. The
+`candidate-identity` and `package-identity` channels advance to `1.1.0` because
+they consume expansion terms; family, taxonomy-concept, and structured-profile
+channels remain `1.0.0`.
+
 ### Hard constraints and retrieval lanes
 
 `@gitblocks/domain` remains the only authority for evaluating one normalized
@@ -289,12 +316,15 @@ The smallest useful deterministic production combination is:
    explicitly injected, versioned, repository-owned metadata authority.
 
 Milestone 2 implements channels 1–5, minimal deterministic union/fusion,
-provenance, bounds, and lane safety as one vertical slice. Channel 6 is not
-enabled merely because Phase 6 once collected artifact bodies: those bodies
-are not present in the current profile authority, and historical completion
-prose is not reconstructable input. Milestone 3 may enable the lexical channel
-only after its approved input authority, size bounds, normalization, and digest
-are explicit. Popularity or package downloads are not V1 channels.
+provenance, bounds, and lane safety as one vertical slice. Milestone 3 retains
+those five channels. Channel 6 remains disabled after repository inspection:
+no immutable repository- or package-owned descriptions, topics, keywords, or
+approved documentation bodies are present as a bounded retrieval authority.
+Phase 6 artifact manifests bind selections and receipts rather than retained
+artifact bodies, and catalog rationale is curator selection context rather
+than candidate-owned retrieval evidence. Historical completion, interview,
+catalog-rationale, or evaluation prose is not reconstructed as lexical input.
+Popularity or package downloads are not V1 channels.
 
 Package identity is the complete initial package channel. Broader package
 metadata is deferred because the current profile authority has no approved
@@ -310,12 +340,16 @@ repository-specific fit or general project quality.
 ### Controlled query expansion
 
 The taxonomy authority remains the authority for canonical concept and alias
-resolution. Broader retrieval expansion is a distinct product-owned,
-versioned, reviewed generated authority provisionally named
-`capability-retrieval-expansion/1.0.0`. It binds the exact taxonomy version and
-semantic digest, has a human-reviewable source and deterministic generated
-manifest, and records typed directed edges, source rationale, and a semantic
-digest.
+resolution. Broader retrieval expansion is the distinct product-owned,
+versioned generated authority
+`catalog/capability-retrieval-expansion/1.0.0`. It binds taxonomy `1.0.0` and
+taxonomy semantic digest
+`838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`.
+Its human-reviewable source deterministically generates 144 directed edges
+across 49 source concepts: 47 active taxonomy-alias edges and 97 proposed
+related-identity-term edges pending Milestone 3 review. The generated semantic digest is
+`1435521e117e2af18ec55bbf1f30e3f5d2f48fe07d54f0c657917ff027086f4a`.
+Every edge carries its type, rationale, and taxonomy source reference.
 
 Expansion is one hop, at most eight terms per source concept and 32 expanded
 terms per query. Rules are deterministic and may add only soft candidate
@@ -324,9 +358,25 @@ prohibited constraints, deployment requirements, license requirements, or
 user-confirmed exclusions. A constraint stays bound to its original source
 identity and modality. Expansion requires no LLM and cannot call one.
 
-Milestone 2 uses only current exact taxonomy resolution. Milestone 3 may add
-the separate expansion authority and bind its version and digest in every
-result after independent review.
+Milestone 3 applies expansion only to exact, bounded candidate/repository and
+package identity terms. It never free-text stringifies profiles or consumes
+candidate descriptions. Original normalized concepts are retained, targets
+are never recursively traversed, source and authority order use explicit ASCII
+comparators, and deterministic truncation keeps the first 32 canonical edges.
+The request and result bind the expansion version and digest.
+
+### Deterministic fusion
+
+Milestone 3 retains the Milestone 2 global integer components: primary family
+`200`, additional family `25`, exact taxonomy concept `400` per concept capped
+at `1,200`, exact candidate/repository reference `1,000`, exact package
+reference `900`, and known structured-profile concept `300` capped at `900`.
+Each distinct source concept matched through bounded identity expansion adds
+`100` to its candidate-identity or package-identity component, with each such
+channel capped at `2,000`. Candidate score is the integer sum of active channel
+components. Ordering is descending score followed by ASCII candidate ID. The
+rule is family- and candidate-independent and represents retrieval
+plausibility only.
 
 ### Deduplication and diversity
 

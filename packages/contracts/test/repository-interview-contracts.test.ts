@@ -1167,6 +1167,8 @@ describe('schema compatibility', () => {
       'deterministic-candidate-profile-authority',
       'candidate-retrieval-request',
       'candidate-retrieval-result',
+      'capability-retrieval-expansion',
+      'capability-retrieval-expansion-source',
     ]);
     for (const [name, digest] of Object.entries(EXISTING_SCHEMA_DIGESTS)) {
       expect(

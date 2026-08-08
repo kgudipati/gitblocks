@@ -369,6 +369,13 @@ function validateCandidate(
     if (binding?.channelVersion !== match.channelVersion) {
       issues.push(bindingIssue(`${path}/channelMatches`));
     }
+    if (
+      match.matchedExpansionEdgeIds.length > 0 &&
+      match.channelId !== 'candidate-identity' &&
+      match.channelId !== 'package-identity'
+    ) {
+      issues.push(bindingIssue(`${path}/channelMatches`));
+    }
   }
   if (
     score !== candidate.retrievalScore ||

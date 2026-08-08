@@ -76,6 +76,41 @@ describe('retrieval evaluation architecture', () => {
     expect(productText).not.toContain('evaluation-harness/src/retrieval');
   });
 
+  it('keeps production retrieval pure, gold-blind, and free of benchmark-specific tuning', () => {
+    const repositoryRoot = new URL('../../..', import.meta.url).pathname;
+    const retrievalRoot = join(repositoryRoot, 'packages/retrieval');
+    const manifest = JSON.parse(
+      readFileSync(join(retrievalRoot, 'package.json'), 'utf8'),
+    ) as { dependencies: Record<string, string> };
+    expect(manifest.dependencies).toEqual({
+      '@gitblocks/contracts': 'workspace:0.0.0',
+      '@gitblocks/domain': 'workspace:0.0.0',
+    });
+    const productSource = sourceFiles(join(retrievalRoot, 'src'))
+      .map((path) => readFileSync(path, 'utf8'))
+      .join('\n');
+    for (const forbidden of [
+      '@gitblocks/evaluation-harness',
+      'evals/retrieval-v1',
+      'caseId',
+      'relevanceGold',
+      'noResultGold',
+      'equivalenceGold',
+      'baselineOutput',
+      'node:fs',
+      'node:http',
+      'node:https',
+      'node:net',
+      'process.env',
+      'Math.random',
+      'localeCompare',
+      'RepositoryFingerprint',
+    ]) {
+      expect(productSource).not.toContain(forbidden);
+    }
+    expect(productSource).not.toMatch(/['"]ret-[a-z]/u);
+  });
+
   it('keeps the retrieval harness offline and outside ingestion, Phase 7, and models', () => {
     const root = new URL('../src/retrieval', import.meta.url).pathname;
     const text = sourceFiles(root)

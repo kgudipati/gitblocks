@@ -574,6 +574,8 @@ function validateRuntimeScripts(
     'test:coverage',
     'taxonomy:generate',
     'taxonomy:validate',
+    'retrieval:expansion:generate',
+    'retrieval:expansion:validate',
     'ingest:live',
     'ingest:receipt',
     'ingestion:test',
@@ -625,6 +627,10 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts --write',
     'taxonomy:validate':
       'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts',
+    'retrieval:expansion:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/retrieval-expansion-cli.ts --write',
+    'retrieval:expansion:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/retrieval-expansion-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
     'catalog:seed':
@@ -717,7 +723,10 @@ function validateRuntimeScripts(
     !verifyCore.includes(
       'node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production',
     ) ||
-    !verifyCore.includes('node packages/contracts/scripts/taxonomy-cli.ts')
+    !verifyCore.includes('node packages/contracts/scripts/taxonomy-cli.ts') ||
+    !verifyCore.includes(
+      'node packages/contracts/scripts/retrieval-expansion-cli.ts',
+    )
   ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:core', manifestPath));
   }

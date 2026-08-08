@@ -1,0 +1,1597 @@
+{
+  "contractVersion": "1.0.0",
+  "expansionVersion": "capability-retrieval-expansion/1.0.0",
+  "taxonomyVersion": "1.0.0",
+  "taxonomySemanticDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+  "edges": [
+    {
+      "sourceConceptId": "actor-request-context",
+      "targetTerm": "actor",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Actor and request context is commonly exposed through bounded request, tenant, correlation, and HTTP identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "actor-request-context"
+      },
+      "edgeId": "expansion-edge-114f41e01948bb93212bf0b73c7e37b1"
+    },
+    {
+      "sourceConceptId": "actor-request-context",
+      "targetTerm": "context",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Actor and request context is commonly exposed through bounded request, tenant, correlation, and HTTP identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "actor-request-context"
+      },
+      "edgeId": "expansion-edge-12e9ad17050263f1152464e0d940c85c"
+    },
+    {
+      "sourceConceptId": "actor-request-context",
+      "targetTerm": "correlation",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Actor and request context is commonly exposed through bounded request, tenant, correlation, and HTTP identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "actor-request-context"
+      },
+      "edgeId": "expansion-edge-0f01531c9572b43d9c76b4d64c8e1808"
+    },
+    {
+      "sourceConceptId": "actor-request-context",
+      "targetTerm": "http",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Actor and request context is commonly exposed through bounded request, tenant, correlation, and HTTP identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "actor-request-context"
+      },
+      "edgeId": "expansion-edge-6972cbe93834d4700cc3e26f93323af4"
+    },
+    {
+      "sourceConceptId": "actor-request-context",
+      "targetTerm": "request",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Actor and request context is commonly exposed through bounded request, tenant, correlation, and HTTP identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "actor-request-context"
+      },
+      "edgeId": "expansion-edge-bfd4a7dd15f360e55325425464eb7661"
+    },
+    {
+      "sourceConceptId": "actor-request-context",
+      "targetTerm": "tenant",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Actor and request context is commonly exposed through bounded request, tenant, correlation, and HTTP identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "actor-request-context"
+      },
+      "edgeId": "expansion-edge-4c8a731eb655139c245c8f1bb37fc31b"
+    },
+    {
+      "sourceConceptId": "always-on-worker",
+      "targetTerm": "worker-process",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "worker-process"
+      },
+      "edgeId": "expansion-edge-8c67cb05f0cecf8db633cc8c9e8b4824"
+    },
+    {
+      "sourceConceptId": "attribute-based-access-control",
+      "targetTerm": "abac",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "abac"
+      },
+      "edgeId": "expansion-edge-7218d463934234684ffb76c9fafbefa6"
+    },
+    {
+      "sourceConceptId": "attribute-based-access-control",
+      "targetTerm": "attribute",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Attribute-based decisions commonly identify attributes, claims, or contextual inputs.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "attribute-based-access-control"
+      },
+      "edgeId": "expansion-edge-bd977f2510dc6777ecf70af5335feba1"
+    },
+    {
+      "sourceConceptId": "attribute-based-access-control",
+      "targetTerm": "attributes",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Attribute-based decisions commonly identify attributes, claims, or contextual inputs.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "attribute-based-access-control"
+      },
+      "edgeId": "expansion-edge-9094d2cebdb98973a0cb2804578764e8"
+    },
+    {
+      "sourceConceptId": "attribute-based-access-control",
+      "targetTerm": "claims",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Attribute-based decisions commonly identify attributes, claims, or contextual inputs.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "attribute-based-access-control"
+      },
+      "edgeId": "expansion-edge-07735a9d8f9ddd705844574fff10b008"
+    },
+    {
+      "sourceConceptId": "attribute-based-access-control",
+      "targetTerm": "context",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Attribute-based decisions commonly identify attributes, claims, or contextual inputs.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "attribute-based-access-control"
+      },
+      "edgeId": "expansion-edge-e69a833ef6028fdcb196be1e9e522ada"
+    },
+    {
+      "sourceConceptId": "audit-logging",
+      "targetTerm": "audit-log",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "audit-log"
+      },
+      "edgeId": "expansion-edge-aadfd3736712f35ff6469d5728e8325b"
+    },
+    {
+      "sourceConceptId": "audit-logging",
+      "targetTerm": "audit-trail",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "audit-trail"
+      },
+      "edgeId": "expansion-edge-87ab49b51fc5cebeec4c5357d431a02f"
+    },
+    {
+      "sourceConceptId": "audit-pipeline-router",
+      "targetTerm": "audit-log-router",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "audit-log-router"
+      },
+      "edgeId": "expansion-edge-b74e83b4a5a4683345e2e1ca8c7ddb72"
+    },
+    {
+      "sourceConceptId": "audit-querying",
+      "targetTerm": "analytics",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Audit querying is commonly identified by bounded query, search, or analytics terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-querying"
+      },
+      "edgeId": "expansion-edge-40b0d4e83ec3ad23abfaa5c8be12ad08"
+    },
+    {
+      "sourceConceptId": "audit-querying",
+      "targetTerm": "query",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Audit querying is commonly identified by bounded query, search, or analytics terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-querying"
+      },
+      "edgeId": "expansion-edge-a26981e1d18da7b944fcd643bd85d465"
+    },
+    {
+      "sourceConceptId": "audit-querying",
+      "targetTerm": "search",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Audit querying is commonly identified by bounded query, search, or analytics terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-querying"
+      },
+      "edgeId": "expansion-edge-bfd185c77a6c681ecff7a3cbdb19f72d"
+    },
+    {
+      "sourceConceptId": "audit-retention",
+      "targetTerm": "archive",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Audit retention commonly appears as archival or rotation behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-retention"
+      },
+      "edgeId": "expansion-edge-eb1265b372075de9afa45a380d772dfa"
+    },
+    {
+      "sourceConceptId": "audit-retention",
+      "targetTerm": "retention",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Audit retention commonly appears as archival or rotation behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-retention"
+      },
+      "edgeId": "expansion-edge-760cd3ee228e4301fe5aee5372ced080"
+    },
+    {
+      "sourceConceptId": "audit-retention",
+      "targetTerm": "rotate",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Audit retention commonly appears as archival or rotation behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-retention"
+      },
+      "edgeId": "expansion-edge-098837ef3df87d1e37d46d1ea6ebfbe8"
+    },
+    {
+      "sourceConceptId": "audit-retention",
+      "targetTerm": "rotation",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Audit retention commonly appears as archival or rotation behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-retention"
+      },
+      "edgeId": "expansion-edge-2ee888e58e996339f6066c36f7848a8e"
+    },
+    {
+      "sourceConceptId": "audit-storage-search-service",
+      "targetTerm": "audit-store",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "audit-store"
+      },
+      "edgeId": "expansion-edge-156b33fb5731476ec52e944790a20516"
+    },
+    {
+      "sourceConceptId": "authorization",
+      "targetTerm": "authorisation",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "authorisation"
+      },
+      "edgeId": "expansion-edge-4bfeaa5e705b378bc85091a137d2a08f"
+    },
+    {
+      "sourceConceptId": "authorization",
+      "targetTerm": "authz",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "authz"
+      },
+      "edgeId": "expansion-edge-36a0b22d896913a9737072b102a4403b"
+    },
+    {
+      "sourceConceptId": "background-jobs",
+      "targetTerm": "background-job",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "background-job"
+      },
+      "edgeId": "expansion-edge-aefa14fac0426d4289e28681a5fac71f"
+    },
+    {
+      "sourceConceptId": "concurrency-control",
+      "targetTerm": "concurrency",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Concurrency control commonly uses bounded concurrency, parallelism, or semaphore terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "concurrency-control"
+      },
+      "edgeId": "expansion-edge-ef97e35603bf93d92b56f8c52384eef2"
+    },
+    {
+      "sourceConceptId": "concurrency-control",
+      "targetTerm": "concurrent",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Concurrency control commonly uses bounded concurrency, parallelism, or semaphore terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "concurrency-control"
+      },
+      "edgeId": "expansion-edge-f7d6a7f0e10a0502ecdeda80ded621b3"
+    },
+    {
+      "sourceConceptId": "concurrency-control",
+      "targetTerm": "parallel",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Concurrency control commonly uses bounded concurrency, parallelism, or semaphore terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "concurrency-control"
+      },
+      "edgeId": "expansion-edge-5788d0ae49e41bc65bc71b90f5a7deb1"
+    },
+    {
+      "sourceConceptId": "concurrency-control",
+      "targetTerm": "semaphore",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Concurrency control commonly uses bounded concurrency, parallelism, or semaphore terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "concurrency-control"
+      },
+      "edgeId": "expansion-edge-84f2c356556d44460ac0a98bbbeef93c"
+    },
+    {
+      "sourceConceptId": "database-backed-job-queue",
+      "targetTerm": "database",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Database-backed queues commonly identify their database or PostgreSQL coordination substrate.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "database-backed-job-queue"
+      },
+      "edgeId": "expansion-edge-2d9a8c5ca55d7a3ab3cd1b4bfd261828"
+    },
+    {
+      "sourceConceptId": "database-backed-job-queue",
+      "targetTerm": "db",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Database-backed queues commonly identify their database or PostgreSQL coordination substrate.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "database-backed-job-queue"
+      },
+      "edgeId": "expansion-edge-ec25b46b21a301cf2f46044745467011"
+    },
+    {
+      "sourceConceptId": "database-backed-job-queue",
+      "targetTerm": "pg",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Database-backed queues commonly identify their database or PostgreSQL coordination substrate.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "database-backed-job-queue"
+      },
+      "edgeId": "expansion-edge-96e8f16f9fa055bbabf38ae3afb7e05a"
+    },
+    {
+      "sourceConceptId": "database-backed-job-queue",
+      "targetTerm": "postgres",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Database-backed queues commonly identify their database or PostgreSQL coordination substrate.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "database-backed-job-queue"
+      },
+      "edgeId": "expansion-edge-8a568c30587319f1e885b7e9b67c8610"
+    },
+    {
+      "sourceConceptId": "database-backed-job-queue",
+      "targetTerm": "postgresql",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Database-backed queues commonly identify their database or PostgreSQL coordination substrate.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "database-backed-job-queue"
+      },
+      "edgeId": "expansion-edge-b7eb89f99e169a59a2e5cc41849dec41"
+    },
+    {
+      "sourceConceptId": "database-backed-job-queue",
+      "targetTerm": "sql",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Database-backed queues commonly identify their database or PostgreSQL coordination substrate.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "database-backed-job-queue"
+      },
+      "edgeId": "expansion-edge-56709530c1a5bd97eafc39e43a9db787"
+    },
+    {
+      "sourceConceptId": "database-extension",
+      "targetTerm": "db-extension",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "db-extension"
+      },
+      "edgeId": "expansion-edge-f55b17ce76265470fd133e2727c21aca"
+    },
+    {
+      "sourceConceptId": "delayed-jobs",
+      "targetTerm": "cron",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Delayed work commonly appears through scheduling, cron, recurrence, or delay identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "delayed-jobs"
+      },
+      "edgeId": "expansion-edge-77e36c7f662768eef0525e720ae61b63"
+    },
+    {
+      "sourceConceptId": "delayed-jobs",
+      "targetTerm": "delay",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Delayed work commonly appears through scheduling, cron, recurrence, or delay identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "delayed-jobs"
+      },
+      "edgeId": "expansion-edge-bd8fc939086e19ee349beb708c73e7da"
+    },
+    {
+      "sourceConceptId": "delayed-jobs",
+      "targetTerm": "delayed-job",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "delayed-job"
+      },
+      "edgeId": "expansion-edge-abd3fdaea4725fbbf92add3fc8b66f6f"
+    },
+    {
+      "sourceConceptId": "delayed-jobs",
+      "targetTerm": "recurring",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Delayed work commonly appears through scheduling, cron, recurrence, or delay identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "delayed-jobs"
+      },
+      "edgeId": "expansion-edge-847bf67c28d62ec7bd109e8390a37209"
+    },
+    {
+      "sourceConceptId": "delayed-jobs",
+      "targetTerm": "schedule",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Delayed work commonly appears through scheduling, cron, recurrence, or delay identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "delayed-jobs"
+      },
+      "edgeId": "expansion-edge-852b702de4f8167663358037ff89ea94"
+    },
+    {
+      "sourceConceptId": "delayed-jobs",
+      "targetTerm": "scheduled",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Delayed work commonly appears through scheduling, cron, recurrence, or delay identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "delayed-jobs"
+      },
+      "edgeId": "expansion-edge-a6117e0be5ed269d4ef223dc66a5d9d1"
+    },
+    {
+      "sourceConceptId": "delayed-jobs",
+      "targetTerm": "scheduler",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Delayed work commonly appears through scheduling, cron, recurrence, or delay identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "delayed-jobs"
+      },
+      "edgeId": "expansion-edge-63b5bcdc6b1c9e41940d2982921fa641"
+    },
+    {
+      "sourceConceptId": "distributed-enforcement",
+      "targetTerm": "cluster",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Distributed enforcement commonly identifies shared, clustered, global, or Redis-backed coordination.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "distributed-enforcement"
+      },
+      "edgeId": "expansion-edge-8571d9e5696cd3e6ac653e8a988467ad"
+    },
+    {
+      "sourceConceptId": "distributed-enforcement",
+      "targetTerm": "distributed",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Distributed enforcement commonly identifies shared, clustered, global, or Redis-backed coordination.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "distributed-enforcement"
+      },
+      "edgeId": "expansion-edge-d6f26b3286902ae56794d026a0c5dae2"
+    },
+    {
+      "sourceConceptId": "distributed-enforcement",
+      "targetTerm": "distributed-rate-limiting",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "distributed-rate-limiting"
+      },
+      "edgeId": "expansion-edge-3393d03e625ce46eaee12748172e7561"
+    },
+    {
+      "sourceConceptId": "distributed-enforcement",
+      "targetTerm": "global",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Distributed enforcement commonly identifies shared, clustered, global, or Redis-backed coordination.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "distributed-enforcement"
+      },
+      "edgeId": "expansion-edge-78f721ddb0ce0babb9ea5e9360636abe"
+    },
+    {
+      "sourceConceptId": "distributed-enforcement",
+      "targetTerm": "redis",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Distributed enforcement commonly identifies shared, clustered, global, or Redis-backed coordination.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "distributed-enforcement"
+      },
+      "edgeId": "expansion-edge-4ea4ad739fbad5c37b03111155c6e4e4"
+    },
+    {
+      "sourceConceptId": "distributed-enforcement",
+      "targetTerm": "shared",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Distributed enforcement commonly identifies shared, clustered, global, or Redis-backed coordination.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "distributed-enforcement"
+      },
+      "edgeId": "expansion-edge-e73bcf845fdfe8a7c0cf509f4013d2e3"
+    },
+    {
+      "sourceConceptId": "durable-execution-platform",
+      "targetTerm": "durable-execution",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "durable-execution"
+      },
+      "edgeId": "expansion-edge-ab44268745bb3a9b52152fe9a657593d"
+    },
+    {
+      "sourceConceptId": "endpoint-management",
+      "targetTerm": "endpoint",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Endpoint management commonly identifies endpoints or subscriptions.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "endpoint-management"
+      },
+      "edgeId": "expansion-edge-aee3ae0d8daeb3a9fad141e064426a64"
+    },
+    {
+      "sourceConceptId": "endpoint-management",
+      "targetTerm": "endpoints",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Endpoint management commonly identifies endpoints or subscriptions.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "endpoint-management"
+      },
+      "edgeId": "expansion-edge-29f12990011044fc9af35fe7411dcfd3"
+    },
+    {
+      "sourceConceptId": "endpoint-management",
+      "targetTerm": "subscription",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Endpoint management commonly identifies endpoints or subscriptions.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "endpoint-management"
+      },
+      "edgeId": "expansion-edge-28f6aad4734a2a5422219c115108bcf0"
+    },
+    {
+      "sourceConceptId": "endpoint-management",
+      "targetTerm": "subscriptions",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Endpoint management commonly identifies endpoints or subscriptions.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "endpoint-management"
+      },
+      "edgeId": "expansion-edge-6087d5fc66e0efca8f305c68fd1052ab"
+    },
+    {
+      "sourceConceptId": "external-policy-decision-point",
+      "targetTerm": "pdp",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "pdp"
+      },
+      "edgeId": "expansion-edge-3529f9971cb97a6a23345d266257c599"
+    },
+    {
+      "sourceConceptId": "framework-audit-middleware",
+      "targetTerm": "audit-middleware",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "audit-middleware"
+      },
+      "edgeId": "expansion-edge-1f62285c7849c77d56f944daab144264"
+    },
+    {
+      "sourceConceptId": "framework-authorization-middleware",
+      "targetTerm": "authorization-middleware",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "authorization-middleware"
+      },
+      "edgeId": "expansion-edge-b19bb29f5aa73f00f74c7b9393f1bd1b"
+    },
+    {
+      "sourceConceptId": "gateway-plugin",
+      "targetTerm": "gateway-extension",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "gateway-extension"
+      },
+      "edgeId": "expansion-edge-5fb419e09a336866230b2863361de03a"
+    },
+    {
+      "sourceConceptId": "gcra",
+      "targetTerm": "gcra-limiter",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "gcra-limiter"
+      },
+      "edgeId": "expansion-edge-26484a5d5914a1cec59fee6caa9145b4"
+    },
+    {
+      "sourceConceptId": "in-process-authorization-library",
+      "targetTerm": "authorization-library",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "authorization-library"
+      },
+      "edgeId": "expansion-edge-0be3505c3224d2a0ed99b2c8592d4dcd"
+    },
+    {
+      "sourceConceptId": "in-process-embedded",
+      "targetTerm": "embedded",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "embedded"
+      },
+      "edgeId": "expansion-edge-ea12154b9f4915d6d539e6912e0a2485"
+    },
+    {
+      "sourceConceptId": "inbound-webhook-receiver",
+      "targetTerm": "inbound-webhook",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "inbound-webhook"
+      },
+      "edgeId": "expansion-edge-03118dd57ccb934986c8d82a2c15ebe7"
+    },
+    {
+      "sourceConceptId": "inbound-webhook-receiver",
+      "targetTerm": "webhook-receiver",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "webhook-receiver"
+      },
+      "edgeId": "expansion-edge-18b217e9a76e826990cedeb5d9c5e172"
+    },
+    {
+      "sourceConceptId": "kubernetes",
+      "targetTerm": "k8s",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "k8s"
+      },
+      "edgeId": "expansion-edge-64e8b73934f2332cc0031390aa22e811"
+    },
+    {
+      "sourceConceptId": "managed-service",
+      "targetTerm": "saas",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "saas"
+      },
+      "edgeId": "expansion-edge-0e9889212702bdf613e3eb516e4e9e36"
+    },
+    {
+      "sourceConceptId": "message-broker",
+      "targetTerm": "message-queue",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "message-queue"
+      },
+      "edgeId": "expansion-edge-b81d176aedf82562228548cbca4d89b4"
+    },
+    {
+      "sourceConceptId": "outbound-webhook-dispatcher",
+      "targetTerm": "outbound-webhook",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "outbound-webhook"
+      },
+      "edgeId": "expansion-edge-f1fa12128bb9e7ab46a2cbe7e16d59b7"
+    },
+    {
+      "sourceConceptId": "outbound-webhook-dispatcher",
+      "targetTerm": "webhook-dispatcher",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "webhook-dispatcher"
+      },
+      "edgeId": "expansion-edge-8b73e5918c88b642bddd02b84509bb82"
+    },
+    {
+      "sourceConceptId": "policy-as-code",
+      "targetTerm": "declarative",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Policy-as-code commonly identifies declarative policy or rule artifacts.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "policy-as-code"
+      },
+      "edgeId": "expansion-edge-4ad535b52b52accd14fd58874fe73d55"
+    },
+    {
+      "sourceConceptId": "policy-as-code",
+      "targetTerm": "policies",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Policy-as-code commonly identifies declarative policy or rule artifacts.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "policy-as-code"
+      },
+      "edgeId": "expansion-edge-557881716d64423069f3ad3ae8614255"
+    },
+    {
+      "sourceConceptId": "policy-as-code",
+      "targetTerm": "policy",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Policy-as-code commonly identifies declarative policy or rule artifacts.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "policy-as-code"
+      },
+      "edgeId": "expansion-edge-bde8b9e60f990eab9620c7af471e81b4"
+    },
+    {
+      "sourceConceptId": "policy-as-code",
+      "targetTerm": "policy-code",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "policy-code"
+      },
+      "edgeId": "expansion-edge-6bf39e194ba9226a7bebfcd661cb98d8"
+    },
+    {
+      "sourceConceptId": "policy-as-code",
+      "targetTerm": "rules",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Policy-as-code commonly identifies declarative policy or rule artifacts.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "policy-as-code"
+      },
+      "edgeId": "expansion-edge-7af6234fb8bec9746cb3169285bae480"
+    },
+    {
+      "sourceConceptId": "postgresql",
+      "targetTerm": "postgres",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "postgres"
+      },
+      "edgeId": "expansion-edge-dcc9404b5f465a0c32e289fd6148dd18"
+    },
+    {
+      "sourceConceptId": "quota",
+      "targetTerm": "request-quota",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "request-quota"
+      },
+      "edgeId": "expansion-edge-db0e5cb8b57f33cb650256c247ce11ef"
+    },
+    {
+      "sourceConceptId": "rate-limiting",
+      "targetTerm": "rate-limit",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "rate-limit"
+      },
+      "edgeId": "expansion-edge-fc0bb9188d50ba91288c3d0940092bd0"
+    },
+    {
+      "sourceConceptId": "rate-limiting",
+      "targetTerm": "rate-limiter",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "rate-limiter"
+      },
+      "edgeId": "expansion-edge-ed2a0608b40328ed5716439ce566c3a7"
+    },
+    {
+      "sourceConceptId": "recurring-schedules",
+      "targetTerm": "cron",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Recurring schedules commonly use cron, repeat, recurrence, or scheduling terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "recurring-schedules"
+      },
+      "edgeId": "expansion-edge-79b28af5c012cf5364f03dccf45f023c"
+    },
+    {
+      "sourceConceptId": "recurring-schedules",
+      "targetTerm": "cron-scheduler",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "cron-scheduler"
+      },
+      "edgeId": "expansion-edge-530d04e1f5313c97d1a9693fc19da713"
+    },
+    {
+      "sourceConceptId": "recurring-schedules",
+      "targetTerm": "recurring",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Recurring schedules commonly use cron, repeat, recurrence, or scheduling terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "recurring-schedules"
+      },
+      "edgeId": "expansion-edge-78e3412fdc288e7bf172e070e1d7a7ba"
+    },
+    {
+      "sourceConceptId": "recurring-schedules",
+      "targetTerm": "repeat",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Recurring schedules commonly use cron, repeat, recurrence, or scheduling terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "recurring-schedules"
+      },
+      "edgeId": "expansion-edge-0f07e2417ca56bdffb55dd466aa3c114"
+    },
+    {
+      "sourceConceptId": "recurring-schedules",
+      "targetTerm": "repeatable",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Recurring schedules commonly use cron, repeat, recurrence, or scheduling terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "recurring-schedules"
+      },
+      "edgeId": "expansion-edge-5ad3517f69d02edddf3ec1847f5cb194"
+    },
+    {
+      "sourceConceptId": "recurring-schedules",
+      "targetTerm": "schedule",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Recurring schedules commonly use cron, repeat, recurrence, or scheduling terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "recurring-schedules"
+      },
+      "edgeId": "expansion-edge-d09e54fd1d1dccf495fb9ec2a579ec3a"
+    },
+    {
+      "sourceConceptId": "recurring-schedules",
+      "targetTerm": "scheduler",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Recurring schedules commonly use cron, repeat, recurrence, or scheduling terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "recurring-schedules"
+      },
+      "edgeId": "expansion-edge-9e6a4b9692b8764ff55d8714478418c0"
+    },
+    {
+      "sourceConceptId": "redelivery",
+      "targetTerm": "backoff",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook redelivery commonly identifies retry and backoff behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "redelivery"
+      },
+      "edgeId": "expansion-edge-e5cf669f19a67ad5cd639b720f6c45ac"
+    },
+    {
+      "sourceConceptId": "redelivery",
+      "targetTerm": "redelivery",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook redelivery commonly identifies retry and backoff behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "redelivery"
+      },
+      "edgeId": "expansion-edge-5fd0162bbaf495fd80350783bd4eb1f7"
+    },
+    {
+      "sourceConceptId": "redelivery",
+      "targetTerm": "retries",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook redelivery commonly identifies retry and backoff behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "redelivery"
+      },
+      "edgeId": "expansion-edge-8d2744f1c61672fb2403cfa4baae1ddc"
+    },
+    {
+      "sourceConceptId": "redelivery",
+      "targetTerm": "retry",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook redelivery commonly identifies retry and backoff behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "redelivery"
+      },
+      "edgeId": "expansion-edge-1fbdadef1d0cabfd72ccbc5abff89d96"
+    },
+    {
+      "sourceConceptId": "redis",
+      "targetTerm": "redis-store",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "redis-store"
+      },
+      "edgeId": "expansion-edge-3f338fc862fd16a39c4f855af50e8260"
+    },
+    {
+      "sourceConceptId": "relationship-authorization-service",
+      "targetTerm": "tuple-based-authorization",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "tuple-based-authorization"
+      },
+      "edgeId": "expansion-edge-de3d599d5e0994abb761f85199baf8df"
+    },
+    {
+      "sourceConceptId": "relationship-based-access-control",
+      "targetTerm": "rebac",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "rebac"
+      },
+      "edgeId": "expansion-edge-4e4c3b8316e8449de5fa6621bc80bb52"
+    },
+    {
+      "sourceConceptId": "relationship-based-access-control",
+      "targetTerm": "relation",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Relationship-based decisions commonly identify relations, relationships, or tuples.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "relationship-based-access-control"
+      },
+      "edgeId": "expansion-edge-73ae35388e694d8d31b88e8c333719e8"
+    },
+    {
+      "sourceConceptId": "relationship-based-access-control",
+      "targetTerm": "relations",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Relationship-based decisions commonly identify relations, relationships, or tuples.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "relationship-based-access-control"
+      },
+      "edgeId": "expansion-edge-5f11a2b54a9f66a00661410613172f08"
+    },
+    {
+      "sourceConceptId": "relationship-based-access-control",
+      "targetTerm": "relationship",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Relationship-based decisions commonly identify relations, relationships, or tuples.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "relationship-based-access-control"
+      },
+      "edgeId": "expansion-edge-f49ac2089299c5d7ba5acf8b8a50d786"
+    },
+    {
+      "sourceConceptId": "relationship-based-access-control",
+      "targetTerm": "relationships",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Relationship-based decisions commonly identify relations, relationships, or tuples.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "relationship-based-access-control"
+      },
+      "edgeId": "expansion-edge-89af5c49815a3b358bbae0435021190c"
+    },
+    {
+      "sourceConceptId": "relationship-based-access-control",
+      "targetTerm": "tuple",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Relationship-based decisions commonly identify relations, relationships, or tuples.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "relationship-based-access-control"
+      },
+      "edgeId": "expansion-edge-2e9c1756b0e4cde70bb0031e4c6bd07d"
+    },
+    {
+      "sourceConceptId": "relationship-based-access-control",
+      "targetTerm": "tuples",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Relationship-based decisions commonly identify relations, relationships, or tuples.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "relationship-based-access-control"
+      },
+      "edgeId": "expansion-edge-842d5cf280f86956ce40a6bb73219cb7"
+    },
+    {
+      "sourceConceptId": "role-based-access-control",
+      "targetTerm": "ability",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Role-based decisions commonly identify roles, permissions, or abilities.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "role-based-access-control"
+      },
+      "edgeId": "expansion-edge-2c6ffae3e320c013e09ab33d715d77bc"
+    },
+    {
+      "sourceConceptId": "role-based-access-control",
+      "targetTerm": "permission",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Role-based decisions commonly identify roles, permissions, or abilities.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "role-based-access-control"
+      },
+      "edgeId": "expansion-edge-be7e37597efe061c2efd7c988f748b9c"
+    },
+    {
+      "sourceConceptId": "role-based-access-control",
+      "targetTerm": "permissions",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Role-based decisions commonly identify roles, permissions, or abilities.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "role-based-access-control"
+      },
+      "edgeId": "expansion-edge-623ec0c89c3c0b1e7c813c265f8bcb15"
+    },
+    {
+      "sourceConceptId": "role-based-access-control",
+      "targetTerm": "rbac",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "rbac"
+      },
+      "edgeId": "expansion-edge-27d1ddfcc16400feee5ecbd9eb149711"
+    },
+    {
+      "sourceConceptId": "role-based-access-control",
+      "targetTerm": "role",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Role-based decisions commonly identify roles, permissions, or abilities.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "role-based-access-control"
+      },
+      "edgeId": "expansion-edge-52fa72f7d5156ee473ed50a93d51eefa"
+    },
+    {
+      "sourceConceptId": "role-based-access-control",
+      "targetTerm": "roles",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Role-based decisions commonly identify roles, permissions, or abilities.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "role-based-access-control"
+      },
+      "edgeId": "expansion-edge-8443ff2cc3b7c62d6981fdc6c1ebed52"
+    },
+    {
+      "sourceConceptId": "self-hosted-service",
+      "targetTerm": "self-hosted",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "self-hosted"
+      },
+      "edgeId": "expansion-edge-9ad8fe457622d38dde2af9b00f932bfa"
+    },
+    {
+      "sourceConceptId": "separate-control-plane",
+      "targetTerm": "control-plane",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "control-plane"
+      },
+      "edgeId": "expansion-edge-ccff26318b37b1da424bf83c789fd981"
+    },
+    {
+      "sourceConceptId": "signature-verification",
+      "targetTerm": "hmac",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Signature verification commonly identifies signatures, signing, HMAC, secrets, or verification.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "signature-verification"
+      },
+      "edgeId": "expansion-edge-7a01395ebe38889048327536e4e112ec"
+    },
+    {
+      "sourceConceptId": "signature-verification",
+      "targetTerm": "secret",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Signature verification commonly identifies signatures, signing, HMAC, secrets, or verification.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "signature-verification"
+      },
+      "edgeId": "expansion-edge-bb26e659a0a99e6467c2c9d94764b66d"
+    },
+    {
+      "sourceConceptId": "signature-verification",
+      "targetTerm": "signature",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Signature verification commonly identifies signatures, signing, HMAC, secrets, or verification.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "signature-verification"
+      },
+      "edgeId": "expansion-edge-d2fdbe72650eaf81e651689e9b246fe2"
+    },
+    {
+      "sourceConceptId": "signature-verification",
+      "targetTerm": "signatures",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Signature verification commonly identifies signatures, signing, HMAC, secrets, or verification.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "signature-verification"
+      },
+      "edgeId": "expansion-edge-d726bc525b81debaa3976cb335eeeb4e"
+    },
+    {
+      "sourceConceptId": "signature-verification",
+      "targetTerm": "signing",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Signature verification commonly identifies signatures, signing, HMAC, secrets, or verification.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "signature-verification"
+      },
+      "edgeId": "expansion-edge-54f1070e64fa0e1569c68e6075c784ee"
+    },
+    {
+      "sourceConceptId": "signature-verification",
+      "targetTerm": "verify",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Signature verification commonly identifies signatures, signing, HMAC, secrets, or verification.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "signature-verification"
+      },
+      "edgeId": "expansion-edge-5ae0390430f269490050c85a7cee391f"
+    },
+    {
+      "sourceConceptId": "signature-verification",
+      "targetTerm": "webhook-signature",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "webhook-signature"
+      },
+      "edgeId": "expansion-edge-698cb7e9e42b416a73219a31ac22b45e"
+    },
+    {
+      "sourceConceptId": "sliding-window",
+      "targetTerm": "rolling",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Sliding-window algorithms commonly identify sliding, rolling, or window behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sliding-window"
+      },
+      "edgeId": "expansion-edge-2dc5f2a6792db932a1b65cbd3ba10ef5"
+    },
+    {
+      "sourceConceptId": "sliding-window",
+      "targetTerm": "sliding",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Sliding-window algorithms commonly identify sliding, rolling, or window behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sliding-window"
+      },
+      "edgeId": "expansion-edge-2cfd3ecef4d3df7d44c7060e93ac973a"
+    },
+    {
+      "sourceConceptId": "sliding-window",
+      "targetTerm": "sliding-window-limiter",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "sliding-window-limiter"
+      },
+      "edgeId": "expansion-edge-295b403199532f526d78320d7dcb8e58"
+    },
+    {
+      "sourceConceptId": "sliding-window",
+      "targetTerm": "window",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Sliding-window algorithms commonly identify sliding, rolling, or window behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sliding-window"
+      },
+      "edgeId": "expansion-edge-0ecfca46902a024dbc2e2b5304d509dc"
+    },
+    {
+      "sourceConceptId": "structured-audit-events",
+      "targetTerm": "audit-events",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "audit-events"
+      },
+      "edgeId": "expansion-edge-579532279348a5510d221fe98f326d2e"
+    },
+    {
+      "sourceConceptId": "structured-audit-events",
+      "targetTerm": "event",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Structured audit events commonly identify event or JSON structures.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "structured-audit-events"
+      },
+      "edgeId": "expansion-edge-9b201b2000b7d88968b3da7fdb533767"
+    },
+    {
+      "sourceConceptId": "structured-audit-events",
+      "targetTerm": "events",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Structured audit events commonly identify event or JSON structures.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "structured-audit-events"
+      },
+      "edgeId": "expansion-edge-481ac8cc72e6e76faca61be333ae1dad"
+    },
+    {
+      "sourceConceptId": "structured-audit-events",
+      "targetTerm": "json",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Structured audit events commonly identify event or JSON structures.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "structured-audit-events"
+      },
+      "edgeId": "expansion-edge-ebd0031a9b681afcbec4eb9dcad60a3c"
+    },
+    {
+      "sourceConceptId": "structured-audit-events",
+      "targetTerm": "structured",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Structured audit events commonly identify event or JSON structures.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "structured-audit-events"
+      },
+      "edgeId": "expansion-edge-40ff02239be2c4bb558e400b0a9c6a4e"
+    },
+    {
+      "sourceConceptId": "token-bucket",
+      "targetTerm": "bucket",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Token-bucket implementations commonly identify buckets, limiters, quotas, or throttling.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "token-bucket"
+      },
+      "edgeId": "expansion-edge-af8a22564031350a14fb1dba691df092"
+    },
+    {
+      "sourceConceptId": "token-bucket",
+      "targetTerm": "limiter",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Token-bucket implementations commonly identify buckets, limiters, quotas, or throttling.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "token-bucket"
+      },
+      "edgeId": "expansion-edge-f64ce29974557eebba9b264ed7be90f3"
+    },
+    {
+      "sourceConceptId": "token-bucket",
+      "targetTerm": "quota",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Token-bucket implementations commonly identify buckets, limiters, quotas, or throttling.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "token-bucket"
+      },
+      "edgeId": "expansion-edge-c16ed7436ae2d90571145cb3a5a621cb"
+    },
+    {
+      "sourceConceptId": "token-bucket",
+      "targetTerm": "rate-limit",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Token-bucket implementations commonly identify buckets, limiters, quotas, or throttling.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "token-bucket"
+      },
+      "edgeId": "expansion-edge-eaa58c1e341041bc74fe59389b371cbf"
+    },
+    {
+      "sourceConceptId": "token-bucket",
+      "targetTerm": "ratelimit",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Token-bucket implementations commonly identify buckets, limiters, quotas, or throttling.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "token-bucket"
+      },
+      "edgeId": "expansion-edge-33cc4f9abec165a48baf863577192ec1"
+    },
+    {
+      "sourceConceptId": "token-bucket",
+      "targetTerm": "throttler",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Token-bucket implementations commonly identify buckets, limiters, quotas, or throttling.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "token-bucket"
+      },
+      "edgeId": "expansion-edge-7c133da9ccc6486627f39b035901984c"
+    },
+    {
+      "sourceConceptId": "token-bucket",
+      "targetTerm": "token-bucket-limiter",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "token-bucket-limiter"
+      },
+      "edgeId": "expansion-edge-3e7ed6b1d109e6451c526bc1d1f5f094"
+    },
+    {
+      "sourceConceptId": "webhook-delivery-service",
+      "targetTerm": "webhook-delivery",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "webhook-delivery"
+      },
+      "edgeId": "expansion-edge-65e901f18f58d2c2d1a8a92523d89bff"
+    },
+    {
+      "sourceConceptId": "webhook-gateway-router",
+      "targetTerm": "gateway",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook routing commonly identifies gateways, relays, proxies, routes, or routers.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-gateway-router"
+      },
+      "edgeId": "expansion-edge-6d55158e164b680ea0eb5dee2c4c9a82"
+    },
+    {
+      "sourceConceptId": "webhook-gateway-router",
+      "targetTerm": "proxy",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook routing commonly identifies gateways, relays, proxies, routes, or routers.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-gateway-router"
+      },
+      "edgeId": "expansion-edge-40f7e3ce3dedb9b214f1b5d1d2beca66"
+    },
+    {
+      "sourceConceptId": "webhook-gateway-router",
+      "targetTerm": "relay",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook routing commonly identifies gateways, relays, proxies, routes, or routers.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-gateway-router"
+      },
+      "edgeId": "expansion-edge-00e4a185c28cb2cf159662a1870c593e"
+    },
+    {
+      "sourceConceptId": "webhook-gateway-router",
+      "targetTerm": "route",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook routing commonly identifies gateways, relays, proxies, routes, or routers.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-gateway-router"
+      },
+      "edgeId": "expansion-edge-7d1ffb46499ea400e3dac5bf799e1c2d"
+    },
+    {
+      "sourceConceptId": "webhook-gateway-router",
+      "targetTerm": "router",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook routing commonly identifies gateways, relays, proxies, routes, or routers.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-gateway-router"
+      },
+      "edgeId": "expansion-edge-5c813b6827daf9b3a742d90d5f503c7a"
+    },
+    {
+      "sourceConceptId": "webhook-gateway-router",
+      "targetTerm": "routing",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook routing commonly identifies gateways, relays, proxies, routes, or routers.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-gateway-router"
+      },
+      "edgeId": "expansion-edge-17e8df23e4bb2bc4ecb4804d2fd90ff6"
+    },
+    {
+      "sourceConceptId": "webhooks",
+      "targetTerm": "web-hook",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "web-hook"
+      },
+      "edgeId": "expansion-edge-a05eac6a7687aa248b7cbad8ea93b9af"
+    },
+    {
+      "sourceConceptId": "webhooks",
+      "targetTerm": "webhook",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "webhook"
+      },
+      "edgeId": "expansion-edge-755f76bebd94e03ad5eec2201a3798ba"
+    },
+    {
+      "sourceConceptId": "workflow-dag-engine",
+      "targetTerm": "dag",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Workflow DAG engines commonly identify DAG, workflow, or orchestration behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "workflow-dag-engine"
+      },
+      "edgeId": "expansion-edge-f9738793fe2ce404ed49c83a430e65a4"
+    },
+    {
+      "sourceConceptId": "workflow-dag-engine",
+      "targetTerm": "dag-engine",
+      "relationshipKind": "taxonomy-alias",
+      "rationale": "Reviewed active taxonomy alias used only as a bounded soft retrieval term.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-alias",
+        "sourceId": "dag-engine"
+      },
+      "edgeId": "expansion-edge-0f65bdf77521c14d54bd130a63a346bd"
+    },
+    {
+      "sourceConceptId": "workflow-dag-engine",
+      "targetTerm": "orchestration",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Workflow DAG engines commonly identify DAG, workflow, or orchestration behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "workflow-dag-engine"
+      },
+      "edgeId": "expansion-edge-d0a0194e5f746eea37120121b40bba14"
+    },
+    {
+      "sourceConceptId": "workflow-dag-engine",
+      "targetTerm": "orchestrator",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Workflow DAG engines commonly identify DAG, workflow, or orchestration behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "workflow-dag-engine"
+      },
+      "edgeId": "expansion-edge-8edf8f8b0aeb111bc0a979257c0f724b"
+    },
+    {
+      "sourceConceptId": "workflow-dag-engine",
+      "targetTerm": "workflow",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Workflow DAG engines commonly identify DAG, workflow, or orchestration behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "workflow-dag-engine"
+      },
+      "edgeId": "expansion-edge-f36fe060bc65d24f9c9f79ea944c19b5"
+    },
+    {
+      "sourceConceptId": "workflow-dag-engine",
+      "targetTerm": "workflows",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Workflow DAG engines commonly identify DAG, workflow, or orchestration behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "workflow-dag-engine"
+      },
+      "edgeId": "expansion-edge-82b998b2c01dc820f654671c395dfc42"
+    }
+  ],
+  "releaseMetadata": {
+    "name": "GitBlocks capability retrieval expansion",
+    "notes": "Proposed one-hop soft retrieval terms bound to the accepted taxonomy; no hard constraint or evaluation authority participates."
+  },
+  "semanticDigest": "1435521e117e2af18ec55bbf1f30e3f5d2f48fe07d54f0c657917ff027086f4a"
+}

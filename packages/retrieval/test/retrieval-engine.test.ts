@@ -7,10 +7,12 @@ import {
   CONTRACT_VERSION,
   createCandidateRetrievalRequestV1,
   normalizeCapabilityQueryV1,
+  parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
   parseDeterministicCandidateProfileAuthorityV1,
   type CandidateRetrievalRequestV1,
   type CandidateRetrievalCandidateV1,
+  type CapabilityRetrievalExpansionV1,
   type CapabilityQueryDraftConstraintV1,
   type CapabilityTaxonomyV1,
   type DeterministicCandidateProfileAuthorityV1,
@@ -47,10 +49,17 @@ const profilesPath = fileURLToPath(
     import.meta.url,
   ),
 );
+const expansionPath = fileURLToPath(
+  new URL(
+    '../../../catalog/capability-retrieval-expansion/1.0.0/manifest.json',
+    import.meta.url,
+  ),
+);
 
 let taxonomy: CapabilityTaxonomyV1;
 let profileAuthority: DeterministicCandidateProfileAuthorityV1;
 let rawProfileAuthority: DeterministicCandidateProfileAuthorityV1;
+let retrievalExpansion: CapabilityRetrievalExpansionV1;
 let retrievalEngine: CandidateRetrievalEngineV1;
 
 beforeAll(async () => {
@@ -60,19 +69,25 @@ beforeAll(async () => {
   const profileValue = JSON.parse(
     await readFile(profilesPath, 'utf8'),
   ) as unknown;
+  const expansionValue = JSON.parse(
+    await readFile(expansionPath, 'utf8'),
+  ) as unknown;
   const parsedTaxonomy = parseCapabilityTaxonomyV1(taxonomyValue);
   const parsedProfiles =
     parseDeterministicCandidateProfileAuthorityV1(profileValue);
-  if (!parsedTaxonomy.ok || !parsedProfiles.ok) {
+  const parsedExpansion = parseCapabilityRetrievalExpansionV1(expansionValue);
+  if (!parsedTaxonomy.ok || !parsedProfiles.ok || !parsedExpansion.ok) {
     throw new Error('Committed retrieval authority is invalid.');
   }
   taxonomy = parsedTaxonomy.value;
   profileAuthority = parsedProfiles.value;
   rawProfileAuthority =
     profileValue as DeterministicCandidateProfileAuthorityV1;
+  retrievalExpansion = parsedExpansion.value;
   const created = createCandidateRetrievalEngineV1({
     taxonomy,
     candidateProfileAuthority: profileAuthority,
+    retrievalExpansionAuthority: retrievalExpansion,
   });
   if (!created.ok) throw new Error('Retrieval engine creation failed.');
   retrievalEngine = created.engine;
@@ -242,6 +257,7 @@ describe('deterministic production retrieval vertical slice', () => {
       views,
       new Map(taxonomy.concepts.map((concept) => [concept.conceptId, concept])),
       new Set(views.map(({ candidateId }) => candidateId)),
+      retrievalExpansion,
       evaluator,
     );
     expect(operation.ok).toBe(true);
@@ -273,6 +289,7 @@ describe('deterministic production retrieval vertical slice', () => {
       views,
       new Map(taxonomy.concepts.map((concept) => [concept.conceptId, concept])),
       new Set(views.map(({ candidateId }) => candidateId)),
+      retrievalExpansion,
       evaluator,
     );
     expect(rejected.ok).toBe(false);
@@ -300,6 +317,106 @@ describe('deterministic production retrieval vertical slice', () => {
     },
   );
 
+  it('uses expansion only as bounded soft identity evidence and preserves preferred constraints', () => {
+    const request = makeRequest([
+      {
+        constraintId: 'rbac-preferred',
+        modality: 'preferred',
+        statement: 'Prefer role based access control.',
+        originalTerm: 'role-based-access-control',
+        facetHint: 'feature',
+        reasonCode: null,
+      },
+    ]);
+    const constraintsBefore = JSON.stringify(
+      request.normalization.normalizedConstraints,
+    );
+    const operation = requireEngine().retrieve(request);
+    expect(operation.ok).toBe(true);
+    if (!operation.ok) return;
+
+    expect(JSON.stringify(request.normalization.normalizedConstraints)).toBe(
+      constraintsBefore,
+    );
+    expect(operation.result.preRetrievalLaneCounts.eligible).toBeGreaterThan(0);
+    expect(operation.result.diagnostics.expansionEdgesApplied).toBeGreaterThan(
+      0,
+    );
+    const expanded = operation.result.eligibleCandidates.find(
+      ({ candidateId }) => candidateId === 'auth-koa-roles',
+    );
+    const identityMatches = expanded?.channelMatches.filter(
+      ({ channelId }) =>
+        channelId === 'candidate-identity' || channelId === 'package-identity',
+    );
+    expect(identityMatches?.length).toBeGreaterThan(0);
+    expect(
+      identityMatches?.every(
+        ({ componentScore, matchedCapabilityConceptIds }) =>
+          Number.isInteger(componentScore) &&
+          matchedCapabilityConceptIds.includes('role-based-access-control'),
+      ),
+    ).toBe(true);
+    expect(
+      identityMatches?.flatMap(
+        ({ matchedExpansionEdgeIds }) => matchedExpansionEdgeIds,
+      ).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('cannot use expansion to satisfy required constraints or broaden prohibited constraints', () => {
+    const constraint = {
+      constraintId: 'rbac-hard',
+      statement: 'Role based access control is governed as a hard declaration.',
+      originalTerm: 'role-based-access-control',
+      facetHint: 'feature' as const,
+      reasonCode: 'rbac-hard',
+    };
+    const requiredRequest = makeRequest([
+      { ...constraint, modality: 'required' },
+    ]);
+    const requiredBefore = JSON.stringify(
+      requiredRequest.normalization.normalizedConstraints,
+    );
+    const required = requireEngine().retrieve(requiredRequest);
+    expect(required.ok).toBe(true);
+    if (!required.ok) return;
+    expect(
+      JSON.stringify(requiredRequest.normalization.normalizedConstraints),
+    ).toBe(requiredBefore);
+    expect(required.result.eligibleCandidates).toEqual([]);
+    expect(required.result.preRetrievalLaneCounts.eligible).toBe(0);
+    expect(required.result.evidenceNeededCandidates.length).toBeGreaterThan(0);
+    expect(
+      required.result.evidenceNeededCandidates.every(
+        ({ unresolvedHardEvaluations }) => unresolvedHardEvaluations.length > 0,
+      ),
+    ).toBe(true);
+
+    const prohibitedRequest = makeRequest([
+      { ...constraint, modality: 'prohibited' },
+    ]);
+    const prohibitedBefore = JSON.stringify(
+      prohibitedRequest.normalization.normalizedConstraints,
+    );
+    const prohibited = requireEngine().retrieve(prohibitedRequest);
+    expect(prohibited.ok).toBe(true);
+    if (!prohibited.ok) return;
+    expect(
+      JSON.stringify(prohibitedRequest.normalization.normalizedConstraints),
+    ).toBe(prohibitedBefore);
+    expect(
+      [
+        ...prohibited.result.eligibleCandidates,
+        ...prohibited.result.evidenceNeededCandidates,
+      ].flatMap(({ channelMatches }) =>
+        channelMatches.flatMap(
+          ({ matchedCapabilityConceptIds }) => matchedCapabilityConceptIds,
+        ),
+      ),
+    ).not.toContain('role-based-access-control');
+  });
+
   it('implements exact family, additional-family, taxonomy, structured, and unknown-field channel rules', () => {
     const baseRequest = makeRequest();
     const profile = profileAuthority.profiles[0];
@@ -316,6 +433,8 @@ describe('deterministic production retrieval vertical slice', () => {
       additionalFamilies: ['audit-logging'],
       repositoryIdentity: 'owner/repository',
       packageIdentity: 'package-name',
+      candidateRepositoryIdentityTerms: new Set(['owner', 'repository']),
+      packageIdentityTerms: new Set(['package', 'package-name']),
       conceptsByField: concepts,
     };
     const taxonomyById = new Map(
@@ -727,6 +846,7 @@ describe('deterministic production retrieval vertical slice', () => {
       views,
       taxonomyConcepts,
       candidateIds,
+      retrievalExpansion,
     );
     expect(expected.ok).toBe(true);
     if (!expected.ok) return;
@@ -741,6 +861,7 @@ describe('deterministic production retrieval vertical slice', () => {
         permutation,
         taxonomyConcepts,
         candidateIds,
+        retrievalExpansion,
       );
       expect(actual.ok).toBe(true);
       if (actual.ok) {
@@ -753,14 +874,17 @@ describe('deterministic production retrieval vertical slice', () => {
 
   it('owns injected authority and rejects malformed, mismatched, duplicate, and confusable inputs', () => {
     const mutableAuthority = structuredClone(rawProfileAuthority);
+    const mutableExpansion = structuredClone(retrievalExpansion);
     const created = createCandidateRetrievalEngineV1({
       taxonomy,
       candidateProfileAuthority: mutableAuthority,
+      retrievalExpansionAuthority: mutableExpansion,
     });
     expect(created.ok).toBe(true);
     if (!created.ok) return;
     const before = created.engine.retrieve(makeRequest());
     mutableAuthority.profiles.reverse();
+    mutableExpansion.edges.reverse();
     const after = created.engine.retrieve(makeRequest());
     expect(before.ok && after.ok).toBe(true);
     if (before.ok && after.ok) {
@@ -772,6 +896,23 @@ describe('deterministic production retrieval vertical slice', () => {
       64,
     );
     expect(created.engine.retrieve(mismatched)).toMatchObject({ ok: false });
+    const baseRequest = makeRequest();
+    const mismatchedExpansion = createCandidateRetrievalRequestV1({
+      normalization: baseRequest.normalization,
+      authorityBindings: {
+        ...baseRequest.authorityBindings,
+        retrievalExpansion: {
+          ...baseRequest.authorityBindings.retrievalExpansion,
+          semanticDigest: '0'.repeat(64),
+        },
+      },
+      eligibleResultLimit: baseRequest.eligibleResultLimit,
+      evidenceNeededResultLimit: baseRequest.evidenceNeededResultLimit,
+    });
+    expect(created.engine.retrieve(mismatchedExpansion)).toMatchObject({
+      ok: false,
+      issues: [{ code: 'authority-binding-mismatch' }],
+    });
     expect(
       created.engine.retrieve({
         ...makeRequest(),
@@ -791,8 +932,22 @@ describe('deterministic production retrieval vertical slice', () => {
             ...profileAuthority.profiles.slice(2),
           ],
         },
+        retrievalExpansionAuthority: retrievalExpansion,
       }),
     ).toMatchObject({ ok: false });
+    expect(
+      createCandidateRetrievalEngineV1({
+        taxonomy,
+        candidateProfileAuthority: profileAuthority,
+        retrievalExpansionAuthority: {
+          ...retrievalExpansion,
+          semanticDigest: '0'.repeat(64),
+        },
+      }),
+    ).toMatchObject({
+      ok: false,
+      issues: [{ code: 'invalid-expansion-authority' }],
+    });
 
     const reversedAuthority = structuredClone(rawProfileAuthority);
     reversedAuthority.profiles.reverse();
@@ -800,6 +955,7 @@ describe('deterministic production retrieval vertical slice', () => {
       createCandidateRetrievalEngineV1({
         taxonomy,
         candidateProfileAuthority: reversedAuthority,
+        retrievalExpansionAuthority: retrievalExpansion,
       }),
     ).toMatchObject({
       ok: false,
@@ -922,6 +1078,10 @@ function makeRequest(
       },
       candidateConstraintEvaluationVersion:
         CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
+      retrievalExpansion: {
+        authorityVersion: retrievalExpansion.expansionVersion,
+        semanticDigest: retrievalExpansion.semanticDigest,
+      },
     },
     eligibleResultLimit: limit,
     evidenceNeededResultLimit: limit,
@@ -1003,6 +1163,7 @@ function scored(
         componentScore: score,
         matchedCapabilityConceptIds: ['authorization'],
         matchedProfileFieldIds: ['capability-family'],
+        matchedExpansionEdgeIds: [],
       },
     ],
     unresolvedHardEvaluations:

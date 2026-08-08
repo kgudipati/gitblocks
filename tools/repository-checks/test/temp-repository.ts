@@ -172,6 +172,10 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts --write',
     'taxonomy:validate':
       'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts',
+    'retrieval:expansion:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/retrieval-expansion-cli.ts --write',
+    'retrieval:expansion:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/retrieval-expansion-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
     'catalog:seed':
@@ -270,7 +274,7 @@ const ROOT_MANIFEST = JSON.stringify({
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
-      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production && node packages/contracts/scripts/taxonomy-cli.ts',
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production && node packages/contracts/scripts/taxonomy-cli.ts && node packages/contracts/scripts/retrieval-expansion-cli.ts',
   },
   devDependencies: {
     typescript: '6.0.3',

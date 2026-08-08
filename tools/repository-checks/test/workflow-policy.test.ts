@@ -46,6 +46,7 @@ const STATIC_VERIFICATION_COMMANDS = [
   'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
   'node tools/evaluation-harness/src/contract-conformance-cli.ts',
   'node packages/contracts/scripts/taxonomy-cli.ts',
+  'node packages/contracts/scripts/retrieval-expansion-cli.ts',
   'node packages/ingestion/scripts/candidate-profile-cli.ts',
   'node packages/ingestion/scripts/catalog-cli.ts',
   'node packages/interviews/scripts/specification-cli.ts validate',

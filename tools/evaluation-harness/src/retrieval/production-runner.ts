@@ -44,6 +44,14 @@ export interface ProductionRetrievalEvaluationReportV1 {
     readonly exactPackageIdentityGroups: number;
     readonly exactIdentityDuplicatesRemoved: number;
   };
+  readonly productExpansionDiagnostics: {
+    readonly casesWithAppliedEdges: number;
+    readonly casesWithCandidateMatches: number;
+    readonly sourceConceptsApplied: number;
+    readonly edgesApplied: number;
+    readonly edgesTruncated: number;
+    readonly candidateMatches: number;
+  };
   readonly differential: ProductionRetrievalDifferentialEvidenceV1;
   readonly performance: ProductionRetrievalPerformanceEvidenceV1;
 }
@@ -55,7 +63,9 @@ export function runProductionRetrievalEvaluationV1(
 
   // Predictions and product results are complete, validated, digested, and
   // frozen from blind inputs before any gold-bearing corpus is loaded.
-  const generated = generateProductionRetrievalPredictionSetV1(repositoryRoot);
+  const generated = generateProductionRetrievalPredictionSetV1(repositoryRoot, {
+    performanceProtocol: 'milestone-3-development',
+  });
 
   const loaded = loadRetrievalCorpusV1(repositoryRoot);
   if (!loaded.ok) throw new Error('Retrieval corpus validation failed.');
@@ -147,6 +157,30 @@ export function runProductionRetrievalEvaluationV1(
       exactIdentityDuplicatesRemoved: productResults.reduce(
         (sum, result) =>
           sum + result.diagnostics.exactIdentityDuplicatesRemoved,
+        0,
+      ),
+    },
+    productExpansionDiagnostics: {
+      casesWithAppliedEdges: productResults.filter(
+        ({ diagnostics }) => diagnostics.expansionEdgesApplied > 0,
+      ).length,
+      casesWithCandidateMatches: productResults.filter(
+        ({ diagnostics }) => diagnostics.candidateExpansionMatches > 0,
+      ).length,
+      sourceConceptsApplied: productResults.reduce(
+        (sum, { diagnostics }) => sum + diagnostics.expansionSourceConcepts,
+        0,
+      ),
+      edgesApplied: productResults.reduce(
+        (sum, { diagnostics }) => sum + diagnostics.expansionEdgesApplied,
+        0,
+      ),
+      edgesTruncated: productResults.reduce(
+        (sum, { diagnostics }) => sum + diagnostics.expansionEdgesTruncated,
+        0,
+      ),
+      candidateMatches: productResults.reduce(
+        (sum, { diagnostics }) => sum + diagnostics.candidateExpansionMatches,
         0,
       ),
     },

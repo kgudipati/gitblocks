@@ -15,13 +15,14 @@ import {
   semanticVersionSchema,
   stableIdSchema,
 } from './schema-builders.ts';
+import { CAPABILITY_RETRIEVAL_EXPANSION_VERSION } from './capability-retrieval-expansion-schemas.ts';
 
 export const CANDIDATE_RETRIEVAL_REQUEST_VERSION =
-  'candidate-retrieval-request/1.0.0' as const;
+  'candidate-retrieval-request/1.1.0' as const;
 export const CANDIDATE_RETRIEVAL_RESULT_VERSION =
-  'candidate-retrieval-result/1.0.0' as const;
+  'candidate-retrieval-result/1.1.0' as const;
 export const CANDIDATE_RETRIEVAL_ALGORITHM_VERSION =
-  'deterministic-candidate-retrieval/1.0.0' as const;
+  'deterministic-candidate-retrieval/1.1.0' as const;
 export const CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS = Object.freeze([
   {
     channelId: 'capability-family',
@@ -33,11 +34,11 @@ export const CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS = Object.freeze([
   },
   {
     channelId: 'candidate-identity',
-    channelVersion: 'candidate-identity/1.0.0',
+    channelVersion: 'candidate-identity/1.1.0',
   },
   {
     channelId: 'package-identity',
-    channelVersion: 'package-identity/1.0.0',
+    channelVersion: 'package-identity/1.1.0',
   },
   {
     channelId: 'structured-profile',
@@ -92,6 +93,10 @@ export const candidateRetrievalAuthorityBindingsV1Schema = closedObject({
   candidateConstraintEvaluationVersion: Type.Literal(
     CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
   ),
+  retrievalExpansion: closedObject({
+    authorityVersion: Type.Literal(CAPABILITY_RETRIEVAL_EXPANSION_VERSION),
+    semanticDigest: digestSchema,
+  }),
 });
 
 const embeddedCapabilityQueryNormalizationResultV1Schema = withoutRootMetadata(
@@ -110,7 +115,7 @@ export const candidateRetrievalRequestV1Schema = Type.Object(
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
-    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-request/1.0.0',
+    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-request/1.1.0',
     additionalProperties: false,
   },
 );
@@ -125,8 +130,8 @@ const channelIdSchema = Type.Union([
 const channelVersionSchema = Type.Union([
   Type.Literal('capability-family/1.0.0'),
   Type.Literal('taxonomy-concept/1.0.0'),
-  Type.Literal('candidate-identity/1.0.0'),
-  Type.Literal('package-identity/1.0.0'),
+  Type.Literal('candidate-identity/1.1.0'),
+  Type.Literal('package-identity/1.1.0'),
   Type.Literal('structured-profile/1.0.0'),
 ]);
 const channelBindingSchema = closedObject({
@@ -149,6 +154,10 @@ const retrievalChannelMatchV1Schema = closedObject({
   componentScore: Type.Integer({ minimum: 1, maximum: 2_000 }),
   matchedCapabilityConceptIds: boundedStableIdsSchema,
   matchedProfileFieldIds: boundedProfileFieldIdsSchema,
+  matchedExpansionEdgeIds: Type.Array(stableIdSchema, {
+    maxItems: 32,
+    uniqueItems: true,
+  }),
 });
 const unresolvedHardEvaluationV1Schema = closedObject({
   evaluationId: stableIdSchema,
@@ -231,6 +240,10 @@ const retrievalDiagnosticsV1Schema = closedObject({
     minimum: 0,
     maximum: 10_000,
   }),
+  expansionSourceConcepts: Type.Integer({ minimum: 0, maximum: 64 }),
+  expansionEdgesApplied: Type.Integer({ minimum: 0, maximum: 32 }),
+  expansionEdgesTruncated: Type.Integer({ minimum: 0, maximum: 512 }),
+  candidateExpansionMatches: Type.Integer({ minimum: 0, maximum: 50_000 }),
 });
 
 export const candidateRetrievalResultV1Schema = Type.Object(
@@ -268,7 +281,7 @@ export const candidateRetrievalResultV1Schema = Type.Object(
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
-    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-result/1.0.0',
+    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-result/1.1.0',
     additionalProperties: false,
   },
 );

@@ -11,6 +11,7 @@ import {
   normalizeCapabilityQueryV1,
   parseCandidateRetrievalRequestV1,
   parseCandidateRetrievalResultV1,
+  parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
   parseDeterministicCandidateProfileAuthorityV1,
   serializeCandidateRetrievalRequestV1,
@@ -19,6 +20,7 @@ import {
   validateCandidateRetrievalExchangeV1,
   type CandidateRetrievalRequestV1,
   type CandidateRetrievalResultV1,
+  type CapabilityRetrievalExpansionV1,
   type CapabilityTaxonomyV1,
   type DeterministicCandidateProfileAuthorityV1,
   type EligibleRetrievalCandidateV1,
@@ -38,9 +40,16 @@ const profilesPath = fileURLToPath(
     import.meta.url,
   ),
 );
+const expansionPath = fileURLToPath(
+  new URL(
+    '../../../catalog/capability-retrieval-expansion/1.0.0/manifest.json',
+    import.meta.url,
+  ),
+);
 
 let taxonomy: CapabilityTaxonomyV1;
 let profiles: DeterministicCandidateProfileAuthorityV1;
+let expansion: CapabilityRetrievalExpansionV1;
 let request: CandidateRetrievalRequestV1;
 let result: CandidateRetrievalResultV1;
 
@@ -51,11 +60,15 @@ beforeAll(async () => {
   const parsedProfiles = parseDeterministicCandidateProfileAuthorityV1(
     JSON.parse(await readFile(profilesPath, 'utf8')) as unknown,
   );
-  if (!parsedTaxonomy.ok || !parsedProfiles.ok) {
+  const parsedExpansion = parseCapabilityRetrievalExpansionV1(
+    JSON.parse(await readFile(expansionPath, 'utf8')) as unknown,
+  );
+  if (!parsedTaxonomy.ok || !parsedProfiles.ok || !parsedExpansion.ok) {
     throw new Error('Committed retrieval authority is invalid.');
   }
   taxonomy = parsedTaxonomy.value;
   profiles = parsedProfiles.value;
+  expansion = parsedExpansion.value;
   const normalized = normalizeCapabilityQueryV1(
     {
       contractVersion: CONTRACT_VERSION,
@@ -96,6 +109,10 @@ beforeAll(async () => {
       },
       candidateConstraintEvaluationVersion:
         CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
+      retrievalExpansion: {
+        authorityVersion: expansion.expansionVersion,
+        semanticDigest: expansion.semanticDigest,
+      },
     },
     eligibleResultLimit: 10,
     evidenceNeededResultLimit: 10,
@@ -128,6 +145,10 @@ beforeAll(async () => {
       exactIdentityDuplicatesRemoved: 0,
       eligibleCandidatesTruncated: 119,
       evidenceNeededCandidatesTruncated: 0,
+      expansionSourceConcepts: 0,
+      expansionEdgesApplied: 0,
+      expansionEdgesTruncated: 0,
+      candidateExpansionMatches: 0,
     },
   });
 }, 60_000);
@@ -137,6 +158,20 @@ describe('candidate retrieval product contracts', () => {
     expect(parseCandidateRetrievalRequestV1(request).ok).toBe(true);
     expect(parseCandidateRetrievalResultV1(result).ok).toBe(true);
     expect(validateCandidateRetrievalExchangeV1(request, result).ok).toBe(true);
+    expect(request.retrievalRequestVersion).toBe(
+      'candidate-retrieval-request/1.1.0',
+    );
+    expect(result.retrievalResultVersion).toBe(
+      'candidate-retrieval-result/1.1.0',
+    );
+    expect(result.retrievalAlgorithmVersion).toBe(
+      'deterministic-candidate-retrieval/1.1.0',
+    );
+    expect(request.authorityBindings.retrievalExpansion).toEqual({
+      authorityVersion: 'capability-retrieval-expansion/1.0.0',
+      semanticDigest:
+        '1435521e117e2af18ec55bbf1f30e3f5d2f48fe07d54f0c657917ff027086f4a',
+    });
   });
 
   it('requires a normalized outcome and exact authority bindings', () => {
@@ -251,7 +286,7 @@ describe('candidate retrieval product contracts', () => {
     badProvenance.eligibleCandidates[0]!.channelMatches[0] = {
       ...badProvenance.eligibleCandidates[0]!.channelMatches[0]!,
       channelVersion: 'package-identity/1.0.0',
-    };
+    } as never;
     expect(parseCandidateRetrievalResultV1(badProvenance).ok).toBe(false);
 
     const badFieldProvenance = structuredClone(result);
@@ -259,6 +294,13 @@ describe('candidate retrieval product contracts', () => {
       'not-a-profile-field',
     ] as never;
     expect(parseCandidateRetrievalResultV1(badFieldProvenance).ok).toBe(false);
+
+    const badExpansionProvenance = structuredClone(result);
+    badExpansionProvenance.eligibleCandidates[0]!.channelMatches[0]!.matchedExpansionEdgeIds =
+      ['expansion-edge-0123456789abcdef0123456789abcdef'];
+    expect(parseCandidateRetrievalResultV1(badExpansionProvenance).ok).toBe(
+      false,
+    );
   });
 
   it('rejects lane count sum and returned-array bound disagreement', () => {
@@ -368,6 +410,7 @@ function eligibleCandidate(candidateId: string): EligibleRetrievalCandidateV1 {
         componentScore: 200,
         matchedCapabilityConceptIds: ['authorization'],
         matchedProfileFieldIds: ['capability-family'],
+        matchedExpansionEdgeIds: [],
       },
     ],
     unresolvedHardEvaluations: [],

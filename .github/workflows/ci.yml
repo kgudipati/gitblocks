@@ -139,6 +139,9 @@ jobs:
       - name: Validate taxonomy authority
         run: node packages/contracts/scripts/taxonomy-cli.ts
 
+      - name: Validate retrieval-expansion authority
+        run: node packages/contracts/scripts/retrieval-expansion-cli.ts
+
       - name: Validate candidate-profile authority
         run: node packages/ingestion/scripts/candidate-profile-cli.ts
 

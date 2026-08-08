@@ -31,6 +31,20 @@ export {
   type PreRetrievalLaneCountsV1,
 } from './candidate-retrieval-schemas.ts';
 export {
+  buildCapabilityRetrievalExpansionV1,
+  capabilityRetrievalExpansionSemanticDigest,
+  parseCapabilityRetrievalExpansionSourceV1,
+  parseCapabilityRetrievalExpansionV1,
+  serializeCapabilityRetrievalExpansionV1,
+} from './capability-retrieval-expansion-contracts.ts';
+export {
+  CAPABILITY_RETRIEVAL_EXPANSION_VERSION,
+  type CapabilityRetrievalExpansionEdgeV1,
+  type CapabilityRetrievalExpansionRuleV1,
+  type CapabilityRetrievalExpansionSourceV1,
+  type CapabilityRetrievalExpansionV1,
+} from './capability-retrieval-expansion-schemas.ts';
+export {
   REPOSITORY_ARTIFACT_CHUNKER_VERSION,
   REPOSITORY_ARTIFACT_VERSION,
   createRepositoryArtifactChunkV1,

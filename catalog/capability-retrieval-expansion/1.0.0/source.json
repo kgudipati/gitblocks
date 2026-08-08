@@ -1,0 +1,267 @@
+{
+  "expansionVersion": "capability-retrieval-expansion/1.0.0",
+  "taxonomyVersion": "1.0.0",
+  "taxonomySemanticDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+  "includeActiveTaxonomyAliases": true,
+  "rules": [
+    {
+      "sourceConceptId": "actor-request-context",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "actor",
+        "context",
+        "correlation",
+        "http",
+        "request",
+        "tenant"
+      ],
+      "rationale": "Actor and request context is commonly exposed through bounded request, tenant, correlation, and HTTP identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "actor-request-context"
+      }
+    },
+    {
+      "sourceConceptId": "attribute-based-access-control",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["attribute", "attributes", "claims", "context"],
+      "rationale": "Attribute-based decisions commonly identify attributes, claims, or contextual inputs.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "attribute-based-access-control"
+      }
+    },
+    {
+      "sourceConceptId": "audit-querying",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["analytics", "query", "search"],
+      "rationale": "Audit querying is commonly identified by bounded query, search, or analytics terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-querying"
+      }
+    },
+    {
+      "sourceConceptId": "audit-retention",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["archive", "retention", "rotate", "rotation"],
+      "rationale": "Audit retention commonly appears as archival or rotation behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "audit-retention"
+      }
+    },
+    {
+      "sourceConceptId": "concurrency-control",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["concurrency", "concurrent", "parallel", "semaphore"],
+      "rationale": "Concurrency control commonly uses bounded concurrency, parallelism, or semaphore terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "concurrency-control"
+      }
+    },
+    {
+      "sourceConceptId": "database-backed-job-queue",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["database", "db", "pg", "postgres", "postgresql", "sql"],
+      "rationale": "Database-backed queues commonly identify their database or PostgreSQL coordination substrate.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "database-backed-job-queue"
+      }
+    },
+    {
+      "sourceConceptId": "delayed-jobs",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "cron",
+        "delay",
+        "recurring",
+        "schedule",
+        "scheduled",
+        "scheduler"
+      ],
+      "rationale": "Delayed work commonly appears through scheduling, cron, recurrence, or delay identity terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "delayed-jobs"
+      }
+    },
+    {
+      "sourceConceptId": "distributed-enforcement",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["cluster", "distributed", "global", "redis", "shared"],
+      "rationale": "Distributed enforcement commonly identifies shared, clustered, global, or Redis-backed coordination.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "distributed-enforcement"
+      }
+    },
+    {
+      "sourceConceptId": "endpoint-management",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["endpoint", "endpoints", "subscription", "subscriptions"],
+      "rationale": "Endpoint management commonly identifies endpoints or subscriptions.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "endpoint-management"
+      }
+    },
+    {
+      "sourceConceptId": "policy-as-code",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["declarative", "policies", "policy", "rules"],
+      "rationale": "Policy-as-code commonly identifies declarative policy or rule artifacts.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "policy-as-code"
+      }
+    },
+    {
+      "sourceConceptId": "recurring-schedules",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "cron",
+        "recurring",
+        "repeat",
+        "repeatable",
+        "schedule",
+        "scheduler"
+      ],
+      "rationale": "Recurring schedules commonly use cron, repeat, recurrence, or scheduling terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "recurring-schedules"
+      }
+    },
+    {
+      "sourceConceptId": "redelivery",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["backoff", "redelivery", "retries", "retry"],
+      "rationale": "Webhook redelivery commonly identifies retry and backoff behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "redelivery"
+      }
+    },
+    {
+      "sourceConceptId": "relationship-based-access-control",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "relation",
+        "relations",
+        "relationship",
+        "relationships",
+        "tuple",
+        "tuples"
+      ],
+      "rationale": "Relationship-based decisions commonly identify relations, relationships, or tuples.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "relationship-based-access-control"
+      }
+    },
+    {
+      "sourceConceptId": "role-based-access-control",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["ability", "permission", "permissions", "role", "roles"],
+      "rationale": "Role-based decisions commonly identify roles, permissions, or abilities.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "role-based-access-control"
+      }
+    },
+    {
+      "sourceConceptId": "signature-verification",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "hmac",
+        "secret",
+        "signature",
+        "signatures",
+        "signing",
+        "verify"
+      ],
+      "rationale": "Signature verification commonly identifies signatures, signing, HMAC, secrets, or verification.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "signature-verification"
+      }
+    },
+    {
+      "sourceConceptId": "sliding-window",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["rolling", "sliding", "window"],
+      "rationale": "Sliding-window algorithms commonly identify sliding, rolling, or window behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sliding-window"
+      }
+    },
+    {
+      "sourceConceptId": "structured-audit-events",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["event", "events", "json", "structured"],
+      "rationale": "Structured audit events commonly identify event or JSON structures.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "structured-audit-events"
+      }
+    },
+    {
+      "sourceConceptId": "token-bucket",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "bucket",
+        "limiter",
+        "quota",
+        "rate-limit",
+        "ratelimit",
+        "throttler"
+      ],
+      "rationale": "Token-bucket implementations commonly identify buckets, limiters, quotas, or throttling.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "token-bucket"
+      }
+    },
+    {
+      "sourceConceptId": "webhook-gateway-router",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "gateway",
+        "proxy",
+        "relay",
+        "route",
+        "router",
+        "routing"
+      ],
+      "rationale": "Webhook routing commonly identifies gateways, relays, proxies, routes, or routers.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-gateway-router"
+      }
+    },
+    {
+      "sourceConceptId": "workflow-dag-engine",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "dag",
+        "orchestration",
+        "orchestrator",
+        "workflow",
+        "workflows"
+      ],
+      "rationale": "Workflow DAG engines commonly identify DAG, workflow, or orchestration behavior.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "workflow-dag-engine"
+      }
+    }
+  ],
+  "releaseMetadata": {
+    "name": "GitBlocks capability retrieval expansion",
+    "notes": "Proposed one-hop soft retrieval terms bound to the accepted taxonomy; no hard constraint or evaluation authority participates."
+  }
+}

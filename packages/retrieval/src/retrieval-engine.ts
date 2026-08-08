@@ -2,6 +2,7 @@ import {
   CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS,
   createCandidateRetrievalResultV1,
   parseCandidateRetrievalRequestV1,
+  parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
   parseDeterministicCandidateProfileAuthorityV1,
   type CandidateRetrievalCandidateV1,
@@ -9,6 +10,7 @@ import {
   type CandidateRetrievalChannelMatchV1,
   type CandidateRetrievalRequestV1,
   type CandidateRetrievalResultV1,
+  type CapabilityRetrievalExpansionV1,
   type CapabilityTaxonomyV1,
 } from '@gitblocks/contracts';
 import {
@@ -21,13 +23,27 @@ import {
   type DeterministicProfileFieldRecord,
 } from '@gitblocks/domain';
 
+import {
+  expandRetrievalTermsV1,
+  type RetrievalTermExpansionV1,
+} from './retrieval-expansion.ts';
+
 const CHANNEL_WEIGHTS = Object.freeze({
   capabilityFamilyPrimary: 200,
   capabilityFamilyAdditional: 25,
   taxonomyConcept: 400,
   candidateIdentity: 1_000,
+  candidateIdentityExpansionPerConcept: 100,
   packageIdentity: 900,
+  packageIdentityExpansionPerConcept: 100,
   structuredProfile: 300,
+});
+
+const EMPTY_RETRIEVAL_EXPANSION: RetrievalTermExpansionV1 = Object.freeze({
+  originalConceptIds: Object.freeze([]),
+  expandedTerms: Object.freeze([]),
+  edgesApplied: Object.freeze([]),
+  edgesTruncated: 0,
 });
 
 const CONCEPT_SET_PROFILE_FIELDS = Object.freeze([
@@ -48,6 +64,7 @@ const STRUCTURED_PROFILE_FIELDS = Object.freeze([
 export type CandidateRetrievalOperationIssueCodeV1 =
   | 'authority-binding-mismatch'
   | 'candidate-evaluation-failed'
+  | 'invalid-expansion-authority'
   | 'invalid-profile-authority'
   | 'invalid-request'
   | 'invalid-taxonomy-authority'
@@ -58,13 +75,19 @@ export type CandidateRetrievalOperationIssueCodeV1 =
 export interface CandidateRetrievalOperationIssueV1 {
   readonly code: CandidateRetrievalOperationIssueCodeV1;
   readonly path:
-    'authority' | 'candidate-profiles' | 'request' | 'result' | 'taxonomy';
+    | 'authority'
+    | 'candidate-profiles'
+    | 'expansion'
+    | 'request'
+    | 'result'
+    | 'taxonomy';
   readonly message:
     | 'Candidate constraint evaluation failed.'
     | 'Candidate profile authority is invalid.'
     | 'Candidate retrieval authority bindings disagree.'
     | 'Candidate retrieval request is invalid.'
     | 'Candidate retrieval result construction failed.'
+    | 'Capability retrieval expansion authority is invalid.'
     | 'Capability taxonomy authority is invalid.'
     | 'Normalization authority references are invalid.'
     | 'Required candidate profile identity field is unavailable.';
@@ -100,6 +123,7 @@ export type CandidateRetrievalEngineCreationResultV1 =
 export interface CandidateRetrievalAuthorityInputV1 {
   readonly taxonomy: unknown;
   readonly candidateProfileAuthority: unknown;
+  readonly retrievalExpansionAuthority: unknown;
 }
 
 export interface CandidateSearchView {
@@ -110,6 +134,8 @@ export interface CandidateSearchView {
   readonly additionalFamilies: readonly string[];
   readonly repositoryIdentity: string;
   readonly packageIdentity: string | null;
+  readonly candidateRepositoryIdentityTerms: ReadonlySet<string>;
+  readonly packageIdentityTerms: ReadonlySet<string>;
   readonly conceptsByField: ReadonlyMap<
     DeterministicProfileFieldId,
     ReadonlySet<string>
@@ -127,6 +153,7 @@ export interface ChannelEvidence {
   readonly componentScore: number;
   readonly matchedCapabilityConceptIds: readonly string[];
   readonly matchedProfileFieldIds: readonly DeterministicProfileFieldId[];
+  readonly matchedExpansionEdgeIds: readonly string[];
 }
 
 interface DeduplicationResult {
@@ -149,18 +176,29 @@ export function createCandidateRetrievalEngineV1(
   if (!profiles.ok) {
     return failure('invalid-profile-authority', 'candidate-profiles');
   }
+  const expansion = parseCapabilityRetrievalExpansionV1(
+    input.retrievalExpansionAuthority,
+  );
+  if (!expansion.ok) {
+    return failure('invalid-expansion-authority', 'expansion');
+  }
   if (
     taxonomy.value.taxonomyVersion !== profiles.domain.taxonomyVersion ||
-    taxonomy.value.semanticDigest !== profiles.domain.taxonomySemanticDigest
+    taxonomy.value.semanticDigest !== profiles.domain.taxonomySemanticDigest ||
+    taxonomy.value.taxonomyVersion !== expansion.value.taxonomyVersion ||
+    taxonomy.value.semanticDigest !== expansion.value.taxonomySemanticDigest ||
+    !expansionMatchesTaxonomy(expansion.value, taxonomy.value)
   ) {
     return failure('authority-binding-mismatch', 'authority');
   }
 
   let ownedTaxonomy: CapabilityTaxonomyV1;
   let ownedProfiles: DeterministicCandidateProfileAuthority;
+  let ownedExpansion: CapabilityRetrievalExpansionV1;
   try {
     ownedTaxonomy = deepFreezeOwned(cloneOwned(taxonomy.value));
     ownedProfiles = deepFreezeOwned(cloneOwned(profiles.domain));
+    ownedExpansion = deepFreezeOwned(cloneOwned(expansion.value));
   } catch {
     return failure('invalid-profile-authority', 'candidate-profiles');
   }
@@ -197,9 +235,31 @@ export function createCandidateRetrievalEngineV1(
         frozenViews,
         taxonomyConcepts,
         candidateIds,
+        ownedExpansion,
+        evaluateCandidateConstraints,
       ),
   } satisfies CandidateRetrievalEngineV1);
   return deepFreezeOwned({ ok: true, engine, issues: [] });
+}
+
+function expansionMatchesTaxonomy(
+  expansion: CapabilityRetrievalExpansionV1,
+  taxonomy: CapabilityTaxonomyV1,
+): boolean {
+  const conceptIds = new Set(
+    taxonomy.concepts.map(({ conceptId }) => conceptId),
+  );
+  const activeAliases = new Set(
+    taxonomy.resolvedAliases
+      .filter(({ status }) => status === 'active')
+      .map(({ aliasKey, conceptId }) => `${conceptId}\0${aliasKey}`),
+  );
+  return expansion.edges.every(
+    ({ sourceConceptId, targetTerm, relationshipKind }) =>
+      conceptIds.has(sourceConceptId) &&
+      (relationshipKind !== 'taxonomy-alias' ||
+        activeAliases.has(`${sourceConceptId}\0${targetTerm}`)),
+  );
 }
 
 export function retrieveCandidateSet(
@@ -212,12 +272,20 @@ export function retrieveCandidateSet(
     CapabilityTaxonomyV1['concepts'][number]
   >,
   candidateIds: ReadonlySet<string>,
+  retrievalExpansionAuthority: CapabilityRetrievalExpansionV1,
   constraintEvaluator: typeof evaluateCandidateConstraints = evaluateCandidateConstraints,
 ): CandidateRetrievalOperationResultV1 {
   const parsedRequest = parseCandidateRetrievalRequestV1(suppliedRequest);
   if (!parsedRequest.ok) return failure('invalid-request', 'request');
   const request = parsedRequest.value;
-  if (!requestBindingsMatch(request, taxonomy, authority)) {
+  if (
+    !requestBindingsMatch(
+      request,
+      taxonomy,
+      authority,
+      retrievalExpansionAuthority,
+    )
+  ) {
     return failure('authority-binding-mismatch', 'request');
   }
   if (
@@ -238,8 +306,13 @@ export function retrieveCandidateSet(
   };
   let negativeControlsExcluded = 0;
   let candidateChannelMatches = 0;
+  let candidateExpansionMatches = 0;
   const scored: ScoredCandidate[] = [];
   const constraintEvaluatedCandidateIds = new Set<string>();
+  const expandedTerms = expandRetrievalTermsV1(
+    expansionSourceConceptIds(request),
+    retrievalExpansionAuthority,
+  );
 
   for (const candidate of candidates) {
     if (constraintEvaluatedCandidateIds.has(candidate.candidateId)) {
@@ -275,8 +348,13 @@ export function retrieveCandidateSet(
       request,
       candidate,
       taxonomyConcepts,
+      expandedTerms,
     );
     candidateChannelMatches += evidence.length;
+    candidateExpansionMatches += evidence.reduce(
+      (sum, item) => sum + item.matchedExpansionEdgeIds.length,
+      0,
+    );
     if (evidence.length === 0) continue;
     const retrievalCandidate = createCandidateRecord(
       candidate,
@@ -353,6 +431,14 @@ export function retrieveCandidateSet(
           0,
           evidencePool.length - evidenceNeededCandidates.length,
         ),
+        expansionSourceConcepts: new Set(
+          expandedTerms.edgesApplied.map(
+            ({ sourceConceptId }) => sourceConceptId,
+          ),
+        ).size,
+        expansionEdgesApplied: expandedTerms.edgesApplied.length,
+        expansionEdgesTruncated: expandedTerms.edgesTruncated,
+        candidateExpansionMatches,
       },
     });
     return deepFreezeOwned({ ok: true, result, issues: [] });
@@ -365,6 +451,7 @@ function requestBindingsMatch(
   request: CandidateRetrievalRequestV1,
   taxonomy: CapabilityTaxonomyV1,
   authority: DeterministicCandidateProfileAuthority,
+  retrievalExpansionAuthority: CapabilityRetrievalExpansionV1,
 ): boolean {
   return (
     request.authorityBindings.taxonomy.taxonomyVersion ===
@@ -375,7 +462,10 @@ function requestBindingsMatch(
       authority.semanticAuthorityDigest &&
     request.authorityBindings.catalog.catalogVersion ===
       authority.catalogVersion &&
-    request.authorityBindings.catalog.catalogDigest === authority.catalogDigest
+    request.authorityBindings.catalog.catalogDigest ===
+      authority.catalogDigest &&
+    request.authorityBindings.retrievalExpansion.semanticDigest ===
+      retrievalExpansionAuthority.semanticDigest
   );
 }
 
@@ -423,6 +513,7 @@ export function executeRetrievalChannels(
     string,
     CapabilityTaxonomyV1['concepts'][number]
   >,
+  expansion: RetrievalTermExpansionV1 = EMPTY_RETRIEVAL_EXPANSION,
 ): readonly ChannelEvidence[] {
   const evidence: ChannelEvidence[] = [];
   const primaryFamily = request.normalization.primaryFamilyId;
@@ -452,6 +543,7 @@ export function executeRetrievalChannels(
         ...additionalMatches,
       ]),
       matchedProfileFieldIds: ['capability-family'],
+      matchedExpansionEdgeIds: [],
     });
   }
 
@@ -473,6 +565,7 @@ export function executeRetrievalChannels(
       ),
       matchedCapabilityConceptIds: taxonomyMatches.concepts,
       matchedProfileFieldIds: taxonomyMatches.fields,
+      matchedExpansionEdgeIds: [],
     });
   }
 
@@ -482,12 +575,27 @@ export function executeRetrievalChannels(
         reference.candidateId === candidate.candidateId &&
         reference.referenceKind !== 'npm-package',
     );
-  if (candidateReferences.length > 0) {
+  const repositoryExpansionMatches = matchExpansionTerms(
+    expansion,
+    candidate.candidateRepositoryIdentityTerms,
+  );
+  if (
+    candidateReferences.length > 0 ||
+    repositoryExpansionMatches.edgeIds.length > 0
+  ) {
     evidence.push({
       channelId: 'candidate-identity',
-      componentScore: CHANNEL_WEIGHTS.candidateIdentity,
-      matchedCapabilityConceptIds: [],
+      componentScore: Math.min(
+        2_000,
+        (candidateReferences.length > 0
+          ? CHANNEL_WEIGHTS.candidateIdentity
+          : 0) +
+          repositoryExpansionMatches.sourceConceptIds.length *
+            CHANNEL_WEIGHTS.candidateIdentityExpansionPerConcept,
+      ),
+      matchedCapabilityConceptIds: repositoryExpansionMatches.sourceConceptIds,
       matchedProfileFieldIds: ['repository-identity'],
+      matchedExpansionEdgeIds: repositoryExpansionMatches.edgeIds,
     });
   }
   const packageReferences =
@@ -496,12 +604,25 @@ export function executeRetrievalChannels(
         reference.candidateId === candidate.candidateId &&
         reference.referenceKind === 'npm-package',
     );
-  if (packageReferences.length > 0 && candidate.packageIdentity !== null) {
+  const packageExpansionMatches = matchExpansionTerms(
+    expansion,
+    candidate.packageIdentityTerms,
+  );
+  if (
+    candidate.packageIdentity !== null &&
+    (packageReferences.length > 0 || packageExpansionMatches.edgeIds.length > 0)
+  ) {
     evidence.push({
       channelId: 'package-identity',
-      componentScore: CHANNEL_WEIGHTS.packageIdentity,
-      matchedCapabilityConceptIds: [],
+      componentScore: Math.min(
+        2_000,
+        (packageReferences.length > 0 ? CHANNEL_WEIGHTS.packageIdentity : 0) +
+          packageExpansionMatches.sourceConceptIds.length *
+            CHANNEL_WEIGHTS.packageIdentityExpansionPerConcept,
+      ),
+      matchedCapabilityConceptIds: packageExpansionMatches.sourceConceptIds,
       matchedProfileFieldIds: ['package-identity-mapping'],
+      matchedExpansionEdgeIds: packageExpansionMatches.edgeIds,
     });
   }
 
@@ -528,6 +649,7 @@ export function executeRetrievalChannels(
       ),
       matchedCapabilityConceptIds: structuredMatches.concepts,
       matchedProfileFieldIds: structuredMatches.fields,
+      matchedExpansionEdgeIds: [],
     });
   }
   return evidence.sort(
@@ -580,6 +702,7 @@ function createCandidateRecord(
         componentScore: item.componentScore,
         matchedCapabilityConceptIds: [...item.matchedCapabilityConceptIds],
         matchedProfileFieldIds: [...item.matchedProfileFieldIds],
+        matchedExpansionEdgeIds: [...item.matchedExpansionEdgeIds],
       };
     },
   );
@@ -774,8 +897,79 @@ export function createCandidateSearchView(
       packageMapping.value.mapping === 'mapped'
         ? packageMapping.value.packageName.toLowerCase()
         : null,
+    candidateRepositoryIdentityTerms: identityTerms([
+      profile.candidateId,
+      repository.value.githubOwner,
+      repository.value.githubRepository,
+    ]),
+    packageIdentityTerms:
+      packageMapping.value.mapping === 'mapped'
+        ? identityTerms([packageMapping.value.packageName])
+        : new Set<string>(),
     conceptsByField,
   };
+}
+
+function expansionSourceConceptIds(
+  request: CandidateRetrievalRequestV1,
+): readonly string[] {
+  return uniqueSorted([
+    ...request.normalization.normalizedCapabilityConcepts.map(
+      ({ conceptId }) => conceptId,
+    ),
+    ...request.normalization.normalizedConstraints
+      .filter(
+        ({ modality, resolutionBasis, conceptId }) =>
+          modality !== 'prohibited' &&
+          resolutionBasis === 'controlled-taxonomy' &&
+          conceptId !== null,
+      )
+      .map(({ conceptId }) => conceptId)
+      .filter((conceptId): conceptId is string => conceptId !== null),
+  ]);
+}
+
+function matchExpansionTerms(
+  expansion: RetrievalTermExpansionV1,
+  identityTermSet: ReadonlySet<string>,
+): {
+  readonly edgeIds: readonly string[];
+  readonly sourceConceptIds: readonly string[];
+} {
+  const matchedEdges = expansion.edgesApplied.filter(({ targetTerm }) =>
+    identityTermSet.has(targetTerm),
+  );
+  const directSourceConceptIds = expansion.originalConceptIds.filter(
+    (conceptId) => identityTermSet.has(conceptId),
+  );
+  return {
+    edgeIds: uniqueSorted(matchedEdges.map(({ edgeId }) => edgeId)),
+    sourceConceptIds: uniqueSorted(
+      directSourceConceptIds.concat(
+        matchedEdges.map(({ sourceConceptId }) => sourceConceptId),
+      ),
+    ),
+  };
+}
+
+function identityTerms(identities: readonly string[]): ReadonlySet<string> {
+  const terms = new Set<string>();
+  for (const identity of identities) {
+    const tokens = identity
+      .toLowerCase()
+      .split(/[^a-z0-9]+/u)
+      .filter((token) => token.length >= 2 && token.length <= 32);
+    for (let start = 0; start < tokens.length; start += 1) {
+      for (
+        let length = 1;
+        length <= 4 && start + length <= tokens.length;
+        length += 1
+      ) {
+        terms.add(tokens.slice(start, start + length).join('-'));
+      }
+    }
+  }
+  return terms;
 }
 
 function knownField<Id extends DeterministicProfileFieldId>(
@@ -852,6 +1046,8 @@ function failure(
     'authority-binding-mismatch':
       'Candidate retrieval authority bindings disagree.',
     'candidate-evaluation-failed': 'Candidate constraint evaluation failed.',
+    'invalid-expansion-authority':
+      'Capability retrieval expansion authority is invalid.',
     'invalid-profile-authority': 'Candidate profile authority is invalid.',
     'invalid-request': 'Candidate retrieval request is invalid.',
     'invalid-taxonomy-authority': 'Capability taxonomy authority is invalid.',

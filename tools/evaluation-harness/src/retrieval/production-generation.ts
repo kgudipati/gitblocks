@@ -1,10 +1,14 @@
 import {
   createCandidateRetrievalRequestV1,
+  type CandidateRetrievalRequestV1,
   type CandidateRetrievalResultV1,
   type CapabilityQueryNormalizationResultV1,
 } from '@gitblocks/contracts';
 import { CANDIDATE_CONSTRAINT_EVALUATION_VERSION } from '@gitblocks/domain';
-import { createCandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
+import {
+  createCandidateRetrievalEngineV1,
+  type CandidateRetrievalEngineV1,
+} from '@gitblocks/retrieval';
 
 import { findGitBlocksRoot } from '../repository-root.ts';
 import { loadRetrievalBlindQuerySetV1 } from './blind-query.ts';
@@ -27,17 +31,26 @@ import {
   validateRetrievalPredictionSetAgainstBlindAuthorityV1,
   type RetrievalBlindPredictionValidationAuthority,
 } from './predictions.ts';
-import { loadRetrievalSafeAuthorityV1 } from './safe-authority.ts';
+import {
+  loadRetrievalSafeAuthorityV1,
+  type SafeRetrievalAuthorityV1,
+} from './safe-authority.ts';
 import { retrievalStableJson } from './stable-json.ts';
 
 export const PRODUCTION_RETRIEVAL_PREDICTION_SET_ID =
   'production-deterministic-v1' as const;
 
 export interface ProductionRetrievalPerformanceEvidenceV1 {
+  readonly protocol: 'milestone-2-sample' | 'milestone-3-development';
   readonly candidateCount: number;
   readonly activeChannelCount: number;
   readonly engineBuildMilliseconds: number;
+  readonly coldEngineConstructions: number;
+  readonly p95ColdEngineBuildMilliseconds: number;
+  readonly maximumColdEngineBuildMilliseconds: number;
   readonly searchViewHeapDeltaBytes: number;
+  readonly retainedHeapGrowthBytes: number;
+  readonly warmupRetrievalQueries: number;
   readonly measuredRetrievalQueries: number;
   readonly p95QueryMilliseconds: number;
   readonly maximumQueryMilliseconds: number;
@@ -45,6 +58,7 @@ export interface ProductionRetrievalPerformanceEvidenceV1 {
   readonly maximumCandidatesConstraintEvaluated: number;
   readonly maximumReturnedCandidates: number;
   readonly repeatedCallByteIdentity: boolean;
+  readonly coldEngineResultByteIdentity: boolean;
 }
 
 export interface ProductionRetrievalDifferentialEvidenceV1 {
@@ -77,6 +91,12 @@ interface PreparedProductionQuery {
   readonly normalization: CapabilityQueryNormalizationResultV1;
   readonly projection: GeneratedHardFilterProjection | null;
   readonly productResult: CandidateRetrievalResultV1 | null;
+  readonly request: CandidateRetrievalRequestV1 | null;
+}
+
+export interface ProductionRetrievalGenerationOptionsV1 {
+  readonly performanceProtocol?:
+    'milestone-2-sample' | 'milestone-3-development';
 }
 
 /**
@@ -86,6 +106,7 @@ interface PreparedProductionQuery {
  */
 export function generateProductionRetrievalPredictionSetV1(
   startDirectory = process.cwd(),
+  options: ProductionRetrievalGenerationOptionsV1 = {},
 ): ProductionRetrievalGenerationArtifactsV1 {
   const repositoryRoot = findGitBlocksRoot(startDirectory);
   const blind = loadRetrievalBlindQuerySetV1(repositoryRoot);
@@ -97,6 +118,7 @@ export function generateProductionRetrievalPredictionSetV1(
   const createdEngine = createCandidateRetrievalEngineV1({
     taxonomy: safeAuthority.taxonomy,
     candidateProfileAuthority: safeAuthority.profiles,
+    retrievalExpansionAuthority: safeAuthority.expansion,
   });
   const engineBuildMilliseconds = elapsedMilliseconds(buildStart);
   const heapAfter = measuredHeapBytes();
@@ -125,6 +147,7 @@ export function generateProductionRetrievalPredictionSetV1(
           normalization,
           projection: null,
           productResult: null,
+          request: null,
         };
       }
       const request = createCandidateRetrievalRequestV1({
@@ -146,6 +169,10 @@ export function generateProductionRetrievalPredictionSetV1(
           },
           candidateConstraintEvaluationVersion:
             CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
+          retrievalExpansion: {
+            authorityVersion: safeAuthority.expansion.expansionVersion,
+            semanticDigest: safeAuthority.expansion.semanticDigest,
+          },
         },
         eligibleResultLimit: 10,
         evidenceNeededResultLimit: 10,
@@ -183,7 +210,13 @@ export function generateProductionRetrievalPredictionSetV1(
         safeAuthority.profiles,
       );
       assertProductionDifferential(result, projection);
-      return { document, normalization, projection, productResult: result };
+      return {
+        document,
+        normalization,
+        projection,
+        productResult: result,
+        request,
+      };
     },
   );
 
@@ -247,26 +280,70 @@ export function generateProductionRetrievalPredictionSetV1(
   if (diagnostics.length > 0) {
     throw new Error('Production prediction failed blind schema validation.');
   }
-  const sortedDurations = [...queryDurations].sort(
+  const performanceProtocol =
+    options.performanceProtocol ?? 'milestone-2-sample';
+  const retrievalEntries = prepared.filter(
+    (
+      entry,
+    ): entry is PreparedProductionQuery & {
+      readonly productResult: CandidateRetrievalResultV1;
+      readonly request: CandidateRetrievalRequestV1;
+    } => entry.productResult !== null && entry.request !== null,
+  );
+  const developmentPerformance =
+    performanceProtocol === 'milestone-3-development'
+      ? measureDevelopmentPerformance(
+          engine,
+          retrievalEntries,
+          safeAuthority,
+          engineBuildMilliseconds,
+        )
+      : {
+          queryDurations,
+          warmupRetrievalQueries: 0,
+          retainedHeapGrowthBytes: 0,
+          coldBuildDurations: [engineBuildMilliseconds],
+          coldEngineResultByteIdentity: true,
+        };
+  const sortedDurations = [...developmentPerformance.queryDurations].sort(
     (left, right) => left - right,
   );
+  const sortedColdBuildDurations = [
+    ...developmentPerformance.coldBuildDurations,
+  ].sort((left, right) => left - right);
   const p95Index = Math.max(0, Math.ceil(sortedDurations.length * 0.95) - 1);
+  const coldP95Index = Math.max(
+    0,
+    Math.ceil(sortedColdBuildDurations.length * 0.95) - 1,
+  );
   return {
     predictionSet,
     productResultsByCase,
     generatedProjectionsByCase,
     performance: {
+      protocol: performanceProtocol,
       candidateCount: engine.candidateCount,
       activeChannelCount: 5,
       engineBuildMilliseconds: roundMilliseconds(engineBuildMilliseconds),
+      coldEngineConstructions: sortedColdBuildDurations.length,
+      p95ColdEngineBuildMilliseconds: roundMilliseconds(
+        sortedColdBuildDurations[coldP95Index] ?? 0,
+      ),
+      maximumColdEngineBuildMilliseconds: roundMilliseconds(
+        sortedColdBuildDurations.at(-1) ?? 0,
+      ),
       searchViewHeapDeltaBytes: Math.max(0, heapAfter - heapBefore),
-      measuredRetrievalQueries: queryDurations.length,
+      retainedHeapGrowthBytes: developmentPerformance.retainedHeapGrowthBytes,
+      warmupRetrievalQueries: developmentPerformance.warmupRetrievalQueries,
+      measuredRetrievalQueries: developmentPerformance.queryDurations.length,
       p95QueryMilliseconds: roundMilliseconds(sortedDurations[p95Index] ?? 0),
       maximumQueryMilliseconds: roundMilliseconds(sortedDurations.at(-1) ?? 0),
       maximumCandidatesExamined,
       maximumCandidatesConstraintEvaluated,
       maximumReturnedCandidates,
       repeatedCallByteIdentity: true,
+      coldEngineResultByteIdentity:
+        developmentPerformance.coldEngineResultByteIdentity,
     },
     differential: {
       retrievalCasesChecked: generatedProjectionsByCase.size,
@@ -278,6 +355,90 @@ export function generateProductionRetrievalPredictionSetV1(
       noEligibleMappingMatches: generatedProjectionsByCase.size,
       productionInputGoldFieldCount: 0,
     },
+  };
+}
+
+function measureDevelopmentPerformance(
+  engine: CandidateRetrievalEngineV1,
+  entries: readonly (PreparedProductionQuery & {
+    readonly productResult: CandidateRetrievalResultV1;
+    readonly request: CandidateRetrievalRequestV1;
+  })[],
+  safeAuthority: SafeRetrievalAuthorityV1,
+  initialEngineBuildMilliseconds: number,
+): {
+  readonly queryDurations: readonly number[];
+  readonly warmupRetrievalQueries: number;
+  readonly retainedHeapGrowthBytes: number;
+  readonly coldBuildDurations: readonly number[];
+  readonly coldEngineResultByteIdentity: boolean;
+} {
+  if (entries.length === 0) {
+    throw new Error('Production performance query authority is empty.');
+  }
+  const warmupRetrievalQueries = 100;
+  for (let index = 0; index < warmupRetrievalQueries; index += 1) {
+    const entry = entries[index % entries.length];
+    if (entry === undefined || !engine.retrieve(entry.request).ok) {
+      throw new Error('Production retrieval warm-up failed.');
+    }
+  }
+  const retainedHeapBefore = measuredHeapBytes();
+  const measuredRetrievalQueries = 1_000;
+  const queryDurations: number[] = [];
+  for (let index = 0; index < measuredRetrievalQueries; index += 1) {
+    const entry = entries[index % entries.length];
+    if (entry === undefined) {
+      throw new Error('Production performance query is missing.');
+    }
+    const started = performance.now();
+    const operation = engine.retrieve(entry.request);
+    queryDurations.push(elapsedMilliseconds(started));
+    if (
+      !operation.ok ||
+      retrievalStableJson(operation.result) !==
+        retrievalStableJson(entry.productResult)
+    ) {
+      throw new Error('Production retrieval measured repeat failed.');
+    }
+  }
+  const retainedHeapAfter = measuredHeapBytes();
+
+  const coldBuildDurations = [initialEngineBuildMilliseconds];
+  let coldEngineResultByteIdentity = true;
+  const probe = entries[0];
+  if (probe === undefined) {
+    throw new Error('Production performance probe is missing.');
+  }
+  for (let index = 1; index < 5; index += 1) {
+    const started = performance.now();
+    const created = createCandidateRetrievalEngineV1({
+      taxonomy: safeAuthority.taxonomy,
+      candidateProfileAuthority: safeAuthority.profiles,
+      retrievalExpansionAuthority: safeAuthority.expansion,
+    });
+    coldBuildDurations.push(elapsedMilliseconds(started));
+    if (!created.ok) {
+      throw new Error('Production cold engine construction failed.');
+    }
+    const operation = created.engine.retrieve(probe.request);
+    coldEngineResultByteIdentity &&=
+      operation.ok &&
+      retrievalStableJson(operation.result) ===
+        retrievalStableJson(probe.productResult);
+  }
+  if (!coldEngineResultByteIdentity) {
+    throw new Error('Production cold engine result identity failed.');
+  }
+  return {
+    queryDurations,
+    warmupRetrievalQueries,
+    retainedHeapGrowthBytes: Math.max(
+      0,
+      retainedHeapAfter - retainedHeapBefore,
+    ),
+    coldBuildDurations,
+    coldEngineResultByteIdentity,
   };
 }
 

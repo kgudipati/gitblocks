@@ -8,9 +8,11 @@
 - Owner: repository maintainer
 - State: Milestone 1 was independently accepted at
   `18dae5adf821f0c998c02d4829416d655b9da1a1` after rereview of the corrected
-  evaluation-lane semantics. Milestone 2 is implemented and pending
-  independent review; Milestones 3–4 remain blocked pending independent review
-  of each preceding milestone.
+  evaluation-lane semantics. Milestone 2 was independently accepted at
+  `ce533e39588027048a522417782ada98afeb1489` after rereview of the lane-local
+  exact-identity correction. Milestone 3 implementation exists and is pending
+  independent review; its development benchmark still misses three retrieval
+  gates, so Milestone 4 remains blocked.
 - Last updated: 2026-08-07
 
 Issue #21 is the requirements authority. Accepted
@@ -26,7 +28,10 @@ Engine in the original end-to-end strategy. Independent maintainer rereview
 accepted the architecture and every pre-registered threshold in ADR 0009 at
 `18dae5adf821f0c998c02d4829416d655b9da1a1`, authorizing Milestone 2. No later
 milestone begins without independent review of the preceding milestone.
-Milestone 2 implementation evidence below does not constitute its acceptance.
+Milestone 2 implementation evidence below is accepted only within its stated
+vertical-slice boundary. It does not accept `retrieval-v1` gold, prove final
+retrieval quality, complete Phase 9, or authorize ranking, vectors, or search
+infrastructure.
 
 ## Purpose and user-visible outcome
 
@@ -46,9 +51,11 @@ codebase-conditioned adoption fit, or plan integration.
 Milestone 1 delivered only reviewed governance and architecture: one governing
 issue, this plan, accepted ADR 0009, package and contract decisions, exact
 retrieval semantics, and thresholds selected before production retrieval
-existed. Milestone 2 now supplies the first measurable production vertical
-slice. The final observable product outcome still requires Milestones 3–4 and
-their independent review gates.
+existed. Milestone 2 supplies the accepted first measurable production
+vertical slice. Milestone 3 adds bounded controlled expansion and deterministic
+fusion, but its development result has not crossed every quality gate. The
+final observable product outcome still requires resolution of that evidence,
+Milestone 3 acceptance, and Milestone 4 proof.
 
 ## Verified current repository state
 
@@ -302,6 +309,16 @@ Neither Milestone 1 nor Phase 9 includes:
 
 Each assumption is tested in Milestones 2–4. Failure activates correction or a
 pre-registered reconsideration path; it does not silently broaden scope.
+
+Milestone 3 falsified the second working assumption for the current committed
+candidate authority. All 205 starting eligible misses already had a family
+signal, while taxonomy-concept, package-identity, and structured-profile had no
+real-corpus activation and all eight approved structured fields were unknown
+for all 150 profiles. Bounded identity expansion recovered one additional
+relevant candidate, but no general deterministic rule can distinguish the
+remaining same-family ties without an approved candidate-owned signal
+authority. This finding does not activate vectors because no miss was
+attributed to semantic mismatch.
 
 ### Risks and controls
 
@@ -634,7 +651,7 @@ independent review:
 No expansion authority, advanced fusion/diversity, ranking, model, API, MCP,
 database, vector, or persistent index belongs in this milestone.
 
-#### Milestone 2 implementation evidence — pending independent review
+#### Milestone 2 implementation evidence — independently accepted
 
 The implemented product direction is:
 
@@ -787,6 +804,161 @@ Only after Milestone 2 acceptance:
 Vectors, persistent indexes, pgvector, caching, and a search service remain out
 of scope unless all corresponding pre-registered evidence exists and a new ADR
 is independently accepted.
+
+#### Milestone 3 implementation evidence — pending independent review
+
+The accepted M2 prediction was reproduced before mutation with prediction
+digest `3bba6372d211e88ba6f62fe3d948312c4f1daf7184ba639248337323dc559e1a`
+and score digest
+`7babb9b08467bfa91c35ce277ad776f2450806d21cf2418e46dd8c80b1c4d265`.
+Predictions were frozen before the development corpus was opened for error
+analysis. Among 400 eligible relevant judgments, M2 returned 195. All 205
+misses had a capability-family signal but fell below the bounded top ten:
+
+| Starting miss cause                        | Count |
+| ------------------------------------------ | ----: |
+| hard-excluded                              |     0 |
+| evidence-needed within scored recall cases |     0 |
+| eligible with no retrieval signal          |     0 |
+| generated but ordered below top 10         |   205 |
+| same-lane identity suppression             |     0 |
+| another deterministic cause                |     0 |
+
+The below-top-10 misses were 25 authorization, 46 audit-logging, 73
+background-jobs, 50 rate-limiting, and 11 webhooks judgments. Separately, 56
+relevant records in the five zero-eligible-pool cases were correctly assigned
+to evidence-needed and are not Recall@10 misses.
+
+Initial channel analysis found:
+
+| M2 channel         | Cases with a component | Candidate-case components | Top-10 effect                                     |
+| ------------------ | ---------------------: | ------------------------: | ------------------------------------------------- |
+| capability-family  |                     30 |                       636 | removing it changed all 30 top-10 sets            |
+| taxonomy-concept   |                      0 |                         0 | none                                              |
+| candidate-identity |                      5 |                         9 | changed order in five cases and membership in two |
+| package-identity   |                      0 |                         0 | none                                              |
+| structured-profile |                      0 |                         0 | none                                              |
+
+No candidate activates an additional family, every one of the eight approved
+structured retrieval fields is unknown for all 150 profiles, and the current
+authority has no exact repository/package identity group. The observed gap is
+therefore sparse candidate-owned differentiation within already generated
+same-family pools. It is not caused by query normalization, hard filtering,
+identity diversity, or a genuine semantic mismatch.
+
+Milestone 3 introduces the human-reviewable and generated authority under
+`catalog/capability-retrieval-expansion/1.0.0`. It binds taxonomy `1.0.0` and
+semantic digest
+`838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9`.
+The generated authority has semantic digest
+`1435521e117e2af18ec55bbf1f30e3f5d2f48fe07d54f0c657917ff027086f4a`,
+144 directed edges over 49 source concepts, 47 active taxonomy-alias edges,
+and 97 proposed related-identity-term edges pending Milestone 3 review.
+Query-time expansion is exactly
+one hop, keeps every original concept, permits at most eight canonical edges
+per source and 32 per query, and deterministically truncates by source concept,
+target term, then edge ID. Required and prohibited records remain byte- and
+semantically identical; prohibited concepts cannot create a soft expansion
+component; and expansion cannot alter a hard state or lane.
+
+Only five of the 20 proposed custom rule sources activate in the current 30
+blind retrieval inputs; 15 do not. This input-only coverage check, the absence
+of case/candidate fields, and a general `norm-*` / `ret-*` identifier guard
+provide direct evidence that the authority is not a case lookup table.
+
+The two existing product contract roots advance from `1.0.0` to `1.1.0`, and
+`deterministic-candidate-retrieval` advances from `1.0.0` to `1.1.0`. This is a
+coordinated additive minor evolution on the unmerged pre-public branch, not a
+new root concept. Requests and results now bind the expansion authority and
+digest; results expose bounded expansion diagnostics and matched edge IDs.
+`candidate-identity` and `package-identity` advance to `1.1.0`; the other three
+channel bindings remain `1.0.0`.
+
+Expansion matches only bounded exact candidate ID, repository owner/name, and
+package identity terms. The global integer fusion rule retains the M2
+components and adds 100 points per distinct matched expansion source concept
+to the candidate-identity or package-identity component, each capped at 2,000.
+All active components are summed, followed by the unchanged descending integer
+score and ASCII candidate-ID comparator. The rule contains no case-, family-,
+or candidate-specific weight.
+
+Repository inspection found no approved immutable repository/package lexical
+authority: retained artifact manifests bind selections and receipts but not
+bodies; current profiles have no known topics/descriptions/keywords; and
+catalog rationale is curator selection context. Lexical retrieval therefore
+remains disabled. Catalog rationale, completion/interview prose, and evaluation
+text were not used. No product-owned reviewed fork or near-equivalence
+authority exists, so both groupings remain disabled and evaluation equivalence
+remains tooling-only. The accepted lane-local exact identity algorithm is
+unchanged.
+
+Meaningful development ablations were:
+
+| Configuration                                           | Macro Recall@10 | Authorization | Audit    | Background | Rate     | Webhooks | MRR      | NDCG@10  | Decision                                                  |
+| ------------------------------------------------------- | --------------- | ------------- | -------- | ---------- | -------- | -------- | -------- | -------- | --------------------------------------------------------- |
+| accepted M2                                             | 0.612295        | 0.686274      | 0.544203 | 0.478897   | 0.526923 | 0.825175 | 0.960000 | 0.769561 | frozen starting point                                     |
+| global fusion-weight changes without new signal         | 0.612295        | 0.686274      | 0.544203 | 0.478897   | 0.526923 | 0.825175 | 0.960000 | 0.769561 | no tied same-family ordering effect                       |
+| broad family-identity expansion experiment              | 0.611991        | —             | —        | —          | —        | 0.806993 | 0.916667 | —        | rejected; broad common terms reduced precision and recall |
+| bounded concept-to-exact-identity expansion plus fusion | 0.615628        | 0.702941      | 0.544203 | 0.478897   | 0.526923 | 0.825175 | 0.953333 | 0.792925 | retained as the smallest general improvement              |
+| approved metadata lexical                               | not run         | —             | —        | —          | —        | —        | —        | —        | no approved candidate-owned lexical authority exists      |
+
+The rejected broad experiment was removed; its partial metrics are retained
+only to explain the decision and were not used to tune a family-specific rule.
+Weighted reciprocal-rank fusion is not justified because four of five channels
+provide no independent rank on the real corpus. The final global additive rule
+recovers one authorization judgment and leaves every other family unchanged.
+
+The final M3 development benchmark is:
+
+| Gate/diagnostic                               | M3 value         | Required      | State |
+| --------------------------------------------- | ---------------- | ------------- | ----- |
+| macro Recall@10                               | `0.615628`       | `>= 0.625000` | fail  |
+| positive-case hit rate                        | `25 / 25`        | `25 / 25`     | pass  |
+| authorization Recall@10                       | `0.702941`       | `>= 0.647647` | pass  |
+| audit-logging Recall@10                       | `0.544203`       | `>= 0.564783` | fail  |
+| background-jobs Recall@10                     | `0.478897`       | `>= 0.438207` | pass  |
+| rate-limiting Recall@10                       | `0.526923`       | `>= 0.543462` | fail  |
+| webhooks Recall@10                            | `0.825175`       | `>= 0.759021` | pass  |
+| MRR                                           | `0.953333`       | `>= 0.900000` | pass  |
+| NDCG@10                                       | `0.792925`       | `>= 0.750000` | pass  |
+| hard-filter correctness                       | `4500/4500`      | exact         | pass  |
+| prohibited preservation, micro / macro        | `15/15`, `10/10` | exact         | pass  |
+| no-eligible correctness                       | `30/30`          | exact         | pass  |
+| conflict / lane / negative-control            | `0 / 0 / 0`      | zero          | pass  |
+| exact / controlled-equivalence duplicate rate | `0 / 0`          | zero          | pass  |
+
+The final prediction digest is
+`0280c50b9d6f8d95b9b5f3cc30506b0979e3bf2470158c584d8c47396783f0d1`;
+the score digest is
+`747c5d8ab8de9a94d089c1513bc6d976174ce5e8fbff0486acbe2bcdcfbad5b0`.
+Expansion applied 92 edges from 40 source-concept occurrences over all 30
+cases with zero truncation; 142 matched edge occurrences were observed in 15
+cases. Exact identity groups and removals remain zero.
+
+The M3 performance protocol used 100 warm-ups and 1,000 round-robin queries.
+It measured p95 `10.684 ms`, maximum `26.587 ms`, search-view heap delta
+`544,472` bytes, retained heap growth `1,011,784` bytes with explicit GC, 150
+candidates evaluated once, five channels, and at most ten returned candidates.
+Repeated calls and five cold-engine results were byte-identical. Five complete
+authority-admitting engine constructions measured p95/max `161.068 ms`; a
+separate 100-construction measurement of the already validated 150-candidate
+search view—the accepted budgeted operation—measured p95 `0.351 ms` and maximum
+`2.734 ms`. M4 must preserve that distinction and freeze its final protocol.
+
+The vector trigger is inactive. Condition 1 is true because three quality
+gates fail. Condition 2 is false: zero misses across zero families were
+attributed to semantic mismatch, so neither the ten-judgment/three-family nor
+20% threshold is met. Available deterministic signals were exhausted, but no
+approved lexical authority exists; no vector spike or superseding ADR was
+therefore permitted under conditions 4–5. Infrastructure triggers are also
+inactive: the authority has 150 candidates, query latency and search-view
+memory pass, and no three-run corrected breach or usage evidence exists for an
+index, cache, persistence, or service.
+
+Milestone 3 is not accepted and cannot authorize Milestone 4 while the
+development gates remain unmet. Independent review must assess the sparse
+candidate-authority finding and the permitted next action. Evaluation gold
+remains `proposed-not-reviewed`; no final production-quality claim is made.
 
 ### Milestone 4 — Production proof and Phase closure
 
@@ -1030,6 +1202,48 @@ a separate reviewed decision authorizes the change.
   including both score directions, both identity kinds, both within-lane
   representative paths, transitivity, backfill, and permutation-stable
   diagnostics. Milestone 2 remains pending independent acceptance.
+- 2026-08-07: Independent rereview accepted Milestone 2 at
+  `ce533e39588027048a522417782ada98afeb1489`, including the lane-local
+  exact-identity correction. The latest hosted aggregate failure is accepted as
+  infrastructure evidence: the unchanged Tooling shard slowed materially
+  before an historical audit test failed, other workers were terminated by the
+  later explicit runner shutdown, and the complete authoritative local suite
+  passed. This acceptance authorizes Milestone 3 only. Evaluation gold remains
+  `proposed-not-reviewed`, Phase 9 remains incomplete, and Milestone 4 remains
+  blocked.
+- 2026-08-07: Reproduced the accepted Milestone 2 production prediction and
+  score digests before M3 mutation, then froze predictions before opening gold.
+  Across 400 eligible relevant judgments, 195 were returned and all 205 misses
+  were generated by `capability-family` but ordered below top 10. Misses due to
+  hard exclusion, evidence-needed assignment, absent signal, identity
+  deduplication, or another cause were all zero. Across all relevant judgments,
+  the only additional 56 absences were correctly segregated evidence-needed
+  candidates in the five zero-eligible-pool cases.
+- 2026-08-07: M3 channel contribution analysis found `capability-family`
+  active in 30/30 cases and 636 candidate-case pairs; `candidate-identity`
+  active in five cases and nine candidate-case pairs; and zero real-corpus
+  activation for taxonomy-concept, package-identity, or structured-profile.
+  Family ablation changed all 30 top-10 sets; candidate-identity ablation
+  changed ordering in five cases and membership in two. Every one of the eight
+  approved structured retrieval fields is unknown for all 150 profiles, no
+  additional-family match activates, and the authority has no exact identity
+  groups. The remaining gap is therefore tied ordering under sparse
+  candidate-owned authority, not hard filtering, deduplication, or a genuine
+  semantic-retrieval miss.
+- 2026-08-07: Implemented the bounded expansion authority and additive global
+  identity fusion. The retained algorithm improves macro Recall@10 from
+  `0.612295` to `0.615628` and authorization from `0.686274` to `0.702941`,
+  with 25/25 hits, MRR `0.953333`, NDCG@10 `0.792925`, and every safety and
+  duplicate gate exact. Audit logging and rate limiting remain unchanged, so
+  the macro and those two family floors still fail. This result is pending
+  independent review and does not authorize M4.
+- 2026-08-07: The M3 performance protocol passed query, search-view memory,
+  retained-heap, bounded-work, and repeatability budgets. Five full
+  authority-admitting engine constructions measured p95 `161.068 ms`, while
+  100 already-validated search-view constructions measured p95 `0.351 ms`;
+  the latter is the operation named by the accepted build budget. The vector
+  trigger remains inactive because zero misses were semantic, and every
+  persistence/index/cache/service trigger remains inactive.
 
 ## Decision and deviation log
 
@@ -1090,6 +1304,32 @@ a separate reviewed decision authorizes the change.
   implementation conform to that existing semantic promise. The current
   authority has no exact identity duplicate groups, so its prediction/result
   digests remain unchanged. Owner: Milestone 2 correction review.
+- 2026-08-07 — Advance the two retrieval contract families and algorithm to
+  `1.1.0`, and the candidate/package identity channels to `1.1.0`. Reason: the
+  expansion authority binding and edge provenance are additive but materially
+  affect reproducibility and identity-channel semantics; silently changing a
+  frozen `1.0.0` would be incorrect. The branch is unmerged and has no deployed
+  consumer. Owner: Milestone 3 implementation review.
+- 2026-08-07 — Establish
+  `capability-retrieval-expansion/1.0.0` as a taxonomy-bound one-hop authority
+  with eight edges per source and 32 per query. Reason: controlled aliases and
+  related exact identity terms are the smallest candidate-owned broadening
+  available without lexical text or a model. Owner: Milestone 3 implementation
+  review.
+- 2026-08-07 — Keep approved-metadata lexical retrieval disabled. Reason: the
+  repository retains no bounded immutable candidate-owned metadata body, and
+  catalog rationale, interviews, completion prose, and evaluation text are
+  not valid substitutes. Owner: Milestone 3 implementation review.
+- 2026-08-07 — Retain global additive integer fusion and exact lane-local
+  identity diversity; keep fork and near-equivalence grouping disabled.
+  Reason: ablation does not justify a more complex rank-fusion mechanism, and
+  no reviewed product authority proves fork or equivalence relationships.
+  Owner: Milestone 3 implementation review.
+- 2026-08-07 — Do not activate the vector or infrastructure paths after M3.
+  Reason: zero misses were attributed to semantic mismatch, the corpus is only
+  150 candidates, and query/memory budgets pass. The remaining recall gap is
+  sparse candidate authority, which neither a vector nor an index can
+  legitimately manufacture. Owner: Milestone 3 implementation review.
 - 2026-08-07 — No deviation from the governing issue or protected Phase 8
   boundary has been identified.
 
@@ -1182,7 +1422,7 @@ they are retained in the draft PR and Milestone 1 delivery report. Subsequent
 independent rereview accepted Milestone 1 at the correction commit, as recorded
 in the current status and progress log above.
 
-### Milestone 2 validation evidence — pending independent review
+### Milestone 2 validation evidence — independently accepted
 
 The complete Milestone 2 validation sequence was rerun after the implementation
 and this evidence record. Its authoritative results are:
@@ -1343,7 +1583,7 @@ provider, model, expansion, vector, persistent index, cache, search service,
 ranking, target-codebase, API, MCP, or Skill change. The production package has
 no corresponding dependency or runtime access. Milestone 7B remains deferred.
 
-### Milestone 2 lane-local deduplication correction — pending independent review
+### Milestone 2 lane-local deduplication correction — independently accepted
 
 The red-first focused retrieval run exited 1 with 4 intended failures and 20
 passes. The failures demonstrated that the prior global union-find pass removed
@@ -1414,3 +1654,125 @@ delta `392,904` bytes. The production sample within authoritative
 candidates once, ran five channels, returned at most ten candidates, and were
 byte-repeatable. No contract, algorithm binding, gold, scorer, baseline,
 threshold, CI worker setting, dependency, or lockfile changed.
+
+### Milestone 3 validation evidence — pending independent review
+
+The focused M3 command passed 10 files and 167 tests covering the expansion
+authority and generator, request/result contracts, deterministic schema
+artifacts, one-hop expansion, fusion and lane-local retrieval behavior, the
+production adapter/differentials, gold blindness, repository invariants, and
+CI policy:
+
+```bash
+pnpm exec vitest run \
+  packages/contracts/test/capability-retrieval-expansion-contracts.test.ts \
+  packages/contracts/test/retrieval-expansion-command.test.ts \
+  packages/contracts/test/candidate-retrieval-contracts.test.ts \
+  packages/contracts/test/schema-artifacts.test.ts \
+  packages/retrieval/test/retrieval-expansion.test.ts \
+  packages/retrieval/test/retrieval-engine.test.ts \
+  tools/evaluation-harness/test/retrieval-production-adapter.test.ts \
+  tools/evaluation-harness/test/retrieval-architecture.test.ts \
+  tools/repository-checks/test/repository-invariants.test.ts \
+  tools/repository-checks/test/workflow-policy.test.ts \
+  --config vitest.config.ts
+```
+
+Standalone validation passed:
+
+| Command                                                                                        | Result                                                                                                       |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `pnpm runtime:check`                                                                           | exit 0; Node 24.18.0 and pnpm 11.17.0 pins passed                                                            |
+| `pnpm format:check`                                                                            | exit 0; all matched files use repository formatting                                                          |
+| `pnpm repo:check`                                                                              | exit 0; repository policy and authority paths passed                                                         |
+| `pnpm retrieval:expansion:validate`                                                            | exit 0; 144 edges, 49 sources, and semantic digest reproduced                                                |
+| `pnpm contracts:validate`                                                                      | exit 0; 10 product-conformance cases and 40 candidate mappings passed                                        |
+| `pnpm eval:validate` / `pnpm eval:fixtures`                                                    | exit 0; existing evaluation authority and hand-calculated fixtures passed unchanged                          |
+| `pnpm eval:retrieval:validate` / `pnpm eval:retrieval:fixtures` / `pnpm eval:retrieval:verify` | exit 0; unchanged corpus, scorer fixtures, baseline report, and reverse-authority proof passed               |
+| `pnpm eval:retrieval:production`                                                               | exit 0; all 30 differentials, quality/safety metrics, expansion diagnostics, and M3 performance protocol ran |
+| `pnpm architecture:check`                                                                      | exit 0; 865 modules and 2,889 dependencies had no violation                                                  |
+| `pnpm security:secrets`                                                                        | exit 0; Secretlint reported no finding                                                                       |
+| `pnpm security:audit`                                                                          | exit 0; no known vulnerability at the `moderate` threshold                                                   |
+| `git diff --check`                                                                             | exit 0; no whitespace error or diagnostic                                                                    |
+
+Five fresh processes independently generated prediction digest
+`0280c50b9d6f8d95b9b5f3cc30506b0979e3bf2470158c584d8c47396783f0d1`.
+The retrieval engine test also proved byte-identical results across 20 fixed
+admitted search-view permutations and expansion tests proved query/authority
+order independence. No result uses clock, random, locale, environment,
+network, filesystem, model, or iteration order as a scoring input.
+
+The first authoritative `pnpm verify` attempt stopped at four static lint
+findings: exact literal types made three checks redundant and one test used the
+repository-disallowed `Array<T>` notation. The checks remained enforced by the
+closed parsers; the redundant comparisons and notation were corrected. The
+second attempt stopped at one stale negative-test literal caught by TypeScript;
+the invalid value now crosses the unknown parser boundary. The third attempt
+ran all tests and found only two stale exact scope guards for the intended new
+schema roots and CI authority-validation step. Those guards were advanced
+without changing another protected digest. Focused reruns passed after each
+correction; no retrieval behavior, gold, scorer, threshold, timeout, or worker
+count changed.
+
+The final authoritative `pnpm verify` exited 0 with 121 test files and 1,869
+tests passing. It also passed every product/tool build and typecheck, lint,
+repository check, authority validator, evaluation and scorer fixture,
+architecture check across 865 modules and 2,889 dependencies, contract
+conformance, profile/catalog/interview/operator/pre-live check, and Secretlint.
+Its embedded M3 production run reproduced the final prediction and score
+digests and all quality/safety values while measuring query p95 `10.467 ms`,
+maximum `13.074 ms`, five complete engine constructions at p95/max
+`173.338 ms`, search-view heap delta `547,384` bytes, and retained heap growth
+`1,014,072` bytes.
+
+The evidence-inclusive authoritative rerun also exited 0 with the same 121
+files, 1,869 tests, architecture counts, digests, metrics, and safety results.
+Its production sample measured query p95 `10.532 ms`, maximum `14.876 ms`,
+complete-engine construction p95/max `167.352 ms`, search-view heap delta
+`614,424` bytes, and retained heap growth `1,006,160` bytes.
+
+The exact M3 changed-file set relative to accepted Milestone 2 is:
+
+```text
+.github/workflows/ci.yml
+catalog/capability-retrieval-expansion/1.0.0/README.md
+catalog/capability-retrieval-expansion/1.0.0/manifest.json
+catalog/capability-retrieval-expansion/1.0.0/source.json
+docs/architecture/decisions/0009-production-retrieval.md
+docs/plans/0021-production-retrieval.md
+package.json
+packages/contracts/scripts/retrieval-expansion-cli.ts
+packages/contracts/scripts/retrieval-expansion-command.ts
+packages/contracts/src/candidate-retrieval-contracts.ts
+packages/contracts/src/candidate-retrieval-schemas.ts
+packages/contracts/src/capability-retrieval-expansion-contracts.ts
+packages/contracts/src/capability-retrieval-expansion-schemas.ts
+packages/contracts/src/index.ts
+packages/contracts/src/schema-catalog.ts
+packages/contracts/src/structural-validation.ts
+packages/contracts/test/candidate-retrieval-contracts.test.ts
+packages/contracts/test/capability-retrieval-expansion-contracts.test.ts
+packages/contracts/test/repository-interview-contracts.test.ts
+packages/contracts/test/retrieval-expansion-command.test.ts
+packages/contracts/test/schema-artifacts.test.ts
+packages/ingestion/test/profile-materialization-scope.test.ts
+packages/retrieval/src/index.ts
+packages/retrieval/src/retrieval-engine.ts
+packages/retrieval/src/retrieval-expansion.ts
+packages/retrieval/test/retrieval-engine.test.ts
+packages/retrieval/test/retrieval-expansion.test.ts
+tools/evaluation-harness/src/retrieval/production-generation.ts
+tools/evaluation-harness/src/retrieval/production-runner.ts
+tools/evaluation-harness/src/retrieval/safe-authority.ts
+tools/evaluation-harness/test/retrieval-architecture.test.ts
+tools/repository-checks/src/repository-invariants.ts
+tools/repository-checks/test/repository-invariants.test.ts
+tools/repository-checks/test/temp-repository.ts
+tools/repository-checks/test/workflow-policy.test.ts
+```
+
+Complete diff review found no evaluation case, relevance, no-result,
+equivalence, gold, scorer, baseline output, profile authority, Phase 8
+materialization, dependency, lockfile, migration, database, provider, model,
+vector, index, cache, search service, ranking, target-codebase, API, MCP, or
+Skill change. Milestone 7B remains deferred.
