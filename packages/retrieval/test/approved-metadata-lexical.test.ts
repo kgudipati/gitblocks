@@ -239,8 +239,8 @@ describe('approved metadata lexical channel pre-registration', () => {
         index === 1
           ? {
               ...candidate,
-              canonicalOwner: candidates[0]?.canonicalOwner ?? '',
-              canonicalRepository: candidates[0]?.canonicalRepository ?? '',
+              catalogOwner: candidates[0]?.catalogOwner ?? '',
+              catalogRepository: candidates[0]?.catalogRepository ?? '',
             }
           : candidate,
     );
@@ -285,17 +285,39 @@ describe('approved metadata lexical channel pre-registration', () => {
     ).toEqual({ ok: false, issue: 'authority-binding-mismatch' });
   });
 
+  it('authenticates stable catalog ownership without equating provider canonical identity', () => {
+    const redirected = authorityWith(catalog.candidates, 'authorization', {
+      providerRedirect: true,
+    });
+    expect(redirected.candidates[0]).toMatchObject({
+      catalogOwner: catalog.candidates[0]?.github.owner,
+      catalogRepository: catalog.candidates[0]?.github.repository,
+      providerCanonicalOwner: 'provider-current-owner',
+      providerCanonicalRepository: 'provider-current-repository',
+      repositoryIdentityState: 'redirected',
+    });
+    expect(
+      createApprovedMetadataLexicalChannelV1({
+        metadataAuthority: redirected,
+        taxonomy,
+        retrievalExpansionAuthority: expansion,
+        expectedMetadataAuthorityBinding: expectedBinding(),
+        expectedCandidates: expectedCandidates(),
+      }).ok,
+    ).toBe(true);
+  });
+
   it('rejects a self-consistent authority with one wrong repository binding', () => {
     const wrongAuthority = authorityWithRepositoryProjection(
       (candidate, index) =>
         index === 0
           ? {
-              canonicalOwner: 'valid-owner',
-              canonicalRepository: 'valid-repository',
+              catalogOwner: 'valid-owner',
+              catalogRepository: 'valid-repository',
             }
           : {
-              canonicalOwner: candidate.github.owner,
-              canonicalRepository: candidate.github.repository,
+              catalogOwner: candidate.github.owner,
+              catalogRepository: candidate.github.repository,
             },
     );
     expect(
@@ -322,8 +344,8 @@ describe('approved metadata lexical channel pre-registration', () => {
           throw new Error('Catalog identity fixture unavailable.');
         }
         return {
-          canonicalOwner: identityCandidate.github.owner,
-          canonicalRepository: identityCandidate.github.repository,
+          catalogOwner: identityCandidate.github.owner,
+          catalogRepository: identityCandidate.github.repository,
         };
       },
     );
@@ -434,8 +456,8 @@ function expectedBinding(
 function expectedCandidates() {
   return catalog.candidates.map((candidate) => ({
     candidateId: candidate.candidateId,
-    canonicalOwner: candidate.github.owner,
-    canonicalRepository: candidate.github.repository,
+    catalogOwner: candidate.github.owner,
+    catalogRepository: candidate.github.repository,
   }));
 }
 
@@ -445,6 +467,7 @@ function authorityWith(
   bindingOverrides: Readonly<{
     providerPolicyDigest?: string;
     sourceProviderPolicyDigest?: string;
+    providerRedirect?: boolean;
   }> = {},
 ): CandidateRetrievalMetadataAuthorityV1 {
   return createCandidateRetrievalMetadataAuthorityV1({
@@ -460,8 +483,18 @@ function authorityWith(
     collectedAt: '2026-08-07T00:00:00.000Z',
     candidates: candidates.map((candidate) => ({
       candidateId: candidate.candidateId,
-      canonicalOwner: candidate.github.owner,
-      canonicalRepository: candidate.github.repository,
+      catalogOwner: candidate.github.owner,
+      catalogRepository: candidate.github.repository,
+      providerCanonicalOwner:
+        candidate.candidateId === catalog.candidates[0]?.candidateId &&
+        bindingOverrides.providerRedirect === true
+          ? 'provider-current-owner'
+          : candidate.github.owner,
+      providerCanonicalRepository:
+        candidate.candidateId === catalog.candidates[0]?.candidateId &&
+        bindingOverrides.providerRedirect === true
+          ? 'provider-current-repository'
+          : candidate.github.repository,
       description:
         candidate.candidateId === catalog.candidates[0]?.candidateId
           ? 'Authorization metadata.'
@@ -480,8 +513,8 @@ function authorityWithRepositoryProjection(
     candidate: CatalogShape['candidates'][number],
     index: number,
   ) => Readonly<{
-    canonicalOwner: string;
-    canonicalRepository: string;
+    catalogOwner: string;
+    catalogRepository: string;
   }>,
 ): CandidateRetrievalMetadataAuthorityV1 {
   return createCandidateRetrievalMetadataAuthorityV1({
@@ -497,6 +530,8 @@ function authorityWithRepositoryProjection(
     candidates: catalog.candidates.map((candidate, index) => ({
       candidateId: candidate.candidateId,
       ...project(candidate, index),
+      providerCanonicalOwner: candidate.github.owner,
+      providerCanonicalRepository: candidate.github.repository,
       description: null,
       topics: [],
       primaryLanguage: null,
@@ -522,8 +557,10 @@ function syntheticRecord(
         index === 0 && overrides.candidateId !== undefined
           ? overrides.candidateId
           : candidate.candidateId,
-      canonicalOwner: candidate.github.owner,
-      canonicalRepository: candidate.github.repository,
+      catalogOwner: candidate.github.owner,
+      catalogRepository: candidate.github.repository,
+      providerCanonicalOwner: candidate.github.owner,
+      providerCanonicalRepository: candidate.github.repository,
       description: index === 0 ? (overrides.description ?? 'default') : null,
       topics: index === 0 ? (overrides.topics ?? []) : [],
       primaryLanguage: index === 0 ? (overrides.primaryLanguage ?? null) : null,

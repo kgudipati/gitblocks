@@ -87,8 +87,8 @@ export interface ExpectedCandidateRetrievalMetadataAuthorityBindingV1 {
 
 export interface ExpectedCandidateRetrievalMetadataCandidateV1 {
   readonly candidateId: string;
-  readonly canonicalOwner: string;
-  readonly canonicalRepository: string;
+  readonly catalogOwner: string;
+  readonly catalogRepository: string;
 }
 
 /**
@@ -132,7 +132,8 @@ export function createApprovedMetadataLexicalChannelV1(
       const expected = expectedCandidates.get(candidate.candidateId);
       return (
         expected === undefined ||
-        repositoryIdentityKey(candidate) !== repositoryIdentityKey(expected)
+        catalogRepositoryIdentityKey(candidate) !==
+          catalogRepositoryIdentityKey(expected)
       );
     })
   ) {
@@ -326,11 +327,11 @@ function expectedCandidatesById(
   const byId = new Map<string, ExpectedCandidateRetrievalMetadataCandidateV1>();
   const repositories = new Set<string>();
   for (const candidate of candidates) {
-    const repositoryKey = repositoryIdentityKey(candidate);
+    const repositoryKey = catalogRepositoryIdentityKey(candidate);
     if (
       !/^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u.test(candidate.candidateId) ||
-      !/^[A-Za-z0-9_.-]{1,100}$/u.test(candidate.canonicalOwner) ||
-      !/^[A-Za-z0-9_.-]{1,100}$/u.test(candidate.canonicalRepository) ||
+      !/^[A-Za-z0-9_.-]{1,100}$/u.test(candidate.catalogOwner) ||
+      !/^[A-Za-z0-9_.-]{1,100}$/u.test(candidate.catalogRepository) ||
       byId.has(candidate.candidateId) ||
       repositories.has(repositoryKey)
     ) {
@@ -359,11 +360,11 @@ function validExpectedBinding(
   );
 }
 
-function repositoryIdentityKey(candidate: {
-  readonly canonicalOwner: string;
-  readonly canonicalRepository: string;
+function catalogRepositoryIdentityKey(candidate: {
+  readonly catalogOwner: string;
+  readonly catalogRepository: string;
 }): string {
-  return `${candidate.canonicalOwner}/${candidate.canonicalRepository}`.toLowerCase();
+  return `${candidate.catalogOwner}/${candidate.catalogRepository}`.toLowerCase();
 }
 
 function compareAscii(left: string, right: string): number {

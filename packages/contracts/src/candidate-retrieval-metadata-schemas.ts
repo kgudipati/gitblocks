@@ -9,9 +9,9 @@ import {
 } from './schema-builders.ts';
 
 export const CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_VERSION =
-  'candidate-retrieval-metadata-authority/1.0.0' as const;
+  'candidate-retrieval-metadata-authority/1.1.0' as const;
 export const CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_VERSION =
-  'candidate-retrieval-metadata-provider-policy/1.0.0' as const;
+  'candidate-retrieval-metadata-provider-policy/1.1.0' as const;
 export const CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_VERSION =
   'profile-materialization-provider-policy/1.0.0' as const;
 export const CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION =
@@ -50,8 +50,14 @@ const nullableRepositoryText = (maximum: number) =>
 
 export const candidateRetrievalMetadataRecordV1Schema = closedObject({
   candidateId: stableIdSchema,
-  canonicalOwner: repositoryNameSchema,
-  canonicalRepository: repositoryNameSchema,
+  catalogOwner: repositoryNameSchema,
+  catalogRepository: repositoryNameSchema,
+  providerCanonicalOwner: repositoryNameSchema,
+  providerCanonicalRepository: repositoryNameSchema,
+  repositoryIdentityState: Type.Union([
+    Type.Literal('unchanged'),
+    Type.Literal('redirected'),
+  ]),
   description: nullableRepositoryText(
     CANDIDATE_RETRIEVAL_METADATA_DESCRIPTION_MAX_CODE_UNITS,
   ),
@@ -105,7 +111,7 @@ export const candidateRetrievalMetadataAuthorityV1Schema = Type.Object(
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
-    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-metadata-authority/1.0.0',
+    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-metadata-authority/1.1.0',
     additionalProperties: false,
   },
 );

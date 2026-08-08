@@ -55,6 +55,17 @@ premature. The measured limitation is still sparse candidate-owned signal
 authority rather than a semantic-recall failure; the conditional vector
 trigger remains inactive and Milestone 4 remains blocked.
 
+Authorized metadata collection attempt #1 subsequently failed safely at
+`collection / ingestion.provider-identity`. Canonical and staging authority
+paths remained absent, the worktree remained clean, and collection was not
+rerun. The failed candidate is not known. Independent review identified a
+repository-identity semantic defect: the retrieval metadata path reused the
+accepted Phase 8 status-gated identity wrapper even though GitHub canonical
+location is mutable source state. This correction records the failed attempt,
+separates stable catalog ownership from provider-canonical location, and
+prepares an identity-only diagnostic offline. It does not accept Milestone 3,
+activate the lexical channel, or authorize Milestone 4.
+
 ## Context
 
 Phase 8 established deterministic query normalization, a controlled taxonomy,
@@ -181,7 +192,7 @@ Milestone 3 adds one separate soft-signal product contract root:
 
 ```text
 CandidateRetrievalMetadataAuthorityV1
-candidate-retrieval-metadata-authority/1.0.0
+candidate-retrieval-metadata-authority/1.1.0
 ```
 
 It is not a deterministic profile, hard-filter authority, ranker, evaluation
@@ -207,27 +218,44 @@ silently turning retrieval-quality enrichment into hard-filter authority.
 
 The future canonical artifact path is
 `catalog/public-v1/candidate-retrieval-metadata-authority.json`. It contains
-exactly the 150 `public-v1` candidate IDs and case-insensitive repository
-identities once each, sorted by candidate ID. Each record retains canonical
-GitHub owner/repository, nullable repository description, sorted unique
-repository topics, nullable primary language, and a content digest. Description
-is bounded at 500 code units, topics at 20 records and 100 code units each,
-primary language at 100 code units, and the complete formatted artifact at
-1,048,576 UTF-8 bytes. Control/bidi text is rejected at the authority boundary.
+exactly the 150 `public-v1` candidate IDs and case-insensitive stable catalog
+repository identities once each, sorted by candidate ID. Each record retains
+candidate ID, exact catalog owner/repository, provider-canonical
+owner/repository, deterministic `unchanged` or `redirected` identity state,
+nullable repository description, sorted unique repository topics, nullable
+primary language, and a content digest. Description is bounded at 500 code
+units, topics at 20 records and 100 code units each, primary language at 100
+code units, and the complete formatted artifact at 1,048,576 UTF-8 bytes.
+Control/bidi text is rejected at the authority boundary.
+
+GitBlocks candidate ownership is stable catalog identity. GitHub canonical
+repository location is mutable provider state. Retrieval metadata retains both
+without allowing provider drift to silently relabel the candidate. Identity
+state is `unchanged` exactly when the two locators are equal
+case-insensitively, otherwise `redirected`; it is a snapshot observation and
+does not copy historical catalog `moved` status. Provider drift can be retained
+for active, archived, moved, or negative-control catalog entries after a valid
+public response to the stable catalog request. Two candidate IDs may not retain
+the same case-insensitive provider-canonical identity: authority admission
+fails closed without merging, selecting a winner, or changing the catalog.
 
 The root binds contract and authority versions, catalog version/digest, narrow
 and source provider-policy versions/digests, exact source operation,
 `collectedAt`, derived snapshot ID, sorted candidates, and a semantic digest.
-The source-record digest covers retained identity and metadata. The root digest
-covers all semantic provenance, `collectedAt`, and candidate records, excluding
-only the derived snapshot ID and digest itself. GitHub repository metadata is a
-mutable source; a successfully collected and digest-bound artifact is an
-immutable snapshot, not a claim that its source is immutable.
+The source-record digest covers stable catalog identity, provider-canonical
+identity, identity state, and retained metadata. The root digest covers all
+semantic provenance, `collectedAt`, and candidate records, excluding only the
+derived snapshot ID and digest itself. GitHub repository metadata is a mutable
+source; a successfully collected and digest-bound artifact is an immutable
+snapshot, not a claim that its source is immutable.
 
 Collection reuses the accepted Phase 8 `github-repository-metadata` request and
-parser boundary. The narrow policy is
-`candidate-retrieval-metadata-provider-policy/1.0.0`, digest
-`7e12f31e079fe05dad33569408885085bc2dd5cd85036318a594a7e9bd8751ce`,
+parser boundary. The shared request/parser feeds two policy wrappers: Phase 8
+retains its existing status-gated identity rule, while Phase 9 retains the
+stable requested catalog locator and treats a different valid public canonical
+locator as provider source state. The narrow policy is
+`candidate-retrieval-metadata-provider-policy/1.1.0`, digest
+`b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e`,
 bound to Phase 8 provider policy digest
 `0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede`.
 Only HTTPS `GET api.github.com/repos/{owner}/{repository}` is allowed: 150
@@ -253,9 +281,10 @@ live collection.
 
 The metadata consumer authenticates a supplied snapshot against a separately
 injected caller-owned binding: authority and catalog identity, both provider
-policy identities, source operation, and the complete candidate-to-canonical-
-repository projection. Internal snapshot digests establish self-integrity but
-cannot substitute for this external authority binding. Retrieval owns the
+policy identities, source operation, and the complete candidate-to-stable-
+catalog-repository projection. It does not require provider-canonical identity
+to equal the stable locator. Internal snapshot digests establish self-integrity
+but cannot substitute for this external ownership binding. Retrieval owns the
 comparison contract and imports neither ingestion policy artifacts nor
 evaluation tooling.
 
@@ -270,6 +299,32 @@ snapshot against the catalog, both accepted policies, the source operation,
 repository closure, record/root digests, snapshot ID, bounds, and canonical
 ordering. The validator is intentionally outside ordinary verification until
 a real snapshot is independently accepted.
+
+The identity-only diagnostic is prepared as
+`pnpm retrieval:metadata:identity-probe`, with zero-effect preflight
+`pnpm retrieval:metadata:identity-probe:preflight`. A future separately
+authorized probe may use exactly the same 150 repository-metadata requests and
+450-attempt bound through the accepted transport/parser. It creates no
+authority or staging state and reports only bounded aggregate request/identity
+counts and identity differences containing candidate ID, stable catalog
+owner/repository/status, provider-canonical owner/repository, and controlled
+identity state. It excludes description, topics, language, body, headers,
+credential, raw errors, evaluation data, database, Docker, model, npm, and
+artifact bodies. The zero-effect preflight is authorized for offline proof;
+the real diagnostic was not executed and requires independent authorization.
+
+The permanent attempt record is:
+
+```text
+authorized metadata collection attempt #1
+result: failed safely
+stage: collection
+code: ingestion.provider-identity
+canonical authority: absent
+staging authority: absent
+collection rerun: not performed
+worktree after failure: clean
+```
 
 The existing `repository-identity` field authorizes `displayName`; candidate
 identity therefore projects it under the same general lexical identity rule.

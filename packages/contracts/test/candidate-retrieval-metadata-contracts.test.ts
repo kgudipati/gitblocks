@@ -24,6 +24,11 @@ describe('CandidateRetrievalMetadataAuthorityV1', () => {
     );
     expect(authority.candidates[0]).toMatchObject({
       candidateId: 'candidate-000',
+      catalogOwner: 'owner-000',
+      catalogRepository: 'repository-000',
+      providerCanonicalOwner: 'owner-000',
+      providerCanonicalRepository: 'repository-000',
+      repositoryIdentityState: 'unchanged',
       description: 'Structured audit event collection',
       topics: ['audit-logging', 'structured-events'],
       primaryLanguage: 'TypeScript',
@@ -52,6 +57,52 @@ describe('CandidateRetrievalMetadataAuthorityV1', () => {
     );
 
     expect(reversed).toEqual(forward);
+  });
+
+  it('derives redirect state and binds stable and provider identities into record and root digests', () => {
+    const unchanged = authorityFixture();
+    const stableDriftInputs = candidateInputs();
+    stableDriftInputs[0] = {
+      ...stableDriftInputs[0]!,
+      catalogOwner: 'different-stable-owner',
+    };
+    const providerDriftInputs = candidateInputs();
+    providerDriftInputs[0] = {
+      ...providerDriftInputs[0]!,
+      providerCanonicalOwner: 'different-provider-owner',
+    };
+    const stableDrift = authorityFixture(stableDriftInputs);
+    const providerDrift = authorityFixture(providerDriftInputs);
+
+    expect(stableDrift.candidates[0]?.repositoryIdentityState).toBe(
+      'redirected',
+    );
+    expect(providerDrift.candidates[0]?.repositoryIdentityState).toBe(
+      'redirected',
+    );
+    expect(stableDrift.candidates[0]?.sourceRecordDigest).not.toBe(
+      unchanged.candidates[0]?.sourceRecordDigest,
+    );
+    expect(providerDrift.candidates[0]?.sourceRecordDigest).not.toBe(
+      unchanged.candidates[0]?.sourceRecordDigest,
+    );
+    expect(stableDrift.authoritySemanticDigest).not.toBe(
+      unchanged.authoritySemanticDigest,
+    );
+    expect(providerDrift.authoritySemanticDigest).not.toBe(
+      unchanged.authoritySemanticDigest,
+    );
+  });
+
+  it('fails closed on a provider-canonical repository shared by two candidates', () => {
+    const candidates = candidateInputs();
+    candidates[1] = {
+      ...candidates[1]!,
+      providerCanonicalOwner: candidates[0]!.providerCanonicalOwner,
+      providerCanonicalRepository: candidates[0]!.providerCanonicalRepository,
+    };
+
+    expect(() => authorityFixture(candidates)).toThrow();
   });
 
   it('rejects record, authority, snapshot, ordering, and repository closure drift', () => {
@@ -88,8 +139,10 @@ describe('CandidateRetrievalMetadataAuthorityV1', () => {
         index === 1
           ? {
               ...candidate,
-              canonicalOwner: authority.candidates[0]!.canonicalOwner,
-              canonicalRepository: authority.candidates[0]!.canonicalRepository,
+              providerCanonicalOwner:
+                authority.candidates[0]!.providerCanonicalOwner,
+              providerCanonicalRepository:
+                authority.candidates[0]!.providerCanonicalRepository,
             }
           : candidate,
       ),
@@ -155,8 +208,10 @@ function candidateInputs(): CandidateRetrievalMetadataRecordInputV1[] {
     { length: CANDIDATE_RETRIEVAL_METADATA_CANDIDATE_COUNT },
     (_, index) => ({
       candidateId: `candidate-${String(index).padStart(3, '0')}`,
-      canonicalOwner: `owner-${String(index).padStart(3, '0')}`,
-      canonicalRepository: `repository-${String(index).padStart(3, '0')}`,
+      catalogOwner: `owner-${String(index).padStart(3, '0')}`,
+      catalogRepository: `repository-${String(index).padStart(3, '0')}`,
+      providerCanonicalOwner: `owner-${String(index).padStart(3, '0')}`,
+      providerCanonicalRepository: `repository-${String(index).padStart(3, '0')}`,
       description: index === 0 ? 'Structured audit event collection' : null,
       topics:
         index === 0

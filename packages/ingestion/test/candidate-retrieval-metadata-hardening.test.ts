@@ -250,6 +250,23 @@ describe('candidate retrieval metadata post-collection validator', () => {
     });
   });
 
+  it('validates provider-canonical drift against stable catalog ownership', async () => {
+    const authority = authorityWith({ providerRedirect: true });
+    const result = await validateCandidateRetrievalMetadataAuthority(
+      validationEffects(
+        serializeCandidateRetrievalMetadataAuthorityV1(authority),
+      ),
+    );
+    expect(result.status).toBe('passed');
+    expect(authority.candidates[0]).toMatchObject({
+      catalogOwner: catalog.candidates[0]?.github.owner,
+      catalogRepository: catalog.candidates[0]?.github.repository,
+      providerCanonicalOwner: 'valid-provider-owner',
+      providerCanonicalRepository: 'valid-provider-repository',
+      repositoryIdentityState: 'redirected',
+    });
+  });
+
   it('rejects a self-consistent narrow-policy drift', async () => {
     const wrong = authorityWith({
       providerPolicyDigest: 'a'.repeat(64),
@@ -402,6 +419,7 @@ function authorityWith(
     providerPolicyDigest?: string;
     sourceProviderPolicyDigest?: string;
     repositoryDrift?: boolean;
+    providerRedirect?: boolean;
   }> = {},
 ): CandidateRetrievalMetadataAuthorityV1 {
   return createCandidateRetrievalMetadataAuthorityV1({
@@ -418,13 +436,21 @@ function authorityWith(
     collectedAt: '2026-08-07T00:00:00.000Z',
     candidates: catalog.candidates.map((candidate, index) => ({
       candidateId: candidate.candidateId,
-      canonicalOwner:
+      catalogOwner:
         index === 0 && options.repositoryDrift === true
           ? 'valid-owner'
           : candidate.github.owner,
-      canonicalRepository:
+      catalogRepository:
         index === 0 && options.repositoryDrift === true
           ? 'valid-repository'
+          : candidate.github.repository,
+      providerCanonicalOwner:
+        index === 0 && options.providerRedirect === true
+          ? 'valid-provider-owner'
+          : candidate.github.owner,
+      providerCanonicalRepository:
+        index === 0 && options.providerRedirect === true
+          ? 'valid-provider-repository'
           : candidate.github.repository,
       description: index === 0 ? 'Synthetic inert description.' : null,
       topics: index === 0 ? ['synthetic-topic'] : [],

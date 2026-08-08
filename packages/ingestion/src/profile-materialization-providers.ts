@@ -410,7 +410,32 @@ export async function collectProfileMaterializationRepositoryMetadata(
   candidate: CatalogCandidate,
   config: ProfileMaterializationProviderConfig,
 ): Promise<ProfileMaterializationRepositorySource> {
-  const repository = parseProfileMaterializationRepositoryResponse(
+  const repository = await observeProfileMaterializationRepositoryMetadata(
+    candidate,
+    config,
+  );
+  assertRepositoryIdentity(candidate, repository);
+  if (!repository.isPublic) throw ingestionError('ingestion.provider-identity');
+  return repository;
+}
+
+export async function collectCandidateRetrievalRepositoryMetadata(
+  candidate: CatalogCandidate,
+  config: ProfileMaterializationProviderConfig,
+): Promise<ProfileMaterializationRepositorySource> {
+  const repository = await observeProfileMaterializationRepositoryMetadata(
+    candidate,
+    config,
+  );
+  if (!repository.isPublic) throw ingestionError('ingestion.provider-identity');
+  return repository;
+}
+
+export async function observeProfileMaterializationRepositoryMetadata(
+  candidate: CatalogCandidate,
+  config: ProfileMaterializationProviderConfig,
+): Promise<ProfileMaterializationRepositorySource> {
+  return parseProfileMaterializationRepositoryResponse(
     (
       await request(
         candidate,
@@ -420,9 +445,6 @@ export async function collectProfileMaterializationRepositoryMetadata(
       )
     ).value,
   );
-  assertRepositoryIdentity(candidate, repository);
-  if (!repository.isPublic) throw ingestionError('ingestion.provider-identity');
-  return repository;
 }
 
 export function parseProfileMaterializationRepositoryResponse(

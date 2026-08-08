@@ -15,7 +15,11 @@
   not accept Milestone 3 completion: its development benchmark still misses
   three retrieval gates, and the accepted Phase 8 GitHub repository boundary
   provides a narrower candidate-owned metadata path. Milestone 4 remains
-  blocked.
+  blocked. Authorized metadata collection attempt #1 failed safely at
+  `collection / ingestion.provider-identity`, published no authority or
+  staging state, and was not rerun. The resulting repository-identity
+  semantics correction and identity-only diagnostic are prepared offline for
+  independent review.
 - Last updated: 2026-08-07
 
 Issue #21 is the requirements authority. Accepted
@@ -976,38 +980,55 @@ owner/repository, nullable description, topics, and nullable primary language.
 
 This correction introduces one product contract root,
 `CandidateRetrievalMetadataAuthorityV1`, version
-`candidate-retrieval-metadata-authority/1.0.0`. Its future canonical snapshot
+`candidate-retrieval-metadata-authority/1.1.0`. Its future canonical snapshot
 path is
 `catalog/public-v1/candidate-retrieval-metadata-authority.json`; that file does
-not yet exist. Each of exactly 150 sorted records binds candidate ID, canonical
-GitHub owner/repository, nullable description, sorted unique topics, nullable
-primary language, and a source-record semantic digest. The root binds contract
-and authority version, exact catalog version/digest, narrow and source provider
-policy versions/digests, source operation, collection timestamp, derived
-snapshot ID, candidates, and authority semantic digest. The mutable GitHub
-source is not described as immutable; one collected, digest-bound authority is
-an immutable snapshot.
+not exist. Each of exactly 150 sorted records binds candidate ID; the stable
+catalog owner/repository; provider-canonical owner/repository; deterministic
+`unchanged` or `redirected` observation state; nullable description; sorted
+unique topics; nullable primary language; and a source-record semantic digest.
+The root binds contract and authority version, exact catalog version/digest,
+narrow and source provider policy versions/digests, source operation,
+collection timestamp, derived snapshot ID, candidates, and authority semantic
+digest. The mutable GitHub source is not described as immutable; one collected,
+digest-bound authority is an immutable snapshot.
+
+GitBlocks candidate ownership is stable catalog identity. GitHub canonical
+repository location is mutable provider state. Retrieval metadata retains both
+without allowing provider drift to silently relabel the candidate. The record
+state is `unchanged` when stable and provider identities are case-insensitively
+equal and `redirected` otherwise; it is not derived from or named after the
+historical catalog status. Distinct candidate IDs may not retain the same
+case-insensitive provider-canonical repository. Such a collision fails
+authority construction and requires a separately reviewed equivalence design;
+the collector never merges records or chooses a winner.
 
 Bounds are fixed before live data: description at most 500 code units; at most
 20 topics of at most 100 code units each; primary language at most 100 code
-units; exactly 150 unique candidate and case-insensitive repository identities
-closing exactly over `public-v1`; and a 1,048,576-byte formatted authority
-limit. Unsafe control/bidi text fails authority validation. Source-record
-digests cover identity and retained metadata. The root semantic digest covers
-all semantic provenance, `collectedAt`, and sorted records, excludes only the
-derived snapshot ID and digest itself, and supplies the first 32 hexadecimal
-characters of the snapshot ID.
+units; exactly 150 unique candidate and case-insensitive stable catalog
+identities closing exactly over `public-v1`; exactly 150 unique
+case-insensitive provider-canonical identities; and a 1,048,576-byte formatted
+authority limit. Unsafe control/bidi text fails authority validation.
+Source-record digests cover stable identity, provider identity, identity state,
+and retained metadata. The root semantic digest covers all semantic
+provenance, `collectedAt`, and sorted records, excludes only the derived
+snapshot ID and digest itself, and supplies the first 32 hexadecimal characters
+of the snapshot ID.
 
 Collection uses policy
-`candidate-retrieval-metadata-provider-policy/1.0.0`, digest
-`7e12f31e079fe05dad33569408885085bc2dd5cd85036318a594a7e9bd8751ce`,
+`candidate-retrieval-metadata-provider-policy/1.1.0`, digest
+`b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e`,
 which binds the accepted Phase 8 provider-policy digest
 `0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede`.
 Its only operation is `github-repository-metadata`: HTTPS `GET` to
 `api.github.com` at `/repos/{owner}/{repository}`. The existing request helper,
-response parser, identity verification, public-repository check, transport,
-retry classification, and safe error behavior are reused; the Phase 8 source
-graph and provider set are unchanged.
+response parser, public-repository check, transport, retry classification, and
+safe error behavior are reused. The shared bounded request/parser now feeds two
+narrow wrappers: the accepted Phase 8 materialization wrapper retains its
+historical status-gated identity rule, while the Phase 9 metadata wrapper keeps
+the requested catalog locator as stable identity and records a valid public
+provider-canonical redirect as source state. The Phase 8 source graph, provider
+set, and source provider policy are unchanged.
 
 The independently reviewable future envelope is exactly:
 
@@ -1032,19 +1053,38 @@ The independently reviewable future envelope is exactly:
 reads only the fixed catalog and two provider-policy files, proves exact
 closure and envelope values, requires the future output to be absent, and
 reports zero network calls, credential reads, and writes. The separate
-`collect` mode is implemented for later authorization but was not executed.
-No real credential was read and no authority snapshot was fabricated.
+`collect` mode remains separately authorized and is not part of ordinary
+verification.
+
+Authorized metadata collection attempt #1 is permanently recorded as:
+
+```text
+authorized metadata collection attempt #1
+result: failed safely
+stage: collection
+code: ingestion.provider-identity
+canonical authority: absent
+staging authority: absent
+collection rerun: not performed
+worktree after failure: clean
+```
+
+The failed attempt was not retried or erased. It identified an identity-model
+defect but did not identify the individual repository and did not produce a
+metadata authority.
 
 Independent review accepted that offline preparation but required two
 pre-live hardening corrections before collection can be authorized. First,
 the inactive lexical consumer now requires a caller-owned expected binding for
 authority version, catalog version/digest, narrow provider-policy
 version/digest, source provider-policy version/digest, and source operation.
-It also requires the complete expected candidate ID and canonical repository
-identity projection, rejects duplicate case-insensitive repository identities,
-and verifies every metadata record against that external projection. Retrieval
-continues to import neither ingestion nor evaluation; a later caller must
-derive and inject the accepted product-owned binding.
+It also requires the complete expected candidate ID and stable catalog
+owner/repository projection, rejects duplicate case-insensitive stable catalog
+identities, and verifies every metadata record against that external
+projection. It does not require provider-canonical identity to equal the stable
+catalog locator. Provider identity is digest-bound source data, not ownership
+authority. Retrieval continues to import neither ingestion nor evaluation; a
+later caller must derive and inject the accepted product-owned binding.
 
 Second, future publication no longer writes the canonical path directly. The
 fixed same-directory staging path is
@@ -1067,9 +1107,22 @@ fails safely with `authority-missing`, as required, because no live authority
 exists. It performs no network, credential, write, database, Docker, or model
 operation and is not yet part of ordinary `pnpm verify`.
 
-No live collection occurred during this hardening correction. Live
-authorization remains blocked pending independent rereview; Milestone 3
-remains open and Milestone 4 remains blocked.
+The separate identity-only diagnostic is prepared as
+`pnpm retrieval:metadata:identity-probe`, with zero-effect preflight
+`pnpm retrieval:metadata:identity-probe:preflight`. A future separately
+authorized probe may issue only the same 150 repository-metadata requests with
+450 worst-case attempts and the accepted fixed-host transport, parser, bounds,
+timeouts, redirects, retries, cancellation, and credential boundary. It writes
+nothing and reports only aggregate request/identity counts plus bounded
+candidate ID, stable catalog identity/status, provider-canonical identity, and
+identity-state differences. It excludes descriptions, topics, language,
+bodies, headers, credentials, raw errors, evaluation data, database, Docker,
+models, npm, and artifact bodies. Its zero-effect preflight passed with zero
+network calls, credential reads, and writes. The real probe was not run.
+
+No second collection attempt occurred. Live authorization remains blocked
+pending independent rereview; Milestone 3 remains open and Milestone 4 remains
+blocked.
 
 The future sixth channel is pre-registered as
 `approved-metadata-lexical/1.0.0` but remains absent from the five active
@@ -1099,10 +1152,12 @@ metric effect. The current prediction digest is
 and the score digest is
 `6a383a501303fcf4b939e2dd7fa5de130a01a933de196cc0c552c4cfe1d74c8d`.
 
-No live provider collection, credential inspection, profile mutation,
-evaluation-authority mutation, database, Docker, model, vector, index, cache,
-search service, ranking, API, MCP, or Skill work occurred. Milestone 7B remains
-deferred, Milestone 3 remains open, and Milestone 4 remains blocked.
+Apart from the permanently recorded failed metadata collection attempt #1, no
+second live collection or identity probe occurred. The authorized process
+credential was never rendered. No profile mutation, evaluation-authority
+mutation, database, Docker, model, vector, index, cache, search service,
+ranking, API, MCP, or Skill work occurred. Milestone 7B remains deferred,
+Milestone 3 remains open, and Milestone 4 remains blocked.
 
 ### Milestone 4 — Production proof and Phase closure
 
@@ -1388,6 +1443,24 @@ a separate reviewed decision authorizes the change.
   the latter is the operation named by the accepted build budget. The vector
   trigger remains inactive because zero misses were semantic, and every
   persistence/index/cache/service trigger remains inactive.
+- 2026-08-07: Authorized candidate metadata collection attempt #1 ran once and
+  failed safely at stage `collection` with code
+  `ingestion.provider-identity`. Neither canonical nor staging authority
+  existed afterward, the worktree remained clean, and the command was not
+  rerun. The failed candidate was not identified.
+- 2026-08-07: Added a red-first active-candidate redirect regression. Before
+  correction, the retrieval metadata path failed with the existing
+  provider-identity rejection. The corrected 1.1.0 authority retains stable
+  catalog and provider-canonical identities separately, derives snapshot-local
+  identity state, authenticates ownership from the caller-owned stable catalog
+  projection, and fails closed on provider-canonical collisions. The accepted
+  Phase 8 identity wrapper is unchanged.
+- 2026-08-07: Prepared the identity-only probe and its zero-effect preflight.
+  Synthetic tests cover only the accepted repository-metadata operation,
+  150/450 bounds, identity-only output, duplicate diagnostics, credential
+  redaction, and no-write behavior. The real probe was not run, no second
+  collection occurred, the lexical channel remains inactive, Milestone 3
+  remains open, and Milestone 4 remains blocked.
 
 ## Decision and deviation log
 
@@ -1489,6 +1562,28 @@ a separate reviewed decision authorizes the change.
   projection and retain it independent of its neutral Recall@10 ablation.
   Reason: it is an accepted repository-identity field, not curator rationale
   or recommendation semantics. Owner: Milestone 3 correction review.
+- 2026-08-07 — Advance the retrieval metadata authority and narrow policy to
+  `1.1.0`. Reason: stable catalog ownership and mutable provider-canonical
+  location are now distinct serialized semantics; changing 1.0.0 invisibly
+  would invalidate review and reproducibility. The Phase 8 source policy and
+  inactive lexical scoring version remain unchanged. Owner: Milestone 3
+  identity-correction review.
+- 2026-08-07 — Preserve stable catalog identity as external candidate
+  ownership and retain provider-canonical drift as source data. Reason: a
+  GitHub rename or organization transfer must not relabel a GitBlocks
+  candidate, while source drift must remain observable and digest-bound.
+  Duplicate provider-canonical repositories fail closed rather than merging or
+  selecting a winner. Owner: Milestone 3 identity-correction review.
+- 2026-08-07 — Preserve the Phase 8 status-gated identity wrapper and add a
+  separate Phase 9 metadata wrapper over the same bounded request/parser.
+  Reason: the accepted materialization boundary must not be weakened merely to
+  support retrieval-only source semantics. Owner: Milestone 3
+  identity-correction review.
+- 2026-08-07 — Prepare a no-write identity diagnostic without executing it.
+  Reason: attempt #1's safe code does not identify the current repository; a
+  separately authorized identity-only probe can expose bounded current
+  provider observations without publishing an authority or altering catalog
+  state. Owner: Milestone 3 identity-correction review.
 - 2026-08-07 — No deviation from the governing issue or protected Phase 8
   boundary has been identified.
 
@@ -2001,3 +2096,68 @@ tests, architecture counts, authority/prediction/score digests, quality, and
 safety results. Its non-gating timing sample measured query p95/max
 `10.729 / 12.988 ms`, full cold-engine p95/max `173.542 ms`, search-view heap
 delta `546,720` bytes, and retained heap growth `1,008,864` bytes.
+
+### Milestone 3 repository-identity semantics correction validation
+
+Starting-state fetch and verification found the clean tracking branch and
+fetched head at `a1f410c319509c83ed26f38277fccf9dd08938d5`; local and fetched
+`main` remained `f44ddcee4491e9f1f4680384b07e4e7a92f2bc18`; PR #22 was open,
+draft, unmerged, based on `main`, and bound to the required head. Node 24.18.0
+and pnpm 11.17.0 matched their pins. Both canonical and staging metadata paths
+were absent.
+
+The red-first active-redirect regression exited 1 with one intended failure:
+the pre-correction retrieval metadata path rejected the synthetic public
+redirect with `ingestion.provider-identity`. After separating the Phase 9
+identity policy from the retained Phase 8 wrapper, the same regression passed.
+The final correction-focused suite passed 8 files and 64 tests covering the
+1.1.0 contract, stable/provider digests and identity state, active and known
+moved redirects, duplicate/malformed/non-public failures, stable external
+binding, Phase 8 preservation, publication hardening, identity-only probe
+output, credential redaction, and no-write behavior.
+
+`pnpm retrieval:metadata:identity-probe:preflight` passed with catalog digest
+`4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`,
+source policy digest
+`0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede`,
+150 logical requests, 450 worst-case attempts, the exact repository-metadata
+operation, no write paths or external runtime requirements, and effect audit
+network `0`, credential `0`, writes `0`. The real identity probe was not run,
+and metadata collection was not rerun.
+
+The prescribed standalone commands all passed: both metadata preflights,
+runtime, formatting, repository checks, contract conformance, retrieval
+expansion validation, ingestion verification, evaluation validation and
+fixtures, retrieval validation/fixtures/read-only verification/production,
+architecture, Secretlint, and the registry-backed audit. Ingestion verification
+passed 33 files and 333 tests; the audit found no known vulnerability at the
+moderate threshold. The metadata collection preflight reported authority
+`candidate-retrieval-metadata-authority/1.1.0`, provider policy
+`candidate-retrieval-metadata-provider-policy/1.1.0`, semantic digest
+`b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e`,
+and effect audit network `0`, credential `0`, writes `0`.
+
+The final authoritative `pnpm verify` exited 0 with 127 test files and 1,922
+tests passing. It passed every product/tool build and typecheck, formatting,
+lint, repository and authority validators, evaluation and scorer fixtures,
+contract conformance, catalog/profile/taxonomy/expansion checks,
+interview/operator/pre-live checks, architecture across 879 modules and 2,953
+dependencies, and Secretlint. Its embedded production evaluation retained five
+active channels and reproduced prediction digest
+`73b5d97190d97bbef15bcbad157d9a60e65153e6ee74a2fe2d4b7cebab14afb8`
+and score digest
+`6a383a501303fcf4b939e2dd7fa5de130a01a933de196cc0c552c4cfe1d74c8d`.
+Macro Recall@10 remained `0.615628`; family Recall@10 remained authorization
+`0.702941`, audit-logging `0.544203`, background-jobs `0.478897`,
+rate-limiting `0.526923`, and webhooks `0.825175`; hit rate remained `25/25`,
+MRR `0.953333`, and NDCG@10 `0.792904`. Hard-filter correctness remained
+`4500/4500`, prohibited preservation `15/15` micro and `10/10` macro,
+no-eligible correctness `30/30`, and every conflict, lane, negative-control,
+exact-duplicate, and equivalence-duplicate violation remained zero.
+
+The only verification deviation was one first-pass lint finding for a
+redundant-looking cancellation condition in the new probe. The cancellation
+state read was isolated behind a boolean helper so it remains sampled after an
+await; focused lint, typecheck, and probe tests passed, and the complete
+authoritative rerun passed. Milestone 3 remains open and Milestone 4 remains
+blocked.

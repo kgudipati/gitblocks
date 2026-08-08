@@ -35,12 +35,19 @@ export const CANDIDATE_RETRIEVAL_METADATA_FUTURE_COLLECTION_COMMAND =
   'pnpm retrieval:metadata:collect' as const;
 export const CANDIDATE_RETRIEVAL_METADATA_VALIDATION_COMMAND =
   'pnpm retrieval:metadata:validate' as const;
+export const CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_COMMAND =
+  'pnpm retrieval:metadata:identity-probe' as const;
+export const CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_PREFLIGHT_COMMAND =
+  'pnpm retrieval:metadata:identity-probe:preflight' as const;
 
 export const CANDIDATE_RETRIEVAL_METADATA_RETAINED_FIELDS = Object.freeze([
-  'canonical-owner',
-  'canonical-repository',
+  'catalog-owner',
+  'catalog-repository',
   'description',
   'primary-language',
+  'provider-canonical-owner',
+  'provider-canonical-repository',
+  'repository-identity-state',
   'topics',
 ] as const);
 

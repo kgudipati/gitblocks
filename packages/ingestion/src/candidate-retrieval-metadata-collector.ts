@@ -9,7 +9,7 @@ import type { CandidateRetrievalMetadataCollectionEnvelope } from './candidate-r
 import { IngestionError, ingestionError } from './errors.ts';
 import { requireTimestamp } from './json-boundary.ts';
 import {
-  collectProfileMaterializationRepositoryMetadata,
+  collectCandidateRetrievalRepositoryMetadata,
   type ProfileMaterializationProviderConfig,
 } from './profile-materialization-providers.ts';
 import type { ProfileMaterializationProviderPolicy } from './profile-materialization-contracts.ts';
@@ -53,19 +53,23 @@ export async function collectCandidateRetrievalMetadataAuthority(
           operation.candidateDeadlineMilliseconds,
         );
         const candidateSignal = AbortSignal.any([runSignal, candidateDeadline]);
-        const repository =
-          await collectProfileMaterializationRepositoryMetadata(candidate, {
+        const repository = await collectCandidateRetrievalRepositoryMetadata(
+          candidate,
+          {
             transport: config.transport,
             policy: config.sourceProviderPolicy,
             githubToken: config.githubToken,
             correlationId: config.correlationId,
             signal: candidateSignal,
             deadlineSignal: runSignal,
-          } satisfies ProfileMaterializationProviderConfig);
+          } satisfies ProfileMaterializationProviderConfig,
+        );
         records.push({
           candidateId: candidate.candidateId,
-          canonicalOwner: repository.canonicalOwner,
-          canonicalRepository: repository.canonicalRepository,
+          catalogOwner: candidate.github.owner,
+          catalogRepository: candidate.github.repository,
+          providerCanonicalOwner: repository.canonicalOwner,
+          providerCanonicalRepository: repository.canonicalRepository,
           description: repository.description,
           topics: repository.topics,
           primaryLanguage: repository.primaryLanguage,

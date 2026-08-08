@@ -3,6 +3,7 @@
 import {
   CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_MAX_BYTES,
   CANDIDATE_RETRIEVAL_METADATA_CANDIDATE_COUNT,
+  CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION,
   parseCandidateRetrievalMetadataAuthorityV1,
   serializeCandidateRetrievalMetadataAuthorityV1,
   type CandidateRetrievalMetadataAuthorityV1,
@@ -13,13 +14,19 @@ import {
   ingestionError,
   type IngestionErrorCode,
 } from './errors.ts';
+import type { CandidateRetrievalMetadataIdentityProbeResult } from './candidate-retrieval-metadata-identity-probe.ts';
 import { parsePublicCatalog } from './manifest.ts';
 import type { ProfileMaterializationProviderPolicy } from './profile-materialization-contracts.ts';
-import { parseProfileMaterializationProviderPolicy } from './profile-materialization-policy.ts';
+import {
+  operationPolicy,
+  parseProfileMaterializationProviderPolicy,
+} from './profile-materialization-policy.ts';
 import {
   CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH,
   CANDIDATE_RETRIEVAL_METADATA_FUTURE_COLLECTION_COMMAND,
   CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT,
+  CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_COMMAND,
+  CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_PREFLIGHT_COMMAND,
   CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_PATH,
   CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_PATH,
   CANDIDATE_RETRIEVAL_METADATA_STAGING_PATH,
@@ -47,22 +54,33 @@ export const CANDIDATE_RETRIEVAL_METADATA_VALIDATION_STAGES = [
   'authority-read',
   'authority-validation',
 ] as const;
+export const CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_STAGES = [
+  'identity-probe-preflight',
+  'identity-probe-credential-read',
+  'identity-probe-execution',
+] as const;
 
 export type CandidateRetrievalMetadataCollectionStage =
   (typeof CANDIDATE_RETRIEVAL_METADATA_COLLECTION_STAGES)[number];
 export type CandidateRetrievalMetadataValidationStage =
   (typeof CANDIDATE_RETRIEVAL_METADATA_VALIDATION_STAGES)[number];
+export type CandidateRetrievalMetadataIdentityProbeStage =
+  (typeof CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_STAGES)[number];
 export type CandidateRetrievalMetadataOperationStage =
   | CandidateRetrievalMetadataCollectionStage
-  | CandidateRetrievalMetadataValidationStage;
+  | CandidateRetrievalMetadataValidationStage
+  | CandidateRetrievalMetadataIdentityProbeStage;
 export type CandidateRetrievalMetadataSafeErrorCode =
   IngestionErrorCode | 'authority-missing';
 
-export interface CandidateRetrievalMetadataPreflightEffects {
+export interface CandidateRetrievalMetadataInputEffects {
   readonly readFixedFile: (
     path: string,
     maximumBytes: number,
   ) => Promise<string>;
+}
+
+export interface CandidateRetrievalMetadataPreflightEffects extends CandidateRetrievalMetadataInputEffects {
   readonly requirePathMissing: (path: string) => Promise<void>;
 }
 
@@ -79,6 +97,15 @@ export interface CandidateRetrievalMetadataCollectionEffects extends CandidateRe
     finalPath: string,
   ) => Promise<void>;
   readonly removeOwnedStaging: (path: string) => Promise<void>;
+}
+
+export interface CandidateRetrievalMetadataIdentityProbeEffects extends CandidateRetrievalMetadataInputEffects {
+  readonly readCredential: (name: string) => string;
+  readonly probeIdentities: (
+    preflight: CandidateRetrievalMetadataIdentityProbePreflightResult,
+    credential: string,
+    signal: AbortSignal,
+  ) => Promise<CandidateRetrievalMetadataIdentityProbeResult>;
 }
 
 export interface CandidateRetrievalMetadataValidationEffects {
@@ -130,13 +157,33 @@ export interface CandidateRetrievalMetadataValidationResult {
   readonly authoritySemanticDigest: string;
 }
 
+export interface CandidateRetrievalMetadataIdentityProbePreflightResult {
+  readonly status: 'passed';
+  readonly command: typeof CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_PREFLIGHT_COMMAND;
+  readonly futureCommand: typeof CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_COMMAND;
+  readonly credentialEnvironmentName: typeof CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT;
+  readonly catalog: PublicCatalog;
+  readonly sourcePolicy: ProfileMaterializationProviderPolicy;
+  readonly sourceOperation: ReturnType<typeof operationPolicy>;
+  readonly logicalRequestBudget: typeof CANDIDATE_RETRIEVAL_METADATA_CANDIDATE_COUNT;
+  readonly worstCaseRequestAttemptBudget: 450;
+  readonly writePaths: readonly [];
+  readonly requirements: {
+    readonly database: false;
+    readonly docker: false;
+    readonly model: false;
+    readonly npm: false;
+    readonly artifactBodies: false;
+  };
+}
+
 export class CandidateRetrievalMetadataOperationFailure extends Error {
-  public readonly operation: 'collect' | 'validate';
+  public readonly operation: 'collect' | 'validate' | 'identity-probe';
   public readonly stage: CandidateRetrievalMetadataOperationStage;
   public readonly code: CandidateRetrievalMetadataSafeErrorCode;
 
   public constructor(
-    operation: 'collect' | 'validate',
+    operation: 'collect' | 'validate' | 'identity-probe',
     stage: CandidateRetrievalMetadataOperationStage,
     code: CandidateRetrievalMetadataSafeErrorCode,
   ) {
@@ -151,6 +198,75 @@ export class CandidateRetrievalMetadataOperationFailure extends Error {
       value: undefined,
       writable: false,
     });
+  }
+}
+
+export async function preflightCandidateRetrievalMetadataIdentityProbe(
+  effects: CandidateRetrievalMetadataInputEffects,
+): Promise<CandidateRetrievalMetadataIdentityProbePreflightResult> {
+  try {
+    const [catalogText, sourcePolicyText] = await Promise.all([
+      effects.readFixedFile(
+        CANDIDATE_RETRIEVAL_METADATA_CATALOG_PATH,
+        CANDIDATE_RETRIEVAL_METADATA_INPUT_MAX_BYTES,
+      ),
+      effects.readFixedFile(
+        CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_PATH,
+        CANDIDATE_RETRIEVAL_METADATA_INPUT_MAX_BYTES,
+      ),
+    ]);
+    const catalog = parsePublicCatalog(catalogText);
+    const sourcePolicy = parseProfileMaterializationProviderPolicy(
+      catalog,
+      JSON.parse(sourcePolicyText) as unknown,
+    );
+    const sourceOperation = operationPolicy(
+      sourcePolicy,
+      CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION,
+    );
+    return Object.freeze({
+      status: 'passed',
+      command: CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_PREFLIGHT_COMMAND,
+      futureCommand: CANDIDATE_RETRIEVAL_METADATA_IDENTITY_PROBE_COMMAND,
+      credentialEnvironmentName:
+        CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT,
+      catalog,
+      sourcePolicy,
+      sourceOperation,
+      logicalRequestBudget: CANDIDATE_RETRIEVAL_METADATA_CANDIDATE_COUNT,
+      worstCaseRequestAttemptBudget: 450,
+      writePaths: Object.freeze([] as const),
+      requirements: Object.freeze({
+        database: false,
+        docker: false,
+        model: false,
+        npm: false,
+        artifactBodies: false,
+      }),
+    });
+  } catch (error) {
+    throw operationFailure('identity-probe', 'identity-probe-preflight', error);
+  }
+}
+
+export async function executeCandidateRetrievalMetadataIdentityProbe(
+  effects: CandidateRetrievalMetadataIdentityProbeEffects,
+  signal: AbortSignal,
+): Promise<CandidateRetrievalMetadataIdentityProbeResult> {
+  let stage: CandidateRetrievalMetadataIdentityProbeStage =
+    'identity-probe-preflight';
+  try {
+    const preflight =
+      await preflightCandidateRetrievalMetadataIdentityProbe(effects);
+    if (signal.aborted) throw ingestionError('ingestion.cancelled');
+    stage = 'identity-probe-credential-read';
+    const credential = effects.readCredential(
+      preflight.credentialEnvironmentName,
+    );
+    stage = 'identity-probe-execution';
+    return await effects.probeIdentities(preflight, credential, signal);
+  } catch (error) {
+    throw operationFailure('identity-probe', stage, error);
   }
 }
 
@@ -287,7 +403,9 @@ export function renderCandidateRetrievalMetadataCliFailure(
   mode: string | undefined,
   error: unknown,
 ): string {
-  return (mode === 'collect' || mode === 'validate') &&
+  return (mode === 'collect' ||
+    mode === 'validate' ||
+    mode === 'identity-probe') &&
     error instanceof CandidateRetrievalMetadataOperationFailure
     ? `Candidate retrieval metadata operation failed safely (operation=${error.operation}; stage=${error.stage}; code=${error.code}).\n`
     : 'Candidate retrieval metadata operation failed safely.\n';
@@ -367,7 +485,7 @@ function validateAuthorityBinding(
     authority.candidates.some(
       (candidate) =>
         expectedCandidates.get(candidate.candidateId) !==
-        `${candidate.canonicalOwner}/${candidate.canonicalRepository}`.toLowerCase(),
+        `${candidate.catalogOwner}/${candidate.catalogRepository}`.toLowerCase(),
     )
   ) {
     throw ingestionError('ingestion.invalid-manifest');
@@ -376,7 +494,7 @@ function validateAuthorityBinding(
 }
 
 function operationFailure(
-  operation: 'collect' | 'validate',
+  operation: 'collect' | 'validate' | 'identity-probe',
   stage: CandidateRetrievalMetadataOperationStage,
   error: unknown,
 ): CandidateRetrievalMetadataOperationFailure {

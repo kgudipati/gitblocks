@@ -12,6 +12,7 @@ import { dirname, resolve, sep } from 'node:path';
 import { CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_MAX_BYTES } from '@gitblocks/contracts';
 
 import { collectCandidateRetrievalMetadataAuthority } from '../src/candidate-retrieval-metadata-collector.ts';
+import { probeCandidateRetrievalMetadataIdentities } from '../src/candidate-retrieval-metadata-identity-probe.ts';
 import {
   CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH,
   CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT,
@@ -19,6 +20,7 @@ import {
 } from '../src/candidate-retrieval-metadata-policy.ts';
 import type {
   CandidateRetrievalMetadataCollectionEffects,
+  CandidateRetrievalMetadataIdentityProbeEffects,
   CandidateRetrievalMetadataValidationEffects,
 } from '../src/candidate-retrieval-metadata-runner.ts';
 import { IngestionError, ingestionError } from '../src/errors.ts';
@@ -30,10 +32,12 @@ export interface CandidateRetrievalMetadataSystemEffectsConfig {
   readonly fetch: typeof fetch;
   readonly now: () => Date;
   readonly collect?: CandidateRetrievalMetadataCollectionEffects['collect'];
+  readonly probeIdentities?: CandidateRetrievalMetadataIdentityProbeEffects['probeIdentities'];
 }
 
 export type CandidateRetrievalMetadataSystemEffects =
   CandidateRetrievalMetadataCollectionEffects &
+    CandidateRetrievalMetadataIdentityProbeEffects &
     CandidateRetrievalMetadataValidationEffects;
 
 export function createCandidateRetrievalMetadataSystemEffects(
@@ -100,6 +104,36 @@ export function createCandidateRetrievalMetadataSystemEffects(
           githubToken: credential,
           correlationId: `retrieval-metadata-${collectedAt}`,
           collectedAt,
+          signal,
+        });
+      }),
+    probeIdentities:
+      config.probeIdentities ??
+      (async (preflight, credential, signal) => {
+        const attempts = { requestAttempts: 0, retries: 0 };
+        const operation = preflight.sourceOperation;
+        const transport = createTransport({
+          fetch: config.fetch,
+          sleep: abortableSleep,
+          requestTimeoutMilliseconds: operation.requestTimeoutMilliseconds,
+          maximumRedirects: operation.maximumRedirects,
+          maximumAttempts: operation.maximumAttempts,
+          observer: (event) => {
+            if (event.outcome === 'started') attempts.requestAttempts += 1;
+            if (event.outcome === 'retried') attempts.retries += 1;
+          },
+        });
+        const probedAt = config.now().toISOString();
+        return probeCandidateRetrievalMetadataIdentities(preflight.catalog, {
+          transport,
+          sourceProviderPolicy: preflight.sourcePolicy,
+          githubToken: credential,
+          correlationId: `retrieval-metadata-identity-probe-${probedAt}`,
+          concurrency: operation.concurrency,
+          candidateDeadlineMilliseconds:
+            operation.candidateDeadlineMilliseconds,
+          runDeadlineMilliseconds: operation.runDeadlineMilliseconds,
+          readAttemptMetrics: () => ({ ...attempts }),
           signal,
         });
       }),

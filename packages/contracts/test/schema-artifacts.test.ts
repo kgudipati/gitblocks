@@ -39,7 +39,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'capability-retrieval-expansion-source':
     'd7fc05ed58ee4021744865678affcddcbedf35781eb220c4b05f7e4ff3ea5a56',
   'candidate-retrieval-metadata-authority':
-    '09af954b30b57843035ceb1e265f441442b056ec85aedec4032d00fcdeb833db',
+    '11c131ced446b072b715585aea9bdaca977190600903c53a6fb4bea4b45f8c13',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
@@ -100,7 +100,9 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
           ? '1.1.0'
           : name === 'candidate-retrieval-result'
             ? '1.2.0'
-            : '1.0.0';
+            : name === 'candidate-retrieval-metadata-authority'
+              ? '1.1.0'
+              : '1.0.0';
       expect(readProperty(schema, '$id')).toBe(
         `https://gitblocks.dev/schemas/contracts/${name}/${version}`,
       );

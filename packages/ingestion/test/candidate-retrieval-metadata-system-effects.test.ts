@@ -317,8 +317,10 @@ async function buildAuthority(
     collectedAt: '2026-08-07T00:00:00.000Z',
     candidates: catalog.candidates.map((candidate) => ({
       candidateId: candidate.candidateId,
-      canonicalOwner: candidate.github.owner,
-      canonicalRepository: candidate.github.repository,
+      catalogOwner: candidate.github.owner,
+      catalogRepository: candidate.github.repository,
+      providerCanonicalOwner: candidate.github.owner,
+      providerCanonicalRepository: candidate.github.repository,
       description: null,
       topics: [],
       primaryLanguage: null,

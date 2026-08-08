@@ -8,6 +8,10 @@ import {
   renderCandidateRetrievalMetadataCliFailure,
   validateCandidateRetrievalMetadataAuthority,
 } from '../src/index.ts';
+import {
+  executeCandidateRetrievalMetadataIdentityProbe,
+  preflightCandidateRetrievalMetadataIdentityProbe,
+} from '../src/candidate-retrieval-metadata-runner.ts';
 import { createCandidateRetrievalMetadataSystemEffects } from './candidate-retrieval-metadata-system-effects.ts';
 
 const repositoryRoot = resolve(
@@ -17,7 +21,11 @@ const [mode, ...unexpectedArguments] = process.argv.slice(2);
 
 if (
   unexpectedArguments.length > 0 ||
-  (mode !== 'preflight' && mode !== 'collect' && mode !== 'validate')
+  (mode !== 'preflight' &&
+    mode !== 'collect' &&
+    mode !== 'validate' &&
+    mode !== 'identity-probe-preflight' &&
+    mode !== 'identity-probe')
 ) {
   process.stderr.write(
     renderCandidateRetrievalMetadataCliFailure(mode, new Error('invalid')),
@@ -34,7 +42,14 @@ if (
   }
 }
 
-async function run(mode: 'preflight' | 'collect' | 'validate'): Promise<void> {
+async function run(
+  mode:
+    | 'preflight'
+    | 'collect'
+    | 'validate'
+    | 'identity-probe-preflight'
+    | 'identity-probe',
+): Promise<void> {
   const effects = createCandidateRetrievalMetadataSystemEffects({
     repositoryRoot,
     environment: process.env,
@@ -98,6 +113,46 @@ async function run(mode: 'preflight' | 'collect' | 'validate'): Promise<void> {
     );
     return;
   }
+  if (mode === 'identity-probe-preflight') {
+    const result =
+      await preflightCandidateRetrievalMetadataIdentityProbe(effects);
+    const operation = result.sourceOperation;
+    process.stdout.write(
+      `${JSON.stringify({
+        status: result.status,
+        command: result.command,
+        futureCommand: result.futureCommand,
+        catalogVersion: result.catalog.catalogVersion,
+        catalogDigest: result.catalog.manifestDigest,
+        candidateCount: result.catalog.candidates.length,
+        sourceProviderPolicyVersion: result.sourcePolicy.policyVersion,
+        sourceProviderPolicyDigest: result.sourcePolicy.policySemanticDigest,
+        sourceOperation: operation.operation,
+        host: operation.host,
+        endpointTemplate: operation.endpointTemplate,
+        method: operation.method,
+        logicalRequestBudget: result.logicalRequestBudget,
+        worstCaseRequestAttemptBudget: result.worstCaseRequestAttemptBudget,
+        credentialEnvironmentName: result.credentialEnvironmentName,
+        concurrency: operation.concurrency,
+        maximumResponseBytes: operation.maximumResponseBytes,
+        maximumJsonNodes: operation.maximumJsonNodes,
+        requestTimeoutMilliseconds: operation.requestTimeoutMilliseconds,
+        maximumAttempts: operation.maximumAttempts,
+        maximumRedirects: operation.maximumRedirects,
+        candidateDeadlineMilliseconds: operation.candidateDeadlineMilliseconds,
+        runDeadlineMilliseconds: operation.runDeadlineMilliseconds,
+        writePaths: result.writePaths,
+        requirements: result.requirements,
+        effectAudit: {
+          networkCalls: 0,
+          credentialReads: 0,
+          writes: 0,
+        },
+      })}\n`,
+    );
+    return;
+  }
   const cancellation = new AbortController();
   const cancel = (): void => {
     cancellation.abort();
@@ -105,6 +160,14 @@ async function run(mode: 'preflight' | 'collect' | 'validate'): Promise<void> {
   process.once('SIGINT', cancel);
   process.once('SIGTERM', cancel);
   try {
+    if (mode === 'identity-probe') {
+      const result = await executeCandidateRetrievalMetadataIdentityProbe(
+        effects,
+        cancellation.signal,
+      );
+      process.stdout.write(`${JSON.stringify(result)}\n`);
+      return;
+    }
     const authority = await executeCandidateRetrievalMetadataCollection(
       effects,
       cancellation.signal,

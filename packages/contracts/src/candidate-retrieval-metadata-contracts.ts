@@ -23,8 +23,10 @@ import {
 
 export interface CandidateRetrievalMetadataRecordInputV1 {
   readonly candidateId: string;
-  readonly canonicalOwner: string;
-  readonly canonicalRepository: string;
+  readonly catalogOwner: string;
+  readonly catalogRepository: string;
+  readonly providerCanonicalOwner: string;
+  readonly providerCanonicalRepository: string;
   readonly description: string | null;
   readonly topics: readonly string[];
   readonly primaryLanguage: string | null;
@@ -49,8 +51,11 @@ export function createCandidateRetrievalMetadataAuthorityV1(
     .map((candidate) => {
       const semantic = {
         candidateId: candidate.candidateId,
-        canonicalOwner: candidate.canonicalOwner,
-        canonicalRepository: candidate.canonicalRepository,
+        catalogOwner: candidate.catalogOwner,
+        catalogRepository: candidate.catalogRepository,
+        providerCanonicalOwner: candidate.providerCanonicalOwner,
+        providerCanonicalRepository: candidate.providerCanonicalRepository,
+        repositoryIdentityState: repositoryIdentityState(candidate),
         description: candidate.description,
         topics: [...candidate.topics].sort(compareAscii),
         primaryLanguage: candidate.primaryLanguage,
@@ -116,8 +121,11 @@ export function candidateRetrievalMetadataSourceRecordDigest(
 ): string {
   return contractCanonicalDigest({
     candidateId: value.candidateId,
-    canonicalOwner: value.canonicalOwner,
-    canonicalRepository: value.canonicalRepository,
+    catalogOwner: value.catalogOwner,
+    catalogRepository: value.catalogRepository,
+    providerCanonicalOwner: value.providerCanonicalOwner,
+    providerCanonicalRepository: value.providerCanonicalRepository,
+    repositoryIdentityState: value.repositoryIdentityState,
     description: value.description,
     topics: value.topics,
     primaryLanguage: value.primaryLanguage,
@@ -158,16 +166,26 @@ function validateAuthoritySemantics(
 ): readonly ContractIssue[] {
   const issues: ContractIssue[] = [];
   const candidateIds = new Set<string>();
-  const repositories = new Set<string>();
+  const catalogRepositories = new Set<string>();
+  const providerCanonicalRepositories = new Set<string>();
   for (const [index, candidate] of authority.candidates.entries()) {
     const previous = authority.candidates[index - 1];
-    const repositoryKey =
-      `${candidate.canonicalOwner}/${candidate.canonicalRepository}`.toLowerCase();
+    const catalogRepositoryKey = repositoryIdentityKey(
+      candidate.catalogOwner,
+      candidate.catalogRepository,
+    );
+    const providerCanonicalRepositoryKey = repositoryIdentityKey(
+      candidate.providerCanonicalOwner,
+      candidate.providerCanonicalRepository,
+    );
     if (
       candidateIds.has(candidate.candidateId) ||
-      repositories.has(repositoryKey) ||
+      catalogRepositories.has(catalogRepositoryKey) ||
+      providerCanonicalRepositories.has(providerCanonicalRepositoryKey) ||
       (previous !== undefined &&
         compareAscii(previous.candidateId, candidate.candidateId) >= 0) ||
+      candidate.repositoryIdentityState !==
+        repositoryIdentityState(candidate) ||
       candidate.topics.some(
         (topic, topicIndex) =>
           topicIndex > 0 && topic <= (candidate.topics[topicIndex - 1] ?? ''),
@@ -178,7 +196,8 @@ function validateAuthoritySemantics(
       issues.push(bindingIssue(`/candidates/${String(index)}`));
     }
     candidateIds.add(candidate.candidateId);
-    repositories.add(repositoryKey);
+    catalogRepositories.add(catalogRepositoryKey);
+    providerCanonicalRepositories.add(providerCanonicalRepositoryKey);
   }
   const expectedDigest =
     candidateRetrievalMetadataAuthoritySemanticDigest(authority);
@@ -203,6 +222,25 @@ function validateAuthoritySemantics(
     );
   }
   return finalizeContractIssues(issues);
+}
+
+function repositoryIdentityState(value: {
+  readonly catalogOwner: string;
+  readonly catalogRepository: string;
+  readonly providerCanonicalOwner: string;
+  readonly providerCanonicalRepository: string;
+}): CandidateRetrievalMetadataRecordV1['repositoryIdentityState'] {
+  return repositoryIdentityKey(value.catalogOwner, value.catalogRepository) ===
+    repositoryIdentityKey(
+      value.providerCanonicalOwner,
+      value.providerCanonicalRepository,
+    )
+    ? 'unchanged'
+    : 'redirected';
+}
+
+function repositoryIdentityKey(owner: string, repository: string): string {
+  return `${owner}/${repository}`.toLowerCase();
 }
 
 function bindingIssue(path: string): ContractIssue {

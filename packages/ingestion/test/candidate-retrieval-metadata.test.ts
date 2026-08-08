@@ -11,6 +11,7 @@ import {
   CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_PATH,
   CANDIDATE_RETRIEVAL_METADATA_STAGING_PATH,
   collectCandidateRetrievalMetadataAuthority,
+  collectProfileMaterializationRepositoryMetadata,
   executeCandidateRetrievalMetadataCollection,
   parseCandidateRetrievalMetadataProviderPolicy,
   parseProfileMaterializationProviderPolicy,
@@ -126,8 +127,209 @@ describe('candidate retrieval metadata collection boundary', () => {
     expect(authority.candidates[0]?.description).toBe(
       'Synthetic repository-owned description.',
     );
+    expect(authority.candidates[0]).toMatchObject({
+      catalogOwner: catalog.candidates[0]?.github.owner,
+      catalogRepository: catalog.candidates[0]?.github.repository,
+      providerCanonicalOwner: catalog.candidates[0]?.github.owner,
+      providerCanonicalRepository: catalog.candidates[0]?.github.repository,
+      repositoryIdentityState: 'unchanged',
+    });
     expect(authority.candidates[0]?.topics).toEqual(['audit-logging']);
     expect(authority.candidates[0]?.primaryLanguage).toBe('TypeScript');
+  }, 30_000);
+
+  it('retains the three known moved catalog locators and records current provider identities', async () => {
+    const { catalog, sourcePolicy, envelope } = await collectionAuthorities();
+    const redirects = new Map<string, readonly [string, string]>([
+      ['auth-casbin-casbin', ['apache', 'casbin']],
+      ['auth-casbin-casbin-js', ['apache', 'casbin-casbin.js']],
+      ['auth-casbin-node-casbin', ['apache', 'casbin-node-casbin']],
+    ] as const);
+    const authority = await collectCandidateRetrievalMetadataAuthority(
+      catalog,
+      {
+        transport: repositoryTransport(catalog, (candidate) => {
+          const redirected = redirects.get(candidate.candidateId);
+          return (
+            redirected ?? [candidate.github.owner, candidate.github.repository]
+          );
+        }),
+        sourceProviderPolicy: sourcePolicy,
+        collectionEnvelope: envelope,
+        githubToken: 'synthetic-token',
+        correlationId: 'synthetic-known-moved-patterns',
+        collectedAt: '2026-08-07T00:00:00.000Z',
+      },
+    );
+
+    for (const [candidateId, [owner, repository]] of redirects) {
+      const catalogCandidate = catalog.candidates.find(
+        (candidate) => candidate.candidateId === candidateId,
+      );
+      expect(catalogCandidate?.status).toBe('moved');
+      expect(
+        authority.candidates.find(
+          (candidate) => candidate.candidateId === candidateId,
+        ),
+      ).toMatchObject({
+        candidateId,
+        catalogOwner: catalogCandidate?.github.owner,
+        catalogRepository: catalogCandidate?.github.repository,
+        providerCanonicalOwner: owner,
+        providerCanonicalRepository: repository,
+        repositoryIdentityState: 'redirected',
+      });
+    }
+  }, 30_000);
+
+  it('fails closed on duplicate or malformed provider-canonical identity and non-public repositories', async () => {
+    const { catalog, sourcePolicy, envelope } = await collectionAuthorities();
+    const first = catalog.candidates[0]!;
+    const second = catalog.candidates[1]!;
+    const baseConfig = {
+      sourceProviderPolicy: sourcePolicy,
+      collectionEnvelope: envelope,
+      githubToken: 'synthetic-token',
+      correlationId: 'synthetic-identity-failure',
+      collectedAt: '2026-08-07T00:00:00.000Z',
+    } as const;
+
+    await expect(
+      collectCandidateRetrievalMetadataAuthority(catalog, {
+        ...baseConfig,
+        transport: repositoryTransport(catalog, (candidate) =>
+          candidate.candidateId === first.candidateId ||
+          candidate.candidateId === second.candidateId
+            ? ['shared-provider-owner', 'shared-provider-repository']
+            : [candidate.github.owner, candidate.github.repository],
+        ),
+      }),
+    ).rejects.toMatchObject({ code: 'ingestion.invalid-manifest' });
+
+    await expect(
+      collectCandidateRetrievalMetadataAuthority(catalog, {
+        ...baseConfig,
+        transport: repositoryTransport(catalog, (candidate) =>
+          candidate.candidateId === first.candidateId
+            ? ['malformed/provider', 'repository']
+            : [candidate.github.owner, candidate.github.repository],
+        ),
+      }),
+    ).rejects.toMatchObject({ code: 'ingestion.invalid-manifest' });
+
+    await expect(
+      collectCandidateRetrievalMetadataAuthority(catalog, {
+        ...baseConfig,
+        transport: repositoryTransport(
+          catalog,
+          (candidate) => [candidate.github.owner, candidate.github.repository],
+          first.candidateId,
+        ),
+      }),
+    ).rejects.toMatchObject({ code: 'ingestion.provider-identity' });
+  }, 30_000);
+
+  it('preserves the Phase 8 status-gated repository identity behavior', async () => {
+    const { catalog, sourcePolicy } = await collectionAuthorities();
+    const active = catalog.candidates.find(
+      (candidate) => candidate.status === 'active',
+    );
+    const moved = catalog.candidates.find(
+      (candidate) => candidate.status === 'moved',
+    );
+    if (active === undefined || moved === undefined) {
+      throw new Error('Phase 8 identity fixtures unavailable.');
+    }
+    const config = {
+      transport: repositoryTransport(catalog, () => [
+        'phase8-provider-owner',
+        'phase8-provider-repository',
+      ]),
+      policy: sourcePolicy,
+      githubToken: 'synthetic-token',
+      correlationId: 'phase8-identity-regression',
+    } as const;
+
+    await expect(
+      collectProfileMaterializationRepositoryMetadata(active, config),
+    ).rejects.toMatchObject({ code: 'ingestion.provider-identity' });
+    await expect(
+      collectProfileMaterializationRepositoryMetadata(moved, config),
+    ).resolves.toMatchObject({
+      canonicalOwner: 'phase8-provider-owner',
+      canonicalRepository: 'phase8-provider-repository',
+    });
+  });
+
+  it('retains stable candidate ownership when an active repository redirects', async () => {
+    const catalog = parsePublicCatalog(
+      await readFixedFile(CANDIDATE_RETRIEVAL_METADATA_CATALOG_PATH),
+    );
+    const sourcePolicy = parseProfileMaterializationProviderPolicy(
+      catalog,
+      JSON.parse(
+        await readFixedFile(CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_PATH),
+      ) as unknown,
+    );
+    const envelope = parseCandidateRetrievalMetadataProviderPolicy(
+      catalog,
+      sourcePolicy,
+      JSON.parse(
+        await readFixedFile(CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_PATH),
+      ) as unknown,
+    );
+    const redirected = catalog.candidates.find(
+      (candidate) => candidate.status === 'active',
+    );
+    if (redirected === undefined)
+      throw new Error('Active fixture unavailable.');
+    const transport: ProviderTransport = {
+      requestJson: (request) => {
+        const candidate = catalog.candidates.find(
+          ({ candidateId }) => candidateId === request.candidateId,
+        );
+        if (candidate === undefined) throw new Error('Unexpected candidate.');
+        return Promise.resolve({
+          status: 200,
+          headers: new Headers(),
+          value:
+            candidate.candidateId === redirected.candidateId
+              ? repositoryResponse(
+                  'provider-redirected-owner',
+                  'provider-redirected-repository',
+                )
+              : repositoryResponse(
+                  candidate.github.owner,
+                  candidate.github.repository,
+                ),
+        });
+      },
+    };
+
+    const authority = await collectCandidateRetrievalMetadataAuthority(
+      catalog,
+      {
+        transport,
+        sourceProviderPolicy: sourcePolicy,
+        collectionEnvelope: envelope,
+        githubToken: 'synthetic-token',
+        correlationId: 'synthetic-active-redirect-regression',
+        collectedAt: '2026-08-07T00:00:00.000Z',
+      },
+    );
+
+    expect(
+      authority.candidates.find(
+        ({ candidateId }) => candidateId === redirected.candidateId,
+      ),
+    ).toMatchObject({
+      candidateId: redirected.candidateId,
+      catalogOwner: redirected.github.owner,
+      catalogRepository: redirected.github.repository,
+      providerCanonicalOwner: 'provider-redirected-owner',
+      providerCanonicalRepository: 'provider-redirected-repository',
+      repositoryIdentityState: 'redirected',
+    });
   }, 30_000);
 
   it('binds the policy digest and accesses a fake credential only after preflight', async () => {
@@ -234,6 +436,52 @@ describe('candidate retrieval metadata collection boundary', () => {
 
 async function readFixedFile(path: string): Promise<string> {
   return readFile(new URL(path, `file://${repositoryRoot}/`), 'utf8');
+}
+
+async function collectionAuthorities() {
+  const catalog = parsePublicCatalog(
+    await readFixedFile(CANDIDATE_RETRIEVAL_METADATA_CATALOG_PATH),
+  );
+  const sourcePolicy = parseProfileMaterializationProviderPolicy(
+    catalog,
+    JSON.parse(
+      await readFixedFile(CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_PATH),
+    ) as unknown,
+  );
+  const envelope = parseCandidateRetrievalMetadataProviderPolicy(
+    catalog,
+    sourcePolicy,
+    JSON.parse(
+      await readFixedFile(CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_PATH),
+    ) as unknown,
+  );
+  return { catalog, sourcePolicy, envelope };
+}
+
+function repositoryTransport(
+  catalog: ReturnType<typeof parsePublicCatalog>,
+  identity: (
+    candidate: ReturnType<typeof parsePublicCatalog>['candidates'][number],
+  ) => readonly [string, string],
+  nonPublicCandidateId?: string,
+): ProviderTransport {
+  return {
+    requestJson: (request) => {
+      const candidate = catalog.candidates.find(
+        ({ candidateId }) => candidateId === request.candidateId,
+      );
+      if (candidate === undefined) throw new Error('Unexpected candidate.');
+      const [owner, repository] = identity(candidate);
+      return Promise.resolve({
+        status: 200,
+        headers: new Headers(),
+        value: {
+          ...(repositoryResponse(owner, repository) as Record<string, unknown>),
+          private: candidate.candidateId === nonPublicCandidateId,
+        },
+      });
+    },
+  };
 }
 
 function repositoryResponse(owner: string, repository: string): unknown {
