@@ -52,6 +52,14 @@ export interface ProductionRetrievalEvaluationReportV1 {
     readonly edgesTruncated: number;
     readonly candidateMatches: number;
   };
+  readonly productMetadataDiagnostics: {
+    readonly casesWithMetadataCandidateMatches: number;
+    readonly candidateCaseMetadataComponents: number;
+    readonly metadataMatchedTermOccurrences: number;
+    readonly topicMatchOccurrences: number;
+    readonly descriptionMatchOccurrences: number;
+    readonly primaryLanguageMatchOccurrences: number;
+  };
   readonly differential: ProductionRetrievalDifferentialEvidenceV1;
   readonly performance: ProductionRetrievalPerformanceEvidenceV1;
 }
@@ -107,6 +115,18 @@ export function runProductionRetrievalEvaluationV1(
     ]),
   ) as Readonly<Record<RetrievalFamily, MetricValue>>;
   const productResults = [...generated.productResultsByCase.values()];
+  const metadataMatchesByResult = productResults.map((result) =>
+    [...result.eligibleCandidates, ...result.evidenceNeededCandidates].flatMap(
+      ({ channelMatches }) =>
+        channelMatches.filter(
+          ({ channelId }) => channelId === 'approved-metadata-lexical',
+        ),
+    ),
+  );
+  const metadataMatches = metadataMatchesByResult.flat();
+  const metadataTerms = metadataMatches.flatMap(
+    ({ matchedMetadataTerms }) => matchedMetadataTerms,
+  );
 
   return deepFreeze({
     evaluationPathVersion: 'production-retrieval-evaluation/1.0.0',
@@ -183,6 +203,22 @@ export function runProductionRetrievalEvaluationV1(
         (sum, { diagnostics }) => sum + diagnostics.candidateExpansionMatches,
         0,
       ),
+    },
+    productMetadataDiagnostics: {
+      casesWithMetadataCandidateMatches: metadataMatchesByResult.filter(
+        (matches) => matches.length > 0,
+      ).length,
+      candidateCaseMetadataComponents: metadataMatches.length,
+      metadataMatchedTermOccurrences: metadataTerms.length,
+      topicMatchOccurrences: metadataTerms.filter(
+        ({ source }) => source === 'topic',
+      ).length,
+      descriptionMatchOccurrences: metadataTerms.filter(
+        ({ source }) => source === 'description',
+      ).length,
+      primaryLanguageMatchOccurrences: metadataTerms.filter(
+        ({ source }) => source === 'primary-language',
+      ).length,
     },
     differential: generated.differential,
     performance: generated.performance,

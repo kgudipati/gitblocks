@@ -24,11 +24,13 @@ export const APPROVED_METADATA_LEXICAL_WEIGHTS = Object.freeze({
 
 export type ApprovedMetadataLexicalSource =
   'topic' | 'description' | 'primary-language';
+export type ApprovedMetadataLexicalPoints =
+  (typeof APPROVED_METADATA_LEXICAL_WEIGHTS)[keyof typeof APPROVED_METADATA_LEXICAL_WEIGHTS];
 
 export interface ApprovedMetadataLexicalMatchV1 {
   readonly normalizedTerm: string;
   readonly source: ApprovedMetadataLexicalSource;
-  readonly points: number;
+  readonly points: ApprovedMetadataLexicalPoints;
 }
 
 export type ApprovedMetadataLexicalScoreResultV1 =
@@ -60,10 +62,16 @@ export type ApprovedMetadataLexicalChannelCreationResultV1 =
 export interface ApprovedMetadataLexicalChannelV1 {
   readonly channelVersion: typeof APPROVED_METADATA_LEXICAL_CHANNEL_VERSION;
   readonly candidateCount: number;
+  readonly authorityBinding: ApprovedMetadataLexicalSnapshotBindingV1;
   readonly score: (
     candidateId: string,
     normalization: CapabilityQueryNormalizationResultV1,
   ) => ApprovedMetadataLexicalScoreResultV1;
+}
+
+export interface ApprovedMetadataLexicalSnapshotBindingV1 {
+  readonly authorityVersion: CandidateRetrievalMetadataAuthorityV1['authorityVersion'];
+  readonly authoritySemanticDigest: string;
 }
 
 export interface ApprovedMetadataLexicalAuthorityInputV1 {
@@ -92,8 +100,9 @@ export interface ExpectedCandidateRetrievalMetadataCandidateV1 {
 }
 
 /**
- * Prepares the reviewed sixth channel without activating it in the production
- * retrieval engine. All provider-derived text remains owned, inert data.
+ * Admits the reviewed sixth channel as immutable, inert product data. The
+ * caller remains responsible for deciding whether the admitted channel is
+ * active in a retrieval engine.
  */
 export function createApprovedMetadataLexicalChannelV1(
   input: ApprovedMetadataLexicalAuthorityInputV1,
@@ -152,6 +161,10 @@ export function createApprovedMetadataLexicalChannelV1(
   const channel: ApprovedMetadataLexicalChannelV1 = Object.freeze({
     channelVersion: APPROVED_METADATA_LEXICAL_CHANNEL_VERSION,
     candidateCount: records.size,
+    authorityBinding: Object.freeze({
+      authorityVersion: metadata.value.authorityVersion,
+      authoritySemanticDigest: metadata.value.authoritySemanticDigest,
+    }),
     score: (
       candidateId: string,
       normalization: CapabilityQueryNormalizationResultV1,
@@ -306,7 +319,7 @@ function addTerms(
   target: Map<string, ApprovedMetadataLexicalMatchV1>,
   value: string | null,
   source: ApprovedMetadataLexicalSource,
-  points: number,
+  points: ApprovedMetadataLexicalPoints,
 ): void {
   if (value === null) return;
   for (const normalizedTerm of normalizeApprovedMetadataLexicalTerms(value)) {

@@ -113,6 +113,11 @@ beforeAll(async () => {
         authorityVersion: expansion.expansionVersion,
         semanticDigest: expansion.semanticDigest,
       },
+      retrievalMetadata: {
+        authorityVersion: 'candidate-retrieval-metadata-authority/1.1.0',
+        authoritySemanticDigest:
+          '23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1',
+      },
     },
     eligibleResultLimit: 10,
     evidenceNeededResultLimit: 10,
@@ -137,7 +142,7 @@ beforeAll(async () => {
     diagnostics: {
       candidatesExamined: 150,
       candidatesConstraintEvaluated: 150,
-      activeChannelCount: 5,
+      activeChannelCount: 6,
       candidateChannelMatches: 1,
       negativeControlsExcluded: 10,
       exactRepositoryIdentityGroups: 0,
@@ -159,19 +164,185 @@ describe('candidate retrieval product contracts', () => {
     expect(parseCandidateRetrievalResultV1(result).ok).toBe(true);
     expect(validateCandidateRetrievalExchangeV1(request, result).ok).toBe(true);
     expect(request.retrievalRequestVersion).toBe(
-      'candidate-retrieval-request/1.1.0',
+      'candidate-retrieval-request/1.2.0',
     );
     expect(result.retrievalResultVersion).toBe(
-      'candidate-retrieval-result/1.2.0',
+      'candidate-retrieval-result/1.3.0',
     );
     expect(result.retrievalAlgorithmVersion).toBe(
-      'deterministic-candidate-retrieval/1.2.0',
+      'deterministic-candidate-retrieval/1.3.0',
     );
+    expect(result.channelBindings).toEqual([
+      {
+        channelId: 'capability-family',
+        channelVersion: 'capability-family/1.0.0',
+      },
+      {
+        channelId: 'taxonomy-concept',
+        channelVersion: 'taxonomy-concept/1.0.0',
+      },
+      {
+        channelId: 'candidate-identity',
+        channelVersion: 'candidate-identity/1.2.0',
+      },
+      {
+        channelId: 'package-identity',
+        channelVersion: 'package-identity/1.1.0',
+      },
+      {
+        channelId: 'structured-profile',
+        channelVersion: 'structured-profile/1.0.0',
+      },
+      {
+        channelId: 'approved-metadata-lexical',
+        channelVersion: 'approved-metadata-lexical/1.0.0',
+      },
+    ]);
     expect(request.authorityBindings.retrievalExpansion).toEqual({
       authorityVersion: 'capability-retrieval-expansion/1.0.0',
       semanticDigest:
         '1435521e117e2af18ec55bbf1f30e3f5d2f48fe07d54f0c657917ff027086f4a',
     });
+    expect(request.authorityBindings.retrievalMetadata).toEqual({
+      authorityVersion: 'candidate-retrieval-metadata-authority/1.1.0',
+      authoritySemanticDigest:
+        '23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1',
+    });
+  });
+
+  it('changes request identity when only the metadata snapshot digest changes', () => {
+    const changed = createCandidateRetrievalRequestV1({
+      normalization: request.normalization,
+      authorityBindings: {
+        ...request.authorityBindings,
+        retrievalMetadata: {
+          ...request.authorityBindings.retrievalMetadata,
+          authoritySemanticDigest: '0'.repeat(64),
+        },
+      },
+      eligibleResultLimit: request.eligibleResultLimit,
+      evidenceNeededResultLimit: request.evidenceNeededResultLimit,
+    });
+    expect(changed.normalization.semanticDigest).toBe(
+      request.normalization.semanticDigest,
+    );
+    expect(changed.retrievalRequestId).not.toBe(request.retrievalRequestId);
+  });
+
+  it('echoes the metadata authority binding and rejects exchange disagreement', () => {
+    const disagreeing = createCandidateRetrievalResultV1({
+      retrievalRequestId: request.retrievalRequestId,
+      normalizationId: request.normalization.normalizationId,
+      normalizationSemanticDigest: request.normalization.semanticDigest,
+      authorityBindings: {
+        ...request.authorityBindings,
+        retrievalMetadata: {
+          ...request.authorityBindings.retrievalMetadata,
+          authoritySemanticDigest: '0'.repeat(64),
+        },
+      },
+      channelBindings: CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS.map((binding) => ({
+        ...binding,
+      })),
+      eligibleResultLimit: 10,
+      evidenceNeededResultLimit: 10,
+      preRetrievalLaneCounts: result.preRetrievalLaneCounts,
+      eligibleCandidates: result.eligibleCandidates,
+      evidenceNeededCandidates: result.evidenceNeededCandidates,
+      diagnostics: result.diagnostics,
+    });
+    expect(
+      disagreeing.authorityBindings.retrievalMetadata.authoritySemanticDigest,
+    ).toBe('0'.repeat(64));
+    expect(validateCandidateRetrievalExchangeV1(request, disagreeing).ok).toBe(
+      false,
+    );
+  });
+
+  it('enforces metadata-only bounded provenance and exact component accounting', () => {
+    const metadataCandidate: EligibleRetrievalCandidateV1 = {
+      candidateId: 'auth-aserto-topaz',
+      lane: 'eligible',
+      retrievalScore: 400,
+      matchedCapabilityConceptIds: [],
+      matchedProfileFieldIds: [],
+      channelMatches: [
+        {
+          channelId: 'approved-metadata-lexical',
+          channelVersion: 'approved-metadata-lexical/1.0.0',
+          componentScore: 400,
+          matchedCapabilityConceptIds: [],
+          matchedProfileFieldIds: [],
+          matchedExpansionEdgeIds: [],
+          matchedMetadataTerms: [
+            { normalizedTerm: 'authorization', source: 'topic', points: 300 },
+            {
+              normalizedTerm: 'policy-engine',
+              source: 'description',
+              points: 100,
+            },
+          ],
+        },
+      ],
+      unresolvedHardEvaluations: [],
+    };
+    expect(resultWithCandidate(metadataCandidate)).toMatchObject({
+      eligibleCandidates: [metadataCandidate],
+    });
+
+    expect(() =>
+      resultWithCandidate({
+        ...metadataCandidate,
+        retrievalScore: 300,
+        channelMatches: [
+          {
+            ...metadataCandidate.channelMatches[0]!,
+            componentScore: 300,
+            matchedMetadataTerms: [],
+          },
+        ],
+      }),
+    ).toThrow();
+    expect(() =>
+      resultWithCandidate({
+        ...metadataCandidate,
+        channelMatches: [
+          {
+            ...metadataCandidate.channelMatches[0]!,
+            matchedExpansionEdgeIds: ['metadata-must-not-claim-expansion'],
+          },
+        ],
+      }),
+    ).toThrow();
+    expect(() =>
+      resultWithCandidate({
+        ...metadataCandidate,
+        retrievalScore: 200,
+        channelMatches: [
+          {
+            ...metadataCandidate.channelMatches[0]!,
+            componentScore: 200,
+          },
+        ],
+      }),
+    ).toThrow();
+    expect(() =>
+      resultWithCandidate({
+        ...eligibleCandidate('auth-aserto-topaz'),
+        channelMatches: [
+          {
+            ...eligibleCandidate('auth-aserto-topaz').channelMatches[0]!,
+            matchedMetadataTerms: [
+              {
+                normalizedTerm: 'authorization',
+                source: 'description',
+                points: 100,
+              },
+            ],
+          },
+        ],
+      }),
+    ).toThrow();
   });
 
   it('requires a normalized outcome and exact authority bindings', () => {
@@ -396,6 +567,32 @@ describe('candidate retrieval product contracts', () => {
   });
 });
 
+function resultWithCandidate(candidate: EligibleRetrievalCandidateV1) {
+  return createCandidateRetrievalResultV1({
+    retrievalRequestId: request.retrievalRequestId,
+    normalizationId: request.normalization.normalizationId,
+    normalizationSemanticDigest: request.normalization.semanticDigest,
+    authorityBindings: request.authorityBindings,
+    channelBindings: CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS.map((binding) => ({
+      ...binding,
+    })),
+    eligibleResultLimit: 10,
+    evidenceNeededResultLimit: 10,
+    preRetrievalLaneCounts: {
+      eligible: 1,
+      'evidence-needed': 0,
+      excluded: 149,
+    },
+    eligibleCandidates: [candidate],
+    evidenceNeededCandidates: [],
+    diagnostics: {
+      ...result.diagnostics,
+      candidateChannelMatches: candidate.channelMatches.length,
+      eligibleCandidatesTruncated: 0,
+    },
+  });
+}
+
 function eligibleCandidate(candidateId: string): EligibleRetrievalCandidateV1 {
   return {
     candidateId,
@@ -411,6 +608,7 @@ function eligibleCandidate(candidateId: string): EligibleRetrievalCandidateV1 {
         matchedCapabilityConceptIds: ['authorization'],
         matchedProfileFieldIds: ['capability-family'],
         matchedExpansionEdgeIds: [],
+        matchedMetadataTerms: [],
       },
     ],
     unresolvedHardEvaluations: [],

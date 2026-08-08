@@ -46,6 +46,7 @@ export {
   type CandidateRetrievalChannelBindingV1,
   type CandidateRetrievalChannelIdV1,
   type CandidateRetrievalChannelMatchV1,
+  type CandidateRetrievalMetadataTermMatchV1,
   type CandidateRetrievalLaneV1,
   type CandidateRetrievalRequestV1,
   type CandidateRetrievalResultV1,

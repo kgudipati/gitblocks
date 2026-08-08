@@ -399,19 +399,17 @@ describe('approved metadata lexical channel pre-registration', () => {
     });
   });
 
-  it('is metadata-order independent and remains inactive in the five hard-lane channels', () => {
+  it('is metadata-order independent and is the exact sixth channel binding', () => {
     const forward = authorityWith();
     const reversed = authorityWith([...catalog.candidates].reverse());
     expect(reversed.authoritySemanticDigest).toBe(
       forward.authoritySemanticDigest,
     );
-    expect(CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS).toHaveLength(5);
-    expect(
-      CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS.some(
-        ({ channelId }) =>
-          channelId === ('approved-metadata-lexical' as string),
-      ),
-    ).toBe(false);
+    expect(CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS).toHaveLength(6);
+    expect(CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS.at(-1)).toEqual({
+      channelId: 'approved-metadata-lexical',
+      channelVersion: 'approved-metadata-lexical/1.0.0',
+    });
     expect(
       createApprovedMetadataLexicalChannelV1({
         metadataAuthority: reversed,

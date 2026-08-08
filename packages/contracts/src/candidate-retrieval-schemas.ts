@@ -16,13 +16,14 @@ import {
   stableIdSchema,
 } from './schema-builders.ts';
 import { CAPABILITY_RETRIEVAL_EXPANSION_VERSION } from './capability-retrieval-expansion-schemas.ts';
+import { CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_VERSION } from './candidate-retrieval-metadata-schemas.ts';
 
 export const CANDIDATE_RETRIEVAL_REQUEST_VERSION =
-  'candidate-retrieval-request/1.1.0' as const;
+  'candidate-retrieval-request/1.2.0' as const;
 export const CANDIDATE_RETRIEVAL_RESULT_VERSION =
-  'candidate-retrieval-result/1.2.0' as const;
+  'candidate-retrieval-result/1.3.0' as const;
 export const CANDIDATE_RETRIEVAL_ALGORITHM_VERSION =
-  'deterministic-candidate-retrieval/1.2.0' as const;
+  'deterministic-candidate-retrieval/1.3.0' as const;
 export const CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS = Object.freeze([
   {
     channelId: 'capability-family',
@@ -43,6 +44,10 @@ export const CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS = Object.freeze([
   {
     channelId: 'structured-profile',
     channelVersion: 'structured-profile/1.0.0',
+  },
+  {
+    channelId: 'approved-metadata-lexical',
+    channelVersion: 'approved-metadata-lexical/1.0.0',
   },
 ] as const);
 
@@ -97,6 +102,12 @@ export const candidateRetrievalAuthorityBindingsV1Schema = closedObject({
     authorityVersion: Type.Literal(CAPABILITY_RETRIEVAL_EXPANSION_VERSION),
     semanticDigest: digestSchema,
   }),
+  retrievalMetadata: closedObject({
+    authorityVersion: Type.Literal(
+      CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_VERSION,
+    ),
+    authoritySemanticDigest: digestSchema,
+  }),
 });
 
 const embeddedCapabilityQueryNormalizationResultV1Schema = withoutRootMetadata(
@@ -115,7 +126,7 @@ export const candidateRetrievalRequestV1Schema = Type.Object(
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
-    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-request/1.1.0',
+    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-request/1.2.0',
     additionalProperties: false,
   },
 );
@@ -126,6 +137,7 @@ const channelIdSchema = Type.Union([
   Type.Literal('candidate-identity'),
   Type.Literal('package-identity'),
   Type.Literal('structured-profile'),
+  Type.Literal('approved-metadata-lexical'),
 ]);
 const channelVersionSchema = Type.Union([
   Type.Literal('capability-family/1.0.0'),
@@ -133,6 +145,7 @@ const channelVersionSchema = Type.Union([
   Type.Literal('candidate-identity/1.2.0'),
   Type.Literal('package-identity/1.1.0'),
   Type.Literal('structured-profile/1.0.0'),
+  Type.Literal('approved-metadata-lexical/1.0.0'),
 ]);
 const channelBindingSchema = closedObject({
   channelId: channelIdSchema,
@@ -148,6 +161,19 @@ const boundedProfileFieldIdsSchema = Type.Array(profileFieldIdSchema, {
   maxItems: 27,
   uniqueItems: true,
 });
+const metadataTermMatchV1Schema = closedObject({
+  normalizedTerm: Type.String({
+    minLength: 1,
+    maxLength: 131,
+    pattern: '^[a-z0-9]+(?:-[a-z0-9]+){0,3}$',
+  }),
+  source: Type.Union([
+    Type.Literal('topic'),
+    Type.Literal('description'),
+    Type.Literal('primary-language'),
+  ]),
+  points: Type.Union([Type.Literal(100), Type.Literal(300)]),
+});
 const retrievalChannelMatchV1Schema = closedObject({
   channelId: channelIdSchema,
   channelVersion: channelVersionSchema,
@@ -156,6 +182,10 @@ const retrievalChannelMatchV1Schema = closedObject({
   matchedProfileFieldIds: boundedProfileFieldIdsSchema,
   matchedExpansionEdgeIds: Type.Array(stableIdSchema, {
     maxItems: 32,
+    uniqueItems: true,
+  }),
+  matchedMetadataTerms: Type.Array(metadataTermMatchV1Schema, {
+    maxItems: 9,
     uniqueItems: true,
   }),
 });
@@ -281,7 +311,7 @@ export const candidateRetrievalResultV1Schema = Type.Object(
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
-    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-result/1.2.0',
+    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-result/1.3.0',
     additionalProperties: false,
   },
 );
@@ -299,6 +329,9 @@ export type CandidateRetrievalChannelBindingV1 = Static<
 >;
 export type CandidateRetrievalChannelMatchV1 = Static<
   typeof retrievalChannelMatchV1Schema
+>;
+export type CandidateRetrievalMetadataTermMatchV1 = Static<
+  typeof metadataTermMatchV1Schema
 >;
 export type CandidateRetrievalLaneV1 = 'eligible' | 'evidence-needed';
 export type CandidateRetrievalCandidateV1 = Static<

@@ -5,12 +5,14 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
   CONTRACT_VERSION,
+  createCandidateRetrievalMetadataAuthorityV1,
   createCandidateRetrievalRequestV1,
   normalizeCapabilityQueryV1,
   parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
   parseDeterministicCandidateProfileAuthorityV1,
   type CandidateRetrievalRequestV1,
+  type CandidateRetrievalMetadataAuthorityV1,
   type CandidateRetrievalCandidateV1,
   type CapabilityRetrievalExpansionV1,
   type CapabilityQueryDraftConstraintV1,
@@ -25,8 +27,11 @@ import {
 } from '@gitblocks/domain';
 
 import {
+  createApprovedMetadataLexicalChannelV1,
   createCandidateRetrievalEngineV1,
+  type ApprovedMetadataLexicalChannelV1,
   type CandidateRetrievalEngineV1,
+  type ExpectedCandidateRetrievalMetadataAuthorityBindingV1,
 } from '../src/index.ts';
 import {
   createCandidateSearchView,
@@ -55,11 +60,13 @@ const expansionPath = fileURLToPath(
     import.meta.url,
   ),
 );
-
 let taxonomy: CapabilityTaxonomyV1;
 let profileAuthority: DeterministicCandidateProfileAuthorityV1;
 let rawProfileAuthority: DeterministicCandidateProfileAuthorityV1;
 let retrievalExpansion: CapabilityRetrievalExpansionV1;
+let metadataAuthority: CandidateRetrievalMetadataAuthorityV1;
+let expectedMetadataBinding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1;
+let metadataChannel: ApprovedMetadataLexicalChannelV1;
 let retrievalEngine: CandidateRetrievalEngineV1;
 
 beforeAll(async () => {
@@ -84,10 +91,69 @@ beforeAll(async () => {
   rawProfileAuthority =
     profileValue as DeterministicCandidateProfileAuthorityV1;
   retrievalExpansion = parsedExpansion.value;
+  expectedMetadataBinding = {
+    authorityVersion: 'candidate-retrieval-metadata-authority/1.1.0',
+    catalogVersion: 'public-v1',
+    catalogDigest:
+      '4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634',
+    providerPolicyVersion: 'candidate-retrieval-metadata-provider-policy/1.1.0',
+    providerPolicyDigest:
+      'b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e',
+    sourceProviderPolicyVersion:
+      'profile-materialization-provider-policy/1.0.0',
+    sourceProviderPolicyDigest:
+      '0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede',
+    sourceOperation: 'github-repository-metadata',
+  };
+  metadataAuthority = createCandidateRetrievalMetadataAuthorityV1({
+    catalogVersion: expectedMetadataBinding.catalogVersion,
+    catalogDigest: expectedMetadataBinding.catalogDigest,
+    providerPolicyVersion: expectedMetadataBinding.providerPolicyVersion,
+    providerPolicyDigest: expectedMetadataBinding.providerPolicyDigest,
+    sourceProviderPolicyVersion:
+      expectedMetadataBinding.sourceProviderPolicyVersion,
+    sourceProviderPolicyDigest:
+      expectedMetadataBinding.sourceProviderPolicyDigest,
+    sourceOperation: expectedMetadataBinding.sourceOperation,
+    collectedAt: '2026-08-08T00:00:00.000Z',
+    candidates: profileAuthority.profiles.map((profile) => {
+      const repository = knownField(profile, 'repository-identity');
+      return {
+        candidateId: profile.candidateId,
+        catalogOwner: repository.value.githubOwner,
+        catalogRepository: repository.value.githubRepository,
+        providerCanonicalOwner: repository.value.githubOwner,
+        providerCanonicalRepository: repository.value.githubRepository,
+        description: null,
+        topics: [],
+        primaryLanguage: null,
+      };
+    }),
+  });
+  const createdMetadataChannel = createApprovedMetadataLexicalChannelV1({
+    metadataAuthority,
+    taxonomy,
+    retrievalExpansionAuthority: retrievalExpansion,
+    expectedMetadataAuthorityBinding: expectedMetadataBinding,
+    expectedCandidates: profileAuthority.profiles.map((profile) => {
+      const repository = knownField(profile, 'repository-identity');
+      return {
+        candidateId: profile.candidateId,
+        catalogOwner: repository.value.githubOwner,
+        catalogRepository: repository.value.githubRepository,
+      };
+    }),
+  });
+  if (!createdMetadataChannel.ok) {
+    throw new Error('Committed metadata authority is invalid.');
+  }
+  metadataChannel = createdMetadataChannel.channel;
   const created = createCandidateRetrievalEngineV1({
     taxonomy,
     candidateProfileAuthority: profileAuthority,
     retrievalExpansionAuthority: retrievalExpansion,
+    candidateRetrievalMetadataAuthority: metadataAuthority,
+    expectedCandidateRetrievalMetadataAuthorityBinding: expectedMetadataBinding,
   });
   if (!created.ok) throw new Error('Retrieval engine creation failed.');
   retrievalEngine = created.engine;
@@ -102,7 +168,7 @@ describe('deterministic production retrieval vertical slice', () => {
     const result = operation.result;
     expect(result.diagnostics.candidatesExamined).toBe(150);
     expect(result.diagnostics.candidatesConstraintEvaluated).toBe(150);
-    expect(result.diagnostics.activeChannelCount).toBe(5);
+    expect(result.diagnostics.activeChannelCount).toBe(6);
     expect(
       result.preRetrievalLaneCounts.eligible +
         result.preRetrievalLaneCounts['evidence-needed'] +
@@ -258,6 +324,7 @@ describe('deterministic production retrieval vertical slice', () => {
       new Map(taxonomy.concepts.map((concept) => [concept.conceptId, concept])),
       new Set(views.map(({ candidateId }) => candidateId)),
       retrievalExpansion,
+      metadataChannel,
       evaluator,
     );
     expect(operation.ok).toBe(true);
@@ -290,6 +357,7 @@ describe('deterministic production retrieval vertical slice', () => {
       new Map(taxonomy.concepts.map((concept) => [concept.conceptId, concept])),
       new Set(views.map(({ candidateId }) => candidateId)),
       retrievalExpansion,
+      metadataChannel,
       evaluator,
     );
     expect(rejected.ok).toBe(false);
@@ -445,6 +513,8 @@ describe('deterministic production retrieval vertical slice', () => {
       primaryFamily: 'authorization',
       additionalFamilies: ['audit-logging'],
       repositoryIdentity: 'owner/repository',
+      catalogOwner: 'owner',
+      catalogRepository: 'repository',
       packageIdentity: 'package-name',
       candidateRepositoryIdentityTerms: new Set(['owner', 'repository']),
       packageIdentityTerms: new Set(['package', 'package-name']),
@@ -860,6 +930,7 @@ describe('deterministic production retrieval vertical slice', () => {
       taxonomyConcepts,
       candidateIds,
       retrievalExpansion,
+      metadataChannel,
     );
     expect(expected.ok).toBe(true);
     if (!expected.ok) return;
@@ -875,6 +946,7 @@ describe('deterministic production retrieval vertical slice', () => {
         taxonomyConcepts,
         candidateIds,
         retrievalExpansion,
+        metadataChannel,
       );
       expect(actual.ok).toBe(true);
       if (actual.ok) {
@@ -888,16 +960,21 @@ describe('deterministic production retrieval vertical slice', () => {
   it('owns injected authority and rejects malformed, mismatched, duplicate, and confusable inputs', () => {
     const mutableAuthority = structuredClone(rawProfileAuthority);
     const mutableExpansion = structuredClone(retrievalExpansion);
+    const mutableMetadata = structuredClone(metadataAuthority);
     const created = createCandidateRetrievalEngineV1({
       taxonomy,
       candidateProfileAuthority: mutableAuthority,
       retrievalExpansionAuthority: mutableExpansion,
+      candidateRetrievalMetadataAuthority: mutableMetadata,
+      expectedCandidateRetrievalMetadataAuthorityBinding:
+        expectedMetadataBinding,
     });
     expect(created.ok).toBe(true);
     if (!created.ok) return;
     const before = created.engine.retrieve(makeRequest());
     mutableAuthority.profiles.reverse();
     mutableExpansion.edges.reverse();
+    mutableMetadata.candidates.reverse();
     const after = created.engine.retrieve(makeRequest());
     expect(before.ok && after.ok).toBe(true);
     if (before.ok && after.ok) {
@@ -946,6 +1023,9 @@ describe('deterministic production retrieval vertical slice', () => {
           ],
         },
         retrievalExpansionAuthority: retrievalExpansion,
+        candidateRetrievalMetadataAuthority: metadataAuthority,
+        expectedCandidateRetrievalMetadataAuthorityBinding:
+          expectedMetadataBinding,
       }),
     ).toMatchObject({ ok: false });
     expect(
@@ -956,6 +1036,9 @@ describe('deterministic production retrieval vertical slice', () => {
           ...retrievalExpansion,
           semanticDigest: '0'.repeat(64),
         },
+        candidateRetrievalMetadataAuthority: metadataAuthority,
+        expectedCandidateRetrievalMetadataAuthorityBinding:
+          expectedMetadataBinding,
       }),
     ).toMatchObject({
       ok: false,
@@ -969,6 +1052,9 @@ describe('deterministic production retrieval vertical slice', () => {
         taxonomy,
         candidateProfileAuthority: reversedAuthority,
         retrievalExpansionAuthority: retrievalExpansion,
+        candidateRetrievalMetadataAuthority: metadataAuthority,
+        expectedCandidateRetrievalMetadataAuthorityBinding:
+          expectedMetadataBinding,
       }),
     ).toMatchObject({
       ok: false,
@@ -1029,10 +1115,370 @@ describe('deterministic production retrieval vertical slice', () => {
     expect(confusable.ok).toBe(true);
     if (confusable.ok) expect(confusable.value.outcome).not.toBe('normalized');
   });
+
+  it('rejects a metadata snapshot mismatch before candidate evaluation', () => {
+    const base = makeRequest();
+    const mismatched = createCandidateRetrievalRequestV1({
+      normalization: base.normalization,
+      authorityBindings: {
+        ...base.authorityBindings,
+        retrievalMetadata: {
+          ...base.authorityBindings.retrievalMetadata,
+          authoritySemanticDigest: '0'.repeat(64),
+        },
+      },
+      eligibleResultLimit: base.eligibleResultLimit,
+      evidenceNeededResultLimit: base.evidenceNeededResultLimit,
+    });
+    const evaluator = vi.fn<typeof evaluateCandidateConstraints>();
+    const views = candidateSearchViews();
+    const operation = retrieveCandidateSet(
+      mismatched,
+      taxonomy,
+      profileAuthority,
+      views,
+      new Map(taxonomy.concepts.map((concept) => [concept.conceptId, concept])),
+      new Set(views.map(({ candidateId }) => candidateId)),
+      retrievalExpansion,
+      metadataChannel,
+      evaluator,
+    );
+    expect(operation).toMatchObject({
+      ok: false,
+      issues: [{ code: 'metadata-snapshot-mismatch' }],
+    });
+    expect(evaluator).not.toHaveBeenCalled();
+  });
+
+  it('distinguishes invalid metadata from external policy and stable ownership disagreement', () => {
+    const invalid = structuredClone(metadataAuthority);
+    invalid.authoritySemanticDigest = '0'.repeat(64);
+    expect(createEngineForMetadata(invalid)).toMatchObject({
+      ok: false,
+      issues: [{ code: 'invalid-metadata-authority' }],
+    });
+
+    const wrongPolicy = syntheticMetadataAuthority(new Map(), {
+      ...expectedMetadataBinding,
+      providerPolicyDigest: '0'.repeat(64),
+    });
+    expect(createEngineForMetadata(wrongPolicy)).toMatchObject({
+      ok: false,
+      issues: [{ code: 'metadata-authority-binding-mismatch' }],
+    });
+
+    const target = profileAuthority.profiles[0];
+    if (target === undefined) throw new Error('Profile authority is empty.');
+    const wrongOwnership = syntheticMetadataAuthority(
+      new Map([[target.candidateId, { catalogOwner: 'wrong-owner' }]]),
+    );
+    expect(createEngineForMetadata(wrongOwnership)).toMatchObject({
+      ok: false,
+      issues: [{ code: 'metadata-authority-binding-mismatch' }],
+    });
+  });
+
+  it('admits provider redirects while preserving stable profile-owned candidate identity', () => {
+    const target = profileAuthority.profiles.find(
+      (profile) =>
+        knownField(profile, 'capability-family').value.primaryFamily ===
+          'authorization' &&
+        knownField(profile, 'catalog-role-status').value.catalogStatus ===
+          'active',
+    );
+    if (target === undefined) throw new Error('Active candidate is missing.');
+    const repository = knownField(target, 'repository-identity');
+    const redirected = syntheticMetadataAuthority(
+      new Map([
+        [
+          target.candidateId,
+          {
+            providerCanonicalOwner: 'current-provider-owner',
+            providerCanonicalRepository: 'current-provider-repository',
+          },
+        ],
+      ]),
+    );
+    expect(
+      redirected.candidates.find(
+        ({ candidateId }) => candidateId === target.candidateId,
+      ),
+    ).toMatchObject({
+      catalogOwner: repository.value.githubOwner,
+      catalogRepository: repository.value.githubRepository,
+      providerCanonicalOwner: 'current-provider-owner',
+      providerCanonicalRepository: 'current-provider-repository',
+      repositoryIdentityState: 'redirected',
+    });
+    const created = createEngineForMetadata(redirected);
+    expect(created.ok).toBe(true);
+  });
+
+  it('emits one bounded metadata component with normalized provenance and no provider prose', () => {
+    const target = profileAuthority.profiles.find(
+      (profile) =>
+        profile.candidateId === 'auth-koa-roles' &&
+        knownField(profile, 'catalog-role-status').value.catalogStatus !==
+          'negative-control',
+    );
+    if (target === undefined) throw new Error('Metadata target is missing.');
+    const activated = syntheticMetadataAuthority(
+      new Map([
+        [
+          target.candidateId,
+          {
+            description: 'Private provider prose that must never be returned.',
+            topics: ['authorization'],
+            primaryLanguage: 'TypeScript',
+          },
+        ],
+      ]),
+    );
+    const created = createEngineForMetadata(activated);
+    if (!created.ok) throw new Error('Metadata engine creation failed.');
+    const request = bindRequestToMetadata(
+      makeRequest([], { kind: 'candidate-id', value: target.candidateId }),
+      activated,
+    );
+    const operation = created.engine.retrieve(request);
+    expect(operation.ok).toBe(true);
+    if (!operation.ok) return;
+    const candidate = operation.result.eligibleCandidates.find(
+      ({ candidateId }) => candidateId === target.candidateId,
+    );
+    const metadataMatches = candidate?.channelMatches.filter(
+      ({ channelId }) => channelId === 'approved-metadata-lexical',
+    );
+    expect(metadataMatches).toEqual([
+      {
+        channelId: 'approved-metadata-lexical',
+        channelVersion: 'approved-metadata-lexical/1.0.0',
+        componentScore: 300,
+        matchedCapabilityConceptIds: [],
+        matchedProfileFieldIds: [],
+        matchedExpansionEdgeIds: [],
+        matchedMetadataTerms: [
+          { normalizedTerm: 'authorization', source: 'topic', points: 300 },
+        ],
+      },
+    ]);
+    expect(
+      candidate?.channelMatches
+        .filter(({ channelId }) => channelId !== 'approved-metadata-lexical')
+        .every(({ matchedMetadataTerms }) => matchedMetadataTerms.length === 0),
+    ).toBe(true);
+    const serialized = JSON.stringify(operation.result);
+    expect(serialized).not.toContain('Private provider prose');
+    expect(serialized).not.toMatch(
+      /"(?:description|topics|primaryLanguage|providerCanonicalOwner|providerCanonicalRepository)"/u,
+    );
+  });
+
+  it('emits no metadata component for a zero score and keeps every channel unique and bounded', () => {
+    const operation = requireEngine().retrieve(makeRequest());
+    if (!operation.ok) throw new Error('Retrieval failed.');
+    for (const candidate of [
+      ...operation.result.eligibleCandidates,
+      ...operation.result.evidenceNeededCandidates,
+    ]) {
+      expect(
+        candidate.channelMatches.some(
+          ({ channelId }) => channelId === 'approved-metadata-lexical',
+        ),
+      ).toBe(false);
+      expect(candidate.channelMatches.length).toBeLessThanOrEqual(6);
+      expect(
+        new Set(candidate.channelMatches.map(({ channelId }) => channelId))
+          .size,
+      ).toBe(candidate.channelMatches.length);
+    }
+  });
+
+  it('cannot use strong metadata to change conflicts, negative controls, hard lanes, or no-eligible state', () => {
+    const conflict = profileAuthority.profiles.find(
+      (profile) =>
+        knownField(profile, 'capability-family').value.primaryFamily !==
+          'authorization' &&
+        knownField(profile, 'catalog-role-status').value.catalogStatus !==
+          'negative-control',
+    );
+    const negative = profileAuthority.profiles.find(
+      (profile) =>
+        knownField(profile, 'capability-family').value.primaryFamily ===
+          'authorization' &&
+        knownField(profile, 'catalog-role-status').value.catalogStatus ===
+          'negative-control',
+    );
+    if (conflict === undefined || negative === undefined) {
+      throw new Error('Safety metadata targets are missing.');
+    }
+    const activated = syntheticMetadataAuthority(
+      new Map(
+        [conflict, negative].map((profile) => [
+          profile.candidateId,
+          {
+            description: 'Authorization authorization authorization.',
+            topics: ['authorization'],
+            primaryLanguage: null,
+          },
+        ]),
+      ),
+    );
+    const created = createEngineForMetadata(activated);
+    if (!created.ok) throw new Error('Metadata engine creation failed.');
+    const baseline = requireEngine().retrieve(makeRequest());
+    const measured = created.engine.retrieve(
+      bindRequestToMetadata(makeRequest(), activated),
+    );
+    expect(baseline.ok && measured.ok).toBe(true);
+    if (!baseline.ok || !measured.ok) return;
+    expect(measured.result.preRetrievalLaneCounts).toEqual(
+      baseline.result.preRetrievalLaneCounts,
+    );
+    const returned = new Set(
+      [
+        ...measured.result.eligibleCandidates,
+        ...measured.result.evidenceNeededCandidates,
+      ].map(({ candidateId }) => candidateId),
+    );
+    expect(returned.has(conflict.candidateId)).toBe(false);
+    expect(returned.has(negative.candidateId)).toBe(false);
+
+    const evidenceRequest = makeRequest([
+      {
+        constraintId: 'deployment-required-metadata',
+        modality: 'required',
+        statement: 'Must be self hosted.',
+        originalTerm: 'self-hosted',
+        facetHint: 'deployment',
+        reasonCode: 'deployment-required',
+      },
+    ]);
+    const baselineEvidence = requireEngine().retrieve(evidenceRequest);
+    const measuredEvidence = created.engine.retrieve(
+      bindRequestToMetadata(evidenceRequest, activated),
+    );
+    expect(baselineEvidence.ok && measuredEvidence.ok).toBe(true);
+    if (!baselineEvidence.ok || !measuredEvidence.ok) return;
+    expect(measuredEvidence.result.preRetrievalLaneCounts).toEqual(
+      baselineEvidence.result.preRetrievalLaneCounts,
+    );
+    expect(measuredEvidence.result.preRetrievalLaneCounts.eligible).toBe(0);
+    expect(
+      measuredEvidence.result.evidenceNeededCandidates.every(
+        ({ lane }) => lane === 'evidence-needed',
+      ),
+    ).toBe(true);
+  });
+
+  it('builds the immutable metadata view once per engine and performs no product I/O', async () => {
+    const source = await readFile(
+      fileURLToPath(new URL('../src/retrieval-engine.ts', import.meta.url)),
+      'utf8',
+    );
+    expect(
+      source.match(/createApprovedMetadataLexicalChannelV1\(\{/gu),
+    ).toHaveLength(1);
+    expect(source).not.toMatch(
+      /@gitblocks\/(?:ingestion|evaluation)|(?:readFile|fetch|https?:|process\.env|database)/u,
+    );
+
+    const mutable = structuredClone(
+      syntheticMetadataAuthority(
+        new Map([['auth-koa-roles', { topics: ['authorization'] }]]),
+      ),
+    );
+    const created = createEngineForMetadata(mutable);
+    if (!created.ok) throw new Error('Metadata engine creation failed.');
+    const request = bindRequestToMetadata(makeRequest(), mutable);
+    const before = created.engine.retrieve(request);
+    mutable.candidates.reverse();
+    mutable.candidates[0]!.topics = ['caller-mutation'];
+    const after = created.engine.retrieve(request);
+    expect(before.ok && after.ok).toBe(true);
+    if (before.ok && after.ok) {
+      expect(JSON.stringify(after.result)).toBe(JSON.stringify(before.result));
+    }
+  });
 });
 
 function requireEngine() {
   return retrievalEngine;
+}
+
+type SyntheticMetadataOverride = Readonly<{
+  catalogOwner?: string;
+  catalogRepository?: string;
+  providerCanonicalOwner?: string;
+  providerCanonicalRepository?: string;
+  description?: string | null;
+  topics?: readonly string[];
+  primaryLanguage?: string | null;
+}>;
+
+function syntheticMetadataAuthority(
+  overrides: ReadonlyMap<string, SyntheticMetadataOverride> = new Map(),
+  binding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1 = expectedMetadataBinding,
+): CandidateRetrievalMetadataAuthorityV1 {
+  return createCandidateRetrievalMetadataAuthorityV1({
+    catalogVersion: binding.catalogVersion,
+    catalogDigest: binding.catalogDigest,
+    providerPolicyVersion: binding.providerPolicyVersion,
+    providerPolicyDigest: binding.providerPolicyDigest,
+    sourceProviderPolicyVersion: binding.sourceProviderPolicyVersion,
+    sourceProviderPolicyDigest: binding.sourceProviderPolicyDigest,
+    sourceOperation: binding.sourceOperation,
+    collectedAt: '2026-08-08T00:00:00.000Z',
+    candidates: profileAuthority.profiles.map((profile) => {
+      const repository = knownField(profile, 'repository-identity');
+      const override = overrides.get(profile.candidateId);
+      return {
+        candidateId: profile.candidateId,
+        catalogOwner: override?.catalogOwner ?? repository.value.githubOwner,
+        catalogRepository:
+          override?.catalogRepository ?? repository.value.githubRepository,
+        providerCanonicalOwner:
+          override?.providerCanonicalOwner ?? repository.value.githubOwner,
+        providerCanonicalRepository:
+          override?.providerCanonicalRepository ??
+          repository.value.githubRepository,
+        description: override?.description ?? null,
+        topics: override?.topics ?? [],
+        primaryLanguage: override?.primaryLanguage ?? null,
+      };
+    }),
+  });
+}
+
+function createEngineForMetadata(
+  authority: unknown,
+  binding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1 = expectedMetadataBinding,
+) {
+  return createCandidateRetrievalEngineV1({
+    taxonomy,
+    candidateProfileAuthority: profileAuthority,
+    retrievalExpansionAuthority: retrievalExpansion,
+    candidateRetrievalMetadataAuthority: authority,
+    expectedCandidateRetrievalMetadataAuthorityBinding: binding,
+  });
+}
+
+function bindRequestToMetadata(
+  request: CandidateRetrievalRequestV1,
+  authority: CandidateRetrievalMetadataAuthorityV1,
+): CandidateRetrievalRequestV1 {
+  return createCandidateRetrievalRequestV1({
+    normalization: request.normalization,
+    authorityBindings: {
+      ...request.authorityBindings,
+      retrievalMetadata: {
+        authorityVersion: authority.authorityVersion,
+        authoritySemanticDigest: authority.authoritySemanticDigest,
+      },
+    },
+    eligibleResultLimit: request.eligibleResultLimit,
+    evidenceNeededResultLimit: request.evidenceNeededResultLimit,
+  });
 }
 
 function candidateSearchViews(): readonly CandidateSearchView[] {
@@ -1095,6 +1541,7 @@ function makeRequest(
         authorityVersion: retrievalExpansion.expansionVersion,
         semanticDigest: retrievalExpansion.semanticDigest,
       },
+      retrievalMetadata: metadataChannel.authorityBinding,
     },
     eligibleResultLimit: limit,
     evidenceNeededResultLimit: limit,
@@ -1177,6 +1624,7 @@ function scored(
         matchedCapabilityConceptIds: ['authorization'],
         matchedProfileFieldIds: ['capability-family'],
         matchedExpansionEdgeIds: [],
+        matchedMetadataTerms: [],
       },
     ],
     unresolvedHardEvaluations:

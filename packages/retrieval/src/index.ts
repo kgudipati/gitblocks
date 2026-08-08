@@ -26,6 +26,7 @@ export {
   type ApprovedMetadataLexicalMatchV1,
   type ApprovedMetadataLexicalScoreResultV1,
   type ApprovedMetadataLexicalSource,
+  type ApprovedMetadataLexicalSnapshotBindingV1,
   type ExpectedCandidateRetrievalMetadataAuthorityBindingV1,
   type ExpectedCandidateRetrievalMetadataCandidateV1,
 } from './approved-metadata-lexical.ts';

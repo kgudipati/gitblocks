@@ -159,7 +159,7 @@ describe('production retrieval evaluation adapter differential authority', () =>
   it('records bounded deterministic initial performance evidence', () => {
     expect(generated.performance).toMatchObject({
       candidateCount: 150,
-      activeChannelCount: 5,
+      activeChannelCount: 6,
       measuredRetrievalQueries: 30,
       maximumCandidatesExamined: 150,
       maximumCandidatesConstraintEvaluated: 150,

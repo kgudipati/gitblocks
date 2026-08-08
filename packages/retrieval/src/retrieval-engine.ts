@@ -8,6 +8,7 @@ import {
   type CandidateRetrievalCandidateV1,
   type CandidateRetrievalChannelIdV1,
   type CandidateRetrievalChannelMatchV1,
+  type CandidateRetrievalMetadataTermMatchV1,
   type CandidateRetrievalRequestV1,
   type CandidateRetrievalResultV1,
   type CapabilityRetrievalExpansionV1,
@@ -27,6 +28,12 @@ import {
   expandRetrievalTermsV1,
   type RetrievalTermExpansionV1,
 } from './retrieval-expansion.ts';
+import {
+  createApprovedMetadataLexicalChannelV1,
+  type ApprovedMetadataLexicalChannelV1,
+  type ApprovedMetadataLexicalScoreResultV1,
+  type ExpectedCandidateRetrievalMetadataAuthorityBindingV1,
+} from './approved-metadata-lexical.ts';
 
 const CHANNEL_WEIGHTS = Object.freeze({
   capabilityFamilyPrimary: 200,
@@ -65,10 +72,13 @@ export type CandidateRetrievalOperationIssueCodeV1 =
   | 'authority-binding-mismatch'
   | 'candidate-evaluation-failed'
   | 'invalid-expansion-authority'
+  | 'invalid-metadata-authority'
   | 'invalid-profile-authority'
   | 'invalid-request'
   | 'invalid-taxonomy-authority'
   | 'normalization-authority-mismatch'
+  | 'metadata-authority-binding-mismatch'
+  | 'metadata-snapshot-mismatch'
   | 'required-profile-field-unavailable'
   | 'result-construction-failed';
 
@@ -78,6 +88,7 @@ export interface CandidateRetrievalOperationIssueV1 {
     | 'authority'
     | 'candidate-profiles'
     | 'expansion'
+    | 'metadata'
     | 'request'
     | 'result'
     | 'taxonomy';
@@ -88,6 +99,9 @@ export interface CandidateRetrievalOperationIssueV1 {
     | 'Candidate retrieval request is invalid.'
     | 'Candidate retrieval result construction failed.'
     | 'Capability retrieval expansion authority is invalid.'
+    | 'Candidate retrieval metadata authority is invalid.'
+    | 'Candidate retrieval metadata authority binding disagrees.'
+    | 'Candidate retrieval metadata snapshot binding disagrees.'
     | 'Capability taxonomy authority is invalid.'
     | 'Normalization authority references are invalid.'
     | 'Required candidate profile identity field is unavailable.';
@@ -124,6 +138,8 @@ export interface CandidateRetrievalAuthorityInputV1 {
   readonly taxonomy: unknown;
   readonly candidateProfileAuthority: unknown;
   readonly retrievalExpansionAuthority: unknown;
+  readonly candidateRetrievalMetadataAuthority: unknown;
+  readonly expectedCandidateRetrievalMetadataAuthorityBinding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1;
 }
 
 export interface CandidateSearchView {
@@ -133,6 +149,8 @@ export interface CandidateSearchView {
   readonly primaryFamily: string;
   readonly additionalFamilies: readonly string[];
   readonly repositoryIdentity: string;
+  readonly catalogOwner: string;
+  readonly catalogRepository: string;
   readonly packageIdentity: string | null;
   readonly candidateRepositoryIdentityTerms: ReadonlySet<string>;
   readonly packageIdentityTerms: ReadonlySet<string>;
@@ -154,6 +172,7 @@ export interface ChannelEvidence {
   readonly matchedCapabilityConceptIds: readonly string[];
   readonly matchedProfileFieldIds: readonly DeterministicProfileFieldId[];
   readonly matchedExpansionEdgeIds: readonly string[];
+  readonly matchedMetadataTerms: readonly CandidateRetrievalMetadataTermMatchV1[];
 }
 
 interface DeduplicationResult {
@@ -162,6 +181,11 @@ interface DeduplicationResult {
   readonly exactPackageIdentityGroups: number;
   readonly duplicatesRemoved: number;
 }
+
+type ApprovedMetadataLexicalScoreSuccessV1 = Extract<
+  ApprovedMetadataLexicalScoreResultV1,
+  { readonly ok: true }
+>;
 
 export function createCandidateRetrievalEngineV1(
   input: CandidateRetrievalAuthorityInputV1,
@@ -195,10 +219,14 @@ export function createCandidateRetrievalEngineV1(
   let ownedTaxonomy: CapabilityTaxonomyV1;
   let ownedProfiles: DeterministicCandidateProfileAuthority;
   let ownedExpansion: CapabilityRetrievalExpansionV1;
+  let ownedExpectedMetadataBinding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1;
   try {
     ownedTaxonomy = deepFreezeOwned(cloneOwned(taxonomy.value));
     ownedProfiles = deepFreezeOwned(cloneOwned(profiles.domain));
     ownedExpansion = deepFreezeOwned(cloneOwned(expansion.value));
+    ownedExpectedMetadataBinding = deepFreezeOwned(
+      cloneOwned(input.expectedCandidateRetrievalMetadataAuthorityBinding),
+    );
   } catch {
     return failure('invalid-profile-authority', 'candidate-profiles');
   }
@@ -218,6 +246,24 @@ export function createCandidateRetrievalEngineV1(
     compareAscii(left.candidateId, right.candidateId),
   );
   const frozenViews = deepFreezeOwned(searchViews);
+  const metadataChannel = createApprovedMetadataLexicalChannelV1({
+    metadataAuthority: input.candidateRetrievalMetadataAuthority,
+    taxonomy: ownedTaxonomy,
+    retrievalExpansionAuthority: ownedExpansion,
+    expectedMetadataAuthorityBinding: ownedExpectedMetadataBinding,
+    expectedCandidates: frozenViews.map(
+      ({ candidateId, catalogOwner, catalogRepository }) => ({
+        candidateId,
+        catalogOwner,
+        catalogRepository,
+      }),
+    ),
+  });
+  if (!metadataChannel.ok) {
+    return metadataChannel.issue === 'invalid-authority'
+      ? failure('invalid-metadata-authority', 'metadata')
+      : failure('metadata-authority-binding-mismatch', 'metadata');
+  }
   const taxonomyConcepts = new Map(
     ownedTaxonomy.concepts.map((concept) => [concept.conceptId, concept]),
   );
@@ -236,6 +282,7 @@ export function createCandidateRetrievalEngineV1(
         taxonomyConcepts,
         candidateIds,
         ownedExpansion,
+        metadataChannel.channel,
         evaluateCandidateConstraints,
       ),
   } satisfies CandidateRetrievalEngineV1);
@@ -273,11 +320,20 @@ export function retrieveCandidateSet(
   >,
   candidateIds: ReadonlySet<string>,
   retrievalExpansionAuthority: CapabilityRetrievalExpansionV1,
+  metadataChannel: ApprovedMetadataLexicalChannelV1,
   constraintEvaluator: typeof evaluateCandidateConstraints = evaluateCandidateConstraints,
 ): CandidateRetrievalOperationResultV1 {
   const parsedRequest = parseCandidateRetrievalRequestV1(suppliedRequest);
   if (!parsedRequest.ok) return failure('invalid-request', 'request');
   const request = parsedRequest.value;
+  if (
+    request.authorityBindings.retrievalMetadata.authorityVersion !==
+      metadataChannel.authorityBinding.authorityVersion ||
+    request.authorityBindings.retrievalMetadata.authoritySemanticDigest !==
+      metadataChannel.authorityBinding.authoritySemanticDigest
+  ) {
+    return failure('metadata-snapshot-mismatch', 'request');
+  }
   if (
     !requestBindingsMatch(
       request,
@@ -344,11 +400,20 @@ export function retrieveCandidateSet(
     if (negativeControl) negativeControlsExcluded += 1;
     if (lane === 'excluded') continue;
 
+    const metadataScore = metadataChannel.score(
+      candidate.candidateId,
+      request.normalization,
+    );
+    if (!metadataScore.ok) {
+      return failure('metadata-authority-binding-mismatch', 'metadata');
+    }
+
     const evidence = executeRetrievalChannels(
       request,
       candidate,
       taxonomyConcepts,
       expandedTerms,
+      metadataScore,
     );
     candidateChannelMatches += evidence.length;
     candidateExpansionMatches += evidence.reduce(
@@ -514,6 +579,7 @@ export function executeRetrievalChannels(
     CapabilityTaxonomyV1['concepts'][number]
   >,
   expansion: RetrievalTermExpansionV1 = EMPTY_RETRIEVAL_EXPANSION,
+  metadataScore?: ApprovedMetadataLexicalScoreSuccessV1,
 ): readonly ChannelEvidence[] {
   const evidence: ChannelEvidence[] = [];
   const primaryFamily = request.normalization.primaryFamilyId;
@@ -544,6 +610,7 @@ export function executeRetrievalChannels(
       ]),
       matchedProfileFieldIds: ['capability-family'],
       matchedExpansionEdgeIds: [],
+      matchedMetadataTerms: [],
     });
   }
 
@@ -566,6 +633,7 @@ export function executeRetrievalChannels(
       matchedCapabilityConceptIds: taxonomyMatches.concepts,
       matchedProfileFieldIds: taxonomyMatches.fields,
       matchedExpansionEdgeIds: [],
+      matchedMetadataTerms: [],
     });
   }
 
@@ -596,6 +664,7 @@ export function executeRetrievalChannels(
       matchedCapabilityConceptIds: repositoryExpansionMatches.sourceConceptIds,
       matchedProfileFieldIds: ['repository-identity'],
       matchedExpansionEdgeIds: repositoryExpansionMatches.edgeIds,
+      matchedMetadataTerms: [],
     });
   }
   const packageReferences =
@@ -623,6 +692,7 @@ export function executeRetrievalChannels(
       matchedCapabilityConceptIds: packageExpansionMatches.sourceConceptIds,
       matchedProfileFieldIds: ['package-identity-mapping'],
       matchedExpansionEdgeIds: packageExpansionMatches.edgeIds,
+      matchedMetadataTerms: [],
     });
   }
 
@@ -650,6 +720,23 @@ export function executeRetrievalChannels(
       matchedCapabilityConceptIds: structuredMatches.concepts,
       matchedProfileFieldIds: structuredMatches.fields,
       matchedExpansionEdgeIds: [],
+      matchedMetadataTerms: [],
+    });
+  }
+  if (metadataScore !== undefined && metadataScore.componentScore > 0) {
+    evidence.push({
+      channelId: 'approved-metadata-lexical',
+      componentScore: metadataScore.componentScore,
+      matchedCapabilityConceptIds: [],
+      matchedProfileFieldIds: [],
+      matchedExpansionEdgeIds: [],
+      matchedMetadataTerms: metadataScore.matches.map(
+        ({ normalizedTerm, source, points }) => ({
+          normalizedTerm,
+          source,
+          points,
+        }),
+      ),
     });
   }
   return evidence.sort(
@@ -703,6 +790,9 @@ function createCandidateRecord(
         matchedCapabilityConceptIds: [...item.matchedCapabilityConceptIds],
         matchedProfileFieldIds: [...item.matchedProfileFieldIds],
         matchedExpansionEdgeIds: [...item.matchedExpansionEdgeIds],
+        matchedMetadataTerms: item.matchedMetadataTerms.map((term) => ({
+          ...term,
+        })),
       };
     },
   );
@@ -891,6 +981,8 @@ export function createCandidateSearchView(
     catalogStatus: status.value.catalogStatus,
     primaryFamily: family.value.primaryFamily,
     additionalFamilies: [...family.value.additionalFamilies].sort(compareAscii),
+    catalogOwner: repository.value.githubOwner,
+    catalogRepository: repository.value.githubRepository,
     repositoryIdentity:
       `${repository.value.githubOwner}/${repository.value.githubRepository}`.toLowerCase(),
     packageIdentity:
@@ -1049,11 +1141,17 @@ function failure(
     'candidate-evaluation-failed': 'Candidate constraint evaluation failed.',
     'invalid-expansion-authority':
       'Capability retrieval expansion authority is invalid.',
+    'invalid-metadata-authority':
+      'Candidate retrieval metadata authority is invalid.',
     'invalid-profile-authority': 'Candidate profile authority is invalid.',
     'invalid-request': 'Candidate retrieval request is invalid.',
     'invalid-taxonomy-authority': 'Capability taxonomy authority is invalid.',
     'normalization-authority-mismatch':
       'Normalization authority references are invalid.',
+    'metadata-authority-binding-mismatch':
+      'Candidate retrieval metadata authority binding disagrees.',
+    'metadata-snapshot-mismatch':
+      'Candidate retrieval metadata snapshot binding disagrees.',
     'required-profile-field-unavailable':
       'Required candidate profile identity field is unavailable.',
     'result-construction-failed':

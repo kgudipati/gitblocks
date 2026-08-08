@@ -31,9 +31,9 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'deterministic-candidate-profile-authority':
     '7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf',
   'candidate-retrieval-request':
-    '9524fcdc6b5583840fd68f6dbb60aee858160038861248e8737549a166692b75',
+    '5dd7d06b5665baae17b8f25c5c6fcf900e1e9040dcda6f58597845549d488d51',
   'candidate-retrieval-result':
-    'fb36ee584868f339e9677c10858c656bf6dace19d1c03bc62bede03b746b653f',
+    '6f3ecfd01ac0688f31919377e807a44c143752179b6ae34849135fe908e123c1',
   'capability-retrieval-expansion':
     '65a22cfe825e42f729eb9eb07aaf0a1a0fcdb40dc043c24a5726548f2e99f73d',
   'capability-retrieval-expansion-source':
@@ -97,9 +97,9 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       );
       const version =
         name === 'candidate-retrieval-request'
-          ? '1.1.0'
+          ? '1.2.0'
           : name === 'candidate-retrieval-result'
-            ? '1.2.0'
+            ? '1.3.0'
             : name === 'candidate-retrieval-metadata-authority'
               ? '1.1.0'
               : '1.0.0';

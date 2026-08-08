@@ -376,6 +376,34 @@ function validateCandidate(
     ) {
       issues.push(bindingIssue(`${path}/channelMatches`));
     }
+    const metadataTerms = match.matchedMetadataTerms;
+    if (match.channelId === 'approved-metadata-lexical') {
+      const normalizedTerms = metadataTerms.map(
+        ({ normalizedTerm }) => normalizedTerm,
+      );
+      const metadataScore = metadataTerms.reduce(
+        (sum, { points }) => sum + points,
+        0,
+      );
+      if (
+        metadataTerms.length === 0 ||
+        new Set(normalizedTerms).size !== normalizedTerms.length ||
+        metadataScore !== match.componentScore ||
+        match.componentScore > 900 ||
+        match.matchedCapabilityConceptIds.length > 0 ||
+        match.matchedProfileFieldIds.length > 0 ||
+        match.matchedExpansionEdgeIds.length > 0 ||
+        metadataTerms.some(
+          ({ source, points }) =>
+            (source === 'topic' && points !== 300) ||
+            (source !== 'topic' && points !== 100),
+        )
+      ) {
+        issues.push(bindingIssue(`${path}/channelMatches`));
+      }
+    } else if (metadataTerms.length > 0) {
+      issues.push(bindingIssue(`${path}/channelMatches`));
+    }
   }
   if (
     score !== candidate.retrievalScore ||

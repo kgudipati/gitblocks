@@ -119,6 +119,9 @@ export function generateProductionRetrievalPredictionSetV1(
     taxonomy: safeAuthority.taxonomy,
     candidateProfileAuthority: safeAuthority.profiles,
     retrievalExpansionAuthority: safeAuthority.expansion,
+    candidateRetrievalMetadataAuthority: safeAuthority.metadata,
+    expectedCandidateRetrievalMetadataAuthorityBinding:
+      safeAuthority.expectedMetadataBinding,
   });
   const engineBuildMilliseconds = elapsedMilliseconds(buildStart);
   const heapAfter = measuredHeapBytes();
@@ -172,6 +175,11 @@ export function generateProductionRetrievalPredictionSetV1(
           retrievalExpansion: {
             authorityVersion: safeAuthority.expansion.expansionVersion,
             semanticDigest: safeAuthority.expansion.semanticDigest,
+          },
+          retrievalMetadata: {
+            authorityVersion: safeAuthority.metadata.authorityVersion,
+            authoritySemanticDigest:
+              safeAuthority.metadata.authoritySemanticDigest,
           },
         },
         eligibleResultLimit: 10,
@@ -323,7 +331,7 @@ export function generateProductionRetrievalPredictionSetV1(
     performance: {
       protocol: performanceProtocol,
       candidateCount: engine.candidateCount,
-      activeChannelCount: 5,
+      activeChannelCount: 6,
       engineBuildMilliseconds: roundMilliseconds(engineBuildMilliseconds),
       coldEngineConstructions: sortedColdBuildDurations.length,
       p95ColdEngineBuildMilliseconds: roundMilliseconds(
@@ -416,6 +424,9 @@ function measureDevelopmentPerformance(
       taxonomy: safeAuthority.taxonomy,
       candidateProfileAuthority: safeAuthority.profiles,
       retrievalExpansionAuthority: safeAuthority.expansion,
+      candidateRetrievalMetadataAuthority: safeAuthority.metadata,
+      expectedCandidateRetrievalMetadataAuthorityBinding:
+        safeAuthority.expectedMetadataBinding,
     });
     coldBuildDurations.push(elapsedMilliseconds(started));
     if (!created.ok) {
