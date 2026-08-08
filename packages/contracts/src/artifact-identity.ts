@@ -224,6 +224,10 @@ export function repositoryArtifactUtf8ByteLength(value: string): number {
   return utf8Bytes(value).byteLength;
 }
 
+export function contractUtf8ByteLength(value: string): number {
+  return utf8Bytes(value).byteLength;
+}
+
 export function splitRepositoryArtifactLogicalLines(
   content: string,
 ): readonly string[] {

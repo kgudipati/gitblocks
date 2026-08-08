@@ -317,6 +317,19 @@ describe('deterministic production retrieval vertical slice', () => {
     },
   );
 
+  it('projects accepted repository display names into candidate identity terms', () => {
+    const sourceProfile = profileAuthority.profiles.find(
+      ({ candidateId }) => candidateId === 'audit-logdna-logger',
+    );
+    if (sourceProfile === undefined) {
+      throw new Error('Synthetic profile is unavailable.');
+    }
+    const view = createCandidateSearchView(sourceProfile);
+    expect(view?.candidateRepositoryIdentityTerms.has('logdna-node')).toBe(
+      true,
+    );
+  });
+
   it('uses expansion only as bounded soft identity evidence and preserves preferred constraints', () => {
     const request = makeRequest([
       {

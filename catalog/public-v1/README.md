@@ -123,6 +123,21 @@ prove materialization. Run `pnpm profiles:validate` for read-only regeneration
 and byte comparison, or the explicit `pnpm profiles:generate` command after a
 reviewed authority/rule change.
 
+## Candidate retrieval metadata policy
+
+`candidate-retrieval-metadata-provider-policy.json` pre-registers a separate
+soft retrieval snapshot over exactly this 150-candidate catalog. It binds the
+accepted Phase 8 provider policy and permits only the existing
+`github-repository-metadata` operation. The future generated path is
+`candidate-retrieval-metadata-authority.json`; it is intentionally absent until
+an independent review authorizes `pnpm retrieval:metadata:collect`.
+
+Run `pnpm retrieval:metadata:preflight` for the zero-network, zero-credential,
+read-only envelope proof. That command never collects provider data. It also
+proves that no database, Docker, model, npm provider, or artifact body is
+required. The accepted profile authority remains the hard-filter authority and
+is not populated from this future soft overlay.
+
 ## Proposed Phase 6 artifact selections
 
 `artifact-selections.json` is the review-focused curator source for additional

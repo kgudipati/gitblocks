@@ -20,9 +20,9 @@ import { CAPABILITY_RETRIEVAL_EXPANSION_VERSION } from './capability-retrieval-e
 export const CANDIDATE_RETRIEVAL_REQUEST_VERSION =
   'candidate-retrieval-request/1.1.0' as const;
 export const CANDIDATE_RETRIEVAL_RESULT_VERSION =
-  'candidate-retrieval-result/1.1.0' as const;
+  'candidate-retrieval-result/1.2.0' as const;
 export const CANDIDATE_RETRIEVAL_ALGORITHM_VERSION =
-  'deterministic-candidate-retrieval/1.1.0' as const;
+  'deterministic-candidate-retrieval/1.2.0' as const;
 export const CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS = Object.freeze([
   {
     channelId: 'capability-family',
@@ -34,7 +34,7 @@ export const CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS = Object.freeze([
   },
   {
     channelId: 'candidate-identity',
-    channelVersion: 'candidate-identity/1.1.0',
+    channelVersion: 'candidate-identity/1.2.0',
   },
   {
     channelId: 'package-identity',
@@ -130,7 +130,7 @@ const channelIdSchema = Type.Union([
 const channelVersionSchema = Type.Union([
   Type.Literal('capability-family/1.0.0'),
   Type.Literal('taxonomy-concept/1.0.0'),
-  Type.Literal('candidate-identity/1.1.0'),
+  Type.Literal('candidate-identity/1.2.0'),
   Type.Literal('package-identity/1.1.0'),
   Type.Literal('structured-profile/1.0.0'),
 ]);
@@ -281,7 +281,7 @@ export const candidateRetrievalResultV1Schema = Type.Object(
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
-    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-result/1.1.0',
+    $id: 'https://gitblocks.dev/schemas/contracts/candidate-retrieval-result/1.2.0',
     additionalProperties: false,
   },
 );

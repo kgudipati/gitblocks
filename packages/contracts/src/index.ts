@@ -1,4 +1,27 @@
 export {
+  candidateRetrievalMetadataAuthoritySemanticDigest,
+  candidateRetrievalMetadataSourceRecordDigest,
+  createCandidateRetrievalMetadataAuthorityV1,
+  parseCandidateRetrievalMetadataAuthorityV1,
+  serializeCandidateRetrievalMetadataAuthorityV1,
+  type CandidateRetrievalMetadataAuthorityInputV1,
+  type CandidateRetrievalMetadataRecordInputV1,
+} from './candidate-retrieval-metadata-contracts.ts';
+export {
+  CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_MAX_BYTES,
+  CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_VERSION,
+  CANDIDATE_RETRIEVAL_METADATA_CANDIDATE_COUNT,
+  CANDIDATE_RETRIEVAL_METADATA_DESCRIPTION_MAX_CODE_UNITS,
+  CANDIDATE_RETRIEVAL_METADATA_LANGUAGE_MAX_CODE_UNITS,
+  CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_VERSION,
+  CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION,
+  CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_VERSION,
+  CANDIDATE_RETRIEVAL_METADATA_TOPIC_MAX_CODE_UNITS,
+  CANDIDATE_RETRIEVAL_METADATA_TOPIC_MAX_COUNT,
+  type CandidateRetrievalMetadataAuthorityV1,
+  type CandidateRetrievalMetadataRecordV1,
+} from './candidate-retrieval-metadata-schemas.ts';
+export {
   candidateRetrievalAuthorityBindingsDigest,
   candidateRetrievalRequestSemanticDigest,
   candidateRetrievalResultSemanticDigest,

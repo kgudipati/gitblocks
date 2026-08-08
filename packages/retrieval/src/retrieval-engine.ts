@@ -899,6 +899,7 @@ export function createCandidateSearchView(
         : null,
     candidateRepositoryIdentityTerms: identityTerms([
       profile.candidateId,
+      repository.value.displayName,
       repository.value.githubOwner,
       repository.value.githubRepository,
     ]),

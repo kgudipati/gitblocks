@@ -34,6 +34,7 @@ import {
   capabilityRetrievalExpansionSourceV1Schema,
   capabilityRetrievalExpansionV1Schema,
 } from './capability-retrieval-expansion-schemas.ts';
+import { candidateRetrievalMetadataAuthorityV1Schema } from './candidate-retrieval-metadata-schemas.ts';
 
 export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-dossier',
@@ -58,6 +59,7 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-retrieval-result',
   'capability-retrieval-expansion',
   'capability-retrieval-expansion-source',
+  'candidate-retrieval-metadata-authority',
 ] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
@@ -96,6 +98,8 @@ const SCHEMAS = {
   'capability-retrieval-expansion': capabilityRetrievalExpansionV1Schema,
   'capability-retrieval-expansion-source':
     capabilityRetrievalExpansionSourceV1Schema,
+  'candidate-retrieval-metadata-authority':
+    candidateRetrievalMetadataAuthorityV1Schema,
 } as const;
 
 export function getContractSchemaV1(name: ContractSchemaName): JsonSchemaValue {

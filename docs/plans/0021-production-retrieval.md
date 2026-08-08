@@ -10,9 +10,12 @@
   `18dae5adf821f0c998c02d4829416d655b9da1a1` after rereview of the corrected
   evaluation-lane semantics. Milestone 2 was independently accepted at
   `ce533e39588027048a522417782ada98afeb1489` after rereview of the lane-local
-  exact-identity correction. Milestone 3 implementation exists and is pending
-  independent review; its development benchmark still misses three retrieval
-  gates, so Milestone 4 remains blocked.
+  exact-identity correction. Independent review found the Milestone 3
+  expansion, fusion, and diversity implementation technically sound, but did
+  not accept Milestone 3 completion: its development benchmark still misses
+  three retrieval gates, and the accepted Phase 8 GitHub repository boundary
+  provides a narrower candidate-owned metadata path. Milestone 4 remains
+  blocked.
 - Last updated: 2026-08-07
 
 Issue #21 is the requirements authority. Accepted
@@ -956,9 +959,114 @@ memory pass, and no three-run corrected breach or usage evidence exists for an
 index, cache, persistence, or service.
 
 Milestone 3 is not accepted and cannot authorize Milestone 4 while the
-development gates remain unmet. Independent review must assess the sparse
-candidate-authority finding and the permitted next action. Evaluation gold
-remains `proposed-not-reviewed`; no final production-quality claim is made.
+development gates remain unmet. Independent review accepted the existing M3
+expansion/fusion implementation but required the bounded discovery-metadata
+authority correction below. Evaluation gold remains `proposed-not-reviewed`;
+no final production-quality claim is made.
+
+#### Milestone 3 authority correction — prepared offline
+
+Phase 6 historical artifact bodies are not committed, so README or arbitrary
+document lexical retrieval remains unavailable and no Phase 6 live collection
+was reopened. Inspection of ADR 0008 and the Phase 8 materializer identified a
+narrower legitimate source: the existing `github-repository-metadata`
+operation already obtains `GET /repos/{owner}/{repository}` through the
+reviewed GitHub request boundary and its bounded parser establishes canonical
+owner/repository, nullable description, topics, and nullable primary language.
+
+This correction introduces one product contract root,
+`CandidateRetrievalMetadataAuthorityV1`, version
+`candidate-retrieval-metadata-authority/1.0.0`. Its future canonical snapshot
+path is
+`catalog/public-v1/candidate-retrieval-metadata-authority.json`; that file does
+not yet exist. Each of exactly 150 sorted records binds candidate ID, canonical
+GitHub owner/repository, nullable description, sorted unique topics, nullable
+primary language, and a source-record semantic digest. The root binds contract
+and authority version, exact catalog version/digest, narrow and source provider
+policy versions/digests, source operation, collection timestamp, derived
+snapshot ID, candidates, and authority semantic digest. The mutable GitHub
+source is not described as immutable; one collected, digest-bound authority is
+an immutable snapshot.
+
+Bounds are fixed before live data: description at most 500 code units; at most
+20 topics of at most 100 code units each; primary language at most 100 code
+units; exactly 150 unique candidate and case-insensitive repository identities
+closing exactly over `public-v1`; and a 1,048,576-byte formatted authority
+limit. Unsafe control/bidi text fails authority validation. Source-record
+digests cover identity and retained metadata. The root semantic digest covers
+all semantic provenance, `collectedAt`, and sorted records, excludes only the
+derived snapshot ID and digest itself, and supplies the first 32 hexadecimal
+characters of the snapshot ID.
+
+Collection uses policy
+`candidate-retrieval-metadata-provider-policy/1.0.0`, digest
+`7e12f31e079fe05dad33569408885085bc2dd5cd85036318a594a7e9bd8751ce`,
+which binds the accepted Phase 8 provider-policy digest
+`0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede`.
+Its only operation is `github-repository-metadata`: HTTPS `GET` to
+`api.github.com` at `/repos/{owner}/{repository}`. The existing request helper,
+response parser, identity verification, public-repository check, transport,
+retry classification, and safe error behavior are reused; the Phase 8 source
+graph and provider set are unchanged.
+
+The independently reviewable future envelope is exactly:
+
+| Property                            | Frozen value                                                                                                             |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| command                             | `pnpm retrieval:metadata:collect`                                                                                        |
+| output                              | `catalog/public-v1/candidate-retrieval-metadata-authority.json`                                                          |
+| catalog                             | `public-v1`; `4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634`                                          |
+| expected records / logical requests | `150 / 150`                                                                                                              |
+| worst-case attempts                 | `450` (`150 × 3`)                                                                                                        |
+| credential                          | `GITBLOCKS_RETRIEVAL_METADATA_GITHUB_TOKEN`                                                                              |
+| host / endpoint                     | `api.github.com`; `/repos/{owner}/{repository}`                                                                          |
+| concurrency                         | `3`                                                                                                                      |
+| response / JSON bounds              | `2,097,152` bytes; `100,000` nodes                                                                                       |
+| timeout / redirect / retry          | `10,000 ms`; at most `2`; at most `3` attempts using the accepted deterministic classification                           |
+| deadlines                           | `90,000 ms` per candidate; `3,600,000 ms` per run                                                                        |
+| retained provider fields            | canonical owner/repository, description, topics, primary language                                                        |
+| prohibited operations               | releases, tags, license, community profile, allowlisted files, npm, advisories, commits, artifact bodies, link following |
+| runtime dependencies                | no database, Docker, model, npm provider, or artifact body                                                               |
+
+`pnpm retrieval:metadata:preflight` is the read-only, zero-network command. It
+reads only the fixed catalog and two provider-policy files, proves exact
+closure and envelope values, requires the future output to be absent, and
+reports zero network calls, credential reads, and writes. The separate
+`collect` mode is implemented for later authorization but was not executed.
+No real credential was read and no authority snapshot was fabricated.
+
+The future sixth channel is pre-registered as
+`approved-metadata-lexical/1.0.0` but remains absent from the five active
+production bindings. Query terms are limited to normalized capability concept
+IDs, active taxonomy aliases for those concepts, accepted M3 one-hop expansion
+terms, and canonical terms from controlled normalized constraints. Candidate
+terms come only from description, topics, and primary language. ASCII
+lowercasing, alphanumeric tokenization, one-to-four-token `-`-joined phrase
+n-grams, a 32-code-unit token maximum, exact equality, and unique normalized
+matches are global. Exact topic/phrase matches score 300, exact description
+phrase matches score 100, and exact primary-language matches score 100 only
+when that term is query-authorized; each term scores once at its strongest
+source and the component cap is 900. No family-, case-, or candidate-specific
+rule exists.
+
+The repository-identity profile field already authorizes `displayName`, but
+the accepted candidate-identity search view omitted it. The general identity
+projection now includes display name and advances the result, algorithm, and
+candidate-identity channel to `1.2.0`; the request remains `1.1.0`. A standalone
+ablation found no Recall@10, family, hit-rate, or MRR change: macro remains
+`0.615628`, the five families remain `0.702941 / 0.544203 / 0.478897 /
+0.526923 / 0.825175`, hit rate remains `25/25`, and MRR remains `0.953333`.
+NDCG@10 changes from `0.792925` to `0.792904`. The correction is retained
+because it completes already accepted identity semantics, not because of its
+metric effect. The current prediction digest is
+`73b5d97190d97bbef15bcbad157d9a60e65153e6ee74a2fe2d4b7cebab14afb8`
+and the score digest is
+`6a383a501303fcf4b939e2dd7fa5de130a01a933de196cc0c552c4cfe1d74c8d`.
+
+No live provider collection, credential inspection, profile mutation,
+evaluation-authority mutation, database, Docker, model, vector, index, cache,
+search service, ranking, API, MCP, or Skill work occurred. Milestone 7B remains
+deferred, Milestone 3 remains open, and Milestone 4 remains blocked.
 
 ### Milestone 4 — Production proof and Phase closure
 
@@ -1317,9 +1425,10 @@ a separate reviewed decision authorizes the change.
   available without lexical text or a model. Owner: Milestone 3 implementation
   review.
 - 2026-08-07 — Keep approved-metadata lexical retrieval disabled. Reason: the
-  repository retains no bounded immutable candidate-owned metadata body, and
-  catalog rationale, interviews, completion prose, and evaluation text are
-  not valid substitutes. Owner: Milestone 3 implementation review.
+  repository retains no committed artifact body, and catalog rationale,
+  interviews, completion prose, and evaluation text are not valid substitutes.
+  The accepted repository-metadata endpoint is handled separately as the
+  narrower discovery authority above. Owner: Milestone 3 correction review.
 - 2026-08-07 — Retain global additive integer fusion and exact lane-local
   identity diversity; keep fork and near-equivalence grouping disabled.
   Reason: ablation does not justify a more complex rank-fusion mechanism, and
@@ -1330,6 +1439,20 @@ a separate reviewed decision authorizes the change.
   150 candidates, and query/memory budgets pass. The remaining recall gap is
   sparse candidate authority, which neither a vector nor an index can
   legitimately manufacture. Owner: Milestone 3 implementation review.
+- 2026-08-07 — Establish one separate soft
+  `CandidateRetrievalMetadataAuthorityV1` rather than mutate the Phase 8
+  profile authority. Reason: retrieval-quality enrichment must not silently
+  change accepted hard-filter bindings; the new snapshot is provider-derived,
+  digest-bound, injected, and retrieval-only. Owner: Milestone 3 correction
+  review.
+- 2026-08-07 — Reuse the Phase 8 repository-metadata request/parser boundary
+  and prohibit every other provider operation. Reason: it is the smallest
+  reviewed candidate-owned source and avoids a second parser or transport
+  stack. Owner: Milestone 3 correction review.
+- 2026-08-07 — Add repository `displayName` to the general candidate-identity
+  projection and retain it independent of its neutral Recall@10 ablation.
+  Reason: it is an accepted repository-identity field, not curator rationale
+  or recommendation semantics. Owner: Milestone 3 correction review.
 - 2026-08-07 — No deviation from the governing issue or protected Phase 8
   boundary has been identified.
 
@@ -1776,3 +1899,69 @@ equivalence, gold, scorer, baseline output, profile authority, Phase 8
 materialization, dependency, lockfile, migration, database, provider, model,
 vector, index, cache, search service, ranking, target-codebase, API, MCP, or
 Skill change. Milestone 7B remains deferred.
+
+### Milestone 3 discovery-authority correction validation
+
+Before mutation, local and fetched
+`origin/feat/21-production-retrieval` were both
+`c9ea7de9153d6e9d9ca68fb8599da8c5a7317169`; local and fetched `main` were
+both the accepted Phase 8 boundary
+`f44ddcee4491e9f1f4680384b07e4e7a92f2bc18`. The only pre-existing worktree
+item was unrelated untracked `Gitblocks.docx`, which remained untouched and is
+excluded from this change.
+
+The correction-focused command passed 8 files and 78 tests covering the new
+authority contract/digests/bounds, schema export, narrow policy and fake
+transport over all 150 candidates, preflight/execute effect separation,
+existing repository parser regression, lexical normalization/scoring/abuse,
+display-name projection, and product/evaluation dependency direction.
+`pnpm ingestion:verify` separately passed 30 files and 305 tests and reproduced
+the exact catalog digest.
+
+The first authoritative attempt stopped at static lint findings in new code;
+the trust-boundary literal checks, void-return style, and null refinement were
+corrected without changing behavior. The next attempt reached all 1,887 tests
+and found one malformed new prohibited-term test fixture. Replacing it with
+the repository's accepted normalized hard-constraint form then exposed an
+incorrect zero-total assertion: legitimate authorization description evidence
+still scores while the prohibited RBAC term must not. The corrected assertion
+proves exactly that boundary. No product authority, metric, threshold, scorer,
+gold, or production rule changed in either correction.
+
+The final authoritative `pnpm verify` exited 0 with 124 test files and 1,887
+tests passing. It passed formatting, all product and tool builds, lint, all
+workspace typechecks, repository checks, every evaluation/retrieval fixture and
+validator, contract conformance, taxonomy/expansion/profile/catalog checks,
+interview/operator/pre-live validation, architecture, and Secretlint.
+Architecture covered 874 modules and 2,926 dependencies with no violation.
+
+The embedded production run retained five active channels and reproduced
+prediction digest
+`73b5d97190d97bbef15bcbad157d9a60e65153e6ee74a2fe2d4b7cebab14afb8`
+and score digest
+`6a383a501303fcf4b939e2dd7fa5de130a01a933de196cc0c552c4cfe1d74c8d`.
+Macro Recall@10 is `0.615628`; family values are authorization `0.702941`,
+audit-logging `0.544203`, background-jobs `0.478897`, rate-limiting `0.526923`,
+and webhooks `0.825175`; hit rate is `25/25`, MRR is `0.953333`, and NDCG@10
+is `0.792904`. Hard-filter correctness is `4500/4500`, prohibited preservation
+is `15/15` micro and `10/10` macro, no-eligible correctness is `30/30`, and all
+conflict/lane/negative-control and exact/equivalence duplicate violations are
+zero. Query p95/max were `10.536 / 12.621 ms`, full cold-engine p95/max was
+`170.219 ms`, search-view heap delta was `551,144` bytes, and retained heap
+growth was `1,010,216` bytes.
+
+All required standalone commands passed: runtime, format, repository,
+contracts, expansion, evaluation validation/fixtures, retrieval
+validation/fixtures/read-only verification, production, architecture,
+Secretlint, and the registry-backed audit. The audit reported no known
+vulnerability at the moderate threshold. The metadata preflight passed with
+`effectAudit` network calls `0`, credential reads `0`, and writes `0`.
+`pnpm db:verify` was deliberately not run because this correction explicitly
+prohibits database and Docker use; the task-specific minimum validation list
+does not include it. No live provider or collection command ran.
+
+The evidence-inclusive rerun also exited 0 with the same 124 files, 1,887
+tests, architecture counts, authority/prediction/score digests, quality, and
+safety results. Its non-gating timing sample measured query p95/max
+`10.729 / 12.988 ms`, full cold-engine p95/max `173.542 ms`, search-view heap
+delta `546,720` bytes, and retained heap growth `1,008,864` bytes.

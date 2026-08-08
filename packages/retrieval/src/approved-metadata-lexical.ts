@@ -1,0 +1,300 @@
+import {
+  parseCandidateRetrievalMetadataAuthorityV1,
+  parseCapabilityRetrievalExpansionV1,
+  parseCapabilityTaxonomyV1,
+  type CandidateRetrievalMetadataRecordV1,
+  type CapabilityQueryNormalizationResultV1,
+} from '@gitblocks/contracts';
+
+import { expandRetrievalTermsV1 } from './retrieval-expansion.ts';
+
+export const APPROVED_METADATA_LEXICAL_CHANNEL_VERSION =
+  'approved-metadata-lexical/1.0.0' as const;
+export const APPROVED_METADATA_LEXICAL_MAX_NGRAM = 4;
+export const APPROVED_METADATA_LEXICAL_MAX_TOKEN_CODE_UNITS = 32;
+export const APPROVED_METADATA_LEXICAL_COMPONENT_CAP = 900;
+export const APPROVED_METADATA_LEXICAL_WEIGHTS = Object.freeze({
+  topic: 300,
+  description: 100,
+  primaryLanguage: 100,
+} as const);
+
+export type ApprovedMetadataLexicalSource =
+  'topic' | 'description' | 'primary-language';
+
+export interface ApprovedMetadataLexicalMatchV1 {
+  readonly normalizedTerm: string;
+  readonly source: ApprovedMetadataLexicalSource;
+  readonly points: number;
+}
+
+export type ApprovedMetadataLexicalScoreResultV1 =
+  | {
+      readonly ok: true;
+      readonly channelVersion: typeof APPROVED_METADATA_LEXICAL_CHANNEL_VERSION;
+      readonly candidateId: string;
+      readonly componentScore: number;
+      readonly matches: readonly ApprovedMetadataLexicalMatchV1[];
+    }
+  | {
+      readonly ok: false;
+      readonly issue:
+        | 'invalid-authority'
+        | 'authority-binding-mismatch'
+        | 'unknown-candidate';
+    };
+
+export type ApprovedMetadataLexicalChannelCreationResultV1 =
+  | {
+      readonly ok: true;
+      readonly channel: ApprovedMetadataLexicalChannelV1;
+    }
+  | {
+      readonly ok: false;
+      readonly issue: 'invalid-authority' | 'authority-binding-mismatch';
+    };
+
+export interface ApprovedMetadataLexicalChannelV1 {
+  readonly channelVersion: typeof APPROVED_METADATA_LEXICAL_CHANNEL_VERSION;
+  readonly candidateCount: number;
+  readonly score: (
+    candidateId: string,
+    normalization: CapabilityQueryNormalizationResultV1,
+  ) => ApprovedMetadataLexicalScoreResultV1;
+}
+
+export interface ApprovedMetadataLexicalAuthorityInputV1 {
+  readonly metadataAuthority: unknown;
+  readonly taxonomy: unknown;
+  readonly retrievalExpansionAuthority: unknown;
+  readonly catalogVersion: string;
+  readonly catalogDigest: string;
+  readonly candidateIds: readonly string[];
+}
+
+/**
+ * Prepares the reviewed sixth channel without activating it in the production
+ * retrieval engine. All provider-derived text remains owned, inert data.
+ */
+export function createApprovedMetadataLexicalChannelV1(
+  input: ApprovedMetadataLexicalAuthorityInputV1,
+): ApprovedMetadataLexicalChannelCreationResultV1 {
+  const metadata = parseCandidateRetrievalMetadataAuthorityV1(
+    input.metadataAuthority,
+  );
+  const taxonomy = parseCapabilityTaxonomyV1(input.taxonomy);
+  const expansion = parseCapabilityRetrievalExpansionV1(
+    input.retrievalExpansionAuthority,
+  );
+  if (!metadata.ok || !taxonomy.ok || !expansion.ok) {
+    return { ok: false, issue: 'invalid-authority' };
+  }
+  const expectedCandidateIds = uniqueSorted(input.candidateIds);
+  const authorityCandidateIds = metadata.value.candidates.map(
+    ({ candidateId }) => candidateId,
+  );
+  if (
+    expectedCandidateIds.length !== input.candidateIds.length ||
+    metadata.value.catalogVersion !== input.catalogVersion ||
+    metadata.value.catalogDigest !== input.catalogDigest ||
+    taxonomy.value.taxonomyVersion !== expansion.value.taxonomyVersion ||
+    taxonomy.value.semanticDigest !== expansion.value.taxonomySemanticDigest ||
+    !sameStrings(authorityCandidateIds, expectedCandidateIds)
+  ) {
+    return { ok: false, issue: 'authority-binding-mismatch' };
+  }
+  const records = new Map(
+    metadata.value.candidates.map((record) => [record.candidateId, record]),
+  );
+  const aliasesByConcept = new Map<string, string[]>();
+  for (const alias of taxonomy.value.resolvedAliases) {
+    if (alias.status !== 'active') continue;
+    const aliases = aliasesByConcept.get(alias.conceptId) ?? [];
+    aliases.push(alias.aliasKey);
+    aliasesByConcept.set(alias.conceptId, aliases);
+  }
+  const channel: ApprovedMetadataLexicalChannelV1 = Object.freeze({
+    channelVersion: APPROVED_METADATA_LEXICAL_CHANNEL_VERSION,
+    candidateCount: records.size,
+    score: (
+      candidateId: string,
+      normalization: CapabilityQueryNormalizationResultV1,
+    ): ApprovedMetadataLexicalScoreResultV1 => {
+      const record = records.get(candidateId);
+      if (record === undefined) {
+        return { ok: false, issue: 'unknown-candidate' as const };
+      }
+      return scoreApprovedMetadataLexicalRecordV1(record, [
+        ...queryTerms(normalization, aliasesByConcept, expansion.value),
+      ]);
+    },
+  });
+  return { ok: true, channel };
+}
+
+export function normalizeApprovedMetadataLexicalTerms(
+  value: string,
+): readonly string[] {
+  const tokens = value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/u)
+    .filter(
+      (token) =>
+        token.length > 0 &&
+        token.length <= APPROVED_METADATA_LEXICAL_MAX_TOKEN_CODE_UNITS,
+    );
+  const terms: string[] = [];
+  for (let start = 0; start < tokens.length; start += 1) {
+    for (
+      let length = 1;
+      length <= APPROVED_METADATA_LEXICAL_MAX_NGRAM &&
+      start + length <= tokens.length;
+      length += 1
+    ) {
+      terms.push(tokens.slice(start, start + length).join('-'));
+    }
+  }
+  return uniqueSorted(terms);
+}
+
+function queryTerms(
+  normalization: CapabilityQueryNormalizationResultV1,
+  aliasesByConcept: ReadonlyMap<string, readonly string[]>,
+  expansion: Parameters<typeof expandRetrievalTermsV1>[1],
+): ReadonlySet<string> {
+  const conceptIds = uniqueSorted([
+    ...normalization.normalizedCapabilityConcepts.map(
+      ({ conceptId }) => conceptId,
+    ),
+    ...normalization.normalizedConstraints
+      .filter(
+        ({ modality, resolutionBasis, conceptId }) =>
+          modality !== 'prohibited' &&
+          resolutionBasis === 'controlled-taxonomy' &&
+          conceptId !== null,
+      )
+      .flatMap(({ conceptId }) => (conceptId === null ? [] : [conceptId])),
+  ]);
+  const supplied = [
+    ...conceptIds,
+    ...conceptIds.flatMap((conceptId) => aliasesByConcept.get(conceptId) ?? []),
+    ...normalization.normalizedConstraints
+      .filter(
+        ({ modality, resolutionBasis, canonicalTerm }) =>
+          modality !== 'prohibited' &&
+          resolutionBasis === 'controlled-taxonomy' &&
+          canonicalTerm !== null,
+      )
+      .flatMap(({ canonicalTerm }) =>
+        canonicalTerm === null ? [] : [canonicalTerm],
+      ),
+    ...expandRetrievalTermsV1(conceptIds, expansion).expandedTerms,
+  ];
+  return new Set(supplied.flatMap((term) => normalizeQueryAuthorityTerm(term)));
+}
+
+function normalizeQueryAuthorityTerm(value: string): readonly string[] {
+  const tokens = value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/u)
+    .filter(
+      (token) =>
+        token.length > 0 &&
+        token.length <= APPROVED_METADATA_LEXICAL_MAX_TOKEN_CODE_UNITS,
+    );
+  return tokens.length > 0 &&
+    tokens.length <= APPROVED_METADATA_LEXICAL_MAX_NGRAM
+    ? [tokens.join('-')]
+    : [];
+}
+
+export function scoreApprovedMetadataLexicalRecordV1(
+  record: CandidateRetrievalMetadataRecordV1,
+  normalizedQueryTerms: readonly string[],
+): ApprovedMetadataLexicalScoreResultV1 {
+  const query = new Set(
+    normalizedQueryTerms.flatMap(normalizeQueryAuthorityTerm),
+  );
+  const candidateSources = new Map<string, ApprovedMetadataLexicalMatchV1>();
+  addTerms(
+    candidateSources,
+    record.description,
+    'description',
+    APPROVED_METADATA_LEXICAL_WEIGHTS.description,
+  );
+  for (const topic of record.topics) {
+    addTerms(
+      candidateSources,
+      topic,
+      'topic',
+      APPROVED_METADATA_LEXICAL_WEIGHTS.topic,
+    );
+  }
+  if (record.primaryLanguage !== null) {
+    addTerms(
+      candidateSources,
+      record.primaryLanguage,
+      'primary-language',
+      APPROVED_METADATA_LEXICAL_WEIGHTS.primaryLanguage,
+    );
+  }
+  const matches = [...candidateSources.values()]
+    .filter(({ normalizedTerm }) => query.has(normalizedTerm))
+    .sort(
+      (left, right) =>
+        right.points - left.points ||
+        compareAscii(left.normalizedTerm, right.normalizedTerm),
+    );
+  const capped: ApprovedMetadataLexicalMatchV1[] = [];
+  let componentScore = 0;
+  for (const match of matches) {
+    if (
+      componentScore + match.points >
+      APPROVED_METADATA_LEXICAL_COMPONENT_CAP
+    ) {
+      continue;
+    }
+    capped.push(match);
+    componentScore += match.points;
+  }
+  return Object.freeze({
+    ok: true,
+    channelVersion: APPROVED_METADATA_LEXICAL_CHANNEL_VERSION,
+    candidateId: record.candidateId,
+    componentScore,
+    matches: Object.freeze(capped),
+  });
+}
+
+function addTerms(
+  target: Map<string, ApprovedMetadataLexicalMatchV1>,
+  value: string | null,
+  source: ApprovedMetadataLexicalSource,
+  points: number,
+): void {
+  if (value === null) return;
+  for (const normalizedTerm of normalizeApprovedMetadataLexicalTerms(value)) {
+    const current = target.get(normalizedTerm);
+    if (current === undefined || points > current.points) {
+      target.set(normalizedTerm, { normalizedTerm, source, points });
+    }
+  }
+}
+
+function uniqueSorted(values: readonly string[]): string[] {
+  return [...new Set(values)].sort(compareAscii);
+}
+
+function sameStrings(
+  left: readonly string[],
+  right: readonly string[],
+): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
+}
+
+function compareAscii(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}

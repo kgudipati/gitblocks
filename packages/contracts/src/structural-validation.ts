@@ -75,6 +75,10 @@ import {
   type CapabilityRetrievalExpansionSourceV1,
   type CapabilityRetrievalExpansionV1,
 } from './capability-retrieval-expansion-schemas.ts';
+import {
+  candidateRetrievalMetadataAuthorityV1Schema,
+  type CandidateRetrievalMetadataAuthorityV1,
+} from './candidate-retrieval-metadata-schemas.ts';
 
 const ajv = new Ajv2020({
   allErrors: false,
@@ -148,6 +152,10 @@ export const capabilityRetrievalExpansionSourceV1Validator =
 export const capabilityRetrievalExpansionV1Validator =
   ajv.compile<CapabilityRetrievalExpansionV1>(
     capabilityRetrievalExpansionV1Schema,
+  );
+export const candidateRetrievalMetadataAuthorityV1Validator =
+  ajv.compile<CandidateRetrievalMetadataAuthorityV1>(
+    candidateRetrievalMetadataAuthorityV1Schema,
   );
 
 export type StructuralValidationResult<T> =

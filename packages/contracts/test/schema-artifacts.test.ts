@@ -33,11 +33,13 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'candidate-retrieval-request':
     '9524fcdc6b5583840fd68f6dbb60aee858160038861248e8737549a166692b75',
   'candidate-retrieval-result':
-    'ff7d91a4d67a1eb66b9901b67515967f7be12868f0750f86d5fcf1f1ed8c1b94',
+    'fb36ee584868f339e9677c10858c656bf6dace19d1c03bc62bede03b746b653f',
   'capability-retrieval-expansion':
     '65a22cfe825e42f729eb9eb07aaf0a1a0fcdb40dc043c24a5726548f2e99f73d',
   'capability-retrieval-expansion-source':
     'd7fc05ed58ee4021744865678affcddcbedf35781eb220c4b05f7e4ff3ea5a56',
+  'candidate-retrieval-metadata-authority':
+    '09af954b30b57843035ceb1e265f441442b056ec85aedec4032d00fcdeb833db',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
@@ -85,6 +87,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'candidate-retrieval-result',
       'capability-retrieval-expansion',
       'capability-retrieval-expansion-source',
+      'candidate-retrieval-metadata-authority',
     ]);
 
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -93,10 +96,11 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
         'https://json-schema.org/draft/2020-12/schema',
       );
       const version =
-        name === 'candidate-retrieval-request' ||
-        name === 'candidate-retrieval-result'
+        name === 'candidate-retrieval-request'
           ? '1.1.0'
-          : '1.0.0';
+          : name === 'candidate-retrieval-result'
+            ? '1.2.0'
+            : '1.0.0';
       expect(readProperty(schema, '$id')).toBe(
         `https://gitblocks.dev/schemas/contracts/${name}/${version}`,
       );
@@ -223,6 +227,16 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
     expect(Object.keys(publicApi).sort()).toEqual([
       'CANDIDATE_RETRIEVAL_ALGORITHM_VERSION',
       'CANDIDATE_RETRIEVAL_CHANNEL_BINDINGS',
+      'CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_MAX_BYTES',
+      'CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_VERSION',
+      'CANDIDATE_RETRIEVAL_METADATA_CANDIDATE_COUNT',
+      'CANDIDATE_RETRIEVAL_METADATA_DESCRIPTION_MAX_CODE_UNITS',
+      'CANDIDATE_RETRIEVAL_METADATA_LANGUAGE_MAX_CODE_UNITS',
+      'CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_VERSION',
+      'CANDIDATE_RETRIEVAL_METADATA_SOURCE_OPERATION',
+      'CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_VERSION',
+      'CANDIDATE_RETRIEVAL_METADATA_TOPIC_MAX_CODE_UNITS',
+      'CANDIDATE_RETRIEVAL_METADATA_TOPIC_MAX_COUNT',
       'CANDIDATE_RETRIEVAL_REQUEST_VERSION',
       'CANDIDATE_RETRIEVAL_RESULT_VERSION',
       'CAPABILITY_RETRIEVAL_EXPANSION_VERSION',
@@ -250,12 +264,15 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'buildCapabilityRetrievalExpansionV1',
       'buildCapabilityTaxonomyV1',
       'candidateRetrievalAuthorityBindingsDigest',
+      'candidateRetrievalMetadataAuthoritySemanticDigest',
+      'candidateRetrievalMetadataSourceRecordDigest',
       'candidateRetrievalRequestSemanticDigest',
       'candidateRetrievalResultSemanticDigest',
       'capabilityQueryInputDigest',
       'capabilityQueryNormalizationSemanticDigest',
       'capabilityRetrievalExpansionSemanticDigest',
       'capabilityTaxonomySemanticDigest',
+      'createCandidateRetrievalMetadataAuthorityV1',
       'createCandidateRetrievalRequestV1',
       'createCandidateRetrievalResultV1',
       'createDeterministicCandidateProfileAuthorityV1',
@@ -276,6 +293,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'modelExecutionReuseKeyDigest',
       'normalizeCapabilityQueryV1',
       'parseCandidateDossierV1',
+      'parseCandidateRetrievalMetadataAuthorityV1',
       'parseCandidateRetrievalRequestV1',
       'parseCandidateRetrievalResultV1',
       'parseCapabilityQueryInputV1',
@@ -318,6 +336,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryInterviewRequestIdentityDigest',
       'repositoryInterviewRequestRecordDigest',
       'repositoryInterviewUnknownIdentityDigest',
+      'serializeCandidateRetrievalMetadataAuthorityV1',
       'serializeCandidateRetrievalRequestV1',
       'serializeCandidateRetrievalResultV1',
       'serializeCapabilityRetrievalExpansionV1',

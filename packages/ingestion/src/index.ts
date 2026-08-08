@@ -138,6 +138,7 @@ export {
 } from './profile-materialization-persistence-proof.ts';
 export {
   collectProfileMaterializationSources,
+  collectProfileMaterializationRepositoryMetadata,
   mapProfilePrimaryLanguage,
   parseProfileMaterializationCommunityResponse,
   parseProfileMaterializationRepositoryResponse,
@@ -146,6 +147,29 @@ export {
   type ProfileMaterializationProviderConfig,
   type ProfileMaterializationRepositorySource,
 } from './profile-materialization-providers.ts';
+export {
+  collectCandidateRetrievalMetadataAuthority,
+  type CandidateRetrievalMetadataCollectorConfig,
+} from './candidate-retrieval-metadata-collector.ts';
+export {
+  CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH,
+  CANDIDATE_RETRIEVAL_METADATA_FUTURE_COLLECTION_COMMAND,
+  CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT,
+  CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_PATH,
+  CANDIDATE_RETRIEVAL_METADATA_RETAINED_FIELDS,
+  CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_PATH,
+  parseCandidateRetrievalMetadataProviderPolicy,
+  type CandidateRetrievalMetadataCollectionEnvelope,
+  type CandidateRetrievalMetadataProviderPolicy,
+} from './candidate-retrieval-metadata-policy.ts';
+export {
+  CANDIDATE_RETRIEVAL_METADATA_CATALOG_PATH,
+  executeCandidateRetrievalMetadataCollection,
+  preflightCandidateRetrievalMetadataCollection,
+  type CandidateRetrievalMetadataCollectionEffects,
+  type CandidateRetrievalMetadataPreflightEffects,
+  type CandidateRetrievalMetadataPreflightResult,
+} from './candidate-retrieval-metadata-runner.ts';
 export {
   materializeCandidateProfile,
   materializeCandidateProfiles,

@@ -1169,6 +1169,7 @@ describe('schema compatibility', () => {
       'candidate-retrieval-result',
       'capability-retrieval-expansion',
       'capability-retrieval-expansion-source',
+      'candidate-retrieval-metadata-authority',
     ]);
     for (const [name, digest] of Object.entries(EXISTING_SCHEMA_DIGESTS)) {
       expect(

@@ -44,12 +44,16 @@ rate-limiting recall gaps remain explicit Milestone 3 work. These measurements
 do not alter the accepted gates, establish Phase 9 completion, or accept the
 evaluation gold.
 
-Milestone 3 implementation is pending independent review. Its development
-benchmark remains below the macro, audit-logging, and rate-limiting gates, so
-it does not authorize Milestone 4 or establish final retrieval quality. The
-measured limitation is sparse candidate-owned signal authority rather than a
-semantic-recall failure; the conditional vector trigger therefore remains
-inactive.
+Independent Milestone 3 review accepts the expansion authority, one-hop and
+query bounds, constraint preservation, request/result evolution, global
+additive integer fusion, lane-local exact identity diversity, gold blindness,
+and decisions against prohibited prose, vectors, and search infrastructure as
+technically sound. It does not accept Milestone 3 completion. The development
+benchmark remains below the macro, audit-logging, and rate-limiting gates, and
+the conclusion that candidate-side deterministic authority was exhausted was
+premature. The measured limitation is still sparse candidate-owned signal
+authority rather than a semantic-recall failure; the conditional vector
+trigger remains inactive and Milestone 4 remains blocked.
 
 ## Context
 
@@ -171,6 +175,88 @@ tools/evaluation-harness
 `@gitblocks/retrieval` must never import evaluation schemas, cases, gold,
 equivalence records, baselines, scorers, or harness utilities.
 
+### Candidate retrieval discovery metadata authority
+
+Milestone 3 adds one separate soft-signal product contract root:
+
+```text
+CandidateRetrievalMetadataAuthorityV1
+candidate-retrieval-metadata-authority/1.0.0
+```
+
+It is not a deterministic profile, hard-filter authority, ranker, evaluation
+authority, repository interview, or search index. The collection and
+dependency direction is fixed:
+
+```text
+provider / ingestion tooling
+        ↓
+candidate retrieval metadata authority
+        ↓ injected into
+@gitblocks/retrieval
+
+tools/evaluation-harness
+        ↓
+@gitblocks/retrieval
+```
+
+Retrieval never imports ingestion or performs provider I/O. The authority is
+separate from `catalog/public-v1/candidate-profile-authority.json`; the Phase 8
+profile digest and evaluation hard-filter bindings do not change. This avoids
+silently turning retrieval-quality enrichment into hard-filter authority.
+
+The future canonical artifact path is
+`catalog/public-v1/candidate-retrieval-metadata-authority.json`. It contains
+exactly the 150 `public-v1` candidate IDs and case-insensitive repository
+identities once each, sorted by candidate ID. Each record retains canonical
+GitHub owner/repository, nullable repository description, sorted unique
+repository topics, nullable primary language, and a content digest. Description
+is bounded at 500 code units, topics at 20 records and 100 code units each,
+primary language at 100 code units, and the complete formatted artifact at
+1,048,576 UTF-8 bytes. Control/bidi text is rejected at the authority boundary.
+
+The root binds contract and authority versions, catalog version/digest, narrow
+and source provider-policy versions/digests, exact source operation,
+`collectedAt`, derived snapshot ID, sorted candidates, and a semantic digest.
+The source-record digest covers retained identity and metadata. The root digest
+covers all semantic provenance, `collectedAt`, and candidate records, excluding
+only the derived snapshot ID and digest itself. GitHub repository metadata is a
+mutable source; a successfully collected and digest-bound artifact is an
+immutable snapshot, not a claim that its source is immutable.
+
+Collection reuses the accepted Phase 8 `github-repository-metadata` request and
+parser boundary. The narrow policy is
+`candidate-retrieval-metadata-provider-policy/1.0.0`, digest
+`7e12f31e079fe05dad33569408885085bc2dd5cd85036318a594a7e9bd8751ce`,
+bound to Phase 8 provider policy digest
+`0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede`.
+Only HTTPS `GET api.github.com/repos/{owner}/{repository}` is allowed: 150
+logical requests, at most 450 attempts, concurrency three, 2 MiB and 100,000
+JSON-node response bounds, 10-second request timeout, two redirects, three
+attempts, 90-second candidate deadline, and one-hour run deadline. The future
+credential name is `GITBLOCKS_RETRIEVAL_METADATA_GITHUB_TOKEN`. Releases,
+tags, license, community profile, commits, files, npm, advisories, artifacts,
+database, Docker, and model operations are prohibited.
+
+The future lexical consumer is pre-registered as
+`approved-metadata-lexical/1.0.0` and remains inactive until an independently
+reviewed real snapshot exists. Query terms may come only from normalized
+capability concept IDs, active taxonomy aliases for those concepts, reviewed
+one-hop expansion targets, and controlled normalized constraint canonical
+terms. Candidate terms may come only from description, topics, and primary
+language. ASCII lowercase alphanumeric tokenization creates exact one-to-four
+token `-`-joined phrases with a 32-code-unit token limit. Matches are exact,
+deduplicated normalized terms. Topics score 300, description phrases 100, and
+primary language 100 only when query-authorized; a term uses its strongest
+source once and the component cap is 900. The rule is global and fixed before
+live collection.
+
+The existing `repository-identity` field authorizes `displayName`; candidate
+identity therefore projects it under the same general lexical identity rule.
+The retrieval result, algorithm, and candidate-identity channel advance to
+`1.2.0`; request `1.1.0` remains compatible. This completeness correction is
+semantic, not benchmark-tuned.
+
 ### Additive product contracts
 
 Milestone 2 adds exactly two transport-neutral product contract roots to
@@ -237,6 +323,13 @@ expansion-edge IDs. It does not create another request or result root. The
 `candidate-identity` and `package-identity` channels advance to `1.1.0` because
 they consume expansion terms; family, taxonomy-concept, and structured-profile
 channels remain `1.0.0`.
+
+The Milestone 3 authority correction keeps request `1.1.0`, advances result
+and deterministic algorithm to `1.2.0`, and advances candidate identity to
+`1.2.0` for the accepted display-name identity projection. Package identity
+remains `1.1.0`. The separate metadata authority is the one additional product
+root described above; it is injected soft-signal authority and is not embedded
+in the current request/result until a real snapshot is independently accepted.
 
 ### Hard constraints and retrieval lanes
 
@@ -317,14 +410,15 @@ The smallest useful deterministic production combination is:
 
 Milestone 2 implements channels 1–5, minimal deterministic union/fusion,
 provenance, bounds, and lane safety as one vertical slice. Milestone 3 retains
-those five channels. Channel 6 remains disabled after repository inspection:
-no immutable repository- or package-owned descriptions, topics, keywords, or
-approved documentation bodies are present as a bounded retrieval authority.
-Phase 6 artifact manifests bind selections and receipts rather than retained
-artifact bodies, and catalog rationale is curator selection context rather
-than candidate-owned retrieval evidence. Historical completion, interview,
-catalog-rationale, or evaluation prose is not reconstructed as lexical input.
-Popularity or package downloads are not V1 channels.
+those five active channels. Channel 6 is implemented and tested offline but
+remains inactive because no reviewed real metadata snapshot exists. The future
+authority uses only description, topics, and primary language from the
+accepted GitHub repository metadata response. Phase 6 artifact manifests bind
+selections and receipts rather than retained artifact bodies, and catalog
+rationale is curator selection context rather than candidate-owned retrieval
+evidence. Historical completion, interview, catalog-rationale, evaluation
+prose, popularity, package downloads, and arbitrary repository bodies are not
+lexical inputs.
 
 Package identity is the complete initial package channel. Broader package
 metadata is deferred because the current profile authority has no approved

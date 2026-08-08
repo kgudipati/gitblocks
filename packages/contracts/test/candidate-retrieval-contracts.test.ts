@@ -162,10 +162,10 @@ describe('candidate retrieval product contracts', () => {
       'candidate-retrieval-request/1.1.0',
     );
     expect(result.retrievalResultVersion).toBe(
-      'candidate-retrieval-result/1.1.0',
+      'candidate-retrieval-result/1.2.0',
     );
     expect(result.retrievalAlgorithmVersion).toBe(
-      'deterministic-candidate-retrieval/1.1.0',
+      'deterministic-candidate-retrieval/1.2.0',
     );
     expect(request.authorityBindings.retrievalExpansion).toEqual({
       authorityVersion: 'capability-retrieval-expansion/1.0.0',
