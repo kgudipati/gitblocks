@@ -10,21 +10,17 @@
   `18dae5adf821f0c998c02d4829416d655b9da1a1` after rereview of the corrected
   evaluation-lane semantics. Milestone 2 was independently accepted at
   `ce533e39588027048a522417782ada98afeb1489` after rereview of the lane-local
-  exact-identity correction. Independent review found the Milestone 3
-  expansion, fusion, and diversity implementation technically sound, but did
-  not accept Milestone 3 completion: its development benchmark still misses
-  three retrieval gates, and the accepted Phase 8 GitHub repository boundary
-  provides a narrower candidate-owned metadata path. Milestone 4 remains
-  blocked. Authorized metadata collection attempt #1 failed safely at
-  `collection / ingestion.provider-identity`, published no authority or
-  staging state, and was not rerun. The resulting repository-identity
+  exact-identity correction. Authorized metadata collection attempt #1 failed
+  safely at `collection / ingestion.provider-identity`, published no authority
+  or staging state, and was not rerun. The resulting repository-identity
   semantics correction and identity-only diagnostic were accepted before the
   frozen six-channel activation at `0e830d60ba97487e864633d91c09692fb6c081a1`.
   The first six-channel measurement remains immutable historical
   `retrieval-v1` evidence. Issue #23 subsequently established independently
-  reviewed `retrieval-v2`; Phase 9 is now prepared for, but has not executed,
-  one separately authorized reviewed-v2 measurement. Milestone 3 remains open
-  and Milestone 4 remains blocked.
+  reviewed `retrieval-v2`. The single frozen production measurement against
+  that authority passed every registered Milestone 3 gate without tuning,
+  rerun, or post-score mutation and was independently accepted. Milestones 1,
+  2, and 3 are accepted. Milestone 4 has not begun, and Phase 9 remains open.
 - Last updated: 2026-08-08
 
 Issue #21 is the requirements authority. Accepted
@@ -35,7 +31,7 @@ Accepted ADRs, the product contract, repository
 engineering standards, and the governing issue win over this plan if they
 conflict.
 
-### Reviewed-v2 pre-benchmark preparation
+### Reviewed-v2 measurement and Milestone 3 acceptance
 
 Issue #23 was independently accepted and merged at main
 `8bcf1f37d54cdb1767230d25a2c961093a8dfbb4`. Retrieval-v2 is the governing
@@ -61,12 +57,97 @@ proof reproduces historical v1 prediction digest
 and proves v1/v2 product outputs identical after removing only evaluation
 wrapper bindings.
 
-Production measurement is no longer part of ordinary verification or hosted
-CI. The explicit `pnpm eval:retrieval:production:v2` command exists for the
-later independently authorized observation and has not been run. No v2 product
-quality result is known. Issue #28 owns hosted-CI reliability; it does not
-block Milestone 3 preparation, but it must be resolved before Milestone 4 final
-closure relies on hosted CI.
+Production measurement is not part of ordinary verification or hosted CI. At
+exact head `28578d56ec55478b3d968e4dc492627d95dead55`, the explicit
+`pnpm eval:retrieval:production:v2` command was invoked exactly once under a
+separate authorization. It exited `0`, was not rerun, and produced prediction
+digest
+`c654395026508b88181723bdcc7160566ac983c6c5a8a61c4c0650296d22ac82`
+and score digest
+`9f80292f8c0bad4d4b54045de3535c2f0349594563e6ff8eed385937d8cefe69`.
+No product, evaluation, gold, scorer, baseline, gate, or threshold changed
+after the score was observed.
+
+The external measurement evidence remains under
+`/tmp/gitblocks-phase9-m3-v2-measurement/` for independent review:
+
+| Evidence         |   Bytes | SHA-256                                                            |
+| ---------------- | ------: | ------------------------------------------------------------------ |
+| captured stdout  | 123,445 | `f7747a7681878062ba302379dc8655a925bc41addb91d190c65ef6edc4257a0a` |
+| captured stderr  |     324 | `bcd5e93606da81482ac348f01374c10146857e5910f06865ab46ba8717fd4b86` |
+| exit-code record |       2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| extracted report | 122,896 | `ae52e9c41810117b3c4f10b8a357602cc4bfe11c87c37691c40055086924066e` |
+
+The report binds evaluation path
+`production-retrieval-evaluation/2.0.0`, score report
+`retrieval-evaluation-score-report/2.0.0`, prediction set
+`production-deterministic-v1`, scorer
+`retrieval-evaluation-scorer/1.0.0`, and the five reviewed-v2 authority digests
+above. The complete accepted quality result is:
+
+| Gate                      |                    Measured |      Required | Result |
+| ------------------------- | --------------------------: | ------------: | ------ |
+| Macro Recall@10           | `15.214976 / 25 = 0.608599` | `>= 0.608599` | PASS   |
+| Authorization Recall@10   |                  `0.670588` | `>= 0.603529` | PASS   |
+| Audit logging Recall@10   |                  `0.547826` | `>= 0.493043` | PASS   |
+| Background jobs Recall@10 |                  `0.475862` | `>= 0.428276` | PASS   |
+| Rate limiting Recall@10   |                  `0.533334` | `>= 0.480001` | PASS   |
+| Webhooks Recall@10        |                  `0.815385` | `>= 0.733847` | PASS   |
+| Positive-case hit rate    |                   `25 / 25` |     `25 / 25` | PASS   |
+| MRR                       |                  `1.000000` | `>= 0.900000` | PASS   |
+| NDCG@10                   |                  `0.851458` | `>= 0.750000` | PASS   |
+
+The production retrieval result reaches the reviewed-v2 scorer-represented
+Recall@10 ceiling at the macro level and in every capability family. This is
+retrieval-recall evidence, not production ranking quality.
+
+Every zero-tolerance safety gate passed: hard-filter correctness `4500/4500`,
+prohibited preservation `15/15`, no-eligible correctness `30/30`, and zero
+hard-conflict results, lane violations, negative-control violations, exact
+duplicates, or controlled-equivalence duplicates. The report emitted
+`overallPass=true`, and an independent conjunction of all 17 quality and
+safety gate results also produced `true`.
+
+The production/evaluation differential recorded 30 retrieval cases, 30 lane
+count matches, 30 eligible-lane matches, 30 evidence-needed-lane matches, 30
+no-eligible mapping matches, zero excluded-candidate leaks, zero lane-claim
+disagreements, and zero production-input gold fields.
+
+Product diagnostics remained deterministic. Exact repository identity groups,
+exact package identity groups, and exact identity duplicates removed were all
+zero. Expansion applied 92 edges from 40 source concepts over all 30 cases,
+matched candidates in 15 cases with 149 candidate matches, and truncated zero
+edges. Metadata matched in all 30 cases through 244 candidate-case components
+and 389 bounded term occurrences: 336 topic, 53 description, and zero primary
+language occurrences.
+
+The `milestone-3-development` performance protocol covered 150 candidates and
+six active channels. After 100 warmups, 1,000 measured queries produced p95
+`10.796 ms` and maximum `23.735 ms`; search-view heap delta was `693,952`
+bytes and retained heap growth was `1,103,408` bytes. All are inside their
+registered M3 limits. At most 150 candidates were examined and constraint
+evaluated, at most ten candidates were returned, and repeated-call bytes were
+identical. Engine construction was `166.089 ms`; five cold constructions had
+p95/max `166.089 ms` and byte-identical results.
+
+The five-build/cold-engine evidence is M3 development evidence only. It does
+not satisfy or fail the separately registered M4 100-build search-view p95
+`<= 100 ms` proof. Observed M3 cold construction is above 100 ms, so the final
+100-build M4 protocol remains materially unresolved. No optimization is
+authorized by this recording.
+
+Independent review accepts Milestone 3 because the single frozen production
+measurement against independently reviewed retrieval-v2 passed every
+registered M3 quality, safety, differential, determinism, bounded-work,
+latency, and memory gate without tuning, rerun, or post-score mutation. The
+successful quality result activates no vector, index, cache, database,
+embedding, reranking, or search-service trigger; the accepted 150-candidate
+in-memory implementation remains unchanged.
+
+Issue #28 does not reopen or invalidate M3. It must be resolved before M4 final
+closure relies on hosted CI as independent production-proof evidence.
+Milestones 1, 2, and 3 are accepted. Milestone 4 is unblocked but has not
+begun, and Phase 9 is not complete.
 
 This plan implements Project Phase 9, corresponding to Phase 11 — Retrieval
 Engine in the original end-to-end strategy. Independent maintainer rereview
@@ -97,10 +178,10 @@ Milestone 1 delivered only reviewed governance and architecture: one governing
 issue, this plan, accepted ADR 0009, package and contract decisions, exact
 retrieval semantics, and thresholds selected before production retrieval
 existed. Milestone 2 supplies the accepted first measurable production
-vertical slice. Milestone 3 adds bounded controlled expansion and deterministic
-fusion, but its development result has not crossed every quality gate. The
-final observable product outcome still requires resolution of that evidence,
-Milestone 3 acceptance, and Milestone 4 proof.
+vertical slice. Milestone 3 added bounded controlled expansion and deterministic
+fusion. Its single reviewed-v2 measurement is independently accepted. The
+final observable product outcome still requires the separately authorized
+Milestone 4 proof and independent Phase 9 acceptance.
 
 ## Verified current repository state
 
@@ -850,7 +931,7 @@ Vectors, persistent indexes, pgvector, caching, and a search service remain out
 of scope unless all corresponding pre-registered evidence exists and a new ADR
 is independently accepted.
 
-#### Milestone 3 implementation evidence — pending independent review
+#### Historical Milestone 3 implementation evidence
 
 The accepted M2 prediction was reproduced before mutation with prediction
 digest `3bba6372d211e88ba6f62fe3d948312c4f1daf7184ba639248337323dc559e1a`
@@ -1000,8 +1081,9 @@ inactive: the authority has 150 candidates, query latency and search-view
 memory pass, and no three-run corrected breach or usage evidence exists for an
 index, cache, persistence, or service.
 
-Milestone 3 is not accepted and cannot authorize Milestone 4 while the
-development gates remain unmet. Independent review accepted the existing M3
+At that historical development checkpoint, Milestone 3 was not accepted and
+could not authorize Milestone 4 while the development gates remained unmet.
+Independent review accepted the existing M3
 expansion/fusion implementation but required the bounded discovery-metadata
 authority correction below. Evaluation gold remains `proposed-not-reviewed`;
 no final production-quality claim is made.
@@ -1168,8 +1250,9 @@ digest is
 `23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1`,
 file SHA-256 is
 `9f9aef7a399e5472444be90fa9de7de4f2884648b7eaf857cdce0a348046e894`,
-and serialized size is 105,291 bytes. The lexical channel remains inactive,
-Milestone 3 remains open, and Milestone 4 remains blocked.
+and serialized size is 105,291 bytes. At that historical collection checkpoint,
+the lexical channel remained inactive, Milestone 3 remained open, and
+Milestone 4 remained blocked.
 
 The future sixth channel is pre-registered as
 `approved-metadata-lexical/1.0.0` but remains absent from the five active
@@ -1204,12 +1287,14 @@ or retried. The identity probe ran exactly once, and collection attempt #2 ran
 exactly once and succeeded. The authorized process credential was never
 rendered. No profile mutation, evaluation-authority
 mutation, database, Docker, model, vector, index, cache, search service,
-ranking, API, MCP, or Skill work occurred. Milestone 7B remains deferred,
-Milestone 3 remains open, and Milestone 4 remains blocked.
+ranking, API, MCP, or Skill work occurred. At that historical authority
+checkpoint, Milestone 7B remained deferred, Milestone 3 remained open, and
+Milestone 4 remained blocked.
 
 ### Milestone 4 — Production proof and Phase closure
 
-Only after Milestone 3 acceptance:
+Milestone 3 is independently accepted, but Milestone 4 has not begun. When it
+is separately authorized, M4 remains proof and closure only:
 
 - obtain the independent content-free evaluation-authority acceptance record;
 - freeze the production algorithm/channel/expansion/diversity bindings;
@@ -1221,6 +1306,13 @@ Only after Milestone 3 acceptance:
   thresholds after seeing results;
 - complete ADR/plan evidence and honest product/status navigation; and
 - receive independent maintainer acceptance of Phase closure.
+
+M4 owns the fixed 100-build search-view benchmark. The M3 five-build cold
+sample measured `166.089 ms`; that observation neither satisfies nor fails the
+separate 100-build p95 `<= 100 ms` gate, but it keeps the final performance
+proof materially unresolved. If a registered M4 proof fails, M4 stops and
+returns the defect to the appropriate earlier milestone; M4 does not add new
+retrieval semantics.
 
 Phase 9 completion does not make the PR ready, merge it, or authorize Phase 10
 without the applicable repository workflow and user instruction.
@@ -1529,8 +1621,8 @@ a separate reviewed decision authorizes the change.
   languages, all 150 candidates with some approved lexical metadata, and
   4,944 distinct candidate-side normalized terms. No evaluation/gold was
   loaded and no metadata-aware retrieval benchmark or activation occurred.
-  The lexical channel remains inactive, Milestone 3 remains open, and
-  Milestone 4 remains blocked.
+  At that historical collection checkpoint, the lexical channel remained
+  inactive, Milestone 3 remained open, and Milestone 4 remained blocked.
 
 ## Decision and deviation log
 
@@ -1979,7 +2071,7 @@ candidates once, ran five channels, returned at most ten candidates, and were
 byte-repeatable. No contract, algorithm binding, gold, scorer, baseline,
 threshold, CI worker setting, dependency, or lockfile changed.
 
-### Milestone 3 validation evidence — pending independent review
+### Historical Milestone 3 validation evidence
 
 The focused M3 command passed 10 files and 167 tests covering the expansion
 authority and generator, request/result contracts, deterministic schema
@@ -2229,5 +2321,5 @@ The only verification deviation was one first-pass lint finding for a
 redundant-looking cancellation condition in the new probe. The cancellation
 state read was isolated behind a boolean helper so it remains sampled after an
 await; focused lint, typecheck, and probe tests passed, and the complete
-authoritative rerun passed. Milestone 3 remains open and Milestone 4 remains
-blocked.
+authoritative rerun passed. At that repository-identity correction checkpoint,
+Milestone 3 remained open and Milestone 4 remained blocked.

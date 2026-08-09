@@ -52,8 +52,9 @@ technically sound. It does not accept Milestone 3 completion. The development
 benchmark remains below the macro, audit-logging, and rate-limiting gates, and
 the conclusion that candidate-side deterministic authority was exhausted was
 premature. The measured limitation is still sparse candidate-owned signal
-authority rather than a semantic-recall failure; the conditional vector
-trigger remains inactive and Milestone 4 remains blocked.
+authority rather than a semantic-recall failure; at that historical review
+checkpoint the conditional vector trigger remained inactive and Milestone 4
+remained blocked.
 
 Authorized metadata collection attempt #1 subsequently failed safely at
 `collection / ingestion.provider-identity`. Canonical and staging authority
@@ -74,8 +75,9 @@ locations, while the negative-control `muxinc/mux-node-sdk` locator resolves
 to `muxinc/mux-ts`. The latter is the likely explanation for attempt #1 under
 the former status-gated behavior; it is not permission to mutate the catalog.
 Authorized collection attempt #2 then published and validated the real
-150-record metadata snapshot. The lexical channel remains inactive,
-Milestone 3 remains open, and Milestone 4 remains blocked.
+150-record metadata snapshot. At that historical collection checkpoint, the
+lexical channel remained inactive, Milestone 3 remained open, and Milestone 4
+remained blocked.
 
 The later frozen six-channel implementation was measured once against
 immutable historical `retrieval-v1`. Its prediction digest
@@ -91,14 +93,46 @@ Phase 9 incorporated accepted main through a merge, preserving frozen commit
 `0e830d60ba97487e864633d91c09692fb6c081a1` without rebasing. Accepted Issue
 #24 security policy supersedes the former Nanoid override. Ordinary local and
 hosted verification validate the production adapter but do not execute an
-acceptance benchmark. The explicit
-`pnpm eval:retrieval:production:v2` command is reserved for a later independent
-authorization and has not been run. A blind prediction-only equivalence proof
-reproduces the historical v1 prediction digest and shows that v1/v2 product
-outputs are identical before evaluation bindings. No reviewed-v2 production
-quality result is yet known. Issue #28 owns hosted-CI reliability and must be
-resolved before Milestone 4 final closure; Milestone 3 remains open and
-Milestone 4 remains blocked.
+acceptance benchmark. A blind prediction-only equivalence proof reproduces the
+historical v1 prediction digest and shows that v1/v2 product outputs are
+identical before evaluation bindings.
+
+The separately authorized reviewed-v2 production measurement then ran exactly
+once at head `28578d56ec55478b3d968e4dc492627d95dead55`, with no rerun, tuning,
+or post-score mutation. Prediction digest
+`c654395026508b88181723bdcc7160566ac983c6c5a8a61c4c0650296d22ac82`
+and score digest
+`9f80292f8c0bad4d4b54045de3535c2f0349594563e6ff8eed385937d8cefe69`
+bind the accepted observation. Macro Recall@10 was `0.608599`; family values
+were authorization `0.670588`, audit logging `0.547826`, background jobs
+`0.475862`, rate limiting `0.533334`, and webhooks `0.815385`. Positive hit was
+`25/25`, MRR `1.000000`, and NDCG@10 `0.851458`. The production retrieval
+result reaches the reviewed-v2 scorer-represented Recall@10 ceiling at the
+macro and family levels. This is retrieval-recall evidence, not ranking
+quality.
+
+Every zero-tolerance safety gate passed: hard filtering `4500/4500`,
+prohibited preservation `15/15`, no-eligible correctness `30/30`, and zero
+hard-conflict, lane, negative-control, exact-duplicate, or
+controlled-equivalence violations. Query p95/max were `10.796 / 23.735 ms`,
+search-view heap delta was `693,952` bytes, retained growth was `1,103,408`
+bytes, bounded work remained 150 candidates and six channels, and repeated
+results were byte-identical. The emitted and independently recomputed gate
+conjunctions were both `true`.
+
+Independent review accepts Milestone 3. The six-channel algorithm, authority
+bindings, product contract versions, in-memory architecture, and conditional
+infrastructure decision remain unchanged. Passing retrieval quality activates
+no vector, pgvector, persistent index, search service, cache, retrieval table,
+embedding, or model-reranking trigger.
+
+The five-build cold-engine sample measured p95/max `166.089 ms`. It is M3
+development evidence only and neither satisfies nor fails the separately
+registered M4 100-build search-view p95 `<= 100 ms` proof. That final proof is
+materially unresolved and belongs to M4. Issue #28 does not reopen M3, but it
+must be resolved before final M4 closure relies on hosted CI as independent
+production-proof evidence. Milestone 4 has not begun, and Phase 9 is not
+complete.
 
 ## Context
 
