@@ -1,4 +1,4 @@
-# ADR 0009: Establish independently reviewed retrieval-v2 authority
+# ADR 0010: Establish independently reviewed retrieval-v2 authority
 
 ## Status
 
@@ -57,9 +57,14 @@ Unchanged baseline algorithms are regenerated through a v2 blind-query
 boundary. Theoretical Recall@10 ceilings use the unchanged scorer aggregation
 and `min(10, eligibleRelevantCount) / eligibleRelevantCount` per positive case.
 Family floors are 90% of the corresponding v2 family ceiling. The macro floor
-is the larger of the ceiling-relative and strongest-baseline-relative targets
-defined by Issue #23. These rules are committed before any production-v2
-score exists.
+is the larger of the ceiling-relative target and the strongest unchanged
+ordinary baseline. The first attempted interpretation added the historical
+absolute margin to the new baseline, exceeded the v2 ceiling, and failed closed
+before any production-v2 score. Independent threshold review rejected that
+interpretation. Exact 25-case evidence proves the unchanged alias-expanded
+baseline reaches top-ten ceiling capacity in every positive case, so the final
+macro floor equals the reviewed v2 ceiling at `0.608599`. These rules are
+committed before any production-v2 score exists.
 
 ## Consequences
 

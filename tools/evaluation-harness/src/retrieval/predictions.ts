@@ -1,7 +1,9 @@
 import { findGitBlocksRoot } from '../repository-root.ts';
 import {
   RETRIEVAL_CORPUS_ID,
+  RETRIEVAL_V2_VERSIONS,
   RETRIEVAL_VERSIONS,
+  type RetrievalAuthorityVersion,
   type GeneratedCandidateDecision,
   type NormalizationPrediction,
   type RetrievalBlindQuerySet,
@@ -28,6 +30,23 @@ export function validateRetrievalPredictionSetV1(
   corpus: ValidatedRetrievalCorpus | undefined,
   startDirectory = process.cwd(),
 ): readonly RetrievalDiagnostic[] {
+  return validateRetrievalPredictionSet(value, corpus, startDirectory, 'v1');
+}
+
+export function validateRetrievalPredictionSetV2(
+  value: unknown,
+  corpus: ValidatedRetrievalCorpus | undefined,
+  startDirectory = process.cwd(),
+): readonly RetrievalDiagnostic[] {
+  return validateRetrievalPredictionSet(value, corpus, startDirectory, 'v2');
+}
+
+function validateRetrievalPredictionSet(
+  value: unknown,
+  corpus: ValidatedRetrievalCorpus | undefined,
+  startDirectory: string,
+  authorityVersion: RetrievalAuthorityVersion,
+): readonly RetrievalDiagnostic[] {
   const diagnostics: RetrievalDiagnostic[] = [];
   let repositoryRoot: string;
   try {
@@ -35,10 +54,10 @@ export function validateRetrievalPredictionSetV1(
   } catch {
     return [diagnostic('retrieval.prediction.root', '')];
   }
-  const schema = createRetrievalSchemaRegistry(repositoryRoot).validate(
-    'prediction-set',
-    value,
-  );
+  const schema = createRetrievalSchemaRegistry(
+    repositoryRoot,
+    authorityVersion,
+  ).validate('prediction-set', value);
   diagnostics.push(...schema);
   if (schema.length > 0 || corpus === undefined) {
     if (corpus === undefined)
@@ -65,6 +84,7 @@ export function validateRetrievalPredictionSetV1(
       ),
     },
     diagnostics,
+    authorityVersion,
   );
 }
 
@@ -85,6 +105,33 @@ export function validateRetrievalPredictionSetAgainstBlindAuthorityV1(
   authority: RetrievalBlindPredictionValidationAuthority,
   startDirectory = process.cwd(),
 ): readonly RetrievalDiagnostic[] {
+  return validateRetrievalPredictionSetAgainstBlindAuthority(
+    value,
+    authority,
+    startDirectory,
+    'v1',
+  );
+}
+
+export function validateRetrievalPredictionSetAgainstBlindAuthorityV2(
+  value: unknown,
+  authority: RetrievalBlindPredictionValidationAuthority,
+  startDirectory = process.cwd(),
+): readonly RetrievalDiagnostic[] {
+  return validateRetrievalPredictionSetAgainstBlindAuthority(
+    value,
+    authority,
+    startDirectory,
+    'v2',
+  );
+}
+
+function validateRetrievalPredictionSetAgainstBlindAuthority(
+  value: unknown,
+  authority: RetrievalBlindPredictionValidationAuthority,
+  startDirectory: string,
+  authorityVersion: RetrievalAuthorityVersion,
+): readonly RetrievalDiagnostic[] {
   let repositoryRoot: string;
   try {
     repositoryRoot = findGitBlocksRoot(startDirectory);
@@ -92,7 +139,7 @@ export function validateRetrievalPredictionSetAgainstBlindAuthorityV1(
     return [diagnostic('retrieval.prediction.root', '')];
   }
   const diagnostics = [
-    ...createRetrievalSchemaRegistry(repositoryRoot).validate(
+    ...createRetrievalSchemaRegistry(repositoryRoot, authorityVersion).validate(
       'prediction-set',
       value,
     ),
@@ -102,6 +149,7 @@ export function validateRetrievalPredictionSetAgainstBlindAuthorityV1(
     value as RetrievalPredictionSet,
     authority,
     diagnostics,
+    authorityVersion,
   );
 }
 
@@ -109,13 +157,22 @@ function validateAgainstAuthority(
   predictionSet: RetrievalPredictionSet,
   authority: RetrievalBlindPredictionValidationAuthority,
   diagnostics: RetrievalDiagnostic[],
+  authorityVersion: RetrievalAuthorityVersion,
 ): readonly RetrievalDiagnostic[] {
   const predictionSetVersion: unknown = predictionSet.predictionSetVersion;
   const corpusId: unknown = predictionSet.corpusId;
   const corpusVersion: unknown = predictionSet.corpusVersion;
+  const expectedPredictionSetVersion =
+    authorityVersion === 'v1'
+      ? RETRIEVAL_VERSIONS.predictionSet
+      : RETRIEVAL_V2_VERSIONS.predictionSet;
+  const expectedCorpusId =
+    authorityVersion === 'v1'
+      ? RETRIEVAL_CORPUS_ID
+      : RETRIEVAL_V2_VERSIONS.corpusId;
   if (
-    predictionSetVersion !== RETRIEVAL_VERSIONS.predictionSet ||
-    corpusId !== RETRIEVAL_CORPUS_ID ||
+    predictionSetVersion !== expectedPredictionSetVersion ||
+    corpusId !== expectedCorpusId ||
     corpusVersion !== authority.corpusVersion ||
     predictionSet.corpusSemanticDigest !== authority.corpusSemanticDigest
   )

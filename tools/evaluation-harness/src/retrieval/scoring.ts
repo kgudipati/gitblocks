@@ -13,7 +13,11 @@ import type {
   RetrievalScoringFixture,
   ValidatedRetrievalCorpus,
 } from './contracts.ts';
-import { RETRIEVAL_FAMILIES, RETRIEVAL_VERSIONS } from './contracts.ts';
+import {
+  RETRIEVAL_FAMILIES,
+  RETRIEVAL_V2_VERSIONS,
+  RETRIEVAL_VERSIONS,
+} from './contracts.ts';
 import { retrievalSemanticDigest, retrievalStableJson } from './stable-json.ts';
 
 const ROUNDING_DIGITS = 6;
@@ -274,7 +278,10 @@ export function scoreRetrievalPredictionSet(
     { conflict: 0, negativeControl: 0, laneError: 0 },
   );
   const withoutDigest = {
-    scoreReportVersion: RETRIEVAL_VERSIONS.scoreReport,
+    scoreReportVersion:
+      corpus.manifest.corpusId === RETRIEVAL_V2_VERSIONS.corpusId
+        ? RETRIEVAL_V2_VERSIONS.scoreReport
+        : RETRIEVAL_VERSIONS.scoreReport,
     corpusId: corpus.manifest.corpusId,
     corpusVersion: corpus.manifest.corpusVersion,
     corpusSemanticDigest: corpus.manifest.corpusSemanticDigest,

@@ -57,15 +57,31 @@ as follows:
 - each family Recall@10 floor is 90% of its v2 ceiling;
 - ceiling-relative macro target is the v2 ceiling multiplied by
   `0.625000 / 0.656249`;
-- baseline-relative macro target is the strongest ordinary v2 baseline macro
-  Recall@10 plus `0.012705`;
+- baseline target is the strongest ordinary v2 baseline macro Recall@10;
 - the macro floor is the larger raw target, rounded to six decimals only after
   selection.
 
+The initial transfer interpretation added the historical absolute difference
+`0.012705` to the new baseline. It produced the infeasible target `0.621304`,
+above the v2 theoretical ceiling `0.608599`, and therefore failed closed before
+any production-v2 score. Independent threshold review established that the
+historical invariant was ceiling-relative ambition plus a baseline floor—not a
+permanent additive margin.
+
+The unchanged alias-expanded baseline saturates every one of the 25 positive
+cases: its relevant top-ten count equals
+`min(10, eligibleRelevantCount)` case by case. Its exact aggregate therefore
+equals the theoretical ceiling before display rounding. The corrected transfer
+selects the raw alias-expanded baseline value `0.60859904` over the raw
+ceiling-relative target `0.5796188527399861`, publishing Macro Recall@10
+`0.608599`. The family floors are authorization `0.603529`, audit logging
+`0.493043`, background jobs `0.428276`, rate limiting `0.480001`, and webhooks
+`0.733847`.
+
 The positive hit-rate, MRR, NDCG@10, and all zero-tolerance safety gates remain
 unchanged. If corpus structure ceases to be 25 positive and five no-eligible
-retrieval cases, or the transferred macro floor exceeds the v2 ceiling,
-generation fails closed.
+retrieval cases, or any alias-expanded case fails exact saturation, generation
+fails closed.
 
 No Phase 9 product prediction, score, or hypothetical pass/fail result is an
 input to this authority.

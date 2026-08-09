@@ -13,8 +13,9 @@
 - Last updated: 2026-08-08
 - Decision authority: Issue #23 and the explicit maintainer reconciliation in
   this plan win over the proposed `retrieval-v1` relevance grades. ADR 0008
-  continues to own evaluation architecture and forward correction; ADR 0009
-  continues to own Phase 9 boundaries and remains unchanged on this branch.
+  continues to own evaluation architecture and forward correction. Phase 9's
+  ADR 0009 remains isolated on draft PR #22; ADR 0010 records this independent
+  evaluation correction without taking that reserved decision number.
 
 The requested branch name is an explicit task requirement even though it does
 not include Issue #23's decimal number as normally required by the repository
@@ -142,12 +143,10 @@ against v2.
   requires additive forward correction after an authority has been used,
   blind-first baseline prediction generation, immutable digests, and
   evaluation-only ownership.
-- [ADR 0009](../architecture/decisions/0009-production-retrieval.md) requires
-  rejected independent judgments to be corrected through a separate reviewed
-  corpus-authoring change and prohibits changing gold to fit production output.
-  It remains unchanged in this main-based branch.
-- A new ADR records v2 review reconciliation, versioning, and the frozen gate
-  transfer without importing Phase 9 results.
+- [ADR 0010](../architecture/decisions/0010-reviewed-retrieval-v2-authority.md)
+  records v2 review reconciliation, versioning, and the frozen gate transfer
+  without importing Phase 9 results. Phase 9 ADR 0009 remains unchanged on
+  draft PR #22 and is not copied into this main-based branch.
 - Query `retrieval-evaluation-query/1.0.0`, normalization, clarification,
   hard-filter, no-result, equivalence, baseline strategy, and scorer versions
   retain their meanings. Corpus and relevance advance to 2.0.0. Prediction,
@@ -297,9 +296,16 @@ only after independent acceptance and merge.
 - [x] 2026-08-08 — Authenticated repository, PR #22, external review, blind
       bundle, and three comparison-output hashes; created Issue #23 and isolated
       main-based worktree.
-- [ ] Establish reviewed v2 corpus authority and first commit.
-- [ ] Regenerate v2 baselines, ceilings, and gates and create second commit.
-- [ ] Complete validation, push, open draft PR, and observe CI.
+- [x] Establish reviewed v2 corpus authority and first commit `8ccf6cc`.
+- [x] Regenerate unchanged v2 baselines and prove 25/25 alias-expanded ceiling
+      saturation.
+- [x] Record the failed first threshold transfer and independently accepted
+      corrected transfer before any production-v2 score.
+- [x] Incorporate accepted security baseline `82fb5df` without rewriting
+      `8ccf6cc`, then resume evaluation validation without observing a
+      production-v2 score.
+- [x] Complete validation and prepare the second evaluation commit.
+- [ ] Push, open draft PR, and observe CI.
 
 ## Decision and deviation log
 
@@ -308,13 +314,45 @@ only after independent acceptance and merge.
 - 2026-08-08 — Accept 33 preferred-case corrections, reject eight unnamed
   comparison companions, and retain 321 stricter same-binary calibration
   judgments. Owner: maintainer reconciliation.
-- 2026-08-08 — Freeze family gates at 90% of v2 family ceilings and macro gate
-  at the maximum of the frozen ceiling fraction and baseline margin before any
-  product-v2 score. Owner: maintainer threshold authority.
+- 2026-08-08 — First macro transfer interpreted the historical `0.012705`
+  difference as a permanent additive baseline margin. The resulting `0.621304`
+  exceeded the reviewed-v2 theoretical ceiling `0.608599`; execution stopped
+  before any product-v2 score. Owner: failed-closed threshold review.
+- 2026-08-08 — Independent threshold review re-established the historical
+  invariant as the maximum of ceiling-relative ambition and the strongest
+  unchanged baseline, with no additive margin. Exact case evidence proves
+  alias-expanded saturates all 25 positive cases, so the published macro gate
+  is `0.608599`. Family gates remain 90% of scorer-rounded v2 ceilings. Owner:
+  maintainer threshold authority.
 - 2026-08-08 — Use the explicitly requested branch name despite the usual
   issue-number rule; do not weaken repository policy. Owner: task authority.
+- 2026-08-08 — Final evaluation validation stopped on a pre-existing dependency
+  advisory. Issue #24 / PR #25 repaired it in isolation; accepted security merge
+  `82fb5dfbcfebf8229b08cd26f5da56ed61fb5361` was then merged here without
+  rewriting `8ccf6cc`. No production-v2 score was observed, and evaluation
+  validation resumed. Owner: independent security and evaluation review.
+- 2026-08-08 — The first full-suite run exposed only two test-timeout failures
+  under concurrent Vitest load; both focused suites already passed. Explicit
+  budgets were raised for those bounded authority-generation tests without
+  changing assertions, evaluation semantics, or digests. The repeated complete
+  suite passed 117 files and 1,811 tests. Owner: deterministic validation.
 
 ## Validation evidence
 
-Pending implementation. Record every command, exit status, material count,
-digest, failure, and resolution here before publication.
+- First authority commit: `8ccf6cc`, parent `f44ddcee`; v1 tree remains
+  `1ef5d85f702a73ae5065b03de184b19f8886e36a`.
+- V2 corpus/relevance validation: 30 retrieval, 20 normalization, 636 closed
+  judgments, distribution `97 / 79 / 398 / 62`, corpus digest `05e03c9b...`.
+- Baseline report digest: `789bee30451d82276b224b1693710fbb66c3722b625c81cbd45b2453a8354140`.
+- Ceiling saturation: 25/25 positive cases; exact macro `1345676/2211105`;
+  micro `209/433`; proof digest `4fde078b...`.
+- Corrected gates: macro `0.608599`; family floors `0.603529`, `0.493043`,
+  `0.428276`, `0.480001`, and `0.733847`; quality-gate digest `27550bd7...`.
+- Frozen install and dependency audit: pass; no tracked dependency mutation and
+  no known vulnerabilities.
+- Focused retrieval-v2 tests: 2 files, 9 tests, all passed.
+- Complete verification: 117 files, 1,811 tests, all passed.
+- Architecture: 853 modules, 2,864 dependencies, zero violations.
+- Runtime, format, build, internal typecheck, lint, repository policy, v1/v2
+  corpus and baseline verification, scorer fixtures, contract conformance,
+  secret scan, and `git diff --check`: pass.

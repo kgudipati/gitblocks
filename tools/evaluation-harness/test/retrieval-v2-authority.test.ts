@@ -13,6 +13,7 @@ import {
   RETRIEVAL_V2_REVIEWED_GRADE_CORRECTIONS,
   loadRetrievalIndependentReviewRecordV2,
 } from '../src/retrieval/reviewed-relevance.ts';
+import { validateRetrievalV2GateAuthorities } from '../src/retrieval/quality-gates.ts';
 import { retrievalStableJson } from '../src/retrieval/stable-json.ts';
 
 let root: string;
@@ -147,4 +148,55 @@ describe('retrieval-v2 reviewed relevance authority', () => {
       ),
     );
   });
+});
+
+describe('retrieval-v2 ceiling and quality-gate authority', () => {
+  it('proves all 25 positive cases saturate exact top-10 capacity', () => {
+    const { saturationProof } = validateRetrievalV2GateAuthorities(root);
+    expect(saturationProof.cases).toHaveLength(25);
+    expect(saturationProof.aggregate.saturatedCaseCount).toBe(25);
+    for (const item of saturationProof.cases) {
+      expect(item.aliasExpandedRelevantTop10).toBe(
+        Math.min(10, item.eligibleRelevantCount),
+      );
+      expect(item.aliasExpandedCaseRecall).toEqual(item.theoreticalCaseRecall);
+      expect(item.saturated).toBe(true);
+    }
+    expect(saturationProof.aggregate.macroExact).toMatchObject({
+      numerator: 1_345_676,
+      denominator: 2_211_105,
+    });
+    expect(saturationProof.aggregate.microExact).toMatchObject({
+      numerator: 209,
+      denominator: 433,
+    });
+  });
+
+  it('freezes the independently accepted transfer and safety gates', () => {
+    const { qualityGates } = validateRetrievalV2GateAuthorities(root);
+    expect(qualityGates.thresholdReview.firstTransferAttempt).toMatchObject({
+      resultingTarget: 0.621304,
+      outcome: 'infeasible-above-theoretical-ceiling',
+      stoppedBeforeProductionV2Score: true,
+    });
+    expect(qualityGates.macroTransfer).toMatchObject({
+      publishedGate: 0.608599,
+      baselineTarget: 0.60859904,
+    });
+    expect(
+      qualityGates.gates.familyRecallAt10.map(({ floor }) => floor),
+    ).toEqual([0.603529, 0.493043, 0.428276, 0.480001, 0.733847]);
+    expect(qualityGates.gates).toMatchObject({
+      positiveCaseHitRate: { numerator: 25, denominator: 25 },
+      meanReciprocalRank: 0.9,
+      ndcgAt10: 0.75,
+      maximumViolations: {
+        hardConflictResults: 0,
+        lane: 0,
+        negativeControl: 0,
+        exactDuplicates: 0,
+        controlledEquivalenceDuplicates: 0,
+      },
+    });
+  }, 30_000);
 });

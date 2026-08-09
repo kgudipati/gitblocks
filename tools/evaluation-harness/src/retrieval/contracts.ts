@@ -26,6 +26,7 @@ export const RETRIEVAL_V2_VERSIONS = {
   predictionSet: 'retrieval-evaluation-prediction-set/2.0.0',
   scoreReport: 'retrieval-evaluation-score-report/2.0.0',
   independentReview: 'retrieval-relevance-independent-review/1.0.0',
+  saturationProof: 'retrieval-ceiling-saturation-proof/1.0.0',
   qualityGates: 'retrieval-quality-gates/1.0.0',
 } as const;
 

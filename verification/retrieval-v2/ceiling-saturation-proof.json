@@ -1,0 +1,529 @@
+{
+  "aggregate": {
+    "families": [
+      {
+        "exact": {
+          "denominator": 85,
+          "numerator": 57,
+          "value": 0.6705882352941176
+        },
+        "family": "authorization",
+        "scorerValue": 0.670588
+      },
+      {
+        "exact": {
+          "denominator": 115,
+          "numerator": 63,
+          "value": 0.5478260869565217
+        },
+        "family": "audit-logging",
+        "scorerValue": 0.547826
+      },
+      {
+        "exact": {
+          "denominator": 145,
+          "numerator": 69,
+          "value": 0.47586206896551725
+        },
+        "family": "background-jobs",
+        "scorerValue": 0.475862
+      },
+      {
+        "exact": {
+          "denominator": 15,
+          "numerator": 8,
+          "value": 0.5333333333333333
+        },
+        "family": "rate-limiting",
+        "scorerValue": 0.533334
+      },
+      {
+        "exact": {
+          "denominator": 65,
+          "numerator": 53,
+          "value": 0.8153846153846154
+        },
+        "family": "webhooks",
+        "scorerValue": 0.815385
+      }
+    ],
+    "macroExact": {
+      "denominator": 2211105,
+      "numerator": 1345676,
+      "value": 0.6085988679868211
+    },
+    "macroScorerValue": 0.608599,
+    "microExact": {
+      "denominator": 433,
+      "numerator": 209,
+      "value": 0.48267898383371827
+    },
+    "saturatedCaseCount": 25
+  },
+  "authorityBindings": {
+    "baselineReportDigest": "789bee30451d82276b224b1693710fbb66c3722b625c81cbd45b2453a8354140",
+    "baselineReportVersion": "retrieval-baseline-report/2.0.0",
+    "corpusSemanticDigest": "05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c",
+    "corpusVersion": "retrieval-evaluation-corpus/2.0.0",
+    "independentReviewDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+    "independentReviewVersion": "retrieval-relevance-independent-review/1.0.0",
+    "relevanceVersion": "retrieval-relevance-gold/2.0.0",
+    "scorerVersion": "retrieval-evaluation-scorer/1.0.0"
+  },
+  "cases": [
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 23,
+        "numerator": 10,
+        "value": 0.43478260869565216
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-audit-logging-01",
+      "eligibleRelevantCount": 23,
+      "family": "audit-logging",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 23,
+        "numerator": 10,
+        "value": 0.43478260869565216
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 23,
+        "numerator": 10,
+        "value": 0.43478260869565216
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-audit-logging-02",
+      "eligibleRelevantCount": 23,
+      "family": "audit-logging",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 23,
+        "numerator": 10,
+        "value": 0.43478260869565216
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 23,
+        "numerator": 10,
+        "value": 0.43478260869565216
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-audit-logging-03",
+      "eligibleRelevantCount": 23,
+      "family": "audit-logging",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 23,
+        "numerator": 10,
+        "value": 0.43478260869565216
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "aliasExpandedRelevantTop10": 2,
+      "caseId": "ret-audit-logging-04",
+      "eligibleRelevantCount": 2,
+      "family": "audit-logging",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "theoreticalMaximumRelevantTop10": 2
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 23,
+        "numerator": 10,
+        "value": 0.43478260869565216
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-audit-logging-06",
+      "eligibleRelevantCount": 23,
+      "family": "audit-logging",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 23,
+        "numerator": 10,
+        "value": 0.43478260869565216
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 17,
+        "numerator": 10,
+        "value": 0.5882352941176471
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-authorization-01",
+      "eligibleRelevantCount": 17,
+      "family": "authorization",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 17,
+        "numerator": 10,
+        "value": 0.5882352941176471
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 17,
+        "numerator": 10,
+        "value": 0.5882352941176471
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-authorization-02",
+      "eligibleRelevantCount": 17,
+      "family": "authorization",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 17,
+        "numerator": 10,
+        "value": 0.5882352941176471
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 17,
+        "numerator": 10,
+        "value": 0.5882352941176471
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-authorization-03",
+      "eligibleRelevantCount": 17,
+      "family": "authorization",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 17,
+        "numerator": 10,
+        "value": 0.5882352941176471
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "aliasExpandedRelevantTop10": 2,
+      "caseId": "ret-authorization-04",
+      "eligibleRelevantCount": 2,
+      "family": "authorization",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "theoreticalMaximumRelevantTop10": 2
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 17,
+        "numerator": 10,
+        "value": 0.5882352941176471
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-authorization-06",
+      "eligibleRelevantCount": 17,
+      "family": "authorization",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 17,
+        "numerator": 10,
+        "value": 0.5882352941176471
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 29,
+        "numerator": 10,
+        "value": 0.3448275862068966
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-background-jobs-01",
+      "eligibleRelevantCount": 29,
+      "family": "background-jobs",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 29,
+        "numerator": 10,
+        "value": 0.3448275862068966
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 29,
+        "numerator": 10,
+        "value": 0.3448275862068966
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-background-jobs-02",
+      "eligibleRelevantCount": 29,
+      "family": "background-jobs",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 29,
+        "numerator": 10,
+        "value": 0.3448275862068966
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 29,
+        "numerator": 10,
+        "value": 0.3448275862068966
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-background-jobs-03",
+      "eligibleRelevantCount": 29,
+      "family": "background-jobs",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 29,
+        "numerator": 10,
+        "value": 0.3448275862068966
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "aliasExpandedRelevantTop10": 2,
+      "caseId": "ret-background-jobs-04",
+      "eligibleRelevantCount": 2,
+      "family": "background-jobs",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "theoreticalMaximumRelevantTop10": 2
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 29,
+        "numerator": 10,
+        "value": 0.3448275862068966
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-background-jobs-06",
+      "eligibleRelevantCount": 29,
+      "family": "background-jobs",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 29,
+        "numerator": 10,
+        "value": 0.3448275862068966
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 12,
+        "numerator": 5,
+        "value": 0.4166666666666667
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-rate-limiting-01",
+      "eligibleRelevantCount": 24,
+      "family": "rate-limiting",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 12,
+        "numerator": 5,
+        "value": 0.4166666666666667
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 12,
+        "numerator": 5,
+        "value": 0.4166666666666667
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-rate-limiting-02",
+      "eligibleRelevantCount": 24,
+      "family": "rate-limiting",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 12,
+        "numerator": 5,
+        "value": 0.4166666666666667
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 12,
+        "numerator": 5,
+        "value": 0.4166666666666667
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-rate-limiting-03",
+      "eligibleRelevantCount": 24,
+      "family": "rate-limiting",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 12,
+        "numerator": 5,
+        "value": 0.4166666666666667
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "aliasExpandedRelevantTop10": 1,
+      "caseId": "ret-rate-limiting-04",
+      "eligibleRelevantCount": 1,
+      "family": "rate-limiting",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "theoreticalMaximumRelevantTop10": 1
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 12,
+        "numerator": 5,
+        "value": 0.4166666666666667
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-rate-limiting-06",
+      "eligibleRelevantCount": 24,
+      "family": "rate-limiting",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 12,
+        "numerator": 5,
+        "value": 0.4166666666666667
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 13,
+        "numerator": 10,
+        "value": 0.7692307692307693
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-webhooks-01",
+      "eligibleRelevantCount": 13,
+      "family": "webhooks",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 13,
+        "numerator": 10,
+        "value": 0.7692307692307693
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 13,
+        "numerator": 10,
+        "value": 0.7692307692307693
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-webhooks-02",
+      "eligibleRelevantCount": 13,
+      "family": "webhooks",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 13,
+        "numerator": 10,
+        "value": 0.7692307692307693
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 13,
+        "numerator": 10,
+        "value": 0.7692307692307693
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-webhooks-03",
+      "eligibleRelevantCount": 13,
+      "family": "webhooks",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 13,
+        "numerator": 10,
+        "value": 0.7692307692307693
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "aliasExpandedRelevantTop10": 2,
+      "caseId": "ret-webhooks-04",
+      "eligibleRelevantCount": 2,
+      "family": "webhooks",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 1,
+        "numerator": 1,
+        "value": 1
+      },
+      "theoreticalMaximumRelevantTop10": 2
+    },
+    {
+      "aliasExpandedCaseRecall": {
+        "denominator": 13,
+        "numerator": 10,
+        "value": 0.7692307692307693
+      },
+      "aliasExpandedRelevantTop10": 10,
+      "caseId": "ret-webhooks-06",
+      "eligibleRelevantCount": 13,
+      "family": "webhooks",
+      "saturated": true,
+      "theoreticalCaseRecall": {
+        "denominator": 13,
+        "numerator": 10,
+        "value": 0.7692307692307693
+      },
+      "theoreticalMaximumRelevantTop10": 10
+    }
+  ],
+  "noEligibleCaseCount": 5,
+  "positiveCaseCount": 25,
+  "proofVersion": "retrieval-ceiling-saturation-proof/1.0.0",
+  "semanticDigest": "4fde078b679dea3c434f77392b4b2f2a5b0c3a477b383d0699024b6414287921"
+}

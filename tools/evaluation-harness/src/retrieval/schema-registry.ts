@@ -23,7 +23,9 @@ const SCHEMA_NAMES = [
   'normalization-gold',
   'prediction-set',
   'query',
+  'quality-gates',
   'relevance-gold',
+  'saturation-proof',
   'score-report',
 ] as const;
 
@@ -58,7 +60,11 @@ export function createRetrievalSchemaRegistry(
   for (const name of SCHEMA_NAMES) {
     const versioned =
       authorityVersion === 'v2' &&
-      (name === 'manifest' || name === 'relevance-gold');
+      (name === 'baseline-report' ||
+        name === 'manifest' ||
+        name === 'prediction-set' ||
+        name === 'relevance-gold' ||
+        name === 'score-report');
     const schema = loadSchema(
       schemaRoot,
       `${name}${versioned ? '-v2' : ''}.schema.json`,

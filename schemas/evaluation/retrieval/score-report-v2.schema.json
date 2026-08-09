@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/score-report/2.0.0",
+  "$defs": {
+    "normalizationCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "caseKind",
+        "family",
+        "clarificationAccuracy",
+        "aliasExpansionCorrectness",
+        "prohibitedConstraintPreservation"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+        },
+        "caseKind": { "const": "normalization-adversarial" },
+        "family": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+        },
+        "clarificationAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "aliasExpansionCorrectness": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "prohibitedConstraintPreservation": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        }
+      }
+    },
+    "violations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conflict", "negativeControl", "laneError"],
+      "properties": {
+        "conflict": { "type": "integer", "minimum": 0, "maximum": 300 },
+        "negativeControl": { "type": "integer", "minimum": 0, "maximum": 300 },
+        "laneError": { "type": "integer", "minimum": 0, "maximum": 300 }
+      }
+    },
+    "stateMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["precision", "recall"],
+      "properties": {
+        "precision": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "recall": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        }
+      }
+    },
+    "hardFilter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accuracy", "perState"],
+      "properties": {
+        "accuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "perState": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["conflict", "satisfied", "unresolved"],
+          "properties": {
+            "conflict": { "$ref": "#/$defs/stateMetric" },
+            "satisfied": { "$ref": "#/$defs/stateMetric" },
+            "unresolved": { "$ref": "#/$defs/stateMetric" }
+          }
+        }
+      }
+    },
+    "retrievalCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "caseId",
+        "caseKind",
+        "family",
+        "clarificationAccuracy",
+        "aliasExpansionCorrectness",
+        "prohibitedConstraintPreservation",
+        "recallAt10",
+        "meanReciprocalRank",
+        "ndcgAt10",
+        "exactDuplicateRate",
+        "equivalenceDuplicateRate",
+        "hardFilter",
+        "noEligibleCandidateAccuracy",
+        "eligibleRelevantHit",
+        "top10Violations"
+      ],
+      "properties": {
+        "caseId": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+        },
+        "caseKind": { "const": "retrieval" },
+        "family": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+        },
+        "clarificationAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "aliasExpansionCorrectness": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "prohibitedConstraintPreservation": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "recallAt10": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "meanReciprocalRank": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "ndcgAt10": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "exactDuplicateRate": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "equivalenceDuplicateRate": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "hardFilter": { "$ref": "#/$defs/hardFilter" },
+        "noEligibleCandidateAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "eligibleRelevantHit": {
+          "oneOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "top10Violations": { "$ref": "#/$defs/violations" }
+      }
+    },
+    "familyScore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family",
+        "retrievalCases",
+        "positiveCases",
+        "positiveCaseHitRate",
+        "hardFilterAccuracy",
+        "clarificationAccuracy",
+        "aliasExpansionCorrectness",
+        "prohibitedConstraintPreservation"
+      ],
+      "properties": {
+        "family": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+        },
+        "retrievalCases": { "const": 6 },
+        "positiveCases": { "type": "integer", "minimum": 0, "maximum": 6 },
+        "positiveCaseHitRate": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "hardFilterAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "clarificationAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "aliasExpansionCorrectness": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "prohibitedConstraintPreservation": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        }
+      }
+    },
+    "macro": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recallAt10",
+        "meanReciprocalRank",
+        "ndcgAt10",
+        "clarificationAccuracy",
+        "aliasExpansionCorrectness",
+        "prohibitedConstraintPreservation",
+        "hardFilterAccuracy",
+        "noEligibleCandidateAccuracy"
+      ],
+      "properties": {
+        "recallAt10": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "meanReciprocalRank": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "ndcgAt10": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "clarificationAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "aliasExpansionCorrectness": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "prohibitedConstraintPreservation": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "hardFilterAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "noEligibleCandidateAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        }
+      }
+    },
+    "micro": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recallAt10",
+        "exactDuplicateRate",
+        "equivalenceDuplicateRate",
+        "hardFilterAccuracy",
+        "noEligibleCandidateAccuracy",
+        "clarificationAccuracy",
+        "aliasExpansionCorrectness",
+        "prohibitedConstraintPreservation"
+      ],
+      "properties": {
+        "recallAt10": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "exactDuplicateRate": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "equivalenceDuplicateRate": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "hardFilterAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "noEligibleCandidateAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "clarificationAccuracy": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "aliasExpansionCorrectness": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        },
+        "prohibitedConstraintPreservation": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scoreReportVersion",
+    "corpusId",
+    "corpusVersion",
+    "corpusSemanticDigest",
+    "scorerVersion",
+    "predictionSetId",
+    "predictionSetDigest",
+    "authorityBindings",
+    "caseCounts",
+    "perCase",
+    "perFamily",
+    "macro",
+    "micro",
+    "familyCoverage",
+    "safetyViolations",
+    "semanticDigest"
+  ],
+  "properties": {
+    "scoreReportVersion": {
+      "const": "retrieval-evaluation-score-report/2.0.0"
+    },
+    "corpusId": { "const": "retrieval-v2" },
+    "corpusVersion": { "const": "retrieval-evaluation-corpus/2.0.0" },
+    "corpusSemanticDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "scorerVersion": { "const": "retrieval-evaluation-scorer/1.0.0" },
+    "predictionSetId": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+    },
+    "predictionSetDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "authorityBindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "taxonomyVersion",
+        "taxonomyDigest",
+        "catalogVersion",
+        "catalogDigest",
+        "profileAuthorityVersion",
+        "profileAuthorityDigest",
+        "equivalenceVersion"
+      ],
+      "properties": {
+        "taxonomyVersion": { "const": "1.0.0" },
+        "taxonomyDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "catalogVersion": { "const": "public-v1" },
+        "catalogDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "profileAuthorityVersion": {
+          "const": "deterministic-candidate-profile-authority/1.0.0"
+        },
+        "profileAuthorityDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+        },
+        "equivalenceVersion": {
+          "const": "retrieval-equivalence-authority/1.0.0"
+        }
+      }
+    },
+    "caseCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["normalization", "retrieval"],
+      "properties": {
+        "normalization": { "const": 20 },
+        "retrieval": { "const": 30 }
+      }
+    },
+    "perCase": {
+      "type": "array",
+      "minItems": 50,
+      "maxItems": 50,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/normalizationCase" },
+          { "$ref": "#/$defs/retrievalCase" }
+        ]
+      }
+    },
+    "perFamily": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/familyScore" }
+    },
+    "macro": { "$ref": "#/$defs/macro" },
+    "micro": { "$ref": "#/$defs/micro" },
+    "familyCoverage": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/metric"
+    },
+    "safetyViolations": { "$ref": "#/$defs/violations" },
+    "semanticDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    }
+  }
+}

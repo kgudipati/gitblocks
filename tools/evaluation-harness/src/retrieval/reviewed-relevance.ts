@@ -277,7 +277,9 @@ export function auditIndependentReviewContent(
   const diagnostics: RetrievalDiagnostic[] = [];
   const visit = (node: unknown, path: string): void => {
     if (Array.isArray(node)) {
-      node.forEach((child, index) => visit(child, `${path}/${String(index)}`));
+      node.forEach((child, index) => {
+        visit(child, `${path}/${String(index)}`);
+      });
       return;
     }
     if (typeof node !== 'object' || node === null) return;

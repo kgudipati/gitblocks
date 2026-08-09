@@ -23,9 +23,14 @@ import {
 } from './baselines/contracts.ts';
 import { runExactKeywordBaseline } from './baselines/exact-keyword.ts';
 import { runFamilyOnlyBaseline } from './baselines/family-only.ts';
-import { loadRetrievalBlindQuerySetV1 } from './blind-query.ts';
 import {
+  loadRetrievalBlindQuerySetV1,
+  loadRetrievalBlindQuerySetV2,
+} from './blind-query.ts';
+import {
+  RETRIEVAL_V2_VERSIONS,
   RETRIEVAL_VERSIONS,
+  type RetrievalAuthorityVersion,
   type GeneratedCandidateDecision,
   type NormalizationCasePrediction,
   type RetrievalCasePrediction,
@@ -42,6 +47,7 @@ import {
 import {
   retrievalPredictionSetSemanticDigest,
   validateRetrievalPredictionSetAgainstBlindAuthorityV1,
+  validateRetrievalPredictionSetAgainstBlindAuthorityV2,
   type RetrievalBlindPredictionValidationAuthority,
 } from './predictions.ts';
 
@@ -88,8 +94,26 @@ export function generateRetrievalBaselinePredictionSetsV1(
   startDirectory = process.cwd(),
   options: RetrievalBaselineGenerationOptions = {},
 ): RetrievalBaselinePredictionSets {
+  return generateRetrievalBaselinePredictionSets(startDirectory, options, 'v1');
+}
+
+export function generateRetrievalBaselinePredictionSetsV2(
+  startDirectory = process.cwd(),
+  options: RetrievalBaselineGenerationOptions = {},
+): RetrievalBaselinePredictionSets {
+  return generateRetrievalBaselinePredictionSets(startDirectory, options, 'v2');
+}
+
+function generateRetrievalBaselinePredictionSets(
+  startDirectory: string,
+  options: RetrievalBaselineGenerationOptions,
+  authorityVersion: RetrievalAuthorityVersion,
+): RetrievalBaselinePredictionSets {
   const repositoryRoot = findGitBlocksRoot(startDirectory);
-  const blind = loadRetrievalBlindQuerySetV1(repositoryRoot);
+  const blind =
+    authorityVersion === 'v1'
+      ? loadRetrievalBlindQuerySetV1(repositoryRoot)
+      : loadRetrievalBlindQuerySetV2(repositoryRoot);
   if (!blind.ok) throw new Error('Retrieval blind query authority is invalid.');
 
   const authority = loadSafeAuthority(
@@ -160,6 +184,7 @@ export function generateRetrievalBaselinePredictionSetsV1(
       prepared,
       validationAuthority,
       runFamilyOnlyBaseline,
+      authorityVersion,
     ),
     exactKeyword: createPredictionSet(
       RETRIEVAL_BASELINE_PREDICTION_SET_IDS.exactKeyword,
@@ -167,6 +192,7 @@ export function generateRetrievalBaselinePredictionSetsV1(
       prepared,
       validationAuthority,
       runExactKeywordBaseline,
+      authorityVersion,
     ),
     aliasExpanded: createPredictionSet(
       RETRIEVAL_BASELINE_PREDICTION_SET_IDS.aliasExpanded,
@@ -174,6 +200,7 @@ export function generateRetrievalBaselinePredictionSetsV1(
       prepared,
       validationAuthority,
       runAliasExpandedBaseline,
+      authorityVersion,
     ),
     alwaysAbstain: createPredictionSet(
       RETRIEVAL_BASELINE_PREDICTION_SET_IDS.alwaysAbstain,
@@ -181,11 +208,13 @@ export function generateRetrievalBaselinePredictionSetsV1(
       prepared,
       validationAuthority,
       runAlwaysAbstainControl,
+      authorityVersion,
     ),
     constraintViolating: createConstraintViolatingPredictionSet(
       common,
       prepared,
       validationAuthority,
+      authorityVersion,
     ),
   });
 }
@@ -346,6 +375,7 @@ function createPredictionSet(
     query: BaselineQueryView,
     candidates: readonly BaselineCandidateView[],
   ) => BaselineStrategyResult,
+  authorityVersion: RetrievalAuthorityVersion,
 ): RetrievalPredictionSet {
   const predictions = prepared.map(
     ({
@@ -383,6 +413,7 @@ function createPredictionSet(
   return finalizePredictionSet(
     { predictionSetId, ...common, predictions },
     validationAuthority,
+    authorityVersion,
   );
 }
 
@@ -393,6 +424,7 @@ function createConstraintViolatingPredictionSet(
   >,
   prepared: readonly PreparedQuery[],
   validationAuthority: RetrievalBlindPredictionValidationAuthority,
+  authorityVersion: RetrievalAuthorityVersion,
 ): RetrievalPredictionSet {
   const predictions = prepared.map(
     ({
@@ -439,6 +471,7 @@ function createConstraintViolatingPredictionSet(
       predictions,
     },
     validationAuthority,
+    authorityVersion,
   );
 }
 
@@ -448,9 +481,13 @@ function finalizePredictionSet(
     'predictionSetVersion' | 'semanticDigest'
   >,
   validationAuthority: RetrievalBlindPredictionValidationAuthority,
+  authorityVersion: RetrievalAuthorityVersion,
 ): RetrievalPredictionSet {
   const withoutDigest = {
-    predictionSetVersion: RETRIEVAL_VERSIONS.predictionSet,
+    predictionSetVersion:
+      authorityVersion === 'v1'
+        ? RETRIEVAL_VERSIONS.predictionSet
+        : RETRIEVAL_V2_VERSIONS.predictionSet,
     ...value,
   };
   const predictionSet = deepFreeze({
@@ -459,10 +496,16 @@ function finalizePredictionSet(
       withoutDigest as RetrievalPredictionSet,
     ),
   }) as RetrievalPredictionSet;
-  const diagnostics = validateRetrievalPredictionSetAgainstBlindAuthorityV1(
-    predictionSet,
-    validationAuthority,
-  );
+  const diagnostics =
+    authorityVersion === 'v1'
+      ? validateRetrievalPredictionSetAgainstBlindAuthorityV1(
+          predictionSet,
+          validationAuthority,
+        )
+      : validateRetrievalPredictionSetAgainstBlindAuthorityV2(
+          predictionSet,
+          validationAuthority,
+        );
   if (diagnostics.length > 0) {
     throw new Error(
       `Baseline prediction set failed blind validation: ${diagnostics[0]?.code ?? 'unknown'}.`,

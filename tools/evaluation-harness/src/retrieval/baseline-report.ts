@@ -38,8 +38,10 @@ const EXPECTED = {
     '4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634',
 } as const;
 
-const MEASUREMENT_STATEMENT =
+const V1_MEASUREMENT_STATEMENT =
   'Development measurements against proposed, not independently reviewed authority; not production-retrieval quality evidence.' as const;
+const V2_MEASUREMENT_STATEMENT =
+  'Blind baseline measurements against independently reviewed retrieval-v2 relevance; no production retrieval was scored.' as const;
 
 interface FamilyMeasurement {
   readonly family: RetrievalFamily;
@@ -89,12 +91,16 @@ export interface ContentFreeRetrievalMeasurement {
 }
 
 export interface RetrievalBaselineReport {
-  readonly reportVersion: typeof RETRIEVAL_BASELINE_VERSIONS.report;
-  readonly goldStatus: 'proposed-not-reviewed';
-  readonly measurementStatement: typeof MEASUREMENT_STATEMENT;
+  readonly reportVersion:
+    | typeof RETRIEVAL_BASELINE_VERSIONS.report
+    | typeof RETRIEVAL_BASELINE_VERSIONS.reportV2;
+  readonly goldStatus: 'proposed-not-reviewed' | 'relevance-reviewed';
+  readonly measurementStatement:
+    typeof V1_MEASUREMENT_STATEMENT | typeof V2_MEASUREMENT_STATEMENT;
   readonly corpus: {
-    readonly id: 'retrieval-v1';
-    readonly version: 'retrieval-evaluation-corpus/1.0.0';
+    readonly id: 'retrieval-v1' | 'retrieval-v2';
+    readonly version:
+      'retrieval-evaluation-corpus/1.0.0' | 'retrieval-evaluation-corpus/2.0.0';
     readonly semanticDigest: string;
   };
   readonly taxonomy: {
@@ -176,11 +182,32 @@ export function createRetrievalBaselineReportV1(
   inputs: RetrievalBaselineReportInputs,
   startDirectory = process.cwd(),
 ): RetrievalBaselineReport {
+  return createRetrievalBaselineReport(inputs, startDirectory, 'v1');
+}
+
+export function createRetrievalBaselineReportV2(
+  inputs: RetrievalBaselineReportInputs,
+  startDirectory = process.cwd(),
+): RetrievalBaselineReport {
+  return createRetrievalBaselineReport(inputs, startDirectory, 'v2');
+}
+
+function createRetrievalBaselineReport(
+  inputs: RetrievalBaselineReportInputs,
+  startDirectory: string,
+  authorityVersion: 'v1' | 'v2',
+): RetrievalBaselineReport {
+  const expectedId =
+    authorityVersion === 'v1' ? 'retrieval-v1' : 'retrieval-v2';
+  const expectedVersion =
+    authorityVersion === 'v1'
+      ? 'retrieval-evaluation-corpus/1.0.0'
+      : 'retrieval-evaluation-corpus/2.0.0';
   if (
-    inputs.corpus.manifest.corpusId !== 'retrieval-v1' ||
-    inputs.corpus.manifest.corpusVersion !== 'retrieval-evaluation-corpus/1.0.0'
+    inputs.corpus.manifest.corpusId !== expectedId ||
+    inputs.corpus.manifest.corpusVersion !== expectedVersion
   ) {
-    throw new Error('Retrieval-v1 baseline report requires retrieval-v1.');
+    throw new Error('Retrieval baseline report corpus binding is invalid.');
   }
   const ordinaryBaselines = [
     measurement(
@@ -219,12 +246,21 @@ export function createRetrievalBaselineReportV1(
     ),
   ];
   const withoutDigest = {
-    reportVersion: RETRIEVAL_BASELINE_VERSIONS.report,
-    goldStatus: 'proposed-not-reviewed' as const,
-    measurementStatement: MEASUREMENT_STATEMENT,
+    reportVersion:
+      authorityVersion === 'v1'
+        ? RETRIEVAL_BASELINE_VERSIONS.report
+        : RETRIEVAL_BASELINE_VERSIONS.reportV2,
+    goldStatus:
+      authorityVersion === 'v1'
+        ? ('proposed-not-reviewed' as const)
+        : ('relevance-reviewed' as const),
+    measurementStatement:
+      authorityVersion === 'v1'
+        ? V1_MEASUREMENT_STATEMENT
+        : V2_MEASUREMENT_STATEMENT,
     corpus: {
-      id: 'retrieval-v1' as const,
-      version: 'retrieval-evaluation-corpus/1.0.0' as const,
+      id: expectedId,
+      version: expectedVersion,
       semanticDigest: inputs.corpus.manifest.corpusSemanticDigest,
     },
     taxonomy: {
@@ -271,7 +307,10 @@ export function createRetrievalBaselineReportV1(
     ...withoutDigest,
     reportSemanticDigest: retrievalBaselineReportSemanticDigest(withoutDigest),
   };
-  const diagnostics = validateRetrievalBaselineReportV1(report, startDirectory);
+  const diagnostics =
+    authorityVersion === 'v1'
+      ? validateRetrievalBaselineReportV1(report, startDirectory)
+      : validateRetrievalBaselineReportV2(report, startDirectory);
   if (diagnostics.length > 0) {
     throw new Error(
       `Retrieval baseline report is invalid: ${diagnostics[0]?.code ?? 'unknown'}.`,
@@ -402,8 +441,23 @@ export function validateRetrievalBaselineReportV1(
   value: unknown,
   startDirectory = process.cwd(),
 ): readonly RetrievalDiagnostic[] {
+  return validateRetrievalBaselineReport(value, startDirectory, 'v1');
+}
+
+export function validateRetrievalBaselineReportV2(
+  value: unknown,
+  startDirectory = process.cwd(),
+): readonly RetrievalDiagnostic[] {
+  return validateRetrievalBaselineReport(value, startDirectory, 'v2');
+}
+
+function validateRetrievalBaselineReport(
+  value: unknown,
+  startDirectory: string,
+  authorityVersion: 'v1' | 'v2',
+): readonly RetrievalDiagnostic[] {
   const diagnostics = [
-    ...createRetrievalSchemaRegistry(startDirectory).validate(
+    ...createRetrievalSchemaRegistry(startDirectory, authorityVersion).validate(
       'baseline-report',
       value,
     ),
@@ -424,7 +478,10 @@ export function validateRetrievalBaselineReportV1(
     add('retrieval.baseline-report.digest', '/reportSemanticDigest');
   }
   if (
-    report.corpus.semanticDigest !== EXPECTED.corpusDigest ||
+    report.corpus.semanticDigest !==
+      (authorityVersion === 'v1'
+        ? EXPECTED.corpusDigest
+        : '05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c') ||
     report.taxonomy.semanticDigest !== EXPECTED.taxonomyDigest ||
     report.querySchemas.inputDigest !== EXPECTED.queryInputSchemaDigest ||
     report.querySchemas.normalizationResultDigest !==

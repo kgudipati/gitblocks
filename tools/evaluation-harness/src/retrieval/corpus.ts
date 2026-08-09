@@ -1184,7 +1184,7 @@ function validateV2Reconciliation(
       if (source === undefined) {
         fail('retrieval.v2.relevance-key-closure', caseId);
       }
-      gradeCounts[judgment.grade]! += 1;
+      gradeCounts[judgment.grade] = (gradeCounts[judgment.grade] ?? 0) + 1;
       const key = `${caseId}\0${judgment.candidateId}`;
       const correction = corrections.get(key);
       if (correction === undefined) {
