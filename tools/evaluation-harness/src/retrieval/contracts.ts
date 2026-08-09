@@ -19,6 +19,23 @@ export const RETRIEVAL_VERSIONS = {
   scoreReport: 'retrieval-evaluation-score-report/1.0.0',
 } as const;
 
+export const RETRIEVAL_V2_VERSIONS = {
+  corpusId: 'retrieval-v2',
+  corpus: 'retrieval-evaluation-corpus/2.0.0',
+  relevanceGold: 'retrieval-relevance-gold/2.0.0',
+  predictionSet: 'retrieval-evaluation-prediction-set/2.0.0',
+  scoreReport: 'retrieval-evaluation-score-report/2.0.0',
+  independentReview: 'retrieval-relevance-independent-review/1.0.0',
+  saturationProof: 'retrieval-ceiling-saturation-proof/1.0.0',
+  qualityGates: 'retrieval-quality-gates/1.0.0',
+} as const;
+
+export type RetrievalAuthorityVersion = 'v1' | 'v2';
+export type RetrievalCorpusId =
+  typeof RETRIEVAL_CORPUS_ID | typeof RETRIEVAL_V2_VERSIONS.corpusId;
+export type RetrievalCorpusVersion =
+  typeof RETRIEVAL_VERSIONS.corpus | typeof RETRIEVAL_V2_VERSIONS.corpus;
+
 export const RETRIEVAL_FAMILIES = [
   'authorization',
   'audit-logging',
@@ -84,6 +101,17 @@ export interface ProposedProvenance {
   readonly reviewedAt: null;
   readonly reviewReference: null;
 }
+
+export interface ReviewedRelevanceProvenance {
+  readonly status: 'accepted';
+  readonly reviewStatus: 'independently-reviewed';
+  readonly reviewAuthorityVersion: typeof RETRIEVAL_V2_VERSIONS.independentReview;
+  readonly reviewAuthorityDigest: string;
+  readonly reviewReference: 'issue-23';
+}
+
+export type RetrievalProvenance =
+  ProposedProvenance | ReviewedRelevanceProvenance;
 
 export interface RetrievalQueryDocument {
   readonly queryVersion: typeof RETRIEVAL_VERSIONS.query;
@@ -219,14 +247,16 @@ export interface RelevanceJudgment {
   readonly candidateId: string;
   readonly grade: 0 | 1 | 2 | 3;
   readonly reasonCodes: readonly string[];
-  readonly provenance: ProposedProvenance;
+  readonly provenance: RetrievalProvenance;
 }
 
 export interface RelevanceGoldDocument {
-  readonly relevanceGoldVersion: typeof RETRIEVAL_VERSIONS.relevanceGold;
+  readonly relevanceGoldVersion:
+    | typeof RETRIEVAL_VERSIONS.relevanceGold
+    | typeof RETRIEVAL_V2_VERSIONS.relevanceGold;
   readonly caseId: string;
   readonly judgments: readonly RelevanceJudgment[];
-  readonly provenance: ProposedProvenance;
+  readonly provenance: RetrievalProvenance;
 }
 
 export interface NoResultGoldDocument {
@@ -279,8 +309,8 @@ export interface RetrievalManifestFile {
 }
 
 export interface RetrievalCorpusManifest {
-  readonly corpusId: typeof RETRIEVAL_CORPUS_ID;
-  readonly corpusVersion: typeof RETRIEVAL_VERSIONS.corpus;
+  readonly corpusId: RetrievalCorpusId;
+  readonly corpusVersion: RetrievalCorpusVersion;
   readonly taxonomyVersion: string;
   readonly taxonomyDigest: string;
   readonly queryInputSchemaDigest: string;
@@ -299,6 +329,8 @@ export interface RetrievalCorpusManifest {
     >
   >;
   readonly files: readonly RetrievalManifestFile[];
+  readonly relevanceReviewVersion?: typeof RETRIEVAL_V2_VERSIONS.independentReview;
+  readonly relevanceReviewDigest?: string;
   readonly corpusSemanticDigest: string;
   readonly provenance: ProposedProvenance;
 }
@@ -328,14 +360,14 @@ export interface ValidatedRetrievalCorpus {
   readonly equivalence: EquivalenceAuthority;
   readonly retrievalCases: readonly RetrievalCaseBundle[];
   readonly normalizationCases: readonly NormalizationCaseBundle[];
-  readonly allProvenance: readonly ProposedProvenance[];
+  readonly allProvenance: readonly RetrievalProvenance[];
   readonly candidateIds: readonly string[];
   readonly conceptIds: readonly string[];
 }
 
 export interface RetrievalBlindQuerySet {
-  readonly corpusId: typeof RETRIEVAL_CORPUS_ID;
-  readonly corpusVersion: typeof RETRIEVAL_VERSIONS.corpus;
+  readonly corpusId: RetrievalCorpusId;
+  readonly corpusVersion: RetrievalCorpusVersion;
   readonly corpusSemanticDigest: string;
   readonly caseCounts: RetrievalCorpusManifest['caseCounts'];
   readonly familyCounts: RetrievalCorpusManifest['familyCounts'];
@@ -384,10 +416,12 @@ export interface RetrievalCasePrediction {
 }
 
 export interface RetrievalPredictionSet {
-  readonly predictionSetVersion: typeof RETRIEVAL_VERSIONS.predictionSet;
+  readonly predictionSetVersion:
+    | typeof RETRIEVAL_VERSIONS.predictionSet
+    | typeof RETRIEVAL_V2_VERSIONS.predictionSet;
   readonly predictionSetId: string;
-  readonly corpusId: typeof RETRIEVAL_CORPUS_ID;
-  readonly corpusVersion: typeof RETRIEVAL_VERSIONS.corpus;
+  readonly corpusId: RetrievalCorpusId;
+  readonly corpusVersion: RetrievalCorpusVersion;
   readonly corpusSemanticDigest: string;
   readonly predictions: readonly (
     NormalizationCasePrediction | RetrievalCasePrediction
@@ -483,9 +517,11 @@ export interface RetrievalFamilyScore {
 }
 
 export interface RetrievalScoreReport {
-  readonly scoreReportVersion: typeof RETRIEVAL_VERSIONS.scoreReport;
-  readonly corpusId: typeof RETRIEVAL_CORPUS_ID;
-  readonly corpusVersion: typeof RETRIEVAL_VERSIONS.corpus;
+  readonly scoreReportVersion:
+    | typeof RETRIEVAL_VERSIONS.scoreReport
+    | typeof RETRIEVAL_V2_VERSIONS.scoreReport;
+  readonly corpusId: RetrievalCorpusId;
+  readonly corpusVersion: RetrievalCorpusVersion;
   readonly corpusSemanticDigest: string;
   readonly scorerVersion: typeof RETRIEVAL_VERSIONS.scorer;
   readonly predictionSetId: string;

@@ -1,0 +1,25 @@
+{
+  "caseId": "norm-rate-limiting-04",
+  "clarificationGoldVersion": "retrieval-clarification-gold/1.0.0",
+  "clarificationRequired": true,
+  "clarifications": [
+    {
+      "possibleConceptIds": [
+        "external-hosted-service",
+        "managed-service"
+      ],
+      "reasonCode": "adoption-unit-ambiguous",
+      "sourceIds": [
+        "norm-rate-limiting-04-constraint-3865"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "terminalUnsupported": false
+}

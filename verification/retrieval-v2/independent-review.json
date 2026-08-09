@@ -1,0 +1,84 @@
+{
+  "comparison": {
+    "binaryAgreements": 595,
+    "binaryDisagreements": 41,
+    "exactGradeAgreements": 274,
+    "exactGradeDisagreements": 362,
+    "independentGradeDistribution": {
+      "grade0": 89,
+      "grade1": 27,
+      "grade2": 197,
+      "grade3": 323
+    },
+    "namedComparisonBinaryDisagreements": 8,
+    "preferredCaseBinaryDisagreements": 33,
+    "proposedGradeDistribution": {
+      "grade0": 130,
+      "grade1": 62,
+      "grade2": 388,
+      "grade3": 56
+    },
+    "proposedIrrelevantIndependentRelevant": 41,
+    "proposedRelevantIndependentIrrelevant": 0,
+    "proposedToIndependentMatrix": [
+      [
+        89,
+        13,
+        20,
+        8
+      ],
+      [
+        0,
+        4,
+        46,
+        12
+      ],
+      [
+        0,
+        10,
+        128,
+        250
+      ],
+      [
+        0,
+        0,
+        3,
+        53
+      ]
+    ]
+  },
+  "evidence": {
+    "binaryRelevanceDisagreementsSha256": "72c87ff93424cfb0e35f4f2183902fec8842fbb1962bbdd090f9cd6249766ccb",
+    "blindBundleSha256": "d1517ef206081d4e03bbff4588b7954742e47deae627bec34a9544954a32ae29",
+    "comparisonSummarySha256": "bf3093fc38d0a390cfb42e5e4853f9ae85c3bfd5df2171a6f650f687295649b2",
+    "gradeDisagreementsSha256": "92d7771ada7f055365a80b8c1965b0925dab612c88476a78311dc734353866b6",
+    "independentReviewSha256": "a2e137c05d88c6db71e28cfaad99aafa66b1d2b460d5fcee2ea6f958a1148e5c"
+  },
+  "reconciliation": {
+    "acceptedPreferredCorrections": 33,
+    "finalGradeDistribution": {
+      "grade0": 97,
+      "grade1": 79,
+      "grade2": 398,
+      "grade3": 62
+    },
+    "rejectedComparisonCompanionChanges": 8,
+    "retainedSameBinaryCalibrationJudgments": 321,
+    "rules": [
+      "preferred-is-soft",
+      "strict-graded-calibration",
+      "explicit-named-comparison-remains-narrow"
+    ],
+    "unchangedProposedGrades": 603
+  },
+  "reviewVersion": "retrieval-relevance-independent-review/1.0.0",
+  "scope": {
+    "reviewedCases": 30,
+    "reviewedJudgments": 636
+  },
+  "semanticDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+  "sourceAuthority": {
+    "corpusSemanticDigest": "3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de",
+    "corpusVersion": "retrieval-evaluation-corpus/1.0.0"
+  }
+}

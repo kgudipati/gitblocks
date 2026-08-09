@@ -1,0 +1,34 @@
+{
+  "capabilityFamily": "rate-limiting",
+  "caseId": "ret-rate-limiting-06",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "ret-rate-limiting-06-reference-01",
+        "value": "rate-envoy"
+      }
+    ],
+    "capabilityTerms": [
+      {
+        "originalTerm": "rate-limiting",
+        "termId": "ret-rate-limiting-06-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-ret-rate-limiting-06",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-rate-limiting-06-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

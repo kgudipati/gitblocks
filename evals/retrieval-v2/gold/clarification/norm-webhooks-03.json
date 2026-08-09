@@ -1,0 +1,25 @@
+{
+  "caseId": "norm-webhooks-03",
+  "clarificationGoldVersion": "retrieval-clarification-gold/1.0.0",
+  "clarificationRequired": true,
+  "clarifications": [
+    {
+      "possibleConceptIds": [
+        "signature-verification"
+      ],
+      "reasonCode": "constraint-modality-conflict",
+      "sourceIds": [
+        "norm-webhooks-03-constraint-0395",
+        "norm-webhooks-03-constraint-8218"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "terminalUnsupported": false
+}

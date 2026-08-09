@@ -6,9 +6,6 @@ packages:
 registries:
   default: https://registry.npmjs.org/
 
-overrides:
-  nanoid: 3.3.17
-
 savePrefix: ''
 frozenLockfile: true
 autoInstallPeers: false
@@ -28,3 +25,5 @@ minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
 trustPolicy: no-downgrade
 trustLockfile: false
+minimumReleaseAgeExclude:
+  - nanoid@3.3.17

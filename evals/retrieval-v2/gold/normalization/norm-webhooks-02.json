@@ -1,0 +1,46 @@
+{
+  "caseId": "norm-webhooks-02",
+  "expected": {
+    "clarifications": [
+      {
+        "possibleConceptIds": [
+          "webhook-delivery-service",
+          "webhook-gateway-router"
+        ],
+        "reasonCode": "adoption-unit-ambiguous",
+        "sourceIds": [
+          "norm-webhooks-02-term-01"
+        ]
+      },
+      {
+        "possibleConceptIds": [],
+        "reasonCode": "primary-family-not-established",
+        "sourceIds": [
+          "norm-webhooks-02-term-01"
+        ]
+      }
+    ],
+    "normalizedConcepts": [],
+    "normalizedConstraints": [],
+    "notices": [],
+    "outcome": "clarification-required",
+    "primaryFamily": null,
+    "unresolved": [
+      {
+        "blocking": true,
+        "reasonCode": "adoption-unit-ambiguous",
+        "sourceIds": [
+          "norm-webhooks-02-term-01"
+        ]
+      }
+    ]
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

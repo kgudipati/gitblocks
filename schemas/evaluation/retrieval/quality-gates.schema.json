@@ -1,0 +1,310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/quality-gates/1.0.0",
+  "$defs": {
+    "digest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+    },
+    "fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator", "value"],
+      "properties": {
+        "numerator": { "type": "integer", "minimum": 0 },
+        "denominator": { "type": "integer", "minimum": 1 },
+        "value": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "publishedFraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator", "value", "published"],
+      "properties": {
+        "numerator": { "type": "integer", "minimum": 0 },
+        "denominator": { "type": "integer", "minimum": 1 },
+        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "published": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "corpusVersion",
+        "corpusSemanticDigest",
+        "relevanceVersion",
+        "independentReviewVersion",
+        "independentReviewDigest",
+        "scorerVersion",
+        "baselineReportVersion",
+        "baselineReportDigest"
+      ],
+      "properties": {
+        "corpusVersion": { "const": "retrieval-evaluation-corpus/2.0.0" },
+        "corpusSemanticDigest": { "$ref": "#/$defs/digest" },
+        "relevanceVersion": { "const": "retrieval-relevance-gold/2.0.0" },
+        "independentReviewVersion": {
+          "const": "retrieval-relevance-independent-review/1.0.0"
+        },
+        "independentReviewDigest": { "$ref": "#/$defs/digest" },
+        "scorerVersion": { "const": "retrieval-evaluation-scorer/1.0.0" },
+        "baselineReportVersion": { "const": "retrieval-baseline-report/2.0.0" },
+        "baselineReportDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "familyValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "ceiling"],
+      "properties": {
+        "family": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+        },
+        "ceiling": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "qualityGateVersion",
+    "authorityBindings",
+    "theoreticalCeilings",
+    "thresholdReview",
+    "strongestOrdinaryBaseline",
+    "macroTransfer",
+    "gates",
+    "saturationProof",
+    "semanticDigest"
+  ],
+  "properties": {
+    "qualityGateVersion": { "const": "retrieval-quality-gates/1.0.0" },
+    "authorityBindings": { "$ref": "#/$defs/bindings" },
+    "theoreticalCeilings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["macroRecallAt10", "microRecallAt10", "families"],
+      "properties": {
+        "macroRecallAt10": {
+          "allOf": [
+            { "$ref": "#/$defs/publishedFraction" },
+            {
+              "type": "object",
+              "properties": { "published": { "const": 0.608599 } }
+            }
+          ]
+        },
+        "microRecallAt10": {
+          "allOf": [
+            { "$ref": "#/$defs/publishedFraction" },
+            {
+              "type": "object",
+              "properties": { "published": { "const": 0.482679 } }
+            }
+          ]
+        },
+        "families": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/familyValue" }
+        }
+      }
+    },
+    "thresholdReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["firstTransferAttempt", "correctedTransfer"],
+      "properties": {
+        "firstTransferAttempt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "historicalMargin",
+            "resultingTarget",
+            "outcome",
+            "stoppedBeforeProductionV2Score"
+          ],
+          "properties": {
+            "rule": { "const": "baseline-plus-historical-absolute-margin" },
+            "historicalMargin": { "const": 0.012705 },
+            "resultingTarget": { "const": 0.621304 },
+            "outcome": { "const": "infeasible-above-theoretical-ceiling" },
+            "stoppedBeforeProductionV2Score": { "const": true }
+          }
+        },
+        "correctedTransfer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rule", "historicalCeilingFraction"],
+          "properties": {
+            "rule": {
+              "const": "maximum-of-ceiling-relative-and-strongest-baseline"
+            },
+            "historicalCeilingFraction": { "$ref": "#/$defs/fraction" }
+          }
+        }
+      }
+    },
+    "strongestOrdinaryBaseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baselineId",
+        "baselineVersion",
+        "predictionSetDigest",
+        "scoreReportDigest",
+        "macroRecallAt10",
+        "rawMacroRecallAt10"
+      ],
+      "properties": {
+        "baselineId": { "const": "alias-expanded" },
+        "baselineVersion": {
+          "const": "retrieval-alias-expanded-baseline/1.0.0"
+        },
+        "predictionSetDigest": { "$ref": "#/$defs/digest" },
+        "scoreReportDigest": { "$ref": "#/$defs/digest" },
+        "macroRecallAt10": { "const": 0.608599 },
+        "rawMacroRecallAt10": { "$ref": "#/$defs/fraction" }
+      }
+    },
+    "macroTransfer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ceilingRelativeTarget",
+        "baselineTarget",
+        "selectedTarget",
+        "publishedGate"
+      ],
+      "properties": {
+        "ceilingRelativeTarget": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "baselineTarget": { "type": "number", "minimum": 0, "maximum": 1 },
+        "selectedTarget": { "type": "number", "minimum": 0, "maximum": 1 },
+        "publishedGate": { "const": 0.608599 }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "macroRecallAt10",
+        "familyRecallAt10",
+        "positiveCaseHitRate",
+        "meanReciprocalRank",
+        "ndcgAt10",
+        "exactCorrectness",
+        "maximumViolations"
+      ],
+      "properties": {
+        "macroRecallAt10": { "const": 0.608599 },
+        "familyRecallAt10": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["family", "derivation", "floor"],
+            "properties": {
+              "family": {
+                "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+              },
+              "derivation": {
+                "const": "0.90-times-reviewed-v2-family-ceiling"
+              },
+              "floor": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        "positiveCaseHitRate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["numerator", "denominator"],
+          "properties": {
+            "numerator": { "const": 25 },
+            "denominator": { "const": 25 }
+          }
+        },
+        "meanReciprocalRank": { "const": 0.9 },
+        "ndcgAt10": { "const": 0.75 },
+        "exactCorrectness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hardFilter", "prohibitedPreservation", "noEligible"],
+          "properties": {
+            "hardFilter": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["numerator", "denominator"],
+              "properties": {
+                "numerator": { "const": 4500 },
+                "denominator": { "const": 4500 }
+              }
+            },
+            "prohibitedPreservation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["numerator", "denominator"],
+              "properties": {
+                "numerator": { "const": 15 },
+                "denominator": { "const": 15 }
+              }
+            },
+            "noEligible": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["numerator", "denominator"],
+              "properties": {
+                "numerator": { "const": 30 },
+                "denominator": { "const": 30 }
+              }
+            }
+          }
+        },
+        "maximumViolations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hardConflictResults",
+            "lane",
+            "negativeControl",
+            "exactDuplicates",
+            "controlledEquivalenceDuplicates"
+          ],
+          "properties": {
+            "hardConflictResults": { "const": 0 },
+            "lane": { "const": 0 },
+            "negativeControl": { "const": 0 },
+            "exactDuplicates": { "const": 0 },
+            "controlledEquivalenceDuplicates": { "const": 0 }
+          }
+        }
+      }
+    },
+    "saturationProof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proofVersion",
+        "proofDigest",
+        "positiveCases",
+        "saturatedCases",
+        "allPositiveCasesSaturated"
+      ],
+      "properties": {
+        "proofVersion": { "const": "retrieval-ceiling-saturation-proof/1.0.0" },
+        "proofDigest": { "$ref": "#/$defs/digest" },
+        "positiveCases": { "const": 25 },
+        "saturatedCases": { "const": 25 },
+        "allPositiveCasesSaturated": { "const": true }
+      }
+    },
+    "semanticDigest": { "$ref": "#/$defs/digest" }
+  }
+}

@@ -15,6 +15,7 @@ export const RETRIEVAL_BASELINE_VERSIONS = {
   constraintViolating: 'retrieval-constraint-violating-control/1.0.0',
   fixtureOracle: 'retrieval-fixture-oracle-control/1.0.0',
   report: 'retrieval-baseline-report/1.0.0',
+  reportV2: 'retrieval-baseline-report/2.0.0',
 } as const;
 
 export const RETRIEVAL_BASELINE_PREDICTION_SET_IDS = {

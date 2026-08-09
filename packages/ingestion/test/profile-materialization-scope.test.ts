@@ -27,7 +27,7 @@ const ACCEPTED_BYTES = {
   'packages/persistence/migrations/0004_repository_interviews.sql':
     '2cd18e7d92373215b2a540cdf12e32a7e949bfb01866616e8a44ad326e45bca0',
   'pnpm-lock.yaml':
-    'e34dcbb858b8522d66cf5577efa7e21fc4aa6a407d8e3998dff8113d8ac626af',
+    'fa72a2b7536f7be4eb20e21f2b5dc89ba31a96bc9f13f6572f7ef2f6312ceb2e',
   'verification/retrieval-v1/profile-coverage.json':
     'e40137bc8b1e8b978a4e3008b876d1a284de0eca61daeda841c6492bdb24eaf8',
 } as const;

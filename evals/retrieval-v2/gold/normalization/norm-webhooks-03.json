@@ -1,0 +1,62 @@
+{
+  "caseId": "norm-webhooks-03",
+  "expected": {
+    "clarifications": [
+      {
+        "possibleConceptIds": [
+          "signature-verification"
+        ],
+        "reasonCode": "constraint-modality-conflict",
+        "sourceIds": [
+          "norm-webhooks-03-constraint-0395",
+          "norm-webhooks-03-constraint-8218"
+        ]
+      }
+    ],
+    "normalizedConcepts": [
+      {
+        "conceptId": "webhooks",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-webhooks-03-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "signature-verification",
+        "conceptId": "signature-verification",
+        "facet": "feature",
+        "modality": "prohibited",
+        "resolutionBasis": "contradiction",
+        "ruleId": "constraint-modality-conflict",
+        "sourceConstraintIds": [
+          "norm-webhooks-03-constraint-8218"
+        ]
+      },
+      {
+        "canonicalTerm": "signature-verification",
+        "conceptId": "signature-verification",
+        "facet": "feature",
+        "modality": "required",
+        "resolutionBasis": "contradiction",
+        "ruleId": "constraint-modality-conflict",
+        "sourceConstraintIds": [
+          "norm-webhooks-03-constraint-0395"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "clarification-required",
+    "primaryFamily": "webhooks",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

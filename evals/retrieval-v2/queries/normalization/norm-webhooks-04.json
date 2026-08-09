@@ -1,0 +1,49 @@
+{
+  "capabilityFamily": "webhooks",
+  "caseId": "norm-webhooks-04",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "norm-webhooks-04-reference-01",
+        "value": "auth-open-policy-agent"
+      },
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "norm-webhooks-04-reference-02",
+        "value": "webhook-svix"
+      }
+    ],
+    "capabilityTerms": [
+      {
+        "originalTerm": "webhooks",
+        "termId": "norm-webhooks-04-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "norm-webhooks-04-constraint-7649",
+        "facetHint": "other",
+        "modality": "required",
+        "originalTerm": "mystery-edge-runtime",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "unknown hard requirement"
+      }
+    ],
+    "queryInputId": "query-norm-webhooks-04",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-webhooks-04-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "This prose says authorization, but structured webhook terms own deterministic meaning."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}
