@@ -1,0 +1,59 @@
+{
+  "caseId": "norm-rate-limiting-04",
+  "expected": {
+    "clarifications": [
+      {
+        "possibleConceptIds": [
+          "external-hosted-service",
+          "managed-service"
+        ],
+        "reasonCode": "adoption-unit-ambiguous",
+        "sourceIds": [
+          "norm-rate-limiting-04-constraint-3865"
+        ]
+      }
+    ],
+    "normalizedConcepts": [
+      {
+        "conceptId": "rate-limiting",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-rate-limiting-04-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "hosted-service",
+        "conceptId": null,
+        "facet": "deployment",
+        "modality": "required",
+        "resolutionBasis": "ambiguity",
+        "ruleId": "taxonomy-intentional-ambiguity",
+        "sourceConstraintIds": [
+          "norm-rate-limiting-04-constraint-3865"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "clarification-required",
+    "primaryFamily": "rate-limiting",
+    "unresolved": [
+      {
+        "blocking": true,
+        "reasonCode": "adoption-unit-ambiguous",
+        "sourceIds": [
+          "norm-rate-limiting-04-constraint-3865"
+        ]
+      }
+    ]
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

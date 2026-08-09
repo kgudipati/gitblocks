@@ -1,0 +1,419 @@
+{
+  "caseId": "ret-background-jobs-04",
+  "judgments": [
+    {
+      "candidateId": "jobs-actionhero-node-resque",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-activepieces",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-agenda",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-airflow",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-asynq",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-bee-queue",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-bree",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-bull",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-bullmq",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-celery",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-dagster",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-graphile-worker",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-hatchet",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-inngest",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-kestra",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-kue",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-n8n",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-node-cron",
+      "grade": 3,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "explicit-candidate-intent"
+      ]
+    },
+    {
+      "candidateId": "jobs-node-schedule",
+      "grade": 3,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "explicit-candidate-intent"
+      ]
+    },
+    {
+      "candidateId": "jobs-pg-boss",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-prefect",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-resque",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-river",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-rq",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-sidekiq",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-temporal-typescript",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-toad-scheduler",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-trigger-dev",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    },
+    {
+      "candidateId": "jobs-windmill",
+      "grade": 0,
+      "provenance": {
+        "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+        "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+        "reviewReference": "issue-23",
+        "reviewStatus": "independently-reviewed",
+        "status": "accepted"
+      },
+      "reasonCodes": [
+        "comparison-non-target"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewAuthorityDigest": "c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20",
+    "reviewAuthorityVersion": "retrieval-relevance-independent-review/1.0.0",
+    "reviewReference": "issue-23",
+    "reviewStatus": "independently-reviewed",
+    "status": "accepted"
+  },
+  "relevanceGoldVersion": "retrieval-relevance-gold/2.0.0"
+}

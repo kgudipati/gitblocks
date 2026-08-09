@@ -5,7 +5,9 @@ import { parseCapabilityQueryInputV1 } from '@gitblocks/contracts';
 import {
   RETRIEVAL_CORPUS_ID,
   RETRIEVAL_FAMILIES,
+  RETRIEVAL_V2_VERSIONS,
   RETRIEVAL_VERSIONS,
+  type RetrievalAuthorityVersion,
   type RetrievalBlindQuerySetLoadResult,
   type RetrievalCorpusManifest,
   type RetrievalDiagnostic,
@@ -41,9 +43,28 @@ const EXPECTED_CATALOG_DIGEST =
 export function loadRetrievalBlindQuerySetV1(
   repositoryRoot: string,
 ): RetrievalBlindQuerySetLoadResult {
+  return loadRetrievalBlindQuerySet(repositoryRoot, 'v1');
+}
+
+export function loadRetrievalBlindQuerySetV2(
+  repositoryRoot: string,
+): RetrievalBlindQuerySetLoadResult {
+  return loadRetrievalBlindQuerySet(repositoryRoot, 'v2');
+}
+
+function loadRetrievalBlindQuerySet(
+  repositoryRoot: string,
+  authorityVersion: RetrievalAuthorityVersion,
+): RetrievalBlindQuerySetLoadResult {
   try {
-    const corpusRoot = join(repositoryRoot, 'evals/retrieval-v1');
-    const registry = createRetrievalSchemaRegistry(repositoryRoot);
+    const corpusRoot = join(
+      repositoryRoot,
+      `evals/retrieval-${authorityVersion}`,
+    );
+    const registry = createRetrievalSchemaRegistry(
+      repositoryRoot,
+      authorityVersion,
+    );
     const manifestValue = loadRetrievalJsonFile(corpusRoot, 'manifest.json');
     assertSchema(registry, 'manifest', manifestValue, 'manifest.json');
     const manifest = manifestValue as RetrievalCorpusManifest;
@@ -51,9 +72,17 @@ export function loadRetrievalBlindQuerySetV1(
     const corpusVersion: unknown = manifest.corpusVersion;
     const retrievalCount: unknown = manifest.caseCounts.retrieval;
     const normalizationCount: unknown = manifest.caseCounts.normalization;
+    const expectedCorpusId =
+      authorityVersion === 'v1'
+        ? RETRIEVAL_CORPUS_ID
+        : RETRIEVAL_V2_VERSIONS.corpusId;
+    const expectedCorpusVersion =
+      authorityVersion === 'v1'
+        ? RETRIEVAL_VERSIONS.corpus
+        : RETRIEVAL_V2_VERSIONS.corpus;
     if (
-      corpusId !== RETRIEVAL_CORPUS_ID ||
-      corpusVersion !== RETRIEVAL_VERSIONS.corpus ||
+      corpusId !== expectedCorpusId ||
+      corpusVersion !== expectedCorpusVersion ||
       retrievalCount !== 30 ||
       normalizationCount !== 20 ||
       manifest.taxonomyVersion !== '1.0.0' ||

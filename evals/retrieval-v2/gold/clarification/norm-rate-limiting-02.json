@@ -1,0 +1,32 @@
+{
+  "caseId": "norm-rate-limiting-02",
+  "clarificationGoldVersion": "retrieval-clarification-gold/1.0.0",
+  "clarificationRequired": true,
+  "clarifications": [
+    {
+      "possibleConceptIds": [
+        "concurrency-control",
+        "rate-limiting"
+      ],
+      "reasonCode": "feature-scope-ambiguous",
+      "sourceIds": [
+        "norm-rate-limiting-02-term-01"
+      ]
+    },
+    {
+      "possibleConceptIds": [],
+      "reasonCode": "primary-family-not-established",
+      "sourceIds": [
+        "norm-rate-limiting-02-term-01"
+      ]
+    }
+  ],
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  },
+  "terminalUnsupported": false
+}

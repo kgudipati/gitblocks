@@ -1,0 +1,15 @@
+{
+  "caseId": "ret-webhooks-05",
+  "eligibleCount": 0,
+  "evidenceNeededCount": 13,
+  "excludedCount": 137,
+  "expectedOutcome": "no-eligible-candidate",
+  "noResultGoldVersion": "retrieval-no-result-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

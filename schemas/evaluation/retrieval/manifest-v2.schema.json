@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/manifest/2.0.0",
+  "$defs": {
+    "familyCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["normalization", "retrieval"],
+      "properties": {
+        "normalization": { "const": 4 },
+        "retrieval": { "const": 6 }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "corpusId",
+    "corpusVersion",
+    "taxonomyVersion",
+    "taxonomyDigest",
+    "queryInputSchemaDigest",
+    "normalizationResultSchemaDigest",
+    "profileSchemaDigest",
+    "profileAuthoritySchemaDigest",
+    "profileAuthorityVersion",
+    "profileAuthorityDigest",
+    "catalogVersion",
+    "catalogDigest",
+    "caseCounts",
+    "familyCounts",
+    "files",
+    "relevanceReviewVersion",
+    "relevanceReviewDigest",
+    "corpusSemanticDigest",
+    "provenance"
+  ],
+  "properties": {
+    "corpusId": { "const": "retrieval-v2" },
+    "corpusVersion": { "const": "retrieval-evaluation-corpus/2.0.0" },
+    "taxonomyVersion": { "const": "1.0.0" },
+    "taxonomyDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "queryInputSchemaDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "normalizationResultSchemaDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "profileSchemaDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "profileAuthoritySchemaDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "profileAuthorityVersion": {
+      "const": "deterministic-candidate-profile-authority/1.0.0"
+    },
+    "profileAuthorityDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "catalogVersion": { "const": "public-v1" },
+    "catalogDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "caseCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["normalization", "retrieval"],
+      "properties": {
+        "normalization": { "const": 20 },
+        "retrieval": { "const": 30 }
+      }
+    },
+    "familyCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorization",
+        "audit-logging",
+        "background-jobs",
+        "rate-limiting",
+        "webhooks"
+      ],
+      "properties": {
+        "authorization": { "$ref": "#/$defs/familyCount" },
+        "audit-logging": { "$ref": "#/$defs/familyCount" },
+        "background-jobs": { "$ref": "#/$defs/familyCount" },
+        "rate-limiting": { "$ref": "#/$defs/familyCount" },
+        "webhooks": { "$ref": "#/$defs/familyCount" }
+      }
+    },
+    "files": {
+      "type": "array",
+      "minItems": 212,
+      "maxItems": 212,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "kind", "caseId"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^(?:audit/case-classification[.]json|equivalence[.]json|queries/(?:retrieval|normalization)/[a-z0-9-]+[.]json|gold/(?:normalization|clarification|hard-filters|relevance|no-result)/[a-z0-9-]+[.]json)$"
+          },
+          "sha256": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+          },
+          "kind": {
+            "enum": [
+              "case-classification",
+              "clarification-gold",
+              "equivalence",
+              "hard-filter-gold",
+              "normalization-gold",
+              "no-result-gold",
+              "normalization-query",
+              "relevance-gold",
+              "retrieval-query"
+            ]
+          },
+          "caseId": {
+            "oneOf": [
+              {
+                "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+              },
+              { "type": "null" }
+            ]
+          }
+        }
+      }
+    },
+    "relevanceReviewVersion": {
+      "const": "retrieval-relevance-independent-review/1.0.0"
+    },
+    "relevanceReviewDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+    },
+    "corpusSemanticDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/digest"
+    },
+    "provenance": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/provenance"
+    }
+  }
+}

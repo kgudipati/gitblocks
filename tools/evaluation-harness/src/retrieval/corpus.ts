@@ -12,6 +12,7 @@ import type {
 import {
   RETRIEVAL_CORPUS_ID,
   RETRIEVAL_FAMILIES,
+  RETRIEVAL_V2_VERSIONS,
   RETRIEVAL_VERSIONS,
   type ClarificationGoldDocument,
   type EquivalenceAuthority,
@@ -19,14 +20,15 @@ import {
   type NormalizationCaseBundle,
   type NormalizationGoldDocument,
   type NoResultGoldDocument,
-  type ProposedProvenance,
   type RelevanceGoldDocument,
+  type RetrievalAuthorityVersion,
   type RetrievalCaseBundle,
   type RetrievalCaseClassificationAuthority,
   type RetrievalCorpusManifest,
   type RetrievalDiagnostic,
   type RetrievalManifestFile,
   type RetrievalQueryDocument,
+  type RetrievalProvenance,
   type ValidatedRetrievalCorpus,
 } from './contracts.ts';
 import { generateHardFilterProjection } from './hard-filter.ts';
@@ -40,6 +42,12 @@ import {
   normalizeRetrievalQuery,
   projectNormalization,
 } from './normalization.ts';
+import {
+  RETRIEVAL_V2_REVIEWED_GRADE_CORRECTIONS,
+  loadRetrievalIndependentReviewRecordV2,
+  reviewedRelevanceProvenance,
+  type RetrievalIndependentReviewRecordV2,
+} from './reviewed-relevance.ts';
 import { createRetrievalSchemaRegistry } from './schema-registry.ts';
 import {
   retrievalCorpusSemanticDigest,
@@ -69,13 +77,43 @@ export type RetrievalCorpusLoadResult =
 export function loadRetrievalCorpusV1(
   repositoryRoot: string,
 ): RetrievalCorpusLoadResult {
+  return loadRetrievalCorpus(repositoryRoot, 'v1');
+}
+
+export function loadRetrievalCorpusV2(
+  repositoryRoot: string,
+): RetrievalCorpusLoadResult {
+  return loadRetrievalCorpus(repositoryRoot, 'v2');
+}
+
+function loadRetrievalCorpus(
+  repositoryRoot: string,
+  authorityVersion: RetrievalAuthorityVersion,
+): RetrievalCorpusLoadResult {
   try {
-    const corpusRoot = join(repositoryRoot, 'evals/retrieval-v1');
-    const registry = createRetrievalSchemaRegistry(repositoryRoot);
+    const corpusRoot = join(
+      repositoryRoot,
+      `evals/retrieval-${authorityVersion}`,
+    );
+    const registry = createRetrievalSchemaRegistry(
+      repositoryRoot,
+      authorityVersion,
+    );
     const manifestValue = loadRetrievalJsonFile(corpusRoot, 'manifest.json');
     assertSchema(registry, 'manifest', manifestValue, 'manifest.json');
     const manifest = manifestValue as RetrievalCorpusManifest;
-    validateManifest(corpusRoot, manifest);
+    validateManifest(corpusRoot, manifest, authorityVersion);
+    const independentReview =
+      authorityVersion === 'v2'
+        ? loadRetrievalIndependentReviewRecordV2(repositoryRoot)
+        : undefined;
+    if (
+      independentReview !== undefined &&
+      (manifest.relevanceReviewVersion !== independentReview.reviewVersion ||
+        manifest.relevanceReviewDigest !== independentReview.semanticDigest)
+    ) {
+      fail('retrieval.manifest.review-binding', 'manifest.json');
+    }
 
     const taxonomyValue = loadRetrievalJsonFile(
       join(repositoryRoot, 'catalog/capability-taxonomy/1.0.0'),
@@ -114,7 +152,7 @@ export function loadRetrievalCorpusV1(
 
     const retrievalCases: RetrievalCaseBundle[] = [];
     const normalizationCases: NormalizationCaseBundle[] = [];
-    const allProvenance: ProposedProvenance[] = [
+    const allProvenance: RetrievalProvenance[] = [
       manifest.provenance,
       caseClassification.provenance,
       ...caseClassification.entries.map(({ provenance }) => provenance),
@@ -240,8 +278,11 @@ export function loadRetrievalCorpusV1(
       });
     }
     validateCorpusBalance(retrievalCases, normalizationCases);
-    validateRelevanceVariation(retrievalCases);
-    validateProvenance(allProvenance);
+    validateRelevanceVariation(retrievalCases, authorityVersion);
+    validateProvenance(allProvenance, authorityVersion, independentReview);
+    if (authorityVersion === 'v2') {
+      validateV2Reconciliation(repositoryRoot, manifest, retrievalCases);
+    }
     return {
       ok: true,
       corpus: {
@@ -327,12 +368,21 @@ function loadGold(
 function validateManifest(
   root: string,
   manifest: RetrievalCorpusManifest,
+  authorityVersion: RetrievalAuthorityVersion,
 ): void {
   const corpusId: unknown = manifest.corpusId;
   const corpusVersion: unknown = manifest.corpusVersion;
+  const expectedCorpusId =
+    authorityVersion === 'v1'
+      ? RETRIEVAL_CORPUS_ID
+      : RETRIEVAL_V2_VERSIONS.corpusId;
+  const expectedCorpusVersion =
+    authorityVersion === 'v1'
+      ? RETRIEVAL_VERSIONS.corpus
+      : RETRIEVAL_V2_VERSIONS.corpus;
   if (
-    corpusId !== RETRIEVAL_CORPUS_ID ||
-    corpusVersion !== RETRIEVAL_VERSIONS.corpus ||
+    corpusId !== expectedCorpusId ||
+    corpusVersion !== expectedCorpusVersion ||
     manifest.files.length !== EXPECTED_LISTED_FILE_COUNT
   ) {
     fail('retrieval.manifest.identity', 'manifest.json');
@@ -684,6 +734,7 @@ function validateNoResultGold(
 
 function validateRelevanceVariation(
   cases: readonly RetrievalCaseBundle[],
+  authorityVersion: RetrievalAuthorityVersion,
 ): void {
   if (
     cases
@@ -735,7 +786,8 @@ function validateRelevanceVariation(
       narrower === undefined ||
       new Set(narrower.relevanceGold.judgments.map(({ grade }) => grade)).size <
         3 ||
-      !narrower.relevanceGold.judgments.some(({ grade }) => grade === 0)
+      (authorityVersion === 'v1' &&
+        !narrower.relevanceGold.judgments.some(({ grade }) => grade === 0))
     ) {
       fail('retrieval.gold.relevance-narrower-differentiation', family);
     }
@@ -1036,19 +1088,135 @@ function countTagged(
   ).length;
 }
 
-function validateProvenance(values: readonly unknown[]): void {
-  if (
-    values.some(
-      (value) =>
-        !isRecord(value) ||
-        value['status'] !== 'proposed' ||
-        value['reviewStatus'] !== 'not-reviewed' ||
-        value['reviewer'] !== null ||
-        value['reviewedAt'] !== null ||
-        value['reviewReference'] !== null,
-    )
-  )
+function validateProvenance(
+  values: readonly unknown[],
+  authorityVersion: RetrievalAuthorityVersion,
+  independentReview: RetrievalIndependentReviewRecordV2 | undefined,
+): void {
+  const expectedReviewed =
+    independentReview === undefined
+      ? undefined
+      : reviewedRelevanceProvenance(independentReview);
+  let reviewed = 0;
+  for (const value of values) {
+    if (isProposedProvenance(value)) continue;
+    if (
+      authorityVersion === 'v2' &&
+      expectedReviewed !== undefined &&
+      retrievalStableJson(value) === retrievalStableJson(expectedReviewed)
+    ) {
+      reviewed += 1;
+      continue;
+    }
     fail('retrieval.provenance', 'provenance');
+  }
+  if (
+    (authorityVersion === 'v1' && reviewed !== 0) ||
+    (authorityVersion === 'v2' && reviewed !== 666)
+  ) {
+    fail('retrieval.provenance', 'provenance');
+  }
+}
+
+function isProposedProvenance(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    value['status'] === 'proposed' &&
+    value['reviewStatus'] === 'not-reviewed' &&
+    value['reviewer'] === null &&
+    value['reviewedAt'] === null &&
+    value['reviewReference'] === null
+  );
+}
+
+function validateV2Reconciliation(
+  repositoryRoot: string,
+  manifest: RetrievalCorpusManifest,
+  cases: readonly RetrievalCaseBundle[],
+): void {
+  const v1Root = join(repositoryRoot, 'evals/retrieval-v1');
+  const v1Manifest = loadRetrievalJsonFile(
+    v1Root,
+    'manifest.json',
+  ) as RetrievalCorpusManifest;
+  if (
+    v1Manifest.corpusId !== RETRIEVAL_CORPUS_ID ||
+    v1Manifest.corpusVersion !== RETRIEVAL_VERSIONS.corpus ||
+    v1Manifest.corpusSemanticDigest !==
+      '3638596a5c330c3516003beab908b0b5631c84f41d957f78ce2cc1379cc682de'
+  ) {
+    fail('retrieval.v2.source-binding', 'evals/retrieval-v1/manifest.json');
+  }
+  const v1ByPath = new Map(
+    v1Manifest.files.map((entry) => [entry.path, entry]),
+  );
+  for (const entry of manifest.files) {
+    if (
+      entry.kind !== 'relevance-gold' &&
+      entry.sha256 !== v1ByPath.get(entry.path)?.sha256
+    ) {
+      fail('retrieval.v2.unchanged-authority', entry.path);
+    }
+  }
+
+  const corrections = new Map(
+    RETRIEVAL_V2_REVIEWED_GRADE_CORRECTIONS.map((correction) => [
+      `${correction.caseId}\0${correction.candidateId}`,
+      correction,
+    ]),
+  );
+  const observedCorrections = new Set<string>();
+  const gradeCounts = [0, 0, 0, 0];
+  for (const bundle of cases) {
+    const caseId = bundle.query.caseId;
+    const v1 = loadRetrievalJsonFile(
+      v1Root,
+      `gold/relevance/${caseId}.json`,
+    ) as RelevanceGoldDocument;
+    if (v1.judgments.length !== bundle.relevanceGold.judgments.length) {
+      fail('retrieval.v2.relevance-key-closure', caseId);
+    }
+    const v1ByCandidate = new Map(
+      v1.judgments.map((judgment) => [judgment.candidateId, judgment]),
+    );
+    for (const judgment of bundle.relevanceGold.judgments) {
+      const source = v1ByCandidate.get(judgment.candidateId);
+      if (source === undefined) {
+        fail('retrieval.v2.relevance-key-closure', caseId);
+      }
+      gradeCounts[judgment.grade] = (gradeCounts[judgment.grade] ?? 0) + 1;
+      const key = `${caseId}\0${judgment.candidateId}`;
+      const correction = corrections.get(key);
+      if (correction === undefined) {
+        if (
+          judgment.grade !== source.grade ||
+          retrievalStableJson(judgment.reasonCodes) !==
+            retrievalStableJson(source.reasonCodes)
+        ) {
+          fail('retrieval.v2.unapproved-grade-change', key);
+        }
+        continue;
+      }
+      if (
+        source.grade !== correction.oldGrade ||
+        judgment.grade !== correction.newGrade ||
+        retrievalStableJson(judgment.reasonCodes) !==
+          retrievalStableJson([correction.reasonCode])
+      ) {
+        fail('retrieval.v2.reviewed-grade-change', key);
+      }
+      observedCorrections.add(key);
+    }
+    if (v1ByCandidate.size !== bundle.relevanceGold.judgments.length) {
+      fail('retrieval.v2.relevance-key-closure', caseId);
+    }
+  }
+  if (
+    observedCorrections.size !== corrections.size ||
+    retrievalStableJson(gradeCounts) !== retrievalStableJson([97, 79, 398, 62])
+  ) {
+    fail('retrieval.v2.reviewed-grade-closure', 'gold/relevance');
+  }
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

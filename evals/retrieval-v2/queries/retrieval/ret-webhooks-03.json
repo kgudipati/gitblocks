@@ -1,0 +1,36 @@
+{
+  "capabilityFamily": "webhooks",
+  "caseId": "ret-webhooks-03",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "webhooks",
+        "termId": "ret-webhooks-03-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "ret-webhooks-03-constraint-9347",
+        "facetHint": "feature",
+        "modality": "preferred",
+        "originalTerm": "signature-verification",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "preferred capability detail"
+      }
+    ],
+    "queryInputId": "query-ret-webhooks-03",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-webhooks-03-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

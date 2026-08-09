@@ -1,0 +1,62 @@
+{
+  "caseId": "norm-authorization-03",
+  "expected": {
+    "clarifications": [
+      {
+        "possibleConceptIds": [
+          "role-based-access-control"
+        ],
+        "reasonCode": "constraint-modality-conflict",
+        "sourceIds": [
+          "norm-authorization-03-constraint-2512",
+          "norm-authorization-03-constraint-7233"
+        ]
+      }
+    ],
+    "normalizedConcepts": [
+      {
+        "conceptId": "authorization",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-authorization-03-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "role-based-access-control",
+        "conceptId": "role-based-access-control",
+        "facet": "feature",
+        "modality": "prohibited",
+        "resolutionBasis": "contradiction",
+        "ruleId": "constraint-modality-conflict",
+        "sourceConstraintIds": [
+          "norm-authorization-03-constraint-7233"
+        ]
+      },
+      {
+        "canonicalTerm": "role-based-access-control",
+        "conceptId": "role-based-access-control",
+        "facet": "feature",
+        "modality": "required",
+        "resolutionBasis": "contradiction",
+        "ruleId": "constraint-modality-conflict",
+        "sourceConstraintIds": [
+          "norm-authorization-03-constraint-2512"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "clarification-required",
+    "primaryFamily": "authorization",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

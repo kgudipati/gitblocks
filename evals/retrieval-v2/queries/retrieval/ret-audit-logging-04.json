@@ -1,0 +1,40 @@
+{
+  "capabilityFamily": "audit-logging",
+  "caseId": "ret-audit-logging-04",
+  "caseKind": "retrieval",
+  "queryInput": {
+    "candidateReferences": [
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "ret-audit-logging-04-reference-01",
+        "value": "audit-winston"
+      },
+      {
+        "intent": "compare",
+        "kind": "candidate-id",
+        "referenceId": "ret-audit-logging-04-reference-02",
+        "value": "audit-winston-daily"
+      }
+    ],
+    "capabilityTerms": [
+      {
+        "originalTerm": "audit-logging",
+        "termId": "ret-audit-logging-04-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [],
+    "queryInputId": "query-ret-audit-logging-04",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "ret-audit-logging-04-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Evaluate the structured capability query without reading gold."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

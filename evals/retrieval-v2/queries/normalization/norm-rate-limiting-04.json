@@ -1,0 +1,36 @@
+{
+  "capabilityFamily": "rate-limiting",
+  "caseId": "norm-rate-limiting-04",
+  "caseKind": "normalization-adversarial",
+  "queryInput": {
+    "candidateReferences": [],
+    "capabilityTerms": [
+      {
+        "originalTerm": "rate-limiting",
+        "termId": "norm-rate-limiting-04-term-01"
+      }
+    ],
+    "contractVersion": "1.0.0",
+    "draftConstraints": [
+      {
+        "constraintId": "norm-rate-limiting-04-constraint-3865",
+        "facetHint": "deployment",
+        "modality": "required",
+        "originalTerm": "hosted-service",
+        "reasonCode": "evaluation-structured-constraint",
+        "statement": "hosting meaning is unclear"
+      }
+    ],
+    "queryInputId": "query-norm-rate-limiting-04",
+    "repositoryFingerprintReference": null,
+    "scope": "local-pre-approval",
+    "successConditions": [
+      {
+        "conditionId": "norm-rate-limiting-04-condition-01",
+        "statement": "Return bounded capability candidates or preserve the exact unresolved state."
+      }
+    ],
+    "summary": "Ambiguous hosting must be clarified."
+  },
+  "queryVersion": "retrieval-evaluation-query/1.0.0"
+}

@@ -1,0 +1,62 @@
+{
+  "caseId": "norm-rate-limiting-03",
+  "expected": {
+    "clarifications": [
+      {
+        "possibleConceptIds": [
+          "token-bucket"
+        ],
+        "reasonCode": "constraint-modality-conflict",
+        "sourceIds": [
+          "norm-rate-limiting-03-constraint-4812",
+          "norm-rate-limiting-03-constraint-8461"
+        ]
+      }
+    ],
+    "normalizedConcepts": [
+      {
+        "conceptId": "rate-limiting",
+        "ruleId": "taxonomy-active-alias",
+        "sourceTermIds": [
+          "norm-rate-limiting-03-term-01"
+        ]
+      }
+    ],
+    "normalizedConstraints": [
+      {
+        "canonicalTerm": "token-bucket",
+        "conceptId": "token-bucket",
+        "facet": "feature",
+        "modality": "prohibited",
+        "resolutionBasis": "contradiction",
+        "ruleId": "constraint-modality-conflict",
+        "sourceConstraintIds": [
+          "norm-rate-limiting-03-constraint-4812"
+        ]
+      },
+      {
+        "canonicalTerm": "token-bucket",
+        "conceptId": "token-bucket",
+        "facet": "feature",
+        "modality": "required",
+        "resolutionBasis": "contradiction",
+        "ruleId": "constraint-modality-conflict",
+        "sourceConstraintIds": [
+          "norm-rate-limiting-03-constraint-8461"
+        ]
+      }
+    ],
+    "notices": [],
+    "outcome": "clarification-required",
+    "primaryFamily": "rate-limiting",
+    "unresolved": []
+  },
+  "normalizationGoldVersion": "retrieval-normalization-gold/1.0.0",
+  "provenance": {
+    "reviewReference": null,
+    "reviewStatus": "not-reviewed",
+    "reviewedAt": null,
+    "reviewer": null,
+    "status": "proposed"
+  }
+}

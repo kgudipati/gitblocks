@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/evaluation/retrieval/saturation-proof/1.0.0",
+  "$defs": {
+    "fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator", "value"],
+      "properties": {
+        "numerator": { "type": "integer", "minimum": 0 },
+        "denominator": { "type": "integer", "minimum": 1 },
+        "value": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "corpusVersion",
+        "corpusSemanticDigest",
+        "relevanceVersion",
+        "independentReviewVersion",
+        "independentReviewDigest",
+        "scorerVersion",
+        "baselineReportVersion",
+        "baselineReportDigest"
+      ],
+      "properties": {
+        "corpusVersion": { "const": "retrieval-evaluation-corpus/2.0.0" },
+        "corpusSemanticDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+        },
+        "relevanceVersion": { "const": "retrieval-relevance-gold/2.0.0" },
+        "independentReviewVersion": {
+          "const": "retrieval-relevance-independent-review/1.0.0"
+        },
+        "independentReviewDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+        },
+        "scorerVersion": { "const": "retrieval-evaluation-scorer/1.0.0" },
+        "baselineReportVersion": { "const": "retrieval-baseline-report/2.0.0" },
+        "baselineReportDigest": {
+          "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "proofVersion",
+    "authorityBindings",
+    "positiveCaseCount",
+    "noEligibleCaseCount",
+    "cases",
+    "aggregate",
+    "semanticDigest"
+  ],
+  "properties": {
+    "proofVersion": { "const": "retrieval-ceiling-saturation-proof/1.0.0" },
+    "authorityBindings": { "$ref": "#/$defs/bindings" },
+    "positiveCaseCount": { "const": 25 },
+    "noEligibleCaseCount": { "const": 5 },
+    "cases": {
+      "type": "array",
+      "minItems": 25,
+      "maxItems": 25,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "caseId",
+          "family",
+          "eligibleRelevantCount",
+          "theoreticalMaximumRelevantTop10",
+          "aliasExpandedRelevantTop10",
+          "theoreticalCaseRecall",
+          "aliasExpandedCaseRecall",
+          "saturated"
+        ],
+        "properties": {
+          "caseId": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/stableId"
+          },
+          "family": {
+            "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+          },
+          "eligibleRelevantCount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 150
+          },
+          "theoreticalMaximumRelevantTop10": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "aliasExpandedRelevantTop10": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "theoreticalCaseRecall": { "$ref": "#/$defs/fraction" },
+          "aliasExpandedCaseRecall": { "$ref": "#/$defs/fraction" },
+          "saturated": { "const": true }
+        }
+      }
+    },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "saturatedCaseCount",
+        "macroExact",
+        "macroScorerValue",
+        "microExact",
+        "families"
+      ],
+      "properties": {
+        "saturatedCaseCount": { "const": 25 },
+        "macroExact": { "$ref": "#/$defs/fraction" },
+        "macroScorerValue": { "const": 0.608599 },
+        "microExact": { "$ref": "#/$defs/fraction" },
+        "families": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["family", "exact", "scorerValue"],
+            "properties": {
+              "family": {
+                "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/1.0.0#/$defs/family"
+              },
+              "exact": { "$ref": "#/$defs/fraction" },
+              "scorerValue": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "semanticDigest": {
+      "$ref": "https://gitblocks.dev/schemas/evaluation/retrieval/definitions/2.0.0#/$defs/digest"
+    }
+  }
+}
