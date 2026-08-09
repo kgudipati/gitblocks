@@ -36,8 +36,14 @@ describe('retrieval baseline gold isolation', () => {
       new URL('../src/retrieval/baseline-generation.ts', import.meta.url),
       'utf8',
     );
+    const authorityLoad = source.indexOf(
+      'const authority = loadSafeAuthority(',
+    );
     expect(source.indexOf('loadRetrievalBlindQuerySetV1')).toBeLessThan(
-      source.indexOf('loadRetrievalSafeAuthorityV1('),
+      authorityLoad,
+    );
+    expect(source.indexOf('loadRetrievalBlindQuerySetV2')).toBeLessThan(
+      authorityLoad,
     );
     for (const token of [
       'loadRetrievalCorpusV1',

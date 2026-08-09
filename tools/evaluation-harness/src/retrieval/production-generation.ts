@@ -11,11 +11,16 @@ import {
 } from '@gitblocks/retrieval';
 
 import { findGitBlocksRoot } from '../repository-root.ts';
-import { loadRetrievalBlindQuerySetV1 } from './blind-query.ts';
 import {
+  loadRetrievalBlindQuerySetV1,
+  loadRetrievalBlindQuerySetV2,
+} from './blind-query.ts';
+import {
+  RETRIEVAL_V2_VERSIONS,
   RETRIEVAL_VERSIONS,
   type GeneratedHardFilterProjection,
   type NormalizationCasePrediction,
+  type RetrievalAuthorityVersion,
   type RetrievalCasePrediction,
   type RetrievalPredictionSet,
   type RetrievalQueryDocument,
@@ -29,6 +34,7 @@ import {
 import {
   retrievalPredictionSetSemanticDigest,
   validateRetrievalPredictionSetAgainstBlindAuthorityV1,
+  validateRetrievalPredictionSetAgainstBlindAuthorityV2,
   type RetrievalBlindPredictionValidationAuthority,
 } from './predictions.ts';
 import {
@@ -108,8 +114,34 @@ export function generateProductionRetrievalPredictionSetV1(
   startDirectory = process.cwd(),
   options: ProductionRetrievalGenerationOptionsV1 = {},
 ): ProductionRetrievalGenerationArtifactsV1 {
+  return generateProductionRetrievalPredictionSet(
+    'v1',
+    startDirectory,
+    options,
+  );
+}
+
+export function generateProductionRetrievalPredictionSetV2(
+  startDirectory = process.cwd(),
+  options: ProductionRetrievalGenerationOptionsV1 = {},
+): ProductionRetrievalGenerationArtifactsV1 {
+  return generateProductionRetrievalPredictionSet(
+    'v2',
+    startDirectory,
+    options,
+  );
+}
+
+function generateProductionRetrievalPredictionSet(
+  authorityVersion: RetrievalAuthorityVersion,
+  startDirectory: string,
+  options: ProductionRetrievalGenerationOptionsV1,
+): ProductionRetrievalGenerationArtifactsV1 {
   const repositoryRoot = findGitBlocksRoot(startDirectory);
-  const blind = loadRetrievalBlindQuerySetV1(repositoryRoot);
+  const blind =
+    authorityVersion === 'v1'
+      ? loadRetrievalBlindQuerySetV1(repositoryRoot)
+      : loadRetrievalBlindQuerySetV2(repositoryRoot);
   if (!blind.ok) throw new Error('Retrieval blind query authority is invalid.');
 
   const safeAuthority = loadRetrievalSafeAuthorityV1(repositoryRoot);
@@ -269,7 +301,10 @@ export function generateProductionRetrievalPredictionSetV1(
   };
   const predictions = prepared.map((entry) => createPrediction(entry));
   const withoutDigest = {
-    predictionSetVersion: RETRIEVAL_VERSIONS.predictionSet,
+    predictionSetVersion:
+      authorityVersion === 'v1'
+        ? RETRIEVAL_VERSIONS.predictionSet
+        : RETRIEVAL_V2_VERSIONS.predictionSet,
     predictionSetId: PRODUCTION_RETRIEVAL_PREDICTION_SET_ID,
     corpusId: blind.querySet.corpusId,
     corpusVersion: blind.querySet.corpusVersion,
@@ -280,11 +315,18 @@ export function generateProductionRetrievalPredictionSetV1(
     ...withoutDigest,
     semanticDigest: retrievalPredictionSetSemanticDigest(withoutDigest),
   }) as RetrievalPredictionSet;
-  const diagnostics = validateRetrievalPredictionSetAgainstBlindAuthorityV1(
-    predictionSet,
-    validationAuthority,
-    repositoryRoot,
-  );
+  const diagnostics =
+    authorityVersion === 'v1'
+      ? validateRetrievalPredictionSetAgainstBlindAuthorityV1(
+          predictionSet,
+          validationAuthority,
+          repositoryRoot,
+        )
+      : validateRetrievalPredictionSetAgainstBlindAuthorityV2(
+          predictionSet,
+          validationAuthority,
+          repositoryRoot,
+        );
   if (diagnostics.length > 0) {
     throw new Error('Production prediction failed blind schema validation.');
   }

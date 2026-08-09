@@ -29,6 +29,9 @@ describe('retrieval CLI', () => {
       ),
     ).toBe(1);
     expect(runRetrievalCli(['baseline'], process.cwd(), output)).toBe(1);
+    expect(
+      runRetrievalCli(['production-v2', 'unexpected'], process.cwd(), output),
+    ).toBe(1);
     expect(lines.join('\n')).not.toContain('GitBlocks is');
   }, 60_000);
 });

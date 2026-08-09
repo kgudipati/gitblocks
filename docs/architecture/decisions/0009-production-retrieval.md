@@ -77,6 +77,29 @@ Authorized collection attempt #2 then published and validated the real
 150-record metadata snapshot. The lexical channel remains inactive,
 Milestone 3 remains open, and Milestone 4 remains blocked.
 
+The later frozen six-channel implementation was measured once against
+immutable historical `retrieval-v1`. Its prediction digest
+`94313f9b9694bbe7fe5b04307730d8d262236846c3bc8ec01a346f661b56de44`
+and score-report digest
+`d3069c412e1dd1b77f180fb38b0523188c1dc0f387bf628ad9c61f76705f34ea`
+remain historical evidence. Independent review then accepted additive
+`retrieval-v2` through Issue #23. Retrieval-v2 is the governing forward
+evaluation authority; it does not change the product request, result,
+algorithm, or six-channel semantics.
+
+Phase 9 incorporated accepted main through a merge, preserving frozen commit
+`0e830d60ba97487e864633d91c09692fb6c081a1` without rebasing. Accepted Issue
+#24 security policy supersedes the former Nanoid override. Ordinary local and
+hosted verification validate the production adapter but do not execute an
+acceptance benchmark. The explicit
+`pnpm eval:retrieval:production:v2` command is reserved for a later independent
+authorization and has not been run. A blind prediction-only equivalence proof
+reproduces the historical v1 prediction digest and shows that v1/v2 product
+outputs are identical before evaluation bindings. No reviewed-v2 production
+quality result is yet known. Issue #28 owns hosted-CI reliability and must be
+resolved before Milestone 4 final closure; Milestone 3 remains open and
+Milestone 4 remains blocked.
+
 ## Context
 
 Phase 8 established deterministic query normalization, a controlled taxonomy,

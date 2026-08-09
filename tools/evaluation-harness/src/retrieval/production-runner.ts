@@ -6,13 +6,22 @@ import {
   type RetrievalFamily,
   type RetrievalScoreReport,
 } from './contracts.ts';
-import { loadRetrievalCorpusV1 } from './corpus.ts';
+import { loadRetrievalCorpusV1, loadRetrievalCorpusV2 } from './corpus.ts';
 import {
   generateProductionRetrievalPredictionSetV1,
+  generateProductionRetrievalPredictionSetV2,
   type ProductionRetrievalDifferentialEvidenceV1,
+  type ProductionRetrievalGenerationArtifactsV1,
   type ProductionRetrievalPerformanceEvidenceV1,
 } from './production-generation.ts';
-import { validateRetrievalPredictionSetV1 } from './predictions.ts';
+import {
+  validateRetrievalPredictionSetV1,
+  validateRetrievalPredictionSetV2,
+} from './predictions.ts';
+import {
+  loadCommittedRetrievalV2QualityGates,
+  type RetrievalV2QualityGates,
+} from './quality-gates.ts';
 import { scoreRetrievalPredictionSet, summarizeMetrics } from './scoring.ts';
 import { createRetrievalSchemaRegistry } from './schema-registry.ts';
 
@@ -64,6 +73,61 @@ export interface ProductionRetrievalEvaluationReportV1 {
   readonly performance: ProductionRetrievalPerformanceEvidenceV1;
 }
 
+interface ScalarGateEvaluation {
+  readonly measured: number;
+  readonly required: number;
+  readonly pass: boolean;
+}
+
+interface ExactGateValue {
+  readonly numerator: number;
+  readonly denominator: number;
+}
+
+interface ExactGateEvaluation {
+  readonly measured: ExactGateValue;
+  readonly required: ExactGateValue;
+  readonly pass: boolean;
+}
+
+export interface ProductionRetrievalGateEvaluationV2 {
+  readonly authorityBindings: {
+    readonly corpusSemanticDigest: string;
+    readonly independentReviewDigest: string;
+    readonly baselineReportDigest: string;
+    readonly saturationProofDigest: string;
+    readonly qualityGateDigest: string;
+  };
+  readonly quality: {
+    readonly macroRecallAt10: ScalarGateEvaluation;
+    readonly familyRecallAt10: Readonly<
+      Record<RetrievalFamily, ScalarGateEvaluation>
+    >;
+    readonly positiveCaseHitRate: ExactGateEvaluation;
+    readonly meanReciprocalRank: ScalarGateEvaluation;
+    readonly ndcgAt10: ScalarGateEvaluation;
+  };
+  readonly safety: {
+    readonly candidateHardFilterCorrectness: ExactGateEvaluation;
+    readonly prohibitedConstraintPreservation: ExactGateEvaluation;
+    readonly noEligibleCandidateCorrectness: ExactGateEvaluation;
+    readonly hardConflictResults: ScalarGateEvaluation;
+    readonly laneViolations: ScalarGateEvaluation;
+    readonly negativeControlViolations: ScalarGateEvaluation;
+    readonly exactDuplicates: ScalarGateEvaluation;
+    readonly controlledEquivalenceDuplicates: ScalarGateEvaluation;
+  };
+  readonly overallPass: boolean;
+}
+
+export interface ProductionRetrievalEvaluationReportV2 extends Omit<
+  ProductionRetrievalEvaluationReportV1,
+  'evaluationPathVersion'
+> {
+  readonly evaluationPathVersion: 'production-retrieval-evaluation/2.0.0';
+  readonly gateEvaluation: ProductionRetrievalGateEvaluationV2;
+}
+
 export function runProductionRetrievalEvaluationV1(
   startDirectory = process.cwd(),
 ): ProductionRetrievalEvaluationReportV1 {
@@ -97,6 +161,72 @@ export function runProductionRetrievalEvaluationV1(
   ) {
     throw new Error('Production retrieval score failed the existing schema.');
   }
+  return deepFreeze({
+    evaluationPathVersion: 'production-retrieval-evaluation/1.0.0',
+    score,
+    ...createProductionReportEvidence(score, generated),
+  });
+}
+
+export function runProductionRetrievalEvaluationV2(
+  startDirectory = process.cwd(),
+): ProductionRetrievalEvaluationReportV2 {
+  const repositoryRoot = findGitBlocksRoot(startDirectory);
+
+  // Gate authority is authenticated before prediction and remains an input to
+  // measurement. This boundary loads no relevance gold or scorer output.
+  const qualityGates = loadCommittedRetrievalV2QualityGates(repositoryRoot);
+
+  // Predictions and product results are complete, validated, digested, and
+  // frozen from blind inputs before any gold-bearing corpus is loaded.
+  const generated = generateProductionRetrievalPredictionSetV2(repositoryRoot, {
+    performanceProtocol: 'milestone-3-development',
+  });
+
+  const loaded = loadRetrievalCorpusV2(repositoryRoot);
+  if (!loaded.ok) throw new Error('Retrieval-v2 corpus validation failed.');
+  const predictionDiagnostics = validateRetrievalPredictionSetV2(
+    generated.predictionSet,
+    loaded.corpus,
+    repositoryRoot,
+  );
+  if (predictionDiagnostics.length > 0) {
+    throw new Error(
+      'Frozen production-v2 prediction failed scoring validation.',
+    );
+  }
+  const score = scoreRetrievalPredictionSet(
+    loaded.corpus,
+    generated.predictionSet,
+  );
+  if (
+    createRetrievalSchemaRegistry(repositoryRoot, 'v2').validate(
+      'score-report',
+      score,
+    ).length > 0
+  ) {
+    throw new Error('Production retrieval-v2 score failed its closed schema.');
+  }
+  const evidence = createProductionReportEvidence(score, generated);
+  return deepFreeze({
+    evaluationPathVersion: 'production-retrieval-evaluation/2.0.0',
+    score,
+    ...evidence,
+    gateEvaluation: evaluateProductionRetrievalGatesV2(
+      score,
+      evidence,
+      qualityGates,
+    ),
+  });
+}
+
+function createProductionReportEvidence(
+  score: RetrievalScoreReport,
+  generated: ProductionRetrievalGenerationArtifactsV1,
+): Omit<
+  ProductionRetrievalEvaluationReportV1,
+  'evaluationPathVersion' | 'score'
+> {
   const retrievalScores = score.perCase.filter(
     (caseScore): caseScore is RetrievalCaseScore =>
       caseScore.caseKind === 'retrieval',
@@ -128,9 +258,7 @@ export function runProductionRetrievalEvaluationV1(
     ({ matchedMetadataTerms }) => matchedMetadataTerms,
   );
 
-  return deepFreeze({
-    evaluationPathVersion: 'production-retrieval-evaluation/1.0.0',
-    score,
+  return {
     qualitySummary: {
       macroRecallAt10: requireMetric(score.macro, 'recallAt10'),
       positiveCaseHitRate: {
@@ -222,7 +350,145 @@ export function runProductionRetrievalEvaluationV1(
     },
     differential: generated.differential,
     performance: generated.performance,
-  });
+  };
+}
+
+export function evaluateProductionRetrievalGatesV2(
+  score: RetrievalScoreReport,
+  evidence: Omit<
+    ProductionRetrievalEvaluationReportV1,
+    'evaluationPathVersion' | 'score'
+  >,
+  gates: RetrievalV2QualityGates,
+): ProductionRetrievalGateEvaluationV2 {
+  const familyFloors = new Map(
+    gates.gates.familyRecallAt10.map(({ family, floor }) => [family, floor]),
+  );
+  const familyRecallAt10 = Object.fromEntries(
+    RETRIEVAL_FAMILIES.map((family) => [
+      family,
+      scalarMinimumGate(
+        requireMetricValue(evidence.qualitySummary.familyRecallAt10[family]),
+        requireNumber(familyFloors.get(family)),
+      ),
+    ]),
+  ) as Readonly<Record<RetrievalFamily, ScalarGateEvaluation>>;
+  const quality = {
+    macroRecallAt10: scalarMinimumGate(
+      requireMetricValue(evidence.qualitySummary.macroRecallAt10),
+      gates.gates.macroRecallAt10,
+    ),
+    familyRecallAt10,
+    positiveCaseHitRate: exactGate(
+      {
+        numerator: evidence.qualitySummary.positiveCaseHitRate.hits,
+        denominator: evidence.qualitySummary.positiveCaseHitRate.cases,
+      },
+      gates.gates.positiveCaseHitRate,
+    ),
+    meanReciprocalRank: scalarMinimumGate(
+      requireMetricValue(evidence.qualitySummary.macroMeanReciprocalRank),
+      gates.gates.meanReciprocalRank,
+    ),
+    ndcgAt10: scalarMinimumGate(
+      requireMetricValue(evidence.qualitySummary.macroNdcgAt10),
+      gates.gates.ndcgAt10,
+    ),
+  };
+  const safety = {
+    candidateHardFilterCorrectness: exactGate(
+      metricCounts(evidence.safetySummary.candidateHardFilterCorrectness),
+      gates.gates.exactCorrectness.hardFilter,
+    ),
+    prohibitedConstraintPreservation: exactGate(
+      metricCounts(evidence.safetySummary.prohibitedConstraintPreservation),
+      gates.gates.exactCorrectness.prohibitedPreservation,
+    ),
+    noEligibleCandidateCorrectness: exactGate(
+      metricCounts(evidence.safetySummary.noEligibleCandidateCorrectness),
+      gates.gates.exactCorrectness.noEligible,
+    ),
+    hardConflictResults: scalarMaximumGate(
+      score.safetyViolations.conflict,
+      gates.gates.maximumViolations.hardConflictResults,
+    ),
+    laneViolations: scalarMaximumGate(
+      score.safetyViolations.laneError,
+      gates.gates.maximumViolations.lane,
+    ),
+    negativeControlViolations: scalarMaximumGate(
+      score.safetyViolations.negativeControl,
+      gates.gates.maximumViolations.negativeControl,
+    ),
+    exactDuplicates: scalarMaximumGate(
+      evidence.safetySummary.exactDuplicateRate.numerator,
+      gates.gates.maximumViolations.exactDuplicates,
+    ),
+    controlledEquivalenceDuplicates: scalarMaximumGate(
+      evidence.safetySummary.controlledEquivalenceDuplicateRate.numerator,
+      gates.gates.maximumViolations.controlledEquivalenceDuplicates,
+    ),
+  };
+  return {
+    authorityBindings: {
+      corpusSemanticDigest: gates.authorityBindings.corpusSemanticDigest,
+      independentReviewDigest: gates.authorityBindings.independentReviewDigest,
+      baselineReportDigest: gates.authorityBindings.baselineReportDigest,
+      saturationProofDigest: gates.saturationProof.proofDigest,
+      qualityGateDigest: gates.semanticDigest,
+    },
+    quality,
+    safety,
+    overallPass: [
+      quality.macroRecallAt10,
+      ...Object.values(quality.familyRecallAt10),
+      quality.positiveCaseHitRate,
+      quality.meanReciprocalRank,
+      quality.ndcgAt10,
+      ...Object.values(safety),
+    ].every(({ pass }) => pass),
+  };
+}
+
+function scalarMinimumGate(
+  measured: number,
+  required: number,
+): ScalarGateEvaluation {
+  return { measured, required, pass: measured >= required };
+}
+
+function scalarMaximumGate(
+  measured: number,
+  required: number,
+): ScalarGateEvaluation {
+  return { measured, required, pass: measured <= required };
+}
+
+function exactGate(
+  measured: ExactGateValue,
+  required: ExactGateValue,
+): ExactGateEvaluation {
+  return {
+    measured,
+    required,
+    pass:
+      measured.numerator === required.numerator &&
+      measured.denominator === required.denominator,
+  };
+}
+
+function metricCounts(value: MetricValue): ExactGateValue {
+  return { numerator: value.numerator, denominator: value.denominator };
+}
+
+function requireMetricValue(value: MetricValue): number {
+  if (value.value === null) throw new Error('Required metric is inapplicable.');
+  return value.value;
+}
+
+function requireNumber(value: number | undefined): number {
+  if (value === undefined) throw new Error('Required gate is missing.');
+  return value;
 }
 
 function requireMetric(

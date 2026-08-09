@@ -565,9 +565,17 @@ function validateRuntimeScripts(
     'eval:retrieval:baselines:generate',
     'eval:retrieval:fixtures',
     'eval:retrieval:production',
+    'eval:retrieval:production:v2',
     'eval:retrieval:score',
     'eval:retrieval:validate',
     'eval:retrieval:verify',
+    'eval:retrieval:v2:baselines',
+    'eval:retrieval:v2:baselines:generate',
+    'eval:retrieval:v2:fixtures',
+    'eval:retrieval:v2:gates:generate',
+    'eval:retrieval:v2:gates:validate',
+    'eval:retrieval:v2:validate',
+    'eval:retrieval:v2:verify',
     'eval:score',
     'eval:validate',
     'test',
@@ -691,6 +699,22 @@ function validateRuntimeScripts(
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score',
     'eval:retrieval:production':
       'pnpm runtime:check && pnpm build:product && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production',
+    'eval:retrieval:v2:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
+    'eval:retrieval:v2:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'eval:retrieval:v2:baselines':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-v2',
+    'eval:retrieval:v2:baselines:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate-v2',
+    'eval:retrieval:v2:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'eval:retrieval:v2:gates:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-generate-v2',
+    'eval:retrieval:v2:gates:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
+    'eval:retrieval:production:v2':
+      'pnpm runtime:check && pnpm build:product && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production-v2',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':
@@ -714,14 +738,25 @@ function validateRuntimeScripts(
     }
   }
   const verifyCore = scripts['verify:core'];
+  const requiredRoutineRetrievalCommands = [
+    'node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
+    'node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'node tools/evaluation-harness/src/retrieval/cli.ts verify',
+    'node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
+  ] as const;
   if (
     typeof verifyCore !== 'string' ||
     (verifyCore.match(/pnpm build:product/gu)?.length ?? 0) !== 1 ||
     !verifyCore.includes(
       'pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal',
     ) ||
-    !verifyCore.includes(
-      'node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production',
+    requiredRoutineRetrievalCommands.some(
+      (command) => !verifyCore.includes(command),
+    ) ||
+    verifyCore.includes(
+      'tools/evaluation-harness/src/retrieval/cli.ts production',
     ) ||
     !verifyCore.includes('node packages/contracts/scripts/taxonomy-cli.ts') ||
     !verifyCore.includes(
@@ -1196,9 +1231,11 @@ function validateCiPolicy(
     'run: node tools/evaluation-harness/src/cli.ts validate',
     'run: node tools/evaluation-harness/src/cli.ts fixtures',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts verify',
-    'run: node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
     'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
     'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
     'run: node tools/evaluation-harness/src/contract-conformance-cli.ts',
@@ -1211,9 +1248,20 @@ function validateCiPolicy(
     'run: pnpm security:secrets',
     unchangedWorktree,
   ] as const;
-  const hasExactlyOnce = (section: string, fragment: string): boolean =>
-    section.includes(fragment) &&
-    section.indexOf(fragment) === section.lastIndexOf(fragment);
+  const hasExactlyOnce = (section: string, fragment: string): boolean => {
+    if (fragment.startsWith('run: ')) {
+      return (
+        section
+          .split('\n')
+          .filter((line) => line.trim().replace(/^- /u, '') === fragment)
+          .length === 1
+      );
+    }
+    return (
+      section.includes(fragment) &&
+      section.indexOf(fragment) === section.lastIndexOf(fragment)
+    );
+  };
   const containsInOrder = (
     section: string | undefined,
     fragments: readonly string[],

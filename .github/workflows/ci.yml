@@ -118,14 +118,20 @@ jobs:
       - name: Validate retrieval evaluation authority
         run: node tools/evaluation-harness/src/retrieval/cli.ts validate
 
+      - name: Validate reviewed retrieval-v2 authority
+        run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2
+
       - name: Validate retrieval scorer fixtures
         run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
 
       - name: Verify retrieval baselines and committed report
         run: node tools/evaluation-harness/src/retrieval/cli.ts verify
 
-      - name: Evaluate production retrieval vertical slice
-        run: node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production
+      - name: Verify reviewed retrieval-v2 baselines
+        run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2
+
+      - name: Validate reviewed retrieval-v2 gates
+        run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2
 
       - name: Validate interview evaluation cases
         run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate

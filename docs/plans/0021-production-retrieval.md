@@ -18,9 +18,14 @@
   blocked. Authorized metadata collection attempt #1 failed safely at
   `collection / ingestion.provider-identity`, published no authority or
   staging state, and was not rerun. The resulting repository-identity
-  semantics correction and identity-only diagnostic are prepared offline for
-  independent review.
-- Last updated: 2026-08-07
+  semantics correction and identity-only diagnostic were accepted before the
+  frozen six-channel activation at `0e830d60ba97487e864633d91c09692fb6c081a1`.
+  The first six-channel measurement remains immutable historical
+  `retrieval-v1` evidence. Issue #23 subsequently established independently
+  reviewed `retrieval-v2`; Phase 9 is now prepared for, but has not executed,
+  one separately authorized reviewed-v2 measurement. Milestone 3 remains open
+  and Milestone 4 remains blocked.
+- Last updated: 2026-08-08
 
 Issue #21 is the requirements authority. Accepted
 [ADR 0009](../architecture/decisions/0009-production-retrieval.md) owns the
@@ -29,6 +34,39 @@ review gates, stop conditions, file placement, and validation evidence.
 Accepted ADRs, the product contract, repository
 engineering standards, and the governing issue win over this plan if they
 conflict.
+
+### Reviewed-v2 pre-benchmark preparation
+
+Issue #23 was independently accepted and merged at main
+`8bcf1f37d54cdb1767230d25a2c961093a8dfbb4`. Retrieval-v2 is the governing
+forward evaluation authority, bound to corpus digest
+`05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c`,
+independent-review digest
+`c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20`,
+baseline-report digest
+`789bee30451d82276b224b1693710fbb66c3722b625c81cbd45b2453a8354140`,
+saturation-proof digest
+`4fde078b679dea3c434f77392b4b2f2a5b0c3a477b383d0699024b6414287921`,
+and quality-gate digest
+`27550bd7d676a51b98177184b72a6ac11d7ccee350cee1b0d105915b6ce13261`.
+Retrieval-v1 remains immutable historical authority.
+
+Current main was merged into the shared Phase 9 branch without rebasing or
+rewriting the frozen six-channel commit. The merged Issue #24 security state
+retains Nanoid `3.3.18` and supersedes the branch's historical Nanoid override.
+The product request, result, algorithm, six channels, weights, caps, lane
+semantics, and result limits remain unchanged. A gold-blind prediction-only
+proof reproduces historical v1 prediction digest
+`94313f9b9694bbe7fe5b04307730d8d262236846c3bc8ec01a346f661b56de44`
+and proves v1/v2 product outputs identical after removing only evaluation
+wrapper bindings.
+
+Production measurement is no longer part of ordinary verification or hosted
+CI. The explicit `pnpm eval:retrieval:production:v2` command exists for the
+later independently authorized observation and has not been run. No v2 product
+quality result is known. Issue #28 owns hosted-CI reliability; it does not
+block Milestone 3 preparation, but it must be resolved before Milestone 4 final
+closure relies on hosted CI.
 
 This plan implements Project Phase 9, corresponding to Phase 11 — Retrieval
 Engine in the original end-to-end strategy. Independent maintainer rereview

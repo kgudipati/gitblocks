@@ -211,6 +211,22 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score',
     'eval:retrieval:production':
       'pnpm runtime:check && pnpm build:product && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production',
+    'eval:retrieval:production:v2':
+      'pnpm runtime:check && pnpm build:product && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production-v2',
+    'eval:retrieval:v2:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
+    'eval:retrieval:v2:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'eval:retrieval:v2:baselines':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-v2',
+    'eval:retrieval:v2:baselines:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate-v2',
+    'eval:retrieval:v2:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'eval:retrieval:v2:gates:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-generate-v2',
+    'eval:retrieval:v2:gates:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
     'eval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score',
     'eval:validate':
@@ -273,7 +289,7 @@ const ROOT_MANIFEST = JSON.stringify({
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
-      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production && node packages/contracts/scripts/taxonomy-cli.ts && node packages/contracts/scripts/retrieval-expansion-cli.ts',
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && node tools/evaluation-harness/src/retrieval/cli.ts validate && node tools/evaluation-harness/src/retrieval/cli.ts validate-v2 && node tools/evaluation-harness/src/retrieval/cli.ts fixtures && node tools/evaluation-harness/src/retrieval/cli.ts verify && node tools/evaluation-harness/src/retrieval/cli.ts verify-v2 && node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2 && node packages/contracts/scripts/taxonomy-cli.ts && node packages/contracts/scripts/retrieval-expansion-cli.ts',
   },
   devDependencies: {
     typescript: '6.0.3',
@@ -477,9 +493,11 @@ const CI_POLICY = `jobs:
       - run: node tools/evaluation-harness/src/cli.ts validate
       - run: node tools/evaluation-harness/src/cli.ts fixtures
       - run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2
       - run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
       - run: node tools/evaluation-harness/src/retrieval/cli.ts verify
-      - run: node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
       - run: node tools/evaluation-harness/src/contract-conformance-cli.ts
