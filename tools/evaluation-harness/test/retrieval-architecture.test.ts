@@ -173,7 +173,7 @@ describe('retrieval evaluation architecture', () => {
       'verification/retrieval-v1/profile-coverage.json':
         'e40137bc8b1e8b978a4e3008b876d1a284de0eca61daeda841c6492bdb24eaf8',
       'packages/ingestion/src/candidate-profile-projection.ts':
-        'b7a8146372bb0077b3591d03c2cd5a29cd77b5b101ac570b89f50e329b8dbf68',
+        '4dd72b224967f5bb886af51c9ca4bb7f71ba50a5608b781d26b261a30cda738f',
       'packages/ingestion/src/profile.ts':
         '735ae75a1509c9fa909bd1a97ff3d3be06bb628d4197561984924132290e92d9',
       'packages/domain/src/deterministic-candidate-profile.ts':

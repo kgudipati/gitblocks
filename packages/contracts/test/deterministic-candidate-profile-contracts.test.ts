@@ -580,6 +580,44 @@ describe('DeterministicCandidateProfileAuthorityV1', () => {
       semanticAuthorityDigest: '0'.repeat(64),
     });
   }, 30_000);
+
+  it('preserves structural diagnostic precedence across composed validation', () => {
+    const invalidProfile = authority.profiles.map((profile, index) =>
+      index === 0 ? { ...profile, contractVersion: '2.0.0' } : profile,
+    );
+    expect(
+      parseDeterministicCandidateProfileAuthorityV1({
+        ...authority,
+        profiles: invalidProfile,
+        semanticAuthorityDigest: 'x',
+      }),
+    ).toMatchObject({
+      ok: false,
+      issues: [
+        {
+          code: 'contract.version',
+          path: '/profiles/0/contractVersion',
+          message: 'Contract version is unsupported.',
+        },
+      ],
+    });
+    expect(
+      parseDeterministicCandidateProfileAuthorityV1({
+        ...authority,
+        catalogDigest: 'x',
+        profiles: invalidProfile,
+      }),
+    ).toMatchObject({
+      ok: false,
+      issues: [
+        {
+          code: 'contract.bounds',
+          path: '/catalogDigest',
+          message: 'Contract value is outside the allowed bounds.',
+        },
+      ],
+    });
+  });
 });
 
 function expectInvalid(value: unknown): void {

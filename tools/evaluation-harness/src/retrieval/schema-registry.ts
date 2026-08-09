@@ -57,7 +57,16 @@ export function createRetrievalSchemaRegistry(
   const definitionsV2 = loadSchema(schemaRoot, 'definitions-v2.schema.json');
   ajv.addSchema(definitionsV2);
   const validators = new Map<RetrievalSchemaName, ValidateFunction>();
-  for (const name of SCHEMA_NAMES) {
+  function getValidator(
+    name: RetrievalSchemaName,
+  ): ValidateFunction | undefined {
+    const existing = validators.get(name);
+    if (existing !== undefined) {
+      return existing;
+    }
+    if (!SCHEMA_NAMES.includes(name)) {
+      return undefined;
+    }
     const versioned =
       authorityVersion === 'v2' &&
       (name === 'baseline-report' ||
@@ -78,10 +87,11 @@ export function createRetrievalSchemaRegistry(
       throw new Error('Retrieval evaluation schema could not be registered.');
     }
     validators.set(name, validator);
+    return validator;
   }
   return {
     validate(name, value) {
-      const validator = validators.get(name);
+      const validator = getValidator(name);
       if (validator === undefined) {
         return [diagnostic('retrieval.schema.unknown', '', 'Unknown schema.')];
       }
