@@ -86,6 +86,18 @@ describe('retrieval query blindness', () => {
     }
   });
 
+  it.each(['v1', 'v2'] as const)(
+    'preserves repeated query validation on one %s registry',
+    (authorityVersion) => {
+      const registry = createRetrievalSchemaRegistry(root, authorityVersion);
+      expect(registry.validate('query', query)).toEqual([]);
+      const invalid = { ...query, hiddenAnswer: true };
+      const first = registry.validate('query', invalid);
+      expect(first).not.toEqual([]);
+      expect(registry.validate('query', invalid)).toEqual(first);
+    },
+  );
+
   it('uses the accepted closed query-input parser', () => {
     for (const forbidden of [
       { arbitraryUrl: 'https://example.invalid' },
