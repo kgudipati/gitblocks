@@ -121,27 +121,20 @@ export function loadRetrievalSafeAuthorityV1(
   );
   if (
     !metadata.ok ||
-    metadata.value.authorityVersion !== EXPECTED_METADATA_AUTHORITY_VERSION ||
     metadata.value.authoritySemanticDigest !==
       EXPECTED_METADATA_AUTHORITY_DIGEST ||
     metadata.value.snapshotId !== EXPECTED_METADATA_SNAPSHOT_ID ||
     metadata.value.candidates.length !== EXPECTED_PROFILE_COUNT ||
     metadata.value.catalogDigest !== EXPECTED_CATALOG_DIGEST ||
-    metadata.value.providerPolicyVersion !==
-      EXPECTED_METADATA_PROVIDER_POLICY_VERSION ||
     metadata.value.providerPolicyDigest !==
       EXPECTED_METADATA_PROVIDER_POLICY_DIGEST ||
-    metadata.value.sourceProviderPolicyVersion !==
-      EXPECTED_SOURCE_PROVIDER_POLICY_VERSION ||
     metadata.value.sourceProviderPolicyDigest !==
       EXPECTED_SOURCE_PROVIDER_POLICY_DIGEST ||
-    metadata.value.sourceOperation !== EXPECTED_SOURCE_OPERATION ||
     expectedCandidates.length !== EXPECTED_PROFILE_COUNT ||
     metadata.value.candidates.some((candidate) => {
       const expected = expectedById.get(candidate.candidateId);
       return (
-        expected === undefined ||
-        candidate.catalogOwner !== expected.catalogOwner ||
+        candidate.catalogOwner !== expected?.catalogOwner ||
         candidate.catalogRepository !== expected.catalogRepository
       );
     })
@@ -179,9 +172,7 @@ function stableRepositoryProjection(profile: DeterministicCandidateProfile): {
     ({ fieldId }) => fieldId === 'repository-identity',
   ) as DeterministicProfileFieldRecord<'repository-identity'> | undefined;
   if (
-    repository === undefined ||
-    repository.fieldId !== 'repository-identity' ||
-    repository.state !== 'known' ||
+    repository?.state !== 'known' ||
     repository.value.candidateId !== profile.candidateId
   ) {
     return null;

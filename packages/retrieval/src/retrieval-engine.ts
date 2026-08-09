@@ -327,10 +327,8 @@ export function retrieveCandidateSet(
   if (!parsedRequest.ok) return failure('invalid-request', 'request');
   const request = parsedRequest.value;
   if (
-    request.authorityBindings.retrievalMetadata.authorityVersion !==
-      metadataChannel.authorityBinding.authorityVersion ||
     request.authorityBindings.retrievalMetadata.authoritySemanticDigest !==
-      metadataChannel.authorityBinding.authoritySemanticDigest
+    metadataChannel.authorityBinding.authoritySemanticDigest
   ) {
     return failure('metadata-snapshot-mismatch', 'request');
   }

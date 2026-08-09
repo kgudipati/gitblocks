@@ -1364,11 +1364,9 @@ describe('deterministic production retrieval vertical slice', () => {
       baselineEvidence.result.preRetrievalLaneCounts,
     );
     expect(measuredEvidence.result.preRetrievalLaneCounts.eligible).toBe(0);
-    expect(
-      measuredEvidence.result.evidenceNeededCandidates.every(
-        ({ lane }) => lane === 'evidence-needed',
-      ),
-    ).toBe(true);
+    for (const candidate of measuredEvidence.result.evidenceNeededCandidates) {
+      expect(candidate.lane).toBe('evidence-needed');
+    }
   });
 
   it('builds the immutable metadata view once per engine and performs no product I/O', async () => {
