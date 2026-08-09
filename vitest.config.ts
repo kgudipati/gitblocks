@@ -2,8 +2,8 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    // Bound concurrent authority parsing to the hosted runner CPU allocation.
-    maxWorkers: 4,
+    // Bound concurrent authority parsing to the private hosted runner CPU allocation.
+    maxWorkers: 2,
     coverage: {
       enabled: false,
       exclude: [
