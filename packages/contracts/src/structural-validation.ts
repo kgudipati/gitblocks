@@ -122,6 +122,22 @@ for (const branch of deterministicProfileFieldBranches) {
   deterministicProfileFieldBranchesById.set(fieldId, [...existing, branch]);
 }
 
+const deterministicProfileFieldCommonProperties = [
+  'fieldId',
+  'scope',
+  'stateReasonCode',
+  'stateRuleId',
+  'versionScope',
+  'sourceReferences',
+  'state',
+  'valueExtractionRuleId',
+] as const;
+const deterministicProfileFieldBranchShapes = [
+  [...deterministicProfileFieldCommonProperties, 'value'],
+  deterministicProfileFieldCommonProperties,
+  [...deterministicProfileFieldCommonProperties, 'claims'],
+].map((properties) => new Set<string>(properties));
+
 // The public schema remains the authority. Its private envelope validator
 // delegates profile items to the separately memoized profile validator so Ajv
 // does not inline the same large profile program into the authority program.
@@ -224,24 +240,10 @@ function createLazyCandidateProfileValidator(): LazyStructuralValidator<Determin
       deterministicCandidateProfileDigestSchema,
     );
     const fieldValidators = new Map<string, ValidateFunction>();
-    let fallbackFieldValidator: ValidateFunction | undefined;
-    const getFieldValidator = (field: unknown): ValidateFunction => {
-      const fieldId =
-        typeof field === 'object' && field !== null
-          ? (field as Record<string, unknown>)['fieldId']
-          : undefined;
-      if (typeof fieldId !== 'string') {
-        fallbackFieldValidator ??= ajv.compile(
-          deterministicProfileFieldRecordV1Schema,
-        );
-        return fallbackFieldValidator;
-      }
+    const getFieldValidator = (fieldId: string): ValidateFunction => {
       const branches = deterministicProfileFieldBranchesById.get(fieldId);
       if (branches === undefined) {
-        fallbackFieldValidator ??= ajv.compile(
-          deterministicProfileFieldRecordV1Schema,
-        );
-        return fallbackFieldValidator;
+        throw new Error('Deterministic profile field ID is not registered.');
       }
       const existing = fieldValidators.get(fieldId);
       if (existing !== undefined) {
@@ -257,16 +259,36 @@ function createLazyCandidateProfileValidator(): LazyStructuralValidator<Determin
         composite.errors = envelopeValidator.errors ?? null;
         return false;
       }
-      const fields = (value as DeterministicCandidateProfileV1).fields;
+      const fields = (value as { readonly fields: readonly unknown[] }).fields;
       for (const [index, field] of fields.entries()) {
-        const fieldValidator = getFieldValidator(field);
-        if (!fieldValidator(field)) {
-          composite.errors = (fieldValidator.errors ?? []).map((error) => ({
-            ...error,
-            instancePath: `/fields/${String(index)}${error.instancePath}`,
-          }));
-          return false;
+        const fieldId =
+          typeof field === 'object' && field !== null && !Array.isArray(field)
+            ? (field as Record<string, unknown>)['fieldId']
+            : undefined;
+        let fieldErrors: readonly ErrorObject[];
+        if (
+          typeof fieldId !== 'string' ||
+          !deterministicProfileFieldBranchesById.has(fieldId)
+        ) {
+          fieldErrors = malformedFieldDiscriminatorErrors(field);
+        } else {
+          const fieldValidator = getFieldValidator(fieldId);
+          if (fieldValidator(field)) {
+            continue;
+          }
+          fieldErrors = fieldValidator.errors ?? [];
+          if (nonmatchingFieldBranchReachesDiscriminator(field)) {
+            fieldErrors = [
+              ...fieldErrors,
+              compatibilityAjvError('const', '/fieldId'),
+            ];
+          }
         }
+        composite.errors = fieldErrors.map((error) => ({
+          ...error,
+          instancePath: `/fields/${String(index)}${error.instancePath}`,
+        }));
+        return false;
       }
       if (!digestValidator(value)) {
         composite.errors = digestValidator.errors ?? null;
@@ -278,6 +300,59 @@ function createLazyCandidateProfileValidator(): LazyStructuralValidator<Determin
     validator = composite;
     return validator;
   };
+}
+
+function malformedFieldDiscriminatorErrors(
+  field: unknown,
+): readonly ErrorObject[] {
+  if (typeof field !== 'object' || field === null || Array.isArray(field)) {
+    return [compatibilityAjvError('type', '')];
+  }
+  const errors: ErrorObject[] = [];
+  for (const properties of deterministicProfileFieldBranchShapes) {
+    if (
+      [...properties].some(
+        (property) => !Object.prototype.hasOwnProperty.call(field, property),
+      )
+    ) {
+      errors.push(compatibilityAjvError('required', ''));
+      continue;
+    }
+    if (Object.keys(field).some((property) => !properties.has(property))) {
+      errors.push(compatibilityAjvError('additionalProperties', ''));
+      continue;
+    }
+    errors.push(compatibilityAjvError('const', '/fieldId'));
+    if (typeof (field as Record<string, unknown>)['fieldId'] !== 'string') {
+      errors.push(compatibilityAjvError('type', '/fieldId'));
+    }
+  }
+  return errors;
+}
+
+function nonmatchingFieldBranchReachesDiscriminator(field: unknown): boolean {
+  if (typeof field !== 'object' || field === null || Array.isArray(field)) {
+    return false;
+  }
+  const keys = Object.keys(field);
+  return deterministicProfileFieldBranchShapes.some(
+    (properties) =>
+      [...properties].every((property) =>
+        Object.prototype.hasOwnProperty.call(field, property),
+      ) && keys.every((property) => properties.has(property)),
+  );
+}
+
+function compatibilityAjvError(
+  keyword: string,
+  instancePath: string,
+): ErrorObject {
+  return {
+    instancePath,
+    schemaPath: '',
+    keyword,
+    params: {},
+  } as ErrorObject;
 }
 
 export const capabilityRequestV1Validator =

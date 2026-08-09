@@ -124,6 +124,77 @@ describe('DeterministicCandidateProfileV1', () => {
     );
   });
 
+  it('preserves exact malformed-field structural diagnostics', () => {
+    const malformedCases: readonly [
+      string,
+      unknown,
+      readonly ExpectedContractIssue[],
+    ][] = [
+      [
+        'unknown field ID',
+        replaceField(validProfile, 'catalog-role-status', (field) => ({
+          ...field,
+          fieldId: 'unknown-field-id',
+        })),
+        [
+          additionalPropertyIssue('/fields/0'),
+          literalIssue('/fields/0/fieldId'),
+        ],
+      ],
+      [
+        'missing field ID',
+        replaceField(validProfile, 'catalog-role-status', (field) => {
+          const withoutFieldId = { ...field };
+          delete withoutFieldId['fieldId'];
+          return withoutFieldId;
+        }),
+        [requiredIssue('/fields/0')],
+      ],
+      [
+        'non-string field ID',
+        replaceField(validProfile, 'catalog-role-status', (field) => ({
+          ...field,
+          fieldId: 27,
+        })),
+        [
+          additionalPropertyIssue('/fields/0'),
+          literalIssue('/fields/0/fieldId'),
+          typeIssue('/fields/0/fieldId'),
+        ],
+      ],
+      [
+        'known field with malformed scope',
+        replaceField(validProfile, 'catalog-role-status', (field) => ({
+          ...field,
+          scope: 'invalid-scope',
+        })),
+        [
+          additionalPropertyIssue('/fields/0'),
+          literalIssue('/fields/0/fieldId'),
+          literalIssue('/fields/0/scope'),
+        ],
+      ],
+      [
+        'known field with malformed state value',
+        replaceField(validProfile, 'catalog-role-status', (field) => ({
+          ...field,
+          value: null,
+        })),
+        [
+          additionalPropertyIssue('/fields/0'),
+          literalIssue('/fields/0/fieldId'),
+          typeIssue('/fields/0/value'),
+        ],
+      ],
+    ];
+    for (const [name, value, issues] of malformedCases) {
+      expect(parseDeterministicCandidateProfileV1(value), name).toEqual({
+        ok: false,
+        issues,
+      });
+    }
+  });
+
   it('binds repository identity and package applicability to profile-owned fields', () => {
     expect(() =>
       createDeterministicCandidateProfileV1(
@@ -618,7 +689,68 @@ describe('DeterministicCandidateProfileAuthorityV1', () => {
       ],
     });
   });
+
+  it('preserves exact authority nesting for malformed profile fields', () => {
+    const profiles = authority.profiles.map((profile, index) =>
+      index === 0
+        ? (replaceField(profile, 'catalog-role-status', (field) => ({
+            ...field,
+            fieldId: 'unknown-field-id',
+          })) as DeterministicCandidateProfileV1)
+        : profile,
+    );
+    expect(
+      parseDeterministicCandidateProfileAuthorityV1({
+        ...authority,
+        profiles,
+      }),
+    ).toEqual({
+      ok: false,
+      issues: [
+        additionalPropertyIssue('/profiles/0/fields/0'),
+        literalIssue('/profiles/0/fields/0/fieldId'),
+      ],
+    });
+  });
 });
+
+interface ExpectedContractIssue {
+  readonly code: string;
+  readonly path: string;
+  readonly message: string;
+}
+
+function additionalPropertyIssue(path: string): ExpectedContractIssue {
+  return {
+    code: 'contract.additional-property',
+    path,
+    message: 'Contract value contains an additional field.',
+  };
+}
+
+function literalIssue(path: string): ExpectedContractIssue {
+  return {
+    code: 'contract.literal',
+    path,
+    message: 'Contract value does not match the required literal.',
+  };
+}
+
+function requiredIssue(path: string): ExpectedContractIssue {
+  return {
+    code: 'contract.required',
+    path,
+    message: 'Required contract field is missing.',
+  };
+}
+
+function typeIssue(path: string): ExpectedContractIssue {
+  return {
+    code: 'contract.type',
+    path,
+    message: 'Contract value has an invalid type.',
+  };
+}
 
 function expectInvalid(value: unknown): void {
   expect(parseDeterministicCandidateProfileV1(value).ok).toBe(false);
