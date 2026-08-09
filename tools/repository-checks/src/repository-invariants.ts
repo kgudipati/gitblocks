@@ -1094,20 +1094,47 @@ function validateCiPolicy(
   const workerJobIds = [
     'typecheck',
     'verification-static',
-    'verification-tests-core',
+    'verification-authority-retrieval',
+    'verification-authority-other',
+    'verification-tests-contracts-domain',
+    'verification-tests-persistence-ingestion',
     'verification-tests-interviews',
-    'verification-tests-tools',
+    'verification-tests-evaluation-harness',
+    'verification-tests-prelive',
+    'verification-tests-repository-checks',
     'database-and-audit',
   ] as const;
+  const aggregateDependencies = [
+    'verification-static',
+    'verification-authority-retrieval',
+    'verification-authority-other',
+    'verification-tests-contracts-domain',
+    'verification-tests-persistence-ingestion',
+    'verification-tests-interviews',
+    'verification-tests-evaluation-harness',
+    'verification-tests-prelive',
+    'verification-tests-repository-checks',
+  ] as const;
+  const expectedJobIds = [...workerJobIds, 'verification'] as const;
+  const jobsStart = content.indexOf('jobs:\n');
+  const actualJobIds =
+    jobsStart < 0
+      ? []
+      : [
+          ...content
+            .slice(jobsStart + 'jobs:\n'.length)
+            .matchAll(/^ {2}([a-z0-9][a-z0-9-]*):$/gmu),
+        ].map((match) => match[1]);
   const workerJobs = new Map(
     workerJobIds.map((jobId) => [jobId, jobSection(jobId)]),
   );
   const typecheckJob = workerJobs.get('typecheck');
   const staticJob = workerJobs.get('verification-static');
-  const coreTestsJob = workerJobs.get('verification-tests-core');
-  const interviewTestsJob = workerJobs.get('verification-tests-interviews');
-  const toolsTestsJob = workerJobs.get('verification-tests-tools');
-  const databaseJob = jobSection('database-and-audit');
+  const retrievalAuthorityJob = workerJobs.get(
+    'verification-authority-retrieval',
+  );
+  const otherAuthorityJob = workerJobs.get('verification-authority-other');
+  const databaseJob = workerJobs.get('database-and-audit');
   const aggregateJob = jobSection('verification');
   const diagnostics: Diagnostic[] = [];
   const databaseFragments = [
@@ -1153,11 +1180,25 @@ function validateCiPolicy(
     'run: pnpm typecheck:internal',
     'run: pnpm architecture:check',
     'run: node tools/repository-checks/src/cli.ts repository',
-    'run: node tools/evaluation-harness/src/cli.ts validate',
-    'run: node tools/evaluation-harness/src/cli.ts fixtures',
+    'run: pnpm security:secrets',
+    unchangedWorktree,
+  ] as const;
+  const retrievalAuthorityCommands = [
+    'run: pnpm runtime:check',
+    'run: pnpm --filter @gitblocks/evaluation-harness... build',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts verify',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
+    unchangedWorktree,
+  ] as const;
+  const otherAuthorityCommands = [
+    'run: pnpm runtime:check',
+    'run: pnpm --filter @gitblocks/repository-interview-prelive... build',
+    'run: node tools/evaluation-harness/src/cli.ts validate',
+    'run: node tools/evaluation-harness/src/cli.ts fixtures',
     'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
     'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
     'run: node tools/evaluation-harness/src/contract-conformance-cli.ts',
@@ -1167,12 +1208,17 @@ function validateCiPolicy(
     'run: node packages/interviews/scripts/specification-cli.ts validate',
     'run: node apps/repository-interview-operator/scripts/schema-cli.ts validate',
     'run: node tools/repository-interview-prelive/src/prelive-cli.ts validate',
-    'run: pnpm security:secrets',
     unchangedWorktree,
   ] as const;
-  const hasExactlyOnce = (section: string, fragment: string): boolean =>
-    section.includes(fragment) &&
-    section.indexOf(fragment) === section.lastIndexOf(fragment);
+  const hasExactlyOnce = (section: string, fragment: string): boolean => {
+    const first = section.indexOf(fragment);
+    return first >= 0 && first === section.lastIndexOf(fragment);
+  };
+  const hasExactlyOneLine = (section: string, line: string): boolean =>
+    section.split('\n').filter((candidate) => {
+      const trimmed = candidate.trim();
+      return trimmed === line || trimmed === `- ${line}`;
+    }).length === 1;
   const containsInOrder = (
     section: string | undefined,
     fragments: readonly string[],
@@ -1192,56 +1238,81 @@ function validateCiPolicy(
   };
   const shardRequirements = [
     {
-      section: coreTestsJob,
-      roots: [
-        'packages/contracts/test',
-        'packages/domain/test',
-        'packages/persistence/test',
-        'packages/ingestion/test',
-      ],
+      build: 'run: pnpm --filter @gitblocks/contracts... build',
+      jobId: 'verification-tests-contracts-domain',
+      roots: ['packages/contracts/test', 'packages/domain/test'],
     },
     {
-      section: interviewTestsJob,
+      build: 'run: pnpm --filter @gitblocks/ingestion... build',
+      jobId: 'verification-tests-persistence-ingestion',
+      roots: ['packages/persistence/test', 'packages/ingestion/test'],
+    },
+    {
+      build:
+        'run: pnpm --filter @gitblocks/repository-interview-operator... build',
+      jobId: 'verification-tests-interviews',
       roots: [
         'packages/interviews/test',
         'apps/repository-interview-operator/test',
       ],
     },
     {
-      section: toolsTestsJob,
-      roots: [
-        'tools/evaluation-harness/test',
-        'tools/repository-interview-prelive/test',
-        'tools/repository-checks/test',
-      ],
+      build: 'run: pnpm --filter @gitblocks/evaluation-harness... build',
+      jobId: 'verification-tests-evaluation-harness',
+      roots: ['tools/evaluation-harness/test'],
+    },
+    {
+      build:
+        'run: pnpm --filter @gitblocks/repository-interview-prelive... build',
+      jobId: 'verification-tests-prelive',
+      roots: ['tools/repository-interview-prelive/test'],
+    },
+    {
+      build: null,
+      jobId: 'verification-tests-repository-checks',
+      roots: ['tools/repository-checks/test'],
     },
   ] as const;
-  const aggregateFragments = [
+  const testRoots = shardRequirements.flatMap(({ roots }) => roots);
+  const aggregateResultBindings = [
+    ['STATIC_RESULT', 'verification-static'],
+    ['RETRIEVAL_AUTHORITY_RESULT', 'verification-authority-retrieval'],
+    ['OTHER_AUTHORITY_RESULT', 'verification-authority-other'],
+    ['CONTRACTS_DOMAIN_RESULT', 'verification-tests-contracts-domain'],
+    [
+      'PERSISTENCE_INGESTION_RESULT',
+      'verification-tests-persistence-ingestion',
+    ],
+    ['INTERVIEW_TEST_RESULT', 'verification-tests-interviews'],
+    ['EVALUATION_HARNESS_RESULT', 'verification-tests-evaluation-harness'],
+    ['PRELIVE_TEST_RESULT', 'verification-tests-prelive'],
+    ['REPOSITORY_CHECKS_RESULT', 'verification-tests-repository-checks'],
+  ] as const;
+  const aggregateFragments: readonly string[] = [
     'name: Verification',
     'needs:',
-    '- verification-static',
-    '- verification-tests-core',
-    '- verification-tests-interviews',
-    '- verification-tests-tools',
+    ...aggregateDependencies.map((jobId) => `- ${jobId}`),
     'if: ${{ always() }}',
     'timeout-minutes: 5',
-    'STATIC_RESULT: ${{ needs.verification-static.result }}',
-    'CORE_TEST_RESULT: ${{ needs.verification-tests-core.result }}',
-    'INTERVIEW_TEST_RESULT: ${{ needs.verification-tests-interviews.result }}',
-    'TOOL_TEST_RESULT: ${{ needs.verification-tests-tools.result }}',
-    'test "$STATIC_RESULT" = "success"',
-    'test "$CORE_TEST_RESULT" = "success"',
-    'test "$INTERVIEW_TEST_RESULT" = "success"',
-    'test "$TOOL_TEST_RESULT" = "success"',
+    ...aggregateResultBindings.flatMap(([variable, jobId]) => [
+      `${variable}: \${{ needs.${jobId}.result }}`,
+      `test "$${variable}" = "success"`,
+    ]),
   ] as const;
   const installIndex = typecheckJob?.indexOf(install) ?? -1;
   const typecheckIndex = typecheckJob?.indexOf(typecheck) ?? -1;
+  const forbiddenWorkerFailurePolicy =
+    /continue-on-error|always\(\)|\|\|\s*true|\bset\s+\+e\b|(?:^|\s)(?:retry|rerun)(?:\s|$)|--rerun/iu;
+  const forbiddenProductionEvaluation =
+    /eval:retrieval:production|retrieval\/cli\.ts\s+production(?:-v2)?(?:\s|$)/u;
   if (
+    actualJobIds.length !== expectedJobIds.length ||
+    actualJobIds.some((jobId, index) => jobId !== expectedJobIds[index]) ||
+    [...workerJobs.values()].some((job) => job === undefined) ||
     typecheckJob === undefined ||
     staticJob === undefined ||
-    coreTestsJob === undefined ||
-    interviewTestsJob === undefined ||
-    toolsTestsJob === undefined ||
+    retrievalAuthorityJob === undefined ||
+    otherAuthorityJob === undefined ||
     databaseJob === undefined ||
     aggregateJob === undefined ||
     installIndex < 0 ||
@@ -1255,32 +1326,90 @@ function validateCiPolicy(
     [...workerJobs.values()].some(
       (job) =>
         job === undefined ||
-        !job.includes(install) ||
-        !job.includes(unchangedWorktree) ||
+        !hasExactlyOneLine(job, install) ||
+        !hasExactlyOneLine(job, unchangedWorktree) ||
+        !job.trimEnd().endsWith(unchangedWorktree) ||
         /(?:^|\n) {4}needs:/u.test(job) ||
-        job.includes('always()') ||
-        job.includes('continue-on-error'),
+        forbiddenWorkerFailurePolicy.test(job),
     ) ||
+    !hasExactlyOneLine(
+      staticJob,
+      'pnpm repo:pr-branch -- "$PR_ACTOR" "$PR_BRANCH"',
+    ) ||
+    !hasExactlyOneLine(staticJob, 'pnpm repo:pr-title -- "$PR_TITLE"') ||
     !containsInOrder(staticJob, staticCommands) ||
-    staticCommands.some((command) => !hasExactlyOnce(staticJob, command)) ||
+    staticCommands.some((command) => !hasExactlyOneLine(staticJob, command)) ||
     staticJob.includes('run: pnpm verify') ||
     staticJob.includes('vitest') ||
+    staticJob.includes('evaluation-harness/src/retrieval/cli.ts') ||
+    staticJob.includes('repository-interview-evaluation-cli.ts') ||
     staticJob.includes('run: pnpm db:verify') ||
     staticJob.includes('run: pnpm security:audit') ||
-    shardRequirements.some(
-      ({ section, roots }) =>
+    !containsInOrder(retrievalAuthorityJob, retrievalAuthorityCommands) ||
+    retrievalAuthorityCommands.some(
+      (command) => !hasExactlyOneLine(retrievalAuthorityJob, command),
+    ) ||
+    retrievalAuthorityJob.includes('vitest') ||
+    retrievalAuthorityJob.includes('run: pnpm db:verify') ||
+    retrievalAuthorityJob.includes('run: pnpm security:audit') ||
+    !containsInOrder(otherAuthorityJob, otherAuthorityCommands) ||
+    otherAuthorityCommands.some(
+      (command) => !hasExactlyOneLine(otherAuthorityJob, command),
+    ) ||
+    otherAuthorityJob.includes('vitest') ||
+    otherAuthorityJob.includes('evaluation-harness/src/retrieval/cli.ts') ||
+    otherAuthorityJob.includes('run: pnpm db:verify') ||
+    otherAuthorityJob.includes('run: pnpm security:audit') ||
+    shardRequirements.some(({ build, jobId, roots }) => {
+      const section = workerJobs.get(jobId);
+      const expectedOrder = [
+        'run: pnpm runtime:check',
+        ...(build === null ? [] : [build]),
+        'run: >-',
+        ...roots,
+        '--config vitest.config.ts',
+        unchangedWorktree,
+      ];
+      return (
         section === undefined ||
+        !containsInOrder(section, expectedOrder) ||
+        !hasExactlyOneLine(section, 'run: pnpm runtime:check') ||
+        (build !== null && !hasExactlyOneLine(section, build)) ||
+        (build === null && section.includes('... build')) ||
+        !hasExactlyOneLine(section, 'pnpm exec vitest run') ||
+        !hasExactlyOneLine(section, '--config vitest.config.ts') ||
         !section.includes('pnpm exec vitest run') ||
-        !section.includes('--config vitest.config.ts') ||
-        !roots.every((root) => hasExactlyOnce(section, root)) ||
+        !roots.every((root) => hasExactlyOneLine(section, root)) ||
         section.includes('pnpm verify') ||
         section.includes('db:verify') ||
-        section.includes('security:audit'),
+        section.includes('security:audit')
+      );
+    }) ||
+    testRoots.some(
+      (root) =>
+        content.split('\n').filter((candidate) => candidate.trim() === root)
+          .length !== 1,
     ) ||
+    forbiddenProductionEvaluation.test(content) ||
     !aggregateFragments.every((fragment) =>
       hasExactlyOnce(aggregateJob, fragment),
     ) ||
+    aggregateDependencies.some(
+      (jobId) => !hasExactlyOneLine(aggregateJob, `- ${jobId}`),
+    ) ||
+    aggregateResultBindings.some(
+      ([variable, jobId]) =>
+        !hasExactlyOneLine(
+          aggregateJob,
+          `${variable}: \${{ needs.${jobId}.result }}`,
+        ) ||
+        !hasExactlyOneLine(aggregateJob, `test "$${variable}" = "success"`),
+    ) ||
     aggregateJob.includes('uses:') ||
+    aggregateJob.includes('run: pnpm') ||
+    aggregateJob.includes('vitest') ||
+    aggregateJob.includes('run: git') ||
+    aggregateJob.includes('db:verify') ||
     aggregateJob.includes(install) ||
     aggregateJob.includes(unchangedWorktree) ||
     aggregateJob.includes('GITBLOCKS_DB_') ||
@@ -1291,7 +1420,7 @@ function validateCiPolicy(
     diagnostics.push(
       diagnostic(
         'repository.ci-clean-typecheck',
-        'CI must partition frozen installation, standalone typecheck, static authority checks, exact ordinary test shards, and the aggregate Verification gate.',
+        'CI must preserve the exact independently executable typecheck, static, authority, test, database, and fail-closed aggregate verification graph.',
         workflowPath,
       ),
     );

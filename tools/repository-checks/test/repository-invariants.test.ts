@@ -436,6 +436,9 @@ const CI_POLICY = `jobs:
   verification-static:
     steps:
       - run: pnpm install --frozen-lockfile
+      - run: |
+          pnpm repo:pr-branch -- "$PR_ACTOR" "$PR_BRANCH"
+          pnpm repo:pr-title -- "$PR_TITLE"
       - run: pnpm runtime:check
       - run: pnpm format:check
       - run: pnpm build:product
@@ -444,11 +447,27 @@ const CI_POLICY = `jobs:
       - run: pnpm typecheck:internal
       - run: pnpm architecture:check
       - run: node tools/repository-checks/src/cli.ts repository
-      - run: node tools/evaluation-harness/src/cli.ts validate
-      - run: node tools/evaluation-harness/src/cli.ts fixtures
+      - run: pnpm security:secrets
+      - run: git diff --exit-code
+  verification-authority-retrieval:
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/evaluation-harness... build
       - run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2
       - run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
       - run: node tools/evaluation-harness/src/retrieval/cli.ts verify
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2
+      - run: git diff --exit-code
+  verification-authority-other:
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/repository-interview-prelive... build
+      - run: node tools/evaluation-harness/src/cli.ts validate
+      - run: node tools/evaluation-harness/src/cli.ts fixtures
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
       - run: node tools/evaluation-harness/src/contract-conformance-cli.ts
@@ -458,15 +477,25 @@ const CI_POLICY = `jobs:
       - run: node packages/interviews/scripts/specification-cli.ts validate
       - run: node apps/repository-interview-operator/scripts/schema-cli.ts validate
       - run: node tools/repository-interview-prelive/src/prelive-cli.ts validate
-      - run: pnpm security:secrets
       - run: git diff --exit-code
-  verification-tests-core:
+  verification-tests-contracts-domain:
     steps:
       - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/contracts... build
       - run: >-
           pnpm exec vitest run
           packages/contracts/test
           packages/domain/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-persistence-ingestion:
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/ingestion... build
+      - run: >-
+          pnpm exec vitest run
           packages/persistence/test
           packages/ingestion/test
           --config vitest.config.ts
@@ -474,19 +503,40 @@ const CI_POLICY = `jobs:
   verification-tests-interviews:
     steps:
       - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/repository-interview-operator... build
       - run: >-
           pnpm exec vitest run
           packages/interviews/test
           apps/repository-interview-operator/test
           --config vitest.config.ts
       - run: git diff --exit-code
-  verification-tests-tools:
+  verification-tests-evaluation-harness:
     steps:
       - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/evaluation-harness... build
       - run: >-
           pnpm exec vitest run
           tools/evaluation-harness/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-prelive:
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/repository-interview-prelive... build
+      - run: >-
+          pnpm exec vitest run
           tools/repository-interview-prelive/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-repository-checks:
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: >-
+          pnpm exec vitest run
           tools/repository-checks/test
           --config vitest.config.ts
       - run: git diff --exit-code
@@ -507,22 +557,37 @@ const CI_POLICY = `jobs:
     name: Verification
     needs:
       - verification-static
-      - verification-tests-core
+      - verification-authority-retrieval
+      - verification-authority-other
+      - verification-tests-contracts-domain
+      - verification-tests-persistence-ingestion
       - verification-tests-interviews
-      - verification-tests-tools
+      - verification-tests-evaluation-harness
+      - verification-tests-prelive
+      - verification-tests-repository-checks
     if: \${{ always() }}
     timeout-minutes: 5
     env:
       STATIC_RESULT: \${{ needs.verification-static.result }}
-      CORE_TEST_RESULT: \${{ needs.verification-tests-core.result }}
+      RETRIEVAL_AUTHORITY_RESULT: \${{ needs.verification-authority-retrieval.result }}
+      OTHER_AUTHORITY_RESULT: \${{ needs.verification-authority-other.result }}
+      CONTRACTS_DOMAIN_RESULT: \${{ needs.verification-tests-contracts-domain.result }}
+      PERSISTENCE_INGESTION_RESULT: \${{ needs.verification-tests-persistence-ingestion.result }}
       INTERVIEW_TEST_RESULT: \${{ needs.verification-tests-interviews.result }}
-      TOOL_TEST_RESULT: \${{ needs.verification-tests-tools.result }}
+      EVALUATION_HARNESS_RESULT: \${{ needs.verification-tests-evaluation-harness.result }}
+      PRELIVE_TEST_RESULT: \${{ needs.verification-tests-prelive.result }}
+      REPOSITORY_CHECKS_RESULT: \${{ needs.verification-tests-repository-checks.result }}
     steps:
       - run: |
           test "$STATIC_RESULT" = "success"
-          test "$CORE_TEST_RESULT" = "success"
+          test "$RETRIEVAL_AUTHORITY_RESULT" = "success"
+          test "$OTHER_AUTHORITY_RESULT" = "success"
+          test "$CONTRACTS_DOMAIN_RESULT" = "success"
+          test "$PERSISTENCE_INGESTION_RESULT" = "success"
           test "$INTERVIEW_TEST_RESULT" = "success"
-          test "$TOOL_TEST_RESULT" = "success"
+          test "$EVALUATION_HARNESS_RESULT" = "success"
+          test "$PRELIVE_TEST_RESULT" = "success"
+          test "$REPOSITORY_CHECKS_RESULT" = "success"
 `;
 
 function dependabotPolicy(
@@ -562,6 +627,18 @@ function validRepository() {
     ['pnpm-workspace.yaml', WORKSPACE_POLICY],
   ]);
   return { textFiles, trackedPaths };
+}
+
+function withoutCiJob(jobId: string): string {
+  const marker = `  ${jobId}:\n`;
+  const start = CI_POLICY.indexOf(marker);
+  if (start < 0) {
+    throw new Error(`missing CI fixture job ${jobId}`);
+  }
+  const remaining = CI_POLICY.slice(start + marker.length);
+  const nextJob = remaining.search(/^ {2}[a-z0-9][a-z0-9-]*:$/mu);
+  const end = nextJob < 0 ? CI_POLICY.length : start + marker.length + nextJob;
+  return `${CI_POLICY.slice(0, start)}${CI_POLICY.slice(end)}`;
 }
 
 describe('validateRepositoryInvariants', () => {
@@ -626,7 +703,7 @@ describe('validateRepositoryInvariants', () => {
     }
   });
 
-  it('requires standalone typecheck, exact ordinary shards, and the aggregate gate', () => {
+  it('requires standalone typecheck and the exact split worker closure', () => {
     for (const invalid of [
       CI_POLICY.replace('      - run: pnpm typecheck\n', ''),
       CI_POLICY.replace(
@@ -637,13 +714,53 @@ describe('validateRepositoryInvariants', () => {
         '  typecheck:\n    steps:\n      - run: pnpm install --frozen-lockfile',
         '  typecheck:\n    steps:\n      - run: pnpm build\n      - run: pnpm install --frozen-lockfile',
       ),
+      withoutCiJob('verification-authority-retrieval'),
+      withoutCiJob('verification-authority-other'),
+      withoutCiJob('verification-tests-contracts-domain'),
+      withoutCiJob('verification-tests-persistence-ingestion'),
+      withoutCiJob('verification-tests-evaluation-harness'),
+      withoutCiJob('verification-tests-prelive'),
+      withoutCiJob('verification-tests-repository-checks'),
+    ]) {
+      const repository = validRepository();
+      repository.textFiles.set('.github/workflows/ci.yml', invalid);
+      expect(validateRepositoryInvariants(repository)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 'repository.ci-clean-typecheck',
+            path: '.github/workflows/ci.yml',
+          }),
+        ]),
+      );
+    }
+  });
+
+  it('requires exact authority, test-root, aggregate, and failure ownership', () => {
+    for (const invalid of [
       CI_POLICY.replace('      - run: pnpm format:check\n', ''),
       CI_POLICY.replace(
-        '          packages/contracts/test\n',
-        '          packages/interviews/test\n',
+        '      - run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2\n',
+        '',
       ),
-      CI_POLICY.replace('      - verification-tests-tools\n', ''),
+      CI_POLICY.replace('          packages/contracts/test\n', ''),
+      CI_POLICY.replace(
+        '          packages/ingestion/test\n',
+        '          packages/ingestion/test\n          packages/contracts/test\n',
+      ),
+      CI_POLICY.replace('      - verification-authority-retrieval\n', ''),
+      CI_POLICY.replace(
+        '          test "$REPOSITORY_CHECKS_RESULT" = "success"\n',
+        '',
+      ),
       CI_POLICY.replace('    if: ${{ always() }}\n', ''),
+      CI_POLICY.replace(
+        '  verification-tests-contracts-domain:\n    steps:',
+        '  verification-tests-contracts-domain:\n    continue-on-error: true\n    steps:',
+      ),
+      CI_POLICY.replace(
+        '      - run: node tools/evaluation-harness/src/retrieval/cli.ts validate\n',
+        '      - run: node tools/evaluation-harness/src/retrieval/cli.ts production-v2\n',
+      ),
     ]) {
       const repository = validRepository();
       repository.textFiles.set('.github/workflows/ci.yml', invalid);

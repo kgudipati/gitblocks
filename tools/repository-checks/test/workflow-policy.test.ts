@@ -16,16 +16,26 @@ const TRACKED_CI_URL = new URL(
 const WORKER_JOB_IDS = [
   'typecheck',
   'verification-static',
-  'verification-tests-core',
+  'verification-authority-retrieval',
+  'verification-authority-other',
+  'verification-tests-contracts-domain',
+  'verification-tests-persistence-ingestion',
   'verification-tests-interviews',
-  'verification-tests-tools',
+  'verification-tests-evaluation-harness',
+  'verification-tests-prelive',
+  'verification-tests-repository-checks',
   'database-and-audit',
 ] as const;
 const AGGREGATE_DEPENDENCIES = [
   'verification-static',
-  'verification-tests-core',
+  'verification-authority-retrieval',
+  'verification-authority-other',
+  'verification-tests-contracts-domain',
+  'verification-tests-persistence-ingestion',
   'verification-tests-interviews',
-  'verification-tests-tools',
+  'verification-tests-evaluation-harness',
+  'verification-tests-prelive',
+  'verification-tests-repository-checks',
 ] as const;
 const STATIC_VERIFICATION_COMMANDS = [
   'pnpm runtime:check',
@@ -36,11 +46,25 @@ const STATIC_VERIFICATION_COMMANDS = [
   'pnpm typecheck:internal',
   'pnpm architecture:check',
   'node tools/repository-checks/src/cli.ts repository',
-  'node tools/evaluation-harness/src/cli.ts validate',
-  'node tools/evaluation-harness/src/cli.ts fixtures',
+  'pnpm security:secrets',
+  'git diff --exit-code',
+] as const;
+const RETRIEVAL_AUTHORITY_COMMANDS = [
+  'pnpm runtime:check',
+  'pnpm --filter @gitblocks/evaluation-harness... build',
   'node tools/evaluation-harness/src/retrieval/cli.ts validate',
+  'node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
   'node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
   'node tools/evaluation-harness/src/retrieval/cli.ts verify',
+  'node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+  'node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
+  'git diff --exit-code',
+] as const;
+const OTHER_AUTHORITY_COMMANDS = [
+  'pnpm runtime:check',
+  'pnpm --filter @gitblocks/repository-interview-prelive... build',
+  'node tools/evaluation-harness/src/cli.ts validate',
+  'node tools/evaluation-harness/src/cli.ts fixtures',
   'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
   'node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
   'node tools/evaluation-harness/src/contract-conformance-cli.ts',
@@ -50,33 +74,43 @@ const STATIC_VERIFICATION_COMMANDS = [
   'node packages/interviews/scripts/specification-cli.ts validate',
   'node apps/repository-interview-operator/scripts/schema-cli.ts validate',
   'node tools/repository-interview-prelive/src/prelive-cli.ts validate',
-  'pnpm security:secrets',
   'git diff --exit-code',
 ] as const;
 const TEST_SHARDS = {
-  'verification-tests-core': {
-    name: 'Verification — Core Product Tests',
-    roots: [
-      'packages/contracts/test',
-      'packages/domain/test',
-      'packages/persistence/test',
-      'packages/ingestion/test',
-    ],
+  'verification-tests-contracts-domain': {
+    buildCommand: 'pnpm --filter @gitblocks/contracts... build',
+    name: 'Verification — Contracts and Domain Tests',
+    roots: ['packages/contracts/test', 'packages/domain/test'],
+  },
+  'verification-tests-persistence-ingestion': {
+    buildCommand: 'pnpm --filter @gitblocks/ingestion... build',
+    name: 'Verification — Persistence and Ingestion Tests',
+    roots: ['packages/persistence/test', 'packages/ingestion/test'],
   },
   'verification-tests-interviews': {
+    buildCommand:
+      'pnpm --filter @gitblocks/repository-interview-operator... build',
     name: 'Verification — Interview and Operator Tests',
     roots: [
       'packages/interviews/test',
       'apps/repository-interview-operator/test',
     ],
   },
-  'verification-tests-tools': {
-    name: 'Verification — Tooling Tests',
-    roots: [
-      'tools/evaluation-harness/test',
-      'tools/repository-interview-prelive/test',
-      'tools/repository-checks/test',
-    ],
+  'verification-tests-evaluation-harness': {
+    buildCommand: 'pnpm --filter @gitblocks/evaluation-harness... build',
+    name: 'Verification — Evaluation Harness Tests',
+    roots: ['tools/evaluation-harness/test'],
+  },
+  'verification-tests-prelive': {
+    buildCommand:
+      'pnpm --filter @gitblocks/repository-interview-prelive... build',
+    name: 'Verification — Pre-live Tool Tests',
+    roots: ['tools/repository-interview-prelive/test'],
+  },
+  'verification-tests-repository-checks': {
+    buildCommand: null,
+    name: 'Verification — Repository Checks Tests',
+    roots: ['tools/repository-checks/test'],
   },
 } as const;
 
@@ -460,16 +494,27 @@ copy: *shared
     expect(Object.keys(jobs)).toEqual([
       'typecheck',
       'verification-static',
-      'verification-tests-core',
+      'verification-authority-retrieval',
+      'verification-authority-other',
+      'verification-tests-contracts-domain',
+      'verification-tests-persistence-ingestion',
       'verification-tests-interviews',
-      'verification-tests-tools',
+      'verification-tests-evaluation-harness',
+      'verification-tests-prelive',
+      'verification-tests-repository-checks',
       'database-and-audit',
       'verification',
     ]);
 
     expect(trackedJob(jobs, 'typecheck')['name']).toBe('Standalone Typecheck');
     expect(trackedJob(jobs, 'verification-static')['name']).toBe(
-      'Verification — Static and Authorities',
+      'Verification — Static Repository',
+    );
+    expect(trackedJob(jobs, 'verification-authority-retrieval')['name']).toBe(
+      'Verification — Retrieval Authorities',
+    );
+    expect(trackedJob(jobs, 'verification-authority-other')['name']).toBe(
+      'Verification — Other Authorities',
     );
     expect(trackedJob(jobs, 'database-and-audit')['name']).toBe(
       'Database and Audit',
@@ -529,43 +574,75 @@ copy: *shared
     }
   });
 
-  it('moves every accepted non-test verify:core command into the static worker exactly once', () => {
+  it('assigns every accepted non-test verification command to one exact worker', () => {
     const jobs = trackedJobs();
-    const staticJob = trackedJob(jobs, 'verification-static');
-    const commands = jobCommands(staticJob);
-    const staticStart = commands.indexOf('pnpm runtime:check');
+    const ownership = {
+      'verification-static': STATIC_VERIFICATION_COMMANDS,
+      'verification-authority-retrieval': RETRIEVAL_AUTHORITY_COMMANDS,
+      'verification-authority-other': OTHER_AUTHORITY_COMMANDS,
+    } as const;
+    const allCommands = Object.values(jobs).flatMap((job) =>
+      jobCommands(asRecord(job, 'tracked job')),
+    );
 
-    expect(commands.join('\n')).toContain('pnpm repo:pr-branch');
-    expect(commands.join('\n')).toContain('pnpm repo:pr-title');
-    expect(staticStart).toBeGreaterThanOrEqual(0);
-    expect(commands.slice(staticStart)).toEqual([
-      ...STATIC_VERIFICATION_COMMANDS,
-    ]);
-    for (const expected of STATIC_VERIFICATION_COMMANDS) {
-      expect(commands.filter((command) => command === expected)).toHaveLength(
-        1,
-      );
+    for (const [jobId, expectedCommands] of Object.entries(ownership)) {
+      const commands = jobCommands(trackedJob(jobs, jobId));
+      const start = commands.indexOf('pnpm runtime:check');
+
+      expect(start).toBeGreaterThanOrEqual(0);
+      expect(commands.slice(start)).toEqual([...expectedCommands]);
+      expect(commands).not.toContain('pnpm verify');
+      expect(commands).not.toContain('pnpm verify:core');
+      expect(commands).not.toContain('pnpm verify:ci');
+      expect(commands.join('\n')).not.toContain('vitest');
+      expect(commands).not.toContain('pnpm db:verify');
+      expect(commands).not.toContain('pnpm security:audit');
     }
-    expect(commands).not.toContain('pnpm verify');
-    expect(commands).not.toContain('pnpm verify:core');
-    expect(commands).not.toContain('pnpm verify:ci');
-    expect(commands.join('\n')).not.toContain('vitest');
-    expect(commands).not.toContain('pnpm db:verify');
-    expect(commands).not.toContain('pnpm security:audit');
+
+    const staticCommands = jobCommands(trackedJob(jobs, 'verification-static'));
+    expect(staticCommands.join('\n')).toContain('pnpm repo:pr-branch');
+    expect(staticCommands.join('\n')).toContain('pnpm repo:pr-title');
+
+    const uniquelyOwnedCommands = [
+      ...STATIC_VERIFICATION_COMMANDS,
+      ...RETRIEVAL_AUTHORITY_COMMANDS,
+      ...OTHER_AUTHORITY_COMMANDS,
+    ].filter(
+      (command) =>
+        command !== 'pnpm runtime:check' &&
+        command !== 'git diff --exit-code' &&
+        !command.endsWith(' build'),
+    );
+
+    for (const command of uniquelyOwnedCommands) {
+      expect(
+        allCommands.filter((candidate) => candidate === command),
+      ).toHaveLength(1);
+    }
+  });
+
+  it('assigns every accepted test root to one minimum-build shard', () => {
+    const jobs = trackedJobs();
     const assignedRoots: string[] = [];
 
     for (const [jobId, expected] of Object.entries(TEST_SHARDS)) {
       const job = trackedJob(jobs, jobId);
       const commands = jobCommands(job);
       const runtimeIndex = commands.indexOf('pnpm runtime:check');
-      const testCommand = commands[runtimeIndex + 2];
+      const testCommandIndex =
+        runtimeIndex + (expected.buildCommand === null ? 1 : 2);
+      const testCommand = commands[testCommandIndex];
 
       expect(job['name']).toBe(expected.name);
       expect(runtimeIndex).toBeGreaterThanOrEqual(0);
-      expect(commands[runtimeIndex + 1]).toBe('pnpm build');
+      if (expected.buildCommand === null) {
+        expect(commands.slice(runtimeIndex)).toHaveLength(3);
+      } else {
+        expect(commands[runtimeIndex + 1]).toBe(expected.buildCommand);
+        expect(commands.slice(runtimeIndex)).toHaveLength(4);
+      }
       expect(typeof testCommand).toBe('string');
-      expect(commands[runtimeIndex + 3]).toBe('git diff --exit-code');
-      expect(commands.slice(runtimeIndex)).toHaveLength(4);
+      expect(commands.at(-1)).toBe('git diff --exit-code');
 
       const normalizedTestCommand = normalizedCommand(testCommand ?? '');
       expect(normalizedTestCommand).toMatch(/^pnpm exec vitest run /u);
@@ -655,17 +732,33 @@ copy: *shared
     expect(jobSteps(aggregate)).toHaveLength(1);
     expect(asRecord(aggregate['env'], 'aggregate environment')).toEqual({
       STATIC_RESULT: '${{ needs.verification-static.result }}',
-      CORE_TEST_RESULT: '${{ needs.verification-tests-core.result }}',
+      RETRIEVAL_AUTHORITY_RESULT:
+        '${{ needs.verification-authority-retrieval.result }}',
+      OTHER_AUTHORITY_RESULT:
+        '${{ needs.verification-authority-other.result }}',
+      CONTRACTS_DOMAIN_RESULT:
+        '${{ needs.verification-tests-contracts-domain.result }}',
+      PERSISTENCE_INGESTION_RESULT:
+        '${{ needs.verification-tests-persistence-ingestion.result }}',
       INTERVIEW_TEST_RESULT:
         '${{ needs.verification-tests-interviews.result }}',
-      TOOL_TEST_RESULT: '${{ needs.verification-tests-tools.result }}',
+      EVALUATION_HARNESS_RESULT:
+        '${{ needs.verification-tests-evaluation-harness.result }}',
+      PRELIVE_TEST_RESULT: '${{ needs.verification-tests-prelive.result }}',
+      REPOSITORY_CHECKS_RESULT:
+        '${{ needs.verification-tests-repository-checks.result }}',
     });
     const aggregateCommand = jobCommands(aggregate)[0] ?? '';
     expect(aggregateCommand.trim().split('\n')).toEqual([
       'test "$STATIC_RESULT" = "success"',
-      'test "$CORE_TEST_RESULT" = "success"',
+      'test "$RETRIEVAL_AUTHORITY_RESULT" = "success"',
+      'test "$OTHER_AUTHORITY_RESULT" = "success"',
+      'test "$CONTRACTS_DOMAIN_RESULT" = "success"',
+      'test "$PERSISTENCE_INGESTION_RESULT" = "success"',
       'test "$INTERVIEW_TEST_RESULT" = "success"',
-      'test "$TOOL_TEST_RESULT" = "success"',
+      'test "$EVALUATION_HARNESS_RESULT" = "success"',
+      'test "$PRELIVE_TEST_RESULT" = "success"',
+      'test "$REPOSITORY_CHECKS_RESULT" = "success"',
     ]);
     expect(aggregateCommand).not.toContain('git diff');
     expect(aggregateCommand).not.toContain('pnpm');

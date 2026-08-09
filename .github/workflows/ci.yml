@@ -49,7 +49,7 @@ jobs:
         run: git diff --exit-code
 
   verification-static:
-    name: Verification — Static and Authorities
+    name: Verification — Static Repository
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -109,56 +109,14 @@ jobs:
       - name: Validate repository policy
         run: node tools/repository-checks/src/cli.ts repository
 
-      - name: Validate general evaluation cases
-        run: node tools/evaluation-harness/src/cli.ts validate
-
-      - name: Validate general evaluation fixtures
-        run: node tools/evaluation-harness/src/cli.ts fixtures
-
-      - name: Validate retrieval evaluation authority
-        run: node tools/evaluation-harness/src/retrieval/cli.ts validate
-
-      - name: Validate retrieval scorer fixtures
-        run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
-
-      - name: Verify retrieval baselines and committed report
-        run: node tools/evaluation-harness/src/retrieval/cli.ts verify
-
-      - name: Validate interview evaluation cases
-        run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
-
-      - name: Validate interview evaluation fixtures
-        run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
-
-      - name: Validate contract conformance
-        run: node tools/evaluation-harness/src/contract-conformance-cli.ts
-
-      - name: Validate taxonomy authority
-        run: node packages/contracts/scripts/taxonomy-cli.ts
-
-      - name: Validate candidate-profile authority
-        run: node packages/ingestion/scripts/candidate-profile-cli.ts
-
-      - name: Validate catalog authority
-        run: node packages/ingestion/scripts/catalog-cli.ts
-
-      - name: Validate interview specification
-        run: node packages/interviews/scripts/specification-cli.ts validate
-
-      - name: Validate operator schemas
-        run: node apps/repository-interview-operator/scripts/schema-cli.ts validate
-
-      - name: Validate pre-live authority
-        run: node tools/repository-interview-prelive/src/prelive-cli.ts validate
-
       - name: Scan for secrets
         run: pnpm security:secrets
 
-      - name: Prove static and authority verification leaves the worktree unchanged
+      - name: Prove static verification leaves the worktree unchanged
         run: git diff --exit-code
 
-  verification-tests-core:
-    name: Verification — Core Product Tests
+  verification-authority-retrieval:
+    name: Verification — Retrieval Authorities
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -187,19 +145,183 @@ jobs:
       - name: Verify runtime
         run: pnpm runtime:check
 
-      - name: Build all workspaces
-        run: pnpm build
+      - name: Build retrieval authority dependency closure
+        run: pnpm --filter @gitblocks/evaluation-harness... build
 
-      - name: Run core product tests
+      - name: Validate retrieval-v1 authority
+        run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+
+      - name: Validate reviewed retrieval-v2 authority
+        run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2
+
+      - name: Validate retrieval scorer fixtures
+        run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
+
+      - name: Verify retrieval-v1 baselines
+        run: node tools/evaluation-harness/src/retrieval/cli.ts verify
+
+      - name: Verify retrieval-v2 baselines
+        run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2
+
+      - name: Validate retrieval-v2 quality gates
+        run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2
+
+      - name: Prove retrieval authority verification leaves the worktree unchanged
+        run: git diff --exit-code
+
+  verification-authority-other:
+    name: Verification — Other Authorities
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Build non-retrieval authority dependency closure
+        run: pnpm --filter @gitblocks/repository-interview-prelive... build
+
+      - name: Validate general evaluation cases
+        run: node tools/evaluation-harness/src/cli.ts validate
+
+      - name: Validate general evaluation fixtures
+        run: node tools/evaluation-harness/src/cli.ts fixtures
+
+      - name: Validate interview evaluation cases
+        run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
+
+      - name: Validate interview evaluation fixtures
+        run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
+
+      - name: Validate contract conformance
+        run: node tools/evaluation-harness/src/contract-conformance-cli.ts
+
+      - name: Validate taxonomy authority
+        run: node packages/contracts/scripts/taxonomy-cli.ts
+
+      - name: Validate candidate-profile authority
+        run: node packages/ingestion/scripts/candidate-profile-cli.ts
+
+      - name: Validate catalog authority
+        run: node packages/ingestion/scripts/catalog-cli.ts
+
+      - name: Validate interview specification
+        run: node packages/interviews/scripts/specification-cli.ts validate
+
+      - name: Validate operator schemas
+        run: node apps/repository-interview-operator/scripts/schema-cli.ts validate
+
+      - name: Validate pre-live authority
+        run: node tools/repository-interview-prelive/src/prelive-cli.ts validate
+
+      - name: Prove other authority verification leaves the worktree unchanged
+        run: git diff --exit-code
+
+  verification-tests-contracts-domain:
+    name: Verification — Contracts and Domain Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Build contracts and domain dependency closure
+        run: pnpm --filter @gitblocks/contracts... build
+
+      - name: Run contracts and domain tests
         run: >-
           pnpm exec vitest run
           packages/contracts/test
           packages/domain/test
+          --config vitest.config.ts
+
+      - name: Prove contracts and domain tests leave the worktree unchanged
+        run: git diff --exit-code
+
+  verification-tests-persistence-ingestion:
+    name: Verification — Persistence and Ingestion Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Build persistence and ingestion dependency closure
+        run: pnpm --filter @gitblocks/ingestion... build
+
+      - name: Run persistence and ingestion tests
+        run: >-
+          pnpm exec vitest run
           packages/persistence/test
           packages/ingestion/test
           --config vitest.config.ts
 
-      - name: Prove core product tests leave the worktree unchanged
+      - name: Prove persistence and ingestion tests leave the worktree unchanged
         run: git diff --exit-code
 
   verification-tests-interviews:
@@ -232,8 +354,8 @@ jobs:
       - name: Verify runtime
         run: pnpm runtime:check
 
-      - name: Build all workspaces
-        run: pnpm build
+      - name: Build interview and operator dependency closure
+        run: pnpm --filter @gitblocks/repository-interview-operator... build
 
       - name: Run interview and operator tests
         run: >-
@@ -245,8 +367,8 @@ jobs:
       - name: Prove interview and operator tests leave the worktree unchanged
         run: git diff --exit-code
 
-  verification-tests-tools:
-    name: Verification — Tooling Tests
+  verification-tests-evaluation-harness:
+    name: Verification — Evaluation Harness Tests
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -275,18 +397,97 @@ jobs:
       - name: Verify runtime
         run: pnpm runtime:check
 
-      - name: Build all workspaces
-        run: pnpm build
+      - name: Build evaluation-harness dependency closure
+        run: pnpm --filter @gitblocks/evaluation-harness... build
 
-      - name: Run tooling tests
+      - name: Run evaluation-harness tests
         run: >-
           pnpm exec vitest run
           tools/evaluation-harness/test
+          --config vitest.config.ts
+
+      - name: Prove evaluation-harness tests leave the worktree unchanged
+        run: git diff --exit-code
+
+  verification-tests-prelive:
+    name: Verification — Pre-live Tool Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Build pre-live dependency closure
+        run: pnpm --filter @gitblocks/repository-interview-prelive... build
+
+      - name: Run pre-live tool tests
+        run: >-
+          pnpm exec vitest run
           tools/repository-interview-prelive/test
+          --config vitest.config.ts
+
+      - name: Prove pre-live tool tests leave the worktree unchanged
+        run: git diff --exit-code
+
+  verification-tests-repository-checks:
+    name: Verification — Repository Checks Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      COREPACK_DEFAULT_TO_LATEST: '0'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+
+      - name: Enable exact pnpm with Corepack
+        run: corepack enable pnpm
+
+      - name: Verify package manager
+        run: test "$(pnpm --version)" = "11.17.0"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify runtime
+        run: pnpm runtime:check
+
+      - name: Run repository-checks tests
+        run: >-
+          pnpm exec vitest run
           tools/repository-checks/test
           --config vitest.config.ts
 
-      - name: Prove tooling tests leave the worktree unchanged
+      - name: Prove repository-checks tests leave the worktree unchanged
         run: git diff --exit-code
 
   database-and-audit:
@@ -348,21 +549,36 @@ jobs:
     name: Verification
     needs:
       - verification-static
-      - verification-tests-core
+      - verification-authority-retrieval
+      - verification-authority-other
+      - verification-tests-contracts-domain
+      - verification-tests-persistence-ingestion
       - verification-tests-interviews
-      - verification-tests-tools
+      - verification-tests-evaluation-harness
+      - verification-tests-prelive
+      - verification-tests-repository-checks
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
       STATIC_RESULT: ${{ needs.verification-static.result }}
-      CORE_TEST_RESULT: ${{ needs.verification-tests-core.result }}
+      RETRIEVAL_AUTHORITY_RESULT: ${{ needs.verification-authority-retrieval.result }}
+      OTHER_AUTHORITY_RESULT: ${{ needs.verification-authority-other.result }}
+      CONTRACTS_DOMAIN_RESULT: ${{ needs.verification-tests-contracts-domain.result }}
+      PERSISTENCE_INGESTION_RESULT: ${{ needs.verification-tests-persistence-ingestion.result }}
       INTERVIEW_TEST_RESULT: ${{ needs.verification-tests-interviews.result }}
-      TOOL_TEST_RESULT: ${{ needs.verification-tests-tools.result }}
+      EVALUATION_HARNESS_RESULT: ${{ needs.verification-tests-evaluation-harness.result }}
+      PRELIVE_TEST_RESULT: ${{ needs.verification-tests-prelive.result }}
+      REPOSITORY_CHECKS_RESULT: ${{ needs.verification-tests-repository-checks.result }}
     steps:
       - name: Require every ordinary verification worker to succeed
         run: |
           test "$STATIC_RESULT" = "success"
-          test "$CORE_TEST_RESULT" = "success"
+          test "$RETRIEVAL_AUTHORITY_RESULT" = "success"
+          test "$OTHER_AUTHORITY_RESULT" = "success"
+          test "$CONTRACTS_DOMAIN_RESULT" = "success"
+          test "$PERSISTENCE_INGESTION_RESULT" = "success"
           test "$INTERVIEW_TEST_RESULT" = "success"
-          test "$TOOL_TEST_RESULT" = "success"
+          test "$EVALUATION_HARNESS_RESULT" = "success"
+          test "$PRELIVE_TEST_RESULT" = "success"
+          test "$REPOSITORY_CHECKS_RESULT" = "success"

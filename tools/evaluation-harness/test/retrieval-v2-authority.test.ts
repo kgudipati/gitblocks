@@ -18,12 +18,14 @@ import { retrievalStableJson } from '../src/retrieval/stable-json.ts';
 
 let root: string;
 let corpus: ValidatedRetrievalCorpus;
+let gateAuthorities: ReturnType<typeof validateRetrievalV2GateAuthorities>;
 
 beforeAll(() => {
   root = findGitBlocksRoot(process.cwd());
   const loaded = loadRetrievalCorpusV2(root);
   if (!loaded.ok) throw new Error('Retrieval-v2 corpus must validate.');
   corpus = loaded.corpus;
+  gateAuthorities = validateRetrievalV2GateAuthorities(root);
 }, 60_000);
 
 describe('retrieval-v2 reviewed relevance authority', () => {
@@ -152,7 +154,7 @@ describe('retrieval-v2 reviewed relevance authority', () => {
 
 describe('retrieval-v2 ceiling and quality-gate authority', () => {
   it('proves all 25 positive cases saturate exact top-10 capacity', () => {
-    const { saturationProof } = validateRetrievalV2GateAuthorities(root);
+    const { saturationProof } = gateAuthorities;
     expect(saturationProof.cases).toHaveLength(25);
     expect(saturationProof.aggregate.saturatedCaseCount).toBe(25);
     for (const item of saturationProof.cases) {
@@ -173,7 +175,7 @@ describe('retrieval-v2 ceiling and quality-gate authority', () => {
   });
 
   it('freezes the independently accepted transfer and safety gates', () => {
-    const { qualityGates } = validateRetrievalV2GateAuthorities(root);
+    const { qualityGates } = gateAuthorities;
     expect(qualityGates.thresholdReview.firstTransferAttempt).toMatchObject({
       resultingTarget: 0.621304,
       outcome: 'infeasible-above-theoretical-ceiling',

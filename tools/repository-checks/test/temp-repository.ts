@@ -544,6 +544,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - run: pnpm install --frozen-lockfile
+      - run: |
+          pnpm repo:pr-branch -- "$PR_ACTOR" "$PR_BRANCH"
+          pnpm repo:pr-title -- "$PR_TITLE"
       - run: pnpm runtime:check
       - run: pnpm format:check
       - run: pnpm build:product
@@ -552,11 +555,29 @@ jobs:
       - run: pnpm typecheck:internal
       - run: pnpm architecture:check
       - run: node tools/repository-checks/src/cli.ts repository
-      - run: node tools/evaluation-harness/src/cli.ts validate
-      - run: node tools/evaluation-harness/src/cli.ts fixtures
+      - run: pnpm security:secrets
+      - run: git diff --exit-code
+  verification-authority-retrieval:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/evaluation-harness... build
       - run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2
       - run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
       - run: node tools/evaluation-harness/src/retrieval/cli.ts verify
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2
+      - run: git diff --exit-code
+  verification-authority-other:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/repository-interview-prelive... build
+      - run: node tools/evaluation-harness/src/cli.ts validate
+      - run: node tools/evaluation-harness/src/cli.ts fixtures
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
       - run: node tools/evaluation-harness/src/contract-conformance-cli.ts
@@ -566,16 +587,27 @@ jobs:
       - run: node packages/interviews/scripts/specification-cli.ts validate
       - run: node apps/repository-interview-operator/scripts/schema-cli.ts validate
       - run: node tools/repository-interview-prelive/src/prelive-cli.ts validate
-      - run: pnpm security:secrets
       - run: git diff --exit-code
-  verification-tests-core:
+  verification-tests-contracts-domain:
     runs-on: ubuntu-24.04
     steps:
       - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/contracts... build
       - run: >-
           pnpm exec vitest run
           packages/contracts/test
           packages/domain/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-persistence-ingestion:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/ingestion... build
+      - run: >-
+          pnpm exec vitest run
           packages/persistence/test
           packages/ingestion/test
           --config vitest.config.ts
@@ -584,20 +616,43 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/repository-interview-operator... build
       - run: >-
           pnpm exec vitest run
           packages/interviews/test
           apps/repository-interview-operator/test
           --config vitest.config.ts
       - run: git diff --exit-code
-  verification-tests-tools:
+  verification-tests-evaluation-harness:
     runs-on: ubuntu-24.04
     steps:
       - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/evaluation-harness... build
       - run: >-
           pnpm exec vitest run
           tools/evaluation-harness/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-prelive:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: pnpm --filter @gitblocks/repository-interview-prelive... build
+      - run: >-
+          pnpm exec vitest run
           tools/repository-interview-prelive/test
+          --config vitest.config.ts
+      - run: git diff --exit-code
+  verification-tests-repository-checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm runtime:check
+      - run: >-
+          pnpm exec vitest run
           tools/repository-checks/test
           --config vitest.config.ts
       - run: git diff --exit-code
@@ -619,22 +674,37 @@ jobs:
     name: Verification
     needs:
       - verification-static
-      - verification-tests-core
+      - verification-authority-retrieval
+      - verification-authority-other
+      - verification-tests-contracts-domain
+      - verification-tests-persistence-ingestion
       - verification-tests-interviews
-      - verification-tests-tools
+      - verification-tests-evaluation-harness
+      - verification-tests-prelive
+      - verification-tests-repository-checks
     if: \${{ always() }}
     timeout-minutes: 5
     env:
       STATIC_RESULT: \${{ needs.verification-static.result }}
-      CORE_TEST_RESULT: \${{ needs.verification-tests-core.result }}
+      RETRIEVAL_AUTHORITY_RESULT: \${{ needs.verification-authority-retrieval.result }}
+      OTHER_AUTHORITY_RESULT: \${{ needs.verification-authority-other.result }}
+      CONTRACTS_DOMAIN_RESULT: \${{ needs.verification-tests-contracts-domain.result }}
+      PERSISTENCE_INGESTION_RESULT: \${{ needs.verification-tests-persistence-ingestion.result }}
       INTERVIEW_TEST_RESULT: \${{ needs.verification-tests-interviews.result }}
-      TOOL_TEST_RESULT: \${{ needs.verification-tests-tools.result }}
+      EVALUATION_HARNESS_RESULT: \${{ needs.verification-tests-evaluation-harness.result }}
+      PRELIVE_TEST_RESULT: \${{ needs.verification-tests-prelive.result }}
+      REPOSITORY_CHECKS_RESULT: \${{ needs.verification-tests-repository-checks.result }}
     steps:
       - run: |
           test "$STATIC_RESULT" = "success"
-          test "$CORE_TEST_RESULT" = "success"
+          test "$RETRIEVAL_AUTHORITY_RESULT" = "success"
+          test "$OTHER_AUTHORITY_RESULT" = "success"
+          test "$CONTRACTS_DOMAIN_RESULT" = "success"
+          test "$PERSISTENCE_INGESTION_RESULT" = "success"
           test "$INTERVIEW_TEST_RESULT" = "success"
-          test "$TOOL_TEST_RESULT" = "success"
+          test "$EVALUATION_HARNESS_RESULT" = "success"
+          test "$PRELIVE_TEST_RESULT" = "success"
+          test "$REPOSITORY_CHECKS_RESULT" = "success"
 `;
   }
   if (relativePath.endsWith('.md')) {

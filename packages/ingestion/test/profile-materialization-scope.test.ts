@@ -7,7 +7,7 @@ const ROOT = new URL('../../../', import.meta.url);
 
 const ACCEPTED_BYTES = {
   '.github/workflows/ci.yml':
-    '2c3a34168bb594552a4f8a5ab1dfe776027d059454f56310b85401e32d4eb2bd',
+    'b15d1d4f22514e7793ffb51d6faf553223e2b1d7e4ab41e610e09bb70e80043f',
   'catalog/public-v1/candidate-profile-authority.json':
     '20394e3e7cbec698714f41bdb35d6073e17d9eb2e82d121b952d539cddc8be8d',
   'catalog/public-v1/candidates.json':
