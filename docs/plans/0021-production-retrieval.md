@@ -22,9 +22,11 @@
   rerun, or post-score mutation and was independently accepted. Milestones 1,
   2, and 3 are accepted. Issue #28 is closed and its accepted validation-memory
   foundation is integrated from current main. The hosted-CI dependency for
-  final Milestone 4 closure is satisfied. The independently adjudicated M4
-  measurement gates and ordinary validation pass; hosted CI and independent
-  M4 acceptance remain pending, and Phase 9 remains open.
+  final Milestone 4 closure is satisfied. Milestone 4 is independently
+  accepted after the adjudicated measurement, ordinary validation, and natural
+  hosted CI run `31362572519` all passed. M1, M2, M3, and M4 are accepted, and
+  Phase 9 technical exit criteria are satisfied. Administrative PR merge and
+  issue closure remain outstanding.
 - Last updated: 2026-08-09
 
 Issue #21 is the requirements authority. Accepted
@@ -260,8 +262,26 @@ validation, and the dependency audit. The production semantics and reviewed-v2
 authority remained frozen, and no infrastructure trigger activated.
 
 Current milestone state is: M1 accepted; M2 accepted; M3 accepted; M4
-measurement gates pass; M4 ordinary validation passes; M4 hosted CI is pending;
-M4 independent acceptance is pending; and Phase 9 remains open.
+accepted; and Phase 9 technical exit criteria satisfied. Natural hosted CI run
+`31362572519` passed Standalone Typecheck, Static and Authorities, Core Product
+Tests, Interview and Operator Tests, Tooling Tests, Database and Audit, and the
+Verification aggregate on attempt 1 without a rerun. Administrative PR merge
+and issue closure remain outstanding.
+
+### Final independent Phase 9 acceptance
+
+Independent review accepts Milestone 4 and all Phase 9 technical exit
+criteria. The proof-wrapper false negative remains honest historical evidence:
+the frozen wrapper exited `1` because of a non-contractual human-output parsing
+assumption, while the registered 20-permutation test exited `0` and passed.
+The separate adjudication accepted the raw gate evidence without changing a
+registered gate, threshold, test, product, or evaluation authority.
+
+No production benchmark, external protocol, 100-build performance proof,
+repeat proof, permutation proof, or fresh-process proof was rerun during final
+acceptance. No post-result retrieval tuning occurred, no infrastructure trigger
+activated, and no unresolved material review finding remains. Phase 10 is not
+authorized by Phase 9 completion and has not begun.
 
 This plan implements Project Phase 9, corresponding to Phase 11 — Retrieval
 Engine in the original end-to-end strategy. Independent maintainer rereview
@@ -1425,9 +1445,9 @@ closure only at frozen head
 M4's fixed 100-build prevalidated search-view benchmark passed at p95
 `0.791709 ms` and maximum `1.691209 ms`. The historical M3 five-build cold
 sample remains development evidence for a different, non-gating full-engine
-operation. M4 measurement and ordinary validation gates pass; hosted CI and
-independent maintainer acceptance remain pending. M4 added no retrieval
-semantics.
+operation. M4 measurement, ordinary validation, natural hosted CI run
+`31362572519`, and independent maintainer acceptance all pass. M4 added no
+retrieval semantics.
 
 Phase 9 completion does not make the PR ready, merge it, or authorize Phase 10
 without the applicable repository workflow and user instruction.
@@ -1597,6 +1617,12 @@ Additionally:
 Vectors, persistent search, target-codebase ranking, and external APIs are not
 required unless an explicit pre-registered measured failure activates them and
 a separate reviewed decision authorizes the change.
+
+Independent final review confirms every Phase 9 exit condition above is
+satisfied: M1, M2, M3, and M4 are accepted; ADR 0009 matches the implementation;
+the governing evaluation authority remains exact; all registered gates pass;
+validation and security evidence is complete; and no unresolved material
+finding remains. This technical completion does not itself authorize Phase 10.
 
 ## Progress log
 

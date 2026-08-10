@@ -185,8 +185,22 @@ the adjudication SHA-256 is
 `b32a4fe20aabc8138773aa4247e73931233678a686a06d14be7f05fbc5930255`;
 and the final evidence-manifest SHA-256 is
 `3cc5fe2c0b806e968383a825f0a59ef2db69b016d0ccd8054c13cec665704d02`.
-Milestone 4 measurement and ordinary validation are complete, pending hosted
-CI and independent maintainer acceptance. Phase 9 remains open.
+Milestone 4 measurement and ordinary validation are complete. Natural hosted
+CI run `31362572519` passed Standalone Typecheck, Static and Authorities, Core
+Product Tests, Interview and Operator Tests, Tooling Tests, Database and Audit,
+and the Verification aggregate on attempt 1 without a rerun.
+
+Milestone 4 is independently accepted. All Phase 9 registered quality, safety,
+differential, determinism, architecture, security, performance, and memory
+gates are accepted. The proof-wrapper false negative remains historical and
+was adjudicated without changing any registered gate. No infrastructure
+trigger activated. The Phase 9 production retrieval architecture is accepted
+as implemented.
+
+This acceptance does not approve Phase 10 production ranking,
+target-codebase-conditioned fit, adoption recommendation, API, MCP, Agent
+Skill, persistent or vector search, or deployment. Phase 10 has not begun and
+requires separate authorization.
 
 ## Context
 
