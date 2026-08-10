@@ -1,0 +1,370 @@
+{
+  "authorityVersion": "ranking-v1-accepted-gates/1.0.0",
+  "baselineReferenceFloor": {
+    "baselineId": "weak-target-aware-exact-compatibility",
+    "baselineVersion": "ranking-weak-target-aware-exact-compatibility/3.0.0",
+    "interpretation": "reference-floor-not-acceptance-ceiling; production must demonstrate the ranking intelligence missing from this baseline",
+    "observedReference": {
+      "controlledTargetPairs": {
+        "correct": 2,
+        "total": 5
+      },
+      "partialOrder": {
+        "correct": 6,
+        "total": 22
+      },
+      "preferenceAndEvidenceAssociationBehavior": "incomplete",
+      "responsibleOutcome": {
+        "correct": 30,
+        "total": 30
+      },
+      "safetyViolations": 0,
+      "topThreeUsefulness": {
+        "correct": 20,
+        "total": 20
+      }
+    },
+    "predictionDigest": "84917eb98dde5d0282fbf06723a23a54a1d67ad7ba08ec2cca9412963f607762",
+    "scoreDigest": "1cf06939ef87ece46813f09ad6079dc8dc9e30abda7c08f0e5d2fd49f56f146d",
+    "specificationDigest": "07ac2b65b9b3bc2c762f52e8a2aa93ff2966edf0d7a2f836631d41eae649b9b3"
+  },
+  "bindings": {
+    "acceptedReviewDigest": "18ba16b1266423fc18d3c8ffc2b39c2d399453ed0f24bc5e89c9d4f967a42cef",
+    "acceptedReviewVersion": "ranking-v1-accepted-review/1.0.0",
+    "baselineReportDigest": "627b05e21eb1595855d20e7325e79872924933216377edfe0ca97cfcb39dd34d",
+    "baselineSpecificationAuthorityDigest": "7b26826f7e85eef3c6bbd887a21f76a2bb4d2519e2997ddb7a11148e38823061",
+    "baselineSpecificationAuthorityVersion": "ranking-v1-baseline-specifications/3.0.0",
+    "compositionReportDigest": "94fd46d697beed27e76c732236c5ea3dbc44eebbbc764d6f829a79db2d085899",
+    "coreAuthorityDigest": "061e4774c1ab5f9a3793aaa46dfd917597f0378fb882c80f30b15a6431fb225e",
+    "goldDigest": "48644422e325ecf385ae8fe3ef71a936549eab6ae0f1f75b98feaadc8640b081",
+    "performanceReferenceDigest": "f848f261551f7bda8322dd4ab244646d50ec6cdcb5ff1bf019a802de2f435f30",
+    "reviewerRationaleDigest": "3be6bd29185c67be39b6c09bd0976d47da09731824b1ca3199746594c19ea779",
+    "reviewerRationaleVersion": "ranking-v1-reviewer-rationale/2.0.0",
+    "scorerVersion": "ranking-v1-scorer/2.0.0"
+  },
+  "compositionDiagnostic": {
+    "acceptedFixedCandidateGoldMayBeMutated": false,
+    "authorityScope": "five-case-retrieval-to-ranking-handoff-diagnostic-only",
+    "fixedCandidateQualityGate": false,
+    "futureCandidateAuthorityClaimsRequireAcceptedM3Authority": true,
+    "m6Requirements": [
+      "accepted-phase9-retrieval-unchanged",
+      "exact-candidate-handoff",
+      "zero-excluded-or-invented-candidate-leakage",
+      "retrieval-score-and-order-never-become-fit-evidence",
+      "clean-authority-and-version-binding"
+    ],
+    "reportDigest": "94fd46d697beed27e76c732236c5ea3dbc44eebbbc764d6f829a79db2d085899",
+    "reportVersion": "ranking-v1-composition-report/2.0.0",
+    "temporaryInsufficientEvidenceOutcomesAreProductionTargets": false
+  },
+  "corpusId": "ranking-v1",
+  "determinismMechanicalGate": {
+    "candidateIdMayCanonicalizeAlreadyDerivedRelation": true,
+    "candidateIdMayDecideFit": false,
+    "canonicalOutputRequirement": "byte-identical",
+    "freshProcessExecutions": 10,
+    "freshProcessRequirement": "identical-canonical-result-and-digest",
+    "inputOrderPermutations": 20,
+    "m6MayStrengthenButNotWeakenAfterProductOutput": true,
+    "permutationRequirement": "byte-identical-semantic-output",
+    "prohibitedDependencies": [
+      "ambient-random-source",
+      "ambient-clock",
+      "environment-variable-behavior",
+      "network",
+      "filesystem-mutation",
+      "database",
+      "model-or-provider"
+    ],
+    "repeatedIdenticalExecutions": 100,
+    "retrievalOrderOrScoreMayDecideFit": false
+  },
+  "deterministicReadiness": {
+    "breadthQualification": {
+      "groups": {
+        "capabilityAdoption": [
+          "adoption-unit-type",
+          "capability-variants-features"
+        ],
+        "infrastructureDeployment": [
+          "required-infrastructure",
+          "optional-infrastructure",
+          "deployment-self-hosting",
+          "operational-complexity-primitives"
+        ],
+        "policyRisk": [
+          "license-identity",
+          "archived-state",
+          "maintenance-activity",
+          "release-state-recency",
+          "security-advisory-state",
+          "security-policy-presence"
+        ],
+        "stackPackage": [
+          "language-ecosystem",
+          "package-publication-version",
+          "runtime-package-format",
+          "framework-compatibility",
+          "datastore-requirements",
+          "package-repository-linkage"
+        ]
+      },
+      "rule": "At least one ready deterministic field is required from every breadth group."
+    },
+    "changeControl": "Any denominator, qualification, or percentage change requires independent ADR review before production ranking output exists.",
+    "coverageObservedBeforeSelection": false,
+    "denominatorAuthority": "ranking-decision-denominator/1.0.0",
+    "denominatorSize": 18,
+    "exactPercentage": 72.222222,
+    "m3MayExceedMinimum": true,
+    "minimumReadyFields": 13,
+    "numeratorExclusions": [
+      "human-reviewed-structured-values",
+      "model-derived-values",
+      "unknown-values"
+    ],
+    "policyVersion": "ranking-v1-deterministic-readiness-policy/1.0.0",
+    "readyFieldDefinition": "A field counts only when an explicit, versioned, reproducible deterministic extraction rule produces the field from accepted bounded source authority without human/model judgment in the generation step, and every applicable catalog candidate has accepted known or deterministic-not-applicable closure under accepted freshness/version semantics.",
+    "semanticDigest": "6330d6d882a6a0620fc80e335a20f2d1fee2280318586cbe9c2c36900a1f2e04",
+    "unknownValuesNeverFavorable": true
+  },
+  "fixedCandidateQualityGate": {
+    "candidateDispositions": {
+      "applicablePerDispositionF1": 1,
+      "applicablePerDispositionPrecision": 1,
+      "applicablePerDispositionRecall": 1,
+      "exactAssessments": {
+        "correct": 120,
+        "total": 120
+      },
+      "maximumOffDiagonalConfusion": 0
+    },
+    "controlledTargetPairs": {
+      "exactPairCorrect": {
+        "correct": 5,
+        "total": 5
+      },
+      "supersetRecommendationPasses": false,
+      "unchangedWhenChangeRequired": 0,
+      "wrongDirection": 0,
+      "wrongMaximalSet": 0
+    },
+    "criterionBinding": {
+      "approvedNonMaterialUnbound": {
+        "correct": 12,
+        "total": 12
+      },
+      "boundPreferenceComparisonConsequence": {
+        "correct": 25,
+        "total": 25
+      },
+      "boundSuccessConditionCoverage": {
+        "correct": 208,
+        "total": 208
+      },
+      "materialUnboundFailClosed": {
+        "correct": 20,
+        "total": 20
+      },
+      "noPreferenceHardening": {
+        "correct": 30,
+        "total": 30
+      },
+      "unboundPreferenceCounterfactualNonEffect": {
+        "correct": 5,
+        "total": 5
+      }
+    },
+    "evidenceNeededClosure": {
+      "conflict": {
+        "correct": 10,
+        "total": 10
+      },
+      "illegalPromotions": 0,
+      "overall": {
+        "correct": 35,
+        "total": 35
+      },
+      "satisfied": {
+        "correct": 15,
+        "total": 15
+      },
+      "unresolved": {
+        "correct": 10,
+        "total": 10
+      }
+    },
+    "partialOrder": {
+      "falseOrdersOfIncomparable": 0,
+      "incomparable": {
+        "correct": 2,
+        "total": 2
+      },
+      "ordered": {
+        "correct": 16,
+        "total": 16
+      },
+      "overall": {
+        "correct": 22,
+        "total": 22
+      },
+      "ties": {
+        "correct": 4,
+        "total": 4
+      }
+    },
+    "responsibleOutcome": {
+      "byLabel": {
+        "insufficient-evidence": {
+          "correct": 5,
+          "total": 5
+        },
+        "no-viable-candidate": {
+          "correct": 5,
+          "total": 5
+        },
+        "recommend": {
+          "correct": 20,
+          "total": 20
+        }
+      },
+      "overall": {
+        "correct": 30,
+        "total": 30
+      },
+      "perFamily": {
+        "audit-logging": {
+          "correct": 6,
+          "total": 6
+        },
+        "authorization": {
+          "correct": 6,
+          "total": 6
+        },
+        "background-jobs": {
+          "correct": 6,
+          "total": 6
+        },
+        "rate-limiting": {
+          "correct": 6,
+          "total": 6
+        },
+        "webhooks": {
+          "correct": 6,
+          "total": 6
+        }
+      }
+    },
+    "safety": {
+      "metrics": [
+        "knownHardConflictRecommended",
+        "knownHardConflictViable",
+        "knownHardConflictRanked",
+        "candidateInvention",
+        "candidateSetMismatch",
+        "excludedCandidateLeakage",
+        "unresolvedEvidenceNeededPositivePromotion",
+        "missingEvidenceNeededResolution",
+        "preferenceHardenedIntoHardConflict",
+        "unboundSuccessConditionCountedFavorable",
+        "unboundPreferenceAffectedOrder"
+      ],
+      "rankingReferenceInvariants": [
+        "no-candidate-reference-outside-supplied-candidate-set",
+        "ranking-reference-union-does-not-exceed-requested-maximum-results",
+        "no-omitted-overflow-candidate-in-rank-groups-relations-or-incomparable-pairs"
+      ],
+      "requiredValue": 0
+    },
+    "suiteInterpretation": "deterministic-acceptance-suite-not-statistical-sample",
+    "topThreeUsefulness": {
+      "correct": 20,
+      "total": 20
+    },
+    "traceability": {
+      "evidenceAssociationMeaning": "decision-relevant-evidence-not-all-available-observations",
+      "fullEvidencePreservationIsSeparateContractConformance": true,
+      "requiredEvidenceAssociations": {
+        "correct": 225,
+        "total": 225
+      },
+      "requiredHardConflicts": {
+        "correct": 70,
+        "total": 70
+      },
+      "requiredMaterialUnknowns": {
+        "correct": 30,
+        "total": 30
+      },
+      "requiredReasonCodes": {
+        "correct": 120,
+        "total": 120
+      },
+      "unsupportedExtraAssociations": 0
+    },
+    "track": "fixed-candidate-ranking"
+  },
+  "interpretation": {
+    "acceptedAs": "independently-reviewed-deterministic-scenario-conformance-authority-for-ranking-v1",
+    "fixtureEvidenceScope": "Scenario-synthetic and pilot-crosswalk evidence is evaluation authority only; current candidate facts remain Milestone 3 responsibility.",
+    "notClaims": [
+      "evaluation-fixtures-are-current-production-truth-about-named-projects",
+      "statistical-open-world-ranking-accuracy",
+      "gitblocks-beats-unaided-expert-or-general-agent-research",
+      "production-candidate-authority"
+    ]
+  },
+  "milestoneAuthorization": {
+    "milestone2": "accepted",
+    "milestone3": "authorized-but-not-begun",
+    "milestone3AllowedScope": [
+      "adr-0011-candidate-authority-successor",
+      "ordinary-runtime-authority-for-all-150-catalog-candidates",
+      "accepted-ranking-v1-consumed-facts-and-evidence-only",
+      "compatible-accepted-phase8-deterministic-collection-and-projection-reuse",
+      "fit-consumable-evidence-and-dossier-projections",
+      "measurement-against-frozen-readiness-policy"
+    ],
+    "milestone3ProhibitedScope": [
+      "production-ranking-package",
+      "ranking-benchmark-output",
+      "m4-contracts-or-package",
+      "m5-ranking-behavior",
+      "models-or-interviews",
+      "vectors-or-search-infrastructure",
+      "scanner-mcp-api-or-skill",
+      "database-resurrection",
+      "phase8-execute-5"
+    ],
+    "milestone3WorkBeganInAcceptanceOperation": false
+  },
+  "performanceResourceGate": {
+    "contextRecordingRequired": true,
+    "maximumLegalEnvelope": {
+      "candidateEvidenceObservations": 2000,
+      "candidates": 20,
+      "rankingCriteria": 60,
+      "unorderedCandidatePairs": 190
+    },
+    "productionPureEngineBudgets": {
+      "candidateEvidenceTraversalP95Milliseconds": 25,
+      "canonicalizationP95Milliseconds": 75,
+      "combinedBoundedRankingWorkP95Milliseconds": 100,
+      "combinedMaximumMilliseconds": 250,
+      "pairEnumerationP95Milliseconds": 10,
+      "parseValidationP95Milliseconds": 50,
+      "retainedHeapGrowthMaximumBytes": 16777216,
+      "retainedHeapGrowthMaximumMebibytes": 16
+    },
+    "referenceEvidence": {
+      "digest": "f848f261551f7bda8322dd4ab244646d50ec6cdcb5ff1bf019a802de2f435f30",
+      "productionRankingBenchmark": false,
+      "scope": "evaluation-data-evidence",
+      "version": "ranking-v1-performance-reference/2.0.0"
+    }
+  },
+  "reviewedContentHead": "700e84b6c50b326d3c6d2913634a221d4643756e",
+  "semanticDigest": "b44de7aaf3fc997c10c31739862836f6f1a05fe1f80b1a19bc53c4dec7084460",
+  "status": "accepted"
+}

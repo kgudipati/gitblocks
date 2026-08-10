@@ -9,7 +9,16 @@ import {
 import { join, relative, resolve, sep } from 'node:path';
 
 import {
+  createRankingAcceptedGateAuthority,
+  createRankingAcceptedReviewRecord,
+  RANKING_V1_ACCEPTED_CORE_AUTHORITY_DIGEST,
+  RANKING_V1_ACCEPTED_GOLD_DIGEST,
+  type RankingAcceptedGateAuthority,
+  type RankingAcceptedReviewRecord,
+} from './acceptance.ts';
+import {
   RANKING_FAMILIES,
+  type RankingAcceptedValidatedCorpus,
   type RankingAuditAuthority,
   type RankingBlindCaseAuthority,
   type RankingCorpusManifest,
@@ -53,13 +62,15 @@ const REQUIRED_AUTHORITY_PATHS = {
   audit: 'audit/case-classifications.json',
   reviewerRationale: 'reviews/reviewer-rationale.json',
   review: 'reviews/proposed-review-record.json',
+  acceptedReview: 'reviews/accepted-review-record.json',
+  acceptedGates: 'gates/accepted-gates.json',
 } as const;
 
 export type RankingCorpusLoadResult =
   | {
       readonly ok: true;
       readonly manifest: RankingCorpusManifest;
-      readonly corpus: RankingValidatedCorpus;
+      readonly corpus: RankingAcceptedValidatedCorpus;
       readonly cases: readonly RankingResolvedCase[];
       readonly diagnostics: readonly [];
     }
@@ -74,7 +85,7 @@ export function loadRankingCorpus(
   const corpusRoot = join(repositoryRoot, CORPUS_RELATIVE_ROOT);
   const diagnostics: RankingDiagnostic[] = [];
   let manifest: RankingCorpusManifest;
-  let corpus: RankingValidatedCorpus;
+  let corpus: RankingAcceptedValidatedCorpus;
   try {
     manifest = loadJson(corpusRoot, 'manifest.json') as RankingCorpusManifest;
     corpus = {
@@ -106,6 +117,14 @@ export function loadRankingCorpus(
         corpusRoot,
         REQUIRED_AUTHORITY_PATHS.review,
       ) as RankingReviewRecord,
+      acceptedReview: loadJson(
+        corpusRoot,
+        REQUIRED_AUTHORITY_PATHS.acceptedReview,
+      ) as RankingAcceptedReviewRecord,
+      acceptedGates: loadJson(
+        corpusRoot,
+        REQUIRED_AUTHORITY_PATHS.acceptedGates,
+      ) as RankingAcceptedGateAuthority,
     };
   } catch {
     return {
@@ -121,7 +140,7 @@ export function loadRankingCorpus(
   }
 
   validateManifest(corpusRoot, manifest, diagnostics);
-  validateCorpusAuthorities(corpus, diagnostics);
+  validateCorpusAuthorities(corpusRoot, corpus, diagnostics);
   validatePilotImmutability(repositoryRoot, diagnostics);
   const cases = resolveRankingCases(corpus, diagnostics);
   validateCaseClosure(corpus, cases, diagnostics);
@@ -197,10 +216,10 @@ export function createRankingManifest(
     sha256: hashFile(join(corpusRoot, path)),
   }));
   const withoutDigest = {
-    manifestVersion: 'ranking-v1-manifest/3.0.0' as const,
+    manifestVersion: 'ranking-v1-manifest/4.0.0' as const,
     corpusId: 'ranking-v1' as const,
     corpusVersion: '3.0.0' as const,
-    status: 'proposed-independent-review-pending' as const,
+    status: 'accepted' as const,
     evidenceCutoff: '2026-08-10',
     caseCount: 30 as const,
     familyCounts: Object.fromEntries(
@@ -222,14 +241,11 @@ function validateManifest(
   if (
     rankingValuesDiffer(
       manifest.manifestVersion,
-      'ranking-v1-manifest/3.0.0',
+      'ranking-v1-manifest/4.0.0',
     ) ||
     rankingValuesDiffer(manifest.corpusId, 'ranking-v1') ||
     rankingValuesDiffer(manifest.corpusVersion, '3.0.0') ||
-    rankingValuesDiffer(
-      manifest.status,
-      'proposed-independent-review-pending',
-    ) ||
+    rankingValuesDiffer(manifest.status, 'accepted') ||
     manifest.evidenceCutoff !== '2026-08-10' ||
     rankingValuesDiffer(manifest.caseCount, 30) ||
     RANKING_FAMILIES.some((family) =>
@@ -305,7 +321,8 @@ function validateManifest(
 }
 
 function validateCorpusAuthorities(
-  corpus: RankingValidatedCorpus,
+  corpusRoot: string,
+  corpus: RankingAcceptedValidatedCorpus,
   diagnostics: RankingDiagnostic[],
 ): void {
   const authorities: readonly [string, object, string][] = [
@@ -335,6 +352,16 @@ function validateCorpusAuthorities(
       'reviews/proposed-review-record.json',
       corpus.review,
       corpus.review.semanticDigest,
+    ],
+    [
+      'reviews/accepted-review-record.json',
+      corpus.acceptedReview,
+      corpus.acceptedReview.semanticDigest,
+    ],
+    [
+      'gates/accepted-gates.json',
+      corpus.acceptedGates,
+      corpus.acceptedGates.semanticDigest,
     ],
   ];
   for (const [path, authority, digest] of authorities) {
@@ -434,6 +461,7 @@ function validateCorpusAuthorities(
       ),
     );
   }
+  validateAcceptedAuthority(corpusRoot, corpus, diagnostics);
   auditBlindAuthority(corpus.blind, diagnostics);
   auditCandidateEvidence(corpus, diagnostics);
 }
@@ -1589,6 +1617,56 @@ function validatePilotImmutability(
   }
 }
 
+function validateAcceptedAuthority(
+  corpusRoot: string,
+  corpus: RankingAcceptedValidatedCorpus,
+  diagnostics: RankingDiagnostic[],
+): void {
+  const expectedReview = createRankingAcceptedReviewRecord();
+  const expectedGates = createRankingAcceptedGateAuthority();
+  const coreAuthorityDigest = rankingDigest({
+    blind: corpus.blind.semanticDigest,
+    evidence: corpus.evidence.semanticDigest,
+    handoff: corpus.handoff.semanticDigest,
+    gold: corpus.gold.semanticDigest,
+    audit: corpus.audit.semanticDigest,
+    reviewerRationale: corpus.reviewerRationale.semanticDigest,
+    review: corpus.review.semanticDigest,
+  });
+  const reviewedFilesMatch = corpus.acceptedReview.reviewedContentFiles.every(
+    ({ path, sha256 }) => {
+      try {
+        return hashFile(join(corpusRoot, path)) === sha256;
+      } catch {
+        return false;
+      }
+    },
+  );
+  if (
+    rankingStableJson(corpus.acceptedReview) !==
+      rankingStableJson(expectedReview) ||
+    rankingStableJson(corpus.acceptedGates) !==
+      rankingStableJson(expectedGates) ||
+    !reviewedFilesMatch ||
+    corpus.gold.semanticDigest !== RANKING_V1_ACCEPTED_GOLD_DIGEST ||
+    coreAuthorityDigest !== RANKING_V1_ACCEPTED_CORE_AUTHORITY_DIGEST ||
+    corpus.acceptedGates.bindings.acceptedReviewDigest !==
+      corpus.acceptedReview.semanticDigest ||
+    !sameOrderedValues(
+      corpus.acceptedReview.acceptedCaseIds,
+      corpus.gold.cases.map(({ caseId }) => caseId),
+    )
+  ) {
+    diagnostics.push(
+      diagnostic(
+        'ranking.acceptance.binding',
+        'reviews/accepted-review-record.json',
+        'Accepted review, gates, reviewed content, or all-case adjudication binding is inconsistent.',
+      ),
+    );
+  }
+}
+
 function classifyManifestPath(path: string): RankingManifestFile['kind'] {
   if (path === REQUIRED_AUTHORITY_PATHS.blind) return 'blind-cases';
   if (path === REQUIRED_AUTHORITY_PATHS.evidence) return 'candidate-evidence';
@@ -1598,6 +1676,9 @@ function classifyManifestPath(path: string): RankingManifestFile['kind'] {
   if (path === REQUIRED_AUTHORITY_PATHS.reviewerRationale)
     return 'reviewer-rationale';
   if (path === REQUIRED_AUTHORITY_PATHS.review) return 'review-record';
+  if (path === REQUIRED_AUTHORITY_PATHS.acceptedReview)
+    return 'accepted-review-record';
+  if (path === REQUIRED_AUTHORITY_PATHS.acceptedGates) return 'accepted-gates';
   if (path === 'baselines/specifications.json')
     return 'baseline-specifications';
   if (path.startsWith('baselines/predictions/')) return 'baseline-prediction';

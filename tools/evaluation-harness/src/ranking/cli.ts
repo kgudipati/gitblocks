@@ -10,6 +10,10 @@ import {
 } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 
+import {
+  createRankingAcceptedGateAuthority,
+  createRankingAcceptedReviewRecord,
+} from './acceptance.ts';
 import { generateRankingBaselinePredictionSets } from './baselines.ts';
 import {
   authorCorrectedBaselineSpecifications,
@@ -56,6 +60,8 @@ const WRITABLE_PATHS = new Set([
   'reports/composition-report.json',
   'reports/performance-reference.json',
   'gates/proposed-review-inputs.json',
+  'gates/accepted-gates.json',
+  'reviews/accepted-review-record.json',
   'manifest.json',
 ]);
 const AUTHORING_WRITABLE_PATHS = new Set([
@@ -91,7 +97,28 @@ export function runRankingCli(
       const loaded = loadRankingCorpus(repositoryRoot);
       if (!loaded.ok) return reportDiagnostics(loaded.diagnostics, output);
       output.log(
-        'ranking-v1 valid (30 cases; 6 per family; proposed gold; independent review pending)',
+        'ranking-v1 valid (30 cases; 6 per family; authored gold accepted through independent review authority)',
+      );
+      return RANKING_EXIT_CODES.success;
+    }
+    if (command === 'acceptance-generate') {
+      writeAuthority(
+        repositoryRoot,
+        'reviews/accepted-review-record.json',
+        createRankingAcceptedReviewRecord(),
+      );
+      writeAuthority(
+        repositoryRoot,
+        'gates/accepted-gates.json',
+        createRankingAcceptedGateAuthority(),
+      );
+      writeAuthority(
+        repositoryRoot,
+        'manifest.json',
+        createRankingManifest(repositoryRoot),
+      );
+      output.log(
+        'ranking-v1 Milestone 2 acceptance authority generated (Milestone 3 work not begun)',
       );
       return RANKING_EXIT_CODES.success;
     }
@@ -295,7 +322,7 @@ export function runRankingCli(
         );
       }
       output.log(
-        'ranking-v1 verification passed (corpus, contracts, fixtures, blind baselines, composition, reports, effects)',
+        'ranking-v1 verification passed (accepted M2 authority, contracts, fixtures, blind baselines, composition, reports, effects)',
       );
       return RANKING_EXIT_CODES.success;
     }
@@ -610,7 +637,7 @@ function reportDiagnostics(
 
 function usage(output: Output): number {
   output.error(
-    'usage: ranking-evaluation <validate|authority-generate|fixtures|fixtures-generate|baselines-generate|baselines-score|baselines|composition-generate|performance-generate|gates-generate|manifest-generate|verify>',
+    'usage: ranking-evaluation <validate|acceptance-generate|authority-generate|fixtures|fixtures-generate|baselines-generate|baselines-score|baselines|composition-generate|performance-generate|gates-generate|manifest-generate|verify>',
   );
   return RANKING_EXIT_CODES.usage;
 }

@@ -1,14 +1,17 @@
-# Ranking-v1 proposed evaluation authority
+# Ranking-v1 accepted evaluation authority
 
 `ranking-v1` is the additive, offline, fixed-candidate evaluation authority for
 Phase 10 Milestone 2. It asks whether a future deterministic ranker reaches a
 responsible adoption-fit result for a supplied target repository. It does not
 specify or implement the future production ranking algorithm.
 
-The corpus is proposed authoring output. Its gold is **not independently
-reviewed or accepted**, Milestone 2 is not accepted, and Milestone 3 remains
-unauthorized. The 30 cases are deliberately balanced test authority, not a
-claim of statistical representativeness.
+The authored gold remains historically labeled proposed. Independent
+maintainer review accepts that exact authored content through the additive
+`reviews/accepted-review-record.json`; it does not rewrite the reviewed gold.
+Milestone 2 is accepted. Milestone 3 is authorized only within the candidate-
+authority boundary in ADR 0011 and Plan 0032, and no M3 work began in the
+acceptance operation. The 30 cases are deliberately balanced test authority,
+not a claim of statistical representativeness.
 
 ## Authority layout
 
@@ -27,7 +30,9 @@ claim of statistical representativeness.
 - `audit/case-classifications.json` contains family and scenario labels that are
   unavailable to ordinary baseline strategies.
 - `reviews/proposed-review-record.json` records Codex as author, no independent
-  reviewer, and no accepted cases.
+  reviewer, and no accepted cases as preserved authoring history.
+- `reviews/accepted-review-record.json` records the independent-maintainer
+  acceptance of all 30 cases, zero disputes, and exact reviewed-content hashes.
 - `reviews/reviewer-rationale.json` contains evaluation-only case-by-case
   adjudication rationale and is inaccessible to ordinary baseline strategies.
 - `baselines/specifications.json` freezes the human-readable deterministic rules
@@ -37,8 +42,12 @@ claim of statistical representativeness.
   performance-reference reports. It does not publish case winners, candidate
   recommendation lists, gold rationale, or evidence prose.
 - `gates/proposed-review-inputs.json` packages evidence for later independent
-  gate selection. Both the product-quality thresholds and the 13/18 versus
-  14/18 readiness choice remain null.
+- `gates/proposed-review-inputs.json` preserves the pre-decision evidence that
+  left all gates unselected.
+- `gates/accepted-gates.json` freezes exact conformance gates, 13/18
+  deterministic readiness with four-group breadth qualification, production
+  pure-engine resource budgets, deterministic mechanical proof, the reference
+  baseline interpretation, and composition-diagnostic scope.
 - `fixtures/scorer-fixture-summary.json` binds synthetic scorer validation only.
 - `composition/` keeps the retrieval-to-ranking diagnostic separate from the
   authoritative fixed-candidate track.
@@ -98,6 +107,7 @@ Read-only validation and reproduction:
 
 ```text
 pnpm eval:ranking:validate
+pnpm eval:ranking:acceptance
 pnpm eval:ranking:fixtures
 pnpm eval:ranking:baselines
 pnpm eval:ranking:verify
@@ -115,15 +125,18 @@ pnpm eval:ranking:composition:generate
 pnpm eval:ranking:performance:generate
 pnpm eval:ranking:gates:generate
 pnpm eval:ranking:manifest:generate
+pnpm eval:ranking:acceptance:generate
 ```
 
-The authoring writer is an explicit correction-only command whose separate
+The acceptance writer reproduces only the additive accepted review, accepted
+gates, and composite manifest. The authoring writer is an explicit historical
+correction-only command whose separate
 allowlist contains blind cases, proposed gold, author rationale/review record,
 and baseline specifications. Ordinary artifact writers cannot change those
 authorities.
 
-The verify path checks manifest and corpus closure, criterion reachability and
-lane closure,
+The verify path checks accepted-review and gate bindings, exact reviewed-file
+hashes, manifest and corpus closure, criterion reachability and lane closure,
 scorer fixtures, forward/reversed baseline reproduction, candidate input
 permutation invariance, complete tie/maximal-group overflow closure across all
 ranking-reference surfaces, decision-minimal evidence ownership, rationale
@@ -133,5 +146,6 @@ state, product/evaluation separation, denied effects, authorized write paths,
 and read-only filesystem behavior.
 
 See
-[the authoring protocol](../../docs/evaluation/ranking-v1-authoring-protocol.md)
-and [Plan 0032](../../docs/plans/0032-codebase-conditioned-ranking.md).
+[the authoring protocol](../../docs/evaluation/ranking-v1-authoring-protocol.md),
+[the acceptance record](../../docs/evaluation/ranking-v1-acceptance.md), and
+[Plan 0032](../../docs/plans/0032-codebase-conditioned-ranking.md).

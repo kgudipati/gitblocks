@@ -19,7 +19,7 @@ import { rankingStableJson } from '../src/ranking/stable-json.ts';
 const REPOSITORY_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 
 describe('ranking-v1 authority', () => {
-  it('closes exactly thirty proposed cases with six per family', () => {
+  it('preserves thirty authored cases with six per family under additive acceptance', () => {
     const loaded = loadRankingCorpus(REPOSITORY_ROOT);
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) return;
@@ -60,6 +60,8 @@ describe('ranking-v1 authority', () => {
     expect(loaded.corpus.review.status).toBe('independent-review-pending');
     expect(loaded.corpus.review.independentReviewer).toBeNull();
     expect('milestone2Accepted' in loaded.corpus.review).toBe(false);
+    expect(loaded.corpus.acceptedReview.status).toBe('accepted');
+    expect(loaded.corpus.acceptedReview.acceptedCaseIds).toHaveLength(30);
   });
 
   it('keeps blind, evidence, handoff, audit, gold, and review authority physical', () => {
@@ -77,6 +79,8 @@ describe('ranking-v1 authority', () => {
     expect(paths).toContain('gold/outcomes.json');
     expect(paths).toContain('reviews/reviewer-rationale.json');
     expect(paths).toContain('reviews/proposed-review-record.json');
+    expect(paths).toContain('reviews/accepted-review-record.json');
+    expect(paths).toContain('gates/accepted-gates.json');
 
     const blind = JSON.parse(
       readFileSync(

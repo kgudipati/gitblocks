@@ -43,6 +43,8 @@
     "eval:retrieval:v2:gates:validate": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2",
     "eval:retrieval:score": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score",
     "eval:ranking:validate": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts validate",
+    "eval:ranking:acceptance": "pnpm eval:ranking:validate && vitest run tools/evaluation-harness/test/ranking-v1-acceptance.test.ts --config vitest.config.ts",
+    "eval:ranking:acceptance:generate": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts acceptance-generate",
     "eval:ranking:authority:generate": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts authority-generate",
     "eval:ranking:fixtures": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts fixtures",
     "eval:ranking:fixtures:generate": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts fixtures-generate",

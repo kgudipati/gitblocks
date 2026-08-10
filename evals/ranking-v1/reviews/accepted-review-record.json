@@ -1,17 +1,73 @@
 {
-  "caseCount": 30,
-  "corpusId": "ranking-v1",
-  "corpusSemanticDigest": "53e0117e0fa8f8633b76fdf0ac73def2a002ffa41ae446adad7d31f9ce4f4874",
-  "corpusVersion": "3.0.0",
-  "evidenceCutoff": "2026-08-10",
-  "familyCounts": {
-    "audit-logging": 6,
-    "authorization": 6,
-    "background-jobs": 6,
-    "rate-limiting": 6,
-    "webhooks": 6
+  "acceptedCaseIds": [
+    "rank-audit-01-controlled-a",
+    "rank-audit-02-controlled-b",
+    "rank-audit-03-no-viable",
+    "rank-audit-04-insufficient",
+    "rank-audit-05-popularity-over-fit",
+    "rank-audit-06-incomparable",
+    "rank-auth-01-controlled-a",
+    "rank-auth-02-controlled-b",
+    "rank-auth-03-no-viable",
+    "rank-auth-04-insufficient",
+    "rank-auth-05-popularity-over-fit",
+    "rank-auth-06-tie",
+    "rank-jobs-01-controlled-a",
+    "rank-jobs-02-controlled-b",
+    "rank-jobs-03-no-viable",
+    "rank-jobs-04-insufficient",
+    "rank-jobs-05-popularity-over-fit",
+    "rank-jobs-06-tie",
+    "rank-rate-01-controlled-a",
+    "rank-rate-02-controlled-b",
+    "rank-rate-03-no-viable",
+    "rank-rate-04-insufficient",
+    "rank-rate-05-popularity-over-fit",
+    "rank-rate-06-incomparable",
+    "rank-webhook-01-controlled-a",
+    "rank-webhook-02-controlled-b",
+    "rank-webhook-03-no-viable",
+    "rank-webhook-04-insufficient",
+    "rank-webhook-05-popularity-over-fit",
+    "rank-webhook-06-tie"
+  ],
+  "adjudication": "accepted-as-authored-after-published-correction-sequence",
+  "author": "Codex",
+  "bindings": {
+    "baselineReportDigest": "627b05e21eb1595855d20e7325e79872924933216377edfe0ca97cfcb39dd34d",
+    "baselineReportVersion": "ranking-v1-baseline-report/3.0.0",
+    "baselineSpecificationAuthorityDigest": "7b26826f7e85eef3c6bbd887a21f76a2bb4d2519e2997ddb7a11148e38823061",
+    "baselineSpecificationAuthorityVersion": "ranking-v1-baseline-specifications/3.0.0",
+    "coreAuthorityDigest": "061e4774c1ab5f9a3793aaa46dfd917597f0378fb882c80f30b15a6431fb225e",
+    "goldAuthorityVersion": "ranking-v1-proposed-gold/3.0.0",
+    "goldDigest": "48644422e325ecf385ae8fe3ef71a936549eab6ae0f1f75b98feaadc8640b081",
+    "reviewerRationaleDigest": "3be6bd29185c67be39b6c09bd0976d47da09731824b1ca3199746594c19ea779",
+    "reviewerRationaleVersion": "ranking-v1-reviewer-rationale/2.0.0",
+    "scorerVersion": "ranking-v1-scorer/2.0.0"
   },
-  "files": [
+  "candidateAuthorityM3OutputObservedBeforeReview": false,
+  "corpusId": "ranking-v1",
+  "disputedCaseIds": [],
+  "productRankingOutputObservedBeforeReview": false,
+  "reviewBasis": {
+    "description": "Independent maintainer review of the exact corrected Milestone 2 content head.",
+    "publishedCorrectionSequence": [
+      "d4d9c4f482ee23e953f62dc334aa1b7c8e7ab71d",
+      "167bc89b3bf1ed48821c9f4b66c10d261be841ec",
+      "700e84b6c50b326d3c6d2913634a221d4643756e"
+    ],
+    "reviewedContentHead": "700e84b6c50b326d3c6d2913634a221d4643756e",
+    "reviewedManifestDigest": "458b7d521ec56cbb3c0593336f46ad12581f190412527948ea47f61e1e27787b",
+    "reviewedManifestVersion": "ranking-v1-manifest/3.0.0"
+  },
+  "reviewRecordVersion": "ranking-v1-accepted-review/1.0.0",
+  "reviewReference": {
+    "authority": "phase-10-m2-acceptance-bookkeeping",
+    "governingIssue": "#32"
+  },
+  "reviewRole": "independent-maintainer-review",
+  "reviewedAt": "2026-08-10T22:57:55Z",
+  "reviewedContentFiles": [
     {
       "kind": "audit-classification",
       "path": "audit/case-classifications.json",
@@ -78,11 +134,6 @@
       "sha256": "6878c80bca0ff585ccc53e4d93150d776ef40a497e6c84302d4526a143fe7e0d"
     },
     {
-      "kind": "accepted-gates",
-      "path": "gates/accepted-gates.json",
-      "sha256": "dc25c8bc235bedca473f9bcbfa7a457a72c766832f6f5df64615d19fd0253ce7"
-    },
-    {
       "kind": "gate-review-input",
       "path": "gates/proposed-review-inputs.json",
       "sha256": "219a03d4645207aedd9cb1e6531b03c6260fc903dcbab8c3c02667e701ea522a"
@@ -113,11 +164,6 @@
       "sha256": "b0cda6174e8464169152f100fc7408aa5b198529f993ee183e0089c65f58ecf9"
     },
     {
-      "kind": "accepted-review-record",
-      "path": "reviews/accepted-review-record.json",
-      "sha256": "434da5397bd420abcf39ae9165d78863b886b0576ab89a8ba13d83fd0bcb3f4c"
-    },
-    {
       "kind": "review-record",
       "path": "reviews/proposed-review-record.json",
       "sha256": "ab8981840fd50b65896e77df6471b4236ad90bea540dfe5e719fb51235475121"
@@ -128,6 +174,7 @@
       "sha256": "9e6d0491a7bf27f983ae3987d832e035eff1612b8a36a2b96f316ad1e5395074"
     }
   ],
-  "manifestVersion": "ranking-v1-manifest/4.0.0",
+  "reviewerIdentity": null,
+  "semanticDigest": "18ba16b1266423fc18d3c8ffc2b39c2d399453ed0f24bc5e89c9d4f967a42cef",
   "status": "accepted"
 }

@@ -2,14 +2,16 @@
 
 ## Status
 
-This document describes the proposed Phase 10 Milestone 2 evaluation authority.
-Codex authored the corpus and proposed gold. Independent review is pending, so
-neither the gold, Milestone 2, a product-quality threshold, a performance
-budget, nor a deterministic-readiness choice is accepted.
+This document preserves the proposed Phase 10 Milestone 2 authoring protocol.
+Codex authored the corpus and proposed gold. Authoring did not independently
+accept the gold or select gates. Subsequent independent maintainer review
+accepted the exact reviewed content through the additive authority described in
+[ranking-v1-acceptance.md](ranking-v1-acceptance.md); the proposed artifacts
+below remain unchanged as historical review inputs.
 
-Milestone 3 remains unauthorized. No provider collection, candidate-authority
-successor, production ranking implementation, or production ranking output was
-created or observed during M2 authoring.
+No provider collection, candidate-authority successor, production ranking
+implementation, or production ranking output was created or observed during
+M2 authoring or acceptance bookkeeping.
 
 ## Evaluation question and tracks
 
@@ -220,17 +222,17 @@ cannot be hidden by that quality ordering. The result is evidence for an
 independent reviewer; `finalThresholds` remains null and
 `finalThresholdsSelected` remains false.
 
-The readiness denominator remains 18 decision-bearing fields and current
-readiness remains 0/18. Independent M2 acceptance must choose exactly one:
+The authoring-time denominator was 18 decision-bearing fields and readiness was
+0/18. The two pre-decision choices were:
 
 - 13/18 (72.222222%) tolerates five unavailable decision-bearing fields while
   still requiring a substantial deterministic majority; or
 - 14/18 (77.777778%) tolerates four and reduces unsupported-fit risk at the
   cost of a stricter pre-production evidence bar.
 
-Neither value uses or may be revised from M3 coverage. The selected value and
-policy digest must freeze before any M3 provider effect, authority generation,
-coverage output, or observation. Authoring selects neither.
+Neither value used M3 coverage. Authoring selected neither; the additive
+accepted gate authority freezes 13/18 before any M3 provider effect, authority
+generation, coverage output, or observation.
 
 ## Resource reference
 
@@ -252,8 +254,8 @@ does not select a final budget.
 
 ## Review checklist
 
-Independent review must adjudicate all proposed gold and disputes, freeze
-exact quality and safety gates, choose and digest 13/18 or 14/18, decide a
-performance margin/budget protocol, confirm corpus/baseline/scorer blindness
-and digests, and explicitly accept M2 before M3 can begin. Until then, M2 is not
-accepted and all M3 effects and outputs remain prohibited.
+Independent review adjudicated all proposed gold with zero disputes, froze the
+exact quality, safety, readiness, performance, and determinism gates, confirmed
+the corpus/baseline/scorer bindings, and accepted M2. The accepted decisions and
+authorization boundary are recorded in
+[ranking-v1-acceptance.md](ranking-v1-acceptance.md).

@@ -1,3 +1,8 @@
+import type {
+  RankingAcceptedGateAuthority,
+  RankingAcceptedReviewRecord,
+} from './acceptance.ts';
+
 export const RANKING_FAMILIES = [
   'authorization',
   'audit-logging',
@@ -574,6 +579,11 @@ export interface RankingValidatedCorpus {
   readonly review: RankingReviewRecord;
 }
 
+export interface RankingAcceptedValidatedCorpus extends RankingValidatedCorpus {
+  readonly acceptedReview: RankingAcceptedReviewRecord;
+  readonly acceptedGates: RankingAcceptedGateAuthority;
+}
+
 export interface RankingDiagnostic {
   readonly code: string;
   readonly path: string;
@@ -598,16 +608,18 @@ export interface RankingManifestFile {
     | 'composition-report'
     | 'performance-reference'
     | 'gate-review-input'
+    | 'accepted-review-record'
+    | 'accepted-gates'
     | 'scorer-fixture-summary';
   readonly path: string;
   readonly sha256: string;
 }
 
 export interface RankingCorpusManifest {
-  readonly manifestVersion: 'ranking-v1-manifest/3.0.0';
+  readonly manifestVersion: 'ranking-v1-manifest/4.0.0';
   readonly corpusId: 'ranking-v1';
   readonly corpusVersion: '3.0.0';
-  readonly status: 'proposed-independent-review-pending';
+  readonly status: 'accepted';
   readonly evidenceCutoff: string;
   readonly caseCount: 30;
   readonly familyCounts: Readonly<Record<RankingFamily, 6>>;

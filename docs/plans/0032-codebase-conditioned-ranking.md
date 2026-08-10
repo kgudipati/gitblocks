@@ -13,11 +13,12 @@
   documented hosted-infrastructure exception for natural run `31416900337`:
   all six repository-verification workers passed, while the compatibility
   aggregate did not execute because of GitHub's account billing/spending-limit
-  condition. Publication of this bookkeeping record authorizes Milestone 2
-  only. This M2 authoring commit proposes the complete ranking-v1 authority,
-  scorer, frozen blind baselines, reports, and gate-review inputs. Independent
-  M2 review is pending; no M2 gate is accepted and Milestones 3 through 6
-  remain unauthorized.
+  condition. Milestone 2 is independently accepted at exact reviewed content
+  head `700e84b6c50b326d3c6d2913634a221d4643756e` through the additive review
+  and gate authority. The accepted readiness minimum is 13/18 (72.222222%)
+  with four-group breadth qualification. Publication authorizes Milestone 3
+  only within the candidate-authority successor boundary; no M3 work began in
+  the acceptance operation. Milestones 4 through 6 remain unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-10
@@ -33,8 +34,8 @@ repository engineering policy, and the governing issue win if they conflict.
 Milestone 1 was documentation and governance only. Its accepted architecture
 commit does not contain ranking product code, ranking evaluation authority,
 candidate collection, a provider/model call, a benchmark, or database
-mutation. Publication of this bookkeeping descendant authorizes only the
-bounded Milestone 2 authority below; it does not begin that work.
+mutation. The accepted M2 descendant binds evaluation authority and gates
+without production ranking code or candidate collection.
 
 ## Purpose and user-visible outcome
 
@@ -707,20 +708,29 @@ freeze. Independently select and digest exactly 13/18 (72.222222%) or 14/18
 remains effect- and output-blocked until this complete policy is accepted.
 Independent M2 acceptance authorizes M3 only.
 
-Correction-authoring status: complete and proposed for independent rereview in
-the current M2 correction commit. The corrected authority contains 30 cases
+Acceptance status: independently accepted at reviewed content head
+`700e84b6c50b326d3c6d2913634a221d4643756e`. The authority contains 30 cases
 (six per family), corpus/proposed-gold version `3.0.0`, scorer version
 `ranking-v1-scorer/2.0.0`, frozen blind baseline
 specifications/predictions, criterion-to-candidate-fact reachability checks,
 decision-minimal gold evidence associations, synchronized reviewer rationale,
 and complete maximum-results closure across every ranking reference,
 separate fixed-candidate and composition reports, gold-blind resource-reference
-evidence, and independent gate-review inputs. Gold status is
-`proposed-not-independently-reviewed`; the review record is
-`independent-review-pending` with Codex as author and no independent reviewer.
-Quality thresholds, production performance budgets, and the 13/18 versus 14/18
-readiness selection are deliberately unset. This paragraph records proposed
-authoring only and does not satisfy the M2 exit or authorize M3.
+evidence, and independent gate-review inputs. Gold and the pending authoring
+review remain historically unchanged; the additive independent-maintainer
+review record accepts all 30 cases with zero disputes and binds the exact gold
+and core-authority digests. The accepted gates freeze exact reviewed
+conformance, production pure-engine resource budgets, deterministic mechanical
+proof, and 13/18 readiness with breadth qualification. M2 is complete. M3 is
+authorized only for the candidate-authority successor and has not begun.
+The accepted review digest is
+`18ba16b1266423fc18d3c8ffc2b39c2d399453ed0f24bc5e89c9d4f967a42cef`,
+the accepted gate digest is
+`b44de7aaf3fc997c10c31739862836f6f1a05fe1f80b1a19bc53c4dec7084460`,
+the readiness-policy digest is
+`6330d6d882a6a0620fc80e335a20f2d1fee2280318586cbe9c2c36900a1f2e04`,
+and the accepted composite manifest digest is
+`53e0117e0fa8f8633b76fdf0ac73def2a002ffa41ae446adad7d31f9ce4f4874`.
 
 ### Milestone 3 — Candidate-authority successor
 
@@ -937,7 +947,12 @@ reviewed durable-product trigger in ADR 0011.
       effect per family, minimized gold evidence associations, and closed every
       ranking-reference surface at the maximum-results boundary. Independent
       rereview remains pending; M2 is unaccepted and M3 remains unauthorized.
-- [ ] M2 independently accepted.
+- [x] 2026-08-10 — Independently accepted all 30 M2 cases with zero disputes
+      at exact reviewed content head
+      `700e84b6c50b326d3c6d2913634a221d4643756e`; preserved the authored gold,
+      froze exact fixed-candidate conformance, 13/18 readiness plus breadth,
+      performance, and determinism gates in additive accepted authorities, and
+      authorized but did not begin the bounded M3 candidate-authority successor.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
 - [ ] M5 independently accepted.
@@ -967,6 +982,12 @@ reviewed durable-product trigger in ADR 0011.
   independent acceptance. Reason: 13/18 versus 14/18 must freeze before any M3
   collection, generation, or coverage observation so the gate cannot be chosen
   to fit results. Owner: M1 independent review correction.
+- 2026-08-10 — Freeze deterministic readiness at 13/18 (72.222222%) plus at
+  least one ready field from each capability/adoption, stack/package,
+  infrastructure/deployment, and policy/risk group. Reason: select the least
+  integer inside the accepted band before any M3 coverage while preventing an
+  entire decision class from remaining unsupported. Owner: M2 independent
+  maintainer review.
 - 2026-08-10 — Use request-conditioned partial order and complete-group
   presentation truncation. Reason: avoid hidden weights and fabricated top
   three. Owner: proposed ADR 0011.
@@ -1225,3 +1246,33 @@ conflict, and 10 unresolved). Independent review remains pending. No quality
 threshold, performance budget, or 13/18-versus-14/18 choice was selected; M2
 remains unaccepted, M3 remains unauthorized and untouched, and no production
 ranking output was created or observed.
+
+### Milestone 2 acceptance-bookkeeping validation
+
+Acceptance bookkeeping began from clean local and origin heads at exact
+reviewed content SHA `700e84b6c50b326d3c6d2913634a221d4643756e`, with Node
+`v24.18.0`, pnpm `11.17.0`, PR #33 open/draft/unmerged, Issue #32 open,
+and no product ranking package/output or M3 provider/authority/coverage effect.
+
+Focused acceptance validation passed all 3 acceptance tests, all 24 tests in
+the six ranking-v1 test files, 21 scorer fixtures with 47 assertions,
+forward/reverse blind baseline reproduction, composition and contract
+conformance, exact reviewed-file hashes, architecture/effect denial, and
+read-only verification. Two explicit acceptance generations reproduced the
+same review, gate, and manifest content. The reviewed cases, candidate
+evidence, handoff, authored gold, rationale, scorer fixtures, baseline
+specifications/predictions/reports, composition artifacts, performance
+reference, and proposed gate inputs remained byte-identical to the reviewed
+head.
+
+The first repository-wide validation stopped because the new acceptance
+document had not yet entered the tracked-file-aware link check; staging that
+intended file allowed the checker to resolve its links. The next pass found one
+redundant TypeScript conditional for the statically empty disputed-case tuple;
+only that redundant check was removed, while canonical authority equality and
+the explicit zero-dispute test remained. The final full pass completed 136
+test files and 1,973 tests with zero dependency violations across 907 modules
+and 3,110 dependencies. Runtime, formatting, repository, evaluation fixtures,
+secret scanning, registry audit, and diff checks passed. Validation did not
+change tracked content, no GitHub Actions operation was requested, and no M3
+work began.
