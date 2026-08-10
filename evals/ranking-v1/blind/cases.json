@@ -1,0 +1,3337 @@
+{
+  "authorityVersion": "ranking-v1-blind-cases/1.0.0",
+  "candidateSets": [
+    {
+      "candidateSetId": "ranking-v1-audit-candidates",
+      "candidates": [
+        {
+          "candidateId": "audit-pino",
+          "displayName": "Pino",
+          "packageName": "pino",
+          "repository": "pinojs/pino"
+        },
+        {
+          "candidateId": "audit-winston",
+          "displayName": "Winston",
+          "packageName": "winston",
+          "repository": "winstonjs/winston"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "displayName": "pgAudit",
+          "packageName": null,
+          "repository": "pgaudit/pgaudit"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "displayName": "Grafana Loki",
+          "packageName": null,
+          "repository": "grafana/loki"
+        },
+        {
+          "candidateId": "audit-fluentd",
+          "displayName": "Fluentd",
+          "packageName": null,
+          "repository": "fluent/fluentd"
+        }
+      ],
+      "capabilityFamily": "audit-logging",
+      "semanticDigest": "5ee9792c84d273f56f8a4496ab7b16b2d41c9068a4af2afc0cf1f4dc7afd9804"
+    },
+    {
+      "candidateSetId": "ranking-v1-auth-candidates",
+      "candidates": [
+        {
+          "candidateId": "auth-stalniy-casl",
+          "displayName": "CASL",
+          "packageName": "@casl/ability",
+          "repository": "stalniy/casl"
+        },
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "displayName": "node-casbin",
+          "packageName": "casbin",
+          "repository": "casbin/node-casbin"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "displayName": "Cerbos",
+          "packageName": null,
+          "repository": "cerbos/cerbos"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "displayName": "OpenFGA",
+          "packageName": null,
+          "repository": "openfga/openfga"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "displayName": "Open Policy Agent",
+          "packageName": null,
+          "repository": "open-policy-agent/opa"
+        }
+      ],
+      "capabilityFamily": "authorization",
+      "semanticDigest": "db1643b8da1111e88a9d761348803650f2cc1196347c9a036316e4513cd74596"
+    },
+    {
+      "candidateSetId": "ranking-v1-jobs-candidates",
+      "candidates": [
+        {
+          "candidateId": "jobs-graphile-worker",
+          "displayName": "Graphile Worker",
+          "packageName": "graphile-worker",
+          "repository": "graphile/worker"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "displayName": "BullMQ",
+          "packageName": "bullmq",
+          "repository": "taskforcesh/bullmq"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "displayName": "node-cron",
+          "packageName": "node-cron",
+          "repository": "node-cron/node-cron"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "displayName": "Temporal TypeScript SDK",
+          "packageName": "@temporalio/worker",
+          "repository": "temporalio/sdk-typescript"
+        },
+        {
+          "candidateId": "jobs-agenda",
+          "displayName": "Agenda",
+          "packageName": "agenda",
+          "repository": "agenda/agenda"
+        }
+      ],
+      "capabilityFamily": "background-jobs",
+      "semanticDigest": "c4fd34114532385aa08b63d3113d1c57db10c22496f993925804a0d1ca0f260a"
+    },
+    {
+      "candidateSetId": "ranking-v1-rate-candidates",
+      "candidates": [
+        {
+          "candidateId": "rate-express-rate-limit",
+          "displayName": "express-rate-limit",
+          "packageName": "express-rate-limit",
+          "repository": "express-rate-limit/express-rate-limit"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "displayName": "redis-cell",
+          "packageName": null,
+          "repository": "brandur/redis-cell"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "displayName": "Upstash Ratelimit",
+          "packageName": "@upstash/ratelimit",
+          "repository": "upstash/ratelimit-js"
+        },
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "displayName": "Envoy Rate Limit Service",
+          "packageName": null,
+          "repository": "envoyproxy/ratelimit"
+        },
+        {
+          "candidateId": "rate-kong",
+          "displayName": "Kong Gateway",
+          "packageName": null,
+          "repository": "Kong/kong"
+        }
+      ],
+      "capabilityFamily": "rate-limiting",
+      "semanticDigest": "67148329ed4a175286fc71d0a54dde70c832d0ae1c86976ec2b77d12224cfa95"
+    },
+    {
+      "candidateSetId": "ranking-v1-webhook-candidates",
+      "candidates": [
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "displayName": "Standard Webhooks",
+          "packageName": "standardwebhooks",
+          "repository": "standard-webhooks/standard-webhooks"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "displayName": "Stripe Node",
+          "packageName": "stripe",
+          "repository": "stripe/stripe-node"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "displayName": "Svix Webhooks",
+          "packageName": "svix",
+          "repository": "svix/svix-webhooks"
+        },
+        {
+          "candidateId": "webhook-hookdeck",
+          "displayName": "Hookdeck Outpost",
+          "packageName": null,
+          "repository": "hookdeck/outpost"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "displayName": "Webhook.site",
+          "packageName": null,
+          "repository": "webhooksite/webhook.site"
+        }
+      ],
+      "capabilityFamily": "webhooks",
+      "semanticDigest": "abe545826b99ced0f92aa3c4470848418481ed1e593d3d917125f2667f8a04e2"
+    }
+  ],
+  "cases": [
+    {
+      "candidateSetId": "ranking-v1-audit-candidates",
+      "capabilityFamily": "audit-logging",
+      "caseId": "rank-audit-01-controlled-a",
+      "criterionAuthorityId": "ranking-v1-audit-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-audit-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-audit-pair-handoff",
+      "requestAuthorityId": "ranking-v1-audit-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-audit-pair-target-a"
+    },
+    {
+      "candidateSetId": "ranking-v1-audit-candidates",
+      "capabilityFamily": "audit-logging",
+      "caseId": "rank-audit-02-controlled-b",
+      "criterionAuthorityId": "ranking-v1-audit-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-audit-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-audit-pair-handoff",
+      "requestAuthorityId": "ranking-v1-audit-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-audit-pair-target-b"
+    },
+    {
+      "candidateSetId": "ranking-v1-audit-candidates",
+      "capabilityFamily": "audit-logging",
+      "caseId": "rank-audit-03-no-viable",
+      "criterionAuthorityId": "ranking-v1-audit-hard-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-audit-hard-evidence",
+      "handoffAuthorityId": "ranking-v1-audit-hard-handoff",
+      "requestAuthorityId": "ranking-v1-audit-hard-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-audit-hard-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-audit-candidates",
+      "capabilityFamily": "audit-logging",
+      "caseId": "rank-audit-04-insufficient",
+      "criterionAuthorityId": "ranking-v1-audit-insufficient-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-audit-insufficient-evidence",
+      "handoffAuthorityId": "ranking-v1-audit-insufficient-handoff",
+      "requestAuthorityId": "ranking-v1-audit-insufficient-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-audit-insufficient-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-audit-candidates",
+      "capabilityFamily": "audit-logging",
+      "caseId": "rank-audit-05-popularity-over-fit",
+      "criterionAuthorityId": "ranking-v1-audit-popularity-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-audit-popularity-evidence",
+      "handoffAuthorityId": "ranking-v1-audit-popularity-handoff",
+      "requestAuthorityId": "ranking-v1-audit-popularity-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-audit-popularity-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-audit-candidates",
+      "capabilityFamily": "audit-logging",
+      "caseId": "rank-audit-06-incomparable",
+      "criterionAuthorityId": "ranking-v1-audit-partial-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-audit-partial-evidence",
+      "handoffAuthorityId": "ranking-v1-audit-partial-handoff",
+      "requestAuthorityId": "ranking-v1-audit-partial-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-audit-partial-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-auth-candidates",
+      "capabilityFamily": "authorization",
+      "caseId": "rank-auth-01-controlled-a",
+      "criterionAuthorityId": "ranking-v1-auth-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-auth-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-auth-pair-handoff",
+      "requestAuthorityId": "ranking-v1-auth-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-auth-pair-target-a"
+    },
+    {
+      "candidateSetId": "ranking-v1-auth-candidates",
+      "capabilityFamily": "authorization",
+      "caseId": "rank-auth-02-controlled-b",
+      "criterionAuthorityId": "ranking-v1-auth-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-auth-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-auth-pair-handoff",
+      "requestAuthorityId": "ranking-v1-auth-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-auth-pair-target-b"
+    },
+    {
+      "candidateSetId": "ranking-v1-auth-candidates",
+      "capabilityFamily": "authorization",
+      "caseId": "rank-auth-03-no-viable",
+      "criterionAuthorityId": "ranking-v1-auth-hard-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-auth-hard-evidence",
+      "handoffAuthorityId": "ranking-v1-auth-hard-handoff",
+      "requestAuthorityId": "ranking-v1-auth-hard-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-auth-hard-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-auth-candidates",
+      "capabilityFamily": "authorization",
+      "caseId": "rank-auth-04-insufficient",
+      "criterionAuthorityId": "ranking-v1-auth-insufficient-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-auth-insufficient-evidence",
+      "handoffAuthorityId": "ranking-v1-auth-insufficient-handoff",
+      "requestAuthorityId": "ranking-v1-auth-insufficient-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-auth-insufficient-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-auth-candidates",
+      "capabilityFamily": "authorization",
+      "caseId": "rank-auth-05-popularity-over-fit",
+      "criterionAuthorityId": "ranking-v1-auth-popularity-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-auth-popularity-evidence",
+      "handoffAuthorityId": "ranking-v1-auth-popularity-handoff",
+      "requestAuthorityId": "ranking-v1-auth-popularity-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-auth-popularity-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-auth-candidates",
+      "capabilityFamily": "authorization",
+      "caseId": "rank-auth-06-tie",
+      "criterionAuthorityId": "ranking-v1-auth-partial-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-auth-partial-evidence",
+      "handoffAuthorityId": "ranking-v1-auth-partial-handoff",
+      "requestAuthorityId": "ranking-v1-auth-partial-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-auth-partial-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-jobs-candidates",
+      "capabilityFamily": "background-jobs",
+      "caseId": "rank-jobs-01-controlled-a",
+      "criterionAuthorityId": "ranking-v1-jobs-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-jobs-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-jobs-pair-handoff",
+      "requestAuthorityId": "ranking-v1-jobs-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-jobs-pair-target-a"
+    },
+    {
+      "candidateSetId": "ranking-v1-jobs-candidates",
+      "capabilityFamily": "background-jobs",
+      "caseId": "rank-jobs-02-controlled-b",
+      "criterionAuthorityId": "ranking-v1-jobs-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-jobs-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-jobs-pair-handoff",
+      "requestAuthorityId": "ranking-v1-jobs-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-jobs-pair-target-b"
+    },
+    {
+      "candidateSetId": "ranking-v1-jobs-candidates",
+      "capabilityFamily": "background-jobs",
+      "caseId": "rank-jobs-03-no-viable",
+      "criterionAuthorityId": "ranking-v1-jobs-hard-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-jobs-hard-evidence",
+      "handoffAuthorityId": "ranking-v1-jobs-hard-handoff",
+      "requestAuthorityId": "ranking-v1-jobs-hard-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-jobs-hard-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-jobs-candidates",
+      "capabilityFamily": "background-jobs",
+      "caseId": "rank-jobs-04-insufficient",
+      "criterionAuthorityId": "ranking-v1-jobs-insufficient-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-jobs-insufficient-evidence",
+      "handoffAuthorityId": "ranking-v1-jobs-insufficient-handoff",
+      "requestAuthorityId": "ranking-v1-jobs-insufficient-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-jobs-insufficient-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-jobs-candidates",
+      "capabilityFamily": "background-jobs",
+      "caseId": "rank-jobs-05-popularity-over-fit",
+      "criterionAuthorityId": "ranking-v1-jobs-popularity-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-jobs-popularity-evidence",
+      "handoffAuthorityId": "ranking-v1-jobs-popularity-handoff",
+      "requestAuthorityId": "ranking-v1-jobs-popularity-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-jobs-popularity-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-jobs-candidates",
+      "capabilityFamily": "background-jobs",
+      "caseId": "rank-jobs-06-tie",
+      "criterionAuthorityId": "ranking-v1-jobs-partial-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-jobs-partial-evidence",
+      "handoffAuthorityId": "ranking-v1-jobs-partial-handoff",
+      "requestAuthorityId": "ranking-v1-jobs-partial-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-jobs-partial-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-rate-candidates",
+      "capabilityFamily": "rate-limiting",
+      "caseId": "rank-rate-01-controlled-a",
+      "criterionAuthorityId": "ranking-v1-rate-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-rate-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-rate-pair-handoff",
+      "requestAuthorityId": "ranking-v1-rate-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-rate-pair-target-a"
+    },
+    {
+      "candidateSetId": "ranking-v1-rate-candidates",
+      "capabilityFamily": "rate-limiting",
+      "caseId": "rank-rate-02-controlled-b",
+      "criterionAuthorityId": "ranking-v1-rate-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-rate-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-rate-pair-handoff",
+      "requestAuthorityId": "ranking-v1-rate-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-rate-pair-target-b"
+    },
+    {
+      "candidateSetId": "ranking-v1-rate-candidates",
+      "capabilityFamily": "rate-limiting",
+      "caseId": "rank-rate-03-no-viable",
+      "criterionAuthorityId": "ranking-v1-rate-hard-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-rate-hard-evidence",
+      "handoffAuthorityId": "ranking-v1-rate-hard-handoff",
+      "requestAuthorityId": "ranking-v1-rate-hard-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-rate-hard-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-rate-candidates",
+      "capabilityFamily": "rate-limiting",
+      "caseId": "rank-rate-04-insufficient",
+      "criterionAuthorityId": "ranking-v1-rate-insufficient-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-rate-insufficient-evidence",
+      "handoffAuthorityId": "ranking-v1-rate-insufficient-handoff",
+      "requestAuthorityId": "ranking-v1-rate-insufficient-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-rate-insufficient-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-rate-candidates",
+      "capabilityFamily": "rate-limiting",
+      "caseId": "rank-rate-05-popularity-over-fit",
+      "criterionAuthorityId": "ranking-v1-rate-popularity-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-rate-popularity-evidence",
+      "handoffAuthorityId": "ranking-v1-rate-popularity-handoff",
+      "requestAuthorityId": "ranking-v1-rate-popularity-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-rate-popularity-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-rate-candidates",
+      "capabilityFamily": "rate-limiting",
+      "caseId": "rank-rate-06-incomparable",
+      "criterionAuthorityId": "ranking-v1-rate-partial-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-rate-partial-evidence",
+      "handoffAuthorityId": "ranking-v1-rate-partial-handoff",
+      "requestAuthorityId": "ranking-v1-rate-partial-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-rate-partial-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-webhook-candidates",
+      "capabilityFamily": "webhooks",
+      "caseId": "rank-webhook-01-controlled-a",
+      "criterionAuthorityId": "ranking-v1-webhook-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-webhook-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-webhook-pair-handoff",
+      "requestAuthorityId": "ranking-v1-webhook-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-webhook-pair-target-a"
+    },
+    {
+      "candidateSetId": "ranking-v1-webhook-candidates",
+      "capabilityFamily": "webhooks",
+      "caseId": "rank-webhook-02-controlled-b",
+      "criterionAuthorityId": "ranking-v1-webhook-pair-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-webhook-pair-evidence",
+      "handoffAuthorityId": "ranking-v1-webhook-pair-handoff",
+      "requestAuthorityId": "ranking-v1-webhook-pair-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-webhook-pair-target-b"
+    },
+    {
+      "candidateSetId": "ranking-v1-webhook-candidates",
+      "capabilityFamily": "webhooks",
+      "caseId": "rank-webhook-03-no-viable",
+      "criterionAuthorityId": "ranking-v1-webhook-hard-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-webhook-hard-evidence",
+      "handoffAuthorityId": "ranking-v1-webhook-hard-handoff",
+      "requestAuthorityId": "ranking-v1-webhook-hard-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-webhook-hard-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-webhook-candidates",
+      "capabilityFamily": "webhooks",
+      "caseId": "rank-webhook-04-insufficient",
+      "criterionAuthorityId": "ranking-v1-webhook-insufficient-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-webhook-insufficient-evidence",
+      "handoffAuthorityId": "ranking-v1-webhook-insufficient-handoff",
+      "requestAuthorityId": "ranking-v1-webhook-insufficient-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-webhook-insufficient-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-webhook-candidates",
+      "capabilityFamily": "webhooks",
+      "caseId": "rank-webhook-05-popularity-over-fit",
+      "criterionAuthorityId": "ranking-v1-webhook-popularity-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-webhook-popularity-evidence",
+      "handoffAuthorityId": "ranking-v1-webhook-popularity-handoff",
+      "requestAuthorityId": "ranking-v1-webhook-popularity-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-webhook-popularity-target"
+    },
+    {
+      "candidateSetId": "ranking-v1-webhook-candidates",
+      "capabilityFamily": "webhooks",
+      "caseId": "rank-webhook-06-tie",
+      "criterionAuthorityId": "ranking-v1-webhook-partial-criteria",
+      "evidenceCutoff": "2026-08-10",
+      "evidenceSetId": "ranking-v1-webhook-partial-evidence",
+      "handoffAuthorityId": "ranking-v1-webhook-partial-handoff",
+      "requestAuthorityId": "ranking-v1-webhook-partial-request",
+      "requestedMaximumResults": 3,
+      "targetAuthorityId": "ranking-v1-webhook-partial-target"
+    }
+  ],
+  "corpusId": "ranking-v1",
+  "corpusVersion": "1.0.0",
+  "criterionAuthorities": [
+    {
+      "approvalDigest": "0e87d3255b7d9c6de7a1856c0b62d5d71e6a7769fc9b9c5958c69404dff49411",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-audit-hard-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-audit-hard-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-audit-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-audit-hard-criteria",
+      "normalizationDigest": "f6eb1756fe212e324258c3b4ea8ede5529546e1264b2c928f5c8f524af078024",
+      "requestAuthorityId": "ranking-v1-audit-hard-request",
+      "requestDigest": "1ae7f891fd8a39da647474cb6ab49e9f341f26f7794034d6e3872136e498dd00",
+      "semanticDigest": "2c13845f6358e0c7dfdae10d917d058527d4e70e0e396f63e018af3742f4a27b",
+      "sourceQueryDigest": "964e5ba1ce1bac61bff7a78e10f1fbb57148fec966e2cca682b7a158f9079c90"
+    },
+    {
+      "approvalDigest": "f58ed4abe148502d33eabd94112f4cbd4b3308d9716a502a4ff66e64c37bbac5",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-audit-insufficient-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-audit-insufficient-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-audit-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-audit-insufficient-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-audit-success",
+          "targetFactDependencies": [
+            "data-policy"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-audit-insufficient-criteria",
+      "normalizationDigest": "e75a6ac82c693ef3be2359eac5c30b5f32e84dab033f96a3feea63270e6f26a1",
+      "requestAuthorityId": "ranking-v1-audit-insufficient-request",
+      "requestDigest": "be80322446f38fe334ecd911cabcc5ae8bf4f8ec0fcff2a85ad0dbabd48caef6",
+      "semanticDigest": "875d32c969481002fabf47de630fbc879db1e076e2c90198665019dbfc6daf3e",
+      "sourceQueryDigest": "4c4dee50222992bc076609d3b71e996b3193f8f014cd7fd90377b714976c395a"
+    },
+    {
+      "approvalDigest": "1b0a1ef59cf289dba078f8ff181b0d0e3fafe01ee8bf17a81cfb04309127911a",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-audit-pair-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "approved-query-normalization",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-audit-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-audit-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-audit-pair-criteria",
+      "normalizationDigest": "90a1beb39b745096c6a02e902815e9a9e8b4582c5456e163e4b09baf6fc712fd",
+      "requestAuthorityId": "ranking-v1-audit-pair-request",
+      "requestDigest": "4bc00da4c5adcfc30675b316f32ade8de6073c3d25f63112621bceca654dfe46",
+      "semanticDigest": "7a2ebe98b82f57327179be274783af5296e3b2fa873d73ff86eba4ea19fb592e",
+      "sourceQueryDigest": "3b366fe9d9c7b527491ebaa75392fb920d17babaf4035c5c8669f7b3e9b0588e"
+    },
+    {
+      "approvalDigest": "ca90c712e0a47199b5a6dec9d09e660433e6215d24d748f01361bdf08cc7231f",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-audit-partial-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-audit-partial-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-audit-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-audit-partial-request-success-nonmaterial",
+          "criterionKind": "success-condition",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-audit-partial-criteria",
+      "normalizationDigest": "6ecb532e8c53bde9657c3a8482721252a64ee3641b36076c76148754fda024e8",
+      "requestAuthorityId": "ranking-v1-audit-partial-request",
+      "requestDigest": "4d6d1f3c502e7ca1ce7de4a326c94751c7477f3cab541644abe8d0c9b99c605f",
+      "semanticDigest": "41933a5d8de01968fb0c293feae12bd8a40f983e14b6411a747153a632cb4d49",
+      "sourceQueryDigest": "a255ed05c18eaa7c17443a5c8c7ff9255ab643d3127ed5bfa17a09fefc3bc31c"
+    },
+    {
+      "approvalDigest": "827122713b6a445c75029503a4c5ddce34e14f6f2dfb75041c3c9ecd77fb42cf",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-audit-popularity-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-audit-popularity-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-audit-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-audit-popularity-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-audit-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-audit-popularity-criteria",
+      "normalizationDigest": "1eb8ad5ef296a56b7fc5ba7f400b03c670ae78f3ab5daf4dfaea1e6ffcba61dc",
+      "requestAuthorityId": "ranking-v1-audit-popularity-request",
+      "requestDigest": "b9d7d721434376be9160a16884282ef13341f84204061cfc017e4a40737e8e96",
+      "semanticDigest": "e0cf82006d5c3acc1d9982dff3809a3244e11602cda7a7c8c09bae2fc9411932",
+      "sourceQueryDigest": "8648a145a5740d01f20e88fcf150b36e0675da104c291ca5fac7929cfe9a218d"
+    },
+    {
+      "approvalDigest": "2ee54855cc243313a4109ec69c3a95dc3f4ec378e00e75ab0bcd954974544fb7",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-auth-hard-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-auth-hard-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-auth-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-auth-hard-criteria",
+      "normalizationDigest": "8b15ca14b745f480815d506b688874c774ce6cd79a1fbe9f40022d33a0e0da3f",
+      "requestAuthorityId": "ranking-v1-auth-hard-request",
+      "requestDigest": "fb3061f3f11696994281b50a24a1090e0857417362ddd88670a7b1f4a697c894",
+      "semanticDigest": "482df4e203a99417fd2c88d7688588103ef8084c3b73f0a0f2aed7e32afe0f37",
+      "sourceQueryDigest": "6cf67b59c6dfb4d1bb2f0a4bb31f5edfa5b764d2605308a1dd56894a8ce3edcb"
+    },
+    {
+      "approvalDigest": "8cb74cf111448d9cc53c6bfe9254a3dbf218c82b4823d0180da1eba902d87dc3",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-auth-insufficient-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-auth-insufficient-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-auth-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-auth-insufficient-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": false,
+          "materiality": "material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-auth-insufficient-criteria",
+      "normalizationDigest": "9efb6acbcdd27448522177b4ce171abbcaf5d04b0f8143e7980469f1052e93e2",
+      "requestAuthorityId": "ranking-v1-auth-insufficient-request",
+      "requestDigest": "84da51c290121dd0eaa1c8ae2fa11a1305b8cd7fd5ce3de04f604b305711fc85",
+      "semanticDigest": "89638b4d2b5e4cf9781c368543a37a8d2f0b3ffb920c929b614b3350e6098641",
+      "sourceQueryDigest": "c6a7ea1b27f9a7df358dab861e24c62d6d528e03c68f67ed19fd890548fcc562"
+    },
+    {
+      "approvalDigest": "af8cec6f62bd2b91cf3fb5944f520293f1f048172d8d648fa5feea6fb45be2e0",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-auth-pair-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "approved-query-normalization",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-auth-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-auth-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-auth-pair-criteria",
+      "normalizationDigest": "06d0845ce348802b7b3499936543686a9835a494b91cd4312f500453401e7b48",
+      "requestAuthorityId": "ranking-v1-auth-pair-request",
+      "requestDigest": "e939ef01bc572fa2c99e00383e5b785bacea44f081fa41dc99bcd199750da65b",
+      "semanticDigest": "9418133ae008502abb2396e6cbfcc1fd9f695a58eb1b3c449590cc166c473ba8",
+      "sourceQueryDigest": "a8333af97879569a7b501776ecb3485a10e3dc6ae3646adf112061bcf27651e1"
+    },
+    {
+      "approvalDigest": "b58238e5a49a15c3f48fd2a6f909d6fd4a75201bea112474771dd9a40b35f2b2",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-auth-partial-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-auth-partial-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-auth-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-auth-partial-request-success-nonmaterial",
+          "criterionKind": "success-condition",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-auth-partial-criteria",
+      "normalizationDigest": "ef0168501b8a8fda590c50f3f50e06ebd8af7cce7b4a350070c10e3e6c0ccf79",
+      "requestAuthorityId": "ranking-v1-auth-partial-request",
+      "requestDigest": "6d265c1b713c271d274ccb2629dafdf8485fe02f460f8a7520fc9f36f03e52bf",
+      "semanticDigest": "b75231bcd02ca0f74eaa87887a46488edc85abcaa42afba88a6cbe1d48648fb0",
+      "sourceQueryDigest": "e3f940e42260e1244866dfd65798cf64aaeefb75d77dc359248e43fd08625492"
+    },
+    {
+      "approvalDigest": "55e38c7cb4c65d68cbe24a108636631d7ced72d7aea765f116e053329d98deba",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-auth-popularity-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-auth-popularity-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-auth-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-auth-popularity-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-auth-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-auth-popularity-criteria",
+      "normalizationDigest": "4f688a7f309ec477569eac59c56931b5e9d256578e0b2cd0654af4b5af6d6b1c",
+      "requestAuthorityId": "ranking-v1-auth-popularity-request",
+      "requestDigest": "b4dd8bb77574ba2d912e4c4d8d17ca055bfc247d4febe1b1f0df5bc8f705e8ae",
+      "semanticDigest": "4a22cc366b4414c3b72a5493515860ef029079053440b9e4db0c5f957945ccd6",
+      "sourceQueryDigest": "bd9a9c5bdca0814222ec911f8929e2ed381f8c02320991730f2f124d07accd3a"
+    },
+    {
+      "approvalDigest": "7623d6d1d4083d31a3f347ad338d8fcf81595b9ebefeedb5f134b74fe4efacc2",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-jobs-hard-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-jobs-hard-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-jobs-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-jobs-hard-criteria",
+      "normalizationDigest": "e2a4cd404cfd207007a4694e89ab90b60c0d9c7a6b5131f6bec8dc6524de3c89",
+      "requestAuthorityId": "ranking-v1-jobs-hard-request",
+      "requestDigest": "481f711fe6533b78cf813c7980161e4c79a7fa00efc9c839273ea1a5ae8e4e5f",
+      "semanticDigest": "a7ac14e7c336d261d23476aefadeacfe437702f5fefa93beaaae4e756fa5ee0e",
+      "sourceQueryDigest": "5fdb2afb66a1734ce07ca8bfe0e264b7515d2ec036ace5c9758b0e5425aa5c59"
+    },
+    {
+      "approvalDigest": "a549c42c3cc3c82f6de8100ef637353efa373c196c761ce8fd996dc022051604",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-jobs-insufficient-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-jobs-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-jobs-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-jobs-insufficient-criteria",
+      "normalizationDigest": "c51759b5894578ad83648dfe95da97d609c0a3306197bab4535bbff71104bf90",
+      "requestAuthorityId": "ranking-v1-jobs-insufficient-request",
+      "requestDigest": "3e1c52f1c0b824d675211bc13376005f3b87f17f86f6f698af0cb718aea0f14f",
+      "semanticDigest": "fc2b4e0e688d6f4a2a8cb01bc26e9572a2937125b51ba316b8d5c4c3858bfd39",
+      "sourceQueryDigest": "a9531799ed5fb211dd319e92146b86e6ce092e7de73f1f2e9cfe5bc0ed947522"
+    },
+    {
+      "approvalDigest": "095eab19b8f41b728b081f0f97110253647599eca2e5aa5a734055b8ec55212c",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-jobs-pair-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "approved-query-normalization",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-jobs-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-jobs-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-jobs-pair-criteria",
+      "normalizationDigest": "4bfb20f93673f9c9a9abff8eb8f04be2b6fff5dd4c53f8f50bbe0104e1b0fe1b",
+      "requestAuthorityId": "ranking-v1-jobs-pair-request",
+      "requestDigest": "46d8a0850c473e04d634c3b8d0ab34de5e9eebe11759dc8bfc62878824a24050",
+      "semanticDigest": "45c1f093599221eb9cf9598052bfe0b89a15c9342792e76b1e5bb438a7ed946a",
+      "sourceQueryDigest": "58a35944788ffca43ace846756968bc97ecfefaea0e17fa318cf01a83ba3d5c6"
+    },
+    {
+      "approvalDigest": "23e30038fd2ff46aa69c66c577775bf2711c519197f830046f6c06679c082565",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-jobs-partial-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-jobs-partial-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-jobs-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-jobs-partial-request-success-nonmaterial",
+          "criterionKind": "success-condition",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-jobs-partial-criteria",
+      "normalizationDigest": "87ee04a02b14eccc9ecf10c3233dc3fe34a7149760bec0539a77d29b9b57b46f",
+      "requestAuthorityId": "ranking-v1-jobs-partial-request",
+      "requestDigest": "a0ff60fc9e8c2ad9a15d662fdfdd3146c2a255cf22b27c89d84fcd09f0c0aae2",
+      "semanticDigest": "848f6f8e9dd7b4dc8eb6e10085c5bd455ee543651b2031de2382d24f1241e65c",
+      "sourceQueryDigest": "9be441208316749c5feb30e2fb68dfdb1192b9cabd43989980a3b619e44666da"
+    },
+    {
+      "approvalDigest": "aaafb619e50685d987fcc61dff2f707876ea740e3a3dd405dade8f7e0a6d6fc6",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-jobs-popularity-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-jobs-popularity-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-jobs-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-jobs-popularity-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-jobs-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-jobs-popularity-criteria",
+      "normalizationDigest": "e5bbd22f20c9779b89a9914925651d6d38e0f86ba167cd97ff6649b7e4febeb2",
+      "requestAuthorityId": "ranking-v1-jobs-popularity-request",
+      "requestDigest": "214fdf800ada73f73cbd8a56f11d99b23dfbe6ab7306d1f1a6f4f46580cb2b7f",
+      "semanticDigest": "abd1bb50773211771941e84d540c7b3743f4413b2bf74e94ba1422667b08a2ce",
+      "sourceQueryDigest": "e4da428df648e3077dfe6c7e57d7a2b88b9cf8417b26a7789ce60a0a98a5bc0c"
+    },
+    {
+      "approvalDigest": "a6088453dad57dfe78030f35e49a10d810c89b7df4665a390044d43c1d8994aa",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-rate-hard-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-rate-hard-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-rate-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-rate-hard-criteria",
+      "normalizationDigest": "2ea4afbc1e9450d5e5744bfe00e059fd58afca9ae073531e7e30f1341d690a0e",
+      "requestAuthorityId": "ranking-v1-rate-hard-request",
+      "requestDigest": "867fb00db6dc93080407c922e283cbddbfac2dd315fdfee488e9edef2ce4fead",
+      "semanticDigest": "0b34c47f91d88574b3e38c68c3714da42beb655c300ae0ba2b4676b451083d91",
+      "sourceQueryDigest": "77aebbb3db8cdbdff4a6aa94fddaeb21fc0bb12a484cd406a7509d9bbd1aec22"
+    },
+    {
+      "approvalDigest": "30bc7e61b6044ea654c8453bc656c785b652cd5487b0720df93376a9035daf9b",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-rate-insufficient-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-rate-insufficient-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-rate-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-rate-insufficient-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": false,
+          "materiality": "material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-rate-insufficient-criteria",
+      "normalizationDigest": "737c43ea08f6abf29e3d2dd83ad4fbfa94f2e6112801b2e458ac53bc58fe8ae8",
+      "requestAuthorityId": "ranking-v1-rate-insufficient-request",
+      "requestDigest": "eecbe8ccef1fb87c198553ff4eb6da1decea0c5a8454e4a1c3a5621082727557",
+      "semanticDigest": "ca1b540d301a10d0ff79039fb811c30a6acaaa42e25d6aff9ba16a695eb709a8",
+      "sourceQueryDigest": "99d3eccf031d44298ad95641847c748be474dc32645e8a29ec2a0ee5441171dc"
+    },
+    {
+      "approvalDigest": "f1ac63ff7eef8eccac13609b939da44e5a09a205dad4865f1596d8f91ddccaeb",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-rate-pair-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "approved-query-normalization",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-rate-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-rate-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-rate-pair-criteria",
+      "normalizationDigest": "aa54828da88941f44b94959e1b1345d361e48da3eae496be4c947863d8f16a68",
+      "requestAuthorityId": "ranking-v1-rate-pair-request",
+      "requestDigest": "a6c99caa51454ea4da28e9a99120528e4d9c02a98df59422dff89d9efeac429e",
+      "semanticDigest": "2624d2a4de01d507823c45ce4234f0b25a955a2629807fdbd88e29559c12dba5",
+      "sourceQueryDigest": "ce5bdffb2a5f9bfc0d69a40cd55581f52a1d0de1f28ac865605b9ca0c8d27434"
+    },
+    {
+      "approvalDigest": "849958d994af38459c07313e96d1af6be0a5cbdcb576321b50ed3006e0d1412b",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-rate-partial-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-rate-partial-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-rate-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-rate-partial-request-success-nonmaterial",
+          "criterionKind": "success-condition",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-rate-partial-criteria",
+      "normalizationDigest": "825f02c2cab060208af1007b1819ba7d9a912af520292a7cdc02e28156e5d222",
+      "requestAuthorityId": "ranking-v1-rate-partial-request",
+      "requestDigest": "d56eb6d9f8dc9bfcf4af6ea517bf101128aaffdfeba79b2ef6ec02d19f594f9e",
+      "semanticDigest": "2c4ef67adc8eb0043a4c6ebdd91e8b605c4cfbccb183391b60e47602d3b4c925",
+      "sourceQueryDigest": "f4ef3345a48e3d71a7e19abae16963278c91dc14d620664042f07999d77d4ffa"
+    },
+    {
+      "approvalDigest": "6e0d36a643216290e82fc40a7d0042affd93674d470b3099c36cd4dabde1df3e",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-rate-popularity-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-rate-popularity-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-rate-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-rate-popularity-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-rate-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-rate-popularity-criteria",
+      "normalizationDigest": "4adb924b7784391db42c8a3bf41406e8aa51fd393d36166c8ec290c5e950b48a",
+      "requestAuthorityId": "ranking-v1-rate-popularity-request",
+      "requestDigest": "8fd93c067372cd234faccd8b2124cd3c5840a69fcc9be5b3c133ce4071f809e1",
+      "semanticDigest": "4f974dad53f41a13fd478e3ac4f5e31084002f8e51b80b24a6eef41ef64aefba",
+      "sourceQueryDigest": "e8acdba33fb1d3b92af180054415ec4ebb76fa9998d90f7f32fb5bcbc9839fdb"
+    },
+    {
+      "approvalDigest": "a1a569042878598b07bc9177ebad68e64ee67429579e392a42036ab22ecdba88",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-webhook-hard-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-webhook-hard-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-webhook-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-webhook-hard-criteria",
+      "normalizationDigest": "65cf6823fb41d209ad7cda647c282f2887815a04d25039cfa22083114c46e22c",
+      "requestAuthorityId": "ranking-v1-webhook-hard-request",
+      "requestDigest": "faf13c78066d14152cf100d0fa4720450fd9b5ecd9d05f1a3d9a04f3863af298",
+      "semanticDigest": "a2c9965a81433d896766cef827f6f466b29a608876bfd239c480d3727e6f9911",
+      "sourceQueryDigest": "870e627af653f7ade43cd5b6d303f7071d32a0079655a648021e5d98f11fe0fb"
+    },
+    {
+      "approvalDigest": "15b16fe3341336e8dd51c9ea2d6a062e7a443fd9f5d3387da6e146bda22950b9",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-webhook-insufficient-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-webhook-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": false,
+          "materiality": null,
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-webhook-insufficient-criteria",
+      "normalizationDigest": "5b73da5d1295ad0493cc759ea1fb571621fd4be58a0f6ef4b8ac45a45869ae55",
+      "requestAuthorityId": "ranking-v1-webhook-insufficient-request",
+      "requestDigest": "51a9558f9d1cc243d5f285f8877b633d4a063ea1e785349ddf19bccd433c0ddd",
+      "semanticDigest": "6d4001a83a584c5ab42ed4ae9a66af25a695a581add794f6e835785692552d64",
+      "sourceQueryDigest": "cfb74f9b91fe6bcbf1978cec8504b3127db8169baa378a92221d38390bbe9607"
+    },
+    {
+      "approvalDigest": "9b053cbfabb0696e7954a242da48d380db19d6e68dceb87024f1683505bed08f",
+      "bindings": [
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "operational-shape"
+          ],
+          "criterionId": "ranking-v1-webhook-pair-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": true,
+          "materiality": "non-material",
+          "provenance": "approved-query-normalization",
+          "semanticFacet": "operational-overhead",
+          "targetFactDependencies": [
+            "resources"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-webhook-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-webhook-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-webhook-pair-criteria",
+      "normalizationDigest": "72480b6aa89fe0a2c13f9e11e56aa57058d6eb08420b6f04e9ec4bb97d484688",
+      "requestAuthorityId": "ranking-v1-webhook-pair-request",
+      "requestDigest": "2e407ed5da172f3d0ad446ff05cceacf1cf9923d4b5a754485bd18c9d17addd4",
+      "semanticDigest": "4ba29a6f238abc7e97b2ea94ecc951b5aa3970e616898b3bc7956f56cc1061d4",
+      "sourceQueryDigest": "ae509d2f2cd179fc3be0d9bd602dfdc3f04e61e65befd9b8f1897305036d6d4c"
+    },
+    {
+      "approvalDigest": "ac7718933bdfb2267fb1994e2dea9ccd5ac20cbb8e1cf264577ecafc35dc7e1a",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-webhook-partial-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-webhook-partial-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-webhook-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-webhook-partial-request-success-nonmaterial",
+          "criterionKind": "success-condition",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-webhook-partial-criteria",
+      "normalizationDigest": "ccd9051d7a1ca481795edd30c1c145ffde42eb25c3bd8fdee502f080737c306c",
+      "requestAuthorityId": "ranking-v1-webhook-partial-request",
+      "requestDigest": "57c6f66448b492da00bc59b429cae3a922c1a9e2274f773d95737336128fa43d",
+      "semanticDigest": "f4925f4de0fb69e0504e9e9157baa6385face964a969e27c40b596bfcfb19ec7",
+      "sourceQueryDigest": "cf0a8ea2a29fcc7d2c78cc26c59435ae084d6e64d05c2e36edf7261c55556b67"
+    },
+    {
+      "approvalDigest": "3f4db707d239426d920f3ee289a7d4c8c815026a7f7f5639b08486350869a099",
+      "bindings": [
+        {
+          "bindingState": "unbound",
+          "candidateFeatureDependencies": [],
+          "criterionId": "ranking-v1-webhook-popularity-request-preference",
+          "criterionKind": "preference",
+          "evidenceRequired": false,
+          "materiality": "non-material",
+          "provenance": "explicit-unbound-review",
+          "semanticFacet": null,
+          "targetFactDependencies": []
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-webhook-popularity-request-success-core",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-webhook-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        },
+        {
+          "bindingState": "bound",
+          "candidateFeatureDependencies": [
+            "capability-support"
+          ],
+          "criterionId": "ranking-v1-webhook-popularity-request-success-operational",
+          "criterionKind": "success-condition",
+          "evidenceRequired": true,
+          "materiality": "material",
+          "provenance": "explicit-structured-approval",
+          "semanticFacet": "ranking-webhook-success",
+          "targetFactDependencies": [
+            "runtime"
+          ]
+        }
+      ],
+      "criterionAuthorityId": "ranking-v1-webhook-popularity-criteria",
+      "normalizationDigest": "51b2bbfc62df502514bb6a8c2fb27a35e148263853f43c88a7c229cf4e2a1494",
+      "requestAuthorityId": "ranking-v1-webhook-popularity-request",
+      "requestDigest": "fb921ca21687c81046a17c18f9d082c069dc63f27219a7bdb2ea334334891059",
+      "semanticDigest": "29ba6b0ee8d0b8cc1b3a9c8ff7f661dbc9496e0477eb50a596e7f251be9631fd",
+      "sourceQueryDigest": "d4e99582b35a854df022ba1642ed37cd58767e49a00df502663f9fccc325394e"
+    }
+  ],
+  "evidenceCutoff": "2026-08-10",
+  "requests": [
+    {
+      "capabilityFamily": "audit-logging",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-audit-hard-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-audit-hard-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-audit-hard-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-audit-hard-request-success-core",
+          "statement": "Provide the capability without violating the declared deployment boundary."
+        }
+      ],
+      "summary": "Choose responsible audit-logging adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "audit-logging",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-audit-insufficient-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-audit-insufficient-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-audit-insufficient-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-audit-insufficient-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-audit-insufficient-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible audit-logging adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "audit-logging",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-audit-pair-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-audit-pair-request-preference",
+          "source": "normalized-preferred-constraint",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-audit-pair-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible audit-logging adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "audit-logging",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-audit-partial-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-audit-partial-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-audit-partial-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-audit-partial-request-success-core",
+          "statement": "Provide the requested capability under the bounded target conditions."
+        },
+        {
+          "criterionId": "ranking-v1-audit-partial-request-success-nonmaterial",
+          "statement": "Offer an optional convenience integration."
+        }
+      ],
+      "summary": "Choose responsible audit-logging adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "audit-logging",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-audit-popularity-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-audit-popularity-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-audit-popularity-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-audit-popularity-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-audit-popularity-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible audit-logging adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "authorization",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-auth-hard-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-auth-hard-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-auth-hard-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-auth-hard-request-success-core",
+          "statement": "Provide the capability without violating the declared deployment boundary."
+        }
+      ],
+      "summary": "Choose responsible authorization adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "authorization",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-auth-insufficient-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-auth-insufficient-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-auth-insufficient-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-auth-insufficient-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-auth-insufficient-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible authorization adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "authorization",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-auth-pair-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-auth-pair-request-preference",
+          "source": "normalized-preferred-constraint",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-auth-pair-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible authorization adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "authorization",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-auth-partial-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-auth-partial-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-auth-partial-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-auth-partial-request-success-core",
+          "statement": "Provide the requested capability under the bounded target conditions."
+        },
+        {
+          "criterionId": "ranking-v1-auth-partial-request-success-nonmaterial",
+          "statement": "Offer an optional convenience integration."
+        }
+      ],
+      "summary": "Choose responsible authorization adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "authorization",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-auth-popularity-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-auth-popularity-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-auth-popularity-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-auth-popularity-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-auth-popularity-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible authorization adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "background-jobs",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-jobs-hard-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-jobs-hard-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-jobs-hard-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-jobs-hard-request-success-core",
+          "statement": "Provide the capability without violating the declared deployment boundary."
+        }
+      ],
+      "summary": "Choose responsible background-jobs adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "background-jobs",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-jobs-insufficient-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-jobs-insufficient-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-jobs-insufficient-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible background-jobs adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "background-jobs",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-jobs-pair-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-jobs-pair-request-preference",
+          "source": "normalized-preferred-constraint",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-jobs-pair-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible background-jobs adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "background-jobs",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-jobs-partial-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-jobs-partial-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-jobs-partial-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-jobs-partial-request-success-core",
+          "statement": "Provide the requested capability under the bounded target conditions."
+        },
+        {
+          "criterionId": "ranking-v1-jobs-partial-request-success-nonmaterial",
+          "statement": "Offer an optional convenience integration."
+        }
+      ],
+      "summary": "Choose responsible background-jobs adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "background-jobs",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-jobs-popularity-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-jobs-popularity-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-jobs-popularity-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-jobs-popularity-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-jobs-popularity-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible background-jobs adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "rate-limiting",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-rate-hard-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-rate-hard-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-rate-hard-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-rate-hard-request-success-core",
+          "statement": "Provide the capability without violating the declared deployment boundary."
+        }
+      ],
+      "summary": "Choose responsible rate-limiting adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "rate-limiting",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-rate-insufficient-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-rate-insufficient-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-rate-insufficient-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-rate-insufficient-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-rate-insufficient-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible rate-limiting adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "rate-limiting",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-rate-pair-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-rate-pair-request-preference",
+          "source": "normalized-preferred-constraint",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-rate-pair-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible rate-limiting adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "rate-limiting",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-rate-partial-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-rate-partial-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-rate-partial-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-rate-partial-request-success-core",
+          "statement": "Provide the requested capability under the bounded target conditions."
+        },
+        {
+          "criterionId": "ranking-v1-rate-partial-request-success-nonmaterial",
+          "statement": "Offer an optional convenience integration."
+        }
+      ],
+      "summary": "Choose responsible rate-limiting adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "rate-limiting",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-rate-popularity-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-rate-popularity-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-rate-popularity-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-rate-popularity-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-rate-popularity-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible rate-limiting adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "webhooks",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-webhook-hard-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-webhook-hard-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-webhook-hard-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-webhook-hard-request-success-core",
+          "statement": "Provide the capability without violating the declared deployment boundary."
+        }
+      ],
+      "summary": "Choose responsible webhooks adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "webhooks",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-webhook-insufficient-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-webhook-insufficient-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-webhook-insufficient-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible webhooks adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "webhooks",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-webhook-pair-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-webhook-pair-request-preference",
+          "source": "normalized-preferred-constraint",
+          "statement": "Prefer the approved lower-operational-overhead integration."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-webhook-pair-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible webhooks adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "webhooks",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-webhook-partial-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-webhook-partial-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-webhook-partial-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-webhook-partial-request-success-core",
+          "statement": "Provide the requested capability under the bounded target conditions."
+        },
+        {
+          "criterionId": "ranking-v1-webhook-partial-request-success-nonmaterial",
+          "statement": "Offer an optional convenience integration."
+        }
+      ],
+      "summary": "Choose responsible webhooks adoption fit for the supplied target repository."
+    },
+    {
+      "capabilityFamily": "webhooks",
+      "hardConstraints": [
+        {
+          "criterionId": "ranking-v1-webhook-popularity-request-hard-local-fit",
+          "reasonCode": "target-boundary-conflict",
+          "statement": "The candidate must stay inside the declared target deployment and data boundary."
+        }
+      ],
+      "preferences": [
+        {
+          "criterionId": "ranking-v1-webhook-popularity-request-preference",
+          "source": "explicit-structured-approval",
+          "statement": "Prefer the familiar project when fit remains supported."
+        }
+      ],
+      "requestAuthorityId": "ranking-v1-webhook-popularity-request",
+      "successConditions": [
+        {
+          "criterionId": "ranking-v1-webhook-popularity-request-success-core",
+          "statement": "Provide the requested capability with attributable evidence."
+        },
+        {
+          "criterionId": "ranking-v1-webhook-popularity-request-success-operational",
+          "statement": "Fit the target runtime and operating resources."
+        }
+      ],
+      "summary": "Choose responsible webhooks adoption fit for the supplied target repository."
+    }
+  ],
+  "semanticDigest": "a9ad03d2eeff1a924734a982be98cd1e8d5e590cfbbc4bd2c20df01b1197de2f",
+  "targets": [
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "actor-tenant-correlation"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "stdout-json-archive"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-audit-hard-fingerprint",
+      "semanticDigest": "8bb8827a2e7908fb73beaa28735fd77f2d85b2672b9784f1f134545bc47b692a",
+      "targetAuthorityId": "ranking-v1-audit-hard-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regulated-data",
+          "eu-residency"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "actor-tenant-correlation"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "eu-central-1",
+        "replicas": 2,
+        "resources": [
+          "stdout-json-archive"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-audit-insufficient-fingerprint",
+      "semanticDigest": "3c789e0770e3d227336db16d3373569190c9464aab5ce5b7f1886751b82c7d51",
+      "targetAuthorityId": "ranking-v1-audit-insufficient-target",
+      "withheldCategories": [
+        "data-policy"
+      ]
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "actor-tenant-correlation"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "stdout-json-archive"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-audit-pair-fingerprint-a",
+      "semanticDigest": "67e44eab798bf44e2e5bb03f9183e8d2665ca5adeb481602ade30112326ef88a",
+      "targetAuthorityId": "ranking-v1-audit-pair-target-a",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "fastify",
+        "identity": [
+          "actor-tenant-correlation"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "postgres-extension"
+        ],
+        "runtime": "node",
+        "workerCapability": "capable"
+      },
+      "fingerprintId": "ranking-v1-audit-pair-fingerprint-b",
+      "semanticDigest": "08b6358bcb54c9d8e0dd04e70b35a8d637244ec7a749f0228a0ea2bd961efcbc",
+      "targetAuthorityId": "ranking-v1-audit-pair-target-b",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "actor-tenant-correlation"
+        ],
+        "orm": "prisma",
+        "packageManager": "npm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "stdout-json-archive"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-audit-partial-fingerprint",
+      "semanticDigest": "c17f52609a7bbf6a65517c4e72f903aa1a56f4bac47903a6be12852c0d568dd3",
+      "targetAuthorityId": "ranking-v1-audit-partial-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "actor-tenant-correlation"
+        ],
+        "orm": "drizzle",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 4,
+        "resources": [
+          "stdout-json-archive"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-audit-popularity-fingerprint",
+      "semanticDigest": "d32b4c0021df6be7b61008fa049d0f140653bc8fadef8ed28c7f916d05a34fb7",
+      "targetAuthorityId": "ranking-v1-audit-popularity-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "nextjs",
+        "identity": [
+          "tenant-session"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "in-process-only"
+        ],
+        "runtime": "node-edge",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-auth-hard-fingerprint",
+      "semanticDigest": "83528c7249e455e2c035c6e6c70a8f830f6728ee2b49e592e36e520f22b70a26",
+      "targetAuthorityId": "ranking-v1-auth-hard-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regulated-data",
+          "eu-residency"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "nextjs",
+        "identity": [
+          "tenant-session"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "eu-central-1",
+        "replicas": 2,
+        "resources": [
+          "in-process-only"
+        ],
+        "runtime": "node-edge",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-auth-insufficient-fingerprint",
+      "semanticDigest": "88e212dcce21f2555f608a9aa5ec6c270f37c12ec70080e4e320a36fb281f576",
+      "targetAuthorityId": "ranking-v1-auth-insufficient-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "nextjs",
+        "identity": [
+          "tenant-session"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "in-process-only"
+        ],
+        "runtime": "node-edge",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-auth-pair-fingerprint-a",
+      "semanticDigest": "4168b9935da13f489431d7ac53560982b15e6962a93c10c16a2ad39af403030d",
+      "targetAuthorityId": "ranking-v1-auth-pair-target-a",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "nestjs",
+        "identity": [
+          "tenant-session"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "node-service-runtime"
+        ],
+        "runtime": "node",
+        "workerCapability": "capable"
+      },
+      "fingerprintId": "ranking-v1-auth-pair-fingerprint-b",
+      "semanticDigest": "232da72774a37826cbe56929a21fac8785cce2dce861e4fff2c15390ce6bd3b2",
+      "targetAuthorityId": "ranking-v1-auth-pair-target-b",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "nextjs",
+        "identity": [
+          "tenant-session"
+        ],
+        "orm": "prisma",
+        "packageManager": "npm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "in-process-only"
+        ],
+        "runtime": "node-edge",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-auth-partial-fingerprint",
+      "semanticDigest": "4ae94df5fc3bbf59fad6b6ff1c75325299ded1101be5c5e08bd94807505a5d38",
+      "targetAuthorityId": "ranking-v1-auth-partial-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "nextjs",
+        "identity": [
+          "tenant-session"
+        ],
+        "orm": "drizzle",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 4,
+        "resources": [
+          "in-process-only"
+        ],
+        "runtime": "node-edge",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-auth-popularity-fingerprint",
+      "semanticDigest": "1d0125c88b85320de435f32129e8b334158b30b430217a171f9baf973c72585e",
+      "targetAuthorityId": "ranking-v1-auth-popularity-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "nestjs",
+        "identity": [
+          "tenant-job-payload"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "postgres-worker"
+        ],
+        "runtime": "node",
+        "workerCapability": "capable"
+      },
+      "fingerprintId": "ranking-v1-jobs-hard-fingerprint",
+      "semanticDigest": "879d6c08c2b4a00fd377ec491cb24948bb42e80061544e9f0a3c209db9a53cfc",
+      "targetAuthorityId": "ranking-v1-jobs-hard-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regulated-data",
+          "eu-residency"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "nestjs",
+        "identity": [
+          "tenant-job-payload"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "eu-central-1",
+        "replicas": 2,
+        "resources": [
+          "postgres-worker"
+        ],
+        "runtime": "node",
+        "workerCapability": "capable"
+      },
+      "fingerprintId": "ranking-v1-jobs-insufficient-fingerprint",
+      "semanticDigest": "13295963ae23c79d4188a60be7248c1f34ef849dacdad0303c447157975756d9",
+      "targetAuthorityId": "ranking-v1-jobs-insufficient-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "nestjs",
+        "identity": [
+          "tenant-job-payload"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "postgres-worker"
+        ],
+        "runtime": "node",
+        "workerCapability": "capable"
+      },
+      "fingerprintId": "ranking-v1-jobs-pair-fingerprint-a",
+      "semanticDigest": "f76b047c7a18e6dd1e6c0011ecd8bda165d18fbf5a35a6b48fe2b0ad68b7a7da",
+      "targetAuthorityId": "ranking-v1-jobs-pair-target-a",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "nestjs",
+        "identity": [
+          "tenant-job-payload"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "present",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "redis-worker"
+        ],
+        "runtime": "node",
+        "workerCapability": "capable"
+      },
+      "fingerprintId": "ranking-v1-jobs-pair-fingerprint-b",
+      "semanticDigest": "fbe68104e891e8d1b59ae220c5be88ae9ec7c6134e7055a789c53452c0562392",
+      "targetAuthorityId": "ranking-v1-jobs-pair-target-b",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "nestjs",
+        "identity": [
+          "tenant-job-payload"
+        ],
+        "orm": "prisma",
+        "packageManager": "npm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "postgres-worker"
+        ],
+        "runtime": "node",
+        "workerCapability": "capable"
+      },
+      "fingerprintId": "ranking-v1-jobs-partial-fingerprint",
+      "semanticDigest": "90eb5f47b48583c95818f1050fbfba2011ec58d3a6143f6793bc8b0610e2a79e",
+      "targetAuthorityId": "ranking-v1-jobs-partial-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "nestjs",
+        "identity": [
+          "tenant-job-payload"
+        ],
+        "orm": "drizzle",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 4,
+        "resources": [
+          "postgres-worker"
+        ],
+        "runtime": "node",
+        "workerCapability": "capable"
+      },
+      "fingerprintId": "ranking-v1-jobs-popularity-fingerprint",
+      "semanticDigest": "74a8819c0e69b42a60d97b8de0d08942f10e091c81ce2ee60cb71494f9b1b7e9",
+      "targetAuthorityId": "ranking-v1-jobs-popularity-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "express",
+        "identity": [
+          "normalized-client-route-key"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "single-process"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-rate-hard-fingerprint",
+      "semanticDigest": "498166522ceefb38cfe1b09ee43e3f41fc4a05020d9a34145c384c4707a98791",
+      "targetAuthorityId": "ranking-v1-rate-hard-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regulated-data",
+          "eu-residency"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "express",
+        "identity": [
+          "normalized-client-route-key"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "eu-central-1",
+        "replicas": 2,
+        "resources": [
+          "single-process"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-rate-insufficient-fingerprint",
+      "semanticDigest": "e1dc2d942502f896069027e8853b2567de552e23274e1f647d1ebf6c0d2bd126",
+      "targetAuthorityId": "ranking-v1-rate-insufficient-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "express",
+        "identity": [
+          "normalized-client-route-key"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "single-process"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-rate-pair-fingerprint-a",
+      "semanticDigest": "eed9c372dc48354df80d733a8c36c322abc78f96bdcbc8068acffe70255b8483",
+      "targetAuthorityId": "ranking-v1-rate-pair-target-a",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "express",
+        "identity": [
+          "normalized-client-route-key"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "present",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "redis-cluster"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-rate-pair-fingerprint-b",
+      "semanticDigest": "67a9d0e11ddcf496b3375a0335e0de7ad63e77964e41ba2a8a1d06b5b19f5a40",
+      "targetAuthorityId": "ranking-v1-rate-pair-target-b",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "express",
+        "identity": [
+          "normalized-client-route-key"
+        ],
+        "orm": "prisma",
+        "packageManager": "npm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "single-process"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-rate-partial-fingerprint",
+      "semanticDigest": "a79d16551e65b280a98e6c9a07db04076d8ad6012a7daa8fa4b2d3e0f7473d11",
+      "targetAuthorityId": "ranking-v1-rate-partial-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "long-running-container",
+        "framework": "express",
+        "identity": [
+          "normalized-client-route-key"
+        ],
+        "orm": "drizzle",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 4,
+        "resources": [
+          "single-process"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-rate-popularity-fingerprint",
+      "semanticDigest": "64cdf0a2ae8536197899ae6d783b12c1607eb0a637c9b4c1b58f71a25180dab6",
+      "targetAuthorityId": "ranking-v1-rate-popularity-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "generic-signature"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "raw-body"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-webhook-hard-fingerprint",
+      "semanticDigest": "b16e7a96f7f4f3088474a41972bf600ed1ef7976c4444d3f57f4508e9c95fc84",
+      "targetAuthorityId": "ranking-v1-webhook-hard-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regulated-data",
+          "eu-residency"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "generic-signature"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "eu-central-1",
+        "replicas": 2,
+        "resources": [
+          "raw-body"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-webhook-insufficient-fingerprint",
+      "semanticDigest": "28d13fbf444b671ab954715d91accfccf30ba7a14c00f6c4a0637564da8595ae",
+      "targetAuthorityId": "ranking-v1-webhook-insufficient-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "generic-signature"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "raw-body"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-webhook-pair-fingerprint-a",
+      "semanticDigest": "2eddd0accf5d515e9c6fa3bd5611cedfce59ae85af3ec7adbf238c3a12b89538",
+      "targetAuthorityId": "ranking-v1-webhook-pair-target-a",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "express",
+        "identity": [
+          "stripe-signature"
+        ],
+        "orm": "prisma",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "raw-body"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-webhook-pair-fingerprint-b",
+      "semanticDigest": "800d6e1e8bc29fda2237ee47e753b38ea1eb221b0a6cf54c855d41efa5e4acee",
+      "targetAuthorityId": "ranking-v1-webhook-pair-target-b",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "generic-signature"
+        ],
+        "orm": "prisma",
+        "packageManager": "npm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 2,
+        "resources": [
+          "raw-body"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-webhook-partial-fingerprint",
+      "semanticDigest": "60361efd43f193e4a0264d9627bc42f3e850dc78e4d42e87f36c75b3dd934333",
+      "targetAuthorityId": "ranking-v1-webhook-partial-target",
+      "withheldCategories": []
+    },
+    {
+      "facts": {
+        "dataPolicies": [
+          "regional-storage"
+        ],
+        "database": "postgresql",
+        "deployment": "serverless",
+        "framework": "fastify",
+        "identity": [
+          "generic-signature"
+        ],
+        "orm": "drizzle",
+        "packageManager": "pnpm",
+        "redis": "absent",
+        "region": "us-west-2",
+        "replicas": 4,
+        "resources": [
+          "raw-body"
+        ],
+        "runtime": "node",
+        "workerCapability": "incapable"
+      },
+      "fingerprintId": "ranking-v1-webhook-popularity-fingerprint",
+      "semanticDigest": "e3389cafab5ff4fdcdb20c2dea86cc80d0baa6b6940c656e0874196dbcddbb81",
+      "targetAuthorityId": "ranking-v1-webhook-popularity-target",
+      "withheldCategories": []
+    }
+  ]
+}

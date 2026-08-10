@@ -1,0 +1,72 @@
+{
+  "claimScope": "gold-blind-evaluation-data-operations-only",
+  "evidenceVersion": "ranking-v1-performance-reference/1.0.0",
+  "fixture": {
+    "candidateCount": 20,
+    "canonicalOutputBytes": 35096,
+    "criterionCount": 40,
+    "evidenceCount": 240,
+    "fixtureBytes": 35096,
+    "pairCount": 190
+  },
+  "latencyMilliseconds": {
+    "candidateEvidenceTraversal": {
+      "maximum": 0.014959,
+      "p50": 0.000542,
+      "p95": 0.000792
+    },
+    "canonicalization": {
+      "maximum": 0.319583,
+      "p50": 0.099667,
+      "p95": 0.136166
+    },
+    "combinedBoundedOperations": {
+      "maximum": 0.364625,
+      "p50": 0.142542,
+      "p95": 0.181083
+    },
+    "pairEnumeration": {
+      "maximum": 0.010125,
+      "p50": 0.000125,
+      "p95": 0.000208
+    },
+    "parseValidation": {
+      "maximum": 0.09975,
+      "p50": 0.042,
+      "p95": 0.050541
+    }
+  },
+  "marginProtocol": {
+    "finalBudgetSelected": false,
+    "proposal": "An independent reviewer should select a multiplier only after repeating this reference on the supported CI class, separating parse/traversal/pair/canonicalization ceilings, reserving explicit regression and runtime-noise margins, and declining to reinterpret these evaluation-only measurements as production ranker latency.",
+    "status": "proposed-for-independent-review"
+  },
+  "operationCounts": {
+    "boundedWorkProved": true,
+    "candidateVisitsPerMeasurement": 20,
+    "criterionVisitsPerMeasurement": 40,
+    "evidenceVisitsPerMeasurement": 240,
+    "pairVisitsPerMeasurement": 190,
+    "parseObjectsPerMeasurement": 1
+  },
+  "productionRankingBenchmark": false,
+  "protocol": {
+    "exposedGarbageCollector": true,
+    "measurements": 2000,
+    "warmups": 200
+  },
+  "retainedMemory": {
+    "afterBytes": 16057152,
+    "beforeBytes": 15833296,
+    "growthBytes": 223856,
+    "processHeapUsedBytes": 18347352,
+    "systemTotalMemoryBytes": 51539607552
+  },
+  "runtime": {
+    "architecture": "arm64",
+    "node": "v24.18.0",
+    "platform": "darwin",
+    "release": "24.1.0"
+  },
+  "semanticDigest": "77882e88163496f4546b61ca9d639f5bbf8ec4d732cb25efac300106741962d0"
+}

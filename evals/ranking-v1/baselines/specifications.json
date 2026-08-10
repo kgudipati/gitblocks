@@ -1,0 +1,167 @@
+{
+  "authorityVersion": "ranking-v1-baseline-specifications/1.0.0",
+  "frozenBeforeScoring": true,
+  "omissions": [
+    {
+      "baseline": "popularity-health",
+      "reason": "No already-committed bounded popularity or health authority is safe for ranking-v1, and M2 forbids fetching new popularity data."
+    }
+  ],
+  "semanticDigest": "253de8b1b5fcf81eadc699d2200422034fb0b5ec61b56726137201f50ee6c263",
+  "specifications": [
+    {
+      "baselineId": "all-insufficient-responsible-abstention",
+      "baselineVersion": "ranking-all-insufficient-abstention/1.0.0",
+      "deterministicDecisionRules": [
+        "Mark every supplied candidate insufficient-evidence and return insufficient-evidence."
+      ],
+      "evidenceNeededBehavior": "No closure is claimed.",
+      "maximumResultBehavior": "Expose at most three candidates in presentation while retaining a disposition for every supplied candidate.",
+      "permittedBlindInputs": [
+        "fixed candidate identities"
+      ],
+      "prohibitedInputs": [
+        "target fingerprint",
+        "candidate fit evidence",
+        "gold",
+        "audit labels",
+        "review records",
+        "thresholds"
+      ],
+      "role": "ordinary-baseline",
+      "specificationDigest": "25ab8454f8ecfa7b97d1d953ee18dafbc495a252a14b21639482c4563be71f3d",
+      "tieBehavior": "No rank relation is asserted."
+    },
+    {
+      "baselineId": "hard-conflict-violating-negative-control",
+      "baselineVersion": "ranking-hard-conflict-negative-control/1.0.0",
+      "deterministicDecisionRules": [
+        "Select the lexically first candidate with explicit hard-conflict evidence and intentionally recommend it."
+      ],
+      "evidenceNeededBehavior": "Closure state is ignored intentionally.",
+      "maximumResultBehavior": "Expose at most three candidates in presentation while retaining a disposition for every supplied candidate.",
+      "permittedBlindInputs": [
+        "fixed candidate identities",
+        "bounded candidate-side hard-conflict evidence"
+      ],
+      "prohibitedInputs": [
+        "target fingerprint",
+        "gold",
+        "audit labels",
+        "review records",
+        "thresholds"
+      ],
+      "role": "negative-control",
+      "specificationDigest": "50b598882270ba7ca79bd841125be6a8763c0f0623a875b25fe025cb1173f1fa",
+      "tieBehavior": "No tie is asserted."
+    },
+    {
+      "baselineId": "retrieval-order-diagnostic",
+      "baselineVersion": "ranking-retrieval-order-diagnostic/1.0.0",
+      "deterministicDecisionRules": [
+        "Mark every eligible-lane candidate positive and the first eligible retrieval item recommended.",
+        "Keep every evidence-needed candidate insufficient-evidence.",
+        "Do not resolve an unresolved Phase 9 evaluation."
+      ],
+      "evidenceNeededBehavior": "Always unresolved and never positively promoted.",
+      "maximumResultBehavior": "Expose at most three candidates in presentation while retaining a disposition for every supplied candidate.",
+      "permittedBlindInputs": [
+        "fixed candidate identities",
+        "Phase 9 lane and authenticated retrieval order"
+      ],
+      "prohibitedInputs": [
+        "target fingerprint",
+        "candidate fit evidence",
+        "gold",
+        "audit labels",
+        "review records",
+        "thresholds"
+      ],
+      "role": "ordinary-baseline",
+      "specificationDigest": "cf54d338a9b5879145ce3e96abdc5d0ce2709a8bd5561ea16bb98c470323412b",
+      "tieBehavior": "Retain retrieval order; do not assert a tie."
+    },
+    {
+      "baselineId": "synthetic-oracle-scorer-only",
+      "baselineVersion": "ranking-synthetic-oracle/1.0.0",
+      "deterministicDecisionRules": [
+        "Copy only hand-calculated synthetic fixture expectations to validate scorer arithmetic."
+      ],
+      "evidenceNeededBehavior": "Fixture-specific.",
+      "maximumResultBehavior": "Expose at most three candidates in presentation while retaining a disposition for every supplied candidate.",
+      "permittedBlindInputs": [
+        "synthetic scorer fixture authority"
+      ],
+      "prohibitedInputs": [
+        "ranking-v1 product comparison",
+        "product gate selection",
+        "baseline floor selection"
+      ],
+      "role": "scorer-only-oracle",
+      "specificationDigest": "46421d15f3be272ac7bb266a4c9173cf62a458894a5bd020f39f6acab94d5b08",
+      "tieBehavior": "Fixture-specific."
+    },
+    {
+      "baselineId": "target-blind-candidate-feature",
+      "baselineVersion": "ranking-target-blind-candidate-feature/1.0.0",
+      "deterministicDecisionRules": [
+        "Fail closed for a material or unclassified unbound success condition.",
+        "Reject candidate-evidence hard conflicts and conflict closures.",
+        "Keep unresolved evidence-needed candidates insufficient-evidence.",
+        "Require every bound success condition to have candidate-side support.",
+        "Order remaining candidates by supported success conditions then bound preferences; use candidate ID only for deterministic presentation of exact score ties.",
+        "Ignore unbound preferences and never harden a preference."
+      ],
+      "evidenceNeededBehavior": "Use only explicit candidate-side closure assertions.",
+      "maximumResultBehavior": "Expose at most three candidates in presentation while retaining a disposition for every supplied candidate.",
+      "permittedBlindInputs": [
+        "request criteria",
+        "criterion bindings",
+        "candidate identities",
+        "bounded candidate-side evidence",
+        "Phase 9 lane state"
+      ],
+      "prohibitedInputs": [
+        "case IDs inside strategy input",
+        "target fingerprint",
+        "gold",
+        "audit labels",
+        "review records",
+        "thresholds"
+      ],
+      "role": "ordinary-baseline",
+      "specificationDigest": "7a732e7d54d595bf964398823a7ca87c115d75f47bc990e4c376bf9c29742ac9",
+      "tieBehavior": "Equal feature totals form a rank-group tie."
+    },
+    {
+      "baselineId": "weak-target-aware-exact-compatibility",
+      "baselineVersion": "ranking-weak-target-aware-exact-compatibility/1.0.0",
+      "deterministicDecisionRules": [
+        "Apply every target-blind candidate-feature rule unchanged.",
+        "Add only exact compatibility checks for runtime, framework, Redis presence, worker capability, deployment, identity, resource, and data-policy facts.",
+        "Fail closed when a bound success condition depends on a withheld target category.",
+        "Use no learned weights, popularity values, retrieval score, or gold-dependent tuning."
+      ],
+      "evidenceNeededBehavior": "Use only explicit candidate-side closure assertions.",
+      "maximumResultBehavior": "Expose at most three candidates in presentation while retaining a disposition for every supplied candidate.",
+      "permittedBlindInputs": [
+        "request criteria",
+        "criterion bindings",
+        "target fingerprint",
+        "candidate identities",
+        "bounded candidate-side evidence",
+        "Phase 9 lane state"
+      ],
+      "prohibitedInputs": [
+        "case IDs inside strategy input",
+        "gold",
+        "audit labels",
+        "review records",
+        "thresholds"
+      ],
+      "role": "ordinary-baseline",
+      "specificationDigest": "6532884410f9fc3c8de56dadff080d7c1470879fe57e686a5b65013f0fe33fa5",
+      "tieBehavior": "Equal exact feature totals form a rank-group tie."
+    }
+  ]
+}

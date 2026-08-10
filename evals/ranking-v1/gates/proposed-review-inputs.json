@@ -1,0 +1,5370 @@
+{
+  "authorityVersion": "ranking-v1-gate-review-inputs/1.0.0",
+  "bindings": {
+    "baselineReportDigest": "9a58d866fc41f6ddab34f16d114395a5cbca01bfa40015ee1160a486c998356a",
+    "corpusDigest": "2d6306258b0380e17b390c54727abed5f7e349c085c00e8241dad9d8deef2ee8",
+    "goldDigest": "752f29dbae0b1d483dcc622dac10403892373e00a4ab42230bf552068be9b3b9",
+    "performanceReferenceDigest": "77882e88163496f4546b61ca9d639f5bbf8ec4d732cb25efac300106741962d0",
+    "reviewDigest": "ab0ef6676030e92dbcf300536c861a1d6b69c949e325d23ec7723f2446470b48",
+    "scorerVersion": "ranking-v1-scorer/1.0.0"
+  },
+  "deterministicReadiness": {
+    "candidates": [
+      {
+        "count": 13,
+        "percentage": 72.222222,
+        "tradeoff": "13/18 is the least integer inside the accepted 70–80% band and leaves greater tolerance for bounded deterministic unknowns, at the cost of one fewer decision-bearing field proven ready."
+      },
+      {
+        "count": 14,
+        "percentage": 77.777778,
+        "tradeoff": "14/18 stays inside the accepted band and demands one additional decision-bearing field, increasing deterministic coverage before ranking while raising pre-M4 authority cost and schedule risk."
+      }
+    ],
+    "currentReady": 0,
+    "denominator": 18,
+    "preFreezeM3OutputAdmissible": false,
+    "selected": null,
+    "selectedPolicyDigest": null,
+    "selectionStatus": "independent-review-required-before-m3"
+  },
+  "performanceGateEvidence": {
+    "finalBudgetSelected": false,
+    "proposedMarginProtocol": "An independent reviewer should select a multiplier only after repeating this reference on the supported CI class, separating parse/traversal/pair/canonicalization ceilings, reserving explicit regression and runtime-noise margins, and declining to reinterpret these evaluation-only measurements as production ranker latency.",
+    "referenceDigest": "77882e88163496f4546b61ca9d639f5bbf8ec4d732cb25efac300106741962d0"
+  },
+  "qualityGateEvidence": {
+    "denominators": {
+      "cases": 30,
+      "controlledPairs": 5,
+      "evidenceNeededByState": {
+        "conflict": 10,
+        "satisfied": 20,
+        "unresolved": 15
+      },
+      "evidenceNeededTransitions": 45,
+      "hardConflictOpportunities": 55,
+      "incomparablePairs": 2,
+      "insufficientEvidenceCases": 5,
+      "noViableCases": 5,
+      "perFamilyCases": 6,
+      "tiePairs": 3
+    },
+    "finalThresholds": null,
+    "finalThresholdsSelected": false,
+    "ordinaryBaselineMeasurements": [
+      {
+        "baselineId": "retrieval-order-diagnostic",
+        "baselineVersion": "ranking-retrieval-order-diagnostic/1.0.0",
+        "controlledPairs": {
+          "correct": 0,
+          "incorrect": 0,
+          "total": 5,
+          "unchangedWhenChangeRequired": 5
+        },
+        "overall": {
+          "caseCount": 30,
+          "criterionBinding": {
+            "approvedNonMaterialUnbound": {
+              "correct": 0,
+              "errors": 25,
+              "total": 25,
+              "value": 0
+            },
+            "boundPreferenceOrderingEffect": {
+              "correct": 0,
+              "errors": 20,
+              "total": 20,
+              "value": 0
+            },
+            "boundSuccessConditionCoverage": {
+              "correct": 0,
+              "errors": 235,
+              "total": 235,
+              "value": 0
+            },
+            "materialUnboundFailClosed": {
+              "correct": 0,
+              "errors": 15,
+              "total": 15,
+              "value": 0
+            },
+            "noPreferenceHardening": {
+              "correct": 30,
+              "errors": 0,
+              "total": 30,
+              "value": 1
+            },
+            "unboundPreferenceNonEffect": {
+              "correct": 0,
+              "errors": 10,
+              "total": 10,
+              "value": 0
+            }
+          },
+          "dispositions": {
+            "insufficient-evidence": {
+              "f1": 0.352941,
+              "falseNegative": 25,
+              "falsePositive": 30,
+              "precision": 0.333333,
+              "recall": 0.375,
+              "trueNegative": 80,
+              "truePositive": 15
+            },
+            "recommended": {
+              "f1": 0.545455,
+              "falseNegative": 10,
+              "falsePositive": 15,
+              "precision": 0.5,
+              "recall": 0.6,
+              "trueNegative": 110,
+              "truePositive": 15
+            },
+            "rejected": {
+              "f1": null,
+              "falseNegative": 55,
+              "falsePositive": 0,
+              "precision": null,
+              "recall": 0,
+              "trueNegative": 95,
+              "truePositive": 0
+            },
+            "viable": {
+              "f1": 0.114286,
+              "falseNegative": 24,
+              "falsePositive": 69,
+              "precision": 0.08,
+              "recall": 0.2,
+              "trueNegative": 51,
+              "truePositive": 6
+            }
+          },
+          "evidenceNeeded": {
+            "conflict": {
+              "correct": 0,
+              "errors": 10,
+              "total": 10,
+              "value": 0
+            },
+            "illegalPromotions": 0,
+            "overall": {
+              "correct": 0,
+              "errors": 45,
+              "total": 45,
+              "value": 0
+            },
+            "satisfied": {
+              "correct": 0,
+              "errors": 20,
+              "total": 20,
+              "value": 0
+            },
+            "unresolved": {
+              "correct": 0,
+              "errors": 15,
+              "total": 15,
+              "value": 0
+            }
+          },
+          "macroDisposition": {
+            "f1": 0.337561,
+            "precision": 0.304444,
+            "recall": 0.29375
+          },
+          "outcome": {
+            "byLabel": {
+              "insufficient-evidence": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "no-viable-candidate": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "recommend": {
+                "correct": 20,
+                "errors": 0,
+                "total": 20,
+                "value": 1
+              }
+            },
+            "confusion": {
+              "insufficient-evidence": {
+                "insufficient-evidence": 0,
+                "no-viable-candidate": 0,
+                "recommend": 5
+              },
+              "no-viable-candidate": {
+                "insufficient-evidence": 0,
+                "no-viable-candidate": 0,
+                "recommend": 5
+              },
+              "recommend": {
+                "insufficient-evidence": 0,
+                "no-viable-candidate": 0,
+                "recommend": 20
+              }
+            },
+            "overall": {
+              "correct": 20,
+              "errors": 10,
+              "total": 30,
+              "value": 0.666667
+            }
+          },
+          "partialOrder": {
+            "falseOrdersOfIncomparable": 2,
+            "incomparable": {
+              "correct": 0,
+              "errors": 2,
+              "total": 2,
+              "value": 0
+            },
+            "ordered": {
+              "correct": 6,
+              "errors": 39,
+              "total": 45,
+              "value": 0.133333
+            },
+            "overall": {
+              "correct": 6,
+              "errors": 44,
+              "total": 50,
+              "value": 0.12
+            },
+            "ties": {
+              "correct": 0,
+              "errors": 3,
+              "total": 3,
+              "value": 0
+            }
+          },
+          "topThreeUsefulness": {
+            "correct": 20,
+            "errors": 0,
+            "total": 20,
+            "value": 1
+          },
+          "traceability": {
+            "evidenceAssociations": {
+              "correct": 0,
+              "errors": 150,
+              "total": 150,
+              "value": 0
+            },
+            "hardConflicts": {
+              "correct": 0,
+              "errors": 55,
+              "total": 55,
+              "value": 0
+            },
+            "materialUnknowns": {
+              "correct": 0,
+              "errors": 40,
+              "total": 40,
+              "value": 0
+            },
+            "reasonCodes": {
+              "correct": 0,
+              "errors": 175,
+              "total": 175,
+              "value": 0
+            },
+            "unsupportedExtraAssociations": 195
+          }
+        },
+        "perFamily": {
+          "audit-logging": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 50,
+                "total": 50,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.352941,
+                "falseNegative": 5,
+                "falsePositive": 6,
+                "precision": 0.333333,
+                "recall": 0.375,
+                "trueNegative": 16,
+                "truePositive": 3
+              },
+              "recommended": {
+                "f1": 0.545455,
+                "falseNegative": 2,
+                "falsePositive": 3,
+                "precision": 0.5,
+                "recall": 0.6,
+                "trueNegative": 22,
+                "truePositive": 3
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": 0.190476,
+                "falseNegative": 4,
+                "falsePositive": 13,
+                "precision": 0.133333,
+                "recall": 0.333333,
+                "trueNegative": 11,
+                "truePositive": 2
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.362957,
+              "precision": 0.322222,
+              "recall": 0.327083
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 4,
+                "errors": 2,
+                "total": 6,
+                "value": 0.666667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 1,
+              "incomparable": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              },
+              "ordered": {
+                "correct": 2,
+                "errors": 7,
+                "total": 9,
+                "value": 0.222222
+              },
+              "overall": {
+                "correct": 2,
+                "errors": 8,
+                "total": 10,
+                "value": 0.2
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 0,
+                "errors": 8,
+                "total": 8,
+                "value": 0
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 39
+            }
+          },
+          "authorization": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 45,
+                "total": 45,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.352941,
+                "falseNegative": 5,
+                "falsePositive": 6,
+                "precision": 0.333333,
+                "recall": 0.375,
+                "trueNegative": 16,
+                "truePositive": 3
+              },
+              "recommended": {
+                "f1": 0.545455,
+                "falseNegative": 2,
+                "falsePositive": 3,
+                "precision": 0.5,
+                "recall": 0.6,
+                "trueNegative": 22,
+                "truePositive": 3
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": 0.095238,
+                "falseNegative": 5,
+                "falsePositive": 14,
+                "precision": 0.066667,
+                "recall": 0.166667,
+                "trueNegative": 10,
+                "truePositive": 1
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.331211,
+              "precision": 0.3,
+              "recall": 0.285417
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 4,
+                "errors": 2,
+                "total": 6,
+                "value": 0.666667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 1,
+                "errors": 8,
+                "total": 9,
+                "value": 0.111111
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 9,
+                "total": 10,
+                "value": 0.1
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 0,
+                "errors": 8,
+                "total": 8,
+                "value": 0
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 39
+            }
+          },
+          "background-jobs": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 50,
+                "total": 50,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.352941,
+                "falseNegative": 5,
+                "falsePositive": 6,
+                "precision": 0.333333,
+                "recall": 0.375,
+                "trueNegative": 16,
+                "truePositive": 3
+              },
+              "recommended": {
+                "f1": 0.545455,
+                "falseNegative": 2,
+                "falsePositive": 3,
+                "precision": 0.5,
+                "recall": 0.6,
+                "trueNegative": 22,
+                "truePositive": 3
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": 0.095238,
+                "falseNegative": 5,
+                "falsePositive": 14,
+                "precision": 0.066667,
+                "recall": 0.166667,
+                "trueNegative": 10,
+                "truePositive": 1
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.331211,
+              "precision": 0.3,
+              "recall": 0.285417
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 4,
+                "errors": 2,
+                "total": 6,
+                "value": 0.666667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 1,
+                "errors": 8,
+                "total": 9,
+                "value": 0.111111
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 9,
+                "total": 10,
+                "value": 0.1
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 0,
+                "errors": 8,
+                "total": 8,
+                "value": 0
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 39
+            }
+          },
+          "rate-limiting": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 45,
+                "total": 45,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.352941,
+                "falseNegative": 5,
+                "falsePositive": 6,
+                "precision": 0.333333,
+                "recall": 0.375,
+                "trueNegative": 16,
+                "truePositive": 3
+              },
+              "recommended": {
+                "f1": 0.545455,
+                "falseNegative": 2,
+                "falsePositive": 3,
+                "precision": 0.5,
+                "recall": 0.6,
+                "trueNegative": 22,
+                "truePositive": 3
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": 0.095238,
+                "falseNegative": 5,
+                "falsePositive": 14,
+                "precision": 0.066667,
+                "recall": 0.166667,
+                "trueNegative": 10,
+                "truePositive": 1
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.331211,
+              "precision": 0.3,
+              "recall": 0.285417
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 4,
+                "errors": 2,
+                "total": 6,
+                "value": 0.666667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 1,
+              "incomparable": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              },
+              "ordered": {
+                "correct": 1,
+                "errors": 8,
+                "total": 9,
+                "value": 0.111111
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 9,
+                "total": 10,
+                "value": 0.1
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 0,
+                "errors": 8,
+                "total": 8,
+                "value": 0
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 39
+            }
+          },
+          "webhooks": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 45,
+                "total": 45,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.352941,
+                "falseNegative": 5,
+                "falsePositive": 6,
+                "precision": 0.333333,
+                "recall": 0.375,
+                "trueNegative": 16,
+                "truePositive": 3
+              },
+              "recommended": {
+                "f1": 0.545455,
+                "falseNegative": 2,
+                "falsePositive": 3,
+                "precision": 0.5,
+                "recall": 0.6,
+                "trueNegative": 22,
+                "truePositive": 3
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": 0.095238,
+                "falseNegative": 5,
+                "falsePositive": 14,
+                "precision": 0.066667,
+                "recall": 0.166667,
+                "trueNegative": 10,
+                "truePositive": 1
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.331211,
+              "precision": 0.3,
+              "recall": 0.285417
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 4,
+                "errors": 2,
+                "total": 6,
+                "value": 0.666667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 1,
+                "errors": 8,
+                "total": 9,
+                "value": 0.111111
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 9,
+                "total": 10,
+                "value": 0.1
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 0,
+                "errors": 8,
+                "total": 8,
+                "value": 0
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 39
+            }
+          }
+        },
+        "predictionDigest": "17a6dd95142d6cc5d9677c5b3f6c70f82b0bbb8893ce1e2fffa65aa84dd1c5d8",
+        "safety": {
+          "candidateInvention": 0,
+          "candidateSetMismatch": 0,
+          "excludedCandidateLeakage": 0,
+          "knownHardConflictRanked": 30,
+          "knownHardConflictRecommended": 5,
+          "knownHardConflictViable": 40,
+          "missingEvidenceNeededResolution": 45,
+          "preferenceHardenedIntoHardConflict": 0,
+          "unboundPreferenceAffectedOrder": 0,
+          "unboundSuccessConditionCountedFavorable": 0,
+          "unresolvedEvidenceNeededPositivePromotion": 0
+        },
+        "scoreDigest": "b69b68c7b0b8145ab9b06330c01282464735999fabfae41d0b820a07cecd8f22",
+        "specificationDigest": "cf54d338a9b5879145ce3e96abdc5d0ce2709a8bd5561ea16bb98c470323412b"
+      },
+      {
+        "baselineId": "all-insufficient-responsible-abstention",
+        "baselineVersion": "ranking-all-insufficient-abstention/1.0.0",
+        "controlledPairs": {
+          "correct": 0,
+          "incorrect": 0,
+          "total": 5,
+          "unchangedWhenChangeRequired": 5
+        },
+        "overall": {
+          "caseCount": 30,
+          "criterionBinding": {
+            "approvedNonMaterialUnbound": {
+              "correct": 0,
+              "errors": 25,
+              "total": 25,
+              "value": 0
+            },
+            "boundPreferenceOrderingEffect": {
+              "correct": 0,
+              "errors": 20,
+              "total": 20,
+              "value": 0
+            },
+            "boundSuccessConditionCoverage": {
+              "correct": 0,
+              "errors": 235,
+              "total": 235,
+              "value": 0
+            },
+            "materialUnboundFailClosed": {
+              "correct": 0,
+              "errors": 15,
+              "total": 15,
+              "value": 0
+            },
+            "noPreferenceHardening": {
+              "correct": 30,
+              "errors": 0,
+              "total": 30,
+              "value": 1
+            },
+            "unboundPreferenceNonEffect": {
+              "correct": 0,
+              "errors": 10,
+              "total": 10,
+              "value": 0
+            }
+          },
+          "dispositions": {
+            "insufficient-evidence": {
+              "f1": 0.421053,
+              "falseNegative": 0,
+              "falsePositive": 110,
+              "precision": 0.266667,
+              "recall": 1,
+              "trueNegative": 0,
+              "truePositive": 40
+            },
+            "recommended": {
+              "f1": null,
+              "falseNegative": 25,
+              "falsePositive": 0,
+              "precision": null,
+              "recall": 0,
+              "trueNegative": 125,
+              "truePositive": 0
+            },
+            "rejected": {
+              "f1": null,
+              "falseNegative": 55,
+              "falsePositive": 0,
+              "precision": null,
+              "recall": 0,
+              "trueNegative": 95,
+              "truePositive": 0
+            },
+            "viable": {
+              "f1": null,
+              "falseNegative": 30,
+              "falsePositive": 0,
+              "precision": null,
+              "recall": 0,
+              "trueNegative": 120,
+              "truePositive": 0
+            }
+          },
+          "evidenceNeeded": {
+            "conflict": {
+              "correct": 0,
+              "errors": 10,
+              "total": 10,
+              "value": 0
+            },
+            "illegalPromotions": 0,
+            "overall": {
+              "correct": 0,
+              "errors": 45,
+              "total": 45,
+              "value": 0
+            },
+            "satisfied": {
+              "correct": 0,
+              "errors": 20,
+              "total": 20,
+              "value": 0
+            },
+            "unresolved": {
+              "correct": 0,
+              "errors": 15,
+              "total": 15,
+              "value": 0
+            }
+          },
+          "macroDisposition": {
+            "f1": 0.421053,
+            "precision": 0.266667,
+            "recall": 0.25
+          },
+          "outcome": {
+            "byLabel": {
+              "insufficient-evidence": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "no-viable-candidate": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "recommend": {
+                "correct": 0,
+                "errors": 20,
+                "total": 20,
+                "value": 0
+              }
+            },
+            "confusion": {
+              "insufficient-evidence": {
+                "insufficient-evidence": 5,
+                "no-viable-candidate": 0,
+                "recommend": 0
+              },
+              "no-viable-candidate": {
+                "insufficient-evidence": 5,
+                "no-viable-candidate": 0,
+                "recommend": 0
+              },
+              "recommend": {
+                "insufficient-evidence": 20,
+                "no-viable-candidate": 0,
+                "recommend": 0
+              }
+            },
+            "overall": {
+              "correct": 5,
+              "errors": 25,
+              "total": 30,
+              "value": 0.166667
+            }
+          },
+          "partialOrder": {
+            "falseOrdersOfIncomparable": 0,
+            "incomparable": {
+              "correct": 0,
+              "errors": 2,
+              "total": 2,
+              "value": 0
+            },
+            "ordered": {
+              "correct": 0,
+              "errors": 45,
+              "total": 45,
+              "value": 0
+            },
+            "overall": {
+              "correct": 0,
+              "errors": 50,
+              "total": 50,
+              "value": 0
+            },
+            "ties": {
+              "correct": 0,
+              "errors": 3,
+              "total": 3,
+              "value": 0
+            }
+          },
+          "topThreeUsefulness": {
+            "correct": 0,
+            "errors": 20,
+            "total": 20,
+            "value": 0
+          },
+          "traceability": {
+            "evidenceAssociations": {
+              "correct": 0,
+              "errors": 150,
+              "total": 150,
+              "value": 0
+            },
+            "hardConflicts": {
+              "correct": 0,
+              "errors": 55,
+              "total": 55,
+              "value": 0
+            },
+            "materialUnknowns": {
+              "correct": 40,
+              "errors": 0,
+              "total": 40,
+              "value": 1
+            },
+            "reasonCodes": {
+              "correct": 0,
+              "errors": 175,
+              "total": 175,
+              "value": 0
+            },
+            "unsupportedExtraAssociations": 260
+          }
+        },
+        "perFamily": {
+          "audit-logging": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 50,
+                "total": 50,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.421053,
+                "falseNegative": 0,
+                "falsePositive": 22,
+                "precision": 0.266667,
+                "recall": 1,
+                "trueNegative": 0,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": null,
+                "falseNegative": 5,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 25,
+                "truePositive": 0
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": null,
+                "falseNegative": 6,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 24,
+                "truePositive": 0
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.421053,
+              "precision": 0.266667,
+              "recall": 0.25
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 0,
+                  "errors": 4,
+                  "total": 4,
+                  "value": 0
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 4,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                }
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 5,
+                "total": 6,
+                "value": 0.166667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              },
+              "ordered": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "overall": {
+                "correct": 0,
+                "errors": 10,
+                "total": 10,
+                "value": 0
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 0,
+              "errors": 4,
+              "total": 4,
+              "value": 0
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 52
+            }
+          },
+          "authorization": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 45,
+                "total": 45,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.421053,
+                "falseNegative": 0,
+                "falsePositive": 22,
+                "precision": 0.266667,
+                "recall": 1,
+                "trueNegative": 0,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": null,
+                "falseNegative": 5,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 25,
+                "truePositive": 0
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": null,
+                "falseNegative": 6,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 24,
+                "truePositive": 0
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.421053,
+              "precision": 0.266667,
+              "recall": 0.25
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 0,
+                  "errors": 4,
+                  "total": 4,
+                  "value": 0
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 4,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                }
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 5,
+                "total": 6,
+                "value": 0.166667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "overall": {
+                "correct": 0,
+                "errors": 10,
+                "total": 10,
+                "value": 0
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 0,
+              "errors": 4,
+              "total": 4,
+              "value": 0
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 52
+            }
+          },
+          "background-jobs": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 50,
+                "total": 50,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.421053,
+                "falseNegative": 0,
+                "falsePositive": 22,
+                "precision": 0.266667,
+                "recall": 1,
+                "trueNegative": 0,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": null,
+                "falseNegative": 5,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 25,
+                "truePositive": 0
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": null,
+                "falseNegative": 6,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 24,
+                "truePositive": 0
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.421053,
+              "precision": 0.266667,
+              "recall": 0.25
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 0,
+                  "errors": 4,
+                  "total": 4,
+                  "value": 0
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 4,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                }
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 5,
+                "total": 6,
+                "value": 0.166667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "overall": {
+                "correct": 0,
+                "errors": 10,
+                "total": 10,
+                "value": 0
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 0,
+              "errors": 4,
+              "total": 4,
+              "value": 0
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 52
+            }
+          },
+          "rate-limiting": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 45,
+                "total": 45,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.421053,
+                "falseNegative": 0,
+                "falsePositive": 22,
+                "precision": 0.266667,
+                "recall": 1,
+                "trueNegative": 0,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": null,
+                "falseNegative": 5,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 25,
+                "truePositive": 0
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": null,
+                "falseNegative": 6,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 24,
+                "truePositive": 0
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.421053,
+              "precision": 0.266667,
+              "recall": 0.25
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 0,
+                  "errors": 4,
+                  "total": 4,
+                  "value": 0
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 4,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                }
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 5,
+                "total": 6,
+                "value": 0.166667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              },
+              "ordered": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "overall": {
+                "correct": 0,
+                "errors": 10,
+                "total": 10,
+                "value": 0
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 0,
+              "errors": 4,
+              "total": 4,
+              "value": 0
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 52
+            }
+          },
+          "webhooks": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 0,
+                "errors": 45,
+                "total": 45,
+                "value": 0
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 5,
+                "total": 5,
+                "value": 0
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.421053,
+                "falseNegative": 0,
+                "falsePositive": 22,
+                "precision": 0.266667,
+                "recall": 1,
+                "trueNegative": 0,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": null,
+                "falseNegative": 5,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 25,
+                "truePositive": 0
+              },
+              "rejected": {
+                "f1": null,
+                "falseNegative": 11,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 19,
+                "truePositive": 0
+              },
+              "viable": {
+                "f1": null,
+                "falseNegative": 6,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 24,
+                "truePositive": 0
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 0,
+                "errors": 2,
+                "total": 2,
+                "value": 0
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "satisfied": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "unresolved": {
+                "correct": 0,
+                "errors": 3,
+                "total": 3,
+                "value": 0
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.421053,
+              "precision": 0.266667,
+              "recall": 0.25
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "recommend": {
+                  "correct": 0,
+                  "errors": 4,
+                  "total": 4,
+                  "value": 0
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 4,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                }
+              },
+              "overall": {
+                "correct": 1,
+                "errors": 5,
+                "total": 6,
+                "value": 0.166667
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 0,
+                "errors": 9,
+                "total": 9,
+                "value": 0
+              },
+              "overall": {
+                "correct": 0,
+                "errors": 10,
+                "total": 10,
+                "value": 0
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 0,
+              "errors": 4,
+              "total": 4,
+              "value": 0
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 0,
+                "errors": 30,
+                "total": 30,
+                "value": 0
+              },
+              "hardConflicts": {
+                "correct": 0,
+                "errors": 11,
+                "total": 11,
+                "value": 0
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 0,
+                "errors": 35,
+                "total": 35,
+                "value": 0
+              },
+              "unsupportedExtraAssociations": 52
+            }
+          }
+        },
+        "predictionDigest": "ddedb1a8dbfaa0112f3b3c4ca92354c99d64fd0c704e249bdb8d8a8654f7e4ba",
+        "safety": {
+          "candidateInvention": 0,
+          "candidateSetMismatch": 0,
+          "excludedCandidateLeakage": 0,
+          "knownHardConflictRanked": 0,
+          "knownHardConflictRecommended": 0,
+          "knownHardConflictViable": 0,
+          "missingEvidenceNeededResolution": 45,
+          "preferenceHardenedIntoHardConflict": 0,
+          "unboundPreferenceAffectedOrder": 0,
+          "unboundSuccessConditionCountedFavorable": 0,
+          "unresolvedEvidenceNeededPositivePromotion": 0
+        },
+        "scoreDigest": "23024fba2dd03893c5249ed8948db90f31b8e5113acee89e812b093143982d69",
+        "specificationDigest": "25ab8454f8ecfa7b97d1d953ee18dafbc495a252a14b21639482c4563be71f3d"
+      },
+      {
+        "baselineId": "target-blind-candidate-feature",
+        "baselineVersion": "ranking-target-blind-candidate-feature/1.0.0",
+        "controlledPairs": {
+          "correct": 0,
+          "incorrect": 0,
+          "total": 5,
+          "unchangedWhenChangeRequired": 5
+        },
+        "overall": {
+          "caseCount": 30,
+          "criterionBinding": {
+            "approvedNonMaterialUnbound": {
+              "correct": 25,
+              "errors": 0,
+              "total": 25,
+              "value": 1
+            },
+            "boundPreferenceOrderingEffect": {
+              "correct": 20,
+              "errors": 0,
+              "total": 20,
+              "value": 1
+            },
+            "boundSuccessConditionCoverage": {
+              "correct": 235,
+              "errors": 0,
+              "total": 235,
+              "value": 1
+            },
+            "materialUnboundFailClosed": {
+              "correct": 15,
+              "errors": 0,
+              "total": 15,
+              "value": 1
+            },
+            "noPreferenceHardening": {
+              "correct": 30,
+              "errors": 0,
+              "total": 30,
+              "value": 1
+            },
+            "unboundPreferenceNonEffect": {
+              "correct": 10,
+              "errors": 0,
+              "total": 10,
+              "value": 1
+            }
+          },
+          "dispositions": {
+            "insufficient-evidence": {
+              "f1": 0.974359,
+              "falseNegative": 2,
+              "falsePositive": 0,
+              "precision": 1,
+              "recall": 0.95,
+              "trueNegative": 110,
+              "truePositive": 38
+            },
+            "recommended": {
+              "f1": 0.666666,
+              "falseNegative": 1,
+              "falsePositive": 23,
+              "precision": 0.510638,
+              "recall": 0.96,
+              "trueNegative": 102,
+              "truePositive": 24
+            },
+            "rejected": {
+              "f1": 1,
+              "falseNegative": 0,
+              "falsePositive": 0,
+              "precision": 1,
+              "recall": 1,
+              "trueNegative": 95,
+              "truePositive": 55
+            },
+            "viable": {
+              "f1": 0.45,
+              "falseNegative": 21,
+              "falsePositive": 1,
+              "precision": 0.9,
+              "recall": 0.3,
+              "trueNegative": 119,
+              "truePositive": 9
+            }
+          },
+          "evidenceNeeded": {
+            "conflict": {
+              "correct": 10,
+              "errors": 0,
+              "total": 10,
+              "value": 1
+            },
+            "illegalPromotions": 0,
+            "overall": {
+              "correct": 45,
+              "errors": 0,
+              "total": 45,
+              "value": 1
+            },
+            "satisfied": {
+              "correct": 20,
+              "errors": 0,
+              "total": 20,
+              "value": 1
+            },
+            "unresolved": {
+              "correct": 15,
+              "errors": 0,
+              "total": 15,
+              "value": 1
+            }
+          },
+          "macroDisposition": {
+            "f1": 0.772756,
+            "precision": 0.85266,
+            "recall": 0.8025
+          },
+          "outcome": {
+            "byLabel": {
+              "insufficient-evidence": {
+                "correct": 4,
+                "errors": 1,
+                "total": 5,
+                "value": 0.8
+              },
+              "no-viable-candidate": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "recommend": {
+                "correct": 20,
+                "errors": 0,
+                "total": 20,
+                "value": 1
+              }
+            },
+            "confusion": {
+              "insufficient-evidence": {
+                "insufficient-evidence": 4,
+                "no-viable-candidate": 0,
+                "recommend": 1
+              },
+              "no-viable-candidate": {
+                "insufficient-evidence": 0,
+                "no-viable-candidate": 5,
+                "recommend": 0
+              },
+              "recommend": {
+                "insufficient-evidence": 0,
+                "no-viable-candidate": 0,
+                "recommend": 20
+              }
+            },
+            "overall": {
+              "correct": 29,
+              "errors": 1,
+              "total": 30,
+              "value": 0.966667
+            }
+          },
+          "partialOrder": {
+            "falseOrdersOfIncomparable": 0,
+            "incomparable": {
+              "correct": 0,
+              "errors": 2,
+              "total": 2,
+              "value": 0
+            },
+            "ordered": {
+              "correct": 24,
+              "errors": 21,
+              "total": 45,
+              "value": 0.533333
+            },
+            "overall": {
+              "correct": 27,
+              "errors": 23,
+              "total": 50,
+              "value": 0.54
+            },
+            "ties": {
+              "correct": 3,
+              "errors": 0,
+              "total": 3,
+              "value": 1
+            }
+          },
+          "topThreeUsefulness": {
+            "correct": 20,
+            "errors": 0,
+            "total": 20,
+            "value": 1
+          },
+          "traceability": {
+            "evidenceAssociations": {
+              "correct": 150,
+              "errors": 0,
+              "total": 150,
+              "value": 1
+            },
+            "hardConflicts": {
+              "correct": 45,
+              "errors": 10,
+              "total": 55,
+              "value": 0.818182
+            },
+            "materialUnknowns": {
+              "correct": 38,
+              "errors": 2,
+              "total": 40,
+              "value": 0.95
+            },
+            "reasonCodes": {
+              "correct": 138,
+              "errors": 37,
+              "total": 175,
+              "value": 0.788571
+            },
+            "unsupportedExtraAssociations": 101
+          }
+        },
+        "perFamily": {
+          "audit-logging": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 50,
+                "errors": 0,
+                "total": 50,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 0.857143,
+                "falseNegative": 2,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.75,
+                "trueNegative": 22,
+                "truePositive": 6
+              },
+              "recommended": {
+                "f1": 0.5,
+                "falseNegative": 1,
+                "falsePositive": 7,
+                "precision": 0.363636,
+                "recall": 0.8,
+                "trueNegative": 18,
+                "truePositive": 4
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.25,
+                "falseNegative": 5,
+                "falsePositive": 1,
+                "precision": 0.5,
+                "recall": 0.166667,
+                "trueNegative": 23,
+                "truePositive": 1
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.651786,
+              "precision": 0.715909,
+              "recall": 0.679167
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 0,
+                  "errors": 1,
+                  "total": 1,
+                  "value": 0
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 1
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 5,
+                "errors": 1,
+                "total": 6,
+                "value": 0.833333
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              },
+              "ordered": {
+                "correct": 4,
+                "errors": 5,
+                "total": 9,
+                "value": 0.444444
+              },
+              "overall": {
+                "correct": 4,
+                "errors": 6,
+                "total": 10,
+                "value": 0.4
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 6,
+                "errors": 2,
+                "total": 8,
+                "value": 0.75
+              },
+              "reasonCodes": {
+                "correct": 26,
+                "errors": 9,
+                "total": 35,
+                "value": 0.742857
+              },
+              "unsupportedExtraAssociations": 21
+            }
+          },
+          "authorization": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 45,
+                "errors": 0,
+                "total": 45,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.714286,
+                "falseNegative": 0,
+                "falsePositive": 4,
+                "precision": 0.555556,
+                "recall": 1,
+                "trueNegative": 21,
+                "truePositive": 5
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.5,
+                "falseNegative": 4,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.333333,
+                "trueNegative": 24,
+                "truePositive": 2
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.803571,
+              "precision": 0.888889,
+              "recall": 0.833333
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 5,
+                "errors": 4,
+                "total": 9,
+                "value": 0.555556
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 4,
+                "total": 10,
+                "value": 0.6
+              },
+              "ties": {
+                "correct": 1,
+                "errors": 0,
+                "total": 1,
+                "value": 1
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          },
+          "background-jobs": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 50,
+                "errors": 0,
+                "total": 50,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.714286,
+                "falseNegative": 0,
+                "falsePositive": 4,
+                "precision": 0.555556,
+                "recall": 1,
+                "trueNegative": 21,
+                "truePositive": 5
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.5,
+                "falseNegative": 4,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.333333,
+                "trueNegative": 24,
+                "truePositive": 2
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.803571,
+              "precision": 0.888889,
+              "recall": 0.833333
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 5,
+                "errors": 4,
+                "total": 9,
+                "value": 0.555556
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 4,
+                "total": 10,
+                "value": 0.6
+              },
+              "ties": {
+                "correct": 1,
+                "errors": 0,
+                "total": 1,
+                "value": 1
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          },
+          "rate-limiting": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 45,
+                "errors": 0,
+                "total": 45,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.714286,
+                "falseNegative": 0,
+                "falsePositive": 4,
+                "precision": 0.555556,
+                "recall": 1,
+                "trueNegative": 21,
+                "truePositive": 5
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.5,
+                "falseNegative": 4,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.333333,
+                "trueNegative": 24,
+                "truePositive": 2
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.803571,
+              "precision": 0.888889,
+              "recall": 0.833333
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              },
+              "ordered": {
+                "correct": 5,
+                "errors": 4,
+                "total": 9,
+                "value": 0.555556
+              },
+              "overall": {
+                "correct": 5,
+                "errors": 5,
+                "total": 10,
+                "value": 0.5
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          },
+          "webhooks": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 45,
+                "errors": 0,
+                "total": 45,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.714286,
+                "falseNegative": 0,
+                "falsePositive": 4,
+                "precision": 0.555556,
+                "recall": 1,
+                "trueNegative": 21,
+                "truePositive": 5
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.5,
+                "falseNegative": 4,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.333333,
+                "trueNegative": 24,
+                "truePositive": 2
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.803571,
+              "precision": 0.888889,
+              "recall": 0.833333
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 5,
+                "errors": 4,
+                "total": 9,
+                "value": 0.555556
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 4,
+                "total": 10,
+                "value": 0.6
+              },
+              "ties": {
+                "correct": 1,
+                "errors": 0,
+                "total": 1,
+                "value": 1
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          }
+        },
+        "predictionDigest": "3f8c2900b8a9aaa7e0521207a464ec95a977e034bb60b2a3c4f73235364342ed",
+        "safety": {
+          "candidateInvention": 0,
+          "candidateSetMismatch": 0,
+          "excludedCandidateLeakage": 0,
+          "knownHardConflictRanked": 0,
+          "knownHardConflictRecommended": 0,
+          "knownHardConflictViable": 0,
+          "missingEvidenceNeededResolution": 0,
+          "preferenceHardenedIntoHardConflict": 0,
+          "unboundPreferenceAffectedOrder": 0,
+          "unboundSuccessConditionCountedFavorable": 0,
+          "unresolvedEvidenceNeededPositivePromotion": 0
+        },
+        "scoreDigest": "72dc52ab342918aa7fa5aaa80713b080825f8037ce0672ed6dc159217b0308bf",
+        "specificationDigest": "7a732e7d54d595bf964398823a7ca87c115d75f47bc990e4c376bf9c29742ac9"
+      },
+      {
+        "baselineId": "weak-target-aware-exact-compatibility",
+        "baselineVersion": "ranking-weak-target-aware-exact-compatibility/1.0.0",
+        "controlledPairs": {
+          "correct": 5,
+          "incorrect": 0,
+          "total": 5,
+          "unchangedWhenChangeRequired": 0
+        },
+        "overall": {
+          "caseCount": 30,
+          "criterionBinding": {
+            "approvedNonMaterialUnbound": {
+              "correct": 25,
+              "errors": 0,
+              "total": 25,
+              "value": 1
+            },
+            "boundPreferenceOrderingEffect": {
+              "correct": 20,
+              "errors": 0,
+              "total": 20,
+              "value": 1
+            },
+            "boundSuccessConditionCoverage": {
+              "correct": 235,
+              "errors": 0,
+              "total": 235,
+              "value": 1
+            },
+            "materialUnboundFailClosed": {
+              "correct": 15,
+              "errors": 0,
+              "total": 15,
+              "value": 1
+            },
+            "noPreferenceHardening": {
+              "correct": 30,
+              "errors": 0,
+              "total": 30,
+              "value": 1
+            },
+            "unboundPreferenceNonEffect": {
+              "correct": 10,
+              "errors": 0,
+              "total": 10,
+              "value": 1
+            }
+          },
+          "dispositions": {
+            "insufficient-evidence": {
+              "f1": 1,
+              "falseNegative": 0,
+              "falsePositive": 0,
+              "precision": 1,
+              "recall": 1,
+              "trueNegative": 110,
+              "truePositive": 40
+            },
+            "recommended": {
+              "f1": 0.875,
+              "falseNegative": 4,
+              "falsePositive": 2,
+              "precision": 0.913043,
+              "recall": 0.84,
+              "trueNegative": 123,
+              "truePositive": 21
+            },
+            "rejected": {
+              "f1": 1,
+              "falseNegative": 0,
+              "falsePositive": 0,
+              "precision": 1,
+              "recall": 1,
+              "trueNegative": 95,
+              "truePositive": 55
+            },
+            "viable": {
+              "f1": 0.903226,
+              "falseNegative": 2,
+              "falsePositive": 4,
+              "precision": 0.875,
+              "recall": 0.933333,
+              "trueNegative": 116,
+              "truePositive": 28
+            }
+          },
+          "evidenceNeeded": {
+            "conflict": {
+              "correct": 10,
+              "errors": 0,
+              "total": 10,
+              "value": 1
+            },
+            "illegalPromotions": 0,
+            "overall": {
+              "correct": 45,
+              "errors": 0,
+              "total": 45,
+              "value": 1
+            },
+            "satisfied": {
+              "correct": 20,
+              "errors": 0,
+              "total": 20,
+              "value": 1
+            },
+            "unresolved": {
+              "correct": 15,
+              "errors": 0,
+              "total": 15,
+              "value": 1
+            }
+          },
+          "macroDisposition": {
+            "f1": 0.944557,
+            "precision": 0.947011,
+            "recall": 0.943333
+          },
+          "outcome": {
+            "byLabel": {
+              "insufficient-evidence": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "no-viable-candidate": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "recommend": {
+                "correct": 20,
+                "errors": 0,
+                "total": 20,
+                "value": 1
+              }
+            },
+            "confusion": {
+              "insufficient-evidence": {
+                "insufficient-evidence": 5,
+                "no-viable-candidate": 0,
+                "recommend": 0
+              },
+              "no-viable-candidate": {
+                "insufficient-evidence": 0,
+                "no-viable-candidate": 5,
+                "recommend": 0
+              },
+              "recommend": {
+                "insufficient-evidence": 0,
+                "no-viable-candidate": 0,
+                "recommend": 20
+              }
+            },
+            "overall": {
+              "correct": 30,
+              "errors": 0,
+              "total": 30,
+              "value": 1
+            }
+          },
+          "partialOrder": {
+            "falseOrdersOfIncomparable": 2,
+            "incomparable": {
+              "correct": 0,
+              "errors": 2,
+              "total": 2,
+              "value": 0
+            },
+            "ordered": {
+              "correct": 38,
+              "errors": 7,
+              "total": 45,
+              "value": 0.844444
+            },
+            "overall": {
+              "correct": 38,
+              "errors": 12,
+              "total": 50,
+              "value": 0.76
+            },
+            "ties": {
+              "correct": 0,
+              "errors": 3,
+              "total": 3,
+              "value": 0
+            }
+          },
+          "topThreeUsefulness": {
+            "correct": 20,
+            "errors": 0,
+            "total": 20,
+            "value": 1
+          },
+          "traceability": {
+            "evidenceAssociations": {
+              "correct": 150,
+              "errors": 0,
+              "total": 150,
+              "value": 1
+            },
+            "hardConflicts": {
+              "correct": 45,
+              "errors": 10,
+              "total": 55,
+              "value": 0.818182
+            },
+            "materialUnknowns": {
+              "correct": 40,
+              "errors": 0,
+              "total": 40,
+              "value": 1
+            },
+            "reasonCodes": {
+              "correct": 140,
+              "errors": 35,
+              "total": 175,
+              "value": 0.8
+            },
+            "unsupportedExtraAssociations": 100
+          }
+        },
+        "perFamily": {
+          "audit-logging": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 50,
+                "errors": 0,
+                "total": 50,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.833334,
+                "falseNegative": 0,
+                "falsePositive": 2,
+                "precision": 0.714286,
+                "recall": 1,
+                "trueNegative": 23,
+                "truePositive": 5
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.8,
+                "falseNegative": 2,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.666667,
+                "trueNegative": 24,
+                "truePositive": 4
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.908334,
+              "precision": 0.928571,
+              "recall": 0.916667
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 1,
+              "incomparable": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              },
+              "ordered": {
+                "correct": 7,
+                "errors": 2,
+                "total": 9,
+                "value": 0.777778
+              },
+              "overall": {
+                "correct": 7,
+                "errors": 3,
+                "total": 10,
+                "value": 0.7
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          },
+          "authorization": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 45,
+                "errors": 0,
+                "total": 45,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.888889,
+                "falseNegative": 1,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.8,
+                "trueNegative": 25,
+                "truePositive": 4
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.923077,
+                "falseNegative": 0,
+                "falsePositive": 1,
+                "precision": 0.857143,
+                "recall": 1,
+                "trueNegative": 23,
+                "truePositive": 6
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.952991,
+              "precision": 0.964286,
+              "recall": 0.95
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 8,
+                "errors": 1,
+                "total": 9,
+                "value": 0.888889
+              },
+              "overall": {
+                "correct": 8,
+                "errors": 2,
+                "total": 10,
+                "value": 0.8
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          },
+          "background-jobs": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 50,
+                "errors": 0,
+                "total": 50,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.888889,
+                "falseNegative": 1,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.8,
+                "trueNegative": 25,
+                "truePositive": 4
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.923077,
+                "falseNegative": 0,
+                "falsePositive": 1,
+                "precision": 0.857143,
+                "recall": 1,
+                "trueNegative": 23,
+                "truePositive": 6
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.952991,
+              "precision": 0.964286,
+              "recall": 0.95
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 7,
+                "errors": 2,
+                "total": 9,
+                "value": 0.777778
+              },
+              "overall": {
+                "correct": 7,
+                "errors": 3,
+                "total": 10,
+                "value": 0.7
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          },
+          "rate-limiting": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 45,
+                "errors": 0,
+                "total": 45,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.888889,
+                "falseNegative": 1,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.8,
+                "trueNegative": 25,
+                "truePositive": 4
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.923077,
+                "falseNegative": 0,
+                "falsePositive": 1,
+                "precision": 0.857143,
+                "recall": 1,
+                "trueNegative": 23,
+                "truePositive": 6
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.952991,
+              "precision": 0.964286,
+              "recall": 0.95
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 1,
+              "incomparable": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              },
+              "ordered": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "overall": {
+                "correct": 9,
+                "errors": 1,
+                "total": 10,
+                "value": 0.9
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          },
+          "webhooks": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "boundPreferenceOrderingEffect": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 45,
+                "errors": 0,
+                "total": 45,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 5,
+                "errors": 0,
+                "total": 5,
+                "value": 1
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceNonEffect": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 8
+              },
+              "recommended": {
+                "f1": 0.888889,
+                "falseNegative": 1,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 0.8,
+                "trueNegative": 25,
+                "truePositive": 4
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 19,
+                "truePositive": 11
+              },
+              "viable": {
+                "f1": 0.923077,
+                "falseNegative": 0,
+                "falsePositive": 1,
+                "precision": 0.857143,
+                "recall": 1,
+                "trueNegative": 23,
+                "truePositive": 6
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 9,
+                "errors": 0,
+                "total": 9,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.952991,
+              "precision": 0.964286,
+              "recall": 0.95
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 7,
+                "errors": 2,
+                "total": 9,
+                "value": 0.777778
+              },
+              "overall": {
+                "correct": 7,
+                "errors": 3,
+                "total": 10,
+                "value": 0.7
+              },
+              "ties": {
+                "correct": 0,
+                "errors": 1,
+                "total": 1,
+                "value": 0
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 30,
+                "errors": 0,
+                "total": 30,
+                "value": 1
+              },
+              "hardConflicts": {
+                "correct": 9,
+                "errors": 2,
+                "total": 11,
+                "value": 0.818182
+              },
+              "materialUnknowns": {
+                "correct": 8,
+                "errors": 0,
+                "total": 8,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 28,
+                "errors": 7,
+                "total": 35,
+                "value": 0.8
+              },
+              "unsupportedExtraAssociations": 20
+            }
+          }
+        },
+        "predictionDigest": "9b6527db739e640e03089bd01a19493a3a8a48bf30fc065cddd8cf71c0a7c9cf",
+        "safety": {
+          "candidateInvention": 0,
+          "candidateSetMismatch": 0,
+          "excludedCandidateLeakage": 0,
+          "knownHardConflictRanked": 0,
+          "knownHardConflictRecommended": 0,
+          "knownHardConflictViable": 0,
+          "missingEvidenceNeededResolution": 0,
+          "preferenceHardenedIntoHardConflict": 0,
+          "unboundPreferenceAffectedOrder": 0,
+          "unboundSuccessConditionCountedFavorable": 0,
+          "unresolvedEvidenceNeededPositivePromotion": 0
+        },
+        "scoreDigest": "f71981f7000b1264e8de261dfcc9a4539010db1372adb015fe88ca2eec2aae91",
+        "specificationDigest": "6532884410f9fc3c8de56dadff080d7c1470879fe57e686a5b65013f0fe33fa5"
+      }
+    ],
+    "scorerCeilings": {
+      "applicableClassificationMetrics": 1,
+      "applicableExactMetrics": 1,
+      "zeroDenominatorRepresentation": "null-not-applicable",
+      "zeroSafetyViolations": 0
+    },
+    "strongestByFamily": {
+      "audit-logging": "weak-target-aware-exact-compatibility",
+      "authorization": "weak-target-aware-exact-compatibility",
+      "background-jobs": "weak-target-aware-exact-compatibility",
+      "rate-limiting": "weak-target-aware-exact-compatibility",
+      "webhooks": "weak-target-aware-exact-compatibility"
+    },
+    "strongestOverallBaselineId": "weak-target-aware-exact-compatibility"
+  },
+  "semanticDigest": "23ad4c11cb107640ab52c2502ee828df2404c1b843a2b8176509ee26e64c38aa",
+  "status": "proposed-independent-review-pending"
+}

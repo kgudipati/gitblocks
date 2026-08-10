@@ -1,0 +1,20 @@
+{
+  "authorityVersion": "ranking-v1-composition-blind-input/1.0.0",
+  "rankingBaseline": "composition-all-insufficient-without-m3-authority",
+  "retrievalAuthority": "retrieval-v2",
+  "retrievalQueryCaseIds": [
+    "ret-authorization-01",
+    "ret-audit-logging-01",
+    "ret-background-jobs-01",
+    "ret-rate-limiting-01",
+    "ret-webhooks-01"
+  ],
+  "semanticDigest": "fa38aaddd9ab0100abdec87acef7c49e440385c98a19d9d22da163522d7ba456",
+  "targetAuthorityIds": [
+    "ranking-v1-auth-pair-target-a",
+    "ranking-v1-audit-pair-target-a",
+    "ranking-v1-jobs-pair-target-a",
+    "ranking-v1-rate-pair-target-a",
+    "ranking-v1-webhook-pair-target-a"
+  ]
+}

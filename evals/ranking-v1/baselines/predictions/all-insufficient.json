@@ -1,0 +1,2143 @@
+{
+  "baselineId": "all-insufficient-responsible-abstention",
+  "baselineSpecificationDigest": "25ab8454f8ecfa7b97d1d953ee18dafbc495a252a14b21639482c4563be71f3d",
+  "baselineVersion": "ranking-all-insufficient-abstention/1.0.0",
+  "blindInputDigest": "feb988d011a0ea269f5d3aeeb0caf5223918712d5dd6780a86ce141392f39d9a",
+  "corpusId": "ranking-v1",
+  "corpusVersion": "1.0.0",
+  "predictionSetId": "ranking-v1-allInsufficient-predictions",
+  "predictionSetVersion": "ranking-v1-prediction-set/1.0.0",
+  "predictions": [
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-fluentd-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pgaudit-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pino-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-winston-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-audit-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-fluentd-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pgaudit-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pino-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-winston-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-audit-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-fluentd-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pgaudit-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pino-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-winston-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-audit-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-fluentd-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pgaudit-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pino-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-winston-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-audit-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-fluentd-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pgaudit-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pino-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-winston-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-audit-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-fluentd-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pgaudit-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-pino-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-audit-winston-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-audit-06-incomparable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-casbin-node-casbin-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-cerbos-cerbos-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-open-policy-agent-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-stalniy-casl-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-auth-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-casbin-node-casbin-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-cerbos-cerbos-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-open-policy-agent-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-stalniy-casl-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-auth-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-casbin-node-casbin-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-cerbos-cerbos-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-open-policy-agent-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-stalniy-casl-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-auth-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-casbin-node-casbin-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-cerbos-cerbos-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-open-policy-agent-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-stalniy-casl-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-auth-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-casbin-node-casbin-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-cerbos-cerbos-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-open-policy-agent-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-stalniy-casl-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-auth-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-casbin-node-casbin-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-cerbos-cerbos-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-open-policy-agent-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-auth-stalniy-casl-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-auth-06-tie",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-agenda-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-bullmq-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-graphile-worker-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-node-cron-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-agenda-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-bullmq-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-graphile-worker-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-node-cron-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-agenda-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-bullmq-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-graphile-worker-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-node-cron-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-agenda-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-bullmq-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-graphile-worker-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-node-cron-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-agenda-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-bullmq-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-graphile-worker-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-node-cron-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-agenda-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-bullmq-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-graphile-worker-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-node-cron-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-06-tie",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-express-rate-limit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-kong-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-redis-cell-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-upstash-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-rate-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-express-rate-limit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-kong-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-redis-cell-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-upstash-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-rate-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-express-rate-limit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-kong-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-redis-cell-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-upstash-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-rate-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-express-rate-limit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-kong-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-redis-cell-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-upstash-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-rate-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-express-rate-limit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-kong-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-redis-cell-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-upstash-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-rate-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-express-rate-limit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-kong-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-redis-cell-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-rate-upstash-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-rate-06-incomparable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-standard-webhooks-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-stripe-node-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-svix-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-webhook-site-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-webhook-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-standard-webhooks-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-stripe-node-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-svix-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-webhook-site-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-webhook-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-standard-webhooks-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-stripe-node-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-svix-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-webhook-site-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-webhook-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-standard-webhooks-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-stripe-node-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-svix-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-webhook-site-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-webhook-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-standard-webhooks-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-stripe-node-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-svix-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-webhook-site-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-webhook-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-standard-webhooks-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-stripe-node-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-svix-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "responsible-abstention-no-fit-authority"
+          ],
+          "unknownIds": [
+            "unknown-webhook-webhook-site-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-webhook-06-tie",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    }
+  ],
+  "semanticDigest": "ddedb1a8dbfaa0112f3b3c4ca92354c99d64fd0c704e249bdb8d8a8654f7e4ba"
+}

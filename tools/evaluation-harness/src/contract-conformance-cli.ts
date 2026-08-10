@@ -4,6 +4,7 @@ import { validateLoadedCorpusContractConformance } from './contract-conformance.
 import { loadCorpus } from './corpus.ts';
 import { EvaluationBoundaryError } from './json-boundary.ts';
 import { findGitBlocksRoot } from './repository-root.ts';
+import { validateRankingContractConformance } from './ranking/contract-conformance.ts';
 
 export const CONTRACT_CONFORMANCE_EXIT_CODES = {
   success: 0,
@@ -44,13 +45,24 @@ export function runContractConformanceCli(
       return CONTRACT_CONFORMANCE_EXIT_CODES.validation;
     }
 
+    const rankingConformance =
+      validateRankingContractConformance(repositoryRoot);
+    if (!rankingConformance.ok) {
+      reportDiagnostics(rankingConformance.diagnostics, output);
+      return CONTRACT_CONFORMANCE_EXIT_CODES.validation;
+    }
+
     output.log(
       [
         'Product contract conformance passed',
         `(${String(conformance.summary.caseCount)} cases,`,
         `${String(conformance.summary.candidateCount)} supplied candidates,`,
         `${conformance.summary.goldStatus}/${conformance.summary.independentReviewStatus},`,
-        `${conformance.summary.purpose}).`,
+        `${conformance.summary.purpose};`,
+        `ranking-v1 ${String(rankingConformance.summary.caseCount)} cases,`,
+        `${String(rankingConformance.summary.candidateCount)} supplied candidates,`,
+        `${rankingConformance.summary.goldStatus}/${rankingConformance.summary.independentReviewStatus},`,
+        `${rankingConformance.summary.purpose}).`,
       ].join(' '),
     );
     return CONTRACT_CONFORMANCE_EXIT_CODES.success;

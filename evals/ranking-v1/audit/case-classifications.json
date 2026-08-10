@@ -1,0 +1,353 @@
+{
+  "authorityVersion": "ranking-v1-audit-classification/1.0.0",
+  "cases": [
+    {
+      "auditLabels": [
+        "family:audit-logging",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-audit-01-controlled-a",
+      "family": "audit-logging",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:audit-logging",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-audit-02-controlled-b",
+      "family": "audit-logging",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:audit-logging",
+        "scenario:hard"
+      ],
+      "caseId": "rank-audit-03-no-viable",
+      "family": "audit-logging",
+      "primaryClass": "hard-conflict-no-viable"
+    },
+    {
+      "auditLabels": [
+        "family:audit-logging",
+        "scenario:insufficient",
+        "insufficient:withheld-target"
+      ],
+      "caseId": "rank-audit-04-insufficient",
+      "family": "audit-logging",
+      "primaryClass": "evidence-insufficient"
+    },
+    {
+      "auditLabels": [
+        "family:audit-logging",
+        "scenario:popularity",
+        "popularity-over-fit"
+      ],
+      "caseId": "rank-audit-05-popularity-over-fit",
+      "family": "audit-logging",
+      "primaryClass": "popularity-over-fit"
+    },
+    {
+      "auditLabels": [
+        "family:audit-logging",
+        "scenario:partial",
+        "explicit-incomparability"
+      ],
+      "caseId": "rank-audit-06-incomparable",
+      "family": "audit-logging",
+      "primaryClass": "explicit-incomparability"
+    },
+    {
+      "auditLabels": [
+        "family:authorization",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-auth-01-controlled-a",
+      "family": "authorization",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:authorization",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-auth-02-controlled-b",
+      "family": "authorization",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:authorization",
+        "scenario:hard"
+      ],
+      "caseId": "rank-auth-03-no-viable",
+      "family": "authorization",
+      "primaryClass": "hard-conflict-no-viable"
+    },
+    {
+      "auditLabels": [
+        "family:authorization",
+        "scenario:insufficient",
+        "insufficient:material-unbound"
+      ],
+      "caseId": "rank-auth-04-insufficient",
+      "family": "authorization",
+      "primaryClass": "evidence-insufficient"
+    },
+    {
+      "auditLabels": [
+        "family:authorization",
+        "scenario:popularity",
+        "popularity-over-fit"
+      ],
+      "caseId": "rank-auth-05-popularity-over-fit",
+      "family": "authorization",
+      "primaryClass": "popularity-over-fit"
+    },
+    {
+      "auditLabels": [
+        "family:authorization",
+        "scenario:partial",
+        "tie"
+      ],
+      "caseId": "rank-auth-06-tie",
+      "family": "authorization",
+      "primaryClass": "tie"
+    },
+    {
+      "auditLabels": [
+        "family:background-jobs",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-jobs-01-controlled-a",
+      "family": "background-jobs",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:background-jobs",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-jobs-02-controlled-b",
+      "family": "background-jobs",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:background-jobs",
+        "scenario:hard"
+      ],
+      "caseId": "rank-jobs-03-no-viable",
+      "family": "background-jobs",
+      "primaryClass": "hard-conflict-no-viable"
+    },
+    {
+      "auditLabels": [
+        "family:background-jobs",
+        "scenario:insufficient",
+        "insufficient:incomplete-candidate-evidence"
+      ],
+      "caseId": "rank-jobs-04-insufficient",
+      "family": "background-jobs",
+      "primaryClass": "evidence-insufficient"
+    },
+    {
+      "auditLabels": [
+        "family:background-jobs",
+        "scenario:popularity",
+        "popularity-over-fit"
+      ],
+      "caseId": "rank-jobs-05-popularity-over-fit",
+      "family": "background-jobs",
+      "primaryClass": "popularity-over-fit"
+    },
+    {
+      "auditLabels": [
+        "family:background-jobs",
+        "scenario:partial",
+        "tie"
+      ],
+      "caseId": "rank-jobs-06-tie",
+      "family": "background-jobs",
+      "primaryClass": "tie"
+    },
+    {
+      "auditLabels": [
+        "family:rate-limiting",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-rate-01-controlled-a",
+      "family": "rate-limiting",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:rate-limiting",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-rate-02-controlled-b",
+      "family": "rate-limiting",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:rate-limiting",
+        "scenario:hard"
+      ],
+      "caseId": "rank-rate-03-no-viable",
+      "family": "rate-limiting",
+      "primaryClass": "hard-conflict-no-viable"
+    },
+    {
+      "auditLabels": [
+        "family:rate-limiting",
+        "scenario:insufficient",
+        "insufficient:unresolved-handoff"
+      ],
+      "caseId": "rank-rate-04-insufficient",
+      "family": "rate-limiting",
+      "primaryClass": "evidence-insufficient"
+    },
+    {
+      "auditLabels": [
+        "family:rate-limiting",
+        "scenario:popularity",
+        "popularity-over-fit"
+      ],
+      "caseId": "rank-rate-05-popularity-over-fit",
+      "family": "rate-limiting",
+      "primaryClass": "popularity-over-fit"
+    },
+    {
+      "auditLabels": [
+        "family:rate-limiting",
+        "scenario:partial",
+        "explicit-incomparability"
+      ],
+      "caseId": "rank-rate-06-incomparable",
+      "family": "rate-limiting",
+      "primaryClass": "explicit-incomparability"
+    },
+    {
+      "auditLabels": [
+        "family:webhooks",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-webhook-01-controlled-a",
+      "family": "webhooks",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:webhooks",
+        "scenario:pair",
+        "target-conditioning"
+      ],
+      "caseId": "rank-webhook-02-controlled-b",
+      "family": "webhooks",
+      "primaryClass": "controlled-target-pair"
+    },
+    {
+      "auditLabels": [
+        "family:webhooks",
+        "scenario:hard"
+      ],
+      "caseId": "rank-webhook-03-no-viable",
+      "family": "webhooks",
+      "primaryClass": "hard-conflict-no-viable"
+    },
+    {
+      "auditLabels": [
+        "family:webhooks",
+        "scenario:insufficient",
+        "insufficient:missing-materiality"
+      ],
+      "caseId": "rank-webhook-04-insufficient",
+      "family": "webhooks",
+      "primaryClass": "evidence-insufficient"
+    },
+    {
+      "auditLabels": [
+        "family:webhooks",
+        "scenario:popularity",
+        "popularity-over-fit"
+      ],
+      "caseId": "rank-webhook-05-popularity-over-fit",
+      "family": "webhooks",
+      "primaryClass": "popularity-over-fit"
+    },
+    {
+      "auditLabels": [
+        "family:webhooks",
+        "scenario:partial",
+        "tie"
+      ],
+      "caseId": "rank-webhook-06-tie",
+      "family": "webhooks",
+      "primaryClass": "tie"
+    }
+  ],
+  "controlledPairs": [
+    {
+      "changedTargetPaths": [
+        "/facts/deployment",
+        "/facts/resources/0",
+        "/facts/workerCapability"
+      ],
+      "firstCaseId": "rank-audit-01-controlled-a",
+      "pairId": "ranking-v1-audit-controlled-pair",
+      "secondCaseId": "rank-audit-02-controlled-b"
+    },
+    {
+      "changedTargetPaths": [
+        "/facts/deployment",
+        "/facts/framework",
+        "/facts/resources/0",
+        "/facts/runtime",
+        "/facts/workerCapability"
+      ],
+      "firstCaseId": "rank-auth-01-controlled-a",
+      "pairId": "ranking-v1-auth-controlled-pair",
+      "secondCaseId": "rank-auth-02-controlled-b"
+    },
+    {
+      "changedTargetPaths": [
+        "/facts/redis",
+        "/facts/resources/0"
+      ],
+      "firstCaseId": "rank-jobs-01-controlled-a",
+      "pairId": "ranking-v1-jobs-controlled-pair",
+      "secondCaseId": "rank-jobs-02-controlled-b"
+    },
+    {
+      "changedTargetPaths": [
+        "/facts/redis",
+        "/facts/resources/0"
+      ],
+      "firstCaseId": "rank-rate-01-controlled-a",
+      "pairId": "ranking-v1-rate-controlled-pair",
+      "secondCaseId": "rank-rate-02-controlled-b"
+    },
+    {
+      "changedTargetPaths": [
+        "/facts/framework",
+        "/facts/identity/0"
+      ],
+      "firstCaseId": "rank-webhook-01-controlled-a",
+      "pairId": "ranking-v1-webhook-controlled-pair",
+      "secondCaseId": "rank-webhook-02-controlled-b"
+    }
+  ],
+  "corpusId": "ranking-v1",
+  "semanticDigest": "0136fd169a31566811ed11ae29f2331f0073974323abfd28726f16cda2c9305d"
+}

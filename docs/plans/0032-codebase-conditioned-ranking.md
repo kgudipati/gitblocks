@@ -14,7 +14,10 @@
   all six repository-verification workers passed, while the compatibility
   aggregate did not execute because of GitHub's account billing/spending-limit
   condition. Publication of this bookkeeping record authorizes Milestone 2
-  only; Milestones 3 through 6 remain unauthorized.
+  only. This M2 authoring commit proposes the complete ranking-v1 authority,
+  scorer, frozen blind baselines, reports, and gate-review inputs. Independent
+  M2 review is pending; no M2 gate is accepted and Milestones 3 through 6
+  remain unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-10
@@ -704,6 +707,17 @@ freeze. Independently select and digest exactly 13/18 (72.222222%) or 14/18
 remains effect- and output-blocked until this complete policy is accepted.
 Independent M2 acceptance authorizes M3 only.
 
+Authoring status: complete and proposed in this commit. The proposed authority
+contains 30 cases (six per family), scorer version
+`ranking-v1-scorer/1.0.0`, frozen blind baseline specifications/predictions,
+separate fixed-candidate and composition reports, gold-blind resource-reference
+evidence, and independent gate-review inputs. Gold status is
+`proposed-not-independently-reviewed`; the review record is
+`independent-review-pending` with Codex as author and no independent reviewer.
+Quality thresholds, production performance budgets, and the 13/18 versus 14/18
+readiness selection are deliberately unset. This paragraph records proposed
+authoring only and does not satisfy the M2 exit or authorize M3.
+
 ### Milestone 3 — Candidate-authority successor
 
 After M2 acceptance, collect/project only accepted consumed facts and publish
@@ -898,6 +912,11 @@ reviewed durable-product trigger in ADR 0011.
       including the criterion-binding and readiness-timing corrections and the
       documented hosted-infrastructure exception. Publication of the
       bookkeeping descendant authorizes M2; no M2 work began in that commit.
+- [x] 2026-08-10 — Authored the additive proposed ranking-v1 30-case authority,
+      proposed gold/review record, scorer and fixtures, frozen gold-blind
+      baselines, separate composition diagnostic, resource reference, and
+      unselected gate-review inputs. Local independent-review handoff is
+      complete; M2 remains unaccepted.
 - [ ] M2 independently accepted.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
@@ -953,6 +972,18 @@ reviewed durable-product trigger in ADR 0011.
   implementation commits; do not weaken workflow or review requirements.
   Milestone 6 retains final hosted-proof/exception responsibility. Owner:
   repository maintainer.
+- 2026-08-10 — Correct M2 baseline hard-conflict reason preservation before
+  final freeze. The first local authoring pass used a generic candidate reason
+  while the accepted request constraint had a specific reason code. The gold
+  and weak target-aware baseline now preserve the request reason exactly, and
+  all predictions/reports/digests were regenerated before review. Owner: M2
+  authoring.
+- 2026-08-10 — Retain manifest-first fail-closed scoring. The first local score
+  attempt correctly refused newly generated predictions that were not yet
+  bound by the manifest; authoring refreshed the manifest before scoring and
+  preserved that denial. A content-audit false positive against aggregate
+  reason-code metric names was narrowed to forbid case/candidate content while
+  retaining required aggregate traceability counts. Owner: M2 authoring.
 
 ## Validation evidence
 
@@ -1042,3 +1073,53 @@ after this evidence entry and before the bookkeeping commit. Only this plan
 and ADR 0011 change. No GitHub Actions request, rerun, or dispatch and no
 product, evaluation, candidate-authority, provider/model, benchmark, database,
 migration, dependency, or Milestone 2 action occurred.
+
+### Milestone 2 proposed-authority validation
+
+M2 authoring began from clean local and origin heads at exact authorized SHA
+`06e6bdf26c0f4898f79d013891eb211ae484bcf1`. The accepted Phase 9 base
+`a6e03ef20a8cef2a39db8e66b91612245378f9db` remained an ancestor; PR #33 was
+open/draft/unmerged, Issue #32 was open, Node was `v24.18.0`, pnpm was
+`11.17.0`, ADR 0011 and M1 were accepted, only M2 was authorized, and no
+ranking product package, production command, candidate-authority successor,
+provider collection, or workflow change existed.
+
+The focused authoring validation produced:
+
+| Command                       | Exit/result                                                                                                                                                       |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm eval:ranking:validate`  | `0`; exact 30-case corpus, six per family, proposed gold, independent review pending                                                                              |
+| `pnpm eval:ranking:fixtures`  | `0`; 15 hand-calculated fixtures and 34 assertions passed                                                                                                         |
+| `pnpm eval:ranking:baselines` | `0`; all five complete prediction sets reproduced from blind input in forward and reversed case order; frozen aggregate scores matched                            |
+| `pnpm eval:ranking:verify`    | `0`; corpus/contracts/fixtures/baselines/composition/reports/effects passed; four ranking test files and eight tests passed; 902 modules/3,084 dependencies clean |
+| `pnpm contracts:validate`     | `0`; historical 10-case/40-candidate and additive ranking-v1 30-case/150-candidate assessment mappings passed as proposed/not-reviewed representability only      |
+
+The first full repository matrix exposed one stale CLI-output expectation in
+the existing contract-conformance test after the additive ranking summary was
+added. Only that evaluation test expectation was corrected; the corpus,
+predictions, scores, and product contracts did not change. The focused rerun
+then passed five files and ten tests. The complete post-correction local matrix
+produced:
+
+| Command                 | Exit/result                                                                                                                                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm runtime:check`    | `0`; pinned runtime preflight passed                                                                                                                                                                           |
+| `pnpm format:check`     | `0`; all matched files use Prettier style                                                                                                                                                                      |
+| `pnpm repo:check`       | `0`; repository checks passed                                                                                                                                                                                  |
+| `pnpm verify`           | `0`; 134 test files and 1,957 tests passed, zero dependency violations across 902 modules/3,084 dependencies, and all repository/evaluation/contract/taxonomy/profile/catalog/interview/pre-live checks passed |
+| `pnpm security:secrets` | `0`; secretlint passed                                                                                                                                                                                         |
+| `pnpm security:audit`   | `0`; no known vulnerabilities found at moderate audit level                                                                                                                                                    |
+| `git diff --check`      | `0`; no whitespace errors                                                                                                                                                                                      |
+
+The staged M2 diff after this matrix had SHA-256
+`91f89250b4699de6c5f2123a126d499273fbe69fbdfa6c436998f60ad25f51b0` before
+this validation-evidence entry. Adding this record intentionally changes only
+the plan. The complete matrix is rerun against the final staged bytes before
+publication, with the final before/after digest recorded in the authoring
+report.
+
+All M2 commands were offline. Effect-denial and architecture tests prove no
+network/provider/model/database/Docker/candidate-code or unauthorized-write
+path. No production ranking output or M3 authority/effect/output occurred.
+Final product-quality thresholds, the production performance budget, and the
+13/18 versus 14/18 readiness choice remain unselected for independent review.

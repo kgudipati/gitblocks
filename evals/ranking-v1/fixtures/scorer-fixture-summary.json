@@ -1,0 +1,70 @@
+{
+  "assertionCount": 34,
+  "fixtureCount": 15,
+  "fixtureVersion": "ranking-v1-scorer-fixtures/1.0.0",
+  "fixtures": [
+    {
+      "name": "perfect-prediction",
+      "result": "passed"
+    },
+    {
+      "name": "legal-zero-denominators",
+      "result": "passed"
+    },
+    {
+      "name": "hard-conflict-safety-violation",
+      "result": "passed"
+    },
+    {
+      "name": "incorrect-disposition",
+      "result": "passed"
+    },
+    {
+      "name": "wrong-responsible-outcome",
+      "result": "passed"
+    },
+    {
+      "name": "tie-split-incorrectly",
+      "result": "passed"
+    },
+    {
+      "name": "incomparable-pair-falsely-ordered",
+      "result": "passed"
+    },
+    {
+      "name": "required-relation-reversed",
+      "result": "passed"
+    },
+    {
+      "name": "target-controlled-pair-unchanged",
+      "result": "passed"
+    },
+    {
+      "name": "evidence-needed-three-state-errors",
+      "result": "passed"
+    },
+    {
+      "name": "missing-evidence-needed-resolution",
+      "result": "passed"
+    },
+    {
+      "name": "material-unbound-incorrectly-recommended",
+      "result": "passed"
+    },
+    {
+      "name": "unbound-preference-incorrectly-used",
+      "result": "passed"
+    },
+    {
+      "name": "preference-hardened",
+      "result": "passed"
+    },
+    {
+      "name": "candidate-invention",
+      "result": "passed"
+    }
+  ],
+  "productComparator": false,
+  "scorerVersion": "ranking-v1-scorer/1.0.0",
+  "syntheticOracleOnly": true
+}

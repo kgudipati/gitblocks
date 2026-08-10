@@ -1,0 +1,36 @@
+{
+  "authorityVersion": "ranking-v1-composition-proposed-gold/1.0.0",
+  "expectedOutcomes": [
+    {
+      "basis": "No M3 candidate fit authority is authorized or supplied to the composition baseline.",
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-authorization-01"
+    },
+    {
+      "basis": "No M3 candidate fit authority is authorized or supplied to the composition baseline.",
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-audit-logging-01"
+    },
+    {
+      "basis": "No M3 candidate fit authority is authorized or supplied to the composition baseline.",
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-background-jobs-01"
+    },
+    {
+      "basis": "No M3 candidate fit authority is authorized or supplied to the composition baseline.",
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-rate-limiting-01"
+    },
+    {
+      "basis": "No M3 candidate fit authority is authorized or supplied to the composition baseline.",
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-webhooks-01"
+    }
+  ],
+  "provenance": {
+    "independentReviewStatus": "not-reviewed",
+    "independentReviewer": null
+  },
+  "semanticDigest": "490bce34905e07280c5716cf963e946b64ca5cf3bd884bb8db22838c01a61410",
+  "status": "proposed-not-independently-reviewed"
+}

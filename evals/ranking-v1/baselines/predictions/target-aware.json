@@ -1,0 +1,4831 @@
+{
+  "baselineId": "weak-target-aware-exact-compatibility",
+  "baselineSpecificationDigest": "6532884410f9fc3c8de56dadff080d7c1470879fe57e686a5b65013f0fe33fa5",
+  "baselineVersion": "ranking-weak-target-aware-exact-compatibility/1.0.0",
+  "blindInputDigest": "feb988d011a0ea269f5d3aeeb0caf5223918712d5dd6780a86ce141392f39d9a",
+  "corpusId": "ranking-v1",
+  "corpusVersion": "1.0.0",
+  "predictionSetId": "ranking-v1-targetAware-predictions",
+  "predictionSetVersion": "ranking-v1-prediction-set/1.0.0",
+  "predictions": [
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-audit-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-fluentd-1410e09ac2",
+            "ranking-v1-audit-pair-evidence-audit-fluentd-d413f624ac"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-grafana-loki-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-pgaudit-1410e09ac2",
+            "ranking-v1-audit-pair-evidence-audit-pgaudit-93d98b13e2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-pino-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-winston-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-01-controlled-a",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "audit-grafana-loki",
+          "evaluationId": "ranking-v1-audit-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-grafana-loki-f7c4845684"
+          ],
+          "resolution": "unresolved"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "evaluationId": "ranking-v1-audit-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-pgaudit-93d98b13e2"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "audit-fluentd",
+          "constraintId": "ranking-v1-audit-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-fluentd-d413f624ac"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-pino",
+        "audit-winston",
+        "audit-pgaudit"
+      ],
+      "rankGroups": [
+        [
+          "audit-pino"
+        ],
+        [
+          "audit-winston"
+        ],
+        [
+          "audit-pgaudit"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-audit-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-fluentd-1410e09ac2",
+            "ranking-v1-audit-pair-evidence-audit-fluentd-d413f624ac"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-grafana-loki-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-pgaudit-1410e09ac2",
+            "ranking-v1-audit-pair-evidence-audit-pgaudit-93d98b13e2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-pino-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-winston-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-02-controlled-b",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "audit-grafana-loki",
+          "evaluationId": "ranking-v1-audit-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-grafana-loki-f7c4845684"
+          ],
+          "resolution": "unresolved"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "evaluationId": "ranking-v1-audit-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-pgaudit-93d98b13e2"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "audit-fluentd",
+          "constraintId": "ranking-v1-audit-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-fluentd-d413f624ac"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-pgaudit",
+        "audit-winston",
+        "audit-pino"
+      ],
+      "rankGroups": [
+        [
+          "audit-pgaudit"
+        ],
+        [
+          "audit-winston"
+        ],
+        [
+          "audit-pino"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-pair-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-audit-hard-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-fluentd-1410e09ac2",
+            "ranking-v1-audit-hard-evidence-audit-fluentd-ce236f59fc"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-grafana-loki-1410e09ac2",
+            "ranking-v1-audit-hard-evidence-audit-grafana-loki-73064c4d8a"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-pgaudit-1410e09ac2",
+            "ranking-v1-audit-hard-evidence-audit-pgaudit-7b04a98187"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-pino-1410e09ac2",
+            "ranking-v1-audit-hard-evidence-audit-pino-73064c4d8a"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-winston-1410e09ac2",
+            "ranking-v1-audit-hard-evidence-audit-winston-73064c4d8a"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-03-no-viable",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "audit-pgaudit",
+          "evaluationId": "ranking-v1-audit-hard-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-pgaudit-7b04a98187"
+          ],
+          "resolution": "conflict"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "audit-fluentd",
+          "constraintId": "ranking-v1-audit-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-fluentd-ce236f59fc"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "constraintId": "ranking-v1-audit-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-grafana-loki-73064c4d8a"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "audit-pino",
+          "constraintId": "ranking-v1-audit-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-pino-73064c4d8a"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "audit-winston",
+          "constraintId": "ranking-v1-audit-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-winston-73064c4d8a"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "no-viable-candidate",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-hard-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-hard-request-success-core",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-audit-insufficient-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-insufficient-evidence-audit-fluentd-1410e09ac2",
+            "ranking-v1-audit-insufficient-evidence-audit-fluentd-edb8d027ad"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-audit-fluentd-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-audit-insufficient-evidence-audit-grafana-loki-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-audit-insufficient-evidence-audit-pgaudit-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-audit-pgaudit-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-audit-insufficient-evidence-audit-pino-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-audit-pino-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-audit-insufficient-evidence-audit-winston-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-audit-winston-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-audit-04-insufficient",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "audit-pgaudit",
+          "evaluationId": "ranking-v1-audit-insufficient-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-insufficient-evidence-audit-pgaudit-27134771c8"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "audit-fluentd",
+          "constraintId": "ranking-v1-audit-insufficient-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-insufficient-evidence-audit-fluentd-edb8d027ad"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-insufficient-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-fluentd-1410e09ac2",
+            "ranking-v1-audit-popularity-evidence-audit-fluentd-286ea7b300"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-grafana-loki-1410e09ac2",
+            "ranking-v1-audit-popularity-evidence-audit-grafana-loki-8687aafbea"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-pgaudit-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-audit-pgaudit-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-pino-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-winston-1410e09ac2",
+            "ranking-v1-audit-popularity-evidence-audit-winston-428a475a59"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-05-popularity-over-fit",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "audit-grafana-loki",
+          "evaluationId": "ranking-v1-audit-popularity-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-grafana-loki-8687aafbea"
+          ],
+          "resolution": "conflict"
+        },
+        {
+          "candidateId": "audit-winston",
+          "evaluationId": "ranking-v1-audit-popularity-evidence-b-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-winston-428a475a59"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "audit-fluentd",
+          "constraintId": "ranking-v1-audit-popularity-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-fluentd-286ea7b300"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-audit-popularity-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-pino",
+        "audit-winston"
+      ],
+      "rankGroups": [
+        [
+          "audit-pino",
+          "audit-winston"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-popularity-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-popularity-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-popularity-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-audit-partial-evidence-audit-fluentd-1410e09ac2",
+            "ranking-v1-audit-partial-evidence-audit-fluentd-33fcc697e9"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-audit-partial-evidence-audit-grafana-loki-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-audit-grafana-loki-fit"
+          ]
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-audit-partial-evidence-audit-pgaudit-1410e09ac2",
+            "ranking-v1-audit-partial-evidence-audit-pgaudit-edf2d82444"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-partial-evidence-audit-pino-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-partial-evidence-audit-winston-1410e09ac2"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-06-incomparable",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "audit-pgaudit",
+          "evaluationId": "ranking-v1-audit-partial-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-audit-partial-evidence-audit-pgaudit-edf2d82444"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "audit-fluentd",
+          "constraintId": "ranking-v1-audit-partial-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-audit-partial-evidence-audit-fluentd-33fcc697e9"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-audit-partial-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-pino",
+        "audit-winston",
+        "audit-pgaudit"
+      ],
+      "rankGroups": [
+        [
+          "audit-pino"
+        ],
+        [
+          "audit-winston"
+        ],
+        [
+          "audit-pgaudit"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-fluentd",
+          "criterionId": "ranking-v1-audit-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-partial-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "criterionId": "ranking-v1-audit-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "criterionId": "ranking-v1-audit-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-pino",
+          "criterionId": "ranking-v1-audit-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "audit-winston",
+          "criterionId": "ranking-v1-audit-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-auth-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-casbin-node-casbin-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-cerbos-cerbos-7c57be42dd",
+            "ranking-v1-auth-pair-evidence-auth-cerbos-cerbos-f0d8153387"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-37577aefa7",
+            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-openfga-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-stalniy-casl-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-01-controlled-a",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "evaluationId": "ranking-v1-auth-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-cerbos-cerbos-f0d8153387"
+          ],
+          "resolution": "satisfied"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "evaluationId": "ranking-v1-auth-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-openfga-3a2351f2df"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "auth-open-policy-agent",
+          "constraintId": "ranking-v1-auth-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-37577aefa7"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-stalniy-casl",
+        "auth-casbin-node-casbin",
+        "auth-cerbos-cerbos"
+      ],
+      "rankGroups": [
+        [
+          "auth-stalniy-casl"
+        ],
+        [
+          "auth-casbin-node-casbin"
+        ],
+        [
+          "auth-cerbos-cerbos"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-auth-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-casbin-node-casbin-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-cerbos-cerbos-7c57be42dd",
+            "ranking-v1-auth-pair-evidence-auth-cerbos-cerbos-f0d8153387"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-37577aefa7",
+            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-openfga-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-stalniy-casl-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-02-controlled-b",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "evaluationId": "ranking-v1-auth-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-cerbos-cerbos-f0d8153387"
+          ],
+          "resolution": "satisfied"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "evaluationId": "ranking-v1-auth-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-openfga-3a2351f2df"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "auth-open-policy-agent",
+          "constraintId": "ranking-v1-auth-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-37577aefa7"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-casbin-node-casbin",
+        "auth-cerbos-cerbos",
+        "auth-stalniy-casl"
+      ],
+      "rankGroups": [
+        [
+          "auth-casbin-node-casbin"
+        ],
+        [
+          "auth-cerbos-cerbos"
+        ],
+        [
+          "auth-stalniy-casl"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-pair-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-auth-hard-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-casbin-node-casbin-5b94a68f90",
+            "ranking-v1-auth-hard-evidence-auth-casbin-node-casbin-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-cerbos-cerbos-312ccd52b4",
+            "ranking-v1-auth-hard-evidence-auth-cerbos-cerbos-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-open-policy-agent-7c57be42dd",
+            "ranking-v1-auth-hard-evidence-auth-open-policy-agent-d54b05f0f9"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-openfga-5b94a68f90",
+            "ranking-v1-auth-hard-evidence-auth-openfga-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-stalniy-casl-5b94a68f90",
+            "ranking-v1-auth-hard-evidence-auth-stalniy-casl-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-03-no-viable",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "evaluationId": "ranking-v1-auth-hard-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-cerbos-cerbos-312ccd52b4"
+          ],
+          "resolution": "conflict"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "constraintId": "ranking-v1-auth-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-casbin-node-casbin-5b94a68f90"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "constraintId": "ranking-v1-auth-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-open-policy-agent-d54b05f0f9"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "constraintId": "ranking-v1-auth-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-openfga-5b94a68f90"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "constraintId": "ranking-v1-auth-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-stalniy-casl-5b94a68f90"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "no-viable-candidate",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-hard-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-hard-request-success-core",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-auth-insufficient-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-auth-insufficient-evidence-auth-casbin-node-casbin-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-auth-casbin-node-casbin-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-auth-insufficient-evidence-auth-cerbos-cerbos-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-auth-cerbos-cerbos-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-insufficient-evidence-auth-open-policy-agent-475ad70ed0",
+            "ranking-v1-auth-insufficient-evidence-auth-open-policy-agent-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-auth-open-policy-agent-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-auth-insufficient-evidence-auth-openfga-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-auth-insufficient-evidence-auth-stalniy-casl-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-auth-stalniy-casl-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-auth-04-insufficient",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "evaluationId": "ranking-v1-auth-insufficient-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-insufficient-evidence-auth-cerbos-cerbos-97acf9e9a7"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "auth-open-policy-agent",
+          "constraintId": "ranking-v1-auth-insufficient-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-insufficient-evidence-auth-open-policy-agent-475ad70ed0"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-insufficient-request-success-operational",
+          "state": "fail-closed"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-casbin-node-casbin-7c57be42dd",
+            "ranking-v1-auth-popularity-evidence-auth-casbin-node-casbin-978c00272c"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-cerbos-cerbos-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-auth-cerbos-cerbos-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-open-policy-agent-7742303658",
+            "ranking-v1-auth-popularity-evidence-auth-open-policy-agent-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-openfga-7c57be42dd",
+            "ranking-v1-auth-popularity-evidence-auth-openfga-da432746d3"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-stalniy-casl-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-05-popularity-over-fit",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "evaluationId": "ranking-v1-auth-popularity-evidence-b-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-casbin-node-casbin-978c00272c"
+          ],
+          "resolution": "satisfied"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "evaluationId": "ranking-v1-auth-popularity-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-openfga-da432746d3"
+          ],
+          "resolution": "conflict"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "auth-open-policy-agent",
+          "constraintId": "ranking-v1-auth-popularity-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-open-policy-agent-7742303658"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-auth-popularity-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-stalniy-casl",
+        "auth-casbin-node-casbin"
+      ],
+      "rankGroups": [
+        [
+          "auth-stalniy-casl"
+        ],
+        [
+          "auth-casbin-node-casbin"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-popularity-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-popularity-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-popularity-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-auth-partial-evidence-auth-casbin-node-casbin-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-auth-partial-evidence-auth-cerbos-cerbos-21f7251196",
+            "ranking-v1-auth-partial-evidence-auth-cerbos-cerbos-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-auth-partial-evidence-auth-open-policy-agent-1e1e229891",
+            "ranking-v1-auth-partial-evidence-auth-open-policy-agent-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-auth-partial-evidence-auth-openfga-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-auth-openfga-fit"
+          ]
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-partial-evidence-auth-stalniy-casl-7c57be42dd"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-06-tie",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "evaluationId": "ranking-v1-auth-partial-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-auth-partial-evidence-auth-cerbos-cerbos-21f7251196"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "auth-open-policy-agent",
+          "constraintId": "ranking-v1-auth-partial-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-auth-partial-evidence-auth-open-policy-agent-1e1e229891"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-auth-partial-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-stalniy-casl",
+        "auth-casbin-node-casbin",
+        "auth-cerbos-cerbos"
+      ],
+      "rankGroups": [
+        [
+          "auth-stalniy-casl"
+        ],
+        [
+          "auth-casbin-node-casbin"
+        ],
+        [
+          "auth-cerbos-cerbos"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "criterionId": "ranking-v1-auth-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "criterionId": "ranking-v1-auth-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "criterionId": "ranking-v1-auth-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-partial-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "criterionId": "ranking-v1-auth-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "criterionId": "ranking-v1-auth-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-jobs-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-agenda-1e982f02dc",
+            "ranking-v1-jobs-pair-evidence-jobs-agenda-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-bullmq-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-graphile-worker-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-node-cron-16bf449371",
+            "ranking-v1-jobs-pair-evidence-jobs-node-cron-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-temporal-typescript-dea7998d11"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-01-controlled-a",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "jobs-node-cron",
+          "evaluationId": "ranking-v1-jobs-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-node-cron-16bf449371"
+          ],
+          "resolution": "satisfied"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "evaluationId": "ranking-v1-jobs-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-temporal-typescript-99a01fea86"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "jobs-agenda",
+          "constraintId": "ranking-v1-jobs-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-agenda-1e982f02dc"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-graphile-worker",
+        "jobs-node-cron",
+        "jobs-bullmq"
+      ],
+      "rankGroups": [
+        [
+          "jobs-graphile-worker"
+        ],
+        [
+          "jobs-node-cron"
+        ],
+        [
+          "jobs-bullmq"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "not-covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-jobs-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-agenda-1e982f02dc",
+            "ranking-v1-jobs-pair-evidence-jobs-agenda-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-bullmq-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-graphile-worker-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-node-cron-16bf449371",
+            "ranking-v1-jobs-pair-evidence-jobs-node-cron-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-temporal-typescript-dea7998d11"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-02-controlled-b",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "jobs-node-cron",
+          "evaluationId": "ranking-v1-jobs-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-node-cron-16bf449371"
+          ],
+          "resolution": "satisfied"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "evaluationId": "ranking-v1-jobs-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-temporal-typescript-99a01fea86"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "jobs-agenda",
+          "constraintId": "ranking-v1-jobs-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-agenda-1e982f02dc"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-bullmq",
+        "jobs-graphile-worker",
+        "jobs-node-cron"
+      ],
+      "rankGroups": [
+        [
+          "jobs-bullmq"
+        ],
+        [
+          "jobs-graphile-worker"
+        ],
+        [
+          "jobs-node-cron"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-pair-request-success-operational",
+          "state": "not-covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-jobs-hard-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-agenda-4c280dc6aa",
+            "ranking-v1-jobs-hard-evidence-jobs-agenda-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-bullmq-825228763e",
+            "ranking-v1-jobs-hard-evidence-jobs-bullmq-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-graphile-worker-825228763e",
+            "ranking-v1-jobs-hard-evidence-jobs-graphile-worker-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-node-cron-533efedf9b",
+            "ranking-v1-jobs-hard-evidence-jobs-node-cron-dea7998d11"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-temporal-typescript-825228763e",
+            "ranking-v1-jobs-hard-evidence-jobs-temporal-typescript-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-03-no-viable",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "jobs-node-cron",
+          "evaluationId": "ranking-v1-jobs-hard-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-node-cron-533efedf9b"
+          ],
+          "resolution": "conflict"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "jobs-agenda",
+          "constraintId": "ranking-v1-jobs-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-agenda-4c280dc6aa"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "constraintId": "ranking-v1-jobs-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-bullmq-825228763e"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "constraintId": "ranking-v1-jobs-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-graphile-worker-825228763e"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "constraintId": "ranking-v1-jobs-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-temporal-typescript-825228763e"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "no-viable-candidate",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-hard-request-success-core",
+          "state": "not-covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-jobs-insufficient-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-insufficient-evidence-jobs-agenda-b891bf726e",
+            "ranking-v1-jobs-insufficient-evidence-jobs-agenda-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-jobs-agenda-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-jobs-insufficient-evidence-jobs-bullmq-dea7998d11"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-jobs-bullmq-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-jobs-insufficient-evidence-jobs-graphile-worker-dea7998d11"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-jobs-graphile-worker-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-jobs-insufficient-evidence-jobs-node-cron-dea7998d11"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-jobs-node-cron-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-jobs-insufficient-evidence-jobs-temporal-typescript-dea7998d11"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-04-insufficient",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "jobs-node-cron",
+          "evaluationId": "ranking-v1-jobs-insufficient-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-insufficient-evidence-jobs-node-cron-ae6bfa3703"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "jobs-agenda",
+          "constraintId": "ranking-v1-jobs-insufficient-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-insufficient-evidence-jobs-agenda-b891bf726e"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-insufficient-request-success-operational",
+          "state": "not-covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-agenda-130e0c7c66",
+            "ranking-v1-jobs-popularity-evidence-jobs-agenda-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-bullmq-9f1a371d0d",
+            "ranking-v1-jobs-popularity-evidence-jobs-bullmq-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-graphile-worker-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-node-cron-dea7998d11"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-jobs-node-cron-fit"
+          ]
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-temporal-typescript-5f8a640117",
+            "ranking-v1-jobs-popularity-evidence-jobs-temporal-typescript-dea7998d11"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-05-popularity-over-fit",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "jobs-bullmq",
+          "evaluationId": "ranking-v1-jobs-popularity-evidence-b-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-bullmq-9f1a371d0d"
+          ],
+          "resolution": "satisfied"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "evaluationId": "ranking-v1-jobs-popularity-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-temporal-typescript-5f8a640117"
+          ],
+          "resolution": "conflict"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "jobs-agenda",
+          "constraintId": "ranking-v1-jobs-popularity-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-agenda-130e0c7c66"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-jobs-popularity-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-graphile-worker",
+        "jobs-bullmq"
+      ],
+      "rankGroups": [
+        [
+          "jobs-graphile-worker"
+        ],
+        [
+          "jobs-bullmq"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-popularity-request-success-operational",
+          "state": "not-covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-jobs-partial-evidence-jobs-agenda-dca06c5637",
+            "ranking-v1-jobs-partial-evidence-jobs-agenda-dea7998d11"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-jobs-partial-evidence-jobs-bullmq-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-partial-evidence-jobs-graphile-worker-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-jobs-partial-evidence-jobs-node-cron-27bd15743b",
+            "ranking-v1-jobs-partial-evidence-jobs-node-cron-dea7998d11"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-jobs-partial-evidence-jobs-temporal-typescript-dea7998d11"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-jobs-temporal-typescript-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-jobs-06-tie",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "jobs-node-cron",
+          "evaluationId": "ranking-v1-jobs-partial-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-jobs-partial-evidence-jobs-node-cron-27bd15743b"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "jobs-agenda",
+          "constraintId": "ranking-v1-jobs-partial-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-jobs-partial-evidence-jobs-agenda-dca06c5637"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-jobs-partial-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-graphile-worker",
+        "jobs-node-cron",
+        "jobs-bullmq"
+      ],
+      "rankGroups": [
+        [
+          "jobs-graphile-worker"
+        ],
+        [
+          "jobs-node-cron"
+        ],
+        [
+          "jobs-bullmq"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-agenda",
+          "criterionId": "ranking-v1-jobs-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "criterionId": "ranking-v1-jobs-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "criterionId": "ranking-v1-jobs-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "criterionId": "ranking-v1-jobs-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-partial-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "criterionId": "ranking-v1-jobs-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-rate-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-envoy-ratelimit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-express-rate-limit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-kong-9c2c42983f",
+            "ranking-v1-rate-pair-evidence-rate-kong-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-redis-cell-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-upstash-b8b5a53171",
+            "ranking-v1-rate-pair-evidence-rate-upstash-cd0e04b798"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-01-controlled-a",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "evaluationId": "ranking-v1-rate-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-envoy-ratelimit-533375c23a"
+          ],
+          "resolution": "unresolved"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "evaluationId": "ranking-v1-rate-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-upstash-cd0e04b798"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "rate-kong",
+          "constraintId": "ranking-v1-rate-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-kong-9c2c42983f"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-express-rate-limit",
+        "rate-redis-cell",
+        "rate-upstash"
+      ],
+      "rankGroups": [
+        [
+          "rate-express-rate-limit"
+        ],
+        [
+          "rate-redis-cell"
+        ],
+        [
+          "rate-upstash"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-rate-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-envoy-ratelimit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-express-rate-limit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-kong-9c2c42983f",
+            "ranking-v1-rate-pair-evidence-rate-kong-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-redis-cell-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-upstash-b8b5a53171",
+            "ranking-v1-rate-pair-evidence-rate-upstash-cd0e04b798"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-02-controlled-b",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "evaluationId": "ranking-v1-rate-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-envoy-ratelimit-533375c23a"
+          ],
+          "resolution": "unresolved"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "evaluationId": "ranking-v1-rate-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-upstash-cd0e04b798"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "rate-kong",
+          "constraintId": "ranking-v1-rate-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-kong-9c2c42983f"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-redis-cell",
+        "rate-express-rate-limit",
+        "rate-upstash"
+      ],
+      "rankGroups": [
+        [
+          "rate-redis-cell"
+        ],
+        [
+          "rate-express-rate-limit"
+        ],
+        [
+          "rate-upstash"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-pair-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-rate-hard-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-envoy-ratelimit-b8b5a53171",
+            "ranking-v1-rate-hard-evidence-rate-envoy-ratelimit-cbcba69a95"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-express-rate-limit-b8b5a53171",
+            "ranking-v1-rate-hard-evidence-rate-express-rate-limit-cbcba69a95"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-kong-3fe7550431",
+            "ranking-v1-rate-hard-evidence-rate-kong-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-redis-cell-b8b5a53171",
+            "ranking-v1-rate-hard-evidence-rate-redis-cell-cbcba69a95"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-upstash-4cf865a929",
+            "ranking-v1-rate-hard-evidence-rate-upstash-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-03-no-viable",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "rate-upstash",
+          "evaluationId": "ranking-v1-rate-hard-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-upstash-4cf865a929"
+          ],
+          "resolution": "conflict"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "constraintId": "ranking-v1-rate-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-envoy-ratelimit-cbcba69a95"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "constraintId": "ranking-v1-rate-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-express-rate-limit-cbcba69a95"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "rate-kong",
+          "constraintId": "ranking-v1-rate-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-kong-3fe7550431"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "constraintId": "ranking-v1-rate-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-redis-cell-cbcba69a95"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "no-viable-candidate",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-hard-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-hard-request-success-core",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-rate-insufficient-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-rate-insufficient-evidence-rate-envoy-ratelimit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-rate-insufficient-evidence-rate-express-rate-limit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-rate-express-rate-limit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-insufficient-evidence-rate-kong-051964128a",
+            "ranking-v1-rate-insufficient-evidence-rate-kong-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-rate-kong-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-rate-insufficient-evidence-rate-redis-cell-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-rate-redis-cell-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-rate-insufficient-evidence-rate-upstash-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-rate-upstash-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-rate-04-insufficient",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "rate-upstash",
+          "evaluationId": "ranking-v1-rate-insufficient-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-insufficient-evidence-rate-upstash-c7f914a432"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "rate-kong",
+          "constraintId": "ranking-v1-rate-insufficient-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-insufficient-evidence-rate-kong-051964128a"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-insufficient-request-success-operational",
+          "state": "fail-closed"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-envoy-ratelimit-b2c711e803",
+            "ranking-v1-rate-popularity-evidence-rate-envoy-ratelimit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-express-rate-limit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-kong-b8b5a53171",
+            "ranking-v1-rate-popularity-evidence-rate-kong-e5513a4a38"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-redis-cell-3d968b2ca9",
+            "ranking-v1-rate-popularity-evidence-rate-redis-cell-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-upstash-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-rate-upstash-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-rate-05-popularity-over-fit",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "evaluationId": "ranking-v1-rate-popularity-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-envoy-ratelimit-b2c711e803"
+          ],
+          "resolution": "conflict"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "evaluationId": "ranking-v1-rate-popularity-evidence-b-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-redis-cell-3d968b2ca9"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "rate-kong",
+          "constraintId": "ranking-v1-rate-popularity-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-kong-e5513a4a38"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-rate-popularity-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-express-rate-limit",
+        "rate-redis-cell"
+      ],
+      "rankGroups": [
+        [
+          "rate-express-rate-limit"
+        ],
+        [
+          "rate-redis-cell"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-popularity-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-popularity-request-success-operational",
+          "state": "not-covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-rate-partial-evidence-rate-envoy-ratelimit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-rate-envoy-ratelimit-fit"
+          ]
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-partial-evidence-rate-express-rate-limit-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-rate-partial-evidence-rate-kong-4c57a6b122",
+            "ranking-v1-rate-partial-evidence-rate-kong-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-rate-partial-evidence-rate-redis-cell-b8b5a53171"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-rate-partial-evidence-rate-upstash-b8b5a53171",
+            "ranking-v1-rate-partial-evidence-rate-upstash-df634b9f4e"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-06-incomparable",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "rate-upstash",
+          "evaluationId": "ranking-v1-rate-partial-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-rate-partial-evidence-rate-upstash-df634b9f4e"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "rate-kong",
+          "constraintId": "ranking-v1-rate-partial-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-rate-partial-evidence-rate-kong-4c57a6b122"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-rate-partial-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-express-rate-limit",
+        "rate-redis-cell",
+        "rate-upstash"
+      ],
+      "rankGroups": [
+        [
+          "rate-express-rate-limit"
+        ],
+        [
+          "rate-redis-cell"
+        ],
+        [
+          "rate-upstash"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-partial-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "criterionId": "ranking-v1-rate-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "criterionId": "ranking-v1-rate-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-kong",
+          "criterionId": "ranking-v1-rate-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "criterionId": "ranking-v1-rate-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "criterionId": "ranking-v1-rate-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-webhook-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-hookdeck-fb462205fe"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-standard-webhooks-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-stripe-node-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-svix-8555e5969d",
+            "ranking-v1-webhook-pair-evidence-webhook-svix-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-c4ef823436",
+            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-01-controlled-a",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "evaluationId": "ranking-v1-webhook-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-hookdeck-6c8b46e4fd"
+          ],
+          "resolution": "unresolved"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "evaluationId": "ranking-v1-webhook-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-svix-8555e5969d"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "webhook-webhook-site",
+          "constraintId": "ranking-v1-webhook-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-c4ef823436"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-standard-webhooks",
+        "webhook-svix",
+        "webhook-stripe-node"
+      ],
+      "rankGroups": [
+        [
+          "webhook-standard-webhooks"
+        ],
+        [
+          "webhook-svix"
+        ],
+        [
+          "webhook-stripe-node"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-webhook-pair-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-hookdeck-fb462205fe"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-standard-webhooks-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-stripe-node-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-svix-8555e5969d",
+            "ranking-v1-webhook-pair-evidence-webhook-svix-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-c4ef823436",
+            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-02-controlled-b",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "evaluationId": "ranking-v1-webhook-pair-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-hookdeck-6c8b46e4fd"
+          ],
+          "resolution": "unresolved"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "evaluationId": "ranking-v1-webhook-pair-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-svix-8555e5969d"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "webhook-webhook-site",
+          "constraintId": "ranking-v1-webhook-pair-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-c4ef823436"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-stripe-node",
+        "webhook-standard-webhooks",
+        "webhook-svix"
+      ],
+      "rankGroups": [
+        [
+          "webhook-stripe-node"
+        ],
+        [
+          "webhook-standard-webhooks"
+        ],
+        [
+          "webhook-svix"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-pair-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-pair-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-webhook-hard-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-hookdeck-f484d14f22",
+            "ranking-v1-webhook-hard-evidence-webhook-hookdeck-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-standard-webhooks-f484d14f22",
+            "ranking-v1-webhook-hard-evidence-webhook-standard-webhooks-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-stripe-node-f484d14f22",
+            "ranking-v1-webhook-hard-evidence-webhook-stripe-node-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-svix-ce4b322cff",
+            "ranking-v1-webhook-hard-evidence-webhook-svix-fb462205fe"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-webhook-site-ecaa4ae3cb",
+            "ranking-v1-webhook-hard-evidence-webhook-webhook-site-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-03-no-viable",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "webhook-svix",
+          "evaluationId": "ranking-v1-webhook-hard-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-svix-ce4b322cff"
+          ],
+          "resolution": "conflict"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "constraintId": "ranking-v1-webhook-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-hookdeck-f484d14f22"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "constraintId": "ranking-v1-webhook-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-standard-webhooks-f484d14f22"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "constraintId": "ranking-v1-webhook-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-stripe-node-f484d14f22"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "constraintId": "ranking-v1-webhook-hard-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-webhook-site-ecaa4ae3cb"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "no-viable-candidate",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-hard-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-hard-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-hard-request-success-core",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [
+        "ranking-v1-webhook-insufficient-request-preference"
+      ],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-webhook-insufficient-evidence-webhook-hookdeck-fb462205fe"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-webhook-insufficient-evidence-webhook-standard-webhooks-fb462205fe"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-webhook-standard-webhooks-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-webhook-insufficient-evidence-webhook-stripe-node-fb462205fe"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-webhook-stripe-node-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-webhook-insufficient-evidence-webhook-svix-fb462205fe"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-webhook-svix-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-insufficient-evidence-webhook-webhook-site-bd9ece0e5a",
+            "ranking-v1-webhook-insufficient-evidence-webhook-webhook-site-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": [
+            "unknown-webhook-webhook-site-fit"
+          ]
+        }
+      ],
+      "caseId": "rank-webhook-04-insufficient",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "webhook-svix",
+          "evaluationId": "ranking-v1-webhook-insufficient-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-insufficient-evidence-webhook-svix-cb4fb49a1c"
+          ],
+          "resolution": "unresolved"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "webhook-webhook-site",
+          "constraintId": "ranking-v1-webhook-insufficient-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-insufficient-evidence-webhook-webhook-site-bd9ece0e5a"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "insufficient-evidence",
+      "presentation": [],
+      "rankGroups": [],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-operational",
+          "state": "fail-closed"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-insufficient-request-success-operational",
+          "state": "fail-closed"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-hookdeck-a1b90d26a0",
+            "ranking-v1-webhook-popularity-evidence-webhook-hookdeck-fb462205fe"
+          ],
+          "reasonCodes": [
+            "known-hard-conflict"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-standard-webhooks-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-stripe-node-b017bf56ec",
+            "ranking-v1-webhook-popularity-evidence-webhook-stripe-node-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-svix-fb462205fe"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-webhook-svix-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-webhook-site-621c608b85",
+            "ranking-v1-webhook-popularity-evidence-webhook-webhook-site-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-05-popularity-over-fit",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "evaluationId": "ranking-v1-webhook-popularity-evidence-d-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-hookdeck-a1b90d26a0"
+          ],
+          "resolution": "conflict"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "evaluationId": "ranking-v1-webhook-popularity-evidence-b-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-stripe-node-b017bf56ec"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "webhook-webhook-site",
+          "constraintId": "ranking-v1-webhook-popularity-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-webhook-site-621c608b85"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-webhook-popularity-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-standard-webhooks",
+        "webhook-stripe-node"
+      ],
+      "rankGroups": [
+        [
+          "webhook-standard-webhooks"
+        ],
+        [
+          "webhook-stripe-node"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-operational",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-operational",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-popularity-request-success-operational",
+          "state": "covered"
+        }
+      ]
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "evidenceIds": [
+            "ranking-v1-webhook-partial-evidence-webhook-hookdeck-fb462205fe"
+          ],
+          "reasonCodes": [
+            "material-fit-authority-insufficient"
+          ],
+          "unknownIds": [
+            "unknown-webhook-hookdeck-fit"
+          ]
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-partial-evidence-webhook-standard-webhooks-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-webhook-partial-evidence-webhook-stripe-node-fb462205fe"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "viable",
+          "evidenceIds": [
+            "ranking-v1-webhook-partial-evidence-webhook-svix-fb462205fe",
+            "ranking-v1-webhook-partial-evidence-webhook-svix-ff165cf956"
+          ],
+          "reasonCodes": [
+            "bound-success-supported"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "rejected",
+          "evidenceIds": [
+            "ranking-v1-webhook-partial-evidence-webhook-webhook-site-412b356dce",
+            "ranking-v1-webhook-partial-evidence-webhook-webhook-site-fb462205fe"
+          ],
+          "reasonCodes": [
+            "target-boundary-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-06-tie",
+      "evidenceNeededResolutions": [
+        {
+          "candidateId": "webhook-svix",
+          "evaluationId": "ranking-v1-webhook-partial-evidence-c-evaluation",
+          "evidenceIds": [
+            "ranking-v1-webhook-partial-evidence-webhook-svix-ff165cf956"
+          ],
+          "resolution": "satisfied"
+        }
+      ],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "webhook-webhook-site",
+          "constraintId": "ranking-v1-webhook-partial-request-hard-local-fit",
+          "evidenceIds": [
+            "ranking-v1-webhook-partial-evidence-webhook-webhook-site-412b356dce"
+          ],
+          "reasonCode": "target-boundary-conflict"
+        }
+      ],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [
+        "ranking-v1-webhook-partial-request-preference"
+      ],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-standard-webhooks",
+        "webhook-svix",
+        "webhook-stripe-node"
+      ],
+      "rankGroups": [
+        [
+          "webhook-standard-webhooks"
+        ],
+        [
+          "webhook-svix"
+        ],
+        [
+          "webhook-stripe-node"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-partial-request-success-core",
+          "state": "not-covered"
+        },
+        {
+          "candidateId": "webhook-hookdeck",
+          "criterionId": "ranking-v1-webhook-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "criterionId": "ranking-v1-webhook-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "criterionId": "ranking-v1-webhook-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "criterionId": "ranking-v1-webhook-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-partial-request-success-core",
+          "state": "covered"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "criterionId": "ranking-v1-webhook-partial-request-success-nonmaterial",
+          "state": "not-counted-approved-non-material"
+        }
+      ]
+    }
+  ],
+  "semanticDigest": "9b6527db739e640e03089bd01a19493a3a8a48bf30fc065cddd8cf71c0a7c9cf"
+}

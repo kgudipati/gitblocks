@@ -1,0 +1,68 @@
+{
+  "bindings": {
+    "compositionBlindDigest": "fa38aaddd9ab0100abdec87acef7c49e440385c98a19d9d22da163522d7ba456",
+    "compositionGoldDigest": "490bce34905e07280c5716cf963e946b64ca5cf3bd884bb8db22838c01a61410",
+    "predictionDigest": "5db6e138e4737737f2f318058f06b17226df4ef886cb08ac077218610a4654b1",
+    "retrievalCorpusDigest": "05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c",
+    "retrievalPredictionDigest": "c654395026508b88181723bdcc7160566ac983c6c5a8a61c4c0650296d22ac82"
+  },
+  "candidateHandoffCorrectness": {
+    "exactCandidateSetCases": 5,
+    "excludedCandidateLeaks": 0,
+    "laneClaimDisagreements": 0,
+    "laneCompositionCases": 5,
+    "productionInputGoldFieldCount": 0
+  },
+  "compositionCaseCount": 5,
+  "conditionalRankingBaselineQuality": {
+    "outcomeCorrect": 5,
+    "outcomeTotal": 5,
+    "positivePromotions": 0
+  },
+  "endToEndUsefulOutcomeDiagnostic": {
+    "explanation": "The composition baseline responsibly abstains because M3 candidate fit authority is unauthorized and absent; this result is not charged to fixed-candidate ranking quality.",
+    "total": 5,
+    "useful": 0
+  },
+  "fixedCandidateScoreIncluded": false,
+  "phase9RetrievalCoverage": {
+    "familyCoverage": {
+      "denominator": 5,
+      "numerator": 5,
+      "status": "applicable",
+      "value": 1
+    },
+    "macroRecallAt10": {
+      "denominator": 25,
+      "numerator": 15.214976,
+      "status": "applicable",
+      "value": 0.608599
+    },
+    "meanReciprocalRank": {
+      "denominator": 25,
+      "numerator": 25,
+      "status": "applicable",
+      "value": 1
+    },
+    "microRecallAt10": {
+      "denominator": 433,
+      "numerator": 209,
+      "status": "applicable",
+      "value": 0.482679
+    },
+    "ndcgAt10": {
+      "denominator": 25,
+      "numerator": 21.286454,
+      "status": "applicable",
+      "value": 0.851458
+    }
+  },
+  "reportVersion": "ranking-v1-composition-report/1.0.0",
+  "selectedLaneComposition": {
+    "eligible": 50,
+    "evidenceNeeded": 0,
+    "total": 50
+  },
+  "semanticDigest": "71d1bc2b658a093b4eaee6ca0450b1f2019acdfa0dcdfeed3ec458bf0720054c",
+  "track": "retrieval-to-ranking-composition-diagnostic"
+}

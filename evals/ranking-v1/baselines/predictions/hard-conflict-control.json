@@ -1,0 +1,2083 @@
+{
+  "baselineId": "hard-conflict-violating-negative-control",
+  "baselineSpecificationDigest": "50b598882270ba7ca79bd841125be6a8763c0f0623a875b25fe025cb1173f1fa",
+  "baselineVersion": "ranking-hard-conflict-negative-control/1.0.0",
+  "blindInputDigest": "feb988d011a0ea269f5d3aeeb0caf5223918712d5dd6780a86ce141392f39d9a",
+  "corpusId": "ranking-v1",
+  "corpusVersion": "1.0.0",
+  "predictionSetId": "ranking-v1-hardConflictControl-predictions",
+  "predictionSetVersion": "ranking-v1-prediction-set/1.0.0",
+  "predictions": [
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-fluentd-d413f624ac"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-fluentd"
+      ],
+      "rankGroups": [
+        [
+          "audit-fluentd"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pair-evidence-audit-fluentd-d413f624ac"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-fluentd"
+      ],
+      "rankGroups": [
+        [
+          "audit-fluentd"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-hard-evidence-audit-fluentd-ce236f59fc"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-fluentd"
+      ],
+      "rankGroups": [
+        [
+          "audit-fluentd"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-insufficient-evidence-audit-fluentd-edb8d027ad"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-fluentd"
+      ],
+      "rankGroups": [
+        [
+          "audit-fluentd"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-popularity-evidence-audit-fluentd-286ea7b300"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-fluentd"
+      ],
+      "rankGroups": [
+        [
+          "audit-fluentd"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-partial-evidence-audit-fluentd-33fcc697e9"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-pino",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "audit-winston",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-audit-06-incomparable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "audit-fluentd"
+      ],
+      "rankGroups": [
+        [
+          "audit-fluentd"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-37577aefa7"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-open-policy-agent"
+      ],
+      "rankGroups": [
+        [
+          "auth-open-policy-agent"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-37577aefa7"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-open-policy-agent"
+      ],
+      "rankGroups": [
+        [
+          "auth-open-policy-agent"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-hard-evidence-auth-casbin-node-casbin-5b94a68f90"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-casbin-node-casbin"
+      ],
+      "rankGroups": [
+        [
+          "auth-casbin-node-casbin"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-insufficient-evidence-auth-open-policy-agent-475ad70ed0"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-open-policy-agent"
+      ],
+      "rankGroups": [
+        [
+          "auth-open-policy-agent"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-popularity-evidence-auth-open-policy-agent-7742303658"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-open-policy-agent"
+      ],
+      "rankGroups": [
+        [
+          "auth-open-policy-agent"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-partial-evidence-auth-open-policy-agent-1e1e229891"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "auth-stalniy-casl",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-auth-06-tie",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "auth-open-policy-agent"
+      ],
+      "rankGroups": [
+        [
+          "auth-open-policy-agent"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-agenda-1e982f02dc"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-jobs-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-agenda"
+      ],
+      "rankGroups": [
+        [
+          "jobs-agenda"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-pair-evidence-jobs-agenda-1e982f02dc"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-jobs-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-agenda"
+      ],
+      "rankGroups": [
+        [
+          "jobs-agenda"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-hard-evidence-jobs-agenda-4c280dc6aa"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-jobs-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-agenda"
+      ],
+      "rankGroups": [
+        [
+          "jobs-agenda"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-insufficient-evidence-jobs-agenda-b891bf726e"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-jobs-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-agenda"
+      ],
+      "rankGroups": [
+        [
+          "jobs-agenda"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-popularity-evidence-jobs-agenda-130e0c7c66"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-jobs-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-agenda"
+      ],
+      "rankGroups": [
+        [
+          "jobs-agenda"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "jobs-agenda",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-partial-evidence-jobs-agenda-dca06c5637"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-graphile-worker",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "jobs-temporal-typescript",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-jobs-06-tie",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "jobs-agenda"
+      ],
+      "rankGroups": [
+        [
+          "jobs-agenda"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-kong-9c2c42983f"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-kong"
+      ],
+      "rankGroups": [
+        [
+          "rate-kong"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-pair-evidence-rate-kong-9c2c42983f"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-kong"
+      ],
+      "rankGroups": [
+        [
+          "rate-kong"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-hard-evidence-rate-envoy-ratelimit-cbcba69a95"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-envoy-ratelimit"
+      ],
+      "rankGroups": [
+        [
+          "rate-envoy-ratelimit"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-insufficient-evidence-rate-kong-051964128a"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-kong"
+      ],
+      "rankGroups": [
+        [
+          "rate-kong"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-popularity-evidence-rate-kong-e5513a4a38"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-kong"
+      ],
+      "rankGroups": [
+        [
+          "rate-kong"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-kong",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-partial-evidence-rate-kong-4c57a6b122"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-redis-cell",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-rate-06-incomparable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "rate-kong"
+      ],
+      "rankGroups": [
+        [
+          "rate-kong"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-c4ef823436"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-01-controlled-a",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-webhook-site"
+      ],
+      "rankGroups": [
+        [
+          "webhook-webhook-site"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-c4ef823436"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-02-controlled-b",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-webhook-site"
+      ],
+      "rankGroups": [
+        [
+          "webhook-webhook-site"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-hard-evidence-webhook-hookdeck-f484d14f22"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-03-no-viable",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-hookdeck"
+      ],
+      "rankGroups": [
+        [
+          "webhook-hookdeck"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-insufficient-evidence-webhook-webhook-site-bd9ece0e5a"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-04-insufficient",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-webhook-site"
+      ],
+      "rankGroups": [
+        [
+          "webhook-webhook-site"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-popularity-evidence-webhook-webhook-site-621c608b85"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-05-popularity-over-fit",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-webhook-site"
+      ],
+      "rankGroups": [
+        [
+          "webhook-webhook-site"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    },
+    {
+      "appliedPreferenceIds": [],
+      "candidates": [
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-stripe-node",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "rejected",
+          "evidenceIds": [],
+          "reasonCodes": [
+            "negative-control-rejected"
+          ],
+          "unknownIds": []
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-partial-evidence-webhook-webhook-site-412b356dce"
+          ],
+          "reasonCodes": [
+            "negative-control-promoted-known-conflict"
+          ],
+          "unknownIds": []
+        }
+      ],
+      "caseId": "rank-webhook-06-tie",
+      "evidenceNeededResolutions": [],
+      "hardConstraintConflicts": [],
+      "hardenedPreferenceIds": [],
+      "ignoredPreferenceIds": [],
+      "incomparablePairs": [],
+      "outcome": "recommend",
+      "presentation": [
+        "webhook-webhook-site"
+      ],
+      "rankGroups": [
+        [
+          "webhook-webhook-site"
+        ]
+      ],
+      "rankRelations": [],
+      "successConditionCoverage": []
+    }
+  ],
+  "semanticDigest": "7689ef2451f0c9a69b19bcb11de7e464951630fed20c50904d13d119912ba2b9"
+}

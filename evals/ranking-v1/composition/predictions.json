@@ -1,0 +1,309 @@
+{
+  "baseline": "composition-all-insufficient-without-m3-authority",
+  "cases": [
+    {
+      "candidateCount": 10,
+      "candidates": [
+        {
+          "candidateId": "auth-aserto-topaz",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-authzed-spicedb",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-casbin-casbin",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-casbin-casbin-js",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-casbin-node-casbin",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-open-policy-agent",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-ory-keto",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "auth-warrant",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        }
+      ],
+      "eligibleCount": 10,
+      "evidenceNeededCount": 0,
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-authorization-01",
+      "targetAuthorityDigest": "4168b9935da13f489431d7ac53560982b15e6962a93c10c16a2ad39af403030d"
+    },
+    {
+      "candidateCount": 10,
+      "candidates": [
+        {
+          "candidateId": "audit-bunyan",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-cabin",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-express-morgan",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-fluent-bit",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-fluentd",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-google-logging-winston",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-grafana-loki",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-log4js",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-logdna-logger",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "audit-pgaudit",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        }
+      ],
+      "eligibleCount": 10,
+      "evidenceNeededCount": 0,
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-audit-logging-01",
+      "targetAuthorityDigest": "67e44eab798bf44e2e5bb03f9183e8d2665ca5adeb481602ade30112326ef88a"
+    },
+    {
+      "candidateCount": 10,
+      "candidates": [
+        {
+          "candidateId": "jobs-actionhero-node-resque",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-activepieces",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-asynq",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-bullmq",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-node-cron",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-resque",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-river",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-rq",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-sidekiq",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "jobs-trigger-dev",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        }
+      ],
+      "eligibleCount": 10,
+      "evidenceNeededCount": 0,
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-background-jobs-01",
+      "targetAuthorityDigest": "f76b047c7a18e6dd1e6c0011ecd8bda165d18fbf5a35a6b48fe2b0ad68b7a7da"
+    },
+    {
+      "candidateCount": 10,
+      "candidates": [
+        {
+          "candidateId": "rate-bottleneck",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-envoy-ratelimit",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-express-rate-limit",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-fastify-rate-limit",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-governor",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-gubernator",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-limiters",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-nestjs-throttler",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-node-rate-limiter-flexible",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "rate-upstash",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        }
+      ],
+      "eligibleCount": 10,
+      "evidenceNeededCount": 0,
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-rate-limiting-01",
+      "targetAuthorityDigest": "eed9c372dc48354df80d733a8c36c322abc78f96bdcbc8068acffe70255b8483"
+    },
+    {
+      "candidateCount": 10,
+      "candidates": [
+        {
+          "candidateId": "webhook-adnanh",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-convoy",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-go-playground",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-hook0",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-hookdeck",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-octokit-methods",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-octokit-webhooks",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-standard-webhooks",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        },
+        {
+          "candidateId": "webhook-webhook-site",
+          "disposition": "insufficient-evidence",
+          "lane": "eligible"
+        }
+      ],
+      "eligibleCount": 10,
+      "evidenceNeededCount": 0,
+      "outcome": "insufficient-evidence",
+      "retrievalQueryCaseId": "ret-webhooks-01",
+      "targetAuthorityDigest": "2eddd0accf5d515e9c6fa3bd5611cedfce59ae85af3ec7adbf238c3a12b89538"
+    }
+  ],
+  "predictionVersion": "ranking-v1-composition-prediction/1.0.0",
+  "retrievalAuthority": "retrieval-v2",
+  "retrievalPredictionDigest": "c654395026508b88181723bdcc7160566ac983c6c5a8a61c4c0650296d22ac82",
+  "semanticDigest": "5db6e138e4737737f2f318058f06b17226df4ef886cb08ac077218610a4654b1"
+}

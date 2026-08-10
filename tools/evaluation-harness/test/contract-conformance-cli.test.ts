@@ -35,7 +35,7 @@ describe('product contract conformance CLI', () => {
     expect(exitCode).toBe(CONTRACT_CONFORMANCE_EXIT_CODES.success);
     expect(capture.errors).toEqual([]);
     expect(capture.logs).toEqual([
-      'Product contract conformance passed (10 cases, 40 supplied candidates, proposed/not-reviewed, representability-only).',
+      'Product contract conformance passed (10 cases, 40 supplied candidates, proposed/not-reviewed, representability-only; ranking-v1 30 cases, 150 supplied candidates, proposed/not-reviewed, representability-and-mapping-completeness-only).',
     ]);
   });
 

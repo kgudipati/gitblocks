@@ -1,0 +1,118 @@
+{
+  "caseCount": 30,
+  "corpusId": "ranking-v1",
+  "corpusSemanticDigest": "3547247c4b406f6deeb5462dd073515b8dc610caf1b1d8f6882733af1aa1245a",
+  "corpusVersion": "1.0.0",
+  "evidenceCutoff": "2026-08-10",
+  "familyCounts": {
+    "audit-logging": 6,
+    "authorization": 6,
+    "background-jobs": 6,
+    "rate-limiting": 6,
+    "webhooks": 6
+  },
+  "files": [
+    {
+      "kind": "audit-classification",
+      "path": "audit/case-classifications.json",
+      "sha256": "233cc33d971e7d817387b5b08b71bc588921e70cedc1174af172920c121eca97"
+    },
+    {
+      "kind": "baseline-prediction",
+      "path": "baselines/predictions/all-insufficient.json",
+      "sha256": "3dd69963dafe91d1b527b8aa7025317734f731addeb68ee6a28da0e285cd829f"
+    },
+    {
+      "kind": "baseline-prediction",
+      "path": "baselines/predictions/hard-conflict-control.json",
+      "sha256": "c0d13cdc16a625e008ad3d8acc994096cc04f382d64d5287426b5b5c6b22f6c9"
+    },
+    {
+      "kind": "baseline-prediction",
+      "path": "baselines/predictions/retrieval-order.json",
+      "sha256": "390ae0fac7606c64bce13fea672f0717b30c25ec6611ae070cd716f5baedb3c0"
+    },
+    {
+      "kind": "baseline-prediction",
+      "path": "baselines/predictions/target-aware.json",
+      "sha256": "f9c6617bedf015cce82f39b022c624bc70383c7c7c49ffd4ea5a63d1d0be5cf0"
+    },
+    {
+      "kind": "baseline-prediction",
+      "path": "baselines/predictions/target-blind.json",
+      "sha256": "4799148fd0fe93be274ef09b79b825059a231cfaf7d5f351b0c9e62e17d33b06"
+    },
+    {
+      "kind": "baseline-specifications",
+      "path": "baselines/specifications.json",
+      "sha256": "40fb598e7fc6604194f629e469eeab072ef53de0fe85d726053e9d316326d153"
+    },
+    {
+      "kind": "blind-cases",
+      "path": "blind/cases.json",
+      "sha256": "d5180c309894365045e3105cc2f3da8f9eab7e7bfd2d289a235856fa55ce040f"
+    },
+    {
+      "kind": "composition-input",
+      "path": "composition/blind-inputs.json",
+      "sha256": "147de10d51bbddcdb730c97ef5281858fea85c7e53658e0a70cdafd91fd7958a"
+    },
+    {
+      "kind": "composition-gold",
+      "path": "composition/gold.json",
+      "sha256": "3e7ac042f9f43aaf6249151644fae2858d598b12290350fafe657f49b7ad1b81"
+    },
+    {
+      "kind": "composition-prediction",
+      "path": "composition/predictions.json",
+      "sha256": "17b050bd327a6ac1cd64f16c6145ba17875affe86e56580c128c31a2274ddc96"
+    },
+    {
+      "kind": "candidate-evidence",
+      "path": "evidence/candidate-evidence.json",
+      "sha256": "b7d696ac72eca313811d7b31e4e3c315c7b84b0611fa65b083b5f2627200fe02"
+    },
+    {
+      "kind": "scorer-fixture-summary",
+      "path": "fixtures/scorer-fixture-summary.json",
+      "sha256": "83851c16a0ab64cd7c36cd0309eb116972aa7edc953cd38951cf4412353d6b74"
+    },
+    {
+      "kind": "gate-review-input",
+      "path": "gates/proposed-review-inputs.json",
+      "sha256": "e149d8c7eafd545f853010adfa56f5160596c12cb7f4e54209f8baa2cb2cea9d"
+    },
+    {
+      "kind": "proposed-gold",
+      "path": "gold/outcomes.json",
+      "sha256": "3a47634dd3c929bc54f2d7496e84e35954092d9caf643e32d1afcec1a109db2c"
+    },
+    {
+      "kind": "phase9-handoff",
+      "path": "handoff/phase9-lanes.json",
+      "sha256": "1cf1b6251df3834522a83526e2caf9e44b0cf9a9f03f17538a0f1698e207da2d"
+    },
+    {
+      "kind": "baseline-report",
+      "path": "reports/baseline-report.json",
+      "sha256": "010ee24a9688b5c3f46760c9dd466e35abcfe988aeb51c82436b0377c96a4ec7"
+    },
+    {
+      "kind": "composition-report",
+      "path": "reports/composition-report.json",
+      "sha256": "7593edbeb7f799c3e5fba58c1ab8832e98158dd4538be78cbf47d2cfdf05f416"
+    },
+    {
+      "kind": "performance-reference",
+      "path": "reports/performance-reference.json",
+      "sha256": "1615fe27df75f0c700001665d8dddc11f5ce402dacd2cfede5aab5eb765239e4"
+    },
+    {
+      "kind": "review-record",
+      "path": "reviews/proposed-review-record.json",
+      "sha256": "2d567cc375107e55b1bf83444290da51bd7944c1dce9131239307c19b7121c60"
+    }
+  ],
+  "manifestVersion": "ranking-v1-manifest/1.0.0",
+  "status": "proposed-independent-review-pending"
+}
