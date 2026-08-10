@@ -8,26 +8,30 @@
 - Draft PR:
   [#33 — docs(ranking): establish Phase 10 governance](https://github.com/kgudipati/gitblocks/pull/33)
 - Owner: repository maintainer
-- State: initial Milestone 1 governance was published at
-  `0b1ffc160be76a93b6a72c1fafa622d305a980ec`; natural hosted CI run
-  `31415154596` passed. Independent review accepted the direction and returned
-  three findings now addressed on the same shared branch. Milestone 1 awaits
-  independent rereview; no later milestone is authorized.
+- State: Milestone 1 architecture is independently accepted at exact commit
+  `6d43861ead6889f706c82b25fcd3d301acb6c4f3`. The maintainer accepted the
+  documented hosted-infrastructure exception for natural run `31416900337`:
+  all six repository-verification workers passed, while the compatibility
+  aggregate did not execute because of GitHub's account billing/spending-limit
+  condition. Publication of this bookkeeping record authorizes Milestone 2
+  only; Milestones 3 through 6 remain unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-10
 
-Issue #32 is the requirements authority. Proposed
+Issue #32 is the requirements authority. Accepted
 [ADR 0011](../architecture/decisions/0011-codebase-conditioned-ranking.md)
-owns the durable architecture after independent acceptance. ADR 0010 is
+owns the durable architecture. ADR 0010 is
 already accepted retrieval-v2 history and is not available for reuse. This
 plan owns execution order, independent review gates, exact validation,
 publication, and progress evidence. Accepted ADRs, the product contract,
 repository engineering policy, and the governing issue win if they conflict.
 
-Milestone 1 is documentation and governance only. Its branch does not authorize
-ranking product code, ranking evaluation authority, candidate collection, a
-provider/model call, a benchmark, database mutation, or any later milestone.
+Milestone 1 was documentation and governance only. Its accepted architecture
+commit does not contain ranking product code, ranking evaluation authority,
+candidate collection, a provider/model call, a benchmark, or database
+mutation. Publication of this bookkeeping descendant authorizes only the
+bounded Milestone 2 authority below; it does not begin that work.
 
 ## Purpose and user-visible outcome
 
@@ -49,8 +53,9 @@ relations, and incomparable pairs. V1 is deterministic, model-free, and does
 not emit a universal repository score or numeric confidence.
 
 The observable result of Milestone 1 is narrower: an open governing issue, one
-issue-linked branch, this execution plan, proposed ADR 0011, bounded status
-documentation, and a draft PR stopped at independent architecture review.
+issue-linked branch, this execution plan, accepted ADR 0011, bounded status
+documentation, and a draft PR retaining the independently accepted
+architecture and its publication evidence.
 
 ## Verified current repository state
 
@@ -112,10 +117,71 @@ ordinary workers passed: `Standalone Typecheck`,
 `Verification` job also passed. The run was inspected read-only and was not
 rerun.
 
-The branch and PR remain stopped at Milestone 1 independent review. This
-correction does not mark M1 accepted, make the PR ready, or authorize M2. Final
-M1 acceptance requires a successful natural hosted CI run for the final
-correction commit as well as independent rereview of the corrected governance.
+Natural correction-head run
+[`31416900337`](https://github.com/kgudipati/gitblocks/actions/runs/31416900337)
+completed for exact architecture commit
+`6d43861ead6889f706c82b25fcd3d301acb6c4f3`. All six
+repository-verification workers completed successfully:
+`Verification — Core Product Tests`, `Verification — Tooling Tests`,
+`Verification — Static and Authorities`, `Standalone Typecheck`,
+`Verification — Interview and Operator Tests`, and `Database and Audit`.
+
+The aggregate `Verification` job retained conclusion `failure`; it did not
+execute its compatibility-gate work because GitHub reported that recent
+account payments had failed or the spending limit needed to be increased. The
+repository testing strategy establishes that this aggregate checks out no
+repository, installs nothing, and performs no additional product or test
+verification; it only requires the underlying ordinary verification-worker
+conclusions. No rerun or dispatch occurred. The maintainer independently
+accepted Milestone 1 at that exact architecture commit under the repository's
+documented hosted-infrastructure-exception precedent. This record does not
+relabel the aggregate as successful.
+
+Milestone 1 is accepted. Publication of this bookkeeping descendant authorizes
+Milestone 2 within its bounded scope below. The draft PR remains open,
+unmerged, and not ready; Issue #32 remains open. Milestones 3 through 6 remain
+unauthorized.
+
+### Phase 10 GitHub Actions conservation policy
+
+For Milestones 2 through 5, contributors must not request, rerun, dispatch, or
+intentionally trigger GitHub Actions. They must not modify
+`.github/workflows/ci.yml` merely to suppress CI and must not weaken repository
+verification requirements. The canonical local verification commands and each
+milestone's accepted local evidence remain authoritative.
+
+Every published implementation commit intended not to trigger the existing
+pull-request workflow must carry `[skip actions]` in its commit message and use
+ordinary non-force history. The governing plan must retain exact local command
+results, digests, counts, and clean-worktree evidence. Skipped or pending
+hosted checks are not product-quality evidence and may not be reported as
+passed. Independent acceptance remains required before the next milestone.
+
+This is a Phase 10 implementation-period resource policy, not permanent CI
+removal. Milestone 6 owns the final hosted-proof and merge posture. A future
+hosted run requires explicit maintainer authorization. If hosted Actions remain
+unavailable at closure, any final infrastructure exception requires separate
+independent review and documentation.
+
+### Authorized Milestone 2 boundary
+
+After this bookkeeping record is published, Milestone 2 may add only the
+additive `ranking-v1` evaluation authority; the proposed 30 cases, exactly six
+per supported family unless independent evidence justifies a bounded
+pre-freeze correction; additive scorer support; independent gold review and
+adjudication; gold-blind baselines; separate fixed-candidate and
+retrieval-to-ranking composition evaluation; exact quality, safety, and
+performance/resource gates; and the frozen choice of either 13/18 or 14/18 as
+the decision-bearing deterministic-readiness minimum.
+
+Milestone 2 does not authorize `@gitblocks/ranking`, production ranking,
+candidate-authority collection, Milestone 3 provider calls, candidate-evidence
+publication, model/interview calls, a database migration,
+vector/index/cache/search infrastructure, MCP/API/Skill work, production
+ranking output, or production ranking benchmarking. Milestone 3 cannot begin
+until Milestone 2 independently freezes and accepts its complete authority,
+including the exact readiness minimum before any M3 effect, output, or coverage
+observation.
 
 ## Scope and explicit non-goals
 
@@ -173,7 +239,7 @@ dependency, database mutation, and completion evidence for a later milestone.
 | ranking-v1 corpus and separate tracks        | ADR 0011 evaluation section                   | M2 authority; M6 measurements                   |
 | gate/baseline/review protocol                | ADR 0011 acceptance sections                  | M2 frozen records                               |
 | exact milestone sequence                     | ADR 0011 and this plan                        | prior-milestone acceptance records              |
-| publication and natural hosted CI            | published-state section and PR #33            | exact-head CI plus independent M1 rereview      |
+| publication and hosted-CI adjudication       | published-state section and PR #33            | exact-head workers plus accepted M1 exception   |
 
 ## Assumptions, risks, and unresolved decisions
 
@@ -249,9 +315,9 @@ milestone is independently accepted.
   Phase 9 result lanes, bounds, provenance, and retrieval semantics unchanged.
 - [ADR 0010](../architecture/decisions/0010-reviewed-retrieval-v2-authority.md):
   retrieval-v2 remains Phase 9 evaluation authority and is not ranking gold.
-- Proposed
+- Accepted
   [ADR 0011](../architecture/decisions/0011-codebase-conditioned-ranking.md):
-  owns Phase 10 architecture after acceptance.
+  owns the accepted Phase 10 architecture.
 - `CapabilityQueryInputV1`, `CapabilityQueryNormalizationResultV1`,
   `CapabilityRequestV1`, `RepositoryFingerprintV1`, `CandidateDossierV1`,
   `FitAssessmentRequestV1`, `FitAssessmentResponseV1`, deterministic profile,
@@ -608,17 +674,20 @@ quality, or service exists.
 
 ### Milestone 1 — Governance and accepted architecture
 
-Files are limited to Issue/PR metadata, this plan, proposed ADR 0011, README,
+Files are limited to Issue/PR metadata, this plan, ADR 0011, README,
 product contract, and system context. Verify exact base and absence gates;
 freeze boundaries, denominators, evidence bridge, query binding, algorithm,
 evaluation/gate protocols, triggers, and later sequence; run documentation and
 repository validation; commit/push normally; open a draft PR; stop for
 independent review.
 
-Exit: independent review accepts Issue #32, the plan, proposed ADR, intended
-diff, final correction-head natural CI, and validation. Acceptance may change
-ADR 0011 to accepted and authorizes M2 only. It does not accept ranking behavior
-or authority.
+Exit: independent review accepts Issue #32, the plan, ADR, intended diff,
+final correction-head hosted evidence or an explicitly adjudicated
+infrastructure exception, and validation. Acceptance changes ADR 0011 to
+accepted and authorizes M2 only. It does not accept ranking behavior or
+authority. This exit was accepted at exact architecture commit
+`6d43861ead6889f706c82b25fcd3d301acb6c4f3` under the hosted exception recorded
+above.
 
 ### Milestone 2 — Independently reviewed ranking-v1 authority and gates
 
@@ -774,8 +843,10 @@ reviewed durable-product trigger in ADR 0011.
   not.
 - Every M1 validation command exits successfully without tracked mutation.
 - A draft PR is open, remains draft, and does not claim later work.
-- Natural hosted CI for the final correction head passes every ordinary worker
-  and the aggregate verification job without rerun or policy weakening.
+- All six repository-verification workers passed for exact correction head
+  `6d43861ead6889f706c82b25fcd3d301acb6c4f3`; the aggregate's non-execution and
+  billing/spending-limit failure are retained as a documented, independently
+  accepted hosted-infrastructure exception rather than a passed check.
 - Independent review has no unresolved material product, architecture,
   security, evaluation, or scope finding.
 - The maintainer explicitly accepts M1 before M2 begins.
@@ -822,8 +893,11 @@ reviewed durable-product trigger in ADR 0011.
 - [x] 2026-08-10 — Corrected only Plan 0032 and proposed ADR 0011, synchronized
       Issue #32, and completed the first correction-specific local validation
       pass without tracked mutation or M2 work.
-- [ ] Independent rereview accepts the correction commit and its natural CI and
-      explicitly authorizes M2.
+- [x] 2026-08-10 — Independent maintainer review accepted Milestone 1 at exact
+      architecture commit `6d43861ead6889f706c82b25fcd3d301acb6c4f3`,
+      including the criterion-binding and readiness-timing corrections and the
+      documented hosted-infrastructure exception. Publication of the
+      bookkeeping descendant authorizes M2; no M2 work began in that commit.
 - [ ] M2 independently accepted.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
@@ -864,6 +938,21 @@ reviewed durable-product trigger in ADR 0011.
   Reason: ADR 0010 is accepted retrieval-v2 authority and immutable accepted
   history. Issue #32 was corrected before documentation publication. Owner:
   repository authority.
+- 2026-08-10 — Accept Milestone 1 at exact architecture commit
+  `6d43861ead6889f706c82b25fcd3d301acb6c4f3`. Reason: independent maintainer
+  review accepted the architecture and both corrections. Owner: repository
+  maintainer.
+- 2026-08-10 — Accept hosted run `31416900337` under the documented
+  infrastructure-exception precedent. All six repository-verification workers
+  passed; the aggregate retained `failure` because GitHub did not execute its
+  compatibility work under an account billing/spending-limit condition. The
+  aggregate is not relabeled as passed, and no rerun occurred. Owner:
+  repository maintainer.
+- 2026-08-10 — Conserve GitHub Actions for M2–M5. Use canonical local evidence,
+  ordinary non-force publication, and `[skip actions]` on intended published
+  implementation commits; do not weaken workflow or review requirements.
+  Milestone 6 retains final hosted-proof/exception responsibility. Owner:
+  repository maintainer.
 
 ## Validation evidence
 
@@ -923,3 +1012,33 @@ content. The exact matrix is rerun after this evidence entry and before the
 correction commit. No TypeScript, schema, evaluation corpus/authority,
 candidate authority, package, provider/model, benchmark, database, migration,
 dependency, merge, or Milestone 2 action occurred.
+
+### Milestone 1 acceptance-bookkeeping validation
+
+On 2026-08-10, acceptance bookkeeping began from a clean local/remote shared
+branch at exact accepted architecture commit
+`6d43861ead6889f706c82b25fcd3d301acb6c4f3`; both merge-base checks remained
+the accepted base `a6e03ef20a8cef2a39db8e66b91612245378f9db`.
+
+The first formatting check identified only expected Markdown wrapping in this
+new plan text. The formatter changed this plan only as an intentional edit;
+ADR 0011 was already formatted. The complete final validation matrix was then
+run against the final formatted content:
+
+| Command                 | Exit/result                                                                                                                                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm runtime:check`    | `0`; pinned runtime preflight passed                                                                                                                                                                           |
+| `pnpm format:check`     | `0`; all matched files use Prettier style                                                                                                                                                                      |
+| `pnpm repo:check`       | `0`; repository checks passed                                                                                                                                                                                  |
+| `pnpm verify`           | `0`; 130 test files and 1,949 tests passed, zero dependency violations across 886 modules/3,016 dependencies, and all repository/evaluation/contract/taxonomy/profile/catalog/interview/pre-live checks passed |
+| `pnpm security:secrets` | `0`; secretlint passed                                                                                                                                                                                         |
+| `pnpm security:audit`   | `0`; no known vulnerabilities found at moderate audit level                                                                                                                                                    |
+| `git diff --check`      | `0`; no whitespace errors                                                                                                                                                                                      |
+
+The verification diff digest before and after `pnpm verify` was
+`d1185fd6db0d2f97af1fccbdc0d8ef92cea22108a0fd1aee4b0d0e1ebf92c69e`; the
+command changed no tracked content. The complete matrix is rerun once more
+after this evidence entry and before the bookkeeping commit. Only this plan
+and ADR 0011 change. No GitHub Actions request, rerun, or dispatch and no
+product, evaluation, candidate-authority, provider/model, benchmark, database,
+migration, dependency, or Milestone 2 action occurred.

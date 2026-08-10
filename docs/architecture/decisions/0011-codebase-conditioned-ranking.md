@@ -1,8 +1,12 @@
 # ADR 0011: Establish codebase-conditioned ranking
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-08-10
 - Decision owners: GitBlocks maintainers
+- Accepted architecture commit:
+  `6d43861ead6889f706c82b25fcd3d301acb6c4f3`
+- Acceptance authority: independent maintainer decision recorded under Issue
+  #32
 - Governing issue:
   [#32 — Phase 10: Establish codebase-conditioned OSS ranking](https://github.com/kgudipati/gitblocks/issues/32)
 - Execution plan:
@@ -697,8 +701,10 @@ separate issue and ADR after one of these measured triggers:
    performance, memory, readiness, and architecture proofs. Independent closure
    is required.
 
-There is no automatic model or repository-interview milestone. The governance
-branch authorizes only Milestone 1 documentation.
+There is no automatic model or repository-interview milestone. Independent
+acceptance of this ADR at the exact architecture commit above authorizes only
+Milestone 2 after its acceptance-bookkeeping descendant is published;
+Milestones 3 through 6 remain gated by the sequence above.
 
 ## Consequences
 
