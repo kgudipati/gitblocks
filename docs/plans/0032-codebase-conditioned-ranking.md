@@ -5,9 +5,14 @@
 - Governing issue:
   [#32 — Phase 10: Establish codebase-conditioned OSS ranking](https://github.com/kgudipati/gitblocks/issues/32)
 - Branch: `feat/32-codebase-conditioned-ranking`
+- Draft PR:
+  [#33 — docs(ranking): establish Phase 10 governance](https://github.com/kgudipati/gitblocks/pull/33)
 - Owner: repository maintainer
-- State: Milestone 1 governance is proposed and awaits independent review.
-  No later milestone is authorized.
+- State: initial Milestone 1 governance was published at
+  `0b1ffc160be76a93b6a72c1fafa622d305a980ec`; natural hosted CI run
+  `31415154596` passed. Independent review accepted the direction and returned
+  three findings now addressed on the same shared branch. Milestone 1 awaits
+  independent rereview; no later milestone is authorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-10
@@ -88,6 +93,30 @@ Repository inspection also established:
 - the only migrations are `0001` through `0004`; and
 - no production ranking command or package exists.
 
+### Published Milestone 1 state
+
+Issue #32 is open. Branch `feat/32-codebase-conditioned-ranking` was created
+from exact accepted base `a6e03ef20a8cef2a39db8e66b91612245378f9db`, was
+pushed normally without rebase or force, and is the head branch of open draft
+PR #33. The initial publication head before this independent-review correction
+was `0b1ffc160be76a93b6a72c1fafa622d305a980ec`.
+
+Natural pull-request CI run
+[`31415154596`](https://github.com/kgudipati/gitblocks/actions/runs/31415154596)
+completed successfully for that exact head at `2026-08-10T17:46:29Z`. All six
+ordinary workers passed: `Standalone Typecheck`,
+`Verification — Static and Authorities`,
+`Verification — Core Product Tests`,
+`Verification — Interview and Operator Tests`,
+`Verification — Tooling Tests`, and `Database and Audit`. The aggregate
+`Verification` job also passed. The run was inspected read-only and was not
+rerun.
+
+The branch and PR remain stopped at Milestone 1 independent review. This
+correction does not mark M1 accepted, make the PR ready, or authorize M2. Final
+M1 acceptance requires a successful natural hosted CI run for the final
+correction commit as well as independent rereview of the corrected governance.
+
 ## Scope and explicit non-goals
 
 ### Milestone 1 scope
@@ -132,9 +161,10 @@ dependency, database mutation, and completion evidence for a later milestone.
 | eligible/evidence-needed/excluded lanes      | ADR 0011, handoff and resolution closure      | M1 review; M4 contract tests; M5 behavior tests |
 | retrieval-score non-use                      | ADR 0011 handoff and safety gates             | M1 review; M4/M5 negative tests                 |
 | approved query transition                    | versioned binding in ADR 0011                 | M4 contract/mapping tests                       |
+| controlled ranking-criterion binding         | additive bounded authority in ADR 0011        | M4 contract tests; M5 behavior tests            |
 | fit evidence bridge                          | paired profile/evidence authority in ADR 0011 | M3 conformance; M5 traceability                 |
 | two denominators and fact origins            | ADR 0011 denominator/readiness tables         | M1 review; M3 generated report                  |
-| 70–80% decision readiness                    | closure policy in ADR 0011                    | M3 evidence and M6 gate                         |
+| 70–80% decision readiness                    | pre-M3 temporal policy in ADR 0011            | M2 freeze; M3 measurement; M6 gate              |
 | request-conditioned criteria                 | ADR 0011 comparison hierarchy                 | M5 pairwise/property tests                      |
 | target facts and missing candidate authority | ADR 0011 target/authority sections            | M3/M5 evidence                                  |
 | package/dependencies and envelope            | ADR 0011 ownership section                    | M4 architecture checks                          |
@@ -143,6 +173,7 @@ dependency, database mutation, and completion evidence for a later milestone.
 | ranking-v1 corpus and separate tracks        | ADR 0011 evaluation section                   | M2 authority; M6 measurements                   |
 | gate/baseline/review protocol                | ADR 0011 acceptance sections                  | M2 frozen records                               |
 | exact milestone sequence                     | ADR 0011 and this plan                        | prior-milestone acceptance records              |
+| publication and natural hosted CI            | published-state section and PR #33            | exact-head CI plus independent M1 rereview      |
 
 ## Assumptions, risks, and unresolved decisions
 
@@ -168,29 +199,35 @@ dependency, database mutation, and completion evidence for a later milestone.
 
 ### Risks and controls
 
-| Risk                                                | Control and latest resolution point                                                    |
-| --------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| structural fields inflate readiness                 | independently review both frozen denominators in M1; decision gate uses only 18 fields |
-| human/model judgment mislabeled deterministic       | source-origin report and extraction-rule proof in M3                                   |
-| profile values bypass evidence traceability         | field-to-observation bridge and dossier conformance required in M3/M5                  |
-| query approval loses or hardens intent              | exact source-to-request binding and negative contract tests in M4                      |
-| missing target/candidate evidence becomes favorable | unknown/insufficient fail-closed rules in M5                                           |
-| arbitrary top-three truncation                      | complete-group overflow rule and permutation tests in M5                               |
-| evaluation leakage or post-score gate setting       | gold-blind baselines and independently frozen M2 gates before output                   |
-| old database/dossier state assumed recoverable      | M3 committed authority must construct every dossier without it                         |
-| Phase 9 metadata is repurposed opportunistically    | new projection requires independent source/semantic review; no current consumed use    |
-| 30 cases overclaim generality                       | exact counts reported; no statistical-representativeness claim                         |
+| Risk                                                | Control and latest resolution point                                                                  |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| structural fields inflate readiness                 | independently review both frozen denominators in M1; decision gate uses only 18 fields               |
+| human/model judgment mislabeled deterministic       | source-origin report and extraction-rule proof in M3                                                 |
+| profile values bypass evidence traceability         | field-to-observation bridge and dossier conformance required in M3/M5                                |
+| query approval loses or hardens intent              | exact source-to-request binding and negative contract tests in M4                                    |
+| free-form criterion prose becomes ranking semantics | exact criterion-binding closure; prose remains inert; unbound material success fails closed in M4/M5 |
+| missing target/candidate evidence becomes favorable | unknown/insufficient fail-closed rules in M5                                                         |
+| arbitrary top-three truncation                      | complete-group overflow rule and permutation tests in M5                                             |
+| evaluation leakage or post-score gate setting       | gold-blind baselines and independently frozen M2 gates before output                                 |
+| old database/dossier state assumed recoverable      | M3 committed authority must construct every dossier without it                                       |
+| Phase 9 metadata is repurposed opportunistically    | new projection requires independent source/semantic review; no current consumed use                  |
+| 30 cases overclaim generality                       | exact counts reported; no statistical-representativeness claim                                       |
+| readiness threshold is chosen after M3 coverage     | exact 13/18 or 14/18 choice freezes in accepted M2 policy before any M3 effect/output                |
 
 ### Decisions deliberately left to later independent review
 
 - M2 freezes the exact additive evaluation schema changes, case identities,
   review record, scorer changes, baseline outputs, numeric quality gates, and
-  performance/resource budgets before production output.
+  performance/resource budgets before production output. The same independent
+  M2 acceptance must select and digest either 13/18 (72.222222%) or 14/18
+  (77.777778%) as the exact readiness minimum before M3 begins; M3 coverage is
+  unavailable to that choice.
 - M3 freezes the exact candidate-authority contract names, accepted source
-  cutoffs/completeness, final deterministic readiness threshold within the
-  70–80% band, and any human-reviewed structured facts needed for non-numeric
-  fit claims.
-- M4 freezes additive product schema details and algorithm/policy identifiers
+  cutoffs/completeness, and any human-reviewed structured facts needed for
+  non-numeric fit claims, then measures coverage against the pre-frozen M2
+  threshold.
+- M4 freezes additive product schema details—including the final name/shape of
+  the bounded ranking-criterion binding—and algorithm/policy identifiers
   without changing the architecture in ADR 0011.
 - Controlled-vocabulary additions are allowed only when a concrete accepted
   request/target/candidate comparison requires them.
@@ -221,9 +258,9 @@ milestone is independently accepted.
   candidate-constraint, and Phase 9 retrieval contracts are reused without
   changing their meanings.
 
-The future approved-query binding, evidence-needed resolution records,
-candidate evidence authority, and ranking execution envelope are additive.
-Milestone 1 adds none of their schemas.
+The future approved-query binding, bounded ranking-criterion binding,
+evidence-needed resolution records, candidate evidence authority, and ranking
+execution envelope are additive. Milestone 1 adds none of their schemas.
 
 ## Architecture, data-flow, and performance impact
 
@@ -232,6 +269,7 @@ Milestone 1 adds none of their schemas.
 ```text
 approved query normalization + transmission approval
   -> authoritative CapabilityRequestV1 binding
+  -> approved controlled ranking-criterion bindings
 authoritative RepositoryFingerprintV1
 accepted Phase 9 retrieval request/result
   -> eligible + evidence-needed candidates only
@@ -270,6 +308,37 @@ normalization, family, success conditions, required/prohibited constraint
 preservation, preferred-to-preference mapping, non-invention, candidate
 references, scoped approval, and fingerprint binding. Approval happens
 upstream; ranking verifies it.
+
+The future bounded `ranking-criterion-binding/1.0.0` authority—final schema name
+subject to M4 review—then provides exactly one record for every request success
+condition and preference. Each record binds its criterion kind/ID; source query,
+normalization, request, and approved-query binding IDs/digests; controlled
+facet; concept/rule identity when available; bounded target-fact,
+candidate-field, and evidence dependencies; approved semantic-binding
+rule/version; deterministic-normalization, explicit-structured-approval, or
+unbound provenance; success-condition materiality; and canonical digest.
+
+Controlled facet/concept/rule/dependency values are nullable or empty only for
+an explicitly unbound record. Current normalization preserves success-condition
+statements but does not create controlled semantics, so preservation alone
+cannot claim deterministic-normalization provenance.
+
+Ranking never derives those semantics from statement prose. A normalized
+preferred constraint may carry its controlled modality/facet/concept/source
+and rule identities through the approved-query transition into its preference
+binding. Other preferences require explicit upstream structured approval or
+remain unbound. No preference becomes hard.
+
+A success condition receives favorable coverage only through an accepted
+controlled binding plus proving candidate evidence. An unbound success
+condition cannot improve ordering; when material, or when approved
+non-materiality is absent, every candidate and the responsible outcome remain
+insufficient-evidence. Approved non-material unbound conditions remain
+disclosed without independently forcing insufficiency. An unbound preference
+cannot affect ordering and is disclosed as unresolved without independently
+forcing rejection or insufficiency. User or application approval remains
+upstream; ranking validates exact set/digest/approval closure and invents
+nothing.
 
 The evidence bridge pairs future profiles with committed fit-consumable
 observations. A known field plus a versioned compatibility rule and resolvable
@@ -371,11 +440,19 @@ committed known or deterministically not applicable under accepted
 freshness/version semantics. Unknown is never favorable.
 
 The 70–80% gate applies to the 18 decision-bearing fields. Current readiness is
-0/18 (0%). M3 must independently accept a threshold within the band and its
-authority. Synthetic/frozen vertical-slice work may follow prior milestone
-acceptance, but production quality cannot be claimed, the final benchmark
-cannot run, and Phase 10 cannot close until the readiness gate passes or ADR
-0011 is independently revised before product output is observed.
+0/18 (0%). The only exact integer thresholds inside the inclusive band are
+13/18 (72.222222%) and 14/18 (77.777778%); this correction does not choose
+between them. M2 independent acceptance must freeze exactly one count/percentage,
+denominator version, qualification rule, and policy digest before M3 begins and
+before any M3 provider collection, generation, or coverage output is performed
+or observed. The chooser cannot inspect M3 coverage first. Pre-freeze M3 output
+is inadmissible and blocks M3 pending independent disposition.
+
+Synthetic/frozen vertical-slice work may follow prior milestone acceptance, but
+production quality cannot be claimed, the final benchmark cannot run, and
+Phase 10 cannot close until the pre-frozen readiness gate passes. A later
+threshold/denominator revision requires independently reviewed ADR change
+before production output and cannot reinterpret historical evidence.
 
 ### Candidate evidence and authority boundary
 
@@ -402,9 +479,11 @@ completeness prove the exact consumed field—not to raise coverage.
 The comparison hierarchy is hard constraints, success conditions, explicit
 preferences, target-stack/infrastructure fit, general risk/evidence, then
 unsupported trade-offs. Hard conflict forces rejection; unresolved hard state
-forces insufficient evidence. Success-condition coverage requires favorable
-evidence. Preferences affect ordering only through approved preference
-bindings and supporting evidence; they never harden.
+forces insufficient evidence. Success-condition coverage requires an accepted
+controlled criterion binding and favorable evidence. An unbound material
+success condition forces insufficiency. Preferences affect ordering only
+through approved controlled preference bindings and supporting evidence; they
+never harden.
 
 Pairwise dominance requires no worse supported evidence at the same or higher
 priority and at least one justified better claim. Unprioritized trade-offs stay
@@ -449,12 +528,20 @@ dispositions, outcomes, evidence/reason traceability, unknown disclosure,
 no-viable and insufficient decisions, target controls, and evidence-needed
 transitions. Numeric confidence remains deferred.
 
+That same M2 acceptance selects either 13/18 (72.222222%) or 14/18
+(77.777778%) as the decision-bearing deterministic-readiness minimum using only
+the frozen denominator/readiness definition and independently reviewed
+architecture and evaluation—not M3 candidate coverage. M3 is effect- and
+output-blocked until the accepted policy commit exists.
+
 Zero-tolerance gates cover candidate/excluded leakage, unresolved-hard
 promotion, known-hard-conflict viability/recommendation, unsupported claims or
 broken references, retrieval/popularity/ID/order use, query-intent weakening or
-invention, authority mismatch, and evaluation-to-product dependency. Repeated
-calls, candidate permutations, and fresh processes must be exact and
-byte-identical under explicit time and canonical serialization.
+invention, free-text criterion interpretation, missing/extra/invented criterion
+bindings, favorable unbound coverage, silent material-unbound omission,
+authority mismatch, and evaluation-to-product dependency. Repeated calls,
+candidate permutations, and fresh processes must be exact and byte-identical
+under explicit time and canonical serialization.
 
 ### Maximum-result behavior
 
@@ -529,8 +616,9 @@ repository validation; commit/push normally; open a draft PR; stop for
 independent review.
 
 Exit: independent review accepts Issue #32, the plan, proposed ADR, intended
-diff, and validation. Acceptance may change ADR 0011 to accepted and authorizes
-M2 only. It does not accept ranking behavior or authority.
+diff, final correction-head natural CI, and validation. Acceptance may change
+ADR 0011 to accepted and authorizes M2 only. It does not accept ranking behavior
+or authority.
 
 ### Milestone 2 — Independently reviewed ranking-v1 authority and gates
 
@@ -542,7 +630,10 @@ statistical-representativeness claim. Include every case class fixed in ADR
 
 Freeze fixed-candidate and composition tracks separately. No production ranking
 output may be observed before authority, review, scorer, baselines, and gates
-freeze. Independent acceptance authorizes M3 only.
+freeze. Independently select and digest exactly 13/18 (72.222222%) or 14/18
+(77.777778%) as the deterministic-readiness minimum without M3 coverage. M3
+remains effect- and output-blocked until this complete policy is accepted.
+Independent M2 acceptance authorizes M3 only.
 
 ### Milestone 3 — Candidate-authority successor
 
@@ -551,27 +642,30 @@ the all-150 profile/evidence/dossier authority described above. Reuse accepted
 Phase 8 machinery. Validate origin, freshness, completeness, known/unknown/N/A
 cells, evidence resolution, negative claims, and both denominator reports.
 
-Independently accept the authority and readiness policy. If readiness remains
-below the accepted 70–80% threshold, M4/M5 may only use synthetic/frozen
-authority; final production measurement and closure remain blocked. M3
-acceptance authorizes M4 only.
+Measure the authority only against the M2-frozen readiness policy and
+independently accept the authority and result. If readiness remains below that
+threshold, M4/M5 may only use synthetic/frozen authority; final production
+measurement and closure remain blocked. The M3 team/process may not revise the
+threshold after seeing coverage. M3 acceptance authorizes M4 only.
 
 ### Milestone 4 — Pure ranking vertical slice and execution envelope
 
 After M3 acceptance, add the pure package and additive approved-query,
-retrieval-handoff, evidence-resolution, and execution-envelope contracts. Start
-with conformance/authentication, hard-state preservation, maximum-result
-bounds, deterministic identity, and a vertical slice against accepted
-synthetic/frozen authority. Add negative and architecture tests. Independent
-acceptance authorizes M5 only.
+criterion-binding, retrieval-handoff, evidence-resolution, and
+execution-envelope contracts. Start with conformance/authentication,
+criterion-ID closure, hard-state preservation, maximum-result bounds,
+deterministic identity, and a vertical slice against accepted synthetic/frozen
+authority. Add negative and architecture tests. Independent acceptance
+authorizes M5 only.
 
 ### Milestone 5 — Deterministic target-conditioned ranking
 
 After M4 acceptance, implement request-conditioned compatibility claims,
-success-condition/preference semantics, evidence-backed dispositions/reasons,
-responsible outcomes, ties, dominance, incomparability, and overflow behavior.
-Add pairwise, permutation, monotonicity, traceability, withheld-data, and abuse
-tests. Independent acceptance authorizes M6 only.
+bound success-condition/preference semantics, unbound-criterion fail-closed
+behavior, evidence-backed dispositions/reasons, responsible outcomes, ties,
+dominance, incomparability, and overflow behavior. Add pairwise, permutation,
+monotonicity, traceability, withheld-data, and abuse tests. Independent
+acceptance authorizes M6 only.
 
 ### Milestone 6 — Frozen proof and closure
 
@@ -618,9 +712,11 @@ command modifies a tracked file, stop and report it.
   authority digest drift, all-150 coverage, evidence/dossier conformance, and
   negative absence proof.
 - M4: schema/parser/domain mapping round trips, exchange conformance,
-  unauthorized/missing/extra candidate failures, resolution closure, exact
+  unauthorized/missing/extra candidate failures, criterion-ID set closure,
+  source/digest/provenance/approval validation, resolution closure, exact
   digest tests, dependency checks, and maximum bounds.
-- M5: table/property tests over hard states, success conditions, preferences,
+- M5: table/property tests over hard states, bound/unbound success conditions,
+  normalized and explicitly approved preferences, no prose interpretation,
   target changes, unknown/withheld facts, ties, cycles, incomparability,
   overflow, candidate permutations, and evidence traceability.
 - M6: frozen fixed and composition measurements, exact repeats/permutations/
@@ -669,10 +765,17 @@ reviewed durable-product trigger in ADR 0011.
   force.
 - Only authorized governance/boundary files change.
 - The issue, plan, and ADR lock every Milestone 1 required decision.
+- The approved-query and bounded criterion-binding architecture prevents any
+  free-text success-condition/preference interpretation and fails closed for
+  material unbound success conditions.
+- The exact readiness threshold remains unchosen in M1 but is required to
+  freeze as 13/18 or 14/18 during M2 acceptance before any M3 effect/output.
 - README/product/system status remains honest: governance exists, ranking does
   not.
 - Every M1 validation command exits successfully without tracked mutation.
 - A draft PR is open, remains draft, and does not claim later work.
+- Natural hosted CI for the final correction head passes every ordinary worker
+  and the aggregate verification job without rerun or policy weakening.
 - Independent review has no unresolved material product, architecture,
   security, evaluation, or scope finding.
 - The maintainer explicitly accepts M1 before M2 begins.
@@ -680,8 +783,11 @@ reviewed durable-product trigger in ADR 0011.
 ### Phase 10 exit
 
 - all six milestones are independently accepted in sequence;
+- the exact decision-bearing readiness count/percentage and policy digest froze
+  in accepted M2 authority before any M3 candidate-authority effect or output;
 - the decision-bearing denominator/readiness policy passes or ADR 0011 was
-  independently revised before product output;
+  independently revised before product output without reinterpreting historical
+  evidence;
 - all-150 ordinary candidate evidence can construct valid dossiers;
 - the pure package and additive contracts preserve existing assessment and
   Phase 9 semantics;
@@ -704,9 +810,20 @@ reviewed durable-product trigger in ADR 0011.
       selected proposed ADR 0011 for ranking.
 - [x] 2026-08-10 — Authored only the five authorized governance/boundary files
       and completed the first full local validation pass.
-- [ ] 2026-08-10 — Publish normally, open the draft PR, and stop at independent
-      M1 review.
-- [ ] Independent review accepts M1 and explicitly authorizes M2.
+- [x] 2026-08-10 — Published initial governance normally at
+      `0b1ffc160be76a93b6a72c1fafa622d305a980ec`, opened draft PR #33, and
+      stopped at independent M1 review.
+- [x] 2026-08-10 — Natural hosted CI run `31415154596` passed all six ordinary
+      workers and the aggregate `Verification` job for the initial publication
+      head; the run was not rerun.
+- [x] 2026-08-10 — Independent review accepted the direction and identified
+      three required governance corrections: controlled criterion bindings,
+      pre-M3 threshold freeze, and synchronized publication/final-CI state.
+- [x] 2026-08-10 — Corrected only Plan 0032 and proposed ADR 0011, synchronized
+      Issue #32, and completed the first correction-specific local validation
+      pass without tracked mutation or M2 work.
+- [ ] Independent rereview accepts the correction commit and its natural CI and
+      explicitly authorizes M2.
 - [ ] M2 independently accepted.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
@@ -727,6 +844,16 @@ reviewed durable-product trigger in ADR 0011.
 - 2026-08-10 — Verify an approved query-to-request binding inside ranking but
   keep user review/approval upstream. Reason: preserve intent and trust
   boundaries. Owner: proposed ADR 0011.
+- 2026-08-10 — Add an exact bounded criterion-binding authority between the
+  approved CapabilityRequest and ranking. Reason: current success conditions
+  and preferences are statement-bearing and provide no deterministic authority
+  for interpreting arbitrary prose. Unbound material success conditions fail
+  closed; unbound preferences cannot affect order. Owner: M1 independent
+  review correction.
+- 2026-08-10 — Move the exact readiness threshold choice from M3 to M2
+  independent acceptance. Reason: 13/18 versus 14/18 must freeze before any M3
+  collection, generation, or coverage observation so the gate cannot be chosen
+  to fit results. Owner: M1 independent review correction.
 - 2026-08-10 — Use request-conditioned partial order and complete-group
   presentation truncation. Reason: avoid hidden weights and fabricated top
   three. Owner: proposed ADR 0011.
@@ -753,12 +880,46 @@ state**. On 2026-08-10, the first complete local validation produced:
 | `pnpm security:audit`   | `0`; no known vulnerabilities found at moderate audit level                                                                                                                                                    |
 | `git diff --check`      | `0`; no whitespace errors                                                                                                                                                                                      |
 
-The index contains only `README.md`, `docs/product/product-contract.md`,
-`docs/architecture/system-context.md`, this plan, and proposed ADR 0011. The
-formatter changed only the two newly authored Markdown files. No validation
-command changed tracked content. The exact final command set will be rerun
-after this evidence entry and before commit, and publication state will be
-verified separately without editing product/evaluation/data files.
+At initial publication, the index contained only `README.md`,
+`docs/product/product-contract.md`, `docs/architecture/system-context.md`, this
+plan, and proposed ADR 0011. The formatter changed only the two newly authored
+Markdown files. No validation command changed tracked content. The exact final
+command set was rerun after this evidence entry and before the initial commit,
+and publication state was verified separately without editing
+product/evaluation/data files.
 
 No ranking benchmark, provider/model call, candidate collection, database
 command, or later-milestone validation ran.
+
+Natural hosted evidence for initial publication head
+`0b1ffc160be76a93b6a72c1fafa622d305a980ec` is CI run
+[`31415154596`](https://github.com/kgudipati/gitblocks/actions/runs/31415154596):
+workflow conclusion `success`, six of six ordinary workers `success`, and
+aggregate `Verification` `success`, completed `2026-08-10T17:46:29Z`. It is
+historical M1 publication evidence, not a substitute for natural CI on the
+final correction commit.
+
+### Milestone 1 independent-review correction validation
+
+Before correction, local and remote branch heads were exactly
+`0b1ffc160be76a93b6a72c1fafa622d305a980ec`, the worktree was clean, the merge
+base remained `a6e03ef20a8cef2a39db8e66b91612245378f9db`, Issue #32 was open,
+and PR #33 was open/draft/unmerged against that exact base. The first
+correction-specific local validation on 2026-08-10 produced:
+
+| Command                 | Exit/result                                                                                                                                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm runtime:check`    | `0`; pinned runtime preflight passed                                                                                                                                                                           |
+| `pnpm format:check`     | `0`; all matched files use Prettier style                                                                                                                                                                      |
+| `pnpm repo:check`       | `0`; repository checks passed                                                                                                                                                                                  |
+| `pnpm verify`           | `0`; 130 test files and 1,949 tests passed, zero dependency violations across 886 modules/3,016 dependencies, and all repository/evaluation/contract/taxonomy/profile/catalog/interview/pre-live checks passed |
+| `pnpm security:secrets` | `0`; secretlint passed                                                                                                                                                                                         |
+| `pnpm security:audit`   | `0`; no known vulnerabilities found at moderate audit level                                                                                                                                                    |
+| `git diff --check`      | `0`; no whitespace errors                                                                                                                                                                                      |
+
+The correction diff digest was byte-identical before and after validation and
+contains only this plan and proposed ADR 0011. No command changed tracked
+content. The exact matrix is rerun after this evidence entry and before the
+correction commit. No TypeScript, schema, evaluation corpus/authority,
+candidate authority, package, provider/model, benchmark, database, migration,
+dependency, merge, or Milestone 2 action occurred.

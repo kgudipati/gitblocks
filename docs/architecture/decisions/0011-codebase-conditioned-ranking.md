@@ -163,6 +163,84 @@ scoped transmission approval. Validation proves:
 The binding owns traceable source-to-request mappings. It does not change the
 existing query, normalization, capability-request, or fit-assessment meanings.
 
+### Ranking criterion binding
+
+`CapabilityQuerySuccessConditionV1`, `CapabilityRequestV1` success conditions,
+and `CapabilityRequestV1` preferences are statement-bearing records. The
+current product contracts do not give Ranking V1 a deterministic semantic
+interpretation for arbitrary statements. Ranking therefore never parses,
+token-matches, or otherwise heuristically interprets success-condition or
+preference prose.
+
+Milestone 4 will review the final schema name and details for an additive,
+bounded `ranking-criterion-binding/1.0.0` authority carried by the thin ranking
+execution envelope. The authority has exactly one record for every
+`CapabilityRequestV1` success-condition ID and preference ID and no extra
+records. Each record binds:
+
+- criterion-binding version and stable binding identity;
+- exactly one success-condition ID, or one preference ID together with any
+  normalized preferred-constraint source IDs;
+- source query-input ID/digest, normalization ID/semantic digest,
+  capability-request ID/digest, and approved query-to-request binding
+  ID/digest;
+- criterion kind: `success-condition` or `preference`;
+- controlled facet, or `null` only when the record is unbound;
+- controlled concept and normalization rule identities where available, or
+  `null` only where the approved source supplies none;
+- bounded target-fact dependencies where applicable;
+- bounded candidate-profile-field and fit-consumable evidence-criterion
+  dependencies where applicable;
+- approved semantic-binding rule identity/version;
+- provenance: `deterministic-normalization`,
+  `explicit-structured-approval`, or `unbound`;
+- upstream-approved recommendation materiality for a success condition, with
+  absence of that approved classification failing closed as material; and
+- canonical binding digest.
+
+A normalized preferred constraint may retain its controlled modality, facet,
+concept, canonical term, source constraint IDs, and normalization rule through
+the approved query-to-request mapping into its preference criterion record. A
+preferred preserved declaration without controlled semantics requires an
+explicit upstream structured binding or remains unbound. A preference created
+directly during approval likewise needs explicit structured binding or remains
+unbound. None becomes a hard constraint.
+
+The current normalizer preserves success-condition statements but does not
+produce controlled success-condition semantics. Therefore current success
+conditions cannot claim `deterministic-normalization` provenance merely because
+their IDs/statements were preserved; they require explicit upstream structured
+approval or remain unbound.
+
+A success condition is favorably covered only when its record has accepted
+controlled semantics and accepted candidate evidence proves those semantics.
+An unbound success condition receives no favorable coverage and cannot improve
+ordering. When it is recommendation-material—or when no approved non-material
+classification exists—every candidate assessment remains
+`insufficient-evidence` for the request and the responsible outcome is
+`insufficient-evidence`; the condition is never ignored. An explicitly approved
+non-material unbound condition remains disclosed but does not independently
+force that outcome. An unbound preference cannot affect ordering and is
+disclosed as an unresolved preference limitation/unknown; it does not become a
+hard constraint or independently force rejection or insufficiency.
+
+Explicit structured criterion creation/review and its transmission approval
+remain upstream application responsibilities. `@gitblocks/ranking` verifies
+source/digest closure, approval scope, exact criterion-ID set equality,
+controlled dependencies, and binding provenance. It never invents a criterion,
+collects approval, or assigns semantics from prose.
+
+The authoritative request flow is therefore:
+
+```text
+CapabilityQueryInputV1
+  -> CapabilityQueryNormalizationResultV1
+  -> approved-query-capability-request binding
+  -> unchanged authoritative CapabilityRequestV1
+  -> approved ranking-criterion binding authority
+  -> Ranking V1 verification and evidence evaluation
+```
+
 ### Fit-assessment evidence bridge
 
 Phase 10 chooses a committed, bounded candidate evidence authority paired with
@@ -295,13 +373,28 @@ Ranking V1.
 
 The original strategy's 70–80% expectation applies only to the accepted
 decision-bearing denominator. The current committed authority is therefore at
-0/18, or 0%, and is not ranking-ready. The readiness gate requires an
-independently accepted policy choosing a threshold within that 70–80% band and
-an authority satisfying it. It does not block a later pure vertical slice
+0/18, or 0%, and is not ranking-ready. With an 18-field denominator, the exact
+integer choices inside the inclusive 70–80% band are 13/18 (72.222222% at six
+decimal places) and 14/18 (77.777778% at six decimal places). This ADR does not
+select between them without independent evaluation authority.
+
+Milestone 2 independent acceptance must freeze exactly one minimum ready-field
+count and its corresponding percentage, the unchanged denominator version,
+the field-readiness qualification rule, and a canonical policy digest. This
+freeze occurs before Milestone 3 begins and before any M3 provider collection,
+candidate-authority generation, or candidate-coverage output is performed or
+observed. The people/process choosing the threshold may not inspect M3 coverage
+first. Any pre-freeze M3 effect or output is inadmissible acceptance evidence
+and blocks M3 pending independent disposition; it cannot be used to select the
+more permissive threshold.
+
+The pre-frozen readiness policy does not block a later pure vertical slice
 tested against synthetic or frozen evaluation authority after prior milestone
 acceptance. It does block a production-ranking quality claim, the final
-production benchmark, and Phase 10 closure unless this ADR is independently
-revised before production output is observed.
+production benchmark, and Phase 10 closure unless it passes. Any later
+denominator or threshold revision requires an independently reviewed ADR change
+before production ranking output is observed and creates forward authority; it
+cannot silently reinterpret historical coverage evidence.
 
 ### Candidate-authority successor
 
@@ -349,11 +442,12 @@ facts, and accepted evidence, then compares candidates in this order:
 6. unsupported trade-offs.
 
 Known hard conflicts force rejection. Unresolved hard evaluations force
-insufficient evidence. A success condition is covered only by a favorable
-material claim with fit-consumable evidence; unknown coverage does not count.
-An explicit preference may affect ordering only when its approved mapping and
-candidate evidence establish a direction, and it never becomes a hard
-constraint.
+insufficient evidence. A success condition is covered only by an accepted
+controlled criterion binding and a favorable material claim with
+fit-consumable evidence; unknown or unbound coverage does not count. A material
+unbound success condition forces insufficiency. An explicit preference may
+affect ordering only when its approved controlled binding and candidate
+evidence establish a direction, and it never becomes a hard constraint.
 
 Within the hierarchy, pairwise dominance requires one candidate to be no worse
 on every supported criterion of the same or higher priority and better on at
@@ -425,11 +519,11 @@ deployment.
 
 `FitAssessmentRequestV1` and `FitAssessmentResponseV1` remain authoritative and
 unchanged. An additive thin ranking execution envelope will bind the approved
-query transition, exact retrieval exchange, exact target fingerprint, supplied
-dossiers, profile and evidence authorities, evidence-needed resolutions,
-evidence cutoff, assessment time, algorithm and policy versions, and canonical
-input/output digests. Canonical identity is used for authentication and byte
-stability, never comparative preference.
+query transition, exact criterion-binding authority, exact retrieval exchange,
+exact target fingerprint, supplied dossiers, profile and evidence authorities,
+evidence-needed resolutions, evidence cutoff, assessment time, algorithm and
+policy versions, and canonical input/output digests. Canonical identity is used
+for authentication and byte stability, never comparative preference.
 
 ### Requested maximum results
 
@@ -494,6 +588,13 @@ baseline results, corpus error budgets, and exact case counts. No arbitrary
 percentage is selected in this ADR. Zero-tolerance safety gates are independent
 of quality thresholds.
 
+The same Milestone 2 independent acceptance also freezes the decision-bearing
+deterministic-readiness minimum as either 13/18 (72.222222%) or 14/18
+(77.777778%). It uses only the frozen denominator, readiness definition, and
+independently reviewed ranking architecture/evaluation authority—not M3
+candidate coverage. M3 has no authorized effect or output until that policy
+commit is accepted.
+
 Ranking metrics cover top-three viable-candidate rate, accepted pairwise
 agreement, candidate dispositions, responsible outcomes, hard-conflict
 violations, evidence and reason traceability/recall, material-unknown
@@ -516,8 +617,11 @@ Zero-tolerance acceptance gates require:
   evidence or a tie break;
 - zero weakening/dropping of approved hard constraints and zero invention or
   hardening of preferences;
+- zero free-text interpretation, unapproved invention, missing/extra criterion
+  binding, favorable unbound-criterion coverage, or silent omission of a
+  material unbound success condition;
 - exact evidence cutoff, request, fingerprint, retrieval, candidate authority,
-  algorithm/policy, and result identity binding; and
+  criterion authority, algorithm/policy, and result identity binding; and
 - zero product dependency on evaluation cases, gold, scorers, or tools.
 
 Determinism gates require byte-identical repeated calls, invariance under all
@@ -573,17 +677,21 @@ separate issue and ADR after one of these measured triggers:
    acceptance is required before Milestone 2.
 2. **Milestone 2 — Ranking evaluation authority.** Independently review and
    freeze ranking-v1 cases/gold, scorer additions, gold-blind baselines, numeric
-   quality gates, and performance/resource gates before production output.
+   quality gates, performance/resource gates, and the exact 13/18 or 14/18
+   deterministic-readiness minimum. Accept that policy before any Milestone 3
+   effect or output.
 3. **Milestone 3 — Candidate-authority successor.** Publish only accepted V1
-   consumed facts and the fit-consumable evidence authority. Independently
-   accept coverage/readiness evidence before Milestone 4.
+   consumed facts and the fit-consumable evidence authority, then measure it
+   only against the pre-frozen readiness policy. Independently accept
+   coverage/readiness evidence before Milestone 4.
 4. **Milestone 4 — Pure vertical slice.** Add the pure ranking package and
-   additive execution envelope, initially testable against synthetic/frozen
-   authority. Independent acceptance is required before Milestone 5.
+   additive execution envelope and criterion-binding contract, initially
+   testable against synthetic/frozen authority. Independent acceptance is
+   required before Milestone 5.
 5. **Milestone 5 — Deterministic target-conditioned behavior.** Add
-   preference/success-condition handling, dispositions, evidence-grounded
-   claims, responsible outcomes, and partial ordering. Independent acceptance
-   is required before Milestone 6.
+   verified bound preference/success-condition handling, fail-closed unbound
+   behavior, dispositions, evidence-grounded claims, responsible outcomes, and
+   partial ordering. Independent acceptance is required before Milestone 6.
 6. **Milestone 6 — Frozen proof and closure.** Run the separately reported
    fixed-candidate and composition measurements and safety, determinism,
    performance, memory, readiness, and architecture proofs. Independent closure
@@ -596,6 +704,8 @@ branch authorizes only Milestone 1 documentation.
 
 - Fit-assessment semantics remain stable while Phase 10 adds exact provenance
   and handoff bindings.
+- Success conditions and preferences affect ranking only through approved
+  controlled criterion bindings; arbitrary request prose remains inert.
 - Adoption fit is target- and request-conditioned; retrieval relevance,
   popularity, and identity cannot silently become ranking signals.
 - Partial orders expose ties and incomparability rather than false numeric
@@ -624,6 +734,10 @@ branch authorizes only Milestone 1 documentation.
   fit-assessment evidence traceability.
 - Letting ranking collect user approval: approval belongs upstream and would
   mix trust boundaries.
+- Parsing success-condition or preference prose in Ranking V1: current
+  statement-bearing contracts provide no deterministic semantic authority.
+- Selecting the 13/18 versus 14/18 readiness minimum after observing M3
+  coverage: this would make the closure gate outcome-conditioned.
 - Additive weighted scores or numeric confidence: current authority cannot
   calibrate the precision or justify hidden trade-offs.
 - Truncating a maximal set by retrieval order, popularity, or ID: this would
