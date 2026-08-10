@@ -156,8 +156,20 @@ safety, determinism, architecture, security, performance, and memory gates all
 passed. Phase 9 implements retrieval only. Production ranking,
 target-codebase-conditioned fit, adoption recommendation, scanner, API/MCP,
 Agent Skill, persistent or vector search, shared retrieval service, and
-deployment remain unimplemented. Phase 10 ranking has not begun and is not
-authorized by Phase 9 completion.
+deployment remain unimplemented.
+
+[Plan 0032](docs/plans/0032-codebase-conditioned-ranking.md), governing
+[Issue #32](https://github.com/kgudipati/gitblocks/issues/32), and proposed
+[ADR 0011](docs/architecture/decisions/0011-codebase-conditioned-ranking.md)
+establish the Project Phase 10 Milestone 1 boundary, corresponding to the
+original strategy's Phase 12 ranking engine. Phase 10 will rank only the
+bounded Phase 9 result for a particular authoritative target fingerprint,
+preserve the existing fit-assessment semantics, and use deterministic
+evidence-grounded partial ordering rather than retrieval score, popularity,
+universal repository scores, or numeric confidence. This governance work does
+not implement ranking, ranking evaluation authority, candidate evidence, a
+service, a model, or ranking infrastructure. Milestone 2 remains blocked on
+independent Milestone 1 acceptance.
 
 ## Repository map
 

@@ -12,11 +12,11 @@ repository-interview application with an offline operator. Phase 8 also has a
 pure 27-field deterministic-profile registry, two additive profile roots, an
 offline generated 150-candidate authority, content-free coverage, and
 single-candidate constraint evaluation, plus the separate evaluation-only
-`retrieval-v1` corpus and deterministic scorer. Live calibration
-failed and selected no profile. No API, MCP service, scanner, discovery
-service, production hard-filter pipeline, retrieval/ranking service, deployed
-database, deployment, or end-to-end adoption workflow is implemented or
-available yet.
+`retrieval-v1` corpus and deterministic scorer. Live calibration failed and
+selected no profile. Phase 9 adds an independently accepted pure, bounded,
+deterministic production retrieval package without an operational service. No
+API, MCP service, scanner, ranking service, deployed database, deployment, or
+end-to-end adoption workflow is implemented or available yet.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -265,6 +265,21 @@ security, licensing, and the quality and freshness of supporting evidence.
 
 A popular or semantically relevant project may have poor adoption fit. Ranking
 must not substitute popularity for compatibility.
+
+Project Phase 10 maps to the original strategy's Phase 12 ranking engine.
+[Issue #32](https://github.com/kgudipati/gitblocks/issues/32),
+[Plan 0032](../plans/0032-codebase-conditioned-ranking.md), and proposed
+[ADR 0011](../architecture/decisions/0011-codebase-conditioned-ranking.md)
+establish only its Milestone 1 governance boundary. The future deterministic
+Ranking V1 will consume the exact bounded Phase 9 handoff, an already-approved
+`CapabilityRequestV1`, an authoritative `RepositoryFingerprintV1`, and
+fit-consumable candidate evidence. `FitAssessmentRequestV1` and
+`FitAssessmentResponseV1` remain the assessment authority. Retrieval score is
+diagnostic only; supported request-conditioned claims produce a partial order,
+while unsupported trade-offs remain incomparable. No ranking package,
+ranking-v1 evaluation authority, candidate evidence successor, model,
+persistence, vector, cache, search service, or benchmark is created by
+Milestone 1.
 
 ## Canonical vocabulary
 

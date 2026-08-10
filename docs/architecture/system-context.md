@@ -40,9 +40,13 @@ recommendation, or production persistence.
 Project Phase 9 is independently accepted. It adds the pure production
 retrieval package, transport-neutral contracts, reviewed authority bindings,
 separate result lanes, provenance, and bounded deterministic retrieval. It does
-not add an operational retrieval service. Ranking remains Phase 10, which has
-not begun, and vector or persistent search infrastructure remains conditional
-on separately reviewed measured evidence.
+not add an operational retrieval service. Project Phase 10 Milestone 1 now has
+governance only under Issue #32, Plan 0032, and proposed ADR 0011. It plans a
+pure deterministic ranking package over the bounded Phase 9 result with
+existing fit-assessment semantics and evidence-grounded partial ordering. No
+ranking package, ranking evaluation/candidate authority, model, service,
+database, vector, cache, or persistent search infrastructure exists or is
+authorized by that governance branch.
 
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
@@ -70,6 +74,13 @@ ranking.
 Phase 9 pure retrieval package, transport-neutral contract, lane, provenance,
 evaluation, and acceptance boundaries. It does not authorize Phase 10 ranking
 or turn the pure package into an operational service.
+[ADR 0010](decisions/0010-reviewed-retrieval-v2-authority.md) accepts the
+additive reviewed retrieval-v2 authority without turning retrieval evaluation
+into ranking authority.
+Proposed [ADR 0011](decisions/0011-codebase-conditioned-ranking.md) defines the
+Phase 10 handoff, evidence bridge, two field denominators, request-conditioned
+partial order, evaluation separation, and conditional model/infrastructure
+triggers. It remains proposed until independent Milestone 1 acceptance.
 
 ## Context and ownership
 
