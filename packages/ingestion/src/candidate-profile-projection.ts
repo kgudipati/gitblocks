@@ -26,6 +26,14 @@ import type {
   PublicCatalog,
 } from './types.ts';
 
+const PROFILE_FIELD_REGISTRY = getDeterministicProfileFieldRegistry();
+const PROFILE_FIELD_DEFINITIONS: ReadonlyMap<
+  DeterministicProfileFieldId,
+  (typeof PROFILE_FIELD_REGISTRY)[number]
+> = new Map(
+  PROFILE_FIELD_REGISTRY.map((definition) => [definition.fieldId, definition]),
+);
+
 export const CANDIDATE_PROFILE_COVERAGE_REPORT_VERSION =
   'deterministic-profile-coverage-report/1.0.0' as const;
 
@@ -176,9 +184,7 @@ function projectField(
   candidate: CatalogCandidate,
   fieldId: DeterministicProfileFieldId,
 ): object {
-  const definition = getDeterministicProfileFieldRegistry().find(
-    (entry) => entry.fieldId === fieldId,
-  );
+  const definition = PROFILE_FIELD_DEFINITIONS.get(fieldId);
   if (definition === undefined) {
     throw ingestionError('ingestion.internal-invariant');
   }
@@ -357,7 +363,7 @@ function buildCoverageReport(
 ): CandidateProfileCoverageReportV1 {
   const profiles =
     authority.profiles as unknown as readonly DeterministicCandidateProfile[];
-  const registry = getDeterministicProfileFieldRegistry();
+  const registry = PROFILE_FIELD_REGISTRY;
   const perField = registry.map((definition) => {
     const fields = profiles.map((profile) =>
       requireField(profile, definition.fieldId),
