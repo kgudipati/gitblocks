@@ -129,10 +129,24 @@ embedding, or model-reranking trigger.
 The five-build cold-engine sample measured p95/max `166.089 ms`. It is M3
 development evidence only and neither satisfies nor fails the separately
 registered M4 100-build search-view p95 `<= 100 ms` proof. That final proof is
-materially unresolved and belongs to M4. Issue #28 does not reopen M3, but it
-must be resolved before final M4 closure relies on hosted CI as independent
-production-proof evidence. Milestone 4 has not begun, and Phase 9 is not
-complete.
+materially unresolved and belongs to M4.
+
+Issue #28 was independently resolved through PR #30 and accepted main merge
+`d41e0341dde40056db0039228375f3663ca0989b`; natural post-merge main CI run
+`31342158758` completed the original hosted CI topology. The root cause was
+eager schema compilation plus avoidable repeated immutable allocation. The
+resolution changes validation memory behavior without changing retrieval
+product semantics, evaluation authority, or CI topology. Experimental CI
+sharding PR #29 was superseded and never merged, and a shared
+RetrievalVerificationContext (28B) was not required. The accepted validation
+foundation is now part of the Phase 9 branch through merge commit
+`f087007cc5c75d05458962d4e528bba28f36bb39`.
+
+The hosted-CI dependency for final M4 closure is satisfied. Milestone 4 still
+has not begun, Phase 9 is not complete, and M4 remains responsible for the
+final frozen proof, including the unresolved 100-build search-view p95
+`<= 100 ms` gate. The historical five-build M3 observation remains development
+evidence only and is not reinterpreted as an M4 failure.
 
 ## Context
 

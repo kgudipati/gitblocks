@@ -20,8 +20,11 @@
   reviewed `retrieval-v2`. The single frozen production measurement against
   that authority passed every registered Milestone 3 gate without tuning,
   rerun, or post-score mutation and was independently accepted. Milestones 1,
-  2, and 3 are accepted. Milestone 4 has not begun, and Phase 9 remains open.
-- Last updated: 2026-08-08
+  2, and 3 are accepted. Issue #28 is closed and its accepted validation-memory
+  foundation is integrated from current main. The hosted-CI dependency for
+  final Milestone 4 closure is satisfied, but Milestone 4 has not begun and
+  Phase 9 remains open.
+- Last updated: 2026-08-09
 
 Issue #21 is the requirements authority. Accepted
 [ADR 0009](../architecture/decisions/0009-production-retrieval.md) owns the
@@ -144,10 +147,35 @@ successful quality result activates no vector, index, cache, database,
 embedding, reranking, or search-service trigger; the accepted 150-candidate
 in-memory implementation remains unchanged.
 
-Issue #28 does not reopen or invalidate M3. It must be resolved before M4 final
-closure relies on hosted CI as independent production-proof evidence.
-Milestones 1, 2, and 3 are accepted. Milestone 4 is unblocked but has not
-begun, and Phase 9 is not complete.
+Issue #28 does not reopen or invalidate M3. It is closed as completed through
+PR #30 and accepted main merge
+`d41e0341dde40056db0039228375f3663ca0989b`; natural post-merge main CI run
+`31342158758` completed the original hosted CI topology successfully. The root
+cause was eager schema compilation plus avoidable repeated immutable
+allocation. CI sharding experiment PR #29 was superseded and never merged,
+and a shared RetrievalVerificationContext (28B) was not required. The
+hosted-CI dependency for M4 final closure is therefore satisfied. Milestones
+1, 2, and 3 are accepted. Milestone 4 has not begun, and Phase 9 is not
+complete.
+
+### Issue #28 closure and current-main synchronization
+
+Accepted main `d41e0341dde40056db0039228375f3663ca0989b` was merged into the
+shared Phase 9 branch without rebasing or rewriting accepted history through
+merge commit `f087007cc5c75d05458962d4e528bba28f36bb39`. The resolution
+preserves lazy contract validation, bounded malformed-profile compatibility,
+single-snapshot profile projection, and lazy per-registry retrieval-schema
+compilation while retaining the five Phase 9 retrieval validators through the
+same lazy mechanism. It changes validation memory behavior, not retrieval
+product semantics or evaluation authority.
+
+The synchronized state passed 130 test files and 1,949 tests, architecture
+inspection across 886 modules and 3,016 dependencies with zero violations,
+and the dependency audit. Read-only candidate-profile and retrieval authority
+smoke commands each remained below 0.5 GiB measured peak RSS after building
+the synchronized source, with no tracked mutation. No production retrieval
+benchmark was rerun. The separately registered M4 100-build search-view proof
+remains outstanding and Milestone 4 remains not begun.
 
 This plan implements Project Phase 9, corresponding to Phase 11 — Retrieval
 Engine in the original end-to-end strategy. Independent maintainer rereview
