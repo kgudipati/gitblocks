@@ -1,5 +1,5 @@
 {
-  "authorityVersion": "ranking-v1-blind-cases/2.0.0",
+  "authorityVersion": "ranking-v1-blind-cases/3.0.0",
   "candidateSets": [
     {
       "candidateSetId": "ranking-v1-audit-candidates",
@@ -540,10 +540,10 @@
     }
   ],
   "corpusId": "ranking-v1",
-  "corpusVersion": "2.0.0",
+  "corpusVersion": "3.0.0",
   "criterionAuthorities": [
     {
-      "approvalDigest": "a508445b2b224ecb00b5d9b869b5379def2f77eb00c822fead095d246ac1492f",
+      "approvalDigest": "2fb2be77d6525a808827aa655c2bd90bed416a290df4ccb5d718426d159b91ce",
       "bindings": [
         {
           "bindingState": "bound",
@@ -566,7 +566,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-audit-controlled-request-success-2",
@@ -619,12 +619,12 @@
       ],
       "normalizationDigest": "d5fef02fb158228f0da57e946bcf4c78d606aeef0d6657e76d9d1f167c897343",
       "requestAuthorityId": "ranking-v1-audit-controlled-request",
-      "requestDigest": "baccdfb0c8d8a6a0985621aac160d488040f0016c93e81148c7736d5aeb28f64",
-      "semanticDigest": "31dc6bf4b9f91fb61e898c80ab5a362cf4511c3be0cb698fe713b4d680e2486e",
+      "requestDigest": "096589f1182007121bd36d69f5117d6842b0e033645235da2558ddb66e0b8ef7",
+      "semanticDigest": "dc3304b188a6c220bf13689f478890d0bda87942867ac223b4cdb2b2ca61370c",
       "sourceQueryDigest": "19a7add917092808fa8e52ce63db700e0d286a734f1660688d7ee1493797612c"
     },
     {
-      "approvalDigest": "72ff8494dce5b69da736a1eccf8de60089fe99238d69b19e9a2d03321a680eee",
+      "approvalDigest": "ea4516b7c2e3609a6dfa8699580d22c08ab5ebaa0c6582e3ee2c2ce5c5baf47e",
       "bindings": [
         {
           "bindingState": "bound",
@@ -696,12 +696,12 @@
       ],
       "normalizationDigest": "32260d470cecca65f7181018d9daf8bb9ce7d6c3c09b502d043b5b887e8fe088",
       "requestAuthorityId": "ranking-v1-audit-insufficient-request",
-      "requestDigest": "602c628d429e0b966cb12dcff5d603373ab714ef7323c6ee1db1098d26e7ae4f",
-      "semanticDigest": "caa3b137a6dfccf901181c0b223401280750bed9ff6b23cf719c97361f716654",
+      "requestDigest": "0d8b35c3e7a1eadb40df403bf66bd1706c9b6fd0ec2095173a0130d133d729f6",
+      "semanticDigest": "02498d59f4e0c2e91beaacf836f52f90a559c8c900d2a7f51725efb7bdfac49f",
       "sourceQueryDigest": "92fa82a1ac47d79a5488f9e9889bfbca2a4806469002dae79df5dfdc99d3d95d"
     },
     {
-      "approvalDigest": "1b59676b69e3e5e96a061e4e895dbc8c142a050b4e17b9e90f03c3df69b33805",
+      "approvalDigest": "69ec69bf12b6a7fc17126ee3f66a2d30fc33e09714f8297f979b1f57be745a81",
       "bindings": [
         {
           "bindingState": "bound",
@@ -724,7 +724,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-audit-no-viable-request-success-2",
@@ -791,12 +791,12 @@
       ],
       "normalizationDigest": "7478c4b66e402f0aa6ec3ba1acf4aca6a5cfc4e6a8b8999d010faf3a5942f1c2",
       "requestAuthorityId": "ranking-v1-audit-no-viable-request",
-      "requestDigest": "d0164ec4a595b300536b5e4ed847b83adcc5d757372170b8cc8ec5eac26e78af",
-      "semanticDigest": "6b11fda8e1824341bac7b6d1bd228ded19a41308787b7e8976065c83f7aa8321",
+      "requestDigest": "c49dd25b1e0294fbe2a73f5960ee2535deb399516274da31b9035af9badb9493",
+      "semanticDigest": "16f071e7af0e068747d86e5cfb587727795ce802a5d632fe2c05023be00d2021",
       "sourceQueryDigest": "f2d73983f8e002885c2e5f80a59d9df3882534a23dd5c7e5f30856a1587be82f"
     },
     {
-      "approvalDigest": "ab3a57c05fd9d66ef8de9ca64d54bf8ecd9d6d570044b2a8232a2a294d47ea85",
+      "approvalDigest": "217f5233f60f41e501fd8c6247308c20f9a63c0e12a4bce7bd1d285696e3de76",
       "bindings": [
         {
           "bindingState": "bound",
@@ -868,12 +868,12 @@
       ],
       "normalizationDigest": "37432db041685990794639760a1d678c7532322b11a965799b28bb58e260b283",
       "requestAuthorityId": "ranking-v1-audit-partial-request",
-      "requestDigest": "facbe3fd7d726f299b16ebe42ab5463c7e80bf60051f11e7a841bec9e1e11969",
-      "semanticDigest": "23924e0513fb48e8d2c8173651d8ea0c28a918745cd84c2908344db4ab4e8220",
+      "requestDigest": "1f61cf5ef84ef16ff48f12ddff2baa8f2f1ae97a4fc1c293fccb8f002309c001",
+      "semanticDigest": "ac8bbe95014a63c0f4e7f07dd0e0c862f427afcb92644d018e349e7f44f7dfaa",
       "sourceQueryDigest": "9d9c4494b3b3a69479cef2bf35335508c28b904db2fd7fdc8278992cfb20f328"
     },
     {
-      "approvalDigest": "e1025eea333fc4c01a51817c0e1589a4df02c232f600fa80c76af5e758abd6dd",
+      "approvalDigest": "33e7e0a775411b8b2f938a306dea3e9d9ba9b2ae5cce3a8d91ab200e7a064794",
       "bindings": [
         {
           "bindingState": "bound",
@@ -896,7 +896,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-audit-popularity-request-success-2",
@@ -934,27 +934,27 @@
       "hardConstraintRules": [
         {
           "candidateFeatureDependencies": [
-            "adoption-resources"
+            "integration-mode"
           ],
-          "constraintId": "ranking-v1-audit-popularity-request-hard-resources",
-          "evaluationRuleId": "candidate-requirements-available/1.0.0",
-          "expectedValues": [],
-          "modality": "required",
-          "semanticConcept": "candidate-required-resources-available",
-          "semanticFacet": "resource-availability",
-          "targetFactDependencies": [
-            "resources"
-          ]
+          "constraintId": "ranking-v1-audit-popularity-request-hard-adoption",
+          "evaluationRuleId": "candidate-has-all/1.0.0",
+          "expectedValues": [
+            "database-extension"
+          ],
+          "modality": "prohibited",
+          "semanticConcept": "database-extension-prohibited",
+          "semanticFacet": "adoption-unit",
+          "targetFactDependencies": []
         }
       ],
       "normalizationDigest": "a5a9a8557e14160bd862033f609325df10667f0d25c404268de2c9fa2e06e39c",
       "requestAuthorityId": "ranking-v1-audit-popularity-request",
-      "requestDigest": "097bd5123347f3edc95e8d4ff782ecee83b216562ea38b6c05490b4608c42147",
-      "semanticDigest": "57062ef20e5c57c9a92e9091c2e7bbcff491d3d7c5c2c2c348555b6f95e14112",
+      "requestDigest": "0a1bd34bc9743fd40bcdddf31d877190723b920393fe656a4d0f6621624793a5",
+      "semanticDigest": "e331dc10a141324fcf7454bd59841a2c365820bf243440c2cbfbb64122c18514",
       "sourceQueryDigest": "b9be6e927ef152be6f6192f3867324b2520fe4c15f8d069c937cc03cd94eba82"
     },
     {
-      "approvalDigest": "49b82352438ef8a310ee1f142da454ef8fc884b5b875b05f6936ec0303ef875f",
+      "approvalDigest": "5d0da9374c84776530c5e27d6c469dc3f62c59ce43cd246f05808b7b2dadf75b",
       "bindings": [
         {
           "bindingState": "bound",
@@ -977,19 +977,21 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "identity-inputs"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-auth-controlled-request-success-2",
           "criterionKind": "success-condition",
           "evidenceRequired": true,
           "expectedValues": [
-            "tenant-identity-context"
+            "actor",
+            "tenant",
+            "organization"
           ],
           "materiality": "material",
           "provenance": "explicit-structured-approval",
           "semanticConcept": "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
-          "semanticFacet": "operational-behavior",
+          "semanticFacet": "identity-context",
           "targetFactDependencies": []
         },
         {
@@ -1030,12 +1032,12 @@
       ],
       "normalizationDigest": "81dea33ec705fe651cb4356efe3bd244069e7378f8e9eca443397783e92c983a",
       "requestAuthorityId": "ranking-v1-auth-controlled-request",
-      "requestDigest": "f00d16d208bf68503134d60532e9c930d00c084fc3b4b1cac3cc3623a45ee901",
-      "semanticDigest": "420c863297035864d9f94fbe6ff1342535dc7736cc713c0d0d3560879007eec3",
+      "requestDigest": "88a99b2d83c731104c8636ebe8b2e8f6c6dcd88ab65dc4c0eef06c3f0f12f71e",
+      "semanticDigest": "023074ce353641ded53b14865273f6d9e54c574abacc01e3d313acd6c9aab2e3",
       "sourceQueryDigest": "7262981b41e341b26d4bc1cd96224efe21e20af92ba097a0dcda24b223e780bb"
     },
     {
-      "approvalDigest": "f51c70e16007749dc0615a1696e34a267e89c2ce29ea17d76d1cbf577b063550",
+      "approvalDigest": "67c93e11ac108a0cffcea26b8e082235112a02198ff99226baef1116a8e10d8b",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1107,12 +1109,12 @@
       ],
       "normalizationDigest": "44aaefb8a822bf52dff62717cdf4b22002b18c6950da9cb0e194aa62bca6ea94",
       "requestAuthorityId": "ranking-v1-auth-insufficient-request",
-      "requestDigest": "398359152e4faf6ebfd3bbe47565348b4f1f4ad670a04a73a872ee4cfb55ac5a",
-      "semanticDigest": "aadbcca010e98a03076905869ed855aa8c5ce824db14ce72f7f107cd9e91984e",
+      "requestDigest": "468a93861116895b5914be040d4ddb376afbcc1e0e660cd3876dd0796b8204ff",
+      "semanticDigest": "4e3f786cf3789d802d13b82a7625c76b7d9ff358373d059b89c80205f65b6172",
       "sourceQueryDigest": "e3ca6a7d9229c819c703a9cd62140953c4a3c7fcefffc4944f70c07a1cb4afb7"
     },
     {
-      "approvalDigest": "ec55dc29da90639a61f931b7590270a2de7b4293c1bfa692e8eea78b378708f1",
+      "approvalDigest": "d9f10812bb28aaccf986114da6addff8ed6d1e6121dc54789e1b433eaf5a2cbe",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1135,19 +1137,21 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "identity-inputs"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-auth-no-viable-request-success-2",
           "criterionKind": "success-condition",
           "evidenceRequired": true,
           "expectedValues": [
-            "tenant-identity-context"
+            "actor",
+            "tenant",
+            "organization"
           ],
           "materiality": "material",
           "provenance": "explicit-structured-approval",
           "semanticConcept": "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
-          "semanticFacet": "operational-behavior",
+          "semanticFacet": "identity-context",
           "targetFactDependencies": []
         },
         {
@@ -1202,12 +1206,12 @@
       ],
       "normalizationDigest": "1a14ba6f7b3369327f41b85a0569fcf8fb54dd69328bfa252f7cfc59cecb83c2",
       "requestAuthorityId": "ranking-v1-auth-no-viable-request",
-      "requestDigest": "23efb92437a5b578dc89f7765b31edf8c3da52c294320777571281b47e182c7b",
-      "semanticDigest": "118dda28dfe5cb8e56d4da6dec61a2025b56ba1327a030fd63aeb6f9f09cec77",
+      "requestDigest": "5a269bfac338d73eca7f63bff881349409e2995aebdd5bc46dd6b68c16b86210",
+      "semanticDigest": "bca7368c0e80bc6427c01b170c2d15f606a1b1f6e42608e078f53be3192ebc32",
       "sourceQueryDigest": "e4c0a282a3dab7462750859bf1d7a919892557e62b24701c410484beb2916897"
     },
     {
-      "approvalDigest": "835790fff5927a95bb0a6828f0ab0d9ed8d04b98aad7e8bb6de5852f91a1b451",
+      "approvalDigest": "e19eb6320838fa17d44e042bc858c6ca8406c6e45ef1816920f4213a568a31f5",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1275,12 +1279,12 @@
       ],
       "normalizationDigest": "0d5cddf4834980b99b16ea550d1b792a58aa647948c83e243cb88709dc6ae6e9",
       "requestAuthorityId": "ranking-v1-auth-partial-request",
-      "requestDigest": "ceafecab640f39a723077aa7b6eb0e70d7b85ab29a6a5b3f4580a313e15aa8e8",
-      "semanticDigest": "23738f509a420ebc1354704d025e64757e6ec34ebcbf4579757bb954c2ac828b",
+      "requestDigest": "5d6fba5c9d921fffc7a8a495fb8095609b453d1e8be6c6b32c290572d966db04",
+      "semanticDigest": "3fab3c78c5a1aadc001ea3efffa71d151011d5aea2f9425ef7c63797d65d859f",
       "sourceQueryDigest": "479155ef96792086d6cac62b2d2e604e4d9d9c7d0ccb64fbad940a79ca991946"
     },
     {
-      "approvalDigest": "fb630430d5b48bac96a48f1c1df92a7d19306db86e5e9d3f90329a0fc5415104",
+      "approvalDigest": "9f9306a65a85cae2b0dd2fa7514fbb0e9f2dd17983609e7474de94b2179da4ac",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1303,19 +1307,21 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "identity-inputs"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-auth-popularity-request-success-2",
           "criterionKind": "success-condition",
           "evidenceRequired": true,
           "expectedValues": [
-            "tenant-identity-context"
+            "actor",
+            "tenant",
+            "organization"
           ],
           "materiality": "material",
           "provenance": "explicit-structured-approval",
           "semanticConcept": "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
-          "semanticFacet": "operational-behavior",
+          "semanticFacet": "identity-context",
           "targetFactDependencies": []
         },
         {
@@ -1341,27 +1347,27 @@
       "hardConstraintRules": [
         {
           "candidateFeatureDependencies": [
-            "adoption-resources"
+            "integration-mode"
           ],
-          "constraintId": "ranking-v1-auth-popularity-request-hard-resources",
-          "evaluationRuleId": "candidate-requirements-available/1.0.0",
-          "expectedValues": [],
-          "modality": "required",
-          "semanticConcept": "candidate-required-resources-available",
-          "semanticFacet": "resource-availability",
-          "targetFactDependencies": [
-            "resources"
-          ]
+          "constraintId": "ranking-v1-auth-popularity-request-hard-adoption",
+          "evaluationRuleId": "candidate-has-all/1.0.0",
+          "expectedValues": [
+            "external-policy-service"
+          ],
+          "modality": "prohibited",
+          "semanticConcept": "external-policy-service-prohibited",
+          "semanticFacet": "adoption-unit",
+          "targetFactDependencies": []
         }
       ],
       "normalizationDigest": "c158aa1168cb62834b9681cedc285cb57a150519e3153e459912457acbe0a4d8",
       "requestAuthorityId": "ranking-v1-auth-popularity-request",
-      "requestDigest": "e275b67c1c553b3507c91dd829526aa0cd47c5ca514e8c0e732b883b953c377b",
-      "semanticDigest": "60ff1b709d7c3d2fd3607de635a6f8ba524e95addef1b6153b9d0350c32117cd",
+      "requestDigest": "aea472fdd6135dc7dfa376eef40fb6b7a4566d3b610952887a87111f993b1d15",
+      "semanticDigest": "c338a1bf38dbb295968d6d1359fa0c77d5ab0d363ee3ed47b55d95b8514173ad",
       "sourceQueryDigest": "8e4530aca8e8bebdaf82576f71217d0df9f5a49b2c7710744a99e0058e64d46c"
     },
     {
-      "approvalDigest": "b1061496a9711c23622d661a0c80d9a68580855ee82799e33a7fab1cfb48d33b",
+      "approvalDigest": "90f2b81907dd50bf554bfc3012b33945485c51921e1bfbc94cce735dadb8f627",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1384,7 +1390,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-jobs-controlled-request-success-2",
@@ -1437,12 +1443,12 @@
       ],
       "normalizationDigest": "b75589cf012cf90aacb76ccacf9847e9188ad5a7cbbc75d249ed45211235aa4e",
       "requestAuthorityId": "ranking-v1-jobs-controlled-request",
-      "requestDigest": "f28088f1816179eba30575257988f8741f4db3361bc9130ed01ba7a4ac77aae4",
-      "semanticDigest": "fbe3e536f8d7f597c2f4327f6d19a5fe95f09a996e8b7df9a47aa66b836b236f",
+      "requestDigest": "2946a1e6488f203f29a3d8127ecfdae2081b45d546e8563735c5cb25d7beb711",
+      "semanticDigest": "7771edecbe3be1895e6d24b2578037666394987212e323b3b80c572d474a5e96",
       "sourceQueryDigest": "6c6bcc5d1d37d61d43dae4ac029d7c148a9b2326f0462fbaadcb3ddc0f654ce1"
     },
     {
-      "approvalDigest": "99814724d8f0be8ed9bcc0320a9d180447180b8241aa91cdc916c18a32fb4e7a",
+      "approvalDigest": "b6140aacc6af3599c51d6b2479c0a26e013c6f20a6fea8a8250ee942181a2446",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1514,12 +1520,12 @@
       ],
       "normalizationDigest": "d5567a5382b1c991d6998b7026653764eb72d35babfa0e0154506bb2ee05cb5a",
       "requestAuthorityId": "ranking-v1-jobs-insufficient-request",
-      "requestDigest": "271737e9855c319e45fe69730a33ecdf5e4fd6d93dbb570b4f61478bcd0a9915",
-      "semanticDigest": "86b51c730c04f2053c9bd8861f7a77048ecc71f0224a06e63ee3f90752d2b451",
+      "requestDigest": "e553915594ac9feb851cb75caa64d36787d02873b70b9581eb8a97c94c57a8a7",
+      "semanticDigest": "ec3c54040e765f50404171bab7705d2f167c5ab402583692068613142815a10c",
       "sourceQueryDigest": "d9496dd4f5260c0a3c4bd493b3e8dd19d9d0f01c76041340d7c7b5c324112868"
     },
     {
-      "approvalDigest": "e173681120dd6bf9596de2135269e777946ed339bf4bfa3c0b78dee07a186401",
+      "approvalDigest": "4c981b696411b9bf72b677c83bd6d420886404fc2152a087ceb694719f1d0344",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1542,7 +1548,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-jobs-no-viable-request-success-2",
@@ -1609,12 +1615,12 @@
       ],
       "normalizationDigest": "298899d2c90f219cd1af524e6b9515a15a44c7181faff9b33564f3beb6d8f4fd",
       "requestAuthorityId": "ranking-v1-jobs-no-viable-request",
-      "requestDigest": "98d303fa4de7cc393ad1b9db1cc8cdce9b0ab9241ea1bc363cbcf1bdbe888bdb",
-      "semanticDigest": "02821e9de0b1a6f7108446f63bf6ffeaad7daeac41dd194bfc86ad134b432890",
+      "requestDigest": "ddbad36f4bbd090f2740367151c527aa328a54e7e6c5d498576c85dde47bd19a",
+      "semanticDigest": "6d963a7b565968b5ccbb02e2384537f12383735ba772d94eb63da1c928f7eccd",
       "sourceQueryDigest": "a6a67956edadc2f9100a4d7ca9821473e43c93143fc90cd1909fbbddb102bd2f"
     },
     {
-      "approvalDigest": "3f16bb17b17e30bab658a76eddf57c5d7d2506ecd4d33b636a2f811426609f9f",
+      "approvalDigest": "2b84b13984573c0e310a5d1a409130e45ad1dc3789d94584e74f87769f9a483a",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1682,12 +1688,12 @@
       ],
       "normalizationDigest": "e17514abfbf9c2d1549f00c95d04d7bb98f9103a25fc74f85adcc366b2d5091b",
       "requestAuthorityId": "ranking-v1-jobs-partial-request",
-      "requestDigest": "c79407725db7f31b09a77b8a9e6ed90e95786087232d13b613aba4493a95876a",
-      "semanticDigest": "7e18c9bba1da60e9ad53bc34f7be2ae7832190507137bb1cd5c2540768682dad",
+      "requestDigest": "e4c636a3d714d628e4e0d5568f2da764108ec9b2a943a5b327b889c2f05281a0",
+      "semanticDigest": "cd088c13ec9618b41a842e26b5b81964d26d21b9cfbad58a1206dbe79f899a67",
       "sourceQueryDigest": "3e135269c711f560da617fd55b9c478b5df42b93cc01dc8a8514166547da9861"
     },
     {
-      "approvalDigest": "3e2a94b005af28a35897b0445e130c4af5c031e0244caa0e92af5c2a06b293e6",
+      "approvalDigest": "c7df8bee1dceb724c9978abbbdd8315eb09092e250acda1b38a354ee7ce57b71",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1710,7 +1716,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-jobs-popularity-request-success-2",
@@ -1748,27 +1754,27 @@
       "hardConstraintRules": [
         {
           "candidateFeatureDependencies": [
-            "adoption-resources"
+            "integration-mode"
           ],
-          "constraintId": "ranking-v1-jobs-popularity-request-hard-resources",
-          "evaluationRuleId": "candidate-requirements-available/1.0.0",
-          "expectedValues": [],
-          "modality": "required",
-          "semanticConcept": "candidate-required-resources-available",
-          "semanticFacet": "resource-availability",
-          "targetFactDependencies": [
-            "resources"
-          ]
+          "constraintId": "ranking-v1-jobs-popularity-request-hard-adoption",
+          "evaluationRuleId": "candidate-has-all/1.0.0",
+          "expectedValues": [
+            "in-process-scheduler"
+          ],
+          "modality": "prohibited",
+          "semanticConcept": "in-process-scheduler-prohibited",
+          "semanticFacet": "adoption-unit",
+          "targetFactDependencies": []
         }
       ],
       "normalizationDigest": "1619aa8b612fbd559fe01d59b6af22889328c4645c500eee15363c45c7e39fc7",
       "requestAuthorityId": "ranking-v1-jobs-popularity-request",
-      "requestDigest": "a1f917fab685818a7384b77557a5a5f22b28c2e10de36be97756324b5e2a5e68",
-      "semanticDigest": "ab69e69959b0e81923fe0241c958a9f1ceaf8b2ec44246b0d12660e458528a9b",
+      "requestDigest": "9964c1b55f31dc4c5e82563530f21ec154ca6ffae0084d70f61936b61ad5fad2",
+      "semanticDigest": "a9b2f45e13e742e806f38f55392a06074e383f7f81d7455c0353b207c21e0bed",
       "sourceQueryDigest": "bbf069e39398e152273e2fa460a53ed273e44b83521772eaf9bf45e7d43e8185"
     },
     {
-      "approvalDigest": "76ed92ee20f5aebc80667db3b5e9a248ec844cce71309dc2fb14c71f54d8e674",
+      "approvalDigest": "8f2997317a586c6dc2c00fb450065fe7f0414fe075ea1e36e1ccf82b5f30911d",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1791,7 +1797,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-rate-controlled-request-success-2",
@@ -1844,12 +1850,12 @@
       ],
       "normalizationDigest": "9f58026854721f0a6a4e893d72d08c2009ed9cfb37803c84fb9b7b01b8e20524",
       "requestAuthorityId": "ranking-v1-rate-controlled-request",
-      "requestDigest": "521650156d405c441caebc78c48132b88054884b8c0ade8f05b0c3307d031ee0",
-      "semanticDigest": "5679c4b3e84e05ddf90042fdc7f10a19f3416db774e146957047564c77b2a1e8",
+      "requestDigest": "7278041ea9f52b45184db1ce5e7fa0f56b57334d51bfcf3dfd6e6b584d9212e7",
+      "semanticDigest": "66b5d89144d50cb0cd1d210a90adf07ffa46d1fdda79b2a1aebf4e2c6f9dd169",
       "sourceQueryDigest": "fe6d8cd471773d74131ec6741772038e8793b648571afb409422001b9529d7eb"
     },
     {
-      "approvalDigest": "c5e32e461ea5748ccbb18d99dc3e1f947c3460e61227b6a6a3cb74540e4cc9a1",
+      "approvalDigest": "764ae03227d6ed6bbe62c1df3d56fd16ade227ec914e405231d1ea398f84a6ec",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1921,12 +1927,12 @@
       ],
       "normalizationDigest": "249e497c5b2129e6052e45324bb3703ef00b715d23ee315b3872267c44e7cd49",
       "requestAuthorityId": "ranking-v1-rate-insufficient-request",
-      "requestDigest": "fa45a049277a4760de4c045501e7c7d25dd7a570ac6936f66afdb145ad5b2adf",
-      "semanticDigest": "bb94d1c488f89a7e4761425142fc81d36a19673fc95475ac658acf21935ed438",
+      "requestDigest": "a6b7e6b8331ebb30848f50b1c1cd0395ef753325d29b1582ea758c180a42c0cb",
+      "semanticDigest": "0689af50797060442b5b6d5196102448e542e910e739cf5cfaf1b62520a212b5",
       "sourceQueryDigest": "3e8d535b51acd28f12842b9566cdbe3eddc913ac3c84330b91090f75680e1ef9"
     },
     {
-      "approvalDigest": "3bed292dbdedd5daccb3ef0abd9865798c703cb859d390559c0915a152c3ef0b",
+      "approvalDigest": "74e6a8cc8a38525dff9d4138322ed3482dc90acc056a6fe41c60e8531288112c",
       "bindings": [
         {
           "bindingState": "bound",
@@ -1949,7 +1955,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-rate-no-viable-request-success-2",
@@ -2016,12 +2022,12 @@
       ],
       "normalizationDigest": "9c92376b1114fd9c8120b3288050fcb7b66bac94181f609b8ea5813fb6788a7c",
       "requestAuthorityId": "ranking-v1-rate-no-viable-request",
-      "requestDigest": "76bd670d253b3ea9beb8b88c6acf843b972153aceaf82e6ecbc25f500f1521df",
-      "semanticDigest": "44c384b585fce33457ed556ffedf41c09ab522ce909f659cc7a10388627000ad",
+      "requestDigest": "daafed87b431e6a40f06426c0d9dc2459cafe3ae29055cede6424e0f86608e9e",
+      "semanticDigest": "f2095ebff07f415de5b5326743f19f0651ce4665a480962aed7ff0ac09146be8",
       "sourceQueryDigest": "ad4e7fb5963a9597f4b127e1b4975d5dddaca6553b119f918bffc28eba1129b6"
     },
     {
-      "approvalDigest": "f1678a031974cd7c29f9d6e5fab000d3492bdf45ba5579f041bab5ee99870eb7",
+      "approvalDigest": "c08c75601ccaf91d7a4d93cac96624d0628c53928b6affa2a61f65de67fee07a",
       "bindings": [
         {
           "bindingState": "bound",
@@ -2093,12 +2099,12 @@
       ],
       "normalizationDigest": "cfa5e0c83ad7db4822008df168a8c5d62d41d0e59274558f4bf39aa12390d20a",
       "requestAuthorityId": "ranking-v1-rate-partial-request",
-      "requestDigest": "74392459cbf0ad5b91759e05c0e43d8a2e3c438d2fc1b37d7519ba60ffe65be8",
-      "semanticDigest": "85accf670cb147fadfd83349572ba9cd713db861022396d4dbc3a8e6a03b7e16",
+      "requestDigest": "1671f5e90de51c4d1c66f27889260b509b1413c95d7af9a2727aab0cd8e074af",
+      "semanticDigest": "39b182e78a4e0ef3a339c462c755550daef42860674fddbb4ace29dda9f03b54",
       "sourceQueryDigest": "df47f33ad6dc8aad32d22868e157aeac0394cfede810a3a791e5b95595aa8380"
     },
     {
-      "approvalDigest": "1c39e6bc15aaae7e164ac4a4c2409229cba7cd0b7f1aebf75fd5d854fe6562a9",
+      "approvalDigest": "b5a8ceda43c3b847e9318803091af4fdb53b0b3afab2e6ddd0fb1099b9cdb68f",
       "bindings": [
         {
           "bindingState": "bound",
@@ -2121,7 +2127,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-rate-popularity-request-success-2",
@@ -2159,27 +2165,27 @@
       "hardConstraintRules": [
         {
           "candidateFeatureDependencies": [
-            "adoption-resources"
+            "operational-primitives"
           ],
-          "constraintId": "ranking-v1-rate-popularity-request-hard-resources",
-          "evaluationRuleId": "candidate-requirements-available/1.0.0",
-          "expectedValues": [],
-          "modality": "required",
-          "semanticConcept": "candidate-required-resources-available",
-          "semanticFacet": "resource-availability",
-          "targetFactDependencies": [
-            "resources"
-          ]
+          "constraintId": "ranking-v1-rate-popularity-request-hard-adoption",
+          "evaluationRuleId": "candidate-has-all/1.0.0",
+          "expectedValues": [
+            "local-scheduling"
+          ],
+          "modality": "prohibited",
+          "semanticConcept": "local-only-scheduling-prohibited",
+          "semanticFacet": "operational-mode",
+          "targetFactDependencies": []
         }
       ],
       "normalizationDigest": "8d17a6af15768ac6f9ec2dee25ac1fa204e8aefa2a001bee3b582882851c8fb6",
       "requestAuthorityId": "ranking-v1-rate-popularity-request",
-      "requestDigest": "0c2971d756cb7fa564d033c0ad4e2df34f58bd25acab8193743457614a2f246f",
-      "semanticDigest": "1e31bd4f18640f90d0ffb1bd3b3a919d37dbcad0339f846e492784117e310759",
+      "requestDigest": "0c71ecf435dc5e9b519ddbc14fb66a95d3344b308c6272385c2039175b1f0b0d",
+      "semanticDigest": "efd5537a5883751a064da577dfb9f95bfdefa30ad0028eab0c830d8f436affba",
       "sourceQueryDigest": "5df95844e044448412d742e9fdf3d191d9d632500a46f6ae7951fd99ab649b68"
     },
     {
-      "approvalDigest": "01d144b13868b66bb01b760c01b55cbb0ed0489704556328b50d67c80a175912",
+      "approvalDigest": "6d351008d7d74c353fd4526f2aa46b29a0b2c25f32aa0e5f984347339ec7655f",
       "bindings": [
         {
           "bindingState": "bound",
@@ -2202,7 +2208,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-webhook-controlled-request-success-2",
@@ -2255,12 +2261,12 @@
       ],
       "normalizationDigest": "67ef2f7f82d03df2dc19b1ef23820c8b9ffed7dfafe3c933d34f74fdd18dd92b",
       "requestAuthorityId": "ranking-v1-webhook-controlled-request",
-      "requestDigest": "4bac7d454dc707324a41ae1c112b64c938b4d9e31b762dd5af39e3e8b956f626",
-      "semanticDigest": "c5878c9b12b9d5290a4d499272e2fbc85506f464ffe069bfb2506603e8373913",
+      "requestDigest": "5283d493bcf07f980a46b7b71c243e49ff1f3436da5a5221b01df10b16e946e7",
+      "semanticDigest": "75b697b368cac726324ce1ad768c99b58d764b83627208e43bfd627d4c3fa631",
       "sourceQueryDigest": "fc92533bd8e5ca487149566c03a94014edc01b6c10707f50a19a31e7769ec318"
     },
     {
-      "approvalDigest": "78ae0e9860511d6b4a54aba3690fff8ac1fad0a3b5bf5414cc5f19c4cdaa43ae",
+      "approvalDigest": "54cfe1e42e405123d1d1318122f11bfa1a9c8f26288081f66fed2871caf89ccb",
       "bindings": [
         {
           "bindingState": "bound",
@@ -2332,12 +2338,12 @@
       ],
       "normalizationDigest": "ff376bde67655fa3a5ddf18acff81eef74361d0c2324225e54c1b036e5b9a095",
       "requestAuthorityId": "ranking-v1-webhook-insufficient-request",
-      "requestDigest": "6c0ae10c5e04ced8cdc0c01508c518d143ab54fe73f378b804a9a5b53253651e",
-      "semanticDigest": "6a1e4e7293d8c2020062da839e01f0437de140132adb5e7e49152745492435ba",
+      "requestDigest": "0ee14677eb5612f226a565cfe9b8df52f1d2f7a456c2c789b7744aed0505715e",
+      "semanticDigest": "4ae73255b81e6ea3cec752776c67da6da1d2bb706da777d46ea399df7e39be4d",
       "sourceQueryDigest": "29e0beec73d48e116a85ea6d142777a4243d099b6d61b26f40e181b1fb21e444"
     },
     {
-      "approvalDigest": "9d7213feec96a231d349e0fb90ca7b9b6f90ec2e6397ec45a1f619f9c5a99dd7",
+      "approvalDigest": "5aab83f77a54817129d9e3c80acc38e6140ed0d25f48e2f45f098a338544719b",
       "bindings": [
         {
           "bindingState": "bound",
@@ -2360,7 +2366,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-webhook-no-viable-request-success-2",
@@ -2427,12 +2433,12 @@
       ],
       "normalizationDigest": "bf440d393ee4ba08c3ed05ab38b337965c97554ea38ed09101b3697d8080752b",
       "requestAuthorityId": "ranking-v1-webhook-no-viable-request",
-      "requestDigest": "491a40798636399da32a4679cfaa7dec11e7dda70ea355761d67f320904acafb",
-      "semanticDigest": "920d212e7b2e2eb2398845f218aabfebc6cea63dfa0bf980e24fff54eee8174e",
+      "requestDigest": "0c17f03c0de39f35318e6341fcbe06e8faa18e08ccd8a5a56c68b0b464c9c2cb",
+      "semanticDigest": "2fa2f0509680dbe5907bff039b0b9167c00c38151f0e73e9472ae49b87abac51",
       "sourceQueryDigest": "9deaecca75d1583786d5bdf36c95e56f44cd04b633a4affb799ca0547e23bc97"
     },
     {
-      "approvalDigest": "89167d24d775b4a692bbbb403fe86893ad79d6ca1896a99a1f40bd69a75958de",
+      "approvalDigest": "8fefecae103031041a0190d8a2b1f0cfc558a8b5d46ac6dc97d3164a860b3595",
       "bindings": [
         {
           "bindingState": "bound",
@@ -2500,12 +2506,12 @@
       ],
       "normalizationDigest": "5a03b8878871e0c321c9cb26622fb832d15926c6d9e4d4836e8e293dbda7ca43",
       "requestAuthorityId": "ranking-v1-webhook-partial-request",
-      "requestDigest": "49bf265c76426e370392f2e38c86ab6f140bd6917adaac32cdf290cd377cf8cd",
-      "semanticDigest": "4d10d0346b9c9514f03d6a2f73e7e90b8acd9bf9aef7bd787ece8f79c86ae834",
+      "requestDigest": "299b72be72b18249f566e3ed82c362b01a4b20c28dbd2a0fef1e65522b36a438",
+      "semanticDigest": "e902b532b70dfbf0b5f74ee2ca50b1f34d13bac131b07e1cd5a5e19571b05ef6",
       "sourceQueryDigest": "6a0ab20e6b85ecd570559aa0ceb9f5b393175e6e0a99eaa621123ecd71522ef7"
     },
     {
-      "approvalDigest": "23d1e19a94cb994b18665f8cdd6bd5687842bdd112510237cc9080c02a3cc678",
+      "approvalDigest": "37e1f46324a4b30bae6fac1f97f8ece21458642c36899a78fc21bb7adc44fc21",
       "bindings": [
         {
           "bindingState": "bound",
@@ -2528,7 +2534,7 @@
         {
           "bindingState": "bound",
           "candidateFeatureDependencies": [
-            "operational-primitives"
+            "capability-features"
           ],
           "comparisonRuleId": "candidate-has-all/1.0.0",
           "criterionId": "ranking-v1-webhook-popularity-request-success-2",
@@ -2566,23 +2572,23 @@
       "hardConstraintRules": [
         {
           "candidateFeatureDependencies": [
-            "adoption-resources"
+            "integration-mode"
           ],
-          "constraintId": "ranking-v1-webhook-popularity-request-hard-resources",
-          "evaluationRuleId": "candidate-requirements-available/1.0.0",
-          "expectedValues": [],
-          "modality": "required",
-          "semanticConcept": "candidate-required-resources-available",
-          "semanticFacet": "resource-availability",
-          "targetFactDependencies": [
-            "resources"
-          ]
+          "constraintId": "ranking-v1-webhook-popularity-request-hard-adoption",
+          "evaluationRuleId": "candidate-has-all/1.0.0",
+          "expectedValues": [
+            "external-webhook-service"
+          ],
+          "modality": "prohibited",
+          "semanticConcept": "external-webhook-service-prohibited",
+          "semanticFacet": "adoption-unit",
+          "targetFactDependencies": []
         }
       ],
       "normalizationDigest": "36ae4be8b36a868208b2edb1238231e2af08991e951123c98a4d6aa5d560fb41",
       "requestAuthorityId": "ranking-v1-webhook-popularity-request",
-      "requestDigest": "d769fefa0b6cc3e8a4f970fcec88f79a68eab7af5f5e9a0f890acb5e8c031adf",
-      "semanticDigest": "a040b94221c43a9aa10f6fe3ee82fbe6dbe3cfcf5214c262f4be691e28b0a2eb",
+      "requestDigest": "a5891f5186cbf38bde0258a02007c8541cf2084f8f6af2feb3a370fe3c851d77",
+      "semanticDigest": "04f800f484081ae766e064610726e8d80df7d0b437cce53d3f1e82981a77063c",
       "sourceQueryDigest": "81f9280d5f35aad2abbff0123fc44f54ae1e972cbb8ce8dd0c11b128108677a4"
     }
   ],
@@ -2713,9 +2719,9 @@
       "capabilityFamily": "audit-logging",
       "hardConstraints": [
         {
-          "criterionId": "ranking-v1-audit-popularity-request-hard-resources",
-          "reasonCode": "hard-required-resource-unavailable",
-          "statement": "Every candidate-required infrastructure resource must already be available to the target."
+          "criterionId": "ranking-v1-audit-popularity-request-hard-adoption",
+          "reasonCode": "hard-prohibited-adoption-unit",
+          "statement": "The target prohibits database-extension adoption."
         }
       ],
       "preferences": [
@@ -2863,9 +2869,9 @@
       "capabilityFamily": "authorization",
       "hardConstraints": [
         {
-          "criterionId": "ranking-v1-auth-popularity-request-hard-resources",
-          "reasonCode": "hard-required-resource-unavailable",
-          "statement": "Every candidate-required infrastructure resource must already be available to the target."
+          "criterionId": "ranking-v1-auth-popularity-request-hard-adoption",
+          "reasonCode": "hard-prohibited-adoption-unit",
+          "statement": "The target prohibits an external policy service."
         }
       ],
       "preferences": [
@@ -3013,9 +3019,9 @@
       "capabilityFamily": "background-jobs",
       "hardConstraints": [
         {
-          "criterionId": "ranking-v1-jobs-popularity-request-hard-resources",
-          "reasonCode": "hard-required-resource-unavailable",
-          "statement": "Every candidate-required infrastructure resource must already be available to the target."
+          "criterionId": "ranking-v1-jobs-popularity-request-hard-adoption",
+          "reasonCode": "hard-prohibited-adoption-unit",
+          "statement": "The target prohibits an in-process scheduler."
         }
       ],
       "preferences": [
@@ -3163,9 +3169,9 @@
       "capabilityFamily": "rate-limiting",
       "hardConstraints": [
         {
-          "criterionId": "ranking-v1-rate-popularity-request-hard-resources",
-          "reasonCode": "hard-required-resource-unavailable",
-          "statement": "Every candidate-required infrastructure resource must already be available to the target."
+          "criterionId": "ranking-v1-rate-popularity-request-hard-adoption",
+          "reasonCode": "hard-prohibited-adoption-unit",
+          "statement": "The target prohibits local-only scheduling semantics."
         }
       ],
       "preferences": [
@@ -3313,9 +3319,9 @@
       "capabilityFamily": "webhooks",
       "hardConstraints": [
         {
-          "criterionId": "ranking-v1-webhook-popularity-request-hard-resources",
-          "reasonCode": "hard-required-resource-unavailable",
-          "statement": "Every candidate-required infrastructure resource must already be available to the target."
+          "criterionId": "ranking-v1-webhook-popularity-request-hard-adoption",
+          "reasonCode": "hard-prohibited-adoption-unit",
+          "statement": "The target prohibits an external webhook service."
         }
       ],
       "preferences": [
@@ -3339,7 +3345,7 @@
       "summary": "Choose responsible signed webhook handling fit under target resource constraints rather than catalog familiarity."
     }
   ],
-  "semanticDigest": "08ecaf0be63a6b0b591ad8394c4d0f9a352b46454261e78b123ee633f809e3f1",
+  "semanticDigest": "f80569864099956d594b074380242b93a301944087fe7584d34fc83b23f7ea49",
   "targets": [
     {
       "facts": {

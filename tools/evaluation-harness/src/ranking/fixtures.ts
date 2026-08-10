@@ -518,9 +518,9 @@ function assemble(
 ): Fixture {
   const corpus = {
     blind: {
-      authorityVersion: 'ranking-v1-blind-cases/2.0.0',
+      authorityVersion: 'ranking-v1-blind-cases/3.0.0',
       corpusId: 'ranking-v1',
-      corpusVersion: '2.0.0',
+      corpusVersion: '3.0.0',
       evidenceCutoff: 'fixture',
       requests: cases.map(({ request }) => request),
       criterionAuthorities: cases.map(({ criteria }) => criteria),
@@ -543,7 +543,7 @@ function assemble(
       semanticDigest: 'fixture',
     },
     gold: {
-      authorityVersion: 'ranking-v1-proposed-gold/2.0.0',
+      authorityVersion: 'ranking-v1-proposed-gold/3.0.0',
       corpusId: 'ranking-v1',
       reviewStatus: 'proposed-not-independently-reviewed',
       cases: gold,
@@ -558,17 +558,17 @@ function assemble(
       semanticDigest: 'fixture',
     },
     reviewerRationale: {
-      authorityVersion: 'ranking-v1-reviewer-rationale/1.0.0',
+      authorityVersion: 'ranking-v1-reviewer-rationale/2.0.0',
       corpusId: 'ranking-v1',
       status: 'author-rationale-for-independent-review',
       cases: [],
       semanticDigest: 'fixture',
     },
     review: {
-      reviewRecordVersion: 'ranking-v1-review-record/2.0.0',
+      reviewRecordVersion: 'ranking-v1-review-record/3.0.0',
       corpusId: 'ranking-v1',
-      goldAuthorityVersion: 'ranking-v1-proposed-gold/2.0.0',
-      reviewerRationaleVersion: 'ranking-v1-reviewer-rationale/1.0.0',
+      goldAuthorityVersion: 'ranking-v1-proposed-gold/3.0.0',
+      reviewerRationaleVersion: 'ranking-v1-reviewer-rationale/2.0.0',
       status: 'independent-review-pending',
       author: 'Codex',
       independentReviewer: null,
@@ -888,13 +888,13 @@ function score(
   predictions: readonly RankingCasePrediction[],
 ) {
   const withoutDigest = {
-    predictionSetVersion: 'ranking-v1-prediction-set/2.0.0' as const,
+    predictionSetVersion: 'ranking-v1-prediction-set/3.0.0' as const,
     predictionSetId: 'fixture-predictions',
     baselineId: 'synthetic-oracle-scorer-only',
     baselineVersion: 'ranking-synthetic-oracle/2.0.0',
     baselineSpecificationDigest: 'fixture',
     corpusId: 'ranking-v1' as const,
-    corpusVersion: '2.0.0' as const,
+    corpusVersion: '3.0.0' as const,
     blindInputDigest: 'fixture',
     predictions,
   };

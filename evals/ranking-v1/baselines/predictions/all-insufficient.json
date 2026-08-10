@@ -2,11 +2,11 @@
   "baselineId": "all-insufficient-responsible-abstention",
   "baselineSpecificationDigest": "9c920adfa0e22844a70441915d39d802a276470025b1d8d54a03036f735edc68",
   "baselineVersion": "ranking-all-insufficient-abstention/2.0.0",
-  "blindInputDigest": "fddf8566a784fbd04ecb70f4663e15140955e64fc8c1e1a44128935a6557e7bd",
+  "blindInputDigest": "6c8b83d81a082814a8cfc250830418962a6f684902324182e59553ecbbf07fc9",
   "corpusId": "ranking-v1",
-  "corpusVersion": "2.0.0",
+  "corpusVersion": "3.0.0",
   "predictionSetId": "ranking-v1-allInsufficient-predictions",
-  "predictionSetVersion": "ranking-v1-prediction-set/2.0.0",
+  "predictionSetVersion": "ranking-v1-prediction-set/3.0.0",
   "predictions": [
     {
       "candidates": [
@@ -1809,5 +1809,5 @@
       "unboundPreferenceCounterfactuals": []
     }
   ],
-  "semanticDigest": "7534e230aa0f8431c7085d06ad66af3b2c8dab2143ce96e6c279b83ee1a93ffc"
+  "semanticDigest": "184de4c33e58108c3464e6eba0bf780015dbab031720405ab5d2b7a2e7719c26"
 }

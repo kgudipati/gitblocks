@@ -18,7 +18,7 @@ import {
 
 export interface RankingBlindInputSet {
   readonly corpusId: 'ranking-v1';
-  readonly corpusVersion: '2.0.0';
+  readonly corpusVersion: '3.0.0';
   readonly blindInputDigest: string;
   readonly cases: readonly RankingResolvedCase[];
   readonly specifications: RankingBaselineSpecificationAuthority;
@@ -50,7 +50,7 @@ export function loadRankingBlindInputSet(
   if (
     rankingValuesDiffer(
       blind.authorityVersion,
-      'ranking-v1-blind-cases/2.0.0',
+      'ranking-v1-blind-cases/3.0.0',
     ) ||
     rankingValuesDiffer(
       evidence.authorityVersion,
@@ -62,7 +62,7 @@ export function loadRankingBlindInputSet(
     ) ||
     rankingValuesDiffer(
       specifications.authorityVersion,
-      'ranking-v1-baseline-specifications/2.0.0',
+      'ranking-v1-baseline-specifications/3.0.0',
     ) ||
     rankingSemanticDigest(specifications) !== specifications.semanticDigest ||
     specifications.specifications.some((specification) => {
@@ -124,7 +124,7 @@ export function loadRankingBlindInputSet(
   if (order === 'reverse') cases.reverse();
   return {
     corpusId: 'ranking-v1',
-    corpusVersion: '2.0.0',
+    corpusVersion: '3.0.0',
     blindInputDigest: rankingDigest({ blind, evidence, handoff }),
     cases,
     specifications,

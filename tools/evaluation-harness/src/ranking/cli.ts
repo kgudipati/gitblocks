@@ -11,10 +11,21 @@ import {
 import { dirname, join, relative, resolve, sep } from 'node:path';
 
 import { generateRankingBaselinePredictionSets } from './baselines.ts';
+import {
+  authorCorrectedBaselineSpecifications,
+  authorCorrectedRankingAuthority,
+} from './authority-authoring.ts';
 import { generateRankingCompositionArtifacts } from './composition.ts';
 import { validateRankingContractConformance } from './contract-conformance.ts';
 import { createRankingManifest, loadRankingCorpus } from './corpus.ts';
 import { runRankingScorerFixtures } from './fixtures.ts';
+import {
+  type RankingAuditAuthority,
+  type RankingBaselineSpecificationAuthority,
+  type RankingBlindCaseAuthority,
+  type RankingEvidenceAuthority,
+  type RankingHandoffAuthority,
+} from './contracts.ts';
 import {
   measureRankingPerformanceReference,
   type RankingPerformanceReference,
@@ -47,6 +58,13 @@ const WRITABLE_PATHS = new Set([
   'gates/proposed-review-inputs.json',
   'manifest.json',
 ]);
+const AUTHORING_WRITABLE_PATHS = new Set([
+  'blind/cases.json',
+  'gold/outcomes.json',
+  'reviews/reviewer-rationale.json',
+  'reviews/proposed-review-record.json',
+  'baselines/specifications.json',
+]);
 
 export const RANKING_EXIT_CODES = {
   success: 0,
@@ -74,6 +92,61 @@ export function runRankingCli(
       if (!loaded.ok) return reportDiagnostics(loaded.diagnostics, output);
       output.log(
         'ranking-v1 valid (30 cases; 6 per family; proposed gold; independent review pending)',
+      );
+      return RANKING_EXIT_CODES.success;
+    }
+    if (command === 'authority-generate') {
+      const authority = authorCorrectedRankingAuthority(
+        readAuthority<RankingBlindCaseAuthority>(
+          repositoryRoot,
+          'blind/cases.json',
+        ),
+        readAuthority<RankingEvidenceAuthority>(
+          repositoryRoot,
+          'evidence/candidate-evidence.json',
+        ),
+        readAuthority<RankingHandoffAuthority>(
+          repositoryRoot,
+          'handoff/phase9-lanes.json',
+        ),
+        readAuthority<RankingAuditAuthority>(
+          repositoryRoot,
+          'audit/case-classifications.json',
+        ),
+      );
+      writeAuthoringAuthority(
+        repositoryRoot,
+        'blind/cases.json',
+        authority.blind,
+      );
+      writeAuthoringAuthority(
+        repositoryRoot,
+        'gold/outcomes.json',
+        authority.gold,
+      );
+      writeAuthoringAuthority(
+        repositoryRoot,
+        'reviews/reviewer-rationale.json',
+        authority.rationale,
+      );
+      writeAuthoringAuthority(
+        repositoryRoot,
+        'reviews/proposed-review-record.json',
+        authority.review,
+      );
+      const specifications = authorCorrectedBaselineSpecifications(
+        readAuthority<RankingBaselineSpecificationAuthority>(
+          repositoryRoot,
+          'baselines/specifications.json',
+        ),
+      );
+      writeAuthoringAuthority(
+        repositoryRoot,
+        'baselines/specifications.json',
+        specifications,
+      );
+      output.log(
+        'ranking-v1 corrected proposed authority generated (independent review pending)',
       );
       return RANKING_EXIT_CODES.success;
     }
@@ -419,6 +492,25 @@ function writeAuthority(
   if (!WRITABLE_PATHS.has(relativePath)) {
     throw new Error('Ranking writer destination is not authorized.');
   }
+  writeBoundedAuthority(repositoryRoot, relativePath, value);
+}
+
+function writeAuthoringAuthority(
+  repositoryRoot: string,
+  relativePath: string,
+  value: unknown,
+): void {
+  if (!AUTHORING_WRITABLE_PATHS.has(relativePath)) {
+    throw new Error('Ranking authoring destination is not authorized.');
+  }
+  writeBoundedAuthority(repositoryRoot, relativePath, value);
+}
+
+function writeBoundedAuthority(
+  repositoryRoot: string,
+  relativePath: string,
+  value: unknown,
+): void {
   const root = join(repositoryRoot, CORPUS_RELATIVE_ROOT);
   mkdirSync(root, { recursive: true });
   const rootReal = realpathSync(root);
@@ -518,7 +610,7 @@ function reportDiagnostics(
 
 function usage(output: Output): number {
   output.error(
-    'usage: ranking-evaluation <validate|fixtures|fixtures-generate|baselines-generate|baselines-score|baselines|composition-generate|performance-generate|gates-generate|manifest-generate|verify>',
+    'usage: ranking-evaluation <validate|authority-generate|fixtures|fixtures-generate|baselines-generate|baselines-score|baselines|composition-generate|performance-generate|gates-generate|manifest-generate|verify>',
   );
   return RANKING_EXIT_CODES.usage;
 }

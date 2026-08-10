@@ -53,12 +53,15 @@ Static architecture checks deny persistence, ingestion, environment-variable,
 HTTP/network, OpenAI/model, child-process, and Docker access from ranking
 evaluation source. Product-package source is scanned for ranking-v1 authority
 dependencies. Writers resolve beneath `evals/ranking-v1`, reject symlinks and
-path escape, and accept only enumerated report/prediction/manifest destinations.
+path escape. Ordinary generation accepts only enumerated report, prediction,
+fixture-summary, gate-input, and manifest destinations; the explicit correction
+authoring command has a separate closed allowlist for blind cases, proposed
+gold, author rationale/review state, and baseline specifications.
 
 ## Proposed corpus
 
-The corrected corpus has version `2.0.0`, cutoff `2026-08-10`, and exactly 30 cases, six
-per supported family. Each family has the same six-position pattern:
+The corrected corpus has version `3.0.0`, cutoff `2026-08-10`, and exactly 30
+cases, six per supported family. Each family has the same six-position pattern:
 
 1. controlled target A;
 2. controlled target B;
@@ -87,6 +90,14 @@ explicit structured preferences, unbound preference non-effect, and denial of
 preference hardening. This authority does not add the future product criterion
 schema.
 
+Every bound material success criterion names one request-independent candidate
+fact dimension, and at least one fixed candidate must carry a known value at
+that dimension capable of satisfying the declared comparison rule. Ranking-v1
+contains no deliberate zero-coverage exception. The author rationale repeats
+the exact binding, expected values, candidate observation ID, observed values,
+and proposed coverage state; validation rejects a crosswalk that names a
+different fact path.
+
 Every proposed positive candidate pair is deliberately tied, ordered, or
 explicitly incomparable. Pairs containing only rejected or insufficient
 candidates are intentionally non-presented and do not create an adoption-fit
@@ -104,6 +115,14 @@ criterion-binding consequences. References must close against the fixed
 candidate and bounded evidence authorities. Hard-conflict candidates cannot be
 positive or ranked; positive candidates require candidate-conditioned support;
 insufficient candidates disclose material uncertainty.
+
+`RankingGoldCandidate.evidenceIds` contains only decision-relevant candidate
+observations: evidence for a reason, material success result, hard conflict,
+evidence-needed closure, causally applied preference, target-fit comparison, or
+material unknown. It is not an input-evidence preservation list. Validation
+requires candidate ownership and reproduces the exact minimal set from the
+frozen evaluation rules; unrelated available observations remain only in the
+separate blind evidence authority.
 
 The gold authority status is `proposed-not-independently-reviewed`. Every case
 provenance is `proposed/not-reviewed`, with null reviewer, review time, and
@@ -176,13 +195,23 @@ The canonical aggregate results and exact digests are in
 winners, recommendation lists, rationale, evidence prose, or sensitive source
 content.
 
+The two feature baselines are version `3.0.0`. For the target-aware baseline,
+success and preference vectors affect disposition/coverage reporting but not
+ordering; equal runtime/framework/deployment compatibility vectors are tied,
+and independent target-vector trade-offs are incomparable. For both feature
+baselines, a complete layer that would cross the maximum is omitted together
+with every relation or incomparable pair that references an omitted candidate.
+If the maximal layer itself exceeds the maximum, presentation, rank groups,
+rank relations, and incomparable pairs are all empty; candidate assessments
+remain intact.
+
 ## Gate evidence, not gate selection
 
 The proposed gate input binds corpus, gold, review, predictions, scores,
 scorer, and performance-reference digests. It reports cases and exact errors
 for overall and per-family baselines, scorer ceilings, five controlled pairs,
-75 hard-conflict opportunities, five no-viable cases, five insufficient cases,
-three tie pairs, two incomparable pairs, and 35 evidence-needed transitions.
+70 hard-conflict opportunities, five no-viable cases, five insufficient cases,
+four tie pairs, two incomparable pairs, and 35 evidence-needed transitions.
 
 The strongest non-oracle selection is deterministic and based on, in order:
 outcome correctness, macro disposition F1, partial-order agreement, top-three

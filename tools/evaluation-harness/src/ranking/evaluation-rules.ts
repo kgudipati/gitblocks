@@ -12,7 +12,7 @@ import type {
 import { compareRankingText } from './stable-json.ts';
 
 export const RANKING_EVALUATION_RULE_VERSION =
-  'ranking-v1-evaluation-rules/2.0.0' as const;
+  'ranking-v1-evaluation-rules/3.0.0' as const;
 
 type RuleState = 'supported' | 'generic' | 'not-supported' | 'unknown';
 export type FitRelation =
@@ -32,6 +32,10 @@ export interface DerivedCandidateFit {
   readonly reasonCodes: readonly string[];
   readonly evidenceIds: readonly string[];
   readonly unknownIds: readonly string[];
+  readonly hardRuleEvidenceIds: readonly string[];
+  readonly successEvidenceIds: readonly string[];
+  readonly preferenceEvidenceIds: ReadonlyMap<string, readonly string[]>;
+  readonly targetEvidenceIds: readonly string[];
   readonly successVector: readonly number[];
   readonly preferenceVectors: ReadonlyMap<string, number>;
   readonly targetVector: readonly number[];
@@ -47,8 +51,10 @@ export function deriveCandidateFit(
   const hardConflicts: RankingCasePrediction['hardConstraintConflicts'][number][] =
     [];
   const hardUnknowns: string[] = [];
+  const hardRuleEvidenceIds: string[] = [];
   for (const rule of input.criteria.hardConstraintRules) {
     const result = evaluateHardRule(rule, evidence, input.target, targetAware);
+    hardRuleEvidenceIds.push(...result.evidenceIds);
     if (result.state === 'conflict') {
       const requestConstraint = input.request.hardConstraints.find(
         ({ criterionId }) => criterionId === rule.constraintId,
@@ -82,6 +88,7 @@ export function deriveCandidateFit(
     [];
   const successVector: number[] = [];
   const successUnknowns: string[] = [];
+  const successEvidenceIds: string[] = [];
   let globalMaterialUnbound = false;
   for (const binding of input.criteria.bindings.filter(
     ({ criterionKind }) => criterionKind === 'success-condition',
@@ -102,6 +109,7 @@ export function deriveCandidateFit(
       input.target,
       targetAware,
     );
+    successEvidenceIds.push(...result.evidenceIds);
     const covered = result.state === 'supported' || result.state === 'generic';
     coverage.push({
       candidateId,
@@ -115,6 +123,7 @@ export function deriveCandidateFit(
   }
 
   const preferenceVectors = new Map<string, number>();
+  const preferenceEvidenceIds = new Map<string, readonly string[]>();
   for (const binding of input.criteria.bindings.filter(
     ({ criterionKind }) => criterionKind === 'preference',
   )) {
@@ -126,6 +135,7 @@ export function deriveCandidateFit(
       targetAware,
     );
     preferenceVectors.set(binding.criterionId, ruleStateValue(result.state));
+    preferenceEvidenceIds.set(binding.criterionId, result.evidenceIds);
   }
 
   const targetVector = targetAware
@@ -144,11 +154,29 @@ export function deriveCandidateFit(
       hardUnknowns.length > 0 ||
       successUnknowns.length > 0 ||
       closureUnknowns.length > 0);
-  const supportingEvidence = new Set(
-    evidence.observations
-      .filter(({ state }) => state === 'known')
-      .map(({ evidenceId }) => evidenceId),
+  const resolutionEvidenceIds = resolutions.flatMap(
+    ({ evidenceIds }) => evidenceIds,
   );
+  const supportingEvidence = new Set(
+    rejected
+      ? [
+          ...hardConflicts.flatMap(({ evidenceIds }) => evidenceIds),
+          ...resolutionEvidenceIds,
+        ]
+      : [
+          ...hardRuleEvidenceIds,
+          ...resolutionEvidenceIds,
+          ...successEvidenceIds,
+        ],
+  );
+  const targetEvidenceIds = [
+    'runtime-support',
+    'framework-support',
+    'deployment-support',
+  ].flatMap((featureId) => {
+    const observation = observationFor(evidence, featureId);
+    return observation === undefined ? [] : [observation.evidenceId];
+  });
   return {
     candidateId,
     hardConflicts,
@@ -178,6 +206,14 @@ export function deriveCandidateFit(
       ...successUnknowns,
       ...closureUnknowns,
     ].sort(compareRankingText),
+    hardRuleEvidenceIds: [...new Set(hardRuleEvidenceIds)].sort(
+      compareRankingText,
+    ),
+    successEvidenceIds: [...new Set(successEvidenceIds)].sort(
+      compareRankingText,
+    ),
+    preferenceEvidenceIds,
+    targetEvidenceIds: [...new Set(targetEvidenceIds)].sort(compareRankingText),
     successVector,
     preferenceVectors,
     targetVector,
@@ -288,18 +324,31 @@ export function createPartialOrderPresentation(
     );
     if (allTied) rankGroups.push(layer);
   }
+  const presentedCandidateIds = new Set(presentation);
   return {
     presentation,
     rankGroups,
-    rankRelations: relations.sort((left, right) =>
-      compareRankingText(
-        `${left.higherCandidateId}\0${left.lowerCandidateId}`,
-        `${right.higherCandidateId}\0${right.lowerCandidateId}`,
+    rankRelations: relations
+      .filter(
+        ({ higherCandidateId, lowerCandidateId }) =>
+          presentedCandidateIds.has(higherCandidateId) &&
+          presentedCandidateIds.has(lowerCandidateId),
+      )
+      .sort((left, right) =>
+        compareRankingText(
+          `${left.higherCandidateId}\0${left.lowerCandidateId}`,
+          `${right.higherCandidateId}\0${right.lowerCandidateId}`,
+        ),
       ),
-    ),
-    incomparablePairs: incomparable.sort((left, right) =>
-      compareRankingText(left.join('\0'), right.join('\0')),
-    ),
+    incomparablePairs: incomparable
+      .filter(([left, right]) =>
+        [left, right].every((candidateId) =>
+          presentedCandidateIds.has(candidateId),
+        ),
+      )
+      .sort((left, right) =>
+        compareRankingText(left.join('\0'), right.join('\0')),
+      ),
   };
 }
 
@@ -360,6 +409,46 @@ export function derivePreferenceConsequences(
     .sort((left, right) =>
       compareRankingText(left.criterionId, right.criterionId),
     );
+}
+
+export function deriveDecisionEvidenceIds(
+  fit: DerivedCandidateFit,
+  fits: readonly DerivedCandidateFit[],
+  presentation: readonly string[],
+  preferenceIds: readonly string[],
+  consequences: RankingCasePrediction['preferenceConsequences'],
+): readonly string[] {
+  const evidenceIds = new Set(fit.evidenceIds);
+  for (const consequence of consequences) {
+    if (
+      consequence.affectedPairs.some((pair) => pair.includes(fit.candidateId))
+    ) {
+      fit.preferenceEvidenceIds
+        .get(consequence.criterionId)
+        ?.forEach((evidenceId) => evidenceIds.add(evidenceId));
+    }
+  }
+  if (presentation.includes(fit.candidateId)) {
+    for (const other of fits.filter(
+      (candidate) =>
+        candidate.disposition === 'viable' &&
+        candidate.candidateId !== fit.candidateId &&
+        presentation.includes(candidate.candidateId),
+    )) {
+      const withoutTarget = compareCandidateFit(
+        { ...fit, targetVector: [] },
+        { ...other, targetVector: [] },
+        preferenceIds,
+      );
+      const withTarget = compareCandidateFit(fit, other, preferenceIds);
+      if (withoutTarget !== withTarget) {
+        fit.targetEvidenceIds.forEach((evidenceId) =>
+          evidenceIds.add(evidenceId),
+        );
+      }
+    }
+  }
+  return [...evidenceIds].sort(compareRankingText);
 }
 
 function evaluateCriterionRule(

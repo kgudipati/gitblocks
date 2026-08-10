@@ -128,9 +128,9 @@ export interface RankingCaseBinding {
 }
 
 export interface RankingBlindCaseAuthority {
-  readonly authorityVersion: 'ranking-v1-blind-cases/2.0.0';
+  readonly authorityVersion: 'ranking-v1-blind-cases/3.0.0';
   readonly corpusId: 'ranking-v1';
-  readonly corpusVersion: '2.0.0';
+  readonly corpusVersion: '3.0.0';
   readonly evidenceCutoff: string;
   readonly requests: readonly RankingRequestAuthority[];
   readonly criterionAuthorities: readonly RankingCriterionAuthority[];
@@ -293,7 +293,7 @@ export interface RankingGoldCase {
 }
 
 export interface RankingGoldAuthority {
-  readonly authorityVersion: 'ranking-v1-proposed-gold/2.0.0';
+  readonly authorityVersion: 'ranking-v1-proposed-gold/3.0.0';
   readonly corpusId: 'ranking-v1';
   readonly reviewStatus: 'proposed-not-independently-reviewed';
   readonly cases: readonly RankingGoldCase[];
@@ -344,10 +344,22 @@ export interface RankingReviewerRationaleCase {
   readonly maximalSetAnalysis: readonly string[];
   readonly partialOrderAnalysis: readonly string[];
   readonly controlledPairChange: string | null;
+  readonly criterionBindingCrosswalk: readonly {
+    readonly criterionId: string;
+    readonly bindingState: 'bound' | 'unbound';
+    readonly candidateFeatureDependencies: readonly string[];
+    readonly expectedValues: readonly string[];
+    readonly candidateFacts: readonly {
+      readonly candidateId: string;
+      readonly evidenceId: string | null;
+      readonly observedValues: readonly string[];
+      readonly coverageState: RankingGoldCase['successConditionCoverage'][number]['state'];
+    }[];
+  }[];
 }
 
 export interface RankingReviewerRationaleAuthority {
-  readonly authorityVersion: 'ranking-v1-reviewer-rationale/1.0.0';
+  readonly authorityVersion: 'ranking-v1-reviewer-rationale/2.0.0';
   readonly corpusId: 'ranking-v1';
   readonly status: 'author-rationale-for-independent-review';
   readonly cases: readonly RankingReviewerRationaleCase[];
@@ -355,10 +367,10 @@ export interface RankingReviewerRationaleAuthority {
 }
 
 export interface RankingReviewRecord {
-  readonly reviewRecordVersion: 'ranking-v1-review-record/2.0.0';
+  readonly reviewRecordVersion: 'ranking-v1-review-record/3.0.0';
   readonly corpusId: 'ranking-v1';
-  readonly goldAuthorityVersion: 'ranking-v1-proposed-gold/2.0.0';
-  readonly reviewerRationaleVersion: 'ranking-v1-reviewer-rationale/1.0.0';
+  readonly goldAuthorityVersion: 'ranking-v1-proposed-gold/3.0.0';
+  readonly reviewerRationaleVersion: 'ranking-v1-reviewer-rationale/2.0.0';
   readonly status: 'independent-review-pending';
   readonly author: 'Codex';
   readonly independentReviewer: null;
@@ -417,13 +429,13 @@ export interface RankingCasePrediction {
 }
 
 export interface RankingPredictionSet {
-  readonly predictionSetVersion: 'ranking-v1-prediction-set/2.0.0';
+  readonly predictionSetVersion: 'ranking-v1-prediction-set/3.0.0';
   readonly predictionSetId: string;
   readonly baselineId: string;
   readonly baselineVersion: string;
   readonly baselineSpecificationDigest: string;
   readonly corpusId: 'ranking-v1';
-  readonly corpusVersion: '2.0.0';
+  readonly corpusVersion: '3.0.0';
   readonly blindInputDigest: string;
   readonly predictions: readonly RankingCasePrediction[];
   readonly semanticDigest: string;
@@ -444,7 +456,7 @@ export interface RankingBaselineSpecification {
 }
 
 export interface RankingBaselineSpecificationAuthority {
-  readonly authorityVersion: 'ranking-v1-baseline-specifications/2.0.0';
+  readonly authorityVersion: 'ranking-v1-baseline-specifications/3.0.0';
   readonly frozenBeforeScoring: true;
   readonly omissions: readonly {
     readonly baseline: 'popularity-health';
@@ -592,9 +604,9 @@ export interface RankingManifestFile {
 }
 
 export interface RankingCorpusManifest {
-  readonly manifestVersion: 'ranking-v1-manifest/2.0.0';
+  readonly manifestVersion: 'ranking-v1-manifest/3.0.0';
   readonly corpusId: 'ranking-v1';
-  readonly corpusVersion: '2.0.0';
+  readonly corpusVersion: '3.0.0';
   readonly status: 'proposed-independent-review-pending';
   readonly evidenceCutoff: string;
   readonly caseCount: 30;

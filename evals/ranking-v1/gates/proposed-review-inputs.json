@@ -1,11 +1,11 @@
 {
-  "authorityVersion": "ranking-v1-gate-review-inputs/2.0.0",
+  "authorityVersion": "ranking-v1-gate-review-inputs/3.0.0",
   "bindings": {
-    "baselineReportDigest": "c5b912fb2d2c0743527a75c8e19ddc2da4c43ad7a774e42adb97c898c1ca3db3",
-    "corpusDigest": "4cd4ea860dd2ad29378812ac7a0e2344bbc84539a406a0334535975002e7e4fa",
-    "goldDigest": "fa8333b8a4d810f4071a70d90d2edb2d899177478fd044cb2e5ca6372a99b591",
+    "baselineReportDigest": "627b05e21eb1595855d20e7325e79872924933216377edfe0ca97cfcb39dd34d",
+    "corpusDigest": "061e4774c1ab5f9a3793aaa46dfd917597f0378fb882c80f30b15a6431fb225e",
+    "goldDigest": "48644422e325ecf385ae8fe3ef71a936549eab6ae0f1f75b98feaadc8640b081",
     "performanceReferenceDigest": "f848f261551f7bda8322dd4ab244646d50ec6cdcb5ff1bf019a802de2f435f30",
-    "reviewDigest": "f5a7b12c720327890043219888140bff693af6103750c5fe0352fde00eed3d92",
+    "reviewDigest": "2a5e9c3e5930c2e32f4b179653ce31c0086b8da5ed906c6af929e04e92eb0a3d",
     "scorerVersion": "ranking-v1-scorer/2.0.0"
   },
   "deterministicReadiness": {
@@ -43,12 +43,12 @@
         "unresolved": 10
       },
       "evidenceNeededTransitions": 35,
-      "hardConflictOpportunities": 75,
+      "hardConflictOpportunities": 70,
       "incomparablePairs": 2,
       "insufficientEvidenceCases": 5,
       "noViableCases": 5,
       "perFamilyCases": 6,
-      "tiePairs": 3
+      "tiePairs": 4
     },
     "finalThresholds": null,
     "finalThresholdsSelected": false,
@@ -124,21 +124,21 @@
             },
             "rejected": {
               "f1": null,
-              "falseNegative": 78,
+              "falseNegative": 73,
               "falsePositive": 0,
               "precision": null,
               "recall": 0,
-              "trueNegative": 42,
+              "trueNegative": 47,
               "truePositive": 0
             },
             "viable": {
-              "f1": 0.1875,
-              "falseNegative": 3,
-              "falsePositive": 49,
-              "precision": 0.109091,
-              "recall": 0.666667,
-              "trueNegative": 62,
-              "truePositive": 6
+              "f1": 0.231885,
+              "falseNegative": 6,
+              "falsePositive": 47,
+              "precision": 0.145455,
+              "recall": 0.571429,
+              "trueNegative": 59,
+              "truePositive": 8
             }
           },
           "evidenceNeeded": {
@@ -169,9 +169,9 @@
             }
           },
           "macroDisposition": {
-            "f1": 0.183712,
-            "precision": 0.147475,
-            "recall": 0.266667
+            "f1": 0.198507,
+            "precision": 0.159596,
+            "recall": 0.242857
           },
           "outcome": {
             "byLabel": {
@@ -227,21 +227,21 @@
               "value": 0
             },
             "ordered": {
-              "correct": 3,
-              "errors": 6,
-              "total": 9,
-              "value": 0.333333
+              "correct": 6,
+              "errors": 10,
+              "total": 16,
+              "value": 0.375
             },
             "overall": {
-              "correct": 3,
-              "errors": 11,
-              "total": 14,
-              "value": 0.214286
+              "correct": 6,
+              "errors": 16,
+              "total": 22,
+              "value": 0.272727
             },
             "ties": {
               "correct": 0,
-              "errors": 3,
-              "total": 3,
+              "errors": 4,
+              "total": 4,
               "value": 0
             }
           },
@@ -254,14 +254,14 @@
           "traceability": {
             "evidenceAssociations": {
               "correct": 0,
-              "errors": 1170,
-              "total": 1170,
+              "errors": 225,
+              "total": 225,
               "value": 0
             },
             "hardConflicts": {
               "correct": 0,
-              "errors": 75,
-              "total": 75,
+              "errors": 70,
+              "total": 70,
               "value": 0
             },
             "materialUnknowns": {
@@ -341,20 +341,20 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 14,
+                "falseNegative": 13,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 10,
+                "trueNegative": 11,
                 "truePositive": 0
               },
               "viable": {
-                "f1": 0.285714,
-                "falseNegative": 1,
+                "f1": 0.266666,
+                "falseNegative": 2,
                 "falsePositive": 9,
                 "precision": 0.181818,
-                "recall": 0.666667,
-                "trueNegative": 12,
+                "recall": 0.5,
+                "trueNegative": 11,
                 "truePositive": 2
               }
             },
@@ -386,9 +386,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.21645,
+              "f1": 0.210101,
               "precision": 0.171717,
-              "recall": 0.266667
+              "recall": 0.225
             },
             "outcome": {
               "byLabel": {
@@ -445,15 +445,15 @@
               },
               "ordered": {
                 "correct": 1,
-                "errors": 2,
-                "total": 3,
-                "value": 0.333333
+                "errors": 4,
+                "total": 5,
+                "value": 0.2
               },
               "overall": {
                 "correct": 1,
-                "errors": 3,
-                "total": 4,
-                "value": 0.25
+                "errors": 5,
+                "total": 6,
+                "value": 0.166667
               },
               "ties": {
                 "correct": 0,
@@ -471,14 +471,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 45,
+                "total": 45,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 13,
-                "total": 13,
+                "errors": 12,
+                "total": 12,
                 "value": 0
               },
               "materialUnknowns": {
@@ -557,20 +557,20 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 18,
+                "falseNegative": 17,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 6,
+                "trueNegative": 7,
                 "truePositive": 0
               },
               "viable": {
-                "f1": null,
-                "falseNegative": 0,
+                "f1": 0,
+                "falseNegative": 1,
                 "falsePositive": 11,
                 "precision": 0,
-                "recall": null,
-                "trueNegative": 13,
+                "recall": 0,
+                "trueNegative": 12,
                 "truePositive": 0
               }
             },
@@ -602,9 +602,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.181818,
+              "f1": 0.121212,
               "precision": 0.111111,
-              "recall": 0.133333
+              "recall": 0.1
             },
             "outcome": {
               "byLabel": {
@@ -661,14 +661,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
+                "errors": 1,
+                "total": 1,
+                "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 1,
-                "total": 1,
+                "errors": 2,
+                "total": 2,
                 "value": 0
               },
               "ties": {
@@ -687,14 +687,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 44,
+                "total": 44,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 18,
-                "total": 18,
+                "errors": 17,
+                "total": 17,
                 "value": 0
               },
               "materialUnknowns": {
@@ -773,21 +773,21 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 14,
+                "falseNegative": 13,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 10,
+                "trueNegative": 11,
                 "truePositive": 0
               },
               "viable": {
-                "f1": 0.285714,
+                "f1": 0.4,
                 "falseNegative": 1,
-                "falsePositive": 9,
-                "precision": 0.181818,
-                "recall": 0.666667,
+                "falsePositive": 8,
+                "precision": 0.272727,
+                "recall": 0.75,
                 "trueNegative": 12,
-                "truePositive": 2
+                "truePositive": 3
               }
             },
             "evidenceNeeded": {
@@ -818,9 +818,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.21645,
-              "precision": 0.171717,
-              "recall": 0.266667
+              "f1": 0.254545,
+              "precision": 0.20202,
+              "recall": 0.2875
             },
             "outcome": {
               "byLabel": {
@@ -876,21 +876,21 @@
                 "value": null
               },
               "ordered": {
-                "correct": 1,
+                "correct": 2,
                 "errors": 2,
-                "total": 3,
-                "value": 0.333333
+                "total": 4,
+                "value": 0.5
               },
               "overall": {
-                "correct": 1,
-                "errors": 3,
-                "total": 4,
-                "value": 0.25
+                "correct": 2,
+                "errors": 4,
+                "total": 6,
+                "value": 0.333333
               },
               "ties": {
                 "correct": 0,
-                "errors": 1,
-                "total": 1,
+                "errors": 2,
+                "total": 2,
                 "value": 0
               }
             },
@@ -903,14 +903,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 44,
+                "total": 44,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 13,
-                "total": 13,
+                "errors": 12,
+                "total": 12,
                 "value": 0
               },
               "materialUnknowns": {
@@ -989,21 +989,21 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 14,
+                "falseNegative": 13,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 10,
+                "trueNegative": 11,
                 "truePositive": 0
               },
               "viable": {
-                "f1": 0.285714,
+                "f1": 0.4,
                 "falseNegative": 1,
-                "falsePositive": 9,
-                "precision": 0.181818,
-                "recall": 0.666667,
+                "falsePositive": 8,
+                "precision": 0.272727,
+                "recall": 0.75,
                 "trueNegative": 12,
-                "truePositive": 2
+                "truePositive": 3
               }
             },
             "evidenceNeeded": {
@@ -1034,9 +1034,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.21645,
-              "precision": 0.171717,
-              "recall": 0.266667
+              "f1": 0.254545,
+              "precision": 0.20202,
+              "recall": 0.2875
             },
             "outcome": {
               "byLabel": {
@@ -1092,16 +1092,16 @@
                 "value": 0
               },
               "ordered": {
-                "correct": 1,
+                "correct": 3,
                 "errors": 2,
-                "total": 3,
-                "value": 0.333333
+                "total": 5,
+                "value": 0.6
               },
               "overall": {
-                "correct": 1,
+                "correct": 3,
                 "errors": 3,
-                "total": 4,
-                "value": 0.25
+                "total": 6,
+                "value": 0.5
               },
               "ties": {
                 "correct": 0,
@@ -1119,14 +1119,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 52,
+                "total": 52,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 13,
-                "total": 13,
+                "errors": 12,
+                "total": 12,
                 "value": 0
               },
               "materialUnknowns": {
@@ -1205,20 +1205,20 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 18,
+                "falseNegative": 17,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 6,
+                "trueNegative": 7,
                 "truePositive": 0
               },
               "viable": {
-                "f1": null,
-                "falseNegative": 0,
+                "f1": 0,
+                "falseNegative": 1,
                 "falsePositive": 11,
                 "precision": 0,
-                "recall": null,
-                "trueNegative": 13,
+                "recall": 0,
+                "trueNegative": 12,
                 "truePositive": 0
               }
             },
@@ -1250,9 +1250,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.181818,
+              "f1": 0.121212,
               "precision": 0.111111,
-              "recall": 0.133333
+              "recall": 0.1
             },
             "outcome": {
               "byLabel": {
@@ -1309,14 +1309,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
+                "errors": 1,
+                "total": 1,
+                "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 1,
-                "total": 1,
+                "errors": 2,
+                "total": 2,
                 "value": 0
               },
               "ties": {
@@ -1335,14 +1335,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 40,
+                "total": 40,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 18,
-                "total": 18,
+                "errors": 17,
+                "total": 17,
                 "value": 0
               },
               "materialUnknowns": {
@@ -1361,21 +1361,21 @@
             }
           }
         },
-        "predictionDigest": "7070466deec6fef5ce0b5c2afe334e93f1d6a77ecc99d7f5c632be9fad19e748",
+        "predictionDigest": "970951c9a6f44a8e1fbdea17c306032a5e23e2991cd1a953ba209a5ec57b9ff0",
         "safety": {
           "candidateInvention": 0,
           "candidateSetMismatch": 0,
           "excludedCandidateLeakage": 0,
-          "knownHardConflictRanked": 51,
-          "knownHardConflictRecommended": 15,
-          "knownHardConflictViable": 36,
+          "knownHardConflictRanked": 44,
+          "knownHardConflictRecommended": 10,
+          "knownHardConflictViable": 34,
           "missingEvidenceNeededResolution": 35,
           "preferenceHardenedIntoHardConflict": 0,
           "unboundPreferenceAffectedOrder": 5,
           "unboundSuccessConditionCountedFavorable": 0,
           "unresolvedEvidenceNeededPositivePromotion": 0
         },
-        "scoreDigest": "8bbdcb85c6eeeb5ecd3c2eafe225bf600089579db0321db4b7d2a5dfb4aa8f3e",
+        "scoreDigest": "93679f9e9253e33a97d2843234bb13b5fb7b43cafb07611709cdc5f06fb380e7",
         "specificationDigest": "afde759a24eba65c0c01c957460eb2e1725993affba969cfcfa52e3ab2d8e826"
       },
       {
@@ -1449,20 +1449,20 @@
             },
             "rejected": {
               "f1": null,
-              "falseNegative": 78,
+              "falseNegative": 73,
               "falsePositive": 0,
               "precision": null,
               "recall": 0,
-              "trueNegative": 42,
+              "trueNegative": 47,
               "truePositive": 0
             },
             "viable": {
               "f1": null,
-              "falseNegative": 9,
+              "falseNegative": 14,
               "falsePositive": 0,
               "precision": null,
               "recall": 0,
-              "trueNegative": 111,
+              "trueNegative": 106,
               "truePositive": 0
             }
           },
@@ -1553,20 +1553,20 @@
             },
             "ordered": {
               "correct": 0,
-              "errors": 9,
-              "total": 9,
+              "errors": 16,
+              "total": 16,
               "value": 0
             },
             "overall": {
               "correct": 0,
-              "errors": 14,
-              "total": 14,
+              "errors": 22,
+              "total": 22,
               "value": 0
             },
             "ties": {
               "correct": 0,
-              "errors": 3,
-              "total": 3,
+              "errors": 4,
+              "total": 4,
               "value": 0
             }
           },
@@ -1579,14 +1579,14 @@
           "traceability": {
             "evidenceAssociations": {
               "correct": 0,
-              "errors": 1170,
-              "total": 1170,
+              "errors": 225,
+              "total": 225,
               "value": 0
             },
             "hardConflicts": {
               "correct": 0,
-              "errors": 75,
-              "total": 75,
+              "errors": 70,
+              "total": 70,
               "value": 0
             },
             "materialUnknowns": {
@@ -1666,20 +1666,20 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 14,
+                "falseNegative": 13,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 10,
+                "trueNegative": 11,
                 "truePositive": 0
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 3,
+                "falseNegative": 4,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 21,
+                "trueNegative": 20,
                 "truePositive": 0
               }
             },
@@ -1770,14 +1770,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 3,
-                "total": 3,
+                "errors": 5,
+                "total": 5,
                 "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 4,
-                "total": 4,
+                "errors": 6,
+                "total": 6,
                 "value": 0
               },
               "ties": {
@@ -1796,14 +1796,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 45,
+                "total": 45,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 13,
-                "total": 13,
+                "errors": 12,
+                "total": 12,
                 "value": 0
               },
               "materialUnknowns": {
@@ -1882,20 +1882,20 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 18,
+                "falseNegative": 17,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 6,
+                "trueNegative": 7,
                 "truePositive": 0
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 0,
+                "falseNegative": 1,
                 "falsePositive": 0,
                 "precision": null,
-                "recall": null,
-                "trueNegative": 24,
+                "recall": 0,
+                "trueNegative": 23,
                 "truePositive": 0
               }
             },
@@ -1929,7 +1929,7 @@
             "macroDisposition": {
               "f1": 0.080001,
               "precision": 0.041667,
-              "recall": 0.333333
+              "recall": 0.25
             },
             "outcome": {
               "byLabel": {
@@ -1986,14 +1986,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
+                "errors": 1,
+                "total": 1,
+                "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 1,
-                "total": 1,
+                "errors": 2,
+                "total": 2,
                 "value": 0
               },
               "ties": {
@@ -2012,14 +2012,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 44,
+                "total": 44,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 18,
-                "total": 18,
+                "errors": 17,
+                "total": 17,
                 "value": 0
               },
               "materialUnknowns": {
@@ -2098,20 +2098,20 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 14,
+                "falseNegative": 13,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 10,
+                "trueNegative": 11,
                 "truePositive": 0
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 3,
+                "falseNegative": 4,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 21,
+                "trueNegative": 20,
                 "truePositive": 0
               }
             },
@@ -2202,20 +2202,20 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 3,
-                "total": 3,
-                "value": 0
-              },
-              "overall": {
-                "correct": 0,
                 "errors": 4,
                 "total": 4,
                 "value": 0
               },
+              "overall": {
+                "correct": 0,
+                "errors": 6,
+                "total": 6,
+                "value": 0
+              },
               "ties": {
                 "correct": 0,
-                "errors": 1,
-                "total": 1,
+                "errors": 2,
+                "total": 2,
                 "value": 0
               }
             },
@@ -2228,14 +2228,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 44,
+                "total": 44,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 13,
-                "total": 13,
+                "errors": 12,
+                "total": 12,
                 "value": 0
               },
               "materialUnknowns": {
@@ -2314,20 +2314,20 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 14,
+                "falseNegative": 13,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 10,
+                "trueNegative": 11,
                 "truePositive": 0
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 3,
+                "falseNegative": 4,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 21,
+                "trueNegative": 20,
                 "truePositive": 0
               }
             },
@@ -2418,14 +2418,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 3,
-                "total": 3,
+                "errors": 5,
+                "total": 5,
                 "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 4,
-                "total": 4,
+                "errors": 6,
+                "total": 6,
                 "value": 0
               },
               "ties": {
@@ -2444,14 +2444,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 52,
+                "total": 52,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 13,
-                "total": 13,
+                "errors": 12,
+                "total": 12,
                 "value": 0
               },
               "materialUnknowns": {
@@ -2530,20 +2530,20 @@
               },
               "rejected": {
                 "f1": null,
-                "falseNegative": 18,
+                "falseNegative": 17,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 6,
+                "trueNegative": 7,
                 "truePositive": 0
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 0,
+                "falseNegative": 1,
                 "falsePositive": 0,
                 "precision": null,
-                "recall": null,
-                "trueNegative": 24,
+                "recall": 0,
+                "trueNegative": 23,
                 "truePositive": 0
               }
             },
@@ -2577,7 +2577,7 @@
             "macroDisposition": {
               "f1": 0.080001,
               "precision": 0.041667,
-              "recall": 0.333333
+              "recall": 0.25
             },
             "outcome": {
               "byLabel": {
@@ -2634,14 +2634,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
+                "errors": 1,
+                "total": 1,
+                "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 1,
-                "total": 1,
+                "errors": 2,
+                "total": 2,
                 "value": 0
               },
               "ties": {
@@ -2660,14 +2660,14 @@
             "traceability": {
               "evidenceAssociations": {
                 "correct": 0,
-                "errors": 234,
-                "total": 234,
+                "errors": 40,
+                "total": 40,
                 "value": 0
               },
               "hardConflicts": {
                 "correct": 0,
-                "errors": 18,
-                "total": 18,
+                "errors": 17,
+                "total": 17,
                 "value": 0
               },
               "materialUnknowns": {
@@ -2686,7 +2686,7 @@
             }
           }
         },
-        "predictionDigest": "7534e230aa0f8431c7085d06ad66af3b2c8dab2143ce96e6c279b83ee1a93ffc",
+        "predictionDigest": "184de4c33e58108c3464e6eba0bf780015dbab031720405ab5d2b7a2e7719c26",
         "safety": {
           "candidateInvention": 0,
           "candidateSetMismatch": 0,
@@ -2700,12 +2700,12 @@
           "unboundSuccessConditionCountedFavorable": 0,
           "unresolvedEvidenceNeededPositivePromotion": 0
         },
-        "scoreDigest": "cf4537275c73cddf8617a1a476078f98c8c45abb34859af33ac1d6cf2104120a",
+        "scoreDigest": "eaa17cc1b3f326afcf61d5a139f571cc4f4363ac7a47662fa5a208f00c0061b0",
         "specificationDigest": "9c920adfa0e22844a70441915d39d802a276470025b1d8d54a03036f735edc68"
       },
       {
         "baselineId": "target-blind-candidate-feature",
-        "baselineVersion": "ranking-target-blind-candidate-feature/2.0.0",
+        "baselineVersion": "ranking-target-blind-candidate-feature/3.0.0",
         "controlledPairs": {
           "exactPairCorrect": 0,
           "total": 5,
@@ -2755,40 +2755,40 @@
           },
           "dispositions": {
             "insufficient-evidence": {
-              "f1": 0.155341,
+              "f1": 0.192772,
               "falseNegative": 0,
-              "falsePositive": 87,
-              "precision": 0.084211,
+              "falsePositive": 67,
+              "precision": 0.106667,
               "recall": 1,
-              "trueNegative": 25,
+              "trueNegative": 45,
               "truePositive": 8
             },
             "recommended": {
-              "f1": null,
-              "falseNegative": 25,
-              "falsePositive": 0,
-              "precision": null,
-              "recall": 0,
-              "trueNegative": 95,
-              "truePositive": 0
+              "f1": 0.27027,
+              "falseNegative": 20,
+              "falsePositive": 7,
+              "precision": 0.416667,
+              "recall": 0.2,
+              "trueNegative": 88,
+              "truePositive": 5
             },
             "rejected": {
-              "f1": 0.485437,
-              "falseNegative": 53,
+              "f1": 0.609524,
+              "falseNegative": 41,
               "falsePositive": 0,
               "precision": 1,
-              "recall": 0.320513,
-              "trueNegative": 42,
-              "truePositive": 25
+              "recall": 0.438356,
+              "trueNegative": 47,
+              "truePositive": 32
             },
             "viable": {
-              "f1": null,
-              "falseNegative": 9,
+              "f1": 0.133334,
+              "falseNegative": 13,
               "falsePositive": 0,
-              "precision": null,
-              "recall": 0,
-              "trueNegative": 111,
-              "truePositive": 0
+              "precision": 1,
+              "recall": 0.071429,
+              "trueNegative": 106,
+              "truePositive": 1
             }
           },
           "evidenceNeeded": {
@@ -2819,9 +2819,9 @@
             }
           },
           "macroDisposition": {
-            "f1": 0.320389,
-            "precision": 0.542106,
-            "recall": 0.330128
+            "f1": 0.301475,
+            "precision": 0.630833,
+            "recall": 0.427446
           },
           "outcome": {
             "byLabel": {
@@ -2838,10 +2838,10 @@
                 "value": 1
               },
               "recommend": {
-                "correct": 0,
-                "errors": 20,
+                "correct": 5,
+                "errors": 15,
                 "total": 20,
-                "value": 0
+                "value": 0.25
               }
             },
             "confusion": {
@@ -2856,16 +2856,16 @@
                 "recommend": 0
               },
               "recommend": {
-                "insufficient-evidence": 20,
+                "insufficient-evidence": 15,
                 "no-viable-candidate": 0,
-                "recommend": 0
+                "recommend": 5
               }
             },
             "overall": {
-              "correct": 10,
-              "errors": 20,
+              "correct": 15,
+              "errors": 15,
               "total": 30,
-              "value": 0.333333
+              "value": 0.5
             }
           },
           "partialOrder": {
@@ -2877,42 +2877,42 @@
               "value": 0
             },
             "ordered": {
-              "correct": 0,
-              "errors": 9,
-              "total": 9,
-              "value": 0
+              "correct": 2,
+              "errors": 14,
+              "total": 16,
+              "value": 0.125
             },
             "overall": {
-              "correct": 0,
-              "errors": 14,
-              "total": 14,
-              "value": 0
+              "correct": 3,
+              "errors": 19,
+              "total": 22,
+              "value": 0.136364
             },
             "ties": {
-              "correct": 0,
+              "correct": 1,
               "errors": 3,
-              "total": 3,
-              "value": 0
+              "total": 4,
+              "value": 0.25
             }
           },
           "topThreeUsefulness": {
-            "correct": 0,
-            "errors": 20,
+            "correct": 5,
+            "errors": 15,
             "total": 20,
-            "value": 0
+            "value": 0.25
           },
           "traceability": {
             "evidenceAssociations": {
-              "correct": 1170,
-              "errors": 0,
-              "total": 1170,
-              "value": 1
+              "correct": 205,
+              "errors": 20,
+              "total": 225,
+              "value": 0.911111
             },
             "hardConflicts": {
-              "correct": 20,
-              "errors": 55,
-              "total": 75,
-              "value": 0.266667
+              "correct": 27,
+              "errors": 43,
+              "total": 70,
+              "value": 0.385714
             },
             "materialUnknowns": {
               "correct": 30,
@@ -2921,12 +2921,12 @@
               "value": 1
             },
             "reasonCodes": {
-              "correct": 31,
-              "errors": 89,
+              "correct": 51,
+              "errors": 69,
               "total": 120,
-              "value": 0.258333
+              "value": 0.425
             },
-            "unsupportedExtraAssociations": 189
+            "unsupportedExtraAssociations": 198
           }
         },
         "perFamily": {
@@ -2940,10 +2940,10 @@
                 "value": null
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 2,
-                "errors": 3,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 0.4
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 44,
@@ -2972,40 +2972,40 @@
             },
             "dispositions": {
               "insufficient-evidence": {
-                "f1": 0.190476,
+                "f1": 0.235294,
                 "falseNegative": 0,
-                "falsePositive": 17,
-                "precision": 0.105263,
+                "falsePositive": 13,
+                "precision": 0.133333,
                 "recall": 1,
-                "trueNegative": 5,
+                "trueNegative": 9,
                 "truePositive": 2
               },
               "recommended": {
-                "f1": null,
-                "falseNegative": 5,
-                "falsePositive": 0,
-                "precision": null,
-                "recall": 0,
-                "trueNegative": 19,
-                "truePositive": 0
+                "f1": 0.285714,
+                "falseNegative": 4,
+                "falsePositive": 1,
+                "precision": 0.5,
+                "recall": 0.2,
+                "trueNegative": 18,
+                "truePositive": 1
               },
               "rejected": {
-                "f1": 0.526316,
-                "falseNegative": 9,
+                "f1": 0.631579,
+                "falseNegative": 7,
                 "falsePositive": 0,
                 "precision": 1,
-                "recall": 0.357143,
-                "trueNegative": 10,
-                "truePositive": 5
+                "recall": 0.461538,
+                "trueNegative": 11,
+                "truePositive": 6
               },
               "viable": {
-                "f1": null,
+                "f1": 0.4,
                 "falseNegative": 3,
                 "falsePositive": 0,
-                "precision": null,
-                "recall": 0,
-                "trueNegative": 21,
-                "truePositive": 0
+                "precision": 1,
+                "recall": 0.25,
+                "trueNegative": 20,
+                "truePositive": 1
               }
             },
             "evidenceNeeded": {
@@ -3036,9 +3036,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.358396,
-              "precision": 0.552631,
-              "recall": 0.339286
+              "f1": 0.388147,
+              "precision": 0.658333,
+              "recall": 0.477884
             },
             "outcome": {
               "byLabel": {
@@ -3055,10 +3055,10 @@
                   "value": 1
                 },
                 "recommend": {
-                  "correct": 0,
-                  "errors": 4,
+                  "correct": 1,
+                  "errors": 3,
                   "total": 4,
-                  "value": 0
+                  "value": 0.25
                 }
               },
               "confusion": {
@@ -3073,16 +3073,16 @@
                   "recommend": 0
                 },
                 "recommend": {
-                  "insufficient-evidence": 4,
+                  "insufficient-evidence": 3,
                   "no-viable-candidate": 0,
-                  "recommend": 0
+                  "recommend": 1
                 }
               },
               "overall": {
-                "correct": 2,
-                "errors": 4,
+                "correct": 3,
+                "errors": 3,
                 "total": 6,
-                "value": 0.333333
+                "value": 0.5
               }
             },
             "partialOrder": {
@@ -3094,16 +3094,16 @@
                 "value": 0
               },
               "ordered": {
-                "correct": 0,
+                "correct": 2,
                 "errors": 3,
-                "total": 3,
-                "value": 0
+                "total": 5,
+                "value": 0.4
               },
               "overall": {
-                "correct": 0,
+                "correct": 2,
                 "errors": 4,
-                "total": 4,
-                "value": 0
+                "total": 6,
+                "value": 0.333333
               },
               "ties": {
                 "correct": 0,
@@ -3113,23 +3113,23 @@
               }
             },
             "topThreeUsefulness": {
-              "correct": 0,
-              "errors": 4,
+              "correct": 1,
+              "errors": 3,
               "total": 4,
-              "value": 0
+              "value": 0.25
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 43,
+                "errors": 2,
+                "total": 45,
+                "value": 0.955556
               },
               "hardConflicts": {
-                "correct": 4,
-                "errors": 9,
-                "total": 13,
-                "value": 0.307692
+                "correct": 5,
+                "errors": 7,
+                "total": 12,
+                "value": 0.416667
               },
               "materialUnknowns": {
                 "correct": 6,
@@ -3138,10 +3138,10 @@
                 "value": 1
               },
               "reasonCodes": {
-                "correct": 7,
-                "errors": 17,
+                "correct": 11,
+                "errors": 13,
                 "total": 24,
-                "value": 0.291667
+                "value": 0.458333
               },
               "unsupportedExtraAssociations": 37
             }
@@ -3156,10 +3156,10 @@
                 "value": 1
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 5,
-                "errors": 0,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 1
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 40,
@@ -3188,39 +3188,39 @@
             },
             "dispositions": {
               "insufficient-evidence": {
-                "f1": 0.100001,
+                "f1": 0.125001,
                 "falseNegative": 0,
-                "falsePositive": 18,
-                "precision": 0.052632,
+                "falsePositive": 14,
+                "precision": 0.066667,
                 "recall": 1,
-                "trueNegative": 5,
+                "trueNegative": 9,
                 "truePositive": 1
               },
               "recommended": {
-                "f1": null,
-                "falseNegative": 5,
-                "falsePositive": 0,
-                "precision": null,
-                "recall": 0,
-                "trueNegative": 19,
-                "truePositive": 0
+                "f1": 0.285714,
+                "falseNegative": 4,
+                "falsePositive": 1,
+                "precision": 0.5,
+                "recall": 0.2,
+                "trueNegative": 18,
+                "truePositive": 1
               },
               "rejected": {
-                "f1": 0.434783,
-                "falseNegative": 13,
+                "f1": 0.583334,
+                "falseNegative": 10,
                 "falsePositive": 0,
                 "precision": 1,
-                "recall": 0.277778,
-                "trueNegative": 6,
-                "truePositive": 5
+                "recall": 0.411765,
+                "trueNegative": 7,
+                "truePositive": 7
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 0,
+                "falseNegative": 1,
                 "falsePositive": 0,
                 "precision": null,
-                "recall": null,
-                "trueNegative": 24,
+                "recall": 0,
+                "trueNegative": 23,
                 "truePositive": 0
               }
             },
@@ -3252,9 +3252,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.267392,
-              "precision": 0.526316,
-              "recall": 0.425926
+              "f1": 0.33135,
+              "precision": 0.522222,
+              "recall": 0.402941
             },
             "outcome": {
               "byLabel": {
@@ -3271,10 +3271,10 @@
                   "value": 1
                 },
                 "recommend": {
-                  "correct": 0,
-                  "errors": 4,
+                  "correct": 1,
+                  "errors": 3,
                   "total": 4,
-                  "value": 0
+                  "value": 0.25
                 }
               },
               "confusion": {
@@ -3289,16 +3289,16 @@
                   "recommend": 0
                 },
                 "recommend": {
-                  "insufficient-evidence": 4,
+                  "insufficient-evidence": 3,
                   "no-viable-candidate": 0,
-                  "recommend": 0
+                  "recommend": 1
                 }
               },
               "overall": {
-                "correct": 2,
-                "errors": 4,
+                "correct": 3,
+                "errors": 3,
                 "total": 6,
-                "value": 0.333333
+                "value": 0.5
               }
             },
             "partialOrder": {
@@ -3311,14 +3311,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
+                "errors": 1,
+                "total": 1,
+                "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 1,
-                "total": 1,
+                "errors": 2,
+                "total": 2,
                 "value": 0
               },
               "ties": {
@@ -3329,23 +3329,23 @@
               }
             },
             "topThreeUsefulness": {
-              "correct": 0,
-              "errors": 4,
+              "correct": 1,
+              "errors": 3,
               "total": 4,
-              "value": 0
+              "value": 0.25
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 41,
+                "errors": 3,
+                "total": 44,
+                "value": 0.931818
               },
               "hardConflicts": {
-                "correct": 4,
-                "errors": 14,
-                "total": 18,
-                "value": 0.222222
+                "correct": 6,
+                "errors": 11,
+                "total": 17,
+                "value": 0.352941
               },
               "materialUnknowns": {
                 "correct": 6,
@@ -3354,12 +3354,12 @@
                 "value": 1
               },
               "reasonCodes": {
-                "correct": 5,
-                "errors": 19,
+                "correct": 9,
+                "errors": 15,
                 "total": 24,
-                "value": 0.208333
+                "value": 0.375
               },
-              "unsupportedExtraAssociations": 39
+              "unsupportedExtraAssociations": 47
             }
           },
           "background-jobs": {
@@ -3372,10 +3372,10 @@
                 "value": 1
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 5,
-                "errors": 0,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 1
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 40,
@@ -3404,39 +3404,39 @@
             },
             "dispositions": {
               "insufficient-evidence": {
-                "f1": 0.190476,
+                "f1": 0.235294,
                 "falseNegative": 0,
-                "falsePositive": 17,
-                "precision": 0.105263,
+                "falsePositive": 13,
+                "precision": 0.133333,
                 "recall": 1,
-                "trueNegative": 5,
+                "trueNegative": 9,
                 "truePositive": 2
               },
               "recommended": {
-                "f1": null,
-                "falseNegative": 5,
-                "falsePositive": 0,
-                "precision": null,
-                "recall": 0,
-                "trueNegative": 19,
-                "truePositive": 0
+                "f1": 0.25,
+                "falseNegative": 4,
+                "falsePositive": 2,
+                "precision": 0.333333,
+                "recall": 0.2,
+                "trueNegative": 17,
+                "truePositive": 1
               },
               "rejected": {
-                "f1": 0.526316,
-                "falseNegative": 9,
+                "f1": 0.631579,
+                "falseNegative": 7,
                 "falsePositive": 0,
                 "precision": 1,
-                "recall": 0.357143,
-                "trueNegative": 10,
-                "truePositive": 5
+                "recall": 0.461538,
+                "trueNegative": 11,
+                "truePositive": 6
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 3,
+                "falseNegative": 4,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 21,
+                "trueNegative": 20,
                 "truePositive": 0
               }
             },
@@ -3468,9 +3468,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.358396,
-              "precision": 0.552631,
-              "recall": 0.339286
+              "f1": 0.372291,
+              "precision": 0.488889,
+              "recall": 0.415384
             },
             "outcome": {
               "byLabel": {
@@ -3487,10 +3487,10 @@
                   "value": 1
                 },
                 "recommend": {
-                  "correct": 0,
-                  "errors": 4,
+                  "correct": 1,
+                  "errors": 3,
                   "total": 4,
-                  "value": 0
+                  "value": 0.25
                 }
               },
               "confusion": {
@@ -3505,16 +3505,16 @@
                   "recommend": 0
                 },
                 "recommend": {
-                  "insufficient-evidence": 4,
+                  "insufficient-evidence": 3,
                   "no-viable-candidate": 0,
-                  "recommend": 0
+                  "recommend": 1
                 }
               },
               "overall": {
-                "correct": 2,
-                "errors": 4,
+                "correct": 3,
+                "errors": 3,
                 "total": 6,
-                "value": 0.333333
+                "value": 0.5
               }
             },
             "partialOrder": {
@@ -3527,41 +3527,41 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 3,
-                "total": 3,
-                "value": 0
-              },
-              "overall": {
-                "correct": 0,
                 "errors": 4,
                 "total": 4,
                 "value": 0
               },
+              "overall": {
+                "correct": 1,
+                "errors": 5,
+                "total": 6,
+                "value": 0.166667
+              },
               "ties": {
-                "correct": 0,
+                "correct": 1,
                 "errors": 1,
-                "total": 1,
-                "value": 0
+                "total": 2,
+                "value": 0.5
               }
             },
             "topThreeUsefulness": {
-              "correct": 0,
-              "errors": 4,
+              "correct": 1,
+              "errors": 3,
               "total": 4,
-              "value": 0
+              "value": 0.25
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 41,
+                "errors": 3,
+                "total": 44,
+                "value": 0.931818
               },
               "hardConflicts": {
-                "correct": 4,
-                "errors": 9,
-                "total": 13,
-                "value": 0.307692
+                "correct": 5,
+                "errors": 7,
+                "total": 12,
+                "value": 0.416667
               },
               "materialUnknowns": {
                 "correct": 6,
@@ -3570,12 +3570,12 @@
                 "value": 1
               },
               "reasonCodes": {
-                "correct": 7,
-                "errors": 17,
+                "correct": 11,
+                "errors": 13,
                 "total": 24,
-                "value": 0.291667
+                "value": 0.458333
               },
-              "unsupportedExtraAssociations": 37
+              "unsupportedExtraAssociations": 36
             }
           },
           "rate-limiting": {
@@ -3588,10 +3588,10 @@
                 "value": null
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 3,
-                "errors": 2,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 0.6
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 44,
@@ -3620,39 +3620,39 @@
             },
             "dispositions": {
               "insufficient-evidence": {
-                "f1": 0.190476,
+                "f1": 0.235294,
                 "falseNegative": 0,
-                "falsePositive": 17,
-                "precision": 0.105263,
+                "falsePositive": 13,
+                "precision": 0.133333,
                 "recall": 1,
-                "trueNegative": 5,
+                "trueNegative": 9,
                 "truePositive": 2
               },
               "recommended": {
-                "f1": null,
-                "falseNegative": 5,
-                "falsePositive": 0,
-                "precision": null,
-                "recall": 0,
-                "trueNegative": 19,
-                "truePositive": 0
+                "f1": 0.25,
+                "falseNegative": 4,
+                "falsePositive": 2,
+                "precision": 0.333333,
+                "recall": 0.2,
+                "trueNegative": 17,
+                "truePositive": 1
               },
               "rejected": {
-                "f1": 0.526316,
-                "falseNegative": 9,
+                "f1": 0.631579,
+                "falseNegative": 7,
                 "falsePositive": 0,
                 "precision": 1,
-                "recall": 0.357143,
-                "trueNegative": 10,
-                "truePositive": 5
+                "recall": 0.461538,
+                "trueNegative": 11,
+                "truePositive": 6
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 3,
+                "falseNegative": 4,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 21,
+                "trueNegative": 20,
                 "truePositive": 0
               }
             },
@@ -3684,9 +3684,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.358396,
-              "precision": 0.552631,
-              "recall": 0.339286
+              "f1": 0.372291,
+              "precision": 0.488889,
+              "recall": 0.415384
             },
             "outcome": {
               "byLabel": {
@@ -3703,10 +3703,10 @@
                   "value": 1
                 },
                 "recommend": {
-                  "correct": 0,
-                  "errors": 4,
+                  "correct": 1,
+                  "errors": 3,
                   "total": 4,
-                  "value": 0
+                  "value": 0.25
                 }
               },
               "confusion": {
@@ -3721,16 +3721,16 @@
                   "recommend": 0
                 },
                 "recommend": {
-                  "insufficient-evidence": 4,
+                  "insufficient-evidence": 3,
                   "no-viable-candidate": 0,
-                  "recommend": 0
+                  "recommend": 1
                 }
               },
               "overall": {
-                "correct": 2,
-                "errors": 4,
+                "correct": 3,
+                "errors": 3,
                 "total": 6,
-                "value": 0.333333
+                "value": 0.5
               }
             },
             "partialOrder": {
@@ -3743,14 +3743,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 3,
-                "total": 3,
+                "errors": 5,
+                "total": 5,
                 "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 4,
-                "total": 4,
+                "errors": 6,
+                "total": 6,
                 "value": 0
               },
               "ties": {
@@ -3761,23 +3761,23 @@
               }
             },
             "topThreeUsefulness": {
-              "correct": 0,
-              "errors": 4,
+              "correct": 1,
+              "errors": 3,
               "total": 4,
-              "value": 0
+              "value": 0.25
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 43,
+                "errors": 9,
+                "total": 52,
+                "value": 0.826923
               },
               "hardConflicts": {
-                "correct": 4,
-                "errors": 9,
-                "total": 13,
-                "value": 0.307692
+                "correct": 5,
+                "errors": 7,
+                "total": 12,
+                "value": 0.416667
               },
               "materialUnknowns": {
                 "correct": 6,
@@ -3786,10 +3786,10 @@
                 "value": 1
               },
               "reasonCodes": {
-                "correct": 7,
-                "errors": 17,
+                "correct": 11,
+                "errors": 13,
                 "total": 24,
-                "value": 0.291667
+                "value": 0.458333
               },
               "unsupportedExtraAssociations": 37
             }
@@ -3804,10 +3804,10 @@
                 "value": 1
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 5,
-                "errors": 0,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 1
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 40,
@@ -3836,39 +3836,39 @@
             },
             "dispositions": {
               "insufficient-evidence": {
-                "f1": 0.100001,
+                "f1": 0.125001,
                 "falseNegative": 0,
-                "falsePositive": 18,
-                "precision": 0.052632,
+                "falsePositive": 14,
+                "precision": 0.066667,
                 "recall": 1,
-                "trueNegative": 5,
+                "trueNegative": 9,
                 "truePositive": 1
               },
               "recommended": {
-                "f1": null,
-                "falseNegative": 5,
-                "falsePositive": 0,
-                "precision": null,
-                "recall": 0,
-                "trueNegative": 19,
-                "truePositive": 0
+                "f1": 0.285714,
+                "falseNegative": 4,
+                "falsePositive": 1,
+                "precision": 0.5,
+                "recall": 0.2,
+                "trueNegative": 18,
+                "truePositive": 1
               },
               "rejected": {
-                "f1": 0.434783,
-                "falseNegative": 13,
+                "f1": 0.583334,
+                "falseNegative": 10,
                 "falsePositive": 0,
                 "precision": 1,
-                "recall": 0.277778,
-                "trueNegative": 6,
-                "truePositive": 5
+                "recall": 0.411765,
+                "trueNegative": 7,
+                "truePositive": 7
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 0,
+                "falseNegative": 1,
                 "falsePositive": 0,
                 "precision": null,
-                "recall": null,
-                "trueNegative": 24,
+                "recall": 0,
+                "trueNegative": 23,
                 "truePositive": 0
               }
             },
@@ -3900,9 +3900,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.267392,
-              "precision": 0.526316,
-              "recall": 0.425926
+              "f1": 0.33135,
+              "precision": 0.522222,
+              "recall": 0.402941
             },
             "outcome": {
               "byLabel": {
@@ -3919,10 +3919,10 @@
                   "value": 1
                 },
                 "recommend": {
-                  "correct": 0,
-                  "errors": 4,
+                  "correct": 1,
+                  "errors": 3,
                   "total": 4,
-                  "value": 0
+                  "value": 0.25
                 }
               },
               "confusion": {
@@ -3937,16 +3937,16 @@
                   "recommend": 0
                 },
                 "recommend": {
-                  "insufficient-evidence": 4,
+                  "insufficient-evidence": 3,
                   "no-viable-candidate": 0,
-                  "recommend": 0
+                  "recommend": 1
                 }
               },
               "overall": {
-                "correct": 2,
-                "errors": 4,
+                "correct": 3,
+                "errors": 3,
                 "total": 6,
-                "value": 0.333333
+                "value": 0.5
               }
             },
             "partialOrder": {
@@ -3959,14 +3959,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
+                "errors": 1,
+                "total": 1,
+                "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 1,
-                "total": 1,
+                "errors": 2,
+                "total": 2,
                 "value": 0
               },
               "ties": {
@@ -3977,23 +3977,23 @@
               }
             },
             "topThreeUsefulness": {
-              "correct": 0,
-              "errors": 4,
+              "correct": 1,
+              "errors": 3,
               "total": 4,
-              "value": 0
+              "value": 0.25
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 37,
+                "errors": 3,
+                "total": 40,
+                "value": 0.925
               },
               "hardConflicts": {
-                "correct": 4,
-                "errors": 14,
-                "total": 18,
-                "value": 0.222222
+                "correct": 6,
+                "errors": 11,
+                "total": 17,
+                "value": 0.352941
               },
               "materialUnknowns": {
                 "correct": 6,
@@ -4002,16 +4002,16 @@
                 "value": 1
               },
               "reasonCodes": {
-                "correct": 5,
-                "errors": 19,
+                "correct": 9,
+                "errors": 15,
                 "total": 24,
-                "value": 0.208333
+                "value": 0.375
               },
-              "unsupportedExtraAssociations": 39
+              "unsupportedExtraAssociations": 41
             }
           }
         },
-        "predictionDigest": "f039cb485d3d1ee125ba22a3bc26958bfff51e51efe0b136ce78a2d30930b354",
+        "predictionDigest": "4d61b11b9ad985530a20344f62667fd8dc2e18c6da02e97529552c718e833307",
         "safety": {
           "candidateInvention": 0,
           "candidateSetMismatch": 0,
@@ -4025,12 +4025,12 @@
           "unboundSuccessConditionCountedFavorable": 0,
           "unresolvedEvidenceNeededPositivePromotion": 0
         },
-        "scoreDigest": "c2eeed545a8f48a29a302c304f8131d63f642714048ef1b2e9557e12f09a6ef2",
-        "specificationDigest": "23b723d070311562fd2c4a5c29ebddf544a3eefc167064b37b51111a7d91750b"
+        "scoreDigest": "5ea17b7575dd310e939c0d24adac11e77f061c43571ad3e0fae5b1886eaedb18",
+        "specificationDigest": "990b50e60893c46eff85a8cc5b0db0b18a4baaa13648857e0568bbd8bed83aa2"
       },
       {
         "baselineId": "weak-target-aware-exact-compatibility",
-        "baselineVersion": "ranking-weak-target-aware-exact-compatibility/2.0.0",
+        "baselineVersion": "ranking-weak-target-aware-exact-compatibility/3.0.0",
         "controlledPairs": {
           "exactPairCorrect": 2,
           "total": 5,
@@ -4089,12 +4089,12 @@
               "truePositive": 8
             },
             "recommended": {
-              "f1": 0.821428,
+              "f1": 0.766667,
               "falseNegative": 2,
-              "falsePositive": 8,
-              "precision": 0.741935,
+              "falsePositive": 12,
+              "precision": 0.657143,
               "recall": 0.92,
-              "trueNegative": 87,
+              "trueNegative": 83,
               "truePositive": 23
             },
             "rejected": {
@@ -4103,17 +4103,17 @@
               "falsePositive": 0,
               "precision": 1,
               "recall": 1,
-              "trueNegative": 42,
-              "truePositive": 78
+              "trueNegative": 47,
+              "truePositive": 73
             },
             "viable": {
-              "f1": 0.166666,
-              "falseNegative": 8,
+              "f1": 0.222222,
+              "falseNegative": 12,
               "falsePositive": 2,
-              "precision": 0.333333,
-              "recall": 0.111111,
-              "trueNegative": 109,
-              "truePositive": 1
+              "precision": 0.5,
+              "recall": 0.142857,
+              "trueNegative": 104,
+              "truePositive": 2
             }
           },
           "evidenceNeeded": {
@@ -4144,9 +4144,9 @@
             }
           },
           "macroDisposition": {
-            "f1": 0.747024,
-            "precision": 0.768817,
-            "recall": 0.757778
+            "f1": 0.747222,
+            "precision": 0.789286,
+            "recall": 0.765714
           },
           "outcome": {
             "byLabel": {
@@ -4202,21 +4202,21 @@
               "value": 0
             },
             "ordered": {
-              "correct": 1,
-              "errors": 8,
-              "total": 9,
-              "value": 0.111111
+              "correct": 2,
+              "errors": 14,
+              "total": 16,
+              "value": 0.125
             },
             "overall": {
-              "correct": 4,
-              "errors": 10,
-              "total": 14,
-              "value": 0.285714
+              "correct": 6,
+              "errors": 16,
+              "total": 22,
+              "value": 0.272727
             },
             "ties": {
-              "correct": 3,
+              "correct": 4,
               "errors": 0,
-              "total": 3,
+              "total": 4,
               "value": 1
             }
           },
@@ -4228,15 +4228,15 @@
           },
           "traceability": {
             "evidenceAssociations": {
-              "correct": 1170,
-              "errors": 0,
-              "total": 1170,
-              "value": 1
+              "correct": 213,
+              "errors": 12,
+              "total": 225,
+              "value": 0.946667
             },
             "hardConflicts": {
-              "correct": 75,
+              "correct": 70,
               "errors": 0,
-              "total": 75,
+              "total": 70,
               "value": 1
             },
             "materialUnknowns": {
@@ -4251,7 +4251,7 @@
               "total": 120,
               "value": 1
             },
-            "unsupportedExtraAssociations": 0
+            "unsupportedExtraAssociations": 99
           }
         },
         "perFamily": {
@@ -4265,10 +4265,10 @@
                 "value": null
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 2,
-                "errors": 3,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 0.4
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 44,
@@ -4306,12 +4306,12 @@
                 "truePositive": 2
               },
               "recommended": {
-                "f1": 0.769231,
+                "f1": 0.714286,
                 "falseNegative": 0,
-                "falsePositive": 3,
-                "precision": 0.625,
+                "falsePositive": 4,
+                "precision": 0.555556,
                 "recall": 1,
-                "trueNegative": 16,
+                "trueNegative": 15,
                 "truePositive": 5
               },
               "rejected": {
@@ -4320,16 +4320,16 @@
                 "falsePositive": 0,
                 "precision": 1,
                 "recall": 1,
-                "trueNegative": 10,
-                "truePositive": 14
+                "trueNegative": 11,
+                "truePositive": 13
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 3,
+                "falseNegative": 4,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 21,
+                "trueNegative": 20,
                 "truePositive": 0
               }
             },
@@ -4361,8 +4361,8 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.923077,
-              "precision": 0.875,
+              "f1": 0.904762,
+              "precision": 0.851852,
               "recall": 0.75
             },
             "outcome": {
@@ -4420,14 +4420,14 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 3,
-                "total": 3,
+                "errors": 5,
+                "total": 5,
                 "value": 0
               },
               "overall": {
                 "correct": 0,
-                "errors": 4,
-                "total": 4,
+                "errors": 6,
+                "total": 6,
                 "value": 0
               },
               "ties": {
@@ -4445,15 +4445,15 @@
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 43,
+                "errors": 2,
+                "total": 45,
+                "value": 0.955556
               },
               "hardConflicts": {
-                "correct": 13,
+                "correct": 12,
                 "errors": 0,
-                "total": 13,
+                "total": 12,
                 "value": 1
               },
               "materialUnknowns": {
@@ -4468,7 +4468,7 @@
                 "total": 24,
                 "value": 1
               },
-              "unsupportedExtraAssociations": 0
+              "unsupportedExtraAssociations": 27
             }
           },
           "authorization": {
@@ -4481,10 +4481,10 @@
                 "value": 1
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 5,
-                "errors": 0,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 1
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 40,
@@ -4522,12 +4522,12 @@
                 "truePositive": 1
               },
               "recommended": {
-                "f1": 1,
+                "f1": 0.909091,
                 "falseNegative": 0,
-                "falsePositive": 0,
-                "precision": 1,
+                "falsePositive": 1,
+                "precision": 0.833333,
                 "recall": 1,
-                "trueNegative": 19,
+                "trueNegative": 18,
                 "truePositive": 5
               },
               "rejected": {
@@ -4536,232 +4536,16 @@
                 "falsePositive": 0,
                 "precision": 1,
                 "recall": 1,
-                "trueNegative": 6,
-                "truePositive": 18
+                "trueNegative": 7,
+                "truePositive": 17
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 0,
-                "falsePositive": 0,
-                "precision": null,
-                "recall": null,
-                "trueNegative": 24,
-                "truePositive": 0
-              }
-            },
-            "evidenceNeeded": {
-              "conflict": {
-                "correct": 2,
-                "errors": 0,
-                "total": 2,
-                "value": 1
-              },
-              "illegalPromotions": 0,
-              "overall": {
-                "correct": 7,
-                "errors": 0,
-                "total": 7,
-                "value": 1
-              },
-              "satisfied": {
-                "correct": 3,
-                "errors": 0,
-                "total": 3,
-                "value": 1
-              },
-              "unresolved": {
-                "correct": 2,
-                "errors": 0,
-                "total": 2,
-                "value": 1
-              }
-            },
-            "macroDisposition": {
-              "f1": 1,
-              "precision": 1,
-              "recall": 1
-            },
-            "outcome": {
-              "byLabel": {
-                "insufficient-evidence": {
-                  "correct": 1,
-                  "errors": 0,
-                  "total": 1,
-                  "value": 1
-                },
-                "no-viable-candidate": {
-                  "correct": 1,
-                  "errors": 0,
-                  "total": 1,
-                  "value": 1
-                },
-                "recommend": {
-                  "correct": 4,
-                  "errors": 0,
-                  "total": 4,
-                  "value": 1
-                }
-              },
-              "confusion": {
-                "insufficient-evidence": {
-                  "insufficient-evidence": 1,
-                  "no-viable-candidate": 0,
-                  "recommend": 0
-                },
-                "no-viable-candidate": {
-                  "insufficient-evidence": 0,
-                  "no-viable-candidate": 1,
-                  "recommend": 0
-                },
-                "recommend": {
-                  "insufficient-evidence": 0,
-                  "no-viable-candidate": 0,
-                  "recommend": 4
-                }
-              },
-              "overall": {
-                "correct": 6,
-                "errors": 0,
-                "total": 6,
-                "value": 1
-              }
-            },
-            "partialOrder": {
-              "falseOrdersOfIncomparable": 0,
-              "incomparable": {
-                "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
-              },
-              "ordered": {
-                "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
-              },
-              "overall": {
-                "correct": 1,
-                "errors": 0,
-                "total": 1,
-                "value": 1
-              },
-              "ties": {
-                "correct": 1,
-                "errors": 0,
-                "total": 1,
-                "value": 1
-              }
-            },
-            "topThreeUsefulness": {
-              "correct": 4,
-              "errors": 0,
-              "total": 4,
-              "value": 1
-            },
-            "traceability": {
-              "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
-              },
-              "hardConflicts": {
-                "correct": 18,
-                "errors": 0,
-                "total": 18,
-                "value": 1
-              },
-              "materialUnknowns": {
-                "correct": 6,
-                "errors": 0,
-                "total": 6,
-                "value": 1
-              },
-              "reasonCodes": {
-                "correct": 24,
-                "errors": 0,
-                "total": 24,
-                "value": 1
-              },
-              "unsupportedExtraAssociations": 0
-            }
-          },
-          "background-jobs": {
-            "caseCount": 6,
-            "criterionBinding": {
-              "approvedNonMaterialUnbound": {
-                "correct": 4,
-                "errors": 0,
-                "total": 4,
-                "value": 1
-              },
-              "boundPreferenceComparisonConsequence": {
-                "correct": 5,
-                "errors": 0,
-                "total": 5,
-                "value": 1
-              },
-              "boundSuccessConditionCoverage": {
-                "correct": 40,
-                "errors": 0,
-                "total": 40,
-                "value": 1
-              },
-              "materialUnboundFailClosed": {
-                "correct": 4,
-                "errors": 0,
-                "total": 4,
-                "value": 1
-              },
-              "noPreferenceHardening": {
-                "correct": 6,
-                "errors": 0,
-                "total": 6,
-                "value": 1
-              },
-              "unboundPreferenceCounterfactualNonEffect": {
-                "correct": 1,
-                "errors": 0,
-                "total": 1,
-                "value": 1
-              }
-            },
-            "dispositions": {
-              "insufficient-evidence": {
-                "f1": 1,
-                "falseNegative": 0,
-                "falsePositive": 0,
-                "precision": 1,
-                "recall": 1,
-                "trueNegative": 22,
-                "truePositive": 2
-              },
-              "recommended": {
-                "f1": 0.769231,
-                "falseNegative": 0,
-                "falsePositive": 3,
-                "precision": 0.625,
-                "recall": 1,
-                "trueNegative": 16,
-                "truePositive": 5
-              },
-              "rejected": {
-                "f1": 1,
-                "falseNegative": 0,
-                "falsePositive": 0,
-                "precision": 1,
-                "recall": 1,
-                "trueNegative": 10,
-                "truePositive": 14
-              },
-              "viable": {
-                "f1": null,
-                "falseNegative": 3,
+                "falseNegative": 1,
                 "falsePositive": 0,
                 "precision": null,
                 "recall": 0,
-                "trueNegative": 21,
+                "trueNegative": 23,
                 "truePositive": 0
               }
             },
@@ -4793,8 +4577,8 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.923077,
-              "precision": 0.875,
+              "f1": 0.969697,
+              "precision": 0.944444,
               "recall": 0.75
             },
             "outcome": {
@@ -4852,15 +4636,15 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 3,
-                "total": 3,
+                "errors": 1,
+                "total": 1,
                 "value": 0
               },
               "overall": {
                 "correct": 1,
-                "errors": 3,
-                "total": 4,
-                "value": 0.25
+                "errors": 1,
+                "total": 2,
+                "value": 0.5
               },
               "ties": {
                 "correct": 1,
@@ -4877,15 +4661,15 @@
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 42,
+                "errors": 2,
+                "total": 44,
+                "value": 0.954545
               },
               "hardConflicts": {
-                "correct": 13,
+                "correct": 17,
                 "errors": 0,
-                "total": 13,
+                "total": 17,
                 "value": 1
               },
               "materialUnknowns": {
@@ -4900,7 +4684,223 @@
                 "total": 24,
                 "value": 1
               },
-              "unsupportedExtraAssociations": 0
+              "unsupportedExtraAssociations": 12
+            }
+          },
+          "background-jobs": {
+            "caseCount": 6,
+            "criterionBinding": {
+              "approvedNonMaterialUnbound": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "boundPreferenceComparisonConsequence": {
+                "correct": 4,
+                "errors": 1,
+                "total": 5,
+                "value": 0.8
+              },
+              "boundSuccessConditionCoverage": {
+                "correct": 40,
+                "errors": 0,
+                "total": 40,
+                "value": 1
+              },
+              "materialUnboundFailClosed": {
+                "correct": 4,
+                "errors": 0,
+                "total": 4,
+                "value": 1
+              },
+              "noPreferenceHardening": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "unboundPreferenceCounterfactualNonEffect": {
+                "correct": 1,
+                "errors": 0,
+                "total": 1,
+                "value": 1
+              }
+            },
+            "dispositions": {
+              "insufficient-evidence": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 22,
+                "truePositive": 2
+              },
+              "recommended": {
+                "f1": 0.714286,
+                "falseNegative": 0,
+                "falsePositive": 4,
+                "precision": 0.555556,
+                "recall": 1,
+                "trueNegative": 15,
+                "truePositive": 5
+              },
+              "rejected": {
+                "f1": 1,
+                "falseNegative": 0,
+                "falsePositive": 0,
+                "precision": 1,
+                "recall": 1,
+                "trueNegative": 11,
+                "truePositive": 13
+              },
+              "viable": {
+                "f1": null,
+                "falseNegative": 4,
+                "falsePositive": 0,
+                "precision": null,
+                "recall": 0,
+                "trueNegative": 20,
+                "truePositive": 0
+              }
+            },
+            "evidenceNeeded": {
+              "conflict": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              },
+              "illegalPromotions": 0,
+              "overall": {
+                "correct": 7,
+                "errors": 0,
+                "total": 7,
+                "value": 1
+              },
+              "satisfied": {
+                "correct": 3,
+                "errors": 0,
+                "total": 3,
+                "value": 1
+              },
+              "unresolved": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "macroDisposition": {
+              "f1": 0.904762,
+              "precision": 0.851852,
+              "recall": 0.75
+            },
+            "outcome": {
+              "byLabel": {
+                "insufficient-evidence": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "no-viable-candidate": {
+                  "correct": 1,
+                  "errors": 0,
+                  "total": 1,
+                  "value": 1
+                },
+                "recommend": {
+                  "correct": 4,
+                  "errors": 0,
+                  "total": 4,
+                  "value": 1
+                }
+              },
+              "confusion": {
+                "insufficient-evidence": {
+                  "insufficient-evidence": 1,
+                  "no-viable-candidate": 0,
+                  "recommend": 0
+                },
+                "no-viable-candidate": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 1,
+                  "recommend": 0
+                },
+                "recommend": {
+                  "insufficient-evidence": 0,
+                  "no-viable-candidate": 0,
+                  "recommend": 4
+                }
+              },
+              "overall": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              }
+            },
+            "partialOrder": {
+              "falseOrdersOfIncomparable": 0,
+              "incomparable": {
+                "correct": 0,
+                "errors": 0,
+                "total": 0,
+                "value": null
+              },
+              "ordered": {
+                "correct": 0,
+                "errors": 4,
+                "total": 4,
+                "value": 0
+              },
+              "overall": {
+                "correct": 2,
+                "errors": 4,
+                "total": 6,
+                "value": 0.333333
+              },
+              "ties": {
+                "correct": 2,
+                "errors": 0,
+                "total": 2,
+                "value": 1
+              }
+            },
+            "topThreeUsefulness": {
+              "correct": 4,
+              "errors": 0,
+              "total": 4,
+              "value": 1
+            },
+            "traceability": {
+              "evidenceAssociations": {
+                "correct": 41,
+                "errors": 3,
+                "total": 44,
+                "value": 0.931818
+              },
+              "hardConflicts": {
+                "correct": 12,
+                "errors": 0,
+                "total": 12,
+                "value": 1
+              },
+              "materialUnknowns": {
+                "correct": 6,
+                "errors": 0,
+                "total": 6,
+                "value": 1
+              },
+              "reasonCodes": {
+                "correct": 24,
+                "errors": 0,
+                "total": 24,
+                "value": 1
+              },
+              "unsupportedExtraAssociations": 27
             }
           },
           "rate-limiting": {
@@ -4913,10 +4913,10 @@
                 "value": null
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 3,
-                "errors": 2,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 0.6
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 44,
@@ -4968,17 +4968,17 @@
                 "falsePositive": 0,
                 "precision": 1,
                 "recall": 1,
-                "trueNegative": 10,
-                "truePositive": 14
+                "trueNegative": 11,
+                "truePositive": 13
               },
               "viable": {
-                "f1": 0.333333,
+                "f1": 0.5,
                 "falseNegative": 2,
                 "falsePositive": 2,
-                "precision": 0.333333,
-                "recall": 0.333333,
-                "trueNegative": 19,
-                "truePositive": 1
+                "precision": 0.5,
+                "recall": 0.5,
+                "trueNegative": 18,
+                "truePositive": 2
               }
             },
             "evidenceNeeded": {
@@ -5009,9 +5009,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 0.733333,
-              "precision": 0.733333,
-              "recall": 0.733333
+              "f1": 0.775,
+              "precision": 0.775,
+              "recall": 0.775
             },
             "outcome": {
               "byLabel": {
@@ -5067,16 +5067,16 @@
                 "value": 0
               },
               "ordered": {
-                "correct": 1,
-                "errors": 2,
-                "total": 3,
-                "value": 0.333333
+                "correct": 2,
+                "errors": 3,
+                "total": 5,
+                "value": 0.4
               },
               "overall": {
-                "correct": 1,
-                "errors": 3,
-                "total": 4,
-                "value": 0.25
+                "correct": 2,
+                "errors": 4,
+                "total": 6,
+                "value": 0.333333
               },
               "ties": {
                 "correct": 0,
@@ -5093,15 +5093,15 @@
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 49,
+                "errors": 3,
+                "total": 52,
+                "value": 0.942308
               },
               "hardConflicts": {
-                "correct": 13,
+                "correct": 12,
                 "errors": 0,
-                "total": 13,
+                "total": 12,
                 "value": 1
               },
               "materialUnknowns": {
@@ -5116,7 +5116,7 @@
                 "total": 24,
                 "value": 1
               },
-              "unsupportedExtraAssociations": 0
+              "unsupportedExtraAssociations": 21
             }
           },
           "webhooks": {
@@ -5129,10 +5129,10 @@
                 "value": 1
               },
               "boundPreferenceComparisonConsequence": {
-                "correct": 5,
-                "errors": 0,
+                "correct": 4,
+                "errors": 1,
                 "total": 5,
-                "value": 1
+                "value": 0.8
               },
               "boundSuccessConditionCoverage": {
                 "correct": 40,
@@ -5170,12 +5170,12 @@
                 "truePositive": 1
               },
               "recommended": {
-                "f1": 1,
+                "f1": 0.909091,
                 "falseNegative": 0,
-                "falsePositive": 0,
-                "precision": 1,
+                "falsePositive": 1,
+                "precision": 0.833333,
                 "recall": 1,
-                "trueNegative": 19,
+                "trueNegative": 18,
                 "truePositive": 5
               },
               "rejected": {
@@ -5184,16 +5184,16 @@
                 "falsePositive": 0,
                 "precision": 1,
                 "recall": 1,
-                "trueNegative": 6,
-                "truePositive": 18
+                "trueNegative": 7,
+                "truePositive": 17
               },
               "viable": {
                 "f1": null,
-                "falseNegative": 0,
+                "falseNegative": 1,
                 "falsePositive": 0,
                 "precision": null,
-                "recall": null,
-                "trueNegative": 24,
+                "recall": 0,
+                "trueNegative": 23,
                 "truePositive": 0
               }
             },
@@ -5225,9 +5225,9 @@
               }
             },
             "macroDisposition": {
-              "f1": 1,
-              "precision": 1,
-              "recall": 1
+              "f1": 0.969697,
+              "precision": 0.944444,
+              "recall": 0.75
             },
             "outcome": {
               "byLabel": {
@@ -5284,15 +5284,15 @@
               },
               "ordered": {
                 "correct": 0,
-                "errors": 0,
-                "total": 0,
-                "value": null
+                "errors": 1,
+                "total": 1,
+                "value": 0
               },
               "overall": {
                 "correct": 1,
-                "errors": 0,
-                "total": 1,
-                "value": 1
+                "errors": 1,
+                "total": 2,
+                "value": 0.5
               },
               "ties": {
                 "correct": 1,
@@ -5309,15 +5309,15 @@
             },
             "traceability": {
               "evidenceAssociations": {
-                "correct": 234,
-                "errors": 0,
-                "total": 234,
-                "value": 1
+                "correct": 38,
+                "errors": 2,
+                "total": 40,
+                "value": 0.95
               },
               "hardConflicts": {
-                "correct": 18,
+                "correct": 17,
                 "errors": 0,
-                "total": 18,
+                "total": 17,
                 "value": 1
               },
               "materialUnknowns": {
@@ -5332,11 +5332,11 @@
                 "total": 24,
                 "value": 1
               },
-              "unsupportedExtraAssociations": 0
+              "unsupportedExtraAssociations": 12
             }
           }
         },
-        "predictionDigest": "84c84ebd79dc090bc51cd8a1aa71fb2e5d2b8cea77082a2af45fe5f7b3fddea9",
+        "predictionDigest": "84917eb98dde5d0282fbf06723a23a54a1d67ad7ba08ec2cca9412963f607762",
         "safety": {
           "candidateInvention": 0,
           "candidateSetMismatch": 0,
@@ -5350,8 +5350,8 @@
           "unboundSuccessConditionCountedFavorable": 0,
           "unresolvedEvidenceNeededPositivePromotion": 0
         },
-        "scoreDigest": "1ee45fe8ac236ca14a60fd41520397e6c10bfa0302ae6640d3cdccdbbddca5f9",
-        "specificationDigest": "01cad78a59cd9fe0099d8e4b7a4e934a365987c60dca985612e367a4021e0eac"
+        "scoreDigest": "1cf06939ef87ece46813f09ad6079dc8dc9e30abda7c08f0e5d2fd49f56f146d",
+        "specificationDigest": "07ac2b65b9b3bc2c762f52e8a2aa93ff2966edf0d7a2f836631d41eae649b9b3"
       }
     ],
     "scorerCeilings": {
@@ -5369,6 +5369,6 @@
     },
     "strongestOverallBaselineId": "weak-target-aware-exact-compatibility"
   },
-  "semanticDigest": "d131d8dbc0eefb8e54dcf380acc3c037e724f8f6249064dfb35e83fedc423bae",
+  "semanticDigest": "2c211c7862a2c0000be8cd2b15943ea7215a630fe3ea8df78a9c500a95d2e205",
   "status": "proposed-independent-review-pending"
 }

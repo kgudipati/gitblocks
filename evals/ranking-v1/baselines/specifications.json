@@ -1,5 +1,5 @@
 {
-  "authorityVersion": "ranking-v1-baseline-specifications/2.0.0",
+  "authorityVersion": "ranking-v1-baseline-specifications/3.0.0",
   "frozenBeforeScoring": true,
   "omissions": [
     {
@@ -7,7 +7,7 @@
       "reason": "No safe already-committed bounded popularity or health authority exists; M2 does not fetch live metrics."
     }
   ],
-  "semanticDigest": "24ae48a7eff1773a1b280b758aa1e2c4dfb5ffb237c6674d709ae80a838ea7f6",
+  "semanticDigest": "7b26826f7e85eef3c6bbd887a21f76a2bb4d2519e2997ddb7a11148e38823061",
   "specifications": [
     {
       "baselineId": "all-insufficient-responsible-abstention",
@@ -121,7 +121,7 @@
     },
     {
       "baselineId": "target-blind-candidate-feature",
-      "baselineVersion": "ranking-target-blind-candidate-feature/2.0.0",
+      "baselineVersion": "ranking-target-blind-candidate-feature/3.0.0",
       "deterministicDecisionRules": [
         "Evaluate required/prohibited hard rules before every softer criterion; a conflict rejects and an unresolved hard fact abstains.",
         "For candidate-has-all, complete candidate facts support only when every expected value is present; incomplete absence is unknown and complete absence is not supported.",
@@ -133,7 +133,7 @@
         "Candidate IDs are used only to produce canonical serialization within an already-derived tie or incomparable set, never as fit evidence."
       ],
       "evidenceNeededBehavior": "Derive closure only from candidate facts; any target-dependent closure remains unresolved and cannot be positive.",
-      "maximumResultBehavior": "Add whole nondominated layers only. If the next complete layer crosses three, omit it; if the maximal layer exceeds three, presentation is empty.",
+      "maximumResultBehavior": "Add whole nondominated layers only. If the next complete layer crosses three, omit that layer and every rank relation or incomparable pair involving an omitted candidate; if the maximal layer exceeds three, presentation and all ranking-reference surfaces are empty.",
       "permittedBlindInputs": [
         "request and criterion authority",
         "fixed candidate identities",
@@ -150,12 +150,12 @@
         "quality thresholds"
       ],
       "role": "ordinary-baseline",
-      "specificationDigest": "23b723d070311562fd2c4a5c29ebddf544a3eefc167064b37b51111a7d91750b",
+      "specificationDigest": "990b50e60893c46eff85a8cc5b0db0b18a4baaa13648857e0568bbd8bed83aa2",
       "tieBehavior": "Equal success and bound-preference vectors form complete tie groups; ID only canonicalizes members. Independent vector trade-offs are incomparable."
     },
     {
       "baselineId": "weak-target-aware-exact-compatibility",
-      "baselineVersion": "ranking-weak-target-aware-exact-compatibility/2.0.0",
+      "baselineVersion": "ranking-weak-target-aware-exact-compatibility/3.0.0",
       "deterministicDecisionRules": [
         "Evaluate required/prohibited hard rules before every softer criterion; a conflict rejects and an unresolved hard fact abstains.",
         "For candidate-has-all, complete candidate facts support only when every expected value is present; incomplete absence is unknown and complete absence is not supported.",
@@ -167,7 +167,7 @@
         "Candidate IDs are used only to produce canonical serialization within an already-derived tie or incomparable set, never as fit evidence."
       ],
       "evidenceNeededBehavior": "Derive satisfied, conflict, or unresolved from the unresolved Phase 9 rule plus candidate facts and required target facts; unresolved cannot be positive.",
-      "maximumResultBehavior": "Add whole nondominated layers only. If the next complete layer crosses three, omit it; if the maximal layer exceeds three, presentation is empty.",
+      "maximumResultBehavior": "Add whole nondominated target-compatibility layers only. If the next complete layer crosses three, omit that layer and every rank relation or incomparable pair involving an omitted candidate; if the maximal layer exceeds three, presentation and all ranking-reference surfaces are empty.",
       "permittedBlindInputs": [
         "request and criterion authority",
         "target fingerprint facts",
@@ -185,8 +185,8 @@
         "quality thresholds"
       ],
       "role": "ordinary-baseline",
-      "specificationDigest": "01cad78a59cd9fe0099d8e4b7a4e934a365987c60dca985612e367a4021e0eac",
-      "tieBehavior": "Equal success, bound-preference, and target-compatibility vectors form complete tie groups; ID only canonicalizes members. Independent vector trade-offs are incomparable."
+      "specificationDigest": "07ac2b65b9b3bc2c762f52e8a2aa93ff2966edf0d7a2f836631d41eae649b9b3",
+      "tieBehavior": "Success and preference vectors are ignored after disposition and coverage. Equal preregistered target-compatibility vectors form complete tie groups; independent target-vector trade-offs are incomparable. Candidate ID only canonicalizes members inside an already-derived relation."
     }
   ]
 }

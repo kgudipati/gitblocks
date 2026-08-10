@@ -24,8 +24,8 @@ import { compareRankingText, rankingSemanticDigest } from './stable-json.ts';
 export const RANKING_BASELINE_VERSIONS = {
   retrievalOrder: 'ranking-retrieval-order-diagnostic/2.0.0',
   allInsufficient: 'ranking-all-insufficient-abstention/2.0.0',
-  targetBlind: 'ranking-target-blind-candidate-feature/2.0.0',
-  targetAware: 'ranking-weak-target-aware-exact-compatibility/2.0.0',
+  targetBlind: 'ranking-target-blind-candidate-feature/3.0.0',
+  targetAware: 'ranking-weak-target-aware-exact-compatibility/3.0.0',
   hardConflictControl: 'ranking-hard-conflict-negative-control/2.0.0',
   syntheticOracle: 'ranking-synthetic-oracle/2.0.0',
 } as const;
@@ -143,13 +143,13 @@ function createPredictionSet(
     }))
     .sort((left, right) => compareRankingText(left.caseId, right.caseId));
   const withoutDigest = {
-    predictionSetVersion: 'ranking-v1-prediction-set/2.0.0' as const,
+    predictionSetVersion: 'ranking-v1-prediction-set/3.0.0' as const,
     predictionSetId: `ranking-v1-${key}-predictions`,
     baselineId: specification.baselineId,
     baselineVersion: specification.baselineVersion,
     baselineSpecificationDigest: specification.specificationDigest,
     corpusId: 'ranking-v1' as const,
-    corpusVersion: '2.0.0' as const,
+    corpusVersion: '3.0.0' as const,
     blindInputDigest,
     predictions,
   };
@@ -274,21 +274,21 @@ function featureStrategy(
       ),
   );
   const maximalIds = new Set(maximal.map(({ candidateId }) => candidateId));
-  const candidates = derived
-    .map((candidate): RankingPredictionCandidate => ({
-      candidateId: candidate.candidateId,
-      disposition:
-        candidate.disposition === 'viable' &&
-        maximalIds.has(candidate.candidateId)
-          ? 'recommended'
-          : candidate.disposition,
-      reasonCodes: candidate.reasonCodes,
-      evidenceIds: candidate.evidenceIds,
-      unknownIds: candidate.unknownIds,
-    }))
-    .sort((left, right) =>
-      compareRankingText(left.candidateId, right.candidateId),
-    );
+  const preferenceConsequences = targetAware
+    ? input.criteria.bindings
+        .filter(({ criterionKind }) => criterionKind === 'preference')
+        .map((binding) => ({
+          criterionId: binding.criterionId,
+          state:
+            binding.bindingState === 'unbound'
+              ? ('ignored-unbound' as const)
+              : ('bound-but-no-applicable-positive-comparison' as const),
+          affectedPairs: [],
+        }))
+        .sort((left, right) =>
+          compareRankingText(left.criterionId, right.criterionId),
+        )
+    : derivePreferenceConsequences(derived, input.criteria.bindings);
   const ranked = createPartialOrderPresentation(
     positives.map(
       (candidate) => comparisonById.get(candidate.candidateId) ?? candidate,
@@ -296,6 +296,47 @@ function featureStrategy(
     preferenceIds,
     input.requestedMaximumResults,
   );
+  const presentedCandidateIds = new Set(ranked.presentation);
+  const candidates = derived
+    .map((candidate): RankingPredictionCandidate => {
+      const evidenceIds = new Set(candidate.evidenceIds);
+      if (targetAware) {
+        if (
+          positives.length > 1 &&
+          presentedCandidateIds.has(candidate.candidateId)
+        ) {
+          candidate.targetEvidenceIds.forEach((evidenceId) =>
+            evidenceIds.add(evidenceId),
+          );
+        }
+      } else {
+        for (const consequence of preferenceConsequences) {
+          if (
+            consequence.affectedPairs.some((pair) =>
+              pair.includes(candidate.candidateId),
+            )
+          ) {
+            candidate.preferenceEvidenceIds
+              .get(consequence.criterionId)
+              ?.forEach((evidenceId) => evidenceIds.add(evidenceId));
+          }
+        }
+      }
+      return {
+        candidateId: candidate.candidateId,
+        disposition:
+          candidate.disposition === 'viable' &&
+          maximalIds.has(candidate.candidateId)
+            ? 'recommended'
+            : candidate.disposition,
+        reasonCodes: candidate.reasonCodes,
+        evidenceIds: [...evidenceIds].sort(compareRankingText),
+        unknownIds: candidate.unknownIds,
+      };
+    })
+    .sort((left, right) =>
+      compareRankingText(left.candidateId, right.candidateId),
+    );
   const outcome =
     positives.length > 0
       ? 'recommend'
@@ -332,21 +373,7 @@ function featureStrategy(
           `${right.candidateId}\0${right.criterionId}`,
         ),
       ),
-    preferenceConsequences: targetAware
-      ? input.criteria.bindings
-          .filter(({ criterionKind }) => criterionKind === 'preference')
-          .map((binding) => ({
-            criterionId: binding.criterionId,
-            state:
-              binding.bindingState === 'unbound'
-                ? ('ignored-unbound' as const)
-                : ('bound-but-no-applicable-positive-comparison' as const),
-            affectedPairs: [],
-          }))
-          .sort((left, right) =>
-            compareRankingText(left.criterionId, right.criterionId),
-          )
-      : derivePreferenceConsequences(derived, input.criteria.bindings),
+    preferenceConsequences,
     unboundPreferenceCounterfactuals: deriveUnboundPreferenceCounterfactuals(
       comparisonCandidates,
       input.criteria.bindings,

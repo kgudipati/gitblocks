@@ -709,8 +709,11 @@ Independent M2 acceptance authorizes M3 only.
 
 Correction-authoring status: complete and proposed for independent rereview in
 the current M2 correction commit. The corrected authority contains 30 cases
-(six per family), scorer version `ranking-v1-scorer/2.0.0`, frozen blind
-baseline specifications/predictions,
+(six per family), corpus/proposed-gold version `3.0.0`, scorer version
+`ranking-v1-scorer/2.0.0`, frozen blind baseline
+specifications/predictions, criterion-to-candidate-fact reachability checks,
+decision-minimal gold evidence associations, synchronized reviewer rationale,
+and complete maximum-results closure across every ranking reference,
 separate fixed-candidate and composition reports, gold-blind resource-reference
 evidence, and independent gate-review inputs. Gold status is
 `proposed-not-independently-reviewed`; the review record is
@@ -927,6 +930,13 @@ reviewed durable-product trigger in ADR 0011.
       60-criterion resource reference. All downstream proposed evidence was
       regenerated under additive 2.0 versions. Independent rereview remains
       pending; M2 is unaccepted and M3 remains unauthorized.
+- [x] 2026-08-10 — Performed the final focused M2 correction from authorized
+      head `167bc89b3bf1ed48821c9f4b66c10d261be841ec`: repaired every
+      criterion-to-candidate-fact binding, regenerated proposed gold and author
+      rationale under corpus version 3.0, preserved one causal bound preference
+      effect per family, minimized gold evidence associations, and closed every
+      ranking-reference surface at the maximum-results boundary. Independent
+      rereview remains pending; M2 is unaccepted and M3 remains unauthorized.
 - [ ] M2 independently accepted.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
@@ -1180,3 +1190,38 @@ remain proposed; no independent reviewer, accepted case, quality threshold,
 performance budget, or readiness threshold was populated. All correction
 commands were offline, M3 remained untouched, and no production ranking output
 was created or observed.
+
+### Milestone 2 final focused correction-authoring validation
+
+The final focused correction began from clean local and origin heads at exact
+authorized SHA `167bc89b3bf1ed48821c9f4b66c10d261be841ec`. It evolved the
+blind/corpus/gold/prediction/report authority to version 3.0 while leaving the
+request-independent evidence, Phase 9 handoff, scorer, composition authority,
+and maximum-legal performance reference unchanged where their semantics did
+not change.
+
+Every bound material success condition now resolves to an available candidate
+fact dimension/value, and corpus validation rejects an unreachable binding.
+Proposed gold and author rationale were regenerated from request, criteria,
+target, candidate facts, handoff state, and evaluation rules. Gold contains 225
+decision-relevant evidence associations. Each family retains exactly one
+causal bound-preference comparison in its popularity-over-fit case. Complete
+maximum-result overflow now removes omitted candidates from groups, relations,
+and incomparable pairs as well as presentation.
+
+Focused validation passed five ranking test files and 21 tests, 21 scorer
+fixtures and 47 assertions, forward/reverse blind baseline reproduction,
+candidate permutations, contract conformance, architecture/effect denial, and
+read-only verification. The first full `pnpm verify` attempt found three lint
+defects in the new authoring/validation tests; only those demonstrated defects
+were corrected. The final full pass completed 135 test files and 1,970 tests,
+with zero dependency violations across 905 modules and 3,100 dependencies.
+Repository, format, secret, and registry audit checks also passed.
+
+The current proposed authority reports 70 hard-conflict opportunities, five
+no-viable cases, five insufficient-evidence cases, four tie pairs, two explicit
+incomparable pairs, and 35 evidence-needed transitions (15 satisfied, 10
+conflict, and 10 unresolved). Independent review remains pending. No quality
+threshold, performance budget, or 13/18-versus-14/18 choice was selected; M2
+remains unaccepted, M3 remains unauthorized and untouched, and no production
+ranking output was created or observed.

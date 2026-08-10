@@ -43,6 +43,7 @@
     "eval:retrieval:v2:gates:validate": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2",
     "eval:retrieval:score": "pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score",
     "eval:ranking:validate": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts validate",
+    "eval:ranking:authority:generate": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts authority-generate",
     "eval:ranking:fixtures": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts fixtures",
     "eval:ranking:fixtures:generate": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts fixtures-generate",
     "eval:ranking:baselines": "pnpm runtime:check && node tools/evaluation-harness/src/ranking/cli.ts baselines",

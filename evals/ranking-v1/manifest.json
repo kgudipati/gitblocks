@@ -1,8 +1,8 @@
 {
   "caseCount": 30,
   "corpusId": "ranking-v1",
-  "corpusSemanticDigest": "dba32520a7500d288114be88b16f59edbf37ce21a179b676e7a65ad945a80e48",
-  "corpusVersion": "2.0.0",
+  "corpusSemanticDigest": "458b7d521ec56cbb3c0593336f46ad12581f190412527948ea47f61e1e27787b",
+  "corpusVersion": "3.0.0",
   "evidenceCutoff": "2026-08-10",
   "familyCounts": {
     "audit-logging": 6,
@@ -20,37 +20,37 @@
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/all-insufficient.json",
-      "sha256": "018e77ef4558eaa26e48ced3f6ff580611fef1db14b786e366b8399c13cdcef7"
+      "sha256": "bca29fe94135565b6a89007fd28a95b4e2d51aee72b81ba34a1073a28aac8015"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/hard-conflict-control.json",
-      "sha256": "521528ef1792967c29c3cc3f5e16a949800a9970d95d454f54e71f0ebe6bb17b"
+      "sha256": "7848c6ec31f3b5b53ed696172647bd34c2bc0d6a393e680e286d256b1973a9ec"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/retrieval-order.json",
-      "sha256": "2039ba5ebb60fc5b718cc4ce70e629e681340922b1993bd80504eed40b7b373a"
+      "sha256": "4fb9699f67bd2697f9e40aa6b08f2af45d33df6609ad38f5c480f69e2667efb6"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/target-aware.json",
-      "sha256": "afd39129fb942fa43f72a241bd94349da23ff409999fd3e9291024f3e5f2a770"
+      "sha256": "ac2e8104393139434852bac4d0449058f2dd6db4f0ac7ba44ad3385020bda983"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/target-blind.json",
-      "sha256": "e10dfc10cc070f871ae0658feb7506c797b277655c488ae61cf8d220f373d782"
+      "sha256": "c69fb21918e732adf302c760ec45c4426e23a87587601ab4ad8dbe1049e69511"
     },
     {
       "kind": "baseline-specifications",
       "path": "baselines/specifications.json",
-      "sha256": "21533b21741dff5ac4039d5046436862efd4356c0e965071512d7d627cf12b69"
+      "sha256": "1157ea3ba959432950433154e9f12c49fc167a423fd197a4ada945f70b1e0cfe"
     },
     {
       "kind": "blind-cases",
       "path": "blind/cases.json",
-      "sha256": "8388f18f047469f99e21417be5af82d1a36391c3bd75b03d3f7b182c27a96f14"
+      "sha256": "b366b393ac125b06644ee6041117f244fa20fe0312c9b6b8a0731f49e257b3c9"
     },
     {
       "kind": "composition-input",
@@ -80,12 +80,12 @@
     {
       "kind": "gate-review-input",
       "path": "gates/proposed-review-inputs.json",
-      "sha256": "63f62a10d25d06eaa649deb2af3cf9c99256af29e89ec07abd7dcd607c5df5e9"
+      "sha256": "219a03d4645207aedd9cb1e6531b03c6260fc903dcbab8c3c02667e701ea522a"
     },
     {
       "kind": "proposed-gold",
       "path": "gold/outcomes.json",
-      "sha256": "0d802370b3e9797b8b5b0dddebe15e6702b4398af989cd1b8c4e9914f2a64d2c"
+      "sha256": "0b81f2a4c1c80f46a0deeff4c6cecb7ad750c0f0861d30ff1ad27c6c8aad9635"
     },
     {
       "kind": "phase9-handoff",
@@ -95,7 +95,7 @@
     {
       "kind": "baseline-report",
       "path": "reports/baseline-report.json",
-      "sha256": "51a2833710d88cacb3b9253a4fdb04dc3a6f96f950e6481620a7039a47aec563"
+      "sha256": "e0048fb799f2dad0ea06b307e1af0ab0686659213f3d4885e0acbe1f884861a8"
     },
     {
       "kind": "composition-report",
@@ -110,14 +110,14 @@
     {
       "kind": "review-record",
       "path": "reviews/proposed-review-record.json",
-      "sha256": "90154095b40be9d650468bc22166e2e9396d299b1eeecbfc3eff361afe015715"
+      "sha256": "ab8981840fd50b65896e77df6471b4236ad90bea540dfe5e719fb51235475121"
     },
     {
       "kind": "reviewer-rationale",
       "path": "reviews/reviewer-rationale.json",
-      "sha256": "5c2406654c5aec6f67078418520ec1b60ae1a64393b5875c79d6074747aaa422"
+      "sha256": "9e6d0491a7bf27f983ae3987d832e035eff1612b8a36a2b96f316ad1e5395074"
     }
   ],
-  "manifestVersion": "ranking-v1-manifest/2.0.0",
+  "manifestVersion": "ranking-v1-manifest/3.0.0",
   "status": "proposed-independent-review-pending"
 }

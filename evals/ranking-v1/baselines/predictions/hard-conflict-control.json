@@ -2,11 +2,11 @@
   "baselineId": "hard-conflict-violating-negative-control",
   "baselineSpecificationDigest": "261e1395c45887134eff037aac7a49873dcea92d06669e2ca0032ea9f9bcfe80",
   "baselineVersion": "ranking-hard-conflict-negative-control/2.0.0",
-  "blindInputDigest": "fddf8566a784fbd04ecb70f4663e15140955e64fc8c1e1a44128935a6557e7bd",
+  "blindInputDigest": "6c8b83d81a082814a8cfc250830418962a6f684902324182e59553ecbbf07fc9",
   "corpusId": "ranking-v1",
-  "corpusVersion": "2.0.0",
+  "corpusVersion": "3.0.0",
   "predictionSetId": "ranking-v1-hardConflictControl-predictions",
-  "predictionSetVersion": "ranking-v1-prediction-set/2.0.0",
+  "predictionSetVersion": "ranking-v1-prediction-set/3.0.0",
   "predictions": [
     {
       "candidates": [
@@ -263,7 +263,7 @@
           "candidateId": "audit-pgaudit",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-audit-pgaudit-fact-05"
+            "ranking-v1-audit-pgaudit-fact-04"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -623,7 +623,7 @@
           "candidateId": "auth-cerbos-cerbos",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-auth-cerbos-cerbos-fact-05"
+            "ranking-v1-auth-cerbos-cerbos-fact-04"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -972,10 +972,12 @@
       "candidates": [
         {
           "candidateId": "jobs-bree",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-bree-fact-04"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -990,12 +992,10 @@
         },
         {
           "candidateId": "jobs-graphile-worker",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-jobs-graphile-worker-fact-05"
-          ],
+          "disposition": "rejected",
+          "evidenceIds": [],
           "reasonCodes": [
-            "negative-control-promoted-known-conflict"
+            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -1017,11 +1017,11 @@
       "outcome": "recommend",
       "preferenceConsequences": [],
       "presentation": [
-        "jobs-graphile-worker"
+        "jobs-bree"
       ],
       "rankGroups": [
         [
-          "jobs-graphile-worker"
+          "jobs-bree"
         ]
       ],
       "rankRelations": [],
@@ -1332,21 +1332,21 @@
       "candidates": [
         {
           "candidateId": "rate-bottleneck",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-rate-bottleneck-fact-02"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
         {
           "candidateId": "rate-express-rate-limit",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-rate-express-rate-limit-fact-05"
-          ],
+          "disposition": "rejected",
+          "evidenceIds": [],
           "reasonCodes": [
-            "negative-control-promoted-known-conflict"
+            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -1377,11 +1377,11 @@
       "outcome": "recommend",
       "preferenceConsequences": [],
       "presentation": [
-        "rate-express-rate-limit"
+        "rate-bottleneck"
       ],
       "rankGroups": [
         [
-          "rate-express-rate-limit"
+          "rate-bottleneck"
         ]
       ],
       "rankRelations": [],
@@ -1694,7 +1694,7 @@
           "candidateId": "webhook-convoy",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-webhook-convoy-fact-05"
+            "ranking-v1-webhook-convoy-fact-04"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -1809,5 +1809,5 @@
       "unboundPreferenceCounterfactuals": []
     }
   ],
-  "semanticDigest": "31267529fb69663c3bb19335c339be362043df3ba23fe4f8ae4794f56901d4ab"
+  "semanticDigest": "94f248bd4563dcfe0ed6b165479d2ee5f03243b5f314c6dadba50d37f07483b4"
 }

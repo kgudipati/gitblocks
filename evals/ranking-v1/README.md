@@ -54,8 +54,8 @@ background jobs, rate limiting, and webhooks. Every family contains a
 two-case controlled target pair, a hard-conflict/no-viable case, an
 evidence-insufficient case, a popularity-over-fit audit case, and a tie or
 explicit-incomparability case. Across the corpus there are five controlled
-pairs, five no-viable cases, five insufficient-evidence cases, three tie pairs,
-two incomparable pairs, 75 hard-conflict opportunities, and 35
+pairs, five no-viable cases, five insufficient-evidence cases, four tie pairs,
+two incomparable pairs, 70 hard-conflict opportunities, and 35
 evidence-needed transitions (15 satisfied, 10 conflict, and 10 unresolved).
 
 The target pair keeps request intent, success conditions, hard constraints,
@@ -67,6 +67,15 @@ claim. Success coverage, hard conflict, preference consequences, and
 evidence-needed closure are derived from those facts plus bindings, target
 facts, modality, and versioned evaluation rules; none is stored in blind
 candidate evidence.
+
+Corpus version `3.0.0` binds every material success criterion to the exact
+candidate fact dimension whose vocabulary can prove it and rejects an
+unreachable feature/value binding. Proposed gold is regenerated from those
+bindings. Candidate `evidenceIds` are decision-minimal: they support the
+assessment, reason, material comparison, conflict, closure, or uncertainty,
+while the richer blind evidence authority remains available independently.
+Reviewer rationale carries a validated criterion-to-fact-to-evidence crosswalk
+for every success condition.
 
 ## Blind baseline protocol
 
@@ -98,6 +107,7 @@ pnpm contracts:validate
 Explicit artifact writers are restricted to paths under `evals/ranking-v1`:
 
 ```text
+pnpm eval:ranking:authority:generate
 pnpm eval:ranking:fixtures:generate
 pnpm eval:ranking:baselines:generate
 pnpm eval:ranking:baselines:score
@@ -107,9 +117,17 @@ pnpm eval:ranking:gates:generate
 pnpm eval:ranking:manifest:generate
 ```
 
-The verify path checks manifest and corpus closure, criterion and lane closure,
+The authoring writer is an explicit correction-only command whose separate
+allowlist contains blind cases, proposed gold, author rationale/review record,
+and baseline specifications. Ordinary artifact writers cannot change those
+authorities.
+
+The verify path checks manifest and corpus closure, criterion reachability and
+lane closure,
 scorer fixtures, forward/reversed baseline reproduction, candidate input
-permutation invariance, complete tie-group overflow behavior, frozen reports,
+permutation invariance, complete tie/maximal-group overflow closure across all
+ranking-reference surfaces, decision-minimal evidence ownership, rationale
+crosswalk consistency, frozen reports,
 composition reproduction, product-contract representability, proposed gate
 state, product/evaluation separation, denied effects, authorized write paths,
 and read-only filesystem behavior.

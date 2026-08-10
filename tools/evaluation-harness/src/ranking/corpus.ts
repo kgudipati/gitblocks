@@ -14,8 +14,10 @@ import {
   type RankingBlindCaseAuthority,
   type RankingCorpusManifest,
   type RankingCriterionAuthority,
+  type RankingCriterionBinding,
   type RankingDiagnostic,
   type RankingEvidenceAuthority,
+  type RankingEvidenceSet,
   type RankingGoldAuthority,
   type RankingHandoffAuthority,
   type RankingManifestFile,
@@ -25,9 +27,17 @@ import {
   type RankingValidatedCorpus,
 } from './contracts.ts';
 import {
+  compareCandidateFit,
+  createPartialOrderPresentation,
+  deriveCandidateFit,
+  deriveDecisionEvidenceIds,
+  derivePreferenceConsequences,
+} from './evaluation-rules.ts';
+import {
   compareRankingText,
   rankingDigest,
   rankingSemanticDigest,
+  rankingStableJson,
   rankingValuesDiffer,
 } from './stable-json.ts';
 
@@ -187,9 +197,9 @@ export function createRankingManifest(
     sha256: hashFile(join(corpusRoot, path)),
   }));
   const withoutDigest = {
-    manifestVersion: 'ranking-v1-manifest/2.0.0' as const,
+    manifestVersion: 'ranking-v1-manifest/3.0.0' as const,
     corpusId: 'ranking-v1' as const,
-    corpusVersion: '2.0.0' as const,
+    corpusVersion: '3.0.0' as const,
     status: 'proposed-independent-review-pending' as const,
     evidenceCutoff: '2026-08-10',
     caseCount: 30 as const,
@@ -212,10 +222,10 @@ function validateManifest(
   if (
     rankingValuesDiffer(
       manifest.manifestVersion,
-      'ranking-v1-manifest/2.0.0',
+      'ranking-v1-manifest/3.0.0',
     ) ||
     rankingValuesDiffer(manifest.corpusId, 'ranking-v1') ||
-    rankingValuesDiffer(manifest.corpusVersion, '2.0.0') ||
+    rankingValuesDiffer(manifest.corpusVersion, '3.0.0') ||
     rankingValuesDiffer(
       manifest.status,
       'proposed-independent-review-pending',
@@ -341,7 +351,7 @@ function validateCorpusAuthorities(
   if (
     rankingValuesDiffer(
       corpus.blind.authorityVersion,
-      'ranking-v1-blind-cases/2.0.0',
+      'ranking-v1-blind-cases/3.0.0',
     ) ||
     rankingValuesDiffer(
       corpus.evidence.authorityVersion,
@@ -353,7 +363,7 @@ function validateCorpusAuthorities(
     ) ||
     rankingValuesDiffer(
       corpus.gold.authorityVersion,
-      'ranking-v1-proposed-gold/2.0.0',
+      'ranking-v1-proposed-gold/3.0.0',
     ) ||
     rankingValuesDiffer(
       corpus.audit.authorityVersion,
@@ -361,11 +371,11 @@ function validateCorpusAuthorities(
     ) ||
     rankingValuesDiffer(
       corpus.reviewerRationale.authorityVersion,
-      'ranking-v1-reviewer-rationale/1.0.0',
+      'ranking-v1-reviewer-rationale/2.0.0',
     ) ||
     rankingValuesDiffer(
       corpus.review.reviewRecordVersion,
-      'ranking-v1-review-record/2.0.0',
+      'ranking-v1-review-record/3.0.0',
     )
   ) {
     diagnostics.push(
@@ -519,13 +529,91 @@ function validateCaseClosure(
       continue;
     }
     validateCriterionClosure(request, criteria, binding.caseId, diagnostics);
+    validateCriterionEvidenceReachability(resolved, diagnostics);
     validateHandoffClosure(resolved, gold, diagnostics);
     validateGoldClosure(resolved, gold, diagnostics);
   }
   validateAuditPattern(corpus, diagnostics);
   validateControlledPairs(corpus, cases, diagnostics);
-  validateCriterionCoverage(cases, diagnostics);
-  validateReviewerRationales(corpus, diagnostics);
+  validateCriterionCoverage(corpus, cases, diagnostics);
+  validateReviewerRationales(corpus, cases, diagnostics);
+}
+
+export function isBoundMaterialSuccessReachable(
+  binding: RankingCriterionBinding,
+  evidence: RankingEvidenceSet,
+): boolean {
+  if (
+    binding.criterionKind !== 'success-condition' ||
+    binding.bindingState !== 'bound' ||
+    binding.materiality !== 'material'
+  ) {
+    return true;
+  }
+  if (
+    binding.candidateFeatureDependencies.length !== 1 ||
+    binding.expectedValues.length === 0
+  ) {
+    return false;
+  }
+  const featureId = binding.candidateFeatureDependencies[0];
+  return evidence.candidates.some((candidate) =>
+    candidate.observations.some(
+      (observation) =>
+        observation.featureId === featureId &&
+        observation.state === 'known' &&
+        binding.expectedValues.every((value) =>
+          observation.values.includes(value),
+        ),
+    ),
+  );
+}
+
+function validateCriterionEvidenceReachability(
+  resolved: RankingResolvedCase,
+  diagnostics: RankingDiagnostic[],
+): void {
+  for (const binding of resolved.criteria.bindings) {
+    if (binding.bindingState !== 'bound') continue;
+    const candidateFeatureId = binding.candidateFeatureDependencies[0];
+    const everyCandidateHasDimension =
+      binding.candidateFeatureDependencies.length === 1 &&
+      resolved.evidence.candidates.every((candidate) =>
+        candidate.observations.some(
+          ({ featureId }) => featureId === candidateFeatureId,
+        ),
+      );
+    const ruleShapeValid =
+      (binding.comparisonRuleId === 'candidate-has-all/1.0.0' &&
+        binding.targetFactDependencies.length === 0 &&
+        binding.expectedValues.length > 0) ||
+      (binding.comparisonRuleId === 'prefer-available-candidate-values/1.0.0' &&
+        binding.criterionKind === 'preference' &&
+        binding.targetFactDependencies.length === 1 &&
+        binding.expectedValues.length === 0) ||
+      (binding.comparisonRuleId === 'prefer-candidate-values/1.0.0' &&
+        binding.criterionKind === 'preference' &&
+        binding.targetFactDependencies.length === 0 &&
+        binding.expectedValues.length > 0);
+    if (!everyCandidateHasDimension || !ruleShapeValid) {
+      diagnostics.push(
+        diagnostic(
+          'ranking.criterion.fact-binding',
+          `${resolved.binding.caseId}/${binding.criterionId}`,
+          'Every bound criterion must name one available candidate fact dimension and a comparison rule whose target and expected-value shape matches that fact.',
+        ),
+      );
+    }
+    if (!isBoundMaterialSuccessReachable(binding, resolved.evidence)) {
+      diagnostics.push(
+        diagnostic(
+          'ranking.criterion.bound-material-unreachable',
+          `${resolved.binding.caseId}/${binding.criterionId}`,
+          'A bound material success criterion must be satisfiable by a known value at its declared candidate fact dimension; ranking-v1 has no deliberate-zero-coverage case.',
+        ),
+      );
+    }
+  }
 }
 
 function validateCriterionClosure(
@@ -646,6 +734,13 @@ function validateGoldClosure(
       observations.map(({ evidenceId }) => evidenceId),
     ),
   );
+  const evidenceOwner = new Map(
+    resolved.evidence.candidates.flatMap((candidate) =>
+      candidate.observations.map(
+        ({ evidenceId }) => [evidenceId, candidate.candidateId] as const,
+      ),
+    ),
+  );
   const positive = gold.candidates.filter(
     ({ disposition }) =>
       disposition === 'recommended' || disposition === 'viable',
@@ -690,11 +785,51 @@ function validateGoldClosure(
     ]),
     ...gold.incomparablePairs.flat(),
   ].every((candidateId) => candidateIds.includes(candidateId));
+  const rankingReferenceIds = new Set([
+    ...gold.rankGroups.flat(),
+    ...gold.rankRelations.flatMap((relation) => [
+      relation.higherCandidateId,
+      relation.lowerCandidateId,
+    ]),
+    ...gold.incomparablePairs.flat(),
+  ]);
+  const presentationIds = new Set(gold.presentation);
+  const maximumResultsClosure =
+    presentationIds.size === gold.presentation.length &&
+    rankingReferenceIds.size <= resolved.binding.requestedMaximumResults &&
+    [...rankingReferenceIds].every((candidateId) =>
+      presentationIds.has(candidateId),
+    ) &&
+    (gold.presentation.length > 0 ||
+      (gold.rankGroups.length === 0 &&
+        gold.rankRelations.length === 0 &&
+        gold.incomparablePairs.length === 0));
+  const candidateEvidenceOwned = gold.candidates.every((candidate) =>
+    candidate.evidenceIds.every(
+      (evidenceId) => evidenceOwner.get(evidenceId) === candidate.candidateId,
+    ),
+  );
+  const conflictEvidenceOwned = gold.hardConstraintConflicts.every((conflict) =>
+    conflict.evidenceIds.every(
+      (evidenceId) => evidenceOwner.get(evidenceId) === conflict.candidateId,
+    ),
+  );
+  const resolutionEvidenceOwned = gold.evidenceNeededResolutions.every(
+    (resolution) =>
+      resolution.evidenceIds.every(
+        (evidenceId) =>
+          evidenceOwner.get(evidenceId) === resolution.candidateId,
+      ),
+  );
   if (
     !outcomeValid ||
     !positiveTraceable ||
     !conflictTraceable ||
     !referencesValid ||
+    !maximumResultsClosure ||
+    !candidateEvidenceOwned ||
+    !conflictEvidenceOwned ||
+    !resolutionEvidenceOwned ||
     gold.presentation.length > resolved.binding.requestedMaximumResults ||
     gold.candidates.some((candidate) =>
       candidate.evidenceIds.some((id) => !evidenceIds.has(id)),
@@ -710,7 +845,10 @@ function validateGoldClosure(
       ),
     );
   }
-  const positiveIds = positive.map(({ candidateId }) => candidateId);
+  validateDerivedGoldClosure(resolved, gold, diagnostics);
+  const positiveIds = positive
+    .map(({ candidateId }) => candidateId)
+    .filter((candidateId) => presentationIds.has(candidateId));
   for (let leftIndex = 0; leftIndex < positiveIds.length; leftIndex += 1) {
     for (
       let rightIndex = leftIndex + 1;
@@ -792,6 +930,154 @@ function validateGoldClosure(
         'ranking.gold.criterion-closure',
         resolved.binding.caseId,
         'Gold must state every candidate success-condition consequence and every preference consequence.',
+      ),
+    );
+  }
+}
+
+function validateDerivedGoldClosure(
+  resolved: RankingResolvedCase,
+  gold: RankingGoldAuthority['cases'][number],
+  diagnostics: RankingDiagnostic[],
+): void {
+  const input = {
+    capabilityFamily: resolved.binding.capabilityFamily,
+    request: resolved.request,
+    criteria: resolved.criteria,
+    target: resolved.target,
+    candidates: [...resolved.candidateSet.candidates].sort((left, right) =>
+      compareRankingText(left.candidateId, right.candidateId),
+    ),
+    candidateEvidence: [...resolved.evidence.candidates].sort((left, right) =>
+      compareRankingText(left.candidateId, right.candidateId),
+    ),
+    handoffCandidates: [...resolved.handoff.candidates].sort(
+      (left, right) => left.retrievalOrder - right.retrievalOrder,
+    ),
+    requestedMaximumResults: resolved.binding.requestedMaximumResults,
+  };
+  const fits = input.candidates.map(({ candidateId }) =>
+    deriveCandidateFit(input, candidateId, true),
+  );
+  const positives = fits.filter(({ disposition }) => disposition === 'viable');
+  const preferenceIds = resolved.criteria.bindings
+    .filter(
+      ({ criterionKind, bindingState }) =>
+        criterionKind === 'preference' && bindingState === 'bound',
+    )
+    .map(({ criterionId }) => criterionId)
+    .sort(compareRankingText);
+  const maximalIds = new Set(
+    positives
+      .filter(
+        (candidate) =>
+          !positives.some(
+            (other) =>
+              other.candidateId !== candidate.candidateId &&
+              compareCandidateFit(other, candidate, preferenceIds) ===
+                'left-higher',
+          ),
+      )
+      .map(({ candidateId }) => candidateId),
+  );
+  const ranking = createPartialOrderPresentation(
+    positives,
+    preferenceIds,
+    resolved.binding.requestedMaximumResults,
+  );
+  const preferenceConsequences = derivePreferenceConsequences(
+    fits,
+    resolved.criteria.bindings,
+  );
+  const expectedCandidates = fits
+    .map((fit) => ({
+      candidateId: fit.candidateId,
+      disposition:
+        fit.disposition === 'viable' && maximalIds.has(fit.candidateId)
+          ? ('recommended' as const)
+          : fit.disposition,
+      reasonCodes: fit.reasonCodes,
+      evidenceIds: deriveDecisionEvidenceIds(
+        fit,
+        fits,
+        ranking.presentation,
+        preferenceIds,
+        preferenceConsequences,
+      ),
+      unknownIds: fit.unknownIds,
+    }))
+    .sort((left, right) =>
+      compareRankingText(left.candidateId, right.candidateId),
+    );
+  const expected = {
+    outcome:
+      positives.length > 0
+        ? ('recommend' as const)
+        : fits.some(
+              ({ disposition }) => disposition === 'insufficient-evidence',
+            )
+          ? ('insufficient-evidence' as const)
+          : ('no-viable-candidate' as const),
+    candidates: expectedCandidates,
+    ...ranking,
+    hardConstraintConflicts: fits
+      .flatMap(({ hardConflicts }) => hardConflicts)
+      .sort((left, right) =>
+        compareRankingText(
+          `${left.candidateId}\0${left.constraintId}`,
+          `${right.candidateId}\0${right.constraintId}`,
+        ),
+      ),
+    requiredUnknowns: fits
+      .flatMap((fit) =>
+        fit.unknownIds.map((unknownId) => ({
+          candidateId: fit.candidateId,
+          unknownId,
+        })),
+      )
+      .sort((left, right) =>
+        compareRankingText(
+          `${left.candidateId}\0${left.unknownId}`,
+          `${right.candidateId}\0${right.unknownId}`,
+        ),
+      ),
+    evidenceNeededResolutions: fits
+      .flatMap(({ resolutions }) => resolutions)
+      .sort((left, right) =>
+        compareRankingText(
+          `${left.candidateId}\0${left.evaluationId}`,
+          `${right.candidateId}\0${right.evaluationId}`,
+        ),
+      ),
+    successConditionCoverage: fits
+      .flatMap(({ coverage }) => coverage)
+      .sort((left, right) =>
+        compareRankingText(
+          `${left.candidateId}\0${left.criterionId}`,
+          `${right.candidateId}\0${right.criterionId}`,
+        ),
+      ),
+    preferenceConsequences,
+  };
+  const actual = {
+    outcome: gold.outcome,
+    candidates: gold.candidates,
+    presentation: gold.presentation,
+    rankGroups: gold.rankGroups,
+    rankRelations: gold.rankRelations,
+    incomparablePairs: gold.incomparablePairs,
+    hardConstraintConflicts: gold.hardConstraintConflicts,
+    requiredUnknowns: gold.requiredUnknowns,
+    evidenceNeededResolutions: gold.evidenceNeededResolutions,
+    successConditionCoverage: gold.successConditionCoverage,
+    preferenceConsequences: gold.preferenceConsequences,
+  };
+  if (rankingStableJson(expected) !== rankingStableJson(actual)) {
+    diagnostics.push(
+      diagnostic(
+        'ranking.gold.derived-authority-drift',
+        resolved.binding.caseId,
+        'Proposed gold must be derived consistently from request, criteria, target, candidate facts, handoff state, and frozen evaluation rules, including decision-minimal evidence associations.',
       ),
     );
   }
@@ -936,6 +1222,7 @@ function validateControlledPairs(
 }
 
 function validateCriterionCoverage(
+  corpus: RankingValidatedCorpus,
   cases: readonly RankingResolvedCase[],
   diagnostics: RankingDiagnostic[],
 ): void {
@@ -990,6 +1277,32 @@ function validateCriterionCoverage(
         'Ranking corpus omits one or more required criterion-binding semantics.',
       ),
     );
+  }
+  for (const family of RANKING_FAMILIES) {
+    const familyCaseIds = new Set(
+      cases
+        .filter(({ binding }) => binding.capabilityFamily === family)
+        .map(({ binding }) => binding.caseId),
+    );
+    if (
+      !corpus.gold.cases.some(
+        (gold) =>
+          familyCaseIds.has(gold.caseId) &&
+          gold.preferenceConsequences.some(
+            ({ state, affectedPairs }) =>
+              state === 'applied-and-changed-supported-comparison' &&
+              affectedPairs.length > 0,
+          ),
+      )
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'ranking.criterion.preference-causal-family-coverage',
+          family,
+          'Every capability family requires at least one bound preference that causally changes a supported positive comparison without becoming a hard constraint.',
+        ),
+      );
+    }
   }
 }
 
@@ -1117,6 +1430,7 @@ function auditCandidateEvidence(
 
 function validateReviewerRationales(
   corpus: RankingValidatedCorpus,
+  cases: readonly RankingResolvedCase[],
   diagnostics: RankingDiagnostic[],
 ): void {
   const controlledCaseIds = new Set(
@@ -1125,7 +1439,15 @@ function validateReviewerRationales(
       secondCaseId,
     ]),
   );
+  const resolvedByCase = new Map(
+    cases.map((resolved) => [resolved.binding.caseId, resolved]),
+  );
+  const goldByCase = new Map(
+    corpus.gold.cases.map((gold) => [gold.caseId, gold]),
+  );
   for (const rationale of corpus.reviewerRationale.cases) {
+    const resolved = resolvedByCase.get(rationale.caseId);
+    const gold = goldByCase.get(rationale.caseId);
     const requiredSections = [
       rationale.requestRequirements,
       rationale.materialTargetFacts,
@@ -1150,6 +1472,93 @@ function validateReviewerRationales(
           'ranking.review.rationale-completeness',
           rationale.caseId,
           'Every case requires substantive author rationale, and every controlled half requires an exact target-change explanation.',
+        ),
+      );
+    }
+    if (resolved === undefined || gold === undefined) continue;
+    const bindings = resolved.criteria.bindings.filter(
+      ({ criterionKind }) => criterionKind === 'success-condition',
+    );
+    const coverageByKey = new Map(
+      gold.successConditionCoverage.map((coverage) => [
+        associationKey(coverage.candidateId, coverage.criterionId),
+        coverage.state,
+      ]),
+    );
+    const crosswalkByCriterion = new Map(
+      rationale.criterionBindingCrosswalk.map((crosswalk) => [
+        crosswalk.criterionId,
+        crosswalk,
+      ]),
+    );
+    let crosswalkValid = sameSet(
+      bindings.map(({ criterionId }) => criterionId),
+      rationale.criterionBindingCrosswalk.map(({ criterionId }) => criterionId),
+    );
+    for (const binding of bindings) {
+      const crosswalk = crosswalkByCriterion.get(binding.criterionId);
+      if (crosswalk === undefined) {
+        crosswalkValid = false;
+        continue;
+      }
+      crosswalkValid &&=
+        crosswalk.bindingState === binding.bindingState &&
+        sameOrderedValues(
+          crosswalk.candidateFeatureDependencies,
+          binding.candidateFeatureDependencies,
+        ) &&
+        sameOrderedValues(crosswalk.expectedValues, binding.expectedValues) &&
+        sameSet(
+          crosswalk.candidateFacts.map(({ candidateId }) => candidateId),
+          resolved.candidateSet.candidates.map(
+            ({ candidateId }) => candidateId,
+          ),
+        );
+      for (const candidate of resolved.candidateSet.candidates) {
+        const candidateFact = crosswalk.candidateFacts.find(
+          ({ candidateId }) => candidateId === candidate.candidateId,
+        );
+        const evidenceCandidate = resolved.evidence.candidates.find(
+          ({ candidateId }) => candidateId === candidate.candidateId,
+        );
+        const observation = evidenceCandidate?.observations.find(
+          ({ featureId }) =>
+            featureId === binding.candidateFeatureDependencies[0],
+        );
+        const expectedEvidenceId =
+          binding.bindingState === 'bound'
+            ? (observation?.evidenceId ?? null)
+            : null;
+        const expectedValues =
+          binding.bindingState === 'bound' ? (observation?.values ?? []) : [];
+        const expectedCoverage = coverageByKey.get(
+          associationKey(candidate.candidateId, binding.criterionId),
+        );
+        const coverageStatement = rationale.coverageEvidence.find((entry) =>
+          entry.startsWith(
+            `${candidate.candidateId} ${String(expectedCoverage)} ${binding.criterionId}:`,
+          ),
+        );
+        crosswalkValid &&=
+          candidateFact?.evidenceId === expectedEvidenceId &&
+          sameOrderedValues(candidateFact.observedValues, expectedValues) &&
+          candidateFact.coverageState === expectedCoverage &&
+          coverageStatement !== undefined &&
+          (binding.bindingState === 'unbound' ||
+            (coverageStatement.includes(
+              `feature=${binding.candidateFeatureDependencies.join(',')}`,
+            ) &&
+              coverageStatement.includes(
+                `evidence=${expectedEvidenceId ?? 'none'}`,
+              )));
+      }
+    }
+    if (!crosswalkValid) {
+      diagnostics.push(
+        diagnostic(
+          'ranking.review.rationale-binding-crosswalk',
+          rationale.caseId,
+          'Reviewer rationale criterion paths, evidence facts, and coverage states must exactly match the criterion binding, candidate-owned observation, and proposed gold.',
         ),
       );
     }

@@ -2,11 +2,11 @@
   "baselineId": "retrieval-order-diagnostic",
   "baselineSpecificationDigest": "afde759a24eba65c0c01c957460eb2e1725993affba969cfcfa52e3ab2d8e826",
   "baselineVersion": "ranking-retrieval-order-diagnostic/2.0.0",
-  "blindInputDigest": "fddf8566a784fbd04ecb70f4663e15140955e64fc8c1e1a44128935a6557e7bd",
+  "blindInputDigest": "6c8b83d81a082814a8cfc250830418962a6f684902324182e59553ecbbf07fc9",
   "corpusId": "ranking-v1",
-  "corpusVersion": "2.0.0",
+  "corpusVersion": "3.0.0",
   "predictionSetId": "ranking-v1-retrievalOrder-predictions",
-  "predictionSetVersion": "ranking-v1-prediction-set/2.0.0",
+  "predictionSetVersion": "ranking-v1-prediction-set/3.0.0",
   "predictions": [
     {
       "candidates": [
@@ -2039,5 +2039,5 @@
       "unboundPreferenceCounterfactuals": []
     }
   ],
-  "semanticDigest": "7070466deec6fef5ce0b5c2afe334e93f1d6a77ecc99d7f5c632be9fad19e748"
+  "semanticDigest": "970951c9a6f44a8e1fbdea17c306032a5e23e2991cd1a953ba209a5ec57b9ff0"
 }

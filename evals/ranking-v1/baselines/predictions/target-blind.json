@@ -1,12 +1,12 @@
 {
   "baselineId": "target-blind-candidate-feature",
-  "baselineSpecificationDigest": "23b723d070311562fd2c4a5c29ebddf544a3eefc167064b37b51111a7d91750b",
-  "baselineVersion": "ranking-target-blind-candidate-feature/2.0.0",
-  "blindInputDigest": "fddf8566a784fbd04ecb70f4663e15140955e64fc8c1e1a44128935a6557e7bd",
+  "baselineSpecificationDigest": "990b50e60893c46eff85a8cc5b0db0b18a4baaa13648857e0568bbd8bed83aa2",
+  "baselineVersion": "ranking-target-blind-candidate-feature/3.0.0",
+  "blindInputDigest": "6c8b83d81a082814a8cfc250830418962a6f684902324182e59553ecbbf07fc9",
   "corpusId": "ranking-v1",
-  "corpusVersion": "2.0.0",
+  "corpusVersion": "3.0.0",
   "predictionSetId": "ranking-v1-targetBlind-predictions",
-  "predictionSetVersion": "ranking-v1-prediction-set/2.0.0",
+  "predictionSetVersion": "ranking-v1-prediction-set/3.0.0",
   "predictions": [
     {
       "candidates": [
@@ -15,15 +15,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-logtape-fact-01",
-            "ranking-v1-audit-logtape-fact-02",
-            "ranking-v1-audit-logtape-fact-03",
-            "ranking-v1-audit-logtape-fact-04",
-            "ranking-v1-audit-logtape-fact-05",
-            "ranking-v1-audit-logtape-fact-06",
-            "ranking-v1-audit-logtape-fact-07",
-            "ranking-v1-audit-logtape-fact-08",
-            "ranking-v1-audit-logtape-fact-09",
-            "ranking-v1-audit-logtape-fact-10"
+            "ranking-v1-audit-logtape-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -37,14 +29,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-pgaudit-fact-01",
-            "ranking-v1-audit-pgaudit-fact-02",
-            "ranking-v1-audit-pgaudit-fact-03",
-            "ranking-v1-audit-pgaudit-fact-04",
-            "ranking-v1-audit-pgaudit-fact-05",
-            "ranking-v1-audit-pgaudit-fact-06",
-            "ranking-v1-audit-pgaudit-fact-07",
-            "ranking-v1-audit-pgaudit-fact-08",
-            "ranking-v1-audit-pgaudit-fact-09"
+            "ranking-v1-audit-pgaudit-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -58,14 +43,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-pino-fact-01",
-            "ranking-v1-audit-pino-fact-02",
-            "ranking-v1-audit-pino-fact-03",
-            "ranking-v1-audit-pino-fact-04",
             "ranking-v1-audit-pino-fact-05",
-            "ranking-v1-audit-pino-fact-06",
-            "ranking-v1-audit-pino-fact-07",
-            "ranking-v1-audit-pino-fact-08",
-            "ranking-v1-audit-pino-fact-09",
             "ranking-v1-audit-pino-fact-10"
           ],
           "reasonCodes": [
@@ -80,15 +58,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-winston-fact-01",
-            "ranking-v1-audit-winston-fact-02",
-            "ranking-v1-audit-winston-fact-03",
-            "ranking-v1-audit-winston-fact-04",
-            "ranking-v1-audit-winston-fact-05",
-            "ranking-v1-audit-winston-fact-06",
-            "ranking-v1-audit-winston-fact-07",
-            "ranking-v1-audit-winston-fact-08",
-            "ranking-v1-audit-winston-fact-09",
-            "ranking-v1-audit-winston-fact-10"
+            "ranking-v1-audit-winston-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -152,7 +122,7 @@
         {
           "candidateId": "audit-pino",
           "criterionId": "ranking-v1-audit-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "audit-winston",
@@ -162,7 +132,7 @@
         {
           "candidateId": "audit-winston",
           "criterionId": "ranking-v1-audit-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -174,15 +144,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-logtape-fact-01",
-            "ranking-v1-audit-logtape-fact-02",
-            "ranking-v1-audit-logtape-fact-03",
-            "ranking-v1-audit-logtape-fact-04",
-            "ranking-v1-audit-logtape-fact-05",
-            "ranking-v1-audit-logtape-fact-06",
-            "ranking-v1-audit-logtape-fact-07",
-            "ranking-v1-audit-logtape-fact-08",
-            "ranking-v1-audit-logtape-fact-09",
-            "ranking-v1-audit-logtape-fact-10"
+            "ranking-v1-audit-logtape-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -196,14 +158,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-pgaudit-fact-01",
-            "ranking-v1-audit-pgaudit-fact-02",
-            "ranking-v1-audit-pgaudit-fact-03",
-            "ranking-v1-audit-pgaudit-fact-04",
-            "ranking-v1-audit-pgaudit-fact-05",
-            "ranking-v1-audit-pgaudit-fact-06",
-            "ranking-v1-audit-pgaudit-fact-07",
-            "ranking-v1-audit-pgaudit-fact-08",
-            "ranking-v1-audit-pgaudit-fact-09"
+            "ranking-v1-audit-pgaudit-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -217,14 +172,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-pino-fact-01",
-            "ranking-v1-audit-pino-fact-02",
-            "ranking-v1-audit-pino-fact-03",
-            "ranking-v1-audit-pino-fact-04",
             "ranking-v1-audit-pino-fact-05",
-            "ranking-v1-audit-pino-fact-06",
-            "ranking-v1-audit-pino-fact-07",
-            "ranking-v1-audit-pino-fact-08",
-            "ranking-v1-audit-pino-fact-09",
             "ranking-v1-audit-pino-fact-10"
           ],
           "reasonCodes": [
@@ -239,15 +187,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-winston-fact-01",
-            "ranking-v1-audit-winston-fact-02",
-            "ranking-v1-audit-winston-fact-03",
-            "ranking-v1-audit-winston-fact-04",
-            "ranking-v1-audit-winston-fact-05",
-            "ranking-v1-audit-winston-fact-06",
-            "ranking-v1-audit-winston-fact-07",
-            "ranking-v1-audit-winston-fact-08",
-            "ranking-v1-audit-winston-fact-09",
-            "ranking-v1-audit-winston-fact-10"
+            "ranking-v1-audit-winston-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -311,7 +251,7 @@
         {
           "candidateId": "audit-pino",
           "criterionId": "ranking-v1-audit-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "audit-winston",
@@ -321,7 +261,7 @@
         {
           "candidateId": "audit-winston",
           "criterionId": "ranking-v1-audit-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -332,16 +272,7 @@
           "candidateId": "audit-logtape",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-audit-logtape-fact-01",
-            "ranking-v1-audit-logtape-fact-02",
-            "ranking-v1-audit-logtape-fact-03",
-            "ranking-v1-audit-logtape-fact-04",
-            "ranking-v1-audit-logtape-fact-05",
-            "ranking-v1-audit-logtape-fact-06",
-            "ranking-v1-audit-logtape-fact-07",
-            "ranking-v1-audit-logtape-fact-08",
-            "ranking-v1-audit-logtape-fact-09",
-            "ranking-v1-audit-logtape-fact-10"
+            "ranking-v1-audit-logtape-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-in-process-library"
@@ -352,15 +283,7 @@
           "candidateId": "audit-pgaudit",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-audit-pgaudit-fact-01",
-            "ranking-v1-audit-pgaudit-fact-02",
-            "ranking-v1-audit-pgaudit-fact-03",
-            "ranking-v1-audit-pgaudit-fact-04",
-            "ranking-v1-audit-pgaudit-fact-05",
-            "ranking-v1-audit-pgaudit-fact-06",
-            "ranking-v1-audit-pgaudit-fact-07",
-            "ranking-v1-audit-pgaudit-fact-08",
-            "ranking-v1-audit-pgaudit-fact-09"
+            "ranking-v1-audit-pgaudit-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-database-extension"
@@ -371,16 +294,7 @@
           "candidateId": "audit-pino",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-audit-pino-fact-01",
-            "ranking-v1-audit-pino-fact-02",
-            "ranking-v1-audit-pino-fact-03",
-            "ranking-v1-audit-pino-fact-04",
-            "ranking-v1-audit-pino-fact-05",
-            "ranking-v1-audit-pino-fact-06",
-            "ranking-v1-audit-pino-fact-07",
-            "ranking-v1-audit-pino-fact-08",
-            "ranking-v1-audit-pino-fact-09",
-            "ranking-v1-audit-pino-fact-10"
+            "ranking-v1-audit-pino-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-in-process-library"
@@ -391,15 +305,7 @@
           "candidateId": "audit-winston",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-audit-winston-fact-01",
-            "ranking-v1-audit-winston-fact-02",
-            "ranking-v1-audit-winston-fact-03",
             "ranking-v1-audit-winston-fact-04",
-            "ranking-v1-audit-winston-fact-05",
-            "ranking-v1-audit-winston-fact-06",
-            "ranking-v1-audit-winston-fact-07",
-            "ranking-v1-audit-winston-fact-08",
-            "ranking-v1-audit-winston-fact-09",
             "ranking-v1-audit-winston-fact-10"
           ],
           "reasonCodes": [
@@ -495,7 +401,7 @@
         {
           "candidateId": "audit-pino",
           "criterionId": "ranking-v1-audit-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "audit-winston",
@@ -505,7 +411,7 @@
         {
           "candidateId": "audit-winston",
           "criterionId": "ranking-v1-audit-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -517,15 +423,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-logtape-fact-01",
-            "ranking-v1-audit-logtape-fact-02",
-            "ranking-v1-audit-logtape-fact-03",
-            "ranking-v1-audit-logtape-fact-04",
-            "ranking-v1-audit-logtape-fact-05",
-            "ranking-v1-audit-logtape-fact-06",
-            "ranking-v1-audit-logtape-fact-07",
-            "ranking-v1-audit-logtape-fact-08",
-            "ranking-v1-audit-logtape-fact-09",
-            "ranking-v1-audit-logtape-fact-10"
+            "ranking-v1-audit-logtape-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -540,14 +438,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-pgaudit-fact-01",
-            "ranking-v1-audit-pgaudit-fact-02",
-            "ranking-v1-audit-pgaudit-fact-03",
-            "ranking-v1-audit-pgaudit-fact-04",
             "ranking-v1-audit-pgaudit-fact-05",
-            "ranking-v1-audit-pgaudit-fact-06",
-            "ranking-v1-audit-pgaudit-fact-07",
-            "ranking-v1-audit-pgaudit-fact-08",
-            "ranking-v1-audit-pgaudit-fact-09"
+            "ranking-v1-audit-pgaudit-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -563,15 +455,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-pino-fact-01",
-            "ranking-v1-audit-pino-fact-02",
-            "ranking-v1-audit-pino-fact-03",
-            "ranking-v1-audit-pino-fact-04",
-            "ranking-v1-audit-pino-fact-05",
-            "ranking-v1-audit-pino-fact-06",
-            "ranking-v1-audit-pino-fact-07",
-            "ranking-v1-audit-pino-fact-08",
-            "ranking-v1-audit-pino-fact-09",
-            "ranking-v1-audit-pino-fact-10"
+            "ranking-v1-audit-pino-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -586,15 +470,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-audit-winston-fact-01",
-            "ranking-v1-audit-winston-fact-02",
-            "ranking-v1-audit-winston-fact-03",
-            "ranking-v1-audit-winston-fact-04",
-            "ranking-v1-audit-winston-fact-05",
-            "ranking-v1-audit-winston-fact-06",
-            "ranking-v1-audit-winston-fact-07",
-            "ranking-v1-audit-winston-fact-08",
-            "ranking-v1-audit-winston-fact-09",
-            "ranking-v1-audit-winston-fact-10"
+            "ranking-v1-audit-winston-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -678,90 +554,51 @@
       "candidates": [
         {
           "candidateId": "audit-logtape",
-          "disposition": "insufficient-evidence",
+          "disposition": "viable",
           "evidenceIds": [
             "ranking-v1-audit-logtape-fact-01",
-            "ranking-v1-audit-logtape-fact-02",
-            "ranking-v1-audit-logtape-fact-03",
             "ranking-v1-audit-logtape-fact-04",
-            "ranking-v1-audit-logtape-fact-05",
-            "ranking-v1-audit-logtape-fact-06",
-            "ranking-v1-audit-logtape-fact-07",
-            "ranking-v1-audit-logtape-fact-08",
-            "ranking-v1-audit-logtape-fact-09",
             "ranking-v1-audit-logtape-fact-10"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-gap-known"
           ],
-          "unknownIds": [
-            "unknown-audit-logtape-ranking-v1-audit-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "audit-pgaudit",
-          "disposition": "insufficient-evidence",
+          "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-audit-pgaudit-fact-01",
-            "ranking-v1-audit-pgaudit-fact-02",
-            "ranking-v1-audit-pgaudit-fact-03",
-            "ranking-v1-audit-pgaudit-fact-04",
-            "ranking-v1-audit-pgaudit-fact-05",
-            "ranking-v1-audit-pgaudit-fact-06",
-            "ranking-v1-audit-pgaudit-fact-07",
-            "ranking-v1-audit-pgaudit-fact-08",
-            "ranking-v1-audit-pgaudit-fact-09"
+            "ranking-v1-audit-pgaudit-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "hard-prohibited-adoption-unit"
           ],
-          "unknownIds": [
-            "unknown-audit-pgaudit-ranking-v1-audit-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "audit-pino",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-audit-pino-fact-01",
-            "ranking-v1-audit-pino-fact-02",
-            "ranking-v1-audit-pino-fact-03",
-            "ranking-v1-audit-pino-fact-04",
-            "ranking-v1-audit-pino-fact-05",
-            "ranking-v1-audit-pino-fact-06",
-            "ranking-v1-audit-pino-fact-07",
-            "ranking-v1-audit-pino-fact-08",
-            "ranking-v1-audit-pino-fact-09",
-            "ranking-v1-audit-pino-fact-10"
+            "ranking-v1-audit-pino-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-audit-pino-ranking-v1-audit-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "audit-winston",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-audit-winston-fact-01",
-            "ranking-v1-audit-winston-fact-02",
-            "ranking-v1-audit-winston-fact-03",
-            "ranking-v1-audit-winston-fact-04",
-            "ranking-v1-audit-winston-fact-05",
-            "ranking-v1-audit-winston-fact-06",
-            "ranking-v1-audit-winston-fact-07",
-            "ranking-v1-audit-winston-fact-08",
-            "ranking-v1-audit-winston-fact-09",
-            "ranking-v1-audit-winston-fact-10"
+            "ranking-v1-audit-winston-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-audit-winston-ranking-v1-audit-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         }
       ],
       "caseId": "rank-audit-05-popularity-over-fit",
@@ -775,10 +612,19 @@
           "resolution": "satisfied"
         }
       ],
-      "hardConstraintConflicts": [],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "audit-pgaudit",
+          "constraintId": "ranking-v1-audit-popularity-request-hard-adoption",
+          "evidenceIds": [
+            "ranking-v1-audit-pgaudit-fact-04"
+          ],
+          "reasonCode": "hard-prohibited-adoption-unit"
+        }
+      ],
       "hardenedPreferenceIds": [],
       "incomparablePairs": [],
-      "outcome": "insufficient-evidence",
+      "outcome": "recommend",
       "preferenceConsequences": [
         {
           "affectedPairs": [],
@@ -786,9 +632,30 @@
           "state": "bound-but-no-applicable-positive-comparison"
         }
       ],
-      "presentation": [],
-      "rankGroups": [],
-      "rankRelations": [],
+      "presentation": [
+        "audit-pino",
+        "audit-winston",
+        "audit-logtape"
+      ],
+      "rankGroups": [
+        [
+          "audit-pino",
+          "audit-winston"
+        ],
+        [
+          "audit-logtape"
+        ]
+      ],
+      "rankRelations": [
+        {
+          "higherCandidateId": "audit-pino",
+          "lowerCandidateId": "audit-logtape"
+        },
+        {
+          "higherCandidateId": "audit-winston",
+          "lowerCandidateId": "audit-logtape"
+        }
+      ],
       "successConditionCoverage": [
         {
           "candidateId": "audit-logtape",
@@ -818,7 +685,7 @@
         {
           "candidateId": "audit-pino",
           "criterionId": "ranking-v1-audit-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "audit-winston",
@@ -828,7 +695,7 @@
         {
           "candidateId": "audit-winston",
           "criterionId": "ranking-v1-audit-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -839,15 +706,6 @@
           "candidateId": "audit-logtape",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-audit-logtape-fact-01",
-            "ranking-v1-audit-logtape-fact-02",
-            "ranking-v1-audit-logtape-fact-03",
-            "ranking-v1-audit-logtape-fact-04",
-            "ranking-v1-audit-logtape-fact-05",
-            "ranking-v1-audit-logtape-fact-06",
-            "ranking-v1-audit-logtape-fact-07",
-            "ranking-v1-audit-logtape-fact-08",
-            "ranking-v1-audit-logtape-fact-09",
             "ranking-v1-audit-logtape-fact-10"
           ],
           "reasonCodes": [
@@ -863,13 +721,8 @@
           "evidenceIds": [
             "ranking-v1-audit-pgaudit-fact-01",
             "ranking-v1-audit-pgaudit-fact-02",
-            "ranking-v1-audit-pgaudit-fact-03",
-            "ranking-v1-audit-pgaudit-fact-04",
             "ranking-v1-audit-pgaudit-fact-05",
-            "ranking-v1-audit-pgaudit-fact-06",
-            "ranking-v1-audit-pgaudit-fact-07",
-            "ranking-v1-audit-pgaudit-fact-08",
-            "ranking-v1-audit-pgaudit-fact-09"
+            "ranking-v1-audit-pgaudit-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -885,14 +738,7 @@
           "evidenceIds": [
             "ranking-v1-audit-pino-fact-01",
             "ranking-v1-audit-pino-fact-02",
-            "ranking-v1-audit-pino-fact-03",
-            "ranking-v1-audit-pino-fact-04",
-            "ranking-v1-audit-pino-fact-05",
-            "ranking-v1-audit-pino-fact-06",
-            "ranking-v1-audit-pino-fact-07",
-            "ranking-v1-audit-pino-fact-08",
-            "ranking-v1-audit-pino-fact-09",
-            "ranking-v1-audit-pino-fact-10"
+            "ranking-v1-audit-pino-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -907,14 +753,7 @@
           "evidenceIds": [
             "ranking-v1-audit-winston-fact-01",
             "ranking-v1-audit-winston-fact-02",
-            "ranking-v1-audit-winston-fact-03",
-            "ranking-v1-audit-winston-fact-04",
-            "ranking-v1-audit-winston-fact-05",
-            "ranking-v1-audit-winston-fact-06",
-            "ranking-v1-audit-winston-fact-07",
-            "ranking-v1-audit-winston-fact-08",
-            "ranking-v1-audit-winston-fact-09",
-            "ranking-v1-audit-winston-fact-10"
+            "ranking-v1-audit-winston-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1008,15 +847,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-casbin-node-casbin-fact-01",
-            "ranking-v1-auth-casbin-node-casbin-fact-02",
             "ranking-v1-auth-casbin-node-casbin-fact-03",
-            "ranking-v1-auth-casbin-node-casbin-fact-04",
-            "ranking-v1-auth-casbin-node-casbin-fact-05",
-            "ranking-v1-auth-casbin-node-casbin-fact-06",
-            "ranking-v1-auth-casbin-node-casbin-fact-07",
-            "ranking-v1-auth-casbin-node-casbin-fact-08",
-            "ranking-v1-auth-casbin-node-casbin-fact-09",
-            "ranking-v1-auth-casbin-node-casbin-fact-10"
+            "ranking-v1-auth-casbin-node-casbin-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1030,14 +862,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-cerbos-cerbos-fact-01",
-            "ranking-v1-auth-cerbos-cerbos-fact-02",
             "ranking-v1-auth-cerbos-cerbos-fact-03",
-            "ranking-v1-auth-cerbos-cerbos-fact-04",
-            "ranking-v1-auth-cerbos-cerbos-fact-05",
-            "ranking-v1-auth-cerbos-cerbos-fact-06",
-            "ranking-v1-auth-cerbos-cerbos-fact-07",
-            "ranking-v1-auth-cerbos-cerbos-fact-08",
-            "ranking-v1-auth-cerbos-cerbos-fact-09"
+            "ranking-v1-auth-cerbos-cerbos-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1051,15 +877,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-openfga-fact-01",
-            "ranking-v1-auth-openfga-fact-02",
             "ranking-v1-auth-openfga-fact-03",
-            "ranking-v1-auth-openfga-fact-04",
-            "ranking-v1-auth-openfga-fact-05",
-            "ranking-v1-auth-openfga-fact-06",
-            "ranking-v1-auth-openfga-fact-07",
-            "ranking-v1-auth-openfga-fact-08",
-            "ranking-v1-auth-openfga-fact-09",
-            "ranking-v1-auth-openfga-fact-10"
+            "ranking-v1-auth-openfga-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1073,14 +892,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-stalniy-casl-fact-01",
-            "ranking-v1-auth-stalniy-casl-fact-02",
             "ranking-v1-auth-stalniy-casl-fact-03",
-            "ranking-v1-auth-stalniy-casl-fact-04",
             "ranking-v1-auth-stalniy-casl-fact-05",
-            "ranking-v1-auth-stalniy-casl-fact-06",
-            "ranking-v1-auth-stalniy-casl-fact-07",
-            "ranking-v1-auth-stalniy-casl-fact-08",
-            "ranking-v1-auth-stalniy-casl-fact-09",
             "ranking-v1-auth-stalniy-casl-fact-10"
           ],
           "reasonCodes": [
@@ -1125,7 +938,7 @@
         {
           "candidateId": "auth-casbin-node-casbin",
           "criterionId": "ranking-v1-auth-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "auth-cerbos-cerbos",
@@ -1155,7 +968,7 @@
         {
           "candidateId": "auth-stalniy-casl",
           "criterionId": "ranking-v1-auth-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -1167,15 +980,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-casbin-node-casbin-fact-01",
-            "ranking-v1-auth-casbin-node-casbin-fact-02",
             "ranking-v1-auth-casbin-node-casbin-fact-03",
-            "ranking-v1-auth-casbin-node-casbin-fact-04",
-            "ranking-v1-auth-casbin-node-casbin-fact-05",
-            "ranking-v1-auth-casbin-node-casbin-fact-06",
-            "ranking-v1-auth-casbin-node-casbin-fact-07",
-            "ranking-v1-auth-casbin-node-casbin-fact-08",
-            "ranking-v1-auth-casbin-node-casbin-fact-09",
-            "ranking-v1-auth-casbin-node-casbin-fact-10"
+            "ranking-v1-auth-casbin-node-casbin-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1189,14 +995,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-cerbos-cerbos-fact-01",
-            "ranking-v1-auth-cerbos-cerbos-fact-02",
             "ranking-v1-auth-cerbos-cerbos-fact-03",
-            "ranking-v1-auth-cerbos-cerbos-fact-04",
-            "ranking-v1-auth-cerbos-cerbos-fact-05",
-            "ranking-v1-auth-cerbos-cerbos-fact-06",
-            "ranking-v1-auth-cerbos-cerbos-fact-07",
-            "ranking-v1-auth-cerbos-cerbos-fact-08",
-            "ranking-v1-auth-cerbos-cerbos-fact-09"
+            "ranking-v1-auth-cerbos-cerbos-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1210,15 +1010,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-openfga-fact-01",
-            "ranking-v1-auth-openfga-fact-02",
             "ranking-v1-auth-openfga-fact-03",
-            "ranking-v1-auth-openfga-fact-04",
-            "ranking-v1-auth-openfga-fact-05",
-            "ranking-v1-auth-openfga-fact-06",
-            "ranking-v1-auth-openfga-fact-07",
-            "ranking-v1-auth-openfga-fact-08",
-            "ranking-v1-auth-openfga-fact-09",
-            "ranking-v1-auth-openfga-fact-10"
+            "ranking-v1-auth-openfga-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1232,14 +1025,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-stalniy-casl-fact-01",
-            "ranking-v1-auth-stalniy-casl-fact-02",
             "ranking-v1-auth-stalniy-casl-fact-03",
-            "ranking-v1-auth-stalniy-casl-fact-04",
             "ranking-v1-auth-stalniy-casl-fact-05",
-            "ranking-v1-auth-stalniy-casl-fact-06",
-            "ranking-v1-auth-stalniy-casl-fact-07",
-            "ranking-v1-auth-stalniy-casl-fact-08",
-            "ranking-v1-auth-stalniy-casl-fact-09",
             "ranking-v1-auth-stalniy-casl-fact-10"
           ],
           "reasonCodes": [
@@ -1284,7 +1071,7 @@
         {
           "candidateId": "auth-casbin-node-casbin",
           "criterionId": "ranking-v1-auth-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "auth-cerbos-cerbos",
@@ -1314,7 +1101,7 @@
         {
           "candidateId": "auth-stalniy-casl",
           "criterionId": "ranking-v1-auth-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -1325,15 +1112,7 @@
           "candidateId": "auth-casbin-node-casbin",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-auth-casbin-node-casbin-fact-01",
-            "ranking-v1-auth-casbin-node-casbin-fact-02",
-            "ranking-v1-auth-casbin-node-casbin-fact-03",
             "ranking-v1-auth-casbin-node-casbin-fact-04",
-            "ranking-v1-auth-casbin-node-casbin-fact-05",
-            "ranking-v1-auth-casbin-node-casbin-fact-06",
-            "ranking-v1-auth-casbin-node-casbin-fact-07",
-            "ranking-v1-auth-casbin-node-casbin-fact-08",
-            "ranking-v1-auth-casbin-node-casbin-fact-09",
             "ranking-v1-auth-casbin-node-casbin-fact-10"
           ],
           "reasonCodes": [
@@ -1345,15 +1124,7 @@
           "candidateId": "auth-cerbos-cerbos",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-auth-cerbos-cerbos-fact-01",
-            "ranking-v1-auth-cerbos-cerbos-fact-02",
-            "ranking-v1-auth-cerbos-cerbos-fact-03",
-            "ranking-v1-auth-cerbos-cerbos-fact-04",
-            "ranking-v1-auth-cerbos-cerbos-fact-05",
-            "ranking-v1-auth-cerbos-cerbos-fact-06",
-            "ranking-v1-auth-cerbos-cerbos-fact-07",
-            "ranking-v1-auth-cerbos-cerbos-fact-08",
-            "ranking-v1-auth-cerbos-cerbos-fact-09"
+            "ranking-v1-auth-cerbos-cerbos-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-external-policy-service"
@@ -1364,16 +1135,7 @@
           "candidateId": "auth-openfga",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-auth-openfga-fact-01",
-            "ranking-v1-auth-openfga-fact-02",
-            "ranking-v1-auth-openfga-fact-03",
-            "ranking-v1-auth-openfga-fact-04",
-            "ranking-v1-auth-openfga-fact-05",
-            "ranking-v1-auth-openfga-fact-06",
-            "ranking-v1-auth-openfga-fact-07",
-            "ranking-v1-auth-openfga-fact-08",
-            "ranking-v1-auth-openfga-fact-09",
-            "ranking-v1-auth-openfga-fact-10"
+            "ranking-v1-auth-openfga-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-external-policy-service"
@@ -1384,16 +1146,7 @@
           "candidateId": "auth-stalniy-casl",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-auth-stalniy-casl-fact-01",
-            "ranking-v1-auth-stalniy-casl-fact-02",
-            "ranking-v1-auth-stalniy-casl-fact-03",
-            "ranking-v1-auth-stalniy-casl-fact-04",
-            "ranking-v1-auth-stalniy-casl-fact-05",
-            "ranking-v1-auth-stalniy-casl-fact-06",
-            "ranking-v1-auth-stalniy-casl-fact-07",
-            "ranking-v1-auth-stalniy-casl-fact-08",
-            "ranking-v1-auth-stalniy-casl-fact-09",
-            "ranking-v1-auth-stalniy-casl-fact-10"
+            "ranking-v1-auth-stalniy-casl-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-in-process-library"
@@ -1468,7 +1221,7 @@
         {
           "candidateId": "auth-casbin-node-casbin",
           "criterionId": "ranking-v1-auth-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "auth-cerbos-cerbos",
@@ -1498,7 +1251,7 @@
         {
           "candidateId": "auth-stalniy-casl",
           "criterionId": "ranking-v1-auth-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -1510,15 +1263,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-casbin-node-casbin-fact-01",
-            "ranking-v1-auth-casbin-node-casbin-fact-02",
-            "ranking-v1-auth-casbin-node-casbin-fact-03",
-            "ranking-v1-auth-casbin-node-casbin-fact-04",
-            "ranking-v1-auth-casbin-node-casbin-fact-05",
-            "ranking-v1-auth-casbin-node-casbin-fact-06",
-            "ranking-v1-auth-casbin-node-casbin-fact-07",
-            "ranking-v1-auth-casbin-node-casbin-fact-08",
-            "ranking-v1-auth-casbin-node-casbin-fact-09",
-            "ranking-v1-auth-casbin-node-casbin-fact-10"
+            "ranking-v1-auth-casbin-node-casbin-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1533,14 +1278,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-cerbos-cerbos-fact-01",
-            "ranking-v1-auth-cerbos-cerbos-fact-02",
-            "ranking-v1-auth-cerbos-cerbos-fact-03",
-            "ranking-v1-auth-cerbos-cerbos-fact-04",
             "ranking-v1-auth-cerbos-cerbos-fact-05",
-            "ranking-v1-auth-cerbos-cerbos-fact-06",
-            "ranking-v1-auth-cerbos-cerbos-fact-07",
-            "ranking-v1-auth-cerbos-cerbos-fact-08",
-            "ranking-v1-auth-cerbos-cerbos-fact-09"
+            "ranking-v1-auth-cerbos-cerbos-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1556,15 +1295,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-openfga-fact-01",
-            "ranking-v1-auth-openfga-fact-02",
-            "ranking-v1-auth-openfga-fact-03",
-            "ranking-v1-auth-openfga-fact-04",
-            "ranking-v1-auth-openfga-fact-05",
-            "ranking-v1-auth-openfga-fact-06",
-            "ranking-v1-auth-openfga-fact-07",
-            "ranking-v1-auth-openfga-fact-08",
-            "ranking-v1-auth-openfga-fact-09",
-            "ranking-v1-auth-openfga-fact-10"
+            "ranking-v1-auth-openfga-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1579,15 +1310,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-stalniy-casl-fact-01",
-            "ranking-v1-auth-stalniy-casl-fact-02",
-            "ranking-v1-auth-stalniy-casl-fact-03",
-            "ranking-v1-auth-stalniy-casl-fact-04",
-            "ranking-v1-auth-stalniy-casl-fact-05",
-            "ranking-v1-auth-stalniy-casl-fact-06",
-            "ranking-v1-auth-stalniy-casl-fact-07",
-            "ranking-v1-auth-stalniy-casl-fact-08",
-            "ranking-v1-auth-stalniy-casl-fact-09",
-            "ranking-v1-auth-stalniy-casl-fact-10"
+            "ranking-v1-auth-stalniy-casl-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1671,90 +1394,52 @@
       "candidates": [
         {
           "candidateId": "auth-casbin-node-casbin",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-auth-casbin-node-casbin-fact-01",
-            "ranking-v1-auth-casbin-node-casbin-fact-02",
             "ranking-v1-auth-casbin-node-casbin-fact-03",
-            "ranking-v1-auth-casbin-node-casbin-fact-04",
-            "ranking-v1-auth-casbin-node-casbin-fact-05",
-            "ranking-v1-auth-casbin-node-casbin-fact-06",
-            "ranking-v1-auth-casbin-node-casbin-fact-07",
-            "ranking-v1-auth-casbin-node-casbin-fact-08",
-            "ranking-v1-auth-casbin-node-casbin-fact-09",
-            "ranking-v1-auth-casbin-node-casbin-fact-10"
+            "ranking-v1-auth-casbin-node-casbin-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-auth-casbin-node-casbin-ranking-v1-auth-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "auth-cerbos-cerbos",
-          "disposition": "insufficient-evidence",
+          "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-auth-cerbos-cerbos-fact-01",
-            "ranking-v1-auth-cerbos-cerbos-fact-02",
-            "ranking-v1-auth-cerbos-cerbos-fact-03",
-            "ranking-v1-auth-cerbos-cerbos-fact-04",
-            "ranking-v1-auth-cerbos-cerbos-fact-05",
-            "ranking-v1-auth-cerbos-cerbos-fact-06",
-            "ranking-v1-auth-cerbos-cerbos-fact-07",
-            "ranking-v1-auth-cerbos-cerbos-fact-08",
-            "ranking-v1-auth-cerbos-cerbos-fact-09"
+            "ranking-v1-auth-cerbos-cerbos-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "hard-prohibited-adoption-unit"
           ],
-          "unknownIds": [
-            "unknown-auth-cerbos-cerbos-ranking-v1-auth-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "auth-openfga",
-          "disposition": "insufficient-evidence",
+          "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-auth-openfga-fact-01",
-            "ranking-v1-auth-openfga-fact-02",
-            "ranking-v1-auth-openfga-fact-03",
             "ranking-v1-auth-openfga-fact-04",
-            "ranking-v1-auth-openfga-fact-05",
-            "ranking-v1-auth-openfga-fact-06",
-            "ranking-v1-auth-openfga-fact-07",
-            "ranking-v1-auth-openfga-fact-08",
-            "ranking-v1-auth-openfga-fact-09",
             "ranking-v1-auth-openfga-fact-10"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "hard-prohibited-adoption-unit"
           ],
-          "unknownIds": [
-            "unknown-auth-openfga-ranking-v1-auth-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "auth-stalniy-casl",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-auth-stalniy-casl-fact-01",
-            "ranking-v1-auth-stalniy-casl-fact-02",
             "ranking-v1-auth-stalniy-casl-fact-03",
-            "ranking-v1-auth-stalniy-casl-fact-04",
-            "ranking-v1-auth-stalniy-casl-fact-05",
-            "ranking-v1-auth-stalniy-casl-fact-06",
-            "ranking-v1-auth-stalniy-casl-fact-07",
-            "ranking-v1-auth-stalniy-casl-fact-08",
-            "ranking-v1-auth-stalniy-casl-fact-09",
-            "ranking-v1-auth-stalniy-casl-fact-10"
+            "ranking-v1-auth-stalniy-casl-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-auth-stalniy-casl-ranking-v1-auth-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         }
       ],
       "caseId": "rank-auth-05-popularity-over-fit",
@@ -1768,10 +1453,27 @@
           "resolution": "satisfied"
         }
       ],
-      "hardConstraintConflicts": [],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "auth-cerbos-cerbos",
+          "constraintId": "ranking-v1-auth-popularity-request-hard-adoption",
+          "evidenceIds": [
+            "ranking-v1-auth-cerbos-cerbos-fact-04"
+          ],
+          "reasonCode": "hard-prohibited-adoption-unit"
+        },
+        {
+          "candidateId": "auth-openfga",
+          "constraintId": "ranking-v1-auth-popularity-request-hard-adoption",
+          "evidenceIds": [
+            "ranking-v1-auth-openfga-fact-04"
+          ],
+          "reasonCode": "hard-prohibited-adoption-unit"
+        }
+      ],
       "hardenedPreferenceIds": [],
       "incomparablePairs": [],
-      "outcome": "insufficient-evidence",
+      "outcome": "recommend",
       "preferenceConsequences": [
         {
           "affectedPairs": [],
@@ -1779,8 +1481,16 @@
           "state": "bound-but-no-applicable-positive-comparison"
         }
       ],
-      "presentation": [],
-      "rankGroups": [],
+      "presentation": [
+        "auth-casbin-node-casbin",
+        "auth-stalniy-casl"
+      ],
+      "rankGroups": [
+        [
+          "auth-casbin-node-casbin",
+          "auth-stalniy-casl"
+        ]
+      ],
       "rankRelations": [],
       "successConditionCoverage": [
         {
@@ -1791,7 +1501,7 @@
         {
           "candidateId": "auth-casbin-node-casbin",
           "criterionId": "ranking-v1-auth-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "auth-cerbos-cerbos",
@@ -1821,7 +1531,7 @@
         {
           "candidateId": "auth-stalniy-casl",
           "criterionId": "ranking-v1-auth-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -1833,15 +1543,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-casbin-node-casbin-fact-01",
-            "ranking-v1-auth-casbin-node-casbin-fact-02",
-            "ranking-v1-auth-casbin-node-casbin-fact-03",
-            "ranking-v1-auth-casbin-node-casbin-fact-04",
-            "ranking-v1-auth-casbin-node-casbin-fact-05",
-            "ranking-v1-auth-casbin-node-casbin-fact-06",
-            "ranking-v1-auth-casbin-node-casbin-fact-07",
-            "ranking-v1-auth-casbin-node-casbin-fact-08",
-            "ranking-v1-auth-casbin-node-casbin-fact-09",
-            "ranking-v1-auth-casbin-node-casbin-fact-10"
+            "ranking-v1-auth-casbin-node-casbin-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1855,14 +1557,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-cerbos-cerbos-fact-01",
-            "ranking-v1-auth-cerbos-cerbos-fact-02",
-            "ranking-v1-auth-cerbos-cerbos-fact-03",
-            "ranking-v1-auth-cerbos-cerbos-fact-04",
             "ranking-v1-auth-cerbos-cerbos-fact-05",
-            "ranking-v1-auth-cerbos-cerbos-fact-06",
-            "ranking-v1-auth-cerbos-cerbos-fact-07",
-            "ranking-v1-auth-cerbos-cerbos-fact-08",
-            "ranking-v1-auth-cerbos-cerbos-fact-09"
+            "ranking-v1-auth-cerbos-cerbos-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -1876,15 +1572,6 @@
           "candidateId": "auth-openfga",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-auth-openfga-fact-01",
-            "ranking-v1-auth-openfga-fact-02",
-            "ranking-v1-auth-openfga-fact-03",
-            "ranking-v1-auth-openfga-fact-04",
-            "ranking-v1-auth-openfga-fact-05",
-            "ranking-v1-auth-openfga-fact-06",
-            "ranking-v1-auth-openfga-fact-07",
-            "ranking-v1-auth-openfga-fact-08",
-            "ranking-v1-auth-openfga-fact-09",
             "ranking-v1-auth-openfga-fact-10"
           ],
           "reasonCodes": [
@@ -1899,15 +1586,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-auth-stalniy-casl-fact-01",
-            "ranking-v1-auth-stalniy-casl-fact-02",
-            "ranking-v1-auth-stalniy-casl-fact-03",
-            "ranking-v1-auth-stalniy-casl-fact-04",
-            "ranking-v1-auth-stalniy-casl-fact-05",
-            "ranking-v1-auth-stalniy-casl-fact-06",
-            "ranking-v1-auth-stalniy-casl-fact-07",
-            "ranking-v1-auth-stalniy-casl-fact-08",
-            "ranking-v1-auth-stalniy-casl-fact-09",
-            "ranking-v1-auth-stalniy-casl-fact-10"
+            "ranking-v1-auth-stalniy-casl-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2001,15 +1680,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-bree-fact-01",
-            "ranking-v1-jobs-bree-fact-02",
-            "ranking-v1-jobs-bree-fact-03",
-            "ranking-v1-jobs-bree-fact-04",
-            "ranking-v1-jobs-bree-fact-05",
-            "ranking-v1-jobs-bree-fact-06",
-            "ranking-v1-jobs-bree-fact-07",
-            "ranking-v1-jobs-bree-fact-08",
-            "ranking-v1-jobs-bree-fact-09",
-            "ranking-v1-jobs-bree-fact-10"
+            "ranking-v1-jobs-bree-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2023,15 +1694,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-bullmq-fact-01",
-            "ranking-v1-jobs-bullmq-fact-02",
-            "ranking-v1-jobs-bullmq-fact-03",
-            "ranking-v1-jobs-bullmq-fact-04",
-            "ranking-v1-jobs-bullmq-fact-05",
-            "ranking-v1-jobs-bullmq-fact-06",
-            "ranking-v1-jobs-bullmq-fact-07",
-            "ranking-v1-jobs-bullmq-fact-08",
-            "ranking-v1-jobs-bullmq-fact-09",
-            "ranking-v1-jobs-bullmq-fact-10"
+            "ranking-v1-jobs-bullmq-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2045,14 +1708,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-graphile-worker-fact-01",
-            "ranking-v1-jobs-graphile-worker-fact-02",
-            "ranking-v1-jobs-graphile-worker-fact-03",
-            "ranking-v1-jobs-graphile-worker-fact-04",
             "ranking-v1-jobs-graphile-worker-fact-05",
-            "ranking-v1-jobs-graphile-worker-fact-06",
-            "ranking-v1-jobs-graphile-worker-fact-07",
-            "ranking-v1-jobs-graphile-worker-fact-08",
-            "ranking-v1-jobs-graphile-worker-fact-09",
             "ranking-v1-jobs-graphile-worker-fact-10"
           ],
           "reasonCodes": [
@@ -2067,14 +1723,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-pg-boss-fact-01",
-            "ranking-v1-jobs-pg-boss-fact-02",
-            "ranking-v1-jobs-pg-boss-fact-03",
-            "ranking-v1-jobs-pg-boss-fact-04",
-            "ranking-v1-jobs-pg-boss-fact-05",
-            "ranking-v1-jobs-pg-boss-fact-06",
-            "ranking-v1-jobs-pg-boss-fact-07",
-            "ranking-v1-jobs-pg-boss-fact-08",
-            "ranking-v1-jobs-pg-boss-fact-09"
+            "ranking-v1-jobs-pg-boss-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2128,7 +1777,7 @@
         {
           "candidateId": "jobs-bullmq",
           "criterionId": "ranking-v1-jobs-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "jobs-graphile-worker",
@@ -2138,7 +1787,7 @@
         {
           "candidateId": "jobs-graphile-worker",
           "criterionId": "ranking-v1-jobs-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "jobs-pg-boss",
@@ -2148,7 +1797,7 @@
         {
           "candidateId": "jobs-pg-boss",
           "criterionId": "ranking-v1-jobs-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -2160,15 +1809,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-bree-fact-01",
-            "ranking-v1-jobs-bree-fact-02",
-            "ranking-v1-jobs-bree-fact-03",
-            "ranking-v1-jobs-bree-fact-04",
-            "ranking-v1-jobs-bree-fact-05",
-            "ranking-v1-jobs-bree-fact-06",
-            "ranking-v1-jobs-bree-fact-07",
-            "ranking-v1-jobs-bree-fact-08",
-            "ranking-v1-jobs-bree-fact-09",
-            "ranking-v1-jobs-bree-fact-10"
+            "ranking-v1-jobs-bree-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2182,15 +1823,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-bullmq-fact-01",
-            "ranking-v1-jobs-bullmq-fact-02",
-            "ranking-v1-jobs-bullmq-fact-03",
-            "ranking-v1-jobs-bullmq-fact-04",
-            "ranking-v1-jobs-bullmq-fact-05",
-            "ranking-v1-jobs-bullmq-fact-06",
-            "ranking-v1-jobs-bullmq-fact-07",
-            "ranking-v1-jobs-bullmq-fact-08",
-            "ranking-v1-jobs-bullmq-fact-09",
-            "ranking-v1-jobs-bullmq-fact-10"
+            "ranking-v1-jobs-bullmq-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2204,14 +1837,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-graphile-worker-fact-01",
-            "ranking-v1-jobs-graphile-worker-fact-02",
-            "ranking-v1-jobs-graphile-worker-fact-03",
-            "ranking-v1-jobs-graphile-worker-fact-04",
             "ranking-v1-jobs-graphile-worker-fact-05",
-            "ranking-v1-jobs-graphile-worker-fact-06",
-            "ranking-v1-jobs-graphile-worker-fact-07",
-            "ranking-v1-jobs-graphile-worker-fact-08",
-            "ranking-v1-jobs-graphile-worker-fact-09",
             "ranking-v1-jobs-graphile-worker-fact-10"
           ],
           "reasonCodes": [
@@ -2226,14 +1852,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-pg-boss-fact-01",
-            "ranking-v1-jobs-pg-boss-fact-02",
-            "ranking-v1-jobs-pg-boss-fact-03",
-            "ranking-v1-jobs-pg-boss-fact-04",
-            "ranking-v1-jobs-pg-boss-fact-05",
-            "ranking-v1-jobs-pg-boss-fact-06",
-            "ranking-v1-jobs-pg-boss-fact-07",
-            "ranking-v1-jobs-pg-boss-fact-08",
-            "ranking-v1-jobs-pg-boss-fact-09"
+            "ranking-v1-jobs-pg-boss-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2287,7 +1906,7 @@
         {
           "candidateId": "jobs-bullmq",
           "criterionId": "ranking-v1-jobs-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "jobs-graphile-worker",
@@ -2297,7 +1916,7 @@
         {
           "candidateId": "jobs-graphile-worker",
           "criterionId": "ranking-v1-jobs-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "jobs-pg-boss",
@@ -2307,7 +1926,7 @@
         {
           "candidateId": "jobs-pg-boss",
           "criterionId": "ranking-v1-jobs-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -2318,16 +1937,7 @@
           "candidateId": "jobs-bree",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-jobs-bree-fact-01",
-            "ranking-v1-jobs-bree-fact-02",
-            "ranking-v1-jobs-bree-fact-03",
-            "ranking-v1-jobs-bree-fact-04",
-            "ranking-v1-jobs-bree-fact-05",
-            "ranking-v1-jobs-bree-fact-06",
-            "ranking-v1-jobs-bree-fact-07",
-            "ranking-v1-jobs-bree-fact-08",
-            "ranking-v1-jobs-bree-fact-09",
-            "ranking-v1-jobs-bree-fact-10"
+            "ranking-v1-jobs-bree-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-in-process-scheduler"
@@ -2338,15 +1948,7 @@
           "candidateId": "jobs-bullmq",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-jobs-bullmq-fact-01",
-            "ranking-v1-jobs-bullmq-fact-02",
-            "ranking-v1-jobs-bullmq-fact-03",
             "ranking-v1-jobs-bullmq-fact-04",
-            "ranking-v1-jobs-bullmq-fact-05",
-            "ranking-v1-jobs-bullmq-fact-06",
-            "ranking-v1-jobs-bullmq-fact-07",
-            "ranking-v1-jobs-bullmq-fact-08",
-            "ranking-v1-jobs-bullmq-fact-09",
             "ranking-v1-jobs-bullmq-fact-10"
           ],
           "reasonCodes": [
@@ -2358,16 +1960,7 @@
           "candidateId": "jobs-graphile-worker",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-jobs-graphile-worker-fact-01",
-            "ranking-v1-jobs-graphile-worker-fact-02",
-            "ranking-v1-jobs-graphile-worker-fact-03",
-            "ranking-v1-jobs-graphile-worker-fact-04",
-            "ranking-v1-jobs-graphile-worker-fact-05",
-            "ranking-v1-jobs-graphile-worker-fact-06",
-            "ranking-v1-jobs-graphile-worker-fact-07",
-            "ranking-v1-jobs-graphile-worker-fact-08",
-            "ranking-v1-jobs-graphile-worker-fact-09",
-            "ranking-v1-jobs-graphile-worker-fact-10"
+            "ranking-v1-jobs-graphile-worker-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-worker-process"
@@ -2378,15 +1971,7 @@
           "candidateId": "jobs-pg-boss",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-jobs-pg-boss-fact-01",
-            "ranking-v1-jobs-pg-boss-fact-02",
-            "ranking-v1-jobs-pg-boss-fact-03",
-            "ranking-v1-jobs-pg-boss-fact-04",
-            "ranking-v1-jobs-pg-boss-fact-05",
-            "ranking-v1-jobs-pg-boss-fact-06",
-            "ranking-v1-jobs-pg-boss-fact-07",
-            "ranking-v1-jobs-pg-boss-fact-08",
-            "ranking-v1-jobs-pg-boss-fact-09"
+            "ranking-v1-jobs-pg-boss-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-worker-process"
@@ -2471,7 +2056,7 @@
         {
           "candidateId": "jobs-bullmq",
           "criterionId": "ranking-v1-jobs-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "jobs-graphile-worker",
@@ -2481,7 +2066,7 @@
         {
           "candidateId": "jobs-graphile-worker",
           "criterionId": "ranking-v1-jobs-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "jobs-pg-boss",
@@ -2491,7 +2076,7 @@
         {
           "candidateId": "jobs-pg-boss",
           "criterionId": "ranking-v1-jobs-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -2503,15 +2088,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-bree-fact-01",
-            "ranking-v1-jobs-bree-fact-02",
-            "ranking-v1-jobs-bree-fact-03",
-            "ranking-v1-jobs-bree-fact-04",
-            "ranking-v1-jobs-bree-fact-05",
-            "ranking-v1-jobs-bree-fact-06",
-            "ranking-v1-jobs-bree-fact-07",
-            "ranking-v1-jobs-bree-fact-08",
-            "ranking-v1-jobs-bree-fact-09",
-            "ranking-v1-jobs-bree-fact-10"
+            "ranking-v1-jobs-bree-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2526,15 +2103,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-bullmq-fact-01",
-            "ranking-v1-jobs-bullmq-fact-02",
-            "ranking-v1-jobs-bullmq-fact-03",
-            "ranking-v1-jobs-bullmq-fact-04",
-            "ranking-v1-jobs-bullmq-fact-05",
-            "ranking-v1-jobs-bullmq-fact-06",
-            "ranking-v1-jobs-bullmq-fact-07",
-            "ranking-v1-jobs-bullmq-fact-08",
-            "ranking-v1-jobs-bullmq-fact-09",
-            "ranking-v1-jobs-bullmq-fact-10"
+            "ranking-v1-jobs-bullmq-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2549,15 +2118,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-graphile-worker-fact-01",
-            "ranking-v1-jobs-graphile-worker-fact-02",
-            "ranking-v1-jobs-graphile-worker-fact-03",
-            "ranking-v1-jobs-graphile-worker-fact-04",
-            "ranking-v1-jobs-graphile-worker-fact-05",
-            "ranking-v1-jobs-graphile-worker-fact-06",
-            "ranking-v1-jobs-graphile-worker-fact-07",
-            "ranking-v1-jobs-graphile-worker-fact-08",
-            "ranking-v1-jobs-graphile-worker-fact-09",
-            "ranking-v1-jobs-graphile-worker-fact-10"
+            "ranking-v1-jobs-graphile-worker-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2572,14 +2133,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-pg-boss-fact-01",
-            "ranking-v1-jobs-pg-boss-fact-02",
-            "ranking-v1-jobs-pg-boss-fact-03",
-            "ranking-v1-jobs-pg-boss-fact-04",
             "ranking-v1-jobs-pg-boss-fact-05",
-            "ranking-v1-jobs-pg-boss-fact-06",
-            "ranking-v1-jobs-pg-boss-fact-07",
-            "ranking-v1-jobs-pg-boss-fact-08",
-            "ranking-v1-jobs-pg-boss-fact-09"
+            "ranking-v1-jobs-pg-boss-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2664,90 +2219,51 @@
       "candidates": [
         {
           "candidateId": "jobs-bree",
-          "disposition": "insufficient-evidence",
+          "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-jobs-bree-fact-01",
-            "ranking-v1-jobs-bree-fact-02",
-            "ranking-v1-jobs-bree-fact-03",
             "ranking-v1-jobs-bree-fact-04",
-            "ranking-v1-jobs-bree-fact-05",
-            "ranking-v1-jobs-bree-fact-06",
-            "ranking-v1-jobs-bree-fact-07",
-            "ranking-v1-jobs-bree-fact-08",
-            "ranking-v1-jobs-bree-fact-09",
             "ranking-v1-jobs-bree-fact-10"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "hard-prohibited-adoption-unit"
           ],
-          "unknownIds": [
-            "unknown-jobs-bree-ranking-v1-jobs-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "jobs-bullmq",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-jobs-bullmq-fact-01",
-            "ranking-v1-jobs-bullmq-fact-02",
-            "ranking-v1-jobs-bullmq-fact-03",
-            "ranking-v1-jobs-bullmq-fact-04",
-            "ranking-v1-jobs-bullmq-fact-05",
-            "ranking-v1-jobs-bullmq-fact-06",
-            "ranking-v1-jobs-bullmq-fact-07",
-            "ranking-v1-jobs-bullmq-fact-08",
-            "ranking-v1-jobs-bullmq-fact-09",
-            "ranking-v1-jobs-bullmq-fact-10"
+            "ranking-v1-jobs-bullmq-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-jobs-bullmq-ranking-v1-jobs-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "jobs-graphile-worker",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-jobs-graphile-worker-fact-01",
-            "ranking-v1-jobs-graphile-worker-fact-02",
-            "ranking-v1-jobs-graphile-worker-fact-03",
-            "ranking-v1-jobs-graphile-worker-fact-04",
-            "ranking-v1-jobs-graphile-worker-fact-05",
-            "ranking-v1-jobs-graphile-worker-fact-06",
-            "ranking-v1-jobs-graphile-worker-fact-07",
-            "ranking-v1-jobs-graphile-worker-fact-08",
-            "ranking-v1-jobs-graphile-worker-fact-09",
-            "ranking-v1-jobs-graphile-worker-fact-10"
+            "ranking-v1-jobs-graphile-worker-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-jobs-graphile-worker-ranking-v1-jobs-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "jobs-pg-boss",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-jobs-pg-boss-fact-01",
-            "ranking-v1-jobs-pg-boss-fact-02",
-            "ranking-v1-jobs-pg-boss-fact-03",
-            "ranking-v1-jobs-pg-boss-fact-04",
-            "ranking-v1-jobs-pg-boss-fact-05",
-            "ranking-v1-jobs-pg-boss-fact-06",
-            "ranking-v1-jobs-pg-boss-fact-07",
-            "ranking-v1-jobs-pg-boss-fact-08",
-            "ranking-v1-jobs-pg-boss-fact-09"
+            "ranking-v1-jobs-pg-boss-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-jobs-pg-boss-ranking-v1-jobs-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         }
       ],
       "caseId": "rank-jobs-05-popularity-over-fit",
@@ -2761,10 +2277,19 @@
           "resolution": "satisfied"
         }
       ],
-      "hardConstraintConflicts": [],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "jobs-bree",
+          "constraintId": "ranking-v1-jobs-popularity-request-hard-adoption",
+          "evidenceIds": [
+            "ranking-v1-jobs-bree-fact-04"
+          ],
+          "reasonCode": "hard-prohibited-adoption-unit"
+        }
+      ],
       "hardenedPreferenceIds": [],
       "incomparablePairs": [],
-      "outcome": "insufficient-evidence",
+      "outcome": "recommend",
       "preferenceConsequences": [
         {
           "affectedPairs": [],
@@ -2772,8 +2297,18 @@
           "state": "bound-but-no-applicable-positive-comparison"
         }
       ],
-      "presentation": [],
-      "rankGroups": [],
+      "presentation": [
+        "jobs-bullmq",
+        "jobs-graphile-worker",
+        "jobs-pg-boss"
+      ],
+      "rankGroups": [
+        [
+          "jobs-bullmq",
+          "jobs-graphile-worker",
+          "jobs-pg-boss"
+        ]
+      ],
       "rankRelations": [],
       "successConditionCoverage": [
         {
@@ -2794,7 +2329,7 @@
         {
           "candidateId": "jobs-bullmq",
           "criterionId": "ranking-v1-jobs-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "jobs-graphile-worker",
@@ -2804,7 +2339,7 @@
         {
           "candidateId": "jobs-graphile-worker",
           "criterionId": "ranking-v1-jobs-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "jobs-pg-boss",
@@ -2814,7 +2349,7 @@
         {
           "candidateId": "jobs-pg-boss",
           "criterionId": "ranking-v1-jobs-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -2825,15 +2360,6 @@
           "candidateId": "jobs-bree",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-jobs-bree-fact-01",
-            "ranking-v1-jobs-bree-fact-02",
-            "ranking-v1-jobs-bree-fact-03",
-            "ranking-v1-jobs-bree-fact-04",
-            "ranking-v1-jobs-bree-fact-05",
-            "ranking-v1-jobs-bree-fact-06",
-            "ranking-v1-jobs-bree-fact-07",
-            "ranking-v1-jobs-bree-fact-08",
-            "ranking-v1-jobs-bree-fact-09",
             "ranking-v1-jobs-bree-fact-10"
           ],
           "reasonCodes": [
@@ -2848,15 +2374,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-bullmq-fact-01",
-            "ranking-v1-jobs-bullmq-fact-02",
-            "ranking-v1-jobs-bullmq-fact-03",
-            "ranking-v1-jobs-bullmq-fact-04",
-            "ranking-v1-jobs-bullmq-fact-05",
-            "ranking-v1-jobs-bullmq-fact-06",
-            "ranking-v1-jobs-bullmq-fact-07",
-            "ranking-v1-jobs-bullmq-fact-08",
-            "ranking-v1-jobs-bullmq-fact-09",
-            "ranking-v1-jobs-bullmq-fact-10"
+            "ranking-v1-jobs-bullmq-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2870,15 +2388,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-graphile-worker-fact-01",
-            "ranking-v1-jobs-graphile-worker-fact-02",
-            "ranking-v1-jobs-graphile-worker-fact-03",
-            "ranking-v1-jobs-graphile-worker-fact-04",
-            "ranking-v1-jobs-graphile-worker-fact-05",
-            "ranking-v1-jobs-graphile-worker-fact-06",
-            "ranking-v1-jobs-graphile-worker-fact-07",
-            "ranking-v1-jobs-graphile-worker-fact-08",
-            "ranking-v1-jobs-graphile-worker-fact-09",
-            "ranking-v1-jobs-graphile-worker-fact-10"
+            "ranking-v1-jobs-graphile-worker-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2892,14 +2402,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-jobs-pg-boss-fact-01",
-            "ranking-v1-jobs-pg-boss-fact-02",
-            "ranking-v1-jobs-pg-boss-fact-03",
-            "ranking-v1-jobs-pg-boss-fact-04",
             "ranking-v1-jobs-pg-boss-fact-05",
-            "ranking-v1-jobs-pg-boss-fact-06",
-            "ranking-v1-jobs-pg-boss-fact-07",
-            "ranking-v1-jobs-pg-boss-fact-08",
-            "ranking-v1-jobs-pg-boss-fact-09"
+            "ranking-v1-jobs-pg-boss-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -2994,15 +2498,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-bottleneck-fact-01",
-            "ranking-v1-rate-bottleneck-fact-02",
-            "ranking-v1-rate-bottleneck-fact-03",
-            "ranking-v1-rate-bottleneck-fact-04",
-            "ranking-v1-rate-bottleneck-fact-05",
-            "ranking-v1-rate-bottleneck-fact-06",
-            "ranking-v1-rate-bottleneck-fact-07",
-            "ranking-v1-rate-bottleneck-fact-08",
-            "ranking-v1-rate-bottleneck-fact-09",
-            "ranking-v1-rate-bottleneck-fact-10"
+            "ranking-v1-rate-bottleneck-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3016,14 +2512,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-express-rate-limit-fact-01",
-            "ranking-v1-rate-express-rate-limit-fact-02",
-            "ranking-v1-rate-express-rate-limit-fact-03",
-            "ranking-v1-rate-express-rate-limit-fact-04",
             "ranking-v1-rate-express-rate-limit-fact-05",
-            "ranking-v1-rate-express-rate-limit-fact-06",
-            "ranking-v1-rate-express-rate-limit-fact-07",
-            "ranking-v1-rate-express-rate-limit-fact-08",
-            "ranking-v1-rate-express-rate-limit-fact-09",
             "ranking-v1-rate-express-rate-limit-fact-10"
           ],
           "reasonCodes": [
@@ -3038,14 +2527,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-flexible-fact-01",
-            "ranking-v1-rate-flexible-fact-02",
-            "ranking-v1-rate-flexible-fact-03",
-            "ranking-v1-rate-flexible-fact-04",
-            "ranking-v1-rate-flexible-fact-05",
-            "ranking-v1-rate-flexible-fact-06",
-            "ranking-v1-rate-flexible-fact-07",
-            "ranking-v1-rate-flexible-fact-08",
-            "ranking-v1-rate-flexible-fact-09"
+            "ranking-v1-rate-flexible-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3059,15 +2541,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-upstash-fact-01",
-            "ranking-v1-rate-upstash-fact-02",
-            "ranking-v1-rate-upstash-fact-03",
-            "ranking-v1-rate-upstash-fact-04",
-            "ranking-v1-rate-upstash-fact-05",
-            "ranking-v1-rate-upstash-fact-06",
-            "ranking-v1-rate-upstash-fact-07",
-            "ranking-v1-rate-upstash-fact-08",
-            "ranking-v1-rate-upstash-fact-09",
-            "ranking-v1-rate-upstash-fact-10"
+            "ranking-v1-rate-upstash-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3121,7 +2595,7 @@
         {
           "candidateId": "rate-express-rate-limit",
           "criterionId": "ranking-v1-rate-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "rate-flexible",
@@ -3131,7 +2605,7 @@
         {
           "candidateId": "rate-flexible",
           "criterionId": "ranking-v1-rate-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "rate-upstash",
@@ -3141,7 +2615,7 @@
         {
           "candidateId": "rate-upstash",
           "criterionId": "ranking-v1-rate-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -3153,15 +2627,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-bottleneck-fact-01",
-            "ranking-v1-rate-bottleneck-fact-02",
-            "ranking-v1-rate-bottleneck-fact-03",
-            "ranking-v1-rate-bottleneck-fact-04",
-            "ranking-v1-rate-bottleneck-fact-05",
-            "ranking-v1-rate-bottleneck-fact-06",
-            "ranking-v1-rate-bottleneck-fact-07",
-            "ranking-v1-rate-bottleneck-fact-08",
-            "ranking-v1-rate-bottleneck-fact-09",
-            "ranking-v1-rate-bottleneck-fact-10"
+            "ranking-v1-rate-bottleneck-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3175,14 +2641,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-express-rate-limit-fact-01",
-            "ranking-v1-rate-express-rate-limit-fact-02",
-            "ranking-v1-rate-express-rate-limit-fact-03",
-            "ranking-v1-rate-express-rate-limit-fact-04",
             "ranking-v1-rate-express-rate-limit-fact-05",
-            "ranking-v1-rate-express-rate-limit-fact-06",
-            "ranking-v1-rate-express-rate-limit-fact-07",
-            "ranking-v1-rate-express-rate-limit-fact-08",
-            "ranking-v1-rate-express-rate-limit-fact-09",
             "ranking-v1-rate-express-rate-limit-fact-10"
           ],
           "reasonCodes": [
@@ -3197,14 +2656,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-flexible-fact-01",
-            "ranking-v1-rate-flexible-fact-02",
-            "ranking-v1-rate-flexible-fact-03",
-            "ranking-v1-rate-flexible-fact-04",
-            "ranking-v1-rate-flexible-fact-05",
-            "ranking-v1-rate-flexible-fact-06",
-            "ranking-v1-rate-flexible-fact-07",
-            "ranking-v1-rate-flexible-fact-08",
-            "ranking-v1-rate-flexible-fact-09"
+            "ranking-v1-rate-flexible-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3218,15 +2670,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-upstash-fact-01",
-            "ranking-v1-rate-upstash-fact-02",
-            "ranking-v1-rate-upstash-fact-03",
-            "ranking-v1-rate-upstash-fact-04",
-            "ranking-v1-rate-upstash-fact-05",
-            "ranking-v1-rate-upstash-fact-06",
-            "ranking-v1-rate-upstash-fact-07",
-            "ranking-v1-rate-upstash-fact-08",
-            "ranking-v1-rate-upstash-fact-09",
-            "ranking-v1-rate-upstash-fact-10"
+            "ranking-v1-rate-upstash-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3280,7 +2724,7 @@
         {
           "candidateId": "rate-express-rate-limit",
           "criterionId": "ranking-v1-rate-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "rate-flexible",
@@ -3290,7 +2734,7 @@
         {
           "candidateId": "rate-flexible",
           "criterionId": "ranking-v1-rate-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "rate-upstash",
@@ -3300,7 +2744,7 @@
         {
           "candidateId": "rate-upstash",
           "criterionId": "ranking-v1-rate-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -3311,16 +2755,7 @@
           "candidateId": "rate-bottleneck",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-rate-bottleneck-fact-01",
-            "ranking-v1-rate-bottleneck-fact-02",
-            "ranking-v1-rate-bottleneck-fact-03",
-            "ranking-v1-rate-bottleneck-fact-04",
-            "ranking-v1-rate-bottleneck-fact-05",
-            "ranking-v1-rate-bottleneck-fact-06",
-            "ranking-v1-rate-bottleneck-fact-07",
-            "ranking-v1-rate-bottleneck-fact-08",
-            "ranking-v1-rate-bottleneck-fact-09",
-            "ranking-v1-rate-bottleneck-fact-10"
+            "ranking-v1-rate-bottleneck-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-in-process-library"
@@ -3331,16 +2766,7 @@
           "candidateId": "rate-express-rate-limit",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-rate-express-rate-limit-fact-01",
-            "ranking-v1-rate-express-rate-limit-fact-02",
-            "ranking-v1-rate-express-rate-limit-fact-03",
-            "ranking-v1-rate-express-rate-limit-fact-04",
-            "ranking-v1-rate-express-rate-limit-fact-05",
-            "ranking-v1-rate-express-rate-limit-fact-06",
-            "ranking-v1-rate-express-rate-limit-fact-07",
-            "ranking-v1-rate-express-rate-limit-fact-08",
-            "ranking-v1-rate-express-rate-limit-fact-09",
-            "ranking-v1-rate-express-rate-limit-fact-10"
+            "ranking-v1-rate-express-rate-limit-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-in-process-library"
@@ -3351,15 +2777,7 @@
           "candidateId": "rate-flexible",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-rate-flexible-fact-01",
-            "ranking-v1-rate-flexible-fact-02",
-            "ranking-v1-rate-flexible-fact-03",
-            "ranking-v1-rate-flexible-fact-04",
-            "ranking-v1-rate-flexible-fact-05",
-            "ranking-v1-rate-flexible-fact-06",
-            "ranking-v1-rate-flexible-fact-07",
-            "ranking-v1-rate-flexible-fact-08",
-            "ranking-v1-rate-flexible-fact-09"
+            "ranking-v1-rate-flexible-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-in-process-library"
@@ -3370,15 +2788,7 @@
           "candidateId": "rate-upstash",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-rate-upstash-fact-01",
-            "ranking-v1-rate-upstash-fact-02",
-            "ranking-v1-rate-upstash-fact-03",
             "ranking-v1-rate-upstash-fact-04",
-            "ranking-v1-rate-upstash-fact-05",
-            "ranking-v1-rate-upstash-fact-06",
-            "ranking-v1-rate-upstash-fact-07",
-            "ranking-v1-rate-upstash-fact-08",
-            "ranking-v1-rate-upstash-fact-09",
             "ranking-v1-rate-upstash-fact-10"
           ],
           "reasonCodes": [
@@ -3464,7 +2874,7 @@
         {
           "candidateId": "rate-express-rate-limit",
           "criterionId": "ranking-v1-rate-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "rate-flexible",
@@ -3474,7 +2884,7 @@
         {
           "candidateId": "rate-flexible",
           "criterionId": "ranking-v1-rate-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "rate-upstash",
@@ -3484,7 +2894,7 @@
         {
           "candidateId": "rate-upstash",
           "criterionId": "ranking-v1-rate-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -3496,15 +2906,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-bottleneck-fact-01",
-            "ranking-v1-rate-bottleneck-fact-02",
-            "ranking-v1-rate-bottleneck-fact-03",
-            "ranking-v1-rate-bottleneck-fact-04",
-            "ranking-v1-rate-bottleneck-fact-05",
-            "ranking-v1-rate-bottleneck-fact-06",
-            "ranking-v1-rate-bottleneck-fact-07",
-            "ranking-v1-rate-bottleneck-fact-08",
-            "ranking-v1-rate-bottleneck-fact-09",
-            "ranking-v1-rate-bottleneck-fact-10"
+            "ranking-v1-rate-bottleneck-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3519,15 +2921,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-express-rate-limit-fact-01",
-            "ranking-v1-rate-express-rate-limit-fact-02",
-            "ranking-v1-rate-express-rate-limit-fact-03",
-            "ranking-v1-rate-express-rate-limit-fact-04",
-            "ranking-v1-rate-express-rate-limit-fact-05",
-            "ranking-v1-rate-express-rate-limit-fact-06",
-            "ranking-v1-rate-express-rate-limit-fact-07",
-            "ranking-v1-rate-express-rate-limit-fact-08",
-            "ranking-v1-rate-express-rate-limit-fact-09",
-            "ranking-v1-rate-express-rate-limit-fact-10"
+            "ranking-v1-rate-express-rate-limit-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3542,14 +2936,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-flexible-fact-01",
-            "ranking-v1-rate-flexible-fact-02",
-            "ranking-v1-rate-flexible-fact-03",
-            "ranking-v1-rate-flexible-fact-04",
             "ranking-v1-rate-flexible-fact-05",
-            "ranking-v1-rate-flexible-fact-06",
-            "ranking-v1-rate-flexible-fact-07",
-            "ranking-v1-rate-flexible-fact-08",
-            "ranking-v1-rate-flexible-fact-09"
+            "ranking-v1-rate-flexible-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3565,15 +2953,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-rate-upstash-fact-01",
-            "ranking-v1-rate-upstash-fact-02",
-            "ranking-v1-rate-upstash-fact-03",
-            "ranking-v1-rate-upstash-fact-04",
-            "ranking-v1-rate-upstash-fact-05",
-            "ranking-v1-rate-upstash-fact-06",
-            "ranking-v1-rate-upstash-fact-07",
-            "ranking-v1-rate-upstash-fact-08",
-            "ranking-v1-rate-upstash-fact-09",
-            "ranking-v1-rate-upstash-fact-10"
+            "ranking-v1-rate-upstash-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3657,90 +3037,51 @@
       "candidates": [
         {
           "candidateId": "rate-bottleneck",
-          "disposition": "insufficient-evidence",
+          "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-rate-bottleneck-fact-01",
             "ranking-v1-rate-bottleneck-fact-02",
-            "ranking-v1-rate-bottleneck-fact-03",
-            "ranking-v1-rate-bottleneck-fact-04",
-            "ranking-v1-rate-bottleneck-fact-05",
-            "ranking-v1-rate-bottleneck-fact-06",
-            "ranking-v1-rate-bottleneck-fact-07",
-            "ranking-v1-rate-bottleneck-fact-08",
-            "ranking-v1-rate-bottleneck-fact-09",
             "ranking-v1-rate-bottleneck-fact-10"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "hard-prohibited-adoption-unit"
           ],
-          "unknownIds": [
-            "unknown-rate-bottleneck-ranking-v1-rate-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "rate-express-rate-limit",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-rate-express-rate-limit-fact-01",
-            "ranking-v1-rate-express-rate-limit-fact-02",
-            "ranking-v1-rate-express-rate-limit-fact-03",
-            "ranking-v1-rate-express-rate-limit-fact-04",
-            "ranking-v1-rate-express-rate-limit-fact-05",
-            "ranking-v1-rate-express-rate-limit-fact-06",
-            "ranking-v1-rate-express-rate-limit-fact-07",
-            "ranking-v1-rate-express-rate-limit-fact-08",
-            "ranking-v1-rate-express-rate-limit-fact-09",
-            "ranking-v1-rate-express-rate-limit-fact-10"
+            "ranking-v1-rate-express-rate-limit-fact-02"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-rate-express-rate-limit-ranking-v1-rate-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "rate-flexible",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-rate-flexible-fact-01",
-            "ranking-v1-rate-flexible-fact-02",
-            "ranking-v1-rate-flexible-fact-03",
-            "ranking-v1-rate-flexible-fact-04",
-            "ranking-v1-rate-flexible-fact-05",
-            "ranking-v1-rate-flexible-fact-06",
-            "ranking-v1-rate-flexible-fact-07",
-            "ranking-v1-rate-flexible-fact-08",
-            "ranking-v1-rate-flexible-fact-09"
+            "ranking-v1-rate-flexible-fact-02"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-rate-flexible-ranking-v1-rate-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "rate-upstash",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-rate-upstash-fact-01",
-            "ranking-v1-rate-upstash-fact-02",
-            "ranking-v1-rate-upstash-fact-03",
-            "ranking-v1-rate-upstash-fact-04",
-            "ranking-v1-rate-upstash-fact-05",
-            "ranking-v1-rate-upstash-fact-06",
-            "ranking-v1-rate-upstash-fact-07",
-            "ranking-v1-rate-upstash-fact-08",
-            "ranking-v1-rate-upstash-fact-09",
-            "ranking-v1-rate-upstash-fact-10"
+            "ranking-v1-rate-upstash-fact-02"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-rate-upstash-ranking-v1-rate-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         }
       ],
       "caseId": "rank-rate-05-popularity-over-fit",
@@ -3754,10 +3095,19 @@
           "resolution": "satisfied"
         }
       ],
-      "hardConstraintConflicts": [],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "rate-bottleneck",
+          "constraintId": "ranking-v1-rate-popularity-request-hard-adoption",
+          "evidenceIds": [
+            "ranking-v1-rate-bottleneck-fact-02"
+          ],
+          "reasonCode": "hard-prohibited-adoption-unit"
+        }
+      ],
       "hardenedPreferenceIds": [],
       "incomparablePairs": [],
-      "outcome": "insufficient-evidence",
+      "outcome": "recommend",
       "preferenceConsequences": [
         {
           "affectedPairs": [],
@@ -3765,8 +3115,18 @@
           "state": "bound-but-no-applicable-positive-comparison"
         }
       ],
-      "presentation": [],
-      "rankGroups": [],
+      "presentation": [
+        "rate-express-rate-limit",
+        "rate-flexible",
+        "rate-upstash"
+      ],
+      "rankGroups": [
+        [
+          "rate-express-rate-limit",
+          "rate-flexible",
+          "rate-upstash"
+        ]
+      ],
       "rankRelations": [],
       "successConditionCoverage": [
         {
@@ -3787,7 +3147,7 @@
         {
           "candidateId": "rate-express-rate-limit",
           "criterionId": "ranking-v1-rate-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "rate-flexible",
@@ -3797,7 +3157,7 @@
         {
           "candidateId": "rate-flexible",
           "criterionId": "ranking-v1-rate-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "rate-upstash",
@@ -3807,7 +3167,7 @@
         {
           "candidateId": "rate-upstash",
           "criterionId": "ranking-v1-rate-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -3818,15 +3178,6 @@
           "candidateId": "rate-bottleneck",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-rate-bottleneck-fact-01",
-            "ranking-v1-rate-bottleneck-fact-02",
-            "ranking-v1-rate-bottleneck-fact-03",
-            "ranking-v1-rate-bottleneck-fact-04",
-            "ranking-v1-rate-bottleneck-fact-05",
-            "ranking-v1-rate-bottleneck-fact-06",
-            "ranking-v1-rate-bottleneck-fact-07",
-            "ranking-v1-rate-bottleneck-fact-08",
-            "ranking-v1-rate-bottleneck-fact-09",
             "ranking-v1-rate-bottleneck-fact-10"
           ],
           "reasonCodes": [
@@ -3842,14 +3193,7 @@
           "evidenceIds": [
             "ranking-v1-rate-express-rate-limit-fact-01",
             "ranking-v1-rate-express-rate-limit-fact-02",
-            "ranking-v1-rate-express-rate-limit-fact-03",
-            "ranking-v1-rate-express-rate-limit-fact-04",
-            "ranking-v1-rate-express-rate-limit-fact-05",
-            "ranking-v1-rate-express-rate-limit-fact-06",
-            "ranking-v1-rate-express-rate-limit-fact-07",
-            "ranking-v1-rate-express-rate-limit-fact-08",
-            "ranking-v1-rate-express-rate-limit-fact-09",
-            "ranking-v1-rate-express-rate-limit-fact-10"
+            "ranking-v1-rate-express-rate-limit-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3864,13 +3208,8 @@
           "evidenceIds": [
             "ranking-v1-rate-flexible-fact-01",
             "ranking-v1-rate-flexible-fact-02",
-            "ranking-v1-rate-flexible-fact-03",
-            "ranking-v1-rate-flexible-fact-04",
             "ranking-v1-rate-flexible-fact-05",
-            "ranking-v1-rate-flexible-fact-06",
-            "ranking-v1-rate-flexible-fact-07",
-            "ranking-v1-rate-flexible-fact-08",
-            "ranking-v1-rate-flexible-fact-09"
+            "ranking-v1-rate-flexible-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3886,14 +3225,7 @@
           "evidenceIds": [
             "ranking-v1-rate-upstash-fact-01",
             "ranking-v1-rate-upstash-fact-02",
-            "ranking-v1-rate-upstash-fact-03",
-            "ranking-v1-rate-upstash-fact-04",
-            "ranking-v1-rate-upstash-fact-05",
-            "ranking-v1-rate-upstash-fact-06",
-            "ranking-v1-rate-upstash-fact-07",
-            "ranking-v1-rate-upstash-fact-08",
-            "ranking-v1-rate-upstash-fact-09",
-            "ranking-v1-rate-upstash-fact-10"
+            "ranking-v1-rate-upstash-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -3987,15 +3319,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-convoy-fact-01",
-            "ranking-v1-webhook-convoy-fact-02",
-            "ranking-v1-webhook-convoy-fact-03",
-            "ranking-v1-webhook-convoy-fact-04",
-            "ranking-v1-webhook-convoy-fact-05",
-            "ranking-v1-webhook-convoy-fact-06",
-            "ranking-v1-webhook-convoy-fact-07",
-            "ranking-v1-webhook-convoy-fact-08",
-            "ranking-v1-webhook-convoy-fact-09",
-            "ranking-v1-webhook-convoy-fact-10"
+            "ranking-v1-webhook-convoy-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4009,15 +3333,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-standard-webhooks-fact-01",
-            "ranking-v1-webhook-standard-webhooks-fact-02",
-            "ranking-v1-webhook-standard-webhooks-fact-03",
-            "ranking-v1-webhook-standard-webhooks-fact-04",
-            "ranking-v1-webhook-standard-webhooks-fact-05",
-            "ranking-v1-webhook-standard-webhooks-fact-06",
-            "ranking-v1-webhook-standard-webhooks-fact-07",
-            "ranking-v1-webhook-standard-webhooks-fact-08",
-            "ranking-v1-webhook-standard-webhooks-fact-09",
-            "ranking-v1-webhook-standard-webhooks-fact-10"
+            "ranking-v1-webhook-standard-webhooks-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4031,14 +3347,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-stripe-node-fact-01",
-            "ranking-v1-webhook-stripe-node-fact-02",
-            "ranking-v1-webhook-stripe-node-fact-03",
-            "ranking-v1-webhook-stripe-node-fact-04",
             "ranking-v1-webhook-stripe-node-fact-05",
-            "ranking-v1-webhook-stripe-node-fact-06",
-            "ranking-v1-webhook-stripe-node-fact-07",
-            "ranking-v1-webhook-stripe-node-fact-08",
-            "ranking-v1-webhook-stripe-node-fact-09",
             "ranking-v1-webhook-stripe-node-fact-10"
           ],
           "reasonCodes": [
@@ -4053,14 +3362,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-svix-fact-01",
-            "ranking-v1-webhook-svix-fact-02",
-            "ranking-v1-webhook-svix-fact-03",
-            "ranking-v1-webhook-svix-fact-04",
-            "ranking-v1-webhook-svix-fact-05",
-            "ranking-v1-webhook-svix-fact-06",
-            "ranking-v1-webhook-svix-fact-07",
-            "ranking-v1-webhook-svix-fact-08",
-            "ranking-v1-webhook-svix-fact-09"
+            "ranking-v1-webhook-svix-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4114,7 +3416,7 @@
         {
           "candidateId": "webhook-standard-webhooks",
           "criterionId": "ranking-v1-webhook-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "webhook-stripe-node",
@@ -4124,7 +3426,7 @@
         {
           "candidateId": "webhook-stripe-node",
           "criterionId": "ranking-v1-webhook-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "webhook-svix",
@@ -4134,7 +3436,7 @@
         {
           "candidateId": "webhook-svix",
           "criterionId": "ranking-v1-webhook-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -4146,15 +3448,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-convoy-fact-01",
-            "ranking-v1-webhook-convoy-fact-02",
-            "ranking-v1-webhook-convoy-fact-03",
-            "ranking-v1-webhook-convoy-fact-04",
-            "ranking-v1-webhook-convoy-fact-05",
-            "ranking-v1-webhook-convoy-fact-06",
-            "ranking-v1-webhook-convoy-fact-07",
-            "ranking-v1-webhook-convoy-fact-08",
-            "ranking-v1-webhook-convoy-fact-09",
-            "ranking-v1-webhook-convoy-fact-10"
+            "ranking-v1-webhook-convoy-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4168,15 +3462,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-standard-webhooks-fact-01",
-            "ranking-v1-webhook-standard-webhooks-fact-02",
-            "ranking-v1-webhook-standard-webhooks-fact-03",
-            "ranking-v1-webhook-standard-webhooks-fact-04",
-            "ranking-v1-webhook-standard-webhooks-fact-05",
-            "ranking-v1-webhook-standard-webhooks-fact-06",
-            "ranking-v1-webhook-standard-webhooks-fact-07",
-            "ranking-v1-webhook-standard-webhooks-fact-08",
-            "ranking-v1-webhook-standard-webhooks-fact-09",
-            "ranking-v1-webhook-standard-webhooks-fact-10"
+            "ranking-v1-webhook-standard-webhooks-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4190,14 +3476,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-stripe-node-fact-01",
-            "ranking-v1-webhook-stripe-node-fact-02",
-            "ranking-v1-webhook-stripe-node-fact-03",
-            "ranking-v1-webhook-stripe-node-fact-04",
             "ranking-v1-webhook-stripe-node-fact-05",
-            "ranking-v1-webhook-stripe-node-fact-06",
-            "ranking-v1-webhook-stripe-node-fact-07",
-            "ranking-v1-webhook-stripe-node-fact-08",
-            "ranking-v1-webhook-stripe-node-fact-09",
             "ranking-v1-webhook-stripe-node-fact-10"
           ],
           "reasonCodes": [
@@ -4212,14 +3491,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-svix-fact-01",
-            "ranking-v1-webhook-svix-fact-02",
-            "ranking-v1-webhook-svix-fact-03",
-            "ranking-v1-webhook-svix-fact-04",
-            "ranking-v1-webhook-svix-fact-05",
-            "ranking-v1-webhook-svix-fact-06",
-            "ranking-v1-webhook-svix-fact-07",
-            "ranking-v1-webhook-svix-fact-08",
-            "ranking-v1-webhook-svix-fact-09"
+            "ranking-v1-webhook-svix-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4273,7 +3545,7 @@
         {
           "candidateId": "webhook-standard-webhooks",
           "criterionId": "ranking-v1-webhook-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "webhook-stripe-node",
@@ -4283,7 +3555,7 @@
         {
           "candidateId": "webhook-stripe-node",
           "criterionId": "ranking-v1-webhook-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "webhook-svix",
@@ -4293,7 +3565,7 @@
         {
           "candidateId": "webhook-svix",
           "criterionId": "ranking-v1-webhook-controlled-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -4304,16 +3576,7 @@
           "candidateId": "webhook-convoy",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-webhook-convoy-fact-01",
-            "ranking-v1-webhook-convoy-fact-02",
-            "ranking-v1-webhook-convoy-fact-03",
-            "ranking-v1-webhook-convoy-fact-04",
-            "ranking-v1-webhook-convoy-fact-05",
-            "ranking-v1-webhook-convoy-fact-06",
-            "ranking-v1-webhook-convoy-fact-07",
-            "ranking-v1-webhook-convoy-fact-08",
-            "ranking-v1-webhook-convoy-fact-09",
-            "ranking-v1-webhook-convoy-fact-10"
+            "ranking-v1-webhook-convoy-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-external-webhook-service"
@@ -4324,15 +3587,7 @@
           "candidateId": "webhook-standard-webhooks",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-webhook-standard-webhooks-fact-01",
-            "ranking-v1-webhook-standard-webhooks-fact-02",
-            "ranking-v1-webhook-standard-webhooks-fact-03",
             "ranking-v1-webhook-standard-webhooks-fact-04",
-            "ranking-v1-webhook-standard-webhooks-fact-05",
-            "ranking-v1-webhook-standard-webhooks-fact-06",
-            "ranking-v1-webhook-standard-webhooks-fact-07",
-            "ranking-v1-webhook-standard-webhooks-fact-08",
-            "ranking-v1-webhook-standard-webhooks-fact-09",
             "ranking-v1-webhook-standard-webhooks-fact-10"
           ],
           "reasonCodes": [
@@ -4344,16 +3599,7 @@
           "candidateId": "webhook-stripe-node",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-webhook-stripe-node-fact-01",
-            "ranking-v1-webhook-stripe-node-fact-02",
-            "ranking-v1-webhook-stripe-node-fact-03",
-            "ranking-v1-webhook-stripe-node-fact-04",
-            "ranking-v1-webhook-stripe-node-fact-05",
-            "ranking-v1-webhook-stripe-node-fact-06",
-            "ranking-v1-webhook-stripe-node-fact-07",
-            "ranking-v1-webhook-stripe-node-fact-08",
-            "ranking-v1-webhook-stripe-node-fact-09",
-            "ranking-v1-webhook-stripe-node-fact-10"
+            "ranking-v1-webhook-stripe-node-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-in-process-library"
@@ -4364,15 +3610,7 @@
           "candidateId": "webhook-svix",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-webhook-svix-fact-01",
-            "ranking-v1-webhook-svix-fact-02",
-            "ranking-v1-webhook-svix-fact-03",
-            "ranking-v1-webhook-svix-fact-04",
-            "ranking-v1-webhook-svix-fact-05",
-            "ranking-v1-webhook-svix-fact-06",
-            "ranking-v1-webhook-svix-fact-07",
-            "ranking-v1-webhook-svix-fact-08",
-            "ranking-v1-webhook-svix-fact-09"
+            "ranking-v1-webhook-svix-fact-04"
           ],
           "reasonCodes": [
             "hard-prohibited-external-webhook-service"
@@ -4457,7 +3695,7 @@
         {
           "candidateId": "webhook-standard-webhooks",
           "criterionId": "ranking-v1-webhook-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "webhook-stripe-node",
@@ -4467,7 +3705,7 @@
         {
           "candidateId": "webhook-stripe-node",
           "criterionId": "ranking-v1-webhook-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "webhook-svix",
@@ -4477,7 +3715,7 @@
         {
           "candidateId": "webhook-svix",
           "criterionId": "ranking-v1-webhook-no-viable-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -4489,15 +3727,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-convoy-fact-01",
-            "ranking-v1-webhook-convoy-fact-02",
-            "ranking-v1-webhook-convoy-fact-03",
-            "ranking-v1-webhook-convoy-fact-04",
-            "ranking-v1-webhook-convoy-fact-05",
-            "ranking-v1-webhook-convoy-fact-06",
-            "ranking-v1-webhook-convoy-fact-07",
-            "ranking-v1-webhook-convoy-fact-08",
-            "ranking-v1-webhook-convoy-fact-09",
-            "ranking-v1-webhook-convoy-fact-10"
+            "ranking-v1-webhook-convoy-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4512,15 +3742,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-standard-webhooks-fact-01",
-            "ranking-v1-webhook-standard-webhooks-fact-02",
-            "ranking-v1-webhook-standard-webhooks-fact-03",
-            "ranking-v1-webhook-standard-webhooks-fact-04",
-            "ranking-v1-webhook-standard-webhooks-fact-05",
-            "ranking-v1-webhook-standard-webhooks-fact-06",
-            "ranking-v1-webhook-standard-webhooks-fact-07",
-            "ranking-v1-webhook-standard-webhooks-fact-08",
-            "ranking-v1-webhook-standard-webhooks-fact-09",
-            "ranking-v1-webhook-standard-webhooks-fact-10"
+            "ranking-v1-webhook-standard-webhooks-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4535,15 +3757,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-stripe-node-fact-01",
-            "ranking-v1-webhook-stripe-node-fact-02",
-            "ranking-v1-webhook-stripe-node-fact-03",
-            "ranking-v1-webhook-stripe-node-fact-04",
-            "ranking-v1-webhook-stripe-node-fact-05",
-            "ranking-v1-webhook-stripe-node-fact-06",
-            "ranking-v1-webhook-stripe-node-fact-07",
-            "ranking-v1-webhook-stripe-node-fact-08",
-            "ranking-v1-webhook-stripe-node-fact-09",
-            "ranking-v1-webhook-stripe-node-fact-10"
+            "ranking-v1-webhook-stripe-node-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4558,14 +3772,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-svix-fact-01",
-            "ranking-v1-webhook-svix-fact-02",
-            "ranking-v1-webhook-svix-fact-03",
-            "ranking-v1-webhook-svix-fact-04",
             "ranking-v1-webhook-svix-fact-05",
-            "ranking-v1-webhook-svix-fact-06",
-            "ranking-v1-webhook-svix-fact-07",
-            "ranking-v1-webhook-svix-fact-08",
-            "ranking-v1-webhook-svix-fact-09"
+            "ranking-v1-webhook-svix-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4650,90 +3858,50 @@
       "candidates": [
         {
           "candidateId": "webhook-convoy",
-          "disposition": "insufficient-evidence",
+          "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-webhook-convoy-fact-01",
-            "ranking-v1-webhook-convoy-fact-02",
-            "ranking-v1-webhook-convoy-fact-03",
             "ranking-v1-webhook-convoy-fact-04",
-            "ranking-v1-webhook-convoy-fact-05",
-            "ranking-v1-webhook-convoy-fact-06",
-            "ranking-v1-webhook-convoy-fact-07",
-            "ranking-v1-webhook-convoy-fact-08",
-            "ranking-v1-webhook-convoy-fact-09",
             "ranking-v1-webhook-convoy-fact-10"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "hard-prohibited-adoption-unit"
           ],
-          "unknownIds": [
-            "unknown-webhook-convoy-ranking-v1-webhook-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "webhook-standard-webhooks",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-webhook-standard-webhooks-fact-01",
-            "ranking-v1-webhook-standard-webhooks-fact-02",
-            "ranking-v1-webhook-standard-webhooks-fact-03",
-            "ranking-v1-webhook-standard-webhooks-fact-04",
-            "ranking-v1-webhook-standard-webhooks-fact-05",
-            "ranking-v1-webhook-standard-webhooks-fact-06",
-            "ranking-v1-webhook-standard-webhooks-fact-07",
-            "ranking-v1-webhook-standard-webhooks-fact-08",
-            "ranking-v1-webhook-standard-webhooks-fact-09",
-            "ranking-v1-webhook-standard-webhooks-fact-10"
+            "ranking-v1-webhook-standard-webhooks-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-webhook-standard-webhooks-ranking-v1-webhook-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "webhook-stripe-node",
-          "disposition": "insufficient-evidence",
+          "disposition": "recommended",
           "evidenceIds": [
             "ranking-v1-webhook-stripe-node-fact-01",
-            "ranking-v1-webhook-stripe-node-fact-02",
-            "ranking-v1-webhook-stripe-node-fact-03",
-            "ranking-v1-webhook-stripe-node-fact-04",
-            "ranking-v1-webhook-stripe-node-fact-05",
-            "ranking-v1-webhook-stripe-node-fact-06",
-            "ranking-v1-webhook-stripe-node-fact-07",
-            "ranking-v1-webhook-stripe-node-fact-08",
-            "ranking-v1-webhook-stripe-node-fact-09",
-            "ranking-v1-webhook-stripe-node-fact-10"
+            "ranking-v1-webhook-stripe-node-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "bound-success-supported"
           ],
-          "unknownIds": [
-            "unknown-webhook-stripe-node-ranking-v1-webhook-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         },
         {
           "candidateId": "webhook-svix",
-          "disposition": "insufficient-evidence",
+          "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-webhook-svix-fact-01",
-            "ranking-v1-webhook-svix-fact-02",
-            "ranking-v1-webhook-svix-fact-03",
-            "ranking-v1-webhook-svix-fact-04",
-            "ranking-v1-webhook-svix-fact-05",
-            "ranking-v1-webhook-svix-fact-06",
-            "ranking-v1-webhook-svix-fact-07",
-            "ranking-v1-webhook-svix-fact-08",
-            "ranking-v1-webhook-svix-fact-09"
+            "ranking-v1-webhook-svix-fact-04"
           ],
           "reasonCodes": [
-            "material-fit-authority-insufficient"
+            "hard-prohibited-adoption-unit"
           ],
-          "unknownIds": [
-            "unknown-webhook-svix-ranking-v1-webhook-popularity-request-hard-resources"
-          ]
+          "unknownIds": []
         }
       ],
       "caseId": "rank-webhook-05-popularity-over-fit",
@@ -4747,10 +3915,27 @@
           "resolution": "satisfied"
         }
       ],
-      "hardConstraintConflicts": [],
+      "hardConstraintConflicts": [
+        {
+          "candidateId": "webhook-convoy",
+          "constraintId": "ranking-v1-webhook-popularity-request-hard-adoption",
+          "evidenceIds": [
+            "ranking-v1-webhook-convoy-fact-04"
+          ],
+          "reasonCode": "hard-prohibited-adoption-unit"
+        },
+        {
+          "candidateId": "webhook-svix",
+          "constraintId": "ranking-v1-webhook-popularity-request-hard-adoption",
+          "evidenceIds": [
+            "ranking-v1-webhook-svix-fact-04"
+          ],
+          "reasonCode": "hard-prohibited-adoption-unit"
+        }
+      ],
       "hardenedPreferenceIds": [],
       "incomparablePairs": [],
-      "outcome": "insufficient-evidence",
+      "outcome": "recommend",
       "preferenceConsequences": [
         {
           "affectedPairs": [],
@@ -4758,8 +3943,16 @@
           "state": "bound-but-no-applicable-positive-comparison"
         }
       ],
-      "presentation": [],
-      "rankGroups": [],
+      "presentation": [
+        "webhook-standard-webhooks",
+        "webhook-stripe-node"
+      ],
+      "rankGroups": [
+        [
+          "webhook-standard-webhooks",
+          "webhook-stripe-node"
+        ]
+      ],
       "rankRelations": [],
       "successConditionCoverage": [
         {
@@ -4780,7 +3973,7 @@
         {
           "candidateId": "webhook-standard-webhooks",
           "criterionId": "ranking-v1-webhook-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "webhook-stripe-node",
@@ -4790,7 +3983,7 @@
         {
           "candidateId": "webhook-stripe-node",
           "criterionId": "ranking-v1-webhook-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         },
         {
           "candidateId": "webhook-svix",
@@ -4800,7 +3993,7 @@
         {
           "candidateId": "webhook-svix",
           "criterionId": "ranking-v1-webhook-popularity-request-success-2",
-          "state": "not-covered"
+          "state": "covered"
         }
       ],
       "unboundPreferenceCounterfactuals": []
@@ -4811,15 +4004,6 @@
           "candidateId": "webhook-convoy",
           "disposition": "rejected",
           "evidenceIds": [
-            "ranking-v1-webhook-convoy-fact-01",
-            "ranking-v1-webhook-convoy-fact-02",
-            "ranking-v1-webhook-convoy-fact-03",
-            "ranking-v1-webhook-convoy-fact-04",
-            "ranking-v1-webhook-convoy-fact-05",
-            "ranking-v1-webhook-convoy-fact-06",
-            "ranking-v1-webhook-convoy-fact-07",
-            "ranking-v1-webhook-convoy-fact-08",
-            "ranking-v1-webhook-convoy-fact-09",
             "ranking-v1-webhook-convoy-fact-10"
           ],
           "reasonCodes": [
@@ -4834,15 +4018,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-standard-webhooks-fact-01",
-            "ranking-v1-webhook-standard-webhooks-fact-02",
-            "ranking-v1-webhook-standard-webhooks-fact-03",
-            "ranking-v1-webhook-standard-webhooks-fact-04",
-            "ranking-v1-webhook-standard-webhooks-fact-05",
-            "ranking-v1-webhook-standard-webhooks-fact-06",
-            "ranking-v1-webhook-standard-webhooks-fact-07",
-            "ranking-v1-webhook-standard-webhooks-fact-08",
-            "ranking-v1-webhook-standard-webhooks-fact-09",
-            "ranking-v1-webhook-standard-webhooks-fact-10"
+            "ranking-v1-webhook-standard-webhooks-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4856,15 +4032,7 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-stripe-node-fact-01",
-            "ranking-v1-webhook-stripe-node-fact-02",
-            "ranking-v1-webhook-stripe-node-fact-03",
-            "ranking-v1-webhook-stripe-node-fact-04",
-            "ranking-v1-webhook-stripe-node-fact-05",
-            "ranking-v1-webhook-stripe-node-fact-06",
-            "ranking-v1-webhook-stripe-node-fact-07",
-            "ranking-v1-webhook-stripe-node-fact-08",
-            "ranking-v1-webhook-stripe-node-fact-09",
-            "ranking-v1-webhook-stripe-node-fact-10"
+            "ranking-v1-webhook-stripe-node-fact-05"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4878,14 +4046,8 @@
           "disposition": "insufficient-evidence",
           "evidenceIds": [
             "ranking-v1-webhook-svix-fact-01",
-            "ranking-v1-webhook-svix-fact-02",
-            "ranking-v1-webhook-svix-fact-03",
-            "ranking-v1-webhook-svix-fact-04",
             "ranking-v1-webhook-svix-fact-05",
-            "ranking-v1-webhook-svix-fact-06",
-            "ranking-v1-webhook-svix-fact-07",
-            "ranking-v1-webhook-svix-fact-08",
-            "ranking-v1-webhook-svix-fact-09"
+            "ranking-v1-webhook-svix-fact-10"
           ],
           "reasonCodes": [
             "material-fit-authority-insufficient"
@@ -4974,5 +4136,5 @@
       "unboundPreferenceCounterfactuals": []
     }
   ],
-  "semanticDigest": "f039cb485d3d1ee125ba22a3bc26958bfff51e51efe0b136ce78a2d30930b354"
+  "semanticDigest": "4d61b11b9ad985530a20344f62667fd8dc2e18c6da02e97529552c718e833307"
 }
