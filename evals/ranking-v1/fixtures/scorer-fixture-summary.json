@@ -1,7 +1,7 @@
 {
-  "assertionCount": 34,
-  "fixtureCount": 15,
-  "fixtureVersion": "ranking-v1-scorer-fixtures/1.0.0",
+  "assertionCount": 47,
+  "fixtureCount": 21,
+  "fixtureVersion": "ranking-v1-scorer-fixtures/2.0.0",
   "fixtures": [
     {
       "name": "perfect-prediction",
@@ -40,6 +40,10 @@
       "result": "passed"
     },
     {
+      "name": "target-controlled-pair-superset-not-exact",
+      "result": "passed"
+    },
+    {
       "name": "evidence-needed-three-state-errors",
       "result": "passed"
     },
@@ -52,7 +56,11 @@
       "result": "passed"
     },
     {
-      "name": "unbound-preference-incorrectly-used",
+      "name": "bound-preference-must-change-comparison",
+      "result": "passed"
+    },
+    {
+      "name": "unbound-preference-structurally-changed-order",
       "result": "passed"
     },
     {
@@ -60,11 +68,27 @@
       "result": "passed"
     },
     {
-      "name": "candidate-invention",
+      "name": "candidate-invention-assessment",
+      "result": "passed"
+    },
+    {
+      "name": "candidate-invention-presentation-only",
+      "result": "passed"
+    },
+    {
+      "name": "candidate-invention-rank-relation-only",
+      "result": "passed"
+    },
+    {
+      "name": "candidate-invention-incomparable-only",
+      "result": "passed"
+    },
+    {
+      "name": "candidate-invention-resolution-and-coverage-only",
       "result": "passed"
     }
   ],
   "productComparator": false,
-  "scorerVersion": "ranking-v1-scorer/1.0.0",
+  "scorerVersion": "ranking-v1-scorer/2.0.0",
   "syntheticOracleOnly": true
 }

@@ -1,65 +1,65 @@
 {
-  "authorityVersion": "ranking-v1-phase9-handoff/1.0.0",
+  "authorityVersion": "ranking-v1-phase9-handoff/2.0.0",
   "corpusId": "ranking-v1",
   "handoffSets": [
     {
       "candidates": [
         {
           "candidateId": "audit-pino",
-          "lane": "eligible",
+          "lane": "evidence-needed",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 400,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "audit-controlled-audit-pino-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "required",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         },
         {
           "candidateId": "audit-winston",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "audit-pgaudit",
-          "lane": "evidence-needed",
-          "retrievalOrder": 3,
-          "retrievalScore": 800,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-audit-deployment",
-              "evaluationId": "ranking-v1-audit-hard-evidence-c-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-audit-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "audit-grafana-loki",
           "lane": "eligible",
-          "retrievalOrder": 4,
-          "retrievalScore": 700,
+          "retrievalOrder": 3,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "audit-fluentd",
+          "candidateId": "audit-logtape",
           "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalOrder": 4,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-audit-negative-control"
+        "audit-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-audit-hard-handoff",
+      "handoffAuthorityId": "ranking-v1-audit-controlled-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "8a2f44482d1af6c773558b0c4e9b7c689bfcf8238ad61e59810da64bb5170c89"
+      "semanticDigest": "35738ac476003b2304726d3692096a59a755ea37af08612c7cc929ee404e7bd4"
     },
     {
       "candidates": [
@@ -67,58 +67,58 @@
           "candidateId": "audit-pino",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "audit-winston",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "audit-pgaudit",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-audit-deployment",
-              "evaluationId": "ranking-v1-audit-insufficient-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "audit-insufficient-audit-pgaudit-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-audit-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "audit-grafana-loki",
+          "candidateId": "audit-logtape",
           "lane": "eligible",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "audit-fluentd",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-audit-negative-control"
+        "audit-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-audit-insufficient-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "4c4850b198efeba5ff9e998abf006f907036f730722d781d440357b311ef1c53"
+      "semanticDigest": "ecdf162b655f88960cf6bab28c4916069c0fb18be0ac0c5812533b4d4413305f"
     },
     {
       "candidates": [
@@ -126,70 +126,58 @@
           "candidateId": "audit-pino",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "audit-winston",
-          "lane": "eligible",
+          "lane": "evidence-needed",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "audit-no-viable-audit-winston-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "required",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         },
         {
           "candidateId": "audit-pgaudit",
-          "lane": "evidence-needed",
-          "retrievalOrder": 3,
-          "retrievalScore": 800,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-audit-deployment",
-              "evaluationId": "ranking-v1-audit-pair-evidence-c-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-audit-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "audit-grafana-loki",
-          "lane": "evidence-needed",
-          "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-audit-deployment",
-              "evaluationId": "ranking-v1-audit-pair-evidence-d-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-audit-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "audit-fluentd",
           "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalOrder": 3,
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
+        },
+        {
+          "candidateId": "audit-logtape",
+          "lane": "eligible",
+          "retrievalOrder": 4,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-audit-negative-control"
+        "audit-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-audit-pair-handoff",
+      "handoffAuthorityId": "ranking-v1-audit-no-viable-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "8e3a541ad226856e09ce39644dea4855f4000401488e77d8dc494cab28c7b329"
+      "semanticDigest": "982a742cb539055e7727e6c8589d40c8bb957d9d67067225cd3a0cece8c2c2e4"
     },
     {
       "candidates": [
@@ -197,58 +185,77 @@
           "candidateId": "audit-pino",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "audit-winston",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "audit-pgaudit",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-audit-deployment",
-              "evaluationId": "ranking-v1-audit-partial-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "audit-partial-audit-pgaudit-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-audit-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "audit-grafana-loki",
-          "lane": "eligible",
+          "candidateId": "audit-logtape",
+          "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "audit-fluentd",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 325,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "audit-partial-audit-logtape-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "prohibited",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         }
       ],
       "excludedCandidateIds": [
-        "excluded-audit-negative-control"
+        "audit-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-audit-partial-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "bc57e797c2fc552434c2c07959a6f30b8d9170a80df1b2ed635a2fac86de6098"
+      "semanticDigest": "bf43789f70d2c5bbbefaaf965e73a6293604562ed3b8676c3683712e03528c95"
     },
     {
       "candidates": [
@@ -256,129 +263,117 @@
           "candidateId": "audit-pino",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "audit-winston",
-          "lane": "evidence-needed",
+          "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-audit-deployment",
-              "evaluationId": "ranking-v1-audit-popularity-evidence-b-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-audit-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "audit-pgaudit",
           "lane": "eligible",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "audit-grafana-loki",
+          "candidateId": "audit-logtape",
           "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-audit-deployment",
-              "evaluationId": "ranking-v1-audit-popularity-evidence-d-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "audit-popularity-audit-logtape-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-audit-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
-        },
-        {
-          "candidateId": "audit-fluentd",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-audit-negative-control"
+        "audit-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-audit-popularity-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "2b73e4becca8903f83a49566473b19ea0e11860155141778b9d01c41fa4d7277"
+      "semanticDigest": "d9cfeda9195c4dce5784d7ae6378b3ba3f53d6e1f29e782ef9977431fd5fcb1a"
     },
     {
       "candidates": [
         {
           "candidateId": "auth-stalniy-casl",
-          "lane": "eligible",
+          "lane": "evidence-needed",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 400,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "auth-controlled-auth-stalniy-casl-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "required",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         },
         {
           "candidateId": "auth-casbin-node-casbin",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-cerbos-cerbos",
-          "lane": "evidence-needed",
+          "lane": "eligible",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-auth-deployment",
-              "evaluationId": "ranking-v1-auth-hard-evidence-c-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-auth-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-openfga",
           "lane": "eligible",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-auth-negative-control"
+        "auth-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-auth-hard-handoff",
+      "handoffAuthorityId": "ranking-v1-auth-controlled-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "027346e3ca9eb149639e1376a24f52a5ab8fea7d57654e1ecee9a66748c0871a"
+      "semanticDigest": "a91293ffd80b5275c93a2d0450688fc16e63b4ec2830636b32bec74319237f13"
     },
     {
       "candidates": [
@@ -386,32 +381,39 @@
           "candidateId": "auth-stalniy-casl",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-casbin-node-casbin",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-cerbos-cerbos",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-auth-deployment",
-              "evaluationId": "ranking-v1-auth-insufficient-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "auth-insufficient-auth-cerbos-cerbos-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-auth-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
@@ -419,25 +421,18 @@
           "candidateId": "auth-openfga",
           "lane": "eligible",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-auth-negative-control"
+        "auth-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-auth-insufficient-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "c07650a25cbcef9d47732b2374636fc24ff58f5165d7011595bdcb2032467789"
+      "semanticDigest": "123fe72c76de9dad1fede7dfa592141608c48d5a9d816d2e791192c76f8b95d5"
     },
     {
       "candidates": [
@@ -445,70 +440,58 @@
           "candidateId": "auth-stalniy-casl",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-casbin-node-casbin",
-          "lane": "eligible",
+          "lane": "evidence-needed",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "auth-no-viable-auth-casbin-node-casbin-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "required",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         },
         {
           "candidateId": "auth-cerbos-cerbos",
-          "lane": "evidence-needed",
+          "lane": "eligible",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-auth-deployment",
-              "evaluationId": "ranking-v1-auth-pair-evidence-c-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-auth-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-openfga",
-          "lane": "evidence-needed",
-          "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-auth-deployment",
-              "evaluationId": "ranking-v1-auth-pair-evidence-d-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-auth-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
           "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalOrder": 4,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-auth-negative-control"
+        "auth-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-auth-pair-handoff",
+      "handoffAuthorityId": "ranking-v1-auth-no-viable-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "567b9cae47d49ab6084d00046e5fe6ea24afd58c2554b4a26ea9a6c3ec7fa567"
+      "semanticDigest": "a026964b60faffe9215661c7dc4af5821a55cb5630c2ff2fd11309067bb08934"
     },
     {
       "candidates": [
@@ -516,58 +499,77 @@
           "candidateId": "auth-stalniy-casl",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-casbin-node-casbin",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-cerbos-cerbos",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-auth-deployment",
-              "evaluationId": "ranking-v1-auth-partial-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "auth-partial-auth-cerbos-cerbos-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-auth-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
           "candidateId": "auth-openfga",
-          "lane": "eligible",
+          "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 325,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "auth-partial-auth-openfga-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "prohibited",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         }
       ],
       "excludedCandidateIds": [
-        "excluded-auth-negative-control"
+        "auth-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-auth-partial-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "1244e2a375f1fd247fbd628502b2e8480376028f550dce02a4ff77bc11056b26"
+      "semanticDigest": "c1c2158c22291fdc4f434a0ef1fa09ab3efa78073bc6d6300c8c1f07b557b5ba"
     },
     {
       "candidates": [
@@ -575,129 +577,117 @@
           "candidateId": "auth-stalniy-casl",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-casbin-node-casbin",
-          "lane": "evidence-needed",
+          "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-auth-deployment",
-              "evaluationId": "ranking-v1-auth-popularity-evidence-b-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-auth-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-cerbos-cerbos",
           "lane": "eligible",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "auth-openfga",
           "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-auth-deployment",
-              "evaluationId": "ranking-v1-auth-popularity-evidence-d-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "auth-popularity-auth-openfga-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-auth-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-auth-negative-control"
+        "auth-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-auth-popularity-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "502474fbaea05d369a1ebdd44e345fcda04de8325826b2aa1e04707c8971b7e1"
+      "semanticDigest": "afa6dfdcef340b722a64734e2d7016a69ca8cb4c2eb1839ee25d63a803a964bc"
     },
     {
       "candidates": [
         {
           "candidateId": "jobs-graphile-worker",
-          "lane": "eligible",
+          "lane": "evidence-needed",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 400,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "jobs-controlled-jobs-graphile-worker-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "required",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         },
         {
           "candidateId": "jobs-bullmq",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "jobs-node-cron",
-          "lane": "evidence-needed",
+          "candidateId": "jobs-pg-boss",
+          "lane": "eligible",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-jobs-deployment",
-              "evaluationId": "ranking-v1-jobs-hard-evidence-c-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-jobs-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "jobs-temporal-typescript",
+          "candidateId": "jobs-bree",
           "lane": "eligible",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "jobs-agenda",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-jobs-negative-control"
+        "jobs-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-jobs-hard-handoff",
+      "handoffAuthorityId": "ranking-v1-jobs-controlled-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "0c22df30e70ca4fb514b992bba77c985f3440314d0c7b42a368a8a28b062d2b6"
+      "semanticDigest": "e9afa34d93c22f4088b9d94cca74e67ea358540a91290679ffb470d5997b926d"
     },
     {
       "candidates": [
@@ -705,58 +695,58 @@
           "candidateId": "jobs-graphile-worker",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "jobs-bullmq",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "jobs-node-cron",
+          "candidateId": "jobs-pg-boss",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-jobs-deployment",
-              "evaluationId": "ranking-v1-jobs-insufficient-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "jobs-insufficient-jobs-pg-boss-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-jobs-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "jobs-temporal-typescript",
+          "candidateId": "jobs-bree",
           "lane": "eligible",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "jobs-agenda",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-jobs-negative-control"
+        "jobs-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-jobs-insufficient-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "09c911b980690eee98729f9697cb9b4385e53d83ca5eeb4567b40c9c684cd3c0"
+      "semanticDigest": "d5a6f7e1c61ee76c723cf420e6116f2bf47a4a2f9a7975d8d5d1b589c35c44b6"
     },
     {
       "candidates": [
@@ -764,70 +754,58 @@
           "candidateId": "jobs-graphile-worker",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "jobs-bullmq",
-          "lane": "eligible",
+          "lane": "evidence-needed",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "jobs-no-viable-jobs-bullmq-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "required",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
+        },
+        {
+          "candidateId": "jobs-pg-boss",
+          "lane": "eligible",
+          "retrievalOrder": 3,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "jobs-node-cron",
-          "lane": "evidence-needed",
-          "retrievalOrder": 3,
-          "retrievalScore": 800,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-jobs-deployment",
-              "evaluationId": "ranking-v1-jobs-pair-evidence-c-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-jobs-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "jobs-temporal-typescript",
-          "lane": "evidence-needed",
-          "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-jobs-deployment",
-              "evaluationId": "ranking-v1-jobs-pair-evidence-d-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-jobs-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "jobs-agenda",
+          "candidateId": "jobs-bree",
           "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalOrder": 4,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-jobs-negative-control"
+        "jobs-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-jobs-pair-handoff",
+      "handoffAuthorityId": "ranking-v1-jobs-no-viable-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "2dcd8d378874919589f77f21a50049512c4a51723266f6401b321e099a9f4d36"
+      "semanticDigest": "09d846302e8c07968324f36ab17ed8e8858236ca0be38255b03a3f2590ff2ea2"
     },
     {
       "candidates": [
@@ -835,58 +813,77 @@
           "candidateId": "jobs-graphile-worker",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "jobs-bullmq",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "jobs-node-cron",
+          "candidateId": "jobs-pg-boss",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-jobs-deployment",
-              "evaluationId": "ranking-v1-jobs-partial-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "jobs-partial-jobs-pg-boss-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-jobs-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "jobs-temporal-typescript",
-          "lane": "eligible",
+          "candidateId": "jobs-bree",
+          "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "jobs-agenda",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 325,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "jobs-partial-jobs-bree-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "prohibited",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         }
       ],
       "excludedCandidateIds": [
-        "excluded-jobs-negative-control"
+        "jobs-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-jobs-partial-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "657af94b4330447dc1edad38ee3a2752e12afa12b2cc07c40de7014988f1bcdf"
+      "semanticDigest": "b09be141f337ed63c673a1fa75b7ac67b73dce4c4779b7a5fc874ed9fac1918e"
     },
     {
       "candidates": [
@@ -894,129 +891,117 @@
           "candidateId": "jobs-graphile-worker",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "jobs-bullmq",
-          "lane": "evidence-needed",
+          "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-jobs-deployment",
-              "evaluationId": "ranking-v1-jobs-popularity-evidence-b-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-jobs-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "jobs-node-cron",
+          "candidateId": "jobs-pg-boss",
           "lane": "eligible",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "jobs-temporal-typescript",
+          "candidateId": "jobs-bree",
           "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-jobs-deployment",
-              "evaluationId": "ranking-v1-jobs-popularity-evidence-d-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "jobs-popularity-jobs-bree-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-jobs-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
-        },
-        {
-          "candidateId": "jobs-agenda",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-jobs-negative-control"
+        "jobs-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-jobs-popularity-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "bffff5ff5bc0b7128fc235ca44a63cd0714c34966ec67ba9c8c47861abe23d99"
+      "semanticDigest": "2cc77f7859524d2056061def2bec09b9333bb192c2b40d092d0ccde7a6ae8b01"
     },
     {
       "candidates": [
         {
           "candidateId": "rate-express-rate-limit",
-          "lane": "eligible",
-          "retrievalOrder": 1,
-          "retrievalScore": 1000,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
-          "lane": "eligible",
-          "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "rate-upstash",
           "lane": "evidence-needed",
-          "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalOrder": 1,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-rate-deployment",
-              "evaluationId": "ranking-v1-rate-hard-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "rate-controlled-rate-express-rate-limit-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-rate-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-upstash",
           "lane": "eligible",
-          "retrievalOrder": 4,
-          "retrievalScore": 700,
+          "retrievalOrder": 2,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "rate-kong",
+          "candidateId": "rate-flexible",
           "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalOrder": 3,
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
+        },
+        {
+          "candidateId": "rate-bottleneck",
+          "lane": "eligible",
+          "retrievalOrder": 4,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-rate-negative-control"
+        "rate-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-rate-hard-handoff",
+      "handoffAuthorityId": "ranking-v1-rate-controlled-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "8d3f83d3cab795e53a7f0f795aa97094bbd68fa89da9801c737b50e8b3800a9f"
+      "semanticDigest": "f15eadd238f8a5dd8b66ed66b532478e76ee5c0bf7723011c02ea73d65cb5e53"
     },
     {
       "candidates": [
@@ -1024,58 +1009,58 @@
           "candidateId": "rate-express-rate-limit",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
-          "lane": "eligible",
-          "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "rate-upstash",
+          "lane": "eligible",
+          "retrievalOrder": 2,
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": []
+        },
+        {
+          "candidateId": "rate-flexible",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-rate-deployment",
-              "evaluationId": "ranking-v1-rate-insufficient-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "rate-insufficient-rate-flexible-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-rate-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-bottleneck",
           "lane": "eligible",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "rate-kong",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-rate-negative-control"
+        "rate-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-rate-insufficient-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "55ec94933e93dde81ef813029c762466f6e306710a9809940db431b229a4e50a"
+      "semanticDigest": "a1ca84f8a926c03680ea8bf3475557994a14dc0175b069f949752e66fd084121"
     },
     {
       "candidates": [
@@ -1083,70 +1068,58 @@
           "candidateId": "rate-express-rate-limit",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
-          "lane": "eligible",
-          "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "rate-upstash",
           "lane": "evidence-needed",
-          "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalOrder": 2,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-rate-deployment",
-              "evaluationId": "ranking-v1-rate-pair-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "rate-no-viable-rate-upstash-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-rate-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "rate-envoy-ratelimit",
-          "lane": "evidence-needed",
-          "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-rate-deployment",
-              "evaluationId": "ranking-v1-rate-pair-evidence-d-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-rate-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "rate-kong",
+          "candidateId": "rate-flexible",
           "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalOrder": 3,
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
+        },
+        {
+          "candidateId": "rate-bottleneck",
+          "lane": "eligible",
+          "retrievalOrder": 4,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-rate-negative-control"
+        "rate-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-rate-pair-handoff",
+      "handoffAuthorityId": "ranking-v1-rate-no-viable-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "8592d4b146b386373cefd7a9de40e7856c419b340e86350491361b17b785f9b3"
+      "semanticDigest": "800d9e9282ee231722571e35a8446602b046fb22b92e389ced19104da28dfec3"
     },
     {
       "candidates": [
@@ -1154,58 +1127,77 @@
           "candidateId": "rate-express-rate-limit",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
-          "lane": "eligible",
-          "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "rate-upstash",
+          "lane": "eligible",
+          "retrievalOrder": 2,
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": []
+        },
+        {
+          "candidateId": "rate-flexible",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-rate-deployment",
-              "evaluationId": "ranking-v1-rate-partial-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "rate-partial-rate-flexible-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-rate-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "rate-envoy-ratelimit",
-          "lane": "eligible",
+          "candidateId": "rate-bottleneck",
+          "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "rate-kong",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 325,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "rate-partial-rate-bottleneck-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "prohibited",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         }
       ],
       "excludedCandidateIds": [
-        "excluded-rate-negative-control"
+        "rate-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-rate-partial-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "71fb6340e3bcb3f895029c2035110753832bdb704e0556530c05eec5a1d94d36"
+      "semanticDigest": "440150276858eb69e60d1820e7f81caadfed7fb1a9571098771ed725020a6a93"
     },
     {
       "candidates": [
@@ -1213,390 +1205,373 @@
           "candidateId": "rate-express-rate-limit",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
-          "lane": "evidence-needed",
-          "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-rate-deployment",
-              "evaluationId": "ranking-v1-rate-popularity-evidence-b-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-rate-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
         },
         {
           "candidateId": "rate-upstash",
           "lane": "eligible",
-          "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalOrder": 2,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-flexible",
+          "lane": "eligible",
+          "retrievalOrder": 3,
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
+        },
+        {
+          "candidateId": "rate-bottleneck",
           "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-rate-deployment",
-              "evaluationId": "ranking-v1-rate-popularity-evidence-d-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "rate-popularity-rate-bottleneck-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-rate-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
-        },
-        {
-          "candidateId": "rate-kong",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-rate-negative-control"
+        "rate-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-rate-popularity-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "a6f850fa6716ea0c4875d1fc6436e10115b9bb060cee36717e19fd65ad1ecf12"
+      "semanticDigest": "0c718f56b45633c689b96c9d8fe21a06f588891a4b3e3513310af021956a5062"
     },
     {
       "candidates": [
         {
-          "candidateId": "webhook-standard-webhooks",
-          "lane": "eligible",
-          "retrievalOrder": 1,
-          "retrievalScore": 1000,
-          "unresolvedHardEvaluations": []
-        },
-        {
           "candidateId": "webhook-stripe-node",
-          "lane": "eligible",
-          "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "webhook-svix",
           "lane": "evidence-needed",
-          "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalOrder": 1,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-webhook-deployment",
-              "evaluationId": "ranking-v1-webhook-hard-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "webhook-controlled-webhook-stripe-node-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-webhook-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "webhook-hookdeck",
+          "candidateId": "webhook-standard-webhooks",
           "lane": "eligible",
-          "retrievalOrder": 4,
-          "retrievalScore": 700,
+          "retrievalOrder": 2,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "webhook-webhook-site",
+          "candidateId": "webhook-svix",
           "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalOrder": 3,
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
+        },
+        {
+          "candidateId": "webhook-convoy",
+          "lane": "eligible",
+          "retrievalOrder": 4,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-webhook-negative-control"
+        "webhook-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-webhook-hard-handoff",
+      "handoffAuthorityId": "ranking-v1-webhook-controlled-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "80487f5e0073416f8067c3a2e0f14ad300af2980b3d7b6bed7e626b3e5d28f21"
+      "semanticDigest": "74f5bfb79c20a114b338446e70025e99fb58ac51aea4202366f4b9828496c65e"
     },
     {
       "candidates": [
         {
-          "candidateId": "webhook-standard-webhooks",
+          "candidateId": "webhook-stripe-node",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "webhook-stripe-node",
+          "candidateId": "webhook-standard-webhooks",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "webhook-svix",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-webhook-deployment",
-              "evaluationId": "ranking-v1-webhook-insufficient-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "webhook-insufficient-webhook-svix-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-webhook-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "webhook-hookdeck",
+          "candidateId": "webhook-convoy",
           "lane": "eligible",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "webhook-webhook-site",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-webhook-negative-control"
+        "webhook-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-webhook-insufficient-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "f881bfc72d576e9f7ca49253dedfd626bf1539e4ad93ae2b40d48873294d9876"
+      "semanticDigest": "13d0854515b3ec3553796515861a4128652f77c1c22e4770664cb72dae54cd1f"
     },
     {
       "candidates": [
         {
-          "candidateId": "webhook-standard-webhooks",
+          "candidateId": "webhook-stripe-node",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "webhook-stripe-node",
-          "lane": "eligible",
+          "candidateId": "webhook-standard-webhooks",
+          "lane": "evidence-needed",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "webhook-no-viable-webhook-standard-webhooks-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "required",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         },
         {
           "candidateId": "webhook-svix",
-          "lane": "evidence-needed",
-          "retrievalOrder": 3,
-          "retrievalScore": 800,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-webhook-deployment",
-              "evaluationId": "ranking-v1-webhook-pair-evidence-c-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-webhook-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "webhook-hookdeck",
-          "lane": "evidence-needed",
-          "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-webhook-deployment",
-              "evaluationId": "ranking-v1-webhook-pair-evidence-d-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-webhook-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
-        },
-        {
-          "candidateId": "webhook-webhook-site",
           "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
+          "retrievalOrder": 3,
+          "retrievalScore": 350,
+          "unresolvedHardEvaluations": []
+        },
+        {
+          "candidateId": "webhook-convoy",
+          "lane": "eligible",
+          "retrievalOrder": 4,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-webhook-negative-control"
+        "webhook-excluded-phase9"
       ],
-      "handoffAuthorityId": "ranking-v1-webhook-pair-handoff",
+      "handoffAuthorityId": "ranking-v1-webhook-no-viable-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "b0a8d69235800ae24ecf85510ac4c6e3c42ba729c88c9b6df23376312bd26986"
+      "semanticDigest": "1e2c4f434d78567bba6ea399760ae5f70ff1d91701c48bfb260c2f4d58fba132"
     },
     {
       "candidates": [
         {
-          "candidateId": "webhook-standard-webhooks",
+          "candidateId": "webhook-stripe-node",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "webhook-stripe-node",
+          "candidateId": "webhook-standard-webhooks",
           "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
+          "retrievalScore": 375,
           "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "webhook-svix",
           "lane": "evidence-needed",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-webhook-deployment",
-              "evaluationId": "ranking-v1-webhook-partial-evidence-c-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "webhook-partial-webhook-svix-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-webhook-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
         },
         {
-          "candidateId": "webhook-hookdeck",
-          "lane": "eligible",
+          "candidateId": "webhook-convoy",
+          "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
-          "unresolvedHardEvaluations": []
-        },
-        {
-          "candidateId": "webhook-webhook-site",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
+          "retrievalScore": 325,
+          "unresolvedHardEvaluations": [
+            {
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "webhook-partial-webhook-convoy-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
+              "match": "unresolved",
+              "modality": "prohibited",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
+              "sourceKind": "normalized-constraint",
+              "state": "unresolved",
+              "targetFactDependencies": []
+            }
+          ]
         }
       ],
       "excludedCandidateIds": [
-        "excluded-webhook-negative-control"
+        "webhook-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-webhook-partial-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "534ac88264b66c5f4620c08d14fab9b1db1341810602c85575890c062063d1fb"
+      "semanticDigest": "4369fe55386c86aa498fcf85fb308821809625f4d01f34337bbc4b13283d0ba0"
     },
     {
       "candidates": [
         {
-          "candidateId": "webhook-standard-webhooks",
+          "candidateId": "webhook-stripe-node",
           "lane": "eligible",
           "retrievalOrder": 1,
-          "retrievalScore": 1000,
+          "retrievalScore": 400,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "webhook-stripe-node",
-          "lane": "evidence-needed",
+          "candidateId": "webhook-standard-webhooks",
+          "lane": "eligible",
           "retrievalOrder": 2,
-          "retrievalScore": 900,
-          "unresolvedHardEvaluations": [
-            {
-              "conceptId": "concept-webhook-deployment",
-              "evaluationId": "ranking-v1-webhook-popularity-evidence-b-evaluation",
-              "facet": "deployment",
-              "match": "unresolved",
-              "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-webhook-deployment",
-              "sourceKind": "normalized-constraint",
-              "state": "unresolved"
-            }
-          ]
+          "retrievalScore": 375,
+          "unresolvedHardEvaluations": []
         },
         {
           "candidateId": "webhook-svix",
           "lane": "eligible",
           "retrievalOrder": 3,
-          "retrievalScore": 800,
+          "retrievalScore": 350,
           "unresolvedHardEvaluations": []
         },
         {
-          "candidateId": "webhook-hookdeck",
+          "candidateId": "webhook-convoy",
           "lane": "evidence-needed",
           "retrievalOrder": 4,
-          "retrievalScore": 700,
+          "retrievalScore": 325,
           "unresolvedHardEvaluations": [
             {
-              "conceptId": "concept-webhook-deployment",
-              "evaluationId": "ranking-v1-webhook-popularity-evidence-d-evaluation",
-              "facet": "deployment",
+              "candidateFeatureDependencies": [
+                "deployment-prerequisite-state"
+              ],
+              "conceptId": "candidate-deployment-prerequisite-readiness",
+              "evaluationId": "webhook-popularity-webhook-convoy-prerequisite",
+              "expectedValues": [
+                "ready"
+              ],
+              "facet": "deployment-prerequisite",
               "match": "unresolved",
               "modality": "required",
-              "profileFieldId": "runtime-language-ecosystem",
-              "ruleId": "rule-webhook-deployment",
+              "profileFieldId": null,
+              "ruleId": "candidate-has-all/1.0.0",
               "sourceKind": "normalized-constraint",
-              "state": "unresolved"
+              "state": "unresolved",
+              "targetFactDependencies": []
             }
           ]
-        },
-        {
-          "candidateId": "webhook-webhook-site",
-          "lane": "eligible",
-          "retrievalOrder": 5,
-          "retrievalScore": 600,
-          "unresolvedHardEvaluations": []
         }
       ],
       "excludedCandidateIds": [
-        "excluded-webhook-negative-control"
+        "webhook-excluded-phase9"
       ],
       "handoffAuthorityId": "ranking-v1-webhook-popularity-handoff",
       "retrievalAlgorithmVersion": "deterministic-candidate-retrieval/1.3.0",
       "retrievalRequestVersion": "candidate-retrieval-request/1.2.0",
       "retrievalResultVersion": "candidate-retrieval-result/1.3.0",
-      "semanticDigest": "b133de706cc0e6c149210cbb837c7838f7c67288981384f401347835dde46593"
+      "semanticDigest": "78a81f457cf696579df3ff3d0e50c834a928ba3151e4a32f68a22177e58c5342"
     }
   ],
-  "semanticDigest": "799f20ebb5cefca5f9f46909ce0099467ea398eae4d0be22bae351ce4024623c"
+  "semanticDigest": "bf27267715208e17445326fe8968e82f7175495476f4ee357d7b0602baf1ac6a"
 }

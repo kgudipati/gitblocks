@@ -4,11 +4,13 @@
   "author": "Codex",
   "corpusId": "ranking-v1",
   "disputedCaseIds": [],
-  "goldAuthorityVersion": "ranking-v1-proposed-gold/1.0.0",
-  "goldDigest": "752f29dbae0b1d483dcc622dac10403892373e00a4ab42230bf552068be9b3b9",
+  "goldAuthorityVersion": "ranking-v1-proposed-gold/2.0.0",
+  "goldDigest": "fa8333b8a4d810f4071a70d90d2edb2d899177478fd044cb2e5ca6372a99b591",
   "independentReviewer": null,
-  "reviewRecordVersion": "ranking-v1-review-record/1.0.0",
+  "reviewRecordVersion": "ranking-v1-review-record/2.0.0",
   "reviewedAt": null,
-  "semanticDigest": "ab0ef6676030e92dbcf300536c861a1d6b69c949e325d23ec7723f2446470b48",
+  "reviewerRationaleDigest": "88b49853d398bfb207d1112f6e43b00637ab07c5a6de5fd705ef75c1030829b5",
+  "reviewerRationaleVersion": "ranking-v1-reviewer-rationale/1.0.0",
+  "semanticDigest": "f5a7b12c720327890043219888140bff693af6103750c5fe0352fde00eed3d92",
   "status": "independent-review-pending"
 }

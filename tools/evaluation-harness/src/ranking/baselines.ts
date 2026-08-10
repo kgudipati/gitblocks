@@ -6,22 +6,28 @@ import type {
   RankingCriterionBinding,
   RankingPredictionCandidate,
   RankingPredictionSet,
-  RankingDisposition,
   RankingResolvedCase,
 } from './contracts.ts';
 import {
   createRankingStrategyInput,
   loadRankingBlindInputSet,
 } from './blind-input.ts';
+import {
+  compareCandidateFit,
+  createPartialOrderPresentation,
+  deriveCandidateFit,
+  derivePreferenceConsequences,
+  type DerivedCandidateFit,
+} from './evaluation-rules.ts';
 import { compareRankingText, rankingSemanticDigest } from './stable-json.ts';
 
 export const RANKING_BASELINE_VERSIONS = {
-  retrievalOrder: 'ranking-retrieval-order-diagnostic/1.0.0',
-  allInsufficient: 'ranking-all-insufficient-abstention/1.0.0',
-  targetBlind: 'ranking-target-blind-candidate-feature/1.0.0',
-  targetAware: 'ranking-weak-target-aware-exact-compatibility/1.0.0',
-  hardConflictControl: 'ranking-hard-conflict-negative-control/1.0.0',
-  syntheticOracle: 'ranking-synthetic-oracle/1.0.0',
+  retrievalOrder: 'ranking-retrieval-order-diagnostic/2.0.0',
+  allInsufficient: 'ranking-all-insufficient-abstention/2.0.0',
+  targetBlind: 'ranking-target-blind-candidate-feature/2.0.0',
+  targetAware: 'ranking-weak-target-aware-exact-compatibility/2.0.0',
+  hardConflictControl: 'ranking-hard-conflict-negative-control/2.0.0',
+  syntheticOracle: 'ranking-synthetic-oracle/2.0.0',
 } as const;
 
 export const RANKING_BASELINE_IDS = {
@@ -115,7 +121,7 @@ export function generateRankingBaselinePredictionSets(
       RANKING_BASELINE_IDS.hardConflictControl,
       RANKING_BASELINE_VERSIONS.hardConflictControl,
       hardConflictControlStrategy,
-      { target: false, evidence: true },
+      { target: true, evidence: true },
     ),
   };
 }
@@ -137,13 +143,13 @@ function createPredictionSet(
     }))
     .sort((left, right) => compareRankingText(left.caseId, right.caseId));
   const withoutDigest = {
-    predictionSetVersion: 'ranking-v1-prediction-set/1.0.0' as const,
+    predictionSetVersion: 'ranking-v1-prediction-set/2.0.0' as const,
     predictionSetId: `ranking-v1-${key}-predictions`,
     baselineId: specification.baselineId,
     baselineVersion: specification.baselineVersion,
     baselineSpecificationDigest: specification.specificationDigest,
     corpusId: 'ranking-v1' as const,
-    corpusVersion: '1.0.0' as const,
+    corpusVersion: '2.0.0' as const,
     blindInputDigest,
     predictions,
   };
@@ -184,26 +190,21 @@ function retrievalOrderStrategy(
     ({ disposition }) =>
       disposition === 'recommended' || disposition === 'viable',
   );
-  return completePrediction({
-    input,
+  const visible = positive
+    .map(({ candidateId }) => candidateId)
+    .slice(0, input.requestedMaximumResults);
+  return emptyDerivedPrediction({
     outcome: positive.length > 0 ? 'recommend' : 'insufficient-evidence',
     candidates,
-    orderedPositiveIds: positive.map(({ candidateId }) => candidateId),
-    tieAll: false,
-    evidenceNeededResolutions: [],
-    coverage: [],
-    appliedPreferenceIds: [],
-    ignoredPreferenceIds: [],
-    hardenedPreferenceIds: [],
-    hardConstraintConflicts: [],
+    presentation: visible,
+    rankGroups: visible.map((candidateId) => [candidateId]),
   });
 }
 
 function allInsufficientStrategy(
   input: RankingBlindStrategyInput,
 ): Omit<RankingCasePrediction, 'caseId'> {
-  return completePrediction({
-    input,
+  return emptyDerivedPrediction({
     outcome: 'insufficient-evidence',
     candidates: input.candidates.map(({ candidateId }) => ({
       candidateId,
@@ -212,14 +213,8 @@ function allInsufficientStrategy(
       evidenceIds: [],
       unknownIds: [`unknown-${candidateId}-fit`],
     })),
-    orderedPositiveIds: [],
-    tieAll: false,
-    evidenceNeededResolutions: [],
-    coverage: [],
-    appliedPreferenceIds: [],
-    ignoredPreferenceIds: [],
-    hardenedPreferenceIds: [],
-    hardConstraintConflicts: [],
+    presentation: [],
+    rankGroups: [],
   });
 }
 
@@ -245,367 +240,177 @@ function featureStrategy(
   input: RankingBlindStrategyInput,
   targetAware: boolean,
 ): Omit<RankingCasePrediction, 'caseId'> {
-  const evidenceByCandidate = new Map(
-    input.candidateEvidence.map((candidate) => [
-      candidate.candidateId,
-      candidate,
-    ]),
+  const derived = input.candidates.map(({ candidateId }) =>
+    deriveCandidateFit(input, candidateId, targetAware),
   );
-  const handoffByCandidate = new Map(
-    input.handoffCandidates.map((candidate) => [
-      candidate.candidateId,
-      candidate,
-    ]),
+  const positives = derived.filter(
+    ({ disposition }) => disposition === 'viable',
   );
-  const successBindings = input.criteria.bindings.filter(
-    ({ criterionKind }) => criterionKind === 'success-condition',
+  const boundPreferenceIds = input.criteria.bindings
+    .filter(
+      ({ criterionKind, bindingState }) =>
+        criterionKind === 'preference' && bindingState === 'bound',
+    )
+    .map(({ criterionId }) => criterionId)
+    .sort(compareRankingText);
+  const comparisonCandidates = targetAware
+    ? positives.map((candidate) => ({
+        ...candidate,
+        successVector: [],
+        preferenceVectors: new Map<string, number>(),
+      }))
+    : positives;
+  const comparisonById = new Map(
+    comparisonCandidates.map((candidate) => [candidate.candidateId, candidate]),
   );
-  const preferenceBindings = input.criteria.bindings.filter(
-    ({ criterionKind }) => criterionKind === 'preference',
-  );
-  const globallyFailClosed = successBindings.some(
-    (binding) =>
-      binding.bindingState === 'unbound' &&
-      binding.materiality !== 'non-material',
-  );
-  const targetWithheld =
-    targetAware &&
-    input.target !== null &&
-    successBindings.some((binding) =>
-      binding.targetFactDependencies.some((dependency) =>
-        input.target?.withheldCategories.includes(dependency),
+  const preferenceIds = targetAware ? [] : boundPreferenceIds;
+  const maximal = comparisonCandidates.filter(
+    (candidate) =>
+      !comparisonCandidates.some(
+        (other) =>
+          other.candidateId !== candidate.candidateId &&
+          compareCandidateFit(other, candidate, preferenceIds) ===
+            'left-higher',
       ),
-    );
-  const scored: {
-    candidate: {
-      candidateId: string;
-      disposition: RankingDisposition;
-      reasonCodes: readonly string[];
-      evidenceIds: readonly string[];
-      unknownIds: readonly string[];
-    };
-    score: number;
-  }[] = [];
-  const hardConstraintConflicts: RankingCasePrediction['hardConstraintConflicts'][number][] =
-    [];
-  const evidenceNeededResolutions: RankingCasePrediction['evidenceNeededResolutions'][number][] =
-    [];
-  const coverage: RankingCasePrediction['successConditionCoverage'][number][] =
-    [];
-  for (const identity of input.candidates) {
-    const evidence = evidenceByCandidate.get(identity.candidateId);
-    const handoff = handoffByCandidate.get(identity.candidateId);
-    if (evidence === undefined || handoff === undefined) {
-      throw new Error('Baseline candidate authority is incomplete.');
-    }
-    const conflictObservations = evidence.observations.filter(
-      ({ feature, assertion }) =>
-        feature.startsWith('hard-constraint:') && assertion === 'conflict',
-    );
-    for (const observation of conflictObservations) {
-      hardConstraintConflicts.push({
-        candidateId: identity.candidateId,
-        constraintId: observation.feature.slice('hard-constraint:'.length),
-        reasonCode:
-          input.request.hardConstraints.find(
-            ({ criterionId }) =>
-              criterionId ===
-              observation.feature.slice('hard-constraint:'.length),
-          )?.reasonCode ?? 'known-hard-conflict',
-        evidenceIds: [observation.evidenceId],
-      });
-    }
-    const resolutions = handoff.unresolvedHardEvaluations.map((unresolved) => {
-      const assertion = evidence.closureAssertions.find(
-        ({ evaluationId }) => evaluationId === unresolved.evaluationId,
-      );
-      const resolution = assertion?.resolution ?? 'unresolved';
-      const entry = {
-        candidateId: identity.candidateId,
-        evaluationId: unresolved.evaluationId,
-        resolution,
-        evidenceIds: assertion?.evidenceIds ?? [],
-      };
-      evidenceNeededResolutions.push(entry);
-      return resolution;
-    });
-    const boundSuccessIds = successBindings
-      .filter(({ bindingState }) => bindingState === 'bound')
-      .map(({ criterionId }) => criterionId);
-    for (const binding of successBindings) {
-      coverage.push({
-        candidateId: identity.candidateId,
-        criterionId: binding.criterionId,
-        state:
-          binding.bindingState === 'unbound'
-            ? binding.materiality === 'non-material'
-              ? 'not-counted-approved-non-material'
-              : 'fail-closed'
-            : evidence.supportedSuccessConditionIds.includes(
-                  binding.criterionId,
-                )
-              ? 'covered'
-              : 'not-covered',
-      });
-    }
-    const allBoundSuccess = boundSuccessIds.every((criterionId) =>
-      evidence.supportedSuccessConditionIds.includes(criterionId),
-    );
-    const closureConflict = resolutions.includes('conflict');
-    const closureUnresolved = resolutions.includes('unresolved');
-    const hardConflict = conflictObservations.length > 0 || closureConflict;
-    const insufficient =
-      globallyFailClosed ||
-      targetWithheld ||
-      closureUnresolved ||
-      !allBoundSuccess;
-    let score = evidence.supportedSuccessConditionIds.length * 100;
-    const boundPreferenceIds = new Set(
-      preferenceBindings
-        .filter(({ bindingState }) => bindingState === 'bound')
-        .map(({ criterionId }) => criterionId),
-    );
-    score +=
-      evidence.supportedPreferenceIds.filter((id) => boundPreferenceIds.has(id))
-        .length * 5;
-    if (targetAware && input.target !== null) {
-      score += exactCompatibilityScore(
-        evidence.compatibility,
-        input.target.facts,
-      );
-    }
-    scored.push({
-      score,
-      candidate: {
-        candidateId: identity.candidateId,
-        disposition: hardConflict
-          ? 'rejected'
-          : insufficient
-            ? 'insufficient-evidence'
-            : 'viable',
-        reasonCodes: hardConflict
-          ? [
-              hardConstraintConflicts.find(
-                (conflict) => conflict.candidateId === identity.candidateId,
-              )?.reasonCode ?? 'known-hard-conflict',
-            ]
-          : insufficient
-            ? ['material-fit-authority-insufficient']
-            : ['bound-success-supported'],
-        evidenceIds: evidence.observations
-          .filter(({ assertion }) => assertion !== 'unknown')
-          .map(({ evidenceId }) => evidenceId),
-        unknownIds: insufficient ? [`unknown-${identity.candidateId}-fit`] : [],
-      },
-    });
-  }
-  const positives = scored
-    .filter(({ candidate }) => candidate.disposition === 'viable')
-    .sort(
-      (left, right) =>
-        right.score - left.score ||
-        compareRankingText(
-          left.candidate.candidateId,
-          right.candidate.candidateId,
-        ),
-    );
-  if (positives.length > 0) {
-    const topScore = positives[0]?.score;
-    for (const item of positives) {
-      if (item.score === topScore) item.candidate.disposition = 'recommended';
-    }
-  }
-  const candidates = scored
-    .map(({ candidate }) => candidate)
+  );
+  const maximalIds = new Set(maximal.map(({ candidateId }) => candidateId));
+  const candidates = derived
+    .map((candidate): RankingPredictionCandidate => ({
+      candidateId: candidate.candidateId,
+      disposition:
+        candidate.disposition === 'viable' &&
+        maximalIds.has(candidate.candidateId)
+          ? 'recommended'
+          : candidate.disposition,
+      reasonCodes: candidate.reasonCodes,
+      evidenceIds: candidate.evidenceIds,
+      unknownIds: candidate.unknownIds,
+    }))
     .sort((left, right) =>
       compareRankingText(left.candidateId, right.candidateId),
     );
-  const unresolvedExists = candidates.some(
-    ({ disposition }) => disposition === 'insufficient-evidence',
+  const ranked = createPartialOrderPresentation(
+    positives.map(
+      (candidate) => comparisonById.get(candidate.candidateId) ?? candidate,
+    ),
+    preferenceIds,
+    input.requestedMaximumResults,
   );
   const outcome =
     positives.length > 0
       ? 'recommend'
-      : unresolvedExists
+      : derived.some(
+            ({ disposition }) => disposition === 'insufficient-evidence',
+          )
         ? 'insufficient-evidence'
         : 'no-viable-candidate';
-  const appliedPreferenceIds = preferenceBindings
-    .filter(
-      (binding) =>
-        binding.bindingState === 'bound' &&
-        input.candidateEvidence.some((candidate) =>
-          candidate.supportedPreferenceIds.includes(binding.criterionId),
-        ),
-    )
-    .map(({ criterionId }) => criterionId)
-    .sort(compareRankingText);
-  const ignoredPreferenceIds = preferenceBindings
-    .filter(({ bindingState }) => bindingState === 'unbound')
-    .map(({ criterionId }) => criterionId)
-    .sort(compareRankingText);
-  return completePrediction({
-    input,
+  return {
     outcome,
     candidates,
-    orderedPositiveIds: positives.map(({ candidate }) => candidate.candidateId),
-    tieAll:
-      positives.length > 1 &&
-      positives.every(({ score }) => score === positives[0]?.score),
-    evidenceNeededResolutions,
-    coverage,
-    appliedPreferenceIds,
-    ignoredPreferenceIds,
+    ...ranked,
+    hardConstraintConflicts: derived
+      .flatMap(({ hardConflicts }) => hardConflicts)
+      .sort((left, right) =>
+        compareRankingText(
+          `${left.candidateId}\0${left.constraintId}`,
+          `${right.candidateId}\0${right.constraintId}`,
+        ),
+      ),
+    evidenceNeededResolutions: derived
+      .flatMap(({ resolutions }) => resolutions)
+      .sort((left, right) =>
+        compareRankingText(
+          `${left.candidateId}\0${left.evaluationId}`,
+          `${right.candidateId}\0${right.evaluationId}`,
+        ),
+      ),
+    successConditionCoverage: derived
+      .flatMap(({ coverage }) => coverage)
+      .sort((left, right) =>
+        compareRankingText(
+          `${left.candidateId}\0${left.criterionId}`,
+          `${right.candidateId}\0${right.criterionId}`,
+        ),
+      ),
+    preferenceConsequences: targetAware
+      ? input.criteria.bindings
+          .filter(({ criterionKind }) => criterionKind === 'preference')
+          .map((binding) => ({
+            criterionId: binding.criterionId,
+            state:
+              binding.bindingState === 'unbound'
+                ? ('ignored-unbound' as const)
+                : ('bound-but-no-applicable-positive-comparison' as const),
+            affectedPairs: [],
+          }))
+          .sort((left, right) =>
+            compareRankingText(left.criterionId, right.criterionId),
+          )
+      : derivePreferenceConsequences(derived, input.criteria.bindings),
+    unboundPreferenceCounterfactuals: deriveUnboundPreferenceCounterfactuals(
+      comparisonCandidates,
+      input.criteria.bindings,
+      preferenceIds,
+    ),
     hardenedPreferenceIds: [],
-    hardConstraintConflicts,
-  });
+  };
 }
 
 function hardConflictControlStrategy(
   input: RankingBlindStrategyInput,
 ): Omit<RankingCasePrediction, 'caseId'> {
-  const conflict = input.candidateEvidence
-    .flatMap((candidate) =>
-      candidate.observations
-        .filter(
-          ({ feature, assertion }) =>
-            feature.startsWith('hard-constraint:') && assertion === 'conflict',
-        )
-        .map((observation) => ({ candidate, observation })),
-    )
-    .sort((left, right) =>
-      compareRankingText(
-        left.candidate.candidateId,
-        right.candidate.candidateId,
-      ),
-    )[0];
+  const derived = input.candidates.map(({ candidateId }) =>
+    deriveCandidateFit(input, candidateId, true),
+  );
+  const conflict = derived.find(
+    ({ hardConflicts }) => hardConflicts.length > 0,
+  );
   if (conflict === undefined) {
     throw new Error('Negative control requires a known hard conflict.');
   }
-  const candidates = input.candidates.map(({ candidateId }) => ({
-    candidateId,
-    disposition:
-      candidateId === conflict.candidate.candidateId
-        ? ('recommended' as const)
-        : ('rejected' as const),
-    reasonCodes:
-      candidateId === conflict.candidate.candidateId
-        ? ['negative-control-promoted-known-conflict']
-        : ['negative-control-rejected'],
-    evidenceIds:
-      candidateId === conflict.candidate.candidateId
-        ? [conflict.observation.evidenceId]
-        : [],
-    unknownIds: [],
-  }));
-  return completePrediction({
-    input,
+  return emptyDerivedPrediction({
     outcome: 'recommend',
-    candidates,
-    orderedPositiveIds: [conflict.candidate.candidateId],
-    tieAll: false,
-    evidenceNeededResolutions: [],
-    coverage: [],
-    appliedPreferenceIds: [],
-    ignoredPreferenceIds: [],
-    hardenedPreferenceIds: [],
-    hardConstraintConflicts: [],
+    candidates: input.candidates.map(({ candidateId }) => ({
+      candidateId,
+      disposition:
+        candidateId === conflict.candidateId ? 'recommended' : 'rejected',
+      reasonCodes:
+        candidateId === conflict.candidateId
+          ? ['negative-control-promoted-known-conflict']
+          : ['negative-control-rejected'],
+      evidenceIds:
+        candidateId === conflict.candidateId
+          ? (conflict.hardConflicts[0]?.evidenceIds ?? [])
+          : [],
+      unknownIds: [],
+    })),
+    presentation: [conflict.candidateId],
+    rankGroups: [[conflict.candidateId]],
   });
 }
 
-function completePrediction(input: {
-  readonly input: RankingBlindStrategyInput;
+function emptyDerivedPrediction(input: {
   readonly outcome: RankingCasePrediction['outcome'];
   readonly candidates: readonly RankingPredictionCandidate[];
-  readonly orderedPositiveIds: readonly string[];
-  readonly tieAll: boolean;
-  readonly evidenceNeededResolutions: RankingCasePrediction['evidenceNeededResolutions'];
-  readonly coverage: RankingCasePrediction['successConditionCoverage'];
-  readonly appliedPreferenceIds: readonly string[];
-  readonly ignoredPreferenceIds: readonly string[];
-  readonly hardenedPreferenceIds: readonly string[];
-  readonly hardConstraintConflicts: RankingCasePrediction['hardConstraintConflicts'];
+  readonly presentation: readonly string[];
+  readonly rankGroups: readonly (readonly string[])[];
 }): Omit<RankingCasePrediction, 'caseId'> {
-  const visible = input.orderedPositiveIds.slice(
-    0,
-    input.input.requestedMaximumResults,
-  );
-  const rankGroups = input.tieAll
-    ? visible.length > 0
-      ? [visible]
-      : []
-    : visible.map((candidateId) => [candidateId]);
   return {
     outcome: input.outcome,
     candidates: [...input.candidates].sort((left, right) =>
       compareRankingText(left.candidateId, right.candidateId),
     ),
-    presentation: visible,
-    rankGroups,
+    presentation: [...input.presentation],
+    rankGroups: input.rankGroups.map((group) => [...group]),
     rankRelations: [],
     incomparablePairs: [],
-    hardConstraintConflicts: [...input.hardConstraintConflicts].sort(
-      (left, right) =>
-        compareRankingText(
-          `${left.candidateId}\0${left.constraintId}`,
-          `${right.candidateId}\0${right.constraintId}`,
-        ),
-    ),
-    evidenceNeededResolutions: [...input.evidenceNeededResolutions].sort(
-      (left, right) =>
-        compareRankingText(
-          `${left.candidateId}\0${left.evaluationId}`,
-          `${right.candidateId}\0${right.evaluationId}`,
-        ),
-    ),
-    successConditionCoverage: [...input.coverage].sort((left, right) =>
-      compareRankingText(
-        `${left.candidateId}\0${left.criterionId}`,
-        `${right.candidateId}\0${right.criterionId}`,
-      ),
-    ),
-    appliedPreferenceIds: [...input.appliedPreferenceIds],
-    ignoredPreferenceIds: [...input.ignoredPreferenceIds],
-    hardenedPreferenceIds: [...input.hardenedPreferenceIds],
+    hardConstraintConflicts: [],
+    evidenceNeededResolutions: [],
+    successConditionCoverage: [],
+    preferenceConsequences: [],
+    unboundPreferenceCounterfactuals: [],
+    hardenedPreferenceIds: [],
   };
-}
-
-function exactCompatibilityScore(
-  compatibility: Readonly<Record<string, string>>,
-  target: NonNullable<RankingBlindStrategyInput['target']>['facts'],
-): number {
-  const approved = [
-    'runtime',
-    'framework',
-    'redis',
-    'workerCapability',
-    'deployment',
-  ] as const;
-  let score = 0;
-  for (const facet of approved) {
-    const candidateValue = compatibility[facet];
-    if (candidateValue === '*' || candidateValue === target[facet]) {
-      score += 10;
-    }
-  }
-  if (
-    compatibility['identity'] !== undefined &&
-    target.identity.includes(compatibility['identity'])
-  ) {
-    score += 10;
-  }
-  if (
-    compatibility['resource'] !== undefined &&
-    target.resources.includes(compatibility['resource'])
-  ) {
-    score += 10;
-  }
-  if (
-    compatibility['dataPolicy'] !== undefined &&
-    target.dataPolicies.includes(compatibility['dataPolicy'])
-  ) {
-    score += 10;
-  }
-  return score;
 }
 
 export function expectedCriterionState(
@@ -621,4 +426,56 @@ export function resolutionPriority(
   resolution: EvidenceNeededResolution,
 ): number {
   return resolution === 'conflict' ? 0 : resolution === 'unresolved' ? 1 : 2;
+}
+
+export function maximalCandidateIds(
+  candidates: readonly DerivedCandidateFit[],
+  preferenceIds: readonly string[],
+): readonly string[] {
+  return candidates
+    .filter(
+      (candidate) =>
+        !candidates.some(
+          (other) =>
+            other.candidateId !== candidate.candidateId &&
+            compareCandidateFit(other, candidate, preferenceIds) ===
+              'left-higher',
+        ),
+    )
+    .map(({ candidateId }) => candidateId)
+    .sort(compareRankingText);
+}
+
+function deriveUnboundPreferenceCounterfactuals(
+  candidates: readonly DerivedCandidateFit[],
+  bindings: readonly RankingCriterionBinding[],
+  appliedBoundPreferenceIds: readonly string[],
+): RankingCasePrediction['unboundPreferenceCounterfactuals'] {
+  const ordered = [...candidates].sort((left, right) =>
+    compareRankingText(left.candidateId, right.candidateId),
+  );
+  return bindings
+    .filter(
+      ({ criterionKind, bindingState }) =>
+        criterionKind === 'preference' && bindingState === 'unbound',
+    )
+    .flatMap((binding) =>
+      ordered.flatMap((left, leftIndex) =>
+        ordered.slice(leftIndex + 1).map((right) => ({
+          criterionId: binding.criterionId,
+          candidatePair: [left.candidateId, right.candidateId] as const,
+          relationWithoutPreference: compareCandidateFit(
+            left,
+            right,
+            appliedBoundPreferenceIds,
+          ),
+        })),
+      ),
+    )
+    .sort((left, right) =>
+      compareRankingText(
+        `${left.criterionId}\0${left.candidatePair.join('\0')}`,
+        `${right.criterionId}\0${right.candidatePair.join('\0')}`,
+      ),
+    );
 }

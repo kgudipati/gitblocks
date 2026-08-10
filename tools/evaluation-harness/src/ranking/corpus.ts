@@ -21,6 +21,7 @@ import {
   type RankingManifestFile,
   type RankingResolvedCase,
   type RankingReviewRecord,
+  type RankingReviewerRationaleAuthority,
   type RankingValidatedCorpus,
 } from './contracts.ts';
 import {
@@ -40,6 +41,7 @@ const REQUIRED_AUTHORITY_PATHS = {
   handoff: 'handoff/phase9-lanes.json',
   gold: 'gold/outcomes.json',
   audit: 'audit/case-classifications.json',
+  reviewerRationale: 'reviews/reviewer-rationale.json',
   review: 'reviews/proposed-review-record.json',
 } as const;
 
@@ -86,6 +88,10 @@ export function loadRankingCorpus(
         corpusRoot,
         REQUIRED_AUTHORITY_PATHS.audit,
       ) as RankingAuditAuthority,
+      reviewerRationale: loadJson(
+        corpusRoot,
+        REQUIRED_AUTHORITY_PATHS.reviewerRationale,
+      ) as RankingReviewerRationaleAuthority,
       review: loadJson(
         corpusRoot,
         REQUIRED_AUTHORITY_PATHS.review,
@@ -181,9 +187,9 @@ export function createRankingManifest(
     sha256: hashFile(join(corpusRoot, path)),
   }));
   const withoutDigest = {
-    manifestVersion: 'ranking-v1-manifest/1.0.0' as const,
+    manifestVersion: 'ranking-v1-manifest/2.0.0' as const,
     corpusId: 'ranking-v1' as const,
-    corpusVersion: '1.0.0' as const,
+    corpusVersion: '2.0.0' as const,
     status: 'proposed-independent-review-pending' as const,
     evidenceCutoff: '2026-08-10',
     caseCount: 30 as const,
@@ -206,10 +212,10 @@ function validateManifest(
   if (
     rankingValuesDiffer(
       manifest.manifestVersion,
-      'ranking-v1-manifest/1.0.0',
+      'ranking-v1-manifest/2.0.0',
     ) ||
     rankingValuesDiffer(manifest.corpusId, 'ranking-v1') ||
-    rankingValuesDiffer(manifest.corpusVersion, '1.0.0') ||
+    rankingValuesDiffer(manifest.corpusVersion, '2.0.0') ||
     rankingValuesDiffer(
       manifest.status,
       'proposed-independent-review-pending',
@@ -311,6 +317,11 @@ function validateCorpusAuthorities(
       corpus.audit.semanticDigest,
     ],
     [
+      'reviews/reviewer-rationale.json',
+      corpus.reviewerRationale,
+      corpus.reviewerRationale.semanticDigest,
+    ],
+    [
       'reviews/proposed-review-record.json',
       corpus.review,
       corpus.review.semanticDigest,
@@ -330,27 +341,31 @@ function validateCorpusAuthorities(
   if (
     rankingValuesDiffer(
       corpus.blind.authorityVersion,
-      'ranking-v1-blind-cases/1.0.0',
+      'ranking-v1-blind-cases/2.0.0',
     ) ||
     rankingValuesDiffer(
       corpus.evidence.authorityVersion,
-      'ranking-v1-candidate-evidence/1.0.0',
+      'ranking-v1-candidate-evidence/2.0.0',
     ) ||
     rankingValuesDiffer(
       corpus.handoff.authorityVersion,
-      'ranking-v1-phase9-handoff/1.0.0',
+      'ranking-v1-phase9-handoff/2.0.0',
     ) ||
     rankingValuesDiffer(
       corpus.gold.authorityVersion,
-      'ranking-v1-proposed-gold/1.0.0',
+      'ranking-v1-proposed-gold/2.0.0',
     ) ||
     rankingValuesDiffer(
       corpus.audit.authorityVersion,
-      'ranking-v1-audit-classification/1.0.0',
+      'ranking-v1-audit-classification/2.0.0',
+    ) ||
+    rankingValuesDiffer(
+      corpus.reviewerRationale.authorityVersion,
+      'ranking-v1-reviewer-rationale/1.0.0',
     ) ||
     rankingValuesDiffer(
       corpus.review.reviewRecordVersion,
-      'ranking-v1-review-record/1.0.0',
+      'ranking-v1-review-record/2.0.0',
     )
   ) {
     diagnostics.push(
@@ -372,7 +387,9 @@ function validateCorpusAuthorities(
     rankingValuesDiffer(corpus.review.reviewedAt, null) ||
     rankingValuesDiffer(corpus.review.adjudication, 'not-started') ||
     rankingValuesDiffer(corpus.review.acceptedCaseIds.length, 0) ||
-    corpus.review.goldDigest !== corpus.gold.semanticDigest
+    corpus.review.goldDigest !== corpus.gold.semanticDigest ||
+    corpus.review.reviewerRationaleDigest !==
+      corpus.reviewerRationale.semanticDigest
   ) {
     diagnostics.push(
       diagnostic(
@@ -408,6 +425,7 @@ function validateCorpusAuthorities(
     );
   }
   auditBlindAuthority(corpus.blind, diagnostics);
+  auditCandidateEvidence(corpus, diagnostics);
 }
 
 function validateCaseClosure(
@@ -427,13 +445,17 @@ function validateCaseClosure(
     !sameOrderedValues(
       caseIds,
       corpus.audit.cases.map(({ caseId }) => caseId),
+    ) ||
+    !sameOrderedValues(
+      caseIds,
+      corpus.reviewerRationale.cases.map(({ caseId }) => caseId),
     )
   ) {
     diagnostics.push(
       diagnostic(
         'ranking.case.set',
         'blind.cases',
-        'Ranking corpus requires exactly the same sorted 30-case set across blind, gold, and audit authorities.',
+        'Ranking corpus requires exactly the same sorted 30-case set across blind, gold, audit, and reviewer-rationale authorities.',
       ),
     );
   }
@@ -503,6 +525,7 @@ function validateCaseClosure(
   validateAuditPattern(corpus, diagnostics);
   validateControlledPairs(corpus, cases, diagnostics);
   validateCriterionCoverage(cases, diagnostics);
+  validateReviewerRationales(corpus, diagnostics);
 }
 
 function validateCriterionClosure(
@@ -516,9 +539,16 @@ function validateCriterionClosure(
     ...request.preferences.map(({ criterionId }) => criterionId),
   ];
   const bindingIds = criteria.bindings.map(({ criterionId }) => criterionId);
+  const hardRuleIds = criteria.hardConstraintRules.map(
+    ({ constraintId }) => constraintId,
+  );
   if (
     !isSortedUnique([...bindingIds].sort(compareRankingText)) ||
     !sameSet(criterionIds, bindingIds) ||
+    !sameSet(
+      request.hardConstraints.map(({ criterionId }) => criterionId),
+      hardRuleIds,
+    ) ||
     criteria.bindings.some((binding) => {
       const isSuccess = request.successConditions.some(
         ({ criterionId }) => criterionId === binding.criterionId,
@@ -530,7 +560,7 @@ function validateCriterionClosure(
       diagnostic(
         'ranking.criterion.closure',
         caseId,
-        'Criterion authority must contain exactly one correctly typed binding per success condition and preference.',
+        'Criterion authority must close every success condition, preference, and hard constraint without candidate answer mappings.',
       ),
     );
   }
@@ -568,15 +598,22 @@ function validateHandoffClosure(
       );
       const evidenceCandidate = evidenceByCandidate.get(candidate.candidateId);
       if (
-        !evidenceCandidate?.closureAssertions.some(
-          ({ evaluationId }) => evaluationId === item.evaluationId,
-        )
+        rankingValuesDiffer(item.match, 'unresolved') ||
+        rankingValuesDiffer(item.state, 'unresolved') ||
+        item.candidateFeatureDependencies.length === 0 ||
+        item.candidateFeatureDependencies.some(
+          (featureId) =>
+            !evidenceCandidate?.observations.some(
+              (observation) => observation.featureId === featureId,
+            ),
+        ) ||
+        item.ruleId.length === 0
       ) {
         diagnostics.push(
           diagnostic(
             'ranking.handoff.closure-evidence',
             resolved.binding.caseId,
-            'Every unresolved Phase 9 evaluation requires explicit evaluation-owned closure evidence, including unresolved outcomes.',
+            'Every unresolved Phase 9 evaluation must retain unresolved handoff state and reference request-independent facts plus a closure rule.',
           ),
         );
       }
@@ -670,6 +707,64 @@ function validateGoldClosure(
         'ranking.gold.closure',
         resolved.binding.caseId,
         'Gold outcome, candidate, traceability, ranking, or safety closure is inconsistent.',
+      ),
+    );
+  }
+  const positiveIds = positive.map(({ candidateId }) => candidateId);
+  for (let leftIndex = 0; leftIndex < positiveIds.length; leftIndex += 1) {
+    for (
+      let rightIndex = leftIndex + 1;
+      rightIndex < positiveIds.length;
+      rightIndex += 1
+    ) {
+      const left = positiveIds[leftIndex];
+      const right = positiveIds[rightIndex];
+      if (left === undefined || right === undefined) continue;
+      const deliberateCount =
+        Number(
+          gold.rankGroups.some(
+            (group) => group.includes(left) && group.includes(right),
+          ),
+        ) +
+        Number(
+          gold.rankRelations.some(
+            ({ higherCandidateId, lowerCandidateId }) =>
+              (higherCandidateId === left && lowerCandidateId === right) ||
+              (higherCandidateId === right && lowerCandidateId === left),
+          ),
+        ) +
+        Number(
+          gold.incomparablePairs.some(
+            (pair) => pair.includes(left) && pair.includes(right),
+          ),
+        );
+      if (deliberateCount !== 1) {
+        diagnostics.push(
+          diagnostic(
+            'ranking.gold.positive-pair-semantics',
+            resolved.binding.caseId,
+            'Every material positive pair must be deliberately and exclusively tied, ordered, or incomparable; non-positive pairs are intentionally not presented.',
+          ),
+        );
+      }
+    }
+  }
+  if (
+    gold.hardConstraintConflicts.length === 0 ||
+    gold.preferenceConsequences.some(({ affectedPairs }) =>
+      affectedPairs
+        .flat()
+        .some((candidateId) => !candidateIds.includes(candidateId)),
+    ) ||
+    gold.unboundPreferenceCounterfactuals.some(({ candidatePair }) =>
+      candidatePair.some((candidateId) => !candidateIds.includes(candidateId)),
+    )
+  ) {
+    diagnostics.push(
+      diagnostic(
+        'ranking.gold.review-coverage',
+        resolved.binding.caseId,
+        'Gold must expose a safety opportunity and keep preference comparison references inside the fixed candidate set.',
       ),
     );
   }
@@ -795,8 +890,30 @@ function validateControlledPairs(
       ) ||
       direction.firstCaseId !== pair.firstCaseId ||
       direction.secondCaseId !== pair.secondCaseId ||
-      direction.firstPreferredCandidateId ===
-        direction.secondPreferredCandidateId ||
+      direction.firstMaximalCandidateIds.length !== 1 ||
+      direction.secondMaximalCandidateIds.length !== 1 ||
+      sameSet(
+        direction.firstMaximalCandidateIds,
+        direction.secondMaximalCandidateIds,
+      ) ||
+      !sameSet(
+        direction.firstMaximalCandidateIds,
+        corpus.gold.cases
+          .find(({ caseId }) => caseId === pair.firstCaseId)
+          ?.candidates.filter(
+            ({ disposition }) => disposition === 'recommended',
+          )
+          .map(({ candidateId }) => candidateId) ?? [],
+      ) ||
+      !sameSet(
+        direction.secondMaximalCandidateIds,
+        corpus.gold.cases
+          .find(({ caseId }) => caseId === pair.secondCaseId)
+          ?.candidates.filter(
+            ({ disposition }) => disposition === 'recommended',
+          )
+          .map(({ candidateId }) => candidateId) ?? [],
+      ) ||
       !sameOrderedValues(
         diffPaths(first.target, second.target).filter(
           (path) =>
@@ -921,6 +1038,124 @@ function auditBlindAuthority(
   visit(blind, 'blind');
 }
 
+function auditCandidateEvidence(
+  corpus: RankingValidatedCorpus,
+  diagnostics: RankingDiagnostic[],
+): void {
+  const requestCriterionIds = new Set(
+    corpus.blind.requests.flatMap((request) => [
+      ...request.successConditions.map(({ criterionId }) => criterionId),
+      ...request.hardConstraints.map(({ criterionId }) => criterionId),
+      ...request.preferences.map(({ criterionId }) => criterionId),
+    ]),
+  );
+  const forbiddenKeyPattern =
+    /^(?:supportedSuccessConditionIds|supportedPreferenceIds|closureAssertions|resolution|disposition|rank|winner)$/u;
+  const forbiddenFeaturePattern =
+    /(?:success-condition|preference|hard-constraint|evidence-needed-closure)/u;
+  const visit = (value: unknown, path: string): void => {
+    if (Array.isArray(value)) {
+      value.forEach((child, index) => {
+        visit(child, `${path}/${String(index)}`);
+      });
+      return;
+    }
+    if (typeof value !== 'object' || value === null) return;
+    for (const [key, child] of Object.entries(value)) {
+      if (forbiddenKeyPattern.test(key)) {
+        diagnostics.push(
+          diagnostic(
+            'ranking.evidence.request-answer-leakage',
+            `${path}/${key}`,
+            'Candidate evidence contains a request-conditioned answer field.',
+          ),
+        );
+      }
+      visit(child, `${path}/${key}`);
+    }
+  };
+  visit(corpus.evidence, 'evidence');
+  for (const evidenceSet of corpus.evidence.evidenceSets) {
+    for (const candidate of evidenceSet.candidates) {
+      for (const observation of candidate.observations) {
+        if (
+          observation.candidateId !== candidate.candidateId ||
+          forbiddenFeaturePattern.test(observation.featureId) ||
+          observation.values.some(
+            (value) =>
+              requestCriterionIds.has(value) ||
+              value === 'satisfied' ||
+              value === 'conflict' ||
+              value === 'unresolved',
+          ) ||
+          rankingValuesDiffer(
+            observation.provenance.productionAuthority,
+            false,
+          ) ||
+          (observation.provenance.basis === 'committed-pilot-evidence-concept'
+            ? observation.provenance.sourceReference === null ||
+              observation.provenance.claimScope !==
+                'concept-crosswalk-not-current-project-authority'
+            : observation.provenance.basis === 'ranking-v1-controlled-fixture'
+              ? observation.provenance.sourceReference !== null ||
+                observation.provenance.claimScope !==
+                  'scenario-synthetic-not-project-authority'
+              : true)
+        ) {
+          diagnostics.push(
+            diagnostic(
+              'ranking.evidence.request-independent-fact',
+              `${evidenceSet.evidenceSetId}/${candidate.candidateId}/${observation.evidenceId}`,
+              'Candidate evidence must be request-independent, provenance-bound evaluation authority and must not contain a final fit or closure answer.',
+            ),
+          );
+        }
+      }
+    }
+  }
+}
+
+function validateReviewerRationales(
+  corpus: RankingValidatedCorpus,
+  diagnostics: RankingDiagnostic[],
+): void {
+  const controlledCaseIds = new Set(
+    corpus.audit.controlledPairs.flatMap(({ firstCaseId, secondCaseId }) => [
+      firstCaseId,
+      secondCaseId,
+    ]),
+  );
+  for (const rationale of corpus.reviewerRationale.cases) {
+    const requiredSections = [
+      rationale.requestRequirements,
+      rationale.materialTargetFacts,
+      rationale.coverageEvidence,
+      rationale.hardConflictEvidence,
+      rationale.materialInsufficiency,
+      rationale.preferenceAnalysis,
+      rationale.maximalSetAnalysis,
+      rationale.partialOrderAnalysis,
+    ];
+    if (
+      requiredSections.some(
+        (section) =>
+          section.length === 0 ||
+          section.some((entry) => entry.trim().length < 12),
+      ) ||
+      controlledCaseIds.has(rationale.caseId) !==
+        (rationale.controlledPairChange !== null)
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'ranking.review.rationale-completeness',
+          rationale.caseId,
+          'Every case requires substantive author rationale, and every controlled half requires an exact target-change explanation.',
+        ),
+      );
+    }
+  }
+}
+
 function validatePilotImmutability(
   repositoryRoot: string,
   diagnostics: RankingDiagnostic[],
@@ -951,6 +1186,8 @@ function classifyManifestPath(path: string): RankingManifestFile['kind'] {
   if (path === REQUIRED_AUTHORITY_PATHS.handoff) return 'phase9-handoff';
   if (path === REQUIRED_AUTHORITY_PATHS.gold) return 'proposed-gold';
   if (path === REQUIRED_AUTHORITY_PATHS.audit) return 'audit-classification';
+  if (path === REQUIRED_AUTHORITY_PATHS.reviewerRationale)
+    return 'reviewer-rationale';
   if (path === REQUIRED_AUTHORITY_PATHS.review) return 'review-record';
   if (path === 'baselines/specifications.json')
     return 'baseline-specifications';

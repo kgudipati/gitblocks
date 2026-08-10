@@ -11,10 +11,10 @@ const REPOSITORY_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 describe('ranking-v1 scorer and content-free reports', () => {
   it('passes every hand-calculated scorer fixture', () => {
     const summary = runRankingScorerFixtures();
-    expect(summary.fixtureCount).toBe(15);
-    expect(summary.assertionCount).toBe(34);
+    expect(summary.fixtureCount).toBe(21);
+    expect(summary.assertionCount).toBe(47);
     expect(summary.fixtures.map(({ result }) => result)).toEqual(
-      Array.from({ length: 15 }, () => 'passed'),
+      Array.from({ length: 21 }, () => 'passed'),
     );
     expect(summary.syntheticOracleOnly).toBe(true);
     expect(summary.productComparator).toBe(false);

@@ -38,11 +38,11 @@ const PREDICTION_PATHS: Readonly<
 };
 
 export interface RankingBaselineReport {
-  readonly reportVersion: 'ranking-v1-baseline-report/1.0.0';
+  readonly reportVersion: 'ranking-v1-baseline-report/2.0.0';
   readonly track: 'fixed-candidate-ranking';
   readonly corpusBinding: {
     readonly corpusId: 'ranking-v1';
-    readonly corpusVersion: '1.0.0';
+    readonly corpusVersion: '2.0.0';
     readonly corpusSemanticDigest: string;
     readonly goldDigest: string;
     readonly reviewDigest: string;
@@ -80,7 +80,7 @@ interface ContentFreeBaselineMeasurement {
 }
 
 export interface RankingGateReviewInputs {
-  readonly authorityVersion: 'ranking-v1-gate-review-inputs/1.0.0';
+  readonly authorityVersion: 'ranking-v1-gate-review-inputs/2.0.0';
   readonly status: 'proposed-independent-review-pending';
   readonly bindings: {
     readonly corpusDigest: string;
@@ -88,7 +88,7 @@ export interface RankingGateReviewInputs {
     readonly reviewDigest: string;
     readonly baselineReportDigest: string;
     readonly performanceReferenceDigest: string;
-    readonly scorerVersion: 'ranking-v1-scorer/1.0.0';
+    readonly scorerVersion: 'ranking-v1-scorer/2.0.0';
   };
   readonly qualityGateEvidence: {
     readonly strongestOverallBaselineId: string;
@@ -185,11 +185,11 @@ export function createRankingBaselineReport(
       ]),
   );
   const withoutDigest = {
-    reportVersion: 'ranking-v1-baseline-report/1.0.0' as const,
+    reportVersion: 'ranking-v1-baseline-report/2.0.0' as const,
     track: 'fixed-candidate-ranking' as const,
     corpusBinding: {
       corpusId: 'ranking-v1' as const,
-      corpusVersion: '1.0.0' as const,
+      corpusVersion: '2.0.0' as const,
       corpusSemanticDigest: manifestDigest,
       goldDigest: corpus.gold.semanticDigest,
       reviewDigest: corpus.review.semanticDigest,
@@ -229,6 +229,7 @@ export function rankingCoreAuthorityDigest(
     handoff: corpus.handoff.semanticDigest,
     gold: corpus.gold.semanticDigest,
     audit: corpus.audit.semanticDigest,
+    reviewerRationale: corpus.reviewerRationale.semanticDigest,
     review: corpus.review.semanticDigest,
   });
 }
@@ -240,7 +241,7 @@ export function createRankingGateReviewInputs(
   performance: RankingPerformanceReference,
 ): RankingGateReviewInputs {
   const withoutDigest = {
-    authorityVersion: 'ranking-v1-gate-review-inputs/1.0.0' as const,
+    authorityVersion: 'ranking-v1-gate-review-inputs/2.0.0' as const,
     status: 'proposed-independent-review-pending' as const,
     bindings: {
       corpusDigest: manifestDigest,
@@ -248,7 +249,7 @@ export function createRankingGateReviewInputs(
       reviewDigest: corpus.review.semanticDigest,
       baselineReportDigest: report.semanticDigest,
       performanceReferenceDigest: performance.semanticDigest,
-      scorerVersion: 'ranking-v1-scorer/1.0.0' as const,
+      scorerVersion: 'ranking-v1-scorer/2.0.0' as const,
     },
     qualityGateEvidence: {
       strongestOverallBaselineId:
@@ -348,10 +349,10 @@ function validatePredictions(
     if (
       rankingValuesDiffer(
         prediction.predictionSetVersion,
-        'ranking-v1-prediction-set/1.0.0',
+        'ranking-v1-prediction-set/2.0.0',
       ) ||
       rankingValuesDiffer(prediction.corpusId, 'ranking-v1') ||
-      rankingValuesDiffer(prediction.corpusVersion, '1.0.0') ||
+      rankingValuesDiffer(prediction.corpusVersion, '2.0.0') ||
       prediction.blindInputDigest !== blind.blindInputDigest ||
       prediction.semanticDigest !== rankingSemanticDigest(prediction) ||
       prediction.baselineVersion !== specification?.baselineVersion ||

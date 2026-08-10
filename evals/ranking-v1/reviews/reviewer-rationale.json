@@ -1,0 +1,1125 @@
+{
+  "authorityVersion": "ranking-v1-reviewer-rationale/1.0.0",
+  "cases": [
+    {
+      "caseId": "rank-audit-01-controlled-a",
+      "controlledPairChange": "Only target resources change between rank-audit-01-controlled-a and rank-audit-02-controlled-b: stdout-collector is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "audit-logtape covers ranking-v1-audit-controlled-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-logtape-fact-01; candidate fact values=structured-event-output.",
+        "audit-pino covers ranking-v1-audit-controlled-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-pino-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction,child-logger-context.",
+        "audit-winston covers ranking-v1-audit-controlled-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-winston-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction."
+      ],
+      "hardConflictEvidence": [
+        "audit-pgaudit conflicts with ranking-v1-audit-controlled-request-hard-resources; trace=ranking-v1-audit-pgaudit-fact-05.",
+        "audit-winston conflicts with ranking-v1-audit-controlled-request-hard-resources; trace=ranking-v1-audit-winston-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=stdout-collector; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=audit-pino; other supported candidates=audit-logtape. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-audit-controlled-request-preference-1: applied-and-changed-supported-comparison; target resources=stdout-collector; adoption-resources facts=audit-pino=stdout-collector;audit-winston=file-archive;audit-pgaudit=postgres-extension;audit-logtape=none; affected comparisons=audit-logtape/audit-pino."
+      ],
+      "requestRequirements": [
+        "Adopt structured audit-event output with sensitive-field exclusion and an operable archive path.",
+        "The candidate must emit structured audit-event records. [concept:structured-event-output] [family:audit-logging]",
+        "The candidate must support exclusion or redaction of sensitive fields. [concept:sensitive-field-redaction] [family:audit-logging]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-audit-02-controlled-b",
+      "controlledPairChange": "Only target resources change between rank-audit-01-controlled-a and rank-audit-02-controlled-b: file-archive is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "audit-logtape covers ranking-v1-audit-controlled-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-logtape-fact-01; candidate fact values=structured-event-output.",
+        "audit-pino covers ranking-v1-audit-controlled-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-pino-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction,child-logger-context.",
+        "audit-winston covers ranking-v1-audit-controlled-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-winston-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction."
+      ],
+      "hardConflictEvidence": [
+        "audit-pgaudit conflicts with ranking-v1-audit-controlled-request-hard-resources; trace=ranking-v1-audit-pgaudit-fact-05.",
+        "audit-pino conflicts with ranking-v1-audit-controlled-request-hard-resources; trace=ranking-v1-audit-pino-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=file-archive; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=audit-winston; other supported candidates=audit-logtape. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-audit-controlled-request-preference-1: applied-and-changed-supported-comparison; target resources=file-archive; adoption-resources facts=audit-pino=stdout-collector;audit-winston=file-archive;audit-pgaudit=postgres-extension;audit-logtape=none; affected comparisons=audit-logtape/audit-winston."
+      ],
+      "requestRequirements": [
+        "Adopt structured audit-event output with sensitive-field exclusion and an operable archive path.",
+        "The candidate must emit structured audit-event records. [concept:structured-event-output] [family:audit-logging]",
+        "The candidate must support exclusion or redaction of sensitive fields. [concept:sensitive-field-redaction] [family:audit-logging]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-audit-03-no-viable",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "audit-logtape covers ranking-v1-audit-no-viable-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-logtape-fact-01; candidate fact values=structured-event-output.",
+        "audit-pino covers ranking-v1-audit-no-viable-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-pino-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction,child-logger-context.",
+        "audit-winston covers ranking-v1-audit-no-viable-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-winston-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction."
+      ],
+      "hardConflictEvidence": [
+        "audit-logtape conflicts with ranking-v1-audit-no-viable-request-hard-1; trace=ranking-v1-audit-logtape-fact-04.",
+        "audit-pgaudit conflicts with ranking-v1-audit-no-viable-request-hard-2; trace=ranking-v1-audit-pgaudit-fact-04.",
+        "audit-pino conflicts with ranking-v1-audit-no-viable-request-hard-1; trace=ranking-v1-audit-pino-fact-04.",
+        "audit-winston conflicts with ranking-v1-audit-no-viable-request-hard-1; trace=ranking-v1-audit-winston-fact-04."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=none; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=no-viable-candidate; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-audit-no-viable-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=none; adoption-resources facts=audit-pino=stdout-collector;audit-winston=file-archive;audit-pgaudit=postgres-extension;audit-logtape=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Require structured audit logging while prohibiting every represented adoption unit in this constrained target.",
+        "The candidate must emit structured audit-event records. [concept:structured-event-output] [family:audit-logging]",
+        "The candidate must support exclusion or redaction of sensitive fields. [concept:sensitive-field-redaction] [family:audit-logging]",
+        "The target prohibits the in-process-library adoption unit.",
+        "The target prohibits the database-extension adoption unit."
+      ]
+    },
+    {
+      "caseId": "rank-audit-04-insufficient",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "audit-logtape covers ranking-v1-audit-insufficient-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-logtape-fact-01; candidate fact values=structured-event-output.",
+        "audit-pino covers ranking-v1-audit-insufficient-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-pino-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction,child-logger-context.",
+        "audit-winston covers ranking-v1-audit-insufficient-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-winston-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction."
+      ],
+      "hardConflictEvidence": [
+        "audit-pgaudit conflicts with ranking-v1-audit-insufficient-request-hard-resources; trace=ranking-v1-audit-pgaudit-fact-05.",
+        "audit-winston conflicts with ranking-v1-audit-insufficient-request-hard-resources; trace=ranking-v1-audit-winston-fact-05."
+      ],
+      "materialInsufficiency": [
+        "audit-logtape remains non-positive because unknown-audit-logtape-material-unbound-success is material and unresolved; withheld target categories=region; unbound material success=ranking-v1-audit-insufficient-request-success-2.",
+        "audit-pgaudit remains non-positive because unknown-audit-pgaudit-audit-insufficient-audit-pgaudit-prerequisite is material and unresolved; withheld target categories=region; unbound material success=ranking-v1-audit-insufficient-request-success-2.",
+        "audit-pgaudit remains non-positive because unknown-audit-pgaudit-material-unbound-success is material and unresolved; withheld target categories=region; unbound material success=ranking-v1-audit-insufficient-request-success-2.",
+        "audit-pino remains non-positive because unknown-audit-pino-material-unbound-success is material and unresolved; withheld target categories=region; unbound material success=ranking-v1-audit-insufficient-request-success-2.",
+        "audit-winston remains non-positive because unknown-audit-winston-material-unbound-success is material and unresolved; withheld target categories=region; unbound material success=ranking-v1-audit-insufficient-request-success-2."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=stdout-collector; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=region"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=insufficient-evidence; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-audit-insufficient-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=stdout-collector; adoption-resources facts=audit-pino=stdout-collector;audit-winston=file-archive;audit-pgaudit=postgres-extension;audit-logtape=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Assess structured audit logging with a material success condition whose semantic authority is missing.",
+        "The candidate must emit structured audit-event records. [concept:structured-event-output] [family:audit-logging]",
+        "The candidate must support exclusion or redaction of sensitive fields. [concept:sensitive-field-redaction] [family:audit-logging]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-audit-05-popularity-over-fit",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "audit-logtape covers ranking-v1-audit-popularity-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-logtape-fact-01; candidate fact values=structured-event-output.",
+        "audit-pino covers ranking-v1-audit-popularity-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-pino-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction,child-logger-context.",
+        "audit-winston covers ranking-v1-audit-popularity-request-success-1: capability-features includes structured-event-output; evidence=ranking-v1-audit-winston-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction."
+      ],
+      "hardConflictEvidence": [
+        "audit-pgaudit conflicts with ranking-v1-audit-popularity-request-hard-resources; trace=ranking-v1-audit-pgaudit-fact-05.",
+        "audit-pino conflicts with ranking-v1-audit-popularity-request-hard-resources; trace=ranking-v1-audit-pino-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=file-archive; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=audit-winston; other supported candidates=audit-logtape. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-audit-popularity-request-preference-1: applied-and-changed-supported-comparison; target resources=file-archive; adoption-resources facts=audit-pino=stdout-collector;audit-winston=file-archive;audit-pgaudit=postgres-extension;audit-logtape=none; affected comparisons=audit-logtape/audit-winston."
+      ],
+      "requestRequirements": [
+        "Choose responsible structured audit logging fit under target resource constraints rather than catalog familiarity.",
+        "The candidate must emit structured audit-event records. [concept:structured-event-output] [family:audit-logging]",
+        "The candidate must support exclusion or redaction of sensitive fields. [concept:sensitive-field-redaction] [family:audit-logging]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-audit-06-incomparable",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "audit-pino covers ranking-v1-audit-partial-request-success-1: capability-features includes child-logger-context; evidence=ranking-v1-audit-pino-fact-01; candidate fact values=structured-event-output,sensitive-field-redaction,child-logger-context.",
+        "audit-winston covers ranking-v1-audit-partial-request-success-2: operational-primitives includes per-transport-format; evidence=ranking-v1-audit-winston-fact-02; candidate fact values=per-transport-format,file-transport."
+      ],
+      "hardConflictEvidence": [
+        "audit-pgaudit conflicts with ranking-v1-audit-partial-request-hard-resources; trace=ranking-v1-audit-pgaudit-fact-05."
+      ],
+      "materialInsufficiency": [
+        "audit-pgaudit remains non-positive because unknown-audit-pgaudit-audit-partial-audit-pgaudit-prerequisite is material and unresolved; withheld target categories=none; unbound material success=none."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=stdout-collector,file-archive; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=audit-pino,audit-winston; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "The maximal candidates trade off independently supported success dimensions, so neither safely dominates and the pair is explicitly incomparable."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-audit-partial-request-preference-1: ignored-unbound; target resources=stdout-collector,file-archive; no-bound-feature facts=unbound-no-candidate-fact; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Preserve a supported incomparable trade-off for structured audit logging.",
+        "The candidate must provide child-logger-context. [concept:child-logger-context] [family:audit-logging]",
+        "The candidate must provide per-transport-format. [concept:per-transport-format] [family:audit-logging]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-auth-01-controlled-a",
+      "controlledPairChange": "Only target resources change between rank-auth-01-controlled-a and rank-auth-02-controlled-b: prisma-in-process-policy is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "auth-casbin-node-casbin covers ranking-v1-auth-controlled-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-casbin-node-casbin-fact-01; candidate fact values=policy-enforcement,role-hierarchy,nested-team.",
+        "auth-cerbos-cerbos covers ranking-v1-auth-controlled-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-cerbos-cerbos-fact-01; candidate fact values=policy-enforcement,context-policy.",
+        "auth-stalniy-casl covers ranking-v1-auth-controlled-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-stalniy-casl-fact-01; candidate fact values=policy-enforcement,attribute-policy."
+      ],
+      "hardConflictEvidence": [
+        "auth-casbin-node-casbin conflicts with ranking-v1-auth-controlled-request-hard-resources; trace=ranking-v1-auth-casbin-node-casbin-fact-05.",
+        "auth-cerbos-cerbos conflicts with ranking-v1-auth-controlled-request-hard-resources; trace=ranking-v1-auth-cerbos-cerbos-fact-05.",
+        "auth-openfga conflicts with ranking-v1-auth-controlled-request-hard-resources; trace=ranking-v1-auth-openfga-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=prisma-in-process-policy; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=auth-stalniy-casl; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-auth-controlled-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=prisma-in-process-policy; adoption-resources facts=auth-stalniy-casl=prisma-in-process-policy;auth-casbin-node-casbin=tenant-role-domain;auth-cerbos-cerbos=external-policy-service;auth-openfga=postgres,external-policy-service; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Adopt authorization for actor, tenant, organization, and resource decisions without losing request identity context.",
+        "The candidate must represent and enforce actor/resource policy decisions. [concept:policy-enforcement] [family:authorization]",
+        "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-auth-02-controlled-b",
+      "controlledPairChange": "Only target resources change between rank-auth-01-controlled-a and rank-auth-02-controlled-b: tenant-role-domain is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "auth-casbin-node-casbin covers ranking-v1-auth-controlled-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-casbin-node-casbin-fact-01; candidate fact values=policy-enforcement,role-hierarchy,nested-team.",
+        "auth-cerbos-cerbos covers ranking-v1-auth-controlled-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-cerbos-cerbos-fact-01; candidate fact values=policy-enforcement,context-policy.",
+        "auth-stalniy-casl covers ranking-v1-auth-controlled-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-stalniy-casl-fact-01; candidate fact values=policy-enforcement,attribute-policy."
+      ],
+      "hardConflictEvidence": [
+        "auth-cerbos-cerbos conflicts with ranking-v1-auth-controlled-request-hard-resources; trace=ranking-v1-auth-cerbos-cerbos-fact-05.",
+        "auth-openfga conflicts with ranking-v1-auth-controlled-request-hard-resources; trace=ranking-v1-auth-openfga-fact-05.",
+        "auth-stalniy-casl conflicts with ranking-v1-auth-controlled-request-hard-resources; trace=ranking-v1-auth-stalniy-casl-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=tenant-role-domain; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=auth-casbin-node-casbin; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-auth-controlled-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=tenant-role-domain; adoption-resources facts=auth-stalniy-casl=prisma-in-process-policy;auth-casbin-node-casbin=tenant-role-domain;auth-cerbos-cerbos=external-policy-service;auth-openfga=postgres,external-policy-service; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Adopt authorization for actor, tenant, organization, and resource decisions without losing request identity context.",
+        "The candidate must represent and enforce actor/resource policy decisions. [concept:policy-enforcement] [family:authorization]",
+        "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-auth-03-no-viable",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "auth-casbin-node-casbin covers ranking-v1-auth-no-viable-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-casbin-node-casbin-fact-01; candidate fact values=policy-enforcement,role-hierarchy,nested-team.",
+        "auth-cerbos-cerbos covers ranking-v1-auth-no-viable-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-cerbos-cerbos-fact-01; candidate fact values=policy-enforcement,context-policy.",
+        "auth-stalniy-casl covers ranking-v1-auth-no-viable-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-stalniy-casl-fact-01; candidate fact values=policy-enforcement,attribute-policy."
+      ],
+      "hardConflictEvidence": [
+        "auth-casbin-node-casbin conflicts with ranking-v1-auth-no-viable-request-hard-1; trace=ranking-v1-auth-casbin-node-casbin-fact-04.",
+        "auth-cerbos-cerbos conflicts with ranking-v1-auth-no-viable-request-hard-2; trace=ranking-v1-auth-cerbos-cerbos-fact-04.",
+        "auth-openfga conflicts with ranking-v1-auth-no-viable-request-hard-2; trace=ranking-v1-auth-openfga-fact-04.",
+        "auth-stalniy-casl conflicts with ranking-v1-auth-no-viable-request-hard-1; trace=ranking-v1-auth-stalniy-casl-fact-04."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=none; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=no-viable-candidate; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-auth-no-viable-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=none; adoption-resources facts=auth-stalniy-casl=prisma-in-process-policy;auth-casbin-node-casbin=tenant-role-domain;auth-cerbos-cerbos=external-policy-service;auth-openfga=postgres,external-policy-service; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Require tenant-aware authorization while prohibiting every represented adoption unit in this constrained target.",
+        "The candidate must represent and enforce actor/resource policy decisions. [concept:policy-enforcement] [family:authorization]",
+        "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
+        "The target prohibits the in-process-library adoption unit.",
+        "The target prohibits the external-policy-service adoption unit."
+      ]
+    },
+    {
+      "caseId": "rank-auth-04-insufficient",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "auth-casbin-node-casbin covers ranking-v1-auth-insufficient-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-casbin-node-casbin-fact-01; candidate fact values=policy-enforcement,role-hierarchy,nested-team.",
+        "auth-cerbos-cerbos covers ranking-v1-auth-insufficient-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-cerbos-cerbos-fact-01; candidate fact values=policy-enforcement,context-policy.",
+        "auth-stalniy-casl covers ranking-v1-auth-insufficient-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-stalniy-casl-fact-01; candidate fact values=policy-enforcement,attribute-policy."
+      ],
+      "hardConflictEvidence": [
+        "auth-casbin-node-casbin conflicts with ranking-v1-auth-insufficient-request-hard-resources; trace=ranking-v1-auth-casbin-node-casbin-fact-05.",
+        "auth-cerbos-cerbos conflicts with ranking-v1-auth-insufficient-request-hard-resources; trace=ranking-v1-auth-cerbos-cerbos-fact-05.",
+        "auth-openfga conflicts with ranking-v1-auth-insufficient-request-hard-resources; trace=ranking-v1-auth-openfga-fact-05."
+      ],
+      "materialInsufficiency": [
+        "auth-casbin-node-casbin remains non-positive because unknown-auth-casbin-node-casbin-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-auth-insufficient-request-success-2.",
+        "auth-cerbos-cerbos remains non-positive because unknown-auth-cerbos-cerbos-auth-insufficient-auth-cerbos-cerbos-prerequisite is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-auth-insufficient-request-success-2.",
+        "auth-cerbos-cerbos remains non-positive because unknown-auth-cerbos-cerbos-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-auth-insufficient-request-success-2.",
+        "auth-openfga remains non-positive because unknown-auth-openfga-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-auth-insufficient-request-success-2.",
+        "auth-stalniy-casl remains non-positive because unknown-auth-stalniy-casl-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-auth-insufficient-request-success-2."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=prisma-in-process-policy; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=data-policy"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=insufficient-evidence; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-auth-insufficient-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=prisma-in-process-policy; adoption-resources facts=auth-stalniy-casl=prisma-in-process-policy;auth-casbin-node-casbin=tenant-role-domain;auth-cerbos-cerbos=external-policy-service;auth-openfga=postgres,external-policy-service; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Assess tenant-aware authorization with a material success condition whose semantic authority is missing.",
+        "The candidate must represent and enforce actor/resource policy decisions. [concept:policy-enforcement] [family:authorization]",
+        "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-auth-05-popularity-over-fit",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "auth-casbin-node-casbin covers ranking-v1-auth-popularity-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-casbin-node-casbin-fact-01; candidate fact values=policy-enforcement,role-hierarchy,nested-team.",
+        "auth-cerbos-cerbos covers ranking-v1-auth-popularity-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-cerbos-cerbos-fact-01; candidate fact values=policy-enforcement,context-policy.",
+        "auth-stalniy-casl covers ranking-v1-auth-popularity-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-stalniy-casl-fact-01; candidate fact values=policy-enforcement,attribute-policy."
+      ],
+      "hardConflictEvidence": [
+        "auth-cerbos-cerbos conflicts with ranking-v1-auth-popularity-request-hard-resources; trace=ranking-v1-auth-cerbos-cerbos-fact-05.",
+        "auth-openfga conflicts with ranking-v1-auth-popularity-request-hard-resources; trace=ranking-v1-auth-openfga-fact-05.",
+        "auth-stalniy-casl conflicts with ranking-v1-auth-popularity-request-hard-resources; trace=ranking-v1-auth-stalniy-casl-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=tenant-role-domain; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=auth-casbin-node-casbin; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-auth-popularity-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=tenant-role-domain; adoption-resources facts=auth-stalniy-casl=prisma-in-process-policy;auth-casbin-node-casbin=tenant-role-domain;auth-cerbos-cerbos=external-policy-service;auth-openfga=postgres,external-policy-service; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Choose responsible tenant-aware authorization fit under target resource constraints rather than catalog familiarity.",
+        "The candidate must represent and enforce actor/resource policy decisions. [concept:policy-enforcement] [family:authorization]",
+        "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-auth-06-tie",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "auth-casbin-node-casbin covers ranking-v1-auth-partial-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-casbin-node-casbin-fact-01; candidate fact values=policy-enforcement,role-hierarchy,nested-team.",
+        "auth-cerbos-cerbos covers ranking-v1-auth-partial-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-cerbos-cerbos-fact-01; candidate fact values=policy-enforcement,context-policy.",
+        "auth-stalniy-casl covers ranking-v1-auth-partial-request-success-1: capability-features includes policy-enforcement; evidence=ranking-v1-auth-stalniy-casl-fact-01; candidate fact values=policy-enforcement,attribute-policy."
+      ],
+      "hardConflictEvidence": [
+        "auth-cerbos-cerbos conflicts with ranking-v1-auth-partial-request-hard-resources; trace=ranking-v1-auth-cerbos-cerbos-fact-05.",
+        "auth-openfga conflicts with ranking-v1-auth-partial-request-hard-resources; trace=ranking-v1-auth-openfga-fact-05."
+      ],
+      "materialInsufficiency": [
+        "auth-cerbos-cerbos remains non-positive because unknown-auth-cerbos-cerbos-auth-partial-auth-cerbos-cerbos-prerequisite is material and unresolved; withheld target categories=none; unbound material success=none."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=prisma-in-process-policy,tenant-role-domain; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=auth-casbin-node-casbin,auth-stalniy-casl; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "The tied maximal candidates have equal supported success, preference, and target-fit consequences; candidate identity is not a tie-break."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-auth-partial-request-preference-1: ignored-unbound; target resources=prisma-in-process-policy,tenant-role-domain; no-bound-feature facts=unbound-no-candidate-fact; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Preserve a supported tie for tenant-aware authorization.",
+        "The candidate must represent and enforce actor/resource policy decisions. [concept:policy-enforcement] [family:authorization]",
+        "The candidate must consume actor, tenant, and organization context from request/session identity. [concept:tenant-identity-context] [family:authorization]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-jobs-01-controlled-a",
+      "controlledPairChange": "Only target resources change between rank-jobs-01-controlled-a and rank-jobs-02-controlled-b: postgres-job-store is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "jobs-bullmq covers ranking-v1-jobs-controlled-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-bullmq-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-graphile-worker covers ranking-v1-jobs-controlled-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-graphile-worker-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-pg-boss covers ranking-v1-jobs-controlled-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-pg-boss-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival."
+      ],
+      "hardConflictEvidence": [
+        "jobs-bullmq conflicts with ranking-v1-jobs-controlled-request-hard-resources; trace=ranking-v1-jobs-bullmq-fact-05.",
+        "jobs-pg-boss conflicts with ranking-v1-jobs-controlled-request-hard-resources; trace=ranking-v1-jobs-pg-boss-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=postgres-job-store; redis=absent; worker=capable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=jobs-graphile-worker; other supported candidates=jobs-bree. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-jobs-controlled-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=postgres-job-store; adoption-resources facts=jobs-graphile-worker=postgres-job-store;jobs-bullmq=redis-job-store;jobs-pg-boss=postgres-job-store,separate-worker;jobs-bree=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Adopt durable shared jobs with retries, backoff, restart survival, schedules, and separate workers.",
+        "The candidate must maintain durable shared job state across process restarts. [concept:durable-shared-job-state] [family:background-jobs]",
+        "The candidate must provide retries/backoff and restart survival. [concept:retry-backoff-restart-survival] [family:background-jobs]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-jobs-02-controlled-b",
+      "controlledPairChange": "Only target resources change between rank-jobs-01-controlled-a and rank-jobs-02-controlled-b: redis-job-store is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "jobs-bullmq covers ranking-v1-jobs-controlled-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-bullmq-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-graphile-worker covers ranking-v1-jobs-controlled-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-graphile-worker-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-pg-boss covers ranking-v1-jobs-controlled-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-pg-boss-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival."
+      ],
+      "hardConflictEvidence": [
+        "jobs-graphile-worker conflicts with ranking-v1-jobs-controlled-request-hard-resources; trace=ranking-v1-jobs-graphile-worker-fact-05.",
+        "jobs-pg-boss conflicts with ranking-v1-jobs-controlled-request-hard-resources; trace=ranking-v1-jobs-pg-boss-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=redis-job-store; redis=present; worker=capable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=jobs-bullmq; other supported candidates=jobs-bree. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-jobs-controlled-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=redis-job-store; adoption-resources facts=jobs-graphile-worker=postgres-job-store;jobs-bullmq=redis-job-store;jobs-pg-boss=postgres-job-store,separate-worker;jobs-bree=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Adopt durable shared jobs with retries, backoff, restart survival, schedules, and separate workers.",
+        "The candidate must maintain durable shared job state across process restarts. [concept:durable-shared-job-state] [family:background-jobs]",
+        "The candidate must provide retries/backoff and restart survival. [concept:retry-backoff-restart-survival] [family:background-jobs]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-jobs-03-no-viable",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "jobs-bullmq covers ranking-v1-jobs-no-viable-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-bullmq-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-graphile-worker covers ranking-v1-jobs-no-viable-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-graphile-worker-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-pg-boss covers ranking-v1-jobs-no-viable-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-pg-boss-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival."
+      ],
+      "hardConflictEvidence": [
+        "jobs-bree conflicts with ranking-v1-jobs-no-viable-request-hard-2; trace=ranking-v1-jobs-bree-fact-04.",
+        "jobs-bullmq conflicts with ranking-v1-jobs-no-viable-request-hard-1; trace=ranking-v1-jobs-bullmq-fact-04.",
+        "jobs-graphile-worker conflicts with ranking-v1-jobs-no-viable-request-hard-1; trace=ranking-v1-jobs-graphile-worker-fact-04.",
+        "jobs-pg-boss conflicts with ranking-v1-jobs-no-viable-request-hard-1; trace=ranking-v1-jobs-pg-boss-fact-04."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=none; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=no-viable-candidate; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-jobs-no-viable-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=none; adoption-resources facts=jobs-graphile-worker=postgres-job-store;jobs-bullmq=redis-job-store;jobs-pg-boss=postgres-job-store,separate-worker;jobs-bree=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Require durable background jobs while prohibiting every represented adoption unit in this constrained target.",
+        "The candidate must maintain durable shared job state across process restarts. [concept:durable-shared-job-state] [family:background-jobs]",
+        "The candidate must provide retries/backoff and restart survival. [concept:retry-backoff-restart-survival] [family:background-jobs]",
+        "The target prohibits the worker-process adoption unit.",
+        "The target prohibits the in-process-scheduler adoption unit."
+      ]
+    },
+    {
+      "caseId": "rank-jobs-04-insufficient",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "jobs-bullmq covers ranking-v1-jobs-insufficient-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-bullmq-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-graphile-worker covers ranking-v1-jobs-insufficient-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-graphile-worker-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-pg-boss covers ranking-v1-jobs-insufficient-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-pg-boss-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival."
+      ],
+      "hardConflictEvidence": [
+        "jobs-bullmq conflicts with ranking-v1-jobs-insufficient-request-hard-resources; trace=ranking-v1-jobs-bullmq-fact-05.",
+        "jobs-pg-boss conflicts with ranking-v1-jobs-insufficient-request-hard-resources; trace=ranking-v1-jobs-pg-boss-fact-05."
+      ],
+      "materialInsufficiency": [
+        "jobs-bree remains non-positive because unknown-jobs-bree-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-jobs-insufficient-request-success-2.",
+        "jobs-bullmq remains non-positive because unknown-jobs-bullmq-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-jobs-insufficient-request-success-2.",
+        "jobs-graphile-worker remains non-positive because unknown-jobs-graphile-worker-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-jobs-insufficient-request-success-2.",
+        "jobs-pg-boss remains non-positive because unknown-jobs-pg-boss-jobs-insufficient-jobs-pg-boss-prerequisite is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-jobs-insufficient-request-success-2.",
+        "jobs-pg-boss remains non-positive because unknown-jobs-pg-boss-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-jobs-insufficient-request-success-2."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=postgres-job-store; redis=absent; worker=capable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=data-policy"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=insufficient-evidence; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-jobs-insufficient-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=postgres-job-store; adoption-resources facts=jobs-graphile-worker=postgres-job-store;jobs-bullmq=redis-job-store;jobs-pg-boss=postgres-job-store,separate-worker;jobs-bree=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Assess durable background jobs with a material success condition whose semantic authority is missing.",
+        "The candidate must maintain durable shared job state across process restarts. [concept:durable-shared-job-state] [family:background-jobs]",
+        "The candidate must provide retries/backoff and restart survival. [concept:retry-backoff-restart-survival] [family:background-jobs]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-jobs-05-popularity-over-fit",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "jobs-bullmq covers ranking-v1-jobs-popularity-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-bullmq-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-graphile-worker covers ranking-v1-jobs-popularity-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-graphile-worker-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-pg-boss covers ranking-v1-jobs-popularity-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-pg-boss-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival."
+      ],
+      "hardConflictEvidence": [
+        "jobs-graphile-worker conflicts with ranking-v1-jobs-popularity-request-hard-resources; trace=ranking-v1-jobs-graphile-worker-fact-05.",
+        "jobs-pg-boss conflicts with ranking-v1-jobs-popularity-request-hard-resources; trace=ranking-v1-jobs-pg-boss-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=redis-job-store; redis=present; worker=capable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=jobs-bullmq; other supported candidates=jobs-bree. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-jobs-popularity-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=redis-job-store; adoption-resources facts=jobs-graphile-worker=postgres-job-store;jobs-bullmq=redis-job-store;jobs-pg-boss=postgres-job-store,separate-worker;jobs-bree=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Choose responsible durable background jobs fit under target resource constraints rather than catalog familiarity.",
+        "The candidate must maintain durable shared job state across process restarts. [concept:durable-shared-job-state] [family:background-jobs]",
+        "The candidate must provide retries/backoff and restart survival. [concept:retry-backoff-restart-survival] [family:background-jobs]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-jobs-06-tie",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "jobs-bullmq covers ranking-v1-jobs-partial-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-bullmq-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-graphile-worker covers ranking-v1-jobs-partial-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-graphile-worker-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival.",
+        "jobs-pg-boss covers ranking-v1-jobs-partial-request-success-1: capability-features includes durable-shared-job-state; evidence=ranking-v1-jobs-pg-boss-fact-01; candidate fact values=durable-shared-job-state,retry-backoff-restart-survival."
+      ],
+      "hardConflictEvidence": [
+        "jobs-pg-boss conflicts with ranking-v1-jobs-partial-request-hard-resources; trace=ranking-v1-jobs-pg-boss-fact-05."
+      ],
+      "materialInsufficiency": [
+        "jobs-pg-boss remains non-positive because unknown-jobs-pg-boss-jobs-partial-jobs-pg-boss-prerequisite is material and unresolved; withheld target categories=none; unbound material success=none."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=postgres-job-store,redis-job-store; redis=present; worker=capable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=jobs-bullmq,jobs-graphile-worker; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "The tied maximal candidates have equal supported success, preference, and target-fit consequences; candidate identity is not a tie-break."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-jobs-partial-request-preference-1: ignored-unbound; target resources=postgres-job-store,redis-job-store; no-bound-feature facts=unbound-no-candidate-fact; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Preserve a supported tie for durable background jobs.",
+        "The candidate must maintain durable shared job state across process restarts. [concept:durable-shared-job-state] [family:background-jobs]",
+        "The candidate must provide retries/backoff and restart survival. [concept:retry-backoff-restart-survival] [family:background-jobs]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-rate-01-controlled-a",
+      "controlledPairChange": "Only target resources change between rank-rate-01-controlled-a and rank-rate-02-controlled-b: express-store-interface is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "rate-bottleneck covers ranking-v1-rate-controlled-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-bottleneck-fact-01; candidate fact values=stable-keyed-counters.",
+        "rate-express-rate-limit covers ranking-v1-rate-controlled-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-express-rate-limit-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state,express-store-interface-support.",
+        "rate-flexible covers ranking-v1-rate-controlled-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-flexible-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state.",
+        "rate-upstash covers ranking-v1-rate-controlled-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-upstash-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state."
+      ],
+      "hardConflictEvidence": [
+        "rate-flexible conflicts with ranking-v1-rate-controlled-request-hard-resources; trace=ranking-v1-rate-flexible-fact-05.",
+        "rate-upstash conflicts with ranking-v1-rate-controlled-request-hard-resources; trace=ranking-v1-rate-upstash-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=express; deployment=long-running-container",
+        "resources=express-store-interface; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=rate-express-rate-limit; other supported candidates=rate-bottleneck. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-rate-controlled-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=express-store-interface; adoption-resources facts=rate-express-rate-limit=express-store-interface;rate-upstash=upstash-rest-redis;rate-flexible=redis-shared-counter;rate-bottleneck=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Adopt stable tenant, client, and route limits with shared counters and explicit restart behavior.",
+        "The candidate must key limits by stable tenant/client/route identity. [concept:stable-keyed-counters] [family:rate-limiting]",
+        "The candidate must provide counters shared across replicas and restarts. [concept:distributed-shared-state] [family:rate-limiting]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-rate-02-controlled-b",
+      "controlledPairChange": "Only target resources change between rank-rate-01-controlled-a and rank-rate-02-controlled-b: upstash-rest-redis is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "rate-bottleneck covers ranking-v1-rate-controlled-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-bottleneck-fact-01; candidate fact values=stable-keyed-counters.",
+        "rate-express-rate-limit covers ranking-v1-rate-controlled-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-express-rate-limit-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state,express-store-interface-support.",
+        "rate-flexible covers ranking-v1-rate-controlled-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-flexible-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state.",
+        "rate-upstash covers ranking-v1-rate-controlled-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-upstash-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state."
+      ],
+      "hardConflictEvidence": [
+        "rate-express-rate-limit conflicts with ranking-v1-rate-controlled-request-hard-resources; trace=ranking-v1-rate-express-rate-limit-fact-05.",
+        "rate-flexible conflicts with ranking-v1-rate-controlled-request-hard-resources; trace=ranking-v1-rate-flexible-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=edge; framework=universal; deployment=serverless",
+        "resources=upstash-rest-redis; redis=present; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=rate-upstash; other supported candidates=rate-bottleneck. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-rate-controlled-request-preference-1: applied-and-changed-supported-comparison; target resources=upstash-rest-redis; adoption-resources facts=rate-express-rate-limit=express-store-interface;rate-upstash=upstash-rest-redis;rate-flexible=redis-shared-counter;rate-bottleneck=none; affected comparisons=rate-bottleneck/rate-upstash."
+      ],
+      "requestRequirements": [
+        "Adopt stable tenant, client, and route limits with shared counters and explicit restart behavior.",
+        "The candidate must key limits by stable tenant/client/route identity. [concept:stable-keyed-counters] [family:rate-limiting]",
+        "The candidate must provide counters shared across replicas and restarts. [concept:distributed-shared-state] [family:rate-limiting]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-rate-03-no-viable",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "rate-bottleneck covers ranking-v1-rate-no-viable-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-bottleneck-fact-01; candidate fact values=stable-keyed-counters.",
+        "rate-express-rate-limit covers ranking-v1-rate-no-viable-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-express-rate-limit-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state,express-store-interface-support.",
+        "rate-flexible covers ranking-v1-rate-no-viable-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-flexible-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state.",
+        "rate-upstash covers ranking-v1-rate-no-viable-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-upstash-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state."
+      ],
+      "hardConflictEvidence": [
+        "rate-bottleneck conflicts with ranking-v1-rate-no-viable-request-hard-1; trace=ranking-v1-rate-bottleneck-fact-04.",
+        "rate-express-rate-limit conflicts with ranking-v1-rate-no-viable-request-hard-1; trace=ranking-v1-rate-express-rate-limit-fact-04.",
+        "rate-flexible conflicts with ranking-v1-rate-no-viable-request-hard-1; trace=ranking-v1-rate-flexible-fact-04.",
+        "rate-upstash conflicts with ranking-v1-rate-no-viable-request-hard-2; trace=ranking-v1-rate-upstash-fact-04."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=express; deployment=long-running-container",
+        "resources=none; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=no-viable-candidate; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-rate-no-viable-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=none; adoption-resources facts=rate-express-rate-limit=express-store-interface;rate-upstash=upstash-rest-redis;rate-flexible=redis-shared-counter;rate-bottleneck=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Require tenant-aware rate limiting while prohibiting every represented adoption unit in this constrained target.",
+        "The candidate must key limits by stable tenant/client/route identity. [concept:stable-keyed-counters] [family:rate-limiting]",
+        "The candidate must provide counters shared across replicas and restarts. [concept:distributed-shared-state] [family:rate-limiting]",
+        "The target prohibits the in-process-library adoption unit.",
+        "The target prohibits the external-datastore-library adoption unit."
+      ]
+    },
+    {
+      "caseId": "rank-rate-04-insufficient",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "rate-bottleneck covers ranking-v1-rate-insufficient-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-bottleneck-fact-01; candidate fact values=stable-keyed-counters.",
+        "rate-express-rate-limit covers ranking-v1-rate-insufficient-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-express-rate-limit-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state,express-store-interface-support.",
+        "rate-flexible covers ranking-v1-rate-insufficient-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-flexible-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state.",
+        "rate-upstash covers ranking-v1-rate-insufficient-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-upstash-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state."
+      ],
+      "hardConflictEvidence": [
+        "rate-flexible conflicts with ranking-v1-rate-insufficient-request-hard-resources; trace=ranking-v1-rate-flexible-fact-05.",
+        "rate-upstash conflicts with ranking-v1-rate-insufficient-request-hard-resources; trace=ranking-v1-rate-upstash-fact-05."
+      ],
+      "materialInsufficiency": [
+        "rate-bottleneck remains non-positive because unknown-rate-bottleneck-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-rate-insufficient-request-success-2.",
+        "rate-express-rate-limit remains non-positive because unknown-rate-express-rate-limit-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-rate-insufficient-request-success-2.",
+        "rate-flexible remains non-positive because unknown-rate-flexible-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-rate-insufficient-request-success-2.",
+        "rate-flexible remains non-positive because unknown-rate-flexible-rate-insufficient-rate-flexible-prerequisite is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-rate-insufficient-request-success-2.",
+        "rate-upstash remains non-positive because unknown-rate-upstash-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-rate-insufficient-request-success-2."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=express; deployment=long-running-container",
+        "resources=express-store-interface; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=data-policy"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=insufficient-evidence; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-rate-insufficient-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=express-store-interface; adoption-resources facts=rate-express-rate-limit=express-store-interface;rate-upstash=upstash-rest-redis;rate-flexible=redis-shared-counter;rate-bottleneck=none; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Assess tenant-aware rate limiting with a material success condition whose semantic authority is missing.",
+        "The candidate must key limits by stable tenant/client/route identity. [concept:stable-keyed-counters] [family:rate-limiting]",
+        "The candidate must provide counters shared across replicas and restarts. [concept:distributed-shared-state] [family:rate-limiting]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-rate-05-popularity-over-fit",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "rate-bottleneck covers ranking-v1-rate-popularity-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-bottleneck-fact-01; candidate fact values=stable-keyed-counters.",
+        "rate-express-rate-limit covers ranking-v1-rate-popularity-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-express-rate-limit-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state,express-store-interface-support.",
+        "rate-flexible covers ranking-v1-rate-popularity-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-flexible-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state.",
+        "rate-upstash covers ranking-v1-rate-popularity-request-success-1: capability-features includes stable-keyed-counters; evidence=ranking-v1-rate-upstash-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state."
+      ],
+      "hardConflictEvidence": [
+        "rate-express-rate-limit conflicts with ranking-v1-rate-popularity-request-hard-resources; trace=ranking-v1-rate-express-rate-limit-fact-05.",
+        "rate-flexible conflicts with ranking-v1-rate-popularity-request-hard-resources; trace=ranking-v1-rate-flexible-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=express; deployment=long-running-container",
+        "resources=upstash-rest-redis; redis=present; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=rate-upstash; other supported candidates=rate-bottleneck. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 1 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-rate-popularity-request-preference-1: applied-and-changed-supported-comparison; target resources=upstash-rest-redis; adoption-resources facts=rate-express-rate-limit=express-store-interface;rate-upstash=upstash-rest-redis;rate-flexible=redis-shared-counter;rate-bottleneck=none; affected comparisons=rate-bottleneck/rate-upstash."
+      ],
+      "requestRequirements": [
+        "Choose responsible tenant-aware rate limiting fit under target resource constraints rather than catalog familiarity.",
+        "The candidate must key limits by stable tenant/client/route identity. [concept:stable-keyed-counters] [family:rate-limiting]",
+        "The candidate must provide counters shared across replicas and restarts. [concept:distributed-shared-state] [family:rate-limiting]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-rate-06-incomparable",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "rate-express-rate-limit covers ranking-v1-rate-partial-request-success-1: capability-features includes express-store-interface-support; evidence=ranking-v1-rate-express-rate-limit-fact-01; candidate fact values=stable-keyed-counters,distributed-shared-state,express-store-interface-support.",
+        "rate-upstash covers ranking-v1-rate-partial-request-success-2: operational-primitives includes fixed-window; evidence=ranking-v1-rate-upstash-fact-02; candidate fact values=fixed-window,sliding-window,token-bucket."
+      ],
+      "hardConflictEvidence": [
+        "rate-flexible conflicts with ranking-v1-rate-partial-request-hard-resources; trace=ranking-v1-rate-flexible-fact-05."
+      ],
+      "materialInsufficiency": [
+        "rate-flexible remains non-positive because unknown-rate-flexible-rate-partial-rate-flexible-prerequisite is material and unresolved; withheld target categories=none; unbound material success=none."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=express; deployment=long-running-container",
+        "resources=express-store-interface,upstash-rest-redis; redis=present; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=rate-express-rate-limit,rate-upstash; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "The maximal candidates trade off independently supported success dimensions, so neither safely dominates and the pair is explicitly incomparable."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-rate-partial-request-preference-1: ignored-unbound; target resources=express-store-interface,upstash-rest-redis; no-bound-feature facts=unbound-no-candidate-fact; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Preserve a supported incomparable trade-off for tenant-aware rate limiting.",
+        "The candidate must provide express-store-interface-support. [concept:express-store-interface-support] [family:rate-limiting]",
+        "The candidate must provide fixed-window. [concept:fixed-window] [family:rate-limiting]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-webhook-01-controlled-a",
+      "controlledPairChange": "Only target resources change between rank-webhook-01-controlled-a and rank-webhook-02-controlled-b: stripe-provider-contract is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "webhook-standard-webhooks covers ranking-v1-webhook-controlled-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-standard-webhooks-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation.",
+        "webhook-stripe-node covers ranking-v1-webhook-controlled-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-stripe-node-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation."
+      ],
+      "hardConflictEvidence": [
+        "webhook-convoy conflicts with ranking-v1-webhook-controlled-request-hard-resources; trace=ranking-v1-webhook-convoy-fact-05.",
+        "webhook-standard-webhooks conflicts with ranking-v1-webhook-controlled-request-hard-resources; trace=ranking-v1-webhook-standard-webhooks-fact-05.",
+        "webhook-svix conflicts with ranking-v1-webhook-controlled-request-hard-resources; trace=ranking-v1-webhook-svix-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=stripe-provider-contract; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=webhook-stripe-node; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-webhook-controlled-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=stripe-provider-contract; adoption-resources facts=webhook-stripe-node=stripe-provider-contract;webhook-standard-webhooks=portable-signature-contract;webhook-svix=postgres,webhook-worker;webhook-convoy=webhook-worker; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Adopt raw-body signature verification with replay controls and tenant-isolated secrets.",
+        "The candidate must verify signatures from the exact raw request body. [concept:raw-body-signature-verification] [family:webhooks]",
+        "The candidate must keep provider and tenant signing secrets isolated. [concept:tenant-secret-isolation] [family:webhooks]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-webhook-02-controlled-b",
+      "controlledPairChange": "Only target resources change between rank-webhook-01-controlled-a and rank-webhook-02-controlled-b: portable-signature-contract is available here, which changes hard resource availability and the supported resource-reuse preference without changing request, criteria, candidates, evidence, handoff, or cutoff.",
+      "coverageEvidence": [
+        "webhook-standard-webhooks covers ranking-v1-webhook-controlled-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-standard-webhooks-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation.",
+        "webhook-stripe-node covers ranking-v1-webhook-controlled-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-stripe-node-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation."
+      ],
+      "hardConflictEvidence": [
+        "webhook-convoy conflicts with ranking-v1-webhook-controlled-request-hard-resources; trace=ranking-v1-webhook-convoy-fact-05.",
+        "webhook-stripe-node conflicts with ranking-v1-webhook-controlled-request-hard-resources; trace=ranking-v1-webhook-stripe-node-fact-05.",
+        "webhook-svix conflicts with ranking-v1-webhook-controlled-request-hard-resources; trace=ranking-v1-webhook-svix-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=portable-signature-contract; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=webhook-standard-webhooks; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-webhook-controlled-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=portable-signature-contract; adoption-resources facts=webhook-stripe-node=stripe-provider-contract;webhook-standard-webhooks=portable-signature-contract;webhook-svix=postgres,webhook-worker;webhook-convoy=webhook-worker; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Adopt raw-body signature verification with replay controls and tenant-isolated secrets.",
+        "The candidate must verify signatures from the exact raw request body. [concept:raw-body-signature-verification] [family:webhooks]",
+        "The candidate must keep provider and tenant signing secrets isolated. [concept:tenant-secret-isolation] [family:webhooks]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-webhook-03-no-viable",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "webhook-standard-webhooks covers ranking-v1-webhook-no-viable-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-standard-webhooks-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation.",
+        "webhook-stripe-node covers ranking-v1-webhook-no-viable-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-stripe-node-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation."
+      ],
+      "hardConflictEvidence": [
+        "webhook-convoy conflicts with ranking-v1-webhook-no-viable-request-hard-2; trace=ranking-v1-webhook-convoy-fact-04.",
+        "webhook-standard-webhooks conflicts with ranking-v1-webhook-no-viable-request-hard-1; trace=ranking-v1-webhook-standard-webhooks-fact-04.",
+        "webhook-stripe-node conflicts with ranking-v1-webhook-no-viable-request-hard-1; trace=ranking-v1-webhook-stripe-node-fact-04.",
+        "webhook-svix conflicts with ranking-v1-webhook-no-viable-request-hard-2; trace=ranking-v1-webhook-svix-fact-04."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=none; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=no-viable-candidate; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-webhook-no-viable-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=none; adoption-resources facts=webhook-stripe-node=stripe-provider-contract;webhook-standard-webhooks=portable-signature-contract;webhook-svix=postgres,webhook-worker;webhook-convoy=webhook-worker; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Require signed webhook handling while prohibiting every represented adoption unit in this constrained target.",
+        "The candidate must verify signatures from the exact raw request body. [concept:raw-body-signature-verification] [family:webhooks]",
+        "The candidate must keep provider and tenant signing secrets isolated. [concept:tenant-secret-isolation] [family:webhooks]",
+        "The target prohibits the in-process-library adoption unit.",
+        "The target prohibits the external-webhook-service adoption unit."
+      ]
+    },
+    {
+      "caseId": "rank-webhook-04-insufficient",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "webhook-standard-webhooks covers ranking-v1-webhook-insufficient-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-standard-webhooks-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation.",
+        "webhook-stripe-node covers ranking-v1-webhook-insufficient-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-stripe-node-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation."
+      ],
+      "hardConflictEvidence": [
+        "webhook-convoy conflicts with ranking-v1-webhook-insufficient-request-hard-resources; trace=ranking-v1-webhook-convoy-fact-05.",
+        "webhook-standard-webhooks conflicts with ranking-v1-webhook-insufficient-request-hard-resources; trace=ranking-v1-webhook-standard-webhooks-fact-05.",
+        "webhook-svix conflicts with ranking-v1-webhook-insufficient-request-hard-resources; trace=ranking-v1-webhook-svix-fact-05."
+      ],
+      "materialInsufficiency": [
+        "webhook-convoy remains non-positive because unknown-webhook-convoy-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-webhook-insufficient-request-success-2.",
+        "webhook-standard-webhooks remains non-positive because unknown-webhook-standard-webhooks-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-webhook-insufficient-request-success-2.",
+        "webhook-stripe-node remains non-positive because unknown-webhook-stripe-node-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-webhook-insufficient-request-success-2.",
+        "webhook-svix remains non-positive because unknown-webhook-svix-material-unbound-success is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-webhook-insufficient-request-success-2.",
+        "webhook-svix remains non-positive because unknown-webhook-svix-webhook-insufficient-webhook-svix-prerequisite is material and unresolved; withheld target categories=data-policy; unbound material success=ranking-v1-webhook-insufficient-request-success-2."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=stripe-provider-contract; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=data-policy"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=insufficient-evidence; maximal/recommended set=none; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-webhook-insufficient-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=stripe-provider-contract; adoption-resources facts=webhook-stripe-node=stripe-provider-contract;webhook-standard-webhooks=portable-signature-contract;webhook-svix=postgres,webhook-worker;webhook-convoy=webhook-worker; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Assess signed webhook handling with a material success condition whose semantic authority is missing.",
+        "The candidate must verify signatures from the exact raw request body. [concept:raw-body-signature-verification] [family:webhooks]",
+        "The candidate must keep provider and tenant signing secrets isolated. [concept:tenant-secret-isolation] [family:webhooks]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-webhook-05-popularity-over-fit",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "webhook-standard-webhooks covers ranking-v1-webhook-popularity-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-standard-webhooks-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation.",
+        "webhook-stripe-node covers ranking-v1-webhook-popularity-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-stripe-node-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation."
+      ],
+      "hardConflictEvidence": [
+        "webhook-convoy conflicts with ranking-v1-webhook-popularity-request-hard-resources; trace=ranking-v1-webhook-convoy-fact-05.",
+        "webhook-stripe-node conflicts with ranking-v1-webhook-popularity-request-hard-resources; trace=ranking-v1-webhook-stripe-node-fact-05.",
+        "webhook-svix conflicts with ranking-v1-webhook-popularity-request-hard-resources; trace=ranking-v1-webhook-svix-fact-05."
+      ],
+      "materialInsufficiency": [
+        "No material unknown controls this proposed outcome."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=portable-signature-contract; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=webhook-standard-webhooks; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "Declared pair semantics contain 0 tie pairs, 0 direct ordered relations, and 0 explicit incomparable pairs."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-webhook-popularity-request-preference-1: bound-but-no-applicable-positive-comparison; target resources=portable-signature-contract; adoption-resources facts=webhook-stripe-node=stripe-provider-contract;webhook-standard-webhooks=portable-signature-contract;webhook-svix=postgres,webhook-worker;webhook-convoy=webhook-worker; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Choose responsible signed webhook handling fit under target resource constraints rather than catalog familiarity.",
+        "The candidate must verify signatures from the exact raw request body. [concept:raw-body-signature-verification] [family:webhooks]",
+        "The candidate must keep provider and tenant signing secrets isolated. [concept:tenant-secret-isolation] [family:webhooks]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    },
+    {
+      "caseId": "rank-webhook-06-tie",
+      "controlledPairChange": null,
+      "coverageEvidence": [
+        "webhook-standard-webhooks covers ranking-v1-webhook-partial-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-standard-webhooks-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation.",
+        "webhook-stripe-node covers ranking-v1-webhook-partial-request-success-1: capability-features includes raw-body-signature-verification; evidence=ranking-v1-webhook-stripe-node-fact-01; candidate fact values=raw-body-signature-verification,tenant-secret-isolation."
+      ],
+      "hardConflictEvidence": [
+        "webhook-convoy conflicts with ranking-v1-webhook-partial-request-hard-resources; trace=ranking-v1-webhook-convoy-fact-05.",
+        "webhook-svix conflicts with ranking-v1-webhook-partial-request-hard-resources; trace=ranking-v1-webhook-svix-fact-05."
+      ],
+      "materialInsufficiency": [
+        "webhook-svix remains non-positive because unknown-webhook-svix-webhook-partial-webhook-svix-prerequisite is material and unresolved; withheld target categories=none; unbound material success=none."
+      ],
+      "materialTargetFacts": [
+        "runtime=node; framework=universal; deployment=long-running-container",
+        "resources=stripe-provider-contract,portable-signature-contract; redis=absent; worker=incapable",
+        "region=us-west-2; dataPolicies=regional-processing,sensitive-field-exclusion; withheld=none"
+      ],
+      "maximalSetAnalysis": [
+        "Proposed responsible outcome=recommend; maximal/recommended set=webhook-standard-webhooks,webhook-stripe-node; other supported candidates=none. Hard conflicts and material unknowns are excluded before softer comparison."
+      ],
+      "partialOrderAnalysis": [
+        "The tied maximal candidates have equal supported success, preference, and target-fit consequences; candidate identity is not a tie-break."
+      ],
+      "preferenceAnalysis": [
+        "ranking-v1-webhook-partial-request-preference-1: ignored-unbound; target resources=stripe-provider-contract,portable-signature-contract; no-bound-feature facts=unbound-no-candidate-fact; affected comparisons=none."
+      ],
+      "requestRequirements": [
+        "Preserve a supported tie for signed webhook handling.",
+        "The candidate must verify signatures from the exact raw request body. [concept:raw-body-signature-verification] [family:webhooks]",
+        "The candidate must keep provider and tenant signing secrets isolated. [concept:tenant-secret-isolation] [family:webhooks]",
+        "Every candidate-required infrastructure resource must already be available to the target."
+      ]
+    }
+  ],
+  "corpusId": "ranking-v1",
+  "semanticDigest": "88b49853d398bfb207d1112f6e43b00637ab07c5a6de5fd705ef75c1030829b5",
+  "status": "author-rationale-for-independent-review"
+}

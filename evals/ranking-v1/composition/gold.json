@@ -1,5 +1,5 @@
 {
-  "authorityVersion": "ranking-v1-composition-proposed-gold/1.0.0",
+  "authorityVersion": "ranking-v1-composition-proposed-gold/2.0.0",
   "expectedOutcomes": [
     {
       "basis": "No M3 candidate fit authority is authorized or supplied to the composition baseline.",
@@ -31,6 +31,6 @@
     "independentReviewStatus": "not-reviewed",
     "independentReviewer": null
   },
-  "semanticDigest": "490bce34905e07280c5716cf963e946b64ca5cf3bd884bb8db22838c01a61410",
+  "semanticDigest": "93495429707e0ef71f9756c91b3dc0905db40de00c842b1cfcfbaab065a9a62f",
   "status": "proposed-not-independently-reviewed"
 }

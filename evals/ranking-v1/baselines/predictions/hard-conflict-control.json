@@ -1,29 +1,17 @@
 {
   "baselineId": "hard-conflict-violating-negative-control",
-  "baselineSpecificationDigest": "50b598882270ba7ca79bd841125be6a8763c0f0623a875b25fe025cb1173f1fa",
-  "baselineVersion": "ranking-hard-conflict-negative-control/1.0.0",
-  "blindInputDigest": "feb988d011a0ea269f5d3aeeb0caf5223918712d5dd6780a86ce141392f39d9a",
+  "baselineSpecificationDigest": "261e1395c45887134eff037aac7a49873dcea92d06669e2ca0032ea9f9bcfe80",
+  "baselineVersion": "ranking-hard-conflict-negative-control/2.0.0",
+  "blindInputDigest": "fddf8566a784fbd04ecb70f4663e15140955e64fc8c1e1a44128935a6557e7bd",
   "corpusId": "ranking-v1",
-  "corpusVersion": "1.0.0",
+  "corpusVersion": "2.0.0",
   "predictionSetId": "ranking-v1-hardConflictControl-predictions",
-  "predictionSetVersion": "ranking-v1-prediction-set/1.0.0",
+  "predictionSetVersion": "ranking-v1-prediction-set/2.0.0",
   "predictions": [
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "audit-fluentd",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-audit-pair-evidence-audit-fluentd-d413f624ac"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "audit-grafana-loki",
+          "candidateId": "audit-logtape",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -33,10 +21,12 @@
         },
         {
           "candidateId": "audit-pgaudit",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pgaudit-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -63,36 +53,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "audit-fluentd"
+        "audit-pgaudit"
       ],
       "rankGroups": [
         [
-          "audit-fluentd"
+          "audit-pgaudit"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "audit-fluentd",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-audit-pair-evidence-audit-fluentd-d413f624ac"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "audit-grafana-loki",
+          "candidateId": "audit-logtape",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -102,10 +81,12 @@
         },
         {
           "candidateId": "audit-pgaudit",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pgaudit-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -132,40 +113,31 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "audit-fluentd"
+        "audit-pgaudit"
       ],
       "rankGroups": [
         [
-          "audit-fluentd"
+          "audit-pgaudit"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "audit-fluentd",
+          "candidateId": "audit-logtape",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-audit-hard-evidence-audit-fluentd-ce236f59fc"
+            "ranking-v1-audit-logtape-fact-04"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "audit-grafana-loki",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -201,36 +173,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "audit-fluentd"
+        "audit-logtape"
       ],
       "rankGroups": [
         [
-          "audit-fluentd"
+          "audit-logtape"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "audit-fluentd",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-audit-insufficient-evidence-audit-fluentd-edb8d027ad"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "audit-grafana-loki",
+          "candidateId": "audit-logtape",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -240,10 +201,12 @@
         },
         {
           "candidateId": "audit-pgaudit",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pgaudit-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -270,36 +233,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "audit-fluentd"
+        "audit-pgaudit"
       ],
       "rankGroups": [
         [
-          "audit-fluentd"
+          "audit-pgaudit"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "audit-fluentd",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-audit-popularity-evidence-audit-fluentd-286ea7b300"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "audit-grafana-loki",
+          "candidateId": "audit-logtape",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -309,10 +261,12 @@
         },
         {
           "candidateId": "audit-pgaudit",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pgaudit-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -339,36 +293,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "audit-fluentd"
+        "audit-pgaudit"
       ],
       "rankGroups": [
         [
-          "audit-fluentd"
+          "audit-pgaudit"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "audit-fluentd",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-audit-partial-evidence-audit-fluentd-33fcc697e9"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "audit-grafana-loki",
+          "candidateId": "audit-logtape",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -378,10 +321,12 @@
         },
         {
           "candidateId": "audit-pgaudit",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-audit-pgaudit-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -408,29 +353,31 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "audit-fluentd"
+        "audit-pgaudit"
       ],
       "rankGroups": [
         [
-          "audit-fluentd"
+          "audit-pgaudit"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
           "candidateId": "auth-casbin-node-casbin",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-casbin-node-casbin-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -440,17 +387,6 @@
           "evidenceIds": [],
           "reasonCodes": [
             "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-37577aefa7"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -477,22 +413,22 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "auth-open-policy-agent"
+        "auth-casbin-node-casbin"
       ],
       "rankGroups": [
         [
-          "auth-open-policy-agent"
+          "auth-casbin-node-casbin"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
           "candidateId": "auth-casbin-node-casbin",
@@ -505,18 +441,9 @@
         },
         {
           "candidateId": "auth-cerbos-cerbos",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-auth-pair-evidence-auth-open-policy-agent-37577aefa7"
+            "ranking-v1-auth-cerbos-cerbos-fact-05"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -546,28 +473,28 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "auth-open-policy-agent"
+        "auth-cerbos-cerbos"
       ],
       "rankGroups": [
         [
-          "auth-open-policy-agent"
+          "auth-cerbos-cerbos"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
           "candidateId": "auth-casbin-node-casbin",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-auth-hard-evidence-auth-casbin-node-casbin-5b94a68f90"
+            "ranking-v1-auth-casbin-node-casbin-fact-04"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -576,15 +503,6 @@
         },
         {
           "candidateId": "auth-cerbos-cerbos",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -615,9 +533,9 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
         "auth-casbin-node-casbin"
       ],
@@ -627,17 +545,19 @@
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
           "candidateId": "auth-casbin-node-casbin",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-auth-casbin-node-casbin-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -647,17 +567,6 @@
           "evidenceIds": [],
           "reasonCodes": [
             "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-auth-insufficient-evidence-auth-open-policy-agent-475ad70ed0"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -684,22 +593,22 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "auth-open-policy-agent"
+        "auth-casbin-node-casbin"
       ],
       "rankGroups": [
         [
-          "auth-open-policy-agent"
+          "auth-casbin-node-casbin"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
           "candidateId": "auth-casbin-node-casbin",
@@ -712,18 +621,9 @@
         },
         {
           "candidateId": "auth-cerbos-cerbos",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-auth-popularity-evidence-auth-open-policy-agent-7742303658"
+            "ranking-v1-auth-cerbos-cerbos-fact-05"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -753,22 +653,22 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "auth-open-policy-agent"
+        "auth-cerbos-cerbos"
       ],
       "rankGroups": [
         [
-          "auth-open-policy-agent"
+          "auth-cerbos-cerbos"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
           "candidateId": "auth-casbin-node-casbin",
@@ -781,18 +681,9 @@
         },
         {
           "candidateId": "auth-cerbos-cerbos",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "auth-open-policy-agent",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-auth-partial-evidence-auth-open-policy-agent-1e1e229891"
+            "ranking-v1-auth-cerbos-cerbos-fact-05"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -822,40 +713,40 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "auth-open-policy-agent"
+        "auth-cerbos-cerbos"
       ],
       "rankGroups": [
         [
-          "auth-open-policy-agent"
+          "auth-cerbos-cerbos"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "jobs-agenda",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-jobs-pair-evidence-jobs-agenda-1e982f02dc"
-          ],
+          "candidateId": "jobs-bree",
+          "disposition": "rejected",
+          "evidenceIds": [],
           "reasonCodes": [
-            "negative-control-promoted-known-conflict"
+            "negative-control-rejected"
           ],
           "unknownIds": []
         },
         {
           "candidateId": "jobs-bullmq",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-bullmq-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -869,16 +760,7 @@
           "unknownIds": []
         },
         {
-          "candidateId": "jobs-node-cron",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "jobs-temporal-typescript",
+          "candidateId": "jobs-pg-boss",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -891,31 +773,29 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "jobs-agenda"
+        "jobs-bullmq"
       ],
       "rankGroups": [
         [
-          "jobs-agenda"
+          "jobs-bullmq"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "jobs-agenda",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-jobs-pair-evidence-jobs-agenda-1e982f02dc"
-          ],
+          "candidateId": "jobs-bree",
+          "disposition": "rejected",
+          "evidenceIds": [],
           "reasonCodes": [
-            "negative-control-promoted-known-conflict"
+            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -930,24 +810,17 @@
         },
         {
           "candidateId": "jobs-graphile-worker",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-graphile-worker-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
         {
-          "candidateId": "jobs-node-cron",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "jobs-temporal-typescript",
+          "candidateId": "jobs-pg-boss",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -960,28 +833,28 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "jobs-agenda"
+        "jobs-graphile-worker"
       ],
       "rankGroups": [
         [
-          "jobs-agenda"
+          "jobs-graphile-worker"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "jobs-agenda",
+          "candidateId": "jobs-bree",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-jobs-hard-evidence-jobs-agenda-4c280dc6aa"
+            "ranking-v1-jobs-bree-fact-04"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -1007,16 +880,7 @@
           "unknownIds": []
         },
         {
-          "candidateId": "jobs-node-cron",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "jobs-temporal-typescript",
+          "candidateId": "jobs-pg-boss",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1029,40 +893,40 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "jobs-agenda"
+        "jobs-bree"
       ],
       "rankGroups": [
         [
-          "jobs-agenda"
+          "jobs-bree"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "jobs-agenda",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-jobs-insufficient-evidence-jobs-agenda-b891bf726e"
-          ],
+          "candidateId": "jobs-bree",
+          "disposition": "rejected",
+          "evidenceIds": [],
           "reasonCodes": [
-            "negative-control-promoted-known-conflict"
+            "negative-control-rejected"
           ],
           "unknownIds": []
         },
         {
           "candidateId": "jobs-bullmq",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-bullmq-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -1076,16 +940,7 @@
           "unknownIds": []
         },
         {
-          "candidateId": "jobs-node-cron",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "jobs-temporal-typescript",
+          "candidateId": "jobs-pg-boss",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1098,31 +953,29 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "jobs-agenda"
+        "jobs-bullmq"
       ],
       "rankGroups": [
         [
-          "jobs-agenda"
+          "jobs-bullmq"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "jobs-agenda",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-jobs-popularity-evidence-jobs-agenda-130e0c7c66"
-          ],
+          "candidateId": "jobs-bree",
+          "disposition": "rejected",
+          "evidenceIds": [],
           "reasonCodes": [
-            "negative-control-promoted-known-conflict"
+            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -1137,24 +990,17 @@
         },
         {
           "candidateId": "jobs-graphile-worker",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-graphile-worker-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
         {
-          "candidateId": "jobs-node-cron",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "jobs-temporal-typescript",
+          "candidateId": "jobs-pg-boss",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1167,31 +1013,29 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "jobs-agenda"
+        "jobs-graphile-worker"
       ],
       "rankGroups": [
         [
-          "jobs-agenda"
+          "jobs-graphile-worker"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "jobs-agenda",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-jobs-partial-evidence-jobs-agenda-dca06c5637"
-          ],
+          "candidateId": "jobs-bree",
+          "disposition": "rejected",
+          "evidenceIds": [],
           "reasonCodes": [
-            "negative-control-promoted-known-conflict"
+            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -1214,20 +1058,13 @@
           "unknownIds": []
         },
         {
-          "candidateId": "jobs-node-cron",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
+          "candidateId": "jobs-pg-boss",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-jobs-pg-boss-fact-05"
           ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "jobs-temporal-typescript",
-          "disposition": "rejected",
-          "evidenceIds": [],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         }
@@ -1236,25 +1073,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "jobs-agenda"
+        "jobs-pg-boss"
       ],
       "rankGroups": [
         [
-          "jobs-agenda"
+          "jobs-pg-boss"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-bottleneck",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1272,22 +1109,13 @@
           "unknownIds": []
         },
         {
-          "candidateId": "rate-kong",
+          "candidateId": "rate-flexible",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-rate-pair-evidence-rate-kong-9c2c42983f"
+            "ranking-v1-rate-flexible-fact-05"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -1305,25 +1133,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "rate-kong"
+        "rate-flexible"
       ],
       "rankGroups": [
         [
-          "rate-kong"
+          "rate-flexible"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-bottleneck",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1333,18 +1161,9 @@
         },
         {
           "candidateId": "rate-express-rate-limit",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "rate-kong",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-rate-pair-evidence-rate-kong-9c2c42983f"
+            "ranking-v1-rate-express-rate-limit-fact-05"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -1352,7 +1171,7 @@
           "unknownIds": []
         },
         {
-          "candidateId": "rate-redis-cell",
+          "candidateId": "rate-flexible",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1374,28 +1193,28 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "rate-kong"
+        "rate-express-rate-limit"
       ],
       "rankGroups": [
         [
-          "rate-kong"
+          "rate-express-rate-limit"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-bottleneck",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-rate-hard-evidence-rate-envoy-ratelimit-cbcba69a95"
+            "ranking-v1-rate-bottleneck-fact-04"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -1412,16 +1231,7 @@
           "unknownIds": []
         },
         {
-          "candidateId": "rate-kong",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
+          "candidateId": "rate-flexible",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1443,25 +1253,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "rate-envoy-ratelimit"
+        "rate-bottleneck"
       ],
       "rankGroups": [
         [
-          "rate-envoy-ratelimit"
+          "rate-bottleneck"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-bottleneck",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1479,22 +1289,13 @@
           "unknownIds": []
         },
         {
-          "candidateId": "rate-kong",
+          "candidateId": "rate-flexible",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-rate-insufficient-evidence-rate-kong-051964128a"
+            "ranking-v1-rate-flexible-fact-05"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -1512,25 +1313,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "rate-kong"
+        "rate-flexible"
       ],
       "rankGroups": [
         [
-          "rate-kong"
+          "rate-flexible"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-bottleneck",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1540,18 +1341,9 @@
         },
         {
           "candidateId": "rate-express-rate-limit",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "rate-kong",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-rate-popularity-evidence-rate-kong-e5513a4a38"
+            "ranking-v1-rate-express-rate-limit-fact-05"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -1559,7 +1351,7 @@
           "unknownIds": []
         },
         {
-          "candidateId": "rate-redis-cell",
+          "candidateId": "rate-flexible",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1581,25 +1373,25 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "rate-kong"
+        "rate-express-rate-limit"
       ],
       "rankGroups": [
         [
-          "rate-kong"
+          "rate-express-rate-limit"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "rate-envoy-ratelimit",
+          "candidateId": "rate-bottleneck",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1617,22 +1409,13 @@
           "unknownIds": []
         },
         {
-          "candidateId": "rate-kong",
+          "candidateId": "rate-flexible",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-rate-partial-evidence-rate-kong-4c57a6b122"
+            "ranking-v1-rate-flexible-fact-05"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "rate-redis-cell",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
           ],
           "unknownIds": []
         },
@@ -1650,29 +1433,31 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "rate-kong"
+        "rate-flexible"
       ],
       "rankGroups": [
         [
-          "rate-kong"
+          "rate-flexible"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "webhook-hookdeck",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "candidateId": "webhook-convoy",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-convoy-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -1700,17 +1485,6 @@
           "evidenceIds": [],
           "reasonCodes": [
             "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "webhook-webhook-site",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-c4ef823436"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         }
@@ -1719,29 +1493,31 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "webhook-webhook-site"
+        "webhook-convoy"
       ],
       "rankGroups": [
         [
-          "webhook-webhook-site"
+          "webhook-convoy"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "webhook-hookdeck",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "candidateId": "webhook-convoy",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-convoy-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -1769,17 +1545,6 @@
           "evidenceIds": [],
           "reasonCodes": [
             "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "webhook-webhook-site",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-webhook-pair-evidence-webhook-webhook-site-c4ef823436"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         }
@@ -1788,28 +1553,28 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "webhook-webhook-site"
+        "webhook-convoy"
       ],
       "rankGroups": [
         [
-          "webhook-webhook-site"
+          "webhook-convoy"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "webhook-hookdeck",
+          "candidateId": "webhook-convoy",
           "disposition": "recommended",
           "evidenceIds": [
-            "ranking-v1-webhook-hard-evidence-webhook-hookdeck-f484d14f22"
+            "ranking-v1-webhook-convoy-fact-04"
           ],
           "reasonCodes": [
             "negative-control-promoted-known-conflict"
@@ -1836,15 +1601,6 @@
         },
         {
           "candidateId": "webhook-svix",
-          "disposition": "rejected",
-          "evidenceIds": [],
-          "reasonCodes": [
-            "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "webhook-webhook-site",
           "disposition": "rejected",
           "evidenceIds": [],
           "reasonCodes": [
@@ -1857,29 +1613,31 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "webhook-hookdeck"
+        "webhook-convoy"
       ],
       "rankGroups": [
         [
-          "webhook-hookdeck"
+          "webhook-convoy"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "webhook-hookdeck",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "candidateId": "webhook-convoy",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-convoy-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -1907,17 +1665,6 @@
           "evidenceIds": [],
           "reasonCodes": [
             "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "webhook-webhook-site",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-webhook-insufficient-evidence-webhook-webhook-site-bd9ece0e5a"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         }
@@ -1926,29 +1673,31 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "webhook-webhook-site"
+        "webhook-convoy"
       ],
       "rankGroups": [
         [
-          "webhook-webhook-site"
+          "webhook-convoy"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "webhook-hookdeck",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "candidateId": "webhook-convoy",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-convoy-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -1976,17 +1725,6 @@
           "evidenceIds": [],
           "reasonCodes": [
             "negative-control-rejected"
-          ],
-          "unknownIds": []
-        },
-        {
-          "candidateId": "webhook-webhook-site",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-webhook-popularity-evidence-webhook-webhook-site-621c608b85"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         }
@@ -1995,29 +1733,31 @@
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "webhook-webhook-site"
+        "webhook-convoy"
       ],
       "rankGroups": [
         [
-          "webhook-webhook-site"
+          "webhook-convoy"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     },
     {
-      "appliedPreferenceIds": [],
       "candidates": [
         {
-          "candidateId": "webhook-hookdeck",
-          "disposition": "rejected",
-          "evidenceIds": [],
+          "candidateId": "webhook-convoy",
+          "disposition": "recommended",
+          "evidenceIds": [
+            "ranking-v1-webhook-convoy-fact-05"
+          ],
           "reasonCodes": [
-            "negative-control-rejected"
+            "negative-control-promoted-known-conflict"
           ],
           "unknownIds": []
         },
@@ -2047,37 +1787,27 @@
             "negative-control-rejected"
           ],
           "unknownIds": []
-        },
-        {
-          "candidateId": "webhook-webhook-site",
-          "disposition": "recommended",
-          "evidenceIds": [
-            "ranking-v1-webhook-partial-evidence-webhook-webhook-site-412b356dce"
-          ],
-          "reasonCodes": [
-            "negative-control-promoted-known-conflict"
-          ],
-          "unknownIds": []
         }
       ],
       "caseId": "rank-webhook-06-tie",
       "evidenceNeededResolutions": [],
       "hardConstraintConflicts": [],
       "hardenedPreferenceIds": [],
-      "ignoredPreferenceIds": [],
       "incomparablePairs": [],
       "outcome": "recommend",
+      "preferenceConsequences": [],
       "presentation": [
-        "webhook-webhook-site"
+        "webhook-convoy"
       ],
       "rankGroups": [
         [
-          "webhook-webhook-site"
+          "webhook-convoy"
         ]
       ],
       "rankRelations": [],
-      "successConditionCoverage": []
+      "successConditionCoverage": [],
+      "unboundPreferenceCounterfactuals": []
     }
   ],
-  "semanticDigest": "7689ef2451f0c9a69b19bcb11de7e464951630fed20c50904d13d119912ba2b9"
+  "semanticDigest": "31267529fb69663c3bb19335c339be362043df3ba23fe4f8ae4794f56901d4ab"
 }

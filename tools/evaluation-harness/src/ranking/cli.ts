@@ -292,7 +292,7 @@ function verifyPerformanceReference(repositoryRoot: string): void {
   if (
     rankingValuesDiffer(
       performance.evidenceVersion,
-      'ranking-v1-performance-reference/1.0.0',
+      'ranking-v1-performance-reference/2.0.0',
     ) ||
     rankingValuesDiffer(
       performance.claimScope,
@@ -300,8 +300,8 @@ function verifyPerformanceReference(repositoryRoot: string): void {
     ) ||
     rankingValuesDiffer(performance.productionRankingBenchmark, false) ||
     rankingValuesDiffer(performance.fixture.candidateCount, 20) ||
-    rankingValuesDiffer(performance.fixture.evidenceCount, 240) ||
-    rankingValuesDiffer(performance.fixture.criterionCount, 40) ||
+    rankingValuesDiffer(performance.fixture.evidenceCount, 2000) ||
+    rankingValuesDiffer(performance.fixture.criterionCount, 60) ||
     rankingValuesDiffer(performance.fixture.pairCount, 190) ||
     rankingValuesDiffer(performance.protocol.warmups, 200) ||
     rankingValuesDiffer(performance.protocol.measurements, 2000) ||

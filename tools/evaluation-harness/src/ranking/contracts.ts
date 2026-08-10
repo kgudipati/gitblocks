@@ -18,6 +18,8 @@ export interface RankingCandidateIdentity {
   readonly displayName: string;
   readonly repository: string;
   readonly packageName: string | null;
+  readonly identityKind:
+    'committed-catalog-candidate' | 'scenario-synthetic-candidate';
 }
 
 export interface RankingCriterion {
@@ -45,13 +47,27 @@ export interface RankingCriterionBinding {
   readonly bindingState: 'bound' | 'unbound';
   readonly materiality: 'material' | 'non-material' | null;
   readonly semanticFacet: string | null;
+  readonly semanticConcept: string | null;
   readonly targetFactDependencies: readonly string[];
   readonly candidateFeatureDependencies: readonly string[];
+  readonly comparisonRuleId: string | null;
+  readonly expectedValues: readonly string[];
   readonly evidenceRequired: boolean;
   readonly provenance:
     | 'approved-query-normalization'
     | 'explicit-structured-approval'
     | 'explicit-unbound-review';
+}
+
+export interface RankingHardConstraintRule {
+  readonly constraintId: string;
+  readonly modality: 'required' | 'prohibited';
+  readonly semanticFacet: string;
+  readonly semanticConcept: string;
+  readonly targetFactDependencies: readonly string[];
+  readonly candidateFeatureDependencies: readonly string[];
+  readonly evaluationRuleId: string;
+  readonly expectedValues: readonly string[];
 }
 
 export interface RankingCriterionAuthority {
@@ -62,6 +78,7 @@ export interface RankingCriterionAuthority {
   readonly requestDigest: string;
   readonly approvalDigest: string;
   readonly bindings: readonly RankingCriterionBinding[];
+  readonly hardConstraintRules: readonly RankingHardConstraintRule[];
   readonly semanticDigest: string;
 }
 
@@ -79,6 +96,7 @@ export interface RankingTargetFacts {
   readonly identity: readonly string[];
   readonly resources: readonly string[];
   readonly dataPolicies: readonly string[];
+  readonly externalNetwork: 'available' | 'prohibited' | 'unknown';
 }
 
 export interface RankingTargetAuthority {
@@ -110,9 +128,9 @@ export interface RankingCaseBinding {
 }
 
 export interface RankingBlindCaseAuthority {
-  readonly authorityVersion: 'ranking-v1-blind-cases/1.0.0';
+  readonly authorityVersion: 'ranking-v1-blind-cases/2.0.0';
   readonly corpusId: 'ranking-v1';
-  readonly corpusVersion: '1.0.0';
+  readonly corpusVersion: '2.0.0';
   readonly evidenceCutoff: string;
   readonly requests: readonly RankingRequestAuthority[];
   readonly criterionAuthorities: readonly RankingCriterionAuthority[];
@@ -125,15 +143,20 @@ export interface RankingBlindCaseAuthority {
 export interface RankingEvidenceObservation {
   readonly evidenceId: string;
   readonly candidateId: string;
-  readonly feature: string;
-  readonly assertion: 'supported' | 'conflict' | 'unknown';
-  readonly value: string;
+  readonly featureId: string;
+  readonly state: 'known' | 'unknown';
+  readonly values: readonly string[];
+  readonly completeness: 'complete' | 'partial';
   readonly provenance: {
     readonly kind: 'evaluation-owned-bounded-fixture';
     readonly basis:
       | 'committed-catalog-identity'
       | 'committed-pilot-evidence-concept'
       | 'ranking-v1-controlled-fixture';
+    readonly sourceReference: string | null;
+    readonly claimScope:
+      | 'concept-crosswalk-not-current-project-authority'
+      | 'scenario-synthetic-not-project-authority';
     readonly productionAuthority: false;
   };
   readonly limitation: string;
@@ -142,14 +165,6 @@ export interface RankingEvidenceObservation {
 export interface RankingCandidateEvidence {
   readonly candidateId: string;
   readonly observations: readonly RankingEvidenceObservation[];
-  readonly supportedSuccessConditionIds: readonly string[];
-  readonly supportedPreferenceIds: readonly string[];
-  readonly compatibility: Readonly<Record<string, string>>;
-  readonly closureAssertions: readonly {
-    readonly evaluationId: string;
-    readonly resolution: EvidenceNeededResolution;
-    readonly evidenceIds: readonly string[];
-  }[];
 }
 
 export interface RankingEvidenceSet {
@@ -159,7 +174,7 @@ export interface RankingEvidenceSet {
 }
 
 export interface RankingEvidenceAuthority {
-  readonly authorityVersion: 'ranking-v1-candidate-evidence/1.0.0';
+  readonly authorityVersion: 'ranking-v1-candidate-evidence/2.0.0';
   readonly corpusId: 'ranking-v1';
   readonly evidenceCutoff: string;
   readonly evidenceSets: readonly RankingEvidenceSet[];
@@ -173,6 +188,9 @@ export interface RankingUnresolvedEvaluation {
   readonly modality: 'required' | 'prohibited';
   readonly facet: string;
   readonly conceptId: string | null;
+  readonly expectedValues: readonly string[];
+  readonly targetFactDependencies: readonly string[];
+  readonly candidateFeatureDependencies: readonly string[];
   readonly profileFieldId: string | null;
   readonly match: 'unresolved';
   readonly state: 'unresolved';
@@ -198,7 +216,7 @@ export interface RankingHandoffSet {
 }
 
 export interface RankingHandoffAuthority {
-  readonly authorityVersion: 'ranking-v1-phase9-handoff/1.0.0';
+  readonly authorityVersion: 'ranking-v1-phase9-handoff/2.0.0';
   readonly corpusId: 'ranking-v1';
   readonly handoffSets: readonly RankingHandoffSet[];
   readonly semanticDigest: string;
@@ -251,10 +269,19 @@ export interface RankingGoldCase {
   }[];
   readonly preferenceConsequences: readonly {
     readonly criterionId: string;
-    readonly state: 'applied' | 'ignored-unbound';
+    readonly state:
+      | 'applied-and-changed-supported-comparison'
+      | 'bound-but-no-applicable-positive-comparison'
+      | 'ignored-unbound';
+    readonly affectedPairs: readonly (readonly [string, string])[];
+  }[];
+  readonly unboundPreferenceCounterfactuals: readonly {
+    readonly criterionId: string;
+    readonly candidatePair: readonly [string, string];
+    readonly relationWithoutPreference:
+      'tie' | 'left-higher' | 'right-higher' | 'incomparable';
   }[];
   readonly noPreferenceHardening: true;
-  readonly rationaleNotes: readonly string[];
   readonly provenance: {
     readonly status: 'proposed';
     readonly authoringSession: 'phase-10-m2-ranking-authoring';
@@ -266,16 +293,16 @@ export interface RankingGoldCase {
 }
 
 export interface RankingGoldAuthority {
-  readonly authorityVersion: 'ranking-v1-proposed-gold/1.0.0';
+  readonly authorityVersion: 'ranking-v1-proposed-gold/2.0.0';
   readonly corpusId: 'ranking-v1';
   readonly reviewStatus: 'proposed-not-independently-reviewed';
   readonly cases: readonly RankingGoldCase[];
   readonly controlledPairDirections: readonly {
     readonly pairId: string;
     readonly firstCaseId: string;
-    readonly firstPreferredCandidateId: string;
+    readonly firstMaximalCandidateIds: readonly string[];
     readonly secondCaseId: string;
-    readonly secondPreferredCandidateId: string;
+    readonly secondMaximalCandidateIds: readonly string[];
   }[];
   readonly semanticDigest: string;
 }
@@ -294,7 +321,7 @@ export interface RankingAuditCase {
 }
 
 export interface RankingAuditAuthority {
-  readonly authorityVersion: 'ranking-v1-audit-classification/1.0.0';
+  readonly authorityVersion: 'ranking-v1-audit-classification/2.0.0';
   readonly corpusId: 'ranking-v1';
   readonly cases: readonly RankingAuditCase[];
   readonly controlledPairs: readonly {
@@ -306,10 +333,32 @@ export interface RankingAuditAuthority {
   readonly semanticDigest: string;
 }
 
-export interface RankingReviewRecord {
-  readonly reviewRecordVersion: 'ranking-v1-review-record/1.0.0';
+export interface RankingReviewerRationaleCase {
+  readonly caseId: string;
+  readonly requestRequirements: readonly string[];
+  readonly materialTargetFacts: readonly string[];
+  readonly coverageEvidence: readonly string[];
+  readonly hardConflictEvidence: readonly string[];
+  readonly materialInsufficiency: readonly string[];
+  readonly preferenceAnalysis: readonly string[];
+  readonly maximalSetAnalysis: readonly string[];
+  readonly partialOrderAnalysis: readonly string[];
+  readonly controlledPairChange: string | null;
+}
+
+export interface RankingReviewerRationaleAuthority {
+  readonly authorityVersion: 'ranking-v1-reviewer-rationale/1.0.0';
   readonly corpusId: 'ranking-v1';
-  readonly goldAuthorityVersion: 'ranking-v1-proposed-gold/1.0.0';
+  readonly status: 'author-rationale-for-independent-review';
+  readonly cases: readonly RankingReviewerRationaleCase[];
+  readonly semanticDigest: string;
+}
+
+export interface RankingReviewRecord {
+  readonly reviewRecordVersion: 'ranking-v1-review-record/2.0.0';
+  readonly corpusId: 'ranking-v1';
+  readonly goldAuthorityVersion: 'ranking-v1-proposed-gold/2.0.0';
+  readonly reviewerRationaleVersion: 'ranking-v1-reviewer-rationale/1.0.0';
   readonly status: 'independent-review-pending';
   readonly author: 'Codex';
   readonly independentReviewer: null;
@@ -318,6 +367,7 @@ export interface RankingReviewRecord {
   readonly disputedCaseIds: readonly [];
   readonly acceptedCaseIds: readonly [];
   readonly goldDigest: string;
+  readonly reviewerRationaleDigest: string;
   readonly semanticDigest: string;
 }
 
@@ -361,19 +411,19 @@ export interface RankingCasePrediction {
       | 'fail-closed'
       | 'not-counted-approved-non-material';
   }[];
-  readonly appliedPreferenceIds: readonly string[];
-  readonly ignoredPreferenceIds: readonly string[];
+  readonly preferenceConsequences: RankingGoldCase['preferenceConsequences'];
+  readonly unboundPreferenceCounterfactuals: RankingGoldCase['unboundPreferenceCounterfactuals'];
   readonly hardenedPreferenceIds: readonly string[];
 }
 
 export interface RankingPredictionSet {
-  readonly predictionSetVersion: 'ranking-v1-prediction-set/1.0.0';
+  readonly predictionSetVersion: 'ranking-v1-prediction-set/2.0.0';
   readonly predictionSetId: string;
   readonly baselineId: string;
   readonly baselineVersion: string;
   readonly baselineSpecificationDigest: string;
   readonly corpusId: 'ranking-v1';
-  readonly corpusVersion: '1.0.0';
+  readonly corpusVersion: '2.0.0';
   readonly blindInputDigest: string;
   readonly predictions: readonly RankingCasePrediction[];
   readonly semanticDigest: string;
@@ -394,7 +444,7 @@ export interface RankingBaselineSpecification {
 }
 
 export interface RankingBaselineSpecificationAuthority {
-  readonly authorityVersion: 'ranking-v1-baseline-specifications/1.0.0';
+  readonly authorityVersion: 'ranking-v1-baseline-specifications/2.0.0';
   readonly frozenBeforeScoring: true;
   readonly omissions: readonly {
     readonly baseline: 'popularity-health';
@@ -478,14 +528,14 @@ export interface RankingMetricSet {
     readonly boundSuccessConditionCoverage: ExactMetric;
     readonly materialUnboundFailClosed: ExactMetric;
     readonly approvedNonMaterialUnbound: ExactMetric;
-    readonly boundPreferenceOrderingEffect: ExactMetric;
-    readonly unboundPreferenceNonEffect: ExactMetric;
+    readonly boundPreferenceComparisonConsequence: ExactMetric;
+    readonly unboundPreferenceCounterfactualNonEffect: ExactMetric;
     readonly noPreferenceHardening: ExactMetric;
   };
 }
 
 export interface RankingScoreReport {
-  readonly scoreVersion: 'ranking-v1-scorer/1.0.0';
+  readonly scoreVersion: 'ranking-v1-scorer/2.0.0';
   readonly corpusId: 'ranking-v1';
   readonly predictionSetId: string;
   readonly predictionDigest: string;
@@ -494,8 +544,9 @@ export interface RankingScoreReport {
   readonly perFamily: Readonly<Record<RankingFamily, RankingMetricSet>>;
   readonly controlledPairs: {
     readonly total: number;
-    readonly correct: number;
-    readonly incorrect: number;
+    readonly exactPairCorrect: number;
+    readonly wrongMaximalSet: number;
+    readonly wrongDirection: number;
     readonly unchangedWhenChangeRequired: number;
   };
   readonly semanticDigest: string;
@@ -507,6 +558,7 @@ export interface RankingValidatedCorpus {
   readonly handoff: RankingHandoffAuthority;
   readonly gold: RankingGoldAuthority;
   readonly audit: RankingAuditAuthority;
+  readonly reviewerRationale: RankingReviewerRationaleAuthority;
   readonly review: RankingReviewRecord;
 }
 
@@ -523,6 +575,7 @@ export interface RankingManifestFile {
     | 'phase9-handoff'
     | 'proposed-gold'
     | 'audit-classification'
+    | 'reviewer-rationale'
     | 'review-record'
     | 'baseline-specifications'
     | 'baseline-prediction'
@@ -539,9 +592,9 @@ export interface RankingManifestFile {
 }
 
 export interface RankingCorpusManifest {
-  readonly manifestVersion: 'ranking-v1-manifest/1.0.0';
+  readonly manifestVersion: 'ranking-v1-manifest/2.0.0';
   readonly corpusId: 'ranking-v1';
-  readonly corpusVersion: '1.0.0';
+  readonly corpusVersion: '2.0.0';
   readonly status: 'proposed-independent-review-pending';
   readonly evidenceCutoff: string;
   readonly caseCount: 30;

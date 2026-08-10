@@ -59,7 +59,7 @@
       "evidenceNeededCount": 0,
       "outcome": "insufficient-evidence",
       "retrievalQueryCaseId": "ret-authorization-01",
-      "targetAuthorityDigest": "4168b9935da13f489431d7ac53560982b15e6962a93c10c16a2ad39af403030d"
+      "targetAuthorityDigest": "8661415f119b5a387d0224bb99d5e6b012a367afbaa2b9e46d570c6f10f7a2d8"
     },
     {
       "candidateCount": 10,
@@ -119,7 +119,7 @@
       "evidenceNeededCount": 0,
       "outcome": "insufficient-evidence",
       "retrievalQueryCaseId": "ret-audit-logging-01",
-      "targetAuthorityDigest": "67e44eab798bf44e2e5bb03f9183e8d2665ca5adeb481602ade30112326ef88a"
+      "targetAuthorityDigest": "6b70e091e400c188f622e2a96ffd39b0bd05f58c99b8954a80227bb70b9d4b3c"
     },
     {
       "candidateCount": 10,
@@ -179,7 +179,7 @@
       "evidenceNeededCount": 0,
       "outcome": "insufficient-evidence",
       "retrievalQueryCaseId": "ret-background-jobs-01",
-      "targetAuthorityDigest": "f76b047c7a18e6dd1e6c0011ecd8bda165d18fbf5a35a6b48fe2b0ad68b7a7da"
+      "targetAuthorityDigest": "94ee0ab44bc13294d353e972da4108bcb7ff7d1d07c2a974831abb5321f6ce31"
     },
     {
       "candidateCount": 10,
@@ -239,7 +239,7 @@
       "evidenceNeededCount": 0,
       "outcome": "insufficient-evidence",
       "retrievalQueryCaseId": "ret-rate-limiting-01",
-      "targetAuthorityDigest": "eed9c372dc48354df80d733a8c36c322abc78f96bdcbc8068acffe70255b8483"
+      "targetAuthorityDigest": "5a4fe15703a79b5d0ca73ec1c00c00f7f35b07752fee6c85555684faa7b758d9"
     },
     {
       "candidateCount": 10,
@@ -299,11 +299,11 @@
       "evidenceNeededCount": 0,
       "outcome": "insufficient-evidence",
       "retrievalQueryCaseId": "ret-webhooks-01",
-      "targetAuthorityDigest": "2eddd0accf5d515e9c6fa3bd5611cedfce59ae85af3ec7adbf238c3a12b89538"
+      "targetAuthorityDigest": "0ae0e26b36b97b8d2ec9a1c1afdc1651b9a7ebe292367673bd66e2fb07ee7470"
     }
   ],
-  "predictionVersion": "ranking-v1-composition-prediction/1.0.0",
+  "predictionVersion": "ranking-v1-composition-prediction/2.0.0",
   "retrievalAuthority": "retrieval-v2",
   "retrievalPredictionDigest": "c654395026508b88181723bdcc7160566ac983c6c5a8a61c4c0650296d22ac82",
-  "semanticDigest": "5db6e138e4737737f2f318058f06b17226df4ef886cb08ac077218610a4654b1"
+  "semanticDigest": "16c2baceda5850d00a55b6de61e678c923a2fce1e90d26c1621ec231d17057a2"
 }

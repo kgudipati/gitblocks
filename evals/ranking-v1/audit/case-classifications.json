@@ -1,11 +1,10 @@
 {
-  "authorityVersion": "ranking-v1-audit-classification/1.0.0",
+  "authorityVersion": "ranking-v1-audit-classification/2.0.0",
   "cases": [
     {
       "auditLabels": [
-        "family:audit-logging",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "audit-semantic-adoption"
       ],
       "caseId": "rank-audit-01-controlled-a",
       "family": "audit-logging",
@@ -13,9 +12,8 @@
     },
     {
       "auditLabels": [
-        "family:audit-logging",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "audit-semantic-adoption"
       ],
       "caseId": "rank-audit-02-controlled-b",
       "family": "audit-logging",
@@ -23,8 +21,8 @@
     },
     {
       "auditLabels": [
-        "family:audit-logging",
-        "scenario:hard"
+        "hard-conflict-no-viable",
+        "audit-semantic-adoption"
       ],
       "caseId": "rank-audit-03-no-viable",
       "family": "audit-logging",
@@ -32,9 +30,9 @@
     },
     {
       "auditLabels": [
-        "family:audit-logging",
-        "scenario:insufficient",
-        "insufficient:withheld-target"
+        "evidence-insufficient",
+        "audit-semantic-adoption",
+        "material-authority-withheld-or-unbound"
       ],
       "caseId": "rank-audit-04-insufficient",
       "family": "audit-logging",
@@ -42,9 +40,9 @@
     },
     {
       "auditLabels": [
-        "family:audit-logging",
-        "scenario:popularity",
-        "popularity-over-fit"
+        "popularity-over-fit",
+        "audit-semantic-adoption",
+        "surface-familiarity-trap:audit-pino"
       ],
       "caseId": "rank-audit-05-popularity-over-fit",
       "family": "audit-logging",
@@ -52,9 +50,8 @@
     },
     {
       "auditLabels": [
-        "family:audit-logging",
-        "scenario:partial",
-        "explicit-incomparability"
+        "explicit-incomparability",
+        "audit-semantic-adoption"
       ],
       "caseId": "rank-audit-06-incomparable",
       "family": "audit-logging",
@@ -62,9 +59,8 @@
     },
     {
       "auditLabels": [
-        "family:authorization",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "auth-semantic-adoption"
       ],
       "caseId": "rank-auth-01-controlled-a",
       "family": "authorization",
@@ -72,9 +68,8 @@
     },
     {
       "auditLabels": [
-        "family:authorization",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "auth-semantic-adoption"
       ],
       "caseId": "rank-auth-02-controlled-b",
       "family": "authorization",
@@ -82,8 +77,8 @@
     },
     {
       "auditLabels": [
-        "family:authorization",
-        "scenario:hard"
+        "hard-conflict-no-viable",
+        "auth-semantic-adoption"
       ],
       "caseId": "rank-auth-03-no-viable",
       "family": "authorization",
@@ -91,9 +86,9 @@
     },
     {
       "auditLabels": [
-        "family:authorization",
-        "scenario:insufficient",
-        "insufficient:material-unbound"
+        "evidence-insufficient",
+        "auth-semantic-adoption",
+        "material-authority-withheld-or-unbound"
       ],
       "caseId": "rank-auth-04-insufficient",
       "family": "authorization",
@@ -101,9 +96,9 @@
     },
     {
       "auditLabels": [
-        "family:authorization",
-        "scenario:popularity",
-        "popularity-over-fit"
+        "popularity-over-fit",
+        "auth-semantic-adoption",
+        "surface-familiarity-trap:auth-stalniy-casl"
       ],
       "caseId": "rank-auth-05-popularity-over-fit",
       "family": "authorization",
@@ -111,9 +106,8 @@
     },
     {
       "auditLabels": [
-        "family:authorization",
-        "scenario:partial",
-        "tie"
+        "tie",
+        "auth-semantic-adoption"
       ],
       "caseId": "rank-auth-06-tie",
       "family": "authorization",
@@ -121,9 +115,8 @@
     },
     {
       "auditLabels": [
-        "family:background-jobs",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "jobs-semantic-adoption"
       ],
       "caseId": "rank-jobs-01-controlled-a",
       "family": "background-jobs",
@@ -131,9 +124,8 @@
     },
     {
       "auditLabels": [
-        "family:background-jobs",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "jobs-semantic-adoption"
       ],
       "caseId": "rank-jobs-02-controlled-b",
       "family": "background-jobs",
@@ -141,8 +133,8 @@
     },
     {
       "auditLabels": [
-        "family:background-jobs",
-        "scenario:hard"
+        "hard-conflict-no-viable",
+        "jobs-semantic-adoption"
       ],
       "caseId": "rank-jobs-03-no-viable",
       "family": "background-jobs",
@@ -150,9 +142,9 @@
     },
     {
       "auditLabels": [
-        "family:background-jobs",
-        "scenario:insufficient",
-        "insufficient:incomplete-candidate-evidence"
+        "evidence-insufficient",
+        "jobs-semantic-adoption",
+        "material-authority-withheld-or-unbound"
       ],
       "caseId": "rank-jobs-04-insufficient",
       "family": "background-jobs",
@@ -160,9 +152,9 @@
     },
     {
       "auditLabels": [
-        "family:background-jobs",
-        "scenario:popularity",
-        "popularity-over-fit"
+        "popularity-over-fit",
+        "jobs-semantic-adoption",
+        "surface-familiarity-trap:jobs-graphile-worker"
       ],
       "caseId": "rank-jobs-05-popularity-over-fit",
       "family": "background-jobs",
@@ -170,9 +162,8 @@
     },
     {
       "auditLabels": [
-        "family:background-jobs",
-        "scenario:partial",
-        "tie"
+        "tie",
+        "jobs-semantic-adoption"
       ],
       "caseId": "rank-jobs-06-tie",
       "family": "background-jobs",
@@ -180,9 +171,8 @@
     },
     {
       "auditLabels": [
-        "family:rate-limiting",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "rate-semantic-adoption"
       ],
       "caseId": "rank-rate-01-controlled-a",
       "family": "rate-limiting",
@@ -190,9 +180,8 @@
     },
     {
       "auditLabels": [
-        "family:rate-limiting",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "rate-semantic-adoption"
       ],
       "caseId": "rank-rate-02-controlled-b",
       "family": "rate-limiting",
@@ -200,8 +189,8 @@
     },
     {
       "auditLabels": [
-        "family:rate-limiting",
-        "scenario:hard"
+        "hard-conflict-no-viable",
+        "rate-semantic-adoption"
       ],
       "caseId": "rank-rate-03-no-viable",
       "family": "rate-limiting",
@@ -209,9 +198,9 @@
     },
     {
       "auditLabels": [
-        "family:rate-limiting",
-        "scenario:insufficient",
-        "insufficient:unresolved-handoff"
+        "evidence-insufficient",
+        "rate-semantic-adoption",
+        "material-authority-withheld-or-unbound"
       ],
       "caseId": "rank-rate-04-insufficient",
       "family": "rate-limiting",
@@ -219,9 +208,9 @@
     },
     {
       "auditLabels": [
-        "family:rate-limiting",
-        "scenario:popularity",
-        "popularity-over-fit"
+        "popularity-over-fit",
+        "rate-semantic-adoption",
+        "surface-familiarity-trap:rate-express-rate-limit"
       ],
       "caseId": "rank-rate-05-popularity-over-fit",
       "family": "rate-limiting",
@@ -229,9 +218,8 @@
     },
     {
       "auditLabels": [
-        "family:rate-limiting",
-        "scenario:partial",
-        "explicit-incomparability"
+        "explicit-incomparability",
+        "rate-semantic-adoption"
       ],
       "caseId": "rank-rate-06-incomparable",
       "family": "rate-limiting",
@@ -239,9 +227,8 @@
     },
     {
       "auditLabels": [
-        "family:webhooks",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "webhook-semantic-adoption"
       ],
       "caseId": "rank-webhook-01-controlled-a",
       "family": "webhooks",
@@ -249,9 +236,8 @@
     },
     {
       "auditLabels": [
-        "family:webhooks",
-        "scenario:pair",
-        "target-conditioning"
+        "controlled-target-pair",
+        "webhook-semantic-adoption"
       ],
       "caseId": "rank-webhook-02-controlled-b",
       "family": "webhooks",
@@ -259,8 +245,8 @@
     },
     {
       "auditLabels": [
-        "family:webhooks",
-        "scenario:hard"
+        "hard-conflict-no-viable",
+        "webhook-semantic-adoption"
       ],
       "caseId": "rank-webhook-03-no-viable",
       "family": "webhooks",
@@ -268,9 +254,9 @@
     },
     {
       "auditLabels": [
-        "family:webhooks",
-        "scenario:insufficient",
-        "insufficient:missing-materiality"
+        "evidence-insufficient",
+        "webhook-semantic-adoption",
+        "material-authority-withheld-or-unbound"
       ],
       "caseId": "rank-webhook-04-insufficient",
       "family": "webhooks",
@@ -278,9 +264,9 @@
     },
     {
       "auditLabels": [
-        "family:webhooks",
-        "scenario:popularity",
-        "popularity-over-fit"
+        "popularity-over-fit",
+        "webhook-semantic-adoption",
+        "surface-familiarity-trap:webhook-stripe-node"
       ],
       "caseId": "rank-webhook-05-popularity-over-fit",
       "family": "webhooks",
@@ -288,9 +274,8 @@
     },
     {
       "auditLabels": [
-        "family:webhooks",
-        "scenario:partial",
-        "tie"
+        "tie",
+        "webhook-semantic-adoption"
       ],
       "caseId": "rank-webhook-06-tie",
       "family": "webhooks",
@@ -300,9 +285,7 @@
   "controlledPairs": [
     {
       "changedTargetPaths": [
-        "/facts/deployment",
-        "/facts/resources/0",
-        "/facts/workerCapability"
+        "/facts/resources/0"
       ],
       "firstCaseId": "rank-audit-01-controlled-a",
       "pairId": "ranking-v1-audit-controlled-pair",
@@ -310,11 +293,7 @@
     },
     {
       "changedTargetPaths": [
-        "/facts/deployment",
-        "/facts/framework",
-        "/facts/resources/0",
-        "/facts/runtime",
-        "/facts/workerCapability"
+        "/facts/resources/0"
       ],
       "firstCaseId": "rank-auth-01-controlled-a",
       "pairId": "ranking-v1-auth-controlled-pair",
@@ -331,8 +310,12 @@
     },
     {
       "changedTargetPaths": [
+        "/facts/deployment",
+        "/facts/externalNetwork",
+        "/facts/framework",
         "/facts/redis",
-        "/facts/resources/0"
+        "/facts/resources/0",
+        "/facts/runtime"
       ],
       "firstCaseId": "rank-rate-01-controlled-a",
       "pairId": "ranking-v1-rate-controlled-pair",
@@ -340,8 +323,7 @@
     },
     {
       "changedTargetPaths": [
-        "/facts/framework",
-        "/facts/identity/0"
+        "/facts/resources/0"
       ],
       "firstCaseId": "rank-webhook-01-controlled-a",
       "pairId": "ranking-v1-webhook-controlled-pair",
@@ -349,5 +331,5 @@
     }
   ],
   "corpusId": "ranking-v1",
-  "semanticDigest": "0136fd169a31566811ed11ae29f2331f0073974323abfd28726f16cda2c9305d"
+  "semanticDigest": "da9643a25641847ee29d561928fd2d8d07011acd10779d3681181af0aba3ea9d"
 }

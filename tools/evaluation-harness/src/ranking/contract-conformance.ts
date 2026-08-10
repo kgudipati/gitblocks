@@ -11,7 +11,7 @@ import { compareRankingText } from './stable-json.ts';
 
 export interface RankingContractConformanceSummary {
   readonly caseCount: 30;
-  readonly candidateCount: 150;
+  readonly candidateCount: 120;
   readonly productContractVersion: '1.0.0';
   readonly goldStatus: 'proposed';
   readonly independentReviewStatus: 'not-reviewed';
@@ -90,7 +90,7 @@ export function validateRankingContractConformance(
     ok: true,
     summary: {
       caseCount: 30,
-      candidateCount: 150,
+      candidateCount: 120,
       productContractVersion: '1.0.0',
       goldStatus: 'proposed',
       independentReviewStatus: 'not-reviewed',
@@ -113,14 +113,14 @@ function mapRankingCase(resolved: RankingResolvedCase, gold: RankingGoldCase) {
       kind: 'evidence' as const,
       evidenceId: evidenceId(observation.evidenceId),
       candidateId: observation.candidateId,
-      topic: stableToken(observation.feature),
+      topic: stableToken(observation.featureId),
       dimension: 'integration' as const,
-      observation: `The bounded evaluation fixture records ${observation.feature} as ${observation.assertion}.`,
+      observation: `The bounded evaluation fixture records ${observation.featureId} with state ${observation.state} and values ${observation.values.join(', ') || 'none'}.`,
       source: {
         kind: 'approved-validation' as const,
         sourceType: 'approved-validation' as const,
         validationReferenceId: evidenceId(observation.evidenceId),
-        scope: stableToken(observation.feature),
+        scope: stableToken(observation.featureId),
         validatedAt: timestamp,
       },
       freshness: {

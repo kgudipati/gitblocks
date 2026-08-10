@@ -1,8 +1,8 @@
 {
   "caseCount": 30,
   "corpusId": "ranking-v1",
-  "corpusSemanticDigest": "3547247c4b406f6deeb5462dd073515b8dc610caf1b1d8f6882733af1aa1245a",
-  "corpusVersion": "1.0.0",
+  "corpusSemanticDigest": "dba32520a7500d288114be88b16f59edbf37ce21a179b676e7a65ad945a80e48",
+  "corpusVersion": "2.0.0",
   "evidenceCutoff": "2026-08-10",
   "familyCounts": {
     "audit-logging": 6,
@@ -15,104 +15,109 @@
     {
       "kind": "audit-classification",
       "path": "audit/case-classifications.json",
-      "sha256": "233cc33d971e7d817387b5b08b71bc588921e70cedc1174af172920c121eca97"
+      "sha256": "beec5453a60944fec81b1cfbfe1530ccf82189df3efcceec9eb97c162bc1d36d"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/all-insufficient.json",
-      "sha256": "3dd69963dafe91d1b527b8aa7025317734f731addeb68ee6a28da0e285cd829f"
+      "sha256": "018e77ef4558eaa26e48ced3f6ff580611fef1db14b786e366b8399c13cdcef7"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/hard-conflict-control.json",
-      "sha256": "c0d13cdc16a625e008ad3d8acc994096cc04f382d64d5287426b5b5c6b22f6c9"
+      "sha256": "521528ef1792967c29c3cc3f5e16a949800a9970d95d454f54e71f0ebe6bb17b"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/retrieval-order.json",
-      "sha256": "390ae0fac7606c64bce13fea672f0717b30c25ec6611ae070cd716f5baedb3c0"
+      "sha256": "2039ba5ebb60fc5b718cc4ce70e629e681340922b1993bd80504eed40b7b373a"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/target-aware.json",
-      "sha256": "f9c6617bedf015cce82f39b022c624bc70383c7c7c49ffd4ea5a63d1d0be5cf0"
+      "sha256": "afd39129fb942fa43f72a241bd94349da23ff409999fd3e9291024f3e5f2a770"
     },
     {
       "kind": "baseline-prediction",
       "path": "baselines/predictions/target-blind.json",
-      "sha256": "4799148fd0fe93be274ef09b79b825059a231cfaf7d5f351b0c9e62e17d33b06"
+      "sha256": "e10dfc10cc070f871ae0658feb7506c797b277655c488ae61cf8d220f373d782"
     },
     {
       "kind": "baseline-specifications",
       "path": "baselines/specifications.json",
-      "sha256": "40fb598e7fc6604194f629e469eeab072ef53de0fe85d726053e9d316326d153"
+      "sha256": "21533b21741dff5ac4039d5046436862efd4356c0e965071512d7d627cf12b69"
     },
     {
       "kind": "blind-cases",
       "path": "blind/cases.json",
-      "sha256": "d5180c309894365045e3105cc2f3da8f9eab7e7bfd2d289a235856fa55ce040f"
+      "sha256": "8388f18f047469f99e21417be5af82d1a36391c3bd75b03d3f7b182c27a96f14"
     },
     {
       "kind": "composition-input",
       "path": "composition/blind-inputs.json",
-      "sha256": "147de10d51bbddcdb730c97ef5281858fea85c7e53658e0a70cdafd91fd7958a"
+      "sha256": "e7c7646cb3f57d459f8feb1a5eae7b3be22a3bba31230e12f065b1d7dfbe89bc"
     },
     {
       "kind": "composition-gold",
       "path": "composition/gold.json",
-      "sha256": "3e7ac042f9f43aaf6249151644fae2858d598b12290350fafe657f49b7ad1b81"
+      "sha256": "06fa26bc60242a15f3a1bc6cc5733d1df30438bfdac1204a91c404ce2afa6fe8"
     },
     {
       "kind": "composition-prediction",
       "path": "composition/predictions.json",
-      "sha256": "17b050bd327a6ac1cd64f16c6145ba17875affe86e56580c128c31a2274ddc96"
+      "sha256": "4bcbf2c13b51dad18ebd0a0051586dcfab86fdcc21de812dc6af51c43e4b7682"
     },
     {
       "kind": "candidate-evidence",
       "path": "evidence/candidate-evidence.json",
-      "sha256": "b7d696ac72eca313811d7b31e4e3c315c7b84b0611fa65b083b5f2627200fe02"
+      "sha256": "8f73c6e213fd4da46cf14cabf6822e6936bc44c8107e0e2250c310d225bbb4c0"
     },
     {
       "kind": "scorer-fixture-summary",
       "path": "fixtures/scorer-fixture-summary.json",
-      "sha256": "83851c16a0ab64cd7c36cd0309eb116972aa7edc953cd38951cf4412353d6b74"
+      "sha256": "6878c80bca0ff585ccc53e4d93150d776ef40a497e6c84302d4526a143fe7e0d"
     },
     {
       "kind": "gate-review-input",
       "path": "gates/proposed-review-inputs.json",
-      "sha256": "e149d8c7eafd545f853010adfa56f5160596c12cb7f4e54209f8baa2cb2cea9d"
+      "sha256": "63f62a10d25d06eaa649deb2af3cf9c99256af29e89ec07abd7dcd607c5df5e9"
     },
     {
       "kind": "proposed-gold",
       "path": "gold/outcomes.json",
-      "sha256": "3a47634dd3c929bc54f2d7496e84e35954092d9caf643e32d1afcec1a109db2c"
+      "sha256": "0d802370b3e9797b8b5b0dddebe15e6702b4398af989cd1b8c4e9914f2a64d2c"
     },
     {
       "kind": "phase9-handoff",
       "path": "handoff/phase9-lanes.json",
-      "sha256": "1cf1b6251df3834522a83526e2caf9e44b0cf9a9f03f17538a0f1698e207da2d"
+      "sha256": "236c9e691edacff9022621e17f09c5618252220151f9c719f683d1e3fa636ef1"
     },
     {
       "kind": "baseline-report",
       "path": "reports/baseline-report.json",
-      "sha256": "010ee24a9688b5c3f46760c9dd466e35abcfe988aeb51c82436b0377c96a4ec7"
+      "sha256": "51a2833710d88cacb3b9253a4fdb04dc3a6f96f950e6481620a7039a47aec563"
     },
     {
       "kind": "composition-report",
       "path": "reports/composition-report.json",
-      "sha256": "7593edbeb7f799c3e5fba58c1ab8832e98158dd4538be78cbf47d2cfdf05f416"
+      "sha256": "5ae883e408ab5987feac37da145bbf6fcf015c463bfc687c7fbd3d03164d29a0"
     },
     {
       "kind": "performance-reference",
       "path": "reports/performance-reference.json",
-      "sha256": "1615fe27df75f0c700001665d8dddc11f5ce402dacd2cfede5aab5eb765239e4"
+      "sha256": "b0cda6174e8464169152f100fc7408aa5b198529f993ee183e0089c65f58ecf9"
     },
     {
       "kind": "review-record",
       "path": "reviews/proposed-review-record.json",
-      "sha256": "2d567cc375107e55b1bf83444290da51bd7944c1dce9131239307c19b7121c60"
+      "sha256": "90154095b40be9d650468bc22166e2e9396d299b1eeecbfc3eff361afe015715"
+    },
+    {
+      "kind": "reviewer-rationale",
+      "path": "reviews/reviewer-rationale.json",
+      "sha256": "5c2406654c5aec6f67078418520ec1b60ae1a64393b5875c79d6074747aaa422"
     }
   ],
-  "manifestVersion": "ranking-v1-manifest/1.0.0",
+  "manifestVersion": "ranking-v1-manifest/2.0.0",
   "status": "proposed-independent-review-pending"
 }

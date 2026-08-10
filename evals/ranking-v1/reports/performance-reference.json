@@ -1,51 +1,51 @@
 {
   "claimScope": "gold-blind-evaluation-data-operations-only",
-  "evidenceVersion": "ranking-v1-performance-reference/1.0.0",
+  "evidenceVersion": "ranking-v1-performance-reference/2.0.0",
   "fixture": {
     "candidateCount": 20,
-    "canonicalOutputBytes": 35096,
-    "criterionCount": 40,
-    "evidenceCount": 240,
-    "fixtureBytes": 35096,
+    "canonicalOutputBytes": 1003178,
+    "criterionCount": 60,
+    "evidenceCount": 2000,
+    "fixtureBytes": 1003178,
     "pairCount": 190
   },
   "latencyMilliseconds": {
     "candidateEvidenceTraversal": {
-      "maximum": 0.014959,
-      "p50": 0.000542,
-      "p95": 0.000792
+      "maximum": 0.035792,
+      "p50": 0.003917,
+      "p95": 0.006416
     },
     "canonicalization": {
-      "maximum": 0.319583,
-      "p50": 0.099667,
-      "p95": 0.136166
+      "maximum": 4.086541,
+      "p50": 2.54125,
+      "p95": 2.938958
     },
     "combinedBoundedOperations": {
-      "maximum": 0.364625,
-      "p50": 0.142542,
-      "p95": 0.181083
+      "maximum": 5.62,
+      "p50": 3.568709,
+      "p95": 4.055959
     },
     "pairEnumeration": {
-      "maximum": 0.010125,
-      "p50": 0.000125,
-      "p95": 0.000208
+      "maximum": 0.016333,
+      "p50": 0.000166,
+      "p95": 0.00025
     },
     "parseValidation": {
-      "maximum": 0.09975,
-      "p50": 0.042,
-      "p95": 0.050541
+      "maximum": 3.093875,
+      "p50": 1.009417,
+      "p95": 1.171083
     }
   },
   "marginProtocol": {
     "finalBudgetSelected": false,
-    "proposal": "An independent reviewer should select a multiplier only after repeating this reference on the supported CI class, separating parse/traversal/pair/canonicalization ceilings, reserving explicit regression and runtime-noise margins, and declining to reinterpret these evaluation-only measurements as production ranker latency.",
+    "proposal": "An independent reviewer should repeat this maximum-legal reference on the supported CI class, establish separate ceilings for parse, traversal, pair enumeration, canonicalization, and combined work, apply an explicit runtime-noise and regression margin, and decline to reinterpret the result as production ranking latency.",
     "status": "proposed-for-independent-review"
   },
   "operationCounts": {
     "boundedWorkProved": true,
     "candidateVisitsPerMeasurement": 20,
-    "criterionVisitsPerMeasurement": 40,
-    "evidenceVisitsPerMeasurement": 240,
+    "criterionVisitsPerMeasurement": 60,
+    "evidenceVisitsPerMeasurement": 2000,
     "pairVisitsPerMeasurement": 190,
     "parseObjectsPerMeasurement": 1
   },
@@ -56,10 +56,10 @@
     "warmups": 200
   },
   "retainedMemory": {
-    "afterBytes": 16057152,
-    "beforeBytes": 15833296,
-    "growthBytes": 223856,
-    "processHeapUsedBytes": 18347352,
+    "afterBytes": 17809216,
+    "beforeBytes": 17580376,
+    "growthBytes": 228840,
+    "processHeapUsedBytes": 31524600,
     "systemTotalMemoryBytes": 51539607552
   },
   "runtime": {
@@ -68,5 +68,5 @@
     "platform": "darwin",
     "release": "24.1.0"
   },
-  "semanticDigest": "77882e88163496f4546b61ca9d639f5bbf8ec4d732cb25efac300106741962d0"
+  "semanticDigest": "f848f261551f7bda8322dd4ab244646d50ec6cdcb5ff1bf019a802de2f435f30"
 }

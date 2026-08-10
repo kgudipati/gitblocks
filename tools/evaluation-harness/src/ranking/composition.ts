@@ -13,7 +13,7 @@ import {
 } from './stable-json.ts';
 
 interface CompositionBlindAuthority {
-  readonly authorityVersion: 'ranking-v1-composition-blind-input/1.0.0';
+  readonly authorityVersion: 'ranking-v1-composition-blind-input/2.0.0';
   readonly retrievalAuthority: 'retrieval-v2';
   readonly retrievalQueryCaseIds: readonly string[];
   readonly targetAuthorityIds: readonly string[];
@@ -22,7 +22,7 @@ interface CompositionBlindAuthority {
 }
 
 interface CompositionGoldAuthority {
-  readonly authorityVersion: 'ranking-v1-composition-proposed-gold/1.0.0';
+  readonly authorityVersion: 'ranking-v1-composition-proposed-gold/2.0.0';
   readonly status: 'proposed-not-independently-reviewed';
   readonly expectedOutcomes: readonly {
     readonly retrievalQueryCaseId: string;
@@ -37,7 +37,7 @@ interface CompositionGoldAuthority {
 }
 
 export interface RankingCompositionPrediction {
-  readonly predictionVersion: 'ranking-v1-composition-prediction/1.0.0';
+  readonly predictionVersion: 'ranking-v1-composition-prediction/2.0.0';
   readonly retrievalAuthority: 'retrieval-v2';
   readonly retrievalPredictionDigest: string;
   readonly baseline: 'composition-all-insufficient-without-m3-authority';
@@ -58,7 +58,7 @@ export interface RankingCompositionPrediction {
 }
 
 export interface RankingCompositionReport {
-  readonly reportVersion: 'ranking-v1-composition-report/1.0.0';
+  readonly reportVersion: 'ranking-v1-composition-report/2.0.0';
   readonly track: 'retrieval-to-ranking-composition-diagnostic';
   readonly fixedCandidateScoreIncluded: false;
   readonly compositionCaseCount: 5;
@@ -113,7 +113,7 @@ export function generateRankingCompositionArtifacts(repositoryRoot: string): {
   if (
     rankingValuesDiffer(
       blind.authorityVersion,
-      'ranking-v1-composition-blind-input/1.0.0',
+      'ranking-v1-composition-blind-input/2.0.0',
     ) ||
     rankingSemanticDigest(blind) !== blind.semanticDigest ||
     blind.retrievalQueryCaseIds.length !== 5 ||
@@ -168,7 +168,7 @@ export function generateRankingCompositionArtifacts(repositoryRoot: string): {
     };
   });
   const predictionWithoutDigest = {
-    predictionVersion: 'ranking-v1-composition-prediction/1.0.0' as const,
+    predictionVersion: 'ranking-v1-composition-prediction/2.0.0' as const,
     retrievalAuthority: 'retrieval-v2' as const,
     retrievalPredictionDigest: generated.predictionSet.semanticDigest,
     baseline: blind.rankingBaseline,
@@ -202,7 +202,7 @@ export function generateRankingCompositionArtifacts(repositoryRoot: string): {
   if (
     rankingValuesDiffer(
       compositionGold.authorityVersion,
-      'ranking-v1-composition-proposed-gold/1.0.0',
+      'ranking-v1-composition-proposed-gold/2.0.0',
     ) ||
     rankingValuesDiffer(
       compositionGold.status,
@@ -229,7 +229,7 @@ export function generateRankingCompositionArtifacts(repositoryRoot: string): {
     0,
   );
   const reportWithoutDigest = {
-    reportVersion: 'ranking-v1-composition-report/1.0.0' as const,
+    reportVersion: 'ranking-v1-composition-report/2.0.0' as const,
     track: 'retrieval-to-ranking-composition-diagnostic' as const,
     fixedCandidateScoreIncluded: false as const,
     compositionCaseCount: 5 as const,

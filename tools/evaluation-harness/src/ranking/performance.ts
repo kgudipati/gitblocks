@@ -3,13 +3,13 @@ import { arch, platform, release, totalmem } from 'node:os';
 import { rankingStableJson, rankingSemanticDigest } from './stable-json.ts';
 
 export interface RankingPerformanceReference {
-  readonly evidenceVersion: 'ranking-v1-performance-reference/1.0.0';
+  readonly evidenceVersion: 'ranking-v1-performance-reference/2.0.0';
   readonly claimScope: 'gold-blind-evaluation-data-operations-only';
   readonly productionRankingBenchmark: false;
   readonly fixture: {
     readonly candidateCount: 20;
-    readonly evidenceCount: 240;
-    readonly criterionCount: 40;
+    readonly evidenceCount: 2000;
+    readonly criterionCount: 60;
     readonly pairCount: 190;
     readonly fixtureBytes: number;
     readonly canonicalOutputBytes: number;
@@ -36,8 +36,8 @@ export interface RankingPerformanceReference {
   readonly operationCounts: {
     readonly parseObjectsPerMeasurement: 1;
     readonly candidateVisitsPerMeasurement: 20;
-    readonly evidenceVisitsPerMeasurement: 240;
-    readonly criterionVisitsPerMeasurement: 40;
+    readonly evidenceVisitsPerMeasurement: 2000;
+    readonly criterionVisitsPerMeasurement: 60;
     readonly pairVisitsPerMeasurement: 190;
     readonly boundedWorkProved: true;
   };
@@ -90,13 +90,13 @@ export function measureRankingPerformanceReference(): RankingPerformanceReferenc
   if (garbageCollector !== undefined) garbageCollector();
   const afterBytes = process.memoryUsage().heapUsed;
   const withoutDigest = {
-    evidenceVersion: 'ranking-v1-performance-reference/1.0.0' as const,
+    evidenceVersion: 'ranking-v1-performance-reference/2.0.0' as const,
     claimScope: 'gold-blind-evaluation-data-operations-only' as const,
     productionRankingBenchmark: false as const,
     fixture: {
       candidateCount: 20 as const,
-      evidenceCount: 240 as const,
-      criterionCount: 40 as const,
+      evidenceCount: 2000 as const,
+      criterionCount: 60 as const,
       pairCount: 190 as const,
       fixtureBytes: Buffer.byteLength(bytes),
       canonicalOutputBytes: Buffer.byteLength(rankingStableJson(fixture)),
@@ -123,8 +123,8 @@ export function measureRankingPerformanceReference(): RankingPerformanceReferenc
     operationCounts: {
       parseObjectsPerMeasurement: 1 as const,
       candidateVisitsPerMeasurement: 20 as const,
-      evidenceVisitsPerMeasurement: 240 as const,
-      criterionVisitsPerMeasurement: 40 as const,
+      evidenceVisitsPerMeasurement: 2000 as const,
+      criterionVisitsPerMeasurement: 60 as const,
       pairVisitsPerMeasurement: 190 as const,
       boundedWorkProved: true as const,
     },
@@ -138,7 +138,7 @@ export function measureRankingPerformanceReference(): RankingPerformanceReferenc
       status: 'proposed-for-independent-review' as const,
       finalBudgetSelected: false as const,
       proposal:
-        'An independent reviewer should select a multiplier only after repeating this reference on the supported CI class, separating parse/traversal/pair/canonicalization ceilings, reserving explicit regression and runtime-noise margins, and declining to reinterpret these evaluation-only measurements as production ranker latency.',
+        'An independent reviewer should repeat this maximum-legal reference on the supported CI class, establish separate ceilings for parse, traversal, pair enumeration, canonicalization, and combined work, apply an explicit runtime-noise and regression margin, and decline to reinterpret the result as production ranking latency.',
     },
   };
   return {
@@ -148,20 +148,64 @@ export function measureRankingPerformanceReference(): RankingPerformanceReferenc
 }
 
 function createMaximumFixture() {
-  const criteria = Array.from({ length: 40 }, (_, index) => ({
+  const criteria = Array.from({ length: 60 }, (_, index) => ({
     criterionId: `criterion-${String(index).padStart(2, '0')}`,
-    state: index % 3 === 0 ? 'bound' : 'unbound',
+    kind:
+      index < 20
+        ? 'success-condition'
+        : index < 40
+          ? 'hard-constraint'
+          : 'preference',
+    bindingState: index % 7 === 0 ? 'unbound' : 'bound',
+    semanticFacet: `facet-${String(index % 12).padStart(2, '0')}`,
+    comparisonRuleId:
+      index % 3 === 0
+        ? 'candidate-has-all/1.0.0'
+        : 'candidate-target-match/1.0.0',
+    candidateFeatureDependencies: [
+      `feature-${String(index % 25).padStart(2, '0')}`,
+    ],
+    targetFactDependencies: [
+      ['runtime', 'framework', 'resources', 'data-policy'][index % 4],
+    ],
   }));
   const candidates = Array.from({ length: 20 }, (_, candidateIndex) => ({
     candidateId: `candidate-${String(candidateIndex).padStart(2, '0')}`,
-    evidence: Array.from({ length: 12 }, (_, evidenceIndex) => ({
-      evidenceId: `evidence-${String(candidateIndex).padStart(2, '0')}-${String(evidenceIndex).padStart(2, '0')}`,
-      feature: `feature-${String(evidenceIndex).padStart(2, '0')}`,
-      value: `value-${String((candidateIndex + evidenceIndex) % 7)}`,
+    evidence: Array.from({ length: 100 }, (_, evidenceIndex) => ({
+      evidenceId: `evidence-${String(candidateIndex).padStart(2, '0')}-${String(evidenceIndex).padStart(3, '0')}`,
+      candidateId: `candidate-${String(candidateIndex).padStart(2, '0')}`,
+      featureId: `feature-${String(evidenceIndex % 25).padStart(2, '0')}`,
+      state: evidenceIndex % 19 === 0 ? 'unknown' : 'known',
+      values:
+        evidenceIndex % 19 === 0
+          ? []
+          : [
+              `value-${String((candidateIndex + evidenceIndex) % 17)}`,
+              `value-${String((candidateIndex * 3 + evidenceIndex) % 17)}`,
+            ],
+      completeness: evidenceIndex % 11 === 0 ? 'partial' : 'complete',
+      provenance: {
+        kind: 'evaluation-owned-bounded-fixture',
+        claimScope: 'scenario-synthetic-not-project-authority',
+        productionAuthority: false,
+      },
     })),
   }));
   return {
-    fixtureVersion: 'ranking-v1-maximum-gold-blind/1.0.0',
+    fixtureVersion: 'ranking-v1-maximum-gold-blind/2.0.0',
+    request: {
+      successConditionCount: 20,
+      hardConstraintCount: 20,
+      preferenceCount: 20,
+      requestedMaximumResults: 3,
+    },
+    target: {
+      runtime: 'node',
+      framework: 'fastify',
+      resources: ['postgres', 'redis', 'worker', 'stdout-collector'],
+      dataPolicies: ['regional-processing', 'sensitive-field-exclusion'],
+      withheldCategories: ['identity-detail'],
+    },
     criteria,
     candidates,
   };
@@ -169,13 +213,22 @@ function createMaximumFixture() {
 
 function parseValidation(bytes: string): number {
   const value = JSON.parse(bytes) as {
-    candidates?: unknown[];
+    candidates?: { evidence?: unknown[] }[];
     criteria?: unknown[];
   };
-  if (value.candidates?.length !== 20 || value.criteria?.length !== 40) {
+  const evidenceCount =
+    value.candidates?.reduce(
+      (sum, candidate) => sum + (candidate.evidence?.length ?? 0),
+      0,
+    ) ?? 0;
+  if (
+    value.candidates?.length !== 20 ||
+    value.criteria?.length !== 60 ||
+    evidenceCount !== 2000
+  ) {
     throw new Error('Maximum fixture parse validation failed.');
   }
-  return value.candidates.length + value.criteria.length;
+  return value.candidates.length + value.criteria.length + evidenceCount;
 }
 
 function traverse(fixture: ReturnType<typeof createMaximumFixture>): number {
@@ -189,7 +242,7 @@ function traverse(fixture: ReturnType<typeof createMaximumFixture>): number {
   for (const criterion of fixture.criteria) {
     visits += criterion.criterionId.length > 0 ? 1 : 0;
   }
-  if (visits !== 300) throw new Error('Maximum fixture traversal drifted.');
+  if (visits !== 2080) throw new Error('Maximum fixture traversal drifted.');
   return visits;
 }
 
@@ -210,8 +263,9 @@ function enumeratePairs(
 }
 
 function summarize(values: readonly number[]): LatencySummary {
-  if (values.length !== 2000)
+  if (values.length !== 2000) {
     throw new Error('Performance sample count drifted.');
+  }
   const sorted = [...values].sort((left, right) => left - right);
   return {
     p50: round(sorted[Math.ceil(sorted.length * 0.5) - 1] ?? 0),

@@ -18,7 +18,7 @@ import {
 
 export interface RankingBlindInputSet {
   readonly corpusId: 'ranking-v1';
-  readonly corpusVersion: '1.0.0';
+  readonly corpusVersion: '2.0.0';
   readonly blindInputDigest: string;
   readonly cases: readonly RankingResolvedCase[];
   readonly specifications: RankingBaselineSpecificationAuthority;
@@ -50,19 +50,19 @@ export function loadRankingBlindInputSet(
   if (
     rankingValuesDiffer(
       blind.authorityVersion,
-      'ranking-v1-blind-cases/1.0.0',
+      'ranking-v1-blind-cases/2.0.0',
     ) ||
     rankingValuesDiffer(
       evidence.authorityVersion,
-      'ranking-v1-candidate-evidence/1.0.0',
+      'ranking-v1-candidate-evidence/2.0.0',
     ) ||
     rankingValuesDiffer(
       handoff.authorityVersion,
-      'ranking-v1-phase9-handoff/1.0.0',
+      'ranking-v1-phase9-handoff/2.0.0',
     ) ||
     rankingValuesDiffer(
       specifications.authorityVersion,
-      'ranking-v1-baseline-specifications/1.0.0',
+      'ranking-v1-baseline-specifications/2.0.0',
     ) ||
     rankingSemanticDigest(specifications) !== specifications.semanticDigest ||
     specifications.specifications.some((specification) => {
@@ -124,7 +124,7 @@ export function loadRankingBlindInputSet(
   if (order === 'reverse') cases.reverse();
   return {
     corpusId: 'ranking-v1',
-    corpusVersion: '1.0.0',
+    corpusVersion: '2.0.0',
     blindInputDigest: rankingDigest({ blind, evidence, handoff }),
     cases,
     specifications,
@@ -173,6 +173,10 @@ export function assertRankingStrategyInput(
     'reviewStatus',
     'threshold',
     'winner',
+    'supportedSuccessConditionIds',
+    'supportedPreferenceIds',
+    'closureAssertions',
+    'resolution',
   ]);
   const visit = (value: unknown): void => {
     if (Array.isArray(value)) {
@@ -188,6 +192,31 @@ export function assertRankingStrategyInput(
     }
   };
   visit(input);
+  const requestCriterionIds = new Set([
+    ...input.request.successConditions.map(({ criterionId }) => criterionId),
+    ...input.request.hardConstraints.map(({ criterionId }) => criterionId),
+    ...input.request.preferences.map(({ criterionId }) => criterionId),
+  ]);
+  const forbiddenFeaturePattern =
+    /(?:success-condition|preference|hard-constraint|evidence-needed-closure)/u;
+  for (const candidate of input.candidateEvidence) {
+    for (const observation of candidate.observations) {
+      if (
+        forbiddenFeaturePattern.test(observation.featureId) ||
+        observation.values.some(
+          (value) =>
+            requestCriterionIds.has(value) ||
+            value === 'satisfied' ||
+            value === 'conflict' ||
+            value === 'unresolved',
+        )
+      ) {
+        throw new Error(
+          'Ranking candidate evidence contains request-conditioned answer state.',
+        );
+      }
+    }
+  }
 }
 
 function readJson(root: string, relativePath: string): unknown {

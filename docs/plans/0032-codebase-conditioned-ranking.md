@@ -707,9 +707,10 @@ freeze. Independently select and digest exactly 13/18 (72.222222%) or 14/18
 remains effect- and output-blocked until this complete policy is accepted.
 Independent M2 acceptance authorizes M3 only.
 
-Authoring status: complete and proposed in this commit. The proposed authority
-contains 30 cases (six per family), scorer version
-`ranking-v1-scorer/1.0.0`, frozen blind baseline specifications/predictions,
+Correction-authoring status: complete and proposed for independent rereview in
+the current M2 correction commit. The corrected authority contains 30 cases
+(six per family), scorer version `ranking-v1-scorer/2.0.0`, frozen blind
+baseline specifications/predictions,
 separate fixed-candidate and composition reports, gold-blind resource-reference
 evidence, and independent gate-review inputs. Gold status is
 `proposed-not-independently-reviewed`; the review record is
@@ -917,6 +918,15 @@ reviewed durable-product trigger in ADR 0011.
       baselines, separate composition diagnostic, resource reference, and
       unselected gate-review inputs. Local independent-review handoff is
       complete; M2 remains unaccepted.
+- [x] 2026-08-10 — Corrected the proposed M2 authority after independent
+      review: removed request-answer leakage from candidate evidence, replaced
+      generic cases with family-specific adoption semantics, added per-case
+      reviewer rationale, corrected baseline tie/limit/wildcard behavior,
+      exact-set controlled-pair and preference/candidate-invention scoring,
+      positive-pair closure, and the maximum 20-candidate/2,000-evidence/
+      60-criterion resource reference. All downstream proposed evidence was
+      regenerated under additive 2.0 versions. Independent rereview remains
+      pending; M2 is unaccepted and M3 remains unauthorized.
 - [ ] M2 independently accepted.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
@@ -984,6 +994,15 @@ reviewed durable-product trigger in ADR 0011.
   preserved that denial. A content-audit false positive against aggregate
   reason-code metric names was narrowed to forbid case/candidate content while
   retaining required aggregate traceability counts. Owner: M2 authoring.
+- 2026-08-10 — Evolve the unaccepted proposed M2 authority, scorer, baseline,
+  composition, report, and gate-input semantics additively to 2.0 after the
+  independent review findings. Candidate evidence now carries only
+  request-independent facts with honest crosswalk/synthetic provenance;
+  criterion outcomes and Phase 9 closure are derived. Equal candidates remain
+  tied, complete groups overflow rather than split, IDs only canonicalize,
+  unbound-preference non-effect is checked against generated counterfactual
+  relations, and controlled-pair credit requires exact maximal sets in both
+  halves. Owner: M2 correction authoring; no acceptance decision is made.
 
 ## Validation evidence
 
@@ -1123,3 +1142,41 @@ network/provider/model/database/Docker/candidate-code or unauthorized-write
 path. No production ranking output or M3 authority/effect/output occurred.
 Final product-quality thresholds, the production performance budget, and the
 13/18 versus 14/18 readiness choice remain unselected for independent review.
+
+### Milestone 2 correction-authoring validation
+
+The independent-review correction began from clean local and origin heads at
+exact authorized SHA `d4d9c4f482ee23e953f62dc334aa1b7c8e7ab71d`. The accepted
+Phase 9 base remained an ancestor; PR #33 was open/draft/unmerged, Issue #32
+was open, Node was `v24.18.0`, pnpm was `11.17.0`, M2 remained unaccepted, M3
+remained unauthorized, and no production ranking package/output or M3
+provider/candidate-authority/coverage effect existed.
+
+The corrected focused evidence produced:
+
+| Command                       | Exit/result                                                                                                                                                                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm eval:ranking:validate`  | `0`; corrected 2.0 manifest closed exactly 30 cases, six per family, separate reviewer rationale, request-independent facts, proposed gold, and independent review pending                                                               |
+| `pnpm eval:ranking:fixtures`  | `0`; 21 hand-calculated scorer fixtures and 47 assertions passed, including exact controlled sets, preference counterfactuals, and candidate invention on every required reference-only surface                                          |
+| `pnpm eval:ranking:baselines` | `0`; five complete prediction sets reproduced from blind input in forward/reverse case order and matched the frozen content-free report                                                                                                  |
+| `pnpm eval:ranking:verify`    | `0`; corpus/contracts/fixtures/baselines/composition/reports/effects passed; five ranking test files and 14 tests passed; candidate permutations, complete tie-group overflow, undocumented wildcard denial, and no ID fit branch proved |
+| `pnpm contracts:validate`     | `0`; historical 10-case/40-candidate and corrected ranking-v1 30-case/120-candidate assessment mappings passed as proposed/not-reviewed representability only                                                                            |
+
+The first full `pnpm verify` attempt exposed 13 static-analysis findings in the
+new evaluation source. Only the demonstrated typing/style defects were
+corrected; no gate or scorer rule was weakened. The next full attempt exposed
+one stale contract-conformance CLI test expectation for the corrected 120
+candidate mappings; only that expectation was updated. The subsequent full
+pass completed 135 test files and 1,963 tests, with zero dependency violations
+across 904 modules and 3,093 dependencies. The required final matrix is rerun
+against the publication bytes, with tracked-content stability checked
+separately before commit.
+
+The corrected authority reports 75 hard-conflict opportunities, five
+no-viable cases, five insufficient-evidence cases, three tie pairs, two
+explicit incomparable pairs, and 35 evidence-needed transitions (15
+satisfied, 10 conflict, and 10 unresolved). The gold and author rationale
+remain proposed; no independent reviewer, accepted case, quality threshold,
+performance budget, or readiness threshold was populated. All correction
+commands were offline, M3 remained untouched, and no production ranking output
+was created or observed.

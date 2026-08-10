@@ -15,7 +15,11 @@ claim of statistical representativeness.
 - `blind/cases.json` contains request, criterion-binding, target fingerprint,
   fixed candidate-set, and case-binding inputs.
 - `evidence/candidate-evidence.json` contains bounded, evaluation-owned
-  candidate evidence. This is not current production candidate authority.
+  request-independent candidate/scenario facts. It contains no request
+  criterion IDs, candidate-to-request mappings, or final closure answers. Each
+  fact is labeled as either a committed pilot concept crosswalk or a
+  scenario-synthetic fixture; neither is current production candidate
+  authority.
 - `handoff/phase9-lanes.json` retains exact eligible/evidence-needed lane state
   and every unresolved hard evaluation needed by the cases.
 - `gold/outcomes.json` contains proposed outcomes, dispositions, partial orders,
@@ -24,6 +28,8 @@ claim of statistical representativeness.
   unavailable to ordinary baseline strategies.
 - `reviews/proposed-review-record.json` records Codex as author, no independent
   reviewer, and no accepted cases.
+- `reviews/reviewer-rationale.json` contains evaluation-only case-by-case
+  adjudication rationale and is inaccessible to ordinary baseline strategies.
 - `baselines/specifications.json` freezes the human-readable deterministic rules
   and digests before scoring. `baselines/predictions/` contains complete frozen
   blind predictions.
@@ -49,14 +55,18 @@ two-case controlled target pair, a hard-conflict/no-viable case, an
 evidence-insufficient case, a popularity-over-fit audit case, and a tie or
 explicit-incomparability case. Across the corpus there are five controlled
 pairs, five no-viable cases, five insufficient-evidence cases, three tie pairs,
-two incomparable pairs, 55 hard-conflict opportunities, and 45
-evidence-needed transitions (20 satisfied, 10 conflict, and 15 unresolved).
+two incomparable pairs, 75 hard-conflict opportunities, and 35
+evidence-needed transitions (15 satisfied, 10 conflict, and 10 unresolved).
 
 The target pair keeps request intent, success conditions, hard constraints,
 preferences, bindings, candidates, evidence, handoff state, and cutoff fixed.
 Only declared target facts change. Candidate identities are real catalog
-identities where practical, but all fit observations are explicitly bounded
-evaluation fixtures with honest provenance and no freshness claim.
+identities where practical, but all fact observations are explicitly bounded
+evaluation fixtures with per-fact provenance and no production-freshness
+claim. Success coverage, hard conflict, preference consequences, and
+evidence-needed closure are derived from those facts plus bindings, target
+facts, modality, and versioned evaluation rules; none is stored in blind
+candidate evidence.
 
 ## Blind baseline protocol
 
@@ -98,7 +108,8 @@ pnpm eval:ranking:manifest:generate
 ```
 
 The verify path checks manifest and corpus closure, criterion and lane closure,
-scorer fixtures, forward/reversed baseline reproduction, frozen reports,
+scorer fixtures, forward/reversed baseline reproduction, candidate input
+permutation invariance, complete tie-group overflow behavior, frozen reports,
 composition reproduction, product-contract representability, proposed gate
 state, product/evaluation separation, denied effects, authorized write paths,
 and read-only filesystem behavior.

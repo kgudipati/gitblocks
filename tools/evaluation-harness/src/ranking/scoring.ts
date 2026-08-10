@@ -26,6 +26,9 @@ const OUTCOMES: readonly RankingOutcome[] = [
   'insufficient-evidence',
 ];
 
+type PairRelation =
+  'tie' | 'left-higher' | 'right-higher' | 'incomparable' | 'conflict';
+
 interface CaseScoreInput {
   readonly resolved: RankingResolvedCase;
   readonly gold: RankingGoldCase;
@@ -101,9 +104,11 @@ export function scoreRankingPredictionSet(
   });
   const overall = scoreInputs(inputs);
   const perFamily = Object.fromEntries(
-    corpus.blind.cases
-      .map(({ capabilityFamily }) => capabilityFamily)
-      .filter((family, index, all) => all.indexOf(family) === index)
+    [
+      ...new Set(
+        corpus.blind.cases.map(({ capabilityFamily }) => capabilityFamily),
+      ),
+    ]
       .sort(compareRankingText)
       .map((family) => [
         family,
@@ -115,7 +120,7 @@ export function scoreRankingPredictionSet(
       ]),
   ) as RankingScoreReport['perFamily'];
   const withoutDigest = {
-    scoreVersion: 'ranking-v1-scorer/1.0.0' as const,
+    scoreVersion: 'ranking-v1-scorer/2.0.0' as const,
     corpusId: 'ranking-v1' as const,
     predictionSetId: predictionSet.predictionSetId,
     predictionDigest: predictionSet.semanticDigest,
@@ -158,11 +163,15 @@ function accumulateCase(
     )?.disposition;
     for (const label of DISPOSITIONS) {
       const counts = accumulator.dispositions[label];
-      if (goldLabel === label && predictedLabel === label)
+      if (goldLabel === label && predictedLabel === label) {
         counts.truePositive += 1;
-      else if (predictedLabel === label) counts.falsePositive += 1;
-      else if (goldLabel === label) counts.falseNegative += 1;
-      else counts.trueNegative += 1;
+      } else if (predictedLabel === label) {
+        counts.falsePositive += 1;
+      } else if (goldLabel === label) {
+        counts.falseNegative += 1;
+      } else {
+        counts.trueNegative += 1;
+      }
     }
   }
 
@@ -234,8 +243,8 @@ function scorePartialOrder(
   gold: RankingGoldCase,
   prediction: RankingCasePrediction,
 ): void {
-  const expected = pairRelations(gold);
-  const actual = pairRelations(prediction);
+  const expected = rankingPairRelations(gold);
+  const actual = rankingPairRelations(prediction);
   for (const [pair, relation] of expected) {
     const correct = actual.get(pair) === relation;
     const bucket =
@@ -260,26 +269,22 @@ function scorePartialOrder(
   }
 }
 
-function pairRelations(
+export function rankingPairRelations(
   value: Pick<
     RankingGoldCase,
     'rankGroups' | 'rankRelations' | 'incomparablePairs'
   >,
-): Map<
-  string,
-  'tie' | 'left-higher' | 'right-higher' | 'incomparable' | 'conflict'
-> {
+): ReadonlyMap<string, PairRelation> {
   const directed: [string, string][] = [];
-  const relations = new Map<
-    string,
-    'tie' | 'left-higher' | 'right-higher' | 'incomparable' | 'conflict'
-  >();
+  const relations = new Map<string, PairRelation>();
   for (const [groupIndex, group] of value.rankGroups.entries()) {
     for (let left = 0; left < group.length; left += 1) {
       for (let right = left + 1; right < group.length; right += 1) {
-        const a = group[left];
-        const b = group[right];
-        if (a !== undefined && b !== undefined) setPair(relations, a, b, 'tie');
+        const first = group[left];
+        const second = group[right];
+        if (first !== undefined && second !== undefined) {
+          setPair(relations, first, second, 'tie');
+        }
       }
     }
     for (const lowerGroup of value.rankGroups.slice(groupIndex + 1)) {
@@ -313,10 +318,7 @@ function pairRelations(
 }
 
 function setDirected(
-  relations: Map<
-    string,
-    'tie' | 'left-higher' | 'right-higher' | 'incomparable' | 'conflict'
-  >,
+  relations: Map<string, PairRelation>,
   higher: string,
   lower: string,
 ): void {
@@ -330,13 +332,10 @@ function setDirected(
 }
 
 function setPair(
-  relations: Map<
-    string,
-    'tie' | 'left-higher' | 'right-higher' | 'incomparable' | 'conflict'
-  >,
+  relations: Map<string, PairRelation>,
   leftValue: string,
   rightValue: string,
-  relation: 'tie' | 'left-higher' | 'right-higher' | 'incomparable',
+  relation: Exclude<PairRelation, 'conflict'>,
 ): void {
   const [left, right] = orderedPair(leftValue, rightValue);
   const normalized =
@@ -360,45 +359,27 @@ function scoreTraceability(
   gold: RankingGoldCase,
   prediction: RankingCasePrediction,
 ): void {
-  const requiredEvidence = new Set(
-    gold.candidates.flatMap((candidate) =>
-      candidate.evidenceIds.map((id) =>
-        associationKey(candidate.candidateId, id),
-      ),
-    ),
+  const requiredEvidence = candidateAssociations(
+    gold.candidates,
+    'evidenceIds',
   );
-  const actualEvidence = new Set(
-    prediction.candidates.flatMap((candidate) =>
-      candidate.evidenceIds.map((id) =>
-        associationKey(candidate.candidateId, id),
-      ),
-    ),
+  const actualEvidence = candidateAssociations(
+    prediction.candidates,
+    'evidenceIds',
   );
-  const requiredReasons = new Set(
-    gold.candidates.flatMap((candidate) =>
-      candidate.reasonCodes.map((id) =>
-        associationKey(candidate.candidateId, id),
-      ),
-    ),
-  );
-  const actualReasons = new Set(
-    prediction.candidates.flatMap((candidate) =>
-      candidate.reasonCodes.map((id) =>
-        associationKey(candidate.candidateId, id),
-      ),
-    ),
+  const requiredReasons = candidateAssociations(gold.candidates, 'reasonCodes');
+  const actualReasons = candidateAssociations(
+    prediction.candidates,
+    'reasonCodes',
   );
   const requiredUnknowns = new Set(
     gold.requiredUnknowns.map(({ candidateId, unknownId }) =>
       associationKey(candidateId, unknownId),
     ),
   );
-  const actualUnknowns = new Set(
-    prediction.candidates.flatMap((candidate) =>
-      candidate.unknownIds.map((id) =>
-        associationKey(candidate.candidateId, id),
-      ),
-    ),
+  const actualUnknowns = candidateAssociations(
+    prediction.candidates,
+    'unknownIds',
   );
   const requiredConflicts = new Set(
     gold.hardConstraintConflicts.map((conflict) =>
@@ -431,6 +412,22 @@ function scoreTraceability(
     extraCount(requiredReasons, actualReasons) +
     extraCount(requiredUnknowns, actualUnknowns) +
     extraCount(requiredConflicts, actualConflicts);
+}
+
+function candidateAssociations(
+  candidates: readonly {
+    readonly candidateId: string;
+    readonly evidenceIds: readonly string[];
+    readonly reasonCodes: readonly string[];
+    readonly unknownIds: readonly string[];
+  }[],
+  key: 'evidenceIds' | 'reasonCodes' | 'unknownIds',
+): Set<string> {
+  return new Set(
+    candidates.flatMap((candidate) =>
+      candidate[key].map((id) => associationKey(candidate.candidateId, id)),
+    ),
+  );
 }
 
 function scoreCriteria(
@@ -466,21 +463,59 @@ function scoreCriteria(
       metric.correct += 1;
     }
   }
+
+  const actualConsequences = new Map(
+    prediction.preferenceConsequences.map((consequence) => [
+      consequence.criterionId,
+      consequence,
+    ]),
+  );
   for (const expected of gold.preferenceConsequences) {
     const binding = bindings.get(expected.criterionId);
-    if (binding === undefined) continue;
-    const metric =
-      binding.bindingState === 'bound'
-        ? accumulator.boundPreference
-        : accumulator.unboundPreference;
-    metric.total += 1;
-    const correct =
-      expected.state === 'applied'
-        ? prediction.appliedPreferenceIds.includes(expected.criterionId)
-        : prediction.ignoredPreferenceIds.includes(expected.criterionId) &&
-          !prediction.appliedPreferenceIds.includes(expected.criterionId);
-    if (correct) metric.correct += 1;
+    if (binding?.bindingState !== 'bound') continue;
+    accumulator.boundPreference.total += 1;
+    const actual = actualConsequences.get(expected.criterionId);
+    if (
+      actual?.state === expected.state &&
+      samePairSet(actual.affectedPairs, expected.affectedPairs)
+    ) {
+      accumulator.boundPreference.correct += 1;
+    }
   }
+
+  const actualRelations = rankingPairRelations(prediction);
+  const actualCounterfactuals = new Map(
+    prediction.unboundPreferenceCounterfactuals.map((counterfactual) => [
+      preferencePairKey(
+        counterfactual.criterionId,
+        counterfactual.candidatePair,
+      ),
+      counterfactual.relationWithoutPreference,
+    ]),
+  );
+  for (const counterfactual of gold.unboundPreferenceCounterfactuals) {
+    accumulator.unboundPreference.total += 1;
+    const [left, right] = orderedPair(...counterfactual.candidatePair);
+    const actualConsequence = actualConsequences.get(
+      counterfactual.criterionId,
+    );
+    const predictedWithoutPreference = actualCounterfactuals.get(
+      preferencePairKey(
+        counterfactual.criterionId,
+        counterfactual.candidatePair,
+      ),
+    );
+    if (
+      actualConsequence?.state === 'ignored-unbound' &&
+      actualConsequence.affectedPairs.length === 0 &&
+      predictedWithoutPreference !== undefined &&
+      actualRelations.get(associationKey(left, right)) ===
+        predictedWithoutPreference
+    ) {
+      accumulator.unboundPreference.correct += 1;
+    }
+  }
+
   accumulator.noPreferenceHardening.total += 1;
   if (prediction.hardenedPreferenceIds.length === 0) {
     accumulator.noPreferenceHardening.correct += 1;
@@ -507,17 +542,25 @@ function scoreSafety(inputs: readonly CaseScoreInput[]): RankingSafetyCounts {
     const supplied = new Set(
       resolved.candidateSet.candidates.map(({ candidateId }) => candidateId),
     );
-    const predicted = prediction.candidates.map(
+    const predictedAssessments = prediction.candidates.map(
       ({ candidateId }) => candidateId,
     );
-    const invented = predicted.filter((id) => !supplied.has(id));
-    counts.candidateInvention += invented.length;
-    if (!sameSet([...supplied], predicted)) counts.candidateSetMismatch += 1;
     const referenced = predictionCandidateReferences(prediction);
+    counts.candidateInvention += [...referenced].filter(
+      (id) => !supplied.has(id),
+    ).length;
+    if (
+      predictedAssessments.length !== supplied.size ||
+      new Set(predictedAssessments).size !== predictedAssessments.length ||
+      !sameSet([...supplied], predictedAssessments)
+    ) {
+      counts.candidateSetMismatch += 1;
+    }
     counts.excludedCandidateLeakage +=
       resolved.handoff.excludedCandidateIds.filter((id) =>
         referenced.has(id),
       ).length;
+
     const predictedByCandidate = new Map(
       prediction.candidates.map((candidate) => [
         candidate.candidateId,
@@ -529,11 +572,13 @@ function scoreSafety(inputs: readonly CaseScoreInput[]): RankingSafetyCounts {
       const disposition = predictedByCandidate.get(
         conflict.candidateId,
       )?.disposition;
-      if (disposition === 'recommended')
+      if (disposition === 'recommended') {
         counts.knownHardConflictRecommended += 1;
+      }
       if (disposition === 'viable') counts.knownHardConflictViable += 1;
       if (ranked.has(conflict.candidateId)) counts.knownHardConflictRanked += 1;
     }
+
     const resolutionKeys = new Set(
       prediction.evidenceNeededResolutions.map((resolution) =>
         associationKey(resolution.candidateId, resolution.evaluationId),
@@ -556,6 +601,7 @@ function scoreSafety(inputs: readonly CaseScoreInput[]): RankingSafetyCounts {
         counts.unresolvedEvidenceNeededPositivePromotion += 1;
       }
     }
+
     const bindings = new Map(
       resolved.criteria.bindings.map((binding) => [
         binding.criterionId,
@@ -571,12 +617,42 @@ function scoreSafety(inputs: readonly CaseScoreInput[]): RankingSafetyCounts {
           bindings.get(criterionId)?.criterionKind === 'success-condition' &&
           bindings.get(criterionId)?.bindingState === 'unbound',
       ).length;
-    counts.unboundPreferenceAffectedOrder +=
-      prediction.appliedPreferenceIds.filter(
-        (criterionId) =>
-          bindings.get(criterionId)?.criterionKind === 'preference' &&
-          bindings.get(criterionId)?.bindingState === 'unbound',
-      ).length;
+
+    const actualRelations = rankingPairRelations(prediction);
+    const actualCounterfactuals = new Map(
+      prediction.unboundPreferenceCounterfactuals.map((counterfactual) => [
+        preferencePairKey(
+          counterfactual.criterionId,
+          counterfactual.candidatePair,
+        ),
+        counterfactual.relationWithoutPreference,
+      ]),
+    );
+    const actualConsequences = new Map(
+      prediction.preferenceConsequences.map((entry) => [
+        entry.criterionId,
+        entry,
+      ]),
+    );
+    for (const counterfactual of gold.unboundPreferenceCounterfactuals) {
+      const [left, right] = orderedPair(...counterfactual.candidatePair);
+      const consequence = actualConsequences.get(counterfactual.criterionId);
+      const predictedWithoutPreference = actualCounterfactuals.get(
+        preferencePairKey(
+          counterfactual.criterionId,
+          counterfactual.candidatePair,
+        ),
+      );
+      if (
+        consequence?.state !== 'ignored-unbound' ||
+        consequence.affectedPairs.length > 0 ||
+        predictedWithoutPreference === undefined ||
+        actualRelations.get(associationKey(left, right)) !==
+          predictedWithoutPreference
+      ) {
+        counts.unboundPreferenceAffectedOrder += 1;
+      }
+    }
   }
   return counts;
 }
@@ -585,44 +661,54 @@ function scoreControlledPairs(
   corpus: RankingValidatedCorpus,
   predictions: ReadonlyMap<string, RankingCasePrediction>,
 ): RankingScoreReport['controlledPairs'] {
-  let correct = 0;
-  let incorrect = 0;
+  let exactPairCorrect = 0;
+  let wrongMaximalSet = 0;
+  let wrongDirection = 0;
   let unchangedWhenChangeRequired = 0;
   for (const pair of corpus.gold.controlledPairDirections) {
     const first = predictions.get(pair.firstCaseId);
     const second = predictions.get(pair.secondCaseId);
     if (first === undefined || second === undefined) {
-      incorrect += 1;
+      wrongMaximalSet += 1;
       continue;
     }
-    const firstPreferred = predictedPreferred(first);
-    const secondPreferred = predictedPreferred(second);
-    if (sameSet(firstPreferred, secondPreferred)) {
+    const firstMaximal = predictedMaximal(first);
+    const secondMaximal = predictedMaximal(second);
+    if (
+      sameSet(firstMaximal, pair.firstMaximalCandidateIds) &&
+      sameSet(secondMaximal, pair.secondMaximalCandidateIds)
+    ) {
+      exactPairCorrect += 1;
+    } else if (
+      sameSet(firstMaximal, secondMaximal) &&
+      !sameSet(pair.firstMaximalCandidateIds, pair.secondMaximalCandidateIds)
+    ) {
       unchangedWhenChangeRequired += 1;
     } else if (
-      firstPreferred.includes(pair.firstPreferredCandidateId) &&
-      secondPreferred.includes(pair.secondPreferredCandidateId)
+      sameSet(firstMaximal, pair.secondMaximalCandidateIds) &&
+      sameSet(secondMaximal, pair.firstMaximalCandidateIds)
     ) {
-      correct += 1;
+      wrongDirection += 1;
     } else {
-      incorrect += 1;
+      wrongMaximalSet += 1;
     }
   }
   return {
     total: corpus.gold.controlledPairDirections.length,
-    correct,
-    incorrect,
+    exactPairCorrect,
+    wrongMaximalSet,
+    wrongDirection,
     unchangedWhenChangeRequired,
   };
 }
 
-function predictedPreferred(prediction: RankingCasePrediction): string[] {
-  const recommended = prediction.candidates
+function predictedMaximal(
+  prediction: RankingCasePrediction,
+): readonly string[] {
+  return prediction.candidates
     .filter(({ disposition }) => disposition === 'recommended')
     .map(({ candidateId }) => candidateId)
     .sort(compareRankingText);
-  if (recommended.length > 0) return recommended;
-  return prediction.presentation.slice(0, 1);
 }
 
 function finalizeMetrics(accumulator: MetricAccumulator): RankingMetricSet {
@@ -681,8 +767,10 @@ function finalizeMetrics(accumulator: MetricAccumulator): RankingMetricSet {
       boundSuccessConditionCoverage: exact(accumulator.boundSuccess),
       materialUnboundFailClosed: exact(accumulator.materialUnbound),
       approvedNonMaterialUnbound: exact(accumulator.approvedNonMaterial),
-      boundPreferenceOrderingEffect: exact(accumulator.boundPreference),
-      unboundPreferenceNonEffect: exact(accumulator.unboundPreference),
+      boundPreferenceComparisonConsequence: exact(accumulator.boundPreference),
+      unboundPreferenceCounterfactualNonEffect: exact(
+        accumulator.unboundPreference,
+      ),
       noPreferenceHardening: exact(accumulator.noPreferenceHardening),
     },
   };
@@ -805,6 +893,12 @@ function predictionCandidateReferences(
     ...prediction.successConditionCoverage.map(
       ({ candidateId }) => candidateId,
     ),
+    ...prediction.preferenceConsequences.flatMap(({ affectedPairs }) =>
+      affectedPairs.flat(),
+    ),
+    ...prediction.unboundPreferenceCounterfactuals.flatMap(
+      ({ candidatePair }) => candidatePair,
+    ),
   ]);
 }
 
@@ -834,6 +928,13 @@ function associationKey(left: string, right: string): string {
   return `${left}\0${right}`;
 }
 
+function preferencePairKey(
+  criterionId: string,
+  pair: readonly [string, string],
+): string {
+  return `${criterionId}\0${orderedPair(...pair).join('\0')}`;
+}
+
 function orderedPair(left: string, right: string): readonly [string, string] {
   return compareRankingText(left, right) <= 0 ? [left, right] : [right, left];
 }
@@ -842,6 +943,16 @@ function sameSet(left: readonly string[], right: readonly string[]): boolean {
   return (
     new Set(left).size === new Set(right).size &&
     left.every((value) => right.includes(value))
+  );
+}
+
+function samePairSet(
+  left: readonly (readonly [string, string])[],
+  right: readonly (readonly [string, string])[],
+): boolean {
+  return sameSet(
+    left.map((pair) => orderedPair(...pair).join('\0')),
+    right.map((pair) => orderedPair(...pair).join('\0')),
   );
 }
 

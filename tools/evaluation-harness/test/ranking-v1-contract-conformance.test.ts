@@ -12,7 +12,7 @@ describe('ranking-v1 product contract separation', () => {
       ok: true,
       summary: {
         caseCount: 30,
-        candidateCount: 150,
+        candidateCount: 120,
         productContractVersion: '1.0.0',
         goldStatus: 'proposed',
         independentReviewStatus: 'not-reviewed',

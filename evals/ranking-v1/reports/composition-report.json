@@ -1,8 +1,8 @@
 {
   "bindings": {
-    "compositionBlindDigest": "fa38aaddd9ab0100abdec87acef7c49e440385c98a19d9d22da163522d7ba456",
-    "compositionGoldDigest": "490bce34905e07280c5716cf963e946b64ca5cf3bd884bb8db22838c01a61410",
-    "predictionDigest": "5db6e138e4737737f2f318058f06b17226df4ef886cb08ac077218610a4654b1",
+    "compositionBlindDigest": "f6b21e6affe94f8ac20128e9358f7c7fb82a4112862ad569fa4fd441498db83e",
+    "compositionGoldDigest": "93495429707e0ef71f9756c91b3dc0905db40de00c842b1cfcfbaab065a9a62f",
+    "predictionDigest": "16c2baceda5850d00a55b6de61e678c923a2fce1e90d26c1621ec231d17057a2",
     "retrievalCorpusDigest": "05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c",
     "retrievalPredictionDigest": "c654395026508b88181723bdcc7160566ac983c6c5a8a61c4c0650296d22ac82"
   },
@@ -57,12 +57,12 @@
       "value": 0.851458
     }
   },
-  "reportVersion": "ranking-v1-composition-report/1.0.0",
+  "reportVersion": "ranking-v1-composition-report/2.0.0",
   "selectedLaneComposition": {
     "eligible": 50,
     "evidenceNeeded": 0,
     "total": 50
   },
-  "semanticDigest": "71d1bc2b658a093b4eaee6ca0450b1f2019acdfa0dcdfeed3ec458bf0720054c",
+  "semanticDigest": "94fd46d697beed27e76c732236c5ea3dbc44eebbbc764d6f829a79db2d085899",
   "track": "retrieval-to-ranking-composition-diagnostic"
 }

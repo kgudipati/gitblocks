@@ -32,17 +32,22 @@ order earns no fixed-candidate ranking credit.
 ## Separation and blindness
 
 Blind cases, candidate evidence, Phase 9 handoff state, proposed gold, audit
-classification, review state, baseline specifications, predictions, reports,
-and future accepted gates are independent files. Gold never appears in blind
-case files. Audit labels are loaded only by corpus validation/scoring, not by a
-baseline strategy. Review records never enter a product or baseline input.
+classification, reviewer rationale, review state, baseline specifications,
+predictions, reports, and future accepted gates are independent files. Gold
+never appears in blind case files. Candidate evidence contains only
+request-independent candidate/scenario facts with explicit crosswalk or
+synthetic-fixture provenance: no success/preference/hard-constraint IDs,
+candidate-to-request mappings, or final closure labels. Audit labels and author
+rationale are loaded only by corpus validation/scoring, not by a baseline
+strategy. Review records never enter a product or baseline input.
 
 The blind loader has a fixed allowlist of four inputs. Strategy objects contain
 no case ID, gold disposition/outcome, audit class, expected controlled-pair
 direction, review status, or threshold. The target-blind strategy additionally
 receives `target: null`. Generation produces complete prediction sets and
 semantic digests before the scoring command loads gold. Forward and reversed
-case order must reproduce the committed predictions exactly.
+case order plus candidate permutations must reproduce the committed semantics
+exactly.
 
 Static architecture checks deny persistence, ingestion, environment-variable,
 HTTP/network, OpenAI/model, child-process, and Docker access from ranking
@@ -52,7 +57,7 @@ path escape, and accept only enumerated report/prediction/manifest destinations.
 
 ## Proposed corpus
 
-The corpus has version `1.0.0`, cutoff `2026-08-10`, and exactly 30 cases, six
+The corrected corpus has version `2.0.0`, cutoff `2026-08-10`, and exactly 30 cases, six
 per supported family. Each family has the same six-position pattern:
 
 1. controlled target A;
@@ -69,9 +74,11 @@ candidate across each pair. The corpus includes ties and incomparability rather
 than forcing a total order.
 
 Each family includes evidence-needed candidates whose proposed closure covers
-satisfied, conflict, and unresolved. Corpus-wide transition counts are 20, 10,
-and 15 respectively. Every unresolved Phase 9-style evaluation ID is preserved
-and must receive an explicit prediction; missing records are safety errors.
+satisfied, conflict, and unresolved. Corpus-wide transition counts are 15, 10,
+and 10 respectively. Every unresolved Phase 9-style evaluation ID is preserved
+without a final answer in blind handoff/evidence. The answer is derived from
+the unresolved rule, candidate facts, target facts when required, and modality;
+gold separately records the expected state. Missing records are safety errors.
 
 Criterion coverage includes single and multiple bound success conditions,
 material unbound fail-closed behavior, approved non-material unbound behavior,
@@ -79,6 +86,14 @@ missing materiality fail-closed behavior, normalized bound preferences,
 explicit structured preferences, unbound preference non-effect, and denial of
 preference hardening. This authority does not add the future product criterion
 schema.
+
+Every proposed positive candidate pair is deliberately tied, ordered, or
+explicitly incomparable. Pairs containing only rejected or insufficient
+candidates are intentionally non-presented and do not create an adoption-fit
+relation. The separate `reviews/reviewer-rationale.json` authority gives all 30
+cases concrete request, target, coverage, conflict, insufficiency, preference,
+maximal-set, partial-order, and controlled-pair reasoning for independent
+adjudication.
 
 ## Gold and review
 
@@ -97,7 +112,7 @@ Codex only as author, has no independent reviewer, and accepts no cases.
 
 ## Scorer
 
-Scorer version `ranking-v1-scorer/1.0.0` reports exact counts with every
+Scorer version `ranking-v1-scorer/2.0.0` reports exact counts with every
 aggregate. Its surfaces are:
 
 - zero-tolerance safety counts for hard-conflict promotion/ranking, candidate
@@ -111,19 +126,25 @@ aggregate. Its surfaces are:
 - agreement over ties, declared and transitively implied order relations, and
   explicit incomparable pairs without manufacturing a winner;
 - top-three usefulness, kept separate from pairwise agreement;
-- controlled-pair direction with correct, incorrect, and unchanged counts;
+- controlled-pair exact maximal-set correctness in both halves, separately
+  reporting wrong maximal sets, wrong direction, and unchanged predictions;
 - exact satisfied/conflict/unresolved closure and illegal promotion;
 - candidate-conditioned evidence/reason/unknown/hard-conflict recall without
   rewarding unsupported extras; and
-- exact bound-success, material/non-material unbound, bound/unbound preference,
-  and no-hardening criterion behavior.
+- exact bound-success, material/non-material unbound, bound preference
+  comparison consequences, structural unbound-preference counterfactual
+  non-effect, and no-hardening criterion behavior.
 
-Legal zero denominators are reported as null/not applicable. Fifteen synthetic,
-hand-calculated fixtures make 34 assertions across the perfect, zero
+Candidate invention is counted across assessments, presentation, groups,
+relations, incomparable pairs, conflicts, resolutions, coverage, and preference
+pair references; exact assessment-set mismatch remains separate. Legal zero
+denominators are reported as null/not applicable. Twenty-one synthetic,
+hand-calculated fixtures make 47 assertions across the perfect, zero
 denominator, safety, disposition, outcome, tie, incomparability, relation,
-controlled-pair, three-state closure, missing resolution, material-unbound,
-unbound-preference, preference-hardening, and invented-candidate cases. These
-fixtures validate the scorer only and are never a product comparator.
+controlled-pair exact/superset, three-state closure, missing resolution,
+material-unbound, bound/unbound preference, preference-hardening, and every
+reference-only invented-candidate surface. These fixtures validate the scorer
+only and are never a product comparator.
 
 ## Frozen baselines
 
@@ -134,11 +155,14 @@ digest before proposed gold is scored:
 - retrieval-order diagnostic uses only authenticated handoff ordering/lane
   data, preserves evidence-needed uncertainty, and is not fit intelligence;
 - all-insufficient responsible abstention makes no unsupported positive claim;
-- target-blind candidate features uses only candidate structured/evidence
-  features and has no target or case-ID side channel;
-- weak target-aware exact compatibility adds only preregistered equality checks
-  for runtime, framework, Redis, worker/deployment shape, identity, resources,
-  and data policy—no learned weight or gold-dependent tuning; and
+- target-blind candidate features derives hard, closure, coverage, preference,
+  and partial comparison only from request-independent candidate facts and has
+  no target or case-ID side channel;
+- weak target-aware exact compatibility derives the same reported states but
+  compares viable candidates only with preregistered runtime, framework, and
+  deployment compatibility vectors. Exact support is 2, explicit evidenced
+  universal support is 1, and mismatch, unknown, or undocumented `*` is 0.
+  Pareto trade-offs remain incomparable; no scalar fit weights exist; and
 - hard-conflict-violating negative control deliberately promotes known
   conflicts to prove that safety counters fail.
 
@@ -157,12 +181,13 @@ content.
 The proposed gate input binds corpus, gold, review, predictions, scores,
 scorer, and performance-reference digests. It reports cases and exact errors
 for overall and per-family baselines, scorer ceilings, five controlled pairs,
-55 hard-conflict opportunities, five no-viable cases, five insufficient cases,
-three tie pairs, two incomparable pairs, and 45 evidence-needed transitions.
+75 hard-conflict opportunities, five no-viable cases, five insufficient cases,
+three tie pairs, two incomparable pairs, and 35 evidence-needed transitions.
 
 The strongest non-oracle selection is deterministic and based on, in order:
-zero safety violations, outcome correctness, macro disposition F1, partial
-order agreement, and stable baseline ID. The result is evidence for an
+outcome correctness, macro disposition F1, partial-order agreement, top-three
+usefulness, and stable baseline ID. Exact safety counts remain separate and
+cannot be hidden by that quality ordering. The result is evidence for an
 independent reviewer; `finalThresholds` remains null and
 `finalThresholdsSelected` remains false.
 
@@ -181,8 +206,11 @@ coverage output, or observation. Authoring selects neither.
 ## Resource reference
 
 The performance report is not a production ranking benchmark. It measures a
-maximum-legal, gold-blind fixture with 20 candidates, 240 evidence records, 40
-criteria, and 190 unordered pairs. After 200 warmups it records 2,000 samples
+maximum-legal, gold-blind fixture with 20 candidates, 2,000 evidence records,
+the contract maximum of 60 criteria (20 success, 20 hard, and 20 preference),
+and 190 unordered pairs. The fixture uses representative target, binding,
+candidate-fact, provenance, completeness, and unknown structures. After 200
+warmups it records 2,000 samples
 for parse/validation, traversal, pair enumeration, canonicalization, and other
 bounded evaluation-data operations, plus p50/p95/max latency, process/runtime,
 retained-memory reference, input/output sizes, and explicit operation counts.
