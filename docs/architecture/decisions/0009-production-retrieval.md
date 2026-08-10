@@ -142,11 +142,51 @@ RetrievalVerificationContext (28B) was not required. The accepted validation
 foundation is now part of the Phase 9 branch through merge commit
 `f087007cc5c75d05458962d4e528bba28f36bb39`.
 
-The hosted-CI dependency for final M4 closure is satisfied. Milestone 4 still
-has not begun, Phase 9 is not complete, and M4 remains responsible for the
-final frozen proof, including the unresolved 100-build search-view p95
-`<= 100 ms` gate. The historical five-build M3 observation remains development
+The hosted-CI dependency for final M4 closure is satisfied. The subsequently
+authorized M4 frozen proof reproduced the accepted M3 production bytes and
+passed the registered quality, safety, differential, performance, memory, and
+determinism gates. Phase 9 remains incomplete pending hosted CI and independent
+M4 acceptance. The historical five-build M3 observation remains development
 evidence only and is not reinterpreted as an M4 failure.
+
+## Milestone 4 final proof
+
+Milestone 4 measured the frozen production tree at
+`fdf00818d66eb3d8618a0c343580e67e61aabb1f`. Production semantics remained
+frozen and the reviewed-v2 authority remained exact. The single production-v2
+invocation reproduced prediction digest
+`c654395026508b88181723bdcc7160566ac983c6c5a8a61c4c0650296d22ac82`
+and score digest
+`9f80292f8c0bad4d4b54045de3535c2f0349594563e6ff8eed385937d8cefe69`
+with `overallPass=true`. All reviewed-v2 quality, zero-tolerance safety, and
+production/evaluation differential gates passed.
+
+Query p95/max were `10.013 / 11.384 ms`; search-view heap delta was `636,992`
+bytes; retained growth was `1,074,672` bytes; and bounded work remained at 150
+candidates. The registered 100-build prevalidated search-view proof measured
+p95 `0.791709 ms` and maximum `1.691209 ms`, passing its p95 `<= 100 ms` gate.
+Fifty cases and the complete prediction digest were identical across 100
+repeat rounds, the existing 20-permutation repository test passed, and ten
+fresh processes reproduced the exact prediction digest. No vector, index,
+cache, database, search-service, embedding, or model-reranking trigger
+activated.
+
+The first frozen external wrapper produced a false-negative aggregate because
+it coupled permutation success to the non-contractual appearance of the full
+human-readable Vitest test title in stdout. Its subprocess exited `0` and the
+selected registered permutation test passed, but Vitest did not print the
+title. The protocol honestly retained exit `1`, was not edited or rerun, and
+independent review adjudicated the raw evidence without changing any product,
+evaluation authority, threshold, test, or registered gate.
+
+The original protocol SHA-256 is
+`b49d2794747203a01002bbfcbb84eac4033308cdbb8150bff41bb0acdb5e0106`;
+the adjudication SHA-256 is
+`b32a4fe20aabc8138773aa4247e73931233678a686a06d14be7f05fbc5930255`;
+and the final evidence-manifest SHA-256 is
+`3cc5fe2c0b806e968383a825f0a59ef2db69b016d0ccd8054c13cec665704d02`.
+Milestone 4 measurement and ordinary validation are complete, pending hosted
+CI and independent maintainer acceptance. Phase 9 remains open.
 
 ## Context
 

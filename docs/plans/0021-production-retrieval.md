@@ -22,8 +22,9 @@
   rerun, or post-score mutation and was independently accepted. Milestones 1,
   2, and 3 are accepted. Issue #28 is closed and its accepted validation-memory
   foundation is integrated from current main. The hosted-CI dependency for
-  final Milestone 4 closure is satisfied, but Milestone 4 has not begun and
-  Phase 9 remains open.
+  final Milestone 4 closure is satisfied. The independently adjudicated M4
+  measurement gates and ordinary validation pass; hosted CI and independent
+  M4 acceptance remain pending, and Phase 9 remains open.
 - Last updated: 2026-08-09
 
 Issue #21 is the requirements authority. Accepted
@@ -175,7 +176,92 @@ and the dependency audit. Read-only candidate-profile and retrieval authority
 smoke commands each remained below 0.5 GiB measured peak RSS after building
 the synchronized source, with no tracked mutation. No production retrieval
 benchmark was rerun. The separately registered M4 100-build search-view proof
-remains outstanding and Milestone 4 remains not begun.
+was subsequently executed at the frozen M4 measurement head described below.
+
+### Milestone 4 final proof evidence
+
+Milestone 4 measured the frozen production tree at
+`fdf00818d66eb3d8618a0c343580e67e61aabb1f`. The explicit reviewed-v2
+production command and the frozen external proof protocol were each invoked
+exactly once, with zero measurement reruns. Production-v2 exited `0`, emitted
+`overallPass=true`, and reproduced prediction digest
+`c654395026508b88181723bdcc7160566ac983c6c5a8a61c4c0650296d22ac82`
+and score digest
+`9f80292f8c0bad4d4b54045de3535c2f0349594563e6ff8eed385937d8cefe69`.
+The reviewed-v2 corpus, review, baseline, saturation, and quality-gate
+authorities remained byte-identical to their independently accepted bindings.
+
+Every governing quality gate passed: macro Recall@10 `0.608599`;
+authorization `0.670588`; audit logging `0.547826`; background jobs
+`0.475862`; rate limiting `0.533334`; webhooks `0.815385`; positive hits
+`25/25`; MRR `1.000000`; and NDCG@10 `0.851458`. Candidate hard-filter
+correctness was `4500/4500`, retrieval-case hard-filter correctness was
+`30/30`, prohibited preservation was `15/15`, and no-eligible correctness was
+`30/30`. Hard-conflict, lane, negative-control, exact-duplicate, and
+controlled-equivalence violations were all zero.
+
+The differential covered all 30 retrieval cases with 30 lane-count,
+eligible-lane, evidence-needed-lane, and no-eligible mapping matches, plus zero
+excluded-candidate leaks, lane-claim disagreements, or production-input gold
+fields. Deterministic product diagnostics remained unchanged: 92 expansion
+edges from 40 source concepts, 149 candidate expansion matches, zero expansion
+truncation, 244 metadata candidate-case components, 389 metadata term matches
+(336 topic and 53 description), zero primary-language occurrences, and zero
+identity duplicates removed.
+
+The production performance path used 100 warmups and 1,000 measured queries.
+Query p95/max were `10.013 / 11.384 ms`; search-view heap delta was `636,992`
+bytes; retained heap growth was `1,074,672` bytes; and at most 150 candidates
+were examined and constraint-evaluated. Maximum eligible,
+evidence-needed, and combined result counts were `10 / 10 / 10`. On Node
+`v24.18.0` and pnpm `11.17.0`, the external M4 probe ran on macOS 15.1/Darwin
+24.1.0 arm64 with an Apple M4 Pro, 14 logical CPUs, and 48 GiB memory.
+
+The registered prevalidated search-view proof retained all 100 raw samples and
+measured p95 `0.791709 ms` and maximum `1.691209 ms`, passing the p95
+`<= 100 ms` gate. Every one of 50 cases and the complete prediction set were
+byte-identical across `100/100` repeat rounds without loading gold or the
+scorer. All ten fresh processes exited successfully and reproduced the exact
+prediction digest. The existing test over 20 fixed admitted search-view
+permutations exited `0` with one selected test passed and 33 skipped. The five
+full-engine constructions had diagnostic p95/max `98.286 ms`; that operation
+is not the registered prevalidated search-view gate.
+
+The frozen external protocol honestly exited `1` because its permutation
+wrapper required the complete human-readable Vitest title to appear in stdout
+in addition to a successful subprocess. Vitest did not print that title even
+though the selected registered test exited `0` and passed. No registered Phase
+9 gate required that non-contractual string. The protocol was neither edited
+nor rerun. Independent review classified this as a proof-harness false
+negative, accepted the raw permutation evidence, and recorded a separate
+adjudication without changing the product, evaluation, threshold, test, or
+registered gate.
+
+External evidence is bound by:
+
+- original protocol SHA-256
+  `b49d2794747203a01002bbfcbb84eac4033308cdbb8150bff41bb0acdb5e0106`;
+- production report SHA-256
+  `93b990efc7c4437e644626bcd6a138b0f2586216b57f9c2376be568cd6fbaa1e`;
+- performance report SHA-256
+  `ea9471b1f56cfc9e5cf9efee845e24e6da82843b089089f7404ee8a36575d756`;
+- focused permutation evidence SHA-256
+  `8fd45c58c18e000935233e703e6342987162f8ad61d9b1c9a75cc14318ab0f62`;
+- adjudication SHA-256
+  `b32a4fe20aabc8138773aa4247e73931233678a686a06d14be7f05fbc5930255`;
+  and
+- 19-entry evidence manifest SHA-256
+  `3cc5fe2c0b806e968383a825f0a59ef2db69b016d0ccd8054c13cec665704d02`.
+
+Ordinary M4 validation then passed 130/130 test files and 1,949/1,949 tests,
+architecture inspection across 886 modules and 3,016 dependencies with zero
+violations, Secretlint, repository policy, contract/evaluation/authority
+validation, and the dependency audit. The production semantics and reviewed-v2
+authority remained frozen, and no infrastructure trigger activated.
+
+Current milestone state is: M1 accepted; M2 accepted; M3 accepted; M4
+measurement gates pass; M4 ordinary validation passes; M4 hosted CI is pending;
+M4 independent acceptance is pending; and Phase 9 remains open.
 
 This plan implements Project Phase 9, corresponding to Phase 11 — Retrieval
 Engine in the original end-to-end strategy. Independent maintainer rereview
@@ -1321,8 +1407,9 @@ Milestone 4 remained blocked.
 
 ### Milestone 4 — Production proof and Phase closure
 
-Milestone 3 is independently accepted, but Milestone 4 has not begun. When it
-is separately authorized, M4 remains proof and closure only:
+Milestone 3 is independently accepted. Milestone 4 executed as proof and
+closure only at frozen head
+`fdf00818d66eb3d8618a0c343580e67e61aabb1f`:
 
 - obtain the independent content-free evaluation-authority acceptance record;
 - freeze the production algorithm/channel/expansion/diversity bindings;
@@ -1335,12 +1422,12 @@ is separately authorized, M4 remains proof and closure only:
 - complete ADR/plan evidence and honest product/status navigation; and
 - receive independent maintainer acceptance of Phase closure.
 
-M4 owns the fixed 100-build search-view benchmark. The M3 five-build cold
-sample measured `166.089 ms`; that observation neither satisfies nor fails the
-separate 100-build p95 `<= 100 ms` gate, but it keeps the final performance
-proof materially unresolved. If a registered M4 proof fails, M4 stops and
-returns the defect to the appropriate earlier milestone; M4 does not add new
-retrieval semantics.
+M4's fixed 100-build prevalidated search-view benchmark passed at p95
+`0.791709 ms` and maximum `1.691209 ms`. The historical M3 five-build cold
+sample remains development evidence for a different, non-gating full-engine
+operation. M4 measurement and ordinary validation gates pass; hosted CI and
+independent maintainer acceptance remain pending. M4 added no retrieval
+semantics.
 
 Phase 9 completion does not make the PR ready, merge it, or authorize Phase 10
 without the applicable repository workflow and user instruction.
