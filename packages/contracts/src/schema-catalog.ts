@@ -26,6 +26,15 @@ import {
   deterministicCandidateProfileAuthorityV1Schema,
   deterministicCandidateProfileV1Schema,
 } from './deterministic-candidate-profile-schemas.ts';
+import {
+  candidateRetrievalRequestV1Schema,
+  candidateRetrievalResultV1Schema,
+} from './candidate-retrieval-schemas.ts';
+import {
+  capabilityRetrievalExpansionSourceV1Schema,
+  capabilityRetrievalExpansionV1Schema,
+} from './capability-retrieval-expansion-schemas.ts';
+import { candidateRetrievalMetadataAuthorityV1Schema } from './candidate-retrieval-metadata-schemas.ts';
 
 export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-dossier',
@@ -46,6 +55,11 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'capability-query-normalization-result',
   'deterministic-candidate-profile',
   'deterministic-candidate-profile-authority',
+  'candidate-retrieval-request',
+  'candidate-retrieval-result',
+  'capability-retrieval-expansion',
+  'capability-retrieval-expansion-source',
+  'candidate-retrieval-metadata-authority',
 ] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
@@ -79,6 +93,13 @@ const SCHEMAS = {
   'repository-interview-request': repositoryInterviewRequestV1Schema,
   'model-execution': modelExecutionV1Schema,
   'repository-interview': repositoryInterviewV1Schema,
+  'candidate-retrieval-request': candidateRetrievalRequestV1Schema,
+  'candidate-retrieval-result': candidateRetrievalResultV1Schema,
+  'capability-retrieval-expansion': capabilityRetrievalExpansionV1Schema,
+  'capability-retrieval-expansion-source':
+    capabilityRetrievalExpansionSourceV1Schema,
+  'candidate-retrieval-metadata-authority':
+    candidateRetrievalMetadataAuthorityV1Schema,
 } as const;
 
 export function getContractSchemaV1(name: ContractSchemaName): JsonSchemaValue {

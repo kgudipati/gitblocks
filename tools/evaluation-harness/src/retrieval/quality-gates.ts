@@ -41,6 +41,14 @@ export const RETRIEVAL_V2_QUALITY_GATES_PATH =
 
 const EXPECTED_CORPUS_DIGEST =
   '05e03c9b60f05b893b20c9f5687f387f23e5ba5076e96fad1eaec7d01175b12c';
+const EXPECTED_INDEPENDENT_REVIEW_DIGEST =
+  'c64f49c7a7211b5e0304fd9e568dcd625e669d4f31395d21c815d9fe92f91f20';
+const EXPECTED_BASELINE_REPORT_DIGEST =
+  '789bee30451d82276b224b1693710fbb66c3722b625c81cbd45b2453a8354140';
+const EXPECTED_SATURATION_PROOF_DIGEST =
+  '4fde078b679dea3c434f77392b4b2f2a5b0c3a477b383d0699024b6414287921';
+const EXPECTED_QUALITY_GATE_DIGEST =
+  '27550bd7d676a51b98177184b72a6ac11d7ccee350cee1b0d105915b6ce13261';
 const HISTORICAL_CEILING_NUMERATOR = 625_000;
 const HISTORICAL_CEILING_DENOMINATOR = 656_249;
 
@@ -512,6 +520,43 @@ export function validateRetrievalV2GateAuthorities(
     throw new Error('Retrieval-v2 committed gate authorities drifted.');
   }
   return expected;
+}
+
+/**
+ * Authenticates the committed quality-gate input without loading relevance
+ * gold, baseline predictions, or scorer output. Production measurement calls
+ * this boundary before blind prediction generation.
+ */
+export function loadCommittedRetrievalV2QualityGates(
+  startDirectory = process.cwd(),
+): RetrievalV2QualityGates {
+  const repositoryRoot = findGitBlocksRoot(startDirectory);
+  const value = loadRetrievalJsonFile(
+    repositoryRoot,
+    RETRIEVAL_V2_QUALITY_GATES_PATH,
+  );
+  if (
+    createRetrievalSchemaRegistry(repositoryRoot, 'v2').validate(
+      'quality-gates',
+      value,
+    ).length > 0
+  ) {
+    throw new Error('Retrieval-v2 quality-gate authority is invalid.');
+  }
+  const gates = value as RetrievalV2QualityGates;
+  if (
+    digestWithoutOwnDigest(gates) !== gates.semanticDigest ||
+    gates.semanticDigest !== EXPECTED_QUALITY_GATE_DIGEST ||
+    gates.authorityBindings.corpusSemanticDigest !== EXPECTED_CORPUS_DIGEST ||
+    gates.authorityBindings.independentReviewDigest !==
+      EXPECTED_INDEPENDENT_REVIEW_DIGEST ||
+    gates.authorityBindings.baselineReportDigest !==
+      EXPECTED_BASELINE_REPORT_DIGEST ||
+    gates.saturationProof.proofDigest !== EXPECTED_SATURATION_PROOF_DIGEST
+  ) {
+    throw new Error('Retrieval-v2 quality-gate binding is inconsistent.');
+  }
+  return gates;
 }
 
 interface BigFraction {

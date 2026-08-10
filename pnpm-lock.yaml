@@ -101,6 +101,15 @@ importers:
         specifier: 3.4.9
         version: 3.4.9
 
+  packages/retrieval:
+    dependencies:
+      '@gitblocks/contracts':
+        specifier: workspace:0.0.0
+        version: link:../contracts
+      '@gitblocks/domain':
+        specifier: workspace:0.0.0
+        version: link:../domain
+
   tools/evaluation-harness:
     dependencies:
       '@gitblocks/contracts':
@@ -112,6 +121,9 @@ importers:
       '@gitblocks/persistence':
         specifier: workspace:0.0.0
         version: link:../../packages/persistence
+      '@gitblocks/retrieval':
+        specifier: workspace:0.0.0
+        version: link:../../packages/retrieval
       ajv:
         specifier: 8.20.0
         version: 8.20.0

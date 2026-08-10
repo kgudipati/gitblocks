@@ -20,6 +20,9 @@ import {
 } from './issues.ts';
 import type { CapabilityFamily } from './model.ts';
 
+export const CANDIDATE_CONSTRAINT_EVALUATION_VERSION =
+  'candidate-constraint-evaluation/1.0.0' as const;
+
 export type CandidateConstraintState = 'conflict' | 'satisfied' | 'unresolved';
 export type CandidateConstraintMatch = 'match' | 'mismatch' | 'unresolved';
 

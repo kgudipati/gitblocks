@@ -28,6 +28,7 @@ describe('dependency-cruiser architecture rules', () => {
     ['domain-outward', 'no-domain-outward-dependency'],
     ['contracts-outward', 'no-contracts-outward-dependency'],
     ['contracts-disallowed-package', 'no-contracts-outward-dependency'],
+    ['retrieval-disallowed-package', 'no-retrieval-outward-dependency'],
     ['persistence-disallowed-package', 'no-persistence-outward-dependency'],
     ['persistence-prohibited-layer', 'no-persistence-to-prohibited-layer'],
     ['ingestion-disallowed-package', 'no-ingestion-outward-dependency'],
@@ -65,7 +66,7 @@ describe('dependency-cruiser architecture rules', () => {
     expect(`${result.stdout}\n${result.stderr}`).toContain(`error ${ruleName}`);
   });
 
-  it('allows tools to consume contracts and contracts to consume only domain, Ajv, and TypeBox', () => {
+  it('allows evaluation to consume retrieval and retrieval to consume only contracts/domain', () => {
     const sourceFixturePath = join(
       REPOSITORY_ROOT,
       'tools/repository-checks/architecture-fixtures/allowed-product-direction',

@@ -65,18 +65,10 @@ export async function collectProfileMaterializationSources(
 ): Promise<ProfileMaterializationCollectionResult> {
   const sourceRecords: ProfileMaterializationSourceRecordInput[] = [];
   const qualifiedFailures: string[] = [];
-  const repository = parseProfileMaterializationRepositoryResponse(
-    (
-      await request(
-        candidate,
-        config,
-        'github-repository-metadata',
-        `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(candidate.github.repository)}`,
-      )
-    ).value,
+  const repository = await collectProfileMaterializationRepositoryMetadata(
+    candidate,
+    config,
   );
-  assertRepositoryIdentity(candidate, repository);
-  if (!repository.isPublic) throw ingestionError('ingestion.provider-identity');
   sourceRecords.push(
     record(candidate, collectedAt, config, 'github-repository-metadata', {
       canonicalOwner: repository.canonicalOwner,
@@ -412,6 +404,47 @@ export async function collectProfileMaterializationSources(
     legacyBundle,
     qualifiedFailureCodes: [...new Set(qualifiedFailures)].sort(),
   };
+}
+
+export async function collectProfileMaterializationRepositoryMetadata(
+  candidate: CatalogCandidate,
+  config: ProfileMaterializationProviderConfig,
+): Promise<ProfileMaterializationRepositorySource> {
+  const repository = await observeProfileMaterializationRepositoryMetadata(
+    candidate,
+    config,
+  );
+  assertRepositoryIdentity(candidate, repository);
+  if (!repository.isPublic) throw ingestionError('ingestion.provider-identity');
+  return repository;
+}
+
+export async function collectCandidateRetrievalRepositoryMetadata(
+  candidate: CatalogCandidate,
+  config: ProfileMaterializationProviderConfig,
+): Promise<ProfileMaterializationRepositorySource> {
+  const repository = await observeProfileMaterializationRepositoryMetadata(
+    candidate,
+    config,
+  );
+  if (!repository.isPublic) throw ingestionError('ingestion.provider-identity');
+  return repository;
+}
+
+export async function observeProfileMaterializationRepositoryMetadata(
+  candidate: CatalogCandidate,
+  config: ProfileMaterializationProviderConfig,
+): Promise<ProfileMaterializationRepositorySource> {
+  return parseProfileMaterializationRepositoryResponse(
+    (
+      await request(
+        candidate,
+        config,
+        'github-repository-metadata',
+        `/repos/${encodeURIComponent(candidate.github.owner)}/${encodeURIComponent(candidate.github.repository)}`,
+      )
+    ).value,
+  );
 }
 
 export function parseProfileMaterializationRepositoryResponse(

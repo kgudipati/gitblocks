@@ -138,6 +138,7 @@ export {
 } from './profile-materialization-persistence-proof.ts';
 export {
   collectProfileMaterializationSources,
+  collectProfileMaterializationRepositoryMetadata,
   mapProfilePrimaryLanguage,
   parseProfileMaterializationCommunityResponse,
   parseProfileMaterializationRepositoryResponse,
@@ -146,6 +147,43 @@ export {
   type ProfileMaterializationProviderConfig,
   type ProfileMaterializationRepositorySource,
 } from './profile-materialization-providers.ts';
+export {
+  collectCandidateRetrievalMetadataAuthority,
+  type CandidateRetrievalMetadataCollectorConfig,
+} from './candidate-retrieval-metadata-collector.ts';
+export {
+  CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_PATH,
+  CANDIDATE_RETRIEVAL_METADATA_FUTURE_COLLECTION_COMMAND,
+  CANDIDATE_RETRIEVAL_METADATA_GITHUB_TOKEN_ENVIRONMENT,
+  CANDIDATE_RETRIEVAL_METADATA_PROVIDER_POLICY_PATH,
+  CANDIDATE_RETRIEVAL_METADATA_RETAINED_FIELDS,
+  CANDIDATE_RETRIEVAL_METADATA_SOURCE_POLICY_PATH,
+  CANDIDATE_RETRIEVAL_METADATA_STAGING_PATH,
+  CANDIDATE_RETRIEVAL_METADATA_VALIDATION_COMMAND,
+  parseCandidateRetrievalMetadataProviderPolicy,
+  type CandidateRetrievalMetadataCollectionEnvelope,
+  type CandidateRetrievalMetadataProviderPolicy,
+} from './candidate-retrieval-metadata-policy.ts';
+export {
+  CANDIDATE_RETRIEVAL_METADATA_CATALOG_PATH,
+  CANDIDATE_RETRIEVAL_METADATA_COLLECTION_STAGES,
+  CANDIDATE_RETRIEVAL_METADATA_INPUT_MAX_BYTES,
+  CANDIDATE_RETRIEVAL_METADATA_VALIDATION_STAGES,
+  CandidateRetrievalMetadataOperationFailure,
+  executeCandidateRetrievalMetadataCollection,
+  preflightCandidateRetrievalMetadataCollection,
+  renderCandidateRetrievalMetadataCliFailure,
+  validateCandidateRetrievalMetadataAuthority,
+  type CandidateRetrievalMetadataCollectionEffects,
+  type CandidateRetrievalMetadataCollectionStage,
+  type CandidateRetrievalMetadataOperationStage,
+  type CandidateRetrievalMetadataPreflightEffects,
+  type CandidateRetrievalMetadataPreflightResult,
+  type CandidateRetrievalMetadataSafeErrorCode,
+  type CandidateRetrievalMetadataValidationEffects,
+  type CandidateRetrievalMetadataValidationResult,
+  type CandidateRetrievalMetadataValidationStage,
+} from './candidate-retrieval-metadata-runner.ts';
 export {
   materializeCandidateProfile,
   materializeCandidateProfiles,

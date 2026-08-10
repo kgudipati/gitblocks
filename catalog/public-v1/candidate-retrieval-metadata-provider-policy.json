@@ -1,0 +1,32 @@
+{
+  "policyVersion": "candidate-retrieval-metadata-provider-policy/1.1.0",
+  "catalogBinding": {
+    "catalogVersion": "public-v1",
+    "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634"
+  },
+  "sourceProviderPolicyBinding": {
+    "policyVersion": "profile-materialization-provider-policy/1.0.0",
+    "policyDigest": "0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede"
+  },
+  "allowedOperations": ["github-repository-metadata"],
+  "authority": {
+    "authorityVersion": "candidate-retrieval-metadata-authority/1.1.0",
+    "outputPath": "catalog/public-v1/candidate-retrieval-metadata-authority.json",
+    "candidateCount": 150,
+    "maximumSerializedBytes": 1048576
+  },
+  "retainedFields": [
+    "catalog-owner",
+    "catalog-repository",
+    "description",
+    "primary-language",
+    "provider-canonical-owner",
+    "provider-canonical-repository",
+    "repository-identity-state",
+    "topics"
+  ],
+  "credentialEnvironmentName": "GITBLOCKS_RETRIEVAL_METADATA_GITHUB_TOKEN",
+  "logicalRequestBudget": 150,
+  "worstCaseRequestAttemptBudget": 450,
+  "policySemanticDigest": "b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e"
+}

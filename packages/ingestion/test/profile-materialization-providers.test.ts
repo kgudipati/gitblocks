@@ -43,6 +43,34 @@ describe('profile-materialization strict provider parsing', () => {
     expect(mapProfilePrimaryLanguage('Kotlin')).toBeUndefined();
   });
 
+  it('keeps repository discovery text within the accepted inert bounds', () => {
+    const maximum = parseProfileMaterializationRepositoryResponse(
+      repositoryResponse({
+        description: 'd'.repeat(500),
+        topics: Array.from(
+          { length: 20 },
+          (_, index) => `topic-${String(index).padStart(2, '0')}`,
+        ),
+        language: 'l'.repeat(100),
+      }),
+    );
+    expect(maximum.description).toHaveLength(500);
+    expect(maximum.topics).toHaveLength(20);
+    expect(maximum.primaryLanguage).toHaveLength(100);
+    for (const malformed of [
+      { description: 'd'.repeat(501) },
+      { description: 'unsafe\u001finstruction' },
+      { topics: ['unsafe\u0000topic'] },
+      { language: 'l'.repeat(101) },
+    ]) {
+      expect(() =>
+        parseProfileMaterializationRepositoryResponse(
+          repositoryResponse(malformed),
+        ),
+      ).toThrow();
+    }
+  });
+
   it('retains exact fork parents and leaves missing fork parents unknown', () => {
     const notFork =
       parseProfileMaterializationRepositoryResponse(repositoryResponse());

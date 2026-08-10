@@ -54,18 +54,22 @@ components, data flows, and trust boundaries.
 ## Current development status
 
 GitBlocks is in its product and engineering foundation phase. This repository
-now contains an exactly pinned TypeScript workspace, deterministic repository
+contains an exactly pinned TypeScript workspace, deterministic repository
 verification tooling, a proposed ten-case evaluation pilot for
-repository-conditioned adoption fit over fixed candidate sets, and the first
-production-owned packages: a pure domain, versioned contracts, and a
-PostgreSQL persistence adapter for durable catalog identities, immutable
-public evidence, append-only lifecycle events, and reproducible public dossier
-snapshots. Full tenant and organization persistence is intentionally deferred.
-The repository also
-contains a curated 150-repository public catalog and a bounded deterministic
-operator-run GitHub/npm/advisory ingestion package, plus exact immutable public
-repository artifacts and lossless line-addressable chunks for all 150
-candidates. Phase 7 now includes repository-interview contracts, application,
+repository-conditioned adoption fit over fixed candidate sets, and six
+implemented non-operational product packages: pure domain, versioned
+contracts, a PostgreSQL persistence adapter, bounded operator-run ingestion,
+the repository-interview application, and `@gitblocks/retrieval`. The pure
+retrieval package is transport-neutral, in-process, deterministic, bounded,
+and evaluation-independent. It consumes an accepted normalized capability
+query and candidate authorities and produces separate bounded eligible and
+evidence-needed candidate lanes with provenance. Full tenant and organization
+persistence is intentionally deferred.
+
+The repository also contains a curated 150-repository public catalog, plus
+exact immutable public repository artifacts and lossless line-addressable
+chunks for all 150 candidates. Phase 7 now includes repository-interview
+contracts, application,
 immutable PostgreSQL history, evaluation authority, a bounded direct Responses
 adapter, an explicit offline operator composition root, and a content-free
 Milestone 10 pre-live authority with exact 6/30/150 candidate plans, two
@@ -75,8 +79,9 @@ and repository interviews are deferred as optional future enrichment. The
 repository still has no live provider configuration, materialized live
 selection, real pre-live authorization, approved retention or pricing
 authority, selected model or Gate A result, Agent Skill, scanner, MCP server,
-operational backend, discovery or product ranking engine, continuous crawler,
-deployment, production database, or product release. Phase 7 is governed by
+shared retrieval service, production ranking, target-codebase-conditioned fit,
+adoption recommendation, continuous crawler, deployment, production database,
+or product release. Phase 7 is governed by
 [Plan 0017](docs/plans/0017-evidence-grounded-repository-interviews.md) and
 [ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md).
 The strict Phase 7 materialization boundary requires a fresh complete receipt
@@ -142,6 +147,18 @@ source records byte-for-byte, and disposes the exact container before its
 network. Milestone 7B, Docker/database/provider execution, and live completion
 evidence remain separately authorized.
 
+[Plan 0021](docs/plans/0021-production-retrieval.md) and accepted
+[ADR 0009](docs/architecture/decisions/0009-production-retrieval.md) govern the
+independently accepted Project Phase 9 implementation, corresponding to the
+original strategy's Phase 11 retrieval engine. Independently reviewed
+`retrieval-v2` is the governing evaluation authority, and the final quality,
+safety, determinism, architecture, security, performance, and memory gates all
+passed. Phase 9 implements retrieval only. Production ranking,
+target-codebase-conditioned fit, adoption recommendation, scanner, API/MCP,
+Agent Skill, persistent or vector search, shared retrieval service, and
+deployment remain unimplemented. Phase 10 ranking has not begun and is not
+authorized by Phase 9 completion.
+
 ## Repository map
 
 | Path                                     | Purpose                                                                          |
@@ -161,6 +178,7 @@ evidence remain separately authorized.
 | `packages/persistence/`                  | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
 | `packages/ingestion/`                    | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
 | `packages/interviews/`                   | Interview schema, prompt/mapping, application, and provider core                 |
+| `packages/retrieval/`                    | Pure bounded deterministic candidate retrieval with separate result lanes        |
 | `apps/repository-interview-operator/`    | Explicit offline composition, policy, receipt, and process ports                 |
 | `tools/repository-interview-prelive/`    | Content-free pre-live validation and future receipt/database materialization     |
 | `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority         |

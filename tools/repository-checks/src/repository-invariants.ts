@@ -27,6 +27,7 @@ const APPROVED_PACKAGE_MANIFESTS = new Set([
   'packages/ingestion/package.json',
   'packages/interviews/package.json',
   'packages/persistence/package.json',
+  'packages/retrieval/package.json',
   'tools/evaluation-harness/package.json',
   'tools/repository-interview-prelive/package.json',
   'tools/repository-checks/package.json',
@@ -89,6 +90,16 @@ const PRODUCT_PACKAGE_POLICIES: ReadonlyMap<string, ProductPackagePolicy> =
       },
     ],
     [
+      'packages/retrieval/package.json',
+      {
+        dependencies: new Map([
+          ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+          ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
+        ]),
+        name: '@gitblocks/retrieval',
+      },
+    ],
+    [
       'packages/persistence/package.json',
       {
         dependencies: new Map([
@@ -127,6 +138,13 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
     new Map([['@gitblocks/contracts', EXACT_WORKSPACE_VERSION]]),
   ],
   [
+    'packages/retrieval/package.json',
+    new Map([
+      ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
+    ]),
+  ],
+  [
     'packages/persistence/package.json',
     new Map([['@gitblocks/contracts', EXACT_WORKSPACE_VERSION]]),
   ],
@@ -136,6 +154,7 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
       ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
       ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
       ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/retrieval', EXACT_WORKSPACE_VERSION],
     ]),
   ],
   [
@@ -260,6 +279,12 @@ const REQUIRED_PATHS = [
   'packages/persistence/test/tsconfig.json',
   'packages/persistence/tsconfig.json',
   'packages/persistence/tsconfig.test.json',
+  'packages/retrieval/README.md',
+  'packages/retrieval/package.json',
+  'packages/retrieval/src/index.ts',
+  'packages/retrieval/test/tsconfig.json',
+  'packages/retrieval/tsconfig.json',
+  'packages/retrieval/tsconfig.test.json',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
@@ -539,15 +564,26 @@ function validateRuntimeScripts(
     'eval:retrieval:baselines',
     'eval:retrieval:baselines:generate',
     'eval:retrieval:fixtures',
+    'eval:retrieval:production',
+    'eval:retrieval:production:v2',
     'eval:retrieval:score',
     'eval:retrieval:validate',
     'eval:retrieval:verify',
+    'eval:retrieval:v2:baselines',
+    'eval:retrieval:v2:baselines:generate',
+    'eval:retrieval:v2:fixtures',
+    'eval:retrieval:v2:gates:generate',
+    'eval:retrieval:v2:gates:validate',
+    'eval:retrieval:v2:validate',
+    'eval:retrieval:v2:verify',
     'eval:score',
     'eval:validate',
     'test',
     'test:coverage',
     'taxonomy:generate',
     'taxonomy:validate',
+    'retrieval:expansion:generate',
+    'retrieval:expansion:validate',
     'ingest:live',
     'ingest:receipt',
     'ingestion:test',
@@ -590,7 +626,7 @@ function validateRuntimeScripts(
   const requiredWorkspaceScripts = {
     build: 'pnpm build:product && pnpm build:tools',
     'build:product':
-      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/repository-interview-operator... build',
+      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/retrieval... --filter @gitblocks/repository-interview-operator... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive build',
     'contracts:validate':
@@ -599,6 +635,10 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts --write',
     'taxonomy:validate':
       'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts',
+    'retrieval:expansion:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/retrieval-expansion-cli.ts --write',
+    'retrieval:expansion:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/retrieval-expansion-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
     'catalog:seed':
@@ -657,6 +697,24 @@ function validateRuntimeScripts(
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify',
     'eval:retrieval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score',
+    'eval:retrieval:production':
+      'pnpm runtime:check && pnpm build:product && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production',
+    'eval:retrieval:v2:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
+    'eval:retrieval:v2:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'eval:retrieval:v2:baselines':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-v2',
+    'eval:retrieval:v2:baselines:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate-v2',
+    'eval:retrieval:v2:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'eval:retrieval:v2:gates:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-generate-v2',
+    'eval:retrieval:v2:gates:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
+    'eval:retrieval:production:v2':
+      'pnpm runtime:check && pnpm build:product && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production-v2',
     'db:check':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':
@@ -670,7 +728,7 @@ function validateRuntimeScripts(
     typecheck:
       'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/retrieval --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
   } as const;
   for (const [scriptName, expected] of Object.entries(
     requiredWorkspaceScripts,
@@ -680,13 +738,30 @@ function validateRuntimeScripts(
     }
   }
   const verifyCore = scripts['verify:core'];
+  const requiredRoutineRetrievalCommands = [
+    'node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
+    'node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'node tools/evaluation-harness/src/retrieval/cli.ts verify',
+    'node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
+  ] as const;
   if (
     typeof verifyCore !== 'string' ||
     (verifyCore.match(/pnpm build:product/gu)?.length ?? 0) !== 1 ||
     !verifyCore.includes(
       'pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal',
     ) ||
-    !verifyCore.includes('node packages/contracts/scripts/taxonomy-cli.ts')
+    requiredRoutineRetrievalCommands.some(
+      (command) => !verifyCore.includes(command),
+    ) ||
+    verifyCore.includes(
+      'tools/evaluation-harness/src/retrieval/cli.ts production',
+    ) ||
+    !verifyCore.includes('node packages/contracts/scripts/taxonomy-cli.ts') ||
+    !verifyCore.includes(
+      'node packages/contracts/scripts/retrieval-expansion-cli.ts',
+    )
   ) {
     diagnostics.push(runtimeScriptDiagnostic('verify:core', manifestPath));
   }
@@ -1156,8 +1231,11 @@ function validateCiPolicy(
     'run: node tools/evaluation-harness/src/cli.ts validate',
     'run: node tools/evaluation-harness/src/cli.ts fixtures',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts validate',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
     'run: node tools/evaluation-harness/src/retrieval/cli.ts verify',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
     'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate',
     'run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures',
     'run: node tools/evaluation-harness/src/contract-conformance-cli.ts',
@@ -1170,9 +1248,20 @@ function validateCiPolicy(
     'run: pnpm security:secrets',
     unchangedWorktree,
   ] as const;
-  const hasExactlyOnce = (section: string, fragment: string): boolean =>
-    section.includes(fragment) &&
-    section.indexOf(fragment) === section.lastIndexOf(fragment);
+  const hasExactlyOnce = (section: string, fragment: string): boolean => {
+    if (fragment.startsWith('run: ')) {
+      return (
+        section
+          .split('\n')
+          .filter((line) => line.trim().replace(/^- /u, '') === fragment)
+          .length === 1
+      );
+    }
+    return (
+      section.includes(fragment) &&
+      section.indexOf(fragment) === section.lastIndexOf(fragment)
+    );
+  };
   const containsInOrder = (
     section: string | undefined,
     fragments: readonly string[],
@@ -1196,6 +1285,7 @@ function validateCiPolicy(
       roots: [
         'packages/contracts/test',
         'packages/domain/test',
+        'packages/retrieval/test',
         'packages/persistence/test',
         'packages/ingestion/test',
       ],
@@ -1332,7 +1422,8 @@ function isProhibitedArtifact(trackedPath: string): boolean {
       !trackedPath.startsWith('packages/domain/') &&
       !trackedPath.startsWith('packages/ingestion/') &&
       !trackedPath.startsWith('packages/interviews/') &&
-      !trackedPath.startsWith('packages/persistence/')) ||
+      !trackedPath.startsWith('packages/persistence/') &&
+      !trackedPath.startsWith('packages/retrieval/')) ||
     trackedPath.startsWith('src/') ||
     (trackedPath.startsWith('tools/') &&
       trackedPath !== 'tools/runtime-preflight.mjs' &&

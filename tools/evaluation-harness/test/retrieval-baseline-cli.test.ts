@@ -9,7 +9,7 @@ import { runRetrievalCli } from '../src/retrieval/cli.ts';
 describe('retrieval baseline CLI', () => {
   let inProcessReport: string | undefined;
 
-  it.each(['baselines', 'baselines-generate', 'verify'])(
+  it.each(['baselines', 'baselines-generate', 'verify', 'production'])(
     'rejects unexpected arguments for %s',
     (command) => {
       const output = capture();

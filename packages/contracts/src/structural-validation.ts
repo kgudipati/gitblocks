@@ -65,6 +65,22 @@ import {
   type DeterministicCandidateProfileAuthorityV1,
   type DeterministicCandidateProfileV1,
 } from './deterministic-candidate-profile-schemas.ts';
+import {
+  candidateRetrievalRequestV1Schema,
+  candidateRetrievalResultV1Schema,
+  type CandidateRetrievalRequestV1,
+  type CandidateRetrievalResultV1,
+} from './candidate-retrieval-schemas.ts';
+import {
+  capabilityRetrievalExpansionSourceV1Schema,
+  capabilityRetrievalExpansionV1Schema,
+  type CapabilityRetrievalExpansionSourceV1,
+  type CapabilityRetrievalExpansionV1,
+} from './capability-retrieval-expansion-schemas.ts';
+import {
+  candidateRetrievalMetadataAuthorityV1Schema,
+  type CandidateRetrievalMetadataAuthorityV1,
+} from './candidate-retrieval-metadata-schemas.ts';
 
 const AJV_OPTIONS = {
   allErrors: false,
@@ -420,6 +436,26 @@ export const deterministicCandidateProfileV1Validator =
 export const deterministicCandidateProfileAuthorityV1Validator =
   createLazyCandidateProfileAuthorityValidator(
     deterministicCandidateProfileV1Validator,
+  );
+export const candidateRetrievalRequestV1Validator =
+  createLazyStructuralValidator<CandidateRetrievalRequestV1>(
+    candidateRetrievalRequestV1Schema,
+  );
+export const candidateRetrievalResultV1Validator =
+  createLazyStructuralValidator<CandidateRetrievalResultV1>(
+    candidateRetrievalResultV1Schema,
+  );
+export const capabilityRetrievalExpansionSourceV1Validator =
+  createLazyStructuralValidator<CapabilityRetrievalExpansionSourceV1>(
+    capabilityRetrievalExpansionSourceV1Schema,
+  );
+export const capabilityRetrievalExpansionV1Validator =
+  createLazyStructuralValidator<CapabilityRetrievalExpansionV1>(
+    capabilityRetrievalExpansionV1Schema,
+  );
+export const candidateRetrievalMetadataAuthorityV1Validator =
+  createLazyStructuralValidator<CandidateRetrievalMetadataAuthorityV1>(
+    candidateRetrievalMetadataAuthorityV1Schema,
   );
 
 export type StructuralValidationResult<T> =

@@ -123,6 +123,43 @@ prove materialization. Run `pnpm profiles:validate` for read-only regeneration
 and byte comparison, or the explicit `pnpm profiles:generate` command after a
 reviewed authority/rule change.
 
+## Candidate retrieval metadata policy
+
+`candidate-retrieval-metadata-provider-policy.json` pre-registers a separate
+soft retrieval snapshot over exactly this 150-candidate catalog. It binds the
+accepted Phase 8 provider policy and permits only the existing
+`github-repository-metadata` operation. Authorized collection attempt #2
+published and independently validated
+`candidate-retrieval-metadata-authority.json` as a 150-record immutable
+snapshot. It was collected at `2026-08-08T17:10:33.311Z` under authority
+`candidate-retrieval-metadata-authority/1.1.0` and provider policy
+`candidate-retrieval-metadata-provider-policy/1.1.0`, with snapshot ID
+`retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f`, semantic
+digest
+`23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1`,
+file SHA-256
+`9f9aef7a399e5472444be90fa9de7de4f2884648b7eaf857cdce0a348046e894`,
+and 105,291 serialized UTF-8 bytes.
+
+The preceding identity-only probe completed 150/150 candidates in 150 attempts
+with no retries, failures, non-public repositories, or provider-canonical
+duplicates. The snapshot matches its 146 unchanged and four redirected
+observations: the three stable Casbin locators resolve to their Apache
+locations, and `muxinc/mux-node-sdk` resolves to `muxinc/mux-ts`. Stable
+catalog ownership remains unchanged. The intrinsic, evaluation-blind audit
+found 148 descriptions, 1,230 topics, 150 primary languages, and approved
+lexical metadata for all 150 candidates. The metadata lexical channel remains
+inactive pending separate independent review; no metadata-aware retrieval
+benchmark has run.
+
+Run `pnpm retrieval:metadata:preflight` for the zero-network, zero-credential,
+read-only envelope proof. That command never collects provider data. It also
+proves that no database, Docker, model, npm provider, or artifact body is
+required. The accepted profile authority remains the hard-filter authority and
+is not populated from this soft overlay. Run
+`pnpm retrieval:metadata:validate` to recheck the committed snapshot without
+network, credential, or write effects.
+
 ## Proposed Phase 6 artifact selections
 
 `artifact-selections.json` is the review-focused curator source for additional

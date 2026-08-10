@@ -3,12 +3,17 @@
 ## Status
 
 This document describes the approved direction for GitBlocks components. The
-repository now contains five implemented, non-operational product packages:
+repository now contains six implemented, non-operational product packages:
 the pure domain, versioned contracts, a concrete PostgreSQL persistence
-adapter, an operator-run curated public-source ingestion adapter, and the
-persistence-independent repository-interview application. The contracts,
-persistence, and ingestion packages also implement exact immutable public
-repository artifacts. The persistence adapter now also stores immutable
+adapter, an operator-run curated public-source ingestion adapter, the
+persistence-independent repository-interview application, and the pure
+`@gitblocks/retrieval` package. Retrieval is transport-neutral, in-process,
+deterministic, bounded, and evaluation-independent. It consumes accepted
+normalized capability queries and candidate authorities and returns separate
+bounded eligible and evidence-needed lanes with provenance. It owns no network,
+database, model, provider, transport, evaluation-gold, ranking, or deployment
+responsibility. The contracts, persistence, and ingestion packages also
+implement exact immutable public repository artifacts. The persistence adapter now also stores immutable
 repository-interview request, execution, and interview history through a
 contract-grounded PostgreSQL adapter. A narrow direct provider adapter,
 explicit offline operator composition root, and content-free pre-live
@@ -21,14 +26,23 @@ no live provider configuration, runtime service, deployed data store,
 continuous ingestion worker, or network service. Technology choices remain
 open unless an architecture decision record (ADR) approves them.
 
-The non-operational Phase 8 kernel now also contains the exact deterministic
+The historical non-operational Phase 8 kernel established the exact deterministic
 candidate-profile registry and two contract roots, an offline generated
 150-candidate profile authority, content-free coverage, and pure
 single-candidate constraint evaluation. The outward evaluation harness now
-owns an independent 50-case `retrieval-v1` authority, generated hard-filter
-projection validation, closed prediction/report schemas, and deterministic
-scoring fixtures. It contains no product candidate generation, filtering,
-retrieval, ranking, recommendation, baseline, or profile persistence.
+owns immutable historical `retrieval-v1`, independently reviewed governing
+`retrieval-v2`, generated hard-filter projection validation, closed
+prediction/report schemas, deterministic scoring fixtures, and a blind adapter
+to the product retrieval package. Product retrieval semantics remain inside
+`@gitblocks/retrieval`; the harness owns evaluation, not ranking,
+recommendation, or production persistence.
+
+Project Phase 9 is independently accepted. It adds the pure production
+retrieval package, transport-neutral contracts, reviewed authority bindings,
+separate result lanes, provenance, and bounded deterministic retrieval. It does
+not add an operational retrieval service. Ranking remains Phase 10, which has
+not begun, and vector or persistent search infrastructure remains conditional
+on separately reviewed measured evidence.
 
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
@@ -52,6 +66,10 @@ direct provider adapter, calibration, and live gates.
 Phase 8 deterministic candidate-profile, taxonomy, pre-contract query, and
 retrieval-evaluation boundaries. It does not approve production retrieval or
 ranking.
+[ADR 0009](decisions/0009-production-retrieval.md) accepts the implemented
+Phase 9 pure retrieval package, transport-neutral contract, lane, provenance,
+evaluation, and acceptance boundaries. It does not authorize Phase 10 ranking
+or turn the pure package into an operational service.
 
 ## Context and ownership
 
@@ -354,12 +372,15 @@ The implemented product dependency direction is:
 ```text
 packages/ingestion -> packages/persistence -> packages/contracts -> packages/domain
 packages/interviews -> packages/contracts -> packages/domain
+tools/evaluation-harness -> packages/retrieval -> packages/contracts -> packages/domain
 tools/evaluation-harness -> packages/persistence
 ```
 
 The harness-to-persistence dependency exists only for storage representability
-conformance. Product packages do not import evaluation schemas, corpus records,
-gold, or tool internals.
+conformance. The harness-to-retrieval dependency is an outward blind evaluation
+adapter. Product packages do not import evaluation schemas, corpus records,
+gold, scorers, or tool internals. The future remote retrieval/ranking service
+remains planned; the implemented retrieval core is not a running service.
 
 The operational dependency direction remains inward:
 

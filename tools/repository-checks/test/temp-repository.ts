@@ -113,6 +113,12 @@ const REQUIRED_PATHS = [
   'packages/persistence/test/tsconfig.json',
   'packages/persistence/tsconfig.json',
   'packages/persistence/tsconfig.test.json',
+  'packages/retrieval/README.md',
+  'packages/retrieval/package.json',
+  'packages/retrieval/src/index.ts',
+  'packages/retrieval/test/tsconfig.json',
+  'packages/retrieval/tsconfig.json',
+  'packages/retrieval/tsconfig.test.json',
   'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'schemas/evaluation/case.schema.json',
@@ -157,7 +163,7 @@ const ROOT_MANIFEST = JSON.stringify({
   scripts: {
     build: 'pnpm build:product && pnpm build:tools',
     'build:product':
-      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/repository-interview-operator... build',
+      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/retrieval... --filter @gitblocks/repository-interview-operator... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive build',
     'contracts:validate':
@@ -166,6 +172,10 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts --write',
     'taxonomy:validate':
       'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/taxonomy-cli.ts',
+    'retrieval:expansion:generate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/retrieval-expansion-cli.ts --write',
+    'retrieval:expansion:validate':
+      'pnpm runtime:check && pnpm build:product && node packages/contracts/scripts/retrieval-expansion-cli.ts',
     'catalog:validate':
       'pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/catalog-cli.ts',
     'catalog:seed':
@@ -200,6 +210,24 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify',
     'eval:retrieval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts score',
+    'eval:retrieval:production':
+      'pnpm runtime:check && pnpm build:product && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production',
+    'eval:retrieval:production:v2':
+      'pnpm runtime:check && pnpm build:product && node --expose-gc tools/evaluation-harness/src/retrieval/cli.ts production-v2',
+    'eval:retrieval:v2:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts validate-v2',
+    'eval:retrieval:v2:fixtures':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts fixtures',
+    'eval:retrieval:v2:baselines':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-v2',
+    'eval:retrieval:v2:baselines:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts baselines-generate-v2',
+    'eval:retrieval:v2:verify':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts verify-v2',
+    'eval:retrieval:v2:gates:generate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-generate-v2',
+    'eval:retrieval:v2:gates:validate':
+      'pnpm runtime:check && node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2',
     'eval:score':
       'pnpm runtime:check && node tools/evaluation-harness/src/cli.ts score',
     'eval:validate':
@@ -258,11 +286,11 @@ const ROOT_MANIFEST = JSON.stringify({
     typecheck:
       'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/retrieval --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
     verify: 'pnpm runtime:check && pnpm verify:core',
     'verify:ci': 'pnpm verify && pnpm db:verify && pnpm security:audit',
     'verify:core':
-      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && node packages/contracts/scripts/taxonomy-cli.ts',
+      'pnpm format:check && pnpm build:product && pnpm lint:internal && pnpm build:tools && pnpm typecheck:internal && vitest run && node tools/evaluation-harness/src/retrieval/cli.ts validate && node tools/evaluation-harness/src/retrieval/cli.ts validate-v2 && node tools/evaluation-harness/src/retrieval/cli.ts fixtures && node tools/evaluation-harness/src/retrieval/cli.ts verify && node tools/evaluation-harness/src/retrieval/cli.ts verify-v2 && node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2 && node packages/contracts/scripts/taxonomy-cli.ts && node packages/contracts/scripts/retrieval-expansion-cli.ts',
   },
   devDependencies: {
     typescript: '6.0.3',
@@ -284,6 +312,7 @@ const EVALUATION_MANIFEST = JSON.stringify({
     '@gitblocks/contracts': 'workspace:0.0.0',
     '@gitblocks/domain': 'workspace:0.0.0',
     '@gitblocks/persistence': 'workspace:0.0.0',
+    '@gitblocks/retrieval': 'workspace:0.0.0',
     ajv: '8.20.0',
   },
 });
@@ -318,6 +347,23 @@ const CONTRACTS_MANIFEST = JSON.stringify({
     '@gitblocks/domain': 'workspace:0.0.0',
     ajv: '8.20.0',
     typebox: '1.3.8',
+  },
+});
+
+const RETRIEVAL_MANIFEST = JSON.stringify({
+  name: '@gitblocks/retrieval',
+  version: '0.0.0',
+  private: true,
+  type: 'module',
+  exports: {
+    '.': {
+      types: './dist/src/index.d.ts',
+      import: './dist/src/index.js',
+    },
+  },
+  dependencies: {
+    '@gitblocks/contracts': 'workspace:0.0.0',
+    '@gitblocks/domain': 'workspace:0.0.0',
   },
 });
 
@@ -497,6 +543,9 @@ function defaultContent(relativePath: string): string {
   if (relativePath === 'packages/persistence/package.json') {
     return PERSISTENCE_MANIFEST;
   }
+  if (relativePath === 'packages/retrieval/package.json') {
+    return RETRIEVAL_MANIFEST;
+  }
   if (relativePath === 'packages/ingestion/package.json') {
     return INGESTION_MANIFEST;
   }
@@ -555,8 +604,11 @@ jobs:
       - run: node tools/evaluation-harness/src/cli.ts validate
       - run: node tools/evaluation-harness/src/cli.ts fixtures
       - run: node tools/evaluation-harness/src/retrieval/cli.ts validate
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts validate-v2
       - run: node tools/evaluation-harness/src/retrieval/cli.ts fixtures
       - run: node tools/evaluation-harness/src/retrieval/cli.ts verify
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts verify-v2
+      - run: node tools/evaluation-harness/src/retrieval/cli.ts gates-validate-v2
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts validate
       - run: node tools/evaluation-harness/src/repository-interview-evaluation-cli.ts fixtures
       - run: node tools/evaluation-harness/src/contract-conformance-cli.ts
@@ -576,6 +628,7 @@ jobs:
           pnpm exec vitest run
           packages/contracts/test
           packages/domain/test
+          packages/retrieval/test
           packages/persistence/test
           packages/ingestion/test
           --config vitest.config.ts

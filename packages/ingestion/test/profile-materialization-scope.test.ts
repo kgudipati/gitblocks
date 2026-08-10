@@ -7,7 +7,7 @@ const ROOT = new URL('../../../', import.meta.url);
 
 const ACCEPTED_BYTES = {
   '.github/workflows/ci.yml':
-    '2c3a34168bb594552a4f8a5ab1dfe776027d059454f56310b85401e32d4eb2bd',
+    '0994208ccdffaff99621b2883083f10a9434860749164bfed62b5962faf4eaae',
   'catalog/public-v1/candidate-profile-authority.json':
     '20394e3e7cbec698714f41bdb35d6073e17d9eb2e82d121b952d539cddc8be8d',
   'catalog/public-v1/candidates.json':
@@ -27,7 +27,7 @@ const ACCEPTED_BYTES = {
   'packages/persistence/migrations/0004_repository_interviews.sql':
     '2cd18e7d92373215b2a540cdf12e32a7e949bfb01866616e8a44ad326e45bca0',
   'pnpm-lock.yaml':
-    '6d460bf8bc78278687759b99cb9369db62eab7d725984a151b80e6946e198599',
+    'fa72a2b7536f7be4eb20e21f2b5dc89ba31a96bc9f13f6572f7ef2f6312ceb2e',
   'verification/retrieval-v1/profile-coverage.json':
     'e40137bc8b1e8b978a4e3008b876d1a284de0eca61daeda841c6492bdb24eaf8',
 } as const;

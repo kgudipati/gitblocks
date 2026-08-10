@@ -87,6 +87,19 @@ const configuration = {
       },
     },
     {
+      name: 'no-retrieval-outward-dependency',
+      severity: 'error',
+      comment:
+        'Retrieval may depend only on its own source plus product contracts and domain authority.',
+      from: {
+        path: '^packages/retrieval/src/',
+      },
+      to: {
+        pathNot:
+          '^(?:packages/retrieval/src/|packages/(?:contracts|domain)/)|node_modules/@gitblocks/(?:contracts|domain)(?:/|$)',
+      },
+    },
+    {
       name: 'no-persistence-outward-dependency',
       severity: 'error',
       comment:
@@ -155,7 +168,7 @@ const configuration = {
       severity: 'error',
       comment: 'Product workspaces must not depend on repository tooling.',
       from: {
-        path: '^(?:packages/(?:contracts|domain|persistence|ingestion|interviews)|apps/repository-interview-operator)/',
+        path: '^(?:packages/(?:contracts|domain|retrieval|persistence|ingestion|interviews)|apps/repository-interview-operator)/',
       },
       to: {
         path: '^tools/',
@@ -167,7 +180,7 @@ const configuration = {
       comment:
         'Product packages must not depend on evaluation corpus files, schemas, or implementation.',
       from: {
-        path: '^(?:packages/(?:contracts|domain|persistence|ingestion|interviews)|apps/repository-interview-operator)/',
+        path: '^(?:packages/(?:contracts|domain|retrieval|persistence|ingestion|interviews)|apps/repository-interview-operator)/',
       },
       to: {
         path: '^(?:evals|schemas/evaluation)(?:/|$)',
@@ -179,7 +192,7 @@ const configuration = {
       comment:
         'Product packages must not depend on adapter, framework, provider, or storage layers.',
       from: {
-        path: '^packages/(?:contracts|domain)/',
+        path: '^packages/(?:contracts|domain|retrieval)/',
       },
       to: {
         path: '(^|/)(?:adapters?|database|delivery|frameworks?|http|infrastructure|interfaces?|mcp|orm|providers?|queues?|storage)(/|$)',
