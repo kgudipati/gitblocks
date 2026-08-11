@@ -1,0 +1,75 @@
+{
+  "policyVersion": "ranking-v1-deterministic-readiness-policy/2.0.0",
+  "status": "proposed-independent-review-required",
+  "supersedes": {
+    "adr": "ADR-0012",
+    "historicalPolicyVersion": "ranking-v1-deterministic-readiness-policy/1.0.0",
+    "historicalPolicyDigest": "6330d6d882a6a0620fc80e335a20f2d1fee2280318586cbe9c2c36900a1f2e04",
+    "scope": "ready-field definition and breadth interpretation only"
+  },
+  "unchangedGate": {
+    "denominatorVersion": "ranking-decision-denominator/1.0.0",
+    "denominatorSize": 18,
+    "minimumEligibleFields": 13,
+    "exactPercentage": 72.222222
+  },
+  "deterministicExtractionEligibilityDefinition": [
+    "An explicit versioned deterministic extraction rule exists.",
+    "The rule consumes only accepted bounded candidate source authority.",
+    "The generation step contains no human or model judgment.",
+    "The rule can emit at least one semantically meaningful non-unknown fact under its contract; an always-unknown extractor is ineligible.",
+    "The rule emits only source-supported positive facts or completeness-backed negative or absence facts.",
+    "Incomplete authority yields explicit unknown or partial state and never an inferred negative.",
+    "Not-applicable is emitted only where the field contract permits it and the condition is deterministically proved.",
+    "Source provenance and exact field binding are retained.",
+    "Candidate identity as a fit fact, popularity, Ranking V1 evaluation classifications or gold, and scorer output cannot affect extraction.",
+    "Deterministic evidence flows into ordinary candidate evidence and CandidateDossierV1 without prose interpretation."
+  ],
+  "deterministicFullClosureDefinition": "Every applicable catalog candidate is known or legally deterministic-not-applicable under accepted freshness and completeness semantics. This is reported separately and is not the 13/18 numerator.",
+  "breadthGroups": {
+    "capability-adoption": [
+      "adoption-unit-type",
+      "capability-variants-features"
+    ],
+    "stack-package": [
+      "language-ecosystem",
+      "package-publication-version",
+      "runtime-package-format",
+      "framework-compatibility",
+      "datastore-requirements",
+      "package-repository-linkage"
+    ],
+    "infrastructure-deployment": [
+      "required-infrastructure",
+      "optional-infrastructure",
+      "deployment-self-hosting",
+      "operational-complexity-primitives"
+    ],
+    "policy-risk": [
+      "license-identity",
+      "archived-state",
+      "maintenance-activity",
+      "release-state-recency",
+      "security-advisory-state",
+      "security-policy-presence"
+    ]
+  },
+  "perCellOrigins": [
+    "deterministic-known",
+    "deterministic-not-applicable",
+    "deterministic-partial-direct-evidence",
+    "human-reviewed-structured",
+    "model-derived",
+    "unknown",
+    "conflict"
+  ],
+  "numeratorExclusions": [
+    "human-reviewed structured values",
+    "model-derived values",
+    "unknown cells",
+    "conflict cells",
+    "extractors that cannot emit a meaningful non-unknown fact"
+  ],
+  "changeControl": "M3A v1 remains a correct NO-GO under policy v1. This successor was selected before live M3 authority or candidate coverage existed. Independent acceptance of ADR 0012, this policy, the v2 field plan, and the v2 source policy is required before any credential or provider effect.",
+  "policySemanticDigest": "db8536cd44cc11a8c86458f0d998dbf0daa98487bd3d936a0ba6e4b5385dbf5f"
+}

@@ -348,6 +348,7 @@ const structuredProviderSnapshotSourceSchema = closedObject({
   completenessState: Type.Union([
     Type.Literal('complete'),
     Type.Literal('established-absence'),
+    Type.Literal('partial'),
   ]),
   limitationCode: Type.Literal('source-is-mutable'),
 });

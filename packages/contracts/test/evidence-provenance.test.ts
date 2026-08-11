@@ -97,7 +97,9 @@ const approvedValidationSource = (): Source => ({
   validatedAt: VALIDATED_AT,
 });
 
-const structuredProviderSnapshotSource = (): Source => ({
+const structuredProviderSnapshotSource = (
+  completenessState: 'complete' | 'partial' = 'complete',
+): Source => ({
   kind: 'structured-provider-snapshot',
   sourceType: 'public-structured-provider',
   provider: 'github',
@@ -109,7 +111,7 @@ const structuredProviderSnapshotSource = (): Source => ({
   collectedAt: COLLECTED_AT,
   effectiveAsOf: COLLECTED_AT,
   sourceMutability: 'mutable',
-  completenessState: 'complete',
+  completenessState,
   limitationCode: 'source-is-mutable',
 });
 
@@ -134,6 +136,10 @@ const validSources = [
   ['security advisory', securityAdvisorySource()],
   ['mutable official documentation', mutableDocumentationSource()],
   ['public structured-provider snapshot', structuredProviderSnapshotSource()],
+  [
+    'partial public structured-provider snapshot',
+    structuredProviderSnapshotSource('partial'),
+  ],
   ['approved validation', approvedValidationSource()],
 ] as const;
 

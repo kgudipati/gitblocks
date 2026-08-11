@@ -15,7 +15,7 @@ import { createFitAssessmentResponse } from './fixtures.ts';
 
 const EXPECTED_SCHEMA_DIGESTS = {
   'candidate-dossier':
-    'b72b3c51def9cc3bfa8ce0e6356f865b1120e4b15087b599285f4f97b6e1e829',
+    'f5dca14bc5ccb03c31165aa31473770914e2e7b98515eb2d191ed6eff3d4d055',
   'capability-request':
     '3d1f213efdacd6ff550a66a74703b94abc56aead59cdcb08b7a2769b5a5a1ab9',
   'capability-taxonomy':
@@ -43,9 +43,9 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
-    '9040432e6866c36940fc270fd6b4bc0b4762c0d745d7a0c34b13af749ddda323',
+    'f5fcdf3d59965c7062887469e8a998f6741df2f6a488cec8028ebf586ca39b7a',
   'fit-assessment-response':
-    '02486942d54566297e37a5c5a32e68fc3ff7f1603ddbf9ba4e11d02c3d7cbf2e',
+    '218ee53a0eb060735964db233043963bb1fd04abe27109ce6975bfa27aefbc91',
   'repository-artifact':
     '994643368bdc95a5279a2d939ec350ed65932ad16a3c937ae32f52ff87113d16',
   'repository-artifact-chunk':

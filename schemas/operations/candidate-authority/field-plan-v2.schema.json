@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/field-plan/2.0.0",
+  "title": "Candidate authority field plan 2.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "planVersion",
+    "status",
+    "bindings",
+    "frozenGate",
+    "plannedDeterministicExtractionEligibleFieldCount",
+    "plannedDeterministicFullClosureFieldCount",
+    "goDecision",
+    "goDecisionReasons",
+    "fields",
+    "planSemanticDigest"
+  ],
+  "properties": {
+    "planVersion": { "const": "candidate-authority-field-plan/2.0.0" },
+    "status": { "const": "pre-live-go-pending-independent-review" },
+    "bindings": {
+      "type": "object",
+      "minProperties": 9,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "frozenGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denominatorSize",
+        "minimumEligibleFields",
+        "exactPercentage",
+        "minimumEligibleFieldPerBreadthGroup"
+      ],
+      "properties": {
+        "denominatorSize": { "const": 18 },
+        "minimumEligibleFields": { "const": 13 },
+        "exactPercentage": { "const": 72.222222 },
+        "minimumEligibleFieldPerBreadthGroup": { "const": 1 }
+      }
+    },
+    "plannedDeterministicExtractionEligibleFieldCount": { "const": 14 },
+    "plannedDeterministicFullClosureFieldCount": { "const": 6 },
+    "goDecision": { "const": "go-pending-independent-review" },
+    "goDecisionReasons": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 10,
+      "items": { "type": "string", "minLength": 1, "maxLength": 700 }
+    },
+    "fields": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fieldId",
+          "posture",
+          "sourceAuthorityVersion",
+          "extractionRuleVersion",
+          "sourceKind",
+          "versionScope",
+          "positiveFacts",
+          "negativeAbsenceSemantics",
+          "unresolvedRemainder",
+          "completenessRequirement",
+          "freshnessRequirement",
+          "notApplicableRule",
+          "evidenceTopic",
+          "evidenceDimension",
+          "evidenceProvenanceKind",
+          "generationOrigin",
+          "canEmitMeaningfulNonUnknownFact",
+          "incompleteAuthorityOutcome",
+          "negativeClaimsRequireCompleteSource",
+          "provenanceAndFieldBindingRetained",
+          "prohibitedExtractionInputs",
+          "evidenceBridgeWithoutProseInterpretation",
+          "deterministicExtractionEligible",
+          "deterministicFullClosureCandidate",
+          "breadthGroup",
+          "providerOperations",
+          "reusesPhase8Rule",
+          "requiresSuccessorRule",
+          "rationale"
+        ],
+        "properties": {
+          "fieldId": { "$ref": "#/$defs/id" },
+          "posture": {
+            "enum": [
+              "deterministic-complete-path",
+              "deterministic-partial-path",
+              "human-reviewed-structured-only",
+              "not-responsibly-extractable-in-v1"
+            ]
+          },
+          "sourceAuthorityVersion": { "$ref": "#/$defs/text" },
+          "extractionRuleVersion": { "$ref": "#/$defs/text" },
+          "sourceKind": { "$ref": "#/$defs/text" },
+          "versionScope": { "$ref": "#/$defs/longText" },
+          "positiveFacts": {
+            "type": "array",
+            "maxItems": 10,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/longText" }
+          },
+          "negativeAbsenceSemantics": { "$ref": "#/$defs/longText" },
+          "unresolvedRemainder": { "$ref": "#/$defs/longText" },
+          "completenessRequirement": { "$ref": "#/$defs/longText" },
+          "freshnessRequirement": { "$ref": "#/$defs/longText" },
+          "notApplicableRule": { "$ref": "#/$defs/longText" },
+          "evidenceTopic": { "$ref": "#/$defs/id" },
+          "evidenceDimension": {
+            "enum": [
+              "capability-family",
+              "data-store",
+              "deployment",
+              "freshness",
+              "identity",
+              "integration",
+              "license",
+              "limitation",
+              "maintenance",
+              "provenance",
+              "repository-package",
+              "runtime-framework",
+              "security",
+              "version-release"
+            ]
+          },
+          "evidenceProvenanceKind": {
+            "enum": [
+              "approved-validation",
+              "git-commit",
+              "package-version",
+              "structured-provider-snapshot"
+            ]
+          },
+          "generationOrigin": {
+            "enum": ["deterministic", "human-reviewed", "model-derived"]
+          },
+          "canEmitMeaningfulNonUnknownFact": { "type": "boolean" },
+          "incompleteAuthorityOutcome": {
+            "const": "explicit-unknown-or-partial"
+          },
+          "negativeClaimsRequireCompleteSource": { "type": "boolean" },
+          "provenanceAndFieldBindingRetained": { "type": "boolean" },
+          "prohibitedExtractionInputs": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/id" }
+          },
+          "evidenceBridgeWithoutProseInterpretation": { "type": "boolean" },
+          "deterministicExtractionEligible": { "type": "boolean" },
+          "deterministicFullClosureCandidate": { "type": "boolean" },
+          "breadthGroup": {
+            "enum": [
+              "capability-adoption",
+              "stack-package",
+              "infrastructure-deployment",
+              "policy-risk"
+            ]
+          },
+          "providerOperations": {
+            "type": "array",
+            "maxItems": 11,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/id" }
+          },
+          "reusesPhase8Rule": { "type": "boolean" },
+          "requiresSuccessorRule": { "type": "boolean" },
+          "rationale": { "$ref": "#/$defs/longText" }
+        }
+      }
+    },
+    "planSemanticDigest": { "$ref": "#/$defs/digest" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[a-z0-9][a-z0-9._/-]*$"
+    },
+    "text": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "longText": { "type": "string", "minLength": 1, "maxLength": 1200 },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

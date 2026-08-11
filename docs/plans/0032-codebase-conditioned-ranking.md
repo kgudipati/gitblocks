@@ -18,7 +18,12 @@
   and gate authority. The accepted readiness minimum is 13/18 (72.222222%)
   with four-group breadth qualification. Publication authorizes Milestone 3
   only within the candidate-authority successor boundary; no M3 work began in
-  the acceptance operation. Milestones 4 through 6 remain unauthorized.
+  the acceptance operation. M3A v1 subsequently returned a correct pre-live
+  NO-GO under historical readiness policy v1. Proposed ADR 0012 and policy v2
+  now separate 14 deterministic extraction paths from six full-closure
+  candidates and produce a pre-live GO pending independent acceptance; no live
+  M3 effect or coverage has occurred. Milestones 4 through 6 remain
+  unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-10
@@ -756,6 +761,51 @@ publishes a **NO-GO** for live collection. M3 remains in the accepted sequence
 but blocked at its internal subgate pending independent architecture review;
 M4 remains prohibited.
 
+Independent review accepted that NO-GO as correct evidence under policy v1 and
+found that the policy had over-constrained the original field-source objective
+by equating deterministic extraction with all-applicable-candidate full
+closure. [ADR 0012](../architecture/decisions/0012-separate-deterministic-extraction-from-full-closure.md)
+therefore proposes a narrow successor. The 18-field denominator, 13-field
+minimum, exact 72.222222%, breadth membership, accepted Ranking V1 gates,
+model-free V1, and M3 → M4 sequence remain unchanged.
+
+Policy `ranking-v1-deterministic-readiness-policy/2.0.0` counts only bounded,
+versioned, judgment-free extraction paths that can emit a meaningful
+source-supported fact, fail incomplete authority to partial/unknown, require
+complete source for negatives, retain exact provenance and field binding,
+exclude identity-as-fit/popularity/evaluation/scorer inputs, and bridge to
+ordinary dossier evidence without prose interpretation. Full all-candidate
+closure remains a separate stricter measure.
+
+The successor plan pre-registers 14 extraction-eligible fields and preserves
+the six M3A full-closure candidates. Exact npm publication supplies the
+capability/adoption partial path. An exact-commit, non-recursive,
+tree/blob-verified root `compose.json` services map supplies the
+infrastructure/deployment partial path. Both assert positive facts only;
+unmentioned adoption or deployment concepts remain unknown. Four fields
+remain human-reviewed structured only and do not enter the numerator.
+
+The additive partial-field authority retains candidate, field, rule, fact,
+polarity, source, source/field completeness, unresolved remainder, freshness,
+and digest. A complete profile field may stay unknown while that direct
+partial evidence, its material unknown, and a field-specific limitation reach
+the existing `CandidateDossierV1`. Mutable structured provenance adds only a
+closed `partial` completeness state.
+
+The source proposal adds exact npm dependency properties without a new npm
+request and three optional GitHub operations for the root Compose JSON proof.
+Its theoretical maximum is 1,510 GitHub plus 80 npm logical requests, 1,590
+total; at three attempts, 4,530 plus 240, 4,770 total. These numbers are not
+authorization. The only future publication flow remains one live collection,
+then committed source authority and pure offline replay.
+
+The corrected plan is a pre-live GO **pending independent acceptance** of ADR
+0012, readiness policy v2, field plan v2, source policy v2, the partial
+evidence contract, and focused fixtures. Until that acceptance and a separate
+live authorization, provider calls, credential inspection, source-authority
+generation, all-150 projection, coverage calculation, and Milestone 4 remain
+prohibited.
+
 ### Milestone 4 — Pure ranking vertical slice and execution envelope
 
 After M3 acceptance, add the pure package and additive approved-query,
@@ -972,6 +1022,13 @@ reviewed durable-product trigger in ADR 0011.
       provider calls, all-150 projection, or coverage. The result is NO-GO:
       six eligible fields, below 13, with no eligible capability/adoption or
       infrastructure/deployment field. Independent M3A review is pending.
+- [x] 2026-08-10 — Accepted the M3A NO-GO as correct under historical policy
+      v1 and published the additive ADR 0012/policy-v2 correction for
+      independent acceptance. The successor plan separates 14 deterministic
+      extraction paths from six full-closure candidates, restores all four
+      breadth groups with positive-only package-adoption and exact-commit
+      Compose facts, and retains zero candidate-provider, credential,
+      all-candidate projection, and coverage effects.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
 - [ ] M5 independently accepted.
@@ -1014,6 +1071,36 @@ known vulnerabilities. The publication matrix reruns `pnpm runtime:check`,
 candidate provider, database, Docker, model, credential, M3 all-candidate
 projection, M3 coverage, or GitHub Actions effect.
 
+### Milestone 3A readiness-correction validation
+
+The correction-specific validation binds readiness policy v2, the successor
+field/source plans, separate 14 extraction-path and six full-closure counts,
+all four breadth groups, and the closed partial-evidence contract. Seven
+focused files pass 95 tests covering always-unknown/human/model exclusion,
+positive-only package, dependency, license/release/advisory policy, exact
+Compose structure, negative-claim closure, mutable partial provenance,
+field-bound dossier evidence, unresolved unknown retention, and permutation
+stability. Architecture analysis reports zero violations across 919 modules
+and 3,146 dependencies.
+
+The first full verification attempt found nine static-analysis defects; only
+the demonstrated typing/style issues were corrected. The next attempt exposed
+the three expected contract-schema digest changes caused by the additive
+`structured-provider-snapshot` partial-completeness branch; the exact
+candidate-dossier and containing fit-request/response schema digest fixtures
+were updated without changing any accepted Ranking V1 authority. That attempt
+also proved the product/evaluation boundary by rejecting a direct policy-name
+literal in product source. Product parsing now binds the opaque policy only
+through the committed semantic digest, matching the existing architecture.
+
+The final repository-wide pass completes 142 test files and 2,008 tests,
+accepted Ranking V1 verification, contract conformance, repository checks,
+secret scanning, and zero dependency violations. The correction preflight
+reports zero network, candidate-provider, credential, database, Docker, model,
+write, collection, source-authority, all-candidate projection, and coverage
+effects. Registry audit and the exact final publication matrix are rerun
+against the committed bytes before publication.
+
 ## Decision and deviation log
 
 - 2026-08-10 — Freeze M3A as NO-GO with six readiness-eligible fields. Reason:
@@ -1021,6 +1108,13 @@ projection, M3 coverage, or GitHub Actions effect.
   infrastructure/deployment complete sets; bounded releases cannot close all
   repositories; package advisories cannot close repository-only candidates;
   and license absence is not representable. The accepted gate is unchanged.
+- 2026-08-10 — Propose ADR 0012 and readiness policy v2, superseding only the
+  v1 ready-field definition and breadth interpretation. Reason: M3A pre-live
+  falsification showed that v1 conflated bounded deterministic extraction with
+  all-candidate full closure. The denominator, numeric gate, breadth members,
+  accepted quality/safety/performance gates, and M3A historical NO-GO remain
+  unchanged. Extraction-path eligibility and full closure are now separately
+  reported; independent acceptance is required before live collection.
 - 2026-08-10 — Add closed `structured-provider-snapshot` evidence provenance.
   Reason: archive, community, maintenance, and other provider snapshots are
   mutable structured facts, not git-commit or documentation evidence.

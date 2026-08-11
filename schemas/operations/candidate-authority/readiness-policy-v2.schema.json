@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/readiness-policy/2.0.0",
+  "title": "Ranking V1 deterministic readiness policy 2.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policyVersion",
+    "status",
+    "supersedes",
+    "unchangedGate",
+    "deterministicExtractionEligibilityDefinition",
+    "deterministicFullClosureDefinition",
+    "breadthGroups",
+    "perCellOrigins",
+    "numeratorExclusions",
+    "changeControl",
+    "policySemanticDigest"
+  ],
+  "properties": {
+    "policyVersion": {
+      "const": "ranking-v1-deterministic-readiness-policy/2.0.0"
+    },
+    "status": { "const": "proposed-independent-review-required" },
+    "supersedes": {
+      "type": "object",
+      "minProperties": 4,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      }
+    },
+    "unchangedGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denominatorVersion",
+        "denominatorSize",
+        "minimumEligibleFields",
+        "exactPercentage"
+      ],
+      "properties": {
+        "denominatorVersion": { "const": "ranking-decision-denominator/1.0.0" },
+        "denominatorSize": { "const": 18 },
+        "minimumEligibleFields": { "const": 13 },
+        "exactPercentage": { "const": 72.222222 }
+      }
+    },
+    "deterministicExtractionEligibilityDefinition": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "deterministicFullClosureDefinition": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "breadthGroups": {
+      "type": "object",
+      "minProperties": 4,
+      "maxProperties": 4,
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 6,
+        "uniqueItems": true,
+        "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+      }
+    },
+    "perCellOrigins": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "deterministic-known",
+          "deterministic-not-applicable",
+          "deterministic-partial-direct-evidence",
+          "human-reviewed-structured",
+          "model-derived",
+          "unknown",
+          "conflict"
+        ]
+      }
+    },
+    "numeratorExclusions": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+    },
+    "changeControl": { "type": "string", "minLength": 1, "maxLength": 1500 },
+    "policySemanticDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

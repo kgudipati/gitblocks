@@ -305,7 +305,9 @@ export function addEvidenceProvenanceIssues(
           'security-advisory-index',
         ].includes(sourceClass) ||
         sourceMutability !== 'mutable' ||
-        !['complete', 'established-absence'].includes(completenessState) ||
+        !['complete', 'established-absence', 'partial'].includes(
+          completenessState,
+        ) ||
         limitationCode !== 'source-is-mutable'
       ) {
         addIssue(issues, 'evidence.source-compatibility', `${path}.provenance`);

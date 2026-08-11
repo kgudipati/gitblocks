@@ -110,6 +110,47 @@ export {
   type CandidateAuthorityEvidenceBinding,
 } from './candidate-authority-evidence.ts';
 export {
+  CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
+  CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES,
+  createCandidateAuthorityPartialFieldEvidence,
+  projectPartialFieldEvidenceToDossier,
+  type CandidateAuthorityPartialDossierProjection,
+  type CandidateAuthorityPartialFactCode,
+  type CandidateAuthorityPartialFieldEvidence,
+} from './candidate-authority-partial-evidence.ts';
+export {
+  extractComposeServiceFact,
+  extractPackageDependencyFacts,
+  extractPackageEcosystemFact,
+  extractPublishedPackageAdoptionFact,
+  type CandidateAuthorityPartialRuleResult,
+} from './candidate-authority-partial-rules.ts';
+export {
+  CANDIDATE_AUTHORITY_EXTRACTION_ELIGIBLE_COUNT,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V2_DIGEST,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V2_PATH,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V2_VERSION,
+  CANDIDATE_AUTHORITY_FULL_CLOSURE_COUNT,
+  CANDIDATE_AUTHORITY_READINESS_POLICY_DIGEST,
+  CANDIDATE_AUTHORITY_READINESS_POLICY_PATH,
+  CANDIDATE_AUTHORITY_ROOT_V2_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V2_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V2_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V2_VERSION,
+  candidateAuthorityRootV2SemanticDigest,
+  parseCandidateAuthorityFieldPlanV2,
+  parseCandidateAuthorityReadinessPolicyV2,
+  parseCandidateAuthoritySourcePolicyV2,
+  qualifiesDeterministicExtraction,
+  type CandidateAuthorityCellOrigin,
+  type CandidateAuthorityFieldPlanEntryV2,
+  type CandidateAuthorityFieldPlanV2,
+  type CandidateAuthorityFieldPostureV2,
+  type CandidateAuthorityReadinessPolicyV2,
+  type CandidateAuthorityRootV2,
+  type CandidateAuthoritySourcePolicyV2,
+} from './candidate-authority-readiness.ts';
+export {
   projectCandidateAuthorityAdvisoryState,
   projectCandidateAuthorityMaintenance,
   projectCandidateAuthorityReleaseState,

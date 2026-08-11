@@ -306,7 +306,8 @@ export type EvidenceProvenance =
       readonly collectedAt: string;
       readonly effectiveAsOf: string;
       readonly sourceMutability: 'mutable';
-      readonly completenessState: 'complete' | 'established-absence';
+      readonly completenessState:
+        'complete' | 'established-absence' | 'partial';
       readonly limitationCode: 'source-is-mutable';
     }
   | {
