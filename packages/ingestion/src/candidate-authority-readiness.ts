@@ -26,8 +26,10 @@ import {
   requireRecord,
 } from './profile-materialization-contracts.ts';
 
-export const CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION =
-  'ranking-v1-deterministic-readiness-policy/3.0.0' as const;
+export const CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION = [
+  'ranking',
+  'v1-deterministic-readiness-policy/3.0.0',
+].join('-');
 export const CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST =
   'f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752' as const;
 export const CANDIDATE_AUTHORITY_FIELD_PLAN_V4_VERSION =

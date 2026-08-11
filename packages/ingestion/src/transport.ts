@@ -15,6 +15,7 @@ export interface TransportRequest {
   readonly operation: string;
   readonly maximumBytes: number;
   readonly maximumNodes?: number;
+  readonly requestTimeoutMilliseconds?: number;
   readonly authorizationToken?: string;
   readonly githubApiVersion?: '2022-11-28' | '2026-03-10';
   readonly correlationId: string;
@@ -78,7 +79,7 @@ export function createTransport(config: TransportConfig): {
           const response = await requestOnce(
             config.fetch,
             request,
-            requestTimeoutMilliseconds,
+            request.requestTimeoutMilliseconds ?? requestTimeoutMilliseconds,
             maximumRedirects,
             nowMilliseconds,
             () => {
@@ -330,6 +331,7 @@ function validateRequest(request: TransportRequest): void {
     request.maximumNodes ?? DEFAULT_JSON_NODES,
     MAXIMUM_JSON_NODES,
   );
+  validatePositiveBound(request.requestTimeoutMilliseconds ?? 10_000, 60_000);
   validateProviderUrl(request.url, request.provider);
   if (
     request.authorizationToken !== undefined &&

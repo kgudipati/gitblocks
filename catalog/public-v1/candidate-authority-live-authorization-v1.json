@@ -1,0 +1,57 @@
+{
+  "authorizationVersion": "candidate-authority-live-authorization/1.0.0",
+  "status": "authorized-one-shot-live-collection",
+  "bindings": {
+    "catalogVersion": "public-v1",
+    "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+    "taxonomyVersion": "1.0.0",
+    "taxonomyDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+    "acceptedPreLiveHead": "47397ce92ee500c011fe39820053ba22fd6b397b",
+    "adr0012": "accepted",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "fieldPlanVersion": "candidate-authority-field-plan/4.0.0",
+    "fieldPlanDigest": "84796407204bdb7f08efd053b71afc169312e22af2f104fca23d7e8581cb5997",
+    "sourcePolicyVersion": "candidate-authority-source-policy/4.0.0",
+    "sourcePolicyDigest": "5b4fe3b3752679ed1302ce242ededf41b59ea54d01a7f020dad3027635208793",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/2.0.0",
+    "partialSemanticRegistryDigest": "baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e",
+    "partialEvidenceVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e",
+    "rootVersion": "candidate-authority-root/4.0.0"
+  },
+  "executionHead": {
+    "branch": "feat/32-codebase-conditioned-ranking",
+    "acceptedPreLiveHead": "47397ce92ee500c011fe39820053ba22fd6b397b",
+    "requiredRelationship": "exactly-one-direct-descendant-containing-only-live-operator-and-authorization"
+  },
+  "collection": {
+    "candidateCount": 150,
+    "mappedNpmCount": 80,
+    "collectionAuthorizations": 1,
+    "automaticRerun": false,
+    "githubLogicalRequestCeiling": 1810,
+    "npmLogicalRequestCeiling": 80,
+    "totalLogicalRequestCeiling": 1890,
+    "githubAttemptCeiling": 5430,
+    "npmAttemptCeiling": 240,
+    "totalAttemptCeiling": 5670
+  },
+  "effects": {
+    "database": false,
+    "docker": false,
+    "model": false,
+    "ranking": false
+  },
+  "paths": {
+    "sourceAuthority": "catalog/public-v1/candidate-authority-source-authority-v1.json",
+    "ownedStaging": "catalog/public-v1/candidate-authority-source-authority-v1.staging.json",
+    "root": "catalog/public-v1/candidate-authority-root-v4.json",
+    "readiness": "catalog/public-v1/candidate-authority-readiness-report-v1.json"
+  },
+  "credentialEnvironmentName": "GITBLOCKS_CANDIDATE_AUTHORITY_GITHUB_TOKEN",
+  "operatorVersion": "candidate-authority-live-operator/1.0.0",
+  "sourceAuthorityVersion": "candidate-authority-source-authority/1.0.0",
+  "maximumSerializedSourceAuthorityBytes": 268435456,
+  "authorizationSemanticDigest": "4038f2f124db52cad2e5333bfd12045e1789ed4c20afd28d37a1a619b3d95d2b"
+}
