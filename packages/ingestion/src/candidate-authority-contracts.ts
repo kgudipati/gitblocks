@@ -12,7 +12,7 @@ import {
 export const CANDIDATE_AUTHORITY_FIELD_PLAN_VERSION =
   'candidate-authority-field-plan/1.0.0' as const;
 export const CANDIDATE_AUTHORITY_FIELD_PLAN_DIGEST =
-  '0e4de6ddc71efc9f2cd3f4632a2928861541608c5cb40cb44f091574b45d6f48' as const;
+  'ac643d102cb7e20a711b5c0a59508608e30ad7d0f1b7446d345237c53289607a' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_POLICY_VERSION =
   'candidate-authority-source-policy/1.0.0' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_POLICY_DIGEST =

@@ -10,7 +10,7 @@ accepted M3 → M4 sequence and Ranking V1 authorities remain unchanged.
 The field plan is
 `catalog/public-v1/candidate-authority-field-plan.json`, version
 `candidate-authority-field-plan/1.0.0`, digest
-`0e4de6ddc71efc9f2cd3f4632a2928861541608c5cb40cb44f091574b45d6f48`.
+`ac643d102cb7e20a711b5c0a59508608e30ad7d0f1b7446d345237c53289607a`.
 The source policy is
 `catalog/public-v1/candidate-authority-source-policy.json`, version
 `candidate-authority-source-policy/1.0.0`, digest

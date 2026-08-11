@@ -391,7 +391,7 @@
       "fieldId": "security-policy-presence",
       "posture": "deterministic-ready-candidate",
       "sourceAuthorityVersion": "profile-materialization-provider-policy/1.0.0",
-      "extractionRuleVersion": "profile-materialization-security-policy/1.0.0",
+      "extractionRuleVersion": "candidate-authority-security-policy/2.0.0",
       "sourceKind": "structured-repository-community-profile",
       "versionScope": "repository snapshot at cutoff",
       "negativeAbsenceSemantics": "A complete provider Boolean false proves absence at the snapshot; endpoint absence/failure is unknown unless the normalized property is complete.",
@@ -409,5 +409,5 @@
       "rationale": "A successor preserves established controlled absence as present=false; the Phase 8 projector treated that accepted absence as unknown."
     }
   ],
-  "planSemanticDigest": "0e4de6ddc71efc9f2cd3f4632a2928861541608c5cb40cb44f091574b45d6f48"
+  "planSemanticDigest": "ac643d102cb7e20a711b5c0a59508608e30ad7d0f1b7446d345237c53289607a"
 }

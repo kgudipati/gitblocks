@@ -997,6 +997,13 @@ persistence boundary until a migration is independently authorized, and the
 product parser binds the opaque M2 policy reference only through the canonical
 field-plan digest. The accepted ranking verifier then passed.
 
+The post-publication authority audit found that the security-policy successor
+semantics still carried the Phase 8 extraction-rule identifier. Shared history
+was not rewritten: an additive correction names
+`candidate-authority-security-policy/2.0.0`, recomputes the field-plan digest,
+and reruns the exact checks without changing posture, eligibility, source,
+gate, or behavior.
+
 `pnpm verify` passed 140 test files and 1,993 tests on the corrected bytes,
 including repository checks, architecture, accepted ranking authority,
 contract conformance, and secret scanning. `pnpm security:audit` reported no
