@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/source-policy/3.0.0",
+  "title": "Candidate authority source policy 3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policyVersion",
+    "status",
+    "bindings",
+    "authorization",
+    "requestBudget",
+    "operations",
+    "failurePolicy",
+    "freshnessPolicy",
+    "publicationFlow",
+    "policySemanticDigest"
+  ],
+  "properties": {
+    "policyVersion": { "const": "candidate-authority-source-policy/3.0.0" },
+    "status": { "const": "pre-live-not-authorized" },
+    "bindings": {
+      "type": "object",
+      "minProperties": 8,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "minProperties": 6,
+      "additionalProperties": { "const": false }
+    },
+    "requestBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateCount",
+        "mappedPackageCount",
+        "githubLogicalRequests",
+        "npmLogicalRequests",
+        "totalLogicalRequests",
+        "githubWorstCaseAttempts",
+        "npmWorstCaseAttempts",
+        "totalWorstCaseAttempts"
+      ],
+      "properties": {
+        "candidateCount": { "const": 150 },
+        "mappedPackageCount": { "const": 80 },
+        "githubLogicalRequests": { "const": 1660 },
+        "npmLogicalRequests": { "const": 80 },
+        "totalLogicalRequests": { "const": 1740 },
+        "githubWorstCaseAttempts": { "const": 4980 },
+        "npmWorstCaseAttempts": { "const": 240 },
+        "totalWorstCaseAttempts": { "const": 5220 }
+      }
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": { "$ref": "#/$defs/operation" }
+    },
+    "failurePolicy": {
+      "type": "object",
+      "minProperties": 5,
+      "maxProperties": 5,
+      "additionalProperties": true
+    },
+    "freshnessPolicy": {
+      "type": "object",
+      "minProperties": 5,
+      "maxProperties": 5,
+      "additionalProperties": true
+    },
+    "publicationFlow": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+    },
+    "policySemanticDigest": { "$ref": "#/$defs/digest" }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operationId",
+        "provider",
+        "host",
+        "method",
+        "endpointShape",
+        "authentication",
+        "sourceMutability",
+        "maximumRequestsPerCandidate",
+        "paginationRule",
+        "maximumResponseBytes",
+        "maximumJsonNodes",
+        "timeoutMilliseconds",
+        "maximumAttempts",
+        "redirectPolicy",
+        "controlledAbsence",
+        "temporaryUnavailability",
+        "retainedStructuredProperties",
+        "fieldsSupplied",
+        "privacySecurity",
+        "evidenceProvenance",
+        "completenessSemantics",
+        "maximumTotalLogicalRequests"
+      ],
+      "properties": {
+        "operationId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "provider": { "enum": ["github", "npm"] },
+        "host": { "enum": ["api.github.com", "registry.npmjs.org"] },
+        "method": { "const": "GET" },
+        "endpointShape": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "authentication": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "sourceMutability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "maximumRequestsPerCandidate": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "paginationRule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 700
+        },
+        "maximumResponseBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2097152
+        },
+        "maximumJsonNodes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "timeoutMilliseconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 15000
+        },
+        "maximumAttempts": { "const": 3 },
+        "redirectPolicy": { "const": "zero redirects" },
+        "controlledAbsence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 700
+        },
+        "temporaryUnavailability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "retainedStructuredProperties": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 128 }
+        },
+        "fieldsSupplied": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 18,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+        },
+        "privacySecurity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 700
+        },
+        "evidenceProvenance": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "completenessSemantics": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "maximumTotalLogicalRequests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300
+        }
+      }
+    }
+  }
+}

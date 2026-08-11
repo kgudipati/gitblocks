@@ -19,11 +19,12 @@
   with four-group breadth qualification. Publication authorizes Milestone 3
   only within the candidate-authority successor boundary; no M3 work began in
   the acceptance operation. M3A v1 subsequently returned a correct pre-live
-  NO-GO under historical readiness policy v1. Proposed ADR 0012 and policy v2
-  now separate 14 deterministic extraction paths from six full-closure
-  candidates and produce a pre-live GO pending independent acceptance; no live
-  M3 effect or coverage has occurred. Milestones 4 through 6 remain
-  unauthorized.
+  NO-GO under historical readiness policy v1. Proposed ADR 0012 now separates
+  planned extraction capability, realized post-collection readiness, and full
+  closure. Its corrected policy-v3 plan has 13 planned-capable paths and six
+  full-closure candidates; realized readiness remains unmeasured. The
+  resulting pre-live GO is pending independent rereview, no live M3 effect or
+  coverage has occurred, and Milestones 4 through 6 remain unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-10
@@ -769,42 +770,49 @@ therefore proposes a narrow successor. The 18-field denominator, 13-field
 minimum, exact 72.222222%, breadth membership, accepted Ranking V1 gates,
 model-free V1, and M3 → M4 sequence remain unchanged.
 
-Policy `ranking-v1-deterministic-readiness-policy/2.0.0` counts only bounded,
-versioned, judgment-free extraction paths that can emit a meaningful
-source-supported fact, fail incomplete authority to partial/unknown, require
-complete source for negatives, retain exact provenance and field binding,
-exclude identity-as-fit/popularity/evaluation/scorer inputs, and bridge to
-ordinary dossier evidence without prose interpretation. Full all-candidate
-closure remains a separate stricter measure.
+Policy `ranking-v1-deterministic-readiness-policy/3.0.0` defines three measures.
+Planned capability is pre-live semantic feasibility. Realized readiness is the
+future 13/18 numerator and requires at least one meaningful deterministic
+non-N/A fact under the exact frozen rule in committed M3 authority. Full
+all-candidate closure remains the separate stricter measure. Pre-live breadth
+uses planned paths; final breadth uses realized fields. A zero-output or
+N/A-only rule cannot pass final readiness. A one-shot future result below 13 or
+with an empty realized breadth group is NO-GO without tuning or coverage-driven
+rerun.
 
-The successor plan pre-registers 14 extraction-eligible fields and preserves
-the six M3A full-closure candidates. Exact npm publication supplies the
-capability/adoption partial path. An exact-commit, non-recursive,
-tree/blob-verified root `compose.json` services map supplies the
-infrastructure/deployment partial path. Both assert positive facts only;
-unmentioned adoption or deployment concepts remain unknown. Four fields
-remain human-reviewed structured only and do not enter the numerator.
+The successor plan pre-registers 13 planned-capable fields and preserves the
+six M3A full-closure candidates. Capability/adoption requires an exact-version
+`exports`, `main`, or `module` runtime entry point. Infrastructure/deployment
+requires an exact-commit root `compose.json` service whose build context is
+the candidate repository root. Structured primary language, controlled peer
+dependencies, recognized SPDX, observed releases, and exact-package
+advisories prove only their narrow affirmative facts. Runtime datastore client
+dependencies prove no datastore requirement, so that field is ineligible.
 
-The additive partial-field authority retains candidate, field, rule, fact,
-polarity, source, source/field completeness, unresolved remainder, freshness,
-and digest. A complete profile field may stay unknown while that direct
-partial evidence, its material unknown, and a field-specific limitation reach
-the existing `CandidateDossierV1`. Mutable structured provenance adds only a
-closed `partial` completeness state.
+The product-owned partial semantic registry fixes each fact code to one field,
+rule, provenance set, affirmative polarity, value grammar, allowed claims,
+prohibited claims, and canonical definition digest. Partial evidence v2 binds
+that registry and definition. Both construction and dossier projection reject
+cross-field/rule/provenance use, malformed values, and current negative facts.
+An unresolved complete profile plus registered direct evidence, its material
+unknown, and a field limitation reaches the existing `CandidateDossierV1`;
+unmentioned concepts remain unknown.
 
-The source proposal adds exact npm dependency properties without a new npm
-request and three optional GitHub operations for the root Compose JSON proof.
-Its theoretical maximum is 1,510 GitHub plus 80 npm logical requests, 1,590
-total; at three attempts, 4,530 plus 240, 4,770 total. These numbers are not
-authorization. The only future publication flow remains one live collection,
-then committed source authority and pure offline replay.
+The source proposal retains exact npm entry-point and peer properties and
+three exact-commit Compose verification operations. Default-head resolution
+reuses ADR 0006's bounded exact Git ref plus exact Git commit-object sequence;
+the expansive repository-commit endpoint is prohibited. The theoretical
+maximum is 1,660 GitHub plus 80 npm logical requests, 1,740 total; at three
+attempts, 4,980 plus 240, 5,220 total. These numbers are not authorization. The
+only future publication flow remains one live collection, then committed
+source authority and pure offline replay.
 
-The corrected plan is a pre-live GO **pending independent acceptance** of ADR
-0012, readiness policy v2, field plan v2, source policy v2, the partial
-evidence contract, and focused fixtures. Until that acceptance and a separate
-live authorization, provider calls, credential inspection, source-authority
-generation, all-150 projection, coverage calculation, and Milestone 4 remain
-prohibited.
+The corrected plan is a pre-live GO **pending independent rereview** of ADR
+0012, readiness policy v3, field plan v3, source policy v3, the partial
+semantic registry, partial evidence v2/root v3 contracts, and focused
+fixtures. Until acceptance and a separate live authorization, provider calls,
+credential inspection, source-authority generation, all-150 projection,
+coverage calculation, and Milestone 4 remain prohibited.
 
 ### Milestone 4 — Pure ranking vertical slice and execution envelope
 
@@ -1029,6 +1037,13 @@ reviewed durable-product trigger in ADR 0011.
       breadth groups with positive-only package-adoption and exact-commit
       Compose facts, and retains zero candidate-provider, credential,
       all-candidate projection, and coverage effects.
+- [x] 2026-08-10 — Corrected the still-proposed ADR 0012 architecture for
+      independent rereview. Policy v3 separates planned capability from
+      realized post-collection readiness and full closure; freezes 13
+      field-semantic planned paths, six full-closure candidates, realized
+      non-vacuity and realized breadth; closes partial facts in a product
+      registry; and restores ADR 0006 Git ref/commit-object head resolution.
+      No live effect or candidate coverage occurred.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
 - [ ] M5 independently accepted.
@@ -1073,19 +1088,30 @@ projection, M3 coverage, or GitHub Actions effect.
 
 ### Milestone 3A readiness-correction validation
 
-The correction-specific validation binds readiness policy v2, the successor
-field/source plans, separate 14 extraction-path and six full-closure counts,
-all four breadth groups, and the closed partial-evidence contract. Seven
-focused files pass 95 tests covering always-unknown/human/model exclusion,
-positive-only package, dependency, license/release/advisory policy, exact
-Compose structure, negative-claim closure, mutable partial provenance,
-field-bound dossier evidence, unresolved unknown retention, and permutation
-stability. Architecture analysis reports zero violations across 919 modules
-and 3,146 dependencies.
+The correction-specific validation binds readiness policy v3, the successor
+field/source plans, 13 planned-capable and six planned-full-closure fields,
+realized non-vacuity, planned and realized breadth, and the closed partial
+semantic registry/evidence contract. Focused fixtures cover zero-output and
+N/A-only rejection, human/model exclusion, cross-field/rule/provenance/value
+attacks, affirmative-only facts, package entry-point adoption, repository
+primary language, peer relations without compatibility overclaim, datastore
+dependency non-qualification, candidate-linked Compose, ADR 0006 exact Git
+head resolution, dossier retention, unresolved unknowns, and permutation
+stability.
 
-The first full verification attempt found nine static-analysis defects; only
-the demonstrated typing/style issues were corrected. The next attempt exposed
-the three expected contract-schema digest changes caused by the additive
+The focused correction verifier passes seven files and 101 tests, both
+ingestion/contracts typechecks, product-contract conformance, repository
+checks, and architecture analysis with zero violations across 920 modules and
+3,155 dependencies. The first repository-wide pass exposed eight static
+typing/style findings in the new code; those were corrected without changing
+any rule, classification, digest, or request budget. The authoritative rerun
+passes 142 test files and 2,014 tests, every accepted Ranking V1 verifier,
+contract conformance, lint, typecheck, repository checks, and secret scanning.
+The registry-backed audit reports no known vulnerabilities.
+
+The preceding policy-v2 proposal's validation history remains evidence: its
+first full verification attempt found nine static-analysis defects, and its
+next attempt exposed three expected contract-schema digest changes caused by the additive
 `structured-provider-snapshot` partial-completeness branch; the exact
 candidate-dossier and containing fit-request/response schema digest fixtures
 were updated without changing any accepted Ranking V1 authority. That attempt
@@ -1093,13 +1119,10 @@ also proved the product/evaluation boundary by rejecting a direct policy-name
 literal in product source. Product parsing now binds the opaque policy only
 through the committed semantic digest, matching the existing architecture.
 
-The final repository-wide pass completes 142 test files and 2,008 tests,
-accepted Ranking V1 verification, contract conformance, repository checks,
-secret scanning, and zero dependency violations. The correction preflight
-reports zero network, candidate-provider, credential, database, Docker, model,
-write, collection, source-authority, all-candidate projection, and coverage
-effects. Registry audit and the exact final publication matrix are rerun
-against the committed bytes before publication.
+The correction preflight reports zero network, candidate-provider, credential,
+database, Docker, model, write, collection, source-authority, all-candidate
+projection, and coverage effects. Registry audit and the exact final
+publication matrix are rerun against the final bytes before publication.
 
 ## Decision and deviation log
 
@@ -1115,6 +1138,15 @@ against the committed bytes before publication.
   accepted quality/safety/performance gates, and M3A historical NO-GO remain
   unchanged. Extraction-path eligibility and full closure are now separately
   reported; independent acceptance is required before live collection.
+- 2026-08-10 — Replace the unaccepted readiness-v2 proposal with policy v3,
+  field/source plans v3, partial evidence v2, root v3, and a closed partial
+  semantic registry. Reason: planned capability cannot itself pass final M3;
+  realized readiness requires a meaningful deterministic non-N/A output and
+  realized breadth, while partial facts must be exact field semantics. The
+  corrected audit removes datastore requirements, narrows adoption/framework/
+  language/deployment facts, and restores ADR 0006 Git ref/commit-object head
+  resolution. The 18 denominator, 13/18, breadth membership, six planned full
+  closures, gates, and zero-effect boundary remain unchanged.
 - 2026-08-10 — Add closed `structured-provider-snapshot` evidence provenance.
   Reason: archive, community, maintenance, and other provider snapshots are
   mutable structured facts, not git-commit or documentation evidence.

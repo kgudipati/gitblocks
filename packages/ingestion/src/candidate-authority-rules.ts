@@ -52,6 +52,9 @@ export function projectCandidateAuthorityReleaseState(input: {
     requireTimestamp(release.publishedAt);
     if (!isExactReleaseToken(release.tagName)) invalid();
   }
+  if (!input.complete) {
+    return { state: 'unknown', reason: 'release-window-not-complete' };
+  }
   const selected = input.releases.find((release) => !release.draft);
   if (selected !== undefined) {
     return {
@@ -64,9 +67,7 @@ export function projectCandidateAuthorityReleaseState(input: {
       },
     };
   }
-  return input.complete
-    ? { state: 'known', value: emptyReleaseValue(input.snapshotAt) }
-    : { state: 'unknown', reason: 'release-window-not-complete' };
+  return { state: 'known', value: emptyReleaseValue(input.snapshotAt) };
 }
 
 export function projectCandidateAuthorityAdvisoryState(input: {

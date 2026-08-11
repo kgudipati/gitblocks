@@ -5,58 +5,57 @@ import { describe, expect, it } from 'vitest';
 import {
   canonicalizeJson,
   createCandidateAuthorityPartialFieldEvidence,
-  parseCandidateAuthorityFieldPlanV2,
-  parseCandidateAuthorityReadinessPolicyV2,
+  parseCandidateAuthorityFieldPlanV3,
+  parseCandidateAuthorityPartialSemanticRegistry,
+  parseCandidateAuthorityReadinessPolicyV3,
   projectPartialFieldEvidenceToDossier,
+  stableId,
   type CandidateAuthorityDossierProjection,
+  type CandidateAuthorityPartialFieldEvidence,
 } from '../src/index.ts';
 
 const ROOT = new URL('../../../', import.meta.url);
 const CANDIDATE_ID = 'fixture-candidate';
 const CUTOFF = '2026-08-01T00:00:00.000Z';
 
-async function fieldPlan() {
-  const policy = parseCandidateAuthorityReadinessPolicyV2(
-    JSON.parse(
-      await readFile(
-        new URL(
-          'catalog/public-v1/candidate-authority-readiness-policy.json',
-          ROOT,
-        ),
-        'utf8',
-      ),
-    ) as unknown,
+async function authorities() {
+  const registry = parseCandidateAuthorityPartialSemanticRegistry(
+    await readJson(
+      'catalog/public-v1/candidate-authority-partial-field-semantics.json',
+    ),
   );
-  return parseCandidateAuthorityFieldPlanV2(
-    JSON.parse(
-      await readFile(
-        new URL(
-          'catalog/public-v1/candidate-authority-field-plan-v2.json',
-          ROOT,
-        ),
-        'utf8',
-      ),
-    ) as unknown,
+  const policy = parseCandidateAuthorityReadinessPolicyV3(
+    await readJson(
+      'catalog/public-v1/candidate-authority-readiness-policy-v3.json',
+    ),
+  );
+  const plan = parseCandidateAuthorityFieldPlanV3(
+    await readJson('catalog/public-v1/candidate-authority-field-plan-v3.json'),
     policy,
+    registry,
   );
+  return { plan, registry };
 }
 
-describe('field-bound deterministic partial evidence', () => {
+describe('registry-bound deterministic partial evidence', () => {
   it('survives dossier projection while retaining the unresolved field unknown', async () => {
-    const plan = await fieldPlan();
-    const partial = packageAdoptionEvidence();
+    const { plan, registry } = await authorities();
+    const partial = packageAdoptionEvidence(registry);
     const projection = projectPartialFieldEvidenceToDossier({
       completeProjection: baseProjection(),
       fieldPlan: plan,
+      partialSemanticRegistry: registry,
       partialEvidence: [partial],
     });
     expect(projection.dossier.observations).toHaveLength(1);
     expect(projection.dossier.observations[0]?.observation).toContain(
-      'factCode=published-installable-package',
+      'factCode=importable-runtime-package-surface',
     );
-    expect(projection.dossier.unknowns).toHaveLength(1);
+    expect(projection.dossier.observations[0]?.observation).toContain(
+      `factDefinitionDigest=${partial.factDefinitionDigest}`,
+    );
     expect(projection.dossier.unknowns[0]?.statement).toContain(
-      'all unmentioned concepts remain unknown',
+      'all unregistered and unmentioned concepts remain unknown',
     );
     expect(projection.dossier.unknowns[0]?.evidenceIds).toEqual([
       projection.dossier.observations[0]?.evidenceId,
@@ -64,132 +63,240 @@ describe('field-bound deterministic partial evidence', () => {
     expect(projection.dossier.limitations[0]?.limitationCode).toBe(
       'field-remains-partial-adoption-unit-type',
     );
-    expect(projection.partialFieldEvidenceBindings[0]?.partialEvidenceId).toBe(
-      partial.partialEvidenceId,
+    expect(projection.partialFieldEvidenceBindings[0]).toEqual(
+      expect.objectContaining({
+        partialEvidenceId: partial.partialEvidenceId,
+        factDefinitionDigest: partial.factDefinitionDigest,
+      }),
     );
   });
 
   it('is stable under input order permutation', async () => {
-    const plan = await fieldPlan();
-    const adoption = packageAdoptionEvidence();
-    const language = createCandidateAuthorityPartialFieldEvidence({
-      ...partialInput(),
-      fieldId: 'language-ecosystem',
-      extractionRuleVersion: 'candidate-authority-language-ecosystem/2.0.0',
-      factCode: 'npm-package-ecosystem',
-      factValue: '@example/tool@1.2.3',
-      unresolvedRemainder:
-        'Additional implementation and consumer ecosystems remain unknown.',
-    });
+    const { plan, registry } = await authorities();
+    const adoption = packageAdoptionEvidence(registry);
+    const language = createCandidateAuthorityPartialFieldEvidence(
+      {
+        ...partialInput(),
+        fieldId: 'language-ecosystem',
+        extractionRuleVersion: 'candidate-authority-language-ecosystem/3.0.0',
+        factCode: 'repository-primary-language',
+        factValue: 'typescript',
+        source: repositoryMetadataSource(),
+        sourceReference: {
+          ...partialInput().sourceReference,
+          sourceAuthorityDigest: 'c'.repeat(64),
+          sourceRecordDigest: 'd'.repeat(64),
+        },
+        sourceCompleteness: 'partial',
+        unresolvedRemainder:
+          'Additional implementation and consumer ecosystems remain unknown.',
+      },
+      registry,
+    );
     const completeProjection = baseProjection({ includeLanguage: true });
     const forward = projectPartialFieldEvidenceToDossier({
       completeProjection,
       fieldPlan: plan,
+      partialSemanticRegistry: registry,
       partialEvidence: [adoption, language],
     });
     const reverse = projectPartialFieldEvidenceToDossier({
       completeProjection,
       fieldPlan: plan,
+      partialSemanticRegistry: registry,
       partialEvidence: [language, adoption],
     });
     expect(canonicalizeJson(forward).text).toBe(canonicalizeJson(reverse).text);
   });
 
-  it('rejects partial negative evidence and missing unresolved remainder', () => {
+  it('rejects wrong field, wrong rule, wrong provenance, and malformed controlled values', async () => {
+    const { registry } = await authorities();
     expect(() =>
-      createCandidateAuthorityPartialFieldEvidence({
-        ...partialInput(),
-        polarity: 'negative',
-        sourceCompleteness: 'partial',
-      }),
+      createCandidateAuthorityPartialFieldEvidence(
+        { ...partialInput(), fieldId: 'license-identity' },
+        registry,
+      ),
     ).toThrow();
     expect(() =>
-      createCandidateAuthorityPartialFieldEvidence({
-        ...partialInput(),
-        unresolvedRemainder: null,
-      }),
-    ).toThrow();
-    expect(() =>
-      createCandidateAuthorityPartialFieldEvidence({
-        ...partialInput(),
-        source: {
-          kind: 'structured-provider-snapshot',
-          sourceType: 'public-structured-provider',
-          provider: 'github',
-          sourceClass: 'security-advisory-index',
-          sourceIdentity: 'github-advisory-fixture',
-          sourceUrl: 'https://api.github.com/advisories',
-          sourceAuthorityDigest: 'c'.repeat(64),
-          sourceRecordDigest: 'b'.repeat(64),
-          collectedAt: '2026-07-31T00:00:00.000Z',
-          effectiveAsOf: '2026-07-31T00:00:00.000Z',
-          sourceMutability: 'mutable',
-          completenessState: 'partial',
-          limitationCode: 'source-is-mutable',
+      createCandidateAuthorityPartialFieldEvidence(
+        {
+          ...partialInput(),
+          fieldId: 'license-identity',
+          extractionRuleVersion: 'profile-materialization-license/1.0.0',
+          factCode: 'recognized-license-spdx',
+          factValue: 'NOASSERTION',
+          source: gitSource('license'),
         },
-        sourceCompleteness: 'partial',
-      }),
+        registry,
+      ),
+    ).toThrow();
+    expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        {
+          ...partialInput(),
+          fieldId: 'license-identity',
+          extractionRuleVersion:
+            'candidate-authority-deployment-self-hosting/3.0.0',
+          factCode: 'repository-self-build-compose-service',
+          factValue: 'app',
+          source: gitSource('official-repository'),
+        },
+        registry,
+      ),
+    ).toThrow();
+    expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        {
+          ...partialInput(),
+          extractionRuleVersion:
+            'candidate-authority-release-state-recency/2.0.0',
+          factCode: 'published-release',
+          factValue:
+            '{"publishedAt":"2026-07-01T00:00:00.000Z","tagName":"v1.2.3"}',
+          source: releaseSnapshotSource(),
+          sourceReference: {
+            ...partialInput().sourceReference,
+            sourceAuthorityDigest: 'e'.repeat(64),
+            sourceRecordDigest: 'f'.repeat(64),
+          },
+          sourceCompleteness: 'partial',
+        },
+        registry,
+      ),
+    ).toThrow();
+    expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        {
+          ...partialInput(),
+          extractionRuleVersion: 'candidate-authority-adoption-unit/2.0.0',
+        },
+        registry,
+      ),
+    ).toThrow();
+    expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        { ...partialInput(), source: gitSource('official-repository') },
+        registry,
+      ),
+    ).toThrow();
+    expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        {
+          ...partialInput(),
+          fieldId: 'framework-compatibility',
+          extractionRuleVersion:
+            'candidate-authority-framework-compatibility/3.0.0',
+          factCode: 'declared-framework-peer-relation',
+          factValue:
+            '{"framework":"arbitrary","packageName":"express","range":"*"}',
+        },
+        registry,
+      ),
     ).toThrow();
   });
 
-  it('rejects evidence-source kind disagreement and a partial claim over a closed profile field', async () => {
-    const plan = await fieldPlan();
-    const wrongSource = createCandidateAuthorityPartialFieldEvidence({
-      ...partialInput(),
-      source: {
-        kind: 'git-commit',
-        sourceType: 'official-repository',
-        sourceUrl: 'https://github.com/example/tool',
-        commitSha: '0123456789abcdef0123456789abcdef01234567',
-        immutableUrl:
-          'https://github.com/example/tool/tree/0123456789abcdef0123456789abcdef01234567',
-        publishedAt: '2026-07-01T00:00:00.000Z',
-        collectedAt: '2026-07-31T00:00:00.000Z',
-      },
+  it('rejects every current negative, including complete-source adoption and Compose negatives', async () => {
+    const { registry } = await authorities();
+    expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        { ...partialInput(), polarity: 'negative' },
+        registry,
+      ),
+    ).toThrow();
+    expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        {
+          ...partialInput(),
+          polarity: 'negative',
+          sourceCompleteness: 'partial',
+        },
+        registry,
+      ),
+    ).toThrow();
+    expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        {
+          ...partialInput(),
+          fieldId: 'deployment-self-hosting',
+          extractionRuleVersion:
+            'candidate-authority-deployment-self-hosting/3.0.0',
+          factCode: 'repository-self-build-compose-service',
+          factValue: 'app',
+          polarity: 'negative',
+          source: gitSource('official-repository'),
+        },
+        registry,
+      ),
+    ).toThrow();
+  });
+
+  it('makes the dossier projector independently reject a digest-valid cross-field forgery', async () => {
+    const { plan, registry } = await authorities();
+    const valid = packageAdoptionEvidence(registry);
+    const forged = forgePartialEvidence(valid, {
+      fieldId: 'license-identity',
     });
     expect(() =>
       projectPartialFieldEvidenceToDossier({
         completeProjection: baseProjection(),
         fieldPlan: plan,
-        partialEvidence: [wrongSource],
+        partialSemanticRegistry: registry,
+        partialEvidence: [forged],
       }),
     ).toThrow();
-    const base = baseProjection();
-    const closed = {
-      ...base,
-      dossier: { ...base.dossier, unknowns: [] },
+  });
+
+  it('rejects a caller-forged semantic registry before fact validation', async () => {
+    const { registry } = await authorities();
+    const forgedRegistry = {
+      ...registry,
+      definitions: registry.definitions.map((definition) =>
+        definition.factCode === 'importable-runtime-package-surface'
+          ? { ...definition, fieldId: 'license-identity' as const }
+          : definition,
+      ),
     };
     expect(() =>
+      createCandidateAuthorityPartialFieldEvidence(
+        partialInput(),
+        forgedRegistry,
+      ),
+    ).toThrow();
+  });
+
+  it('rejects a partial fact over an already closed profile field', async () => {
+    const { plan, registry } = await authorities();
+    const base = baseProjection();
+    expect(() =>
       projectPartialFieldEvidenceToDossier({
-        completeProjection: closed,
+        completeProjection: {
+          ...base,
+          dossier: { ...base.dossier, unknowns: [] },
+        },
         fieldPlan: plan,
-        partialEvidence: [packageAdoptionEvidence()],
+        partialSemanticRegistry: registry,
+        partialEvidence: [packageAdoptionEvidence(registry)],
       }),
     ).toThrow();
   });
 });
 
-function packageAdoptionEvidence() {
-  return createCandidateAuthorityPartialFieldEvidence(partialInput());
+function packageAdoptionEvidence(
+  registry: Parameters<typeof createCandidateAuthorityPartialFieldEvidence>[1],
+) {
+  return createCandidateAuthorityPartialFieldEvidence(partialInput(), registry);
 }
 
 function partialInput() {
   return {
     candidateId: CANDIDATE_ID,
     fieldId: 'adoption-unit-type' as const,
-    extractionRuleVersion: 'candidate-authority-adoption-unit/2.0.0',
-    factCode: 'published-installable-package' as const,
-    factValue: '@example/tool@1.2.3',
+    extractionRuleVersion: 'candidate-authority-adoption-unit/3.0.0',
+    factCode: 'importable-runtime-package-surface' as const,
+    factValue:
+      '{"entryPointKind":"exports","packageName":"@example/tool","packageVersion":"1.2.3"}',
     polarity: 'affirmative' as const,
-    source: {
-      kind: 'package-version' as const,
-      sourceType: 'package-registry' as const,
-      sourceUrl: 'https://www.npmjs.com/package/@example/tool',
-      packageVersion: '1.2.3',
-      immutableUrl: 'https://www.npmjs.com/package/@example/tool/v/1.2.3',
-      publishedAt: '2026-07-01T00:00:00.000Z',
-      collectedAt: '2026-07-31T00:00:00.000Z',
-    },
+    source: packageSource(),
     sourceReference: {
       sourceAuthorityVersion: 'candidate-authority-source-authority/1.0.0',
       sourceAuthorityDigest: 'a'.repeat(64),
@@ -201,6 +308,94 @@ function partialInput() {
     unresolvedRemainder:
       'Other adoption forms and the complete adoption-unit concept set remain unknown.',
     freshness: { cutoff: CUTOFF, asOf: '2026-07-31T00:00:00.000Z' },
+  };
+}
+
+function packageSource() {
+  return {
+    kind: 'package-version' as const,
+    sourceType: 'package-registry' as const,
+    sourceUrl: 'https://www.npmjs.com/package/@example/tool',
+    packageVersion: '1.2.3',
+    immutableUrl: 'https://www.npmjs.com/package/@example/tool/v/1.2.3',
+    publishedAt: '2026-07-01T00:00:00.000Z',
+    collectedAt: '2026-07-31T00:00:00.000Z',
+  };
+}
+
+function repositoryMetadataSource() {
+  return {
+    kind: 'structured-provider-snapshot' as const,
+    sourceType: 'public-structured-provider' as const,
+    provider: 'github' as const,
+    sourceClass: 'repository-metadata' as const,
+    sourceIdentity: 'github-repository-fixture',
+    sourceUrl: 'https://api.github.com/repos/example/tool',
+    sourceAuthorityDigest: 'c'.repeat(64),
+    sourceRecordDigest: 'd'.repeat(64),
+    collectedAt: '2026-07-31T00:00:00.000Z',
+    effectiveAsOf: '2026-07-31T00:00:00.000Z',
+    sourceMutability: 'mutable' as const,
+    completenessState: 'partial' as const,
+    limitationCode: 'source-is-mutable' as const,
+  };
+}
+
+function releaseSnapshotSource() {
+  return {
+    kind: 'structured-provider-snapshot' as const,
+    sourceType: 'public-structured-provider' as const,
+    provider: 'github' as const,
+    sourceClass: 'repository-release-state' as const,
+    sourceIdentity: 'github-release-fixture',
+    sourceUrl: 'https://api.github.com/repos/example/tool/releases',
+    sourceAuthorityDigest: 'e'.repeat(64),
+    sourceRecordDigest: 'f'.repeat(64),
+    collectedAt: '2026-07-31T00:00:00.000Z',
+    effectiveAsOf: '2026-07-31T00:00:00.000Z',
+    sourceMutability: 'mutable' as const,
+    completenessState: 'partial' as const,
+    limitationCode: 'source-is-mutable' as const,
+  };
+}
+
+function gitSource(sourceType: 'license' | 'official-repository') {
+  return {
+    kind: 'git-commit' as const,
+    sourceType,
+    sourceUrl: 'https://github.com/example/tool',
+    commitSha: '0123456789abcdef0123456789abcdef01234567',
+    immutableUrl:
+      'https://github.com/example/tool/tree/0123456789abcdef0123456789abcdef01234567',
+    publishedAt: '2026-07-01T00:00:00.000Z',
+    collectedAt: '2026-07-31T00:00:00.000Z',
+  };
+}
+
+function forgePartialEvidence(
+  original: CandidateAuthorityPartialFieldEvidence,
+  changes: Partial<CandidateAuthorityPartialFieldEvidence>,
+): CandidateAuthorityPartialFieldEvidence {
+  const {
+    authorityVersion: ignoredVersion,
+    canonicalDigest: ignored,
+    partialEvidenceId: ignoredId,
+    ...identity
+  } = {
+    ...original,
+    ...changes,
+  };
+  void ignoredVersion;
+  void ignored;
+  void ignoredId;
+  const withoutDigest = {
+    authorityVersion: original.authorityVersion,
+    partialEvidenceId: stableId('partial-field', identity),
+    ...identity,
+  };
+  return {
+    ...withoutDigest,
+    canonicalDigest: canonicalizeJson(withoutDigest).digest,
   };
 }
 
@@ -240,4 +435,8 @@ function baseProjection(options?: {
     dossierDigest: 'd'.repeat(64),
     fieldEvidenceBindings: [],
   };
+}
+
+async function readJson(path: string): Promise<unknown> {
+  return JSON.parse(await readFile(new URL(path, ROOT), 'utf8')) as unknown;
 }

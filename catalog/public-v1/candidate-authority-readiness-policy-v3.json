@@ -1,0 +1,97 @@
+{
+  "policyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+  "status": "proposed-independent-review-required",
+  "supersedes": {
+    "adr": "ADR-0012",
+    "historicalPolicyVersion": "ranking-v1-deterministic-readiness-policy/1.0.0",
+    "historicalPolicyDigest": "6330d6d882a6a0620fc80e335a20f2d1fee2280318586cbe9c2c36900a1f2e04",
+    "proposedPolicyVersion": "ranking-v1-deterministic-readiness-policy/2.0.0",
+    "proposedPolicyDigest": "db8536cd44cc11a8c86458f0d998dbf0daa98487bd3d936a0ba6e4b5385dbf5f",
+    "scope": "readiness field measurement and breadth interpretation only"
+  },
+  "unchangedGate": {
+    "denominatorVersion": "ranking-decision-denominator/1.0.0",
+    "denominatorSize": 18,
+    "minimumRealizedReadyFields": 13,
+    "exactPercentage": 72.222222
+  },
+  "plannedDeterministicExtractionCapabilityDefinition": [
+    "The field has an explicit versioned extraction rule frozen before candidate values are observed.",
+    "The rule consumes only accepted bounded candidate source authority and contains no human or model judgment.",
+    "The rule is bound to exact field semantics and, for a partial rule, to at least one definition in the product-owned partial-field semantic registry.",
+    "The rule can emit a meaningful non-unknown field fact; an always-unknown rule is not planned-capable.",
+    "The rule emits only source-supported positives or explicitly registered completeness-backed negatives.",
+    "Incomplete authority yields explicit unknown or partial state and never an inferred negative.",
+    "Not-applicable is emitted only where the field contract permits it and the condition is deterministically proved.",
+    "Source provenance and exact field and rule bindings survive ordinary evidence and dossier projection.",
+    "Candidate identity as a fit fact, popularity, evaluation classifications or gold, scorer output, human judgment, and model output cannot affect extraction.",
+    "Pre-live planned capability is permission to test the frozen design and is not evidence that final M3 readiness passed."
+  ],
+  "realizedDeterministicReadinessDefinition": [
+    "The field was frozen as planned deterministic extraction capable before live collection.",
+    "The one live source authority was collected under that exact frozen source and rule design.",
+    "The committed all-150 authority contains at least one meaningful deterministic non-not-applicable established fact or value for the field.",
+    "Every counted partial fact validates against the exact fact-code, field, rule, provenance, polarity, value, and definition-digest registry contract.",
+    "Incomplete candidate authority remains unknown or partial and does not become a negative claim.",
+    "Human-reviewed and model-derived values contribute zero deterministic facts to the field.",
+    "Deterministic not-applicable cells remain reported but cannot by themselves make a vacuous extractor realized-ready."
+  ],
+  "deterministicFullClosureDefinition": "Every applicable catalog candidate is deterministically known or legally deterministic-not-applicable under accepted freshness and completeness semantics. Full closure is reported separately and is not the 13/18 numerator.",
+  "breadthGroups": {
+    "capability-adoption": [
+      "adoption-unit-type",
+      "capability-variants-features"
+    ],
+    "stack-package": [
+      "language-ecosystem",
+      "package-publication-version",
+      "runtime-package-format",
+      "framework-compatibility",
+      "datastore-requirements",
+      "package-repository-linkage"
+    ],
+    "infrastructure-deployment": [
+      "required-infrastructure",
+      "optional-infrastructure",
+      "deployment-self-hosting",
+      "operational-complexity-primitives"
+    ],
+    "policy-risk": [
+      "license-identity",
+      "archived-state",
+      "maintenance-activity",
+      "release-state-recency",
+      "security-advisory-state",
+      "security-policy-presence"
+    ]
+  },
+  "breadthQualification": {
+    "preLive": "At least one planned deterministic extraction-capable field is required in every breadth group.",
+    "finalM3": "At least one realized deterministic-ready field is required in every breadth group. Planned capability alone cannot satisfy final breadth."
+  },
+  "postCollectionFailurePolicy": [
+    "If realized deterministic-ready fields are fewer than 13, M3 returns NO-GO.",
+    "If any breadth group has zero realized deterministic-ready fields, M3 returns NO-GO.",
+    "After the one live collection, rules and fields are not tuned and collection is not rerun merely to improve readiness.",
+    "A new or corrected extractor requires independent architecture review before another live effect."
+  ],
+  "perCellOrigins": [
+    "deterministic-known",
+    "deterministic-not-applicable",
+    "deterministic-partial-direct-evidence",
+    "human-reviewed-structured",
+    "model-derived",
+    "unknown",
+    "conflict"
+  ],
+  "numeratorExclusions": [
+    "human-reviewed structured values",
+    "model-derived values",
+    "unknown cells",
+    "conflict cells",
+    "deterministic not-applicable cells without a non-not-applicable established fact",
+    "planned-capable fields with zero realized meaningful deterministic facts"
+  ],
+  "changeControl": "M3A v1 remains a correct NO-GO under policy v1. Proposed policy v2 correctly separated extraction capability from full closure but did not make final readiness non-vacuous. This v3 proposal was selected before live M3 authority or candidate coverage existed. Independent acceptance of proposed ADR 0012, this policy, field plan v3, source policy v3, the partial semantic registry, and partial evidence v2 is required before any credential or provider effect.",
+  "policySemanticDigest": "9460725d84404616b045d2039251a4df28a4bd8ca7c7863487cb88c091899c4c"
+}

@@ -1,34 +1,36 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition -- These checks revalidate typed records at a persisted trust boundary. */
+
 import {
   parseCandidateDossierV1,
   type CandidateDossierV1,
 } from '@gitblocks/contracts';
 
 import { canonicalizeJson, stableId } from './canonical-json.ts';
-import type { CandidateAuthorityDossierProjection } from './candidate-authority-evidence.ts';
 import type { CandidateAuthorityDecisionFieldId } from './candidate-authority-contracts.ts';
-import type { CandidateAuthorityFieldPlanV2 } from './candidate-authority-readiness.ts';
+import type { CandidateAuthorityDossierProjection } from './candidate-authority-evidence.ts';
+import {
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST,
+  parseCandidateAuthorityPartialSemanticRegistry,
+  validateCandidateAuthorityPartialFact,
+  type CandidateAuthorityPartialFactCode,
+  type CandidateAuthorityPartialSemanticRegistry,
+} from './candidate-authority-partial-semantics.ts';
+import type { CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION } from './candidate-authority-partial-semantics.ts';
+import type { CandidateAuthorityFieldPlanV3 } from './candidate-authority-readiness.ts';
 import { ingestionError } from './errors.ts';
 
 export const CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION =
-  'candidate-authority-partial-field-evidence/1.0.0' as const;
+  'candidate-authority-partial-field-evidence/2.0.0' as const;
+export const CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST =
+  'a4432de831ef9e471d271c82effeaf916c30b6614675237c400d9e8486d60351' as const;
 
-export const CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES = Object.freeze([
-  'applicable-security-advisory',
-  'compose-service-declaration',
-  'declared-datastore-runtime-dependency',
-  'declared-framework-compatibility-dependency',
-  'npm-package-ecosystem',
-  'published-installable-package',
-  'published-release',
-  'recognized-license-spdx',
-] as const);
-
-export type CandidateAuthorityPartialFactCode =
-  (typeof CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES)[number];
 type EvidenceSource = CandidateDossierV1['observations'][number]['source'];
 
 export interface CandidateAuthorityPartialFieldEvidence {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION;
+  readonly semanticRegistryVersion: typeof CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION;
+  readonly semanticRegistryDigest: typeof CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST;
+  readonly factDefinitionDigest: string;
   readonly partialEvidenceId: string;
   readonly candidateId: string;
   readonly fieldId: CandidateAuthorityDecisionFieldId;
@@ -60,50 +62,50 @@ export interface CandidateAuthorityPartialDossierProjection {
   readonly partialFieldEvidenceBindings: readonly {
     readonly partialEvidenceId: string;
     readonly fieldId: CandidateAuthorityDecisionFieldId;
+    readonly factDefinitionDigest: string;
     readonly evidenceId: string;
     readonly evidenceDigest: string;
   }[];
 }
 
+type PartialEvidenceInput = Omit<
+  CandidateAuthorityPartialFieldEvidence,
+  | 'authorityVersion'
+  | 'canonicalDigest'
+  | 'factDefinitionDigest'
+  | 'partialEvidenceId'
+  | 'semanticRegistryDigest'
+  | 'semanticRegistryVersion'
+>;
+
 export function createCandidateAuthorityPartialFieldEvidence(
-  input: Omit<
-    CandidateAuthorityPartialFieldEvidence,
-    'authorityVersion' | 'canonicalDigest' | 'partialEvidenceId'
-  >,
+  input: PartialEvidenceInput,
+  registry: CandidateAuthorityPartialSemanticRegistry,
 ): CandidateAuthorityPartialFieldEvidence {
-  if (
-    !isStableId(input.candidateId) ||
-    !isStableId(input.extractionRuleVersion) ||
-    !CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES.includes(input.factCode) ||
-    input.factValue.length < 1 ||
-    input.factValue.length > 500 ||
-    !isTimestamp(input.freshness.cutoff) ||
-    !isTimestamp(input.freshness.asOf) ||
-    Date.parse(input.freshness.asOf) > Date.parse(input.freshness.cutoff) ||
-    !isDigest(input.sourceReference.sourceAuthorityDigest) ||
-    !isDigest(input.sourceReference.sourceRecordDigest) ||
-    !isStableId(input.sourceReference.sourceAuthorityVersion) ||
-    (input.source.kind === 'structured-provider-snapshot' &&
-      (input.source.sourceAuthorityDigest !==
-        input.sourceReference.sourceAuthorityDigest ||
-        input.source.sourceRecordDigest !==
-          input.sourceReference.sourceRecordDigest)) ||
-    new Set(input.sourceReference.evidenceIds).size !==
-      input.sourceReference.evidenceIds.length ||
-    input.sourceReference.evidenceIds.some((value) => !isStableId(value)) ||
-    (input.polarity === 'negative' &&
-      input.sourceCompleteness !== 'complete') ||
-    (input.fieldCompleteness === 'partial' &&
-      (input.unresolvedRemainder === null ||
-        input.unresolvedRemainder.length < 1)) ||
-    (input.fieldCompleteness === 'complete' &&
-      input.unresolvedRemainder !== null)
-  )
-    invalid();
+  validateCommonInput(input);
+  const validatedRegistry =
+    parseCandidateAuthorityPartialSemanticRegistry(registry);
+  const definition = validateCandidateAuthorityPartialFact({
+    registry: validatedRegistry,
+    factCode: input.factCode,
+    fieldId: input.fieldId,
+    extractionRuleVersion: input.extractionRuleVersion,
+    factValue: input.factValue,
+    polarity: input.polarity,
+    source: input.source,
+    sourceCompleteness: input.sourceCompleteness,
+  });
+  const identityInput = {
+    ...input,
+    semanticRegistryVersion: validatedRegistry.registryVersion,
+    semanticRegistryDigest:
+      CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST,
+    factDefinitionDigest: definition.definitionDigest,
+  } as const;
   const withoutDigest = {
     authorityVersion: CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
-    partialEvidenceId: stableId('partial-field', input),
-    ...input,
+    partialEvidenceId: stableId('partial-field', identityInput),
+    ...identityInput,
   } as const;
   return Object.freeze({
     ...withoutDigest,
@@ -113,9 +115,13 @@ export function createCandidateAuthorityPartialFieldEvidence(
 
 export function projectPartialFieldEvidenceToDossier(input: {
   readonly completeProjection: CandidateAuthorityDossierProjection;
-  readonly fieldPlan: CandidateAuthorityFieldPlanV2;
+  readonly fieldPlan: CandidateAuthorityFieldPlanV3;
+  readonly partialSemanticRegistry: CandidateAuthorityPartialSemanticRegistry;
   readonly partialEvidence: readonly CandidateAuthorityPartialFieldEvidence[];
 }): CandidateAuthorityPartialDossierProjection {
+  const validatedRegistry = parseCandidateAuthorityPartialSemanticRegistry(
+    input.partialSemanticRegistry,
+  );
   const dossier = input.completeProjection.dossier;
   const planByField = new Map(
     input.fieldPlan.fields.map((field) => [field.fieldId, field]),
@@ -133,20 +139,20 @@ export function projectPartialFieldEvidenceToDossier(input: {
   for (const partial of [...input.partialEvidence].sort((left, right) =>
     compare(left.partialEvidenceId, right.partialEvidenceId),
   )) {
+    validatePartialEvidenceRecord(partial, validatedRegistry);
     const plan = planByField.get(partial.fieldId);
     if (
       partial.candidateId !== dossier.identity.candidateId ||
       plan === undefined ||
-      !plan.deterministicExtractionEligible ||
+      !plan.plannedExtractionCapable ||
       plan.extractionRuleVersion !== partial.extractionRuleVersion ||
+      !plan.partialFactCodes.includes(partial.factCode) ||
       plan.evidenceProvenanceKind !== partial.source.kind ||
       (partial.source.kind === 'structured-provider-snapshot' &&
         partial.source.completenessState !== partial.sourceCompleteness) ||
       (partial.source.kind !== 'structured-provider-snapshot' &&
         partial.sourceCompleteness !== 'complete') ||
-      seenPartialIds.has(partial.partialEvidenceId) ||
-      partial.canonicalDigest !==
-        canonicalizeJson(withoutCanonicalDigest(partial)).digest
+      seenPartialIds.has(partial.partialEvidenceId)
     )
       invalid();
     seenPartialIds.add(partial.partialEvidenceId);
@@ -168,12 +174,12 @@ export function projectPartialFieldEvidenceToDossier(input: {
       candidateId: partial.candidateId,
       topic: plan.evidenceTopic,
       dimension: plan.evidenceDimension,
-      observation: `field=${partial.fieldId}; fieldCompleteness=${partial.fieldCompleteness}; polarity=${partial.polarity}; factCode=${partial.factCode}; structuredValue=${canonicalizeJson(partial.factValue).text}`,
+      observation: `field=${partial.fieldId}; fieldCompleteness=${partial.fieldCompleteness}; polarity=${partial.polarity}; factCode=${partial.factCode}; factDefinitionDigest=${partial.factDefinitionDigest}; structuredValue=${canonicalizeJson(partial.factValue).text}`,
       source: partial.source,
       freshness: {
         status: 'current',
         asOf: partial.freshness.asOf,
-        scope: `Direct deterministic fact at cutoff ${partial.freshness.cutoff}; unmentioned field concepts remain unresolved.`,
+        scope: `Registered direct deterministic fact at cutoff ${partial.freshness.cutoff}; unregistered and unmentioned field concepts remain unresolved.`,
       },
       directness: 'direct',
       limitation:
@@ -187,7 +193,7 @@ export function projectPartialFieldEvidenceToDossier(input: {
       if (unknown === undefined) invalid();
       unknowns[unknownIndex] = {
         ...unknown,
-        statement: `${unknown.statement} Direct evidence establishes only ${partial.factCode}; all unmentioned concepts remain unknown.`,
+        statement: `${unknown.statement} Registered direct evidence establishes only ${partial.factCode}; all unregistered and unmentioned concepts remain unknown.`,
         evidenceIds: [...unknown.evidenceIds, evidenceId].sort(compare),
       };
     }
@@ -209,6 +215,7 @@ export function projectPartialFieldEvidenceToDossier(input: {
     bindings.push({
       partialEvidenceId: partial.partialEvidenceId,
       fieldId: partial.fieldId,
+      factDefinitionDigest: partial.factDefinitionDigest,
       evidenceId,
       evidenceDigest: canonicalizeJson(observation).digest,
     });
@@ -230,6 +237,74 @@ export function projectPartialFieldEvidenceToDossier(input: {
       compare(left.partialEvidenceId, right.partialEvidenceId),
     ),
   };
+}
+
+function validatePartialEvidenceRecord(
+  partial: CandidateAuthorityPartialFieldEvidence,
+  registry: CandidateAuthorityPartialSemanticRegistry,
+): void {
+  validateCommonInput(partial);
+  const definition = validateCandidateAuthorityPartialFact({
+    registry,
+    factCode: partial.factCode,
+    fieldId: partial.fieldId,
+    extractionRuleVersion: partial.extractionRuleVersion,
+    factValue: partial.factValue,
+    polarity: partial.polarity,
+    source: partial.source,
+    sourceCompleteness: partial.sourceCompleteness,
+  });
+  const {
+    authorityVersion: ignoredVersion,
+    canonicalDigest: ignoredDigest,
+    partialEvidenceId: ignoredId,
+    ...identityInput
+  } = partial;
+  void ignoredVersion;
+  void ignoredDigest;
+  void ignoredId;
+  if (
+    partial.authorityVersion !== CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION ||
+    partial.semanticRegistryVersion !== registry.registryVersion ||
+    partial.semanticRegistryDigest !== registry.registrySemanticDigest ||
+    partial.factDefinitionDigest !== definition.definitionDigest ||
+    partial.partialEvidenceId !== stableId('partial-field', identityInput) ||
+    partial.canonicalDigest !==
+      canonicalizeJson(withoutCanonicalDigest(partial)).digest
+  )
+    invalid();
+}
+
+function validateCommonInput(input: PartialEvidenceInput): void {
+  if (
+    !isStableId(input.candidateId) ||
+    !isStableId(input.extractionRuleVersion) ||
+    !isTimestamp(input.freshness.cutoff) ||
+    !isTimestamp(input.freshness.asOf) ||
+    Date.parse(input.freshness.asOf) > Date.parse(input.freshness.cutoff) ||
+    !isDigest(input.sourceReference.sourceAuthorityDigest) ||
+    !isDigest(input.sourceReference.sourceRecordDigest) ||
+    !isStableId(input.sourceReference.sourceAuthorityVersion) ||
+    (input.source.kind === 'structured-provider-snapshot' &&
+      (input.source.sourceAuthorityDigest !==
+        input.sourceReference.sourceAuthorityDigest ||
+        input.source.sourceRecordDigest !==
+          input.sourceReference.sourceRecordDigest ||
+        input.source.completenessState !== input.sourceCompleteness)) ||
+    (input.source.kind !== 'structured-provider-snapshot' &&
+      input.sourceCompleteness !== 'complete') ||
+    new Set(input.sourceReference.evidenceIds).size !==
+      input.sourceReference.evidenceIds.length ||
+    input.sourceReference.evidenceIds.some((value) => !isStableId(value)) ||
+    (input.polarity === 'negative' &&
+      input.sourceCompleteness !== 'complete') ||
+    (input.fieldCompleteness === 'partial' &&
+      (input.unresolvedRemainder === null ||
+        input.unresolvedRemainder.length < 1)) ||
+    (input.fieldCompleteness === 'complete' &&
+      input.unresolvedRemainder !== null)
+  )
+    invalid();
 }
 
 function withoutCanonicalDigest(

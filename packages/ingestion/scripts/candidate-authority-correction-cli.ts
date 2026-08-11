@@ -3,12 +3,16 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  CANDIDATE_AUTHORITY_FIELD_PLAN_V2_PATH,
-  CANDIDATE_AUTHORITY_READINESS_POLICY_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V2_PATH,
-  parseCandidateAuthorityFieldPlanV2,
-  parseCandidateAuthorityReadinessPolicyV2,
-  parseCandidateAuthoritySourcePolicyV2,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V3_PATH,
+  CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST,
+  CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
+  CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_PATH,
+  parseCandidateAuthorityFieldPlanV3,
+  parseCandidateAuthorityPartialSemanticRegistry,
+  parseCandidateAuthorityReadinessPolicyV3,
+  parseCandidateAuthoritySourcePolicyV3,
 } from '../src/index.ts';
 
 const repositoryRoot = resolve(
@@ -21,15 +25,20 @@ if ((mode !== 'validate' && mode !== 'preflight') || unexpected.length > 0) {
   process.exitCode = 1;
 } else {
   try {
-    const readinessPolicy = parseCandidateAuthorityReadinessPolicyV2(
-      await readJson(CANDIDATE_AUTHORITY_READINESS_POLICY_PATH),
+    const partialSemanticRegistry =
+      parseCandidateAuthorityPartialSemanticRegistry(
+        await readJson(CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH),
+      );
+    const readinessPolicy = parseCandidateAuthorityReadinessPolicyV3(
+      await readJson(CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH),
     );
-    const fieldPlan = parseCandidateAuthorityFieldPlanV2(
-      await readJson(CANDIDATE_AUTHORITY_FIELD_PLAN_V2_PATH),
+    const fieldPlan = parseCandidateAuthorityFieldPlanV3(
+      await readJson(CANDIDATE_AUTHORITY_FIELD_PLAN_V3_PATH),
       readinessPolicy,
+      partialSemanticRegistry,
     );
-    const sourcePolicy = parseCandidateAuthoritySourcePolicyV2(
-      await readJson(CANDIDATE_AUTHORITY_SOURCE_POLICY_V2_PATH),
+    const sourcePolicy = parseCandidateAuthoritySourcePolicyV3(
+      await readJson(CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_PATH),
       fieldPlan,
     );
     const effectAudit = {
@@ -56,11 +65,20 @@ if ((mode !== 'validate' && mode !== 'preflight') || unexpected.length > 0) {
         fieldPlanDigest: fieldPlan.planSemanticDigest,
         sourcePolicyVersion: sourcePolicy.policyVersion,
         sourcePolicyDigest: sourcePolicy.policySemanticDigest,
+        partialSemanticRegistryVersion: partialSemanticRegistry.registryVersion,
+        partialSemanticRegistryDigest:
+          partialSemanticRegistry.registrySemanticDigest,
+        partialEvidenceContractVersion:
+          CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
+        partialEvidenceContractDigest:
+          CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST,
         denominatorSize: fieldPlan.frozenGate.denominatorSize,
-        minimumEligibleFields: fieldPlan.frozenGate.minimumEligibleFields,
+        minimumRealizedReadyFields:
+          fieldPlan.frozenGate.minimumRealizedReadyFields,
         exactPercentage: fieldPlan.frozenGate.exactPercentage,
-        plannedExtractionEligibleFields:
-          fieldPlan.plannedDeterministicExtractionEligibleFieldCount,
+        plannedExtractionCapableFields:
+          fieldPlan.plannedDeterministicExtractionCapableFieldCount,
+        realizedReadyFields: null,
         plannedFullClosureFields:
           fieldPlan.plannedDeterministicFullClosureFieldCount,
         githubLogicalRequestBudget:

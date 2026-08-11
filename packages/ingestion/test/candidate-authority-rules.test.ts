@@ -31,7 +31,7 @@ describe('candidate-authority additive successor rules', () => {
     });
   });
 
-  it('projects a positive release but refuses an unresolved bounded window', () => {
+  it('keeps a positive release partial when the bounded window is unresolved', () => {
     expect(
       projectCandidateAuthorityReleaseState({
         snapshotAt: SNAPSHOT,
@@ -46,10 +46,7 @@ describe('candidate-authority additive successor rules', () => {
           },
         ],
       }),
-    ).toMatchObject({
-      state: 'known',
-      value: { latestReleaseVersion: 'v2.1.0' },
-    });
+    ).toEqual({ state: 'unknown', reason: 'release-window-not-complete' });
     expect(
       projectCandidateAuthorityReleaseState({
         snapshotAt: SNAPSHOT,

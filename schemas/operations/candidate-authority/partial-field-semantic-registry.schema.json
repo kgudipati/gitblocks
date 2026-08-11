@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/partial-field-semantics/1.0.0",
+  "title": "Candidate authority partial-field semantic registry 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registryVersion",
+    "status",
+    "definitions",
+    "registrySemanticDigest"
+  ],
+  "properties": {
+    "registryVersion": {
+      "const": "candidate-authority-partial-field-semantics/1.0.0"
+    },
+    "status": { "const": "proposed-independent-review-required" },
+    "definitions": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": { "$ref": "#/$defs/definition" }
+    },
+    "registrySemanticDigest": { "$ref": "#/$defs/digest" }
+  },
+  "$defs": {
+    "definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "factCode",
+        "fieldId",
+        "extractionRuleVersion",
+        "allowedProvenance",
+        "allowedPolarities",
+        "valueSyntax",
+        "semanticMeaning",
+        "claimsMaySupport",
+        "claimsMayNotSupport",
+        "qualifiesPlannedExtractionCapability",
+        "definitionDigest"
+      ],
+      "properties": {
+        "factCode": {
+          "enum": [
+            "applicable-security-advisory",
+            "declared-framework-peer-relation",
+            "importable-runtime-package-surface",
+            "published-release",
+            "recognized-license-spdx",
+            "repository-primary-language",
+            "repository-self-build-compose-service"
+          ]
+        },
+        "fieldId": { "$ref": "#/$defs/id" },
+        "extractionRuleVersion": { "$ref": "#/$defs/id" },
+        "allowedProvenance": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": { "$ref": "#/$defs/provenance" }
+        },
+        "allowedPolarities": {
+          "type": "array",
+          "prefixItems": [{ "const": "affirmative" }],
+          "items": false,
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "valueSyntax": { "$ref": "#/$defs/valueSyntax" },
+        "semanticMeaning": { "$ref": "#/$defs/longText" },
+        "claimsMaySupport": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/longText" }
+        },
+        "claimsMayNotSupport": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/longText" }
+        },
+        "qualifiesPlannedExtractionCapability": { "const": true },
+        "definitionDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "provenance": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "sourceType"],
+          "properties": {
+            "kind": { "const": "git-commit" },
+            "sourceType": { "enum": ["license", "official-repository"] }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "sourceType"],
+          "properties": {
+            "kind": { "const": "package-version" },
+            "sourceType": { "const": "package-registry" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "sourceType", "provider", "sourceClass"],
+          "properties": {
+            "kind": { "const": "structured-provider-snapshot" },
+            "sourceType": { "const": "public-structured-provider" },
+            "provider": { "enum": ["github", "npm"] },
+            "sourceClass": {
+              "enum": [
+                "repository-metadata",
+                "repository-release-state",
+                "security-advisory-index"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "valueSyntax": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "pattern"],
+          "properties": {
+            "kind": { "const": "pattern-v1" },
+            "pattern": { "type": "string", "minLength": 1, "maxLength": 500 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "pattern", "prohibitedValues"],
+          "properties": {
+            "kind": { "const": "recognized-spdx-v1" },
+            "pattern": { "type": "string", "minLength": 1, "maxLength": 500 },
+            "prohibitedValues": {
+              "type": "array",
+              "prefixItems": [{ "const": "NOASSERTION" }],
+              "items": false,
+              "minItems": 1,
+              "maxItems": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "controlledValues"],
+          "properties": {
+            "kind": { "const": "controlled-language-ecosystem-v1" },
+            "controlledValues": {
+              "type": "array",
+              "minItems": 9,
+              "maxItems": 9,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "entryPointKinds",
+            "packageNamePattern",
+            "packageVersionPattern"
+          ],
+          "properties": {
+            "kind": {
+              "const": "canonical-importable-runtime-package-surface-v1"
+            },
+            "entryPointKinds": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "exports" },
+                { "const": "main" },
+                { "const": "module" }
+              ],
+              "items": false,
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "packageNamePattern": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "packageVersionPattern": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "frameworkPackageBindings", "rangePattern"],
+          "properties": {
+            "kind": { "const": "canonical-framework-peer-relation-v1" },
+            "frameworkPackageBindings": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["framework", "packageName"],
+                "properties": {
+                  "framework": { "$ref": "#/$defs/id" },
+                  "packageName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              }
+            },
+            "rangePattern": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "tagPattern", "timestampPattern"],
+          "properties": {
+            "kind": { "const": "canonical-published-release-v1" },
+            "tagPattern": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "timestampPattern": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "advisoryIdPattern", "severityValues"],
+          "properties": {
+            "kind": { "const": "canonical-security-advisory-v1" },
+            "advisoryIdPattern": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "severityValues": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": { "enum": ["critical", "high", "low", "moderate"] }
+            }
+          }
+        }
+      ]
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[a-z0-9][a-z0-9._/-]*$"
+    },
+    "longText": { "type": "string", "minLength": 1, "maxLength": 1200 },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

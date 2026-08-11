@@ -1,4 +1,4 @@
-# ADR 0012: Separate deterministic extraction from full closure
+# ADR 0012: Separate extraction planning, realized readiness, and full closure
 
 - Status: proposed; independent acceptance required before live collection
 - Date: 2026-08-10
@@ -9,174 +9,163 @@
   [#33](https://github.com/kgudipati/gitblocks/pull/33)
 - Execution plan:
   [Phase 10 codebase-conditioned ranking](../../plans/0032-codebase-conditioned-ranking.md)
-- Related decision: [ADR 0011](0011-codebase-conditioned-ranking.md)
+- Related decisions: [ADR 0006](0006-immutable-repository-artifacts.md),
+  [ADR 0011](0011-codebase-conditioned-ranking.md)
 - Pre-live falsification authority: M3A head
   `db999b3c3244aabd4920551d2260ea3bcd698c5e`, field-plan digest
   `ac643d102cb7e20a711b5c0a59508608e30ad7d0f1b7446d345237c53289607a`
 
 ## Context
 
-Milestone 3A froze candidate source and extraction semantics before any live M3
-collection, credential read, all-150 authority generation, or M3 coverage
-measurement. Under
-`ranking-v1-deterministic-readiness-policy/1.0.0`, a field counted as ready
-only when its deterministic authority could make every applicable catalog
-candidate known or legally deterministic-not-applicable. That audit correctly
-found six full-closure fields, 6/18 readiness, and no complete field in either
-capability/adoption or infrastructure/deployment. M3A therefore correctly
-returned NO-GO and did not invent an unsafe extractor.
+M3A froze source and extraction semantics before any live M3 collection,
+credential read, all-150 authority generation, or coverage measurement. Under
+historical `ranking-v1-deterministic-readiness-policy/1.0.0`, a field counted
+only when deterministic sources could close every applicable catalog
+candidate. The audit correctly found six such fields, 6/18 readiness, and no
+full-closure field in capability/adoption or infrastructure/deployment. It
+correctly returned NO-GO without inventing an unsafe extractor.
 
-Independent review found that policy v1 over-constrained the original
-field-source strategy: “At least 70–80% of fields used by the initial ranker
-should come from deterministic extraction rather than LLM inference.” The
-policy conflated two questions:
+Independent review found that v1 conflated deterministic extraction capability
+with deterministic all-candidate closure. The initial ADR 0012 proposal
+correctly separated those ideas, but its policy v2 still let a pre-live plan
+satisfy the final 13/18 gate even if the future frozen rule produced no useful
+fact in the catalog. Its partial fact codes were not closed to exact field
+semantics, several credited adjacent metadata, and its default-head operation
+used the expansive repository-commit representation rejected by ADR 0006.
 
-1. Does a field have a bounded, versioned, judgment-free deterministic
-   extraction path that can establish meaningful facts?
-2. Do deterministic sources close that field for every applicable candidate?
+No live source authority, provider value, all-150 projection, M3 coverage, or
+ranking output existed when either correction was designed. The ADR 0011
+pre-output change-control rule therefore permits independent review without
+outcome tuning.
 
-The second question is a materially stronger completeness measure. It remains
-important, but it is not the stated field-source numerator. No product ranking
-output, live M3 source authority, or all-150 M3 coverage existed when this
-correction was selected, so the ADR 0011 pre-output change-control rule permits
-an independently reviewed correction without outcome tuning.
+## Proposed decision
 
-## Decision
+### Narrow supersession and unchanged gates
 
-### Narrow supersession
-
-This ADR supersedes only the `readyFieldDefinition` and breadth interpretation
-of `ranking-v1-deterministic-readiness-policy/1.0.0`. It creates
-`ranking-v1-deterministic-readiness-policy/2.0.0`.
-
-It does not reopen or change:
+The successor proposal is
+`ranking-v1-deterministic-readiness-policy/3.0.0`. It replaces the unaccepted
+v2 proposal. If independently accepted, it supersedes only the v1 ready-field
+definition and breadth interpretation. It does not reopen:
 
 - the 18 decision-bearing-field denominator;
 - the minimum 13 fields or exact 72.222222%;
 - Ranking V1 quality, safety, determinism, or performance gates;
 - accepted cases, gold, scorer, review record, or gate record;
-- Phase 9 retrieval;
-- the ranking architecture, M3 → M4 order, or model-free V1 decision.
+- Phase 9 retrieval, ranking architecture, M3 → M4 order, or model-free V1.
 
-### Deterministic-extraction eligibility
+### Three separate field measures
 
-A field counts toward the 13-field numerator only when all ten policy-v2
-conditions hold: an explicit versioned rule consumes accepted bounded source
-authority; generation is deterministic and judgment-free; the rule can emit a
-meaningful non-unknown fact; claims are source-supported; negative or absence
-claims require complete authority; incomplete authority stays partial or
-unknown; not-applicable is both legal and proved; provenance and exact field
-binding survive; identity-as-fit, popularity, evaluation classifications,
-gold, and scorer outputs are prohibited inputs; and evidence reaches ordinary
-`CandidateDossierV1` without prose interpretation.
+Planned deterministic extraction capability is pre-live architecture
+feasibility. A field qualifies only when a frozen, versioned, judgment-free
+rule consumes bounded accepted source authority; can emit a meaningful
+field-semantic fact; retains exact provenance, field, and rule binding; emits
+only supported positives or registered completeness-backed negatives; leaves
+incomplete authority unknown or partial; and reaches `CandidateDossierV1`
+without prose interpretation. An always-unknown rule is not planned-capable.
 
-An extractor that always returns unknown is ineligible. A qualifying field
-does not need to close every applicable candidate before the extraction path
-counts.
+Realized deterministic extraction readiness is the post-collection 13/18
+numerator. The field must have been planned-capable before collection, use that
+exact frozen rule and source authority, and produce at least one meaningful
+deterministic non-not-applicable established value or registry-valid partial
+fact in the committed 150-candidate authority. N/A-only and zero-output rules
+do not qualify. Human-reviewed and model-derived cells contribute nothing.
 
-### Deterministic full closure
-
-Full closure remains the stricter, separately reported measure: every
-applicable catalog candidate is known or legally
+Deterministic full closure remains the stricter separate measure: every
+applicable candidate is deterministically known or legally
 deterministic-not-applicable under accepted freshness and completeness
-semantics. It is not the 13/18 numerator. M3A's six planned full-closure fields
-remain unchanged:
+semantics. It is not the 13/18 numerator. The six M3A planned full-closure
+candidates remain `package-publication-version`, `runtime-package-format`,
+`package-repository-linkage`, `archived-state`, `maintenance-activity`, and
+`security-policy-presence`.
 
-- `package-publication-version`;
-- `runtime-package-format`;
-- `package-repository-linkage`;
-- `archived-state`;
-- `maintenance-activity`;
-- `security-policy-presence`.
+Pre-live breadth requires one planned-capable path in each unchanged group.
+Final M3 breadth requires one realized-ready field in each group. After the
+one future live collection, fewer than 13 realized-ready fields or an empty
+realized breadth group yields NO-GO. Rules are not tuned, fields are not added,
+and collection is not rerun merely to improve the result. A new extractor
+requires independent architecture review before another live effect.
 
-### Partial deterministic evidence
+### Closed partial-field semantics
 
-The complete deterministic profile contract is not weakened. A field whose
-source establishes only part of its semantics may leave its
-`DeterministicProfileFieldRecord` unknown while a separate, field-bound
-`candidate-authority-partial-field-evidence/1.0.0` record retains candidate,
-field, rule, controlled fact, polarity, exact source/provenance,
-source-completeness, field-completeness, unresolved remainder, cutoff,
-freshness, and canonical digest.
+`candidate-authority-partial-field-semantics/1.0.0` is the product-owned closed
+registry. Each definition binds one fact code to one field and extraction
+rule, allowed provenance classes, allowed polarity, exact value grammar,
+semantic meaning, permitted claims, prohibited claims, planned-capability
+qualification, and a canonical definition digest. Every current fact is
+affirmative-only.
 
-The pure dossier bridge emits deterministic observation text from the
-structured record, attaches the evidence reference to the existing material
-unknown, and adds a field-specific partial limitation. Unmentioned concepts
-remain unknown. A negative partial record is rejected unless source authority
-is complete. The existing `CandidateDossierV1` remains the sole dossier and
-recommendation evidence model.
+`candidate-authority-partial-field-evidence/2.0.0` binds each record to the
+registry version/digest and definition digest. Both construction and dossier
+projection validate field, rule, provenance, polarity, syntax, completeness,
+stable identity, and canonical digest. Unregistered and unmentioned concepts
+remain unknown. Partial facts do not become complete deterministic profile
+values, and `CandidateDossierV1` remains the sole dossier model.
 
-Mutable provider provenance gains only the closed `partial` completeness
-state. It retains the existing provider/source-class enums, source identity,
-safe locator, authority and record digests, effective time, and mutable-source
-limitation; no arbitrary JSON, credentials, raw bodies, or temporary URLs are
-introduced.
+The corrected semantic rules are deliberately narrow:
 
-### Breadth and per-cell reporting
+- exact `exports`, `main`, or `module` proves an importable runtime package
+  surface, not the complete adoption architecture;
+- GitHub primary language maps through the existing controlled language
+  mapping to one repository language fact, not a complete language set;
+- a controlled peer dependency proves a declared framework peer relation, not
+  general compatibility;
+- runtime datastore client dependencies prove no datastore requirement and do
+  not qualify the field;
+- a recognized non-`NOASSERTION` SPDX value, one observed release, and one
+  exact-package advisory establish only their registered affirmative facts;
+- an exact verified root `compose.json` service whose build context is `.`
+  proves only a repository self-build service declaration at that commit.
 
-Breadth requires at least one deterministic-extraction-eligible path in each
-unchanged field group. It no longer requires the breadth field to have
-all-candidate full closure.
+The successor plan has 13 planned-capable fields and six planned full-closure
+fields. Realized readiness remains unmeasured before live collection.
 
-M3 must report extraction-path eligibility and full closure separately. It
-must also report exact cells as deterministic known, deterministic
-not-applicable, deterministic partial/direct evidence, human-reviewed
-structured, model-derived, unknown, or conflict. Human and model cells never
-enter the deterministic numerator; unknown remains fail-closed and never
-favorable.
+### Bounded Git head resolution
 
-### Corrected pre-live plan
+The source proposal reuses ADR 0006 and the Phase 6 transport contract:
 
-The successor plan has 14 deterministic extraction paths and six planned
-full-closure fields. Capability/adoption is represented by exact package
-publication proving only `published-installable-package`.
-Infrastructure/deployment is represented by a bounded exact-commit root
-`compose.json` probe whose Contents, non-recursive root-tree entry, immutable
-blob, strict JSON, and nonempty object-valued `services` map must agree. It
-proves only `compose-service-declaration`; missing or unsupported content says
-nothing about self-hosting absence, production suitability, or other
-deployment modes.
+1. `GET /repos/{owner}/{repository}/git/ref/heads/{urlEncodedDefaultBranch}`;
+2. require the exact ref and a commit object;
+3. `GET /repos/{owner}/{repository}/git/commits/{exactCommitObjectId}`;
+4. require exact SHA equality and retain the immutable head and root-tree SHA.
 
-The v2 source proposal extends the existing npm response with exact-version
-`dependencies` and `peerDependencies` and adds three bounded GitHub operations
-for the optional Compose JSON proof. The maximum proposal is 1,510 GitHub plus
-80 npm logical requests, 1,590 total; at three attempts the ceilings are 4,530,
-240, and 4,770. These ceilings are not collection authorization.
+Both responses are capped at 256 KiB, 10,000 JSON nodes, 10 seconds, three
+attempts, and zero redirects. The rejected
+`/repos/{owner}/{repository}/commits/{defaultBranch}` shape is prohibited.
+The proposal ceiling is 1,660 GitHub plus 80 npm logical requests, 1,740 total;
+worst-case attempt ceilings are 4,980, 240, and 5,220. These are bounds, not
+collection authorization.
 
 ## Consequences
 
-- The corrected plan meets 14/18 extraction paths and all four breadth groups
-  without observing candidate coverage.
-- Full-closure strength remains visible as six fields; the correction cannot
-  disguise incomplete candidate cells.
-- Positive partial facts become useful dossier evidence without falsifying a
-  complete profile value or inferring absent concepts.
-- Later M3 reporting is more detailed: two field-level measures plus exact
-  per-cell origin counts are mandatory.
-- Human-reviewed structured authority may later improve semantic completeness
-  but cannot change deterministic extraction counts. Model-derived authority
-  remains prohibited in V1.
-- The source ceiling increases by 450 GitHub logical requests for an optional,
-  exact-commit, non-recursive manifest proof.
+- Pre-live GO means only that the frozen architecture is scientifically worth
+  testing; it is not evidence that final M3 readiness passed.
+- The future report separately publishes planned-capable, realized-ready, and
+  full-closure fields; exact per-cell origins; and realized breadth groups.
+- Deterministic known, deterministic N/A, deterministic partial direct
+  evidence, human-reviewed, model-derived, unknown, and conflict cells remain
+  separate. Unknown stays fail-closed and never favorable.
+- One live collection is frozen once and replayed offline; determinism never
+  compares two drifting live collections.
 
 ## Rejected alternatives
 
-- Keep policy v1 and lower 13/18 or remove breadth: rejected because the
-  accepted numeric and breadth protections remain binding.
-- Count a partial field as a complete deterministic profile value: rejected
-  because it would turn unmentioned concepts into false closure.
-- Use README, descriptions, topics, popularity, names, or evaluation mappings:
-  rejected because they cannot provide the required deterministic semantics.
-- Author human values in this correction: rejected because actual independent
-  review authority does not exist and human cells do not count.
-- Restore model interviews: rejected; the V1 model prohibition and separate
-  trigger remain unchanged.
+- Preserve 14 paths by crediting npm ecosystem, runtime dependencies, or a
+  generic Compose services map: rejected as adjacent metadata or overstated
+  semantics.
+- Let planned capability itself satisfy final readiness: rejected because a
+  zero-output extractor would make the gate vacuous.
+- Count N/A-only, human-reviewed, or model-derived cells: rejected because none
+  demonstrates realized deterministic fit facts.
+- Lower 13/18 or remove breadth: rejected; both protections remain binding.
+- Use README, descriptions, topics, popularity, candidate names, or evaluation
+  mappings: rejected as incomplete or contaminating authority.
 
 ## Acceptance and effect boundary
 
-This ADR, policy v2, field plan v2, source policy v2, partial-evidence contract,
-and focused fixtures require independent acceptance before any live M3 action.
-This correction performs zero provider/network, credential, database, Docker,
-model, source-authority, all-candidate projection, and coverage effects. A
-future acceptance does not itself authorize collection; live collection still
-requires a separately authorized zero-effect preflight and credential check.
+ADR 0012 remains proposed. Policy v3, field plan v3, source policy v3, the
+partial semantic registry, partial-evidence v2 contract, root v3, and focused
+fixtures require independent acceptance before any live M3 action. This
+correction performs zero candidate-provider/network, credential, database,
+Docker, model, source-authority, all-candidate projection, or coverage effects.
+Acceptance would still require a separately authorized zero-effect preflight
+before credential availability inspection or provider collection.

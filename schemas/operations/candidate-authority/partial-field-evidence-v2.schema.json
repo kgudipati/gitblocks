@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/partial-field-evidence/2.0.0",
+  "title": "Candidate authority partial field evidence 2.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "authorityVersion",
+    "semanticRegistryVersion",
+    "semanticRegistryDigest",
+    "factDefinitionDigest",
+    "partialEvidenceId",
+    "candidateId",
+    "fieldId",
+    "extractionRuleVersion",
+    "factCode",
+    "factValue",
+    "polarity",
+    "source",
+    "sourceReference",
+    "sourceCompleteness",
+    "fieldCompleteness",
+    "unresolvedRemainder",
+    "freshness",
+    "canonicalDigest"
+  ],
+  "properties": {
+    "authorityVersion": {
+      "const": "candidate-authority-partial-field-evidence/2.0.0"
+    },
+    "semanticRegistryVersion": {
+      "const": "candidate-authority-partial-field-semantics/1.0.0"
+    },
+    "semanticRegistryDigest": { "$ref": "#/$defs/digest" },
+    "factDefinitionDigest": { "$ref": "#/$defs/digest" },
+    "partialEvidenceId": { "$ref": "#/$defs/id" },
+    "candidateId": { "$ref": "#/$defs/id" },
+    "fieldId": { "$ref": "#/$defs/id" },
+    "extractionRuleVersion": { "$ref": "#/$defs/id" },
+    "factCode": {
+      "enum": [
+        "applicable-security-advisory",
+        "declared-framework-peer-relation",
+        "importable-runtime-package-surface",
+        "published-release",
+        "recognized-license-spdx",
+        "repository-primary-language",
+        "repository-self-build-compose-service"
+      ]
+    },
+    "factValue": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "polarity": { "enum": ["affirmative", "negative"] },
+    "source": {
+      "type": "object",
+      "minProperties": 2,
+      "maxProperties": 20,
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-zA-Z][a-zA-Z0-9]*$": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "number" },
+            { "type": "boolean" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "sourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceAuthorityVersion",
+        "sourceAuthorityDigest",
+        "sourceRecordDigest",
+        "evidenceIds"
+      ],
+      "properties": {
+        "sourceAuthorityVersion": { "$ref": "#/$defs/id" },
+        "sourceAuthorityDigest": { "$ref": "#/$defs/digest" },
+        "sourceRecordDigest": { "$ref": "#/$defs/digest" },
+        "evidenceIds": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "sourceCompleteness": { "enum": ["complete", "partial"] },
+    "fieldCompleteness": { "enum": ["complete", "partial"] },
+    "unresolvedRemainder": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "string", "minLength": 1, "maxLength": 1000 }
+      ]
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cutoff", "asOf"],
+      "properties": {
+        "cutoff": { "type": "string", "format": "date-time" },
+        "asOf": { "type": "string", "format": "date-time" }
+      }
+    },
+    "canonicalDigest": { "$ref": "#/$defs/digest" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[a-z0-9][a-z0-9._/-]*$"
+    },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

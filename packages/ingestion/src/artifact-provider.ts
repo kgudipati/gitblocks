@@ -71,6 +71,11 @@ interface RepositoryContext {
   readonly rootTreeObjectId: string;
 }
 
+export interface ExactGitHeadResolution {
+  readonly commitObjectId: string;
+  readonly rootTreeObjectId: string;
+}
+
 interface ContentPayload {
   readonly path: string;
   readonly blobObjectId: string;
@@ -331,10 +336,10 @@ async function loadRepositoryContext(
     `${canonicalPath}/git/ref/heads/${encodePath(defaultBranch)}`,
     METADATA_RESPONSE_BYTES,
   );
-  const reference = requireRecord(referenceResponse.value);
-  const referenceObject = requireRecord(reference['object']);
+  const reference = referenceResponse.value;
+  const referenceObject = requireRecord(requireRecord(reference)['object']);
   if (
-    reference['ref'] !== `refs/heads/${defaultBranch}` ||
+    requireRecord(reference)['ref'] !== `refs/heads/${defaultBranch}` ||
     referenceObject['type'] !== 'commit'
   ) {
     throw ingestionError('ingestion.provider-response');
@@ -346,19 +351,48 @@ async function loadRepositoryContext(
     `${canonicalPath}/git/commits/${commitObjectId}`,
     METADATA_RESPONSE_BYTES,
   );
-  const commit = requireRecord(commitResponse.value);
-  if (requireSha1(commit['sha']) !== commitObjectId) {
-    throw ingestionError('ingestion.provider-response');
-  }
-  const tree = requireRecord(commit['tree']);
-  const rootTreeObjectId = requireSha1(tree['sha']);
+  const resolution = resolveExactGitHeadFromReferenceAndCommit(
+    defaultBranch,
+    reference,
+    commitResponse.value,
+  );
   return {
     repositoryId,
     owner: canonicalOwner,
     repository: canonicalRepository,
     defaultBranch,
+    ...resolution,
+  };
+}
+
+/**
+ * Applies ADR 0006's bounded Git-reference/commit-object identity contract to
+ * inert provider values. Candidate authority reuses this exact validator and
+ * never substitutes the expansive repository-commit response.
+ */
+export function resolveExactGitHeadFromReferenceAndCommit(
+  defaultBranch: string,
+  referenceValue: unknown,
+  commitValue: unknown,
+): ExactGitHeadResolution {
+  const branch = requireSafeName(defaultBranch, 255);
+  const reference = requireRecord(referenceValue);
+  const referenceObject = requireRecord(reference['object']);
+  if (
+    reference['ref'] !== `refs/heads/${branch}` ||
+    referenceObject['type'] !== 'commit'
+  ) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  const commitObjectId = requireSha1(referenceObject['sha']);
+  const commit = requireRecord(commitValue);
+  if (requireSha1(commit['sha']) !== commitObjectId) {
+    throw ingestionError('ingestion.provider-response');
+  }
+  const tree = requireRecord(commit['tree']);
+  return {
     commitObjectId,
-    rootTreeObjectId,
+    rootTreeObjectId: requireSha1(tree['sha']),
   };
 }
 
