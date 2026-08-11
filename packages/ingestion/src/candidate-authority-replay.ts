@@ -401,6 +401,14 @@ function projectCompleteField(input: {
     case 'runtime-package-format': {
       if (candidate.npmPackage === null) return field;
       const value = establishedRecord(npm);
+      const optionalStates = optionalPropertyStates(value);
+      if (
+        optionalStates !== null &&
+        ['nodeEngine', 'type', 'exports'].some(
+          (key) => optionalStates[key] === 'unsupported',
+        )
+      )
+        return field;
       const version = stringValue(value, 'selectedVersion');
       const type = nullableStringValue(value, 'type');
       const moduleFormat =
@@ -434,6 +442,8 @@ function projectCompleteField(input: {
     case 'package-repository-linkage': {
       if (candidate.npmPackage === null) return field;
       const value = establishedRecord(npm);
+      const optionalStates = optionalPropertyStates(value);
+      if (optionalStates?.['repository'] === 'unsupported') return field;
       const version = stringValue(value, 'selectedVersion');
       const declared = value['repositoryIdentity'];
       let linkage: 'matched' | 'mismatched' | 'undeclared';
@@ -503,6 +513,8 @@ function projectCompleteField(input: {
           outcome: 'established-value',
           complete: release.completeness === 'complete',
           releases,
+          unsupportedPublishedReleaseCount:
+            optionalCountValue(value, 'unsupportedPublishedReleaseCount') ?? 0,
         }),
         [release],
       );
@@ -533,19 +545,23 @@ function projectCompleteField(input: {
       );
     }
     case 'security-policy-presence': {
-      const community = sources.get('github-community-profile');
-      if (community?.outcome !== 'established-value') return field;
+      const localPolicy = [
+        sources.get('github-root-tree'),
+        sources.get('github-security-dot-github-tree'),
+        sources.get('github-security-docs-tree'),
+      ].find((datum) => {
+        if (datum?.outcome !== 'established-value') return false;
+        return recordValue(datum.value)['securityPolicyPresent'] === true;
+      });
+      if (localPolicy?.outcome !== 'established-value') return field;
       return resultField(
         field,
         repositoryScope,
         projectCandidateAuthoritySecurityPolicyPresence({
           outcome: 'established-value',
-          present: booleanValue(
-            recordValue(community.value),
-            'securityPolicyPresent',
-          ),
+          present: true,
         }),
-        [community],
+        [localPolicy, sources.get('github-head-commit-object')],
       );
     }
     default:
@@ -736,11 +752,19 @@ function evidenceSource(input: {
     const headSha = stringValue(commit, 'headSha');
     const licenseValue =
       operationId === 'github-license' ? recordValue(input.datum.value) : null;
+    const securityValue = operationId.startsWith('github-security-')
+      ? recordValue(input.datum.value)
+      : operationId === 'github-root-tree' &&
+          recordValue(input.datum.value)['securityPolicyPresent'] === true
+        ? recordValue(input.datum.value)
+        : null;
     const path =
       licenseValue === null
-        ? operationId === 'github-compose-json-blob'
-          ? 'compose.json'
-          : 'Dockerfile'
+        ? securityValue !== null
+          ? securityValue['securityPolicyPath']
+          : operationId === 'github-compose-json-blob'
+            ? 'compose.json'
+            : 'Dockerfile'
         : licenseValue['path'];
     if (!isSafeCandidateAuthorityRepositoryRelativePath(path)) invalid();
     const repositoryIdentity =
@@ -822,8 +846,6 @@ function sourceClassForOperation(
   switch (operationId) {
     case 'npm-package-metadata':
       return 'package-metadata';
-    case 'github-community-profile':
-      return 'repository-community-profile';
     case 'github-maintenance-window':
       return 'repository-maintenance';
     case 'github-repository-metadata':
@@ -856,9 +878,7 @@ function sourceForCompleteField(
               ? 'github-release-window'
               : fieldId === 'security-advisory-state'
                 ? 'github-advisories'
-                : fieldId === 'security-policy-presence'
-                  ? 'github-community-profile'
-                  : null;
+                : null;
   return operation === null ? undefined : sources.get(operation);
 }
 
@@ -1018,13 +1038,33 @@ function advisoryValues(record: Record<string, unknown>) {
   if (!Array.isArray(values) || values.length > 200) invalid();
   return values.map((value) => {
     const advisory = recordValue(value);
-    const severity = stringValue(advisory, 'severity');
-    if (!['critical', 'high', 'low', 'moderate'].includes(severity)) invalid();
+    const rawSeverity = advisory['normalizedSeverity'] ?? advisory['severity'];
+    const severity =
+      rawSeverity === null
+        ? null
+        : typeof rawSeverity === 'string' &&
+            ['critical', 'high', 'low', 'moderate'].includes(rawSeverity)
+          ? (rawSeverity as 'critical' | 'high' | 'low' | 'moderate')
+          : invalid();
     return {
       advisoryId: stringValue(advisory, 'advisoryId'),
-      severity: severity as 'critical' | 'high' | 'low' | 'moderate',
+      severity,
     };
   });
+}
+
+function optionalCountValue(
+  record: Record<string, unknown>,
+  key: string,
+): number | null {
+  return record[key] === undefined ? null : countValue(record, key, 1_000_000);
+}
+
+function optionalPropertyStates(
+  record: Record<string, unknown>,
+): Record<string, unknown> | null {
+  const value = record['optionalPropertyStates'];
+  return value === undefined ? null : recordValue(value);
 }
 
 function sourceAsOf(source: EvidenceSource): string {

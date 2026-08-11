@@ -58,7 +58,6 @@ import {
   parseCandidateAuthoritySourcePolicyV5,
   type CandidateAuthoritySourcePolicyV5,
 } from './candidate-authority-readiness.ts';
-import { CANDIDATE_AUTHORITY_REPLAY_ALGORITHM_VERSION } from './candidate-authority-replay-contracts.ts';
 import type { PublicCatalog } from './types.ts';
 
 export const CANDIDATE_AUTHORITY_LIVE_CATALOG_PATH =
@@ -254,7 +253,7 @@ export async function preflightCandidateAuthorityLiveCollection(
     authorization.bindings['sourcePolicyDigest'] !==
       CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST ||
     authorization.bindings['replayAlgorithmVersion'] !==
-      CANDIDATE_AUTHORITY_REPLAY_ALGORITHM_VERSION ||
+      'candidate-authority-pure-replay/2.0.0' ||
     authorization.bindings['partialSemanticRegistryVersion'] !==
       registry.registryVersion ||
     authorization.bindings['partialSemanticRegistryDigest'] !==

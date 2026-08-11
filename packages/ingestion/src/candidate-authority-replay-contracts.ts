@@ -13,7 +13,7 @@ import type {
 import { ingestionError } from './errors.ts';
 
 export const CANDIDATE_AUTHORITY_REPLAY_ALGORITHM_VERSION =
-  'candidate-authority-pure-replay/2.0.0' as const;
+  'candidate-authority-pure-replay/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_PROFILE_REPLAY_AUTHORITY_VERSION =
   'candidate-authority-deterministic-profile-authority/1.0.0' as const;
 export const CANDIDATE_AUTHORITY_PARTIAL_REPLAY_AUTHORITY_VERSION =

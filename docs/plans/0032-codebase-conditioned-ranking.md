@@ -1658,3 +1658,58 @@ and 3,110 dependencies. Runtime, formatting, repository, evaluation fixtures,
 secret scanning, registry audit, and diff checks passed. Validation did not
 change tracked content, no GitHub Actions operation was requested, and no M3
 work began.
+
+### Milestone 3 consumed-attempt postmortem and provider-contract correction
+
+The first M3 provider-effect collection ran once from exact execution head
+`2cfe0682617fb303ebbb2deb7dd7bd34a383c912`, passed its scoped credential gate,
+reached candidate-provider effects, and stopped with safe code
+`ingestion.provider-response`. It consumed authorization v3's only
+provider-effect collection. The in-process cutoff was not emitted or persisted;
+the failed candidate, operation, logical requests, attempts, and retries remain
+unknown or unavailable. No source receipt, source authority, all-candidate
+projection, readiness result, or M4 work followed. This is incomplete and
+inconclusive M3 history, not readiness NO-GO.
+
+ADR 0013 and `candidate-authority-live-failure-record/1.0.0` record the
+observed history separately from the accepted-for-review static diagnosis. The
+successor architecture removes community profile and redundant Compose
+Contents, adds at most two conditional security-policy subtree operations,
+normalizes the official advisory provider vocabulary, isolates npm optional
+properties, makes valid optional tree/content/release limitations qualified
+unknown, cancels all sibling workers on the first fatal, and emits a bounded
+safe fatal diagnostic after settlement.
+
+Field plan v5 retains 13 planned-capable fields and all four planned breadth
+groups but reduces planned full-closure candidates from six to five because
+repository-local security-policy absence cannot close account-level defaults.
+The readiness denominator remains 18, the threshold remains 13/18 or
+72.222222%, and breadth remains four groups. Source policy v6 retains mechanical
+ceilings of 1,810 GitHub plus 80 npm logical requests and 5,430 plus 240 attempts.
+Replay v3 changes only the registered local-security and advisory
+normalizations while retaining source-only freeze, pure deterministic replay,
+and separate readiness measurement.
+
+Authorization v4 is a proposal for one new successor experiment, not a rerun.
+It is inactive until independent exact-head acceptance of the published
+postmortem correction. The correction itself is zero-provider-effect: its
+preflight reports zero network, credential, provider, database, Docker, model,
+filesystem-write, source-generation, all-candidate projection, and coverage
+effects. M3 remains pending and M4 has not started.
+
+Focused postmortem validation passed 42 tests across seven files. The successor
+live fixtures passed 54 tests across seven files, replay fixtures passed 48
+tests across seven files, the v3 determinism fixture proved normal, repeat,
+reverse-candidate, and legal-source-record-permutation equivalence, and the
+historical v4/v5 correction authority remained valid. The postmortem preflight
+reported the required all-zero effect audit, including zero credential reads,
+candidate-provider calls, source generations, all-candidate projections, and
+coverage calculations.
+
+Repository-wide validation passed 152 test files and 2,088 tests with zero
+dependency violations across 942 modules and 3,278 dependencies. Runtime,
+format, repository, secret, registry-audit, and diff checks are rerun against
+the exact final staged bytes before publication. The accepted Ranking V1 and CI
+workflow trees remain unchanged, and no successor credential read, provider
+effect, cutoff, source authority, projection, readiness measurement, or M4 work
+is authorized by this record.

@@ -1,0 +1,612 @@
+{
+  "contractVersion": "candidate-authority-provider-contract/1.0.0",
+  "status": "proposed-for-independent-postmortem-acceptance",
+  "basis": {
+    "github": "GitHub REST API version 2026-03-10 official endpoint contracts, reviewed statically without candidate calls",
+    "npm": "npm registry package document contract as bounded JSON, reviewed statically without candidate calls",
+    "globalTransport": "HTTPS only, fixed approved host, zero redirects, JSON content type, 2097152 response bytes, 100000 JSON nodes, 15000ms per attempt, at most three attempts"
+  },
+  "taxonomy": {
+    "fatal": [
+      "authentication-or-authorization-failure",
+      "repository-or-package-identity-disagreement",
+      "unsafe-redirect",
+      "malformed-json-or-provider-object",
+      "global-http-body-or-json-node-bound-violation",
+      "immutable-git-identity-or-hash-disagreement",
+      "required-core-source-unavailable",
+      "internal-invariant"
+    ],
+    "qualifiedUnknown": [
+      "documented-provider-shape-valid-but-outside-bounded-semantic-subset",
+      "documented-optional-property-absent",
+      "documented-provider-enum-not-directionally-consumable",
+      "optional-exact-content-unsupported-for-v1-semantic-parsing",
+      "valid-optional-tree-not-completely-inspectable-under-local-semantic-limit"
+    ],
+    "rule": "Qualified unknown never emits a favorable fact or an established negative."
+  },
+  "operations": [
+    {
+      "operationId": "github-repository-metadata",
+      "provider": "github",
+      "endpoint": "GET /repos/{owner}/{repository}",
+      "officialContractBasis": "GitHub REST Repositories: Get a repository, API version 2026-03-10",
+      "requiredIdentityProperties": ["full_name", "id"],
+      "retainedProperties": [
+        "repositoryId",
+        "canonicalOwner",
+        "canonicalRepository",
+        "default_branch",
+        "archived",
+        "language"
+      ],
+      "documentedNullableOptionalProperties": ["language nullable"],
+      "supportedSemanticSubset": [
+        "exact catalog repository identity",
+        "nonempty default branch",
+        "archived boolean",
+        "bounded primary language or null"
+      ],
+      "establishedAbsence": [],
+      "qualifiedUnknown": [
+        "unsupported nullable primary-language value affects only language partial evidence"
+      ],
+      "fatal": [
+        "required source unavailable",
+        "full_name or id disagreement",
+        "malformed required properties"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "structured-provider-snapshot"
+    },
+    {
+      "operationId": "github-default-branch-ref",
+      "provider": "github",
+      "endpoint": "GET /repos/{owner}/{repository}/git/ref/heads/{urlEncodedDefaultBranch}",
+      "officialContractBasis": "GitHub REST Git references: Get a reference, API version 2026-03-10",
+      "requiredIdentityProperties": ["ref", "object.type", "object.sha"],
+      "retainedProperties": ["ref", "objectType", "headSha"],
+      "documentedNullableOptionalProperties": [],
+      "supportedSemanticSubset": [
+        "exact default-branch reference to a SHA-1 commit object"
+      ],
+      "establishedAbsence": [],
+      "qualifiedUnknown": [],
+      "fatal": [
+        "required source unavailable",
+        "reference, object type, or object identity disagreement",
+        "malformed required properties"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "git-commit"
+    },
+    {
+      "operationId": "github-head-commit-object",
+      "provider": "github",
+      "endpoint": "GET /repos/{owner}/{repository}/git/commits/{exactCommitObjectId}",
+      "officialContractBasis": "GitHub REST Git commits: Get a commit object, API version 2026-03-10",
+      "requiredIdentityProperties": [
+        "sha",
+        "tree.sha",
+        "author.date",
+        "committer.date"
+      ],
+      "retainedProperties": [
+        "headSha",
+        "rootTreeSha",
+        "authorDate",
+        "committerDate"
+      ],
+      "documentedNullableOptionalProperties": [],
+      "supportedSemanticSubset": [
+        "exact SHA-1 commit and root-tree identities with valid timestamps"
+      ],
+      "establishedAbsence": [],
+      "qualifiedUnknown": [],
+      "fatal": [
+        "required source unavailable",
+        "commit identity disagreement",
+        "malformed required properties"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "git-commit"
+    },
+    {
+      "operationId": "github-maintenance-window",
+      "provider": "github",
+      "endpoint": "GET /repos/{owner}/{repository}/commits?sha={headSha}&since={cutoffMinus90Days}&until={cutoff}&per_page=1&page=1",
+      "officialContractBasis": "GitHub REST Commits: List commits, API version 2026-03-10",
+      "requiredIdentityProperties": [
+        "query head SHA",
+        "bounded Link last-page URL on api.github.com"
+      ],
+      "retainedProperties": [
+        "since",
+        "until",
+        "count",
+        "paginationClosure",
+        "headSha",
+        "lastCommitAt"
+      ],
+      "documentedNullableOptionalProperties": [
+        "Link header optional for a single page"
+      ],
+      "supportedSemanticSubset": [
+        "zero-or-one body item and closed single-page or bounded last-page count"
+      ],
+      "establishedAbsence": ["complete zero-result window"],
+      "qualifiedUnknown": [
+        "optional source unavailable",
+        "pagination not closed by accepted Link shape"
+      ],
+      "fatal": [
+        "unsafe Link host or protocol",
+        "malformed provider response",
+        "transport hard-bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "structured-provider-snapshot"
+    },
+    {
+      "operationId": "github-license",
+      "provider": "github",
+      "endpoint": "GET /repos/{owner}/{repository}/license?ref={headSha}",
+      "officialContractBasis": "GitHub REST Licenses: Get the license for a repository, API version 2026-03-10",
+      "requiredIdentityProperties": [
+        "path",
+        "sha",
+        "repository identity",
+        "headSha"
+      ],
+      "retainedProperties": [
+        "license.spdx_id",
+        "path",
+        "blobSha",
+        "repositoryIdentity",
+        "headSha"
+      ],
+      "documentedNullableOptionalProperties": [
+        "license.spdx_id nullable or NOASSERTION"
+      ],
+      "supportedSemanticSubset": [
+        "safe repository-relative path",
+        "SHA-1 blob identity",
+        "registered SPDX positive mapping"
+      ],
+      "establishedAbsence": [
+        "404 at exact commit means no detected repository license for this source"
+      ],
+      "qualifiedUnknown": [
+        "unsupported SPDX identifier emits no partial fact",
+        "optional temporary unavailability"
+      ],
+      "fatal": [
+        "repository, commit, path, or immutable blob identity disagreement",
+        "malformed provider response"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "git-commit"
+    },
+    {
+      "operationId": "github-release-window",
+      "provider": "github",
+      "endpoint": "GET /repos/{owner}/{repository}/releases?per_page=5&page=1",
+      "officialContractBasis": "GitHub REST Releases: List releases, API version 2026-03-10",
+      "requiredIdentityProperties": [
+        "draft parsed before publication properties",
+        "published non-draft tag, timestamp, prerelease, html_url"
+      ],
+      "retainedProperties": [
+        "supported published releases",
+        "ignoredDraftCount",
+        "unsupportedPublishedReleaseCount",
+        "window completeness"
+      ],
+      "documentedNullableOptionalProperties": [
+        "published_at may be null for an accessible draft"
+      ],
+      "supportedSemanticSubset": [
+        "draft entries ignored without reading irrelevant publication fields",
+        "published entries with accepted bounded release tokens",
+        "deterministic timestamp then tag ordering"
+      ],
+      "establishedAbsence": [
+        "complete window containing no supported non-draft published release"
+      ],
+      "qualifiedUnknown": [
+        "unsupported safe release token emits no partial fact and prevents complete latest-release closure",
+        "optional source unavailable",
+        "five-entry window not closed"
+      ],
+      "fatal": [
+        "malformed required non-draft publication properties",
+        "unsafe html_url",
+        "transport hard-bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "structured-provider-snapshot"
+    },
+    {
+      "operationId": "github-advisories",
+      "provider": "github",
+      "endpoint": "GET /advisories?type=reviewed&is_withdrawn=false&ecosystem=npm&affects={exactPackageAtVersion}&per_page=100&page={1..2}",
+      "officialContractBasis": "GitHub REST Global security advisories: List global security advisories; type reviewed, is_withdrawn false, severity enum unknown|low|medium|high|critical; API version 2026-03-10",
+      "requiredIdentityProperties": [
+        "exact npm package/version query binding",
+        "unique valid ghsa_id"
+      ],
+      "retainedProperties": [
+        "advisoryId",
+        "providerSeverity",
+        "normalizedSeverity",
+        "complete",
+        "withdrawnExcludedCount"
+      ],
+      "documentedNullableOptionalProperties": [
+        "withdrawn_at nullable",
+        "provider severity unknown is valid"
+      ],
+      "supportedSemanticSubset": [
+        "low to low",
+        "medium to moderate",
+        "high to high",
+        "critical to critical",
+        "unknown retained with no normalized severity",
+        "reviewed non-withdrawn only"
+      ],
+      "establishedAbsence": [
+        "closed zero-result pagination establishes known zero applicable advisories"
+      ],
+      "qualifiedUnknown": [
+        "provider unknown severity leaves complete highestSeverity unknown but retains advisory identity",
+        "unexpected bounded severity enum uses unsupported-structured-value",
+        "pagination not closed",
+        "optional source unavailable"
+      ],
+      "fatal": [
+        "package/version binding disagreement",
+        "malformed advisory identity or object",
+        "authentication or authorization failure",
+        "transport hard-bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 2
+      },
+      "requestCeiling": 160,
+      "evidenceProvenance": "package-version"
+    },
+    {
+      "operationId": "npm-package-metadata",
+      "provider": "npm",
+      "endpoint": "GET /{urlEncodedExactCatalogPackageName}",
+      "officialContractBasis": "npm registry package document with dist-tags, versions, and time records; exact version selected at cutoff",
+      "requiredIdentityProperties": [
+        "root name",
+        "dist-tags.latest",
+        "versions[latest]",
+        "selected name/version if present",
+        "time[latest]"
+      ],
+      "retainedProperties": [
+        "name",
+        "selectedVersion",
+        "publishedAt",
+        "independently parsed optional-property states and supported values"
+      ],
+      "documentedNullableOptionalProperties": [
+        "engines.node",
+        "exports",
+        "main",
+        "module",
+        "peerDependencies",
+        "type",
+        "repository"
+      ],
+      "supportedSemanticSubset": [
+        "exact publication identity and time",
+        "each optional property parsed independently into absent, supported, or unsupported"
+      ],
+      "establishedAbsence": [
+        "complete omission of an optional property only where the dependent rule permits omission semantics",
+        "catalog package null is not-applicable without request"
+      ],
+      "qualifiedUnknown": [
+        "unsupported optional property affects only dependent field",
+        "unsupported repository declaration leaves linkage unknown",
+        "unsupported peer metadata emits no framework fact"
+      ],
+      "fatal": [
+        "required package source unavailable",
+        "catalog, root, selected name, or selected version identity disagreement",
+        "malformed required publication properties",
+        "transport hard-bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1
+      },
+      "requestCeiling": 80,
+      "evidenceProvenance": "package-version"
+    },
+    {
+      "operationId": "github-root-tree",
+      "provider": "github",
+      "endpoint": "GET /repositories/{repositoryId}/git/trees/{exactRootTreeSha}",
+      "officialContractBasis": "GitHub REST Git trees: Get a tree, non-recursive, API version 2026-03-10",
+      "requiredIdentityProperties": [
+        "returned sha equals exact commit root-tree SHA",
+        "well-formed unique entries"
+      ],
+      "retainedProperties": [
+        "sha",
+        "exact entries named compose.json, Dockerfile, SECURITY.md, .github, or docs"
+      ],
+      "documentedNullableOptionalProperties": [
+        "entry size may be absent for trees",
+        "truncated boolean may be true in a valid response"
+      ],
+      "supportedSemanticSubset": [
+        "non-recursive tree with at most 10000 locally interpreted entries",
+        "exact named path entries only"
+      ],
+      "establishedAbsence": [
+        "an exact path is locally absent only when truncated is false and the local semantic bound is not exceeded"
+      ],
+      "qualifiedUnknown": [
+        "truncated true",
+        "local semantic entry bound exceeded",
+        "optional source unavailable"
+      ],
+      "fatal": [
+        "wrong returned tree SHA",
+        "invalid object identity",
+        "malformed tree object",
+        "global response body or node hard-bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1,
+        "localSemanticEntries": 10000
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "git-commit"
+    },
+    {
+      "operationId": "github-security-dot-github-tree",
+      "provider": "github",
+      "endpoint": "GET /repositories/{repositoryId}/git/trees/{exactDotGithubSubtreeSha}",
+      "officialContractBasis": "GitHub REST Git trees: Get a tree, non-recursive, API version 2026-03-10",
+      "requiredIdentityProperties": [
+        "root .github entry is a normal tree",
+        "returned sha equals exact subtree SHA"
+      ],
+      "retainedProperties": [
+        "sha",
+        "exact SECURITY.md entry path, mode, type, sha"
+      ],
+      "documentedNullableOptionalProperties": [
+        "operation is conditional on an exact .github root-tree entry",
+        "truncated boolean may be true"
+      ],
+      "supportedSemanticSubset": [
+        "exact normal SECURITY.md blob entry only",
+        "contents are never fetched"
+      ],
+      "establishedAbsence": [
+        "local .github/SECURITY.md path absent under a complete bounded subtree; this is not field-level false"
+      ],
+      "qualifiedUnknown": [
+        "root tree unavailable",
+        "subtree unavailable",
+        "truncated true",
+        "local semantic entry bound exceeded",
+        "non-normal SECURITY.md entry"
+      ],
+      "fatal": [
+        "subtree SHA disagreement",
+        "malformed tree object",
+        "global response body or node hard-bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1,
+        "localSemanticEntries": 10000
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "git-commit"
+    },
+    {
+      "operationId": "github-security-docs-tree",
+      "provider": "github",
+      "endpoint": "GET /repositories/{repositoryId}/git/trees/{exactDocsSubtreeSha}",
+      "officialContractBasis": "GitHub REST Git trees: Get a tree, non-recursive, API version 2026-03-10",
+      "requiredIdentityProperties": [
+        "root docs entry is a normal tree",
+        "returned sha equals exact subtree SHA"
+      ],
+      "retainedProperties": [
+        "sha",
+        "exact SECURITY.md entry path, mode, type, sha"
+      ],
+      "documentedNullableOptionalProperties": [
+        "operation is conditional on an exact docs root-tree entry",
+        "truncated boolean may be true"
+      ],
+      "supportedSemanticSubset": [
+        "exact normal SECURITY.md blob entry only",
+        "contents are never fetched"
+      ],
+      "establishedAbsence": [
+        "local docs/SECURITY.md path absent under a complete bounded subtree; this is not field-level false"
+      ],
+      "qualifiedUnknown": [
+        "root tree unavailable",
+        "subtree unavailable",
+        "truncated true",
+        "local semantic entry bound exceeded",
+        "non-normal SECURITY.md entry"
+      ],
+      "fatal": [
+        "subtree SHA disagreement",
+        "malformed tree object",
+        "global response body or node hard-bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1,
+        "localSemanticEntries": 10000
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "git-commit"
+    },
+    {
+      "operationId": "github-compose-json-blob",
+      "provider": "github",
+      "endpoint": "GET /repositories/{repositoryId}/git/blobs/{exactComposeJsonBlobSha}",
+      "officialContractBasis": "GitHub REST Git blobs: Get a blob, API version 2026-03-10; immutable root-tree/blob chain",
+      "requiredIdentityProperties": [
+        "root compose.json normal blob entry",
+        "returned sha",
+        "declared size",
+        "recomputed Git blob object identity"
+      ],
+      "retainedProperties": [
+        "path",
+        "sha",
+        "size",
+        "contentDigest",
+        "parserOutcome",
+        "registered partial facts"
+      ],
+      "documentedNullableOptionalProperties": [
+        "operation conditional on exact root entry"
+      ],
+      "supportedSemanticSubset": [
+        "strict UTF-8, NUL-free, at most 262144 semantic bytes",
+        "bounded inert JSON parser",
+        "only build context exactly dot emits a fact"
+      ],
+      "establishedAbsence": [
+        "complete bounded root tree lacks compose.json; this emits no deployment negative"
+      ],
+      "qualifiedUnknown": [
+        "valid non-UTF8 content",
+        "semantic content bound exceeded",
+        "unsupported Compose JSON syntax",
+        "optional source unavailable"
+      ],
+      "fatal": [
+        "tree/blob SHA disagreement",
+        "declared-size disagreement",
+        "recomputed immutable object identity disagreement",
+        "malformed blob envelope",
+        "global transport bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1,
+        "semanticContentBytes": 262144
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "git-commit"
+    },
+    {
+      "operationId": "github-dockerfile-blob",
+      "provider": "github",
+      "endpoint": "GET /repositories/{repositoryId}/git/blobs/{exactDockerfileBlobSha}",
+      "officialContractBasis": "GitHub REST Git blobs: Get a blob, API version 2026-03-10; immutable root-tree/blob chain",
+      "requiredIdentityProperties": [
+        "root Dockerfile normal blob entry",
+        "returned sha",
+        "declared size",
+        "recomputed Git blob object identity"
+      ],
+      "retainedProperties": [
+        "path",
+        "sha",
+        "size",
+        "contentDigest",
+        "parserOutcome",
+        "registered partial fact"
+      ],
+      "documentedNullableOptionalProperties": [
+        "operation conditional on exact root entry"
+      ],
+      "supportedSemanticSubset": [
+        "strict UTF-8, NUL-free, at most 262144 semantic bytes",
+        "conservative inert direct FROM prefix parser"
+      ],
+      "establishedAbsence": [
+        "complete bounded root tree lacks Dockerfile; this emits no deployment negative"
+      ],
+      "qualifiedUnknown": [
+        "valid non-UTF8 content",
+        "semantic content bound exceeded",
+        "unsupported Dockerfile syntax",
+        "optional source unavailable"
+      ],
+      "fatal": [
+        "tree/blob SHA disagreement",
+        "declared-size disagreement",
+        "recomputed immutable object identity disagreement",
+        "malformed blob envelope",
+        "global transport bound violation"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "requestsPerCandidate": 1,
+        "semanticContentBytes": 262144
+      },
+      "requestCeiling": 150,
+      "evidenceProvenance": "git-commit"
+    }
+  ],
+  "requestCeilings": {
+    "githubLogicalRequests": 1810,
+    "npmLogicalRequests": 80,
+    "totalLogicalRequests": 1890,
+    "githubAttempts": 5430,
+    "npmAttempts": 240,
+    "totalAttempts": 5670
+  },
+  "canonicalContractDigest": "06495281a2642ca3bc3ba5dec07ea1ddd0c541130f294f5d6bea62c525abfd0c"
+}

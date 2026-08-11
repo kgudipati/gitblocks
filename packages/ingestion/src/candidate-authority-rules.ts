@@ -36,6 +36,7 @@ export function projectCandidateAuthorityReleaseState(input: {
     readonly draft: boolean;
     readonly prerelease: boolean;
   }[];
+  readonly unsupportedPublishedReleaseCount?: number;
 }): CandidateAuthorityRuleResult<CandidateAuthorityReleaseValue> {
   requireTimestamp(input.snapshotAt);
   if (input.outcome === 'temporary-unavailable') {
@@ -55,7 +56,16 @@ export function projectCandidateAuthorityReleaseState(input: {
   if (!input.complete) {
     return { state: 'unknown', reason: 'release-window-not-complete' };
   }
-  const selected = input.releases.find((release) => !release.draft);
+  if ((input.unsupportedPublishedReleaseCount ?? 0) > 0) {
+    return { state: 'unknown', reason: 'release-token-semantics-unresolved' };
+  }
+  const selected = [...input.releases]
+    .filter((release) => !release.draft)
+    .sort(
+      (left, right) =>
+        right.publishedAt.localeCompare(left.publishedAt) ||
+        left.tagName.localeCompare(right.tagName),
+    )[0];
   if (selected !== undefined) {
     return {
       state: 'known',
@@ -80,7 +90,7 @@ export function projectCandidateAuthorityAdvisoryState(input: {
   readonly complete: boolean;
   readonly advisories: readonly {
     readonly advisoryId: string;
-    readonly severity: 'critical' | 'high' | 'low' | 'moderate';
+    readonly severity: 'critical' | 'high' | 'low' | 'moderate' | null;
   }[];
 }): CandidateAuthorityRuleResult<CandidateAuthorityAdvisoryValue> {
   requireTimestamp(input.snapshotAt);
@@ -114,10 +124,14 @@ export function projectCandidateAuthorityAdvisoryState(input: {
     if (seen.has(advisory.advisoryId)) invalid();
     seen.add(advisory.advisoryId);
   }
+  if (input.advisories.some((advisory) => advisory.severity === null)) {
+    return { state: 'unknown', reason: 'advisory-severity-unresolved' };
+  }
   const severityOrder = ['low', 'moderate', 'high', 'critical'] as const;
   const highestSeverity = input.advisories.reduce<
     CandidateAuthorityAdvisoryValue['highestSeverity']
   >((highest, advisory) => {
+    if (advisory.severity === null) return highest;
     if (highest === null) return advisory.severity;
     return severityOrder.indexOf(advisory.severity) >
       severityOrder.indexOf(highest)
@@ -137,20 +151,23 @@ export function projectCandidateAuthorityAdvisoryState(input: {
 export function projectCandidateAuthoritySecurityPolicyPresence(input: {
   readonly outcome:
     'established-absence' | 'established-value' | 'temporary-unavailable';
-  readonly present: boolean | null;
+  readonly present: true | null;
 }): CandidateAuthorityRuleResult<{ readonly present: boolean }> {
   if (input.outcome === 'temporary-unavailable') {
     return {
       state: 'unknown',
-      reason: 'community-profile-temporarily-unavailable',
+      reason: 'repository-local-security-policy-source-unavailable',
     };
   }
   if (input.outcome === 'established-absence') {
     if (input.present !== null) invalid();
-    return { state: 'known', value: { present: false } };
+    return {
+      state: 'unknown',
+      reason: 'account-level-default-security-policy-unresolved',
+    };
   }
-  if (typeof input.present !== 'boolean') invalid();
-  return { state: 'known', value: { present: input.present } };
+  if (input.present !== true) invalid();
+  return { state: 'known', value: { present: true } };
 }
 
 export function projectCandidateAuthorityMaintenance(input: {

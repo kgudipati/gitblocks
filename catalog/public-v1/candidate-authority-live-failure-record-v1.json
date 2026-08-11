@@ -1,0 +1,50 @@
+{
+  "recordVersion": "candidate-authority-live-failure-record/1.0.0",
+  "status": "immutable-consumed-failure-history",
+  "executionHead": "2cfe0682617fb303ebbb2deb7dd7bd34a383c912",
+  "priorAuthorization": {
+    "version": "candidate-authority-live-authorization/3.0.0",
+    "digest": "3d39801eeabef0e09be54875216a99ff3e864296f0f682c3029010fa9fbe793f",
+    "path": "catalog/public-v1/candidate-authority-live-authorization-v3.json"
+  },
+  "observedExecutionFacts": {
+    "credentialGate": "passed",
+    "collectionCutoff": {
+      "createdInProcess": true,
+      "emitted": false,
+      "persisted": false,
+      "exactValue": "unavailable"
+    },
+    "candidateProviderEffectsReached": true,
+    "providerEffectCollectionsConsumed": 1,
+    "failureStage": "candidate-authority-live-collect",
+    "safeErrorCode": "ingestion.provider-response",
+    "candidateId": "unknown",
+    "operationId": "unknown",
+    "metrics": {
+      "githubLogicalRequests": "unavailable",
+      "npmLogicalRequests": "unavailable",
+      "totalLogicalRequests": "unavailable",
+      "githubAttempts": "unavailable",
+      "npmAttempts": "unavailable",
+      "totalAttempts": "unavailable",
+      "retries": "unavailable",
+      "perOperation": "unavailable"
+    },
+    "sourceReceipt": "absent",
+    "sourceStagingAfterFailure": "absent",
+    "sourceAuthority": "absent",
+    "allCandidateProjection": "not-performed",
+    "readinessMeasurement": "not-performed",
+    "milestone4": "not-started",
+    "automaticRerun": false
+  },
+  "diagnosedImplementationDefects": {
+    "classification": "independent-static-provider-contract-diagnosis",
+    "observedCandidateValuesUsed": false,
+    "authorityPath": "docs/architecture/decisions/0013-harden-candidate-authority-provider-contracts.md",
+    "providerContractPath": "catalog/public-v1/candidate-authority-provider-contract-v1.json"
+  },
+  "evidenceSeparation": "observedExecutionFacts records only emitted or filesystem-observed facts from the consumed execution; diagnosedImplementationDefects records later static implementation findings and does not identify the failed candidate, operation, endpoint, cutoff, or request counts.",
+  "canonicalFailureDigest": "48fa5cfe14cb579b254892cf69bede27bd96a802c8bfde6da9f7f4a4ab5595c7"
+}

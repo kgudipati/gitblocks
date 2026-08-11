@@ -1,0 +1,205 @@
+{
+  "policyVersion": "candidate-authority-source-policy/6.0.0",
+  "status": "proposed-inactive-pending-independent-postmortem-acceptance",
+  "supersedes": {
+    "version": "candidate-authority-source-policy/5.0.0",
+    "digest": "f1fb17132e42769385e0c4b8e9bb555dd31cdb1fccec3bc93f9c173f6bab725b",
+    "path": "catalog/public-v1/candidate-authority-source-policy-v5.json",
+    "historicalUse": "The v5 policy remains the immutable policy used by the consumed failed attempt."
+  },
+  "bindings": {
+    "fieldPlanVersion": "candidate-authority-field-plan/5.0.0",
+    "fieldPlanDigest": "858385239dcecf78e35cb204740c817b01f51db2aa3bc750bf9df49848a8a160",
+    "providerContractVersion": "candidate-authority-provider-contract/1.0.0",
+    "providerContractDigest": "06495281a2642ca3bc3ba5dec07ea1ddd0c541130f294f5d6bea62c525abfd0c",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/2.0.0",
+    "partialSemanticRegistryDigest": "baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e"
+  },
+  "authorization": {
+    "credentialRead": false,
+    "providerEffect": false,
+    "collectionCutoffCreation": false,
+    "sourceAuthorityPublication": false,
+    "note": "This architecture authority does not activate a live collection."
+  },
+  "operationInventory": [
+    {
+      "operationId": "github-repository-metadata",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-default-branch-ref",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-head-commit-object",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-maintenance-window",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-license",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-release-window",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-advisories",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 160,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "npm-package-metadata",
+      "provider": "npm",
+      "maximumTotalLogicalRequests": 80,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-root-tree",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-security-dot-github-tree",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-security-docs-tree",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-compose-json-blob",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    },
+    {
+      "operationId": "github-dockerfile-blob",
+      "provider": "github",
+      "maximumTotalLogicalRequests": 150,
+      "maximumAttempts": 3
+    }
+  ],
+  "operationChanges": {
+    "removed": [
+      {
+        "operationId": "github-community-profile",
+        "reason": "The documented community-profile contract does not establish files.security_policy and no successor field consumes this operation."
+      },
+      {
+        "operationId": "github-compose-json-content",
+        "reason": "The exact root-tree to immutable Git-blob to recomputed-object chain supplies every required trust property; Contents was redundant."
+      }
+    ],
+    "added": [
+      {
+        "operationId": "github-security-dot-github-tree",
+        "condition": "Exact complete root tree contains a normal .github tree entry.",
+        "semanticUse": "Inspect only exact SECURITY.md normal blob identity; never fetch content."
+      },
+      {
+        "operationId": "github-security-docs-tree",
+        "condition": "Exact complete root tree contains a normal docs tree entry.",
+        "semanticUse": "Inspect only exact SECURITY.md normal blob identity; never fetch content."
+      }
+    ],
+    "hardened": [
+      "github-root-tree",
+      "github-release-window",
+      "github-advisories",
+      "npm-package-metadata",
+      "github-compose-json-blob",
+      "github-dockerfile-blob"
+    ]
+  },
+  "requestBudget": {
+    "candidateCount": 150,
+    "mappedPackageCount": 80,
+    "githubLogicalRequests": 1810,
+    "npmLogicalRequests": 80,
+    "totalLogicalRequests": 1890,
+    "githubWorstCaseAttempts": 5430,
+    "npmWorstCaseAttempts": 240,
+    "totalWorstCaseAttempts": 5670,
+    "mechanicalProof": "Sum of GitHub operation ceilings is 1810; npm exact-metadata ceiling is 80; each logical request permits at most three attempts. Conditional subtree requests are budgeted at their maximum 150 each."
+  },
+  "failurePolicy": {
+    "fatal": [
+      "authentication-or-authorization-failure",
+      "repository-or-package-identity-disagreement",
+      "unsafe-redirect",
+      "malformed-json-or-provider-object",
+      "global-http-body-or-json-node-bound-violation",
+      "immutable-git-identity-or-hash-disagreement",
+      "required-core-source-unavailable",
+      "internal-invariant"
+    ],
+    "qualifiedUnknown": [
+      "documented-provider-shape-outside-bounded-semantic-subset",
+      "documented-optional-property-absent",
+      "documented-provider-enum-not-directionally-consumable",
+      "optional-exact-content-unsupported-for-v1-semantic-parsing",
+      "valid-optional-tree-not-completely-inspectable-under-local-semantic-limit"
+    ],
+    "noFavorableFallback": true,
+    "automaticRerun": false,
+    "firstFatalCancellation": "Internal AbortController stops assignment, aborts in-flight siblings, waits for all workers, and preserves the first causal fatal before final safe metrics are emitted."
+  },
+  "securityPolicyRule": {
+    "registeredPaths": [
+      ".github/SECURITY.md",
+      "SECURITY.md",
+      "docs/SECURITY.md"
+    ],
+    "positive": "A normal exact Git blob entry establishes present true with exact commit provenance.",
+    "absence": "Unknown; local absence cannot close account-level default community-health policy.",
+    "contentFetch": false,
+    "ownerDotGithubRepositoryQuery": false
+  },
+  "advisoryRule": {
+    "query": "type=reviewed and is_withdrawn=false with exact npm package/version binding",
+    "severityNormalization": {
+      "low": "low",
+      "medium": "moderate",
+      "high": "high",
+      "critical": "critical",
+      "unknown": null
+    },
+    "unknownSeverity": "Retain advisory identity and unresolved provider severity; emit no fabricated severity. Complete highestSeverity remains unknown when a complete maximum cannot be established."
+  },
+  "publicationFlow": [
+    "independent exact-head acceptance activates at most one new successor experiment",
+    "zero-effect live preflight before scoped credential read",
+    "single bounded successor collection with first-fatal sibling cancellation",
+    "source validation, exclusive staging, and atomic publication",
+    "source-only freeze commit before pure replay",
+    "pure replay v3 and separate first realized-readiness measurement"
+  ],
+  "policySemanticDigest": "c972e3c3ea25a8d0e456e759b2898ca2837bcd82e701cfc1f3a0caaba1753510"
+}

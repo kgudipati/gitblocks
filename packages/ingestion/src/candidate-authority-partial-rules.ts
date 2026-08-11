@@ -185,17 +185,19 @@ export function extractPublishedReleaseFacts(input: {
   }
   const facts = input.releases
     .filter((release) => !release.draft)
-    .map((release) => {
+    .flatMap((release) => {
       requireTimestamp(release.publishedAt);
-      requireReleaseToken(release.tagName);
-      return {
-        factCode: 'published-release' as const,
-        factValue: canonicalizeJson({
-          prerelease: release.prerelease,
-          publishedAt: release.publishedAt,
-          tag: release.tagName,
-        }).text,
-      };
+      if (!isReleaseToken(release.tagName)) return [];
+      return [
+        {
+          factCode: 'published-release' as const,
+          factValue: canonicalizeJson({
+            prerelease: release.prerelease,
+            publishedAt: release.publishedAt,
+            tag: release.tagName,
+          }).text,
+        },
+      ];
     })
     .sort((left, right) => compare(left.factValue, right.factValue));
   return facts.length > 0
@@ -211,7 +213,7 @@ export function extractApplicableSecurityAdvisoryFacts(input: {
   readonly outcome: 'established-value' | 'temporary-unavailable';
   readonly advisories: readonly {
     readonly advisoryId: string;
-    readonly severity: 'critical' | 'high' | 'low' | 'moderate';
+    readonly severity: 'critical' | 'high' | 'low' | 'moderate' | null;
   }[];
 }): CandidateAuthorityPartialRuleResult {
   if (
@@ -236,7 +238,7 @@ export function extractApplicableSecurityAdvisoryFacts(input: {
   }
   const seen = new Set<string>();
   const facts = input.advisories
-    .map((advisory) => {
+    .flatMap((advisory) => {
       const advisoryId = advisory.advisoryId.toUpperCase();
       if (
         !/^GHSA-[23456789CFGHJMPQRVWX]{4}-[23456789CFGHJMPQRVWX]{4}-[23456789CFGHJMPQRVWX]{4}$/u.test(
@@ -246,13 +248,16 @@ export function extractApplicableSecurityAdvisoryFacts(input: {
       )
         invalid();
       seen.add(advisoryId);
-      return {
-        factCode: 'applicable-security-advisory' as const,
-        factValue: canonicalizeJson({
-          advisoryId,
-          severity: advisory.severity,
-        }).text,
-      };
+      if (advisory.severity === null) return [];
+      return [
+        {
+          factCode: 'applicable-security-advisory' as const,
+          factValue: canonicalizeJson({
+            advisoryId,
+            severity: advisory.severity,
+          }).text,
+        },
+      ];
     })
     .sort((left, right) => compare(left.factValue, right.factValue));
   return facts.length > 0
@@ -410,14 +415,15 @@ function requireTimestamp(value: string): void {
     invalid();
 }
 
-function requireReleaseToken(value: string): void {
+function isReleaseToken(value: string): boolean {
   if (
     !/^[A-Za-z0-9][A-Za-z0-9._+/@-]{0,99}$/u.test(value) ||
     /(?:^|[._+/@-])(?:canary|current|head|latest|main|master|next|stable)(?:$|[._+/@-])/iu.test(
       value,
     )
   )
-    invalid();
+    return false;
+  return true;
 }
 
 function isServiceName(value: string): boolean {

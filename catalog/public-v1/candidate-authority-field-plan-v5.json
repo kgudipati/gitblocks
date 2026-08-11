@@ -1,0 +1,82 @@
+{
+  "planVersion": "candidate-authority-field-plan/5.0.0",
+  "status": "proposed-for-independent-postmortem-acceptance",
+  "supersedes": {
+    "version": "candidate-authority-field-plan/4.0.0",
+    "digest": "84796407204bdb7f08efd053b71afc169312e22af2f104fca23d7e8581cb5997",
+    "path": "catalog/public-v1/candidate-authority-field-plan-v4.json",
+    "inheritance": "All fields except the exact security-policy-presence override remain byte-semantically inherited from v4."
+  },
+  "bindings": {
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/2.0.0",
+    "partialSemanticRegistryDigest": "baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e"
+  },
+  "unchangedGate": {
+    "denominatorSize": 18,
+    "minimumRealizedReadyFields": 13,
+    "exactPercentage": 72.222222,
+    "minimumFieldPerBreadthGroup": 1
+  },
+  "plannedDeterministicExtractionCapableFieldCount": 13,
+  "plannedDeterministicFullClosureFieldCount": 5,
+  "plannedFullClosureFields": [
+    "package-publication-version",
+    "runtime-package-format",
+    "package-repository-linkage",
+    "archived-state",
+    "maintenance-activity"
+  ],
+  "fieldOverrides": [
+    {
+      "fieldId": "security-policy-presence",
+      "posture": "deterministic-partial-path",
+      "sourceAuthorityVersion": "candidate-authority-source-policy/6.0.0",
+      "extractionRuleVersion": "candidate-authority-security-policy/3.0.0",
+      "sourceKind": "exact-commit-repository-local-security-policy-path-positive-evidence",
+      "versionScope": "Exact validated candidate repository commit and exact root or conditional non-recursive subtree Git object identity.",
+      "positiveFacts": [
+        "A normal immutable Git blob at SECURITY.md, .github/SECURITY.md, or docs/SECURITY.md establishes present true."
+      ],
+      "partialFactCodes": [],
+      "negativeAbsenceSemantics": "No repository-local path found remains unknown because an account-level default community-health security policy is outside the V1 local rule; present false is never emitted.",
+      "unresolvedRemainder": "Account-level default policy and every non-registered effective source remain unresolved.",
+      "completenessRequirement": "The successor rule establishes only positive present true. No negative closure exists in V1.",
+      "freshnessRequirement": "Exact immutable commit, root tree, optional subtree, path, mode, type, and blob SHA are retained.",
+      "notApplicableRule": "not permitted by the field registry",
+      "evidenceTopic": "candidate-security-policy-presence",
+      "evidenceDimension": "security",
+      "evidenceProvenanceKind": "git-commit",
+      "generationOrigin": "deterministic",
+      "canEmitMeaningfulNonUnknownFact": true,
+      "incompleteAuthorityOutcome": "explicit-unknown-or-partial",
+      "negativeClaimsRequireCompleteSource": true,
+      "provenanceAndFieldBindingRetained": true,
+      "prohibitedExtractionInputs": [
+        "candidate-id-as-fit-fact",
+        "model-output",
+        "popularity",
+        "ranking-v1-evaluation-classification",
+        "ranking-v1-gold",
+        "scorer-output"
+      ],
+      "evidenceBridgeWithoutProseInterpretation": true,
+      "plannedExtractionCapable": true,
+      "deterministicFullClosureCandidate": false,
+      "breadthGroup": "policy-risk",
+      "providerOperations": [
+        "github-root-tree",
+        "github-security-dot-github-tree",
+        "github-security-docs-tree"
+      ],
+      "reusesPhase8Rule": false,
+      "requiresSuccessorRule": true,
+      "rationale": "Immutable local positive evidence is field-semantic and attributable; local absence cannot close account-level defaults and therefore remains unknown."
+    }
+  ],
+  "changeControl": "Only the diagnosed security-policy source and full-closure classification change. Planned capability, denominator, threshold, breadth, partial registry, and partial-evidence contract are unchanged.",
+  "planSemanticDigest": "858385239dcecf78e35cb204740c817b01f51db2aa3bc750bf9df49848a8a160"
+}

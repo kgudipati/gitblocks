@@ -401,7 +401,11 @@ export function qualifiesPlannedDeterministicExtraction(
   const prohibited = new Set(field.prohibitedExtractionInputs);
   const partialBindingValid =
     field.posture !== 'deterministic-partial-path' ||
-    field.partialFactCodes.length > 0;
+    field.partialFactCodes.length > 0 ||
+    (field.fieldId === 'security-policy-presence' &&
+      field.extractionRuleVersion ===
+        'candidate-authority-security-policy/3.0.0' &&
+      field.evidenceProvenanceKind === 'git-commit');
   return (
     field.generationOrigin === 'deterministic' &&
     field.extractionRuleVersion.length > 0 &&

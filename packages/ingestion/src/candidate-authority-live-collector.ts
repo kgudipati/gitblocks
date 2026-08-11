@@ -1,21 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition -- Provider payloads are untrusted and require explicit boundary checks. */
 
-import {
-  repositoryArtifactContentSha256,
-  repositoryArtifactGitBlobObjectId,
-} from '@gitblocks/contracts';
+import { repositoryArtifactContentSha256 } from '@gitblocks/contracts';
 
 import { canonicalizeJson } from './canonical-json.ts';
 import {
-  CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION,
-  CANDIDATE_AUTHORITY_OPERATION_IDS,
-  createCandidateAuthoritySourceAuthority,
-  createCandidateAuthoritySourceCandidate,
-  type CandidateAuthorityOperationId,
-  type CandidateAuthorityOperationReceiptV1,
-  type CandidateAuthoritySourceAuthorityV1,
-  type CandidateAuthoritySourceDatum,
-} from './candidate-authority-live-contracts.ts';
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION,
+  CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
+  createCandidateAuthoritySuccessorSourceAuthority,
+  createCandidateAuthoritySuccessorSourceCandidate,
+  parseCandidateAuthorityAdvisory,
+  parseCandidateAuthorityGitTree,
+  parseCandidateAuthorityOptionalGitBlob,
+  parseCandidateAuthorityOptionalString,
+  parseCandidateAuthorityOptionalStringRecord,
+  parseCandidateAuthorityReleaseWindow,
+  projectCandidateAuthorityLocalSecurityPolicy,
+  runCandidateAuthorityFatalCancellingWorkers,
+  type CandidateAuthorityFatalCounters,
+  type CandidateAuthorityOptionalProperty,
+  type CandidateAuthoritySuccessorOperationId,
+  type CandidateAuthoritySuccessorOperationReceipt,
+  type CandidateAuthoritySuccessorRuntimeSourcePolicy,
+  type CandidateAuthoritySuccessorSourceAuthority,
+  type CandidateAuthoritySuccessorSourceDatum,
+  type CandidateAuthorityTreeEntry,
+  type CandidateAuthorityTreeResult,
+} from './candidate-authority-provider-contract.ts';
 import { isSafeCandidateAuthorityRepositoryRelativePath } from './candidate-authority-license-provenance.ts';
 import { extractRepositoryContainerBuildDeclarationFact } from './candidate-authority-dockerfile.ts';
 import {
@@ -27,8 +37,7 @@ import {
   extractRepositoryPrimaryLanguageFact,
   extractRepositorySelfBuildComposeServiceFacts,
 } from './candidate-authority-partial-rules.ts';
-import type { CandidateAuthoritySourcePolicyV5 } from './candidate-authority-readiness.ts';
-import { IngestionError, ingestionError } from './errors.ts';
+import { IngestionError, asSafeErrorCode, ingestionError } from './errors.ts';
 import { requireRecord } from './profile-materialization-contracts.ts';
 import type { JsonResponse } from './transport.ts';
 import type { CatalogCandidate, PublicCatalog } from './types.ts';
@@ -63,7 +72,10 @@ interface OperationCounter {
 }
 
 interface CollectionState {
-  readonly counters: Map<CandidateAuthorityOperationId, OperationCounter>;
+  readonly counters: Map<
+    CandidateAuthoritySuccessorOperationId,
+    OperationCounter
+  >;
   githubLogicalRequests: number;
   npmLogicalRequests: number;
   readonly optionalFailures: Map<string, number>;
@@ -80,12 +92,13 @@ interface RepositoryContext {
   readonly rootTreeSha: string;
   readonly headCommittedAt: string;
   readonly rootTreeValue: unknown;
+  readonly rootTree: CandidateAuthorityTreeResult;
   readonly rootTreeOutcome: 'established-value' | 'qualified-unknown';
 }
 
 export async function collectCandidateAuthoritySourceAuthority(input: {
   readonly catalog: PublicCatalog;
-  readonly sourcePolicy: CandidateAuthoritySourcePolicyV5;
+  readonly sourcePolicy: CandidateAuthoritySuccessorRuntimeSourcePolicy;
   readonly liveAuthorizationVersion: string;
   readonly liveAuthorizationDigest: string;
   readonly liveAuthorizationBindings: Readonly<Record<string, string>>;
@@ -95,7 +108,7 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
   readonly transport: CandidateAuthorityLiveTransport;
   readonly readAttemptMetrics: () => CandidateAuthorityAttemptMetrics;
   readonly signal?: AbortSignal;
-}): Promise<CandidateAuthoritySourceAuthorityV1> {
+}): Promise<CandidateAuthoritySuccessorSourceAuthority> {
   requireTimestamp(input.collectionCutoff);
   if (
     input.catalog.candidates.length !== 150 ||
@@ -104,7 +117,7 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
     invalid();
   const state: CollectionState = {
     counters: new Map(
-      CANDIDATE_AUTHORITY_OPERATION_IDS.map((operationId) => [
+      CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS.map((operationId) => [
         operationId,
         { logicalRequests: 0, establishedAbsences: 0, qualifiedUnknowns: 0 },
       ]),
@@ -114,23 +127,35 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
     optionalFailures: new Map(),
   };
   const results = new Array(input.catalog.candidates.length);
-  let cursor = 0;
-  await Promise.all(
-    Array.from({ length: 5 }, async () => {
-      for (;;) {
-        const index = cursor;
-        cursor += 1;
-        const candidate = input.catalog.candidates[index];
-        if (candidate === undefined) return;
-        results[index] = await collectCandidate(candidate, input, state);
-      }
+  const indexed = input.catalog.candidates.map((candidate, index) => ({
+    candidate,
+    index,
+  }));
+  await runCandidateAuthorityFatalCancellingWorkers({
+    items: indexed,
+    workerCount: 5,
+    ...(input.signal === undefined ? {} : { callerSignal: input.signal }),
+    context: (item, error) => ({
+      candidateId: item.candidate.candidateId,
+      operationId:
+        error instanceof CandidateAuthorityOperationFailure
+          ? error.operationId
+          : 'candidate-collection-invariant',
     }),
-  );
+    execute: async (item, signal) => {
+      results[item.index] = await collectCandidate(
+        item.candidate,
+        { ...input, signal },
+        state,
+      );
+    },
+    readFinalCounters: () => fatalCounters(state, input.readAttemptMetrics()),
+  });
   const candidates =
-    results as CandidateAuthoritySourceAuthorityV1['candidates'];
+    results as CandidateAuthoritySuccessorSourceAuthority['candidates'];
   const attempts = input.readAttemptMetrics();
-  const perOperation: CandidateAuthorityOperationReceiptV1[] =
-    CANDIDATE_AUTHORITY_OPERATION_IDS.map((operationId) => {
+  const perOperation: CandidateAuthoritySuccessorOperationReceipt[] =
+    CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS.map((operationId) => {
       const counter = requireCounter(state, operationId);
       return {
         operationId,
@@ -158,9 +183,9 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
     attempts.retries !== totalAttempts - totalLogicalRequests
   )
     invalid();
-  return createCandidateAuthoritySourceAuthority({
-    authorityVersion: 'candidate-authority-source-authority/1.0.0',
-    operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION,
+  return createCandidateAuthoritySuccessorSourceAuthority({
+    authorityVersion: 'candidate-authority-source-authority/2.0.0',
+    operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION,
     bindings: {
       ...input.liveAuthorizationBindings,
       catalogVersion: input.catalog.catalogVersion,
@@ -208,15 +233,21 @@ async function collectCandidate(
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
 ) {
-  const sources: CandidateAuthoritySourceDatum[] = [];
-  const metadataResponse = await requiredRequest(
+  const sources: CandidateAuthoritySuccessorSourceDatum[] = [];
+  const metadata = await operation(
     candidate,
-    input,
-    state,
     'github-repository-metadata',
-    `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}`,
+    async () => {
+      const response = await requiredRequest(
+        candidate,
+        input,
+        state,
+        'github-repository-metadata',
+        `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}`,
+      );
+      return parseRepositoryMetadata(response.value, candidate);
+    },
   );
-  const metadata = parseRepositoryMetadata(metadataResponse.value, candidate);
   sources.push(
     source('github-repository-metadata', 'established-value', 'complete', {
       repositoryId: metadata.repositoryId,
@@ -233,14 +264,20 @@ async function collectCandidate(
       ),
     }),
   );
-  const refResponse = await requiredRequest(
+  const headSha = await operation(
     candidate,
-    input,
-    state,
     'github-default-branch-ref',
-    `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/git/ref/heads/${segment(metadata.defaultBranch)}`,
+    async () => {
+      const response = await requiredRequest(
+        candidate,
+        input,
+        state,
+        'github-default-branch-ref',
+        `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/git/ref/heads/${segment(metadata.defaultBranch)}`,
+      );
+      return parseGitRef(response.value, metadata.defaultBranch);
+    },
   );
-  const headSha = parseGitRef(refResponse.value, metadata.defaultBranch);
   sources.push(
     source('github-default-branch-ref', 'established-value', 'complete', {
       ref: `refs/heads/${metadata.defaultBranch}`,
@@ -248,14 +285,20 @@ async function collectCandidate(
       headSha,
     }),
   );
-  const commitResponse = await requiredRequest(
+  const commit = await operation(
     candidate,
-    input,
-    state,
     'github-head-commit-object',
-    `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/git/commits/${headSha}`,
+    async () => {
+      const response = await requiredRequest(
+        candidate,
+        input,
+        state,
+        'github-head-commit-object',
+        `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/git/commits/${headSha}`,
+      );
+      return parseGitCommit(response.value, headSha);
+    },
   );
-  const commit = parseGitCommit(commitResponse.value, headSha);
   sources.push(
     source(
       'github-head-commit-object',
@@ -264,31 +307,58 @@ async function collectCandidate(
       commit,
     ),
   );
-  const rootTreeCollected = await optionalRequest(
-    candidate,
-    input,
-    state,
-    'github-root-tree',
-    `/repositories/${metadata.repositoryId}/git/trees/${commit.rootTreeSha}`,
-    false,
+  const rootTreeCollected = await operation(candidate, 'github-root-tree', () =>
+    optionalRequest(
+      candidate,
+      input,
+      state,
+      'github-root-tree',
+      `/repositories/${metadata.repositoryId}/git/trees/${commit.rootTreeSha}`,
+      false,
+    ),
   );
   let rootTreeValue: unknown = null;
+  let rootTree: CandidateAuthorityTreeResult = {
+    state: 'qualified-unknown',
+    reason: 'tree-truncated',
+  };
   let rootTreeOutcome: RepositoryContext['rootTreeOutcome'] =
     'qualified-unknown';
   if (rootTreeCollected.kind === 'value') {
-    rootTreeValue = parseRootTree(
-      rootTreeCollected.response.value,
-      commit.rootTreeSha,
-    );
-    rootTreeOutcome = 'established-value';
-    sources.push(
-      source(
-        'github-root-tree',
-        'established-value',
-        'complete',
-        retainedRootTree(rootTreeValue),
+    rootTreeValue = rootTreeCollected.response.value;
+    rootTree = await operation(candidate, 'github-root-tree', () =>
+      Promise.resolve(
+        parseCandidateAuthorityGitTree({
+          value: rootTreeValue,
+          expectedSha: commit.rootTreeSha,
+          localSemanticEntryLimit: 10_000,
+        }),
       ),
     );
+    if (rootTree.state === 'established-value') {
+      rootTreeOutcome = 'established-value';
+      const rootSecurity = projectCandidateAuthorityLocalSecurityPolicy({
+        root: rootTree,
+        dotGithub: null,
+        docs: null,
+      });
+      sources.push(
+        source('github-root-tree', 'established-value', 'complete', {
+          ...retainedRootTree(rootTree),
+          ...(rootSecurity.state === 'known' &&
+          rootSecurity.path === 'SECURITY.md'
+            ? {
+                securityPolicyPresent: true,
+                securityPolicyPath: rootSecurity.path,
+                securityPolicyBlobSha: rootSecurity.blobSha,
+              }
+            : {}),
+        }),
+      );
+    } else {
+      markQualified(state, 'github-root-tree', rootTree.reason);
+      sources.push(unknownSource('github-root-tree', rootTree.reason));
+    }
   } else {
     sources.push(
       unknownSource('github-root-tree', optionalFailureCode(rootTreeCollected)),
@@ -300,17 +370,32 @@ async function collectCandidate(
     rootTreeSha: commit.rootTreeSha,
     headCommittedAt: commit.committerDate,
     rootTreeValue,
+    rootTree,
     rootTreeOutcome,
   };
-  await collectMaintenance(candidate, context, input, state, sources);
-  await collectLicense(candidate, context, input, state, sources);
-  await collectCommunity(candidate, input, state, sources);
-  await collectReleases(candidate, input, state, sources);
-  const npm = await collectNpm(candidate, input, state, sources);
-  await collectAdvisories(candidate, npm, input, state, sources);
-  await collectCompose(candidate, context, input, state, sources);
-  await collectDockerfile(candidate, context, input, state, sources);
-  return createCandidateAuthoritySourceCandidate({
+  await operation(candidate, 'github-maintenance-window', () =>
+    collectMaintenance(candidate, context, input, state, sources),
+  );
+  await operation(candidate, 'github-license', () =>
+    collectLicense(candidate, context, input, state, sources),
+  );
+  await collectSecurityPolicies(candidate, context, input, state, sources);
+  await operation(candidate, 'github-release-window', () =>
+    collectReleases(candidate, input, state, sources),
+  );
+  const npm = await operation(candidate, 'npm-package-metadata', () =>
+    collectNpm(candidate, input, state, sources),
+  );
+  await operation(candidate, 'github-advisories', () =>
+    collectAdvisories(candidate, npm, input, state, sources),
+  );
+  await operation(candidate, 'github-compose-json-blob', () =>
+    collectCompose(candidate, context, input, state, sources),
+  );
+  await operation(candidate, 'github-dockerfile-blob', () =>
+    collectDockerfile(candidate, context, input, state, sources),
+  );
+  return createCandidateAuthoritySuccessorSourceCandidate({
     candidateId: candidate.candidateId,
     github: candidate.github,
     npmPackage: candidate.npmPackage,
@@ -323,7 +408,7 @@ async function collectMaintenance(
   context: RepositoryContext,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  sources: CandidateAuthoritySourceDatum[],
+  sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<void> {
   const since = new Date(
     Date.parse(input.collectionCutoff) - 90 * 24 * 60 * 60 * 1_000,
@@ -378,7 +463,7 @@ async function collectLicense(
   context: RepositoryContext,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  sources: CandidateAuthoritySourceDatum[],
+  sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<void> {
   const collected = await optionalRequest(
     candidate,
@@ -421,42 +506,108 @@ async function collectLicense(
   );
 }
 
-async function collectCommunity(
+async function collectSecurityPolicies(
   candidate: CatalogCandidate,
+  context: RepositoryContext,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  sources: CandidateAuthoritySourceDatum[],
+  sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<void> {
-  const collected = await optionalRequest(
-    candidate,
-    input,
-    state,
-    'github-community-profile',
-    `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/community/profile`,
-    false,
-  );
-  if (collected.kind !== 'value') {
-    sources.push(
-      unknownSource('github-community-profile', optionalFailureCode(collected)),
-    );
+  const operations = [
+    {
+      operationId: 'github-security-dot-github-tree' as const,
+      rootPath: '.github',
+      policyPath: '.github/SECURITY.md' as const,
+    },
+    {
+      operationId: 'github-security-docs-tree' as const,
+      rootPath: 'docs',
+      policyPath: 'docs/SECURITY.md' as const,
+    },
+  ];
+  const rootTree = context.rootTree;
+  if (rootTree.state !== 'established-value') {
+    for (const item of operations) {
+      markQualified(state, item.operationId, 'root-tree-unavailable');
+      sources.push(unknownSource(item.operationId, 'root-tree-unavailable'));
+    }
     return;
   }
-  const record = requireRecord(collected.response.value);
-  const files = requireRecord(record['files']);
-  const policy = files['security_policy'];
-  if (policy !== null && typeof policy !== 'object') invalidProvider();
-  sources.push(
-    source('github-community-profile', 'established-value', 'complete', {
-      securityPolicyPresent: policy !== null,
-    }),
-  );
+  for (const item of operations) {
+    await operation(candidate, item.operationId, async () => {
+      const entry = treeEntry(rootTree.entries, item.rootPath);
+      if (entry === null) {
+        markAbsence(state, item.operationId);
+        sources.push(
+          source(item.operationId, 'established-absence', 'complete', null),
+        );
+        return;
+      }
+      if (entry.mode !== '040000' || entry.type !== 'tree') {
+        markQualified(state, item.operationId, 'unsupported-structured-value');
+        sources.push(
+          unknownSource(item.operationId, 'unsupported-structured-value'),
+        );
+        return;
+      }
+      const collected = await optionalRequest(
+        candidate,
+        input,
+        state,
+        item.operationId,
+        `/repositories/${context.repositoryId}/git/trees/${entry.sha}`,
+        false,
+      );
+      if (collected.kind !== 'value') {
+        sources.push(
+          unknownSource(item.operationId, optionalFailureCode(collected)),
+        );
+        return;
+      }
+      const subtree = parseCandidateAuthorityGitTree({
+        value: collected.response.value,
+        expectedSha: entry.sha,
+        localSemanticEntryLimit: 10_000,
+      });
+      if (subtree.state === 'qualified-unknown') {
+        markQualified(state, item.operationId, subtree.reason);
+        sources.push(unknownSource(item.operationId, subtree.reason));
+        return;
+      }
+      const policy = projectCandidateAuthorityLocalSecurityPolicy({
+        root: {
+          state: 'established-value',
+          sha: rootTree.sha,
+          entries: [],
+        },
+        dotGithub:
+          item.operationId === 'github-security-dot-github-tree'
+            ? subtree
+            : null,
+        docs: item.operationId === 'github-security-docs-tree' ? subtree : null,
+      });
+      sources.push(
+        source(item.operationId, 'established-value', 'complete', {
+          sha: subtree.sha,
+          entries: retainedSecurityTreeEntries(subtree),
+          ...(policy.state === 'known'
+            ? {
+                securityPolicyPresent: true,
+                securityPolicyPath: item.policyPath,
+                securityPolicyBlobSha: policy.blobSha,
+              }
+            : {}),
+        }),
+      );
+    });
+  }
 }
 
 async function collectReleases(
   candidate: CatalogCandidate,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  sources: CandidateAuthoritySourceDatum[],
+  sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<void> {
   const collected = await optionalRequest(
     candidate,
@@ -477,17 +628,21 @@ async function collectReleases(
     collected.response.value.length > 5
   )
     invalidProvider();
-  const releases = collected.response.value.map((entry) => {
-    const release = requireRecord(entry);
-    return {
-      tagName: safeString(release['tag_name'], 200),
-      publishedAt: timestamp(release['published_at']),
-      draft: boolean(release['draft']),
-      prerelease: boolean(release['prerelease']),
-      htmlUrl: githubHtmlUrl(release['html_url']),
-    };
-  });
-  const complete = releases.length < 5;
+  const parsed = parseCandidateAuthorityReleaseWindow(collected.response.value);
+  const releases = parsed.releases.map((release) => ({
+    ...release,
+    draft: false as const,
+  }));
+  const complete =
+    collected.response.value.length < 5 &&
+    parsed.unsupportedPublishedReleaseCount === 0;
+  if (parsed.unsupportedPublishedReleaseCount > 0) {
+    markQualified(
+      state,
+      'github-release-window',
+      'unsupported-structured-value',
+    );
+  }
   sources.push(
     source(
       'github-release-window',
@@ -496,6 +651,9 @@ async function collectReleases(
       {
         complete,
         releases,
+        ignoredDraftCount: parsed.ignoredDraftCount,
+        unsupportedPublishedReleaseCount:
+          parsed.unsupportedPublishedReleaseCount,
         partialFacts: facts(
           extractPublishedReleaseFacts({
             outcome: 'established-value',
@@ -516,7 +674,7 @@ async function collectNpm(
   candidate: CatalogCandidate,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  sources: CandidateAuthoritySourceDatum[],
+  sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<CollectedNpm | null> {
   if (candidate.npmPackage === null) {
     sources.push(
@@ -545,18 +703,32 @@ async function collectNpm(
   if (selectedVersion !== undefined && selectedVersion !== version) identity();
   const times = requireRecord(root['time']);
   const publishedAt = timestamp(times[version]);
-  const engines =
-    selected['engines'] === undefined
-      ? null
-      : requireRecord(selected['engines']);
-  const nodeEngine =
-    engines === null ? null : nullableString(engines['node'], 100);
-  const main = nullableString(selected['main'], 512);
-  const module = nullableString(selected['module'], 512);
-  const type = nullableString(selected['type'], 40);
-  const peerDependencies = parseStringRecord(selected['peerDependencies'], 200);
-  const exportsValue = selected['exports'] ?? null;
-  const repositoryIdentity = parseNpmRepository(selected['repository']);
+  const nodeEngineProperty = parseOptionalNodeEngine(selected['engines']);
+  const mainProperty = parseCandidateAuthorityOptionalString(
+    selected['main'],
+    512,
+  );
+  const moduleProperty = parseCandidateAuthorityOptionalString(
+    selected['module'],
+    512,
+  );
+  const typeProperty = parseCandidateAuthorityOptionalString(
+    selected['type'],
+    40,
+  );
+  const peerDependenciesProperty = parseCandidateAuthorityOptionalStringRecord(
+    selected['peerDependencies'],
+    200,
+  );
+  const exportsProperty = parseOptionalExports(selected['exports']);
+  const repositoryProperty = parseOptionalNpmRepository(selected['repository']);
+  const nodeEngine = supportedOptionalValue(nodeEngineProperty);
+  const main = supportedOptionalValue(mainProperty);
+  const module = supportedOptionalValue(moduleProperty);
+  const type = supportedOptionalValue(typeProperty);
+  const peerDependencies = supportedOptionalValue(peerDependenciesProperty);
+  const exportsValue = supportedOptionalValue(exportsProperty);
+  const repositoryIdentity = supportedOptionalValue(repositoryProperty);
   const partialFacts = [
     ...facts(
       extractImportableRuntimePackageAdoptionFact({
@@ -584,11 +756,20 @@ async function collectNpm(
       repositoryIdentity,
       nodeEngine,
       exportsValue,
-      exportsDeclared: selected['exports'] !== undefined,
+      exportsDeclared: exportsProperty.state !== 'absent',
       main,
       module,
       peerDependencies,
       type,
+      optionalPropertyStates: {
+        nodeEngine: nodeEngineProperty.state,
+        exports: exportsProperty.state,
+        main: mainProperty.state,
+        module: moduleProperty.state,
+        peerDependencies: peerDependenciesProperty.state,
+        type: typeProperty.state,
+        repository: repositoryProperty.state,
+      },
       partialFacts,
     }),
   );
@@ -600,7 +781,7 @@ async function collectAdvisories(
   npm: CollectedNpm | null,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  sources: CandidateAuthoritySourceDatum[],
+  sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<void> {
   if (npm === null) {
     sources.push(
@@ -610,11 +791,16 @@ async function collectAdvisories(
   }
   const advisories: {
     advisoryId: string;
-    severity: 'critical' | 'high' | 'low' | 'moderate';
+    providerSeverity: 'critical' | 'high' | 'low' | 'medium' | 'unknown';
+    normalizedSeverity: 'critical' | 'high' | 'low' | 'moderate' | null;
   }[] = [];
   let complete = false;
+  let withdrawnExcludedCount = 0;
+  let unsupportedSeverityCount = 0;
   for (let page = 1; page <= 2; page += 1) {
     const params = new URLSearchParams({
+      type: 'reviewed',
+      is_withdrawn: 'false',
       ecosystem: 'npm',
       affects: `${npm.name}@${npm.version}`,
       per_page: '100',
@@ -639,11 +825,24 @@ async function collectAdvisories(
       collected.response.value.length > 100
     )
       invalidProvider();
-    advisories.push(...collected.response.value.map(parseAdvisory));
+    for (const value of collected.response.value) {
+      const parsed = parseCandidateAuthorityAdvisory(value);
+      if (parsed.kind === 'withdrawn') {
+        withdrawnExcludedCount += 1;
+      } else if (parsed.kind === 'unsupported') {
+        unsupportedSeverityCount += 1;
+      } else {
+        advisories.push(parsed.advisory);
+      }
+    }
     if (collected.response.value.length < 100) {
       complete = true;
       break;
     }
+  }
+  if (unsupportedSeverityCount > 0) {
+    complete = false;
+    markQualified(state, 'github-advisories', 'unsupported-structured-value');
   }
   const unique = new Set(advisories.map((advisory) => advisory.advisoryId));
   if (unique.size !== advisories.length) invalidProvider();
@@ -657,6 +856,8 @@ async function collectAdvisories(
         packageVersion: npm.version,
         complete,
         advisories,
+        withdrawnExcludedCount,
+        unsupportedSeverityCount,
         partialFacts: facts(
           extractApplicableSecurityAdvisoryFacts({
             expectedPackageName: npm.name,
@@ -664,7 +865,10 @@ async function collectAdvisories(
             sourcePackageName: npm.name,
             sourcePackageVersion: npm.version,
             outcome: 'established-value',
-            advisories,
+            advisories: advisories.map((advisory) => ({
+              advisoryId: advisory.advisoryId,
+              severity: advisory.normalizedSeverity,
+            })),
           }),
         ),
       },
@@ -677,39 +881,17 @@ async function collectCompose(
   context: RepositoryContext,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  sources: CandidateAuthoritySourceDatum[],
+  sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<void> {
-  const contents = await optionalRequest(
-    candidate,
-    input,
-    state,
-    'github-compose-json-content',
-    `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/contents/compose.json?ref=${context.headSha}`,
-    true,
-  );
   if (context.rootTreeOutcome !== 'established-value') {
-    sources.push(
-      unknownSource(
-        'github-compose-json-content',
-        contents.kind === 'unknown' ? contents.code : 'root-tree-unavailable',
-      ),
-    );
     sources.push(
       unknownSource('github-compose-json-blob', 'root-tree-unavailable'),
     );
     return;
   }
-  const entry = rootEntry(context.rootTreeValue, 'compose.json');
+  if (context.rootTree.state !== 'established-value') invalid();
+  const entry = treeEntry(context.rootTree.entries, 'compose.json');
   if (entry === null) {
-    if (contents.kind === 'value') identity();
-    sources.push(
-      source(
-        'github-compose-json-content',
-        'established-absence',
-        'complete',
-        null,
-      ),
-    );
     sources.push(
       source(
         'github-compose-json-blob',
@@ -722,15 +904,6 @@ async function collectCompose(
     return;
   }
   requireNormalBlob(entry);
-  if (contents.kind !== 'value') identity();
-  const contentsValue = requireRecord(contents.response.value);
-  if (
-    contentsValue['path'] !== 'compose.json' ||
-    contentsValue['sha'] !== entry.sha ||
-    contentsValue['encoding'] !== 'base64' ||
-    !Number.isSafeInteger(contentsValue['size'])
-  )
-    identity();
   const blobCollected = await optionalRequest(
     candidate,
     input,
@@ -740,12 +913,25 @@ async function collectCompose(
     false,
   );
   if (blobCollected.kind !== 'value') {
-    const code = optionalFailureCode(blobCollected);
-    sources.push(unknownSource('github-compose-json-content', code));
-    sources.push(unknownSource('github-compose-json-blob', code));
+    sources.push(
+      unknownSource(
+        'github-compose-json-blob',
+        optionalFailureCode(blobCollected),
+      ),
+    );
     return;
   }
-  const content = verifyBlob(blobCollected.response.value, entry, 262_144);
+  const verified = parseCandidateAuthorityOptionalGitBlob({
+    value: blobCollected.response.value,
+    expectedEntry: entry,
+    semanticMaximumBytes: 262_144,
+  });
+  if (verified.state === 'qualified-unknown') {
+    markQualified(state, 'github-compose-json-blob', verified.reason);
+    sources.push(unknownSource('github-compose-json-blob', verified.reason));
+    return;
+  }
+  const content = verified.content;
   const factsValue = facts(
     extractRepositorySelfBuildComposeServiceFacts({
       content,
@@ -753,13 +939,17 @@ async function collectCompose(
       contentTreeBlobIdentityVerified: true,
     }),
   );
-  sources.push(
-    source('github-compose-json-content', 'established-value', 'complete', {
-      path: 'compose.json',
-      sha: entry.sha,
-      size: Buffer.byteLength(content, 'utf8'),
-    }),
-  );
+  if (factsValue.length === 0) {
+    markQualified(
+      state,
+      'github-compose-json-blob',
+      'unsupported-optional-content',
+    );
+    sources.push(
+      unknownSource('github-compose-json-blob', 'unsupported-optional-content'),
+    );
+    return;
+  }
   sources.push(
     source('github-compose-json-blob', 'established-value', 'complete', {
       path: 'compose.json',
@@ -776,7 +966,7 @@ async function collectDockerfile(
   context: RepositoryContext,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  sources: CandidateAuthoritySourceDatum[],
+  sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<void> {
   if (context.rootTreeOutcome !== 'established-value') {
     sources.push(
@@ -784,7 +974,8 @@ async function collectDockerfile(
     );
     return;
   }
-  const entry = rootEntry(context.rootTreeValue, 'Dockerfile');
+  if (context.rootTree.state !== 'established-value') invalid();
+  const entry = treeEntry(context.rootTree.entries, 'Dockerfile');
   if (entry === null) {
     sources.push(
       source('github-dockerfile-blob', 'established-absence', 'complete', null),
@@ -807,6 +998,16 @@ async function collectDockerfile(
     );
     return;
   }
+  const verified = parseCandidateAuthorityOptionalGitBlob({
+    value: collected.response.value,
+    expectedEntry: entry,
+    semanticMaximumBytes: 262_144,
+  });
+  if (verified.state === 'qualified-unknown') {
+    markQualified(state, 'github-dockerfile-blob', verified.reason);
+    sources.push(unknownSource('github-dockerfile-blob', verified.reason));
+    return;
+  }
   const rule = extractRepositoryContainerBuildDeclarationFact({
     expectedRepositoryIdentity: {
       repositoryId: context.repositoryId,
@@ -826,8 +1027,19 @@ async function collectDockerfile(
     blobValue: collected.response.value,
   });
   const partialFacts = facts(rule);
+  if (partialFacts.length === 0) {
+    markQualified(
+      state,
+      'github-dockerfile-blob',
+      'unsupported-optional-content',
+    );
+    sources.push(
+      unknownSource('github-dockerfile-blob', 'unsupported-optional-content'),
+    );
+    return;
+  }
   const blob = requireRecord(collected.response.value);
-  const content = verifyBlob(collected.response.value, entry, 262_144);
+  const content = verified.content;
   sources.push(
     source('github-dockerfile-blob', 'established-value', 'complete', {
       path: 'Dockerfile',
@@ -844,7 +1056,7 @@ async function requiredRequest(
   candidate: CatalogCandidate,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  operationId: CandidateAuthorityOperationId,
+  operationId: CandidateAuthoritySuccessorOperationId,
   path: string,
 ): Promise<JsonResponse> {
   return request(candidate, input, state, operationId, path);
@@ -859,7 +1071,7 @@ async function optionalRequest(
   candidate: CatalogCandidate,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  operationId: CandidateAuthorityOperationId,
+  operationId: CandidateAuthoritySuccessorOperationId,
   path: string,
   notFoundIsAbsence: boolean,
 ): Promise<OptionalResult> {
@@ -895,7 +1107,7 @@ async function request(
   candidate: CatalogCandidate,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
-  operationId: CandidateAuthorityOperationId,
+  operationId: CandidateAuthoritySuccessorOperationId,
   path: string,
 ): Promise<JsonResponse> {
   const operation = input.sourcePolicy.operations.find(
@@ -985,101 +1197,53 @@ function parseGitCommit(value: unknown, expectedSha: string) {
   };
 }
 
-function parseRootTree(value: unknown, expectedSha: string): unknown {
-  const tree = requireRecord(value);
-  if (
-    tree['sha'] !== expectedSha ||
-    tree['truncated'] !== false ||
-    !Array.isArray(tree['tree']) ||
-    tree['tree'].length > 10_000
-  )
-    invalidProvider();
-  const paths = tree['tree'].map((entry) =>
-    safeString(requireRecord(entry)['path'], 255),
-  );
-  if (new Set(paths).size !== paths.length) invalidProvider();
-  return value;
-}
-
-function retainedRootTree(value: unknown) {
-  const tree = requireRecord(value);
+function retainedRootTree(
+  value: Extract<
+    CandidateAuthorityTreeResult,
+    { readonly state: 'established-value' }
+  >,
+) {
   return {
-    sha: sha1(tree['sha']),
-    entries: ['compose.json', 'Dockerfile'].flatMap((path) => {
-      const entry = rootEntry(value, path);
+    sha: value.sha,
+    entries: [
+      'compose.json',
+      'Dockerfile',
+      'SECURITY.md',
+      '.github',
+      'docs',
+    ].flatMap((path) => {
+      const entry = treeEntry(value.entries, path);
       return entry === null ? [] : [entry];
     }),
   };
 }
 
-interface TreeEntry {
-  readonly path: string;
-  readonly mode: string;
-  readonly type: string;
-  readonly sha: string;
-  readonly size: number | null;
+function retainedSecurityTreeEntries(
+  value: Extract<
+    CandidateAuthorityTreeResult,
+    { readonly state: 'established-value' }
+  >,
+): readonly CandidateAuthorityTreeEntry[] {
+  const entry = treeEntry(value.entries, 'SECURITY.md');
+  return entry === null ? [] : [entry];
 }
 
-function rootEntry(value: unknown, path: string): TreeEntry | null {
-  const tree = requireRecord(value);
-  if (!Array.isArray(tree['tree'])) invalidProvider();
-  const matches = tree['tree'].filter(
-    (item) => requireRecord(item)['path'] === path,
-  );
+function treeEntry(
+  entries: readonly CandidateAuthorityTreeEntry[],
+  path: string,
+): CandidateAuthorityTreeEntry | null {
+  const matches = entries.filter((item) => item.path === path);
   if (matches.length > 1) invalidProvider();
   if (matches.length === 0) return null;
-  const entry = requireRecord(matches[0]);
-  return {
-    path,
-    mode: safeString(entry['mode'], 6),
-    type: safeString(entry['type'], 16),
-    sha: sha1(entry['sha']),
-    size: entry['size'] === undefined ? null : number(entry['size']),
-  };
+  return matches[0] ?? null;
 }
 
-function requireNormalBlob(entry: TreeEntry): void {
+function requireNormalBlob(entry: CandidateAuthorityTreeEntry): void {
   if (
     (entry.mode !== '100644' && entry.mode !== '100755') ||
     entry.type !== 'blob'
   )
     invalidProvider();
-}
-
-function verifyBlob(
-  value: unknown,
-  entry: TreeEntry,
-  maximumBytes: number,
-): string {
-  const blob = requireRecord(value);
-  if (blob['sha'] !== entry.sha || blob['encoding'] !== 'base64') identity();
-  const declaredSize = number(blob['size']);
-  const content = safeString(
-    blob['content'],
-    maximumBytes * 2 + 4096,
-  ).replaceAll(/\r\n|\n|\r/gu, '');
-  if (
-    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/u.test(
-      content,
-    )
-  )
-    invalidProvider();
-  const bytes = Buffer.from(content, 'base64');
-  if (
-    bytes.byteLength > maximumBytes ||
-    bytes.byteLength !== declaredSize ||
-    (entry.size !== null && entry.size !== declaredSize) ||
-    bytes.toString('base64') !== content
-  )
-    invalidProvider();
-  const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-  if (
-    text.includes('\0') ||
-    repositoryArtifactGitBlobObjectId('sha1', text) !== entry.sha ||
-    !Buffer.from(text, 'utf8').equals(bytes)
-  )
-    invalidProvider();
-  return text;
 }
 
 function parseMaintenance(
@@ -1112,30 +1276,54 @@ function parseMaintenance(
   };
 }
 
-function parseAdvisory(value: unknown): {
-  readonly advisoryId: string;
-  readonly severity: 'critical' | 'high' | 'low' | 'moderate';
-} {
-  const record = requireRecord(value);
-  const advisoryId = safeString(record['ghsa_id'], 64).toUpperCase();
+function parseOptionalNodeEngine(
+  value: unknown,
+): CandidateAuthorityOptionalProperty<string> {
+  if (value === undefined) return { state: 'absent', value: null };
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return { state: 'unsupported', value: null };
+  }
+  return parseCandidateAuthorityOptionalString(
+    (value as Record<string, unknown>)['node'],
+    100,
+  );
+}
+
+function parseOptionalExports(
+  value: unknown,
+): CandidateAuthorityOptionalProperty<unknown> {
+  if (value === undefined) return { state: 'absent', value: null };
   if (
-    !/^GHSA-[23456789CFGHJMPQRVWX]{4}-[23456789CFGHJMPQRVWX]{4}-[23456789CFGHJMPQRVWX]{4}$/u.test(
-      advisoryId,
-    )
-  )
-    invalidProvider();
-  const severity = record['severity'];
-  if (
-    severity !== 'critical' &&
-    severity !== 'high' &&
-    severity !== 'low' &&
-    severity !== 'moderate'
-  )
-    invalidProvider();
-  return {
-    advisoryId,
-    severity,
-  };
+    value === null ||
+    (typeof value !== 'string' &&
+      (typeof value !== 'object' || Array.isArray(value)))
+  ) {
+    return { state: 'unsupported', value: null };
+  }
+  return { state: 'supported', value };
+}
+
+function parseOptionalNpmRepository(
+  value: unknown,
+): CandidateAuthorityOptionalProperty<{
+  readonly owner: string;
+  readonly repository: string;
+}> {
+  if (value === undefined) return { state: 'absent', value: null };
+  try {
+    const parsed = parseNpmRepository(value);
+    return parsed === null
+      ? { state: 'unsupported', value: null }
+      : { state: 'supported', value: parsed };
+  } catch {
+    return { state: 'unsupported', value: null };
+  }
+}
+
+function supportedOptionalValue<T>(
+  value: CandidateAuthorityOptionalProperty<T>,
+): T | null {
+  return value.state === 'supported' ? value.value : null;
 }
 
 function parseNpmRepository(
@@ -1176,36 +1364,66 @@ function parseNpmRepository(
     : null;
 }
 
-function parseStringRecord(
-  value: unknown,
-  maximumValue: number,
-): Readonly<Record<string, string>> | null {
-  if (value === undefined) return null;
-  const record = requireRecord(value);
-  const entries = Object.entries(record);
-  if (entries.length > 1000) invalidProvider();
-  return Object.fromEntries(
-    entries
-      .sort(([left], [right]) => compare(left, right))
-      .map(([key, item]) => [
-        safeString(key, 214),
-        safeString(item, maximumValue),
-      ]),
-  );
-}
-
 function source(
-  operationId: CandidateAuthorityOperationId,
-  outcome: CandidateAuthoritySourceDatum['outcome'],
-  completeness: CandidateAuthoritySourceDatum['completeness'],
+  operationId: CandidateAuthoritySuccessorOperationId,
+  outcome: CandidateAuthoritySuccessorSourceDatum['outcome'],
+  completeness: CandidateAuthoritySuccessorSourceDatum['completeness'],
   value: unknown,
   limitationCode: string | null = null,
-): CandidateAuthoritySourceDatum {
+): CandidateAuthoritySuccessorSourceDatum {
   return { operationId, outcome, completeness, limitationCode, value };
 }
 
+class CandidateAuthorityOperationFailure extends IngestionError {
+  public readonly operationId: CandidateAuthoritySuccessorOperationId;
+
+  public constructor(
+    operationId: CandidateAuthoritySuccessorOperationId,
+    error: unknown,
+  ) {
+    super(asSafeErrorCode(error));
+    this.name = 'CandidateAuthorityOperationFailure';
+    this.operationId = operationId;
+  }
+}
+
+async function operation<T>(
+  _candidate: CatalogCandidate,
+  operationId: CandidateAuthoritySuccessorOperationId,
+  execute: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await execute();
+  } catch (error) {
+    if (error instanceof CandidateAuthorityOperationFailure) throw error;
+    throw new CandidateAuthorityOperationFailure(operationId, error);
+  }
+}
+
+function fatalCounters(
+  state: CollectionState,
+  attempts: CandidateAuthorityAttemptMetrics,
+): CandidateAuthorityFatalCounters {
+  return {
+    githubLogicalRequests: state.githubLogicalRequests,
+    npmLogicalRequests: state.npmLogicalRequests,
+    githubAttempts: attempts.githubAttempts,
+    npmAttempts: attempts.npmAttempts,
+    retries: attempts.retries,
+    perOperation: Object.fromEntries(
+      CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS.map((operationId) => [
+        operationId,
+        {
+          logicalRequests: requireCounter(state, operationId).logicalRequests,
+          attempts: attempts.perOperationAttempts[operationId] ?? 0,
+        },
+      ]),
+    ),
+  };
+}
+
 function unknownSource(
-  operationId: CandidateAuthorityOperationId,
+  operationId: CandidateAuthoritySuccessorOperationId,
   code: string,
 ) {
   return source(operationId, 'qualified-unknown', 'partial', null, code);
@@ -1217,7 +1435,7 @@ function facts(result: ReturnType<typeof extractPublishedReleaseFacts>) {
 
 function requireCounter(
   state: CollectionState,
-  operationId: CandidateAuthorityOperationId,
+  operationId: CandidateAuthoritySuccessorOperationId,
 ): OperationCounter {
   const value = state.counters.get(operationId);
   if (value === undefined) invalid();
@@ -1226,14 +1444,14 @@ function requireCounter(
 
 function markAbsence(
   state: CollectionState,
-  operationId: CandidateAuthorityOperationId,
+  operationId: CandidateAuthoritySuccessorOperationId,
 ): void {
   requireCounter(state, operationId).establishedAbsences += 1;
 }
 
 function markQualified(
   state: CollectionState,
-  operationId: CandidateAuthorityOperationId,
+  operationId: CandidateAuthoritySuccessorOperationId,
   code: string,
 ): void {
   requireCounter(state, operationId).qualifiedUnknowns += 1;
@@ -1306,13 +1524,6 @@ function semver(value: string): boolean {
   return /^v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/u.test(
     value,
   );
-}
-function githubHtmlUrl(value: unknown): string {
-  const result = safeString(value, 1000);
-  const url = new URL(result);
-  if (url.protocol !== 'https:' || url.hostname !== 'github.com')
-    invalidProvider();
-  return result;
 }
 function identity(): never {
   throw ingestionError('ingestion.provider-identity');

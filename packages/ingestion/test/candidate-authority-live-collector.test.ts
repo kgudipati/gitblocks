@@ -7,23 +7,16 @@ import { repositoryArtifactGitBlobObjectId } from '@gitblocks/contracts';
 import { describe, expect, it } from 'vitest';
 
 import {
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION,
-  CANDIDATE_AUTHORITY_OPERATION_IDS,
-  parseCandidateAuthoritySourceAuthority,
-  serializeCandidateAuthoritySourceAuthority,
-} from '../src/candidate-authority-live-contracts.ts';
+  CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
+  materializeCandidateAuthoritySuccessorRuntimeSourcePolicy,
+} from '../src/candidate-authority-provider-contract.ts';
 import { collectCandidateAuthoritySourceAuthority } from '../src/candidate-authority-live-collector.ts';
 import {
-  CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH,
-  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
-  CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH,
-  parseCandidateAuthorityFieldPlanV4,
-  parseCandidateAuthorityPartialSemanticRegistry,
-  parseCandidateAuthorityReadinessPolicyV3,
-  parseCandidateAuthoritySourcePolicyV5,
-} from '../src/index.ts';
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH,
+} from '../src/candidate-authority-postmortem.ts';
 import { ingestionError } from '../src/errors.ts';
 import { parsePublicCatalog } from '../src/manifest.ts';
 
@@ -31,6 +24,9 @@ const CUTOFF = '2026-08-10T12:34:56.000Z';
 const HEAD = '1111111111111111111111111111111111111111';
 const TREE = '2222222222222222222222222222222222222222';
 const LICENSE_BLOB_SHA = '3333333333333333333333333333333333333333';
+const DOT_GITHUB_TREE = '4444444444444444444444444444444444444444';
+const DOCS_TREE = '5555555555555555555555555555555555555555';
+const SECURITY_BLOB_SHA = '6666666666666666666666666666666666666666';
 const COMPOSE = '{"services":{"app":{"build":"."}}}\n';
 const DOCKERFILE =
   '# syntax=docker/dockerfile:1\nARG BASE=node:24\nFROM node:24\n';
@@ -72,8 +68,9 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     const authority = await collectCandidateAuthoritySourceAuthority({
       catalog,
       sourcePolicy,
-      liveAuthorizationVersion: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION,
-      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST,
+      liveAuthorizationVersion:
+        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_VERSION,
+      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_DIGEST,
       liveAuthorizationBindings: liveAuthorizationBindings(
         catalog.manifestDigest,
       ),
@@ -83,10 +80,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       transport,
       readAttemptMetrics: () => attempts,
     });
-    const text = serializeCandidateAuthoritySourceAuthority(authority);
-    expect(parseCandidateAuthoritySourceAuthority(JSON.parse(text))).toEqual(
-      authority,
-    );
+    const text = JSON.stringify(authority);
     expect(authority.candidateCount).toBe(150);
     expect(authority.effectReceipt.githubLogicalRequests).toBeLessThanOrEqual(
       1810,
@@ -97,7 +91,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     );
     expect(
       authority.effectReceipt.perOperation.map((entry) => entry.operationId),
-    ).toEqual(CANDIDATE_AUTHORITY_OPERATION_IDS);
+    ).toEqual(CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS);
     expect(
       authority.effectReceipt.perOperation.every(
         (entry) => entry.logicalRequests > 0,
@@ -154,7 +148,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         else attempts.npmAttempts += 1;
         attempts.perOperationAttempts[request.operation] =
           (attempts.perOperationAttempts[request.operation] ?? 0) + 1;
-        if (request.operation === 'github-community-profile')
+        if (request.operation === 'github-security-docs-tree')
           throw ingestionError('ingestion.provider-unavailable');
         return fakeResponse(request, catalog.candidates[0]?.candidateId ?? '');
       },
@@ -162,8 +156,9 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     const authority = await collectCandidateAuthoritySourceAuthority({
       catalog,
       sourcePolicy,
-      liveAuthorizationVersion: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION,
-      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST,
+      liveAuthorizationVersion:
+        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_VERSION,
+      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_DIGEST,
       liveAuthorizationBindings: liveAuthorizationBindings(
         catalog.manifestDigest,
       ),
@@ -175,7 +170,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     });
     expect(
       authority.effectReceipt.controlledOptionalSourceFailures[
-        'github-community-profile:ingestion.provider-unavailable'
+        'github-security-docs-tree:ingestion.provider-unavailable'
       ],
     ).toBe(150);
 
@@ -190,8 +185,9 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         catalog,
         sourcePolicy,
         liveAuthorizationVersion:
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION,
-        liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_VERSION,
+        liveAuthorizationDigest:
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_DIGEST,
         liveAuthorizationBindings: liveAuthorizationBindings(
           catalog.manifestDigest,
         ),
@@ -205,7 +201,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         },
         readAttemptMetrics: () => fatalAttempts,
       }),
-    ).rejects.toMatchObject({ code: 'ingestion.provider-identity' });
+    ).rejects.toMatchObject({ safeCode: 'ingestion.provider-identity' });
   });
 
   it('fails closed on an unsafe provider-returned license path', async () => {
@@ -221,8 +217,9 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         catalog,
         sourcePolicy,
         liveAuthorizationVersion:
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION,
-        liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_VERSION,
+        liveAuthorizationDigest:
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_DIGEST,
         liveAuthorizationBindings: liveAuthorizationBindings(
           catalog.manifestDigest,
         ),
@@ -254,36 +251,22 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         },
         readAttemptMetrics: () => attempts,
       }),
-    ).rejects.toMatchObject({ code: 'ingestion.provider-response' });
+    ).rejects.toMatchObject({ safeCode: 'ingestion.provider-response' });
   });
 });
 
 async function authorities() {
-  const [catalogText, readinessText, registryText, planText, sourceText] =
-    await Promise.all([
-      readFile('catalog/public-v1/manifest.json', 'utf8'),
-      readFile(CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH, 'utf8'),
-      readFile(CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH, 'utf8'),
-      readFile(CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH, 'utf8'),
-      readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH, 'utf8'),
-    ]);
+  const [catalogText, sourceText, providerText] = await Promise.all([
+    readFile('catalog/public-v1/manifest.json', 'utf8'),
+    readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH, 'utf8'),
+    readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_PATH, 'utf8'),
+  ]);
   const catalog = parsePublicCatalog(catalogText);
-  const registry = parseCandidateAuthorityPartialSemanticRegistry(
-    JSON.parse(registryText),
-  );
-  const readiness = parseCandidateAuthorityReadinessPolicyV3(
-    JSON.parse(readinessText),
-  );
-  const plan = parseCandidateAuthorityFieldPlanV4(
-    JSON.parse(planText),
-    readiness,
-    registry,
-  );
   return {
     catalog,
-    sourcePolicy: parseCandidateAuthoritySourcePolicyV5(
+    sourcePolicy: materializeCandidateAuthoritySuccessorRuntimeSourcePolicy(
       JSON.parse(sourceText),
-      plan,
+      JSON.parse(providerText),
     ),
   };
 }
@@ -331,24 +314,38 @@ function fakeResponse(
       return response({
         sha: TREE,
         truncated: false,
-        tree: first
-          ? [
-              {
-                path: 'Dockerfile',
-                mode: '100644',
-                type: 'blob',
-                sha: DOCKERFILE_SHA,
-                size: Buffer.byteLength(DOCKERFILE),
-              },
-              {
-                path: 'compose.json',
-                mode: '100644',
-                type: 'blob',
-                sha: COMPOSE_SHA,
-                size: Buffer.byteLength(COMPOSE),
-              },
-            ]
-          : [],
+        tree: [
+          {
+            path: '.github',
+            mode: '040000',
+            type: 'tree',
+            sha: DOT_GITHUB_TREE,
+          },
+          {
+            path: 'docs',
+            mode: '040000',
+            type: 'tree',
+            sha: DOCS_TREE,
+          },
+          ...(first
+            ? [
+                {
+                  path: 'Dockerfile',
+                  mode: '100644',
+                  type: 'blob',
+                  sha: DOCKERFILE_SHA,
+                  size: Buffer.byteLength(DOCKERFILE),
+                },
+                {
+                  path: 'compose.json',
+                  mode: '100644',
+                  type: 'blob',
+                  sha: COMPOSE_SHA,
+                  size: Buffer.byteLength(COMPOSE),
+                },
+              ]
+            : []),
+        ],
       });
     case 'github-maintenance-window':
       return response([]);
@@ -358,8 +355,23 @@ function fakeResponse(
         sha: LICENSE_BLOB_SHA,
         license: { spdx_id: 'MIT' },
       });
-    case 'github-community-profile':
-      return response({ files: { security_policy: {} } });
+    case 'github-security-dot-github-tree':
+      return response({
+        sha: DOT_GITHUB_TREE,
+        truncated: false,
+        tree: first
+          ? [
+              {
+                path: 'SECURITY.md',
+                mode: '100644',
+                type: 'blob',
+                sha: SECURITY_BLOB_SHA,
+              },
+            ]
+          : [],
+      });
+    case 'github-security-docs-tree':
+      return response({ sha: DOCS_TREE, truncated: false, tree: [] });
     case 'github-release-window':
       return response([]);
     case 'npm-package-metadata': {
@@ -381,16 +393,9 @@ function fakeResponse(
       });
     }
     case 'github-advisories':
+      expect(request.url.searchParams.get('type')).toBe('reviewed');
+      expect(request.url.searchParams.get('is_withdrawn')).toBe('false');
       return response([]);
-    case 'github-compose-json-content':
-      if (!first) throw ingestionError('ingestion.provider-not-found');
-      return response({
-        path: 'compose.json',
-        sha: COMPOSE_SHA,
-        size: Buffer.byteLength(COMPOSE),
-        encoding: 'base64',
-        content: Buffer.from(COMPOSE).toString('base64'),
-      });
     case 'github-compose-json-blob':
       return response({
         sha: COMPOSE_SHA,

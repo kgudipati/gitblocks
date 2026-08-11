@@ -1,0 +1,43 @@
+{
+  "algorithmVersion": "candidate-authority-pure-replay/3.0.0",
+  "status": "proposed-for-independent-postmortem-acceptance",
+  "supersedes": "candidate-authority-pure-replay/2.0.0",
+  "bindings": {
+    "fieldPlanVersion": "candidate-authority-field-plan/5.0.0",
+    "fieldPlanDigest": "858385239dcecf78e35cb204740c817b01f51db2aa3bc750bf9df49848a8a160",
+    "sourcePolicyVersion": "candidate-authority-source-policy/6.0.0",
+    "sourcePolicyDigest": "c972e3c3ea25a8d0e456e759b2898ca2837bcd82e701cfc1f3a0caaba1753510",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/2.0.0",
+    "partialSemanticRegistryDigest": "baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e"
+  },
+  "unchangedInvariants": [
+    "source authority must be committed in a source-only freeze before replay",
+    "replay performs no network, credential, database, model, Docker, or candidate execution effect",
+    "canonical deterministic regeneration uses only frozen source bytes and accepted rules",
+    "dossier projection is exact and deterministic",
+    "readiness measurement remains a separate explicitly authorized operation"
+  ],
+  "securityPolicyProjection": {
+    "registeredLocalPolicy": "known present true",
+    "noEstablishedLocalPolicy": "profile field unknown",
+    "presentFalsePermitted": false
+  },
+  "advisoryProjection": {
+    "providerMedium": "product moderate",
+    "providerUnknown": "unresolved severity; never fabricated",
+    "completeHighestSeverity": "unknown if any applicable advisory prevents establishment of a complete maximum severity",
+    "closedZero": "known zero",
+    "knownSeverityPositiveAdvisory": "may emit registered partial evidence even when another advisory has unresolved severity"
+  },
+  "determinismProof": [
+    "normal replay",
+    "repeat replay",
+    "reverse candidate-order replay",
+    "legal source-record permutation replay"
+  ],
+  "canonicalAlgorithmDigest": "59f57f1faef68a3ab140e8a13483350f5d93735474564f141aa1a220a927bf5b"
+}

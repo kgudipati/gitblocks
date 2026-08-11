@@ -101,6 +101,24 @@ describe('candidate-authority additive successor rules', () => {
     });
   });
 
+  it('fails complete advisory severity closed when provider severity is unresolved', () => {
+    expect(
+      projectCandidateAuthorityAdvisoryState({
+        snapshotAt: SNAPSHOT,
+        expectedPackageName: 'example',
+        expectedPackageVersion: '1.0.0',
+        sourcePackageName: 'example',
+        sourcePackageVersion: '1.0.0',
+        outcome: 'established-value',
+        complete: true,
+        advisories: [
+          { advisoryId: 'ghsa-known', severity: 'high' },
+          { advisoryId: 'ghsa-unknown', severity: null },
+        ],
+      }),
+    ).toEqual({ state: 'unknown', reason: 'advisory-severity-unresolved' });
+  });
+
   it('rejects package identity mismatch and malformed or unsupported input', () => {
     expect(() =>
       projectCandidateAuthorityAdvisoryState({
@@ -131,13 +149,22 @@ describe('candidate-authority additive successor rules', () => {
     ).toThrow();
   });
 
-  it('maps accepted community-profile absence to false and temporary failure to unknown', () => {
+  it('maps local policy evidence only to true and keeps local absence unknown', () => {
     expect(
       projectCandidateAuthoritySecurityPolicyPresence({
         outcome: 'established-absence',
         present: null,
       }),
-    ).toEqual({ state: 'known', value: { present: false } });
+    ).toEqual({
+      state: 'unknown',
+      reason: 'account-level-default-security-policy-unresolved',
+    });
+    expect(
+      projectCandidateAuthoritySecurityPolicyPresence({
+        outcome: 'established-value',
+        present: true,
+      }),
+    ).toEqual({ state: 'known', value: { present: true } });
     expect(
       projectCandidateAuthoritySecurityPolicyPresence({
         outcome: 'temporary-unavailable',

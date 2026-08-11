@@ -208,3 +208,49 @@ No replay module may import Ranking V1 cases, gold, review rationale, baseline
 predictions, scorer output, or another evaluation authority. Readiness reads
 only accepted product policy/denominator authority. Candidate source values
 remain inert data and are never cloned, installed, imported, or executed.
+
+## Consumed v3 attempt and inactive successor architecture
+
+The provider-effect collection at execution head
+`2cfe0682617fb303ebbb2deb7dd7bd34a383c912` is consumed. Its safe terminal
+result was `ingestion.provider-response`; no source receipt, source authority,
+projection, or readiness report was persisted. The exact cutoff, candidate,
+operation, request counts, attempts, and retries were not emitted and remain
+unavailable. The immutable facts are recorded by
+`candidate-authority-live-failure-record/1.0.0`; ADR 0013 distinguishes those
+observations from later static implementation diagnosis. This outcome leaves
+M3 incomplete and inconclusive, not readiness NO-GO.
+
+The additive successor uses field plan v5, source policy v6, provider contract
+v1, live operator v4, replay algorithm v3, and authorization proposal v4.
+Authorization v3 has zero remaining collections. Authorization v4 is inactive
+until an independent reviewer accepts and records the exact published
+postmortem-correction head, so the historical live CLI fails before credential
+access or cutoff creation.
+
+Community profile and Compose Contents are not successor operations. Security
+policy presence uses only exact-commit positive Git-tree evidence at
+`SECURITY.md`, `.github/SECURITY.md`, or `docs/SECURITY.md`; local absence stays
+unknown because account-level default policy is unresolved. Provider advisory
+`medium` normalizes to product `moderate`, while provider `unknown` retains the
+advisory identity with unresolved severity and cannot establish a complete
+maximum. Reviewed, non-withdrawn advisories are queried with exact npm
+package/version binding.
+
+Valid optional tree truncation, the stricter local tree-entry limit, unsupported
+optional immutable content, draft releases with null publication data, safe but
+unsupported release tokens, and unsupported npm optional properties fail
+closed to the dependent field. Identity/hash/size disagreement, malformed
+provider structure, authentication/authorization failure, unsafe redirect,
+global transport bounds, required-source unavailability, and internal
+invariants remain fatal.
+
+Operator v4 combines the caller signal with an internal first-fatal signal.
+Five workers stop assigning new candidates, abort in-flight siblings, await all
+settlement, preserve the causal first fatal, and then emit only the bounded safe
+diagnostic envelope and final request/attempt counters. Token material,
+headers, response bodies, arbitrary provider values, and secret-bearing URLs
+are excluded. Pure replay v3 retains the source-only freeze and effect-denial
+gates and updates only the registered security/advisory projections. The 18
+field denominator, 13-field threshold, 72.222222%, and four breadth groups are
+unchanged; planned capability remains 13 and planned full closure becomes five.

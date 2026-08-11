@@ -19,13 +19,11 @@ import {
   CANDIDATE_AUTHORITY_SOURCE_MAXIMUM_SERIALIZED_BYTES,
   CANDIDATE_AUTHORITY_SOURCE_STAGING_PATH,
 } from '../src/candidate-authority-live-contracts.ts';
-import { collectCandidateAuthoritySourceAuthority } from '../src/candidate-authority-live-collector.ts';
 import type {
   CandidateAuthorityLiveCollectionEffects,
   CandidateAuthorityLiveValidationEffects,
 } from '../src/candidate-authority-live-runner.ts';
 import { IngestionError, ingestionError } from '../src/errors.ts';
-import { abortableSleep, createTransport } from '../src/transport.ts';
 
 const execFileAsync = promisify(execFile);
 
@@ -132,52 +130,11 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
     now: config.now,
     collect:
       config.collect ??
-      (async ({
-        catalog,
-        sourcePolicy,
-        authorization,
-        executionHead,
-        credential,
-        collectionCutoff,
-        signal,
-      }) => {
-        const attempts = {
-          githubAttempts: 0,
-          npmAttempts: 0,
-          retries: 0,
-          perOperationAttempts: {} as Record<string, number>,
-        };
-        const transport = createTransport({
-          fetch: config.fetch,
-          sleep: abortableSleep,
-          maximumRedirects: 0,
-          maximumAttempts: 3,
-          observer: (event) => {
-            if (event.outcome === 'started') {
-              if (event.provider === 'github') attempts.githubAttempts += 1;
-              else attempts.npmAttempts += 1;
-              attempts.perOperationAttempts[event.operation] =
-                (attempts.perOperationAttempts[event.operation] ?? 0) + 1;
-            }
-            if (event.outcome === 'retried') attempts.retries += 1;
-          },
-        });
-        return collectCandidateAuthoritySourceAuthority({
-          catalog,
-          sourcePolicy,
-          liveAuthorizationVersion: authorization.authorizationVersion,
-          liveAuthorizationDigest: authorization.authorizationSemanticDigest,
-          liveAuthorizationBindings: authorization.bindings,
-          executionHead,
-          githubToken: credential,
-          collectionCutoff,
-          transport,
-          readAttemptMetrics: () => ({
-            ...attempts,
-            perOperationAttempts: { ...attempts.perOperationAttempts },
-          }),
-          ...(signal === undefined ? {} : { signal }),
-        });
+      (() => {
+        // Authorization v3 is consumed. The successor v4 operator is isolated
+        // in candidate-authority-live-v4-runner and remains inactive until an
+        // independent exact-head acceptance is supplied.
+        throw ingestionError('ingestion.invalid-input');
       }),
     stageExclusive: async (path, text) => {
       if (
