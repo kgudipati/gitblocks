@@ -1,0 +1,79 @@
+{
+  "recordVersion": "candidate-authority-live-failure-record/2.0.0",
+  "status": "immutable-consumed-failure-history",
+  "supersedes": {
+    "version": "candidate-authority-live-failure-record/1.0.0",
+    "digest": "48fa5cfe14cb579b254892cf69bede27bd96a802c8bfde6da9f7f4a4ab5595c7",
+    "path": "catalog/public-v1/candidate-authority-live-failure-record-v1.json",
+    "preservation": "The v3 failure record remains immutable and independently binding historical authority."
+  },
+  "executionHead": "799f88735885c656de0ad25bc42ca3a90adbe082",
+  "authorization": {
+    "version": "candidate-authority-live-authorization/5.0.0",
+    "digest": "5b2dc1d60ae7ae052547a7f31e6a903fe9b693cc77a16ec2bfba8a137d1fb78d",
+    "path": "catalog/public-v1/candidate-authority-live-authorization-v5.json",
+    "providerEffectCollectionsConsumed": 1,
+    "remainingProviderEffectCollections": 0,
+    "rerunPermitted": false
+  },
+  "operatorVersion": "candidate-authority-live-operator/5.0.0",
+  "observedExecutionFacts": {
+    "collectionCutoff": "2026-08-11T20:50:24.061Z",
+    "candidateProviderEffectsReached": true,
+    "providerEffectCollectionsConsumed": 1,
+    "failureStage": "candidate-authority-successor-collect",
+    "safeErrorCode": "ingestion.body-too-large",
+    "firstFatalCandidateId": "audit-datadog-trace-js",
+    "firstFatalOperationId": "npm-package-metadata",
+    "metrics": {
+      "githubLogicalRequests": 48,
+      "npmLogicalRequests": 4,
+      "totalLogicalRequests": 52,
+      "githubAttempts": 48,
+      "npmAttempts": 4,
+      "totalAttempts": 52,
+      "retries": 0,
+      "perOperation": {
+        "github-advisories": { "logicalRequests": 3, "attempts": 3 },
+        "github-compose-json-blob": { "logicalRequests": 0, "attempts": 0 },
+        "github-default-branch-ref": { "logicalRequests": 5, "attempts": 5 },
+        "github-dockerfile-blob": { "logicalRequests": 0, "attempts": 0 },
+        "github-head-commit-object": { "logicalRequests": 5, "attempts": 5 },
+        "github-license": { "logicalRequests": 5, "attempts": 5 },
+        "github-maintenance-window": { "logicalRequests": 5, "attempts": 5 },
+        "github-release-window": { "logicalRequests": 5, "attempts": 5 },
+        "github-repository-metadata": { "logicalRequests": 7, "attempts": 7 },
+        "github-root-tree": { "logicalRequests": 5, "attempts": 5 },
+        "github-security-docs-tree": { "logicalRequests": 3, "attempts": 3 },
+        "github-security-dot-github-tree": {
+          "logicalRequests": 5,
+          "attempts": 5
+        },
+        "npm-package-metadata": { "logicalRequests": 4, "attempts": 4 }
+      }
+    },
+    "ownedStagingExisted": false,
+    "ownedStagingCleaned": false,
+    "ownedStagingCleanupMeaning": "No owned staging existed, so no staging cleanup action occurred.",
+    "sourceAuthorityPublished": false,
+    "sourceValidation": "not-performed",
+    "replay": "not-performed",
+    "readiness": "not-performed",
+    "milestone4": "not-started"
+  },
+  "prohibitedHistoricalReconstruction": {
+    "providerResponseBodyRetained": false,
+    "providerResponseBodyInspectedForCorrection": false,
+    "responseContentLengthRetained": false,
+    "responseHeadersRetained": false,
+    "credentialMaterialRetained": false,
+    "candidateFactsReconstructed": false
+  },
+  "diagnosedSourceContractDefect": {
+    "classification": "official-contract-static-diagnosis",
+    "observedResponseValuesUsed": false,
+    "decisionAuthority": "ADR-0014",
+    "summary": "The full npm package document has no contract-compatible upper bound within the frozen two-mebibyte transport envelope."
+  },
+  "canonicalFailureDigest": "ebfd078f675c4ce33bba2c9edb7eac1c9cd967bbe6a6a5a35614b77f893dc0a5"
+}

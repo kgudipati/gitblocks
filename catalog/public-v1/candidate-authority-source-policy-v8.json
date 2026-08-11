@@ -1,0 +1,54 @@
+{
+  "policyVersion": "candidate-authority-source-policy/8.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesConsumedExperimentPolicy": {
+    "version": "candidate-authority-source-policy/7.0.0",
+    "digest": "237b707fce608b4518ae09fcd07f7e08c315f7f323e56fb338990e1102fd29d7",
+    "path": "catalog/public-v1/candidate-authority-source-policy-v7.json"
+  },
+  "bindings": {
+    "fieldPlanVersion": "candidate-authority-field-plan/6.0.0",
+    "fieldPlanDigest": "104a8c5ee46aa42dc4fd5ef0b558500809636c38d36f78bcd4f24c284f586409",
+    "providerContractVersion": "candidate-authority-provider-contract/3.0.0",
+    "providerContractDigest": "37ac4bf0fa5aa7045737f262b34a21f910ca67f20cadac2dbf915dbb8b7abe57",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/3.0.0",
+    "partialSemanticRegistryDigest": "8aa2e5a9ede84f871eb057ad10850b01daae9302b3b20450d97fecc115857b7b",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e",
+    "failureRecordVersion": "candidate-authority-live-failure-record/2.0.0",
+    "failureRecordDigest": "ebfd078f675c4ce33bba2c9edb7eac1c9cd967bbe6a6a5a35614b77f893dc0a5",
+    "architectureDecision": "ADR-0014-proposed-no-provider-effect"
+  },
+  "completeOperationMatrix": {
+    "basePolicyVersion": "candidate-authority-source-policy/7.0.0",
+    "operationCount": 13,
+    "removedOperations": ["npm-package-metadata"],
+    "addedOperations": ["npm-selected-version-metadata"],
+    "npmEndpoint": "GET /{urlEncodedExactCatalogPackageName}/latest",
+    "fullPackumentRequested": false,
+    "abbreviatedPackumentRequested": false,
+    "npmSearchRequested": false,
+    "tarballRequested": false
+  },
+  "requestBudget": {
+    "candidateCount": 150,
+    "mappedPackageCount": 80,
+    "githubLogicalRequests": 1810,
+    "npmLogicalRequests": 80,
+    "totalLogicalRequests": 1890,
+    "githubWorstCaseAttempts": 5430,
+    "npmWorstCaseAttempts": 240,
+    "totalWorstCaseAttempts": 5670,
+    "maximumAttemptsPerLogicalRequest": 3
+  },
+  "authorization": {
+    "credentialRead": false,
+    "providerEffect": false,
+    "collectionCutoffCreation": false,
+    "sourceAuthorityPublication": false,
+    "independentExactHeadAcceptanceRequired": true
+  },
+  "policySemanticDigest": "d043c6b1842791a2348b6f4eeb8644ac0a366f48aa8f585aab45aefdd97563ca"
+}

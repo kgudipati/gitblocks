@@ -6,15 +6,27 @@ import {
 import { canonicalizeJson } from './canonical-json.ts';
 import {
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_PATH,
   parseCandidateAuthorityPartialSemanticRegistry,
+  parseCandidateAuthorityPartialSemanticRegistryV3,
   type CandidateAuthorityPartialSemanticRegistry,
 } from './candidate-authority-partial-semantics.ts';
+import {
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V5_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH,
+  materializeCandidateAuthorityFieldPlanV6,
+  type CandidateAuthorityFieldPlanV6Runtime,
+} from './candidate-authority-npm-source-correction.ts';
 import {
   CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH,
   materializeCandidateAuthorityFieldPlanV5,
-  type CandidateAuthorityFieldPlanV5Runtime,
 } from './candidate-authority-postmortem.ts';
 import {
   CANDIDATE_AUTHORITY_DOSSIER_MAXIMUM_SERIALIZED_BYTES,
@@ -34,7 +46,7 @@ import {
 } from './candidate-authority-readiness.ts';
 import {
   measureCandidateAuthoritySuccessorReadiness,
-  type CandidateAuthorityRootV5,
+  type CandidateAuthorityRootV6,
   type CandidateAuthoritySuccessorReadinessReport,
 } from './candidate-authority-successor-measurement.ts';
 import {
@@ -42,10 +54,6 @@ import {
   type CandidateAuthoritySuccessorReplayBundle,
 } from './candidate-authority-successor-replay.ts';
 import {
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_PATH,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
-  CANDIDATE_AUTHORITY_REPLAY_V4_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH,
   CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_PATH,
   CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_PATH,
   CANDIDATE_AUTHORITY_SUCCESSOR_MAXIMUM_SOURCE_BYTES,
@@ -143,7 +151,7 @@ interface Loaded {
   readonly sourceAuthority: ReturnType<
     typeof parseCandidateAuthoritySuccessorSourceAuthority
   >;
-  readonly fieldPlan: CandidateAuthorityFieldPlanV5Runtime;
+  readonly fieldPlan: CandidateAuthorityFieldPlanV6Runtime;
   readonly partialSemanticRegistry: CandidateAuthorityPartialSemanticRegistry;
 }
 
@@ -274,29 +282,37 @@ async function load(
     catalogText,
     taxonomyText,
     readinessText,
-    registryText,
+    registryV2Text,
+    registryV3Text,
     planV4Text,
     planV5Text,
+    planV6Text,
     providerV1,
     providerV2,
+    providerV3,
     sourceV6,
     sourceV7,
-    replayV4,
-    authorizationV5,
+    sourceV8,
+    replayV5,
+    authorizationV6,
     sourceText,
   ] = await Promise.all([
     read(effects, CANDIDATE_AUTHORITY_SUCCESSOR_REPLAY_CATALOG_PATH),
     read(effects, CANDIDATE_AUTHORITY_SUCCESSOR_REPLAY_TAXONOMY_PATH),
     read(effects, CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH),
     read(effects, CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH),
+    read(effects, CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_PATH),
     read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH),
     read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH),
+    read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH),
     read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_PATH),
     read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH),
+    read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH),
-    read(effects, CANDIDATE_AUTHORITY_REPLAY_V4_PATH),
-    read(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_PATH),
+    read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH),
+    read(effects, CANDIDATE_AUTHORITY_REPLAY_V5_PATH),
+    read(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_PATH),
     effects.readFixedFile(
       CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH,
       CANDIDATE_AUTHORITY_SUCCESSOR_MAXIMUM_SOURCE_BYTES,
@@ -305,18 +321,23 @@ async function load(
   parseCandidateAuthoritySuccessorFixedAuthorities({
     providerContractV1: providerV1,
     providerContractV2: providerV2,
+    providerContractV3: providerV3,
     sourcePolicyV6: sourceV6,
     sourcePolicyV7: sourceV7,
-    replayV4,
-    authorizationV5,
+    sourcePolicyV8: sourceV8,
+    replayV5,
+    authorizationV6,
   });
   const catalog = parsePublicCatalog(catalogText);
   const taxonomyResult = parseCapabilityTaxonomyV1(
     JSON.parse(taxonomyText) as unknown,
   );
   if (!taxonomyResult.ok) invalid();
-  const registry = parseCandidateAuthorityPartialSemanticRegistry(
-    JSON.parse(registryText) as unknown,
+  const registryV2 = parseCandidateAuthorityPartialSemanticRegistry(
+    JSON.parse(registryV2Text) as unknown,
+  );
+  const registry = parseCandidateAuthorityPartialSemanticRegistryV3(
+    JSON.parse(registryV3Text) as unknown,
   );
   const readiness = parseCandidateAuthorityReadinessPolicyV3(
     JSON.parse(readinessText) as unknown,
@@ -324,11 +345,16 @@ async function load(
   const planV4 = parseCandidateAuthorityFieldPlanV4(
     JSON.parse(planV4Text) as unknown,
     readiness,
-    registry,
+    registryV2,
   );
-  const fieldPlan = materializeCandidateAuthorityFieldPlanV5({
+  const fieldPlanV5 = materializeCandidateAuthorityFieldPlanV5({
     predecessor: planV4,
     successorAuthority: JSON.parse(planV5Text) as unknown,
+  });
+  const fieldPlan = materializeCandidateAuthorityFieldPlanV6({
+    predecessor: fieldPlanV5,
+    successorAuthority: JSON.parse(planV6Text) as unknown,
+    partialSemanticRegistry: registry,
   });
   const sourceAuthority = parseCandidateAuthoritySuccessorSourceAuthority({
     text: sourceText,
@@ -412,7 +438,7 @@ function replayTexts(replay: CandidateAuthoritySuccessorReplayBundle) {
 
 function readinessTexts(input: {
   readonly report: CandidateAuthoritySuccessorReadinessReport;
-  readonly root: CandidateAuthorityRootV5;
+  readonly root: CandidateAuthorityRootV6;
 }) {
   return [
     output(CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_OUTPUTS[0], input.report),

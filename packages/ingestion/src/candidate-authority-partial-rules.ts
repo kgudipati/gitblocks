@@ -11,6 +11,7 @@ export type CandidateAuthorityPartialRuleResult =
           | 'declared-framework-peer-relation'
           | 'importable-runtime-package-surface'
           | 'published-release'
+          | 'registry-resolved-package-version'
           | 'recognized-license-spdx'
           | 'repository-container-build-declaration'
           | 'repository-primary-language'
@@ -151,6 +152,45 @@ export function extractFrameworkPeerRelationFacts(input: {
         reason: 'framework-peer-relation-not-established',
       }
     : { state: 'established-facts', facts };
+}
+
+export function extractRegistryResolvedPackageVersionFact(input: {
+  readonly catalogPackageName: string | null;
+  readonly sourcePackageName: string | null;
+  readonly resolvedVersion: string | null;
+  readonly selector: 'latest';
+  readonly sourceComplete: boolean;
+}): CandidateAuthorityPartialRuleResult {
+  if (input.catalogPackageName === null) {
+    return { state: 'unknown', reason: 'no-catalog-package-mapping' };
+  }
+  if (
+    input.sourcePackageName !== null &&
+    input.sourcePackageName !== input.catalogPackageName
+  )
+    invalid();
+  if (
+    !input.sourceComplete ||
+    input.sourcePackageName === null ||
+    input.resolvedVersion === null
+  ) {
+    return { state: 'unknown', reason: 'registry-version-not-resolved' };
+  }
+  requirePackageName(input.sourcePackageName);
+  requirePackageVersion(input.resolvedVersion);
+  return {
+    state: 'established-facts',
+    facts: [
+      {
+        factCode: 'registry-resolved-package-version',
+        factValue: canonicalizeJson({
+          packageName: input.sourcePackageName,
+          resolvedVersion: input.resolvedVersion,
+          selector: input.selector,
+        }).text,
+      },
+    ],
+  };
 }
 
 export function extractDatastoreRequirementFact(input: {

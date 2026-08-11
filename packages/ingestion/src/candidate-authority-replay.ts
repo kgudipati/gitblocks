@@ -380,7 +380,9 @@ function projectCompleteField(input: {
   const { field, candidate, sources, repositorySnapshotId, collectionCutoff } =
     input;
   const repository = sourceValue(sources, 'github-repository-metadata');
-  const npm = sources.get('npm-package-metadata');
+  const npm =
+    sources.get('npm-selected-version-metadata') ??
+    sources.get('npm-package-metadata');
   const repositoryScope = {
     kind: 'repository-snapshot' as const,
     snapshotId: repositorySnapshotId,
@@ -388,7 +390,11 @@ function projectCompleteField(input: {
   const fieldId: string = field.fieldId;
   switch (fieldId) {
     case 'package-publication-version': {
-      if (candidate.npmPackage === null) return field;
+      if (
+        candidate.npmPackage === null ||
+        npm?.operationId !== 'npm-package-metadata'
+      )
+        return field;
       const value = establishedRecord(npm);
       const version = stringValue(value, 'selectedVersion');
       return structuredKnown(
@@ -403,7 +409,8 @@ function projectCompleteField(input: {
       );
     }
     case 'runtime-package-format': {
-      if (candidate.npmPackage === null) return field;
+      if (candidate.npmPackage === null || npm?.outcome !== 'established-value')
+        return field;
       const value = establishedRecord(npm);
       const optionalStates = optionalPropertyStates(value);
       if (
@@ -413,7 +420,7 @@ function projectCompleteField(input: {
         )
       )
         return field;
-      const version = stringValue(value, 'selectedVersion');
+      const version = npmVersion(value, npm);
       const type = nullableStringValue(value, 'type');
       const moduleFormat =
         type === null
@@ -444,11 +451,12 @@ function projectCompleteField(input: {
       );
     }
     case 'package-repository-linkage': {
-      if (candidate.npmPackage === null) return field;
+      if (candidate.npmPackage === null || npm?.outcome !== 'established-value')
+        return field;
       const value = establishedRecord(npm);
       const optionalStates = optionalPropertyStates(value);
       if (optionalStates?.['repository'] === 'unsupported') return field;
-      const version = stringValue(value, 'selectedVersion');
+      const version = npmVersion(value, npm);
       const declared = value['repositoryIdentity'];
       let linkage: 'matched' | 'mismatched' | 'undeclared';
       if (declared === null) linkage = 'undeclared';
@@ -527,18 +535,19 @@ function projectCompleteField(input: {
       const advisory = sources.get('github-advisories');
       if (
         candidate.npmPackage === null ||
-        advisory?.outcome !== 'established-value'
+        advisory?.outcome !== 'established-value' ||
+        npm?.outcome !== 'established-value'
       )
         return field;
       const advisoryValue = recordValue(advisory.value);
       const npmValue = establishedRecord(npm);
       return resultField(
         field,
-        packageScope(stringValue(npmValue, 'selectedVersion')),
+        packageScope(npmVersion(npmValue, npm)),
         projectCandidateAuthorityAdvisoryState({
           snapshotAt: collectionCutoff,
           expectedPackageName: candidate.npmPackage,
-          expectedPackageVersion: stringValue(npmValue, 'selectedVersion'),
+          expectedPackageVersion: npmVersion(npmValue, npm),
           sourcePackageName: stringValue(advisoryValue, 'packageName'),
           sourcePackageVersion: stringValue(advisoryValue, 'packageVersion'),
           outcome: 'established-value',
@@ -736,7 +745,7 @@ function evidenceSource(input: {
     | 'package-version'
     | 'structured-provider-snapshot';
 }): EvidenceSource {
-  const operationId = input.datum.operationId;
+  const operationId: string = input.datum.operationId;
   if (input.provenanceKind === 'package-version') {
     const npm = sourceValue(input.sources, 'npm-package-metadata');
     const packageName = stringValue(npm, 'name');
@@ -811,7 +820,8 @@ function evidenceSource(input: {
     };
   }
   if (input.provenanceKind !== 'structured-provider-snapshot') invalid();
-  const npm = operationId === 'npm-package-metadata';
+  const npmSelected = operationId === 'npm-selected-version-metadata';
+  const npm = npmSelected || operationId === 'npm-package-metadata';
   const sourceClass = sourceClassForOperation(operationId);
   return {
     kind: 'structured-provider-snapshot',
@@ -823,9 +833,11 @@ function evidenceSource(input: {
       operationId,
       sourceRecordDigest: canonicalizeJson(input.datum).digest,
     }),
-    sourceUrl: npm
-      ? `https://registry.npmjs.org/${encodeURIComponent(input.candidate.npmPackage ?? '')}`
-      : `https://api.github.com/repos/${input.candidate.github.owner}/${input.candidate.github.repository}`,
+    sourceUrl: npmSelected
+      ? `https://registry.npmjs.org/${encodeURIComponent(input.candidate.npmPackage ?? '')}/latest`
+      : npm
+        ? `https://registry.npmjs.org/${encodeURIComponent(input.candidate.npmPackage ?? '')}`
+        : `https://api.github.com/repos/${input.candidate.github.owner}/${input.candidate.github.repository}`,
     sourceAuthorityDigest: input.sourceAuthorityDigest,
     sourceRecordDigest: canonicalizeJson(input.datum).digest,
     collectedAt: input.collectionCutoff,
@@ -848,6 +860,7 @@ function sourceClassForOperation(
   { kind: 'structured-provider-snapshot' }
 >['sourceClass'] {
   switch (operationId) {
+    case 'npm-selected-version-metadata':
     case 'npm-package-metadata':
       return 'package-metadata';
     case 'github-maintenance-window':
@@ -879,22 +892,37 @@ function sourceForCompleteField(
     );
   }
   const operation =
-    fieldId === 'package-publication-version' ||
-    fieldId === 'runtime-package-format' ||
-    fieldId === 'package-repository-linkage'
+    fieldId === 'package-publication-version'
       ? 'npm-package-metadata'
-      : fieldId === 'license-identity'
-        ? 'github-license'
-        : fieldId === 'archived-state'
-          ? 'github-repository-metadata'
-          : fieldId === 'maintenance-activity'
-            ? 'github-maintenance-window'
-            : fieldId === 'release-state-recency'
-              ? 'github-release-window'
-              : fieldId === 'security-advisory-state'
-                ? 'github-advisories'
-                : null;
+      : fieldId === 'runtime-package-format' ||
+          fieldId === 'package-repository-linkage'
+        ? sources.has('npm-selected-version-metadata')
+          ? 'npm-selected-version-metadata'
+          : 'npm-package-metadata'
+        : fieldId === 'license-identity'
+          ? 'github-license'
+          : fieldId === 'archived-state'
+            ? 'github-repository-metadata'
+            : fieldId === 'maintenance-activity'
+              ? 'github-maintenance-window'
+              : fieldId === 'release-state-recency'
+                ? 'github-release-window'
+                : fieldId === 'security-advisory-state'
+                  ? 'github-advisories'
+                  : null;
   return operation === null ? undefined : sources.get(operation);
+}
+
+function npmVersion(
+  value: Record<string, unknown>,
+  source: CandidateAuthoritySourceDatum,
+): string {
+  return stringValue(
+    value,
+    (source.operationId as string) === 'npm-selected-version-metadata'
+      ? 'resolvedVersion'
+      : 'selectedVersion',
+  );
 }
 
 function structuredKnown(

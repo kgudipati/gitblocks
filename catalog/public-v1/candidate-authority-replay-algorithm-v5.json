@@ -1,0 +1,76 @@
+{
+  "algorithmVersion": "candidate-authority-pure-replay/5.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesConsumedExperimentReplay": {
+    "version": "candidate-authority-pure-replay/4.0.0",
+    "digest": "4bf82a790299a8373b2a2f75552842fe69847a2e362ebadec08776a8e69db84c",
+    "path": "catalog/public-v1/candidate-authority-replay-algorithm-v4.json"
+  },
+  "bindings": {
+    "fieldPlanVersion": "candidate-authority-field-plan/6.0.0",
+    "fieldPlanDigest": "104a8c5ee46aa42dc4fd5ef0b558500809636c38d36f78bcd4f24c284f586409",
+    "sourcePolicyVersion": "candidate-authority-source-policy/8.0.0",
+    "sourcePolicyDigest": "d043c6b1842791a2348b6f4eeb8644ac0a366f48aa8f585aab45aefdd97563ca",
+    "providerContractVersion": "candidate-authority-provider-contract/3.0.0",
+    "providerContractDigest": "37ac4bf0fa5aa7045737f262b34a21f910ca67f20cadac2dbf915dbb8b7abe57",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/3.0.0",
+    "partialSemanticRegistryDigest": "8aa2e5a9ede84f871eb057ad10850b01daae9302b3b20450d97fecc115857b7b",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e"
+  },
+  "pipeline": [
+    "committed candidate-authority-source-authority/3.0.0",
+    "deterministic profile authority/3.0.0",
+    "partial-field evidence authority/3.0.0",
+    "fit-consumable evidence authority/3.0.0",
+    "dossier authority/3.0.0",
+    "dossier projection/3.0.0",
+    "separate realized-readiness report/3.0.0",
+    "candidate-authority-root/6.0.0"
+  ],
+  "npmProjection": {
+    "operationId": "npm-selected-version-metadata",
+    "successfulSelectedVersion": [
+      "runtime-package-format retains existing supported optional-property rules",
+      "package-repository-linkage retains supported and accepted absent declaration rules",
+      "importable-runtime-package-surface may emit",
+      "declared-framework-peer-relation may emit",
+      "registry-resolved-package-version may emit"
+    ],
+    "packagePublicationProfile": "unknown for mapped candidates because publishedAt is unresolved",
+    "catalogUnmappedProfile": "deterministic not-applicable",
+    "unsupportedOptionalProperty": "dependent field remains unknown; unsupported is never absent",
+    "evidenceProvenance": "structured-provider-snapshot/npm/package-metadata",
+    "publishedAtFabricationPermitted": false
+  },
+  "advisoryScope": {
+    "catalogUnmapped": "not-applicable without request",
+    "mappedSourceEstablished": "query exact returned package and version",
+    "mappedSourceUnresolvedOrAbsent": "qualified-unknown:npm-version-scope-unavailable without request"
+  },
+  "sourceFreezeGate": {
+    "tracked": true,
+    "isolatedAddCommit": true,
+    "directParentIsIndependentlyAcceptedExecutionHead": true,
+    "bytesEqualFreezeAndCurrentHead": true,
+    "freezeIsAncestor": true,
+    "headEqualsOrigin": true
+  },
+  "effects": {
+    "network": 0,
+    "credentialReads": 0,
+    "database": 0,
+    "docker": 0,
+    "model": 0,
+    "candidateExecution": 0
+  },
+  "determinismProof": [
+    "normal full pipeline",
+    "repeat full pipeline",
+    "reverse candidate input",
+    "legal source-record permutation"
+  ],
+  "canonicalAlgorithmDigest": "71215716755000ea5d0705df5b41e92dee0b8b9178268745a7c536c89128bfc8"
+}

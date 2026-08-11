@@ -4,7 +4,7 @@ import { repositoryArtifactContentSha256 } from '@gitblocks/contracts';
 
 import { canonicalizeJson } from './canonical-json.ts';
 import {
-  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
   createCandidateAuthoritySuccessorSourceAuthority,
   createCandidateAuthoritySuccessorSourceCandidate,
@@ -26,7 +26,10 @@ import {
   type CandidateAuthorityTreeEntry,
   type CandidateAuthorityTreeResult,
 } from './candidate-authority-provider-contract.ts';
-import type { CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION } from './candidate-authority-provider-contract.ts';
+import type {
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION,
+} from './candidate-authority-provider-contract.ts';
 import { isSafeCandidateAuthorityRepositoryRelativePath } from './candidate-authority-license-provenance.ts';
 import { extractRepositoryContainerBuildDeclarationFact } from './candidate-authority-dockerfile.ts';
 import {
@@ -34,6 +37,7 @@ import {
   extractFrameworkPeerRelationFacts,
   extractImportableRuntimePackageAdoptionFact,
   extractPublishedReleaseFacts,
+  extractRegistryResolvedPackageVersionFact,
   extractRecognizedLicenseSpdxFact,
   extractRepositoryPrimaryLanguageFact,
   extractRepositorySelfBuildComposeServiceFacts,
@@ -111,7 +115,8 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
   readonly collectionCutoff: string;
   readonly operatorVersion?:
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION
-    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION;
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION;
   readonly transport: CandidateAuthorityLiveTransport;
   readonly readAttemptMetrics: () => CandidateAuthorityAttemptMetrics;
   readonly observeLogicalRequest?: (
@@ -195,9 +200,9 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
   )
     invalid();
   return createCandidateAuthoritySuccessorSourceAuthority({
-    authorityVersion: 'candidate-authority-source-authority/2.0.0',
+    authorityVersion: 'candidate-authority-source-authority/3.0.0',
     operatorVersion:
-      input.operatorVersion ?? CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION,
+      input.operatorVersion ?? CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
     bindings: {
       ...input.liveAuthorizationBindings,
       catalogVersion: input.catalog.catalogVersion,
@@ -395,7 +400,7 @@ async function collectCandidate(
   await operation(candidate, 'github-release-window', () =>
     collectReleases(candidate, input, state, sources),
   );
-  const npm = await operation(candidate, 'npm-package-metadata', () =>
+  const npm = await operation(candidate, 'npm-selected-version-metadata', () =>
     collectNpm(candidate, input, state, sources),
   );
   await operation(candidate, 'github-advisories', () =>
@@ -677,63 +682,70 @@ async function collectReleases(
   );
 }
 
-interface CollectedNpm {
-  readonly name: string;
-  readonly version: string;
-}
+type CollectedNpm =
+  | { readonly kind: 'catalog-unmapped' }
+  | {
+      readonly kind: 'mapped-source-established';
+      readonly name: string;
+      readonly version: string;
+    }
+  | { readonly kind: 'mapped-source-unresolved-or-absent' };
 
 async function collectNpm(
   candidate: CatalogCandidate,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
   sources: CandidateAuthoritySuccessorSourceDatum[],
-): Promise<CollectedNpm | null> {
+): Promise<CollectedNpm> {
   if (candidate.npmPackage === null) {
     sources.push(
-      source('npm-package-metadata', 'not-applicable', 'not-applicable', null),
+      source(
+        'npm-selected-version-metadata',
+        'not-applicable',
+        'not-applicable',
+        null,
+      ),
     );
-    return null;
+    return { kind: 'catalog-unmapped' };
   }
-  const response = await requiredRequest(
+  const collected = await optionalRequest(
     candidate,
     input,
     state,
-    'npm-package-metadata',
-    `/${segment(candidate.npmPackage)}`,
+    'npm-selected-version-metadata',
+    `/${segment(candidate.npmPackage)}/latest`,
+    false,
   );
+  if (collected.kind !== 'value') {
+    sources.push(
+      unknownSource(
+        'npm-selected-version-metadata',
+        optionalFailureCode(collected),
+      ),
+    );
+    return { kind: 'mapped-source-unresolved-or-absent' };
+  }
+  const response = collected.response;
   const root = requireRecord(response.value);
   const name = safeString(root['name'], 214);
   if (name !== candidate.npmPackage) identity();
-  const tags = requireRecord(root['dist-tags']);
-  const version = safeString(tags['latest'], 100);
+  const version = safeString(root['version'], 100);
   if (!semver(version)) invalidProvider();
-  const versions = requireRecord(root['versions']);
-  const selected = requireRecord(versions[version]);
-  const selectedName = selected['name'];
-  if (selectedName !== undefined && selectedName !== name) identity();
-  const selectedVersion = selected['version'];
-  if (selectedVersion !== undefined && selectedVersion !== version) identity();
-  const times = requireRecord(root['time']);
-  const publishedAt = timestamp(times[version]);
-  const nodeEngineProperty = parseOptionalNodeEngine(selected['engines']);
-  const mainProperty = parseCandidateAuthorityOptionalString(
-    selected['main'],
-    512,
-  );
+  if (root['_id'] !== undefined && root['_id'] !== `${name}@${version}`)
+    identity();
+  const nodeEngineProperty = parseOptionalNodeEngine(root['engines']);
+  const mainProperty = parseCandidateAuthorityOptionalString(root['main'], 512);
   const moduleProperty = parseCandidateAuthorityOptionalString(
-    selected['module'],
+    root['module'],
     512,
   );
-  const typeProperty = parseCandidateAuthorityOptionalString(
-    selected['type'],
-    40,
-  );
+  const typeProperty = parseCandidateAuthorityOptionalString(root['type'], 40);
   const peerDependenciesProperty = parseCandidateAuthorityOptionalStringRecord(
-    selected['peerDependencies'],
+    root['peerDependencies'],
     200,
   );
-  const exportsProperty = parseOptionalExports(selected['exports']);
-  const repositoryProperty = parseOptionalNpmRepository(selected['repository']);
+  const exportsProperty = parseOptionalExports(root['exports']);
+  const repositoryProperty = parseOptionalNpmRepository(root['repository']);
   const nodeEngine = supportedOptionalValue(nodeEngineProperty);
   const main = supportedOptionalValue(mainProperty);
   const module = supportedOptionalValue(moduleProperty);
@@ -759,12 +771,21 @@ async function collectNpm(
         sourceComplete: true,
       }),
     ),
+    ...facts(
+      extractRegistryResolvedPackageVersionFact({
+        catalogPackageName: candidate.npmPackage,
+        sourcePackageName: name,
+        resolvedVersion: version,
+        selector: 'latest',
+        sourceComplete: true,
+      }),
+    ),
   ];
   sources.push(
-    source('npm-package-metadata', 'established-value', 'complete', {
-      name,
-      selectedVersion: version,
-      publishedAt,
+    source('npm-selected-version-metadata', 'established-value', 'complete', {
+      packageName: name,
+      resolvedVersion: version,
+      selector: 'latest',
       repositoryIdentity,
       nodeEngine,
       exportsValue,
@@ -785,19 +806,26 @@ async function collectNpm(
       partialFacts,
     }),
   );
-  return { name, version };
+  return { kind: 'mapped-source-established', name, version };
 }
 
 async function collectAdvisories(
   candidate: CatalogCandidate,
-  npm: CollectedNpm | null,
+  npm: CollectedNpm,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
   sources: CandidateAuthoritySuccessorSourceDatum[],
 ): Promise<void> {
-  if (npm === null) {
+  if (npm.kind === 'catalog-unmapped') {
     sources.push(
       source('github-advisories', 'not-applicable', 'not-applicable', null),
+    );
+    return;
+  }
+  if (npm.kind === 'mapped-source-unresolved-or-absent') {
+    markQualified(state, 'github-advisories', 'npm-version-scope-unavailable');
+    sources.push(
+      unknownSource('github-advisories', 'npm-version-scope-unavailable'),
     );
     return;
   }
@@ -1126,7 +1154,9 @@ async function optionalRequest(
       (error.code === 'ingestion.provider-unavailable' ||
         error.code === 'ingestion.provider-rate-limited' ||
         error.code === 'ingestion.deadline-exceeded' ||
-        error.code === 'ingestion.provider-not-found')
+        error.code === 'ingestion.provider-not-found' ||
+        (operationId === 'npm-selected-version-metadata' &&
+          error.code === 'ingestion.body-too-large'))
     ) {
       markQualified(state, operationId, error.code);
       return { kind: 'unknown', code: error.code };

@@ -11,17 +11,26 @@ import {
   CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
 } from './candidate-authority-partial-evidence.ts';
 import {
-  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST,
-  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION,
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_DIGEST,
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION,
 } from './candidate-authority-partial-semantics.ts';
 import type { CandidateAuthoritySuccessorSourceAuthority } from './candidate-authority-provider-contract.ts';
 import {
-  CANDIDATE_AUTHORITY_FAILURE_RECORD_DIGEST,
-  CANDIDATE_AUTHORITY_FAILURE_RECORD_VERSION,
-  CANDIDATE_AUTHORITY_FIELD_PLAN_V5_DIGEST,
-  CANDIDATE_AUTHORITY_FIELD_PLAN_V5_VERSION,
-  type CandidateAuthorityFieldPlanV5Runtime,
-} from './candidate-authority-postmortem.ts';
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST,
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_VERSION,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V6_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_VERSION,
+  CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST,
+  CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_VERSION,
+  CANDIDATE_AUTHORITY_V5_EXECUTION_HEAD,
+  type CandidateAuthorityFieldPlanV6Runtime,
+} from './candidate-authority-npm-source-correction.ts';
 import {
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
@@ -33,14 +42,6 @@ import {
 } from './candidate-authority-readiness.ts';
 import type { CandidateAuthoritySuccessorReplayBundle } from './candidate-authority-successor-replay.ts';
 import {
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_VERSION,
-  CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST,
-  CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION,
 } from './candidate-authority-successor-contracts.ts';
@@ -59,7 +60,7 @@ const ORIGINS: readonly CandidateAuthorityCellOrigin[] = [
 
 export interface CandidateAuthoritySuccessorReadinessReport {
   readonly reportVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V4_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V5_VERSION;
   readonly bindings: Readonly<Record<string, string>>;
   readonly candidateCount: 150;
   readonly fields: readonly {
@@ -80,7 +81,7 @@ export interface CandidateAuthoritySuccessorReadinessReport {
   readonly canonicalReportDigest: string;
 }
 
-export interface CandidateAuthorityRootV5 {
+export interface CandidateAuthorityRootV6 {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION;
   readonly architectureDecisionBinding: Readonly<Record<string, string>>;
   readonly failedExperimentBinding: Readonly<Record<string, string>>;
@@ -104,11 +105,11 @@ export interface CandidateAuthorityRootV5 {
 export function measureCandidateAuthoritySuccessorReadiness(input: {
   readonly catalog: PublicCatalog;
   readonly sourceAuthority: CandidateAuthoritySuccessorSourceAuthority;
-  readonly fieldPlan: CandidateAuthorityFieldPlanV5Runtime;
+  readonly fieldPlan: CandidateAuthorityFieldPlanV6Runtime;
   readonly replay: CandidateAuthoritySuccessorReplayBundle;
 }): {
   readonly report: CandidateAuthoritySuccessorReadinessReport;
-  readonly root: CandidateAuthorityRootV5;
+  readonly root: CandidateAuthorityRootV6;
 } {
   const { sourceAuthority, replay } = input;
   if (
@@ -194,7 +195,7 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
   }, emptyOrigins());
   const reportWithoutDigest = {
     reportVersion: CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
     bindings: {
       sourceAuthorityVersion: sourceAuthority.authorityVersion,
       sourceAuthorityDigest: sourceAuthority.canonicalAuthorityDigest,
@@ -213,8 +214,8 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
         replay.dossierProjection.canonicalAuthorityDigest,
       readinessPolicyVersion: CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
       readinessPolicyDigest: CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
-      fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V5_VERSION,
-      fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V5_DIGEST,
+      fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V6_VERSION,
+      fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST,
     },
     candidateCount: 150 as const,
     fields,
@@ -236,36 +237,36 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
   const rootWithoutDigest = {
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION,
     architectureDecisionBinding: {
-      adr: 'ADR-0013',
-      status: 'accepted-architecture-postmortem-no-provider-effect',
-      acceptedPostmortemHead: 'acca908a98b09e2263252f3bcd861b7c4f9a27ee',
+      adr: 'ADR-0014',
+      status: 'proposed-npm-source-correction-no-provider-effect',
+      consumedV5ExecutionHead: CANDIDATE_AUTHORITY_V5_EXECUTION_HEAD,
     },
     failedExperimentBinding: {
-      version: CANDIDATE_AUTHORITY_FAILURE_RECORD_VERSION,
-      digest: CANDIDATE_AUTHORITY_FAILURE_RECORD_DIGEST,
+      version: CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_VERSION,
+      digest: CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST,
       disposition: 'consumed-inconclusive-no-source-authority',
     },
     liveAuthorizationBinding: {
-      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION,
-      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST,
+      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
       collectionExecutionHead:
         sourceAuthority.bindings['collectionExecutionHead'] ?? invalid(),
     },
     authorityBindings: {
-      providerContractVersion: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_VERSION,
-      providerContractDigest: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST,
-      fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V5_VERSION,
-      fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V5_DIGEST,
-      sourcePolicyVersion: CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_VERSION,
-      sourcePolicyDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST,
-      replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
-      replayAlgorithmDigest: CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST,
+      providerContractVersion: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_VERSION,
+      providerContractDigest: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
+      fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V6_VERSION,
+      fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST,
+      sourcePolicyVersion: CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_VERSION,
+      sourcePolicyDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST,
+      replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
+      replayAlgorithmDigest: CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST,
       readinessPolicyVersion: CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
       readinessPolicyDigest: CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
       partialSemanticRegistryVersion:
-        CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION,
+        CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION,
       partialSemanticRegistryDigest:
-        CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST,
+        CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_DIGEST,
       partialEvidenceContractVersion:
         CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
       partialEvidenceContractDigest:
@@ -303,7 +304,7 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
     cellOriginCounts: totals,
     readinessDecision: result.decision,
   };
-  const root: CandidateAuthorityRootV5 = Object.freeze({
+  const root: CandidateAuthorityRootV6 = Object.freeze({
     ...rootWithoutDigest,
     canonicalAuthorityDigest: canonicalizeJson(rootWithoutDigest).digest,
   });

@@ -1102,6 +1102,13 @@ reviewed durable-product trigger in ADR 0011.
       extend the exact lineage, and every ranking/readiness rule and request
       ceiling remains unchanged. Publication requires independent rereview
       before credential access.
+- [x] 2026-08-11 — Recorded the consumed authorization-v5 npm body-bound
+      failure, contracted the successor to the bounded exact selected-Version
+      endpoint, evolved partial publication evidence and structured npm
+      provenance, and froze inactive operator/authorization v6 plus full
+      source-v3/replay-v5 runtime under an all-zero correction preflight. No
+      credential, provider call, live source, live projection/readiness, or M4
+      work occurred; independent exact-head review remains required.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
 - [ ] M5 independently accepted.
@@ -1747,3 +1754,58 @@ including full-pipeline forward/repeat/reverse/permutation equality and the
 repository-wide validation matrix is rerun before the single `[skip actions]`
 publication. M3 remains incomplete and unaccepted after publication; M4 is not
 started.
+
+### Milestone 3 consumed authorization-v5 npm-source correction
+
+The independently activated authorization-v5 experiment reached candidate
+provider effects once from exact head
+`799f88735885c656de0ad25bc42ca3a90adbe082` and stopped with the persisted safe
+diagnostic `ingestion.body-too-large` at historical operation
+`npm-package-metadata`. Failure record v2 preserves the cutoff and exact safe
+request/attempt counters without a response body, header, content length,
+credential, or reconstructed candidate fact. Authorization v5 is consumed with
+zero remaining collections. No source authority, replay, readiness result, or
+M4 work followed.
+
+ADR 0014 diagnoses a provider-contract-wide source mismatch using only that
+diagnostic, frozen repository authority, and the official npm registry
+contract. The full package document can exceed the fixed two-mebibyte safety
+envelope, so the successor replaces it with the single-Version request
+`GET /{urlEncodedExactCatalogPackageName}/latest`. The bound remains
+2,097,152 bytes; full or abbreviated packuments, search, tarballs, and
+package-specific exceptions remain prohibited. A safely unreadable optional
+selected-version source is qualified unknown and suppresses advisory lookup
+without becoming catalog-unmapped.
+
+Field plan v6 keeps 13 planned extraction-capable fields and the unchanged
+13/18 plus four-group readiness gate. Because the Version endpoint supplies no
+accepted publication timestamp, `package-publication-version` becomes a
+partial path and planned full closure decreases from five to four. The new
+affirmative `registry-resolved-package-version` fact uses structured npm
+provider-snapshot provenance and cannot support publication time, age, or
+recency. Runtime, linkage, adoption, and framework projections retain their
+existing bounded optional-property semantics; unsupported remains unknown and
+never becomes absent.
+
+Provider contract v3, source policy v8, partial registry v3, replay v5, source
+authority/output v3, root v6, operator v6, and inactive authorization v6 form
+the additive correction lineage. The consumed operator-v5 runner remains
+unchanged; the production successor command imports the distinct v6 runner.
+Synthetic 150-candidate fixtures prove selected-version acquisition,
+body-too-large isolation, advisory-scope closure, structured provenance,
+unknown complete publication profiles with valid partial evidence, full replay
+determinism, and the frozen readiness decisions without using live candidate
+values. The correction preflight reports zero credential, provider, source,
+projection, readiness, database, Docker, model, or filesystem-write effects.
+Independent exact-head acceptance is required before authorization v6 can
+become active.
+
+Final correction validation passed 56 focused tests across six files, 459
+ingestion tests across 51 files, and 62 PostgreSQL integration tests across
+eight files with no skips. The full repository verification passed 2,104 tests
+across 154 files and found zero dependency violations across 951 modules and
+3,350 dependencies. Runtime, formatting, repository, contract, catalog,
+architecture, secret, registry-audit, and diff checks passed; the registry
+audit reported no known vulnerabilities. The accepted Ranking V1 and workflow
+trees remain unchanged, all live v2/v3 source and result paths remain absent,
+and the final correction preflight retained its exact all-zero effect audit.

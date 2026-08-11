@@ -1,0 +1,110 @@
+{
+  "contractVersion": "candidate-authority-provider-contract/3.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesConsumedExperimentContract": {
+    "version": "candidate-authority-provider-contract/2.0.0",
+    "digest": "edfd7ebcd8d42cbb65de4e79307ab91df81bd104b4039179082e1ff22686187b",
+    "path": "catalog/public-v1/candidate-authority-provider-contract-v2.json"
+  },
+  "officialContractBasis": {
+    "provider": "npm-public-registry",
+    "packageMetadataContract": "https://github.com/npm/registry/blob/master/docs/responses/package-metadata.md",
+    "registryApiContract": "https://github.com/npm/registry/blob/main/docs/REGISTRY-API.md",
+    "reviewedStatically": true,
+    "candidateProviderRequests": 0,
+    "finding": "GET /{package} returns a full package document that can exceed 10 MB uncompressed; GET /{package}/{version} accepts latest and returns one Version object."
+  },
+  "operationReplacement": {
+    "removedOperationId": "npm-package-metadata",
+    "removedEndpoint": "GET /{urlEncodedPackage}",
+    "removedSourceClass": "full npm package document / packument",
+    "added": {
+      "operationId": "npm-selected-version-metadata",
+      "provider": "npm",
+      "endpoint": "GET /{urlEncodedExactCatalogPackageName}/latest",
+      "selector": "latest",
+      "accept": "application/json",
+      "requiredIdentityProperties": ["name", "version"],
+      "conditionalIdentityProperties": [
+        "_id equals <name>@<version> when present"
+      ],
+      "retainedProperties": [
+        "packageName",
+        "resolvedVersion",
+        "selector",
+        "optionalPropertyStates",
+        "supported engines.node",
+        "supported exports",
+        "supported main",
+        "supported module",
+        "supported peerDependencies",
+        "supported type",
+        "supported repository declaration"
+      ],
+      "documentedOptionalProperties": [
+        "_id",
+        "engines.node",
+        "exports",
+        "main",
+        "module",
+        "peerDependencies",
+        "type",
+        "repository"
+      ],
+      "excludedProperties": [
+        "README",
+        "scripts",
+        "unrelated dependency graphs",
+        "maintainers",
+        "authors",
+        "raw package.json",
+        "raw response body",
+        "transient transport metadata",
+        "publishedAt"
+      ],
+      "supportedSemanticSubset": "Exact returned name/version plus bounded supported states for the seven accepted optional package properties.",
+      "establishedAbsence": "A mapped 404 may be retained only as explicit mapped source absence; it never becomes catalog-unmapped not-applicable.",
+      "qualifiedUnknownCases": [
+        "ingestion.body-too-large",
+        "ingestion.provider-unavailable",
+        "ingestion.provider-rate-limited",
+        "ingestion.deadline-exceeded",
+        "mapped source unresolved or absent",
+        "documented optional property outside the bounded V1 grammar"
+      ],
+      "fatalCases": [
+        "authentication or authorization failure where applicable",
+        "unsafe redirect",
+        "malformed safely read required identity",
+        "catalog and returned package identity disagreement",
+        "present _id disagreement",
+        "unsafe transport behavior",
+        "internal invariant"
+      ],
+      "limits": {
+        "responseBytes": 2097152,
+        "jsonNodes": 100000,
+        "redirects": 0,
+        "maximumAttempts": 3,
+        "timeoutMilliseconds": 15000
+      },
+      "requestCeiling": 80,
+      "evidenceProvenance": {
+        "kind": "structured-provider-snapshot",
+        "sourceType": "public-structured-provider",
+        "provider": "npm",
+        "sourceClass": "package-metadata"
+      }
+    }
+  },
+  "completeMatrixComposition": {
+    "baseContractVersion": "candidate-authority-provider-contract/2.0.0",
+    "operationCount": 13,
+    "replacementCount": 1,
+    "fullPackageDocumentsOutsideAcquisitionDesign": true,
+    "abbreviatedAllVersionDocumentsOutsideAcquisitionDesign": true,
+    "npmSearchOutsideAcquisitionDesign": true,
+    "tarballsOutsideAcquisitionDesign": true
+  },
+  "contractSemanticDigest": "37ac4bf0fa5aa7045737f262b34a21f910ca67f20cadac2dbf915dbb8b7abe57"
+}

@@ -16,6 +16,23 @@ export const CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH =
   'catalog/public-v1/candidate-authority-partial-field-semantics-v2.json' as const;
 export const CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST =
   'baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e' as const;
+export const CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION =
+  'candidate-authority-partial-field-semantics/3.0.0' as const;
+export const CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_PATH =
+  'catalog/public-v1/candidate-authority-partial-field-semantics-v3.json' as const;
+export const CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_DIGEST =
+  '8aa2e5a9ede84f871eb057ad10850b01daae9302b3b20450d97fecc115857b7b' as const;
+
+const CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES_V2 = Object.freeze([
+  'applicable-security-advisory',
+  'declared-framework-peer-relation',
+  'importable-runtime-package-surface',
+  'published-release',
+  'recognized-license-spdx',
+  'repository-container-build-declaration',
+  'repository-primary-language',
+  'repository-self-build-compose-service',
+] as const);
 
 export const CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES = Object.freeze([
   'applicable-security-advisory',
@@ -23,6 +40,7 @@ export const CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES = Object.freeze([
   'importable-runtime-package-surface',
   'published-release',
   'recognized-license-spdx',
+  'registry-resolved-package-version',
   'repository-container-build-declaration',
   'repository-primary-language',
   'repository-self-build-compose-service',
@@ -48,10 +66,17 @@ export type CandidateAuthorityAllowedPartialProvenance =
       readonly sourceClass:
         | 'repository-metadata'
         | 'repository-release-state'
-        | 'security-advisory-index';
+        | 'security-advisory-index'
+        | 'package-metadata';
     };
 
 export type CandidateAuthorityPartialValueSyntax =
+  | {
+      readonly kind: 'canonical-registry-resolved-package-version-v1';
+      readonly packageNamePattern: string;
+      readonly packageVersionPattern: string;
+      readonly selector: 'latest';
+    }
   | {
       readonly kind: 'canonical-importable-runtime-package-surface-v1';
       readonly entryPointKinds: readonly ['exports', 'main', 'module'];
@@ -120,8 +145,12 @@ export interface CandidateAuthorityPartialFactDefinition {
 }
 
 export interface CandidateAuthorityPartialSemanticRegistry {
-  readonly registryVersion: typeof CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION;
-  readonly status: 'accepted-pre-live-source-rule-authority';
+  readonly registryVersion:
+    | typeof CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION
+    | typeof CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION;
+  readonly status:
+    | 'accepted-pre-live-source-rule-authority'
+    | 'inactive-pending-independent-exact-head-acceptance';
   readonly definitions: readonly CandidateAuthorityPartialFactDefinition[];
   readonly registrySemanticDigest: string;
 }
@@ -149,6 +178,34 @@ const DEFINITION_KEYS = [
 export function parseCandidateAuthorityPartialSemanticRegistry(
   supplied: unknown,
 ): CandidateAuthorityPartialSemanticRegistry {
+  return parseRegistry(
+    supplied,
+    CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION,
+    CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST,
+    CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES_V2,
+    'accepted-pre-live-source-rule-authority',
+  );
+}
+
+export function parseCandidateAuthorityPartialSemanticRegistryV3(
+  supplied: unknown,
+): CandidateAuthorityPartialSemanticRegistry {
+  return parseRegistry(
+    supplied,
+    CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION,
+    CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_DIGEST,
+    CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES,
+    'inactive-pending-independent-exact-head-acceptance',
+  );
+}
+
+function parseRegistry(
+  supplied: unknown,
+  expectedVersion: string,
+  expectedDigest: string,
+  factCodes: readonly string[],
+  expectedStatus: CandidateAuthorityPartialSemanticRegistry['status'],
+): CandidateAuthorityPartialSemanticRegistry {
   const record = requireRecord(supplied);
   requireExactKeys(record, REGISTRY_KEYS);
   if (!Array.isArray(record['definitions'])) invalid();
@@ -156,8 +213,7 @@ export function parseCandidateAuthorityPartialSemanticRegistry(
     const definition = requireRecord(value);
     requireExactKeys(definition, DEFINITION_KEYS);
     if (
-      definition['factCode'] !==
-        CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES[index] ||
+      definition['factCode'] !== factCodes[index] ||
       !Array.isArray(definition['allowedProvenance']) ||
       !Array.isArray(definition['allowedPolarities']) ||
       !Array.isArray(definition['claimsMaySupport']) ||
@@ -187,11 +243,9 @@ export function parseCandidateAuthorityPartialSemanticRegistry(
   const withoutDigest = { ...candidate } as Record<string, unknown>;
   delete withoutDigest['registrySemanticDigest'];
   if (
-    candidate.registryVersion !==
-      CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION ||
-    candidate.status !== 'accepted-pre-live-source-rule-authority' ||
-    candidate.registrySemanticDigest !==
-      CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST ||
+    candidate.registryVersion !== expectedVersion ||
+    candidate.status !== expectedStatus ||
+    candidate.registrySemanticDigest !== expectedDigest ||
     candidate.registrySemanticDigest !== canonicalizeJson(withoutDigest).digest
   )
     invalid();
@@ -286,6 +340,25 @@ function valueMatches(
         new RegExp(syntax.packageVersionPattern, 'u').test(
           parsed['packageVersion'],
         )
+      );
+    }
+    case 'canonical-registry-resolved-package-version-v1': {
+      const parsed = canonicalObject(value, [
+        'packageName',
+        'resolvedVersion',
+        'selector',
+      ]);
+      return (
+        parsed !== null &&
+        typeof parsed['packageName'] === 'string' &&
+        new RegExp(syntax.packageNamePattern, 'u').test(
+          parsed['packageName'],
+        ) &&
+        typeof parsed['resolvedVersion'] === 'string' &&
+        new RegExp(syntax.packageVersionPattern, 'u').test(
+          parsed['resolvedVersion'],
+        ) &&
+        parsed['selector'] === syntax.selector
       );
     }
     case 'canonical-container-build-declaration-v1': {
@@ -394,6 +467,14 @@ function parseValueSyntax(supplied: unknown): void {
         'kind',
         'packageNamePattern',
         'packageVersionPattern',
+      ]);
+      return;
+    case 'canonical-registry-resolved-package-version-v1':
+      requireExactKeys(value, [
+        'kind',
+        'packageNamePattern',
+        'packageVersionPattern',
+        'selector',
       ]);
       return;
     case 'canonical-framework-peer-relation-v1':

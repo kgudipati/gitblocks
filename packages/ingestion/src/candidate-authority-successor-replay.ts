@@ -12,7 +12,10 @@ import type { CandidateAuthoritySourceCandidateV1 } from './candidate-authority-
 import type { CandidateAuthorityPartialFieldEvidence } from './candidate-authority-partial-evidence.ts';
 import type { CandidateAuthorityPartialSemanticRegistry } from './candidate-authority-partial-semantics.ts';
 import type { CandidateAuthoritySuccessorSourceAuthority } from './candidate-authority-provider-contract.ts';
-import type { CandidateAuthorityFieldPlanV5Runtime } from './candidate-authority-postmortem.ts';
+import {
+  CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
+  type CandidateAuthorityFieldPlanV6Runtime,
+} from './candidate-authority-npm-source-correction.ts';
 import {
   withCanonicalAuthorityDigest,
   type CandidateAuthorityDeterministicProfileAuthorityV1,
@@ -23,7 +26,6 @@ import {
 } from './candidate-authority-replay-contracts.ts';
 import { projectCandidateAuthorityReplayCandidate } from './candidate-authority-replay.ts';
 import {
-  CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_VERSION,
@@ -39,7 +41,7 @@ type SuccessorProfiles = Omit<
   'authorityVersion' | 'replayAlgorithmVersion' | 'sourceAuthorityVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_PROFILE_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V4_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V5_VERSION;
   readonly sourceAuthorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION;
 };
 type SuccessorPartial = Omit<
@@ -47,7 +49,7 @@ type SuccessorPartial = Omit<
   'authorityVersion' | 'replayAlgorithmVersion' | 'sourceAuthorityVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V4_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V5_VERSION;
   readonly sourceAuthorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION;
 };
 type SuccessorEvidence = Omit<
@@ -55,21 +57,21 @@ type SuccessorEvidence = Omit<
   'authorityVersion' | 'replayAlgorithmVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V4_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V5_VERSION;
 };
 type SuccessorDossiers = Omit<
   CandidateAuthorityDossierAuthorityV1,
   'authorityVersion' | 'replayAlgorithmVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V4_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V5_VERSION;
 };
 type SuccessorProjection = Omit<
   CandidateAuthorityDossierProjectionAuthorityV1,
   'authorityVersion' | 'replayAlgorithmVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_PROJECTION_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V4_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V5_VERSION;
 };
 
 export interface CandidateAuthoritySuccessorReplayBundle {
@@ -84,7 +86,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   readonly catalog: PublicCatalog;
   readonly taxonomy: CapabilityTaxonomyV1;
   readonly sourceAuthority: CandidateAuthoritySuccessorSourceAuthority;
-  readonly fieldPlan: CandidateAuthorityFieldPlanV5Runtime;
+  readonly fieldPlan: CandidateAuthorityFieldPlanV6Runtime;
   readonly partialSemanticRegistry: CandidateAuthorityPartialSemanticRegistry;
 }): CandidateAuthoritySuccessorReplayBundle {
   const source = input.sourceAuthority;
@@ -108,8 +110,8 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
     const candidate = catalogById.get(candidateId);
     const sourceCandidate = sourceById.get(candidateId);
     if (candidate === undefined || sourceCandidate === undefined) invalid();
-    // Source-v2 preserves the complete datum shape used by the projector; only
-    // the bounded operation-id union evolved. The source-v2 parser has already
+    // Source-v3 preserves the complete datum shape used by the projector; only
+    // the bounded operation-id union evolved. The source-v3 parser has already
     // proved every successor identifier and digest, making this adapter lossless.
     return projectCandidateAuthorityReplayCandidate({
       candidate,
@@ -139,7 +141,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   });
   const profiles = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_PROFILE_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
     sourceAuthorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     orderedCandidateIds: source.orderedCandidateIds,
@@ -152,7 +154,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
     );
   const partial = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
     sourceAuthorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     semanticRegistryVersion: input.partialSemanticRegistry.registryVersion,
@@ -164,7 +166,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   const evidenceCandidates = projections.map(({ evidence }) => evidence);
   const evidence = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     deterministicProfileAuthorityDigest: profiles.canonicalAuthorityDigest,
     partialFieldEvidenceAuthorityDigest: partial.canonicalAuthorityDigest,
@@ -174,7 +176,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   const dossierValues = projections.map(({ dossier }) => dossier);
   const dossiers = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     deterministicProfileAuthorityDigest: profiles.canonicalAuthorityDigest,
     fitEvidenceAuthorityDigest: evidence.canonicalAuthorityDigest,
@@ -198,7 +200,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   });
   const dossierProjection = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_PROJECTION_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     deterministicProfileAuthorityDigest: profiles.canonicalAuthorityDigest,
     partialFieldEvidenceAuthorityDigest: partial.canonicalAuthorityDigest,

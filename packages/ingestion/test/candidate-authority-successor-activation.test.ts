@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 
 import {
-  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
   CandidateAuthorityFirstFatalError,
   createCandidateAuthoritySuccessorSourceAuthority,
@@ -18,20 +18,23 @@ import {
   renderCandidateAuthoritySuccessorFailure,
   type CandidateAuthoritySuccessorEffects,
   type CandidateAuthoritySuccessorPreflightResult,
-} from '../src/candidate-authority-live-v5-runner.ts';
+} from '../src/candidate-authority-live-v6-runner.ts';
 import {
-  CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
-  CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST,
+  CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT,
   CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH,
+  CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION,
   parseCandidateAuthoritySuccessorFixedAuthorities,
   parseCandidateAuthoritySuccessorSourceAuthority,
   serializeCandidateAuthoritySuccessorSourceAuthority,
 } from '../src/candidate-authority-successor-contracts.ts';
+import {
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST,
+} from '../src/candidate-authority-npm-source-correction.ts';
 import { validateCandidateAuthoritySuccessorSourceCommitProof } from '../src/candidate-authority-successor-replay-runner.ts';
 import { candidateAuthorityReadinessDecision } from '../src/candidate-authority-readiness.ts';
 import { ingestionError } from '../src/errors.ts';
@@ -80,8 +83,8 @@ describe('candidate authority final successor activation freeze', () => {
   it('loads the complete additive authority chain and corrects advisory provenance', async () => {
     const fixed = await fixedAuthorities();
     expect(fixed.sourcePolicy).toMatchObject({
-      policyVersion: 'candidate-authority-source-policy/7.0.0',
-      policySemanticDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST,
+      policyVersion: 'candidate-authority-source-policy/8.0.0',
+      policySemanticDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST,
       requestBudget: {
         githubLogicalRequests: 1810,
         npmLogicalRequests: 80,
@@ -92,32 +95,28 @@ describe('candidate authority final successor activation freeze', () => {
       },
     });
     expect(fixed.authorization).toMatchObject({
-      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION,
-      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST,
+      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
       conditionalCollections: 1,
       activeCollections: 0,
       automaticRerun: false,
     });
     const provider = JSON.parse(
-      await readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH, 'utf8'),
+      await readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH, 'utf8'),
     ) as {
       contractSemanticDigest: string;
-      completeMatrixComposition: { replacementRows: unknown[] };
+      operationReplacement: {
+        removedOperationId: string;
+        added: { operationId: string };
+      };
     };
     expect(provider.contractSemanticDigest).toBe(
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST,
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
     );
-    expect(provider.completeMatrixComposition.replacementRows).toEqual([
-      {
-        operationId: 'github-advisories',
-        evidenceProvenance: {
-          kind: 'structured-provider-snapshot',
-          sourceType: 'public-structured-provider',
-          provider: 'github',
-          sourceClass: 'security-advisory-index',
-        },
-      },
-    ]);
+    expect(provider.operationReplacement).toMatchObject({
+      removedOperationId: 'npm-package-metadata',
+      added: { operationId: 'npm-selected-version-metadata' },
+    });
   });
 
   it('runs zero-effect preflight and refuses mismatched accepted heads before credential or cutoff access', async () => {
@@ -158,7 +157,7 @@ describe('candidate authority final successor activation freeze', () => {
     });
   });
 
-  it('roundtrips the full source-v2 authority and emits safe stage-specific post-provider diagnostics', async () => {
+  it('roundtrips the full source-v3 authority and emits safe stage-specific post-provider diagnostics', async () => {
     const { preflight, source } = await fixture();
     const text = serializeCandidateAuthoritySuccessorSourceAuthority(source);
     expect(
@@ -182,9 +181,9 @@ describe('candidate authority final successor activation freeze', () => {
     }
     const rendered = renderCandidateAuthoritySuccessorFailure(failure);
     expect(JSON.parse(rendered)).toMatchObject({
-      operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION,
-      authorizationVersion: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION,
-      authorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST,
+      operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
+      authorizationVersion: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+      authorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
       collectionCutoff: '2026-08-11T12:00:00.000Z',
       failureStage: 'candidate-authority-successor-staging',
       githubLogicalRequests: 1,
@@ -282,7 +281,7 @@ describe('candidate authority final successor activation freeze', () => {
         'utf8',
       ),
       readFile(
-        'packages/ingestion/src/candidate-authority-live-v5-runner.ts',
+        'packages/ingestion/src/candidate-authority-live-v6-runner.ts',
         'utf8',
       ),
     ]);
@@ -298,7 +297,7 @@ describe('candidate authority final successor activation freeze', () => {
   });
 
   it('enforces the isolated source-freeze direct parent and exact source bytes', () => {
-    const serialized = '{"source":"v2"}\n';
+    const serialized = '{"source":"v3"}\n';
     const git = {
       branch: 'feat/32-codebase-conditioned-ranking',
       head: 'c'.repeat(40),
@@ -365,10 +364,12 @@ async function fixedAuthorities() {
   const [
     providerV1,
     providerV2,
+    providerV3,
     sourceV6,
     sourceV7,
-    replayV4,
-    authorizationV5,
+    sourceV8,
+    replayV5,
+    authorizationV6,
   ] = await Promise.all([
     readFile(
       'catalog/public-v1/candidate-authority-provider-contract-v1.json',
@@ -376,6 +377,10 @@ async function fixedAuthorities() {
     ),
     readFile(
       'catalog/public-v1/candidate-authority-provider-contract-v2.json',
+      'utf8',
+    ),
+    readFile(
+      'catalog/public-v1/candidate-authority-provider-contract-v3.json',
       'utf8',
     ),
     readFile(
@@ -387,23 +392,29 @@ async function fixedAuthorities() {
       'utf8',
     ),
     readFile(
-      'catalog/public-v1/candidate-authority-replay-algorithm-v4.json',
+      'catalog/public-v1/candidate-authority-source-policy-v8.json',
       'utf8',
     ),
     readFile(
-      'catalog/public-v1/candidate-authority-live-authorization-v5.json',
+      'catalog/public-v1/candidate-authority-replay-algorithm-v5.json',
+      'utf8',
+    ),
+    readFile(
+      'catalog/public-v1/candidate-authority-live-authorization-v6.json',
       'utf8',
     ),
   ]);
   const result = parseCandidateAuthoritySuccessorFixedAuthorities({
     providerContractV1: providerV1,
     providerContractV2: providerV2,
+    providerContractV3: providerV3,
     sourcePolicyV6: sourceV6,
     sourcePolicyV7: sourceV7,
-    replayV4,
-    authorizationV5,
+    sourcePolicyV8: sourceV8,
+    replayV5,
+    authorizationV6,
   });
-  expect(CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST).toMatch(/^[a-f0-9]{64}$/u);
+  expect(CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST).toMatch(/^[a-f0-9]{64}$/u);
   return result;
 }
 
@@ -418,14 +429,32 @@ async function fixture() {
       candidateId: candidate.candidateId,
       github: candidate.github,
       npmPackage: candidate.npmPackage,
-      sources: CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS.map(
-        (operationId) => ({
-          operationId,
-          outcome: 'qualified-unknown' as const,
-          completeness: 'partial' as const,
-          limitationCode: 'synthetic-contract-fixture',
-          value: null,
-        }),
+      sources: CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS.map((operationId) =>
+        candidate.npmPackage === null &&
+        (operationId === 'npm-selected-version-metadata' ||
+          operationId === 'github-advisories')
+          ? {
+              operationId,
+              outcome: 'not-applicable' as const,
+              completeness: 'not-applicable' as const,
+              limitationCode: null,
+              value: null,
+            }
+          : candidate.npmPackage !== null && operationId === 'github-advisories'
+            ? {
+                operationId,
+                outcome: 'qualified-unknown' as const,
+                completeness: 'partial' as const,
+                limitationCode: 'npm-version-scope-unavailable',
+                value: null,
+              }
+            : {
+                operationId,
+                outcome: 'qualified-unknown' as const,
+                completeness: 'partial' as const,
+                limitationCode: 'synthetic-contract-fixture',
+                value: null,
+              },
       ),
     }),
   );
@@ -439,8 +468,8 @@ async function fixture() {
     }),
   );
   const source = createCandidateAuthoritySuccessorSourceAuthority({
-    authorityVersion: 'candidate-authority-source-authority/2.0.0',
-    operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION,
+    authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION,
+    operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
     bindings: {
       ...fixed.authorization.bindings,
       catalogVersion: catalog.catalogVersion,
@@ -486,7 +515,7 @@ async function fixture() {
     branch: 'feat/32-codebase-conditioned-ranking',
     head: ACCEPTED_HEAD,
     originHead: ACCEPTED_HEAD,
-    parentHead: CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD,
+    parentHead: CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT,
     activationCommitCount: 1,
     clean: true,
     outputAndStagingPathsAbsent: true,

@@ -4,7 +4,7 @@ import {
   executeCandidateAuthoritySuccessor,
   preflightCandidateAuthoritySuccessor,
   renderCandidateAuthoritySuccessorFailure,
-} from '../src/candidate-authority-live-v5-runner.ts';
+} from '../src/candidate-authority-live-v6-runner.ts';
 import { CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH } from '../src/candidate-authority-successor-contracts.ts';
 import {
   createCandidateAuthoritySuccessorSystemEffects,

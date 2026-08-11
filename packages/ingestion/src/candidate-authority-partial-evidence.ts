@@ -9,13 +9,13 @@ import { canonicalizeJson, stableId } from './canonical-json.ts';
 import type { CandidateAuthorityDecisionFieldId } from './candidate-authority-contracts.ts';
 import type { CandidateAuthorityDossierProjection } from './candidate-authority-evidence.ts';
 import {
-  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST,
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION,
   parseCandidateAuthorityPartialSemanticRegistry,
+  parseCandidateAuthorityPartialSemanticRegistryV3,
   validateCandidateAuthorityPartialFact,
   type CandidateAuthorityPartialFactCode,
   type CandidateAuthorityPartialSemanticRegistry,
 } from './candidate-authority-partial-semantics.ts';
-import type { CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION } from './candidate-authority-partial-semantics.ts';
 import type { CandidateAuthorityFieldPlanV4 } from './candidate-authority-readiness.ts';
 import { ingestionError } from './errors.ts';
 
@@ -28,8 +28,8 @@ type EvidenceSource = CandidateDossierV1['observations'][number]['source'];
 
 export interface CandidateAuthorityPartialFieldEvidence {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION;
-  readonly semanticRegistryVersion: typeof CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION;
-  readonly semanticRegistryDigest: typeof CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST;
+  readonly semanticRegistryVersion: CandidateAuthorityPartialSemanticRegistry['registryVersion'];
+  readonly semanticRegistryDigest: string;
   readonly factDefinitionDigest: string;
   readonly partialEvidenceId: string;
   readonly candidateId: string;
@@ -83,8 +83,7 @@ export function createCandidateAuthorityPartialFieldEvidence(
   registry: CandidateAuthorityPartialSemanticRegistry,
 ): CandidateAuthorityPartialFieldEvidence {
   validateCommonInput(input);
-  const validatedRegistry =
-    parseCandidateAuthorityPartialSemanticRegistry(registry);
+  const validatedRegistry = parseRegistry(registry);
   const definition = validateCandidateAuthorityPartialFact({
     registry: validatedRegistry,
     factCode: input.factCode,
@@ -98,8 +97,7 @@ export function createCandidateAuthorityPartialFieldEvidence(
   const identityInput = {
     ...input,
     semanticRegistryVersion: validatedRegistry.registryVersion,
-    semanticRegistryDigest:
-      CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST,
+    semanticRegistryDigest: validatedRegistry.registrySemanticDigest,
     factDefinitionDigest: definition.definitionDigest,
   } as const;
   const withoutDigest = {
@@ -119,9 +117,7 @@ export function projectPartialFieldEvidenceToDossier(input: {
   readonly partialSemanticRegistry: CandidateAuthorityPartialSemanticRegistry;
   readonly partialEvidence: readonly CandidateAuthorityPartialFieldEvidence[];
 }): CandidateAuthorityPartialDossierProjection {
-  const validatedRegistry = parseCandidateAuthorityPartialSemanticRegistry(
-    input.partialSemanticRegistry,
-  );
+  const validatedRegistry = parseRegistry(input.partialSemanticRegistry);
   const dossier = input.completeProjection.dossier;
   const planByField = new Map(
     input.fieldPlan.fields.map((field) => [field.fieldId, field]),
@@ -338,6 +334,15 @@ function sortById<T extends Readonly<Record<K, string>>, K extends string>(
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function parseRegistry(
+  registry: CandidateAuthorityPartialSemanticRegistry,
+): CandidateAuthorityPartialSemanticRegistry {
+  return registry.registryVersion ===
+    CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION
+    ? parseCandidateAuthorityPartialSemanticRegistryV3(registry)
+    : parseCandidateAuthorityPartialSemanticRegistry(registry);
 }
 
 function isStableId(value: string): boolean {

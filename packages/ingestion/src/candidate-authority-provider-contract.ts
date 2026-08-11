@@ -15,10 +15,28 @@ export const CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION =
   'candidate-authority-live-operator/4.0.0' as const;
 export const CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION =
   'candidate-authority-live-operator/5.0.0' as const;
+export const CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION =
+  'candidate-authority-live-operator/6.0.0' as const;
 export const CANDIDATE_AUTHORITY_REPLAY_V3_VERSION =
   'candidate-authority-pure-replay/3.0.0' as const;
 
 export const CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS = [
+  'github-repository-metadata',
+  'github-default-branch-ref',
+  'github-head-commit-object',
+  'github-maintenance-window',
+  'github-license',
+  'github-release-window',
+  'github-advisories',
+  'npm-selected-version-metadata',
+  'github-root-tree',
+  'github-security-dot-github-tree',
+  'github-security-docs-tree',
+  'github-compose-json-blob',
+  'github-dockerfile-blob',
+] as const;
+
+export const CANDIDATE_AUTHORITY_SUCCESSOR_V5_OPERATION_IDS = [
   'github-repository-metadata',
   'github-default-branch-ref',
   'github-head-commit-object',
@@ -50,7 +68,8 @@ export interface CandidateAuthoritySuccessorRuntimeOperation {
 export interface CandidateAuthoritySuccessorRuntimeSourcePolicy {
   readonly policyVersion:
     | 'candidate-authority-source-policy/6.0.0'
-    | 'candidate-authority-source-policy/7.0.0';
+    | 'candidate-authority-source-policy/7.0.0'
+    | 'candidate-authority-source-policy/8.0.0';
   readonly policySemanticDigest: string;
   readonly requestBudget: {
     readonly githubLogicalRequests: 1810;
@@ -92,10 +111,13 @@ export interface CandidateAuthoritySuccessorOperationReceipt {
 }
 
 export interface CandidateAuthoritySuccessorSourceAuthority {
-  readonly authorityVersion: 'candidate-authority-source-authority/2.0.0';
+  readonly authorityVersion:
+    | 'candidate-authority-source-authority/2.0.0'
+    | 'candidate-authority-source-authority/3.0.0';
   readonly operatorVersion:
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION
-    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION;
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION;
   readonly bindings: Readonly<Record<string, string>>;
   readonly collectionCutoff: string;
   readonly candidateCount: 150;
@@ -171,7 +193,7 @@ export function materializeCandidateAuthoritySuccessorRuntimeSourcePolicy(
     const limits = requireRecord(matrix['limits']);
     const operationId = matrix['operationId'];
     if (
-      operationId !== CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS[index] ||
+      operationId !== CANDIDATE_AUTHORITY_SUCCESSOR_V5_OPERATION_IDS[index] ||
       inventoryEntry['operationId'] !== operationId ||
       inventoryEntry['maximumTotalLogicalRequests'] !==
         matrix['requestCeiling'] ||
@@ -215,6 +237,91 @@ export function materializeCandidateAuthoritySuccessorRuntimeSourcePolicy(
     } as const,
     operations: Object.freeze(runtimeOperations),
   });
+}
+
+export function materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8(input: {
+  readonly sourcePolicyV6: unknown;
+  readonly providerContractV1: unknown;
+  readonly sourcePolicyV7: unknown;
+  readonly providerContractV2: unknown;
+  readonly sourcePolicyV8: unknown;
+  readonly providerContractV3: unknown;
+}): CandidateAuthoritySuccessorRuntimeSourcePolicy {
+  const base = materializeCandidateAuthoritySuccessorRuntimeSourcePolicy(
+    input.sourcePolicyV6,
+    input.providerContractV1,
+  );
+  const source = requireRecord(input.sourcePolicyV8);
+  const contract = requireRecord(input.providerContractV3);
+  const sourceV7 = requireRecord(input.sourcePolicyV7);
+  const contractV2 = requireRecord(input.providerContractV2);
+  const v7Composition = requireRecord(sourceV7['completeOperationMatrix']);
+  const v2Composition = requireRecord(contractV2['completeMatrixComposition']);
+  const replacement = requireRecord(contract['operationReplacement']);
+  const added = requireRecord(replacement['added']);
+  const limits = requireRecord(added['limits']);
+  const budget = requireRecord(source['requestBudget']);
+  if (
+    source['policyVersion'] !== 'candidate-authority-source-policy/8.0.0' ||
+    typeof source['policySemanticDigest'] !== 'string' ||
+    contract['contractVersion'] !==
+      'candidate-authority-provider-contract/3.0.0' ||
+    sourceV7['policyVersion'] !== 'candidate-authority-source-policy/7.0.0' ||
+    sourceV7['policySemanticDigest'] !==
+      '237b707fce608b4518ae09fcd07f7e08c315f7f323e56fb338990e1102fd29d7' ||
+    v7Composition['operationCount'] !== 13 ||
+    contractV2['contractVersion'] !==
+      'candidate-authority-provider-contract/2.0.0' ||
+    contractV2['contractSemanticDigest'] !==
+      'edfd7ebcd8d42cbb65de4e79307ab91df81bd104b4039179082e1ff22686187b' ||
+    v2Composition['operationCount'] !== 13 ||
+    replacement['removedOperationId'] !== 'npm-package-metadata' ||
+    added['operationId'] !== 'npm-selected-version-metadata' ||
+    added['provider'] !== 'npm' ||
+    added['endpoint'] !== 'GET /{urlEncodedExactCatalogPackageName}/latest' ||
+    added['requestCeiling'] !== 80 ||
+    limits['responseBytes'] !== 2_097_152 ||
+    limits['jsonNodes'] !== 100_000 ||
+    budget['githubLogicalRequests'] !== 1810 ||
+    budget['npmLogicalRequests'] !== 80 ||
+    budget['totalLogicalRequests'] !== 1890 ||
+    budget['githubWorstCaseAttempts'] !== 5430 ||
+    budget['npmWorstCaseAttempts'] !== 240 ||
+    budget['totalWorstCaseAttempts'] !== 5670
+  )
+    invalidInput();
+  const operations = base.operations.map((operation) =>
+    isHistoricalNpmOperation(operation.operationId)
+      ? Object.freeze({
+          operationId: 'npm-selected-version-metadata' as const,
+          provider: 'npm' as const,
+          host: 'registry.npmjs.org' as const,
+          maximumResponseBytes: 2_097_152,
+          maximumJsonNodes: 100_000,
+          timeoutMilliseconds: 15_000,
+          maximumTotalLogicalRequests: 80,
+        })
+      : operation,
+  );
+  if (
+    operations.length !== CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS.length ||
+    operations.some(
+      (operation, index) =>
+        operation.operationId !==
+        CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS[index],
+    )
+  )
+    invalidInput();
+  return Object.freeze({
+    policyVersion: 'candidate-authority-source-policy/8.0.0',
+    policySemanticDigest: source['policySemanticDigest'],
+    requestBudget: base.requestBudget,
+    operations: Object.freeze(operations),
+  });
+}
+
+function isHistoricalNpmOperation(operationId: string): boolean {
+  return operationId === 'npm-package-metadata';
 }
 
 export type CandidateAuthorityQualifiedUnknownCode =

@@ -2,7 +2,7 @@ import { canonicalizeJson } from './canonical-json.ts';
 import {
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_VERSION,
   CANDIDATE_AUTHORITY_REPLAY_V3_VERSION,
-  CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
+  CANDIDATE_AUTHORITY_SUCCESSOR_V5_OPERATION_IDS,
 } from './candidate-authority-provider-contract.ts';
 import {
   qualifiesPlannedDeterministicExtraction,
@@ -242,7 +242,8 @@ function validateProviderContract(
   const operations = record['operations'];
   if (!Array.isArray(operations)) invalid();
   const ids = operations.map((value) => requireRecord(value)['operationId']);
-  if (!arrayEquals(ids, CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS)) invalid();
+  if (!arrayEquals(ids, CANDIDATE_AUTHORITY_SUCCESSOR_V5_OPERATION_IDS))
+    invalid();
   const budget = requireRecord(record['requestCeilings']);
   const github = operations
     .map(requireRecord)
@@ -273,7 +274,7 @@ function validateSourcePolicy(record: Readonly<Record<string, unknown>>): void {
   const changes = requireRecord(record['operationChanges']);
   const removed = changes['removed'];
   if (
-    !arrayEquals(ids, CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS) ||
+    !arrayEquals(ids, CANDIDATE_AUTHORITY_SUCCESSOR_V5_OPERATION_IDS) ||
     budget['githubLogicalRequests'] !== 1810 ||
     budget['npmLogicalRequests'] !== 80 ||
     budget['totalLogicalRequests'] !== 1890 ||

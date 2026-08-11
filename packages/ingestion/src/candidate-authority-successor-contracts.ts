@@ -2,83 +2,107 @@
 
 import { canonicalizeJson } from './canonical-json.ts';
 import {
-  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
   createCandidateAuthoritySuccessorSourceAuthority,
   createCandidateAuthoritySuccessorSourceCandidate,
-  materializeCandidateAuthoritySuccessorRuntimeSourcePolicy,
+  materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8,
   type CandidateAuthoritySuccessorOperationId,
   type CandidateAuthoritySuccessorRuntimeSourcePolicy,
   type CandidateAuthoritySuccessorSourceAuthority,
   type CandidateAuthoritySuccessorSourceCandidate,
   type CandidateAuthoritySuccessorSourceDatum,
 } from './candidate-authority-provider-contract.ts';
+import {
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST,
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_VERSION,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V6_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_VERSION,
+  CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST,
+  CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_VERSION,
+  CANDIDATE_AUTHORITY_V5_EXECUTION_HEAD,
+} from './candidate-authority-npm-source-correction.ts';
+import {
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_DIGEST,
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION,
+} from './candidate-authority-partial-semantics.ts';
 import { CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION } from './candidate-authority-readiness.ts';
 import { ingestionError } from './errors.ts';
 import { requireRecord } from './profile-materialization-contracts.ts';
 import type { PublicCatalog } from './types.ts';
 
+export const CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT =
+  CANDIDATE_AUTHORITY_V5_EXECUTION_HEAD;
+
+// Published v5 identities remain available only for immutable historical
+// diagnostics and the disabled consumed runner. Current parsing returns v6.
 export const CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD =
   'acca908a98b09e2263252f3bcd861b7c4f9a27ee' as const;
-export const CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_VERSION =
-  'candidate-authority-provider-contract/2.0.0' as const;
-export const CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH =
-  'catalog/public-v1/candidate-authority-provider-contract-v2.json' as const;
-export const CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST =
-  'edfd7ebcd8d42cbb65de4e79307ab91df81bd104b4039179082e1ff22686187b' as const;
-export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_VERSION =
-  'candidate-authority-source-policy/7.0.0' as const;
-export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH =
-  'catalog/public-v1/candidate-authority-source-policy-v7.json' as const;
-export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST =
-  '237b707fce608b4518ae09fcd07f7e08c315f7f323e56fb338990e1102fd29d7' as const;
-export const CANDIDATE_AUTHORITY_REPLAY_V4_VERSION =
-  'candidate-authority-pure-replay/4.0.0' as const;
-export const CANDIDATE_AUTHORITY_REPLAY_V4_PATH =
-  'catalog/public-v1/candidate-authority-replay-algorithm-v4.json' as const;
-export const CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST =
-  '4bf82a790299a8373b2a2f75552842fe69847a2e362ebadec08776a8e69db84c' as const;
 export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION =
   'candidate-authority-live-authorization/5.0.0' as const;
-export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_PATH =
-  'catalog/public-v1/candidate-authority-live-authorization-v5.json' as const;
 export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST =
   '5b2dc1d60ae7ae052547a7f31e6a903fe9b693cc77a16ec2bfba8a137d1fb78d' as const;
+export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_PATH =
+  'catalog/public-v1/candidate-authority-live-authorization-v5.json' as const;
+export const CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_VERSION =
+  'candidate-authority-provider-contract/2.0.0' as const;
+export const CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST =
+  'edfd7ebcd8d42cbb65de4e79307ab91df81bd104b4039179082e1ff22686187b' as const;
+export const CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH =
+  'catalog/public-v1/candidate-authority-provider-contract-v2.json' as const;
+export const CANDIDATE_AUTHORITY_REPLAY_V4_VERSION =
+  'candidate-authority-pure-replay/4.0.0' as const;
+export const CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST =
+  '4bf82a790299a8373b2a2f75552842fe69847a2e362ebadec08776a8e69db84c' as const;
+export const CANDIDATE_AUTHORITY_REPLAY_V4_PATH =
+  'catalog/public-v1/candidate-authority-replay-algorithm-v4.json' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_VERSION =
+  'candidate-authority-source-policy/7.0.0' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST =
+  '237b707fce608b4518ae09fcd07f7e08c315f7f323e56fb338990e1102fd29d7' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH =
+  'catalog/public-v1/candidate-authority-source-policy-v7.json' as const;
 
 export const CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION =
-  'candidate-authority-source-authority/2.0.0' as const;
+  'candidate-authority-source-authority/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH =
-  'catalog/public-v1/candidate-authority-source-authority-v2.json' as const;
+  'catalog/public-v1/candidate-authority-source-authority-v3.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_STAGING_PATH =
-  'catalog/public-v1/candidate-authority-source-authority-v2.staging.json' as const;
+  'catalog/public-v1/candidate-authority-source-authority-v3.staging.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PROFILE_VERSION =
-  'candidate-authority-deterministic-profile-authority/2.0.0' as const;
+  'candidate-authority-deterministic-profile-authority/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PROFILE_PATH =
-  'catalog/public-v1/candidate-authority-profiles-v2.json' as const;
+  'catalog/public-v1/candidate-authority-profiles-v3.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_VERSION =
-  'candidate-authority-partial-field-evidence-authority/2.0.0' as const;
+  'candidate-authority-partial-field-evidence-authority/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_PATH =
-  'catalog/public-v1/candidate-authority-partial-evidence-v2.json' as const;
+  'catalog/public-v1/candidate-authority-partial-evidence-v3.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_VERSION =
-  'candidate-authority-fit-consumable-evidence-authority/2.0.0' as const;
+  'candidate-authority-fit-consumable-evidence-authority/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_PATH =
-  'catalog/public-v1/candidate-authority-evidence-v2.json' as const;
+  'catalog/public-v1/candidate-authority-evidence-v3.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_VERSION =
-  'candidate-authority-dossier-authority/2.0.0' as const;
+  'candidate-authority-dossier-authority/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_PATH =
-  'catalog/public-v1/candidate-authority-dossiers-v2.json' as const;
+  'catalog/public-v1/candidate-authority-dossiers-v3.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PROJECTION_VERSION =
-  'candidate-authority-dossier-projection/2.0.0' as const;
+  'candidate-authority-dossier-projection/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PROJECTION_PATH =
-  'catalog/public-v1/candidate-authority-dossier-projection-v2.json' as const;
+  'catalog/public-v1/candidate-authority-dossier-projection-v3.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION =
-  'candidate-authority-realized-readiness-report/2.0.0' as const;
+  'candidate-authority-realized-readiness-report/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_PATH =
-  'catalog/public-v1/candidate-authority-readiness-report-v2.json' as const;
+  'catalog/public-v1/candidate-authority-readiness-report-v3.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION =
-  'candidate-authority-root/5.0.0' as const;
+  'candidate-authority-root/6.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_PATH =
-  'catalog/public-v1/candidate-authority-root-v5.json' as const;
+  'catalog/public-v1/candidate-authority-root-v6.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_TOKEN_ENVIRONMENT =
   'GITBLOCKS_CANDIDATE_AUTHORITY_GITHUB_TOKEN' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_MAXIMUM_SOURCE_BYTES =
@@ -107,8 +131,12 @@ export const CANDIDATE_AUTHORITY_SUCCESSOR_STAGING_PATHS = Object.freeze([
 ]);
 
 export interface CandidateAuthoritySuccessorAuthorization {
-  readonly version: typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION;
-  readonly digest: typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST;
+  readonly version:
+    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION
+    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION;
+  readonly digest:
+    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST
+    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST;
   readonly bindings: Readonly<Record<string, string>>;
   readonly conditionalCollections: 1;
   readonly activeCollections: 0;
@@ -118,50 +146,52 @@ export interface CandidateAuthoritySuccessorAuthorization {
 export function parseCandidateAuthoritySuccessorFixedAuthorities(input: {
   readonly providerContractV1: string;
   readonly providerContractV2: string;
+  readonly providerContractV3: string;
   readonly sourcePolicyV6: string;
   readonly sourcePolicyV7: string;
-  readonly replayV4: string;
-  readonly authorizationV5: string;
+  readonly sourcePolicyV8: string;
+  readonly replayV5: string;
+  readonly authorizationV6: string;
 }): {
   readonly sourcePolicy: CandidateAuthoritySuccessorRuntimeSourcePolicy;
   readonly authorization: CandidateAuthoritySuccessorAuthorization;
 } {
   const providerV1 = parseJson(input.providerContractV1);
-  const providerV2 = parseAuthority(
-    input.providerContractV2,
+  const providerV2 = parseJson(input.providerContractV2);
+  const providerV3 = parseAuthority(
+    input.providerContractV3,
     'contractSemanticDigest',
-    CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST,
+    CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
   );
   const sourceV6 = parseJson(input.sourcePolicyV6);
-  const sourceV7 = parseAuthority(
-    input.sourcePolicyV7,
+  const sourceV7 = parseJson(input.sourcePolicyV7);
+  const sourceV8 = parseAuthority(
+    input.sourcePolicyV8,
     'policySemanticDigest',
-    CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST,
+    CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST,
   );
   const replay = parseAuthority(
-    input.replayV4,
+    input.replayV5,
     'canonicalAlgorithmDigest',
-    CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST,
+    CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST,
   );
   const authorization = parseAuthority(
-    input.authorizationV5,
+    input.authorizationV6,
     'authorizationSemanticDigest',
-    CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST,
+    CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
   );
   if (
-    providerV2['contractVersion'] !==
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_VERSION ||
-    requireRecord(providerV2['supersedesBeforeActivation'])['digest'] !==
-      '06495281a2642ca3bc3ba5dec07ea1ddd0c541130f294f5d6bea62c525abfd0c' ||
-    sourceV7['policyVersion'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_VERSION ||
-    requireRecord(sourceV7['bindings'])['providerContractDigest'] !==
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST ||
-    replay['algorithmVersion'] !== CANDIDATE_AUTHORITY_REPLAY_V4_VERSION ||
+    providerV3['contractVersion'] !==
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_VERSION ||
+    sourceV8['policyVersion'] !==
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_VERSION ||
+    requireRecord(sourceV8['bindings'])['providerContractDigest'] !==
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST ||
+    replay['algorithmVersion'] !== CANDIDATE_AUTHORITY_REPLAY_V5_VERSION ||
     requireRecord(replay['bindings'])['sourcePolicyDigest'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST ||
     authorization['authorizationVersion'] !==
-      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION
+      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION
   )
     invalid();
   const successor = requireRecord(authorization['successorExperiment']);
@@ -187,29 +217,34 @@ export function parseCandidateAuthoritySuccessorFixedAuthorities(input: {
     bindings['readinessPolicyDigest'] !==
       'f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752' ||
     bindings['partialSemanticRegistryDigest'] !==
-      'baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e' ||
+      CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_DIGEST ||
     bindings['partialEvidenceDigest'] !==
       '6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e' ||
     bindings['sourcePolicyDigest'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST ||
     bindings['providerContractDigest'] !==
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST ||
-    bindings['replayAlgorithmDigest'] !== CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST ||
+    bindings['replayAlgorithmDigest'] !==
+      CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST ||
+    bindings['failureRecordDigest'] !==
+      CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST ||
+    bindings['fieldPlanDigest'] !== CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST
   )
     invalid();
-  const base = materializeCandidateAuthoritySuccessorRuntimeSourcePolicy(
-    sourceV6,
-    providerV1,
-  );
+  const sourcePolicy =
+    materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8({
+      sourcePolicyV6: sourceV6,
+      providerContractV1: providerV1,
+      sourcePolicyV7: sourceV7,
+      providerContractV2: providerV2,
+      sourcePolicyV8: sourceV8,
+      providerContractV3: providerV3,
+    });
   return Object.freeze({
-    sourcePolicy: Object.freeze({
-      ...base,
-      policyVersion: CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_VERSION,
-      policySemanticDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST,
-    }),
+    sourcePolicy,
     authorization: Object.freeze({
-      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION,
-      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST,
+      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
       bindings,
       conditionalCollections: 1,
       activeCollections: 0,
@@ -236,7 +271,7 @@ export function parseCandidateAuthoritySuccessorSourceAuthority(input: {
     authority.authorityVersion !==
       CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION ||
     authority.operatorVersion !==
-      CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION ||
+      CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION ||
     authority.candidateCount !== 150 ||
     !Array.isArray(authority.orderedCandidateIds) ||
     !Array.isArray(authority.candidates) ||
@@ -251,47 +286,45 @@ export function parseCandidateAuthoritySuccessorSourceAuthority(input: {
     bindings['taxonomyVersion'] !== '1.0.0' ||
     bindings['taxonomyDigest'] !==
       '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9' ||
-    bindings['acceptedPostmortemHead'] !==
-      CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD ||
-    bindings['failedExecutionHead'] !==
-      '2cfe0682617fb303ebbb2deb7dd7bd34a383c912' ||
+    bindings['consumedV5ExecutionHead'] !==
+      CANDIDATE_AUTHORITY_V5_EXECUTION_HEAD ||
     bindings['failureRecordDigest'] !==
-      '48fa5cfe14cb579b254892cf69bede27bd96a802c8bfde6da9f7f4a4ab5595c7' ||
+      CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST ||
     bindings['failureRecordVersion'] !==
-      'candidate-authority-live-failure-record/1.0.0' ||
-    bindings['fieldPlanVersion'] !== 'candidate-authority-field-plan/5.0.0' ||
-    bindings['fieldPlanDigest'] !==
-      '858385239dcecf78e35cb204740c817b01f51db2aa3bc750bf9df49848a8a160' ||
+      CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_VERSION ||
+    bindings['fieldPlanVersion'] !==
+      CANDIDATE_AUTHORITY_FIELD_PLAN_V6_VERSION ||
+    bindings['fieldPlanDigest'] !== CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST ||
     bindings['providerContractVersion'] !==
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_VERSION ||
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_VERSION ||
     bindings['providerContractDigest'] !==
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST ||
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST ||
     bindings['replayAlgorithmVersion'] !==
-      CANDIDATE_AUTHORITY_REPLAY_V4_VERSION ||
+      CANDIDATE_AUTHORITY_REPLAY_V5_VERSION ||
     bindings['replayAlgorithmDigest'] !==
-      CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST ||
+      CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST ||
     bindings['readinessPolicyVersion'] !==
       CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION ||
     bindings['readinessPolicyDigest'] !==
       'f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752' ||
     bindings['partialSemanticRegistryVersion'] !==
-      'candidate-authority-partial-field-semantics/2.0.0' ||
+      CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION ||
     bindings['partialSemanticRegistryDigest'] !==
-      'baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e' ||
+      CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_DIGEST ||
     bindings['partialEvidenceVersion'] !==
       'candidate-authority-partial-field-evidence/3.0.0' ||
     bindings['partialEvidenceDigest'] !==
       '6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e' ||
     bindings['architectureDecision'] !==
-      'ADR-0013-accepted-without-provider-effect' ||
+      'ADR-0014-proposed-no-provider-effect' ||
     bindings['sourcePolicyVersion'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_VERSION ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_VERSION ||
     bindings['sourcePolicyDigest'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST ||
     bindings['liveAuthorizationVersion'] !==
-      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION ||
+      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION ||
     bindings['liveAuthorizationDigest'] !==
-      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST ||
+      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST ||
     (input.acceptedExecutionHead !== undefined &&
       bindings['collectionExecutionHead'] !== input.acceptedExecutionHead) ||
     !/^[a-f0-9]{40}$/u.test(bindings['collectionExecutionHead'] ?? '') ||
@@ -325,6 +358,7 @@ export function parseCandidateAuthoritySuccessorSourceAuthority(input: {
             CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS[sourceIndex],
           ),
       );
+      validateNpmScope(candidate, sources);
       const recreated = createCandidateAuthoritySuccessorSourceCandidate({
         candidateId: candidate.candidateId,
         github: candidate.github,
@@ -353,6 +387,84 @@ export function parseCandidateAuthoritySuccessorSourceAuthority(input: {
   )
     invalid();
   return Object.freeze(authority);
+}
+
+function validateNpmScope(
+  candidate: CandidateAuthoritySuccessorSourceCandidate,
+  sources: readonly CandidateAuthoritySuccessorSourceDatum[],
+): void {
+  const npm = sources.find(
+    ({ operationId }) => operationId === 'npm-selected-version-metadata',
+  );
+  const advisory = sources.find(
+    ({ operationId }) => operationId === 'github-advisories',
+  );
+  if (npm === undefined || advisory === undefined) invalid();
+  if (candidate.npmPackage === null) {
+    if (
+      npm.outcome !== 'not-applicable' ||
+      advisory.outcome !== 'not-applicable'
+    )
+      invalid();
+    return;
+  }
+  if (npm.outcome === 'not-applicable') invalid();
+  if (npm.outcome !== 'established-value') {
+    if (
+      advisory.outcome !== 'qualified-unknown' ||
+      advisory.limitationCode !== 'npm-version-scope-unavailable'
+    )
+      invalid();
+    return;
+  }
+  if (npm.completeness !== 'complete') invalid();
+  const value = requireRecord(npm.value);
+  const allowedKeys = new Set([
+    'packageName',
+    'resolvedVersion',
+    'selector',
+    'repositoryIdentity',
+    'nodeEngine',
+    'exportsValue',
+    'exportsDeclared',
+    'main',
+    'module',
+    'peerDependencies',
+    'type',
+    'optionalPropertyStates',
+    'partialFacts',
+  ]);
+  if (
+    Object.keys(value).some((key) => !allowedKeys.has(key)) ||
+    value['packageName'] !== candidate.npmPackage ||
+    typeof value['resolvedVersion'] !== 'string' ||
+    !/^v?[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/u.test(
+      value['resolvedVersion'],
+    ) ||
+    value['selector'] !== 'latest' ||
+    typeof value['exportsDeclared'] !== 'boolean' ||
+    !Array.isArray(value['partialFacts']) ||
+    value['partialFacts'].length > 202
+  )
+    invalid();
+  const states = requireRecord(value['optionalPropertyStates']);
+  const stateKeys = [
+    'nodeEngine',
+    'exports',
+    'main',
+    'module',
+    'peerDependencies',
+    'type',
+    'repository',
+  ];
+  if (
+    Object.keys(states).length !== stateKeys.length ||
+    stateKeys.some(
+      (key) =>
+        !['absent', 'supported', 'unsupported'].includes(String(states[key])),
+    )
+  )
+    invalid();
 }
 
 export function serializeCandidateAuthoritySuccessorSourceAuthority(
@@ -411,7 +523,7 @@ function validateEffectReceipt(
       invalid();
   });
   const npmIndex = CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS.indexOf(
-    'npm-package-metadata',
+    'npm-selected-version-metadata',
   );
   const npm = receipt.perOperation[npmIndex];
   const github = receipt.perOperation.filter((_, index) => index !== npmIndex);

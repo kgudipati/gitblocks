@@ -17,13 +17,9 @@ import { collectCandidateAuthoritySourceAuthority } from '../src/candidate-autho
 import {
   CANDIDATE_AUTHORITY_SUCCESSOR_ZERO_EFFECT_AUDIT,
   type CandidateAuthoritySuccessorEffects,
-} from '../src/candidate-authority-live-v5-runner.ts';
+} from '../src/candidate-authority-live-v6-runner.ts';
 import {
-  CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_PATH,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
-  CANDIDATE_AUTHORITY_REPLAY_V4_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH,
+  CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT,
   CANDIDATE_AUTHORITY_SUCCESSOR_MAXIMUM_SOURCE_BYTES,
   CANDIDATE_AUTHORITY_SUCCESSOR_OUTPUT_PATHS,
   CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH,
@@ -33,18 +29,33 @@ import {
   parseCandidateAuthoritySuccessorSourceAuthority,
 } from '../src/candidate-authority-successor-contracts.ts';
 import {
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_PATH,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V5_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH,
+  materializeCandidateAuthorityFieldPlanV6,
+  validateCandidateAuthorityNpmCorrectionAuthorities,
+} from '../src/candidate-authority-npm-source-correction.ts';
+import {
   CANDIDATE_AUTHORITY_FAILURE_RECORD_PATH,
   CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH,
   CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_PATH,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_PATH,
   CANDIDATE_AUTHORITY_REPLAY_V3_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH,
+  materializeCandidateAuthorityFieldPlanV5,
   parseCandidateAuthorityPostmortemAuthorities,
 } from '../src/candidate-authority-postmortem.ts';
 import { IngestionError, ingestionError } from '../src/errors.ts';
 import {
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
+  CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_PATH,
   parseCandidateAuthorityPartialSemanticRegistry,
+  parseCandidateAuthorityPartialSemanticRegistryV3,
 } from '../src/candidate-authority-partial-semantics.ts';
 import {
   CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH,
@@ -76,6 +87,22 @@ const HISTORICAL_OUTPUTS = [
   'catalog/public-v1/candidate-authority-readiness-report-v1.staging.json',
   'catalog/public-v1/candidate-authority-root-v4.json',
   'catalog/public-v1/candidate-authority-root-v4.staging.json',
+  'catalog/public-v1/candidate-authority-source-authority-v2.json',
+  'catalog/public-v1/candidate-authority-source-authority-v2.staging.json',
+  'catalog/public-v1/candidate-authority-profiles-v2.json',
+  'catalog/public-v1/candidate-authority-profiles-v2.staging.json',
+  'catalog/public-v1/candidate-authority-partial-evidence-v2.json',
+  'catalog/public-v1/candidate-authority-partial-evidence-v2.staging.json',
+  'catalog/public-v1/candidate-authority-evidence-v2.json',
+  'catalog/public-v1/candidate-authority-evidence-v2.staging.json',
+  'catalog/public-v1/candidate-authority-dossiers-v2.json',
+  'catalog/public-v1/candidate-authority-dossiers-v2.staging.json',
+  'catalog/public-v1/candidate-authority-dossier-projection-v2.json',
+  'catalog/public-v1/candidate-authority-dossier-projection-v2.staging.json',
+  'catalog/public-v1/candidate-authority-readiness-report-v2.json',
+  'catalog/public-v1/candidate-authority-readiness-report-v2.staging.json',
+  'catalog/public-v1/candidate-authority-root-v5.json',
+  'catalog/public-v1/candidate-authority-root-v5.staging.json',
   'packages/ranking',
 ] as const;
 
@@ -100,15 +127,20 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         taxonomyText,
         readinessText,
         fieldPlanV4Text,
-        partialRegistryText,
+        partialRegistryV2Text,
+        partialRegistryV3Text,
         providerV1,
         providerV2,
+        providerV3,
         sourceV6,
         sourceV7,
-        replayV4,
-        authorizationV5,
-        failureRecord,
+        sourceV8,
+        replayV5,
+        authorizationV6,
+        failureRecordV1,
+        failureRecordV2,
         fieldPlanV5,
+        fieldPlanV6,
         replayV3,
         authorizationV4,
         git,
@@ -132,12 +164,22 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ),
         readFixed(
           config.repositoryRoot,
+          CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
           CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
           config.repositoryRoot,
           CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
@@ -152,12 +194,17 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ),
         readFixed(
           config.repositoryRoot,
-          CANDIDATE_AUTHORITY_REPLAY_V4_PATH,
+          CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
           config.repositoryRoot,
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_PATH,
+          CANDIDATE_AUTHORITY_REPLAY_V5_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
@@ -167,7 +214,17 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ),
         readFixed(
           config.repositoryRoot,
+          CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
           CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
@@ -188,7 +245,7 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ].map((path) => requireMissing(config.repositoryRoot, path)),
       ]);
       parseCandidateAuthorityPostmortemAuthorities({
-        failureRecord: JSON.parse(failureRecord) as unknown,
+        failureRecord: JSON.parse(failureRecordV1) as unknown,
         providerContract: JSON.parse(providerV1) as unknown,
         fieldPlan: JSON.parse(fieldPlanV5) as unknown,
         sourcePolicy: JSON.parse(sourceV6) as unknown,
@@ -198,10 +255,20 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
       const fixed = parseCandidateAuthoritySuccessorFixedAuthorities({
         providerContractV1: providerV1,
         providerContractV2: providerV2,
+        providerContractV3: providerV3,
         sourcePolicyV6: sourceV6,
         sourcePolicyV7: sourceV7,
-        replayV4,
-        authorizationV5,
+        sourcePolicyV8: sourceV8,
+        replayV5,
+        authorizationV6,
+      });
+      validateCandidateAuthorityNpmCorrectionAuthorities({
+        failureRecordV2: JSON.parse(failureRecordV2) as unknown,
+        fieldPlanV6: JSON.parse(fieldPlanV6) as unknown,
+        providerContractV3: JSON.parse(providerV3) as unknown,
+        sourcePolicyV8: JSON.parse(sourceV8) as unknown,
+        replayV5: JSON.parse(replayV5) as unknown,
+        authorizationV6: JSON.parse(authorizationV6) as unknown,
       });
       const catalog = parsePublicCatalog(catalogText);
       const taxonomyResult = parseCapabilityTaxonomyV1(
@@ -209,8 +276,11 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
       );
       if (!taxonomyResult.ok) throw ingestionError('ingestion.invalid-input');
       const taxonomy = taxonomyResult.value;
-      const registry = parseCandidateAuthorityPartialSemanticRegistry(
-        JSON.parse(partialRegistryText) as unknown,
+      const registryV2 = parseCandidateAuthorityPartialSemanticRegistry(
+        JSON.parse(partialRegistryV2Text) as unknown,
+      );
+      const registryV3 = parseCandidateAuthorityPartialSemanticRegistryV3(
+        JSON.parse(partialRegistryV3Text) as unknown,
       );
       const readiness = parseCandidateAuthorityReadinessPolicyV3(
         JSON.parse(readinessText) as unknown,
@@ -218,19 +288,28 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
       const fieldPlanV4 = parseCandidateAuthorityFieldPlanV4(
         JSON.parse(fieldPlanV4Text) as unknown,
         readiness,
-        registry,
+        registryV2,
       );
+      const fieldPlanV5Runtime = materializeCandidateAuthorityFieldPlanV5({
+        predecessor: fieldPlanV4,
+        successorAuthority: JSON.parse(fieldPlanV5) as unknown,
+      });
+      const fieldPlanV6Runtime = materializeCandidateAuthorityFieldPlanV6({
+        predecessor: fieldPlanV5Runtime,
+        successorAuthority: JSON.parse(fieldPlanV6) as unknown,
+        partialSemanticRegistry: registryV3,
+      });
       if (
         acceptedHead !== git.head ||
         git.head !== git.originHead ||
         git.branch !== 'feat/32-codebase-conditioned-ranking' ||
-        git.parentHead !== CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD ||
+        git.parentHead !== CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT ||
         git.activationCommitCount !== 1 ||
         !git.clean ||
         catalog.candidates.length !== 150 ||
         catalog.candidates.filter((candidate) => candidate.npmPackage !== null)
           .length !== 80 ||
-        fieldPlanV4.fields.length !== 18 ||
+        fieldPlanV6Runtime.fields.length !== 18 ||
         taxonomy.taxonomyVersion !==
           fixed.authorization.bindings['taxonomyVersion'] ||
         taxonomy.semanticDigest !==
@@ -246,7 +325,7 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         branch: 'feat/32-codebase-conditioned-ranking',
         head: git.head,
         originHead: git.originHead,
-        parentHead: CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD,
+        parentHead: CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT,
         activationCommitCount: 1,
         clean: true,
         outputAndStagingPathsAbsent: true,
@@ -377,7 +456,7 @@ export async function validateCandidateAuthoritySuccessorPublishedSource(input: 
     git.branch !== 'feat/32-codebase-conditioned-ranking' ||
     git.head !== input.acceptedHead ||
     git.originHead !== input.acceptedHead ||
-    git.parentHead !== CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD ||
+    git.parentHead !== CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT ||
     git.activationCommitCount !== 1
   )
     invalid();
@@ -420,7 +499,7 @@ async function readGitState(repositoryRoot: string) {
       [
         'rev-list',
         '--count',
-        `${CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD}..HEAD`,
+        `${CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT}..HEAD`,
       ],
       options,
     ),
