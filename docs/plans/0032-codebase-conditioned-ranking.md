@@ -19,12 +19,15 @@
   with four-group breadth qualification. Publication authorizes Milestone 3
   only within the candidate-authority successor boundary; no M3 work began in
   the acceptance operation. M3A v1 subsequently returned a correct pre-live
-  NO-GO under historical readiness policy v1. Proposed ADR 0012 now separates
+  NO-GO under historical readiness policy v1. Accepted ADR 0012 now separates
   planned extraction capability, realized post-collection readiness, and full
   closure. Its corrected policy-v3 plan has 13 planned-capable paths and six
   full-closure candidates; realized readiness remains unmeasured. The
-  resulting pre-live GO is pending independent rereview, no live M3 effect or
-  coverage has occurred, and Milestones 4 through 6 remain unauthorized.
+  resulting pre-live architecture and source/rule authority are accepted after
+  exact-root Dockerfile source hardening. Live collection remains separately
+  unauthorized and unexecuted, realized readiness is unmeasured, no live M3
+  effect or coverage has occurred, and Milestones 4 through 6 remain
+  unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-10
@@ -780,39 +783,43 @@ N/A-only rule cannot pass final readiness. A one-shot future result below 13 or
 with an empty realized breadth group is NO-GO without tuning or coverage-driven
 rerun.
 
-The successor plan pre-registers 13 planned-capable fields and preserves the
+The accepted successor plan pre-registers 13 planned-capable fields and preserves the
 six M3A full-closure candidates. Capability/adoption requires an exact-version
 `exports`, `main`, or `module` runtime entry point. Infrastructure/deployment
-requires an exact-commit root `compose.json` service whose build context is
-the candidate repository root. Structured primary language, controlled peer
+may use either an exact-commit root `compose.json` service whose build context
+is the candidate repository root or a verified exact-root `Dockerfile` with an
+unambiguous direct `FROM` build-stage declaration. Both remain affirmative
+partial facts for the single `deployment-self-hosting` field. Structured primary language, controlled peer
 dependencies, recognized SPDX, observed releases, and exact-package
 advisories prove only their narrow affirmative facts. Runtime datastore client
 dependencies prove no datastore requirement, so that field is ineligible.
 
 The product-owned partial semantic registry fixes each fact code to one field,
 rule, provenance set, affirmative polarity, value grammar, allowed claims,
-prohibited claims, and canonical definition digest. Partial evidence v2 binds
+prohibited claims, and canonical definition digest. Partial evidence v3 binds
 that registry and definition. Both construction and dossier projection reject
 cross-field/rule/provenance use, malformed values, and current negative facts.
 An unresolved complete profile plus registered direct evidence, its material
 unknown, and a field limitation reaches the existing `CandidateDossierV1`;
 unmentioned concepts remain unknown.
 
-The source proposal retains exact npm entry-point and peer properties and
-three exact-commit Compose verification operations. Default-head resolution
+The accepted source plan retains exact npm entry-point and peer properties and
+the narrow exact-commit Compose verification operations. Default-head resolution
 reuses ADR 0006's bounded exact Git ref plus exact Git commit-object sequence;
-the expansive repository-commit endpoint is prohibited. The theoretical
-maximum is 1,660 GitHub plus 80 npm logical requests, 1,740 total; at three
-attempts, 4,980 plus 240, 5,220 total. These numbers are not authorization. The
+the expansive repository-commit endpoint is prohibited. One already-fetched
+exact root tree identifies both optional exact paths; Dockerfile adds only a
+conditional immutable Git blob request and no Contents probe. The theoretical
+maximum is 1,810 GitHub plus 80 npm logical requests, 1,890 total; at three
+attempts, 5,430 plus 240, 5,670 total. These numbers are not authorization. The
 only future publication flow remains one live collection, then committed
 source authority and pure offline replay.
 
-The corrected plan is a pre-live GO **pending independent rereview** of ADR
-0012, readiness policy v3, field plan v3, source policy v3, the partial
-semantic registry, partial evidence v2/root v3 contracts, and focused
-fixtures. Until acceptance and a separate live authorization, provider calls,
-credential inspection, source-authority generation, all-150 projection,
-coverage calculation, and Milestone 4 remain prohibited.
+ADR 0012, readiness policy v3, field plan v4, source policy v4, partial
+semantic registry v2, partial evidence v3/root v4, and focused fixtures are
+accepted pre-live authority. Provider calls, credential inspection,
+source-authority generation, all-150 projection, coverage calculation, and
+Milestone 4 remain prohibited until a separate explicit live-collection
+authorization.
 
 ### Milestone 4 — Pure ranking vertical slice and execution envelope
 
@@ -1044,6 +1051,12 @@ reviewed durable-product trigger in ADR 0011.
       non-vacuity and realized breadth; closes partial facts in a product
       registry; and restores ADR 0006 Git ref/commit-object head resolution.
       No live effect or candidate coverage occurred.
+- [x] 2026-08-10 — Accepted ADR 0012's substantive readiness architecture and
+      completed its final exact-root Dockerfile source hardening. The accepted
+      field/source/registry/evidence successors retain 13 planned fields and
+      six full-closure candidates, reuse one exact root tree, add only a
+      conditional immutable Dockerfile blob request, and leave realized
+      readiness unmeasured. Live collection remains separately unauthorized.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
 - [ ] M5 independently accepted.
@@ -1099,15 +1112,15 @@ dependency non-qualification, candidate-linked Compose, ADR 0006 exact Git
 head resolution, dossier retention, unresolved unknowns, and permutation
 stability.
 
-The focused correction verifier passes seven files and 101 tests, both
+The final source-hardening verifier passes eight files and 112 tests, both
 ingestion/contracts typechecks, product-contract conformance, repository
-checks, and architecture analysis with zero violations across 920 modules and
-3,155 dependencies. The first repository-wide pass exposed eight static
-typing/style findings in the new code; those were corrected without changing
-any rule, classification, digest, or request budget. The authoritative rerun
-passes 142 test files and 2,014 tests, every accepted Ranking V1 verifier,
-contract conformance, lint, typecheck, repository checks, and secret scanning.
-The registry-backed audit reports no known vulnerabilities.
+checks, and architecture analysis with zero violations across 922 modules and
+3,163 dependencies. The first repository-wide source-hardening pass exposed
+six static typing/style findings in the new code; those were corrected without
+changing any rule, classification, digest, or request budget. The authoritative
+rerun passes 143 test files, 355 suites, and 2,025 tests, every accepted Ranking
+V1 verifier, contract conformance, lint, typecheck, repository checks, and
+secret scanning. The registry-backed audit reports no known vulnerabilities.
 
 The preceding policy-v2 proposal's validation history remains evidence: its
 first full verification attempt found nine static-analysis defects, and its
@@ -1147,6 +1160,14 @@ publication matrix are rerun against the final bytes before publication.
   language/deployment facts, and restores ADR 0006 Git ref/commit-object head
   resolution. The 18 denominator, 13/18, breadth membership, six planned full
   closures, gates, and zero-effect boundary remain unchanged.
+- 2026-08-10 — Accept ADR 0012 and harden the sole planned
+  infrastructure/deployment field with a second narrow affirmative source.
+  Reason: root `compose.json` remains semantically sound but too narrow as the
+  sole future realization path. Field plan v4 and registry v2 add a verified
+  exact-root Dockerfile direct-`FROM` fact under deployment rule 4.0.0; source
+  policy v4 reuses the exact root tree and adds only the conditional immutable
+  blob request. Counts, readiness semantics, unknown behavior, and one-shot
+  failure policy are unchanged; live collection remains unauthorized.
 - 2026-08-10 — Add closed `structured-provider-snapshot` evidence provenance.
   Reason: archive, community, maintenance, and other provider snapshots are
   mutable structured facts, not git-commit or documentation evidence.

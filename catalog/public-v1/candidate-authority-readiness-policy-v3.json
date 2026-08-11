@@ -1,6 +1,6 @@
 {
   "policyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
-  "status": "proposed-independent-review-required",
+  "status": "accepted-pre-live-architecture-authority",
   "supersedes": {
     "adr": "ADR-0012",
     "historicalPolicyVersion": "ranking-v1-deterministic-readiness-policy/1.0.0",
@@ -92,6 +92,6 @@
     "deterministic not-applicable cells without a non-not-applicable established fact",
     "planned-capable fields with zero realized meaningful deterministic facts"
   ],
-  "changeControl": "M3A v1 remains a correct NO-GO under policy v1. Proposed policy v2 correctly separated extraction capability from full closure but did not make final readiness non-vacuous. This v3 proposal was selected before live M3 authority or candidate coverage existed. Independent acceptance of proposed ADR 0012, this policy, field plan v3, source policy v3, the partial semantic registry, and partial evidence v2 is required before any credential or provider effect.",
-  "policySemanticDigest": "9460725d84404616b045d2039251a4df28a4bd8ca7c7863487cb88c091899c4c"
+  "changeControl": "M3A v1 remains a correct NO-GO under policy v1. Proposed policy v2 correctly separated extraction capability from full closure but did not make final readiness non-vacuous. Policy v3 was selected before live M3 authority or candidate coverage existed and is accepted as pre-live architecture authority with ADR 0012, field plan v4, source policy v4, partial semantic registry v2, and partial evidence v3. This acceptance does not authorize credential inspection or candidate-provider effects; live collection requires a separate explicit authorization.",
+  "policySemanticDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752"
 }

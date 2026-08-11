@@ -1,0 +1,268 @@
+{
+  "registryVersion": "candidate-authority-partial-field-semantics/2.0.0",
+  "status": "accepted-pre-live-source-rule-authority",
+  "definitions": [
+    {
+      "factCode": "applicable-security-advisory",
+      "fieldId": "security-advisory-state",
+      "extractionRuleVersion": "candidate-authority-security-advisory/2.0.0",
+      "allowedProvenance": [
+        {
+          "kind": "structured-provider-snapshot",
+          "sourceType": "public-structured-provider",
+          "provider": "github",
+          "sourceClass": "security-advisory-index"
+        }
+      ],
+      "allowedPolarities": ["affirmative"],
+      "valueSyntax": {
+        "kind": "canonical-security-advisory-v1",
+        "advisoryIdPattern": "^GHSA-[23456789cfghjmpqrvwx]{4}-[23456789cfghjmpqrvwx]{4}-[23456789cfghjmpqrvwx]{4}$",
+        "severityValues": ["critical", "high", "low", "moderate"]
+      },
+      "semanticMeaning": "An exact advisory record affirmatively applies to the exact selected package and version under the registered advisory query.",
+      "claimsMaySupport": [
+        "The identified advisory with the controlled severity applies to the selected package version."
+      ],
+      "claimsMayNotSupport": [
+        "No other advisory applies.",
+        "The repository has no repository-scoped advisory.",
+        "The recorded severity is the field-wide maximum unless pagination is closed."
+      ],
+      "qualifiesPlannedExtractionCapability": true,
+      "definitionDigest": "6409bf568a6b223c4b5202ccd1366c5c03cb9ca2f0490fbac6e25f37ed073a06"
+    },
+    {
+      "factCode": "declared-framework-peer-relation",
+      "fieldId": "framework-compatibility",
+      "extractionRuleVersion": "candidate-authority-framework-compatibility/3.0.0",
+      "allowedProvenance": [
+        {
+          "kind": "package-version",
+          "sourceType": "package-registry"
+        }
+      ],
+      "allowedPolarities": ["affirmative"],
+      "valueSyntax": {
+        "kind": "canonical-framework-peer-relation-v1",
+        "frameworkPackageBindings": [
+          {
+            "framework": "nestjs",
+            "packageName": "@nestjs/core"
+          },
+          {
+            "framework": "express",
+            "packageName": "express"
+          },
+          {
+            "framework": "fastify",
+            "packageName": "fastify"
+          },
+          {
+            "framework": "nextjs",
+            "packageName": "next"
+          }
+        ],
+        "rangePattern": "^[^\\u0000-\\u001f\\u007f]{1,200}$"
+      },
+      "semanticMeaning": "The exact package version declares the controlled framework package as a peer dependency at the exact retained range.",
+      "claimsMaySupport": [
+        "The package declares a peer relationship with the controlled framework package at the retained range."
+      ],
+      "claimsMayNotSupport": [
+        "General framework compatibility beyond the declaration.",
+        "Runtime behavior, adapter completeness, or compatibility with every version in the range.",
+        "Absence of support for undeclared frameworks."
+      ],
+      "qualifiesPlannedExtractionCapability": true,
+      "definitionDigest": "a999eee2029b92cb31abc018b411763903f6b7a347333caca7efdb6c7f3e2d7f"
+    },
+    {
+      "factCode": "importable-runtime-package-surface",
+      "fieldId": "adoption-unit-type",
+      "extractionRuleVersion": "candidate-authority-adoption-unit/3.0.0",
+      "allowedProvenance": [
+        {
+          "kind": "package-version",
+          "sourceType": "package-registry"
+        }
+      ],
+      "allowedPolarities": ["affirmative"],
+      "valueSyntax": {
+        "kind": "canonical-importable-runtime-package-surface-v1",
+        "entryPointKinds": ["exports", "main", "module"],
+        "packageNamePattern": "^(?:@[-a-z0-9_.]+/)?[-a-z0-9_.]+$",
+        "packageVersionPattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+      },
+      "semanticMeaning": "The exact published npm version exposes an explicit importable runtime entry point through exports, main, or module.",
+      "claimsMaySupport": [
+        "An importable runtime package adoption surface is affirmatively published at the exact package version."
+      ],
+      "claimsMayNotSupport": [
+        "The package is the only adoption form.",
+        "No external service is required.",
+        "The package alone supplies the requested capability.",
+        "The package establishes a specific in-process architecture."
+      ],
+      "qualifiesPlannedExtractionCapability": true,
+      "definitionDigest": "cf5f349382a41953e63f4eb7a14e4753fa99528737809784bfcceaa657ec2fd6"
+    },
+    {
+      "factCode": "published-release",
+      "fieldId": "release-state-recency",
+      "extractionRuleVersion": "candidate-authority-release-state/2.0.0",
+      "allowedProvenance": [
+        {
+          "kind": "structured-provider-snapshot",
+          "sourceType": "public-structured-provider",
+          "provider": "github",
+          "sourceClass": "repository-release-state"
+        }
+      ],
+      "allowedPolarities": ["affirmative"],
+      "valueSyntax": {
+        "kind": "canonical-published-release-v1",
+        "tagPattern": "^[^\\u0000-\\u001f\\u007f]{1,200}$",
+        "timestampPattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,3})?Z$"
+      },
+      "semanticMeaning": "The bounded repository release source contains the exact non-draft release tag, publication time, and prerelease state.",
+      "claimsMaySupport": [
+        "The identified release was published with the retained prerelease state at the retained time."
+      ],
+      "claimsMayNotSupport": [
+        "The identified release is the latest release unless the source set is closed.",
+        "No older or newer release exists outside an unclosed bounded window."
+      ],
+      "qualifiesPlannedExtractionCapability": true,
+      "definitionDigest": "7f718a0e2b38a3f19b041e79341703b1d3500f6264d010028fcccb3e380add32"
+    },
+    {
+      "factCode": "recognized-license-spdx",
+      "fieldId": "license-identity",
+      "extractionRuleVersion": "profile-materialization-license/1.0.0",
+      "allowedProvenance": [
+        {
+          "kind": "git-commit",
+          "sourceType": "license"
+        }
+      ],
+      "allowedPolarities": ["affirmative"],
+      "valueSyntax": {
+        "kind": "recognized-spdx-v1",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9.+-]{0,63}$",
+        "prohibitedValues": ["NOASSERTION"]
+      },
+      "semanticMeaning": "GitHub's exact-commit license classification supplies one recognized non-NOASSERTION SPDX identifier.",
+      "claimsMaySupport": [
+        "The source recognizes the retained SPDX license identifier at the exact commit."
+      ],
+      "claimsMayNotSupport": [
+        "A missing, null, or NOASSERTION value is a favorable license.",
+        "The detected identifier resolves every licensing exception or compatibility question."
+      ],
+      "qualifiesPlannedExtractionCapability": true,
+      "definitionDigest": "8cab3babe31baa972432a362ee756d9cdc16f7cb0a90e6714b6e59e683a3a9fd"
+    },
+    {
+      "factCode": "repository-container-build-declaration",
+      "fieldId": "deployment-self-hosting",
+      "extractionRuleVersion": "candidate-authority-deployment-self-hosting/4.0.0",
+      "allowedProvenance": [
+        {
+          "kind": "git-commit",
+          "sourceType": "official-repository"
+        }
+      ],
+      "allowedPolarities": ["affirmative"],
+      "valueSyntax": {
+        "kind": "canonical-container-build-declaration-v1",
+        "path": "Dockerfile",
+        "contentDigestPattern": "^[a-f0-9]{64}$"
+      },
+      "semanticMeaning": "A verified immutable root Dockerfile contains an unambiguous direct FROM build-stage declaration at the exact candidate repository commit.",
+      "claimsMaySupport": [
+        "The repository publishes a root container-image build declaration at the exact commit."
+      ],
+      "claimsMayNotSupport": [
+        "The Dockerfile successfully builds.",
+        "The image is production-ready.",
+        "The candidate capability runs in this image.",
+        "The repository is fully self-hostable.",
+        "Docker is required.",
+        "No other deployment mode exists.",
+        "The image has acceptable security characteristics."
+      ],
+      "qualifiesPlannedExtractionCapability": true,
+      "definitionDigest": "b5ec40943a255ec97a54caf98fdf4a75cbe8cc1dfb8c437ac38c2792667c78cb"
+    },
+    {
+      "factCode": "repository-primary-language",
+      "fieldId": "language-ecosystem",
+      "extractionRuleVersion": "candidate-authority-language-ecosystem/3.0.0",
+      "allowedProvenance": [
+        {
+          "kind": "structured-provider-snapshot",
+          "sourceType": "public-structured-provider",
+          "provider": "github",
+          "sourceClass": "repository-metadata"
+        }
+      ],
+      "allowedPolarities": ["affirmative"],
+      "valueSyntax": {
+        "kind": "controlled-language-ecosystem-v1",
+        "controlledValues": [
+          "dotnet",
+          "go",
+          "java",
+          "javascript",
+          "php",
+          "python",
+          "ruby",
+          "rust",
+          "typescript"
+        ]
+      },
+      "semanticMeaning": "GitHub's structured primary-language property maps through the accepted controlled primary-language mapping to one repository language/ecosystem fact.",
+      "claimsMaySupport": [
+        "The repository's structured primary language maps to the retained controlled language/ecosystem at the snapshot cutoff."
+      ],
+      "claimsMayNotSupport": [
+        "The retained value is the repository's complete language set.",
+        "The retained value proves consumer runtime compatibility.",
+        "npm publication proves this fact."
+      ],
+      "qualifiesPlannedExtractionCapability": true,
+      "definitionDigest": "768f6340ec24d8cb209cbe1e2edd5ddcdbd368a2c442b068831b85c7d68c6583"
+    },
+    {
+      "factCode": "repository-self-build-compose-service",
+      "fieldId": "deployment-self-hosting",
+      "extractionRuleVersion": "candidate-authority-deployment-self-hosting/4.0.0",
+      "allowedProvenance": [
+        {
+          "kind": "git-commit",
+          "sourceType": "official-repository"
+        }
+      ],
+      "allowedPolarities": ["affirmative"],
+      "valueSyntax": {
+        "kind": "pattern-v1",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,99}$"
+      },
+      "semanticMeaning": "An exact verified root compose.json service declares build context dot, binding that service's container build to the candidate repository root at the exact commit.",
+      "claimsMaySupport": [
+        "The repository publishes a self-build container service declaration at the exact commit."
+      ],
+      "claimsMayNotSupport": [
+        "The declaration is production-suitable.",
+        "Every candidate capability is served by the service.",
+        "Compose is required.",
+        "No other deployment mode exists.",
+        "Generic external services are candidate deployment units."
+      ],
+      "qualifiesPlannedExtractionCapability": true,
+      "definitionDigest": "0546e846d533bbe3a21c796213f55625de58f6fe4f4a910c8ba52dd578ebe12c"
+    }
+  ],
+  "registrySemanticDigest": "baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e"
+}

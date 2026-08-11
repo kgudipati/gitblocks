@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/root/4.0.0",
+  "title": "Candidate authority root 4.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "authorityVersion",
+    "catalogBinding",
+    "taxonomyBinding",
+    "deterministicProfileBinding",
+    "rankingDecisionBinding",
+    "readinessPolicyBinding",
+    "fieldPlanBinding",
+    "sourcePolicyBinding",
+    "partialSemanticRegistryBinding",
+    "partialEvidenceContractBinding",
+    "collection",
+    "authorityDigests",
+    "fieldReadinessCounts",
+    "plannedBreadthGroups",
+    "realizedBreadthGroups",
+    "cellOriginCounts",
+    "readinessDecision",
+    "canonicalAuthorityDigest"
+  ],
+  "properties": {
+    "authorityVersion": {
+      "const": "candidate-authority-root/4.0.0"
+    },
+    "catalogBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "taxonomyBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "deterministicProfileBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "rankingDecisionBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "readinessPolicyBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "fieldPlanBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "sourcePolicyBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "partialSemanticRegistryBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "partialEvidenceContractBinding": {
+      "$ref": "#/$defs/binding"
+    },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cutoff",
+        "candidateCount",
+        "orderedCandidateIds",
+        "orderedCandidateIdentitiesDigest"
+      ],
+      "properties": {
+        "cutoff": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "candidateCount": {
+          "const": 150
+        },
+        "orderedCandidateIds": {
+          "type": "array",
+          "minItems": 150,
+          "maxItems": 150,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        },
+        "orderedCandidateIdentitiesDigest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "authorityDigests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "deterministicProfiles",
+        "partialFieldEvidence",
+        "evidence",
+        "dossiers",
+        "dossierProjection",
+        "coverageReadinessReport"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/digest"
+        },
+        "deterministicProfiles": {
+          "$ref": "#/$defs/digest"
+        },
+        "partialFieldEvidence": {
+          "$ref": "#/$defs/digest"
+        },
+        "evidence": {
+          "$ref": "#/$defs/digest"
+        },
+        "dossiers": {
+          "$ref": "#/$defs/digest"
+        },
+        "dossierProjection": {
+          "$ref": "#/$defs/digest"
+        },
+        "coverageReadinessReport": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "fieldReadinessCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plannedDeterministicExtractionCapable",
+        "realizedDeterministicReady",
+        "deterministicFullClosure"
+      ],
+      "properties": {
+        "plannedDeterministicExtractionCapable": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        },
+        "realizedDeterministicReady": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        },
+        "deterministicFullClosure": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        }
+      }
+    },
+    "plannedBreadthGroups": {
+      "$ref": "#/$defs/breadthGroups"
+    },
+    "realizedBreadthGroups": {
+      "$ref": "#/$defs/breadthGroups"
+    },
+    "cellOriginCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deterministic-known",
+        "deterministic-not-applicable",
+        "deterministic-partial-direct-evidence",
+        "human-reviewed-structured",
+        "model-derived",
+        "unknown",
+        "conflict"
+      ],
+      "properties": {
+        "deterministic-known": {
+          "$ref": "#/$defs/count"
+        },
+        "deterministic-not-applicable": {
+          "$ref": "#/$defs/count"
+        },
+        "deterministic-partial-direct-evidence": {
+          "$ref": "#/$defs/count"
+        },
+        "human-reviewed-structured": {
+          "$ref": "#/$defs/count"
+        },
+        "model-derived": {
+          "$ref": "#/$defs/count"
+        },
+        "unknown": {
+          "$ref": "#/$defs/count"
+        },
+        "conflict": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "readinessDecision": {
+      "enum": ["go", "no-go"]
+    },
+    "canonicalAuthorityDigest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "$defs": {
+    "binding": {
+      "type": "object",
+      "minProperties": 2,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "breadthGroups": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability-adoption",
+        "stack-package",
+        "infrastructure-deployment",
+        "policy-risk"
+      ],
+      "properties": {
+        "capability-adoption": {
+          "$ref": "#/$defs/fieldIds"
+        },
+        "stack-package": {
+          "$ref": "#/$defs/fieldIds"
+        },
+        "infrastructure-deployment": {
+          "$ref": "#/$defs/fieldIds"
+        },
+        "policy-risk": {
+          "$ref": "#/$defs/fieldIds"
+        }
+      }
+    },
+    "fieldIds": {
+      "type": "array",
+      "maxItems": 18,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2700
+    }
+  }
+}

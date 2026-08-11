@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
   canonicalizeJson,
   createCandidateAuthorityPartialFieldEvidence,
-  parseCandidateAuthorityFieldPlanV3,
+  parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityPartialSemanticRegistry,
   parseCandidateAuthorityReadinessPolicyV3,
   projectPartialFieldEvidenceToDossier,
@@ -21,7 +21,7 @@ const CUTOFF = '2026-08-01T00:00:00.000Z';
 async function authorities() {
   const registry = parseCandidateAuthorityPartialSemanticRegistry(
     await readJson(
-      'catalog/public-v1/candidate-authority-partial-field-semantics.json',
+      'catalog/public-v1/candidate-authority-partial-field-semantics-v2.json',
     ),
   );
   const policy = parseCandidateAuthorityReadinessPolicyV3(
@@ -29,8 +29,8 @@ async function authorities() {
       'catalog/public-v1/candidate-authority-readiness-policy-v3.json',
     ),
   );
-  const plan = parseCandidateAuthorityFieldPlanV3(
-    await readJson('catalog/public-v1/candidate-authority-field-plan-v3.json'),
+  const plan = parseCandidateAuthorityFieldPlanV4(
+    await readJson('catalog/public-v1/candidate-authority-field-plan-v4.json'),
     policy,
     registry,
   );
@@ -109,6 +109,52 @@ describe('registry-bound deterministic partial evidence', () => {
     expect(canonicalizeJson(forward).text).toBe(canonicalizeJson(reverse).text);
   });
 
+  it('retains coexisting Compose and Dockerfile facts as distinct evidence for one deployment field', async () => {
+    const { plan, registry } = await authorities();
+    const compose = deploymentEvidence(
+      registry,
+      'repository-self-build-compose-service',
+      'app',
+      '1',
+    );
+    const dockerfile = deploymentEvidence(
+      registry,
+      'repository-container-build-declaration',
+      `{"contentDigest":"${'a'.repeat(64)}","path":"Dockerfile"}`,
+      '2',
+    );
+    const projection = projectPartialFieldEvidenceToDossier({
+      completeProjection: baseProjection({ includeDeployment: true }),
+      fieldPlan: plan,
+      partialSemanticRegistry: registry,
+      partialEvidence: [compose, dockerfile],
+    });
+    expect(projection.partialFieldEvidenceBindings).toHaveLength(2);
+    expect(
+      new Set(
+        projection.dossier.observations.map(
+          (observation) => observation.evidenceId,
+        ),
+      ).size,
+    ).toBe(2);
+    expect(
+      projection.dossier.observations
+        .map(
+          (observation) =>
+            /factCode=([^;]+)/u.exec(observation.observation)?.[1],
+        )
+        .sort(),
+    ).toEqual([
+      'repository-container-build-declaration',
+      'repository-self-build-compose-service',
+    ]);
+    expect(
+      projection.dossier.unknowns.find(
+        (unknown) => unknown.topic === 'candidate-deployment-self-hosting',
+      )?.statement,
+    ).toContain('all unregistered and unmentioned concepts remain unknown');
+  });
+
   it('rejects wrong field, wrong rule, wrong provenance, and malformed controlled values', async () => {
     const { registry } = await authorities();
     expect(() =>
@@ -136,7 +182,7 @@ describe('registry-bound deterministic partial evidence', () => {
           ...partialInput(),
           fieldId: 'license-identity',
           extractionRuleVersion:
-            'candidate-authority-deployment-self-hosting/3.0.0',
+            'candidate-authority-deployment-self-hosting/4.0.0',
           factCode: 'repository-self-build-compose-service',
           factValue: 'app',
           source: gitSource('official-repository'),
@@ -219,7 +265,7 @@ describe('registry-bound deterministic partial evidence', () => {
           ...partialInput(),
           fieldId: 'deployment-self-hosting',
           extractionRuleVersion:
-            'candidate-authority-deployment-self-hosting/3.0.0',
+            'candidate-authority-deployment-self-hosting/4.0.0',
           factCode: 'repository-self-build-compose-service',
           factValue: 'app',
           polarity: 'negative',
@@ -228,6 +274,34 @@ describe('registry-bound deterministic partial evidence', () => {
         registry,
       ),
     ).toThrow();
+  });
+
+  it('rejects Dockerfile facts with wrong field, rule, provenance, value, or polarity', async () => {
+    const { registry } = await authorities();
+    const valid = {
+      ...partialInput(),
+      fieldId: 'deployment-self-hosting' as const,
+      extractionRuleVersion:
+        'candidate-authority-deployment-self-hosting/4.0.0',
+      factCode: 'repository-container-build-declaration' as const,
+      factValue: `{"contentDigest":"${'a'.repeat(64)}","path":"Dockerfile"}`,
+      source: gitSource('official-repository'),
+    };
+    for (const mutation of [
+      { ...valid, fieldId: 'license-identity' as const },
+      {
+        ...valid,
+        extractionRuleVersion:
+          'candidate-authority-deployment-self-hosting/3.0.0',
+      },
+      { ...valid, source: gitSource('license') },
+      { ...valid, factValue: '{"path":"Dockerfile"}' },
+      { ...valid, polarity: 'negative' as const },
+    ]) {
+      expect(() =>
+        createCandidateAuthorityPartialFieldEvidence(mutation, registry),
+      ).toThrow();
+    }
   });
 
   it('makes the dossier projector independently reject a digest-valid cross-field forgery', async () => {
@@ -285,6 +359,34 @@ function packageAdoptionEvidence(
   registry: Parameters<typeof createCandidateAuthorityPartialFieldEvidence>[1],
 ) {
   return createCandidateAuthorityPartialFieldEvidence(partialInput(), registry);
+}
+
+function deploymentEvidence(
+  registry: Parameters<typeof createCandidateAuthorityPartialFieldEvidence>[1],
+  factCode:
+    | 'repository-container-build-declaration'
+    | 'repository-self-build-compose-service',
+  factValue: string,
+  sourceRecordSuffix: string,
+) {
+  return createCandidateAuthorityPartialFieldEvidence(
+    {
+      ...partialInput(),
+      fieldId: 'deployment-self-hosting',
+      extractionRuleVersion:
+        'candidate-authority-deployment-self-hosting/4.0.0',
+      factCode,
+      factValue,
+      source: gitSource('official-repository'),
+      sourceReference: {
+        ...partialInput().sourceReference,
+        sourceRecordDigest: sourceRecordSuffix.repeat(64),
+      },
+      unresolvedRemainder:
+        'Complete deployment-self-hosting semantics remain unknown.',
+    },
+    registry,
+  );
 }
 
 function partialInput() {
@@ -401,11 +503,15 @@ function forgePartialEvidence(
 
 function baseProjection(options?: {
   readonly includeLanguage?: boolean;
+  readonly includeDeployment?: boolean;
 }): CandidateAuthorityDossierProjection {
   const topics = [
     ['adoption-unit-type', 'candidate-adoption-unit-type'],
     ...(options?.includeLanguage === true
       ? [['language-ecosystem', 'candidate-language-ecosystem']]
+      : []),
+    ...(options?.includeDeployment === true
+      ? [['deployment-self-hosting', 'candidate-deployment-self-hosting']]
       : []),
   ] as const;
   return {

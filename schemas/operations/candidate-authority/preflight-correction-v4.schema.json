@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/preflight-source-hardening/4.0.0",
+  "title": "Candidate authority source-hardening preflight 4.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "operation",
+    "decision",
+    "readinessPolicyVersion",
+    "readinessPolicyDigest",
+    "fieldPlanVersion",
+    "fieldPlanDigest",
+    "sourcePolicyVersion",
+    "sourcePolicyDigest",
+    "denominatorSize",
+    "minimumRealizedReadyFields",
+    "exactPercentage",
+    "partialSemanticRegistryVersion",
+    "partialSemanticRegistryDigest",
+    "partialEvidenceContractVersion",
+    "partialEvidenceContractDigest",
+    "plannedExtractionCapableFields",
+    "realizedReadyFields",
+    "plannedFullClosureFields",
+    "githubLogicalRequestBudget",
+    "npmLogicalRequestBudget",
+    "totalLogicalRequestBudget",
+    "effectAudit"
+  ],
+  "properties": {
+    "status": {
+      "const": "passed"
+    },
+    "operation": {
+      "enum": [
+        "candidate-authority-correction-validate",
+        "candidate-authority-correction-preflight"
+      ]
+    },
+    "decision": {
+      "const": "go-pre-live-source-rule-authority-accepted"
+    },
+    "readinessPolicyVersion": {
+      "const": "ranking-v1-deterministic-readiness-policy/3.0.0"
+    },
+    "readinessPolicyDigest": {
+      "$ref": "#/$defs/digest"
+    },
+    "fieldPlanVersion": {
+      "const": "candidate-authority-field-plan/4.0.0"
+    },
+    "fieldPlanDigest": {
+      "$ref": "#/$defs/digest"
+    },
+    "sourcePolicyVersion": {
+      "const": "candidate-authority-source-policy/4.0.0"
+    },
+    "sourcePolicyDigest": {
+      "$ref": "#/$defs/digest"
+    },
+    "denominatorSize": {
+      "const": 18
+    },
+    "minimumRealizedReadyFields": {
+      "const": 13
+    },
+    "exactPercentage": {
+      "const": 72.222222
+    },
+    "partialSemanticRegistryVersion": {
+      "const": "candidate-authority-partial-field-semantics/2.0.0"
+    },
+    "partialSemanticRegistryDigest": {
+      "$ref": "#/$defs/digest"
+    },
+    "partialEvidenceContractVersion": {
+      "const": "candidate-authority-partial-field-evidence/3.0.0"
+    },
+    "partialEvidenceContractDigest": {
+      "$ref": "#/$defs/digest"
+    },
+    "plannedExtractionCapableFields": {
+      "const": 13
+    },
+    "realizedReadyFields": {
+      "type": "null"
+    },
+    "plannedFullClosureFields": {
+      "const": 6
+    },
+    "githubLogicalRequestBudget": {
+      "const": 1810
+    },
+    "npmLogicalRequestBudget": {
+      "const": 80
+    },
+    "totalLogicalRequestBudget": {
+      "const": 1890
+    },
+    "effectAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "networkCalls",
+        "candidateProviderCalls",
+        "credentialReads",
+        "databaseCalls",
+        "dockerCalls",
+        "modelCalls",
+        "filesystemWrites",
+        "providerCollections",
+        "sourceAuthoritiesGenerated",
+        "allCandidateProjections",
+        "coverageCalculations"
+      ],
+      "properties": {
+        "networkCalls": {
+          "const": 0
+        },
+        "candidateProviderCalls": {
+          "const": 0
+        },
+        "credentialReads": {
+          "const": 0
+        },
+        "databaseCalls": {
+          "const": 0
+        },
+        "dockerCalls": {
+          "const": 0
+        },
+        "modelCalls": {
+          "const": 0
+        },
+        "filesystemWrites": {
+          "const": 0
+        },
+        "providerCollections": {
+          "const": 0
+        },
+        "sourceAuthoritiesGenerated": {
+          "const": 0
+        },
+        "allCandidateProjections": {
+          "const": 0
+        },
+        "coverageCalculations": {
+          "const": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

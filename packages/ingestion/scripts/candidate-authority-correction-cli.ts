@@ -3,16 +3,16 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  CANDIDATE_AUTHORITY_FIELD_PLAN_V3_PATH,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH,
   CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST,
   CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_PATH,
-  parseCandidateAuthorityFieldPlanV3,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH,
+  parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityPartialSemanticRegistry,
   parseCandidateAuthorityReadinessPolicyV3,
-  parseCandidateAuthoritySourcePolicyV3,
+  parseCandidateAuthoritySourcePolicyV4,
 } from '../src/index.ts';
 
 const repositoryRoot = resolve(
@@ -32,13 +32,13 @@ if ((mode !== 'validate' && mode !== 'preflight') || unexpected.length > 0) {
     const readinessPolicy = parseCandidateAuthorityReadinessPolicyV3(
       await readJson(CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH),
     );
-    const fieldPlan = parseCandidateAuthorityFieldPlanV3(
-      await readJson(CANDIDATE_AUTHORITY_FIELD_PLAN_V3_PATH),
+    const fieldPlan = parseCandidateAuthorityFieldPlanV4(
+      await readJson(CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH),
       readinessPolicy,
       partialSemanticRegistry,
     );
-    const sourcePolicy = parseCandidateAuthoritySourcePolicyV3(
-      await readJson(CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_PATH),
+    const sourcePolicy = parseCandidateAuthoritySourcePolicyV4(
+      await readJson(CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH),
       fieldPlan,
     );
     const effectAudit = {

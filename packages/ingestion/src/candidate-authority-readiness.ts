@@ -29,27 +29,27 @@ import {
 export const CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION =
   'ranking-v1-deterministic-readiness-policy/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST =
-  '9460725d84404616b045d2039251a4df28a4bd8ca7c7863487cb88c091899c4c' as const;
-export const CANDIDATE_AUTHORITY_FIELD_PLAN_V3_VERSION =
-  'candidate-authority-field-plan/3.0.0' as const;
-export const CANDIDATE_AUTHORITY_FIELD_PLAN_V3_DIGEST =
-  'd054dd81f945aefa9707df5c77be96bfba8f26bb87474bde5bf9c950f9405e1b' as const;
-export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_VERSION =
-  'candidate-authority-source-policy/3.0.0' as const;
-export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_DIGEST =
-  '946862b5b9291023f11d3bb7d37bf3d99a84d40d8846a361dba87ebc0b8614bb' as const;
-export const CANDIDATE_AUTHORITY_ROOT_V3_VERSION =
-  'candidate-authority-root/3.0.0' as const;
+  'f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752' as const;
+export const CANDIDATE_AUTHORITY_FIELD_PLAN_V4_VERSION =
+  'candidate-authority-field-plan/4.0.0' as const;
+export const CANDIDATE_AUTHORITY_FIELD_PLAN_V4_DIGEST =
+  '84796407204bdb7f08efd053b71afc169312e22af2f104fca23d7e8581cb5997' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION =
+  'candidate-authority-source-policy/4.0.0' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST =
+  '5b4fe3b3752679ed1302ce242ededf41b59ea54d01a7f020dad3027635208793' as const;
+export const CANDIDATE_AUTHORITY_ROOT_V4_VERSION =
+  'candidate-authority-root/4.0.0' as const;
 export const CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH =
   'catalog/public-v1/candidate-authority-readiness-policy-v3.json' as const;
-export const CANDIDATE_AUTHORITY_FIELD_PLAN_V3_PATH =
-  'catalog/public-v1/candidate-authority-field-plan-v3.json' as const;
-export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_PATH =
-  'catalog/public-v1/candidate-authority-source-policy-v3.json' as const;
+export const CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH =
+  'catalog/public-v1/candidate-authority-field-plan-v4.json' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH =
+  'catalog/public-v1/candidate-authority-source-policy-v4.json' as const;
 export const CANDIDATE_AUTHORITY_PLANNED_CAPABLE_COUNT = 13 as const;
 export const CANDIDATE_AUTHORITY_PLANNED_FULL_CLOSURE_COUNT = 6 as const;
 
-export type CandidateAuthorityFieldPostureV3 =
+export type CandidateAuthorityFieldPostureV4 =
   | 'deterministic-complete-path'
   | 'deterministic-partial-path'
   | 'human-reviewed-structured-only'
@@ -67,9 +67,9 @@ export type CandidateAuthorityCellOriginCounts = Readonly<
   Record<CandidateAuthorityCellOrigin, number>
 >;
 
-export interface CandidateAuthorityFieldPlanEntryV3 {
+export interface CandidateAuthorityFieldPlanEntryV4 {
   readonly fieldId: CandidateAuthorityDecisionFieldId;
-  readonly posture: CandidateAuthorityFieldPostureV3;
+  readonly posture: CandidateAuthorityFieldPostureV4;
   readonly sourceAuthorityVersion: string;
   readonly extractionRuleVersion: string;
   readonly sourceKind: string;
@@ -107,7 +107,7 @@ export interface CandidateAuthorityFieldPlanEntryV3 {
 
 export interface CandidateAuthorityReadinessPolicyV3 {
   readonly policyVersion: typeof CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION;
-  readonly status: 'proposed-independent-review-required';
+  readonly status: 'accepted-pre-live-architecture-authority';
   readonly supersedes: Readonly<Record<string, string>>;
   readonly unchangedGate: {
     readonly denominatorVersion: 'ranking-decision-denominator/1.0.0';
@@ -135,9 +135,9 @@ export interface CandidateAuthorityReadinessPolicyV3 {
   readonly policySemanticDigest: string;
 }
 
-export interface CandidateAuthorityFieldPlanV3 {
-  readonly planVersion: typeof CANDIDATE_AUTHORITY_FIELD_PLAN_V3_VERSION;
-  readonly status: 'pre-live-go-pending-independent-rereview';
+export interface CandidateAuthorityFieldPlanV4 {
+  readonly planVersion: typeof CANDIDATE_AUTHORITY_FIELD_PLAN_V4_VERSION;
+  readonly status: 'accepted-pre-live-source-rule-authority';
   readonly bindings: Readonly<Record<string, string>>;
   readonly frozenGate: {
     readonly denominatorSize: 18;
@@ -147,26 +147,26 @@ export interface CandidateAuthorityFieldPlanV3 {
   };
   readonly plannedDeterministicExtractionCapableFieldCount: 13;
   readonly plannedDeterministicFullClosureFieldCount: 6;
-  readonly goDecision: 'go-pending-independent-rereview';
+  readonly goDecision: 'go-pre-live-source-rule-authority-accepted';
   readonly goDecisionReasons: readonly string[];
-  readonly fields: readonly CandidateAuthorityFieldPlanEntryV3[];
+  readonly fields: readonly CandidateAuthorityFieldPlanEntryV4[];
   readonly planSemanticDigest: string;
 }
 
-export interface CandidateAuthoritySourcePolicyV3 {
-  readonly policyVersion: typeof CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_VERSION;
-  readonly status: 'pre-live-not-authorized';
+export interface CandidateAuthoritySourcePolicyV4 {
+  readonly policyVersion: typeof CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION;
+  readonly status: 'accepted-pre-live-source-rule-authority-live-not-authorized';
   readonly bindings: Readonly<Record<string, string>>;
   readonly authorization: Readonly<Record<string, false>>;
   readonly requestBudget: {
     readonly candidateCount: 150;
     readonly mappedPackageCount: 80;
-    readonly githubLogicalRequests: 1660;
+    readonly githubLogicalRequests: 1810;
     readonly npmLogicalRequests: 80;
-    readonly totalLogicalRequests: 1740;
-    readonly githubWorstCaseAttempts: 4980;
+    readonly totalLogicalRequests: 1890;
+    readonly githubWorstCaseAttempts: 5430;
     readonly npmWorstCaseAttempts: 240;
-    readonly totalWorstCaseAttempts: 5220;
+    readonly totalWorstCaseAttempts: 5670;
   };
   readonly operations: readonly CandidateAuthoritySourceOperation[];
   readonly failurePolicy: Readonly<Record<string, unknown>>;
@@ -175,8 +175,8 @@ export interface CandidateAuthoritySourcePolicyV3 {
   readonly policySemanticDigest: string;
 }
 
-export interface CandidateAuthorityRootV3 {
-  readonly authorityVersion: typeof CANDIDATE_AUTHORITY_ROOT_V3_VERSION;
+export interface CandidateAuthorityRootV4 {
+  readonly authorityVersion: typeof CANDIDATE_AUTHORITY_ROOT_V4_VERSION;
   readonly catalogBinding: Readonly<Record<string, string>>;
   readonly taxonomyBinding: Readonly<Record<string, string>>;
   readonly deterministicProfileBinding: Readonly<Record<string, string>>;
@@ -358,8 +358,9 @@ const OPERATION_IDS = Object.freeze([
   'github-advisories',
   'npm-package-metadata',
   'github-compose-json-content',
-  'github-compose-json-root-tree',
+  'github-root-tree',
   'github-compose-json-blob',
+  'github-dockerfile-blob',
 ]);
 const BREADTH_GROUPS = Object.freeze([
   'capability-adoption',
@@ -378,7 +379,7 @@ const CELL_ORIGINS = Object.freeze([
 ] as const);
 
 export function qualifiesPlannedDeterministicExtraction(
-  field: CandidateAuthorityFieldPlanEntryV3,
+  field: CandidateAuthorityFieldPlanEntryV4,
 ): boolean {
   const prohibited = new Set(field.prohibitedExtractionInputs);
   const partialBindingValid =
@@ -409,7 +410,7 @@ export function qualifiesPlannedDeterministicExtraction(
 
 export function evaluateCandidateAuthorityRealizedReadiness(input: {
   readonly candidateCount: number;
-  readonly fieldPlan: CandidateAuthorityFieldPlanV3;
+  readonly fieldPlan: CandidateAuthorityFieldPlanV4;
   readonly fields: readonly CandidateAuthorityFieldRealization[];
 }): CandidateAuthorityRealizedReadinessResult {
   if (
@@ -491,7 +492,7 @@ export function parseCandidateAuthorityReadinessPolicyV3(
   if (
     candidate.policyVersion !==
       CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION ||
-    candidate.status !== 'proposed-independent-review-required' ||
+    candidate.status !== 'accepted-pre-live-architecture-authority' ||
     candidate.unchangedGate.denominatorSize !== 18 ||
     candidate.unchangedGate.minimumRealizedReadyFields !== 13 ||
     candidate.unchangedGate.exactPercentage !== 72.222222 ||
@@ -504,11 +505,11 @@ export function parseCandidateAuthorityReadinessPolicyV3(
   return deepFreeze(candidate);
 }
 
-export function parseCandidateAuthorityFieldPlanV3(
+export function parseCandidateAuthorityFieldPlanV4(
   supplied: unknown,
   policy: CandidateAuthorityReadinessPolicyV3,
   registry: CandidateAuthorityPartialSemanticRegistry,
-): CandidateAuthorityFieldPlanV3 {
+): CandidateAuthorityFieldPlanV4 {
   const validatedRegistry =
     parseCandidateAuthorityPartialSemanticRegistry(registry);
   const record = requireRecord(supplied);
@@ -525,7 +526,7 @@ export function parseCandidateAuthorityFieldPlanV3(
       !Array.isArray(field['providerOperations'])
     )
       invalid();
-    const candidate = field as unknown as CandidateAuthorityFieldPlanEntryV3;
+    const candidate = field as unknown as CandidateAuthorityFieldPlanEntryV4;
     if (
       candidate.plannedExtractionCapable !==
       qualifiesPlannedDeterministicExtraction(candidate)
@@ -555,7 +556,7 @@ export function parseCandidateAuthorityFieldPlanV3(
   const candidate = {
     ...record,
     fields,
-  } as unknown as CandidateAuthorityFieldPlanV3;
+  } as unknown as CandidateAuthorityFieldPlanV4;
   const withoutDigest = { ...candidate } as Record<string, unknown>;
   delete withoutDigest['planSemanticDigest'];
   const capable = fields.filter((field) => field.plannedExtractionCapable);
@@ -566,9 +567,9 @@ export function parseCandidateAuthorityFieldPlanV3(
     capable.some((field) => field.breadthGroup === group),
   );
   if (
-    candidate.planVersion !== CANDIDATE_AUTHORITY_FIELD_PLAN_V3_VERSION ||
-    candidate.status !== 'pre-live-go-pending-independent-rereview' ||
-    candidate.goDecision !== 'go-pending-independent-rereview' ||
+    candidate.planVersion !== CANDIDATE_AUTHORITY_FIELD_PLAN_V4_VERSION ||
+    candidate.status !== 'accepted-pre-live-source-rule-authority' ||
+    candidate.goDecision !== 'go-pre-live-source-rule-authority-accepted' ||
     candidate.frozenGate.denominatorSize !== 18 ||
     candidate.frozenGate.minimumRealizedReadyFields !== 13 ||
     candidate.frozenGate.exactPercentage !== 72.222222 ||
@@ -591,17 +592,17 @@ export function parseCandidateAuthorityFieldPlanV3(
       CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION ||
     candidate.bindings['partialEvidenceContractDigest'] !==
       CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST ||
-    candidate.planSemanticDigest !== CANDIDATE_AUTHORITY_FIELD_PLAN_V3_DIGEST ||
+    candidate.planSemanticDigest !== CANDIDATE_AUTHORITY_FIELD_PLAN_V4_DIGEST ||
     candidate.planSemanticDigest !== canonicalizeJson(withoutDigest).digest
   )
     invalid();
   return deepFreeze(candidate);
 }
 
-export function parseCandidateAuthoritySourcePolicyV3(
+export function parseCandidateAuthoritySourcePolicyV4(
   supplied: unknown,
-  plan: CandidateAuthorityFieldPlanV3,
-): CandidateAuthoritySourcePolicyV3 {
+  plan: CandidateAuthorityFieldPlanV4,
+): CandidateAuthoritySourcePolicyV4 {
   const record = requireRecord(supplied);
   requireExactKeys(record, SOURCE_POLICY_KEYS);
   if (!Array.isArray(record['operations'])) invalid();
@@ -631,7 +632,7 @@ export function parseCandidateAuthoritySourcePolicyV3(
   const candidate = {
     ...record,
     operations,
-  } as unknown as CandidateAuthoritySourcePolicyV3;
+  } as unknown as CandidateAuthoritySourcePolicyV4;
   const withoutDigest = { ...candidate } as Record<string, unknown>;
   delete withoutDigest['policySemanticDigest'];
   const github = operations
@@ -650,8 +651,9 @@ export function parseCandidateAuthoritySourcePolicyV3(
     ]),
   );
   if (
-    candidate.policyVersion !== CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_VERSION ||
-    candidate.status !== 'pre-live-not-authorized' ||
+    candidate.policyVersion !== CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION ||
+    candidate.status !==
+      'accepted-pre-live-source-rule-authority-live-not-authorized' ||
     candidate.bindings['fieldPlanVersion'] !== plan.planVersion ||
     candidate.bindings['fieldPlanDigest'] !== plan.planSemanticDigest ||
     Object.values(candidate.authorization).some((value) => value) ||
@@ -676,21 +678,21 @@ export function parseCandidateAuthoritySourcePolicyV3(
       ),
     ) ||
     candidate.policySemanticDigest !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V3_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST ||
     candidate.policySemanticDigest !== canonicalizeJson(withoutDigest).digest
   )
     invalid();
   return deepFreeze(candidate);
 }
 
-export function candidateAuthorityRootV3SemanticDigest(
-  root: Omit<CandidateAuthorityRootV3, 'canonicalAuthorityDigest'>,
+export function candidateAuthorityRootV4SemanticDigest(
+  root: Omit<CandidateAuthorityRootV4, 'canonicalAuthorityDigest'>,
 ): string {
   return canonicalizeJson(root).digest;
 }
 
 function breadthFields(
-  fields: readonly CandidateAuthorityFieldPlanEntryV3[],
+  fields: readonly CandidateAuthorityFieldPlanEntryV4[],
 ): Readonly<
   Record<
     CandidateAuthorityBreadthGroup,

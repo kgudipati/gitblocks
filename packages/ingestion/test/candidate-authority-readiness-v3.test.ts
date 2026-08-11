@@ -15,14 +15,14 @@ import {
   extractRecognizedLicenseSpdxFact,
   extractRepositoryPrimaryLanguageFact,
   extractRepositorySelfBuildComposeServiceFacts,
-  parseCandidateAuthorityFieldPlanV3,
+  parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityPartialSemanticRegistry,
   parseCandidateAuthorityReadinessPolicyV3,
-  parseCandidateAuthoritySourcePolicyV3,
+  parseCandidateAuthoritySourcePolicyV4,
   qualifiesPlannedDeterministicExtraction,
   resolveExactGitHeadFromReferenceAndCommit,
   type CandidateAuthorityCellOriginCounts,
-  type CandidateAuthorityFieldPlanV3,
+  type CandidateAuthorityFieldPlanV4,
 } from '../src/index.ts';
 
 const ROOT = new URL('../../../', import.meta.url);
@@ -32,7 +32,7 @@ const TREE_SHA = 'fedcba9876543210fedcba9876543210fedcba98';
 async function authorities() {
   const registry = parseCandidateAuthorityPartialSemanticRegistry(
     await readJson(
-      'catalog/public-v1/candidate-authority-partial-field-semantics.json',
+      'catalog/public-v1/candidate-authority-partial-field-semantics-v2.json',
     ),
   );
   const policy = parseCandidateAuthorityReadinessPolicyV3(
@@ -40,14 +40,14 @@ async function authorities() {
       'catalog/public-v1/candidate-authority-readiness-policy-v3.json',
     ),
   );
-  const plan = parseCandidateAuthorityFieldPlanV3(
-    await readJson('catalog/public-v1/candidate-authority-field-plan-v3.json'),
+  const plan = parseCandidateAuthorityFieldPlanV4(
+    await readJson('catalog/public-v1/candidate-authority-field-plan-v4.json'),
     policy,
     registry,
   );
-  const sourcePolicy = parseCandidateAuthoritySourcePolicyV3(
+  const sourcePolicy = parseCandidateAuthoritySourcePolicyV4(
     await readJson(
-      'catalog/public-v1/candidate-authority-source-policy-v3.json',
+      'catalog/public-v1/candidate-authority-source-policy-v4.json',
     ),
     plan,
   );
@@ -119,6 +119,12 @@ describe('readiness policy v3', () => {
         'recognized-spdx-v1',
       ],
       [
+        'repository-container-build-declaration',
+        'deployment-self-hosting',
+        ['affirmative'],
+        'canonical-container-build-declaration-v1',
+      ],
+      [
         'repository-primary-language',
         'language-ecosystem',
         ['affirmative'],
@@ -132,7 +138,7 @@ describe('readiness policy v3', () => {
       ],
     ]);
     const schema = await readJson(
-      'schemas/operations/candidate-authority/partial-field-evidence-v2.schema.json',
+      'schemas/operations/candidate-authority/partial-field-evidence-v3.schema.json',
     );
     expect(canonicalizeJson(schema).digest).toBe(
       CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST,
@@ -190,6 +196,24 @@ describe('readiness policy v3', () => {
       [],
     );
     expect(result.decision).toBe('no-go');
+  });
+
+  it('lets one registry-validated deployment partial cell realize the field but not full closure', async () => {
+    const { plan } = await authorities();
+    const result = evaluateCandidateAuthorityRealizedReadiness({
+      candidateCount: 1,
+      fieldPlan: plan,
+      fields: realizationFixtures(plan),
+    });
+    expect(result.realizedDeterministicReadyFields).toContain(
+      'deployment-self-hosting',
+    );
+    expect(result.realizedBreadthGroups['infrastructure-deployment']).toEqual([
+      'deployment-self-hosting',
+    ]);
+    expect(result.deterministicFullClosureFields).not.toContain(
+      'deployment-self-hosting',
+    );
   });
 
   it('excludes human-reviewed and model-derived cells from realized readiness', async () => {
@@ -480,13 +504,51 @@ describe('bounded Git head resolution policy', () => {
     expect(
       sourcePolicy.operations.map((operation) => operation.operationId),
     ).toContain('github-head-commit-object');
+    expect(sourcePolicy.requestBudget).toEqual({
+      candidateCount: 150,
+      mappedPackageCount: 80,
+      githubLogicalRequests: 1810,
+      npmLogicalRequests: 80,
+      totalLogicalRequests: 1890,
+      githubWorstCaseAttempts: 5430,
+      npmWorstCaseAttempts: 240,
+      totalWorstCaseAttempts: 5670,
+    });
+  });
+
+  it('reuses one exact root-tree operation and adds only the conditional immutable Dockerfile blob request', async () => {
+    const { plan, sourcePolicy } = await authorities();
+    expect(
+      sourcePolicy.operations.filter(
+        (operation) => operation.operationId === 'github-root-tree',
+      ),
+    ).toHaveLength(1);
+    expect(
+      sourcePolicy.operations.find(
+        (operation) => operation.operationId === 'github-dockerfile-blob',
+      ),
+    ).toEqual(
+      expect.objectContaining({
+        endpointShape:
+          '/repositories/{repositoryId}/git/blobs/{dockerfileBlobSha}',
+        maximumTotalLogicalRequests: 150,
+      }),
+    );
+    const deployment = plan.fields.find(
+      (field) => field.fieldId === 'deployment-self-hosting',
+    );
+    expect(deployment?.partialFactCodes).toEqual([
+      'repository-container-build-declaration',
+      'repository-self-build-compose-service',
+    ]);
+    expect(deployment?.plannedExtractionCapable).toBe(true);
   });
 });
 
 function realizationFixtures(
-  plan: CandidateAuthorityFieldPlanV3,
+  plan: CandidateAuthorityFieldPlanV4,
   override?: {
-    readonly fieldId: CandidateAuthorityFieldPlanV3['fields'][number]['fieldId'];
+    readonly fieldId: CandidateAuthorityFieldPlanV4['fields'][number]['fieldId'];
     readonly origins: CandidateAuthorityCellOriginCounts;
   },
 ) {

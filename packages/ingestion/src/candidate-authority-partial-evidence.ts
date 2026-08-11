@@ -16,13 +16,13 @@ import {
   type CandidateAuthorityPartialSemanticRegistry,
 } from './candidate-authority-partial-semantics.ts';
 import type { CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION } from './candidate-authority-partial-semantics.ts';
-import type { CandidateAuthorityFieldPlanV3 } from './candidate-authority-readiness.ts';
+import type { CandidateAuthorityFieldPlanV4 } from './candidate-authority-readiness.ts';
 import { ingestionError } from './errors.ts';
 
 export const CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION =
-  'candidate-authority-partial-field-evidence/2.0.0' as const;
+  'candidate-authority-partial-field-evidence/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST =
-  'a4432de831ef9e471d271c82effeaf916c30b6614675237c400d9e8486d60351' as const;
+  '6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e' as const;
 
 type EvidenceSource = CandidateDossierV1['observations'][number]['source'];
 
@@ -115,7 +115,7 @@ export function createCandidateAuthorityPartialFieldEvidence(
 
 export function projectPartialFieldEvidenceToDossier(input: {
   readonly completeProjection: CandidateAuthorityDossierProjection;
-  readonly fieldPlan: CandidateAuthorityFieldPlanV3;
+  readonly fieldPlan: CandidateAuthorityFieldPlanV4;
   readonly partialSemanticRegistry: CandidateAuthorityPartialSemanticRegistry;
   readonly partialEvidence: readonly CandidateAuthorityPartialFieldEvidence[];
 }): CandidateAuthorityPartialDossierProjection {
@@ -200,17 +200,31 @@ export function projectPartialFieldEvidenceToDossier(input: {
     if (partial.fieldCompleteness === 'partial') {
       const unresolvedRemainder = partial.unresolvedRemainder;
       if (unresolvedRemainder === null) invalid();
-      limitations.push({
-        limitationId: stableId('limitation', {
+      const limitationCode = `field-remains-partial-${partial.fieldId}`;
+      const limitationIndex = limitations.findIndex(
+        (limitation) =>
+          limitation.candidateId === partial.candidateId &&
+          limitation.limitationCode === limitationCode,
+      );
+      if (limitationIndex < 0) {
+        limitations.push({
+          limitationId: stableId('limitation', {
+            candidateId: partial.candidateId,
+            fieldId: partial.fieldId,
+          }),
+          limitationCode,
           candidateId: partial.candidateId,
-          fieldId: partial.fieldId,
-          partialEvidenceId: partial.partialEvidenceId,
-        }),
-        limitationCode: `field-remains-partial-${partial.fieldId}`,
-        candidateId: partial.candidateId,
-        statement: unresolvedRemainder,
-        evidenceIds: [evidenceId],
-      });
+          statement: unresolvedRemainder,
+          evidenceIds: [evidenceId],
+        });
+      } else {
+        const limitation = limitations[limitationIndex];
+        if (limitation?.statement !== unresolvedRemainder) invalid();
+        limitations[limitationIndex] = {
+          ...limitation,
+          evidenceIds: [...limitation.evidenceIds, evidenceId].sort(compare),
+        };
+      }
     }
     bindings.push({
       partialEvidenceId: partial.partialEvidenceId,

@@ -12,6 +12,7 @@ export type CandidateAuthorityPartialRuleResult =
           | 'importable-runtime-package-surface'
           | 'published-release'
           | 'recognized-license-spdx'
+          | 'repository-container-build-declaration'
           | 'repository-primary-language'
           | 'repository-self-build-compose-service';
         readonly factValue: string;

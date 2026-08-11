@@ -40,13 +40,14 @@ recommendation, or production persistence.
 Project Phase 9 is independently accepted. It adds the pure production
 retrieval package, transport-neutral contracts, reviewed authority bindings,
 separate result lanes, provenance, and bounded deterministic retrieval. It does
-not add an operational retrieval service. Project Phase 10 Milestone 1 now has
-governance only under Issue #32, Plan 0032, and proposed ADR 0011. It plans a
-pure deterministic ranking package over the bounded Phase 9 result with
-existing fit-assessment semantics and evidence-grounded partial ordering. No
-ranking package, ranking evaluation/candidate authority, model, service,
-database, vector, cache, or persistent search infrastructure exists or is
-authorized by that governance branch.
+not add an operational retrieval service. Project Phase 10 Milestones 1 and 2
+are accepted under Issue #32, Plan 0032, and ADR 0011. Accepted ADR 0012 owns
+the pre-live candidate-authority readiness/source architecture: policy v3,
+field/source plans v4, partial semantic registry v2/evidence v3, and root v4.
+It retains 13 planned-capable fields and six planned full-closure fields while
+realized readiness remains unmeasured. No live candidate source authority,
+ranking package, model, service, database, vector, cache, or persistent search
+infrastructure exists. Live M3 collection remains separately unauthorized.
 
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
@@ -77,10 +78,13 @@ or turn the pure package into an operational service.
 [ADR 0010](decisions/0010-reviewed-retrieval-v2-authority.md) accepts the
 additive reviewed retrieval-v2 authority without turning retrieval evaluation
 into ranking authority.
-Proposed [ADR 0011](decisions/0011-codebase-conditioned-ranking.md) defines the
+Accepted [ADR 0011](decisions/0011-codebase-conditioned-ranking.md) defines the
 Phase 10 handoff, evidence bridge, two field denominators, request-conditioned
 partial order, evaluation separation, and conditional model/infrastructure
-triggers. It remains proposed until independent Milestone 1 acceptance.
+triggers. Accepted
+[ADR 0012](decisions/0012-separate-deterministic-extraction-from-full-closure.md)
+separates planned capability, realized readiness, and full closure and accepts
+only the pre-live source/rule authority; it does not authorize provider calls.
 
 ## Context and ownership
 

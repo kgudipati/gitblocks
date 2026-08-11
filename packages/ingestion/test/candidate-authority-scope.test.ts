@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 const ROOT = new URL('../../../', import.meta.url);
 const PRODUCT_FILES = [
   'packages/ingestion/src/candidate-authority-contracts.ts',
+  'packages/ingestion/src/candidate-authority-dockerfile.ts',
   'packages/ingestion/src/candidate-authority-evidence.ts',
   'packages/ingestion/src/candidate-authority-partial-evidence.ts',
   'packages/ingestion/src/candidate-authority-partial-rules.ts',

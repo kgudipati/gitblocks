@@ -1,6 +1,7 @@
 # Candidate authority M3A pre-live design
 
-Status: **frozen for independent review; pre-live NO-GO**
+Status: **historical M3A v1 NO-GO preserved; ADR 0012 successor accepted
+pre-live; live collection not executed or authorized**
 
 This is the internal Milestone 3A source/rule freeze for Issue #32. It does not
 create a project milestone, authorize a provider or credential effect, generate
@@ -16,6 +17,49 @@ The source policy is
 `candidate-authority-source-policy/1.0.0`, digest
 `b0f22107190995b64f81851f8d88b8da6539643868ee93ba9977b262b0bc3699`.
 Neither contains provider-derived candidate values.
+
+## Accepted ADR 0012 successor
+
+M3A v1 remains correct evidence under historical readiness policy v1.
+Independent review accepted ADR 0012's separation of planned extraction
+capability, realized readiness, and full closure, then accepted the final
+source-hardening descendant rooted at
+`99713ff00e9e1b226c7a573ac38c152969babf90`. The numeric denominator and gate
+remain 18 and 13/18 (72.222222%); pre-live breadth uses planned capability and
+final M3 breadth uses realized readiness.
+
+The accepted pre-live authorities are:
+
+- readiness policy `ranking-v1-deterministic-readiness-policy/3.0.0`, digest
+  `f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752`;
+- field plan `candidate-authority-field-plan/4.0.0`, digest
+  `84796407204bdb7f08efd053b71afc169312e22af2f104fca23d7e8581cb5997`;
+- source policy `candidate-authority-source-policy/4.0.0`, digest
+  `5b4fe3b3752679ed1302ce242ededf41b59ea54d01a7f020dad3027635208793`;
+- closed partial semantic registry
+  `candidate-authority-partial-field-semantics/2.0.0`, digest
+  `baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e`;
+  and
+- partial evidence `candidate-authority-partial-field-evidence/3.0.0`, schema
+  digest
+  `6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e`,
+  with eventual root `candidate-authority-root/4.0.0`.
+
+The successor has exactly 13 planned-capable fields and the same six planned
+full-closure fields. Realized readiness is null/unmeasured. The sole planned
+infrastructure/deployment field remains `deployment-self-hosting`; it may
+realize through either a registered exact-root Compose self-build service or
+the affirmative `repository-container-build-declaration` fact. The Dockerfile
+rule reuses the exact ADR 0006 ref → commit → root-tree identity, accepts only a
+normal exact-root `Dockerfile` blob with matching and recomputed object
+identity, strict UTF-8/no NUL/256 KiB bounds, and a conservative direct `FROM`
+prefix. It never executes the source. Missing/unsupported Dockerfile source
+emits no fact and no negative claim.
+
+One root-tree request serves both optional exact paths. Only a conditional
+immutable Dockerfile blob request is added. Worst-case ceilings are 1,810
+GitHub and 80 npm logical requests (1,890 total), with 5,430, 240, and 5,670
+attempts respectively. These accepted bounds do not authorize a call.
 
 ## Frozen gate and decision
 
@@ -221,8 +265,9 @@ reports zero network, credential, database, Docker, model, write, collection,
 source-generation, all-candidate projection, and coverage effects. It does not
 inspect credentials.
 
-The NO-GO can change only after independent architecture review supplies at
-least seven more scientifically complete fields, including one in each missing
-breadth group, without changing the frozen gate. Review must precede every
-credential/provider effect and all-150 projection. Until then live collection
-is prohibited.
+The historical v1 NO-GO changed only through the independently reviewed ADR
+0012 successor above; it was not reinterpreted or erased. Live collection is
+still prohibited until a separate authorization runs the zero-effect preflight
+and explicitly authorizes the one-shot bounded effect. Nothing here authorizes
+credential inspection, candidate-provider calls, all-150 projection, coverage,
+or Milestone 4.

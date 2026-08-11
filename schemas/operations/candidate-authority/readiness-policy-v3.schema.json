@@ -24,7 +24,9 @@
     "policyVersion": {
       "const": "ranking-v1-deterministic-readiness-policy/3.0.0"
     },
-    "status": { "const": "proposed-independent-review-required" },
+    "status": {
+      "const": "accepted-pre-live-architecture-authority"
+    },
     "supersedes": {
       "type": "object",
       "minProperties": 4,
@@ -44,23 +46,39 @@
         "exactPercentage"
       ],
       "properties": {
-        "denominatorVersion": { "const": "ranking-decision-denominator/1.0.0" },
-        "denominatorSize": { "const": 18 },
-        "minimumRealizedReadyFields": { "const": 13 },
-        "exactPercentage": { "const": 72.222222 }
+        "denominatorVersion": {
+          "const": "ranking-decision-denominator/1.0.0"
+        },
+        "denominatorSize": {
+          "const": 18
+        },
+        "minimumRealizedReadyFields": {
+          "const": 13
+        },
+        "exactPercentage": {
+          "const": 72.222222
+        }
       }
     },
     "plannedDeterministicExtractionCapabilityDefinition": {
       "type": "array",
       "minItems": 10,
       "maxItems": 10,
-      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      }
     },
     "realizedDeterministicReadinessDefinition": {
       "type": "array",
       "minItems": 7,
       "maxItems": 7,
-      "items": { "type": "string", "minLength": 1, "maxLength": 600 }
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 600
+      }
     },
     "deterministicFullClosureDefinition": {
       "type": "string",
@@ -76,7 +94,10 @@
         "minItems": 2,
         "maxItems": 6,
         "uniqueItems": true,
-        "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        }
       }
     },
     "breadthQualification": {
@@ -84,15 +105,27 @@
       "additionalProperties": false,
       "required": ["preLive", "finalM3"],
       "properties": {
-        "preLive": { "type": "string", "minLength": 1, "maxLength": 500 },
-        "finalM3": { "type": "string", "minLength": 1, "maxLength": 500 }
+        "preLive": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "finalM3": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
       }
     },
     "postCollectionFailurePolicy": {
       "type": "array",
       "minItems": 4,
       "maxItems": 4,
-      "items": { "type": "string", "minLength": 1, "maxLength": 600 }
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 600
+      }
     },
     "perCellOrigins": {
       "type": "array",
@@ -116,9 +149,20 @@
       "minItems": 5,
       "maxItems": 10,
       "uniqueItems": true,
-      "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      }
     },
-    "changeControl": { "type": "string", "minLength": 1, "maxLength": 1500 },
-    "policySemanticDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    "changeControl": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1500
+    },
+    "policySemanticDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
   }
 }

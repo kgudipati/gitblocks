@@ -159,17 +159,19 @@ Agent Skill, persistent or vector search, shared retrieval service, and
 deployment remain unimplemented.
 
 [Plan 0032](docs/plans/0032-codebase-conditioned-ranking.md), governing
-[Issue #32](https://github.com/kgudipati/gitblocks/issues/32), and proposed
+[Issue #32](https://github.com/kgudipati/gitblocks/issues/32), and accepted
 [ADR 0011](docs/architecture/decisions/0011-codebase-conditioned-ranking.md)
-establish the Project Phase 10 Milestone 1 boundary, corresponding to the
+establish the Project Phase 10 ranking boundary, corresponding to the
 original strategy's Phase 12 ranking engine. Phase 10 will rank only the
 bounded Phase 9 result for a particular authoritative target fingerprint,
 preserve the existing fit-assessment semantics, and use deterministic
 evidence-grounded partial ordering rather than retrieval score, popularity,
-universal repository scores, or numeric confidence. This governance work does
-not implement ranking, ranking evaluation authority, candidate evidence, a
-service, a model, or ranking infrastructure. Milestone 2 remains blocked on
-independent Milestone 1 acceptance.
+universal repository scores, or numeric confidence. Accepted
+[ADR 0012](docs/architecture/decisions/0012-separate-deterministic-extraction-from-full-closure.md)
+adds only the pre-live candidate-authority source/rule architecture. Realized
+readiness is unmeasured; no live candidate authority, ranking package, service,
+model, or ranking infrastructure exists, and live collection remains
+separately unauthorized.
 
 ## Repository map
 

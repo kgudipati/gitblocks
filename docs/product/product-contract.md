@@ -268,18 +268,21 @@ must not substitute popularity for compatibility.
 
 Project Phase 10 maps to the original strategy's Phase 12 ranking engine.
 [Issue #32](https://github.com/kgudipati/gitblocks/issues/32),
-[Plan 0032](../plans/0032-codebase-conditioned-ranking.md), and proposed
+[Plan 0032](../plans/0032-codebase-conditioned-ranking.md), and accepted
 [ADR 0011](../architecture/decisions/0011-codebase-conditioned-ranking.md)
-establish only its Milestone 1 governance boundary. The future deterministic
+establish its ranking boundary, while accepted
+[ADR 0012](../architecture/decisions/0012-separate-deterministic-extraction-from-full-closure.md)
+owns only the pre-live candidate-authority readiness/source architecture. The
+future deterministic
 Ranking V1 will consume the exact bounded Phase 9 handoff, an already-approved
 `CapabilityRequestV1`, an authoritative `RepositoryFingerprintV1`, and
 fit-consumable candidate evidence. `FitAssessmentRequestV1` and
 `FitAssessmentResponseV1` remain the assessment authority. Retrieval score is
 diagnostic only; supported request-conditioned claims produce a partial order,
-while unsupported trade-offs remain incomparable. No ranking package,
-ranking-v1 evaluation authority, candidate evidence successor, model,
-persistence, vector, cache, search service, or benchmark is created by
-Milestone 1.
+while unsupported trade-offs remain incomparable. No ranking package, live
+candidate evidence authority, model, persistence, vector, cache, search
+service, or benchmark is created by the pre-live correction; provider
+collection remains separately unauthorized.
 
 ## Canonical vocabulary
 

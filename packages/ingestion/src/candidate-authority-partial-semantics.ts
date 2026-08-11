@@ -11,11 +11,11 @@ import {
 } from './profile-materialization-contracts.ts';
 
 export const CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION =
-  'candidate-authority-partial-field-semantics/1.0.0' as const;
+  'candidate-authority-partial-field-semantics/2.0.0' as const;
 export const CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH =
-  'catalog/public-v1/candidate-authority-partial-field-semantics.json' as const;
+  'catalog/public-v1/candidate-authority-partial-field-semantics-v2.json' as const;
 export const CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST =
-  'effb398b80fb84a88b51bb8f0565e05b6e9c665cb11ed4eda41162ff350db016' as const;
+  'baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e' as const;
 
 export const CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES = Object.freeze([
   'applicable-security-advisory',
@@ -23,6 +23,7 @@ export const CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES = Object.freeze([
   'importable-runtime-package-surface',
   'published-release',
   'recognized-license-spdx',
+  'repository-container-build-declaration',
   'repository-primary-language',
   'repository-self-build-compose-service',
 ] as const);
@@ -56,6 +57,11 @@ export type CandidateAuthorityPartialValueSyntax =
       readonly entryPointKinds: readonly ['exports', 'main', 'module'];
       readonly packageNamePattern: string;
       readonly packageVersionPattern: string;
+    }
+  | {
+      readonly kind: 'canonical-container-build-declaration-v1';
+      readonly path: 'Dockerfile';
+      readonly contentDigestPattern: '^[a-f0-9]{64}$';
     }
   | {
       readonly kind: 'canonical-framework-peer-relation-v1';
@@ -115,7 +121,7 @@ export interface CandidateAuthorityPartialFactDefinition {
 
 export interface CandidateAuthorityPartialSemanticRegistry {
   readonly registryVersion: typeof CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION;
-  readonly status: 'proposed-independent-review-required';
+  readonly status: 'accepted-pre-live-source-rule-authority';
   readonly definitions: readonly CandidateAuthorityPartialFactDefinition[];
   readonly registrySemanticDigest: string;
 }
@@ -183,7 +189,7 @@ export function parseCandidateAuthorityPartialSemanticRegistry(
   if (
     candidate.registryVersion !==
       CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION ||
-    candidate.status !== 'proposed-independent-review-required' ||
+    candidate.status !== 'accepted-pre-live-source-rule-authority' ||
     candidate.registrySemanticDigest !==
       CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_DIGEST ||
     candidate.registrySemanticDigest !== canonicalizeJson(withoutDigest).digest
@@ -282,6 +288,17 @@ function valueMatches(
         )
       );
     }
+    case 'canonical-container-build-declaration-v1': {
+      const parsed = canonicalObject(value, ['contentDigest', 'path']);
+      return (
+        parsed !== null &&
+        parsed['path'] === syntax.path &&
+        typeof parsed['contentDigest'] === 'string' &&
+        new RegExp(syntax.contentDigestPattern, 'u').test(
+          parsed['contentDigest'],
+        )
+      );
+    }
     case 'canonical-framework-peer-relation-v1': {
       const parsed = canonicalObject(value, [
         'framework',
@@ -368,6 +385,9 @@ function parseAllowedProvenance(
 function parseValueSyntax(supplied: unknown): void {
   const value = requireRecord(supplied);
   switch (value['kind']) {
+    case 'canonical-container-build-declaration-v1':
+      requireExactKeys(value, ['contentDigestPattern', 'kind', 'path']);
+      return;
     case 'canonical-importable-runtime-package-surface-v1':
       requireExactKeys(value, [
         'entryPointKinds',
