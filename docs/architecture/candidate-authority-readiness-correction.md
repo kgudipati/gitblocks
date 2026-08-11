@@ -68,7 +68,7 @@ improve readiness.
 | security-policy-presence          |     yes |                    yes | Complete community-profile Boolean or controlled absence                                 | —                                       | policy/risk               |
 
 Capability/adoption is represented by `adoption-unit-type`;
-infrastructure/deployment by `deployment-self-hosting`; stack/package by six
+infrastructure/deployment by `deployment-self-hosting`; stack/package by five
 paths; and policy/risk by six paths. This is a planned breadth result only.
 
 ## Closed partial facts
