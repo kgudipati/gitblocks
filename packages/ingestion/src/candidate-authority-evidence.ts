@@ -9,7 +9,7 @@ import {
 import { canonicalizeJson, stableId } from './canonical-json.ts';
 import type {
   CandidateAuthorityDecisionFieldId,
-  CandidateAuthorityFieldPlan,
+  CandidateAuthorityFieldPlanEntry,
 } from './candidate-authority-contracts.ts';
 import { ingestionError } from './errors.ts';
 
@@ -36,7 +36,16 @@ export interface CandidateAuthorityDossierProjection {
 
 export function projectCandidateAuthorityDossier(input: {
   readonly profile: DeterministicCandidateProfileV1;
-  readonly fieldPlan: CandidateAuthorityFieldPlan;
+  readonly fieldPlan: {
+    readonly fields: readonly Pick<
+      CandidateAuthorityFieldPlanEntry,
+      | 'evidenceDimension'
+      | 'evidenceProvenanceKind'
+      | 'evidenceTopic'
+      | 'extractionRuleVersion'
+      | 'fieldId'
+    >[];
+  };
   readonly evidenceBindings: readonly CandidateAuthorityEvidenceBinding[];
   readonly collectionCutoff: string;
 }): CandidateAuthorityDossierProjection {
@@ -69,6 +78,7 @@ export function projectCandidateAuthorityDossier(input: {
   const observations: CandidateDossierV1['observations'][number][] = [];
   const limitations: CandidateDossierV1['limitations'][number][] = [];
   const unknowns: CandidateDossierV1['unknowns'][number][] = [];
+  const mutableEvidenceIds: string[] = [];
   const fieldEvidenceBindings: CandidateAuthorityDossierProjection['fieldEvidenceBindings'][number][] =
     [];
 
@@ -125,18 +135,7 @@ export function projectCandidateAuthorityDossier(input: {
         evidenceDigest: canonicalizeJson(observation).digest,
       });
       if (mutable) {
-        limitations.push({
-          limitationId: stableId('limitation', {
-            candidateId: profile.candidateId,
-            evidenceId,
-            limitationCode: 'source-is-mutable',
-          }),
-          limitationCode: 'source-is-mutable',
-          candidateId: profile.candidateId,
-          statement:
-            'This deterministic field is authoritative only at the committed structured-provider snapshot.',
-          evidenceIds: [evidenceId],
-        });
+        mutableEvidenceIds.push(evidenceId);
       }
       continue;
     }
@@ -165,6 +164,21 @@ export function projectCandidateAuthorityDossier(input: {
     )
   ) {
     invalid();
+  }
+  if (mutableEvidenceIds.length > 0) {
+    const evidenceIds = [...mutableEvidenceIds].sort(compare);
+    limitations.push({
+      limitationId: stableId('limitation', {
+        candidateId: profile.candidateId,
+        evidenceIds,
+        limitationCode: 'source-is-mutable',
+      }),
+      limitationCode: 'source-is-mutable',
+      candidateId: profile.candidateId,
+      statement:
+        'These deterministic fields are authoritative only at the committed structured-provider snapshot.',
+      evidenceIds,
+    });
   }
 
   const dossierCandidate = {

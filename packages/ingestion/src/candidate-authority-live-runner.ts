@@ -1,33 +1,42 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition -- Committed authorities are independently revalidated at this effect boundary. */
 
 import {
-  CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH,
   CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST,
   CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
+} from './candidate-authority-partial-evidence.ts';
+import {
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
-  CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH,
-  parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityPartialSemanticRegistry,
-  parseCandidateAuthorityReadinessPolicyV3,
-  parseCandidateAuthoritySourcePolicyV4,
-} from './index.ts';
+} from './candidate-authority-partial-semantics.ts';
+import { canonicalizeJson } from './canonical-json.ts';
 import {
   CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD,
   CANDIDATE_AUTHORITY_DOSSIER_AUTHORITY_PATH,
+  CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_EVIDENCE_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_GITHUB_TOKEN_ENVIRONMENT,
   CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST,
   CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_PATH,
   CANDIDATE_AUTHORITY_PARTIAL_AUTHORITY_PATH,
+  CANDIDATE_AUTHORITY_PARTIAL_STAGING_PATH,
+  CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
+  CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST,
+  CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH,
+  CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION,
   CANDIDATE_AUTHORITY_PROFILE_AUTHORITY_PATH,
+  CANDIDATE_AUTHORITY_PROFILE_STAGING_PATH,
+  CANDIDATE_AUTHORITY_READINESS_STAGING_PATH,
+  CANDIDATE_AUTHORITY_ROOT_STAGING_PATH,
   CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_SOURCE_MAXIMUM_SERIALIZED_BYTES,
   CANDIDATE_AUTHORITY_SOURCE_STAGING_PATH,
+  CANDIDATE_AUTHORITY_DOSSIER_STAGING_PATH,
+  CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_STAGING_PATH,
+  CANDIDATE_AUTHORITY_EVIDENCE_STAGING_PATH,
   parseCandidateAuthorityLiveAuthorization,
   parseCandidateAuthoritySourceAuthority,
   serializeCandidateAuthoritySourceAuthority,
-  type CandidateAuthorityLiveAuthorizationV1,
+  type CandidateAuthorityLiveAuthorizationV2,
   type CandidateAuthoritySourceAuthorityV1,
 } from './candidate-authority-live-contracts.ts';
 import type { CandidateAuthorityAttemptMetrics } from './candidate-authority-live-collector.ts';
@@ -35,11 +44,17 @@ import { asSafeErrorCode, ingestionError } from './errors.ts';
 import { parsePublicCatalog } from './manifest.ts';
 import {
   CANDIDATE_AUTHORITY_FIELD_PLAN_V4_DIGEST,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH,
   CANDIDATE_AUTHORITY_FIELD_PLAN_V4_VERSION,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
+  CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION,
+  parseCandidateAuthorityFieldPlanV4,
+  parseCandidateAuthorityReadinessPolicyV3,
+  parseCandidateAuthoritySourcePolicyV4,
   type CandidateAuthoritySourcePolicyV4,
 } from './candidate-authority-readiness.ts';
 import type { PublicCatalog } from './types.ts';
@@ -59,6 +74,14 @@ const ABSENT_BEFORE_COLLECTION = [
   CANDIDATE_AUTHORITY_PARTIAL_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_EVIDENCE_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_DOSSIER_AUTHORITY_PATH,
+  CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_AUTHORITY_PATH,
+  CANDIDATE_AUTHORITY_PROFILE_STAGING_PATH,
+  CANDIDATE_AUTHORITY_PARTIAL_STAGING_PATH,
+  CANDIDATE_AUTHORITY_EVIDENCE_STAGING_PATH,
+  CANDIDATE_AUTHORITY_DOSSIER_STAGING_PATH,
+  CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_STAGING_PATH,
+  CANDIDATE_AUTHORITY_READINESS_STAGING_PATH,
+  CANDIDATE_AUTHORITY_ROOT_STAGING_PATH,
 ] as const;
 
 export interface CandidateAuthorityLiveGitState {
@@ -66,6 +89,8 @@ export interface CandidateAuthorityLiveGitState {
   readonly head: string;
   readonly originHead: string;
   readonly parentHead: string;
+  readonly priorOperatorParentHead: string;
+  readonly correctionCommitCount: number;
   readonly clean: boolean;
 }
 
@@ -84,7 +109,8 @@ export interface CandidateAuthorityLiveCollectionEffects extends CandidateAuthor
   readonly collect: (input: {
     readonly catalog: PublicCatalog;
     readonly sourcePolicy: CandidateAuthoritySourcePolicyV4;
-    readonly authorization: CandidateAuthorityLiveAuthorizationV1;
+    readonly authorization: CandidateAuthorityLiveAuthorizationV2;
+    readonly executionHead: string;
     readonly credential: string;
     readonly collectionCutoff: string;
     readonly signal?: AbortSignal;
@@ -110,7 +136,7 @@ export interface CandidateAuthorityLivePreflightResult {
   readonly git: CandidateAuthorityLiveGitState;
   readonly catalog: PublicCatalog;
   readonly sourcePolicy: CandidateAuthoritySourcePolicyV4;
-  readonly authorization: CandidateAuthorityLiveAuthorizationV1;
+  readonly authorization: CandidateAuthorityLiveAuthorizationV2;
   readonly effectAudit: {
     readonly networkCalls: 0;
     readonly candidateProviderCalls: 0;
@@ -122,6 +148,7 @@ export interface CandidateAuthorityLivePreflightResult {
     readonly allCandidateProjections: 0;
     readonly coverageCalculations: 0;
     readonly filesystemWrites: 0;
+    readonly providerCollections: 0;
   };
 }
 
@@ -143,6 +170,7 @@ export async function preflightCandidateAuthorityLiveCollection(
     registryText,
     planText,
     sourceText,
+    priorAuthorizationText,
     authorizationText,
     git,
   ] = await Promise.all([
@@ -151,6 +179,7 @@ export async function preflightCandidateAuthorityLiveCollection(
     read(effects, CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH),
     read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH),
+    read(effects, CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH),
     read(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_PATH),
     effects.readGitState(),
     ...ABSENT_BEFORE_COLLECTION.map((path) => effects.requirePathMissing(path)),
@@ -174,6 +203,25 @@ export async function preflightCandidateAuthorityLiveCollection(
   const authorization = parseCandidateAuthorityLiveAuthorization(
     JSON.parse(authorizationText) as unknown,
   );
+  const priorAuthorization = JSON.parse(priorAuthorizationText) as unknown;
+  if (
+    typeof priorAuthorization !== 'object' ||
+    priorAuthorization === null ||
+    Array.isArray(priorAuthorization)
+  )
+    throw ingestionError('ingestion.invalid-input');
+  const priorRecord = priorAuthorization as Record<string, unknown>;
+  const priorWithoutDigest = { ...priorRecord };
+  delete priorWithoutDigest['authorizationSemanticDigest'];
+  if (
+    priorRecord['authorizationVersion'] !==
+      CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION ||
+    priorRecord['authorizationSemanticDigest'] !==
+      CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST ||
+    canonicalizeJson(priorWithoutDigest).digest !==
+      CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST
+  )
+    throw ingestionError('ingestion.invalid-input');
   const mappedNpm = catalog.candidates.filter(
     (candidate) => candidate.npmPackage !== null,
   ).length;
@@ -182,7 +230,9 @@ export async function preflightCandidateAuthorityLiveCollection(
     mappedNpm !== 80 ||
     git.branch !== 'feat/32-codebase-conditioned-ranking' ||
     git.head !== git.originHead ||
-    git.parentHead !== CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
+    git.parentHead !== CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
+    git.priorOperatorParentHead !== CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
+    git.correctionCommitCount !== 1 ||
     !git.clean ||
     authorization.bindings['catalogVersion'] !== catalog.catalogVersion ||
     authorization.bindings['catalogDigest'] !== catalog.manifestDigest ||
@@ -206,6 +256,10 @@ export async function preflightCandidateAuthorityLiveCollection(
       CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION ||
     authorization.bindings['partialEvidenceDigest'] !==
       CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST ||
+    authorization.bindings['acceptedPreLiveHead'] !==
+      CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
+    authorization.bindings['priorOperatorHead'] !==
+      CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
     authorization.authorizationSemanticDigest !==
       CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST ||
     sourcePolicy.requestBudget.githubLogicalRequests !== 1810 ||
@@ -234,6 +288,7 @@ export async function preflightCandidateAuthorityLiveCollection(
       allCandidateProjections: 0,
       coverageCalculations: 0,
       filesystemWrites: 0,
+      providerCollections: 0,
     }),
   });
 }
@@ -257,6 +312,7 @@ export async function executeCandidateAuthorityLiveCollection(
       catalog: preflight.catalog,
       sourcePolicy: preflight.sourcePolicy,
       authorization: preflight.authorization,
+      executionHead: preflight.git.head,
       credential,
       collectionCutoff,
       ...(signal === undefined ? {} : { signal }),

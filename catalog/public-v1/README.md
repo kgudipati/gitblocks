@@ -123,21 +123,27 @@ prove materialization. Run `pnpm profiles:validate` for read-only regeneration
 and byte comparison, or the explicit `pnpm profiles:generate` command after a
 reviewed authority/rule change.
 
-## Phase 10 M3A pre-live authorities
+## Phase 10 candidate-authority authorities
 
-`candidate-authority-field-plan.json` and
-`candidate-authority-source-policy.json` freeze the Phase 10 Milestone 3A
-source/rule design before any new all-candidate output. They contain no live
-candidate values. The field plan preserves the accepted 18-field denominator,
-13/18 threshold, and four-group breadth rule, and records a pre-live NO-GO:
-only six fields have deterministic closure paths, with none in
-capability/adoption or infrastructure/deployment. The source policy explicitly
-denies live collection, credential access, all-candidate projection, coverage,
-and automatic reruns while pre-registering bounded future operations and
-request ceilings. Run `pnpm candidate-authority:verify` for the offline
-contract, fixture, architecture, and zero-effect preflight proof. Do not run a
-provider collection unless independent architecture review replaces the NO-GO
-under separately published authorization.
+The historical M3A v1 field/source authorities and their NO-GO remain immutable
+evidence. Accepted ADR 0012 successors are readiness policy v3, field/source
+plans v4, partial registry v2, and partial evidence v3; they contain no live
+candidate values and freeze 13/18 plus realized breadth before collection.
+
+Live authorization v1 is preserved. Additive authorization v2 records the
+prior pre-effect credential-gate failure (zero provider calls and no source or
+coverage output), binds exact successor lineage and all replay paths, and
+retains exactly one future provider-effect collection after independent
+exact-head review. The pure replay operator is documented in
+`docs/architecture/candidate-authority-live-replay-operator.md`.
+
+Replay requires an isolated committed source-freeze commit and exact bytes in
+current Git history. `candidate-authority:replay:preflight`, `:generate`, and
+`:validate` own the source-to-profile/evidence/dossier path;
+`candidate-authority:readiness:measure` is the sole first readiness decision,
+and `candidate-authority:readiness:validate` reproduces the report/root without
+writes. Do not run collection, replay generation, or readiness measurement
+until the applicable independently reviewed future gate is satisfied.
 
 ## Candidate retrieval metadata policy
 

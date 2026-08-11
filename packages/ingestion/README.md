@@ -8,6 +8,23 @@ tarballs, executes candidate code, or invokes a model. Network, clock,
 deadline, observer, and persistence capabilities are explicit inputs. Importing
 the package performs no I/O and reads no environment variables.
 
+Phase 10's candidate-authority live operator and pure replay are separate
+surfaces. Live operator v2 performs an exact-head, clean-tree, absent-output
+preflight before lazily reading only
+`GITBLOCKS_CANDIDATE_AUTHORITY_GITHUB_TOKEN`; it retains one independently
+reviewed provider-effect collection and no database, Docker, model, ranking, or
+automatic-rerun effect. The earlier invocation stopped as a pre-effect
+credential-gate failure with zero provider calls and no cutoff/source output.
+
+The replay CLI has no environment or network input. It accepts only a
+canonical source authority proven to have been added by an isolated committed
+source-freeze commit, regenerates deterministic profiles, registered partial
+evidence, fit evidence, and one ordinary `CandidateDossierV1` per candidate,
+then keeps the first policy-v3 readiness measurement in a distinct command.
+Read-only validation reproduces every authority and root byte-for-byte. See
+`docs/architecture/candidate-authority-live-replay-operator.md` for exact
+versions, paths, bounds, lineage, and command ordering.
+
 `catalog/public-v1/candidates.json` is the explicit curator source.
 `catalog-cli.ts` only validates, sorts, digests, and writes the generated
 manifest. Every entry supplies stable GitHub identity, stable `introducedAt`,

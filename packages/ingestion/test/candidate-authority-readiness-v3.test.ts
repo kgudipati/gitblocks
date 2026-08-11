@@ -5,7 +5,9 @@ import { describe, expect, it } from 'vitest';
 import {
   CANDIDATE_AUTHORITY_PLANNED_CAPABLE_COUNT,
   CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_CONTRACT_DIGEST,
+  candidateAuthorityReadinessDecision,
   canonicalizeJson,
+  classifyCandidateAuthorityCell,
   evaluateCandidateAuthorityRealizedReadiness,
   extractApplicableSecurityAdvisoryFacts,
   extractDatastoreRequirementFact,
@@ -235,6 +237,75 @@ describe('readiness policy v3', () => {
       );
       expect(result.decision).toBe('no-go');
     }
+  });
+
+  it('classifies all seven frozen cell origins and applies the count plus breadth gate', () => {
+    expect([
+      classifyCandidateAuthorityCell({
+        profileState: 'known',
+        generationOrigin: 'deterministic',
+        validatedPartialDirectEvidence: false,
+      }),
+      classifyCandidateAuthorityCell({
+        profileState: 'not-applicable',
+        generationOrigin: 'deterministic',
+        validatedPartialDirectEvidence: false,
+      }),
+      classifyCandidateAuthorityCell({
+        profileState: 'unknown',
+        generationOrigin: 'deterministic',
+        validatedPartialDirectEvidence: true,
+      }),
+      classifyCandidateAuthorityCell({
+        profileState: 'known',
+        generationOrigin: 'human-reviewed',
+        validatedPartialDirectEvidence: false,
+      }),
+      classifyCandidateAuthorityCell({
+        profileState: 'known',
+        generationOrigin: 'model-derived',
+        validatedPartialDirectEvidence: false,
+      }),
+      classifyCandidateAuthorityCell({
+        profileState: 'unknown',
+        generationOrigin: 'deterministic',
+        validatedPartialDirectEvidence: false,
+      }),
+      classifyCandidateAuthorityCell({
+        profileState: 'conflict',
+        generationOrigin: 'deterministic',
+        validatedPartialDirectEvidence: true,
+      }),
+    ]).toEqual([
+      'deterministic-known',
+      'deterministic-not-applicable',
+      'deterministic-partial-direct-evidence',
+      'human-reviewed-structured',
+      'model-derived',
+      'unknown',
+      'conflict',
+    ]);
+    expect(
+      candidateAuthorityReadinessDecision({
+        realizedReadyFieldCount: 12,
+        minimumRealizedReadyFields: 13,
+        everyBreadthGroupRepresented: true,
+      }),
+    ).toBe('no-go');
+    expect(
+      candidateAuthorityReadinessDecision({
+        realizedReadyFieldCount: 13,
+        minimumRealizedReadyFields: 13,
+        everyBreadthGroupRepresented: false,
+      }),
+    ).toBe('no-go');
+    expect(
+      candidateAuthorityReadinessDecision({
+        realizedReadyFieldCount: 13,
+        minimumRealizedReadyFields: 13,
+        everyBreadthGroupRepresented: true,
+      }),
+    ).toBe('go');
   });
 
   it('keeps accepted ranking authorities bound to their accepted semantic digests', async () => {

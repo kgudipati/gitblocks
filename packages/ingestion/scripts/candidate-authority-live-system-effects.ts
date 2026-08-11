@@ -13,6 +13,7 @@ import { promisify } from 'node:util';
 
 import {
   CANDIDATE_AUTHORITY_GITHUB_TOKEN_ENVIRONMENT,
+  CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
   CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_SOURCE_MAXIMUM_SERIALIZED_BYTES,
   CANDIDATE_AUTHORITY_SOURCE_STAGING_PATH,
@@ -57,7 +58,15 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
         encoding: 'utf8' as const,
         maxBuffer: 1024 * 1024,
       };
-      const [branch, head, originHead, parentHead, status] = await Promise.all([
+      const [
+        branch,
+        head,
+        originHead,
+        parentHead,
+        priorOperatorParentHead,
+        correctionCommitCount,
+        status,
+      ] = await Promise.all([
         execFileAsync('git', ['branch', '--show-current'], options),
         execFileAsync('git', ['rev-parse', 'HEAD'], options),
         execFileAsync(
@@ -66,6 +75,20 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
           options,
         ),
         execFileAsync('git', ['rev-parse', 'HEAD^'], options),
+        execFileAsync(
+          'git',
+          ['rev-parse', `${CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD}^`],
+          options,
+        ),
+        execFileAsync(
+          'git',
+          [
+            'rev-list',
+            '--count',
+            `${CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD}..HEAD`,
+          ],
+          options,
+        ),
         execFileAsync(
           'git',
           ['status', '--porcelain=v1', '--untracked-files=all'],
@@ -77,6 +100,8 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
         head: head.stdout.trim(),
         originHead: originHead.stdout.trim(),
         parentHead: parentHead.stdout.trim(),
+        priorOperatorParentHead: priorOperatorParentHead.stdout.trim(),
+        correctionCommitCount: Number(correctionCommitCount.stdout.trim()),
         clean: status.stdout.length === 0,
       };
     },
@@ -100,6 +125,7 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
         catalog,
         sourcePolicy,
         authorization,
+        executionHead,
         credential,
         collectionCutoff,
         signal,
@@ -131,6 +157,7 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
           liveAuthorizationVersion: authorization.authorizationVersion,
           liveAuthorizationDigest: authorization.authorizationSemanticDigest,
           liveAuthorizationBindings: authorization.bindings,
+          executionHead,
           githubToken: credential,
           collectionCutoff,
           transport,

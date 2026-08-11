@@ -179,6 +179,8 @@ export interface CandidateAuthoritySourcePolicyV4 {
 
 export interface CandidateAuthorityRootV4 {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_ROOT_V4_VERSION;
+  readonly architectureDecisionBinding: Readonly<Record<string, string>>;
+  readonly liveAuthorizationBinding: Readonly<Record<string, string>>;
   readonly catalogBinding: Readonly<Record<string, string>>;
   readonly taxonomyBinding: Readonly<Record<string, string>>;
   readonly deterministicProfileBinding: Readonly<Record<string, string>>;
@@ -475,12 +477,30 @@ export function evaluateCandidateAuthorityRealizedReadiness(input: {
     realizedBreadthGroups,
     realizedDeterministicReadyFields: Object.freeze(realized),
     deterministicFullClosureFields: Object.freeze(fullClosure),
-    decision:
-      realized.length >=
-        input.fieldPlan.frozenGate.minimumRealizedReadyFields && breadthPass
-        ? 'go'
-        : 'no-go',
+    decision: candidateAuthorityReadinessDecision({
+      realizedReadyFieldCount: realized.length,
+      minimumRealizedReadyFields:
+        input.fieldPlan.frozenGate.minimumRealizedReadyFields,
+      everyBreadthGroupRepresented: breadthPass,
+    }),
   });
+}
+
+export function candidateAuthorityReadinessDecision(input: {
+  readonly realizedReadyFieldCount: number;
+  readonly minimumRealizedReadyFields: 13;
+  readonly everyBreadthGroupRepresented: boolean;
+}): 'go' | 'no-go' {
+  if (
+    !Number.isSafeInteger(input.realizedReadyFieldCount) ||
+    input.realizedReadyFieldCount < 0 ||
+    input.realizedReadyFieldCount > RANKING_DECISION_FIELD_IDS.length
+  )
+    invalid();
+  return input.realizedReadyFieldCount >= input.minimumRealizedReadyFields &&
+    input.everyBreadthGroupRepresented
+    ? 'go'
+    : 'no-go';
 }
 
 export function parseCandidateAuthorityReadinessPolicyV3(

@@ -87,6 +87,7 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
   readonly liveAuthorizationVersion: string;
   readonly liveAuthorizationDigest: string;
   readonly liveAuthorizationBindings: Readonly<Record<string, string>>;
+  readonly executionHead: string;
   readonly githubToken: string;
   readonly collectionCutoff: string;
   readonly transport: CandidateAuthorityLiveTransport;
@@ -94,7 +95,11 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
   readonly signal?: AbortSignal;
 }): Promise<CandidateAuthoritySourceAuthorityV1> {
   requireTimestamp(input.collectionCutoff);
-  if (input.catalog.candidates.length !== 150) invalid();
+  if (
+    input.catalog.candidates.length !== 150 ||
+    !/^[a-f0-9]{40}$/u.test(input.executionHead)
+  )
+    invalid();
   const state: CollectionState = {
     counters: new Map(
       CANDIDATE_AUTHORITY_OPERATION_IDS.map((operationId) => [
@@ -153,7 +158,7 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
     invalid();
   return createCandidateAuthoritySourceAuthority({
     authorityVersion: 'candidate-authority-source-authority/1.0.0',
-    operatorVersion: 'candidate-authority-live-operator/1.0.0',
+    operatorVersion: 'candidate-authority-live-operator/2.0.0',
     bindings: {
       ...input.liveAuthorizationBindings,
       catalogVersion: input.catalog.catalogVersion,
@@ -162,6 +167,7 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
       sourcePolicyDigest: input.sourcePolicy.policySemanticDigest,
       liveAuthorizationVersion: input.liveAuthorizationVersion,
       liveAuthorizationDigest: input.liveAuthorizationDigest,
+      collectionExecutionHead: input.executionHead,
     },
     collectionCutoff: input.collectionCutoff,
     candidateCount: 150,

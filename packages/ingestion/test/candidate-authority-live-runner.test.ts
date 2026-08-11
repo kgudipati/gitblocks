@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD,
   CANDIDATE_AUTHORITY_OPERATION_IDS,
+  CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
   CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_SOURCE_STAGING_PATH,
   createCandidateAuthoritySourceAuthority,
@@ -35,6 +36,7 @@ describe('candidate-authority live effect boundary', () => {
       allCandidateProjections: 0,
       coverageCalculations: 0,
       filesystemWrites: 0,
+      providerCollections: 0,
     });
     expect(counters).toEqual({ credentials: 0, writes: 0, providers: 0 });
   });
@@ -68,12 +70,13 @@ describe('candidate-authority live effect boundary', () => {
         catalog,
         sourcePolicy,
         authorization,
+        executionHead,
         collectionCutoff,
       }) => {
         counters.providers += 1;
         return createCandidateAuthoritySourceAuthority({
           authorityVersion: 'candidate-authority-source-authority/1.0.0',
-          operatorVersion: 'candidate-authority-live-operator/1.0.0',
+          operatorVersion: 'candidate-authority-live-operator/2.0.0',
           bindings: {
             ...authorization.bindings,
             catalogVersion: catalog.catalogVersion,
@@ -82,6 +85,7 @@ describe('candidate-authority live effect boundary', () => {
             sourcePolicyDigest: sourcePolicy.policySemanticDigest,
             liveAuthorizationVersion: authorization.authorizationVersion,
             liveAuthorizationDigest: authorization.authorizationSemanticDigest,
+            collectionExecutionHead: executionHead,
           },
           collectionCutoff,
           candidateCount: 150,
@@ -154,6 +158,8 @@ describe('candidate-authority live effect boundary', () => {
         head: 'f'.repeat(40),
         originHead: 'f'.repeat(40),
         parentHead: 'e'.repeat(40),
+        priorOperatorParentHead: 'd'.repeat(40),
+        correctionCommitCount: 2,
         clean: false,
       }),
     });
@@ -176,7 +182,9 @@ function fakeEffects(
       branch: 'feat/32-codebase-conditioned-ranking',
       head,
       originHead: head,
-      parentHead: CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD,
+      parentHead: CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
+      priorOperatorParentHead: CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD,
+      correctionCommitCount: 1,
       clean: true,
     }),
     readCredential: (name) => {

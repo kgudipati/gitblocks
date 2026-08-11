@@ -9,14 +9,22 @@ import {
 
 export const CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD =
   '47397ce92ee500c011fe39820053ba22fd6b397b' as const;
-export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION =
+export const CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD =
+  'a1c141e87c96187c8edb5779709fa5ef04089390' as const;
+export const CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION =
   'candidate-authority-live-authorization/1.0.0' as const;
-export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_PATH =
+export const CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH =
   'catalog/public-v1/candidate-authority-live-authorization-v1.json' as const;
-export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST =
+export const CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST =
   '4038f2f124db52cad2e5333bfd12045e1789ed4c20afd28d37a1a619b3d95d2b' as const;
+export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION =
+  'candidate-authority-live-authorization/2.0.0' as const;
+export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_PATH =
+  'catalog/public-v1/candidate-authority-live-authorization-v2.json' as const;
+export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST =
+  '9184ce87d1e74e10d2dcfa91f7b4302292d7f92fa5e1e5bb8378d97339074129' as const;
 export const CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION =
-  'candidate-authority-live-operator/1.0.0' as const;
+  'candidate-authority-live-operator/2.0.0' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_VERSION =
   'candidate-authority-source-authority/1.0.0' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_PATH =
@@ -35,6 +43,22 @@ export const CANDIDATE_AUTHORITY_EVIDENCE_AUTHORITY_PATH =
   'catalog/public-v1/candidate-authority-evidence-v1.json' as const;
 export const CANDIDATE_AUTHORITY_DOSSIER_AUTHORITY_PATH =
   'catalog/public-v1/candidate-authority-dossiers-v1.json' as const;
+export const CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_AUTHORITY_PATH =
+  'catalog/public-v1/candidate-authority-dossier-projection-v1.json' as const;
+export const CANDIDATE_AUTHORITY_PROFILE_STAGING_PATH =
+  'catalog/public-v1/candidate-authority-profiles-v1.staging.json' as const;
+export const CANDIDATE_AUTHORITY_PARTIAL_STAGING_PATH =
+  'catalog/public-v1/candidate-authority-partial-evidence-v1.staging.json' as const;
+export const CANDIDATE_AUTHORITY_EVIDENCE_STAGING_PATH =
+  'catalog/public-v1/candidate-authority-evidence-v1.staging.json' as const;
+export const CANDIDATE_AUTHORITY_DOSSIER_STAGING_PATH =
+  'catalog/public-v1/candidate-authority-dossiers-v1.staging.json' as const;
+export const CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_STAGING_PATH =
+  'catalog/public-v1/candidate-authority-dossier-projection-v1.staging.json' as const;
+export const CANDIDATE_AUTHORITY_READINESS_STAGING_PATH =
+  'catalog/public-v1/candidate-authority-readiness-report-v1.staging.json' as const;
+export const CANDIDATE_AUTHORITY_ROOT_STAGING_PATH =
+  'catalog/public-v1/candidate-authority-root-v4.staging.json' as const;
 export const CANDIDATE_AUTHORITY_GITHUB_TOKEN_ENVIRONMENT =
   'GITBLOCKS_CANDIDATE_AUTHORITY_GITHUB_TOKEN' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_MAXIMUM_SERIALIZED_BYTES =
@@ -64,20 +88,46 @@ export type CandidateAuthoritySourceOutcome =
   | 'not-applicable'
   | 'qualified-unknown';
 
-export interface CandidateAuthorityLiveAuthorizationV1 {
+export interface CandidateAuthorityLiveAuthorizationV2 {
   readonly authorizationVersion: typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION;
-  readonly status: 'authorized-one-shot-live-collection';
+  readonly status: 'authorized-after-independent-exact-head-acceptance';
   readonly bindings: Readonly<Record<string, string>>;
   readonly executionHead: {
     readonly branch: 'feat/32-codebase-conditioned-ranking';
     readonly acceptedPreLiveHead: typeof CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD;
-    readonly requiredRelationship: 'exactly-one-direct-descendant-containing-only-live-operator-and-authorization';
+    readonly priorOperatorHead: typeof CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD;
+    readonly requiredRelationship: 'accepted-pre-live-to-prior-operator-to-exactly-one-ordinary-additive-successor-correction';
+    readonly allowedAdditiveSuccessorCorrectionCommits: 1;
+    readonly independentReviewRequiredBeforeCredentialInspection: true;
+  };
+  readonly priorAuthorization: {
+    readonly version: typeof CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION;
+    readonly digest: typeof CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST;
+    readonly path: typeof CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH;
+  };
+  readonly priorInvocationDisposition: {
+    readonly executionHead: typeof CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD;
+    readonly disposition: 'pre-effect-credential-gate-failure';
+    readonly credentialAvailable: false;
+    readonly collectionCutoff: null;
+    readonly githubLogicalRequests: 0;
+    readonly npmLogicalRequests: 0;
+    readonly candidateProviderCalls: 0;
+    readonly providerEffectCollectionsConsumed: 0;
+    readonly sourceAuthoritiesProduced: 0;
+    readonly sourceAuthority: 'absent';
+    readonly stagingAuthority: 'absent';
+    readonly allCandidateProjections: 0;
+    readonly coverageReadinessCalculations: 0;
   };
   readonly collection: {
     readonly candidateCount: 150;
     readonly mappedNpmCount: 80;
     readonly collectionAuthorizations: 1;
+    readonly providerEffectCollectionsPreviouslyConsumed: 0;
+    readonly remainingProviderEffectCollections: 1;
     readonly automaticRerun: false;
+    readonly fatalFailureDisposition: 'stop-no-automatic-rerun';
     readonly githubLogicalRequestCeiling: 1810;
     readonly npmLogicalRequestCeiling: 80;
     readonly totalLogicalRequestCeiling: 1890;
@@ -96,6 +146,20 @@ export interface CandidateAuthorityLiveAuthorizationV1 {
     readonly ownedStaging: typeof CANDIDATE_AUTHORITY_SOURCE_STAGING_PATH;
     readonly root: typeof CANDIDATE_AUTHORITY_ROOT_INSTANCE_PATH;
     readonly readiness: typeof CANDIDATE_AUTHORITY_READINESS_REPORT_PATH;
+    readonly deterministicProfiles: typeof CANDIDATE_AUTHORITY_PROFILE_AUTHORITY_PATH;
+    readonly partialFieldEvidence: typeof CANDIDATE_AUTHORITY_PARTIAL_AUTHORITY_PATH;
+    readonly fitConsumableEvidence: typeof CANDIDATE_AUTHORITY_EVIDENCE_AUTHORITY_PATH;
+    readonly dossiers: typeof CANDIDATE_AUTHORITY_DOSSIER_AUTHORITY_PATH;
+    readonly dossierProjection: typeof CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_AUTHORITY_PATH;
+    readonly replayStaging: {
+      readonly deterministicProfiles: typeof CANDIDATE_AUTHORITY_PROFILE_STAGING_PATH;
+      readonly partialFieldEvidence: typeof CANDIDATE_AUTHORITY_PARTIAL_STAGING_PATH;
+      readonly fitConsumableEvidence: typeof CANDIDATE_AUTHORITY_EVIDENCE_STAGING_PATH;
+      readonly dossiers: typeof CANDIDATE_AUTHORITY_DOSSIER_STAGING_PATH;
+      readonly dossierProjection: typeof CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_STAGING_PATH;
+      readonly readiness: typeof CANDIDATE_AUTHORITY_READINESS_STAGING_PATH;
+      readonly root: typeof CANDIDATE_AUTHORITY_ROOT_STAGING_PATH;
+    };
   };
   readonly credentialEnvironmentName: typeof CANDIDATE_AUTHORITY_GITHUB_TOKEN_ENVIRONMENT;
   readonly operatorVersion: typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION;
@@ -103,6 +167,9 @@ export interface CandidateAuthorityLiveAuthorizationV1 {
   readonly maximumSerializedSourceAuthorityBytes: typeof CANDIDATE_AUTHORITY_SOURCE_MAXIMUM_SERIALIZED_BYTES;
   readonly authorizationSemanticDigest: string;
 }
+
+export type CandidateAuthorityLiveAuthorization =
+  CandidateAuthorityLiveAuthorizationV2;
 
 export interface CandidateAuthoritySourceDatum {
   readonly operationId: CandidateAuthorityOperationId;
@@ -169,6 +236,8 @@ const AUTHORIZATION_KEYS = [
   'maximumSerializedSourceAuthorityBytes',
   'operatorVersion',
   'paths',
+  'priorAuthorization',
+  'priorInvocationDisposition',
   'sourceAuthorityVersion',
   'status',
 ] as const;
@@ -243,25 +312,56 @@ const LOGICAL_REQUEST_CEILINGS: Readonly<
 
 export function parseCandidateAuthorityLiveAuthorization(
   supplied: unknown,
-): CandidateAuthorityLiveAuthorizationV1 {
+): CandidateAuthorityLiveAuthorizationV2 {
   const record = requireRecord(supplied);
   requireExactKeys(record, AUTHORIZATION_KEYS);
-  const candidate = record as unknown as CandidateAuthorityLiveAuthorizationV1;
+  const candidate = record as unknown as CandidateAuthorityLiveAuthorizationV2;
   const withoutDigest = { ...candidate } as Record<string, unknown>;
   delete withoutDigest['authorizationSemanticDigest'];
   if (
     candidate.authorizationVersion !==
       CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION ||
-    candidate.status !== 'authorized-one-shot-live-collection' ||
+    candidate.status !== 'authorized-after-independent-exact-head-acceptance' ||
     candidate.executionHead.branch !== 'feat/32-codebase-conditioned-ranking' ||
     candidate.executionHead.acceptedPreLiveHead !==
       CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
+    candidate.executionHead.priorOperatorHead !==
+      CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
     candidate.executionHead.requiredRelationship !==
-      'exactly-one-direct-descendant-containing-only-live-operator-and-authorization' ||
+      'accepted-pre-live-to-prior-operator-to-exactly-one-ordinary-additive-successor-correction' ||
+    candidate.executionHead.allowedAdditiveSuccessorCorrectionCommits !== 1 ||
+    !candidate.executionHead
+      .independentReviewRequiredBeforeCredentialInspection ||
+    candidate.priorAuthorization.version !==
+      CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION ||
+    candidate.priorAuthorization.digest !==
+      CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST ||
+    candidate.priorAuthorization.path !==
+      CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH ||
+    candidate.priorInvocationDisposition.executionHead !==
+      CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
+    candidate.priorInvocationDisposition.disposition !==
+      'pre-effect-credential-gate-failure' ||
+    candidate.priorInvocationDisposition.credentialAvailable ||
+    candidate.priorInvocationDisposition.collectionCutoff !== null ||
+    candidate.priorInvocationDisposition.githubLogicalRequests !== 0 ||
+    candidate.priorInvocationDisposition.npmLogicalRequests !== 0 ||
+    candidate.priorInvocationDisposition.candidateProviderCalls !== 0 ||
+    candidate.priorInvocationDisposition.providerEffectCollectionsConsumed !==
+      0 ||
+    candidate.priorInvocationDisposition.sourceAuthoritiesProduced !== 0 ||
+    candidate.priorInvocationDisposition.sourceAuthority !== 'absent' ||
+    candidate.priorInvocationDisposition.stagingAuthority !== 'absent' ||
+    candidate.priorInvocationDisposition.allCandidateProjections !== 0 ||
+    candidate.priorInvocationDisposition.coverageReadinessCalculations !== 0 ||
     candidate.collection.candidateCount !== 150 ||
     candidate.collection.mappedNpmCount !== 80 ||
     candidate.collection.collectionAuthorizations !== 1 ||
+    candidate.collection.providerEffectCollectionsPreviouslyConsumed !== 0 ||
+    candidate.collection.remainingProviderEffectCollections !== 1 ||
     candidate.collection.automaticRerun ||
+    candidate.collection.fatalFailureDisposition !==
+      'stop-no-automatic-rerun' ||
     candidate.collection.githubLogicalRequestCeiling !== 1810 ||
     candidate.collection.npmLogicalRequestCeiling !== 80 ||
     candidate.collection.totalLogicalRequestCeiling !== 1890 ||
@@ -274,6 +374,29 @@ export function parseCandidateAuthorityLiveAuthorization(
     candidate.paths.ownedStaging !== CANDIDATE_AUTHORITY_SOURCE_STAGING_PATH ||
     candidate.paths.root !== CANDIDATE_AUTHORITY_ROOT_INSTANCE_PATH ||
     candidate.paths.readiness !== CANDIDATE_AUTHORITY_READINESS_REPORT_PATH ||
+    candidate.paths.deterministicProfiles !==
+      CANDIDATE_AUTHORITY_PROFILE_AUTHORITY_PATH ||
+    candidate.paths.partialFieldEvidence !==
+      CANDIDATE_AUTHORITY_PARTIAL_AUTHORITY_PATH ||
+    candidate.paths.fitConsumableEvidence !==
+      CANDIDATE_AUTHORITY_EVIDENCE_AUTHORITY_PATH ||
+    candidate.paths.dossiers !== CANDIDATE_AUTHORITY_DOSSIER_AUTHORITY_PATH ||
+    candidate.paths.dossierProjection !==
+      CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_AUTHORITY_PATH ||
+    candidate.paths.replayStaging.deterministicProfiles !==
+      CANDIDATE_AUTHORITY_PROFILE_STAGING_PATH ||
+    candidate.paths.replayStaging.partialFieldEvidence !==
+      CANDIDATE_AUTHORITY_PARTIAL_STAGING_PATH ||
+    candidate.paths.replayStaging.fitConsumableEvidence !==
+      CANDIDATE_AUTHORITY_EVIDENCE_STAGING_PATH ||
+    candidate.paths.replayStaging.dossiers !==
+      CANDIDATE_AUTHORITY_DOSSIER_STAGING_PATH ||
+    candidate.paths.replayStaging.dossierProjection !==
+      CANDIDATE_AUTHORITY_DOSSIER_PROJECTION_STAGING_PATH ||
+    candidate.paths.replayStaging.readiness !==
+      CANDIDATE_AUTHORITY_READINESS_STAGING_PATH ||
+    candidate.paths.replayStaging.root !==
+      CANDIDATE_AUTHORITY_ROOT_STAGING_PATH ||
     candidate.credentialEnvironmentName !==
       CANDIDATE_AUTHORITY_GITHUB_TOKEN_ENVIRONMENT ||
     candidate.operatorVersion !== CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION ||
@@ -368,6 +491,9 @@ export function parseCandidateAuthoritySourceAuthority(
       '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9' ||
     authority.bindings['acceptedPreLiveHead'] !==
       CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
+    authority.bindings['priorOperatorHead'] !==
+      CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
+    !isCommitSha(authority.bindings['collectionExecutionHead']) ||
     authority.bindings['adr0012'] !== 'accepted' ||
     authority.bindings['sourcePolicyVersion'] !==
       'candidate-authority-source-policy/4.0.0' ||
@@ -529,6 +655,10 @@ function isTimestamp(value: unknown): value is string {
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(value) &&
     Number.isFinite(Date.parse(value))
   );
+}
+
+function isCommitSha(value: unknown): value is string {
+  return typeof value === 'string' && /^[a-f0-9]{40}$/u.test(value);
 }
 
 function arraysEqual(

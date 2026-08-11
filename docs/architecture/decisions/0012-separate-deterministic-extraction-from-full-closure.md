@@ -167,6 +167,26 @@ blob requests. These are bounds, not collection authorization.
 - One live collection is frozen once and replayed offline; determinism never
   compares two drifting live collections.
 
+### Pre-effect operator clarification (2026-08-11)
+
+Independent review of the first published live operator found that it froze
+live preflight, collection, and source validation but had not yet frozen the
+ordinary-runtime source-to-root replay orchestration. Its first invocation had
+already stopped at credential read with no cutoff or provider call, so no live
+value existed and the one provider-effect collection was not consumed.
+
+Before another credential inspection, additive authorization v2 and operator
+v2 therefore freeze exact successor lineage, committed-source proof,
+profile/partial/evidence/dossier projection, separately invoked realized
+measurement, root construction, canonical ordering, and pre-value size bounds.
+This is an implementation closure of the accepted one-collection/offline-replay
+decision, not a change to any field semantic, threshold, breadth group, source
+rule, request ceiling, or failure policy. The complete operator is documented
+in
+[Candidate-authority live and replay operator](../candidate-authority-live-replay-operator.md)
+and requires independent exact-head acceptance before it can authorize the
+remaining provider-effect collection.
+
 ## Rejected alternatives
 
 - Preserve 14 paths by crediting npm ecosystem, runtime dependencies, or a

@@ -76,6 +76,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       liveAuthorizationBindings: liveAuthorizationBindings(
         catalog.manifestDigest,
       ),
+      executionHead: HEAD,
       githubToken: 'inert-fixture-token',
       collectionCutoff: CUTOFF,
       transport,
@@ -152,6 +153,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       liveAuthorizationBindings: liveAuthorizationBindings(
         catalog.manifestDigest,
       ),
+      executionHead: HEAD,
       githubToken: 'inert-fixture-token',
       collectionCutoff: CUTOFF,
       transport: optionalUnknownTransport,
@@ -179,6 +181,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         liveAuthorizationBindings: liveAuthorizationBindings(
           catalog.manifestDigest,
         ),
+        executionHead: HEAD,
         githubToken: 'inert-fixture-token',
         collectionCutoff: CUTOFF,
         transport: {
@@ -348,6 +351,12 @@ function liveAuthorizationBindings(catalogDigest: string) {
     taxonomyDigest:
       '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
     acceptedPreLiveHead: '47397ce92ee500c011fe39820053ba22fd6b397b',
+    priorOperatorHead: 'a1c141e87c96187c8edb5779709fa5ef04089390',
+    priorLiveAuthorizationVersion:
+      'candidate-authority-live-authorization/1.0.0',
+    priorLiveAuthorizationDigest:
+      '4038f2f124db52cad2e5333bfd12045e1789ed4c20afd28d37a1a619b3d95d2b',
+    priorInvocationDisposition: 'pre-effect-credential-gate-failure',
     adr0012: 'accepted',
     readinessPolicyVersion: 'ranking-v1-deterministic-readiness-policy/3.0.0',
     readinessPolicyDigest:

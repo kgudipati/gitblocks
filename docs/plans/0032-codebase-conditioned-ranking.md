@@ -23,14 +23,19 @@
   planned extraction capability, realized post-collection readiness, and full
   closure. Its corrected policy-v3 plan has 13 planned-capable paths and six
   full-closure candidates; realized readiness remains unmeasured. The
-  resulting pre-live architecture and source/rule authority are accepted after
-  exact-root Dockerfile source hardening. Live collection remains separately
-  unauthorized and unexecuted, realized readiness is unmeasured, no live M3
-  effect or coverage has occurred, and Milestones 4 through 6 remain
+  resulting pre-live architecture and source/rule authority are accepted at
+  `47397ce92ee500c011fe39820053ba22fd6b397b`. Live operator v1 was published at
+  `a1c141e87c96187c8edb5779709fa5ef04089390`; its first invocation stopped as
+  a pre-effect credential-gate failure before a cutoff or provider call. No
+  source authority, all-150 projection, or readiness measurement exists. This
+  additive pre-effect correction freezes the complete pure replay and
+  readiness/root orchestration for independent exact-head review. Exactly one
+  provider-effect collection remains, live collection remains unexecuted,
+  realized readiness remains unmeasured, and Milestones 4 through 6 remain
   unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
-- Last updated: 2026-08-10
+- Last updated: 2026-08-11
 
 Issue #32 is the requirements authority. Accepted
 [ADR 0011](../architecture/decisions/0011-codebase-conditioned-ranking.md)
@@ -815,11 +820,18 @@ only future publication flow remains one live collection, then committed
 source authority and pure offline replay.
 
 ADR 0012, readiness policy v3, field plan v4, source policy v4, partial
-semantic registry v2, partial evidence v3/root v4, and focused fixtures are
-accepted pre-live authority. Provider calls, credential inspection,
-source-authority generation, all-150 projection, coverage calculation, and
-Milestone 4 remain prohibited until a separate explicit live-collection
-authorization.
+semantic registry v2, and partial evidence v3/root v4 are accepted pre-live
+authority. Authorization v1 and live operator v1 were subsequently published;
+the first invocation stopped safely at the credential gate with zero provider
+calls and did not consume its provider-effect collection. Additive
+authorization v2 and live operator v2 bind the accepted head, prior operator,
+prior disposition, one remaining collection, exact successor lineage, and the
+complete pure source-to-root replay documented in
+[Candidate-authority live and replay operator](../architecture/candidate-authority-live-replay-operator.md).
+The correction itself may not inspect the credential or generate any live or
+all-candidate output. Independent acceptance of its exact publication head is
+required before another live preflight/credential inspection. Milestone 4
+remains prohibited.
 
 ### Milestone 4 — Pure ranking vertical slice and execution envelope
 
@@ -1057,6 +1069,20 @@ reviewed durable-product trigger in ADR 0011.
       six full-closure candidates, reuse one exact root tree, add only a
       conditional immutable Dockerfile blob request, and leave realized
       readiness unmeasured. Live collection remains separately unauthorized.
+- [x] 2026-08-11 — Published one-shot live operator v1 at
+      `a1c141e87c96187c8edb5779709fa5ef04089390`. Its first invocation passed
+      live preflight and stopped during the scoped credential read with
+      credential unavailable, no cutoff, zero GitHub/npm logical requests,
+      zero candidate-provider calls, and no source, staging, projection, or
+      readiness output. This pre-effect credential-gate failure consumed no
+      provider-effect collection.
+- [x] 2026-08-11 — Froze additive authorization v2, closed successor lineage,
+      pure committed-source replay, separated first readiness measurement,
+      root construction, deterministic ordering/canonicalization, conservative
+      authority bounds, and bounded synthetic fixtures. This correction
+      performs no credential read, provider call, cutoff/source generation,
+      all-150 projection, readiness measurement, or M4 work; independent
+      rereview remains required.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
 - [ ] M5 independently accepted.
@@ -1137,6 +1163,52 @@ database, Docker, model, write, collection, source-authority, all-candidate
 projection, and coverage effects. Registry audit and the exact final
 publication matrix are rerun against the final bytes before publication.
 
+### Milestone 3 live/replay pre-effect correction validation
+
+The correction began from clean local and origin heads at exact
+`a1c141e87c96187c8edb5779709fa5ef04089390`, with the source, source staging,
+profile, partial evidence, fit evidence, dossier, dossier projection,
+readiness, and root paths absent. Node was `v24.18.0`, pnpm was `11.17.0`, PR
+#33 was open/draft/unmerged/not ready, Issue #32 was open, and Ranking V1's
+tracked authority tree was `dc83037e36ae8422a692e2fdbad8d804cbf05985`.
+
+Focused projection/governance/readiness/live fixtures pass before the full
+matrix. They cover exact committed-source proof, profile/partial/evidence/
+dossier projection, material unknown preservation, Compose and Dockerfile
+deployment evidence, forward/reverse/repeat ordering, canonical serialization,
+all seven cell origins, zero and N/A non-qualification, human/model exclusion,
+12/18 NO-GO, 13/18 missing-breadth NO-GO, 13/18 plus breadth GO, root digest
+binding, fixed bounds, and evaluation/effect isolation. Final command counts
+and tracked-content stability are recorded after the publication-byte rerun.
+
+The focused commands produced:
+
+| Command                                         | Exit/result                                                                                                                                                        |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm candidate-authority:correction:validate`  | `0`; all accepted versions/digests and 13/18 policy bindings reproduced; every prohibited effect was zero                                                          |
+| `pnpm candidate-authority:correction:preflight` | `0`; network, provider, credential, database, Docker, model, write, collection, source-generation, all-candidate-projection, and coverage counts were exactly zero |
+| `pnpm candidate-authority:live:fixtures`        | `0`; five files and 33 tests passed                                                                                                                                |
+| `pnpm candidate-authority:replay:fixtures`      | `0`; six files and 42 tests passed                                                                                                                                 |
+
+The first complete matrix then produced:
+
+| Command                 | Exit/result                                                                                                                                                                                                         |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm runtime:check`    | `0`; Node `v24.18.0` and pnpm `11.17.0` preflight passed                                                                                                                                                            |
+| `pnpm format:check`     | `0`; all matched files use Prettier style                                                                                                                                                                           |
+| `pnpm repo:check`       | `0`; repository checks passed after staging the intended new architecture document so the tracked-file-aware link check could resolve it                                                                            |
+| `pnpm verify`           | `0`; 147 test files and 2,039 tests passed, with zero dependency violations across 933 modules and 3,230 dependencies; all repository/evaluation/contract/taxonomy/profile/catalog/interview/pre-live checks passed |
+| `pnpm security:secrets` | `0`; secretlint passed                                                                                                                                                                                              |
+| `pnpm security:audit`   | `0`; no known vulnerabilities at moderate audit level                                                                                                                                                               |
+| `git diff --check`      | `0`; no whitespace errors                                                                                                                                                                                           |
+
+The indexed tree was
+`22ffa59f540a3913f1b3bcdf0b790e3b9b6e626c` both before and after the separate
+secret/audit/diff sequence. The complete required matrix is rerun against the
+final documentation bytes before publication. Ranking V1 remains the exact
+unchanged tree `dc83037e36ae8422a692e2fdbad8d804cbf05985`; no workflow,
+source authority, replay output, readiness output, or ranking package exists.
+
 ## Decision and deviation log
 
 - 2026-08-10 — Freeze M3A as NO-GO with six readiness-eligible fields. Reason:
@@ -1174,6 +1246,13 @@ publication matrix are rerun against the final bytes before publication.
 - 2026-08-10 — Preserve Phase 8 authority and add future M3 successor rules for
   complete no-release, complete zero-advisory, and established security-policy
   absence. Reason: demonstrated defects must not rewrite historical behavior.
+- 2026-08-11 — Preserve authorization v1 and publish additive authorization v2
+  plus operator v2. Reason: the prior credential-gate stop occurred before any
+  provider effect, while independent review correctly found that downstream
+  source-to-root orchestration also had to freeze before observing live values.
+  The successor binds exact ancestry and one remaining collection; replay is
+  committed-source-only and provider-free, and readiness measurement remains a
+  distinct first-execution command.
 
 - 2026-08-10 — Use two versioned denominators: 22 execution fields and 18
   decision-bearing fields. Reason: structural authentication is necessary but
