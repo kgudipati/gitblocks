@@ -39,9 +39,11 @@ if (
           branch: result.git.branch,
           head: result.git.head,
           originHead: result.git.originHead,
-          priorOperatorParentHead: result.git.parentHead,
+          priorReplayOperatorParentHead: result.git.parentHead,
+          priorOperatorParentHead: result.git.priorReplayOperatorParentHead,
           acceptedPreLiveHead: result.git.priorOperatorParentHead,
-          correctionCommitCount: result.git.correctionCommitCount,
+          provenanceCorrectionCommitCount:
+            result.git.provenanceCorrectionCommitCount,
           catalogVersion: result.catalog.catalogVersion,
           catalogDigest: result.catalog.manifestDigest,
           candidateCount: result.catalog.candidates.length,

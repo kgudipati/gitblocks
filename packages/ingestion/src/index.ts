@@ -149,12 +149,16 @@ export {
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION,
   candidateAuthorityReadinessDecision,
   candidateAuthorityRootV4SemanticDigest,
   evaluateCandidateAuthorityRealizedReadiness,
   parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityReadinessPolicyV3,
   parseCandidateAuthoritySourcePolicyV4,
+  parseCandidateAuthoritySourcePolicyV5,
   qualifiesPlannedDeterministicExtraction,
   type CandidateAuthorityCellOrigin,
   type CandidateAuthorityCellOriginCounts,
@@ -166,6 +170,7 @@ export {
   type CandidateAuthorityRealizedReadinessResult,
   type CandidateAuthorityRootV4,
   type CandidateAuthoritySourcePolicyV4,
+  type CandidateAuthoritySourcePolicyV5,
 } from './candidate-authority-readiness.ts';
 export {
   CANDIDATE_AUTHORITY_PARTIAL_FACT_CODES,
@@ -208,6 +213,7 @@ export {
   CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH,
   CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION,
   CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
+  CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD,
   CANDIDATE_AUTHORITY_PROFILE_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_READINESS_REPORT_PATH,
   CANDIDATE_AUTHORITY_ROOT_INSTANCE_PATH,
@@ -216,11 +222,18 @@ export {
   parseCandidateAuthorityLiveAuthorization,
   parseCandidateAuthoritySourceAuthority,
   serializeCandidateAuthoritySourceAuthority,
-  type CandidateAuthorityLiveAuthorizationV2,
+  type CandidateAuthorityLiveAuthorizationV3,
   type CandidateAuthoritySourceAuthorityV1,
   type CandidateAuthoritySourceCandidateV1,
   type CandidateAuthoritySourceDatum,
 } from './candidate-authority-live-contracts.ts';
+export {
+  CANDIDATE_AUTHORITY_MAXIMUM_LICENSE_PATH_BYTES,
+  candidateAuthorityImmutableGitHubFileLocation,
+  encodeCandidateAuthorityRepositoryRelativePath,
+  isCandidateAuthorityGitObjectSha,
+  isSafeCandidateAuthorityRepositoryRelativePath,
+} from './candidate-authority-license-provenance.ts';
 export {
   classifyCandidateAuthorityCell,
   measureCandidateAuthorityReadiness,

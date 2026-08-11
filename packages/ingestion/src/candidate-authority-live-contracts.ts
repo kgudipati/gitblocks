@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition -- This module validates committed trust-boundary authorities. */
 
 import { canonicalizeJson } from './canonical-json.ts';
+import {
+  isCandidateAuthorityGitObjectSha,
+  isSafeCandidateAuthorityRepositoryRelativePath,
+} from './candidate-authority-license-provenance.ts';
 import { ingestionError } from './errors.ts';
 import {
   requireExactKeys,
@@ -11,20 +15,22 @@ export const CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD =
   '47397ce92ee500c011fe39820053ba22fd6b397b' as const;
 export const CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD =
   'a1c141e87c96187c8edb5779709fa5ef04089390' as const;
+export const CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD =
+  '4152fb744086bb13ad581b461044a0e2670df1f4' as const;
 export const CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION =
-  'candidate-authority-live-authorization/1.0.0' as const;
-export const CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH =
-  'catalog/public-v1/candidate-authority-live-authorization-v1.json' as const;
-export const CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST =
-  '4038f2f124db52cad2e5333bfd12045e1789ed4c20afd28d37a1a619b3d95d2b' as const;
-export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION =
   'candidate-authority-live-authorization/2.0.0' as const;
-export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_PATH =
+export const CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH =
   'catalog/public-v1/candidate-authority-live-authorization-v2.json' as const;
-export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST =
+export const CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST =
   '9184ce87d1e74e10d2dcfa91f7b4302292d7f92fa5e1e5bb8378d97339074129' as const;
+export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION =
+  'candidate-authority-live-authorization/3.0.0' as const;
+export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_PATH =
+  'catalog/public-v1/candidate-authority-live-authorization-v3.json' as const;
+export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST =
+  '3d39801eeabef0e09be54875216a99ff3e864296f0f682c3029010fa9fbe793f' as const;
 export const CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION =
-  'candidate-authority-live-operator/2.0.0' as const;
+  'candidate-authority-live-operator/3.0.0' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_VERSION =
   'candidate-authority-source-authority/1.0.0' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_PATH =
@@ -88,7 +94,7 @@ export type CandidateAuthoritySourceOutcome =
   | 'not-applicable'
   | 'qualified-unknown';
 
-export interface CandidateAuthorityLiveAuthorizationV2 {
+export interface CandidateAuthorityLiveAuthorizationV3 {
   readonly authorizationVersion: typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION;
   readonly status: 'authorized-after-independent-exact-head-acceptance';
   readonly bindings: Readonly<Record<string, string>>;
@@ -96,8 +102,9 @@ export interface CandidateAuthorityLiveAuthorizationV2 {
     readonly branch: 'feat/32-codebase-conditioned-ranking';
     readonly acceptedPreLiveHead: typeof CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD;
     readonly priorOperatorHead: typeof CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD;
-    readonly requiredRelationship: 'accepted-pre-live-to-prior-operator-to-exactly-one-ordinary-additive-successor-correction';
-    readonly allowedAdditiveSuccessorCorrectionCommits: 1;
+    readonly priorReplayOperatorHead: typeof CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD;
+    readonly requiredRelationship: 'accepted-pre-live-to-prior-operator-to-prior-replay-operator-to-exactly-one-ordinary-additive-provenance-correction';
+    readonly allowedAdditiveProvenanceCorrectionCommits: 1;
     readonly independentReviewRequiredBeforeCredentialInspection: true;
   };
   readonly priorAuthorization: {
@@ -169,7 +176,7 @@ export interface CandidateAuthorityLiveAuthorizationV2 {
 }
 
 export type CandidateAuthorityLiveAuthorization =
-  CandidateAuthorityLiveAuthorizationV2;
+  CandidateAuthorityLiveAuthorizationV3;
 
 export interface CandidateAuthoritySourceDatum {
   readonly operationId: CandidateAuthorityOperationId;
@@ -312,24 +319,42 @@ const LOGICAL_REQUEST_CEILINGS: Readonly<
 
 export function parseCandidateAuthorityLiveAuthorization(
   supplied: unknown,
-): CandidateAuthorityLiveAuthorizationV2 {
+): CandidateAuthorityLiveAuthorizationV3 {
   const record = requireRecord(supplied);
   requireExactKeys(record, AUTHORIZATION_KEYS);
-  const candidate = record as unknown as CandidateAuthorityLiveAuthorizationV2;
+  const candidate = record as unknown as CandidateAuthorityLiveAuthorizationV3;
   const withoutDigest = { ...candidate } as Record<string, unknown>;
   delete withoutDigest['authorizationSemanticDigest'];
   if (
     candidate.authorizationVersion !==
       CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION ||
     candidate.status !== 'authorized-after-independent-exact-head-acceptance' ||
+    candidate.bindings['acceptedPreLiveHead'] !==
+      CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
+    candidate.bindings['priorOperatorHead'] !==
+      CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
+    candidate.bindings['priorReplayOperatorHead'] !==
+      CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD ||
+    candidate.bindings['priorLiveAuthorizationVersion'] !==
+      CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION ||
+    candidate.bindings['priorLiveAuthorizationDigest'] !==
+      CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST ||
+    candidate.bindings['sourcePolicyVersion'] !==
+      'candidate-authority-source-policy/5.0.0' ||
+    candidate.bindings['sourcePolicyDigest'] !==
+      'f1fb17132e42769385e0c4b8e9bb555dd31cdb1fccec3bc93f9c173f6bab725b' ||
+    candidate.bindings['replayAlgorithmVersion'] !==
+      'candidate-authority-pure-replay/2.0.0' ||
     candidate.executionHead.branch !== 'feat/32-codebase-conditioned-ranking' ||
     candidate.executionHead.acceptedPreLiveHead !==
       CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
     candidate.executionHead.priorOperatorHead !==
       CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
+    candidate.executionHead.priorReplayOperatorHead !==
+      CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD ||
     candidate.executionHead.requiredRelationship !==
-      'accepted-pre-live-to-prior-operator-to-exactly-one-ordinary-additive-successor-correction' ||
-    candidate.executionHead.allowedAdditiveSuccessorCorrectionCommits !== 1 ||
+      'accepted-pre-live-to-prior-operator-to-prior-replay-operator-to-exactly-one-ordinary-additive-provenance-correction' ||
+    candidate.executionHead.allowedAdditiveProvenanceCorrectionCommits !== 1 ||
     !candidate.executionHead
       .independentReviewRequiredBeforeCredentialInspection ||
     candidate.priorAuthorization.version !==
@@ -493,12 +518,14 @@ export function parseCandidateAuthoritySourceAuthority(
       CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
     authority.bindings['priorOperatorHead'] !==
       CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
+    authority.bindings['priorReplayOperatorHead'] !==
+      CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD ||
     !isCommitSha(authority.bindings['collectionExecutionHead']) ||
     authority.bindings['adr0012'] !== 'accepted' ||
     authority.bindings['sourcePolicyVersion'] !==
-      'candidate-authority-source-policy/4.0.0' ||
+      'candidate-authority-source-policy/5.0.0' ||
     authority.bindings['sourcePolicyDigest'] !==
-      '5b4fe3b3752679ed1302ce242ededf41b59ea54d01a7f020dad3027635208793' ||
+      'f1fb17132e42769385e0c4b8e9bb555dd31cdb1fccec3bc93f9c173f6bab725b' ||
     authority.bindings['liveAuthorizationVersion'] !==
       CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION ||
     authority.bindings['liveAuthorizationDigest'] !==
@@ -628,12 +655,72 @@ function validateSourceCandidate(
     )
       invalid();
   }
+  validateLicenseSource(candidate, sources);
   const withoutDigest = { ...candidate } as Record<string, unknown>;
   delete withoutDigest['candidateSourceDigest'];
   if (
     candidate.candidateSourceDigest !== canonicalizeJson(withoutDigest).digest
   )
     invalid();
+}
+
+function validateLicenseSource(
+  candidate: CandidateAuthoritySourceCandidateV1,
+  sources: readonly CandidateAuthoritySourceDatum[],
+): void {
+  const license = sources.find(
+    (source) => source.operationId === 'github-license',
+  );
+  if (license?.outcome !== 'established-value') return;
+  const value = requireRecord(license.value);
+  requireExactKeys(value, [
+    'blobSha',
+    'headSha',
+    'partialFacts',
+    'path',
+    'repositoryIdentity',
+    'spdxId',
+  ]);
+  const repositoryIdentity = requireRecord(value['repositoryIdentity']);
+  requireExactKeys(repositoryIdentity, ['owner', 'repository']);
+  const metadata = requireEstablishedSourceValue(
+    sources,
+    'github-repository-metadata',
+  );
+  const commit = requireEstablishedSourceValue(
+    sources,
+    'github-head-commit-object',
+  );
+  const owner = repositoryIdentity['owner'];
+  const repository = repositoryIdentity['repository'];
+  const spdxId = value['spdxId'];
+  if (
+    !isSafeToken(owner, 100) ||
+    !isSafeToken(repository, 100) ||
+    owner !== metadata['canonicalOwner'] ||
+    repository !== metadata['canonicalRepository'] ||
+    owner.toLowerCase() !== candidate.github.owner.toLowerCase() ||
+    repository.toLowerCase() !== candidate.github.repository.toLowerCase() ||
+    !isCandidateAuthorityGitObjectSha(value['headSha']) ||
+    value['headSha'] !== commit['headSha'] ||
+    !isCandidateAuthorityGitObjectSha(value['blobSha']) ||
+    !isSafeCandidateAuthorityRepositoryRelativePath(value['path']) ||
+    (spdxId !== null && !isSafeToken(spdxId, 64)) ||
+    !Array.isArray(value['partialFacts']) ||
+    value['partialFacts'].length > 1
+  )
+    invalid();
+}
+
+function requireEstablishedSourceValue(
+  sources: readonly CandidateAuthoritySourceDatum[],
+  operationId: CandidateAuthorityOperationId,
+): Record<string, unknown> {
+  const source = sources.find(
+    (candidate) => candidate.operationId === operationId,
+  );
+  if (source?.outcome !== 'established-value') invalid();
+  return requireRecord(source.value);
 }
 
 function isCount(value: unknown): value is number {

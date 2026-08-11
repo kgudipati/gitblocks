@@ -7,7 +7,9 @@ import { describe, expect, it } from 'vitest';
 import {
   CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD,
   CANDIDATE_AUTHORITY_OPERATION_IDS,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION,
   CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
+  CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD,
   CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_SOURCE_STAGING_PATH,
   createCandidateAuthoritySourceAuthority,
@@ -39,6 +41,12 @@ describe('candidate-authority live effect boundary', () => {
       providerCollections: 0,
     });
     expect(counters).toEqual({ credentials: 0, writes: 0, providers: 0 });
+    expect(result.git).toMatchObject({
+      parentHead: CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD,
+      priorReplayOperatorParentHead: CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
+      priorOperatorParentHead: CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD,
+      provenanceCorrectionCommitCount: 1,
+    });
   });
 
   it('reads only the scoped credential after preflight and cleans owned staging on publication failure', async () => {
@@ -76,7 +84,7 @@ describe('candidate-authority live effect boundary', () => {
         counters.providers += 1;
         return createCandidateAuthoritySourceAuthority({
           authorityVersion: 'candidate-authority-source-authority/1.0.0',
-          operatorVersion: 'candidate-authority-live-operator/2.0.0',
+          operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION,
           bindings: {
             ...authorization.bindings,
             catalogVersion: catalog.catalogVersion,
@@ -158,9 +166,30 @@ describe('candidate-authority live effect boundary', () => {
         head: 'f'.repeat(40),
         originHead: 'f'.repeat(40),
         parentHead: 'e'.repeat(40),
+        priorReplayOperatorParentHead: 'd'.repeat(40),
         priorOperatorParentHead: 'd'.repeat(40),
-        correctionCommitCount: 2,
+        provenanceCorrectionCommitCount: 2,
         clean: false,
+      }),
+    });
+    await expect(
+      preflightCandidateAuthorityLiveCollection(effects),
+    ).rejects.toMatchObject({ code: 'ingestion.invalid-input' });
+    expect(counters.credentials).toBe(0);
+  });
+
+  it.each([
+    { parentHead: '0'.repeat(40) },
+    { priorReplayOperatorParentHead: '0'.repeat(40) },
+    { priorOperatorParentHead: '0'.repeat(40) },
+    { provenanceCorrectionCommitCount: 2 },
+  ])('rejects a broken exact successor lineage %#', async (gitOverride) => {
+    const counters = { credentials: 0, writes: 0, providers: 0 };
+    const base = fakeEffects(counters);
+    const effects = fakeEffects(counters, {
+      readGitState: async () => ({
+        ...(await base.readGitState()),
+        ...gitOverride,
       }),
     });
     await expect(
@@ -182,9 +211,10 @@ function fakeEffects(
       branch: 'feat/32-codebase-conditioned-ranking',
       head,
       originHead: head,
-      parentHead: CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
+      parentHead: CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD,
+      priorReplayOperatorParentHead: CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
       priorOperatorParentHead: CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD,
-      correctionCommitCount: 1,
+      provenanceCorrectionCommitCount: 1,
       clean: true,
     }),
     readCredential: (name) => {

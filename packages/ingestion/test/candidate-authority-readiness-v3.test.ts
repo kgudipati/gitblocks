@@ -21,6 +21,7 @@ import {
   parseCandidateAuthorityPartialSemanticRegistry,
   parseCandidateAuthorityReadinessPolicyV3,
   parseCandidateAuthoritySourcePolicyV4,
+  parseCandidateAuthoritySourcePolicyV5,
   qualifiesPlannedDeterministicExtraction,
   resolveExactGitHeadFromReferenceAndCommit,
   type CandidateAuthorityCellOriginCounts,
@@ -47,9 +48,9 @@ async function authorities() {
     policy,
     registry,
   );
-  const sourcePolicy = parseCandidateAuthoritySourcePolicyV4(
+  const sourcePolicy = parseCandidateAuthoritySourcePolicyV5(
     await readJson(
-      'catalog/public-v1/candidate-authority-source-policy-v4.json',
+      'catalog/public-v1/candidate-authority-source-policy-v5.json',
     ),
     plan,
   );
@@ -57,6 +58,57 @@ async function authorities() {
 }
 
 describe('readiness policy v3', () => {
+  it('evolves only GitHub license retention while preserving every request and attempt ceiling', async () => {
+    const { plan, sourcePolicy } = await authorities();
+    const prior = parseCandidateAuthoritySourcePolicyV4(
+      await readJson(
+        'catalog/public-v1/candidate-authority-source-policy-v4.json',
+      ),
+      plan,
+    );
+    expect(sourcePolicy.requestBudget).toEqual(prior.requestBudget);
+    expect(sourcePolicy.requestBudget).toMatchObject({
+      githubLogicalRequests: 1810,
+      npmLogicalRequests: 80,
+      totalLogicalRequests: 1890,
+      githubWorstCaseAttempts: 5430,
+      npmWorstCaseAttempts: 240,
+      totalWorstCaseAttempts: 5670,
+    });
+    for (const operation of sourcePolicy.operations) {
+      const priorOperation = prior.operations.find(
+        (candidate) => candidate.operationId === operation.operationId,
+      );
+      expect(priorOperation).toBeDefined();
+      if (operation.operationId !== 'github-license') {
+        expect(operation).toEqual(priorOperation);
+        continue;
+      }
+      expect(operation.endpointShape).toBe(
+        '/repos/{owner}/{repository}/license?ref={headSha}',
+      );
+      expect(operation.maximumTotalLogicalRequests).toBe(
+        priorOperation?.maximumTotalLogicalRequests,
+      );
+      expect(operation.retainedStructuredProperties).toEqual([
+        'license.spdx_id',
+        'path',
+        'sha',
+        'repositoryIdentity',
+        'headSha',
+      ]);
+      expect(operation.retainedStructuredProperties).not.toEqual(
+        expect.arrayContaining([
+          'content',
+          'rawResponse',
+          'download_url',
+          'temporaryUrl',
+          'authorizationHeaders',
+        ]),
+      );
+    }
+  });
+
   it('separates planned capability, realized readiness, and full closure', async () => {
     const { plan } = await authorities();
     expect(plan.frozenGate).toEqual({

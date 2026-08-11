@@ -187,6 +187,22 @@ in
 and requires independent exact-head acceptance before it can authorize the
 remaining provider-effect collection.
 
+### License provenance correction (2026-08-11)
+
+Independent review then found one pre-effect provenance defect: the accepted
+GitHub license operation retained SPDX identity but not the provider-returned
+file path, while replay inferred `LICENSE` for an immutable URL. Source policy
+v5 additively retains and validates the exact provider path and Git blob SHA;
+operator v3 and replay algorithm v2 derive license evidence only from that
+committed record. Authorization v3 closes the additional exact-head lineage
+before another credential inspection.
+
+This correction does not change recognized-SPDX semantics, the 18-field
+denominator, 13/18, breadth, full closure, endpoints, budgets, retries,
+one-shot behavior, or any accepted Ranking V1 authority. No candidate source
+value existed and no provider-effect collection had been consumed when the
+correction was frozen.
+
 ## Rejected alternatives
 
 - Preserve 14 paths by crediting npm ecosystem, runtime dependencies, or a

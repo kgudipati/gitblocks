@@ -40,6 +40,10 @@ export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION =
   'candidate-authority-source-policy/4.0.0' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST =
   '5b4fe3b3752679ed1302ce242ededf41b59ea54d01a7f020dad3027635208793' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION =
+  'candidate-authority-source-policy/5.0.0' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST =
+  'f1fb17132e42769385e0c4b8e9bb555dd31cdb1fccec3bc93f9c173f6bab725b' as const;
 export const CANDIDATE_AUTHORITY_ROOT_V4_VERSION =
   'candidate-authority-root/4.0.0' as const;
 export const CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH =
@@ -48,6 +52,8 @@ export const CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH =
   'catalog/public-v1/candidate-authority-field-plan-v4.json' as const;
 export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH =
   'catalog/public-v1/candidate-authority-source-policy-v4.json' as const;
+export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH =
+  'catalog/public-v1/candidate-authority-source-policy-v5.json' as const;
 export const CANDIDATE_AUTHORITY_PLANNED_CAPABLE_COUNT = 13 as const;
 export const CANDIDATE_AUTHORITY_PLANNED_FULL_CLOSURE_COUNT = 6 as const;
 
@@ -175,6 +181,13 @@ export interface CandidateAuthoritySourcePolicyV4 {
   readonly freshnessPolicy: Readonly<Record<string, unknown>>;
   readonly publicationFlow: readonly string[];
   readonly policySemanticDigest: string;
+}
+
+export interface CandidateAuthoritySourcePolicyV5 extends Omit<
+  CandidateAuthoritySourcePolicyV4,
+  'policyVersion'
+> {
+  readonly policyVersion: typeof CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION;
 }
 
 export interface CandidateAuthorityRootV4 {
@@ -625,6 +638,36 @@ export function parseCandidateAuthoritySourcePolicyV4(
   supplied: unknown,
   plan: CandidateAuthorityFieldPlanV4,
 ): CandidateAuthoritySourcePolicyV4 {
+  return parseCandidateAuthoritySourcePolicyVersion(
+    supplied,
+    plan,
+    CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION,
+    CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST,
+  ) as CandidateAuthoritySourcePolicyV4;
+}
+
+export function parseCandidateAuthoritySourcePolicyV5(
+  supplied: unknown,
+  plan: CandidateAuthorityFieldPlanV4,
+): CandidateAuthoritySourcePolicyV5 {
+  return parseCandidateAuthoritySourcePolicyVersion(
+    supplied,
+    plan,
+    CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION,
+    CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST,
+  ) as CandidateAuthoritySourcePolicyV5;
+}
+
+function parseCandidateAuthoritySourcePolicyVersion(
+  supplied: unknown,
+  plan: CandidateAuthorityFieldPlanV4,
+  expectedVersion:
+    | typeof CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION
+    | typeof CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION,
+  expectedDigest:
+    | typeof CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST
+    | typeof CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST,
+): CandidateAuthoritySourcePolicyV4 | CandidateAuthoritySourcePolicyV5 {
   const record = requireRecord(supplied);
   requireExactKeys(record, SOURCE_POLICY_KEYS);
   if (!Array.isArray(record['operations'])) invalid();
@@ -654,7 +697,8 @@ export function parseCandidateAuthoritySourcePolicyV4(
   const candidate = {
     ...record,
     operations,
-  } as unknown as CandidateAuthoritySourcePolicyV4;
+  } as unknown as
+    CandidateAuthoritySourcePolicyV4 | CandidateAuthoritySourcePolicyV5;
   const withoutDigest = { ...candidate } as Record<string, unknown>;
   delete withoutDigest['policySemanticDigest'];
   const github = operations
@@ -673,7 +717,7 @@ export function parseCandidateAuthoritySourcePolicyV4(
     ]),
   );
   if (
-    candidate.policyVersion !== CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION ||
+    candidate.policyVersion !== expectedVersion ||
     candidate.status !==
       'accepted-pre-live-source-rule-authority-live-not-authorized' ||
     candidate.bindings['fieldPlanVersion'] !== plan.planVersion ||
@@ -699,12 +743,46 @@ export function parseCandidateAuthoritySourcePolicyV4(
         (operation) => !operationIds.has(operation),
       ),
     ) ||
-    candidate.policySemanticDigest !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST ||
+    (expectedVersion === CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION &&
+      !validLicenseProvenanceSuccessor(candidate, operations)) ||
+    candidate.policySemanticDigest !== expectedDigest ||
     candidate.policySemanticDigest !== canonicalizeJson(withoutDigest).digest
   )
     invalid();
   return deepFreeze(candidate);
+}
+
+function validLicenseProvenanceSuccessor(
+  policy: CandidateAuthoritySourcePolicyV4 | CandidateAuthoritySourcePolicyV5,
+  operations: readonly CandidateAuthoritySourceOperation[],
+): boolean {
+  const license = operations.find(
+    (operation) => operation.operationId === 'github-license',
+  );
+  return (
+    policy.bindings['priorSourcePolicyVersion'] ===
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION &&
+    policy.bindings['priorSourcePolicyDigest'] ===
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST &&
+    license?.endpointShape ===
+      '/repos/{owner}/{repository}/license?ref={headSha}' &&
+    arraysEqual(license.retainedStructuredProperties, [
+      'license.spdx_id',
+      'path',
+      'sha',
+      'repositoryIdentity',
+      'headSha',
+    ]) &&
+    !license.retainedStructuredProperties.some((property) =>
+      [
+        'content',
+        'rawResponse',
+        'download_url',
+        'temporaryUrl',
+        'authorizationHeaders',
+      ].includes(property),
+    )
+  );
 }
 
 export function candidateAuthorityRootV4SemanticDigest(

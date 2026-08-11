@@ -7,6 +7,7 @@ import {
 
 import { canonicalizeJson } from './canonical-json.ts';
 import {
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION,
   CANDIDATE_AUTHORITY_OPERATION_IDS,
   createCandidateAuthoritySourceAuthority,
   createCandidateAuthoritySourceCandidate,
@@ -15,6 +16,7 @@ import {
   type CandidateAuthoritySourceAuthorityV1,
   type CandidateAuthoritySourceDatum,
 } from './candidate-authority-live-contracts.ts';
+import { isSafeCandidateAuthorityRepositoryRelativePath } from './candidate-authority-license-provenance.ts';
 import { extractRepositoryContainerBuildDeclarationFact } from './candidate-authority-dockerfile.ts';
 import {
   extractApplicableSecurityAdvisoryFacts,
@@ -25,7 +27,7 @@ import {
   extractRepositoryPrimaryLanguageFact,
   extractRepositorySelfBuildComposeServiceFacts,
 } from './candidate-authority-partial-rules.ts';
-import type { CandidateAuthoritySourcePolicyV4 } from './candidate-authority-readiness.ts';
+import type { CandidateAuthoritySourcePolicyV5 } from './candidate-authority-readiness.ts';
 import { IngestionError, ingestionError } from './errors.ts';
 import { requireRecord } from './profile-materialization-contracts.ts';
 import type { JsonResponse } from './transport.ts';
@@ -83,7 +85,7 @@ interface RepositoryContext {
 
 export async function collectCandidateAuthoritySourceAuthority(input: {
   readonly catalog: PublicCatalog;
-  readonly sourcePolicy: CandidateAuthoritySourcePolicyV4;
+  readonly sourcePolicy: CandidateAuthoritySourcePolicyV5;
   readonly liveAuthorizationVersion: string;
   readonly liveAuthorizationDigest: string;
   readonly liveAuthorizationBindings: Readonly<Record<string, string>>;
@@ -158,7 +160,7 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
     invalid();
   return createCandidateAuthoritySourceAuthority({
     authorityVersion: 'candidate-authority-source-authority/1.0.0',
-    operatorVersion: 'candidate-authority-live-operator/2.0.0',
+    operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_VERSION,
     bindings: {
       ...input.liveAuthorizationBindings,
       catalogVersion: input.catalog.catalogVersion,
@@ -399,9 +401,18 @@ async function collectLicense(
   const record = requireRecord(collected.response.value);
   const license = requireRecord(record['license']);
   const spdxId = nullableString(license['spdx_id'], 64);
+  const path = record['path'];
+  if (!isSafeCandidateAuthorityRepositoryRelativePath(path)) invalidProvider();
+  const blobSha = sha1(record['sha']);
   sources.push(
     source('github-license', 'established-value', 'complete', {
+      repositoryIdentity: {
+        owner: context.canonicalOwner,
+        repository: context.canonicalRepository,
+      },
       headSha: context.headSha,
+      path,
+      blobSha,
       spdxId,
       partialFacts: facts(
         extractRecognizedLicenseSpdxFact({ spdxId, sourceComplete: true }),

@@ -27,12 +27,14 @@
   `47397ce92ee500c011fe39820053ba22fd6b397b`. Live operator v1 was published at
   `a1c141e87c96187c8edb5779709fa5ef04089390`; its first invocation stopped as
   a pre-effect credential-gate failure before a cutoff or provider call. No
-  source authority, all-150 projection, or readiness measurement exists. This
-  additive pre-effect correction freezes the complete pure replay and
-  readiness/root orchestration for independent exact-head review. Exactly one
-  provider-effect collection remains, live collection remains unexecuted,
-  realized readiness remains unmeasured, and Milestones 4 through 6 remain
-  unauthorized.
+  source authority, all-150 projection, or readiness measurement exists. Replay
+  correction head `4152fb744086bb13ad581b461044a0e2670df1f4` froze the complete
+  pure replay and readiness/root orchestration. This final additive pre-effect
+  provenance correction retains the exact provider-returned GitHub license
+  path/blob identity and removes the inferred `LICENSE` locator before another
+  exact-head review. Exactly one provider-effect collection remains, live
+  collection remains unexecuted, realized readiness remains unmeasured, and
+  Milestones 4 through 6 remain unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-11
@@ -833,6 +835,17 @@ all-candidate output. Independent acceptance of its exact publication head is
 required before another live preflight/credential inspection. Milestone 4
 remains prohibited.
 
+Independent review of replay operator v2 found that `github-license` retained
+SPDX identity but not the provider-returned file path, while replay constructed
+an immutable locator with the unsupported filename `LICENSE`. Additive source
+policy v5 retains only the exact safe provider path, provider Git blob SHA,
+SPDX identity, canonical repository identity, and exact head SHA under the
+unchanged request and ceilings. Authorization v3, operator v3, and replay
+algorithm v2 close exact lineage through `4152fb7...`; recognized-SPDX,
+readiness, breadth, and all other source semantics remain unchanged. This
+correction itself has no live or all-candidate effect and requires independent
+exact-head rereview before credential access.
+
 ### Milestone 4 — Pure ranking vertical slice and execution envelope
 
 After M3 acceptance, add the pure package and additive approved-query,
@@ -1083,6 +1096,12 @@ reviewed durable-product trigger in ADR 0011.
       performs no credential read, provider call, cutoff/source generation,
       all-150 projection, readiness measurement, or M4 work; independent
       rereview remains required.
+- [x] 2026-08-11 — Corrected license evidence provenance before any live value:
+      source policy v5 retains and validates the exact provider path/blob SHA,
+      replay v2 segment-encodes that committed path, operator/authorization v3
+      extend the exact lineage, and every ranking/readiness rule and request
+      ceiling remains unchanged. Publication requires independent rereview
+      before credential access.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
 - [ ] M5 independently accepted.
@@ -1209,6 +1228,68 @@ final documentation bytes before publication. Ranking V1 remains the exact
 unchanged tree `dc83037e36ae8422a692e2fdbad8d804cbf05985`; no workflow,
 source authority, replay output, readiness output, or ranking package exists.
 
+### Milestone 3 license-provenance pre-effect correction validation
+
+The correction began from clean local, origin-tracking, and live remote heads
+at exact `4152fb744086bb13ad581b461044a0e2670df1f4`. PR #33 was
+open/draft/unmerged/not ready, Issue #32 was open, Node was `v24.18.0`, pnpm was
+`11.17.0`, and every source/staging/replay/readiness/root output plus
+`packages/ranking` was absent. Authorization v2 still recorded the prior
+pre-effect credential-gate failure, zero candidate-provider calls, zero
+provider-effect collections consumed, and one remaining collection. Ranking
+V1's tracked tree was `dc83037e36ae8422a692e2fdbad8d804cbf05985`.
+
+Focused provenance fixtures retain `LICENSE.md` and another nested path
+exactly, segment-encode the latter, bind both to the exact head SHA and
+canonical repository identity, and produce a contract-valid dossier. They
+reject traversal, absolute, control-character, query/fragment, URI/backslash,
+oversized, malformed-SHA, and cross-candidate provenance. Null,
+`NOASSERTION`, and established absence remain unknown with no favorable fact
+or invented URL. Request/attempt ceilings and the existing forward/reverse/
+repeat, 13/18, breadth, N/A, zero-output, human/model, Compose, and Dockerfile
+fixtures remain unchanged.
+
+| Command                                                      | Exit/result                                                                                                                                               |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| targeted license/live/replay/readiness Vitest command        | `0`; five files and 44 tests passed                                                                                                                       |
+| `pnpm candidate-authority:live:fixtures`                     | `0`; six files and 52 tests passed                                                                                                                        |
+| `pnpm candidate-authority:replay:fixtures`                   | `0`; six files and 47 tests passed                                                                                                                        |
+| `pnpm candidate-authority:correction:fixtures`               | `0`; 13 files and 150 tests passed                                                                                                                        |
+| `pnpm candidate-authority:correction:validate`               | `0`; source policy v5 digest, unchanged policy/plan/registry/evidence bindings, 13/18, six full-closure fields, and unchanged request ceilings reproduced |
+| `pnpm candidate-authority:correction:preflight`              | `0`; every prohibited effect count was exactly zero                                                                                                       |
+| ingestion typecheck plus live-lineage/source-freeze fixtures | `0`; two files and 13 tests passed after the standalone ingestion typecheck                                                                               |
+
+The correction preflight reported exactly zero network, candidate-provider,
+credential, database, Docker, model, filesystem-write, provider-collection,
+source-authority-generation, all-candidate-projection, and coverage effects.
+No live command was executed. The complete required matrix is rerun against
+the final documented bytes and recorded before publication.
+
+The first full `pnpm verify` attempt stopped at one new test-only
+`no-unsafe-assignment` lint finding in an `expect.stringContaining` matcher.
+The assertion was replaced with a typed `git-commit` source guard and exact URL
+check; no authority, runtime behavior, rule, digest, or budget changed. The
+authoritative full rerun then produced:
+
+| Command                     | Exit/result                                                                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm runtime:check`        | `0`; Node `v24.18.0` and pnpm `11.17.0` passed                                                                                                       |
+| `pnpm format:check`         | `0`; all matched files use Prettier style                                                                                                            |
+| `pnpm repo:check`           | `0`; repository checks passed with the complete intended authority/schema set staged                                                                 |
+| `pnpm verify`               | `0`; 148 files and 2,063 tests passed; zero dependency violations across 935 modules and 3,238 dependencies; accepted Ranking V1 verification passed |
+| `pnpm security:secrets`     | `0`; secretlint passed                                                                                                                               |
+| `pnpm security:audit`       | `0`; no known moderate-or-higher vulnerabilities                                                                                                     |
+| `git diff --check`          | `0`; no whitespace errors                                                                                                                            |
+| `git diff --cached --check` | `0`; no indexed whitespace errors                                                                                                                    |
+
+The indexed tree remained
+`92d5af55365e49ee21f3859ad6ca3918cd4b12b6` across the separate
+secret/audit/diff sequence. Ranking V1 remained the exact unchanged tree
+`dc83037e36ae8422a692e2fdbad8d804cbf05985`; the workflow tree remained
+`ca5f40b48d50ff070fb64110359cbc4a984fd007`. The final documentation-only
+evidence update is formatted, staged, and followed by the same exact matrix so
+the published bytes—not an intermediate tree—own the final validation record.
+
 ## Decision and deviation log
 
 - 2026-08-10 — Freeze M3A as NO-GO with six readiness-eligible fields. Reason:
@@ -1253,6 +1334,13 @@ source authority, replay output, readiness output, or ranking package exists.
   The successor binds exact ancestry and one remaining collection; replay is
   committed-source-only and provider-free, and readiness measurement remains a
   distinct first-execution command.
+- 2026-08-11 — Preserve authorizations v1/v2 and source policy v4, then publish
+  additive authorization v3, source policy v5, operator v3, and replay
+  algorithm v2. Reason: replay could pair a correct SPDX classification with a
+  fabricated immutable `LICENSE` path because the source contract did not
+  retain the provider path. The successor changes only provenance retention
+  and bytes, not recognized-SPDX classification, readiness, breadth, requests,
+  retries, failure policy, or one-shot authorization.
 
 - 2026-08-10 — Use two versioned denominators: 22 execution fields and 18
   decision-bearing fields. Reason: structural authentication is necessary but

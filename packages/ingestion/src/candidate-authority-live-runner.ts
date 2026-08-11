@@ -20,6 +20,7 @@ import {
   CANDIDATE_AUTHORITY_PARTIAL_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_PARTIAL_STAGING_PATH,
   CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
+  CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD,
   CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_DIGEST,
   CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH,
   CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_VERSION,
@@ -36,7 +37,7 @@ import {
   parseCandidateAuthorityLiveAuthorization,
   parseCandidateAuthoritySourceAuthority,
   serializeCandidateAuthoritySourceAuthority,
-  type CandidateAuthorityLiveAuthorizationV2,
+  type CandidateAuthorityLiveAuthorizationV3,
   type CandidateAuthoritySourceAuthorityV1,
 } from './candidate-authority-live-contracts.ts';
 import type { CandidateAuthorityAttemptMetrics } from './candidate-authority-live-collector.ts';
@@ -49,14 +50,15 @@ import {
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION,
   parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityReadinessPolicyV3,
-  parseCandidateAuthoritySourcePolicyV4,
-  type CandidateAuthoritySourcePolicyV4,
+  parseCandidateAuthoritySourcePolicyV5,
+  type CandidateAuthoritySourcePolicyV5,
 } from './candidate-authority-readiness.ts';
+import { CANDIDATE_AUTHORITY_REPLAY_ALGORITHM_VERSION } from './candidate-authority-replay-contracts.ts';
 import type { PublicCatalog } from './types.ts';
 
 export const CANDIDATE_AUTHORITY_LIVE_CATALOG_PATH =
@@ -89,8 +91,9 @@ export interface CandidateAuthorityLiveGitState {
   readonly head: string;
   readonly originHead: string;
   readonly parentHead: string;
+  readonly priorReplayOperatorParentHead: string;
   readonly priorOperatorParentHead: string;
-  readonly correctionCommitCount: number;
+  readonly provenanceCorrectionCommitCount: number;
   readonly clean: boolean;
 }
 
@@ -108,8 +111,8 @@ export interface CandidateAuthorityLiveCollectionEffects extends CandidateAuthor
   readonly now: () => Date;
   readonly collect: (input: {
     readonly catalog: PublicCatalog;
-    readonly sourcePolicy: CandidateAuthoritySourcePolicyV4;
-    readonly authorization: CandidateAuthorityLiveAuthorizationV2;
+    readonly sourcePolicy: CandidateAuthoritySourcePolicyV5;
+    readonly authorization: CandidateAuthorityLiveAuthorizationV3;
     readonly executionHead: string;
     readonly credential: string;
     readonly collectionCutoff: string;
@@ -135,8 +138,8 @@ export interface CandidateAuthorityLivePreflightResult {
   readonly command: 'candidate-authority-live-preflight';
   readonly git: CandidateAuthorityLiveGitState;
   readonly catalog: PublicCatalog;
-  readonly sourcePolicy: CandidateAuthoritySourcePolicyV4;
-  readonly authorization: CandidateAuthorityLiveAuthorizationV2;
+  readonly sourcePolicy: CandidateAuthoritySourcePolicyV5;
+  readonly authorization: CandidateAuthorityLiveAuthorizationV3;
   readonly effectAudit: {
     readonly networkCalls: 0;
     readonly candidateProviderCalls: 0;
@@ -178,7 +181,7 @@ export async function preflightCandidateAuthorityLiveCollection(
     read(effects, CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH),
     read(effects, CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH),
     read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH),
-    read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH),
+    read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH),
     read(effects, CANDIDATE_AUTHORITY_PRIOR_LIVE_AUTHORIZATION_PATH),
     read(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_PATH),
     effects.readGitState(),
@@ -196,7 +199,7 @@ export async function preflightCandidateAuthorityLiveCollection(
     readiness,
     registry,
   );
-  const sourcePolicy = parseCandidateAuthoritySourcePolicyV4(
+  const sourcePolicy = parseCandidateAuthoritySourcePolicyV5(
     JSON.parse(sourceText) as unknown,
     plan,
   );
@@ -230,9 +233,11 @@ export async function preflightCandidateAuthorityLiveCollection(
     mappedNpm !== 80 ||
     git.branch !== 'feat/32-codebase-conditioned-ranking' ||
     git.head !== git.originHead ||
-    git.parentHead !== CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
+    git.parentHead !== CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD ||
+    git.priorReplayOperatorParentHead !==
+      CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
     git.priorOperatorParentHead !== CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
-    git.correctionCommitCount !== 1 ||
+    git.provenanceCorrectionCommitCount !== 1 ||
     !git.clean ||
     authorization.bindings['catalogVersion'] !== catalog.catalogVersion ||
     authorization.bindings['catalogDigest'] !== catalog.manifestDigest ||
@@ -245,9 +250,11 @@ export async function preflightCandidateAuthorityLiveCollection(
     authorization.bindings['fieldPlanDigest'] !==
       CANDIDATE_AUTHORITY_FIELD_PLAN_V4_DIGEST ||
     authorization.bindings['sourcePolicyVersion'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION ||
     authorization.bindings['sourcePolicyDigest'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST ||
+    authorization.bindings['replayAlgorithmVersion'] !==
+      CANDIDATE_AUTHORITY_REPLAY_ALGORITHM_VERSION ||
     authorization.bindings['partialSemanticRegistryVersion'] !==
       registry.registryVersion ||
     authorization.bindings['partialSemanticRegistryDigest'] !==
@@ -260,6 +267,8 @@ export async function preflightCandidateAuthorityLiveCollection(
       CANDIDATE_AUTHORITY_ACCEPTED_PRELIVE_HEAD ||
     authorization.bindings['priorOperatorHead'] !==
       CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD ||
+    authorization.bindings['priorReplayOperatorHead'] !==
+      CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD ||
     authorization.authorizationSemanticDigest !==
       CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST ||
     sourcePolicy.requestBudget.githubLogicalRequests !== 1810 ||

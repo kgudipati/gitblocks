@@ -68,6 +68,20 @@ describe('pure candidate-authority replay projection', () => {
       new Set(forward.dossier.observations.map(({ evidenceId }) => evidenceId))
         .size,
     ).toBe(forward.dossier.observations.length);
+    const licenseField = (
+      forward.profile
+        .fields as unknown as readonly DeterministicProfileFieldRecord[]
+    ).find(({ fieldId }) => fieldId === 'license-identity');
+    const licenseObservation = forward.dossier.observations.find(
+      ({ topic }) => topic === 'candidate-license-identity',
+    );
+    expect(licenseField?.state).toBe('known');
+    const licenseSource = licenseObservation?.source;
+    if (licenseSource?.kind !== 'git-commit')
+      throw new Error('invalid license evidence fixture');
+    expect(licenseSource.commitSha).toBe(SHA);
+    expect(licenseSource.immutableUrl).toContain(`/blob/${SHA}/LICENSE.md`);
+    expect(licenseSource.immutableUrl).not.toMatch(/\/LICENSE$/u);
     expect(canonicalizeJson(forward).text).toBe(canonicalizeJson(reverse).text);
     expect(canonicalizeJson(forward).text).toBe(
       canonicalizeJson(repeated).text,
@@ -101,6 +115,96 @@ describe('pure candidate-authority replay projection', () => {
         ),
       ).toBe(true);
     }
+  });
+
+  it('preserves another exact safely encoded license path and rejects cross-candidate repository provenance', async () => {
+    const fixture = await fixtureInputs();
+    const source = sourceCandidate(
+      fixture.candidate,
+      'compose',
+      'legal/Apache License 2.0.txt',
+    );
+    const projected = projectCandidateAuthorityReplayCandidate({
+      ...fixture,
+      sourceCandidate: source,
+      sourceAuthorityDigest: AUTHORITY_DIGEST,
+      collectionCutoff: CUTOFF,
+    });
+    const observation = projected.dossier.observations.find(
+      ({ topic }) => topic === 'candidate-license-identity',
+    );
+    expect(
+      (observation?.source as { immutableUrl?: string } | undefined)
+        ?.immutableUrl,
+    ).toContain(`/blob/${SHA}/legal/Apache%20License%202.0.txt`);
+
+    const mismatched = replaceLicenseValue(source, (value) => ({
+      ...value,
+      repositoryIdentity: { owner: 'wrong-owner', repository: 'wrong-repo' },
+    }));
+    expect(() =>
+      projectCandidateAuthorityReplayCandidate({
+        ...fixture,
+        sourceCandidate: mismatched,
+        sourceAuthorityDigest: AUTHORITY_DIGEST,
+        collectionCutoff: CUTOFF,
+      }),
+    ).toThrow();
+  });
+
+  it.each(['NOASSERTION', null] as const)(
+    'keeps %j license identity unknown and emits no favorable evidence',
+    async (spdxId) => {
+      const fixture = await fixtureInputs();
+      const source = replaceLicenseValue(
+        sourceCandidate(fixture.candidate, 'compose'),
+        (value) => ({ ...value, spdxId, partialFacts: [] }),
+      );
+      const projected = projectCandidateAuthorityReplayCandidate({
+        ...fixture,
+        sourceCandidate: source,
+        sourceAuthorityDigest: AUTHORITY_DIGEST,
+        collectionCutoff: CUTOFF,
+      });
+      const licenseField = (
+        projected.profile
+          .fields as unknown as readonly DeterministicProfileFieldRecord[]
+      ).find(({ fieldId }) => fieldId === 'license-identity');
+      expect(licenseField?.state).toBe('unknown');
+      expect(
+        projected.dossier.observations.some(
+          ({ topic }) => topic === 'candidate-license-identity',
+        ),
+      ).toBe(false);
+    },
+  );
+
+  it('keeps established GitHub license absence unknown without inventing a path', async () => {
+    const fixture = await fixtureInputs();
+    const source = sourceCandidate(fixture.candidate, 'compose');
+    const absent = replaceLicenseDatum(source, {
+      operationId: 'github-license',
+      outcome: 'established-absence',
+      completeness: 'complete',
+      limitationCode: null,
+      value: null,
+    });
+    const projected = projectCandidateAuthorityReplayCandidate({
+      ...fixture,
+      sourceCandidate: absent,
+      sourceAuthorityDigest: AUTHORITY_DIGEST,
+      collectionCutoff: CUTOFF,
+    });
+    const licenseField = (
+      projected.profile
+        .fields as unknown as readonly DeterministicProfileFieldRecord[]
+    ).find(({ fieldId }) => fieldId === 'license-identity');
+    expect(licenseField?.state).toBe('unknown');
+    expect(
+      projected.dossier.observations.some(
+        ({ topic }) => topic === 'candidate-license-identity',
+      ),
+    ).toBe(false);
   });
 });
 
@@ -148,6 +252,7 @@ async function fixtureInputs() {
 function sourceCandidate(
   candidate: Awaited<ReturnType<typeof fixtureInputs>>['candidate'],
   deployment: 'compose' | 'dockerfile',
+  licensePath = 'LICENSE.md',
 ): CandidateAuthoritySourceCandidateV1 {
   const packageName = candidate.npmPackage;
   if (packageName === null) throw new Error('invalid fixture package');
@@ -208,7 +313,19 @@ function sourceCandidate(
     ],
     [
       'github-license',
-      established('github-license', { spdxId: 'MIT', partialFacts: [] }),
+      established('github-license', {
+        repositoryIdentity: {
+          owner: candidate.github.owner,
+          repository: candidate.github.repository,
+        },
+        headSha: SHA,
+        path: licensePath,
+        blobSha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        spdxId: 'MIT',
+        partialFacts: [
+          { factCode: 'recognized-license-spdx', factValue: 'MIT' },
+        ],
+      }),
     ],
     [
       'github-community-profile',
@@ -298,6 +415,44 @@ function sourceCandidate(
     github: candidate.github,
     npmPackage: packageName,
     sources,
+  };
+  return {
+    ...withoutDigest,
+    candidateSourceDigest: canonicalizeJson(withoutDigest).digest,
+  };
+}
+
+function replaceLicenseValue(
+  source: CandidateAuthoritySourceCandidateV1,
+  replace: (value: Record<string, unknown>) => Record<string, unknown>,
+): CandidateAuthoritySourceCandidateV1 {
+  const license = source.sources.find(
+    (datum) => datum.operationId === 'github-license',
+  );
+  if (
+    license?.outcome !== 'established-value' ||
+    typeof license.value !== 'object' ||
+    license.value === null ||
+    Array.isArray(license.value)
+  )
+    throw new Error('invalid license fixture');
+  return replaceLicenseDatum(source, {
+    ...license,
+    value: replace(license.value as Record<string, unknown>),
+  });
+}
+
+function replaceLicenseDatum(
+  source: CandidateAuthoritySourceCandidateV1,
+  replacement: CandidateAuthoritySourceDatum,
+): CandidateAuthoritySourceCandidateV1 {
+  const withoutDigest = {
+    candidateId: source.candidateId,
+    github: source.github,
+    npmPackage: source.npmPackage,
+    sources: source.sources.map((datum) =>
+      datum.operationId === 'github-license' ? replacement : datum,
+    ),
   };
   return {
     ...withoutDigest,

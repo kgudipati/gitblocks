@@ -18,11 +18,11 @@ import {
   CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH,
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH,
   parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityPartialSemanticRegistry,
   parseCandidateAuthorityReadinessPolicyV3,
-  parseCandidateAuthoritySourcePolicyV4,
+  parseCandidateAuthoritySourcePolicyV5,
 } from '../src/index.ts';
 import { ingestionError } from '../src/errors.ts';
 import { parsePublicCatalog } from '../src/manifest.ts';
@@ -30,6 +30,7 @@ import { parsePublicCatalog } from '../src/manifest.ts';
 const CUTOFF = '2026-08-10T12:34:56.000Z';
 const HEAD = '1111111111111111111111111111111111111111';
 const TREE = '2222222222222222222222222222222222222222';
+const LICENSE_BLOB_SHA = '3333333333333333333333333333333333333333';
 const COMPOSE = '{"services":{"app":{"build":"."}}}\n';
 const DOCKERFILE =
   '# syntax=docker/dockerfile:1\nARG BASE=node:24\nFROM node:24\n';
@@ -119,6 +120,19 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     expect(dockerfile?.value).toMatchObject({
       parserOutcome: 'established-facts',
     });
+    const license = first?.sources.find(
+      (source) => source.operationId === 'github-license',
+    );
+    expect(license?.value).toMatchObject({
+      headSha: HEAD,
+      path: 'LICENSE.md',
+      blobSha: LICENSE_BLOB_SHA,
+      spdxId: 'MIT',
+      partialFacts: [{ factCode: 'recognized-license-spdx', factValue: 'MIT' }],
+    });
+    expect(JSON.stringify(license?.value)).not.toMatch(
+      /content|download_url|authorization/iu,
+    );
   });
 
   it('treats optional transient sources as qualified unknown but fails required identity', async () => {
@@ -193,6 +207,55 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       }),
     ).rejects.toMatchObject({ code: 'ingestion.provider-identity' });
   });
+
+  it('fails closed on an unsafe provider-returned license path', async () => {
+    const { catalog, sourcePolicy } = await authorities();
+    const attempts = {
+      githubAttempts: 0,
+      npmAttempts: 0,
+      retries: 0,
+      perOperationAttempts: {} as Record<string, number>,
+    };
+    await expect(
+      collectCandidateAuthoritySourceAuthority({
+        catalog,
+        sourcePolicy,
+        liveAuthorizationVersion:
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_VERSION,
+        liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST,
+        liveAuthorizationBindings: liveAuthorizationBindings(
+          catalog.manifestDigest,
+        ),
+        executionHead: HEAD,
+        githubToken: 'inert-fixture-token',
+        collectionCutoff: CUTOFF,
+        transport: {
+          requestJson: async (request) => {
+            if (request.provider === 'github') attempts.githubAttempts += 1;
+            else attempts.npmAttempts += 1;
+            attempts.perOperationAttempts[request.operation] =
+              (attempts.perOperationAttempts[request.operation] ?? 0) + 1;
+            if (request.operation === 'github-license') {
+              return {
+                value: {
+                  path: '../LICENSE',
+                  sha: LICENSE_BLOB_SHA,
+                  license: { spdx_id: 'MIT' },
+                },
+                headers: new Headers(),
+                status: 200,
+              };
+            }
+            return fakeResponse(
+              request,
+              catalog.candidates[0]?.candidateId ?? '',
+            );
+          },
+        },
+        readAttemptMetrics: () => attempts,
+      }),
+    ).rejects.toMatchObject({ code: 'ingestion.provider-response' });
+  });
 });
 
 async function authorities() {
@@ -202,7 +265,7 @@ async function authorities() {
       readFile(CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH, 'utf8'),
       readFile(CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH, 'utf8'),
       readFile(CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH, 'utf8'),
-      readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH, 'utf8'),
+      readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH, 'utf8'),
     ]);
   const catalog = parsePublicCatalog(catalogText);
   const registry = parseCandidateAuthorityPartialSemanticRegistry(
@@ -218,7 +281,7 @@ async function authorities() {
   );
   return {
     catalog,
-    sourcePolicy: parseCandidateAuthoritySourcePolicyV4(
+    sourcePolicy: parseCandidateAuthoritySourcePolicyV5(
       JSON.parse(sourceText),
       plan,
     ),
@@ -290,7 +353,11 @@ function fakeResponse(
     case 'github-maintenance-window':
       return response([]);
     case 'github-license':
-      return response({ license: { spdx_id: 'MIT' } });
+      return response({
+        path: 'LICENSE.md',
+        sha: LICENSE_BLOB_SHA,
+        license: { spdx_id: 'MIT' },
+      });
     case 'github-community-profile':
       return response({ files: { security_policy: {} } });
     case 'github-release-window':
@@ -352,10 +419,11 @@ function liveAuthorizationBindings(catalogDigest: string) {
       '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
     acceptedPreLiveHead: '47397ce92ee500c011fe39820053ba22fd6b397b',
     priorOperatorHead: 'a1c141e87c96187c8edb5779709fa5ef04089390',
+    priorReplayOperatorHead: '4152fb744086bb13ad581b461044a0e2670df1f4',
     priorLiveAuthorizationVersion:
-      'candidate-authority-live-authorization/1.0.0',
+      'candidate-authority-live-authorization/2.0.0',
     priorLiveAuthorizationDigest:
-      '4038f2f124db52cad2e5333bfd12045e1789ed4c20afd28d37a1a619b3d95d2b',
+      '9184ce87d1e74e10d2dcfa91f7b4302292d7f92fa5e1e5bb8378d97339074129',
     priorInvocationDisposition: 'pre-effect-credential-gate-failure',
     adr0012: 'accepted',
     readinessPolicyVersion: 'ranking-v1-deterministic-readiness-policy/3.0.0',
@@ -364,9 +432,10 @@ function liveAuthorizationBindings(catalogDigest: string) {
     fieldPlanVersion: 'candidate-authority-field-plan/4.0.0',
     fieldPlanDigest:
       '84796407204bdb7f08efd053b71afc169312e22af2f104fca23d7e8581cb5997',
-    sourcePolicyVersion: 'candidate-authority-source-policy/4.0.0',
+    sourcePolicyVersion: 'candidate-authority-source-policy/5.0.0',
     sourcePolicyDigest:
-      '5b4fe3b3752679ed1302ce242ededf41b59ea54d01a7f020dad3027635208793',
+      'f1fb17132e42769385e0c4b8e9bb555dd31cdb1fccec3bc93f9c173f6bab725b',
+    replayAlgorithmVersion: 'candidate-authority-pure-replay/2.0.0',
     partialSemanticRegistryVersion:
       'candidate-authority-partial-field-semantics/2.0.0',
     partialSemanticRegistryDigest:

@@ -59,13 +59,13 @@ import {
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION,
   candidateAuthorityRootV4SemanticDigest,
   parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityReadinessPolicyV3,
-  parseCandidateAuthoritySourcePolicyV4,
+  parseCandidateAuthoritySourcePolicyV5,
   type CandidateAuthorityFieldPlanV4,
   type CandidateAuthorityRootV4,
 } from './candidate-authority-readiness.ts';
@@ -398,7 +398,7 @@ async function loadReplayInputs(
     readInput(effects, CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH),
     readInput(effects, CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH),
     readInput(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH),
-    readInput(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH),
+    readInput(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH),
     readInput(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_PATH),
     effects.readFixedFile(
       CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_PATH,
@@ -421,7 +421,7 @@ async function loadReplayInputs(
     readiness,
     registry,
   );
-  const sourcePolicy = parseCandidateAuthoritySourcePolicyV4(
+  const sourcePolicy = parseCandidateAuthoritySourcePolicyV5(
     JSON.parse(sourcePolicyText) as unknown,
     fieldPlan,
   );
@@ -454,9 +454,9 @@ async function loadReplayInputs(
       CANDIDATE_AUTHORITY_FIELD_PLAN_V4_VERSION ||
     bindings['fieldPlanDigest'] !== CANDIDATE_AUTHORITY_FIELD_PLAN_V4_DIGEST ||
     bindings['sourcePolicyVersion'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_VERSION ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_VERSION ||
     bindings['sourcePolicyDigest'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST ||
     bindings['partialSemanticRegistryVersion'] !==
       CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_VERSION ||
     bindings['partialSemanticRegistryDigest'] !==
@@ -472,7 +472,7 @@ async function loadReplayInputs(
     authorization.authorizationSemanticDigest !==
       CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_DIGEST ||
     sourcePolicy.policySemanticDigest !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_DIGEST
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_DIGEST
   )
     invalid();
   return Object.freeze({

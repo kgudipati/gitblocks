@@ -14,6 +14,7 @@ import { promisify } from 'node:util';
 import {
   CANDIDATE_AUTHORITY_GITHUB_TOKEN_ENVIRONMENT,
   CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD,
+  CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD,
   CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_PATH,
   CANDIDATE_AUTHORITY_SOURCE_MAXIMUM_SERIALIZED_BYTES,
   CANDIDATE_AUTHORITY_SOURCE_STAGING_PATH,
@@ -63,8 +64,9 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
         head,
         originHead,
         parentHead,
+        priorReplayOperatorParentHead,
         priorOperatorParentHead,
-        correctionCommitCount,
+        provenanceCorrectionCommitCount,
         status,
       ] = await Promise.all([
         execFileAsync('git', ['branch', '--show-current'], options),
@@ -77,6 +79,11 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
         execFileAsync('git', ['rev-parse', 'HEAD^'], options),
         execFileAsync(
           'git',
+          ['rev-parse', `${CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD}^`],
+          options,
+        ),
+        execFileAsync(
+          'git',
           ['rev-parse', `${CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD}^`],
           options,
         ),
@@ -85,7 +92,7 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
           [
             'rev-list',
             '--count',
-            `${CANDIDATE_AUTHORITY_PRIOR_OPERATOR_HEAD}..HEAD`,
+            `${CANDIDATE_AUTHORITY_PRIOR_REPLAY_OPERATOR_HEAD}..HEAD`,
           ],
           options,
         ),
@@ -100,8 +107,12 @@ export function createCandidateAuthorityLiveSystemEffects(config: {
         head: head.stdout.trim(),
         originHead: originHead.stdout.trim(),
         parentHead: parentHead.stdout.trim(),
+        priorReplayOperatorParentHead:
+          priorReplayOperatorParentHead.stdout.trim(),
         priorOperatorParentHead: priorOperatorParentHead.stdout.trim(),
-        correctionCommitCount: Number(correctionCommitCount.stdout.trim()),
+        provenanceCorrectionCommitCount: Number(
+          provenanceCorrectionCommitCount.stdout.trim(),
+        ),
         clean: status.stdout.length === 0,
       };
     },

@@ -8,11 +8,11 @@ import {
   CANDIDATE_AUTHORITY_PARTIAL_EVIDENCE_VERSION,
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_PATH,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH,
   parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityPartialSemanticRegistry,
   parseCandidateAuthorityReadinessPolicyV3,
-  parseCandidateAuthoritySourcePolicyV4,
+  parseCandidateAuthoritySourcePolicyV5,
 } from '../src/index.ts';
 
 const repositoryRoot = resolve(
@@ -37,8 +37,8 @@ if ((mode !== 'validate' && mode !== 'preflight') || unexpected.length > 0) {
       readinessPolicy,
       partialSemanticRegistry,
     );
-    const sourcePolicy = parseCandidateAuthoritySourcePolicyV4(
-      await readJson(CANDIDATE_AUTHORITY_SOURCE_POLICY_V4_PATH),
+    const sourcePolicy = parseCandidateAuthoritySourcePolicyV5(
+      await readJson(CANDIDATE_AUTHORITY_SOURCE_POLICY_V5_PATH),
       fieldPlan,
     );
     const effectAudit = {

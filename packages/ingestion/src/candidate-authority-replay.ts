@@ -28,6 +28,11 @@ import {
   type CandidateAuthoritySourceDatum,
 } from './candidate-authority-live-contracts.ts';
 import {
+  candidateAuthorityImmutableGitHubFileLocation,
+  isCandidateAuthorityGitObjectSha,
+  isSafeCandidateAuthorityRepositoryRelativePath,
+} from './candidate-authority-license-provenance.ts';
+import {
   createCandidateAuthorityPartialFieldEvidence,
   projectPartialFieldEvidenceToDossier,
   type CandidateAuthorityPartialFieldEvidence,
@@ -729,20 +734,50 @@ function evidenceSource(input: {
   if (input.provenanceKind === 'git-commit') {
     const commit = sourceValue(input.sources, 'github-head-commit-object');
     const headSha = stringValue(commit, 'headSha');
+    const licenseValue =
+      operationId === 'github-license' ? recordValue(input.datum.value) : null;
     const path =
-      operationId === 'github-license'
-        ? 'LICENSE'
-        : operationId === 'github-compose-json-blob'
+      licenseValue === null
+        ? operationId === 'github-compose-json-blob'
           ? 'compose.json'
-          : 'Dockerfile';
-    const root = `https://github.com/${input.candidate.github.owner}/${input.candidate.github.repository}`;
+          : 'Dockerfile'
+        : licenseValue['path'];
+    if (!isSafeCandidateAuthorityRepositoryRelativePath(path)) invalid();
+    const repositoryIdentity =
+      licenseValue === null
+        ? {
+            owner: input.candidate.github.owner,
+            repository: input.candidate.github.repository,
+          }
+        : recordValue(licenseValue['repositoryIdentity']);
+    const owner = stringValue(repositoryIdentity, 'owner');
+    const repository = stringValue(repositoryIdentity, 'repository');
+    if (licenseValue !== null) {
+      const metadata = sourceValue(input.sources, 'github-repository-metadata');
+      if (
+        stringValue(licenseValue, 'headSha') !== headSha ||
+        !isCandidateAuthorityGitObjectSha(licenseValue['blobSha']) ||
+        owner !== stringValue(metadata, 'canonicalOwner') ||
+        repository !== stringValue(metadata, 'canonicalRepository') ||
+        owner.toLowerCase() !== input.candidate.github.owner.toLowerCase() ||
+        repository.toLowerCase() !==
+          input.candidate.github.repository.toLowerCase()
+      )
+        invalid();
+    }
+    const location = candidateAuthorityImmutableGitHubFileLocation({
+      owner,
+      repository,
+      commitSha: headSha,
+      path,
+    });
     return {
       kind: 'git-commit',
       sourceType:
         operationId === 'github-license' ? 'license' : 'official-repository',
-      sourceUrl: root,
+      sourceUrl: location.sourceUrl,
       commitSha: headSha,
-      immutableUrl: `${root}/blob/${headSha}/${path}`,
+      immutableUrl: location.immutableUrl,
       publishedAt: timestampValue(commit, 'committerDate'),
       collectedAt: input.collectionCutoff,
     };

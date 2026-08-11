@@ -9,12 +9,15 @@ deadline, observer, and persistence capabilities are explicit inputs. Importing
 the package performs no I/O and reads no environment variables.
 
 Phase 10's candidate-authority live operator and pure replay are separate
-surfaces. Live operator v2 performs an exact-head, clean-tree, absent-output
+surfaces. Live operator v3 performs an exact-head, clean-tree, absent-output
 preflight before lazily reading only
 `GITBLOCKS_CANDIDATE_AUTHORITY_GITHUB_TOKEN`; it retains one independently
 reviewed provider-effect collection and no database, Docker, model, ranking, or
 automatic-rerun effect. The earlier invocation stopped as a pre-effect
 credential-gate failure with zero provider calls and no cutoff/source output.
+Source policy v5 retains the exact safe GitHub license path and provider blob
+SHA, and pure replay v2 constructs license provenance from that committed path
+rather than inferring a filename.
 
 The replay CLI has no environment or network input. It accepts only a
 canonical source authority proven to have been added by an isolated committed
