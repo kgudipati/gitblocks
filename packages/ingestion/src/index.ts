@@ -199,6 +199,7 @@ export {
 } from './candidate-authority-rules.ts';
 export {
   CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_VERSION,
   CANDIDATE_AUTHORITY_REPLAY_V3_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
@@ -237,6 +238,53 @@ export {
   type CandidateAuthorityTreeEntry,
   type CandidateAuthorityTreeResult,
 } from './candidate-authority-provider-contract.ts';
+export {
+  CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_PATH,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_VERSION,
+  CANDIDATE_AUTHORITY_REPLAY_V4_DIGEST,
+  CANDIDATE_AUTHORITY_REPLAY_V4_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V4_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_VERSION,
+  CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION,
+  parseCandidateAuthoritySuccessorFixedAuthorities,
+  parseCandidateAuthoritySuccessorSourceAuthority,
+  serializeCandidateAuthoritySuccessorSourceAuthority,
+} from './candidate-authority-successor-contracts.ts';
+export {
+  CANDIDATE_AUTHORITY_SUCCESSOR_ZERO_EFFECT_AUDIT,
+  CandidateAuthoritySuccessorExecutionFailure,
+  executeCandidateAuthoritySuccessor,
+  preflightCandidateAuthoritySuccessor,
+  renderCandidateAuthoritySuccessorFailure,
+  type CandidateAuthoritySuccessorEffects,
+  type CandidateAuthoritySuccessorFailureDiagnostic,
+  type CandidateAuthoritySuccessorPreflightResult,
+} from './candidate-authority-live-v5-runner.ts';
+export {
+  candidateAuthoritySuccessorReplaySemanticDigest,
+  generateCandidateAuthoritySuccessorReplay,
+  type CandidateAuthoritySuccessorReplayBundle,
+} from './candidate-authority-successor-replay.ts';
+export {
+  measureCandidateAuthoritySuccessorReadiness,
+  type CandidateAuthorityRootV5,
+  type CandidateAuthoritySuccessorReadinessReport,
+} from './candidate-authority-successor-measurement.ts';
+export {
+  generateCandidateAuthoritySuccessorReplayOutputs,
+  measureCandidateAuthoritySuccessorReadinessOutputs,
+  preflightCandidateAuthoritySuccessorReplay,
+  validateCandidateAuthoritySuccessorReadinessOutputs,
+  validateCandidateAuthoritySuccessorReplayOutputs,
+  validateCandidateAuthoritySuccessorSourceCommitProof,
+} from './candidate-authority-successor-replay-runner.ts';
 export {
   CANDIDATE_AUTHORITY_FAILED_EXECUTION_HEAD,
   CANDIDATE_AUTHORITY_FAILURE_RECORD_DIGEST,

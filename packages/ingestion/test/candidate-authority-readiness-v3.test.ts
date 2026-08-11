@@ -561,7 +561,7 @@ describe('field-semantic partial rules', () => {
       facts: [
         {
           factCode: 'applicable-security-advisory',
-          factValue: '{"advisoryId":"GHSA-2345-6789-CFGH","severity":"high"}',
+          factValue: '{"advisoryId":"GHSA-2345-6789-cfgh","severity":"high"}',
         },
       ],
     });

@@ -248,6 +248,7 @@ export function projectCandidateAuthorityReplayCandidate(input: {
   readonly collectionCutoff: string;
   readonly fieldPlan: CandidateAuthorityFieldPlanV4;
   readonly partialSemanticRegistry: CandidateAuthorityPartialSemanticRegistry;
+  readonly sourceAuthorityVersion?: string;
 }): CandidateAuthorityReplayCandidateProjection {
   const core = projectCandidateCore(input);
   const evidence = evidenceCandidate(core);
@@ -288,6 +289,7 @@ function projectCandidateCore(input: {
   readonly collectionCutoff: string;
   readonly fieldPlan: CandidateAuthorityFieldPlanV4;
   readonly partialSemanticRegistry: CandidateAuthorityPartialSemanticRegistry;
+  readonly sourceAuthorityVersion?: string;
 }): CandidateProjectionCore {
   if (
     input.sourceCandidate.candidateId !== input.candidate.candidateId ||
@@ -338,7 +340,9 @@ function projectCandidateCore(input: {
     profile,
     sources,
     sourceAuthorityDigest: input.sourceAuthorityDigest,
-    sourceAuthorityVersion: CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_VERSION,
+    sourceAuthorityVersion:
+      input.sourceAuthorityVersion ??
+      CANDIDATE_AUTHORITY_SOURCE_AUTHORITY_VERSION,
     collectionCutoff: input.collectionCutoff,
     fieldPlan: input.fieldPlan,
     partialSemanticRegistry: input.partialSemanticRegistry,
@@ -863,6 +867,17 @@ function sourceForCompleteField(
   fieldId: string,
   sources: ReadonlyMap<string, CandidateAuthoritySourceDatum>,
 ): CandidateAuthoritySourceDatum | undefined {
+  if (fieldId === 'security-policy-presence') {
+    return [
+      sources.get('github-root-tree'),
+      sources.get('github-security-dot-github-tree'),
+      sources.get('github-security-docs-tree'),
+    ].find(
+      (datum) =>
+        datum?.outcome === 'established-value' &&
+        recordValue(datum.value)['securityPolicyPresent'] === true,
+    );
+  }
   const operation =
     fieldId === 'package-publication-version' ||
     fieldId === 'runtime-package-format' ||
@@ -1038,7 +1053,9 @@ function advisoryValues(record: Record<string, unknown>) {
   if (!Array.isArray(values) || values.length > 200) invalid();
   return values.map((value) => {
     const advisory = recordValue(value);
-    const rawSeverity = advisory['normalizedSeverity'] ?? advisory['severity'];
+    const rawSeverity = Object.hasOwn(advisory, 'normalizedSeverity')
+      ? advisory['normalizedSeverity']
+      : advisory['severity'];
     const severity =
       rawSeverity === null
         ? null
@@ -1047,7 +1064,7 @@ function advisoryValues(record: Record<string, unknown>) {
           ? (rawSeverity as 'critical' | 'high' | 'low' | 'moderate')
           : invalid();
     return {
-      advisoryId: stringValue(advisory, 'advisoryId'),
+      advisoryId: stringValue(advisory, 'advisoryId').toLowerCase(),
       severity,
     };
   });

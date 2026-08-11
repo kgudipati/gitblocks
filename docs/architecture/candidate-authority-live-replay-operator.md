@@ -254,3 +254,50 @@ are excluded. Pure replay v3 retains the source-only freeze and effect-denial
 gates and updates only the registered security/advisory projections. The 18
 field denominator, 13-field threshold, 72.222222%, and four breadth groups are
 unchanged; planned capability remains 13 and planned full closure becomes five.
+
+## Final successor activation freeze
+
+Independent review accepted ADR 0013's postmortem decisions at
+`acca908a98b09e2263252f3bcd861b7c4f9a27ee` without activating a provider
+effect. The executable successor is additive: provider contract v2, source
+policy v7, live operator v5, authorization v5, and replay algorithm v4.
+Proposed authorization v4/operator v4/replay v3 remain inactive historical
+artifacts and are never repurposed.
+
+Only the explicit `candidate-authority:successor:*` commands may face future
+candidate providers. Preflight and collect require
+`--accepted-head <40-hex-sha>`. The supplied SHA must equal local HEAD and the
+origin branch, and that HEAD must be exactly one ordinary additive commit with
+direct parent `acca908a98b09e2263252f3bcd861b7c4f9a27ee`. The value is an
+independent acknowledgement, not a source-controlled self-reference. A
+preflight mismatch stops before credential access or cutoff creation.
+
+The production effects adapter has no injected-test or inert fallback. It
+uses global `fetch`, fixed accepted hosts, zero redirects, at most three
+attempts, bounded bodies and JSON nodes, exact attempt counters, caller plus
+first-fatal cancellation, and the real successor collector. It exclusively
+owns the v2 source staging/final paths, uses no-replace atomic publication, and
+cleans only owned staging. After cutoff creation, provider,
+serialization/validation, staging, publication, and cleanup failures receive
+distinct safe stages and settled counters; credentials, headers, bodies, and
+arbitrary provider values are excluded.
+
+The successor source parser requires 150 ordered catalog identities, the 13
+operation rows, final authority bindings, a bounded effect receipt, canonical
+candidate and authority digests, canonical bytes, and no raw
+credential/header/body fields. Valid non-normal `compose.json` or `Dockerfile`
+tree entries are qualified unknown and trigger no blob request. Immutable
+identity/hash/size disagreement after an accepted normal blob remains fatal.
+
+The explicit successor replay commands consume only committed source-authority
+v2 and produce profile, partial evidence, fit evidence, dossier, and dossier
+projection authorities v2, then separately readiness report v2 and root v5.
+Replay rejects an untracked source, a non-isolated source commit, a freeze whose
+direct parent is not the independently accepted execution head, changed source
+bytes, a non-ancestor freeze, or local/origin inequality. The full synthetic
+pipeline fixture proves repeat, reverse-candidate, and legal source-record
+permutation equality while exercising npm unsupported states, advisory
+medium/unknown semantics, local security positive/unknown semantics, release
+supported/unsupported states, and deployment positive/unknown states.
+Synthetic fixtures are contract evidence only and supply no real-catalog
+coverage or readiness evidence.

@@ -1,0 +1,46 @@
+{
+  "policyVersion": "candidate-authority-source-policy/7.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesBeforeActivation": {
+    "version": "candidate-authority-source-policy/6.0.0",
+    "digest": "c972e3c3ea25a8d0e456e759b2898ca2837bcd82e701cfc1f3a0caaba1753510",
+    "path": "catalog/public-v1/candidate-authority-source-policy-v6.json"
+  },
+  "bindings": {
+    "fieldPlanVersion": "candidate-authority-field-plan/5.0.0",
+    "fieldPlanDigest": "858385239dcecf78e35cb204740c817b01f51db2aa3bc750bf9df49848a8a160",
+    "providerContractVersion": "candidate-authority-provider-contract/2.0.0",
+    "providerContractDigest": "edfd7ebcd8d42cbb65de4e79307ab91df81bd104b4039179082e1ff22686187b",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/2.0.0",
+    "partialSemanticRegistryDigest": "baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e"
+  },
+  "completeOperationMatrix": {
+    "basePolicyVersion": "candidate-authority-source-policy/6.0.0",
+    "operationCount": 13,
+    "semanticChanges": [
+      "github-advisories provenance is structured-provider-snapshot/security-advisory-index",
+      "valid non-normal compose.json and Dockerfile entries are qualified unknown without blob requests"
+    ]
+  },
+  "requestBudget": {
+    "candidateCount": 150,
+    "mappedPackageCount": 80,
+    "githubLogicalRequests": 1810,
+    "npmLogicalRequests": 80,
+    "totalLogicalRequests": 1890,
+    "githubWorstCaseAttempts": 5430,
+    "npmWorstCaseAttempts": 240,
+    "totalWorstCaseAttempts": 5670
+  },
+  "authorization": {
+    "credentialRead": false,
+    "providerEffect": false,
+    "collectionCutoffCreation": false,
+    "sourceAuthorityPublication": false
+  },
+  "policySemanticDigest": "237b707fce608b4518ae09fcd07f7e08c315f7f323e56fb338990e1102fd29d7"
+}

@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 
 import { repositoryArtifactGitBlobObjectId } from '@gitblocks/contracts';
+import { parseCapabilityTaxonomyV1 } from '@gitblocks/contracts';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -17,6 +18,19 @@ import {
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH,
 } from '../src/candidate-authority-postmortem.ts';
+import {
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH,
+  materializeCandidateAuthorityFieldPlanV5,
+} from '../src/candidate-authority-postmortem.ts';
+import { parseCandidateAuthorityPartialSemanticRegistry } from '../src/candidate-authority-partial-semantics.ts';
+import {
+  parseCandidateAuthorityFieldPlanV4,
+  parseCandidateAuthorityReadinessPolicyV3,
+} from '../src/candidate-authority-readiness.ts';
+import {
+  candidateAuthoritySuccessorReplaySemanticDigest,
+  generateCandidateAuthoritySuccessorReplay,
+} from '../src/candidate-authority-successor-replay.ts';
 import { ingestionError } from '../src/errors.ts';
 import { parsePublicCatalog } from '../src/manifest.ts';
 
@@ -127,6 +141,163 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     expect(JSON.stringify(license?.value)).not.toMatch(
       /content|download_url|authorization/iu,
     );
+
+    const [taxonomyText, readinessText, registryText, planV4Text, planV5Text] =
+      await Promise.all([
+        readFile('catalog/capability-taxonomy/1.0.0/manifest.json', 'utf8'),
+        readFile(
+          'catalog/public-v1/candidate-authority-readiness-policy-v3.json',
+          'utf8',
+        ),
+        readFile(
+          'catalog/public-v1/candidate-authority-partial-field-semantics-v2.json',
+          'utf8',
+        ),
+        readFile(
+          'catalog/public-v1/candidate-authority-field-plan-v4.json',
+          'utf8',
+        ),
+        readFile(CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH, 'utf8'),
+      ]);
+    const taxonomy = parseCapabilityTaxonomyV1(JSON.parse(taxonomyText));
+    expect(taxonomy.ok).toBe(true);
+    if (!taxonomy.ok) throw new Error('fixture taxonomy invalid');
+    const registry = parseCandidateAuthorityPartialSemanticRegistry(
+      JSON.parse(registryText),
+    );
+    const readiness = parseCandidateAuthorityReadinessPolicyV3(
+      JSON.parse(readinessText),
+    );
+    const planV4 = parseCandidateAuthorityFieldPlanV4(
+      JSON.parse(planV4Text),
+      readiness,
+      registry,
+    );
+    const fieldPlan = materializeCandidateAuthorityFieldPlanV5({
+      predecessor: planV4,
+      successorAuthority: JSON.parse(planV5Text),
+    });
+    const replayInput = {
+      catalog,
+      taxonomy: taxonomy.value,
+      sourceAuthority: authority,
+      fieldPlan,
+      partialSemanticRegistry: registry,
+    };
+    let normal: ReturnType<typeof generateCandidateAuthoritySuccessorReplay>;
+    try {
+      normal = generateCandidateAuthoritySuccessorReplay(replayInput);
+    } catch (error) {
+      throw new Error('full successor normal replay fixture failed', {
+        cause: error,
+      });
+    }
+    const repeat = generateCandidateAuthoritySuccessorReplay(replayInput);
+    const reverse = generateCandidateAuthoritySuccessorReplay({
+      ...replayInput,
+      catalog: {
+        ...catalog,
+        candidates: [...catalog.candidates].reverse(),
+      },
+      sourceAuthority: {
+        ...authority,
+        candidates: [...authority.candidates].reverse(),
+      },
+    });
+    const permutation = generateCandidateAuthoritySuccessorReplay({
+      ...replayInput,
+      sourceAuthority: {
+        ...authority,
+        candidates: authority.candidates.map((candidate) => ({
+          ...candidate,
+          sources: [...candidate.sources].reverse(),
+        })),
+      },
+    });
+    const normalDigest =
+      candidateAuthoritySuccessorReplaySemanticDigest(normal);
+    expect([
+      candidateAuthoritySuccessorReplaySemanticDigest(repeat),
+      candidateAuthoritySuccessorReplaySemanticDigest(reverse),
+      candidateAuthoritySuccessorReplaySemanticDigest(permutation),
+    ]).toEqual([normalDigest, normalDigest, normalDigest]);
+    expect(normal.dossiers.dossiers).toHaveLength(150);
+    expect(normal.profiles.profileAuthority.profiles).toHaveLength(150);
+    const firstNpmCandidate = catalog.candidates.find(
+      (candidate) => candidate.npmPackage !== null,
+    );
+    const firstNpmProfile = normal.profiles.profileAuthority.profiles.find(
+      (profile) => profile.candidateId === firstNpmCandidate?.candidateId,
+    );
+    const firstNpmFields = firstNpmProfile?.fields as unknown as
+      | readonly { readonly fieldId: string; readonly state: string }[]
+      | undefined;
+    expect(
+      firstNpmFields?.find(
+        (field) => field.fieldId === 'security-advisory-state',
+      )?.state,
+    ).toBe('unknown');
+    expect(
+      firstNpmFields?.find((field) => field.fieldId === 'release-state-recency')
+        ?.state,
+    ).toBe('unknown');
+    expect(
+      normal.partial.records.some(
+        (record) =>
+          record.candidateId === firstNpmCandidate?.candidateId &&
+          record.factCode === 'applicable-security-advisory' &&
+          record.factValue.includes('"severity":"moderate"'),
+      ),
+    ).toBe(true);
+    expect(
+      normal.partial.records.some(
+        (record) =>
+          record.candidateId === firstNpmCandidate?.candidateId &&
+          record.factCode === 'published-release',
+      ),
+    ).toBe(true);
+    const localSecurityProfile = normal.profiles.profileAuthority.profiles[0];
+    const absentSecurityProfile = normal.profiles.profileAuthority.profiles[1];
+    const securityState = (profile: typeof localSecurityProfile) =>
+      (
+        profile?.fields as unknown as readonly {
+          readonly fieldId: string;
+          readonly state: string;
+        }[]
+      ).find((field) => field.fieldId === 'security-policy-presence')?.state;
+    expect(securityState(localSecurityProfile)).toBe('known');
+    expect(securityState(absentSecurityProfile)).toBe('unknown');
+    expect(
+      normal.partial.records.some(
+        (record) =>
+          record.factCode === 'repository-self-build-compose-service' ||
+          record.factCode === 'repository-container-build-declaration',
+      ),
+    ).toBe(true);
+    const unsupportedCandidate = catalog.candidates.filter(
+      (candidate) => candidate.npmPackage !== null,
+    )[1];
+    const unsupportedProfile = normal.profiles.profileAuthority.profiles.find(
+      (profile) => profile.candidateId === unsupportedCandidate?.candidateId,
+    );
+    const unsupportedFields = unsupportedProfile?.fields as unknown as
+      | readonly { readonly fieldId: string; readonly state: string }[]
+      | undefined;
+    expect(
+      unsupportedFields?.find(
+        (field) => field.fieldId === 'package-publication-version',
+      )?.state,
+    ).toBe('known');
+    expect(
+      unsupportedFields?.find(
+        (field) => field.fieldId === 'runtime-package-format',
+      )?.state,
+    ).toBe('unknown');
+    expect(
+      unsupportedFields?.find(
+        (field) => field.fieldId === 'package-repository-linkage',
+      )?.state,
+    ).toBe('unknown');
   });
 
   it('treats optional transient sources as qualified unknown but fails required identity', async () => {
@@ -253,6 +424,107 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       }),
     ).rejects.toMatchObject({ safeCode: 'ingestion.provider-response' });
   });
+
+  it('treats valid non-normal Compose and Dockerfile entries as qualified unknown without blob requests', async () => {
+    const { catalog, sourcePolicy } = await authorities();
+    const attempts = {
+      githubAttempts: 0,
+      npmAttempts: 0,
+      retries: 0,
+      perOperationAttempts: {} as Record<string, number>,
+    };
+    const firstCandidateId = catalog.candidates[0]?.candidateId ?? '';
+    const forbiddenBlobCalls: string[] = [];
+    const authority = await collectCandidateAuthoritySourceAuthority({
+      catalog,
+      sourcePolicy,
+      liveAuthorizationVersion:
+        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_VERSION,
+      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V4_DIGEST,
+      liveAuthorizationBindings: liveAuthorizationBindings(
+        catalog.manifestDigest,
+      ),
+      executionHead: HEAD,
+      githubToken: 'inert-fixture-token',
+      collectionCutoff: CUTOFF,
+      transport: {
+        requestJson: async (request) => {
+          if (request.provider === 'github') attempts.githubAttempts += 1;
+          else attempts.npmAttempts += 1;
+          attempts.perOperationAttempts[request.operation] =
+            (attempts.perOperationAttempts[request.operation] ?? 0) + 1;
+          if (
+            request.candidateId === firstCandidateId &&
+            request.operation === 'github-root-tree'
+          ) {
+            return {
+              value: {
+                sha: TREE,
+                truncated: false,
+                tree: [
+                  {
+                    path: '.github',
+                    mode: '040000',
+                    type: 'tree',
+                    sha: DOT_GITHUB_TREE,
+                  },
+                  {
+                    path: 'docs',
+                    mode: '040000',
+                    type: 'tree',
+                    sha: DOCS_TREE,
+                  },
+                  {
+                    path: 'compose.json',
+                    mode: '120000',
+                    type: 'blob',
+                    sha: '7'.repeat(40),
+                    size: 12,
+                  },
+                  {
+                    path: 'Dockerfile',
+                    mode: '160000',
+                    type: 'commit',
+                    sha: '8'.repeat(40),
+                  },
+                ],
+              },
+              headers: new Headers(),
+              status: 200,
+            };
+          }
+          if (
+            request.candidateId === firstCandidateId &&
+            (request.operation === 'github-compose-json-blob' ||
+              request.operation === 'github-dockerfile-blob')
+          ) {
+            forbiddenBlobCalls.push(request.operation);
+            throw new Error('blob request must not occur');
+          }
+          return fakeResponse(request, firstCandidateId);
+        },
+      },
+      readAttemptMetrics: () => attempts,
+    });
+    const first = authority.candidates[0];
+    expect(forbiddenBlobCalls).toEqual([]);
+    expect(
+      first?.sources.find(
+        (source) => source.operationId === 'github-compose-json-blob',
+      ),
+    ).toMatchObject({
+      outcome: 'qualified-unknown',
+      limitationCode: 'unsupported-structured-value',
+    });
+    expect(
+      first?.sources.find(
+        (source) => source.operationId === 'github-dockerfile-blob',
+      ),
+    ).toMatchObject({
+      outcome: 'qualified-unknown',
+      limitationCode: 'unsupported-structured-value',
+    });
+  });
 });
 
 async function authorities() {
@@ -284,6 +556,13 @@ function fakeResponse(
     (value) => value.candidateId === request.candidateId,
   );
   if (candidate === undefined) throw new Error('fixture candidate missing');
+  const npmCandidates = FIXTURE_CATALOG.candidates.filter(
+    (value) => value.npmPackage !== null,
+  );
+  const npmOrdinal = npmCandidates.findIndex(
+    (value) => value.candidateId === candidate.candidateId,
+  );
+  const firstNpm = npmOrdinal === 0;
   const response = (value: unknown, headers: Headers = new Headers()) => ({
     value,
     headers,
@@ -373,9 +652,29 @@ function fakeResponse(
     case 'github-security-docs-tree':
       return response({ sha: DOCS_TREE, truncated: false, tree: [] });
     case 'github-release-window':
-      return response([]);
+      return response(
+        firstNpm
+          ? [
+              {
+                draft: false,
+                tag_name: 'v1.2.3',
+                published_at: '2026-07-01T00:00:00Z',
+                prerelease: false,
+                html_url: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/releases/tag/v1.2.3`,
+              },
+              {
+                draft: false,
+                tag_name: 'rolling',
+                published_at: '2026-07-02T00:00:00Z',
+                prerelease: false,
+                html_url: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/releases/tag/rolling`,
+              },
+            ]
+          : [],
+      );
     case 'npm-package-metadata': {
       const packageName = decodeURIComponent(request.url.pathname.slice(1));
+      const unsupported = npmOrdinal === 1;
       return response({
         name: packageName,
         'dist-tags': { latest: '1.2.3' },
@@ -384,10 +683,15 @@ function fakeResponse(
           '1.2.3': {
             name: packageName,
             version: '1.2.3',
-            exports: './index.js',
-            type: 'module',
-            repository: `https://github.com/${candidate.github.owner}/${candidate.github.repository}.git`,
-            peerDependencies: { express: '^5.0.0' },
+            engines: unsupported ? 'unsupported' : undefined,
+            exports: unsupported ? 42 : './index.js',
+            type: unsupported ? { unexpected: true } : 'module',
+            repository: unsupported
+              ? { url: 42 }
+              : `https://github.com/${candidate.github.owner}/${candidate.github.repository}.git`,
+            peerDependencies: unsupported
+              ? { express: 5 }
+              : { express: '^5.0.0' },
           },
         },
       });
@@ -395,7 +699,27 @@ function fakeResponse(
     case 'github-advisories':
       expect(request.url.searchParams.get('type')).toBe('reviewed');
       expect(request.url.searchParams.get('is_withdrawn')).toBe('false');
-      return response([]);
+      return response(
+        firstNpm
+          ? [
+              {
+                ghsa_id: 'GHSA-2345-6789-CFGH',
+                severity: 'medium',
+                withdrawn_at: null,
+              },
+              {
+                ghsa_id: 'GHSA-6789-CFGH-JMPQ',
+                severity: 'unknown',
+                withdrawn_at: null,
+              },
+              {
+                ghsa_id: 'GHSA-CFGH-JMPQ-RVWX',
+                severity: 'high',
+                withdrawn_at: '2026-01-01T00:00:00Z',
+              },
+            ]
+          : [],
+      );
     case 'github-compose-json-blob':
       return response({
         sha: COMPOSE_SHA,

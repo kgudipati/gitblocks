@@ -1,6 +1,6 @@
 # ADR 0013: Harden candidate-authority provider contracts after the consumed M3 attempt
 
-- Status: Proposed for independent postmortem acceptance
+- Status: Accepted as architecture and postmortem authority; no provider effect authorized
 - Date: 2026-08-11
 - Issue: #32
 - Pull request: #33
@@ -16,16 +16,16 @@ The execution did not emit its in-process cutoff, candidate identifier, operatio
 1. The consumed v3 collection is immutable failure history recorded by `candidate-authority-live-failure-record/1.0.0`. Authorization v3 has zero remaining collections and its operator must not be rerun.
 2. The failed execution produced no candidate source authority and therefore no Milestone 3 readiness evidence. Milestone 3 is incomplete and inconclusive; this is not a readiness NO-GO.
 3. No candidate value or coverage from the failed execution is available or admissible for source-rule, extraction, threshold, or breadth tuning.
-4. A future provider effect, if independently accepted, is a new successor experiment under authorization v4 and operator v4. It is not an automatic or semantic retry of authorization v3.
+4. A future provider effect, if independently accepted, is a new successor experiment under executable authorization v5 and operator v5. It is not an automatic or semantic retry of authorization v3. Proposed authorization v4 and operator v4 were superseded before activation.
 5. The successor source contract removes community profile and Compose Contents, uses immutable local Git-tree positive evidence for repository security policies, normalizes provider advisory vocabulary separately from product vocabulary, treats supported optional-source limitations as qualified unknown, and preserves fatal identity, integrity, authentication, authorization, redirect, transport-bound, required-source, and internal-invariant failures.
 6. The successor operator combines caller cancellation with an internal first-fatal signal, stops assigning work, aborts in-flight siblings, waits for settlement, preserves the causal first fatal, and only then emits bounded safe counters.
 7. The readiness denominator remains 18, the minimum remains 13/18 (72.222222%), and all four breadth groups remain required. Human/model values, N/A-only fields, zero output, unknown, and conflict remain excluded. Planned deterministic extraction capability remains 13; planned deterministic full-closure candidates decrease from six to five because local security-policy absence cannot close account-level defaults. Full closure is not the readiness numerator.
 
 ## Consequences
 
-The field plan evolves additively to v5, the source policy to v6, the pure replay algorithm to v3, and the live operator to v4. The five planned full-closure candidates are package-publication-version, runtime-package-format, package-repository-linkage, archived-state, and maintenance-activity.
+The accepted field-plan-v5 semantics are rebound additively by provider contract v2, source policy v7, pure replay algorithm v4, live operator v5, and authorization v5. Provider contract v1, source policy v6, replay v3, operator v4, and authorization v4 remain immutable proposed history and were superseded before activation. The five planned full-closure candidates are package-publication-version, runtime-package-format, package-repository-linkage, archived-state, and maintenance-activity.
 
-Authorization v4 remains inactive until an independent reviewer accepts the exact postmortem-correction head. Before that acceptance, no credential read, cutoff creation, or provider call is permitted. A later accepted execution must still freeze the source authority in a source-only commit before replay or readiness measurement.
+Authorization v5 remains inactive until an independent reviewer supplies the exact activation head through the non-secret `--accepted-head` invocation argument. That SHA must equal local HEAD and origin, and HEAD must be the sole ordinary additive activation commit whose direct parent is `acca908a98b09e2263252f3bcd861b7c4f9a27ee`. ADR acceptance does not satisfy that activation condition. Before it is satisfied, no credential read, cutoff creation, or provider call is permitted. A later accepted execution must still freeze source-authority v2 in a source-only commit before replay or readiness measurement.
 
 ## Rejected alternatives
 

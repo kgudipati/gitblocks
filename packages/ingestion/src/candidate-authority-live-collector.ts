@@ -26,6 +26,7 @@ import {
   type CandidateAuthorityTreeEntry,
   type CandidateAuthorityTreeResult,
 } from './candidate-authority-provider-contract.ts';
+import type { CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION } from './candidate-authority-provider-contract.ts';
 import { isSafeCandidateAuthorityRepositoryRelativePath } from './candidate-authority-license-provenance.ts';
 import { extractRepositoryContainerBuildDeclarationFact } from './candidate-authority-dockerfile.ts';
 import {
@@ -63,6 +64,9 @@ export interface CandidateAuthorityAttemptMetrics {
   readonly npmAttempts: number;
   readonly retries: number;
   readonly perOperationAttempts: Readonly<Record<string, number>>;
+  readonly githubLogicalRequests?: number;
+  readonly npmLogicalRequests?: number;
+  readonly perOperationLogicalRequests?: Readonly<Record<string, number>>;
 }
 
 interface OperationCounter {
@@ -105,8 +109,15 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
   readonly executionHead: string;
   readonly githubToken: string;
   readonly collectionCutoff: string;
+  readonly operatorVersion?:
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION;
   readonly transport: CandidateAuthorityLiveTransport;
   readonly readAttemptMetrics: () => CandidateAuthorityAttemptMetrics;
+  readonly observeLogicalRequest?: (
+    provider: 'github' | 'npm',
+    operationId: CandidateAuthoritySuccessorOperationId,
+  ) => void;
   readonly signal?: AbortSignal;
 }): Promise<CandidateAuthoritySuccessorSourceAuthority> {
   requireTimestamp(input.collectionCutoff);
@@ -185,7 +196,8 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
     invalid();
   return createCandidateAuthoritySuccessorSourceAuthority({
     authorityVersion: 'candidate-authority-source-authority/2.0.0',
-    operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION,
+    operatorVersion:
+      input.operatorVersion ?? CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION,
     bindings: {
       ...input.liveAuthorizationBindings,
       catalogVersion: input.catalog.catalogVersion,
@@ -903,7 +915,17 @@ async function collectCompose(
     markAbsence(state, 'github-compose-json-blob');
     return;
   }
-  requireNormalBlob(entry);
+  if (!isNormalBlob(entry)) {
+    markQualified(
+      state,
+      'github-compose-json-blob',
+      'unsupported-structured-value',
+    );
+    sources.push(
+      unknownSource('github-compose-json-blob', 'unsupported-structured-value'),
+    );
+    return;
+  }
   const blobCollected = await optionalRequest(
     candidate,
     input,
@@ -983,7 +1005,17 @@ async function collectDockerfile(
     markAbsence(state, 'github-dockerfile-blob');
     return;
   }
-  requireNormalBlob(entry);
+  if (!isNormalBlob(entry)) {
+    markQualified(
+      state,
+      'github-dockerfile-blob',
+      'unsupported-structured-value',
+    );
+    sources.push(
+      unknownSource('github-dockerfile-blob', 'unsupported-structured-value'),
+    );
+    return;
+  }
   const collected = await optionalRequest(
     candidate,
     input,
@@ -1133,6 +1165,7 @@ async function request(
     state.githubLogicalRequests + state.npmLogicalRequests > 1890
   )
     invalid();
+  input.observeLogicalRequest?.(provider, operationId);
   return input.transport.requestJson({
     url: new URL(`https://${operation.host}${path}`),
     provider,
@@ -1238,12 +1271,11 @@ function treeEntry(
   return matches[0] ?? null;
 }
 
-function requireNormalBlob(entry: CandidateAuthorityTreeEntry): void {
-  if (
-    (entry.mode !== '100644' && entry.mode !== '100755') ||
-    entry.type !== 'blob'
-  )
-    invalidProvider();
+function isNormalBlob(entry: CandidateAuthorityTreeEntry): boolean {
+  return (
+    (entry.mode === '100644' || entry.mode === '100755') &&
+    entry.type === 'blob'
+  );
 }
 
 function parseMaintenance(

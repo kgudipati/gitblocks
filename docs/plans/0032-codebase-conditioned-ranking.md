@@ -1713,3 +1713,37 @@ the exact final staged bytes before publication. The accepted Ranking V1 and CI
 workflow trees remain unchanged, and no successor credential read, provider
 effect, cutoff, source authority, projection, readiness measurement, or M4 work
 is authorized by this record.
+
+### Milestone 3 final successor activation freeze
+
+The activation freeze begins from independently reviewed postmortem head
+`acca908a98b09e2263252f3bcd861b7c4f9a27ee`. ADR 0013 is accepted as
+architecture/postmortem authority only; it does not authorize a provider
+effect. Failure record v1 remains accepted immutable history, authorization v3
+remains consumed with zero attempts, and proposed authorization v4 never
+became active.
+
+This freeze adds provider contract v2, source policy v7, executable operator
+v5, full replay v4, and inactive authorization v5. The future experiment has
+one conditional and zero active collections until an independent reviewer
+supplies the exact published activation SHA through `--accepted-head`; the SHA
+must also be local HEAD and origin with direct parent `acca908…`. Historical
+live and replay commands are not repurposed.
+
+The production path now owns a real zero-redirect, three-attempt bounded
+transport and collector, exact attempt observation, first-fatal cancellation,
+exclusive v2 staging, no-replace publication, and safe stage-specific
+post-provider diagnostics. The full v2 source parser/serializer, isolated
+source-freeze proof, source-v2 to all replay-v2 outputs, separate readiness-v2
+measurement, and root-v5 construction are frozen before any future effect.
+Valid non-normal deployment paths and unsupported npm optional states stay
+unknown; advisory provenance matches the accepted structured-provider
+registry; medium maps to moderate; unknown severity cannot fabricate a
+complete maximum; and local security absence remains unknown.
+
+Focused activation fixtures must pass without credential or provider effects,
+including full-pipeline forward/repeat/reverse/permutation equality and the
+12-field, missing-breadth, and 13-field-plus-breadth readiness decisions. The
+repository-wide validation matrix is rerun before the single `[skip actions]`
+publication. M3 remains incomplete and unaccepted after publication; M4 is not
+started.

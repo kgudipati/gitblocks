@@ -253,7 +253,7 @@ export function extractApplicableSecurityAdvisoryFacts(input: {
         {
           factCode: 'applicable-security-advisory' as const,
           factValue: canonicalizeJson({
-            advisoryId,
+            advisoryId: `GHSA-${advisoryId.slice(5).toLowerCase()}`,
             severity: advisory.severity,
           }).text,
         },

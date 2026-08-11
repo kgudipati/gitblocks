@@ -1,0 +1,82 @@
+{
+  "authorizationVersion": "candidate-authority-live-authorization/5.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "bindings": {
+    "catalogVersion": "public-v1",
+    "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+    "taxonomyVersion": "1.0.0",
+    "taxonomyDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+    "acceptedPostmortemHead": "acca908a98b09e2263252f3bcd861b7c4f9a27ee",
+    "failedExecutionHead": "2cfe0682617fb303ebbb2deb7dd7bd34a383c912",
+    "failureRecordVersion": "candidate-authority-live-failure-record/1.0.0",
+    "failureRecordDigest": "48fa5cfe14cb579b254892cf69bede27bd96a802c8bfde6da9f7f4a4ab5595c7",
+    "fieldPlanVersion": "candidate-authority-field-plan/5.0.0",
+    "fieldPlanDigest": "858385239dcecf78e35cb204740c817b01f51db2aa3bc750bf9df49848a8a160",
+    "sourcePolicyVersion": "candidate-authority-source-policy/7.0.0",
+    "sourcePolicyDigest": "237b707fce608b4518ae09fcd07f7e08c315f7f323e56fb338990e1102fd29d7",
+    "providerContractVersion": "candidate-authority-provider-contract/2.0.0",
+    "providerContractDigest": "edfd7ebcd8d42cbb65de4e79307ab91df81bd104b4039179082e1ff22686187b",
+    "replayAlgorithmVersion": "candidate-authority-pure-replay/4.0.0",
+    "replayAlgorithmDigest": "4bf82a790299a8373b2a2f75552842fe69847a2e362ebadec08776a8e69db84c",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/2.0.0",
+    "partialSemanticRegistryDigest": "baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e",
+    "partialEvidenceVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e",
+    "architectureDecision": "ADR-0013-accepted-without-provider-effect"
+  },
+  "historicalExperiments": {
+    "authorizationV3": {
+      "providerEffectCollectionsConsumed": 1,
+      "remainingProviderEffectCollections": 0,
+      "rerunPermitted": false
+    },
+    "authorizationV4": {
+      "state": "proposed-inactive-never-activated",
+      "operatorVersion": "candidate-authority-live-operator/4.0.0"
+    }
+  },
+  "successorExperiment": {
+    "classification": "new-independently-reviewed-successor-experiment-not-a-rerun",
+    "conditionallyAuthorizedProviderEffectCollections": 1,
+    "activeProviderEffectCollections": 0,
+    "activationCondition": "Invocation must supply --accepted-head equal to the independently reviewed local and origin head, which must be exactly one ordinary additive activation commit whose direct parent is acca908a98b09e2263252f3bcd861b7c4f9a27ee.",
+    "automaticRerun": false,
+    "fatalAttemptConsumesAuthorizationAfterProviderEffects": true,
+    "candidateCount": 150,
+    "mappedNpmCount": 80,
+    "githubLogicalRequestCeiling": 1810,
+    "npmLogicalRequestCeiling": 80,
+    "totalLogicalRequestCeiling": 1890,
+    "githubAttemptCeiling": 5430,
+    "npmAttemptCeiling": 240,
+    "totalAttemptCeiling": 5670
+  },
+  "executionLineage": {
+    "branch": "feat/32-codebase-conditioned-ranking",
+    "activationParent": "acca908a98b09e2263252f3bcd861b7c4f9a27ee",
+    "activationCommitCount": 1,
+    "acceptedHeadSource": "required non-secret --accepted-head invocation argument",
+    "acceptedHeadStoredInSource": false,
+    "headMustEqualOrigin": true,
+    "cleanWorktreeRequired": true,
+    "independentReviewRequiredBeforeCredentialInspection": true
+  },
+  "paths": {
+    "sourceAuthority": "catalog/public-v1/candidate-authority-source-authority-v2.json",
+    "ownedSourceStaging": "catalog/public-v1/candidate-authority-source-authority-v2.staging.json",
+    "deterministicProfiles": "catalog/public-v1/candidate-authority-profiles-v2.json",
+    "partialFieldEvidence": "catalog/public-v1/candidate-authority-partial-evidence-v2.json",
+    "fitConsumableEvidence": "catalog/public-v1/candidate-authority-evidence-v2.json",
+    "dossiers": "catalog/public-v1/candidate-authority-dossiers-v2.json",
+    "dossierProjection": "catalog/public-v1/candidate-authority-dossier-projection-v2.json",
+    "readiness": "catalog/public-v1/candidate-authority-readiness-report-v2.json",
+    "root": "catalog/public-v1/candidate-authority-root-v5.json"
+  },
+  "operatorVersion": "candidate-authority-live-operator/5.0.0",
+  "sourceAuthorityVersion": "candidate-authority-source-authority/2.0.0",
+  "credentialEnvironmentName": "GITBLOCKS_CANDIDATE_AUTHORITY_GITHUB_TOKEN",
+  "maximumSerializedSourceAuthorityBytes": 268435456,
+  "authorizationSemanticDigest": "5b2dc1d60ae7ae052547a7f31e6a903fe9b693cc77a16ec2bfba8a137d1fb78d"
+}

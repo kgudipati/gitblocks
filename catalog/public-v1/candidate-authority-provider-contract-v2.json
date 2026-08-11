@@ -1,0 +1,50 @@
+{
+  "contractVersion": "candidate-authority-provider-contract/2.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesBeforeActivation": {
+    "version": "candidate-authority-provider-contract/1.0.0",
+    "digest": "06495281a2642ca3bc3ba5dec07ea1ddd0c541130f294f5d6bea62c525abfd0c",
+    "reason": "The proposed v1 matrix mislabeled github-advisories evidence provenance. All other operation rows and limits are inherited byte-for-byte as the complete base matrix."
+  },
+  "completeMatrixComposition": {
+    "basePath": "catalog/public-v1/candidate-authority-provider-contract-v1.json",
+    "operationCount": 13,
+    "replacementRows": [
+      {
+        "operationId": "github-advisories",
+        "evidenceProvenance": {
+          "kind": "structured-provider-snapshot",
+          "sourceType": "public-structured-provider",
+          "provider": "github",
+          "sourceClass": "security-advisory-index"
+        }
+      }
+    ],
+    "unchangedRows": [
+      "github-repository-metadata",
+      "github-default-branch-ref",
+      "github-head-commit-object",
+      "github-maintenance-window",
+      "github-license",
+      "github-release-window",
+      "npm-package-metadata",
+      "github-root-tree",
+      "github-security-dot-github-tree",
+      "github-security-docs-tree",
+      "github-compose-json-blob",
+      "github-dockerfile-blob"
+    ]
+  },
+  "optionalPathCorrection": {
+    "paths": ["compose.json", "Dockerfile"],
+    "validNonNormalTreeEntry": "qualified-unknown:unsupported-structured-value",
+    "blobRequestPermitted": false,
+    "favorableFactPermitted": false,
+    "identityFatalAfterNormalBlobSelection": true
+  },
+  "activation": {
+    "providerEffect": false,
+    "independentExactHeadAcceptanceRequired": true
+  },
+  "contractSemanticDigest": "edfd7ebcd8d42cbb65de4e79307ab91df81bd104b4039179082e1ff22686187b"
+}

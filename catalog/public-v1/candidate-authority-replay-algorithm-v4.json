@@ -1,0 +1,56 @@
+{
+  "algorithmVersion": "candidate-authority-pure-replay/4.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesBeforeActivation": {
+    "version": "candidate-authority-pure-replay/3.0.0",
+    "digest": "59f57f1faef68a3ab140e8a13483350f5d93735474564f141aa1a220a927bf5b",
+    "reason": "The proposed v3 semantics lacked a full executable source-v2 to root-v5 pipeline."
+  },
+  "bindings": {
+    "fieldPlanVersion": "candidate-authority-field-plan/5.0.0",
+    "fieldPlanDigest": "858385239dcecf78e35cb204740c817b01f51db2aa3bc750bf9df49848a8a160",
+    "sourcePolicyVersion": "candidate-authority-source-policy/7.0.0",
+    "sourcePolicyDigest": "237b707fce608b4518ae09fcd07f7e08c315f7f323e56fb338990e1102fd29d7",
+    "providerContractVersion": "candidate-authority-provider-contract/2.0.0",
+    "providerContractDigest": "edfd7ebcd8d42cbb65de4e79307ab91df81bd104b4039179082e1ff22686187b",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/2.0.0",
+    "partialSemanticRegistryDigest": "baf99884171e6407dcfe173ff6ab80b5d30719d5cd1babd5aa310ef44ef9243e",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e"
+  },
+  "pipeline": [
+    "committed candidate-authority-source-authority/2.0.0",
+    "deterministic profile authority/2.0.0",
+    "partial-field evidence authority/2.0.0",
+    "fit-consumable evidence authority/2.0.0",
+    "dossier authority/2.0.0",
+    "dossier projection/2.0.0",
+    "separate realized-readiness report/2.0.0",
+    "candidate-authority-root/5.0.0"
+  ],
+  "sourceFreezeGate": {
+    "tracked": true,
+    "isolatedAddCommit": true,
+    "directParentIsIndependentlyAcceptedExecutionHead": true,
+    "bytesEqualFreezeAndCurrentHead": true,
+    "freezeIsAncestor": true,
+    "headEqualsOrigin": true
+  },
+  "effects": {
+    "network": 0,
+    "credentialReads": 0,
+    "database": 0,
+    "docker": 0,
+    "model": 0,
+    "candidateExecution": 0
+  },
+  "determinismProof": [
+    "normal full pipeline",
+    "repeat full pipeline",
+    "reverse candidate input",
+    "legal source-record permutation"
+  ],
+  "canonicalAlgorithmDigest": "4bf82a790299a8373b2a2f75552842fe69847a2e362ebadec08776a8e69db84c"
+}
