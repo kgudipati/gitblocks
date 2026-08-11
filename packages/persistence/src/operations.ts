@@ -23,6 +23,7 @@ import type {
   CreateCandidateDossierSnapshotCommand,
   LoadCandidateDossierSnapshotCommand,
   OperationControl,
+  PersistenceCandidateDossierV1,
   PutCatalogCandidateCommand,
   RecordEvidenceInvalidationCommand,
   RecordEvidenceSupersessionCommand,
@@ -670,7 +671,7 @@ export async function loadCandidateDossierSnapshot(
   client: PersistenceClient,
   command: LoadCandidateDossierSnapshotCommand,
   control?: OperationControl,
-): Promise<CandidateDossierV1> {
+): Promise<PersistenceCandidateDossierV1> {
   validateStableId(command.snapshotId);
   return withTransaction(
     client,
@@ -898,7 +899,7 @@ export async function selectActiveDossierMaterial(
 
 function validateSingleObservation(
   identity: CandidateIdentityV1,
-  observation: EvidenceObservationV1,
+  observation: CandidateDossierV1['observations'][number],
 ): EvidenceObservationV1 {
   const validated = validateDossier({
     contractVersion: '1.0.0',
@@ -1006,7 +1007,7 @@ function validateLifecycleCommand(
 }
 
 function validateDossierEvidenceCutoff(
-  dossier: CandidateDossierV1,
+  dossier: ReturnType<typeof validateDossier>,
   evidenceCutoff: string,
 ): void {
   const cutoff = Date.parse(evidenceCutoff);
@@ -1132,7 +1133,7 @@ async function assertCapabilityMembership(
 
 async function assertExactSnapshotMaterial(
   transaction: PersistenceTransaction,
-  dossier: CandidateDossierV1,
+  dossier: PersistenceCandidateDossierV1,
   signal: AbortSignal | undefined,
 ): Promise<void> {
   const observations = await loadEvidenceByIds(
@@ -1263,7 +1264,7 @@ async function loadUnknownByIds(
 async function insertSnapshotMembers(
   transaction: PersistenceTransaction,
   snapshotId: string,
-  dossier: CandidateDossierV1,
+  dossier: PersistenceCandidateDossierV1,
   signal: AbortSignal | undefined,
 ): Promise<void> {
   for (const [ordinal, observation] of dossier.observations.entries()) {
@@ -1402,7 +1403,7 @@ async function loadSnapshotUnknowns(
 
 function snapshotRecordFor(
   snapshotId: string,
-  dossier: CandidateDossierV1,
+  dossier: PersistenceCandidateDossierV1,
   evidenceCutoff: string,
   createdAt: string,
   dossierDigest: string,

@@ -77,6 +77,7 @@ export type {
   LoadRepositoryArtifactSetCommand,
   LoadRepositoryInterviewExchangeCommand,
   OperationControl,
+  PersistenceCandidateDossierV1,
   PersistenceClientConfig,
   PutCatalogCandidateCommand,
   PublishRepositoryArtifactSetCommand,

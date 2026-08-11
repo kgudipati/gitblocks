@@ -78,6 +78,7 @@ function canonicalizeEvidenceProvenance(
     case 'package-version':
     case 'security-advisory':
     case 'mutable-documentation':
+    case 'structured-provider-snapshot':
     case 'approved-validation':
       return { ...provenance };
   }

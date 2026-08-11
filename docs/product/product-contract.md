@@ -296,8 +296,21 @@ Milestone 1.
   exact source-compatible revision and matching immutable locator; mutable
   official documentation discloses that limitation; approved validation uses
   a bounded validation reference, scope, and time without embedding provider
-  output. Evidence records coherent publication or validation, collection, and
-  freshness times.
+  output. A public structured-provider snapshot is a separate closed provenance
+  variant for GitHub/npm repository, package, release, maintenance, community,
+  and advisory facts. It binds controlled source class and identity,
+  source-authority and record digests, effective/collection times, completeness,
+  and the mandatory mutable-source limitation; it never embeds raw bodies,
+  credentials, headers, temporary URLs, or arbitrary JSON. Evidence records
+  coherent publication, validation, effective, collection, and freshness
+  times.
+  This provenance is accepted through the additive candidate-authority
+  observation branch of CandidateDossierV1 and fit-assessment contracts;
+  historical EvidenceObservationV1 remains unchanged. Candidate-authority
+  snapshot evidence is an ordinary-runtime committed-file contract. The
+  current PostgreSQL adapter rejects the additive branch because M3A authorizes
+  no migration; persistence requires separate review and is not part of
+  candidate-authority identity or replay.
 - **Direct fact:** a fact observed directly from an approved manifest,
   lockfile, configuration shape, repository structure, or other authoritative
   data form without a reasoning step.

@@ -745,6 +745,17 @@ threshold, M4/M5 may only use synthetic/frozen authority; final production
 measurement and closure remain blocked. The M3 team/process may not revise the
 threshold after seeing coverage. M3 acceptance authorizes M4 only.
 
+Milestone 3A is an internal pre-live subgate, not a new project milestone. Its
+frozen design is documented in
+[Candidate authority M3A pre-live design](../architecture/candidate-authority-m3a-prelive.md).
+The audit froze the unchanged 18-field denominator and 13/18 plus breadth
+policy before any M3 provider/source/coverage output. It found only six
+scientifically defensible deterministic-ready paths and no complete path in
+either capability/adoption or infrastructure/deployment. M3A therefore
+publishes a **NO-GO** for live collection. M3 remains in the accepted sequence
+but blocked at its internal subgate pending independent architecture review;
+M4 remains prohibited.
+
 ### Milestone 4 — Pure ranking vertical slice and execution envelope
 
 After M3 acceptance, add the pure package and additive approved-query,
@@ -953,12 +964,62 @@ reviewed durable-product trigger in ADR 0011.
       froze exact fixed-candidate conformance, 13/18 readiness plus breadth,
       performance, and determinism gates in additive accepted authorities, and
       authorized but did not begin the bounded M3 candidate-authority successor.
+- [x] 2026-08-10 — Began only the M3A internal pre-live subgate from exact
+      bookkeeping head `5a8c6a4ec3ef7d7836fb2cac131a0555c98222d4`;
+      froze its bounded source policy, 18-field plan, additive evidence
+      provenance, successor absence rules, pure evidence/dossier bridge,
+      eventual root, fixtures, and zero-effect preflight without credentials,
+      provider calls, all-150 projection, or coverage. The result is NO-GO:
+      six eligible fields, below 13, with no eligible capability/adoption or
+      infrastructure/deployment field. Independent M3A review is pending.
 - [ ] M3 independently accepted.
 - [ ] M4 independently accepted.
 - [ ] M5 independently accepted.
 - [ ] M6 independently accepted and Phase 10 closed.
 
+### Milestone 3A pre-live validation
+
+The focused M3A gate validated the frozen field plan and source policy, passed
+five fixture files and 80 tests, typechecked ingestion and contracts, passed
+ordinary-runtime contract conformance, and found zero dependency violations
+across 914 modules and 3,130 dependencies. `candidate-authority:preflight`
+reported zero network calls, credential reads, database calls, Docker calls,
+model calls, filesystem writes, provider collections, source-authority
+generations, all-candidate projections, and coverage calculations.
+
+The first full verification attempts exposed new-source lint findings, an
+unintended widening of the accepted legacy observation/materialization bytes,
+persistence integration type inference, formatting, and a direct product
+literal for the ranking evaluation policy version. The implementation was
+corrected without changing a source rule or gate: legacy observations remain
+byte-identical, additive candidate-authority evidence fails closed at the
+persistence boundary until a migration is independently authorized, and the
+product parser binds the opaque M2 policy reference only through the canonical
+field-plan digest. The accepted ranking verifier then passed.
+
+`pnpm verify` passed 140 test files and 1,993 tests on the corrected bytes,
+including repository checks, architecture, accepted ranking authority,
+contract conformance, and secret scanning. `pnpm security:audit` reported no
+known vulnerabilities. The publication matrix reruns `pnpm runtime:check`,
+`pnpm format:check`, `pnpm repo:check`, `pnpm candidate-authority:verify`,
+`pnpm verify`, `pnpm security:secrets`, `pnpm security:audit`, and
+`git diff --check` against the final documented bytes. Validation performs no
+candidate provider, database, Docker, model, credential, M3 all-candidate
+projection, M3 coverage, or GitHub Actions effect.
+
 ## Decision and deviation log
+
+- 2026-08-10 — Freeze M3A as NO-GO with six readiness-eligible fields. Reason:
+  bounded structured sources cannot close capability/adoption or
+  infrastructure/deployment complete sets; bounded releases cannot close all
+  repositories; package advisories cannot close repository-only candidates;
+  and license absence is not representable. The accepted gate is unchanged.
+- 2026-08-10 — Add closed `structured-provider-snapshot` evidence provenance.
+  Reason: archive, community, maintenance, and other provider snapshots are
+  mutable structured facts, not git-commit or documentation evidence.
+- 2026-08-10 — Preserve Phase 8 authority and add future M3 successor rules for
+  complete no-release, complete zero-advisory, and established security-policy
+  absence. Reason: demonstrated defects must not rewrite historical behavior.
 
 - 2026-08-10 — Use two versioned denominators: 22 execution fields and 18
   decision-bearing fields. Reason: structural authentication is necessary but

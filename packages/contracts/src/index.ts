@@ -252,6 +252,7 @@ export type {
 } from './diagnostics.ts';
 export type {
   CandidateDossierV1,
+  CandidateAuthorityEvidenceObservationV1,
   CapabilityRequestV1,
   ErrorEnvelopeV1,
   EvidenceObservationV1,

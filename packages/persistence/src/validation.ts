@@ -1,13 +1,11 @@
-import {
-  parseCandidateDossierV1,
-  type CandidateDossierV1,
-} from '@gitblocks/contracts';
+import { parseCandidateDossierV1 } from '@gitblocks/contracts';
 
 import { persistenceError } from './errors.ts';
 import type {
   CandidateIdentityV1,
   CapabilityFamilyV1,
   OperationControl,
+  PersistenceCandidateDossierV1,
 } from './types.ts';
 
 const STABLE_ID_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u;
@@ -19,6 +17,18 @@ const CAPABILITY_FAMILIES = new Set<CapabilityFamilyV1>([
   'background-jobs',
   'rate-limiting',
   'webhooks',
+]);
+const PERSISTED_EVIDENCE_DIMENSIONS = new Set([
+  'data-store',
+  'deployment',
+  'identity',
+  'integration',
+  'license',
+  'maintenance',
+  'repository-package',
+  'runtime-framework',
+  'security',
+  'version-release',
 ]);
 
 export function validateStableId(value: string): string {
@@ -83,20 +93,36 @@ export function validateCapabilityFamilies(
   return [...unique].sort(compareText);
 }
 
-export function validateDossier(value: unknown): CandidateDossierV1 {
+export function validateDossier(value: unknown): PersistenceCandidateDossierV1 {
   const parsed = parseCandidateDossierV1(value);
-  if (!parsed.ok) {
+  if (
+    !parsed.ok ||
+    parsed.value.observations.some(
+      (observation) =>
+        observation.source.kind === 'structured-provider-snapshot' ||
+        !PERSISTED_EVIDENCE_DIMENSIONS.has(observation.dimension),
+    )
+  ) {
     throw persistenceError('persistence.invalid-input');
   }
-  return parsed.value;
+  return parsed.value as PersistenceCandidateDossierV1;
 }
 
-export function validateStoredDossier(value: unknown): CandidateDossierV1 {
+export function validateStoredDossier(
+  value: unknown,
+): PersistenceCandidateDossierV1 {
   const parsed = parseCandidateDossierV1(value);
-  if (!parsed.ok) {
+  if (
+    !parsed.ok ||
+    parsed.value.observations.some(
+      (observation) =>
+        observation.source.kind === 'structured-provider-snapshot' ||
+        !PERSISTED_EVIDENCE_DIMENSIONS.has(observation.dimension),
+    )
+  ) {
     throw persistenceError('persistence.corrupt-record');
   }
-  return parsed.value;
+  return parsed.value as PersistenceCandidateDossierV1;
 }
 
 export function validateControl(

@@ -1,4 +1,4 @@
-import { Type, type Static } from 'typebox';
+import { Type, type Static, type TSchema } from 'typebox';
 
 import {
   capabilityFamilySchema,
@@ -318,37 +318,97 @@ const evidenceSourceSchema = Type.Union([
   }),
 ]);
 
-export const evidenceObservationV1Schema = closedObject({
-  kind: Type.Literal('evidence'),
-  evidenceId: stableIdSchema,
-  candidateId: stableIdSchema,
-  topic: stableIdSchema,
-  dimension: Type.Union([
-    Type.Literal('identity'),
-    Type.Literal('repository-package'),
-    Type.Literal('version-release'),
-    Type.Literal('license'),
-    Type.Literal('runtime-framework'),
-    Type.Literal('deployment'),
-    Type.Literal('data-store'),
-    Type.Literal('maintenance'),
-    Type.Literal('security'),
-    Type.Literal('integration'),
+const structuredProviderSnapshotSourceSchema = closedObject({
+  kind: Type.Literal('structured-provider-snapshot'),
+  sourceType: Type.Literal('public-structured-provider'),
+  provider: Type.Union([Type.Literal('github'), Type.Literal('npm')]),
+  sourceClass: Type.Union([
+    Type.Literal('package-metadata'),
+    Type.Literal('repository-community-profile'),
+    Type.Literal('repository-maintenance'),
+    Type.Literal('repository-metadata'),
+    Type.Literal('repository-release-state'),
+    Type.Literal('security-advisory-index'),
   ]),
-  observation: statementSchema,
-  source: evidenceSourceSchema,
-  freshness: closedObject({
-    status: Type.Union([
-      Type.Literal('current'),
-      Type.Literal('stale'),
-      Type.Literal('unknown'),
-    ]),
-    asOf: timestampSchema,
-    scope: shortTextSchema,
+  sourceIdentity: stableIdSchema,
+  sourceUrl: httpsUrlSchema,
+  sourceAuthorityDigest: Type.String({
+    minLength: 64,
+    maxLength: 64,
+    pattern: '^[a-f0-9]{64}$',
   }),
-  directness: Type.Literal('direct'),
-  limitation: Type.Union([shortTextSchema, Type.Null()]),
+  sourceRecordDigest: Type.String({
+    minLength: 64,
+    maxLength: 64,
+    pattern: '^[a-f0-9]{64}$',
+  }),
+  collectedAt: timestampSchema,
+  effectiveAsOf: timestampSchema,
+  sourceMutability: Type.Literal('mutable'),
+  completenessState: Type.Union([
+    Type.Literal('complete'),
+    Type.Literal('established-absence'),
+  ]),
+  limitationCode: Type.Literal('source-is-mutable'),
 });
+
+const evidenceDimensionSchema = Type.Union([
+  Type.Literal('identity'),
+  Type.Literal('repository-package'),
+  Type.Literal('version-release'),
+  Type.Literal('license'),
+  Type.Literal('runtime-framework'),
+  Type.Literal('deployment'),
+  Type.Literal('data-store'),
+  Type.Literal('maintenance'),
+  Type.Literal('security'),
+  Type.Literal('integration'),
+]);
+
+const candidateAuthorityEvidenceDimensionSchema = Type.Union([
+  evidenceDimensionSchema,
+  Type.Literal('capability-family'),
+  Type.Literal('freshness'),
+  Type.Literal('limitation'),
+  Type.Literal('provenance'),
+]);
+
+function evidenceObservationSchema<
+  Source extends TSchema,
+  Dimension extends TSchema,
+>(source: Source, dimension: Dimension) {
+  return closedObject({
+    kind: Type.Literal('evidence'),
+    evidenceId: stableIdSchema,
+    candidateId: stableIdSchema,
+    topic: stableIdSchema,
+    dimension,
+    observation: statementSchema,
+    source,
+    freshness: closedObject({
+      status: Type.Union([
+        Type.Literal('current'),
+        Type.Literal('stale'),
+        Type.Literal('unknown'),
+      ]),
+      asOf: timestampSchema,
+      scope: shortTextSchema,
+    }),
+    directness: Type.Literal('direct'),
+    limitation: Type.Union([shortTextSchema, Type.Null()]),
+  });
+}
+
+export const evidenceObservationV1Schema = evidenceObservationSchema(
+  evidenceSourceSchema,
+  evidenceDimensionSchema,
+);
+
+export const candidateAuthorityEvidenceObservationV1Schema =
+  evidenceObservationSchema(
+    Type.Union([evidenceSourceSchema, structuredProviderSnapshotSourceSchema]),
+    candidateAuthorityEvidenceDimensionSchema,
+  );
 
 const candidateLimitationSchema = closedObject({
   limitationId: stableIdSchema,
@@ -378,7 +438,7 @@ const candidateDossierV1Properties = {
   identity: candidateIdentitySchema,
   capabilityFamily: capabilityFamilySchema,
   versionScope: Type.Union([versionTextSchema, Type.Null()]),
-  observations: Type.Array(evidenceObservationV1Schema, {
+  observations: Type.Array(candidateAuthorityEvidenceObservationV1Schema, {
     maxItems: 100,
   }),
   limitations: Type.Array(candidateLimitationSchema, { maxItems: 40 }),
@@ -563,7 +623,9 @@ export const fitAssessmentResponseV1Schema = Type.Object(
       minItems: 1,
       maxItems: 20,
     }),
-    evidence: Type.Array(evidenceObservationV1Schema, { maxItems: 2_000 }),
+    evidence: Type.Array(candidateAuthorityEvidenceObservationV1Schema, {
+      maxItems: 2_000,
+    }),
     inferences: Type.Array(inferenceV1Schema, { maxItems: 400 }),
     candidateLimitations: Type.Array(candidateLimitationSchema, {
       maxItems: 800,
@@ -871,6 +933,9 @@ export type FitAssessmentResponseV1 = Static<
 >;
 export type ErrorEnvelopeV1 = Static<typeof errorEnvelopeV1Schema>;
 export type EvidenceObservationV1 = Static<typeof evidenceObservationV1Schema>;
+export type CandidateAuthorityEvidenceObservationV1 = Static<
+  typeof candidateAuthorityEvidenceObservationV1Schema
+>;
 export type InferenceV1 = Static<typeof inferenceV1Schema>;
 export type MaterialClaimV1 = Static<typeof materialClaimV1Schema>;
 export type MaterialUnknownV1 = Static<typeof materialUnknownV1Schema>;

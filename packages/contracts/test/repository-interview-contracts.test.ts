@@ -34,15 +34,15 @@ const DIGEST = {
 
 const EXISTING_SCHEMA_DIGESTS = {
   'candidate-dossier':
-    'd16d0424ed45edcf61d8084cbd21ebbb396366522d1b1a425b6cf8405e0680af',
+    'b72b3c51def9cc3bfa8ce0e6356f865b1120e4b15087b599285f4f97b6e1e829',
   'capability-request':
     '3d1f213efdacd6ff550a66a74703b94abc56aead59cdcb08b7a2769b5a5a1ab9',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
-    'c130a56044cbb043fac97e66db4c372d48990d672784b4abfde9ab9e78c9e504',
+    '9040432e6866c36940fc270fd6b4bc0b4762c0d745d7a0c34b13af749ddda323',
   'fit-assessment-response':
-    '330b5b3940858428b1881701774bac785a7c93cf2d50e6dcb4ec37091a696a4d',
+    '02486942d54566297e37a5c5a32e68fc3ff7f1603ddbf9ba4e11d02c3d7cbf2e',
   'repository-artifact':
     '994643368bdc95a5279a2d939ec350ed65932ad16a3c937ae32f52ff87113d16',
   'repository-artifact-chunk':

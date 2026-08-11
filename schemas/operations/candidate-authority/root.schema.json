@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/root/1.0.0",
+  "title": "Candidate authority root 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "authorityVersion",
+    "catalogBinding",
+    "taxonomyBinding",
+    "deterministicProfileBinding",
+    "rankingDecisionBinding",
+    "fieldPlanBinding",
+    "sourcePolicyBinding",
+    "collection",
+    "authorityDigests",
+    "qualificationCounts",
+    "canonicalAuthorityDigest"
+  ],
+  "properties": {
+    "authorityVersion": { "const": "candidate-authority-root/1.0.0" },
+    "catalogBinding": { "$ref": "#/$defs/versionDigest" },
+    "taxonomyBinding": { "$ref": "#/$defs/versionDigest" },
+    "deterministicProfileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["denominatorVersion", "rulesVersion"],
+      "properties": {
+        "denominatorVersion": { "type": "string", "minLength": 1 },
+        "rulesVersion": { "type": "string", "minLength": 1 }
+      }
+    },
+    "rankingDecisionBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["denominatorVersion", "readinessPolicyDigest"],
+      "properties": {
+        "denominatorVersion": { "const": "ranking-decision-denominator/1.0.0" },
+        "readinessPolicyDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "fieldPlanBinding": { "$ref": "#/$defs/versionDigest" },
+    "sourcePolicyBinding": { "$ref": "#/$defs/versionDigest" },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cutoff",
+        "candidateCount",
+        "orderedCandidateIds",
+        "orderedCandidateIdentitiesDigest"
+      ],
+      "properties": {
+        "cutoff": { "type": "string", "format": "date-time" },
+        "candidateCount": { "const": 150 },
+        "orderedCandidateIds": {
+          "type": "array",
+          "minItems": 150,
+          "maxItems": 150,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+        },
+        "orderedCandidateIdentitiesDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "authorityDigests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "deterministicProfiles",
+        "evidence",
+        "dossiers",
+        "dossierProjection",
+        "coverageReadinessReport"
+      ],
+      "properties": {
+        "source": { "$ref": "#/$defs/digest" },
+        "deterministicProfiles": { "$ref": "#/$defs/digest" },
+        "evidence": { "$ref": "#/$defs/digest" },
+        "dossiers": { "$ref": "#/$defs/digest" },
+        "dossierProjection": { "$ref": "#/$defs/digest" },
+        "coverageReadinessReport": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "qualificationCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["known", "notApplicable", "unknown", "conflict"],
+      "properties": {
+        "known": { "type": "integer", "minimum": 0 },
+        "notApplicable": { "type": "integer", "minimum": 0 },
+        "unknown": { "type": "integer", "minimum": 0 },
+        "conflict": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "canonicalAuthorityDigest": { "$ref": "#/$defs/digest" }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "versionDigest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "digest"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}

@@ -150,6 +150,19 @@ function sameEvidenceProvenance(
         left.sourceUrl === right.sourceUrl &&
         left.collectedAt === right.collectedAt
       );
+    case 'structured-provider-snapshot':
+      return (
+        right.kind === 'structured-provider-snapshot' &&
+        left.provider === right.provider &&
+        left.sourceClass === right.sourceClass &&
+        left.sourceIdentity === right.sourceIdentity &&
+        left.sourceUrl === right.sourceUrl &&
+        left.sourceAuthorityDigest === right.sourceAuthorityDigest &&
+        left.sourceRecordDigest === right.sourceRecordDigest &&
+        left.collectedAt === right.collectedAt &&
+        left.effectiveAsOf === right.effectiveAsOf &&
+        left.completenessState === right.completenessState
+      );
     case 'approved-validation':
       return (
         right.kind === 'approved-validation' &&

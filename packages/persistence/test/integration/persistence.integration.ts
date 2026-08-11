@@ -2,7 +2,6 @@ import { readFile } from 'node:fs/promises';
 
 import postgres, { type Sql, type TransactionSql } from 'postgres';
 import type {
-  CandidateDossierV1,
   EvidenceObservationV1,
   RepositoryArtifactV1,
 } from '@gitblocks/contracts';
@@ -29,6 +28,7 @@ import {
   setCandidateCapabilityFamilies,
   verifyMigrations,
   type PersistenceClient,
+  type PersistenceCandidateDossierV1,
   type PersistenceClientConfig,
 } from '../../src/index.ts';
 import {
@@ -1873,7 +1873,7 @@ async function dropGitBlocksSchema(): Promise<void> {
 
 async function seedDossier(
   client: PersistenceClient,
-  dossier: CandidateDossierV1,
+  dossier: PersistenceCandidateDossierV1,
 ): Promise<void> {
   await putCatalogCandidate(client, {
     identity: dossier.identity,
@@ -1903,7 +1903,7 @@ async function seedDossier(
   }
 }
 
-function createProvenanceDossier(): MutableValue<CandidateDossierV1> {
+function createProvenanceDossier(): MutableValue<PersistenceCandidateDossierV1> {
   const dossier = createCandidateDossier('candidate-alpha');
   const base = firstOrThrow(dossier.observations);
   const observations: MutableValue<EvidenceObservationV1>[] = [
@@ -1996,10 +1996,10 @@ function withSource(
 }
 
 function withCandidateId(
-  dossier: MutableValue<CandidateDossierV1>,
+  dossier: MutableValue<PersistenceCandidateDossierV1>,
   candidateId: string,
   repositoryName: string,
-): MutableValue<CandidateDossierV1> {
+): MutableValue<PersistenceCandidateDossierV1> {
   dossier.identity.candidateId = candidateId;
   dossier.identity.displayName = `Candidate ${candidateId}`;
   dossier.identity.repository.name = repositoryName;

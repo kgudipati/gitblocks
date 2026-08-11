@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/field-plan/1.0.0",
+  "title": "Candidate authority field plan 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "planVersion",
+    "status",
+    "bindings",
+    "frozenGate",
+    "plannedDeterministicReadinessEligibleFieldCount",
+    "goDecision",
+    "goDecisionReasons",
+    "fields",
+    "planSemanticDigest"
+  ],
+  "properties": {
+    "planVersion": { "const": "candidate-authority-field-plan/1.0.0" },
+    "status": { "const": "pre-live-no-go" },
+    "bindings": {
+      "type": "object",
+      "minProperties": 7,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "frozenGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denominatorSize",
+        "minimumReadyFields",
+        "exactPercentage",
+        "minimumReadyFieldPerBreadthGroup"
+      ],
+      "properties": {
+        "denominatorSize": { "const": 18 },
+        "minimumReadyFields": { "const": 13 },
+        "exactPercentage": { "const": 72.222222 },
+        "minimumReadyFieldPerBreadthGroup": { "const": 1 }
+      }
+    },
+    "plannedDeterministicReadinessEligibleFieldCount": { "const": 6 },
+    "goDecision": { "const": "no-go" },
+    "goDecisionReasons": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 10,
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "fields": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fieldId",
+          "posture",
+          "sourceAuthorityVersion",
+          "extractionRuleVersion",
+          "sourceKind",
+          "versionScope",
+          "negativeAbsenceSemantics",
+          "completenessRequirement",
+          "freshnessRequirement",
+          "notApplicableRule",
+          "evidenceTopic",
+          "evidenceDimension",
+          "evidenceProvenanceKind",
+          "deterministicReadinessEligible",
+          "breadthGroup",
+          "providerOperations",
+          "reusesPhase8Rule",
+          "requiresSuccessorRule",
+          "rationale"
+        ],
+        "properties": {
+          "fieldId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "posture": {
+            "enum": [
+              "deterministic-ready-candidate",
+              "deterministic-partial-only",
+              "human-reviewed-structured-only",
+              "not-responsibly-extractable-in-v1"
+            ]
+          },
+          "sourceAuthorityVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "extractionRuleVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "sourceKind": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "versionScope": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "negativeAbsenceSemantics": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "completenessRequirement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "freshnessRequirement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "notApplicableRule": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "evidenceTopic": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "evidenceDimension": {
+            "enum": [
+              "capability-family",
+              "data-store",
+              "deployment",
+              "freshness",
+              "identity",
+              "integration",
+              "license",
+              "limitation",
+              "maintenance",
+              "provenance",
+              "repository-package",
+              "runtime-framework",
+              "security",
+              "version-release"
+            ]
+          },
+          "evidenceProvenanceKind": {
+            "enum": [
+              "approved-validation",
+              "git-commit",
+              "package-version",
+              "structured-provider-snapshot"
+            ]
+          },
+          "deterministicReadinessEligible": { "type": "boolean" },
+          "breadthGroup": {
+            "enum": [
+              "capability-adoption",
+              "stack-package",
+              "infrastructure-deployment",
+              "policy-risk"
+            ]
+          },
+          "providerOperations": {
+            "type": "array",
+            "maxItems": 8,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+          },
+          "reusesPhase8Rule": { "type": "boolean" },
+          "requiresSuccessorRule": { "type": "boolean" },
+          "rationale": { "type": "string", "minLength": 1, "maxLength": 1000 }
+        }
+      }
+    },
+    "planSemanticDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

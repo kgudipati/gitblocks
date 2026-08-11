@@ -1,10 +1,12 @@
 import { readFile } from 'node:fs/promises';
 
+import type { CandidateDossierV1 } from '@gitblocks/contracts';
 import { describe, expect, it } from 'vitest';
 
 import { canonicalizeJson } from '../src/canonical-json.ts';
 import {
   closePersistenceClient,
+  createCandidateDossierSnapshot,
   createPersistenceClient,
   knownMigrationInventory,
   loadRepositoryArtifact,
@@ -13,7 +15,7 @@ import {
   selectActiveDossierMaterial,
   type PersistenceClientConfig,
 } from '../src/index.ts';
-import { createCandidateDossier } from './fixtures.ts';
+import { createCandidateDossier, type MutableValue } from './fixtures.ts';
 
 const UNREACHABLE_CONFIG: PersistenceClientConfig = {
   host: '127.0.0.1',
@@ -78,6 +80,39 @@ describe('persistence package boundary', () => {
         selectActiveDossierMaterial(client, {
           candidateId: 'candidate-alpha',
           evidenceCutoff: 'malformed-timestamp',
+        }),
+      ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
+    } finally {
+      await closePersistenceClient(client);
+    }
+  });
+
+  it('rejects candidate-authority snapshot evidence until a migration is authorized', async () => {
+    const client = createPersistenceClient(UNREACHABLE_CONFIG);
+    const dossier: MutableValue<CandidateDossierV1> =
+      createCandidateDossier('candidate-alpha');
+    dossier.observations[0]!.source = {
+      kind: 'structured-provider-snapshot',
+      sourceType: 'public-structured-provider',
+      provider: 'github',
+      sourceClass: 'repository-metadata',
+      sourceIdentity: 'github-example-alpha',
+      sourceUrl: 'https://api.github.com/repos/example/alpha',
+      sourceAuthorityDigest: 'a'.repeat(64),
+      sourceRecordDigest: 'b'.repeat(64),
+      collectedAt: '2026-07-28T20:30:00Z',
+      effectiveAsOf: '2026-07-28T20:30:00Z',
+      sourceMutability: 'mutable',
+      completenessState: 'complete',
+      limitationCode: 'source-is-mutable',
+    };
+    try {
+      await expect(
+        createCandidateDossierSnapshot(client, {
+          snapshotId: 'snapshot-candidate-authority',
+          dossier,
+          evidenceCutoff: '2026-07-28T21:00:00Z',
+          createdAt: '2026-07-28T21:00:00Z',
         }),
       ).rejects.toMatchObject({ code: 'persistence.invalid-input' });
     } finally {

@@ -45,8 +45,8 @@ import {
 
 import type {
   CandidateDossierV1,
+  CandidateAuthorityEvidenceObservationV1,
   CapabilityRequestV1,
-  EvidenceObservationV1,
   FitAssessmentRequestV1,
   FitAssessmentResponseV1,
   MaterialUnknownV1,
@@ -337,7 +337,7 @@ function mapRepositoryFact(
 }
 
 function mapEvidenceObservation(
-  observation: EvidenceObservationV1,
+  observation: CandidateAuthorityEvidenceObservationV1,
   index = 0,
 ): EvidenceObservation {
   const base = `evidence[${String(index)}]`;
@@ -356,7 +356,7 @@ function mapEvidenceObservation(
 }
 
 function mapEvidenceProvenance(
-  source: EvidenceObservationV1['source'],
+  source: CandidateAuthorityEvidenceObservationV1['source'],
   base: string,
 ): EvidenceProvenance {
   switch (source.kind) {
@@ -371,6 +371,8 @@ function mapEvidenceProvenance(
     case 'security-advisory':
       return { ...source };
     case 'mutable-documentation':
+      return { ...source };
+    case 'structured-provider-snapshot':
       return { ...source };
     case 'approved-validation':
       return {

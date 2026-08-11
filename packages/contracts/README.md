@@ -211,7 +211,8 @@ Fact provenance uses `epistemicStatus: direct | declared | derived`, and mapping
 preserves the supplied meaning exactly. Evidence observations use
 source-aware discriminated variants for `git-commit`, `tag`, `release`,
 `package-version`, `security-advisory`, `mutable-documentation`, and
-`approved-validation`. Immutable variants require compatible source types,
+`approved-validation`, plus the additive `structured-provider-snapshot` for
+closed GitHub/npm snapshot facts. Immutable variants require compatible source types,
 exact non-mutable revisions, matching immutable locators, and coherent
 publication/collection/freshness chronology. Package versions must be exact
 semantic versions; partials, ranges, and dist-tags fail, while concrete
@@ -219,7 +220,15 @@ prereleases remain valid. Tag and release revisions reject branch references
 and mutable aliases. Mutable documentation declares its mutability and
 limitation without a false immutable locator. Approved validation uses only a
 bounded validation reference, scope, and time; it cannot carry provider
-results, validation output, or an arbitrary source body.
+results, validation output, or an arbitrary source body. Structured snapshots
+bind a controlled provider/source class, canonical identity, authority/record
+digests, effective and collection times, completeness, and the mandatory
+mutable limitation. They cannot carry raw responses, credentials, headers,
+temporary URLs, or arbitrary JSON.
+The structured snapshot exists only in the additive candidate-authority
+observation branch used by candidate dossiers and fit assessments. The
+historical `EvidenceObservationV1` DTO remains byte-identical for Phase 8 and
+the current persistence schema.
 
 Every response candidate reason must resolve to candidate-owned evidence or
 inference, a disclosed applicable material unknown, or a matching hard

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gitblocks.dev/schemas/operations/candidate-authority/preflight/1.0.0",
+  "title": "Candidate authority pre-live preflight result 1.0.0",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["status", "operation", "decision", "effectAudit"],
+  "properties": {
+    "status": { "const": "passed" },
+    "operation": { "const": "candidate-authority-preflight" },
+    "decision": { "const": "no-go" },
+    "effectAudit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "networkCalls",
+        "credentialReads",
+        "databaseCalls",
+        "dockerCalls",
+        "modelCalls",
+        "filesystemWrites",
+        "providerCollections",
+        "sourceAuthoritiesGenerated",
+        "allCandidateProjections",
+        "coverageCalculations"
+      ],
+      "properties": {
+        "networkCalls": { "const": 0 },
+        "credentialReads": { "const": 0 },
+        "databaseCalls": { "const": 0 },
+        "dockerCalls": { "const": 0 },
+        "modelCalls": { "const": 0 },
+        "filesystemWrites": { "const": 0 },
+        "providerCollections": { "const": 0 },
+        "sourceAuthoritiesGenerated": { "const": 0 },
+        "allCandidateProjections": { "const": 0 },
+        "coverageCalculations": { "const": 0 }
+      }
+    }
+  }
+}

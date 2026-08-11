@@ -123,6 +123,22 @@ prove materialization. Run `pnpm profiles:validate` for read-only regeneration
 and byte comparison, or the explicit `pnpm profiles:generate` command after a
 reviewed authority/rule change.
 
+## Phase 10 M3A pre-live authorities
+
+`candidate-authority-field-plan.json` and
+`candidate-authority-source-policy.json` freeze the Phase 10 Milestone 3A
+source/rule design before any new all-candidate output. They contain no live
+candidate values. The field plan preserves the accepted 18-field denominator,
+13/18 threshold, and four-group breadth rule, and records a pre-live NO-GO:
+only six fields have deterministic closure paths, with none in
+capability/adoption or infrastructure/deployment. The source policy explicitly
+denies live collection, credential access, all-candidate projection, coverage,
+and automatic reruns while pre-registering bounded future operations and
+request ceilings. Run `pnpm candidate-authority:verify` for the offline
+contract, fixture, architecture, and zero-effect preflight proof. Do not run a
+provider collection unless independent architecture review replaces the NO-GO
+under separately published authorization.
+
 ## Candidate retrieval metadata policy
 
 `candidate-retrieval-metadata-provider-policy.json` pre-registers a separate

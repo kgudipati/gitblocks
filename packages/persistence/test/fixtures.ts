@@ -1,7 +1,4 @@
-import type {
-  CandidateDossierV1,
-  EvidenceObservationV1,
-} from '@gitblocks/contracts';
+import type { EvidenceObservationV1 } from '@gitblocks/contracts';
 import {
   createRepositoryArtifactChunkV1,
   createRepositoryArtifactSetV1,
@@ -14,6 +11,7 @@ import {
   type RepositoryArtifactSetV1,
   type RepositoryArtifactV1,
 } from '@gitblocks/contracts';
+import type { PersistenceCandidateDossierV1 } from '../src/types.ts';
 
 export type MutableValue<Value> = Value extends readonly (infer Item)[]
   ? MutableValue<Item>[]
@@ -57,7 +55,7 @@ export function createEvidence(
 
 export function createCandidateDossier(
   candidateId: 'candidate-alpha' | 'candidate-beta',
-): MutableValue<CandidateDossierV1> {
+): MutableValue<PersistenceCandidateDossierV1> {
   const suffix = candidateId === 'candidate-alpha' ? 'alpha' : 'beta';
   const evidence = createEvidence(candidateId);
   return {

@@ -289,6 +289,27 @@ export type EvidenceProvenance =
       readonly collectedAt: string;
     }
   | {
+      readonly kind: 'structured-provider-snapshot';
+      readonly sourceType: 'public-structured-provider';
+      readonly provider: 'github' | 'npm';
+      readonly sourceClass:
+        | 'package-metadata'
+        | 'repository-community-profile'
+        | 'repository-maintenance'
+        | 'repository-metadata'
+        | 'repository-release-state'
+        | 'security-advisory-index';
+      readonly sourceIdentity: string;
+      readonly sourceUrl: string;
+      readonly sourceAuthorityDigest: string;
+      readonly sourceRecordDigest: string;
+      readonly collectedAt: string;
+      readonly effectiveAsOf: string;
+      readonly sourceMutability: 'mutable';
+      readonly completenessState: 'complete' | 'established-absence';
+      readonly limitationCode: 'source-is-mutable';
+    }
+  | {
       readonly kind: 'approved-validation';
       readonly sourceType: 'approved-validation';
       readonly validationReferenceId: ValidationReferenceId;

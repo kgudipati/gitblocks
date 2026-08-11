@@ -13,6 +13,12 @@ export type CandidateIdentityV1 = CandidateDossierV1['identity'];
 export type CandidateLimitationV1 = CandidateDossierV1['limitations'][number];
 export type CandidateUnknownV1 = CandidateDossierV1['unknowns'][number];
 export type CapabilityFamilyV1 = CandidateDossierV1['capabilityFamily'];
+export type PersistenceCandidateDossierV1 = Omit<
+  CandidateDossierV1,
+  'observations'
+> & {
+  readonly observations: EvidenceObservationV1[];
+};
 
 export interface PersistenceClientConfig {
   readonly host: string;
@@ -45,7 +51,7 @@ export interface SetCandidateCapabilityFamiliesCommand {
 }
 
 export interface AppendEvidenceObservationCommand {
-  readonly observation: EvidenceObservationV1;
+  readonly observation: CandidateDossierV1['observations'][number];
   readonly createdAt: string;
 }
 

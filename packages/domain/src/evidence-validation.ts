@@ -3,6 +3,7 @@ import type { EvidenceFreshness, EvidenceProvenance } from './model.ts';
 import { parseUtcTimestamp } from './temporal.ts';
 
 const FULL_LOWERCASE_GIT_SHA_PATTERN = /^[a-f0-9]{40}$/u;
+const FULL_LOWERCASE_SHA256_PATTERN = /^[a-f0-9]{64}$/u;
 const EXACT_REVISION_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._+/@-]{0,99}$/u;
 const EXACT_PACKAGE_VERSION_PATTERN =
   /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
@@ -121,6 +122,8 @@ function hasCompatibleSourceType(provenance: EvidenceProvenance): boolean {
       return sourceType === 'security-advisory';
     case 'mutable-documentation':
       return sourceType === 'official-documentation';
+    case 'structured-provider-snapshot':
+      return sourceType === 'public-structured-provider';
     case 'approved-validation':
       return sourceType === 'approved-validation';
   }
@@ -275,6 +278,63 @@ export function addEvidenceProvenanceIssues(
         `${path}.provenance.collectedAt`,
       );
       addTemporalOrderIssue(issues, [collectedAt], freshnessAsOf, cutoff, path);
+      return;
+    }
+    case 'structured-provider-snapshot': {
+      if (!isSafeEvidenceUrl(provenance.sourceUrl)) {
+        addIssue(issues, 'evidence.url', `${path}.provenance.sourceUrl`);
+      }
+      addStableIdIssues(
+        issues,
+        provenance.sourceIdentity,
+        `${path}.provenance.sourceIdentity`,
+      );
+      const provider: string = provenance.provider;
+      const sourceClass: string = provenance.sourceClass;
+      const sourceMutability: string = provenance.sourceMutability;
+      const completenessState: string = provenance.completenessState;
+      const limitationCode: string = provenance.limitationCode;
+      if (
+        !['github', 'npm'].includes(provider) ||
+        ![
+          'package-metadata',
+          'repository-community-profile',
+          'repository-maintenance',
+          'repository-metadata',
+          'repository-release-state',
+          'security-advisory-index',
+        ].includes(sourceClass) ||
+        sourceMutability !== 'mutable' ||
+        !['complete', 'established-absence'].includes(completenessState) ||
+        limitationCode !== 'source-is-mutable'
+      ) {
+        addIssue(issues, 'evidence.source-compatibility', `${path}.provenance`);
+      }
+      for (const [name, digest] of [
+        ['sourceAuthorityDigest', provenance.sourceAuthorityDigest],
+        ['sourceRecordDigest', provenance.sourceRecordDigest],
+      ] as const) {
+        if (!FULL_LOWERCASE_SHA256_PATTERN.test(digest)) {
+          addIssue(issues, 'evidence.revision', `${path}.provenance.${name}`);
+        }
+      }
+      const effectiveAsOf = timestampAt(
+        issues,
+        provenance.effectiveAsOf,
+        `${path}.provenance.effectiveAsOf`,
+      );
+      const collectedAt = timestampAt(
+        issues,
+        provenance.collectedAt,
+        `${path}.provenance.collectedAt`,
+      );
+      addTemporalOrderIssue(
+        issues,
+        [effectiveAsOf, collectedAt],
+        freshnessAsOf,
+        cutoff,
+        path,
+      );
       return;
     }
     case 'approved-validation': {

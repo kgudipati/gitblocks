@@ -97,6 +97,22 @@ const approvedValidationSource = (): Source => ({
   validatedAt: VALIDATED_AT,
 });
 
+const structuredProviderSnapshotSource = (): Source => ({
+  kind: 'structured-provider-snapshot',
+  sourceType: 'public-structured-provider',
+  provider: 'github',
+  sourceClass: 'repository-metadata',
+  sourceIdentity: 'github-example-alpha',
+  sourceUrl: 'https://api.github.com/repos/example/alpha',
+  sourceAuthorityDigest: 'a'.repeat(64),
+  sourceRecordDigest: 'b'.repeat(64),
+  collectedAt: COLLECTED_AT,
+  effectiveAsOf: COLLECTED_AT,
+  sourceMutability: 'mutable',
+  completenessState: 'complete',
+  limitationCode: 'source-is-mutable',
+});
+
 const validSources = [
   [
     'Git commit from an official repository',
@@ -117,6 +133,7 @@ const validSources = [
   ['package version', packageVersionSource()],
   ['security advisory', securityAdvisorySource()],
   ['mutable official documentation', mutableDocumentationSource()],
+  ['public structured-provider snapshot', structuredProviderSnapshotSource()],
   ['approved validation', approvedValidationSource()],
 ] as const;
 
@@ -127,6 +144,7 @@ const allSourceTypes = [
   'official-release',
   'official-repository',
   'package-registry',
+  'public-structured-provider',
   'security-advisory',
 ] as const;
 
@@ -143,6 +161,7 @@ const sourceCompatibilityMatrix = [
   [packageVersionSource(), ['package-registry']],
   [securityAdvisorySource(), ['security-advisory']],
   [mutableDocumentationSource(), ['official-documentation']],
+  [structuredProviderSnapshotSource(), ['public-structured-provider']],
   [approvedValidationSource(), ['approved-validation']],
 ] as const;
 
@@ -488,6 +507,14 @@ describe('evidence provenance chronology', () => {
       },
       EVIDENCE_CUTOFF,
     ],
+    [
+      'structured snapshot effective time after collection',
+      {
+        ...structuredProviderSnapshotSource(),
+        effectiveAsOf: '2026-07-28T20:45:00Z',
+      },
+      EVIDENCE_CUTOFF,
+    ],
   ] as const)('domain-rejects %s', (_label, source, freshnessAsOf) => {
     const issues = expectRejected(source, freshnessAsOf);
 
@@ -528,6 +555,14 @@ describe('closed and safe evidence provenance', () => {
         metadata: { nested: { private: 'metadata-sentinel' } },
       },
       'metadata-sentinel',
+    ],
+    [
+      'structured provider raw body',
+      {
+        ...structuredProviderSnapshotSource(),
+        rawBody: 'structured-body-sentinel',
+      },
+      'structured-body-sentinel',
     ],
   ] as const)(
     'rejects %s without echoing its value',
