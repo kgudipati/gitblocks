@@ -3,11 +3,12 @@
 ## Status
 
 This document describes the approved hosted private-alpha direction and the
-current lifecycle of GitBlocks components. Current main contains six product
-packages: the pure domain, versioned contracts, a concrete PostgreSQL
+current lifecycle of GitBlocks components. Current main contains seven product
+workspaces: the pure domain, versioned contracts, a concrete PostgreSQL
 persistence adapter, an operator-run curated public-source ingestion adapter,
 the persistence-independent repository-interview application, and the pure
-`@gitblocks/retrieval` package. Retrieval is transport-neutral, in-process,
+`@gitblocks/retrieval` package, plus the R4 hosted discovery application.
+Retrieval is transport-neutral, in-process,
 deterministic, bounded, evaluation-independent, and composed without owning
 network, database, model, provider, transport, or deployment effects.
 
@@ -15,8 +16,14 @@ Recovery R3 implements the first executable hosted-architecture slice around
 that pure engine: migration `0005`, immutable coherent serving snapshots, an
 offline accepted-catalog bootstrap, a SELECT-only serving identity, and one
 concrete contract-validating PostgreSQL loader. The complete
-PostgreSQL-to-retrieval journey is executable; no hosted request process exists
-yet.
+PostgreSQL-to-retrieval journey is executable.
+
+Recovery R4 adds the first product-owned hosted application boundary without a
+transport. Startup loads one current snapshot through the SELECT-only serving
+identity, validates accepted static policy, constructs one immutable engine,
+and exposes structured capability discovery in-process. A one-shot command
+executes the same request twice without request-time PostgreSQL access and then
+closes the client. No remote caller can use it yet.
 
 Recovery R2 classifies the current implementation as follows without deleting
 or moving anything:
@@ -24,7 +31,7 @@ or moving anything:
 - **Serving / active:** `packages/domain`, `packages/contracts`,
   `packages/retrieval`, PostgreSQL persistence needed by hosted serving,
   taxonomy/query normalization, deterministic candidate profiles, retrieval
-  metadata, and the planned hosted application/fit composition.
+  metadata, and the implemented hosted discovery composition.
 - **Offline active:** `packages/ingestion`, catalog/profile/metadata refresh,
   and explicit database migration/bootstrap operations.
 - **Development support:** `tools/evaluation-harness` and
@@ -43,10 +50,10 @@ PostgreSQL database, with offline public-source ingestion publishing the shared
 catalog state that the application serves. PostgreSQL is serving-required and
 ingestion is offline-required. The pure retrieval engine is composed around
 durable data; its purity does not make persistence optional. No Skill,
-target-repository scanner, hosted application, MCP surface, deployed database,
+target-repository scanner, MCP surface, deployed database,
 target-conditioned fit path, or end-to-end private-alpha journey is implemented
-on main yet. The durable accepted-catalog-to-retrieval sub-journey is now
-implemented on main.
+on main yet. The durable accepted-catalog-to-application discovery sub-journey
+is now implemented on main.
 
 The evaluation harness owns immutable historical `retrieval-v1`, independently
 reviewed governing `retrieval-v2`, projection validation, scoring fixtures, and
@@ -399,15 +406,16 @@ packages/ingestion -> packages/persistence -> packages/contracts -> packages/dom
 packages/interviews -> packages/contracts -> packages/domain
 tools/evaluation-harness -> packages/retrieval -> packages/contracts -> packages/domain
 tools/evaluation-harness -> packages/persistence
+apps/gitblocks-hosted -> packages/persistence + packages/retrieval + packages/contracts + packages/domain
 ```
 
 The harness-to-persistence dependency exists only for storage representability
 conformance. The harness-to-retrieval dependency is an outward blind evaluation
 adapter. Product packages do not import evaluation schemas, corpus records,
-gold, scorers, or tool internals. The hosted application composition remains
-planned; the implemented retrieval core is not a running service.
+gold, scorers, or tool internals. The hosted discovery composition is
+implemented, but it is not a running service and has no transport.
 
-The planned hosted dependency direction remains inward:
+The hosted dependency direction remains inward:
 
 ```text
 MCP transport + PostgreSQL adapter + bounded LLM adapter
@@ -422,9 +430,10 @@ apps/repository-interview-operator
   -> @gitblocks/interviews + @gitblocks/persistence
 ```
 
-The one Node composition root may depend on the hosted application,
+The one Node composition root may depend on the hosted application use case,
 `@gitblocks/retrieval`, and the concrete persistence/model/transport adapters.
-Application rules do not depend on those adapters. Offline ingestion composes
+R4 keeps the use-case module independent of persistence while its same-workspace
+composition module owns the concrete startup client. Offline ingestion composes
 `@gitblocks/ingestion` with persistence separately and never joins a request.
 `@gitblocks/interviews` retains its provider, record/reuse, clock, and nonce
 ports without becoming an active hosted dependency. Versioned request,

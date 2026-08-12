@@ -7,19 +7,22 @@ alpha. Current main contains pure domain and versioned contracts, a concrete
 PostgreSQL adapter for shared public catalog/evidence state, bounded
 public-source ingestion, a persistence-independent repository-interview
 application and offline operator, deterministic query/profile foundations,
-the pure six-channel `@gitblocks/retrieval` engine, and Recovery R3's immutable
-PostgreSQL serving snapshots plus offline accepted-catalog bootstrap. The evaluation harness
-and repository checks remain development support. Repository interviews,
+the pure six-channel `@gitblocks/retrieval` engine, Recovery R3's immutable
+PostgreSQL serving snapshots plus offline accepted-catalog bootstrap, and
+Recovery R4's in-process hosted discovery application and one-shot composition.
+The evaluation harness and repository checks remain development support. Repository interviews,
 artifact generation for finalist assessment, and Phase 8 live materialization
 proof machinery are not part of the serving path. Phase 10 is frozen R&D on a
 separately preserved branch and is not implemented on main.
 
-No GitBlocks Skill, target-repository scanner, hosted Node application, MCP
-surface, deployed PostgreSQL database, target-conditioned fit composition, or
-end-to-end adoption workflow is implemented or available yet. Recovery R3 does
-implement and exercise the first hosted-architecture slice: accepted durable
-PostgreSQL catalog state can reconstruct the existing immutable retrieval
-engine. It does not add a running request server.
+No GitBlocks Skill, target-repository scanner, MCP surface, deployed PostgreSQL
+database, target-conditioned fit composition, or end-to-end adoption workflow
+is implemented or available yet. Recovery R4 implements and exercises the
+first product-owned hosted application boundary: accepted durable PostgreSQL
+catalog state is loaded once into the immutable retrieval engine and structured
+capability requests produce deterministic bounded shortlists without
+request-time database access. It does not add a running request server or make
+GitBlocks remotely available.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -53,7 +56,8 @@ The first private alpha has four explicit boundaries:
   limitations, unknowns, lifecycle and freshness, and the coherent catalog
   snapshot currently served. Current persistence now stores and loads one
   coherent immutable 150-candidate profile/metadata snapshot through existing
-  contracts; later slices will compose the remaining request application.
+  contracts. R4 composes discovery around that snapshot; later slices attach
+  the real transport and target-fit path.
 - **Offline boundary:** bounded public-source ingestion and refresh collects
   approved GitHub, npm, and advisory data and publishes profile and retrieval
   metadata into PostgreSQL. R3 provides an explicit offline bootstrap from the
@@ -84,8 +88,9 @@ authority. It cannot restore a deterministically excluded candidate,
 manufacture missing evidence, or override a contract failure. Unknown or
 insufficient evidence remains a responsible product result.
 
-A user request runs only the hosted request path and reads PostgreSQL directly
-or through a process-local immutable search view. It must not run ingestion,
+A user request runs only the hosted request path and may read PostgreSQL
+directly where the use case requires it or use a process-local immutable search
+view. R4 discovery uses only the immutable view after startup. A request must not run ingestion,
 provider collection, migrations, Docker, evaluation, artifact generation,
 repository interviews, materialization proof machinery, replay, or authority
 generation. The initial architecture does not require Redis, queues or worker

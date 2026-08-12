@@ -56,10 +56,10 @@ components, data flows, and trust boundaries.
 GitBlocks is in its product and engineering foundation phase. This repository
 contains an exactly pinned TypeScript workspace, deterministic repository
 verification tooling, a proposed ten-case evaluation pilot for
-repository-conditioned adoption fit over fixed candidate sets, and six
-implemented non-operational product packages: pure domain, versioned
-contracts, a PostgreSQL persistence adapter, bounded operator-run ingestion,
-the repository-interview application, and `@gitblocks/retrieval`. The pure
+repository-conditioned adoption fit over fixed candidate sets, and seven
+implemented product workspaces: pure domain, versioned contracts, a PostgreSQL
+persistence adapter, bounded operator-run ingestion, the repository-interview
+application, `@gitblocks/retrieval`, and the hosted discovery application. The pure
 retrieval package is transport-neutral, in-process, deterministic, bounded,
 and evaluation-independent. It consumes an accepted normalized capability
 query and candidate authorities and produces separate bounded eligible and
@@ -72,6 +72,16 @@ can be bootstrapped into one immutable coherent PostgreSQL snapshot, loaded
 through a SELECT-only serving identity, validated through existing contracts,
 and injected into the existing retrieval engine with equivalent deterministic
 results.
+
+Recovery R4 composes that R3 path into the in-process
+`@gitblocks/gitblocks-hosted` application. One-shot startup uses the SELECT-only
+serving identity to load the current snapshot once, validates the checked-in
+taxonomy and retrieval expansion, constructs the immutable engine, executes
+the existing structured capability-query normalization and bounded shortlist
+retrieval twice without another database read, and closes the client. This is
+an executable local/operator path, not a remotely available service; MCP,
+target scanning, fit assessment, recommendations, and deployment remain
+unimplemented.
 
 The repository also contains a curated 150-repository public catalog, plus
 exact immutable public repository artifacts and lossless line-addressable
@@ -186,6 +196,7 @@ authorized by Phase 9 completion.
 | `packages/ingestion/`                    | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
 | `packages/interviews/`                   | Interview schema, prompt/mapping, application, and provider core                 |
 | `packages/retrieval/`                    | Pure bounded deterministic candidate retrieval with separate result lanes        |
+| `apps/gitblocks-hosted/`                 | In-process discovery use case, PostgreSQL startup composition, and one-shot CLI  |
 | `apps/repository-interview-operator/`    | Explicit offline composition, policy, receipt, and process ports                 |
 | `tools/repository-interview-prelive/`    | Content-free pre-live validation and future receipt/database materialization     |
 | `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority         |
@@ -259,6 +270,7 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm catalog:validate`                        | Validate catalog bounds, balance, identity, paths, and digest       |
 | `pnpm catalog:seed -- --catalog …`             | Seed exact catalog provenance into an acknowledged ephemeral DB     |
 | `pnpm serving:bootstrap -- …`                  | Publish accepted profile/metadata serving state into PostgreSQL     |
+| `pnpm hosted:exercise -- --request <path>`     | Load current serving state and run one discovery request twice      |
 | `pnpm artifacts:validate`                      | Validate public artifact selections, coverage, and digest           |
 | `pnpm artifacts:test`                          | Run deterministic artifact manifest, collector, and receipt tests   |
 | `pnpm artifacts:verify`                        | Run complete offline artifact verification                          |
@@ -284,8 +296,8 @@ Docker when no explicitly acknowledged ephemeral PostgreSQL test database is
 injected; it uses the exact image recorded by ADR 0004, creates no persistent
 volume, and cleans up the container. Ordinary `pnpm verify` remains
 database-independent, while hosted `verify:ci` cannot skip PostgreSQL
-verification. There is no development service or deployment command because
-product services remain unimplemented. `pnpm ingest:live` is a separate
+verification. The hosted exercise is one-shot and starts no transport; there
+is no development service or deployment command. `pnpm ingest:live` is a separate
 credential-injected operator command requiring explicit manifest, receipt,
 database configuration, and non-production acknowledgement.
 `pnpm artifacts:live` is a distinct credential-injected operator command with

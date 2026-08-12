@@ -25,6 +25,9 @@
       "path": "./packages/ingestion"
     },
     {
+      "path": "./apps/gitblocks-hosted"
+    },
+    {
       "path": "./apps/repository-interview-operator"
     },
     {

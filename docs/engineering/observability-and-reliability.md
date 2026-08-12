@@ -5,13 +5,15 @@
 Every future production execution path must be diagnosable from deployed
 telemetry and durable audit evidence without adding emergency instrumentation
 or reproducing the user's sensitive content. GitBlocks currently has no
-services, workers, deployments, SLOs, or telemetry pipeline. Its persistence
+network services, workers, deployments, SLOs, or telemetry pipeline. Its persistence
 adapter returns stable value-free errors. The Phase 5 operator-run ingester
 accepts an injected observer and emits bounded request/candidate/batch events
 plus a durable secret-free receipt; the Phase 6 artifact operator follows the
 same content-free pattern. Neither is a deployed telemetry system. Phase 7
 plans a separate repository-interview operator with injected telemetry and no
-service or deployment. A future production application/composition layer must
+service or deployment. The R4 hosted discovery one-shot reports only bounded,
+value-free startup/readiness/snapshot-count/result-digest/shutdown facts and is
+not a production traffic path. A future transported production composition must
 select and instrument an export path before handling production traffic. This
 document sets the policy for those paths.
 

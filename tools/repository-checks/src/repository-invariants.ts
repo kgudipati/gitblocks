@@ -21,6 +21,7 @@ const POSTGRES_TEST_IMAGE =
   'postgres:18.4-bookworm@sha256:1961f96e6029a02c3812d7cb329a3b03a3ac2bb067058dec17b0f5596aca9296';
 const APPROVED_PACKAGE_MANIFESTS = new Set([
   'package.json',
+  'apps/gitblocks-hosted/package.json',
   'apps/repository-interview-operator/package.json',
   'packages/contracts/package.json',
   'packages/domain/package.json',
@@ -39,6 +40,18 @@ interface ProductPackagePolicy {
 
 const PRODUCT_PACKAGE_POLICIES: ReadonlyMap<string, ProductPackagePolicy> =
   new Map([
+    [
+      'apps/gitblocks-hosted/package.json',
+      {
+        dependencies: new Map([
+          ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+          ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
+          ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+          ['@gitblocks/retrieval', EXACT_WORKSPACE_VERSION],
+        ]),
+        name: '@gitblocks/gitblocks-hosted',
+      },
+    ],
     [
       'apps/repository-interview-operator/package.json',
       {
@@ -115,6 +128,15 @@ const APPROVED_WORKSPACE_DEPENDENCIES: ReadonlyMap<
   ReadonlyMap<string, string>
 > = new Map([
   [
+    'apps/gitblocks-hosted/package.json',
+    new Map([
+      ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
+      ['@gitblocks/retrieval', EXACT_WORKSPACE_VERSION],
+    ]),
+  ],
+  [
     'apps/repository-interview-operator/package.json',
     new Map([
       ['@gitblocks/contracts', EXACT_WORKSPACE_VERSION],
@@ -186,6 +208,15 @@ const REQUIRED_PATHS = [
   '.github/pull_request_template.md',
   '.github/workflows/ci.yml',
   'AGENTS.md',
+  'apps/gitblocks-hosted/README.md',
+  'apps/gitblocks-hosted/examples/authorization-discovery-request.json',
+  'apps/gitblocks-hosted/package.json',
+  'apps/gitblocks-hosted/scripts/exercise-cli.ts',
+  'apps/gitblocks-hosted/scripts/tsconfig.json',
+  'apps/gitblocks-hosted/src/index.ts',
+  'apps/gitblocks-hosted/test/tsconfig.json',
+  'apps/gitblocks-hosted/tsconfig.json',
+  'apps/gitblocks-hosted/tsconfig.test.json',
   'apps/repository-interview-operator/README.md',
   'apps/repository-interview-operator/package.json',
   'apps/repository-interview-operator/schemas/repository-interview-operator-policy-v1.schema.json',
@@ -578,6 +609,7 @@ function validateRuntimeScripts(
     'eval:retrieval:v2:verify',
     'eval:score',
     'eval:validate',
+    'hosted:exercise',
     'test',
     'test:coverage',
     'taxonomy:generate',
@@ -626,7 +658,7 @@ function validateRuntimeScripts(
   const requiredWorkspaceScripts = {
     build: 'pnpm build:product && pnpm build:tools',
     'build:product':
-      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/retrieval... --filter @gitblocks/repository-interview-operator... build',
+      'pnpm --filter @gitblocks/ingestion... --filter @gitblocks/interviews... --filter @gitblocks/retrieval... --filter @gitblocks/gitblocks-hosted... --filter @gitblocks/repository-interview-operator... build',
     'build:tools':
       'pnpm --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive build',
     'contracts:validate':
@@ -647,6 +679,8 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && vitest run packages/ingestion/test --config vitest.config.ts',
     'ingestion:verify':
       'pnpm runtime:check && pnpm catalog:validate && pnpm ingestion:test && pnpm --filter @gitblocks/ingestion typecheck',
+    'hosted:exercise':
+      'pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/exercise-cli.ts',
     'interviews:generate':
       'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts generate',
     'interviews:test':
@@ -728,7 +762,7 @@ function validateRuntimeScripts(
     typecheck:
       'pnpm build:product && pnpm build:tools && pnpm typecheck:internal',
     'typecheck:internal':
-      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/retrieval --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
+      'pnpm --filter @gitblocks/domain --filter @gitblocks/contracts --filter @gitblocks/retrieval --filter @gitblocks/persistence --filter @gitblocks/ingestion --filter @gitblocks/interviews --filter @gitblocks/gitblocks-hosted --filter @gitblocks/repository-interview-operator --filter @gitblocks/repository-checks --filter @gitblocks/evaluation-harness --filter @gitblocks/repository-interview-prelive typecheck',
   } as const;
   for (const [scriptName, expected] of Object.entries(
     requiredWorkspaceScripts,
@@ -1418,6 +1452,7 @@ function validateProductCapitalization(
 function isProhibitedArtifact(trackedPath: string): boolean {
   return (
     (trackedPath.startsWith('apps/') &&
+      !trackedPath.startsWith('apps/gitblocks-hosted/') &&
       !trackedPath.startsWith('apps/repository-interview-operator/')) ||
     (trackedPath.startsWith('packages/') &&
       !trackedPath.startsWith('packages/contracts/') &&
