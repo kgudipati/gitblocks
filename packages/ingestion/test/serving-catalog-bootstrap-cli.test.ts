@@ -47,17 +47,17 @@ describe('offline serving catalog bootstrap CLI', () => {
     expect(fixture.errors).toEqual(['Serving catalog bootstrap failed.\n']);
   });
 
-  it('requires the exact private-alpha acknowledgement and current migration', async () => {
-    const missingAuthority = dependencies({
-      GITBLOCKS_SERVING_BOOTSTRAP_ACKNOWLEDGEMENT: undefined,
+  it('requires complete database credentials and the current migration', async () => {
+    const missingCredential = dependencies({
+      GITBLOCKS_SERVING_BOOTSTRAP_DB_PASSWORD: undefined,
     });
     expect(
       await runServingCatalogBootstrapCliV1(
         argumentsV1(),
-        missingAuthority.dependencies,
+        missingCredential.dependencies,
       ),
     ).toBe(1);
-    expect(missingAuthority.createClient).not.toHaveBeenCalled();
+    expect(missingCredential.createClient).not.toHaveBeenCalled();
 
     const oldMigration = dependencies({}, { migrationVersion: 4 });
     expect(
@@ -128,8 +128,6 @@ describe('offline serving catalog bootstrap CLI', () => {
       ),
     ).toBe(0);
     expect(fixture.environment.mock.calls.map(([name]) => name)).toEqual([
-      'GITBLOCKS_SERVING_BOOTSTRAP_ACKNOWLEDGEMENT',
-      'GITBLOCKS_SERVING_BOOTSTRAP_DB_SCOPE',
       'GITBLOCKS_SERVING_BOOTSTRAP_DB_PORT',
       'GITBLOCKS_SERVING_BOOTSTRAP_DB_SSL',
       'GITBLOCKS_SERVING_BOOTSTRAP_DB_HOST',
@@ -156,9 +154,6 @@ function dependencies(
   } = {},
 ) {
   const environmentValues: Record<string, string | undefined> = {
-    GITBLOCKS_SERVING_BOOTSTRAP_ACKNOWLEDGEMENT:
-      'approved-offline-serving-catalog-bootstrap',
-    GITBLOCKS_SERVING_BOOTSTRAP_DB_SCOPE: 'private-alpha',
     GITBLOCKS_SERVING_BOOTSTRAP_DB_HOST: 'synthetic-db-host',
     GITBLOCKS_SERVING_BOOTSTRAP_DB_PORT: '5432',
     GITBLOCKS_SERVING_BOOTSTRAP_DB_DATABASE: 'synthetic-db',

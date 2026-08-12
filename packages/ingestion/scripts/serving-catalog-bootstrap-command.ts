@@ -24,8 +24,6 @@ import {
   parsePublicCatalog,
 } from '../src/index.ts';
 
-const ACKNOWLEDGEMENT = 'approved-offline-serving-catalog-bootstrap';
-const DATABASE_SCOPE = 'private-alpha';
 const FAILURE_DIAGNOSTIC = 'Serving catalog bootstrap failed.\n';
 
 export interface ServingCatalogBootstrapCliDependenciesV1 {
@@ -79,7 +77,6 @@ export async function runServingCatalogBootstrapCliV1(
   let clientClosed = false;
   try {
     const configuration = parseServingCatalogBootstrapArgumentsV1(arguments_);
-    requireExactAuthority(dependencies);
     const [catalogText, profileText, metadataText] = await Promise.all([
       dependencies.readTextFile(resolve(configuration.catalogPath)),
       dependencies.readTextFile(resolve(configuration.profileAuthorityPath)),
@@ -173,20 +170,6 @@ export function parseServingCatalogBootstrapArgumentsV1(
     metadataAuthorityPath: values[5],
     publishedAt: values[7],
   });
-}
-
-function requireExactAuthority(
-  dependencies: ServingCatalogBootstrapCliDependenciesV1,
-): void {
-  if (
-    dependencies.readEnvironment(
-      'GITBLOCKS_SERVING_BOOTSTRAP_ACKNOWLEDGEMENT',
-    ) !== ACKNOWLEDGEMENT ||
-    dependencies.readEnvironment('GITBLOCKS_SERVING_BOOTSTRAP_DB_SCOPE') !==
-      DATABASE_SCOPE
-  ) {
-    throw new Error('Serving catalog bootstrap authority is invalid.');
-  }
 }
 
 function requireCurrentMigration(value: MigrationVerification): void {

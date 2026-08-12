@@ -405,7 +405,7 @@ No down migration or destructive cleanup is added.
   reconstructs current or historical existing authorities, and fails closed
   on missing or inconsistent state.
 - 2026-08-11: Added the explicit `pnpm serving:bootstrap` accepted-file
-  operator, with fixed acknowledgement/scope, current migration verification,
+  operator, with discrete database credentials, current migration verification,
   no provider/model/network capability, bounded output, and exact replay.
 - 2026-08-11: Added real PostgreSQL coverage for schema and role grants,
   complete/incomplete publication, idempotency, immutable conflicts, history,

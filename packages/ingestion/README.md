@@ -270,9 +270,7 @@ authority through their existing parsers, verifies their exact shared binding,
 seeds the existing candidate identity/family rows, and publishes/selects one
 complete immutable snapshot only after all 300 candidate records close.
 
-The command requires migration `0005`, acknowledgement
-`approved-offline-serving-catalog-bootstrap`, database scope `private-alpha`,
-and the discrete
+The command requires migration `0005` and the discrete
 `GITBLOCKS_SERVING_BOOTSTRAP_DB_{HOST,PORT,DATABASE,USERNAME,PASSWORD,SSL}`
 settings. It does not apply migrations or expose GitHub, npm, advisory, model,
 artifact, interview, profile-generation, metadata-generation, or network
