@@ -35,6 +35,38 @@ design documents are linked, not competing plans. Never select a plan merely
 because it is the newest file in `docs/plans/`, and do not load unrelated
 historical plans unless the task needs them as evidence.
 
+## Product-first proportionality
+
+The first question for a product-slice plan is: “Can the intended user-visible
+outcome actually be exercised?” The plan names the current executable journey,
+the observable user outcome this slice enables, fixes, or materially improves,
+and the nearest realistic way to exercise it. Supporting infrastructure and
+test evidence do not substitute for that outcome.
+
+Infrastructure-only work requires a concrete current blocker and observed
+evidence. Before a plan adds a long-lived service, database or table, worker,
+queue, provider, authority or schema family, cache or index, evaluation corpus,
+deployment component, generalized abstraction, or production dependency, it
+must record:
+
+1. the current blocker;
+2. the observed evidence;
+3. why existing implementation is insufficient;
+4. the smallest solution; and
+5. the alternatives explicitly deferred.
+
+Unknown or unresolved is a legitimate product state; missing information by
+itself is not an implementation requirement for another collection,
+materialization, model, provider, persistence, or authority subsystem.
+
+Planning depth follows actual risk. Ordinary product slices do not discuss
+tenancy, SLOs, dashboards, backpressure, migrations, queues, or other
+operational concerns unless they introduce or change them. Validation also
+follows changed behavior: use focused checks during implementation and retain
+full repository verification as a final regression and review gate where
+appropriate. Proportionality narrows irrelevant ceremony; it never weakens an
+applicable safety boundary or final gate.
+
 ## Required sections
 
 Every substantial plan contains all sections below. Use “not applicable” only
@@ -86,9 +118,10 @@ changes, supersedes, or leaves each one untouched.
 ### Architecture, data-flow, and performance impact
 
 Describe changed components, ownership, dependency direction, entry points,
-side effects, versioned boundaries, and primary data flow. Identify input,
-result, time, memory, cost, pagination, concurrency, timeout, cancellation,
-retry, idempotency, and backpressure bounds where applicable.
+side effects, versioned boundaries, and primary data flow. Identify only the
+input, result, time, memory, cost, pagination, concurrency, timeout,
+cancellation, retry, idempotency, and backpressure bounds that the slice
+introduces or changes.
 
 Use a diagram only when it clarifies three or more components or a
 trust/sequence relationship. Mark future components and do not let diagrams
@@ -96,13 +129,15 @@ contradict prose.
 
 ### Security, privacy, abuse, and supply-chain considerations
 
-Identify assets, actors, trust boundaries, untrusted inputs, authentication,
-object/action authorization, tenant isolation, prompt-injection paths,
+Identify the applicable assets, actors, trust boundaries, untrusted inputs,
+authentication, object/action authorization, tenant isolation,
+prompt-injection paths,
 destructive/external-write approvals, data classification/minimization,
 redaction, retention/deletion, secret handling, webhook behavior, audit
 evidence, dependencies, CI actions, build provenance, abuse cases, and residual
 risk. Explicitly preserve the prohibition on executing ingested repository
-code.
+code. Do not inventory unrelated hypothetical controls; state once why a
+concern is outside the changed boundary.
 
 ### Implementation milestones
 
@@ -125,11 +160,12 @@ links, generated drift, and diff/whitespace checks as applicable.
 
 ### Observability and operations
 
-Name stable operations/errors, traces, metrics, logs, audit events, redaction,
-cardinality bounds, dashboards, alerts, worker attempt/retry/dead-letter
-signals, health/readiness, SLOs, runbooks, and incident diagnosis affected by
-the change. State why this is not applicable for a path that cannot run in a
-shared or production environment.
+For shared or production behavior introduced or changed by the slice, name the
+applicable stable operations/errors, traces, metrics, logs, audit events,
+redaction, cardinality bounds, dashboards, alerts, worker
+attempt/retry/dead-letter signals, health/readiness, SLOs, runbooks, and
+incident diagnosis. Do not design those concerns for a path the slice does not
+introduce; one reasoned section-level not-applicable statement is sufficient.
 
 ### Migration, compatibility, rollout, and recovery
 

@@ -2,47 +2,50 @@
 
 ## Status
 
-This document describes the approved direction for GitBlocks components. The
-repository now contains six implemented, non-operational product packages:
-the pure domain, versioned contracts, a concrete PostgreSQL persistence
-adapter, an operator-run curated public-source ingestion adapter, the
-persistence-independent repository-interview application, and the pure
+This document describes the approved hosted private-alpha direction and the
+current lifecycle of GitBlocks components. Current main contains six product
+packages: the pure domain, versioned contracts, a concrete PostgreSQL
+persistence adapter, an operator-run curated public-source ingestion adapter,
+the persistence-independent repository-interview application, and the pure
 `@gitblocks/retrieval` package. Retrieval is transport-neutral, in-process,
-deterministic, bounded, and evaluation-independent. It consumes accepted
-normalized capability queries and candidate authorities and returns separate
-bounded eligible and evidence-needed lanes with provenance. It owns no network,
-database, model, provider, transport, evaluation-gold, ranking, or deployment
-responsibility. The contracts, persistence, and ingestion packages also
-implement exact immutable public repository artifacts. The persistence adapter now also stores immutable
-repository-interview request, execution, and interview history through a
-contract-grounded PostgreSQL adapter. A narrow direct provider adapter,
-explicit offline operator composition root, and content-free pre-live
-verification tool now exist with injected effects, synthetic 6/30/150
-execution coverage, and ephemeral PostgreSQL materialization proof. The
-pre-live manifest remains `offline-verified-live-blocked`; it selects no model
-and commits no raw artifact receipt, materialized selection, real
-authorization, retention or pricing approval, or provider result. It contains
-no live provider configuration, runtime service, deployed data store,
-continuous ingestion worker, or network service. Technology choices remain
-open unless an architecture decision record (ADR) approves them.
+deterministic, bounded, evaluation-independent, and composed without owning
+network, database, model, provider, transport, or deployment effects.
 
-The historical non-operational Phase 8 kernel established the exact deterministic
-candidate-profile registry and two contract roots, an offline generated
-150-candidate profile authority, content-free coverage, and pure
-single-candidate constraint evaluation. The outward evaluation harness now
-owns immutable historical `retrieval-v1`, independently reviewed governing
-`retrieval-v2`, generated hard-filter projection validation, closed
-prediction/report schemas, deterministic scoring fixtures, and a blind adapter
-to the product retrieval package. Product retrieval semantics remain inside
-`@gitblocks/retrieval`; the harness owns evaluation, not ranking,
-recommendation, or production persistence.
+Recovery R2 classifies the current implementation as follows without deleting
+or moving anything:
 
-Project Phase 9 is independently accepted. It adds the pure production
-retrieval package, transport-neutral contracts, reviewed authority bindings,
-separate result lanes, provenance, and bounded deterministic retrieval. It does
-not add an operational retrieval service. Ranking remains Phase 10, which has
-not begun, and vector or persistent search infrastructure remains conditional
-on separately reviewed measured evidence.
+- **Serving / active:** `packages/domain`, `packages/contracts`,
+  `packages/retrieval`, PostgreSQL persistence needed by hosted serving,
+  taxonomy/query normalization, deterministic candidate profiles, retrieval
+  metadata, and the planned hosted application/fit composition.
+- **Offline active:** `packages/ingestion`, catalog/profile/metadata refresh,
+  and explicit database migration/bootstrap operations.
+- **Development support:** `tools/evaluation-harness` and
+  `tools/repository-checks`.
+- **Optional / dormant:** the Phase 6 artifact path until finalist evidence
+  demonstrates a need, `packages/interviews`,
+  `apps/repository-interview-operator`,
+  `tools/repository-interview-prelive`, and the Phase 8 live materialization
+  proof machinery.
+- **Frozen R&D:** the Phase 10 branch and history. Issue #32 and PR #33 were
+  superseded by Recovery R2 without merge; selective reuse is permitted only
+  when real product dogfooding demonstrates the need.
+
+The initial hosted product is planned as one Node application plus one
+PostgreSQL database, with offline public-source ingestion publishing the shared
+catalog state that the application serves. PostgreSQL is serving-required and
+ingestion is offline-required. The pure retrieval engine is composed around
+durable data; its purity does not make persistence optional. No Skill,
+target-repository scanner, hosted application, MCP surface, deployed database,
+target-conditioned fit path, or end-to-end private-alpha journey is implemented
+on main yet.
+
+The evaluation harness owns immutable historical `retrieval-v1`, independently
+reviewed governing `retrieval-v2`, projection validation, scoring fixtures, and
+the blind adapter to product retrieval. It remains development support, not a
+request-time application dependency. The interview and materialization proof
+systems retain their legitimate historical and optional value without joining
+the serving path.
 
 The [product contract](../product/product-contract.md) owns the user,
 vocabulary, data-locality rules, and private-alpha boundary.
@@ -74,11 +77,13 @@ or turn the pure package into an operational service.
 ## Context and ownership
 
 The developer interacts with an existing coding-agent host. A future GitBlocks
-Agent Skill will guide that agent through local fingerprinting, remote
-discovery, evidence review, adoption planning, and outcome capture. A future
-remote Model Context Protocol (MCP) server will expose a small set of
-user-goal-oriented operations backed by application services, catalog
-ingestion, evidence, and codebase-conditioned retrieval and ranking.
+Skill will guide that agent through bounded local fingerprinting, remote
+discovery and comparison, evidence review, adoption planning, and optional
+outcome capture. The hosted Node application will expose a small MCP-facing,
+user-goal-oriented surface backed by deterministic normalization/retrieval,
+PostgreSQL catalog intelligence, and bounded target-fit assessment. Offline
+catalog ingestion is a separate operator action and never runs because a user
+made a request.
 
 The coding agent remains responsible for local repository reads authorized by
 the user, local code edits, and local validation. GitBlocks does not replace the
@@ -162,9 +167,9 @@ remain outside this context.
 
 ## Planned system context
 
-All operational GitBlocks nodes in this diagram are planned, not implemented.
-The shared contract kernel and concrete persistence adapter are omitted because
-they are code dependencies, not separately running nodes.
+All GitBlocks runtime nodes in this diagram are planned, not implemented. The
+diagram shows the smallest private-alpha deployment that another developer can
+use. Internal module boundaries do not imply separate services.
 
 ```mermaid
 flowchart LR
@@ -172,6 +177,7 @@ flowchart LR
     Agent["Existing coding-agent host"]
     GitHub["GitHub"]
     Sources["Package and security data sources"]
+    Model["Reviewed LLM provider<br/>(bounded finalist reasoning)"]
 
     subgraph Local["User-controlled local trust boundary"]
         Skill["GitBlocks Agent Skill (planned)"]
@@ -179,61 +185,54 @@ flowchart LR
         Repo["Target repository"]
     end
 
-    subgraph Remote["GitBlocks remote trust boundary (planned)"]
-        MCP["Remote MCP server"]
-        App["Application services"]
-        Ranking["Retrieval and ranking services"]
-        Interviews["Repository interview application"]
-        Catalog["Repository catalog and ingestion workers"]
-        Evidence["Evidence store"]
-        Outcomes["Outcome-learning loop"]
+    subgraph Hosted["Hosted GitBlocks (planned)"]
+        App["One Node application<br/>MCP + normalization + retrieval + fit + validation"]
+        Postgres["One PostgreSQL database<br/>coherent served catalog snapshot"]
+    end
+
+    subgraph Offline["Offline operator boundary"]
+        Ingestion["Public-source ingestion and refresh"]
     end
 
     Developer -->|"request, constraints, approvals"| Agent
     Agent -->|"invokes procedure"| Skill
     Skill -->|"approved read scope"| Scanner
     Repo -->|"approved read-only facts; no code execution"| Scanner
-    Skill -->|"minimized fingerprint and goal"| MCP
-    MCP --> App
-    App --> Ranking
-    Catalog --> Interviews
-    Interviews --> Evidence
-    Interviews --> Ranking
-    Ranking --> Evidence
-    Catalog --> Evidence
-    Catalog -->|"rate-limited collection"| GitHub
-    Catalog -->|"metadata and advisories"| Sources
-    App --> Outcomes
-    Outcomes -->|"quality signals"| Ranking
-    MCP -->|"evidence-backed result"| Skill
-    Skill -->|"recommendation and adoption plan"| Agent
+    Skill -->|"minimized fingerprint and capability request"| App
+    App -->|"read shared candidate data"| Postgres
+    App -->|"small finalists + bounded evidence"| Model
+    Model -->|"untrusted FitAssessmentResponseV1-shaped data"| App
+    App -->|"up to three validated evidence-backed options"| Skill
+    Skill -->|"comparison and adoption plan"| Agent
     Agent -->|"local edits and validation after approval"| Repo
     Agent -->|"decision and results"| Developer
+    GitHub -->|"bounded public metadata"| Ingestion
+    Sources -->|"bounded package/advisory data"| Ingestion
+    Ingestion -->|"publish coherent catalog state"| Postgres
 ```
 
 ## Component responsibilities
 
-| Component                                | Responsibility or approved direction                                                                                                                                                                                                 | Must not own                                                                                                                                                                                         |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Product domain and contract kernel       | Define pure domain invariants, the deterministic-profile registry and single-candidate constraint semantics, plus versioned DTO parsing and deterministic JSON Schema exports                                                        | Transport, storage, provider, evaluation-gold, discovery, candidate-list filtering, ranking-engine, or service behavior                                                                              |
-| PostgreSQL persistence adapter           | Persist shared public catalog identity, immutable evidence and approved public artifacts, append-only lifecycle events, exact dossier/artifact-set snapshots, and immutable repository-interview request/execution/interview history | Application use cases or ports, provider behavior, review/selection policy, authentication, organization data, catalog administration, ingestion, retrieval, ranking, transport, or deployment       |
-| Coding-agent host                        | User interaction, permission prompts, local tool execution, edits, and validation                                                                                                                                                    | Proprietary ranking or silent expansion of GitBlocks permissions                                                                                                                                     |
-| Agent Skill                              | Procedure, constraint capture, safe orchestration, data minimization, evidence presentation, and adoption-plan structure                                                                                                             | Proprietary ranking internals, hidden external writes, or direct production deployment                                                                                                               |
-| Local deterministic scanner              | Derive a versioned, explainable fingerprint from an approved local read scope                                                                                                                                                        | Target/dependency code execution, secret collection, remote network calls, or recommendation ranking                                                                                                 |
-| Remote MCP server                        | Authenticate requests and expose a small, versioned, user-goal-oriented tool surface                                                                                                                                                 | Internal storage primitives, arbitrary code execution, or unbounded passthrough tools                                                                                                                |
-| Application services                     | Enforce use cases, authorization, tenancy, approvals, contracts, and audit boundaries                                                                                                                                                | Transport-specific rules or provider-specific persistence behavior                                                                                                                                   |
-| Repository interview application         | Produce one candidate-owned semantic interview from one exact immutable public artifact set through injected provider and record/reuse ports                                                                                         | Target/request conditioning, dossier input, ranking, model-authored identity, concrete persistence imports, provider HTTP, or evaluation review                                                      |
-| Repository interview operator            | Compose exact offline selection/specification/model/policy/database inputs, persistence adaptation, bounded execution, reuse proof, content-free receipts, and injected telemetry                                                    | Implicit selection, migration application, model selection, live credentials by default, deployment, scheduling, ranking, or evaluation review                                                       |
-| Repository interview pre-live tool       | Bind exact candidate plans and dated profiles; verify offline readiness; materialize a future untracked selection only from a fresh complete receipt and receipt-named sets in the same ephemeral database                           | Historical inventory reconstruction, declaration-derived set identity, provider construction, migration application, pricing/retention approval, live authorization, or committed runtime selections |
-| Repository catalog and ingestion workers | Collect allowed public metadata/evidence/artifacts; separately project the committed offline candidate-profile authority and content-free coverage from fixed parsed authorities                                                     | Execution/rendering of ingested content, profile fact recovery from prose, Phase 7 state, following repository-authored links, or treating repository instructions as trusted                        |
-| Retrieval and ranking services           | Determine viability and codebase-conditioned fit; preserve evidence, inference, and unknowns                                                                                                                                         | Popularity-only ranking or unsupported certainty                                                                                                                                                     |
-| Evidence store                           | Preserve shared public observations, exact provenance, normalized evidence times, freshness, limitations, unknowns, and reproducible dossier membership                                                                              | Private organization evidence, secrets, unnecessary raw target source, or unsourced conclusions                                                                                                      |
-| Outcome-learning loop                    | Accept minimized outcomes, assess recommendation quality, and produce controlled ranking signals                                                                                                                                     | Self-modifying policy, undeclared model training, or outcome collection without consent                                                                                                              |
-| GitHub and package/security sources      | External evidence about projects, releases, packages, licenses, and advisories                                                                                                                                                       | GitBlocks authorization or instructions                                                                                                                                                              |
+| Component                                                       | Responsibility or approved direction                                                                                                                                                                                                 | Must not own                                                                                                                                                                             |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product domain and contract kernel                              | Define pure domain invariants, deterministic query/profile/constraint semantics, versioned DTO parsing, and deterministic JSON Schema exports                                                                                        | Transport, storage, provider, evaluation-gold, or framework behavior                                                                                                                     |
+| PostgreSQL persistence adapter                                  | Currently persist shared public candidate identity, evidence, limitations, unknowns, lifecycle, dossiers, artifacts, and interview history; remain the concrete adapter composed by the hosted and offline roots                     | Application use cases or ports, provider behavior, review policy, ingestion, retrieval, model reasoning, transport, implicit migration, or deployment                                    |
+| Hosted PostgreSQL database                                      | Serve one coherent shared catalog snapshot containing the identity, deterministic profiles, retrieval metadata, evidence, limitations, unknowns, lifecycle, and freshness required by the active product path                        | Unnecessary target source, secrets, private organization data, evaluation gold, or model conclusions presented as evidence                                                               |
+| Coding-agent host                                               | User interaction, permission prompts, approved local edits, installation, project validation, and debugging                                                                                                                          | Silent expansion of GitBlocks permissions or automatic candidate selection                                                                                                               |
+| GitBlocks Skill                                                 | Capability/constraint capture, scanner orchestration, data preview and minimization, evidence-backed option presentation, and adoption-plan structure                                                                                | Proprietary ranking internals, hidden external writes, or direct production deployment                                                                                                   |
+| Local deterministic scanner                                     | Derive a minimized, versioned, explainable `RepositoryFingerprintV1` from an approved local read scope                                                                                                                               | Target/dependency code execution, secret collection, remote network collection, or recommendation ranking                                                                                |
+| One hosted Node application                                     | Compose MCP-facing operations, deterministic normalization, PostgreSQL snapshot loading, pure retrieval, bounded finalist evidence, LLM target-fit reasoning, deterministic response validation, and up to three responsible options | Request-time ingestion, migration, evaluation, artifact/interview/materialization operators, open-world model discovery, hard-constraint override, or enterprise control-plane machinery |
+| Pure retrieval engine                                           | Deterministically retrieve and hard-filter candidate lanes from validated immutable authorities with exact provenance and identity deduplication                                                                                     | Database/network/provider/model effects, recommendation, target-fit reasoning, or evaluation policy                                                                                      |
+| Bounded LLM target-fit adapter                                  | Reason semantically over only the minimized target fingerprint and small retrieved finalist/evidence set; return untrusted `FitAssessmentResponseV1`-shaped data                                                                     | Candidate discovery, provider collection, hard-constraint authority, evidence invention, local edits, or unvalidated user-facing output                                                  |
+| Offline catalog ingestion and refresh                           | Collect bounded approved public metadata/evidence and publish coherent catalog/profile/metadata state into PostgreSQL through explicit operator actions                                                                              | Request-time execution, untrusted code execution/rendering, arbitrary crawling, or repository-authored instructions                                                                      |
+| Repository interview, artifact, and materialization-proof paths | Retain optional/dormant evidence and historical proof capabilities until dogfooding establishes a current need                                                                                                                       | Default serving dependencies or authority to run because a user made a request                                                                                                           |
+| Evaluation harness and repository checks                        | Provide development evidence, evaluation authority, and repository/process governance                                                                                                                                                | Product serving, recommendation authority, or runtime dependencies                                                                                                                       |
+| GitHub and package/security sources                             | Provide untrusted public project, release, package, license, and advisory data                                                                                                                                                       | GitBlocks authorization, policy, or instructions                                                                                                                                         |
 
-Services may initially share a deployable or module where that is simpler. These
-responsibility boundaries describe dependency and trust direction; they do not
-mandate microservices.
+All request-time responsibilities initially live in one Node deployable. The
+offline ingestion operation may reuse product adapters, but it does not execute
+inside that request. These boundaries describe dependency and trust direction;
+they do not mandate microservices.
 
 ## Primary discovery and adoption data flow
 
@@ -245,9 +244,9 @@ sequenceDiagram
     participant A as Coding agent
     participant S as Agent Skill
     participant L as Local scanner
-    participant M as Remote MCP
-    participant R as Application and ranking
-    participant E as Evidence store
+    participant H as Hosted Node application
+    participant P as PostgreSQL
+    participant M as LLM provider
 
     D->>A: State capability, constraints, and approvals
     A->>S: Start GitBlocks discovery procedure
@@ -255,25 +254,25 @@ sequenceDiagram
     L-->>S: Versioned minimized fingerprint
     S->>D: Preview data allowed to leave local boundary
     D-->>S: Approve or reduce transmission
-    S->>M: Goal, hard constraints, fingerprint
-    M->>R: Validated authenticated use case
-    R->>E: Retrieve candidates and sourced evidence
-    E-->>R: Evidence with source and freshness
-    R-->>M: Viability, fit, tradeoffs, unknowns
-    M-->>S: Versioned evidence-backed response
-    S-->>A: Explain recommendation and adoption plan
+    S->>H: Minimized capability input, constraints, fingerprint
+    H->>H: Deterministically normalize or request clarification
+    H->>P: Load one coherent served catalog snapshot
+    P-->>H: Profiles, retrieval metadata, evidence, lifecycle and freshness
+    H->>H: Deterministically hard-filter and retrieve finalists
+    H->>M: Small finalist set, bounded evidence, minimized fingerprint
+    M-->>H: Untrusted FitAssessmentResponseV1-shaped output
+    H->>H: Validate contract, constraints, evidence and responsible outcome
+    H-->>S: Up to three evidence-backed options or responsible no-result
+    S-->>A: Explain comparison and prepare adoption plan
     A->>D: Request selection and edit approval
     D-->>A: Approve, reject, or stop
     A->>A: Edit and validate locally
-    A->>S: Minimized structured outcome
-    S->>D: Preview optional outcome transmission
-    D-->>S: Approve or decline
-    S->>M: Approved outcome only
 ```
 
-Declining optional evidence or outcome transmission must not grant broader
-permissions or trigger hidden collection. When required data is withheld, the
-result may contain more unknowns or no recommendation.
+Declining optional evidence or later outcome transmission must not grant
+broader permissions or trigger hidden collection. When required data is
+withheld, the result may contain more unknowns or no recommendation. Outcome
+capture remains outside the minimum initial serving request.
 
 ## Trust boundaries and controls
 
@@ -312,16 +311,20 @@ Only data allowed by the
 may cross this boundary. The Skill will preview optional excerpts, minimize
 payloads, remove secrets, and require explicit approval where source content,
 external writes, privileged actions, destructive operations, or material cost
-is involved. Transport authentication does not replace per-object
-authorization or tenant isolation.
+is involved. The initial hosted product needs only the access control required
+by its concrete callers and shared public catalog; it does not pre-build an
+organization or multi-tenant control plane. Transport authentication never
+expands the approved data scope.
 
-### MCP to application services
+### MCP-facing transport to application composition
 
-MCP arguments and model-produced fields are untrusted. The server will
-authenticate the caller, authorize the requested operation and resource,
-validate versioned schemas, apply rate and concurrency bounds, propagate
-deadlines and cancellation, use stable safe errors, and create audit records
-without sensitive payloads.
+MCP arguments and model-produced fields are untrusted. The Node application
+will validate versioned schemas, enforce the applicable caller and operation
+boundary, apply bounded request behavior, propagate deadlines and cancellation,
+use stable safe errors, and create only the telemetry/audit evidence justified
+by the implemented path. Request handling cannot invoke ingestion, providers,
+migrations, Docker, evaluation, artifact generation, repository interviews,
+materialization proof, replay, or authority generation.
 
 ### External sources to ingestion
 
@@ -365,6 +368,17 @@ and derives all durable identity and provenance. Secrets, proprietary raw
 source, and unnecessary personal data must not enter prompts, telemetry, or the
 evidence store.
 
+The active hosted-alpha model boundary is narrower and separate from repository
+interviews. Only after deterministic hard filtering and retrieval may the
+hosted application send a small finalist set, bounded attributable candidate
+evidence, and the minimized target fingerprint to a reviewed LLM provider. The
+model performs target-fit reasoning only. It cannot discover candidates,
+collect evidence, restore excluded candidates, override hard constraints, or
+write user-facing output directly. Its `FitAssessmentResponseV1`-shaped result
+is untrusted until deterministic contract, constraint, evidence-reference, and
+responsible-outcome validation succeeds. The Phase 7 interview model path
+remains optional/dormant and is not a serving dependency.
+
 ## Contract direction
 
 The implemented product dependency direction is:
@@ -379,27 +393,33 @@ tools/evaluation-harness -> packages/persistence
 The harness-to-persistence dependency exists only for storage representability
 conformance. The harness-to-retrieval dependency is an outward blind evaluation
 adapter. Product packages do not import evaluation schemas, corpus records,
-gold, scorers, or tool internals. The future remote retrieval/ranking service
-remains planned; the implemented retrieval core is not a running service.
+gold, scorers, or tool internals. The hosted application composition remains
+planned; the implemented retrieval core is not a running service.
 
-The operational dependency direction remains inward:
+The planned hosted dependency direction remains inward:
 
 ```text
-transports and providers -> application use cases -> contracts and domain
-composition root -> application use cases + persistence adapter
+MCP transport + PostgreSQL adapter + bounded LLM adapter
+                         |
+                         v
+              hosted application use cases
+                         |
+                         v
+            retrieval + contracts + domain
 
 apps/repository-interview-operator
   -> @gitblocks/interviews + @gitblocks/persistence
 ```
 
-HTTP/MCP, GitHub, database, queue, filesystem, model-provider, and framework
-adapters may depend on owned application contracts. `@gitblocks/interviews`
-owns its provider, record/reuse, clock, and nonce ports and does not import the
-concrete persistence adapter; a future composition root wires those ports.
-Domain and application rules must not depend on adapters. Versioned request,
-response, event, error, evidence,
-fingerprint, and outcome contracts each have one authoritative definition;
-transports may encode them but must not recreate competing shapes.
+The one Node composition root may depend on the hosted application,
+`@gitblocks/retrieval`, and the concrete persistence/model/transport adapters.
+Application rules do not depend on those adapters. Offline ingestion composes
+`@gitblocks/ingestion` with persistence separately and never joins a request.
+`@gitblocks/interviews` retains its provider, record/reuse, clock, and nonce
+ports without becoming an active hosted dependency. Versioned request,
+response, event, error, evidence, fingerprint, and outcome contracts each have
+one authoritative definition; transports may encode them but must not recreate
+competing shapes.
 
 For the 12 current `1.0.0` contract families, closed TypeBox definitions are
 the single source for DTO types and deterministic JSON Schema 2020-12 runtime
@@ -445,11 +465,13 @@ or sensitive excerpts. Detailed rules are in the
 
 ## Open technology decisions
 
-Later ADRs must select, at minimum, MCP and transport libraries, any private
-storage extension, queue, identity and authorization model, deployment
-topology, telemetry backend, and retention implementation. ADR 0007 selects
-only the narrow Phase 7 repository-interview application and OpenAI adapter
-direction; it does not select a general model platform. Later decisions must
-extend the accepted TypeScript toolchain, software-supply-chain controls,
-dependency rules, generated-code policy, and validation commands before the
-corresponding product layer lands.
+R2 selects the smallest topology—one Node deployable and one PostgreSQL
+database—but no framework, MCP library, model adapter, hosting provider, or
+telemetry backend. A product implementation slice must select only the
+technology it actually introduces and satisfy the accepted TypeScript,
+supply-chain, dependency, contract, and validation policies. Queue, cache,
+vector, microservice, Kubernetes, continuous-crawler, organization/tenant,
+billing, and enterprise-governance decisions remain deferred unless a concrete
+current blocker and observed evidence activate them. Ordinary slices do not
+pre-design SLOs, dashboards, migrations, backpressure, or retention behavior
+that they do not change.

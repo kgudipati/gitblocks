@@ -3,20 +3,21 @@
 ## Status and authority
 
 This document defines the approved product boundary for the first private
-alpha. GitBlocks remains in an engineering-foundation phase. The repository
-now contains private production-owned packages for the pure domain, versioned
-fixed-candidate contracts, and an injected PostgreSQL adapter for immutable
-public evidence, dossiers, and exact repository artifacts, plus a bounded
-public-source ingestion adapter and a persistence-independent
-repository-interview application with an offline operator. Phase 8 also has a
-pure 27-field deterministic-profile registry, two additive profile roots, an
-offline generated 150-candidate authority, content-free coverage, and
-single-candidate constraint evaluation, plus the separate evaluation-only
-`retrieval-v1` corpus and deterministic scorer. Live calibration
-failed and selected no profile. No API, MCP service, scanner, discovery
-service, production hard-filter pipeline, retrieval/ranking service, deployed
-database, deployment, or end-to-end adoption workflow is implemented or
-available yet.
+alpha. Current main contains pure domain and versioned contracts, a concrete
+PostgreSQL adapter for shared public catalog/evidence state, bounded
+public-source ingestion, a persistence-independent repository-interview
+application and offline operator, deterministic query/profile foundations,
+and the pure six-channel `@gitblocks/retrieval` engine. The evaluation harness
+and repository checks remain development support. Repository interviews,
+artifact generation for finalist assessment, and Phase 8 live materialization
+proof machinery are not part of the serving path. Phase 10 is frozen R&D on a
+separately preserved branch and is not implemented on main.
+
+No GitBlocks Skill, target-repository scanner, hosted Node application, MCP
+surface, deployed PostgreSQL database, target-conditioned fit composition, or
+end-to-end adoption workflow is implemented or available yet. The hosted
+private-alpha boundary below is approved direction; Recovery R2 documents it
+without implementing a runtime or changing an executable contract.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -29,6 +30,65 @@ adoption of open-source software (OSS) using repository-specific evidence.
 GitBlocks will own adoption intelligence, evidence, compatibility knowledge,
 and the outcome-learning loop. The developer's coding agent will remain the
 interactive execution runtime and will own local edits and validation.
+
+## Hosted private-alpha architecture
+
+The first private alpha has four explicit boundaries:
+
+- **Local user boundary:** the developer's existing coding-agent host, a
+  GitBlocks Skill, a bounded deterministic target-repository scanner, and a
+  minimized `RepositoryFingerprintV1`. Target and dependency code is never
+  executed by GitBlocks, and unnecessary target source stays local.
+- **Remote GitBlocks boundary:** one hosted Node application initially,
+  containing the MCP-facing/application composition, deterministic query
+  normalization, deterministic candidate retrieval, target-conditioned
+  finalist assessment, bounded LLM semantic reasoning after retrieval,
+  deterministic hard-constraint/contract/evidence validation around model
+  output, and at most three responsible recommendations.
+- **Durable data boundary:** one PostgreSQL database is the serving-required
+  system of record for shared candidate identity and catalog state,
+  deterministic candidate profiles, retrieval metadata, evidence,
+  limitations, unknowns, lifecycle and freshness, and the coherent catalog
+  snapshot currently served. Current persistence does not yet provide this
+  complete composed serving source; R2 adds no table or adapter operation.
+- **Offline boundary:** bounded public-source ingestion and refresh collects
+  approved GitHub, npm, and advisory data and publishes profile and retrieval
+  metadata into PostgreSQL. Ingestion is offline-required product
+  infrastructure, not a user-request operation.
+
+The retrieval engine's purity keeps deterministic product logic independent of
+storage and transport. It does not make PostgreSQL optional: the hosted
+composition loads durable shared catalog intelligence around the pure engine.
+
+For target-conditioned fit, the approved reasoning order is:
+
+```text
+capability request
+  -> deterministic normalization
+  -> deterministic hard filtering and retrieval
+  -> small finalist set
+  -> bounded candidate evidence load
+  -> LLM target-fit reasoning
+  -> FitAssessmentResponseV1-shaped output
+  -> deterministic contract, hard-constraint, and evidence validation
+  -> up to three responsible options
+```
+
+The LLM performs neither open-world candidate discovery nor hard-constraint
+authority. It cannot restore a deterministically excluded candidate,
+manufacture missing evidence, or override a contract failure. Unknown or
+insufficient evidence remains a responsible product result.
+
+A user request runs only the hosted request path and reads PostgreSQL directly
+or through a process-local immutable search view. It must not run ingestion,
+provider collection, migrations, Docker, evaluation, artifact generation,
+repository interviews, materialization proof machinery, replay, or authority
+generation. The initial architecture does not require Redis, queues or worker
+fleets, pgvector or another vector database, microservices, Kubernetes, a
+continuous crawler, multi-tenancy or organizations, billing, enterprise
+authentication/governance, or repository interviews in the serving path.
+Future evidence may justify one of those choices; hypothetical usefulness does
+not place it on the active product path.
 
 ## Target user and job to be done
 
@@ -94,32 +154,34 @@ candidate tagged with more than one family does not increase the count.
 
 ## Canonical discovery and adoption workflow
 
-The planned workflow is:
+The approved workflow is:
 
-1. **Frame and normalize the request locally.** The coding agent and developer
-   state the desired capability, success conditions, explicit hard constraints,
-   and which local facts may be shared. A bounded pre-contract input must
-   normalize deterministically or fail closed with exact clarification reasons
-   before the developer reviews and approves an authoritative capability
-   request for transmission.
+1. **Frame the request locally.** The coding agent and developer state the
+   desired capability, success conditions, explicit hard constraints, and which
+   local facts may be shared. The Skill preserves these in a bounded
+   pre-contract input without silently weakening required, preferred, or
+   prohibited intent.
 2. **Fingerprint locally.** A deterministic local scanner observes approved
    manifests, configuration shapes, structure, and dependency facts. It emits
    closed, bounded facts from a controlled, versioned vocabulary and does not
    execute target or dependency code.
-3. **Review and minimize.** The Skill shows or summarizes the fingerprint,
-   removes unnecessary source content and secrets, and obtains approval for
-   any optional evidence that would leave the local environment.
-4. **Discover viable candidates.** Remote services retrieve candidates from a
-   curated catalog and eliminate those that conflict with known hard
-   constraints.
-5. **Assess adoption fit.** Ranking combines repository facts with sourced
-   compatibility, maintenance, security, licensing, and integration evidence.
-   Planned candidate-owned repository interviews may contribute separately
-   from deterministic candidate dossiers; neither is conditioned on the target
-   request before this ranking step.
-6. **Explain the result.** The coding agent receives candidates with evidence
-   references, preserved candidate limitations, tradeoffs, material unknowns,
-   and the reasons for exclusion or ranking. Every reason is traceable to
+3. **Review and minimize.** The Skill shows or summarizes the query and
+   fingerprint, removes unnecessary source content and secrets, and obtains
+   approval for the minimized data that will leave the local environment.
+4. **Normalize and retrieve deterministically.** The hosted application
+   normalizes the bounded request or fails closed with exact clarification
+   reasons. Once the authoritative request is approved, it loads one coherent
+   PostgreSQL catalog snapshot, eliminates known hard conflicts, and retrieves
+   a small finalist set through the deterministic engine.
+5. **Assess adoption fit.** The application loads bounded candidate evidence
+   for those finalists only. A bounded LLM reasons about target fit and emits a
+   `FitAssessmentResponseV1`-shaped result; deterministic code then validates
+   the response, hard constraints, evidence references, and responsible-outcome
+   rules. Repository interviews are not required in this serving path.
+6. **Explain up to three options.** The coding agent receives at most three
+   responsible options with evidence references, preserved candidate
+   limitations, tradeoffs, material unknowns, and reasons for exclusion or
+   relative fit. Every reason is traceable to
    candidate-owned evidence or inference, a disclosed material unknown, or a
    matching hard-constraint conflict. Direct observations, supplied
    declarations, and derived conclusions remain visibly distinct.
@@ -231,7 +293,9 @@ artifacts, audit metadata, and gold. The committed baseline report contains
 only bindings, opaque prediction/score digests, aggregate/per-family numeric
 measurements and denominators, safety counts, control evidence, and its digest.
 It makes no winner, recommendation, quality threshold, production-readiness,
-or product-contract claim. Production retrieval remains unimplemented.
+or product-contract claim. At the Phase 8 checkpoint production retrieval was
+unimplemented; subsequent Phase 9 implemented the pure retrieval package
+without an operational service or target-conditioned fit path.
 
 Milestone 7A adds no product contract root and changes none of the 27 field
 definitions, profile DTOs, schema digests, or accepted offline authority. Its
@@ -436,4 +500,7 @@ The first release will not index all GitHub source, deploy to production
 automatically, support arbitrary languages, execute untrusted OSS during
 ingestion, write autonomously to a default branch, maintain dependencies
 long-term, provide enterprise governance, or become a broad consumer GitHub
-search website.
+search website. It will not pre-build Redis, queues or worker fleets, vector
+search infrastructure, microservices, Kubernetes, continuous crawling,
+multi-tenancy or organization systems, billing, or repository interviews for
+request-time serving without a concrete current blocker and observed evidence.

@@ -1,11 +1,27 @@
 # Definition of done
 
+## First question
+
+**Can the intended user-visible outcome actually be exercised?**
+
+For a product slice, the PR names the supported journey, the exercise
+procedure, and the observed user-visible result. Passing component tests or
+creating supporting infrastructure is not a substitute. For a documentation
+or governance-only change, the PR instead demonstrates that the stated
+reviewable governance outcome is complete and does not claim an executable
+product capability.
+
 ## How to use this gate
 
 A change is done only when every applicable item below has concrete evidence in
 the pull request (PR) and every non-applicable item has a short reason. “Not
 applicable” is not valid when the change introduces the corresponding behavior,
 boundary, data, deployment, or operational risk.
+
+Applicability follows the actual change. An ordinary product slice does not
+inventory tenancy, queues, migrations, SLOs, dashboards, backpressure, or
+similar concerns that it does not introduce or change; one reasoned
+section-level not-applicable statement is sufficient.
 
 The author completes this gate before requesting final review. Reviewers verify
 the evidence rather than accepting a checked box. A green automated check does
@@ -15,6 +31,9 @@ not waive design, contract, security, or operational review.
 
 - [ ] The PR links the governing issue and delivers its stated user or
       engineering outcome.
+- [ ] A product slice identifies the currently executable journey it enables,
+      fixes, or materially improves and records evidence that the intended
+      user-visible outcome can be exercised.
 - [ ] A current version-controlled execution plan exists when required by
       [PLANS.md](../../PLANS.md), and its progress, decisions, deviations, and
       evidence reflect the final change. It is the plan explicitly linked from the
@@ -24,6 +43,9 @@ not waive design, contract, security, or operational review.
       dependencies, or scaffolding.
 - [ ] Current behavior, approved direction, future work, and open decisions are
       distinguished in code, contracts, and documentation.
+- [ ] Infrastructure-only work identifies a concrete current blocker and
+      observed evidence, explains why existing implementation is insufficient,
+      implements the smallest solution, and explicitly defers alternatives.
 - [ ] The change is a coherent, independently reviewable and recoverable slice
       under the [repository workflow](repository-workflow.md).
 
@@ -69,6 +91,9 @@ not waive design, contract, security, or operational review.
 
 ## Tests and quality checks
 
+- [ ] Focused development checks were proportional to changed behavior; full
+      repository verification remains the final regression/review gate where
+      appropriate and was not removed or weakened.
 - [ ] Tests were written before or alongside behavior. A reproducible bug fix
       began with a failing regression test.
 - [ ] Unit tests cover pure behavior, invariants, edge cases, and stable errors.
@@ -93,7 +118,8 @@ not waive design, contract, security, or operational review.
 
 - [ ] The plan and PR identify changed trust boundaries, assets, actors,
       untrusted inputs, misuse cases, and residual risks.
-- [ ] Authentication, object/action authorization, tenant isolation,
+- [ ] Where introduced or changed, authentication, object/action authorization,
+      tenant isolation,
       least-privilege identities, approval gates, webhook verification, safe
       errors, and auditability are implemented and tested where applicable.
 - [ ] Repository and retrieved content remain untrusted data and cannot become
@@ -120,9 +146,9 @@ not waive design, contract, security, or operational review.
 - [ ] Telemetry is allowlisted, redacted, bounded in cardinality, costed, and
       tested to exclude secrets, raw source, prompts, payload bodies, and
       unnecessary personal data.
-- [ ] Provider calls expose timeouts, cancellation, attempts, saturation, and
-      final result. Workers expose queue age, attempt, duration, retry,
-      idempotency, terminal, and dead-letter state.
+- [ ] Changed provider calls expose timeouts, cancellation, attempts,
+      saturation, and final result. Changed workers expose queue age, attempt,
+      duration, retry, idempotency, terminal, and dead-letter state.
 - [ ] Health/readiness, graceful startup/shutdown, dependency degradation,
       dashboards, alerts, SLOs, and runbooks are updated and tested where the
       deployment requires them.
