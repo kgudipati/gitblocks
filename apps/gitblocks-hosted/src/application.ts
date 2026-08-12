@@ -20,6 +20,7 @@ import {
   validateCandidateReferenceAuthority,
   type CandidateReferenceAuthority,
   type DeterministicCandidateProfile,
+  type DeterministicCandidateProfileAuthority,
   type DeterministicProfileFieldId,
   type DeterministicProfileFieldRecord,
 } from '@gitblocks/domain';
@@ -128,7 +129,7 @@ export function createHostedDiscoveryApplication(input: {
   ) {
     return Object.freeze({ ok: false, code: 'invalid-application-authority' });
   }
-  const candidateAuthority = createCandidateReferenceAuthority(profiles.value);
+  const candidateAuthority = createCandidateReferenceAuthority(profiles.domain);
   if (candidateAuthority === null) {
     return Object.freeze({ ok: false, code: 'invalid-application-authority' });
   }
@@ -217,11 +218,10 @@ export function hostedDiscoveryNotReady(): HostedDiscoveryOperationResultV1 {
 }
 
 function createCandidateReferenceAuthority(
-  authority: DeterministicCandidateProfileAuthorityV1,
+  authority: DeterministicCandidateProfileAuthority,
 ): CandidateReferenceAuthority | null {
   const candidates: CandidateReferenceAuthority['candidates'][number][] = [];
-  for (const contractProfile of authority.profiles) {
-    const profile = contractProfile as unknown as DeterministicCandidateProfile;
+  for (const profile of authority.profiles) {
     const family = knownField(profile, 'capability-family');
     const repository = knownField(profile, 'repository-identity');
     const packageMapping = knownField(profile, 'package-identity-mapping');
