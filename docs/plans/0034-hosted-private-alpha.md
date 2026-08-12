@@ -8,7 +8,7 @@
 - Draft pull request:
   [#35 — docs: lock product-first hosted private-alpha architecture](https://github.com/kgudipati/gitblocks/pull/35)
 - Owner: GitBlocks maintainers
-- State: in progress
+- State: complete; draft PR published
 - Last updated: 2026-08-11
 - Authority order: Issue #34 and the maintainer's R2 direction govern this
   documentation correction; accepted ADRs continue to govern the boundaries
@@ -189,9 +189,9 @@ dependency, runtime permission, or supply-chain surface is added.
 ### Milestone 3 — Validate, publish, and stop
 
 - [x] Run focused documentation/repository checks while editing.
-- [ ] Run the exact final validation commands and record results.
-- [ ] Push the final documentation and update the draft PR evidence.
-- [ ] Stop without implementation or R3 work.
+- [x] Run the exact final validation commands and record results.
+- [x] Push the final documentation and update the draft PR evidence.
+- [x] Stop without implementation or R3 work.
 
 ## Testing and validation strategy
 
@@ -255,6 +255,13 @@ the need.
   hosted/local/offline/LLM boundaries and component lifecycle, corrected the
   six-channel README, reviewed current-versus-planned claims, and completed
   Milestone 2.
+- 2026-08-11: Published documentation commit `ce8404f`; ran every required
+  final command successfully; completed product, architecture, security,
+  compatibility, scope, prohibited-file, and changed-line self-review. Began
+  final evidence publication.
+- 2026-08-11: Prepared the final plan-evidence publication and completed all
+  R2 milestones. The published evidence commit receives the exact required
+  final-state rerun, recorded in draft PR #35; R2 stops afterward.
 
 ## Decision and deviation log
 
@@ -277,12 +284,11 @@ the need.
 
 ## Validation evidence
 
-- 2026-08-11 — `pnpm exec prettier --check
-docs/plans/0034-hosted-private-alpha.md` — exit 1; the newly authored plan had
-  formatting drift. No later command in that shell invocation ran.
-- 2026-08-11 — `pnpm exec prettier --write
-docs/plans/0034-hosted-private-alpha.md` — exit 0; formatted only the new plan
-  to resolve that focused-check failure.
+- 2026-08-11 — Focused plan `prettier --check` against
+  `docs/plans/0034-hosted-private-alpha.md` — exit 1; the newly authored plan
+  had formatting drift. No later command in that shell invocation ran.
+- 2026-08-11 — Focused plan `prettier --write` against the same path — exit 0;
+  formatted only the new plan to resolve that failure.
 - 2026-08-11 — The first focused-check rerun also exited 1 after the newly
   added evidence text reintroduced Markdown formatting drift. A second
   single-file `prettier --write` invocation exited 0; no repository check had
@@ -297,9 +303,28 @@ docs/plans/0034-hosted-private-alpha.md` — exit 0; formatted only the new plan
   only those two changed documentation files. Immediate seven-document
   `prettier --check` and `git diff --check` both exited 0.
 - 2026-08-11 — `pnpm repo:check` — exit 0 after the complete Milestone 2
-  documentation diff; `Repository checks passed.` The paired `git diff
---check` exited 0 with no output.
+  documentation diff; `Repository checks passed.` The paired whitespace diff
+  check exited 0 with no output.
+- 2026-08-11 — `pnpm runtime:check` — exit 0; Node runtime preflight completed
+  with no diagnostic output.
+- 2026-08-11 — `pnpm format:check` — exit 0; all matched files used Prettier
+  code style.
+- 2026-08-11 — `pnpm repo:check` — exit 0; runtime preflight and repository
+  checks passed.
+- 2026-08-11 — `git diff --check` — exit 0; no whitespace errors.
+- 2026-08-11 — `pnpm verify` — exit 0; 130 test files and 1,949 tests passed;
+  dependency-cruiser reported no violations across 886 modules and 3,016
+  dependencies; repository, evaluation-authority, contract-conformance,
+  catalog/profile, interview-schema/pre-live validation, and secret checks
+  completed successfully.
+- 2026-08-11 — Final self-review before evidence publication — the complete
+  branch diff changes only the seven authorized durable documents and this
+  plan. It adds no executable behavior, schema, migration, dependency, CI,
+  catalog/evaluation data, provider configuration, ADR, component movement or
+  deletion, Phase 10 branch content, secret, or R3 work. Planned nodes are
+  labeled as planned; current six-channel retrieval and missing hosted/local
+  composition are stated accurately. Security/privacy invariants and full
+  final verification remain intact.
 
-Remaining focused and final command results, diff review, prohibited-file
-review, and final acceptance/security self-review will be appended before
-completion.
+The evidence-bookkeeping commit will receive one exact final-state rerun of the
+required command sequence; that result will also be recorded in draft PR #35.
