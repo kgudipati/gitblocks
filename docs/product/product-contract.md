@@ -7,7 +7,8 @@ alpha. Current main contains pure domain and versioned contracts, a concrete
 PostgreSQL adapter for shared public catalog/evidence state, bounded
 public-source ingestion, a persistence-independent repository-interview
 application and offline operator, deterministic query/profile foundations,
-and the pure six-channel `@gitblocks/retrieval` engine. The evaluation harness
+the pure six-channel `@gitblocks/retrieval` engine, and Recovery R3's immutable
+PostgreSQL serving snapshots plus offline accepted-catalog bootstrap. The evaluation harness
 and repository checks remain development support. Repository interviews,
 artifact generation for finalist assessment, and Phase 8 live materialization
 proof machinery are not part of the serving path. Phase 10 is frozen R&D on a
@@ -15,9 +16,10 @@ separately preserved branch and is not implemented on main.
 
 No GitBlocks Skill, target-repository scanner, hosted Node application, MCP
 surface, deployed PostgreSQL database, target-conditioned fit composition, or
-end-to-end adoption workflow is implemented or available yet. The hosted
-private-alpha boundary below is approved direction; Recovery R2 documents it
-without implementing a runtime or changing an executable contract.
+end-to-end adoption workflow is implemented or available yet. Recovery R3 does
+implement and exercise the first hosted-architecture slice: accepted durable
+PostgreSQL catalog state can reconstruct the existing immutable retrieval
+engine. It does not add a running request server.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -49,12 +51,15 @@ The first private alpha has four explicit boundaries:
   system of record for shared candidate identity and catalog state,
   deterministic candidate profiles, retrieval metadata, evidence,
   limitations, unknowns, lifecycle and freshness, and the coherent catalog
-  snapshot currently served. Current persistence does not yet provide this
-  complete composed serving source; R2 adds no table or adapter operation.
+  snapshot currently served. Current persistence now stores and loads one
+  coherent immutable 150-candidate profile/metadata snapshot through existing
+  contracts; later slices will compose the remaining request application.
 - **Offline boundary:** bounded public-source ingestion and refresh collects
   approved GitHub, npm, and advisory data and publishes profile and retrieval
-  metadata into PostgreSQL. Ingestion is offline-required product
-  infrastructure, not a user-request operation.
+  metadata into PostgreSQL. R3 provides an explicit offline bootstrap from the
+  currently accepted committed authorities. Connecting routine collectors to
+  replacement-snapshot publication remains deferred. Ingestion is
+  offline-required product infrastructure, not a user-request operation.
 
 The retrieval engine's purity keeps deterministic product logic independent of
 storage and transport. It does not make PostgreSQL optional: the hosted

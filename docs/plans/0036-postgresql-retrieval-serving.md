@@ -5,7 +5,7 @@
 - Governing issue: [#36 — Recovery R3: Serve retrieval catalog from PostgreSQL](https://github.com/kgudipati/gitblocks/issues/36)
 - Branch: `feat/36-postgresql-retrieval-serving`
 - Owner: GitBlocks maintainers
-- State: in progress
+- State: complete; draft pull request published
 - Last updated: 2026-08-11
 - Baseline: clean `main`, `HEAD`, `main`, and `origin/main` all at
   `422b759f0f99950a4de5a34cc0570d8396453e88`
@@ -212,8 +212,8 @@ family, work stops and Issue #36 is amended rather than adding that surface.
 offline bootstrap
   committed catalog/profile/metadata
     -> existing parsers and bindings
-    -> catalog identity/family seed
-    -> one read-write PostgreSQL transaction
+    -> idempotent catalog identity/family seed operations
+    -> one atomic serving-publication PostgreSQL transaction
     -> immutable snapshot root + 150 profile + 150 metadata rows
     -> complete-snapshot closure
     -> current selector
@@ -252,7 +252,10 @@ NOREPLICATION NOBYPASSRLS`, owns no object, and receives only schema usage plus
 SELECT on the four serving tables. The migration owner provisions deployment
 logins separately; integration uses a non-owner, non-superuser login with only
 that membership. Public shared catalog data requires no RLS or tenant system.
-No dependency or lockfile change is planned.
+No production dependency or new package version is introduced. The ingestion
+and outward evaluation test workspaces declare the already-pinned Postgres.js
+test dependency, so the lockfile importer metadata changes without adding a
+new registry package.
 
 ## Implementation milestones
 
@@ -296,7 +299,7 @@ Focused development commands, from repository root:
 ```text
 pnpm runtime:check
 pnpm build:product
-pnpm vitest run packages/persistence/test/unit.test.ts packages/ingestion/test/serving-catalog-bootstrap.test.ts tools/repository-checks/test/repository-invariants.test.ts --config vitest.config.ts
+pnpm vitest run packages/persistence/test/unit.test.ts packages/ingestion/test/serving-catalog-bootstrap-cli.test.ts tools/repository-checks/test/repository-invariants.test.ts --config vitest.config.ts
 pnpm db:test
 ```
 
@@ -389,6 +392,29 @@ No down migration or destructive cleanup is added.
 - 2026-08-11: Created Issue #36 and branch
   `feat/36-postgresql-retrieval-serving`; recorded the initial plan and ADR
   before implementation.
+- 2026-08-11: Added migration `0005` with one immutable serving root, two
+  per-candidate JSONB record tables, a singleton current selector, deferred
+  complete-set closure, historical retention, and `gitblocks_serving` SELECT
+  grants. Updated generic migration verification to five migrations and 29
+  public product tables while preserving exact migration-4 historical proof
+  contracts.
+- 2026-08-11: Added `publishServingCatalogSnapshot` and
+  `loadServingCatalogSnapshot`. Publication validates both existing contracts,
+  exact shared catalog/repository identities, immutable digests, and full
+  150/150 closure before selection. Loading is read-only repeatable-read,
+  reconstructs current or historical existing authorities, and fails closed
+  on missing or inconsistent state.
+- 2026-08-11: Added the explicit `pnpm serving:bootstrap` accepted-file
+  operator, with fixed acknowledgement/scope, current migration verification,
+  no provider/model/network capability, bounded output, and exact replay.
+- 2026-08-11: Added real PostgreSQL coverage for schema and role grants,
+  complete/incomplete publication, idempotency, immutable conflicts, history,
+  corrupt profile/metadata denial, accepted 150-record reconstruction, and the
+  outward committed-versus-loaded retrieval equivalence exercise.
+- 2026-08-11: Completed the real fresh-database exercise and all focused and
+  authoritative regression gates. The issue-linked draft pull request contains
+  the exact operator command, role boundary, snapshot/result digests, and
+  representative result IDs.
 
 ## Decision and deviation log
 
@@ -403,10 +429,80 @@ No down migration or destructive cleanup is added.
 - 2026-08-11: Preserved dormant artifact/materialization exact-0004 contracts;
   R3 narrows only the repository filename prohibition and does not claim those
   historical operations run on migration 0005.
+- 2026-08-11: PostgreSQL default collation did not reproduce the contracts'
+  ASCII byte ordering for candidate IDs. Serving candidate reads now specify
+  `COLLATE "C"`; no contract or stored payload changed.
+- 2026-08-11: Revoking public function execution correctly denied the writer's
+  deferred trigger call. The zero-argument trigger function now uses the same
+  narrowly scoped `SECURITY DEFINER` pattern already present in migration 0004,
+  with empty search path; the assertion function remains non-definer and both
+  functions remain revoked from public/runtime roles.
+- 2026-08-11: The real documented pnpm invocation passes a leading `--` to the
+  CLI. Argument parsing now accepts that pnpm separator as well as direct CLI
+  invocation, covered by regression test.
+- 2026-08-11: The repository-interview operator now accepts either its
+  historical exact migration-4 inventory or the additive current migration-5
+  inventory and emits the actual verified latest/count values. Historical
+  receipt validation remains compatible with migration 4.
+- 2026-08-11: The historical materialization helper authenticates migration 5
+  as the only permitted additive suffix while keeping its migration-4 schema,
+  receipt, and execution authority frozen. Repository-interview tests likewise
+  assert migration 4 remains present in its exact fourth position instead of
+  treating it as the repository's global latest migration.
+- 2026-08-11: The historical profile-materialization byte guard now binds the
+  pnpm-generated R3 lockfile, whose only changes declare the already-pinned
+  Postgres.js test dependency in two existing workspace importers.
 
 ## Validation evidence
 
 - 2026-08-11: requested baseline Git commands — exit 0; clean main; all
   revisions exactly `422b759f0f99950a4de5a34cc0570d8396453e88`.
 - 2026-08-11: `pnpm runtime:check` — exit 0; pinned runtime preflight passed.
-- Further implementation evidence will be appended as commands run.
+- 2026-08-11: `pnpm db:verify` initially failed because migration-4
+  repository-interview inventory assertions were current-runtime assumptions;
+  those were made additively migration-5 compatible. A later focused R3 run
+  exposed locale ordering and trigger-function privilege failures; both are
+  recorded above and covered by the final tests.
+- 2026-08-11: `pnpm install --lockfile-only` failed under the repository's
+  intentional frozen-lockfile policy after an importer edit; rerunning with
+  `--no-frozen-lockfile` updated the lockfile through pnpm, and normal
+  `pnpm install` then passed the supply-chain policy.
+- 2026-08-11: focused bootstrap CLI test — 5 passed; type checks and
+  architecture check passed.
+- 2026-08-11: focused R3 PostgreSQL integrations — 2 files, 4 tests passed,
+  including committed-versus-loaded result equality.
+- 2026-08-11: focused migration-compatibility regression after final-suite
+  discovery — 2 files, 114 tests passed.
+- 2026-08-11: `pnpm repo:check` — passed. `pnpm architecture:check` — 892
+  modules and 3,040 dependencies cruised with no violations.
+- 2026-08-11: exact fresh-database exercise — migration 0005; real
+  `pnpm serving:bootstrap` through separate non-owner writer login; load through
+  a separate `gitblocks_serving`-only login; existing contract validation and
+  engine construction; authorization retrieval examined 150 candidates. The
+  snapshot was
+  `serving-6fb3890c53261a7f68ab8b1db20c6d9da9169ecc0f2510dc`, root digest
+  `0f7c5730dfe00de6098316b809ec4d7eef533677960280ddd7695befde7a90e5`,
+  and result digest
+  `e3a45900b53ff6850ccc7a77281d9229f399e97ce41c2ef6132a1045364030cd`.
+  PostgreSQL and committed results were exactly equal; the ten eligible IDs
+  were `auth-casbin-casbin`, `auth-casbin-casbin-js`,
+  `auth-casbin-node-casbin`, `auth-warrant`, `auth-aserto-topaz`,
+  `auth-authzed-spicedb`, `auth-cerbos-cerbos`, `auth-open-policy-agent`,
+  `auth-openfga`, and `auth-ory-keto`.
+- 2026-08-11: `pnpm catalog:validate` — passed with 150 candidates and the
+  accepted catalog digest.
+- 2026-08-11: the first `pnpm ingestion:verify` run rejected the expected
+  lockfile-byte guard after the pnpm-generated importer additions. The guard
+  was rebound to the reviewed lockfile; the complete rerun passed 34 files and
+  338 tests plus ingestion type checking.
+- 2026-08-11: `pnpm contracts:validate` — passed 10 product conformance cases
+  with 40 supplied candidates.
+- 2026-08-11: the first final `pnpm verify:ci` run exposed 14 ordinary-test
+  assertions that still treated migration 4 as globally latest. The additive
+  compatibility changes above made the focused 114-test regression pass. The
+  complete `pnpm verify:ci` rerun passed: 131 ordinary files/1,955 tests;
+  formatting, lint, builds, all type checks, architecture and repository
+  checks, offline evaluation/contract authorities, and secret scan; PostgreSQL
+  18.4 with 5 migrations, 29 public product tables, zero RLS policies, 10
+  database files/66 tests without skips; and registry audit with no known
+  vulnerabilities.

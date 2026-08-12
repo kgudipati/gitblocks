@@ -79,6 +79,10 @@ importers:
       '@gitblocks/persistence':
         specifier: workspace:0.0.0
         version: link:../persistence
+    devDependencies:
+      postgres:
+        specifier: 3.4.9
+        version: 3.4.9
 
   packages/interviews:
     dependencies:
@@ -131,6 +135,9 @@ importers:
       dependency-cruiser:
         specifier: 18.1.0
         version: 18.1.0
+      postgres:
+        specifier: 3.4.9
+        version: 3.4.9
       vitest:
         specifier: 4.1.10
         version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(yaml@2.9.0)

@@ -207,7 +207,7 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
         and class.relkind = 'r'
         and class.relname <> 'schema_migrations'
     `;
-    if (tables.length !== 25 || tables.some((table) => table.rowsecurity)) {
+    if (tables.length !== 29 || tables.some((table) => table.rowsecurity)) {
       throw new Error('PostgreSQL public-table catalog check failed.');
     }
     const roles = await sql<
@@ -230,10 +230,11 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
         rolcreaterole,
         rolreplication
       from pg_catalog.pg_roles
-      where rolname = 'gitblocks_persistence'
+      where rolname in ('gitblocks_persistence', 'gitblocks_serving')
+      order by rolname
     `;
     if (
-      roles.length !== 1 ||
+      roles.length !== 2 ||
       roles.some(
         (role) =>
           role.rolsuper ||
@@ -301,8 +302,8 @@ export async function checkDatabase(config: PersistenceClientConfig): Promise<{
     const triggerCount = triggers[0]?.count;
     if (
       policyCount !== 0 ||
-      functionCount !== 7 ||
-      triggerCount !== 48 ||
+      functionCount !== 9 ||
+      triggerCount !== 56 ||
       indexes.length !== requiredIndexNames.length
     ) {
       throw new Error('PostgreSQL public-schema invariant check failed.');

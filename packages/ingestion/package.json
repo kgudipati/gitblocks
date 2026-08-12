@@ -19,5 +19,8 @@
   "dependencies": {
     "@gitblocks/contracts": "workspace:0.0.0",
     "@gitblocks/persistence": "workspace:0.0.0"
+  },
+  "devDependencies": {
+    "postgres": "3.4.9"
   }
 }

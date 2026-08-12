@@ -129,6 +129,12 @@ four serving tables. It receives no write, migration-history, function-execute,
 DDL, evidence, artifact, interview, or broader catalog-table privilege. A
 deployment owner separately provisions a login and grants only this group.
 
+The deferred closure trigger function uses `SECURITY DEFINER` with an empty
+search path so publication can execute the trigger after function execution is
+revoked from runtime roles. It exposes no callable grant; the underlying
+assertion function remains non-definer, and both functions are revoked from
+public and runtime identities.
+
 The existing `gitblocks_persistence` writer receives only the serving table
 privileges required to publish and select snapshots. No tenant, organization,
 RLS, or generalized authorization system is introduced because all serving

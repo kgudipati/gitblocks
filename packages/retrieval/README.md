@@ -21,5 +21,13 @@ global exact lexical normalization and integer scoring remain deterministic.
 The package has no filesystem, network, database, provider, model, evaluation,
 ranking, target-codebase, clock, random, or process-global dependency.
 
+Recovery R3 preserves that boundary. A startup or controlled-refresh
+composition can call persistence's `loadServingCatalogSnapshot`, combine the
+returned existing profile/metadata contracts with the accepted taxonomy and
+retrieval-expansion authorities, and inject them into
+`createCandidateRetrievalEngineV1`. Requests then normalize and retrieve only
+against the immutable in-process engine; they do not bootstrap, migrate,
+collect, materialize, or query PostgreSQL.
+
 The score is retrieval plausibility only. It is not recommendation, project
 quality, adoption fit, codebase-conditioned fit, or ranking.

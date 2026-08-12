@@ -30,6 +30,11 @@ export {
   type PublicCatalogSeedSummaryV1,
 } from './catalog-seed.ts';
 export {
+  bootstrapServingCatalogV1,
+  type ServingCatalogBootstrapPersistencePortV1,
+  type ServingCatalogBootstrapSummaryV1,
+} from './serving-catalog-bootstrap.ts';
+export {
   chunkRepositoryArtifact,
   verifyRepositoryArtifactChunks,
 } from './artifact-chunking.ts';

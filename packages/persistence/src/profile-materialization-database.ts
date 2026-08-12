@@ -90,6 +90,11 @@ export const PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS = [
       '2cd18e7d92373215b2a540cdf12e32a7e949bfb01866616e8a44ad326e45bca0',
   },
 ] as const;
+const PROFILE_MATERIALIZATION_COMPATIBLE_ADDITIVE_MIGRATION = {
+  version: 5,
+  name: 'retrieval-serving',
+  checksum: '40359c6dbeaf87ee88f8d46b910f851a74c3155243ca9fa67941620eb253e448',
+} as const;
 export const PROFILE_MATERIALIZATION_MIGRATION_INVENTORY_DIGEST = digestJson(
   PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS,
 );
@@ -761,16 +766,28 @@ export function validateProfileMaterializationMigrationInventory(
     readonly checksum: string;
   }[],
 ): void {
+  const additiveMigration = migrations.at(
+    PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS.length,
+  );
   if (
-    migrations.length !== PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS.length ||
-    migrations.some((migration, index) => {
-      const expected = PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS[index];
+    (migrations.length !== PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS.length &&
+      migrations.length !==
+        PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS.length + 1) ||
+    PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS.some((expected, index) => {
+      const migration = migrations[index];
       return (
-        migration.version !== expected?.version ||
+        migration?.version !== expected.version ||
         migration.name !== expected.name ||
         migration.checksum !== expected.checksum
       );
-    })
+    }) ||
+    (additiveMigration !== undefined &&
+      (additiveMigration.version !==
+        PROFILE_MATERIALIZATION_COMPATIBLE_ADDITIVE_MIGRATION.version ||
+        additiveMigration.name !==
+          PROFILE_MATERIALIZATION_COMPATIBLE_ADDITIVE_MIGRATION.name ||
+        additiveMigration.checksum !==
+          PROFILE_MATERIALIZATION_COMPATIBLE_ADDITIVE_MIGRATION.checksum))
   ) {
     throw new Error('profile-materialization.migration-drift');
   }

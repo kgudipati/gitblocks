@@ -74,6 +74,11 @@ const MIGRATIONS = Object.freeze([
     'repository-interviews',
     '2cd18e7d92373215b2a540cdf12e32a7e949bfb01866616e8a44ad326e45bca0',
   ],
+  [
+    '5',
+    'retrieval-serving',
+    '40359c6dbeaf87ee88f8d46b910f851a74c3155243ca9fa67941620eb253e448',
+  ],
 ] as const);
 const FORCE_REASONS = new Set([
   'calibration',
@@ -972,7 +977,9 @@ function buildReceipt(args: {
     },
     database: {
       postgresqlVersion: args.migration.postgresqlVersion,
-      latestMigrationVersion: 4,
+      latestMigrationVersion:
+        args.migration.migrations.at(-1)?.version ??
+        args.migration.migrations.length,
       migrationInventoryDigest: migrationDigest(args.migration),
       migrationCount: args.migration.migrations.length,
     },
@@ -1038,11 +1045,11 @@ function buildReceipt(args: {
 function validateMigrationAuthority(value: MigrationVerification): void {
   if (
     !/^18[.]4(?:[.\s]|$)/u.test(value.postgresqlVersion) ||
-    value.migrations.length !== 4
+    (value.migrations.length !== 4 && value.migrations.length !== 5)
   ) {
     throw new Error('Migration authority is invalid.');
   }
-  for (let index = 0; index < MIGRATIONS.length; index += 1) {
+  for (let index = 0; index < value.migrations.length; index += 1) {
     const expected = MIGRATIONS[index];
     const actual = value.migrations[index];
     if (

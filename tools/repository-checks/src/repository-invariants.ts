@@ -881,7 +881,9 @@ function validateProfileMaterializationBoundary(
       path.startsWith(
         'verification/retrieval-v1/.profile-materialization-runs/',
       ) ||
-      /^packages\/persistence\/migrations\/0005/iu.test(path)
+      /^packages\/persistence\/migrations\/0005_profile_materialization(?:\.|_)/iu.test(
+        path,
+      )
     ) {
       diagnostics.push(
         diagnostic(

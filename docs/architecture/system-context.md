@@ -11,6 +11,13 @@ the persistence-independent repository-interview application, and the pure
 deterministic, bounded, evaluation-independent, and composed without owning
 network, database, model, provider, transport, or deployment effects.
 
+Recovery R3 implements the first executable hosted-architecture slice around
+that pure engine: migration `0005`, immutable coherent serving snapshots, an
+offline accepted-catalog bootstrap, a SELECT-only serving identity, and one
+concrete contract-validating PostgreSQL loader. The complete
+PostgreSQL-to-retrieval journey is executable; no hosted request process exists
+yet.
+
 Recovery R2 classifies the current implementation as follows without deleting
 or moving anything:
 
@@ -38,7 +45,8 @@ ingestion is offline-required. The pure retrieval engine is composed around
 durable data; its purity does not make persistence optional. No Skill,
 target-repository scanner, hosted application, MCP surface, deployed database,
 target-conditioned fit path, or end-to-end private-alpha journey is implemented
-on main yet.
+on main yet. The durable accepted-catalog-to-retrieval sub-journey is now
+implemented on main.
 
 The evaluation harness owns immutable historical `retrieval-v1`, independently
 reviewed governing `retrieval-v2`, projection validation, scoring fixtures, and
@@ -73,6 +81,9 @@ ranking.
 Phase 9 pure retrieval package, transport-neutral contract, lane, provenance,
 evaluation, and acceptance boundaries. It does not authorize Phase 10 ranking
 or turn the pure package into an operational service.
+[ADR 0011](decisions/0011-postgresql-retrieval-serving.md) owns the R3 serving
+snapshot, offline publication, read-only role, loader, and forward-recovery
+decisions. It does not authorize a hosted transport or request server.
 
 ## Context and ownership
 
@@ -216,7 +227,7 @@ flowchart LR
 | Component                                                       | Responsibility or approved direction                                                                                                                                                                                                 | Must not own                                                                                                                                                                             |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Product domain and contract kernel                              | Define pure domain invariants, deterministic query/profile/constraint semantics, versioned DTO parsing, and deterministic JSON Schema exports                                                                                        | Transport, storage, provider, evaluation-gold, or framework behavior                                                                                                                     |
-| PostgreSQL persistence adapter                                  | Currently persist shared public candidate identity, evidence, limitations, unknowns, lifecycle, dossiers, artifacts, and interview history; remain the concrete adapter composed by the hosted and offline roots                     | Application use cases or ports, provider behavior, review policy, ingestion, retrieval, model reasoning, transport, implicit migration, or deployment                                    |
+| PostgreSQL persistence adapter                                  | Persist shared public candidate/evidence history plus immutable coherent profile/metadata serving snapshots; publish through the writer and reconstruct current or historical authorities through the concrete read-only loader      | Application use cases or ports, provider behavior, review policy, ingestion, retrieval, model reasoning, transport, implicit migration, or deployment                                    |
 | Hosted PostgreSQL database                                      | Serve one coherent shared catalog snapshot containing the identity, deterministic profiles, retrieval metadata, evidence, limitations, unknowns, lifecycle, and freshness required by the active product path                        | Unnecessary target source, secrets, private organization data, evaluation gold, or model conclusions presented as evidence                                                               |
 | Coding-agent host                                               | User interaction, permission prompts, approved local edits, installation, project validation, and debugging                                                                                                                          | Silent expansion of GitBlocks permissions or automatic candidate selection                                                                                                               |
 | GitBlocks Skill                                                 | Capability/constraint capture, scanner orchestration, data preview and minimization, evidence-backed option presentation, and adoption-plan structure                                                                                | Proprietary ranking internals, hidden external writes, or direct production deployment                                                                                                   |

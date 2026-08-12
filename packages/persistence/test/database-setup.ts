@@ -44,6 +44,28 @@ export async function setup(): Promise<void> {
         end if;
       end
       $gitblocks_test_role$;
+
+      do $gitblocks_serving_test_role$
+      begin
+        if not exists (
+          select 1
+          from pg_catalog.pg_roles
+          where rolname = 'gitblocks_serving_test'
+        ) then
+          create role gitblocks_serving_test
+            login
+            password 'serving-test-only'
+            nosuperuser
+            nocreatedb
+            nocreaterole
+            noreplication
+            nobypassrls
+            in role gitblocks_serving;
+        else
+          grant gitblocks_serving to gitblocks_serving_test;
+        end if;
+      end
+      $gitblocks_serving_test_role$;
     `);
   } finally {
     await sql.end({ timeout: 5 });
