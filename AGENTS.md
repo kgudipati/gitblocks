@@ -16,6 +16,30 @@ the active issue and execution plan.
 - Keep the task within its stated scope and non-goals. Prefer the smallest
   coherent change that achieves the required outcome.
 
+## Product-first development
+
+- Every substantial implementation must enable, fix, or materially improve a
+  currently executable user journey. The first Definition-of-Done question for
+  a product slice is: “Can the intended user-visible outcome actually be
+  exercised?”
+- Infrastructure-only work requires a concrete current blocker and observed
+  evidence. Before adding a long-lived service, database or table, worker,
+  queue, provider, authority or schema family, cache or index, evaluation
+  corpus, deployment component, generalized abstraction, or production
+  dependency, record the current blocker, the observed evidence, why the
+  existing implementation is insufficient, the smallest solution, and the
+  alternatives explicitly deferred.
+- Unknown or unresolved is a legitimate product state. Missing information
+  alone does not authorize a new collection, materialization, model, provider,
+  persistence, or authority subsystem.
+- Keep implementation validation proportional to changed behavior. Run
+  focused checks while developing, then use full repository verification as a
+  final regression and review gate where appropriate. This proportionality
+  does not remove or weaken the authoritative final checks below.
+- Keep planning proportional to actual risk. An ordinary product slice does
+  not need tenancy, SLO, dashboard, backpressure, migration, or similar design
+  unless the slice introduces or changes that concern.
+
 ## Architecture and data
 
 - Follow the [development standards](docs/engineering/development-standards.md).

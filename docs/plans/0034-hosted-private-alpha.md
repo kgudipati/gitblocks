@@ -5,7 +5,8 @@
 - Governing issue:
   [#34 — Recovery R2: Lock the product-first hosted private-alpha architecture](https://github.com/kgudipati/gitblocks/issues/34)
 - Branch: `docs/34-hosted-private-alpha`
-- Draft pull request: pending initial-plan publication
+- Draft pull request:
+  [#35 — docs: lock product-first hosted private-alpha architecture](https://github.com/kgudipati/gitblocks/pull/35)
 - Owner: GitBlocks maintainers
 - State: in progress
 - Last updated: 2026-08-11
@@ -172,22 +173,22 @@ dependency, runtime permission, or supply-chain surface is added.
 - [x] Verify clean main and exact baseline refs.
 - [x] Create Issue #34 and `docs/34-hosted-private-alpha`.
 - [x] Add the initial issue-linked plan.
-- [ ] Publish the initial plan commit and draft PR.
-- [ ] Close PR #33 without merge and close Issue #32 as superseded/not planned,
+- [x] Publish the initial plan commit and draft PR.
+- [x] Close PR #33 without merge and close Issue #32 as superseded/not planned,
       preserving the Phase 10 branch and commits.
 
 ### Milestone 2 — Correct the durable documentation
 
-- [ ] Update the approved architecture and LLM/request-time boundaries.
-- [ ] Update product-first planning, implementation, validation, and done rules.
-- [ ] Record component lifecycle and frozen R&D treatment without deletion.
-- [ ] Correct the six-channel retrieval README.
-- [ ] Review every changed line for current-versus-planned accuracy and
+- [x] Update the approved architecture and LLM/request-time boundaries.
+- [x] Update product-first planning, implementation, validation, and done rules.
+- [x] Record component lifecycle and frozen R&D treatment without deletion.
+- [x] Correct the six-channel retrieval README.
+- [x] Review every changed line for current-versus-planned accuracy and
       cross-document consistency.
 
 ### Milestone 3 — Validate, publish, and stop
 
-- [ ] Run focused documentation/repository checks while editing.
+- [x] Run focused documentation/repository checks while editing.
 - [ ] Run the exact final validation commands and record results.
 - [ ] Push the final documentation and update the draft PR evidence.
 - [ ] Stop without implementation or R3 work.
@@ -246,6 +247,14 @@ the need.
   at `a6e03ef20a8cef2a39db8e66b91612245378f9db`; read governing policies,
   applicable ADRs, current documentation, retrieval bindings, Issue #32, and
   PR #33; created Issue #34 and the issue-linked branch; began Milestone 1.
+- 2026-08-11: Published initial plan commit `6e8fbf4`, opened draft PR #35,
+  added supersession notes, closed PR #33 without merge, and closed Issue #32
+  as not planned. Verified the preserved remote Phase 10 branch still resolved
+  to `15270c602872fc9d39736a1350487ada574fb5ff`.
+- 2026-08-11: Updated the seven authorized durable documents, reconciled the
+  hosted/local/offline/LLM boundaries and component lifecycle, corrected the
+  six-channel README, reviewed current-versus-planned claims, and completed
+  Milestone 2.
 
 ## Decision and deviation log
 
@@ -256,6 +265,14 @@ the need.
 - 2026-08-11 — A concise plan is required because the durable correction spans
   multiple governing documents and formal GitHub supersession. Owner:
   GitBlocks maintainers.
+- 2026-08-11 — The initial hosted topology is one Node deployable plus one
+  serving-required PostgreSQL database. Offline ingestion publishes the shared
+  catalog state; request-time composition reads it around the pure retrieval
+  engine. Speculative distributed infrastructure remains deferred. Owner:
+  GitBlocks maintainers.
+- 2026-08-11 — Phase 10 is frozen R&D, not discarded work. Its branch and
+  commits remain intact, and selective reuse requires dogfooding evidence.
+  Owner: GitBlocks maintainers.
 - Deviations: none.
 
 ## Validation evidence
@@ -271,8 +288,17 @@ docs/plans/0034-hosted-private-alpha.md` — exit 0; formatted only the new plan
   single-file `prettier --write` invocation exited 0; no repository check had
   run yet.
 - 2026-08-11 — Focused initial-plan rerun: single-file `prettier --check` exit
-  0; `pnpm repo:check` exit 0 with `Repository checks passed`; `git diff
---check` exit 0 with no output.
+  0; `pnpm repo:check` exit 0 with `Repository checks passed`; whitespace
+  diff check exit 0 with no output.
+- 2026-08-11 — Focused seven-document `prettier --check` — exit 1;
+  `docs/architecture/system-context.md` and
+  `docs/engineering/testing-strategy.md` had formatting drift after editing.
+- 2026-08-11 — Focused seven-document `prettier --write` — exit 0; formatted
+  only those two changed documentation files. Immediate seven-document
+  `prettier --check` and `git diff --check` both exited 0.
+- 2026-08-11 — `pnpm repo:check` — exit 0 after the complete Milestone 2
+  documentation diff; `Repository checks passed.` The paired `git diff
+--check` exited 0 with no output.
 
 Remaining focused and final command results, diff review, prohibited-file
 review, and final acceptance/security self-review will be appended before
