@@ -154,6 +154,11 @@ describe('persistence package boundary', () => {
         name: 'repository-interviews',
         fileName: '0004_repository_interviews.sql',
       },
+      {
+        version: 5,
+        name: 'retrieval-serving',
+        fileName: '0005_retrieval_serving.sql',
+      },
     ]);
   });
 

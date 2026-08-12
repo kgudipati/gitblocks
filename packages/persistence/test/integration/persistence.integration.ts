@@ -82,14 +82,14 @@ describe(
         expect(concurrent).toHaveLength(2);
         expect(repeated).toEqual(verified);
         expect(verified.postgresqlVersion).toMatch(/^18\.4\b/u);
-        expect(verified.migrations).toHaveLength(4);
+        expect(verified.migrations).toHaveLength(5);
         expect(firstOrThrow(verified.migrations)).toMatchObject({
           version: 1,
           name: 'evidence-persistence',
         });
         expect(verified.migrations.at(-1)).toMatchObject({
-          version: 4,
-          name: 'repository-interviews',
+          version: 5,
+          name: 'retrieval-serving',
         });
         expect(
           verified.migrations.every((migration) =>
@@ -103,7 +103,7 @@ describe(
         select pg_catalog.count(*)::integer as count
         from gitblocks.schema_migrations
       `;
-        expect(history[0]?.count).toBe(4);
+        expect(history[0]?.count).toBe(5);
 
         const runtime = createPersistenceClient(RUNTIME_CONFIG);
         try {
@@ -180,7 +180,7 @@ describe(
       expect(lazySchemas[0]?.count).toBe(0);
     });
 
-    it('creates only the public schema and one least-privilege non-owner role', async () => {
+    it('creates only the public schema and the two least-privilege non-owner groups', async () => {
       const tables = await ownerSql<
         readonly {
           readonly tablename: string;
@@ -198,7 +198,7 @@ describe(
         and class.relname <> 'schema_migrations'
       order by class.relname
     `;
-      expect(tables).toHaveLength(25);
+      expect(tables).toHaveLength(29);
       expect(tables.every((table) => !table.rowsecurity)).toBe(true);
       expect(tables.map((table) => table.tablename)).toEqual(
         expect.arrayContaining([
@@ -206,6 +206,10 @@ describe(
           'repository_artifact_chunks',
           'repository_artifact_sets',
           'repository_artifact_set_entries',
+          'serving_catalog_snapshots',
+          'serving_candidate_profile_records',
+          'serving_candidate_retrieval_metadata_records',
+          'serving_catalog_current_snapshot',
         ]),
       );
       expect(tables.map((table) => table.tablename)).not.toEqual(
@@ -244,6 +248,40 @@ describe(
           rolname: 'gitblocks_persistence_test',
           rolsuper: false,
           rolbypassrls: false,
+        },
+      ]);
+
+      const servingGroup = await ownerSql<
+        readonly {
+          readonly rolname: string;
+          readonly rolsuper: boolean;
+          readonly rolbypassrls: boolean;
+          readonly rolcanlogin: boolean;
+          readonly rolcreatedb: boolean;
+          readonly rolcreaterole: boolean;
+          readonly rolreplication: boolean;
+        }[]
+      >`
+      select
+        rolname,
+        rolsuper,
+        rolbypassrls,
+        rolcanlogin,
+        rolcreatedb,
+        rolcreaterole,
+        rolreplication
+      from pg_catalog.pg_roles
+      where rolname = 'gitblocks_serving'
+    `;
+      expect(servingGroup).toEqual([
+        {
+          rolname: 'gitblocks_serving',
+          rolsuper: false,
+          rolbypassrls: false,
+          rolcanlogin: false,
+          rolcreatedb: false,
+          rolcreaterole: false,
+          rolreplication: false,
         },
       ]);
 

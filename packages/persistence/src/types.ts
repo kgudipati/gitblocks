@@ -1,5 +1,7 @@
 import type {
   CandidateDossierV1,
+  CandidateRetrievalMetadataAuthorityV1,
+  DeterministicCandidateProfileAuthorityV1,
   EvidenceObservationV1,
   ModelExecutionV1,
   RepositoryArtifactChunkV1,
@@ -108,6 +110,46 @@ export interface MigrationRecord {
 export interface MigrationVerification {
   readonly postgresqlVersion: string;
   readonly migrations: readonly MigrationRecord[];
+}
+
+export interface PublishServingCatalogSnapshotCommand {
+  readonly candidateProfileAuthority: DeterministicCandidateProfileAuthorityV1;
+  readonly candidateRetrievalMetadataAuthority: CandidateRetrievalMetadataAuthorityV1;
+  readonly publishedAt: string;
+}
+
+export interface PublishServingCatalogSnapshotResult {
+  readonly status: 'created' | 'idempotent';
+  readonly snapshotId: string;
+  readonly snapshotRecordDigest: string;
+  readonly publishedAt: string;
+  readonly candidateCount: 150;
+}
+
+export type LoadServingCatalogSnapshotCommand =
+  | { readonly selection: 'current' }
+  | { readonly selection: 'snapshot-id'; readonly snapshotId: string };
+
+export type ServingCandidateRetrievalMetadataBinding = Pick<
+  CandidateRetrievalMetadataAuthorityV1,
+  | 'authorityVersion'
+  | 'catalogVersion'
+  | 'catalogDigest'
+  | 'providerPolicyVersion'
+  | 'providerPolicyDigest'
+  | 'sourceProviderPolicyVersion'
+  | 'sourceProviderPolicyDigest'
+  | 'sourceOperation'
+>;
+
+export interface LoadedServingCatalogSnapshot {
+  readonly snapshotId: string;
+  readonly snapshotRecordDigest: string;
+  readonly publishedAt: string;
+  readonly candidateCount: 150;
+  readonly candidateProfileAuthority: DeterministicCandidateProfileAuthorityV1;
+  readonly candidateRetrievalMetadataAuthority: CandidateRetrievalMetadataAuthorityV1;
+  readonly expectedCandidateRetrievalMetadataAuthorityBinding: ServingCandidateRetrievalMetadataBinding;
 }
 
 export interface RepositoryArtifactPublication {

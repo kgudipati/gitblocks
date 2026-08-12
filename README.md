@@ -66,6 +66,13 @@ query and candidate authorities and produces separate bounded eligible and
 evidence-needed candidate lanes with provenance. Full tenant and organization
 persistence is intentionally deferred.
 
+Recovery R3 adds the first executable hosted-architecture slice without a
+server: the accepted 150-candidate profile and retrieval-metadata authorities
+can be bootstrapped into one immutable coherent PostgreSQL snapshot, loaded
+through a SELECT-only serving identity, validated through existing contracts,
+and injected into the existing retrieval engine with equivalent deterministic
+results.
+
 The repository also contains a curated 150-repository public catalog, plus
 exact immutable public repository artifacts and lossless line-addressable
 chunks for all 150 candidates. Phase 7 now includes repository-interview
@@ -175,7 +182,7 @@ authorized by Phase 9 completion.
 | `docs/plans/`                            | Active and historical version-controlled execution plans                         |
 | `packages/domain/`                       | Pure product vocabulary, constructors, canonicalization, and invariants          |
 | `packages/contracts/`                    | Versioned DTO schemas, safe parsers, domain mapping, and schema exports          |
-| `packages/persistence/`                  | Injected PostgreSQL adapter, checked public-evidence migrations, and DB tests    |
+| `packages/persistence/`                  | Injected PostgreSQL adapter, coherent retrieval-serving snapshots, and DB tests  |
 | `packages/ingestion/`                    | Bounded public providers, deterministic profiles/refresh, operator, and tests    |
 | `packages/interviews/`                   | Interview schema, prompt/mapping, application, and provider core                 |
 | `packages/retrieval/`                    | Pure bounded deterministic candidate retrieval with separate result lanes        |
@@ -251,6 +258,7 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm db:verify`                               | Provision pinned PostgreSQL and run all database checks             |
 | `pnpm catalog:validate`                        | Validate catalog bounds, balance, identity, paths, and digest       |
 | `pnpm catalog:seed -- --catalog …`             | Seed exact catalog provenance into an acknowledged ephemeral DB     |
+| `pnpm serving:bootstrap -- …`                  | Publish accepted profile/metadata serving state into PostgreSQL     |
 | `pnpm artifacts:validate`                      | Validate public artifact selections, coverage, and digest           |
 | `pnpm artifacts:test`                          | Run deterministic artifact manifest, collector, and receipt tests   |
 | `pnpm artifacts:verify`                        | Run complete offline artifact verification                          |

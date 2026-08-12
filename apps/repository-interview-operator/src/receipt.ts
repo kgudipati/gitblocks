@@ -647,12 +647,14 @@ function validateAuthoritySection(
 function validateDatabaseSection(
   value: Readonly<Record<string, unknown>>,
 ): boolean {
+  const latestMigrationVersion = value['latestMigrationVersion'];
+  const migrationCount = value['migrationCount'];
   return (
     typeof value['postgresqlVersion'] === 'string' &&
     /^18[.]4(?:[.\s]|$)/u.test(value['postgresqlVersion']) &&
-    value['latestMigrationVersion'] === 4 &&
+    (latestMigrationVersion === 4 || latestMigrationVersion === 5) &&
     DIGEST.test(String(value['migrationInventoryDigest'])) &&
-    value['migrationCount'] === 4
+    migrationCount === latestMigrationVersion
   );
 }
 

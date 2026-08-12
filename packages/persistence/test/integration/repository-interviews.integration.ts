@@ -54,15 +54,15 @@ describe(
       await ownerSql.end({ timeout: 5 });
     });
 
-    it('applies migration 0004 with exactly eight append-only product tables', async () => {
+    it('preserves the migration 0004 repository-interview tables under migration 0005', async () => {
       const owner = createPersistenceClient(OWNER_CONFIG);
       try {
         const verification = await verifyMigrations(owner);
         expect(verification.postgresqlVersion).toMatch(/^18\.4\b/u);
-        expect(verification.migrations).toHaveLength(4);
+        expect(verification.migrations).toHaveLength(5);
         expect(verification.migrations.at(-1)).toMatchObject({
-          version: 4,
-          name: 'repository-interviews',
+          version: 5,
+          name: 'retrieval-serving',
         });
       } finally {
         await closePersistenceClient(owner);
@@ -85,7 +85,7 @@ describe(
           and class.relname <> 'schema_migrations'
         order by class.relname
       `;
-      expect(tables).toHaveLength(25);
+      expect(tables).toHaveLength(29);
       expect(tables.every((table) => !table.row_security)).toBe(true);
       expect(tables.map((table) => table.table_name)).toEqual(
         expect.arrayContaining([

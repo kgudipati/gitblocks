@@ -1198,7 +1198,7 @@ describe('validateRepositoryInvariants', () => {
     );
   });
 
-  it('rejects Milestone 7B evidence, source authorities, and migration 0005', () => {
+  it('rejects Milestone 7B evidence, source authorities, and its profile migration', () => {
     const repository = validRepository();
     for (const path of [
       'verification/retrieval-v1/profile-materialization-receipt.json',
@@ -1216,5 +1216,20 @@ describe('validateRepositoryInvariants', () => {
           'repository.profile-materialization-prohibited-live-artifact',
       ),
     ).toHaveLength(3);
+  });
+
+  it('does not misclassify the R3 retrieval-serving migration as Phase 8 evidence', () => {
+    const repository = validRepository();
+    const path = 'packages/persistence/migrations/0005_retrieval_serving.sql';
+    repository.trackedPaths.add(path);
+    repository.textFiles.set(path, 'select 1;');
+
+    expect(
+      validateRepositoryInvariants(repository).filter(
+        (entry) =>
+          entry.code ===
+          'repository.profile-materialization-prohibited-live-artifact',
+      ),
+    ).toEqual([]);
   });
 });

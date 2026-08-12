@@ -261,6 +261,33 @@ no success summary, stops immediately, and the ephemeral database is
 ineligible and must be discarded. The correction exercised only the prescribed
 PostgreSQL test harness; no real preparation database or seed was run.
 
+## Offline retrieval-serving bootstrap
+
+Recovery R3 adds `bootstrapServingCatalogV1` and the explicit
+`pnpm serving:bootstrap` command for the current private-alpha serving source.
+It reads the accepted public catalog, profile authority, and retrieval-metadata
+authority through their existing parsers, verifies their exact shared binding,
+seeds the existing candidate identity/family rows, and publishes/selects one
+complete immutable snapshot only after all 300 candidate records close.
+
+The command requires migration `0005` and the discrete
+`GITBLOCKS_SERVING_BOOTSTRAP_DB_{HOST,PORT,DATABASE,USERNAME,PASSWORD,SSL}`
+settings. It does not apply migrations or expose GitHub, npm, advisory, model,
+artifact, interview, profile-generation, metadata-generation, or network
+collection capability. Its only success output is a bounded content-free JSON
+summary.
+
+```shell
+pnpm serving:bootstrap -- \
+  --catalog catalog/public-v1/manifest.json \
+  --profiles catalog/public-v1/candidate-profile-authority.json \
+  --metadata catalog/public-v1/candidate-retrieval-metadata-authority.json \
+  --published-at 2026-08-11T18:00:00.000Z
+```
+
+This is accepted-data bootstrap, not routine refresh. Connecting existing live
+collectors to replacement serving snapshots is deferred.
+
 The artifact operator consumes the closed public catalog:
 
 ```shell

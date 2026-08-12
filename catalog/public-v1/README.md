@@ -160,6 +160,14 @@ is not populated from this soft overlay. Run
 `pnpm retrieval:metadata:validate` to recheck the committed snapshot without
 network, credential, or write effects.
 
+Recovery R3 treats this accepted metadata authority and the accepted profile
+authority as the exact offline inputs to `pnpm serving:bootstrap`. Migration
+`0005` stores their headers plus one immutable row per candidate, selects only
+a complete coherent 150-candidate snapshot, and reconstructs both through the
+same contracts for retrieval startup. The bootstrap performs no collection or
+regeneration; routine refresh publication and catalogs larger than 150 remain
+separate versioned work.
+
 ## Proposed Phase 6 artifact selections
 
 `artifact-selections.json` is the review-focused curator source for additional

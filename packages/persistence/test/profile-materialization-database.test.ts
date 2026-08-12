@@ -22,6 +22,15 @@ const RUN_ID = 'm7-abcdefghijklmnopqrstuvwxyz';
 const REQUIRED_TMPFS_OPTIONS = 'rw,noexec,nosuid,nodev,size=1073741824';
 const SECURE_TMPFS_MOUNTINFO =
   '41 30 0:39 / /var/lib/postgresql rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=1048576k,inode64';
+const CURRENT_COMPATIBLE_MIGRATIONS = [
+  ...PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS,
+  {
+    version: 5,
+    name: 'retrieval-serving',
+    checksum:
+      '40359c6dbeaf87ee88f8d46b910f851a74c3155243ca9fa67941620eb253e448',
+  },
+] as const;
 
 describe('profile-materialization zero-state host boundary', () => {
   it('retries one transient host connection failure and then proves zero state', async () => {
@@ -816,6 +825,21 @@ describe('profile-materialization fresh database planning', () => {
         ),
       );
     }).toThrow('profile-materialization.migration-drift');
+    expect(() => {
+      validateProfileMaterializationMigrationInventory([
+        ...CURRENT_COMPATIBLE_MIGRATIONS,
+      ]);
+    }).not.toThrow();
+    expect(() => {
+      validateProfileMaterializationMigrationInventory([
+        ...PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS,
+        {
+          version: 5,
+          name: 'retrieval-serving',
+          checksum: '0'.repeat(64),
+        },
+      ]);
+    }).toThrow('profile-materialization.migration-drift');
   });
 
   it.each([
@@ -1531,7 +1555,7 @@ function prepareDatabaseHarness(
         return [{ server_version: '18.4', server_version_num: 180_004 }];
       }
       if (text.includes('from gitblocks.schema_migrations')) {
-        return PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS.map((migration) => ({
+        return CURRENT_COMPATIBLE_MIGRATIONS.map((migration) => ({
           ...migration,
         }));
       }

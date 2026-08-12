@@ -6,7 +6,23 @@ material unknowns, lifecycle events, and exact candidate-dossier snapshots.
 It also persists exact curator-approved repository artifacts, lossless chunks,
 normalized closed artifact-set entries, deterministic repository-interview
 requests, model-execution history, and successful repository interviews with
-their normalized semantic members.
+their normalized semantic members. Migration `0005` additionally stores one
+coherent immutable retrieval-serving root, 150 per-candidate profile payloads,
+150 per-candidate retrieval-metadata payloads, and a separate current selector.
+
+`publishServingCatalogSnapshot` validates the existing profile and metadata
+contracts, their shared catalog/repository identities, all immutable record
+digests, and exact database candidate provenance before selecting a complete
+snapshot. Exact replay is idempotent; immutable identity conflicts fail closed.
+`loadServingCatalogSnapshot` loads the current or named historical snapshot in
+a repeatable-read, read-only transaction, reconstructs both existing authority
+contracts, and returns the metadata binding required by
+`createCandidateRetrievalEngineV1(...)`. Persistence does not import retrieval.
+
+The `gitblocks_serving` group is `NOLOGIN`, non-superuser, and receives only
+schema usage plus SELECT on the four serving tables. It has no write, DDL,
+migration-history, broader catalog/evidence, or direct function-execution
+privilege. A deployment owner creates a login and grants only that group.
 
 The adapter exposes explicit client creation/closure, explicit checked forward
 migrations, public catalog writes, exact historical snapshot loading, and one
@@ -75,6 +91,10 @@ owner and runtime connections; the non-owner runtime role receives only
 `SELECT` and `INSERT`, and public receives no schema, table, or function
 privilege. Use `pnpm db:verify` for the exact PostgreSQL 18.4 no-volume
 verification path.
+Migration `0005` is additive: the full schema has 29 public product tables and
+five checked migrations. Published serving roots and candidate rows reject
+update, delete, and truncate; the mutable singleton selector can point only to
+a complete root. See ADR 0011 and Plan 0036 for rollout and forward recovery.
 Milestone 6 and migration 0004 are accepted and byte-frozen. Evaluation audit
 records and gate reports remain outside this adapter and outside production
 tables.

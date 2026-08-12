@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "dependency-cruiser": "18.1.0",
+    "postgres": "3.4.9",
     "vitest": "4.1.10"
   }
 }

@@ -47,6 +47,10 @@ export {
   publishRepositoryInterviewExchange,
 } from './repository-interview-operations.ts';
 export {
+  loadServingCatalogSnapshot,
+  publishServingCatalogSnapshot,
+} from './serving-catalog-operations.ts';
+export {
   appendCandidateLimitation,
   appendCandidateUnknown,
   appendEvidenceObservation,
@@ -76,11 +80,15 @@ export type {
   LoadRepositoryArtifactCommand,
   LoadRepositoryArtifactSetCommand,
   LoadRepositoryInterviewExchangeCommand,
+  LoadedServingCatalogSnapshot,
+  LoadServingCatalogSnapshotCommand,
   OperationControl,
   PersistenceClientConfig,
   PutCatalogCandidateCommand,
   PublishRepositoryArtifactSetCommand,
   PublishRepositoryArtifactSetResult,
+  PublishServingCatalogSnapshotCommand,
+  PublishServingCatalogSnapshotResult,
   PublishRepositoryInterviewExchangeCommand,
   PublishRepositoryInterviewExchangeResult,
   RecordEvidenceInvalidationCommand,
@@ -90,4 +98,5 @@ export type {
   RepositoryArtifactPublication,
   RepositoryInterviewReusableExchange,
   RepositoryInterviewStoredExchange,
+  ServingCandidateRetrievalMetadataBinding,
 } from './types.ts';
