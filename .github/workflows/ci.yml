@@ -210,6 +210,7 @@ jobs:
           packages/retrieval/test
           packages/persistence/test
           packages/ingestion/test
+          apps/gitblocks-hosted/test
           --config vitest.config.ts
 
       - name: Prove core product tests leave the worktree unchanged

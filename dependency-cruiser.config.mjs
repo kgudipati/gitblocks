@@ -139,6 +139,19 @@ const configuration = {
       },
     },
     {
+      name: 'hosted-composition-root-dependencies',
+      severity: 'error',
+      comment:
+        'The hosted discovery application composes only contracts, domain authority, persistence, retrieval, its own source, and approved Node APIs.',
+      from: {
+        path: '^apps/gitblocks-hosted/(?:src|scripts)/',
+      },
+      to: {
+        pathNot:
+          '^(?:apps/gitblocks-hosted/|packages/(?:contracts|domain|persistence|retrieval)/|node:|crypto$|fs/promises$|path$|url$)|node_modules/@gitblocks/(?:contracts|domain|persistence|retrieval)(?:/|$)',
+      },
+    },
+    {
       name: 'operator-composition-root-dependencies',
       severity: 'error',
       comment:
@@ -168,7 +181,7 @@ const configuration = {
       severity: 'error',
       comment: 'Product workspaces must not depend on repository tooling.',
       from: {
-        path: '^(?:packages/(?:contracts|domain|retrieval|persistence|ingestion|interviews)|apps/repository-interview-operator)/',
+        path: '^(?:packages/(?:contracts|domain|retrieval|persistence|ingestion|interviews)|apps/(?:gitblocks-hosted|repository-interview-operator))/',
       },
       to: {
         path: '^tools/',
@@ -180,7 +193,7 @@ const configuration = {
       comment:
         'Product packages must not depend on evaluation corpus files, schemas, or implementation.',
       from: {
-        path: '^(?:packages/(?:contracts|domain|retrieval|persistence|ingestion|interviews)|apps/repository-interview-operator)/',
+        path: '^(?:packages/(?:contracts|domain|retrieval|persistence|ingestion|interviews)|apps/(?:gitblocks-hosted|repository-interview-operator))/',
       },
       to: {
         path: '^(?:evals|schemas/evaluation)(?:/|$)',

@@ -1,0 +1,29 @@
+{
+  "name": "@gitblocks/gitblocks-hosted",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.12.0 <25"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "lint": "eslint src scripts test --max-warnings 0",
+    "typecheck": "tsc --project tsconfig.test.json --noEmit"
+  },
+  "dependencies": {
+    "@gitblocks/contracts": "workspace:0.0.0",
+    "@gitblocks/domain": "workspace:0.0.0",
+    "@gitblocks/persistence": "workspace:0.0.0",
+    "@gitblocks/retrieval": "workspace:0.0.0"
+  },
+  "devDependencies": {
+    "postgres": "3.4.9"
+  }
+}

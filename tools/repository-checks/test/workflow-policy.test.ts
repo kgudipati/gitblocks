@@ -66,6 +66,7 @@ const TEST_SHARDS = {
       'packages/retrieval/test',
       'packages/persistence/test',
       'packages/ingestion/test',
+      'apps/gitblocks-hosted/test',
     ],
   },
   'verification-tests-interviews': {
@@ -588,6 +589,7 @@ copy: *shared
       'packages/retrieval/test',
       'packages/persistence/test',
       'packages/ingestion/test',
+      'apps/gitblocks-hosted/test',
       'packages/interviews/test',
       'apps/repository-interview-operator/test',
       'tools/evaluation-harness/test',

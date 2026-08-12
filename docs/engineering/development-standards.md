@@ -9,17 +9,19 @@ contract kernel approved by
 concrete PostgreSQL adapter approved by
 [ADR 0004](../architecture/decisions/0004-postgresql-evidence-persistence.md),
 and the curated public-source ingestion adapter approved by
-[ADR 0005](../architecture/decisions/0005-public-repository-ingestion.md).
+[ADR 0005](../architecture/decisions/0005-public-repository-ingestion.md), the
+pure retrieval package approved by ADR 0009, and the R4 hosted discovery
+application composed under the Recovery R2 system context and ADR 0011.
 Repository verification and evaluation tooling are not product
-implementations. The persistence adapter authorizes neither an application
-service nor an operational backend.
+implementations. The hosted application is an in-process/one-shot boundary,
+not an operational network service.
 
-| Stage           | Meaning                                                                                       | Enforcement                                                                                                  |
-| --------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Now             | Domain, contracts, persistence, public ingestion, documentation, plans, metadata, and tooling | ADRs 0002–0005, `pnpm verify`, `pnpm db:verify`, CI, author self-review, and PR review against this handbook |
-| Before services | Before an application, adapter, framework, or deployed product path lands                     | An accepted ADR extends the kernel with required application, framework, boundary, and runtime decisions     |
-| With code       | Whenever production or test code exists                                                       | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review     |
-| With deployment | Whenever a path runs in a shared or production environment                                    | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                    |
+| Stage           | Meaning                                                                                                             | Enforcement                                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Now             | Domain, contracts, retrieval, persistence, ingestion, hosted discovery, documentation, plans, metadata, and tooling | Applicable ADRs/system context, `pnpm verify`, `pnpm db:verify`, CI, author self-review, and PR review against this handbook |
+| Before services | Before an application, adapter, framework, or deployed product path lands                                           | An accepted ADR extends the kernel with required application, framework, boundary, and runtime decisions                     |
+| With code       | Whenever production or test code exists                                                                             | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review                     |
+| With deployment | Whenever a path runs in a shared or production environment                                                          | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                                    |
 
 Required evidence is the relevant ADR and contract diff, tests, tool output, PR
 validation record, and reviewer confirmation. A future tool may strengthen a
@@ -57,6 +59,7 @@ The allowed dependency direction is:
 ```text
 packages/ingestion -> packages/persistence -> packages/contracts -> packages/domain
 tools/evaluation-harness -> packages/persistence
+apps/gitblocks-hosted -> packages/persistence + packages/retrieval + packages/contracts + packages/domain
 ```
 
 The future operational direction is:
@@ -92,13 +95,16 @@ HTTP, MCP, queue, GitHub, filesystem, model-provider, and framework adapters
 - Cross-module dependencies must use the declared public surface. Tests and
   scripts do not bypass ownership through deep imports.
 - Cycles across domain, application, and adapter boundaries are prohibited.
-- A future application package owns persistence ports and must not import the
-  concrete persistence package. The composition root may depend on both.
+- Application/use-case modules do not import concrete persistence. A
+  same-workspace composition root may depend on both when it is the single
+  concrete caller and another implementation does not justify a generalized
+  application port.
 - A single deployable may contain all layers. This direction does not require
   microservices, dependency-injection frameworks, or one interface per class.
 
-The workspace dependency check enforces the current kernel boundary. A future
-stack ADR must extend that check before adding application or adapter layers.
+The workspace dependency check enforces the current kernel and hosted
+composition boundaries. A future stack ADR must extend that check before
+adding transport, model, or deployment layers.
 
 ## Contracts and validation
 

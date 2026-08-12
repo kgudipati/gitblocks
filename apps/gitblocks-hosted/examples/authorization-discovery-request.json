@@ -1,0 +1,21 @@
+{
+  "contractVersion": "1.0.0",
+  "queryInputId": "hosted-authorization-exercise",
+  "scope": "local-pre-approval",
+  "summary": "Discover authorization candidates.",
+  "capabilityTerms": [
+    {
+      "termId": "authorization-capability",
+      "originalTerm": "authorization"
+    }
+  ],
+  "successConditions": [
+    {
+      "conditionId": "authorization-shortlist",
+      "statement": "Return a bounded shortlist of plausible authorization candidates."
+    }
+  ],
+  "draftConstraints": [],
+  "candidateReferences": [],
+  "repositoryFingerprintReference": null
+}
