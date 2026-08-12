@@ -7,9 +7,14 @@ import { repositoryArtifactGitBlobObjectId } from '@gitblocks/contracts';
 import { parseCapabilityTaxonomyV1 } from '@gitblocks/contracts';
 import { describe, expect, it } from 'vitest';
 
+import { canonicalizeJson } from '../src/canonical-json.ts';
+import { validateCandidateAuthorityCompleteEvidence } from '../src/candidate-authority-evidence.ts';
 import {
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V8_VERSION,
   CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
+  createCandidateAuthoritySuccessorSourceAuthority,
+  createCandidateAuthoritySuccessorSourceCandidate,
   materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8,
 } from '../src/candidate-authority-provider-contract.ts';
 import { collectCandidateAuthoritySourceAuthority } from '../src/candidate-authority-live-collector.ts';
@@ -48,6 +53,13 @@ import {
   materializeCandidateAuthoritySourcePolicyV9,
   parseCandidateAuthorityProviderRoutes,
 } from '../src/candidate-authority-canonical-routing-correction.ts';
+import {
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_PATH,
+  materializeCandidateAuthoritySourcePolicyV10,
+} from '../src/candidate-authority-linkage-evidence-correction.ts';
 import {
   parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityReadinessPolicyV3,
@@ -91,6 +103,7 @@ const FIXTURE_ROUTING = JSON.parse(
     providerCanonicalOwner: string;
     providerCanonicalRepository: string;
     repositoryIdentityState: 'unchanged' | 'redirected';
+    sourceRecordDigest: string;
   }[];
 };
 
@@ -128,12 +141,12 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       catalog,
       sourcePolicy,
       liveAuthorizationVersion:
-        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
-      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
+        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION,
+      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST,
       liveAuthorizationBindings: liveAuthorizationBindings(
         catalog.manifestDigest,
       ),
-      operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
+      operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V8_VERSION,
       executionHead: HEAD,
       githubToken: 'inert-fixture-token',
       collectionCutoff: CUTOFF,
@@ -173,11 +186,41 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         providerRoutes,
       });
     } catch (error) {
-      throw new Error('full successor source-v4 parser fixture failed', {
+      throw new Error('full successor source-v5 parser fixture failed', {
         cause: error,
       });
     }
     expect(parsedSource).toEqual(authority);
+    const corruptRouteCandidate =
+      createCandidateAuthoritySuccessorSourceCandidate({
+        ...authority.candidates[0]!,
+        sources: authority.candidates[0]!.sources.map((datum) =>
+          datum.operationId === 'github-repository-metadata'
+            ? {
+                ...datum,
+                value: {
+                  ...(datum.value as Readonly<Record<string, unknown>>),
+                  routingAuthoritySourceRecordDigest: '0'.repeat(64),
+                },
+              }
+            : datum,
+        ),
+      });
+    const corruptRouteAuthority =
+      createCandidateAuthoritySuccessorSourceAuthority({
+        ...authority,
+        candidates: [corruptRouteCandidate, ...authority.candidates.slice(1)],
+      });
+    expect(() =>
+      parseCandidateAuthoritySuccessorSourceAuthority({
+        text: serializeCandidateAuthoritySuccessorSourceAuthority(
+          corruptRouteAuthority,
+        ),
+        catalog,
+        acceptedExecutionHead: HEAD,
+        providerRoutes,
+      }),
+    ).toThrow();
     const npmRequests = requests.filter(
       ({ operation }) => operation === 'npm-selected-version-metadata',
     );
@@ -333,6 +376,12 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       partialSemanticRegistry: registry,
       providerRoutes,
     };
+    expect(() =>
+      generateCandidateAuthoritySuccessorReplay({
+        ...replayInput,
+        sourceAuthority: corruptRouteAuthority,
+      }),
+    ).toThrow();
     let normal: ReturnType<typeof generateCandidateAuthoritySuccessorReplay>;
     try {
       normal = generateCandidateAuthoritySuccessorReplay(replayInput);
@@ -372,6 +421,229 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     ]).toEqual([normalDigest, normalDigest, normalDigest]);
     expect(normal.dossiers.dossiers).toHaveLength(150);
     expect(normal.profiles.profileAuthority.profiles).toHaveLength(150);
+    for (const [ordinal, expectedState, expectedLinkage, evidenceCount] of [
+      [0, 'known', 'matched', 2],
+      [1, 'unknown', null, 0],
+      [2, 'known', 'matched', 2],
+      [3, 'known', 'mismatched', 2],
+      [4, 'known', 'undeclared', 2],
+    ] as const) {
+      const candidate = catalog.candidates.filter(
+        ({ npmPackage }) => npmPackage !== null,
+      )[ordinal];
+      if (candidate === undefined) throw new Error('npm fixture missing');
+      const profile = normal.profiles.profileAuthority.profiles.find(
+        ({ candidateId }) => candidateId === candidate.candidateId,
+      );
+      const field = (
+        profile?.fields as unknown as readonly {
+          readonly fieldId: string;
+          readonly state: string;
+          readonly value?: Readonly<Record<string, unknown>>;
+        }[]
+      ).find(({ fieldId }) => fieldId === 'package-repository-linkage');
+      expect(field?.state).toBe(expectedState);
+      if (expectedLinkage !== null)
+        expect(field?.value?.['linkage']).toBe(expectedLinkage);
+      const fit = normal.evidence.candidates.find(
+        ({ candidateId }) => candidateId === candidate.candidateId,
+      );
+      const bindings =
+        fit?.completeFieldEvidenceBindings.filter(
+          ({ fieldId }) => fieldId === 'package-repository-linkage',
+        ) ?? [];
+      expect(bindings).toHaveLength(evidenceCount);
+      if (evidenceCount === 2) {
+        expect(
+          bindings.map(({ sourceOperationId }) => sourceOperationId),
+        ).toEqual([
+          'npm-selected-version-metadata',
+          'github-repository-metadata',
+        ]);
+        expect(
+          new Set(bindings.map(({ fieldValueDigest }) => fieldValueDigest))
+            .size,
+        ).toBe(1);
+        const observationById = new Map(
+          fit?.observations.map((observation) => [
+            observation.evidenceId,
+            observation,
+          ]) ?? [],
+        );
+        const observations = bindings.map(({ evidenceId }) =>
+          observationById.get(evidenceId),
+        );
+        expect(
+          observations.map((observation) =>
+            observation?.source.kind === 'structured-provider-snapshot'
+              ? [observation.source.provider, observation.source.sourceClass]
+              : null,
+          ),
+        ).toEqual([
+          ['npm', 'package-metadata'],
+          ['github', 'repository-metadata'],
+        ]);
+        const candidateRoute = providerRoutes.byCandidateId.get(
+          candidate.candidateId,
+        );
+        if (candidateRoute === undefined)
+          throw new Error('candidate route fixture missing');
+        const npmObservation = observations[0];
+        const githubObservationForLinkage = observations[1];
+        if (
+          npmObservation?.source.kind !== 'structured-provider-snapshot' ||
+          githubObservationForLinkage?.source.kind !==
+            'structured-provider-snapshot'
+        )
+          throw new Error('linkage provenance fixture missing');
+        expect(npmObservation.source.sourceUrl).toBe(
+          `https://registry.npmjs.org/${encodeURIComponent(candidate.npmPackage ?? '')}/latest`,
+        );
+        expect(githubObservationForLinkage.source.sourceUrl).toBe(
+          `https://api.github.com/repos/${candidateRoute.providerCanonicalOwner}/${candidateRoute.providerCanonicalRepository}`,
+        );
+        const dossier = normal.dossiers.dossiers.find(
+          ({ identity }) => identity.candidateId === candidate.candidateId,
+        );
+        const projection = normal.dossierProjection.projections.find(
+          ({ candidateId }) => candidateId === candidate.candidateId,
+        );
+        const ids = bindings.map(({ evidenceId }) => evidenceId).sort();
+        expect(
+          ids.every((id) =>
+            dossier?.observations.some(({ evidenceId }) => evidenceId === id),
+          ),
+        ).toBe(true);
+        expect(
+          ids.every((id) => projection?.completeEvidenceIds.includes(id)),
+        ).toBe(true);
+      }
+    }
+    const redirectedMappedCandidates = providerRoutes.routes
+      .filter(
+        ({ repositoryIdentityState }) =>
+          repositoryIdentityState === 'redirected',
+      )
+      .filter(
+        ({ candidateId }) =>
+          catalog.candidates.find(
+            (candidate) => candidate.candidateId === candidateId,
+          )?.npmPackage !== null,
+      );
+    expect(redirectedMappedCandidates.length).toBeGreaterThanOrEqual(2);
+    for (const route of redirectedMappedCandidates.slice(0, 2)) {
+      const profile = normal.profiles.profileAuthority.profiles.find(
+        ({ candidateId }) => candidateId === route.candidateId,
+      );
+      const linkage = (
+        profile?.fields as unknown as readonly {
+          readonly fieldId: string;
+          readonly state: string;
+          readonly value?: Readonly<Record<string, unknown>>;
+        }[]
+      ).find(({ fieldId }) => fieldId === 'package-repository-linkage');
+      expect(linkage).toMatchObject({
+        state: 'known',
+        value: { linkage: 'matched' },
+      });
+      expect(
+        normal.evidence.candidates
+          .find(({ candidateId }) => candidateId === route.candidateId)
+          ?.completeFieldEvidenceBindings.filter(
+            ({ fieldId }) => fieldId === 'package-repository-linkage',
+          ),
+      ).toHaveLength(2);
+    }
+    const linkageCandidate = catalog.candidates.find(
+      ({ npmPackage }) => npmPackage !== null,
+    );
+    const linkageProfile = normal.profiles.profileAuthority.profiles.find(
+      ({ candidateId }) => candidateId === linkageCandidate?.candidateId,
+    );
+    const linkageFit = normal.evidence.candidates.find(
+      ({ candidateId }) => candidateId === linkageCandidate?.candidateId,
+    );
+    if (linkageProfile === undefined || linkageFit === undefined)
+      throw new Error('linkage evidence fixture missing');
+    const selectedFieldIds = fieldPlan.fields.map(({ fieldId }) => fieldId);
+    const validateMutated = (
+      bindings: typeof linkageFit.completeFieldEvidenceBindings,
+    ): void => {
+      validateCandidateAuthorityCompleteEvidence({
+        profile: linkageProfile,
+        observations: linkageFit.observations,
+        bindings,
+        selectedFieldIds,
+      });
+    };
+    const linkageBindings = linkageFit.completeFieldEvidenceBindings.filter(
+      ({ fieldId }) => fieldId === 'package-repository-linkage',
+    );
+    expect(() => {
+      validateMutated(
+        linkageFit.completeFieldEvidenceBindings.filter(
+          ({ evidenceId }) => evidenceId !== linkageBindings[0]?.evidenceId,
+        ),
+      );
+    }).toThrow();
+    expect(() => {
+      validateMutated([
+        ...linkageFit.completeFieldEvidenceBindings,
+        linkageBindings[0]!,
+      ]);
+    }).toThrow();
+    expect(() => {
+      validateMutated([
+        ...linkageFit.completeFieldEvidenceBindings,
+        { ...linkageBindings[0]!, sourceOperationId: 'unexpected-source' },
+      ]);
+    }).toThrow();
+    expect(() => {
+      validateMutated(
+        linkageFit.completeFieldEvidenceBindings.map((binding) =>
+          binding.evidenceId === linkageBindings[0]?.evidenceId
+            ? { ...binding, fieldValueDigest: '0'.repeat(64) }
+            : binding,
+        ),
+      );
+    }).toThrow();
+    const sourceCandidate = authority.candidates.find(
+      ({ candidateId }) => candidateId === linkageCandidate?.candidateId,
+    );
+    const metadataDatum = sourceCandidate?.sources.find(
+      ({ operationId }) => operationId === 'github-repository-metadata',
+    );
+    const route = providerRoutes.byCandidateId.get(
+      linkageCandidate?.candidateId ?? '',
+    );
+    const metadataValue = metadataDatum?.value as
+      Readonly<Record<string, unknown>> | undefined;
+    expect(metadataValue?.['routingAuthoritySourceRecordDigest']).toBe(
+      route?.routingAuthoritySourceRecordDigest,
+    );
+    const githubBinding = linkageBindings.find(
+      ({ sourceOperationId }) =>
+        sourceOperationId === 'github-repository-metadata',
+    );
+    const githubObservation = linkageFit.observations.find(
+      ({ evidenceId }) => evidenceId === githubBinding?.evidenceId,
+    );
+    expect(
+      githubObservation?.source.kind === 'structured-provider-snapshot'
+        ? githubObservation.source.sourceRecordDigest
+        : null,
+    ).toBe(canonicalizeJson(metadataDatum).digest);
+    for (const ordinaryField of [
+      'archived-state',
+      'maintenance-activity',
+      'runtime-package-format',
+    ]) {
+      expect(
+        linkageFit.completeFieldEvidenceBindings.filter(
+          ({ fieldId }) => fieldId === ordinaryField,
+        ),
+      ).toHaveLength(1);
+    }
     const redirectedRoute = providerRoutes.routes.find(
       ({ repositoryIdentityState }) => repositoryIdentityState === 'redirected',
     );
@@ -897,6 +1169,8 @@ async function authorities() {
     providerV3Text,
     sourceV9Text,
     providerV4Text,
+    sourceV10Text,
+    providerV5Text,
     routingText,
   ] = await Promise.all([
     readFile('catalog/public-v1/manifest.json', 'utf8'),
@@ -908,6 +1182,8 @@ async function authorities() {
     readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH, 'utf8'),
     readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH, 'utf8'),
     readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH, 'utf8'),
+    readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_PATH, 'utf8'),
+    readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_PATH, 'utf8'),
     readFile(CANDIDATE_AUTHORITY_ROUTING_PATH, 'utf8'),
   ]);
   const catalog = parsePublicCatalog(catalogText);
@@ -922,10 +1198,14 @@ async function authorities() {
     });
   return {
     catalog,
-    sourcePolicy: materializeCandidateAuthoritySourcePolicyV9({
-      predecessor,
-      sourcePolicyV9: JSON.parse(sourceV9Text),
-      providerContractV4: JSON.parse(providerV4Text),
+    sourcePolicy: materializeCandidateAuthoritySourcePolicyV10({
+      predecessor: materializeCandidateAuthoritySourcePolicyV9({
+        predecessor,
+        sourcePolicyV9: JSON.parse(sourceV9Text),
+        providerContractV4: JSON.parse(providerV4Text),
+      }),
+      sourcePolicyV10: JSON.parse(sourceV10Text),
+      providerContractV5: JSON.parse(providerV5Text),
     }),
     providerRoutes: parseCandidateAuthorityProviderRoutes({
       catalog,
@@ -957,6 +1237,17 @@ function fakeResponse(
   const npmOrdinal = npmCandidates.findIndex(
     (value) => value.candidateId === candidate.candidateId,
   );
+  const redirectedNpmOrdinal = FIXTURE_ROUTING.candidates
+    .filter(
+      ({ repositoryIdentityState }) => repositoryIdentityState === 'redirected',
+    )
+    .filter(({ candidateId }) =>
+      FIXTURE_CATALOG.candidates.some(
+        (value) =>
+          value.candidateId === candidateId && value.npmPackage !== null,
+      ),
+    )
+    .findIndex(({ candidateId }) => candidateId === candidate.candidateId);
   const firstNpm = npmOrdinal === 0;
   const response = (value: unknown, headers: Headers = new Headers()) => ({
     value,
@@ -1082,9 +1373,27 @@ function fakeResponse(
         engines: unsupported ? 'unsupported' : undefined,
         exports: unsupported ? 42 : './index.js',
         type: unsupported ? { unexpected: true } : 'module',
-        repository: unsupported
-          ? { url: 42 }
-          : `https://github.com/${candidate.github.owner}/${candidate.github.repository}.git`,
+        ...(unsupported
+          ? { repository: { url: 42 } }
+          : npmOrdinal === 4
+            ? {}
+            : redirectedNpmOrdinal === 0
+              ? {
+                  repository: `https://github.com/${route.providerCanonicalOwner}/${route.providerCanonicalRepository}.git`,
+                }
+              : redirectedNpmOrdinal === 1
+                ? {
+                    repository: `https://github.com/${candidate.github.owner}/${candidate.github.repository}.git`,
+                  }
+                : npmOrdinal === 3
+                  ? { repository: 'https://github.com/unrelated/project.git' }
+                  : npmOrdinal === 0
+                    ? {
+                        repository: `https://github.com/${route.providerCanonicalOwner}/${route.providerCanonicalRepository}.git`,
+                      }
+                    : {
+                        repository: `https://github.com/${candidate.github.owner}/${candidate.github.repository}.git`,
+                      }),
         peerDependencies: unsupported ? { express: 5 } : { express: '^5.0.0' },
       });
     }
@@ -1139,6 +1448,7 @@ function liveAuthorizationBindings(catalogDigest: string) {
     taxonomyDigest:
       '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
     consumedV6ExecutionHead: '895980891665e373ccf72e63a6b12cf4f09b63c1',
+    acceptedRoutingHead: '2be3d5950cc69572b5b45fc641848fed112fc112',
     failureRecordVersion: 'candidate-authority-live-failure-record/3.0.0',
     failureRecordDigest:
       'd5e21bfcfc5ecef6b99639bc86947b87c8e31ab31cfe300929a6479c270be526',
@@ -1148,12 +1458,12 @@ function liveAuthorizationBindings(catalogDigest: string) {
     fieldPlanVersion: 'candidate-authority-field-plan/7.0.0',
     fieldPlanDigest:
       '650f7e1b335c0d5d919e69cc8619573a7b8322779ca8686e768be7a4284d95ec',
-    sourcePolicyVersion: 'candidate-authority-source-policy/9.0.0',
+    sourcePolicyVersion: 'candidate-authority-source-policy/10.0.0',
     sourcePolicyDigest:
-      'c1ad428afdf3412c072259a4426b57f5e61e6d781d7dd4e7f3535431f8ad4498',
-    providerContractVersion: 'candidate-authority-provider-contract/4.0.0',
+      '82a10a75be6676464112357794872f293518b261a9c7b58f35fccd209eed84f0',
+    providerContractVersion: 'candidate-authority-provider-contract/5.0.0',
     providerContractDigest:
-      'e2a6103dfb24996e7cb617911175d19b5ad78c56f4bf77bff4ac0bab80319a38',
+      '980a34aa6643cf136744b079415cb13ff0fdedd1587bc5345419700017785ea7',
     routingAuthorityVersion: 'candidate-retrieval-metadata-authority/1.1.0',
     routingAuthoritySnapshotId:
       'retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f',
@@ -1167,9 +1477,9 @@ function liveAuthorizationBindings(catalogDigest: string) {
       'profile-materialization-provider-policy/1.0.0',
     routingSourceProviderPolicyDigest:
       '0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede',
-    replayAlgorithmVersion: 'candidate-authority-pure-replay/6.0.0',
+    replayAlgorithmVersion: 'candidate-authority-pure-replay/7.0.0',
     replayAlgorithmDigest:
-      'e6b8e88ecf81884b6129a36284d9d13aa257d0f72b42b0277f0172a6a5fd32b1',
+      '4857d465c43384445f1305520334bee4a8ef27355a4a122925f3aaed3eb5c58f',
     partialSemanticRegistryVersion:
       'candidate-authority-partial-field-semantics/3.0.0',
     partialSemanticRegistryDigest:
@@ -1178,6 +1488,6 @@ function liveAuthorizationBindings(catalogDigest: string) {
     partialEvidenceDigest:
       '6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e',
     architectureDecisions:
-      'ADR-0014-accepted;ADR-0015-proposed-no-provider-effect',
+      'ADR-0014-accepted;ADR-0015-accepted;ADR-0016-proposed-no-provider-effect',
   };
 }

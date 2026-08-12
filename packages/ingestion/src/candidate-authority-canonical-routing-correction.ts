@@ -81,6 +81,7 @@ export interface CandidateAuthorityProviderRoute {
   readonly providerCanonicalOwner: string;
   readonly providerCanonicalRepository: string;
   readonly repositoryIdentityState: 'unchanged' | 'redirected';
+  readonly routingAuthoritySourceRecordDigest: string;
 }
 
 export interface CandidateAuthorityProviderRoutes {
@@ -100,6 +101,7 @@ export function candidateAuthorityProviderRouteFromRecord(
     | 'providerCanonicalOwner'
     | 'providerCanonicalRepository'
     | 'repositoryIdentityState'
+    | 'sourceRecordDigest'
   >,
 ): CandidateAuthorityProviderRoute {
   return Object.freeze({
@@ -109,6 +111,7 @@ export function candidateAuthorityProviderRouteFromRecord(
     providerCanonicalOwner: record.providerCanonicalOwner,
     providerCanonicalRepository: record.providerCanonicalRepository,
     repositoryIdentityState: record.repositoryIdentityState,
+    routingAuthoritySourceRecordDigest: record.sourceRecordDigest,
   });
 }
 

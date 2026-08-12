@@ -1,0 +1,58 @@
+{
+  "contractVersion": "candidate-authority-provider-contract/5.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesBeforeActivation": {
+    "version": "candidate-authority-provider-contract/4.0.0",
+    "digest": "e2a6103dfb24996e7cb617911175d19b5ad78c56f4bf77bff4ac0bab80319a38",
+    "path": "catalog/public-v1/candidate-authority-provider-contract-v4.json"
+  },
+  "routingAuthority": {
+    "authorityVersion": "candidate-retrieval-metadata-authority/1.1.0",
+    "snapshotId": "retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f",
+    "authoritySemanticDigest": "23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1",
+    "candidateCount": 150,
+    "perCandidateTrace": "exact committed Phase 9 sourceRecordDigest"
+  },
+  "repositoryMetadataRetention": [
+    "catalogRepositoryIdentity",
+    "providerCanonicalRepositoryIdentity",
+    "repositoryIdentityState",
+    "routingAuthorityVersion",
+    "routingAuthoritySnapshotId",
+    "routingAuthorityDigest",
+    "routingAuthoritySourceRecordDigest",
+    "repositoryId",
+    "defaultBranch",
+    "archived",
+    "primaryLanguage"
+  ],
+  "packageLinkageEvidence": {
+    "knownFieldRequiredOperations": [
+      "npm-selected-version-metadata",
+      "github-repository-metadata"
+    ],
+    "maximumCompleteSourcesPerField": 2,
+    "npmProvenance": "structured-provider-snapshot/public-structured-provider/npm/package-metadata",
+    "githubProvenance": "structured-provider-snapshot/public-structured-provider/github/repository-metadata",
+    "sameFieldValueDigestRequired": true,
+    "duplicateMissingExtraSourcesRejected": true
+  },
+  "unchangedProviderOperationContract": {
+    "operationCount": 13,
+    "maximumRedirects": 0,
+    "maximumAttemptsPerLogicalRequest": 3,
+    "addedIdentityRequests": 0,
+    "addedEvidenceRequests": 0,
+    "npmSelectedVersionSemanticsUnchanged": true
+  },
+  "requestBudget": {
+    "githubLogicalRequests": 1810,
+    "npmLogicalRequests": 80,
+    "totalLogicalRequests": 1890,
+    "githubWorstCaseAttempts": 5430,
+    "npmWorstCaseAttempts": 240,
+    "totalWorstCaseAttempts": 5670
+  },
+  "architectureDecisions": "ADR-0014-accepted;ADR-0015-accepted;ADR-0016-proposed-no-provider-effect",
+  "contractSemanticDigest": "980a34aa6643cf136744b079415cb13ff0fdedd1587bc5345419700017785ea7"
+}

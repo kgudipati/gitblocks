@@ -2,7 +2,7 @@
 
 import { canonicalizeJson } from './canonical-json.ts';
 import {
-  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V8_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
   createCandidateAuthoritySuccessorSourceAuthority,
   createCandidateAuthoritySuccessorSourceCandidate,
@@ -18,12 +18,8 @@ import {
   CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_VERSION,
   CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST,
   CANDIDATE_AUTHORITY_FIELD_PLAN_V7_VERSION,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_VERSION,
-  CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST,
-  CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
   CANDIDATE_AUTHORITY_ROUTING_DIGEST,
   CANDIDATE_AUTHORITY_ROUTING_PROVIDER_POLICY_DIGEST,
   CANDIDATE_AUTHORITY_ROUTING_PROVIDER_POLICY_VERSION,
@@ -35,6 +31,22 @@ import {
   materializeCandidateAuthoritySourcePolicyV9,
   type CandidateAuthorityProviderRoutes,
 } from './candidate-authority-canonical-routing-correction.ts';
+import type {
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
+} from './candidate-authority-canonical-routing-correction.ts';
+import {
+  CANDIDATE_AUTHORITY_ACCEPTED_ROUTING_HEAD,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_VERSION,
+  CANDIDATE_AUTHORITY_REPLAY_V7_DIGEST,
+  CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_VERSION,
+  materializeCandidateAuthoritySourcePolicyV10,
+} from './candidate-authority-linkage-evidence-correction.ts';
 import {
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_VERSION,
@@ -55,10 +67,10 @@ import { requireRecord } from './profile-materialization-contracts.ts';
 import type { PublicCatalog } from './types.ts';
 
 export const CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT =
-  CANDIDATE_AUTHORITY_V6_EXECUTION_HEAD;
+  CANDIDATE_AUTHORITY_ACCEPTED_ROUTING_HEAD;
 
 // Published v5 identities remain available only for immutable historical
-// diagnostics and disabled consumed runners. Current parsing returns v7.
+// diagnostics and disabled consumed runners. Current parsing returns v8.
 export const CANDIDATE_AUTHORITY_ACCEPTED_POSTMORTEM_HEAD =
   'acca908a98b09e2263252f3bcd861b7c4f9a27ee' as const;
 export const CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION =
@@ -87,39 +99,39 @@ export const CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH =
   'catalog/public-v1/candidate-authority-source-policy-v7.json' as const;
 
 export const CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION =
-  'candidate-authority-source-authority/4.0.0' as const;
+  'candidate-authority-source-authority/5.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH =
-  'catalog/public-v1/candidate-authority-source-authority-v4.json' as const;
+  'catalog/public-v1/candidate-authority-source-authority-v5.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_STAGING_PATH =
-  'catalog/public-v1/candidate-authority-source-authority-v4.staging.json' as const;
+  'catalog/public-v1/candidate-authority-source-authority-v5.staging.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PROFILE_VERSION =
-  'candidate-authority-deterministic-profile-authority/4.0.0' as const;
+  'candidate-authority-deterministic-profile-authority/5.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PROFILE_PATH =
-  'catalog/public-v1/candidate-authority-profiles-v4.json' as const;
+  'catalog/public-v1/candidate-authority-profiles-v5.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_VERSION =
-  'candidate-authority-partial-field-evidence-authority/4.0.0' as const;
+  'candidate-authority-partial-field-evidence-authority/5.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_PATH =
-  'catalog/public-v1/candidate-authority-partial-evidence-v4.json' as const;
+  'catalog/public-v1/candidate-authority-partial-evidence-v5.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_VERSION =
-  'candidate-authority-fit-consumable-evidence-authority/4.0.0' as const;
+  'candidate-authority-fit-consumable-evidence-authority/5.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_PATH =
-  'catalog/public-v1/candidate-authority-evidence-v4.json' as const;
+  'catalog/public-v1/candidate-authority-evidence-v5.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_VERSION =
-  'candidate-authority-dossier-authority/4.0.0' as const;
+  'candidate-authority-dossier-authority/5.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_PATH =
-  'catalog/public-v1/candidate-authority-dossiers-v4.json' as const;
+  'catalog/public-v1/candidate-authority-dossiers-v5.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PROJECTION_VERSION =
-  'candidate-authority-dossier-projection/4.0.0' as const;
+  'candidate-authority-dossier-projection/5.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_PROJECTION_PATH =
-  'catalog/public-v1/candidate-authority-dossier-projection-v4.json' as const;
+  'catalog/public-v1/candidate-authority-dossier-projection-v5.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION =
-  'candidate-authority-realized-readiness-report/4.0.0' as const;
+  'candidate-authority-realized-readiness-report/5.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_PATH =
-  'catalog/public-v1/candidate-authority-readiness-report-v4.json' as const;
+  'catalog/public-v1/candidate-authority-readiness-report-v5.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION =
-  'candidate-authority-root/7.0.0' as const;
+  'candidate-authority-root/8.0.0' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_PATH =
-  'catalog/public-v1/candidate-authority-root-v7.json' as const;
+  'catalog/public-v1/candidate-authority-root-v8.json' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_TOKEN_ENVIRONMENT =
   'GITBLOCKS_CANDIDATE_AUTHORITY_GITHUB_TOKEN' as const;
 export const CANDIDATE_AUTHORITY_SUCCESSOR_MAXIMUM_SOURCE_BYTES =
@@ -151,11 +163,13 @@ export interface CandidateAuthoritySuccessorAuthorization {
   readonly version:
     | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_VERSION
     | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION
-    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION;
+    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION
+    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION;
   readonly digest:
     | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V5_DIGEST
     | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST
-    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST;
+    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST
+    | typeof CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST;
   readonly bindings: Readonly<Record<string, string>>;
   readonly conditionalCollections: 1;
   readonly activeCollections: 0;
@@ -167,12 +181,14 @@ export function parseCandidateAuthoritySuccessorFixedAuthorities(input: {
   readonly providerContractV2: string;
   readonly providerContractV3: string;
   readonly providerContractV4: string;
+  readonly providerContractV5: string;
   readonly sourcePolicyV6: string;
   readonly sourcePolicyV7: string;
   readonly sourcePolicyV8: string;
   readonly sourcePolicyV9: string;
-  readonly replayV6: string;
-  readonly authorizationV7: string;
+  readonly sourcePolicyV10: string;
+  readonly replayV7: string;
+  readonly authorizationV8: string;
 }): {
   readonly sourcePolicy: CandidateAuthoritySuccessorRuntimeSourcePolicy;
   readonly authorization: CandidateAuthoritySuccessorAuthorization;
@@ -189,6 +205,11 @@ export function parseCandidateAuthoritySuccessorFixedAuthorities(input: {
     'contractSemanticDigest',
     CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST,
   );
+  const providerV5 = parseAuthority(
+    input.providerContractV5,
+    'contractSemanticDigest',
+    CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_DIGEST,
+  );
   const sourceV6 = parseJson(input.sourcePolicyV6);
   const sourceV7 = parseJson(input.sourcePolicyV7);
   const sourceV8 = parseAuthority(
@@ -201,15 +222,20 @@ export function parseCandidateAuthoritySuccessorFixedAuthorities(input: {
     'policySemanticDigest',
     CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST,
   );
+  const sourceV10 = parseAuthority(
+    input.sourcePolicyV10,
+    'policySemanticDigest',
+    CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_DIGEST,
+  );
   const replay = parseAuthority(
-    input.replayV6,
+    input.replayV7,
     'canonicalAlgorithmDigest',
-    CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST,
+    CANDIDATE_AUTHORITY_REPLAY_V7_DIGEST,
   );
   const authorization = parseAuthority(
-    input.authorizationV7,
+    input.authorizationV8,
     'authorizationSemanticDigest',
-    CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
+    CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST,
   );
   if (
     providerV3['contractVersion'] !==
@@ -222,11 +248,15 @@ export function parseCandidateAuthoritySuccessorFixedAuthorities(input: {
       CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_VERSION ||
     sourceV9['policyVersion'] !==
       CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_VERSION ||
-    replay['algorithmVersion'] !== CANDIDATE_AUTHORITY_REPLAY_V6_VERSION ||
+    providerV5['contractVersion'] !==
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_VERSION ||
+    sourceV10['policyVersion'] !==
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_VERSION ||
+    replay['algorithmVersion'] !== CANDIDATE_AUTHORITY_REPLAY_V7_VERSION ||
     requireRecord(replay['bindings'])['sourcePolicyDigest'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_DIGEST ||
     authorization['authorizationVersion'] !==
-      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION
+      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION
   )
     invalid();
   const successor = requireRecord(authorization['successorExperiment']);
@@ -256,34 +286,38 @@ export function parseCandidateAuthoritySuccessorFixedAuthorities(input: {
     bindings['partialEvidenceDigest'] !==
       '6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e' ||
     bindings['sourcePolicyDigest'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_DIGEST ||
     bindings['providerContractDigest'] !==
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST ||
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_DIGEST ||
     bindings['replayAlgorithmDigest'] !==
-      CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST ||
+      CANDIDATE_AUTHORITY_REPLAY_V7_DIGEST ||
     bindings['failureRecordDigest'] !==
       CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_DIGEST ||
     bindings['fieldPlanDigest'] !== CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST ||
     bindings['routingAuthorityDigest'] !== CANDIDATE_AUTHORITY_ROUTING_DIGEST
   )
     invalid();
-  const sourcePolicy = materializeCandidateAuthoritySourcePolicyV9({
-    predecessor: materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8({
-      sourcePolicyV6: sourceV6,
-      providerContractV1: providerV1,
-      sourcePolicyV7: sourceV7,
-      providerContractV2: providerV2,
-      sourcePolicyV8: sourceV8,
-      providerContractV3: providerV3,
+  const sourcePolicy = materializeCandidateAuthoritySourcePolicyV10({
+    predecessor: materializeCandidateAuthoritySourcePolicyV9({
+      predecessor: materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8({
+        sourcePolicyV6: sourceV6,
+        providerContractV1: providerV1,
+        sourcePolicyV7: sourceV7,
+        providerContractV2: providerV2,
+        sourcePolicyV8: sourceV8,
+        providerContractV3: providerV3,
+      }),
+      sourcePolicyV9: sourceV9,
+      providerContractV4: providerV4,
     }),
-    sourcePolicyV9: sourceV9,
-    providerContractV4: providerV4,
+    sourcePolicyV10: sourceV10,
+    providerContractV5: providerV5,
   });
   return Object.freeze({
     sourcePolicy,
     authorization: Object.freeze({
-      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
-      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
+      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION,
+      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST,
       bindings,
       conditionalCollections: 1,
       activeCollections: 0,
@@ -312,7 +346,7 @@ export function parseCandidateAuthoritySuccessorSourceAuthority(input: {
     authority.authorityVersion !==
       CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION ||
     authority.operatorVersion !==
-      CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION ||
+      CANDIDATE_AUTHORITY_LIVE_OPERATOR_V8_VERSION ||
     authority.candidateCount !== 150 ||
     !Array.isArray(authority.orderedCandidateIds) ||
     !Array.isArray(authority.candidates) ||
@@ -329,6 +363,8 @@ export function parseCandidateAuthoritySuccessorSourceAuthority(input: {
       '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9' ||
     bindings['consumedV6ExecutionHead'] !==
       CANDIDATE_AUTHORITY_V6_EXECUTION_HEAD ||
+    bindings['acceptedRoutingHead'] !==
+      CANDIDATE_AUTHORITY_ACCEPTED_ROUTING_HEAD ||
     bindings['failureRecordDigest'] !==
       CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_DIGEST ||
     bindings['failureRecordVersion'] !==
@@ -337,13 +373,13 @@ export function parseCandidateAuthoritySuccessorSourceAuthority(input: {
       CANDIDATE_AUTHORITY_FIELD_PLAN_V7_VERSION ||
     bindings['fieldPlanDigest'] !== CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST ||
     bindings['providerContractVersion'] !==
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_VERSION ||
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_VERSION ||
     bindings['providerContractDigest'] !==
-      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST ||
+      CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_DIGEST ||
     bindings['replayAlgorithmVersion'] !==
-      CANDIDATE_AUTHORITY_REPLAY_V6_VERSION ||
+      CANDIDATE_AUTHORITY_REPLAY_V7_VERSION ||
     bindings['replayAlgorithmDigest'] !==
-      CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST ||
+      CANDIDATE_AUTHORITY_REPLAY_V7_DIGEST ||
     bindings['routingAuthorityVersion'] !==
       CANDIDATE_AUTHORITY_ROUTING_VERSION ||
     bindings['routingAuthoritySnapshotId'] !==
@@ -366,15 +402,15 @@ export function parseCandidateAuthoritySuccessorSourceAuthority(input: {
     bindings['partialEvidenceDigest'] !==
       '6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e' ||
     bindings['architectureDecisions'] !==
-      'ADR-0014-accepted;ADR-0015-proposed-no-provider-effect' ||
+      'ADR-0014-accepted;ADR-0015-accepted;ADR-0016-proposed-no-provider-effect' ||
     bindings['sourcePolicyVersion'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_VERSION ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_VERSION ||
     bindings['sourcePolicyDigest'] !==
-      CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST ||
+      CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_DIGEST ||
     bindings['liveAuthorizationVersion'] !==
-      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION ||
+      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION ||
     bindings['liveAuthorizationDigest'] !==
-      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST ||
+      CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST ||
     (input.acceptedExecutionHead !== undefined &&
       bindings['collectionExecutionHead'] !== input.acceptedExecutionHead) ||
     !/^[a-f0-9]{40}$/u.test(bindings['collectionExecutionHead'] ?? '') ||
@@ -542,6 +578,12 @@ function validateRepositoryRoute(
     canonical['owner'] !== route.providerCanonicalOwner ||
     canonical['repository'] !== route.providerCanonicalRepository ||
     value['repositoryIdentityState'] !== route.repositoryIdentityState ||
+    value['routingAuthorityVersion'] !== CANDIDATE_AUTHORITY_ROUTING_VERSION ||
+    value['routingAuthoritySnapshotId'] !==
+      CANDIDATE_AUTHORITY_ROUTING_SNAPSHOT_ID ||
+    value['routingAuthorityDigest'] !== CANDIDATE_AUTHORITY_ROUTING_DIGEST ||
+    value['routingAuthoritySourceRecordDigest'] !==
+      route.routingAuthoritySourceRecordDigest ||
     value['canonicalOwner'] !== route.providerCanonicalOwner ||
     value['canonicalRepository'] !== route.providerCanonicalRepository
   )

@@ -108,6 +108,7 @@ export {
 } from './candidate-authority-contracts.ts';
 export {
   projectCandidateAuthorityDossier,
+  validateCandidateAuthorityCompleteEvidence,
   type CandidateAuthorityDossierProjection,
   type CandidateAuthorityEvidenceBinding,
 } from './candidate-authority-evidence.ts';
@@ -277,7 +278,7 @@ export {
 } from './candidate-authority-successor-replay.ts';
 export {
   measureCandidateAuthoritySuccessorReadiness,
-  type CandidateAuthorityRootV7,
+  type CandidateAuthorityRootV8,
   type CandidateAuthoritySuccessorReadinessReport,
 } from './candidate-authority-successor-measurement.ts';
 export {
@@ -312,14 +313,31 @@ export {
   type CandidateAuthorityProviderRoutes,
 } from './candidate-authority-canonical-routing-correction.ts';
 export {
-  CandidateAuthoritySuccessorExecutionFailureV7,
-  executeCandidateAuthoritySuccessorV7,
-  preflightCandidateAuthoritySuccessorV7,
-  renderCandidateAuthoritySuccessorFailureV7,
-  type CandidateAuthoritySuccessorEffectsV7,
-  type CandidateAuthoritySuccessorFailureDiagnosticV7,
-  type CandidateAuthoritySuccessorPreflightResultV7,
-} from './candidate-authority-live-v7-runner.ts';
+  CandidateAuthoritySuccessorExecutionFailureV8,
+  executeCandidateAuthoritySuccessorV8,
+  preflightCandidateAuthoritySuccessorV8,
+  renderCandidateAuthoritySuccessorFailureV8,
+  type CandidateAuthoritySuccessorEffectsV8,
+  type CandidateAuthoritySuccessorFailureDiagnosticV8,
+  type CandidateAuthoritySuccessorPreflightResultV8,
+} from './candidate-authority-live-v8-runner.ts';
+export {
+  CANDIDATE_AUTHORITY_ACCEPTED_ROUTING_HEAD,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_PATH,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_VERSION,
+  CANDIDATE_AUTHORITY_REPLAY_V7_DIGEST,
+  CANDIDATE_AUTHORITY_REPLAY_V7_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_VERSION,
+  materializeCandidateAuthoritySourcePolicyV10,
+  validateCandidateAuthorityLinkageEvidenceAuthorities,
+} from './candidate-authority-linkage-evidence-correction.ts';
 export {
   CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST,
   CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_PATH,

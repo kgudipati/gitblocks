@@ -6,20 +6,22 @@ import {
   CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_VERSION,
   CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST,
   CANDIDATE_AUTHORITY_FIELD_PLAN_V7_VERSION,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_VERSION,
-  CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST,
-  CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
   CANDIDATE_AUTHORITY_ROUTING_DIGEST,
   CANDIDATE_AUTHORITY_ROUTING_SNAPSHOT_ID,
   CANDIDATE_AUTHORITY_ROUTING_VERSION,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_VERSION,
   CANDIDATE_AUTHORITY_V6_EXECUTION_HEAD,
   type CandidateAuthorityFieldPlanV7Runtime,
 } from './candidate-authority-canonical-routing-correction.ts';
+import {
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_VERSION,
+  CANDIDATE_AUTHORITY_REPLAY_V7_DIGEST,
+  CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_VERSION,
+} from './candidate-authority-linkage-evidence-correction.ts';
 import {
   RANKING_DECISION_FIELD_IDS,
   type CandidateAuthorityDecisionFieldId,
@@ -63,7 +65,7 @@ const ORIGINS: readonly CandidateAuthorityCellOrigin[] = [
 
 export interface CandidateAuthoritySuccessorReadinessReport {
   readonly reportVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V6_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V7_VERSION;
   readonly bindings: Readonly<Record<string, string>>;
   readonly candidateCount: 150;
   readonly fields: readonly {
@@ -84,7 +86,7 @@ export interface CandidateAuthoritySuccessorReadinessReport {
   readonly canonicalReportDigest: string;
 }
 
-export interface CandidateAuthorityRootV7 {
+export interface CandidateAuthorityRootV8 {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION;
   readonly architectureDecisionBinding: Readonly<Record<string, string>>;
   readonly failedExperimentBinding: Readonly<Record<string, string>>;
@@ -112,7 +114,7 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
   readonly replay: CandidateAuthoritySuccessorReplayBundle;
 }): {
   readonly report: CandidateAuthoritySuccessorReadinessReport;
-  readonly root: CandidateAuthorityRootV7;
+  readonly root: CandidateAuthorityRootV8;
 } {
   const { sourceAuthority, replay } = input;
   if (
@@ -198,7 +200,7 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
   }, emptyOrigins());
   const reportWithoutDigest = {
     reportVersion: CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
     bindings: {
       sourceAuthorityVersion: sourceAuthority.authorityVersion,
       sourceAuthorityDigest: sourceAuthority.canonicalAuthorityDigest,
@@ -241,8 +243,10 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION,
     architectureDecisionBinding: {
       adr: 'ADR-0014',
-      status: 'accepted-npm-source-and-proposed-canonical-routing',
+      status:
+        'accepted-npm-source-and-canonical-routing;proposed-multi-source-linkage-evidence',
       canonicalRoutingAdr: 'ADR-0015',
+      linkageEvidenceAdr: 'ADR-0016',
       consumedV6ExecutionHead: CANDIDATE_AUTHORITY_V6_EXECUTION_HEAD,
     },
     failedExperimentBinding: {
@@ -251,20 +255,20 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
       disposition: 'consumed-inconclusive-no-source-authority',
     },
     liveAuthorizationBinding: {
-      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
-      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
+      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_VERSION,
+      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_DIGEST,
       collectionExecutionHead:
         sourceAuthority.bindings['collectionExecutionHead'] ?? invalid(),
     },
     authorityBindings: {
-      providerContractVersion: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_VERSION,
-      providerContractDigest: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST,
+      providerContractVersion: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_VERSION,
+      providerContractDigest: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_DIGEST,
       fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V7_VERSION,
       fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST,
-      sourcePolicyVersion: CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_VERSION,
-      sourcePolicyDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST,
-      replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
-      replayAlgorithmDigest: CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST,
+      sourcePolicyVersion: CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_VERSION,
+      sourcePolicyDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_DIGEST,
+      replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
+      replayAlgorithmDigest: CANDIDATE_AUTHORITY_REPLAY_V7_DIGEST,
       routingAuthorityVersion: CANDIDATE_AUTHORITY_ROUTING_VERSION,
       routingAuthoritySnapshotId: CANDIDATE_AUTHORITY_ROUTING_SNAPSHOT_ID,
       routingAuthorityDigest: CANDIDATE_AUTHORITY_ROUTING_DIGEST,
@@ -311,7 +315,7 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
     cellOriginCounts: totals,
     readinessDecision: result.decision,
   };
-  const root: CandidateAuthorityRootV7 = Object.freeze({
+  const root: CandidateAuthorityRootV8 = Object.freeze({
     ...rootWithoutDigest,
     canonicalAuthorityDigest: canonicalizeJson(rootWithoutDigest).digest,
   });

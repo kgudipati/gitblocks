@@ -18,6 +18,7 @@ import { canonicalizeJson, stableId } from './canonical-json.ts';
 import type { CandidateAuthorityDecisionFieldId } from './candidate-authority-contracts.ts';
 import {
   projectCandidateAuthorityDossier,
+  validateCandidateAuthorityCompleteEvidence,
   type CandidateAuthorityEvidenceBinding,
 } from './candidate-authority-evidence.ts';
 import {
@@ -126,6 +127,7 @@ interface CandidateProjectionCore {
   readonly partialProjection: ReturnType<
     typeof projectPartialFieldEvidenceToDossier
   >;
+  readonly selectedFieldIds: readonly CandidateAuthorityDecisionFieldId[];
 }
 
 export function generateCandidateAuthorityReplay(input: {
@@ -405,7 +407,13 @@ function projectCandidateCore(input: {
     partialSemanticRegistry: input.partialSemanticRegistry,
     partialEvidence,
   });
-  return { profile, partialEvidence, completeProjection, partialProjection };
+  return {
+    profile,
+    partialEvidence,
+    completeProjection,
+    partialProjection,
+    selectedFieldIds: input.fieldPlan.fields.map(({ fieldId }) => fieldId),
+  };
 }
 
 function projectCompleteField(input: {
@@ -722,22 +730,31 @@ function createCompleteEvidenceBindings(input: {
       (candidate) => candidate.fieldId === field.fieldId,
     );
     if (plan === undefined || field.state !== 'known') continue;
-    const datum = sourceForCompleteField(field.fieldId, input.sources);
-    if (datum === undefined) invalid();
-    bindings.push({
-      fieldId: field.fieldId as CandidateAuthorityDecisionFieldId,
-      fieldValueDigest: canonicalizeJson(field.value).digest,
-      source: evidenceSource({
-        candidate: input.candidate,
-        sources: input.sources,
-        datum,
-        sourceAuthorityDigest: input.sourceAuthorityDigest,
-        collectionCutoff: input.collectionCutoff,
-        provenanceKind: plan.evidenceProvenanceKind,
-      }),
-    });
+    const data = sourcesForCompleteField(field.fieldId, input.sources);
+    if (data.length < 1 || data.length > 2) invalid();
+    for (const datum of data) {
+      bindings.push({
+        fieldId: field.fieldId as CandidateAuthorityDecisionFieldId,
+        fieldValueDigest: canonicalizeJson(field.value).digest,
+        sourceOperationId: datum.operationId,
+        source: evidenceSource({
+          candidate: input.candidate,
+          sources: input.sources,
+          datum,
+          sourceAuthorityDigest: input.sourceAuthorityDigest,
+          collectionCutoff: input.collectionCutoff,
+          provenanceKind: plan.evidenceProvenanceKind,
+        }),
+      });
+    }
   }
-  return bindings.sort((left, right) => compare(left.fieldId, right.fieldId));
+  return bindings.sort(
+    (left, right) =>
+      compare(left.fieldId, right.fieldId) ||
+      completeSourceRank(left.sourceOperationId) -
+        completeSourceRank(right.sourceOperationId) ||
+      compare(left.sourceOperationId, right.sourceOperationId),
+  );
 }
 
 function evidenceCandidate(
@@ -753,6 +770,12 @@ function evidenceCandidate(
     partialFieldEvidenceBindings:
       core.partialProjection.partialFieldEvidenceBindings,
   };
+  validateCandidateAuthorityCompleteEvidence({
+    profile: core.profile,
+    observations: candidate.observations,
+    bindings: candidate.completeFieldEvidenceBindings,
+    selectedFieldIds: core.selectedFieldIds,
+  });
   return Object.freeze({
     ...candidate,
     canonicalEvidenceDigest: canonicalizeJson(candidate).digest,
@@ -931,12 +954,12 @@ function sourceClassForOperation(
   }
 }
 
-function sourceForCompleteField(
+function sourcesForCompleteField(
   fieldId: string,
   sources: ReadonlyMap<string, CandidateAuthoritySourceDatum>,
-): CandidateAuthoritySourceDatum | undefined {
+): CandidateAuthoritySourceDatum[] {
   if (fieldId === 'security-policy-presence') {
-    return [
+    const datum = [
       sources.get('github-root-tree'),
       sources.get('github-security-dot-github-tree'),
       sources.get('github-security-docs-tree'),
@@ -945,12 +968,19 @@ function sourceForCompleteField(
         datum?.outcome === 'established-value' &&
         recordValue(datum.value)['securityPolicyPresent'] === true,
     );
+    return datum === undefined ? [] : [datum];
+  }
+  if (fieldId === 'package-repository-linkage') {
+    const npm = sources.has('npm-selected-version-metadata')
+      ? sources.get('npm-selected-version-metadata')
+      : sources.get('npm-package-metadata');
+    const github = sources.get('github-repository-metadata');
+    return npm === undefined || github === undefined ? [] : [npm, github];
   }
   const operation =
     fieldId === 'package-publication-version'
       ? 'npm-package-metadata'
-      : fieldId === 'runtime-package-format' ||
-          fieldId === 'package-repository-linkage'
+      : fieldId === 'runtime-package-format'
         ? sources.has('npm-selected-version-metadata')
           ? 'npm-selected-version-metadata'
           : 'npm-package-metadata'
@@ -965,7 +995,16 @@ function sourceForCompleteField(
                 : fieldId === 'security-advisory-state'
                   ? 'github-advisories'
                   : null;
-  return operation === null ? undefined : sources.get(operation);
+  const datum = operation === null ? undefined : sources.get(operation);
+  return datum === undefined ? [] : [datum];
+}
+
+function completeSourceRank(operationId: string): number {
+  return operationId === 'npm-selected-version-metadata'
+    ? 0
+    : operationId === 'github-repository-metadata'
+      ? 1
+      : 2;
 }
 
 function npmVersion(

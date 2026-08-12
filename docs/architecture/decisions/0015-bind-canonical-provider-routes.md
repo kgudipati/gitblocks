@@ -1,6 +1,7 @@
 # ADR 0015: Bind candidate provider routing to accepted Phase 9 canonical repository identities
 
-- Status: Proposed for independent exact-head acceptance; no provider effect authorized
+- Status: Accepted at independently reviewed head
+  `2be3d5950cc69572b5b45fc641848fed112fc112`; no provider effect authorized
 - Date: 2026-08-11
 - Issue: #32
 - Pull request: #33
@@ -79,3 +80,12 @@ credential read or provider effect.
   generic over the complete accepted 150-record authority.
 - Using Phase 9 descriptions, topics, or languages as live M3 evidence is
   rejected because the authority is structural routing input only.
+
+## Independent acceptance
+
+Independent review accepted the routing architecture at exact head
+`2be3d5950cc69572b5b45fc641848fed112fc112`, including 146 unchanged routes,
+4 redirected routes, zero redirects, canonical repository-scoped routing, and
+catalog/canonical package-linkage aliases. This acceptance did not activate
+authorization v7. That authorization remained inactive, consumed no provider
+effect, and was superseded before activation by the evidence-bridge successor.

@@ -1,10 +1,10 @@
 import { resolve } from 'node:path';
 
 import {
-  executeCandidateAuthoritySuccessorV7,
-  preflightCandidateAuthoritySuccessorV7,
-  renderCandidateAuthoritySuccessorFailureV7,
-} from '../src/candidate-authority-live-v7-runner.ts';
+  executeCandidateAuthoritySuccessorV8,
+  preflightCandidateAuthoritySuccessorV8,
+  renderCandidateAuthoritySuccessorFailureV8,
+} from '../src/candidate-authority-live-v8-runner.ts';
 import { CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH } from '../src/candidate-authority-successor-contracts.ts';
 import {
   createCandidateAuthoritySuccessorSystemEffects,
@@ -22,7 +22,7 @@ if (
   unexpected.length > 0
 ) {
   process.stderr.write(
-    renderCandidateAuthoritySuccessorFailureV7(new Error('invalid arguments')),
+    renderCandidateAuthoritySuccessorFailureV8(new Error('invalid arguments')),
   );
   process.exitCode = 1;
 } else {
@@ -34,7 +34,7 @@ if (
   });
   try {
     if (mode === 'preflight') {
-      const result = await preflightCandidateAuthoritySuccessorV7(
+      const result = await preflightCandidateAuthoritySuccessorV8(
         effects,
         acceptedHead,
       );
@@ -59,7 +59,7 @@ if (
         })}\n`,
       );
     } else if (mode === 'collect') {
-      const authority = await executeCandidateAuthoritySuccessorV7(
+      const authority = await executeCandidateAuthoritySuccessorV8(
         effects,
         acceptedHead,
       );
@@ -105,7 +105,7 @@ if (
       );
     }
   } catch (error) {
-    process.stderr.write(renderCandidateAuthoritySuccessorFailureV7(error));
+    process.stderr.write(renderCandidateAuthoritySuccessorFailureV8(error));
     process.exitCode = 1;
   }
 }

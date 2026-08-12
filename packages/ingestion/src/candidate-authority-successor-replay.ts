@@ -9,10 +9,10 @@ import {
 
 import { canonicalizeJson } from './canonical-json.ts';
 import {
-  CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
   type CandidateAuthorityFieldPlanV7Runtime,
   type CandidateAuthorityProviderRoutes,
 } from './candidate-authority-canonical-routing-correction.ts';
+import { CANDIDATE_AUTHORITY_REPLAY_V7_VERSION } from './candidate-authority-linkage-evidence-correction.ts';
 import type { CandidateAuthoritySourceCandidateV1 } from './candidate-authority-live-contracts.ts';
 import type { CandidateAuthorityPartialFieldEvidence } from './candidate-authority-partial-evidence.ts';
 import type { CandidateAuthorityPartialSemanticRegistry } from './candidate-authority-partial-semantics.ts';
@@ -42,7 +42,7 @@ type SuccessorProfiles = Omit<
   'authorityVersion' | 'replayAlgorithmVersion' | 'sourceAuthorityVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_PROFILE_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V6_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V7_VERSION;
   readonly sourceAuthorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION;
 };
 type SuccessorPartial = Omit<
@@ -50,7 +50,7 @@ type SuccessorPartial = Omit<
   'authorityVersion' | 'replayAlgorithmVersion' | 'sourceAuthorityVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V6_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V7_VERSION;
   readonly sourceAuthorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION;
 };
 type SuccessorEvidence = Omit<
@@ -58,21 +58,21 @@ type SuccessorEvidence = Omit<
   'authorityVersion' | 'replayAlgorithmVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V6_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V7_VERSION;
 };
 type SuccessorDossiers = Omit<
   CandidateAuthorityDossierAuthorityV1,
   'authorityVersion' | 'replayAlgorithmVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V6_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V7_VERSION;
 };
 type SuccessorProjection = Omit<
   CandidateAuthorityDossierProjectionAuthorityV1,
   'authorityVersion' | 'replayAlgorithmVersion'
 > & {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_PROJECTION_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V6_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V7_VERSION;
 };
 
 export interface CandidateAuthoritySuccessorReplayBundle {
@@ -144,7 +144,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   });
   const profiles = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_PROFILE_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
     sourceAuthorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     orderedCandidateIds: source.orderedCandidateIds,
@@ -157,7 +157,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
     );
   const partial = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_PARTIAL_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
     sourceAuthorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     semanticRegistryVersion: input.partialSemanticRegistry.registryVersion,
@@ -169,7 +169,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   const evidenceCandidates = projections.map(({ evidence }) => evidence);
   const evidence = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_EVIDENCE_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     deterministicProfileAuthorityDigest: profiles.canonicalAuthorityDigest,
     partialFieldEvidenceAuthorityDigest: partial.canonicalAuthorityDigest,
@@ -179,7 +179,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   const dossierValues = projections.map(({ dossier }) => dossier);
   const dossiers = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_DOSSIER_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     deterministicProfileAuthorityDigest: profiles.canonicalAuthorityDigest,
     fitEvidenceAuthorityDigest: evidence.canonicalAuthorityDigest,
@@ -203,7 +203,7 @@ export function generateCandidateAuthoritySuccessorReplay(input: {
   });
   const dossierProjection = withCanonicalAuthorityDigest({
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_PROJECTION_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V7_VERSION,
     sourceAuthorityDigest: source.canonicalAuthorityDigest,
     deterministicProfileAuthorityDigest: profiles.canonicalAuthorityDigest,
     partialFieldEvidenceAuthorityDigest: partial.canonicalAuthorityDigest,
@@ -255,7 +255,9 @@ function validateSourceRoute(
     catalog['repository'] !== route.catalogRepository ||
     canonical['owner'] !== route.providerCanonicalOwner ||
     canonical['repository'] !== route.providerCanonicalRepository ||
-    value['repositoryIdentityState'] !== route.repositoryIdentityState
+    value['repositoryIdentityState'] !== route.repositoryIdentityState ||
+    value['routingAuthoritySourceRecordDigest'] !==
+      route.routingAuthoritySourceRecordDigest
   )
     invalid();
 }

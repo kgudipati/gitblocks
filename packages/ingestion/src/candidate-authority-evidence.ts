@@ -19,6 +19,7 @@ type ProfileField = DeterministicProfileFieldRecord;
 export interface CandidateAuthorityEvidenceBinding {
   readonly fieldId: CandidateAuthorityDecisionFieldId;
   readonly fieldValueDigest: string;
+  readonly sourceOperationId: string;
   readonly source: EvidenceSource;
 }
 
@@ -29,6 +30,8 @@ export interface CandidateAuthorityDossierProjection {
   readonly dossierDigest: string;
   readonly fieldEvidenceBindings: readonly {
     readonly fieldId: CandidateAuthorityDecisionFieldId;
+    readonly fieldValueDigest: string;
+    readonly sourceOperationId: string;
     readonly evidenceId: string;
     readonly evidenceDigest: string;
   }[];
@@ -74,7 +77,7 @@ export function projectCandidateAuthorityDossier(input: {
   const planByField = new Map(
     input.fieldPlan.fields.map((entry) => [entry.fieldId, entry]),
   );
-  const bindingsByField = uniqueBindings(input.evidenceBindings);
+  const bindingsByField = groupedBindings(input.evidenceBindings);
   const observations: CandidateDossierV1['observations'][number][] = [];
   const limitations: CandidateDossierV1['limitations'][number][] = [];
   const unknowns: CandidateDossierV1['unknowns'][number][] = [];
@@ -91,51 +94,69 @@ export function projectCandidateAuthorityDossier(input: {
     const plan = planByField.get(fieldId);
     if (plan === undefined) invalid();
     if (field.state === 'known') {
-      const binding = bindingsByField.get(fieldId);
+      const bindings = bindingsByField.get(fieldId);
+      const expectedOperations =
+        fieldId === 'package-repository-linkage'
+          ? ['npm-selected-version-metadata', 'github-repository-metadata']
+          : bindings?.length === 1
+            ? [bindings[0]?.sourceOperationId]
+            : [];
+      const valueDigest = canonicalizeJson(field.value).digest;
       if (
-        binding?.fieldValueDigest !== canonicalizeJson(field.value).digest ||
-        binding.source.kind !== plan.evidenceProvenanceKind
-      ) {
+        bindings?.length !== expectedOperations.length ||
+        bindings.length < 1 ||
+        bindings.length > 2 ||
+        bindings.some(
+          (binding, index) =>
+            binding.sourceOperationId !== expectedOperations[index] ||
+            binding.fieldValueDigest !== valueDigest ||
+            binding.source.kind !== plan.evidenceProvenanceKind,
+        )
+      )
         invalid();
-      }
       const observationText = deterministicObservation(fieldId, field.value);
-      const freshnessAsOf = sourceAsOf(binding.source);
-      const freshnessTime = Date.parse(freshnessAsOf);
-      if (!Number.isFinite(freshnessTime) || freshnessTime > collectionCutoff)
-        invalid();
-      const evidenceId = stableId('evidence', {
-        candidateId: profile.candidateId,
-        fieldId,
-        fieldValueDigest: binding.fieldValueDigest,
-        source: binding.source,
-      });
-      const mutable = binding.source.kind === 'structured-provider-snapshot';
-      const observation: CandidateDossierV1['observations'][number] = {
-        kind: 'evidence',
-        evidenceId,
-        candidateId: profile.candidateId,
-        topic: plan.evidenceTopic,
-        dimension: plan.evidenceDimension,
-        observation: observationText,
-        source: binding.source,
-        freshness: {
-          status: 'current',
-          asOf: freshnessAsOf,
-          scope: `Field ${fieldId} at the committed candidate-authority cutoff.`,
-        },
-        directness: 'direct',
-        limitation: mutable
-          ? 'Structured provider state is mutable; the claim is limited to the committed snapshot.'
-          : null,
-      };
-      observations.push(observation);
-      fieldEvidenceBindings.push({
-        fieldId,
-        evidenceId,
-        evidenceDigest: canonicalizeJson(observation).digest,
-      });
-      if (mutable) {
-        mutableEvidenceIds.push(evidenceId);
+      for (const binding of bindings) {
+        const freshnessAsOf = sourceAsOf(binding.source);
+        const freshnessTime = Date.parse(freshnessAsOf);
+        if (!Number.isFinite(freshnessTime) || freshnessTime > collectionCutoff)
+          invalid();
+        const evidenceId = stableId('evidence', {
+          candidateId: profile.candidateId,
+          fieldId,
+          fieldValueDigest: binding.fieldValueDigest,
+          source: binding.source,
+        });
+        const mutable = binding.source.kind === 'structured-provider-snapshot';
+        const observation: CandidateDossierV1['observations'][number] = {
+          kind: 'evidence',
+          evidenceId,
+          candidateId: profile.candidateId,
+          topic: plan.evidenceTopic,
+          dimension: plan.evidenceDimension,
+          observation:
+            fieldId === 'package-repository-linkage'
+              ? `${observationText}; sourceOperation=${binding.sourceOperationId}`
+              : observationText,
+          source: binding.source,
+          freshness: {
+            status: 'current',
+            asOf: freshnessAsOf,
+            scope: `Field ${fieldId} at the committed candidate-authority cutoff.`,
+          },
+          directness: 'direct',
+          limitation: mutable
+            ? 'Structured provider state is mutable; the claim is limited to the committed snapshot.'
+            : null,
+        };
+        observations.push(observation);
+        fieldEvidenceBindings.push({
+          fieldId,
+          fieldValueDigest: binding.fieldValueDigest,
+          sourceOperationId: binding.sourceOperationId,
+          evidenceId,
+          evidenceDigest: canonicalizeJson(observation).digest,
+        });
+        if (mutable) mutableEvidenceIds.push(evidenceId);
       }
       continue;
     }
@@ -214,10 +235,100 @@ export function projectCandidateAuthorityDossier(input: {
     deterministicProfileDigest: profile.semanticProfileDigest,
     dossier,
     dossierDigest: canonicalizeJson(dossier).digest,
-    fieldEvidenceBindings: [...fieldEvidenceBindings].sort((left, right) =>
-      compare(left.fieldId, right.fieldId),
+    fieldEvidenceBindings: [...fieldEvidenceBindings].sort(
+      compareCompleteBinding,
     ),
   };
+}
+
+export function validateCandidateAuthorityCompleteEvidence(input: {
+  readonly profile: DeterministicCandidateProfileV1;
+  readonly observations: CandidateDossierV1['observations'];
+  readonly bindings: CandidateAuthorityDossierProjection['fieldEvidenceBindings'];
+  readonly selectedFieldIds: readonly CandidateAuthorityDecisionFieldId[];
+}): void {
+  const parsed = parseDeterministicCandidateProfileV1(input.profile);
+  if (!parsed.ok) invalid();
+  const profile = parsed.value;
+  const observationById = new Map(
+    input.observations.map((observation) => [
+      observation.evidenceId,
+      observation,
+    ]),
+  );
+  if (observationById.size !== input.observations.length) invalid();
+  const selected = new Set(input.selectedFieldIds);
+  const grouped = new Map<
+    CandidateAuthorityDecisionFieldId,
+    CandidateAuthorityDossierProjection['fieldEvidenceBindings'][number][]
+  >();
+  for (const binding of input.bindings) {
+    const current = grouped.get(binding.fieldId) ?? [];
+    if (
+      !selected.has(binding.fieldId) ||
+      current.length >= 2 ||
+      current.some(
+        ({ sourceOperationId }) =>
+          sourceOperationId === binding.sourceOperationId,
+      )
+    )
+      invalid();
+    const observation = observationById.get(binding.evidenceId);
+    if (
+      observation?.candidateId !== profile.candidateId ||
+      canonicalizeJson(observation).digest !== binding.evidenceDigest
+    )
+      invalid();
+    current.push(binding);
+    grouped.set(binding.fieldId, current);
+  }
+  for (const fieldId of selected) {
+    const field = (profile.fields as unknown as readonly ProfileField[]).find(
+      (candidate) => candidate.fieldId === fieldId,
+    );
+    if (field === undefined) invalid();
+    const bindings = grouped.get(fieldId) ?? [];
+    if (field.state !== 'known') {
+      if (bindings.length !== 0) invalid();
+      continue;
+    }
+    const valueDigest = canonicalizeJson(field.value).digest;
+    const required =
+      fieldId === 'package-repository-linkage'
+        ? ['npm-selected-version-metadata', 'github-repository-metadata']
+        : null;
+    if (
+      bindings.length !== (required === null ? 1 : 2) ||
+      bindings.some(({ fieldValueDigest }) => fieldValueDigest !== valueDigest)
+    )
+      invalid();
+    const sorted = bindings
+      .map(({ sourceOperationId }) => sourceOperationId)
+      .sort(compareCompleteSourceOperation);
+    if (
+      required?.some((operation, index) => operation !== sorted[index]) === true
+    )
+      invalid();
+    for (const binding of bindings) {
+      const observation = observationById.get(binding.evidenceId) ?? invalid();
+      if (fieldId === 'package-repository-linkage') {
+        const source = observation.source;
+        if (
+          source.kind !== 'structured-provider-snapshot' ||
+          (binding.sourceOperationId === 'npm-selected-version-metadata'
+            ? source.provider !== 'npm' ||
+              source.sourceClass !== 'package-metadata'
+            : source.provider !== 'github' ||
+              source.sourceClass !== 'repository-metadata')
+        )
+          invalid();
+      }
+    }
+  }
+  const bindingIds = new Set(
+    input.bindings.map(({ evidenceId }) => evidenceId),
+  );
+  if (bindingIds.size !== input.bindings.length) invalid();
 }
 
 function requireKnownField(
@@ -230,21 +341,62 @@ function requireKnownField(
   return field.value;
 }
 
-function uniqueBindings(
+function groupedBindings(
   bindings: readonly CandidateAuthorityEvidenceBinding[],
 ): ReadonlyMap<
   CandidateAuthorityDecisionFieldId,
-  CandidateAuthorityEvidenceBinding
+  readonly CandidateAuthorityEvidenceBinding[]
 > {
   const result = new Map<
     CandidateAuthorityDecisionFieldId,
-    CandidateAuthorityEvidenceBinding
+    CandidateAuthorityEvidenceBinding[]
   >();
   for (const binding of bindings) {
-    if (result.has(binding.fieldId)) invalid();
-    result.set(binding.fieldId, binding);
+    const current = result.get(binding.fieldId) ?? [];
+    if (
+      current.length >= 2 ||
+      current.some(
+        ({ sourceOperationId }) =>
+          sourceOperationId === binding.sourceOperationId,
+      )
+    )
+      invalid();
+    result.set(binding.fieldId, [...current, binding]);
   }
+  for (const [fieldId, values] of result)
+    result.set(
+      fieldId,
+      values.sort((left, right) =>
+        compareCompleteSourceOperation(
+          left.sourceOperationId,
+          right.sourceOperationId,
+        ),
+      ),
+    );
   return result;
+}
+
+function compareCompleteBinding(
+  left: CandidateAuthorityDossierProjection['fieldEvidenceBindings'][number],
+  right: CandidateAuthorityDossierProjection['fieldEvidenceBindings'][number],
+): number {
+  return (
+    compare(left.fieldId, right.fieldId) ||
+    compareCompleteSourceOperation(
+      left.sourceOperationId,
+      right.sourceOperationId,
+    )
+  );
+}
+
+function compareCompleteSourceOperation(left: string, right: string): number {
+  const rank = (operation: string): number =>
+    operation === 'npm-selected-version-metadata'
+      ? 0
+      : operation === 'github-repository-metadata'
+        ? 1
+        : 2;
+  return rank(left) - rank(right) || compare(left, right);
 }
 
 function deterministicObservation(

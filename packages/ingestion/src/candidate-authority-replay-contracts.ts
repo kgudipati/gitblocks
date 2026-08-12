@@ -78,6 +78,8 @@ export interface CandidateAuthorityFitEvidenceCandidateV1 {
   readonly unknowns: CandidateDossierV1['unknowns'];
   readonly completeFieldEvidenceBindings: readonly {
     readonly fieldId: CandidateAuthorityDecisionFieldId;
+    readonly fieldValueDigest: string;
+    readonly sourceOperationId: string;
     readonly evidenceId: string;
     readonly evidenceDigest: string;
   }[];

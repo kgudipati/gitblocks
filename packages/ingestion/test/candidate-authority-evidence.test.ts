@@ -158,19 +158,84 @@ function evidenceBindings(
   const packageVersion = packagePublicationVersion(profileValue) ?? '1.0.0';
   const fields =
     profileValue.fields as unknown as readonly DeterministicProfileFieldRecord[];
-  return fields.flatMap((field) => {
+  return fields.flatMap<CandidateAuthorityEvidenceBinding>((field) => {
     const plan = planByField.get(
       field.fieldId as CandidateAuthorityFieldPlanEntry['fieldId'],
     );
     if (plan === undefined || field.state !== 'known') return [];
+    if (plan.fieldId === 'package-repository-linkage') {
+      const digest = canonicalizeJson(field.value).digest;
+      return [
+        {
+          fieldId: plan.fieldId,
+          fieldValueDigest: digest,
+          sourceOperationId: 'github-repository-metadata',
+          source: structuredSource(
+            candidateId(profileValue),
+            plan.fieldId,
+            'github',
+            'repository-metadata',
+          ),
+        },
+        {
+          fieldId: plan.fieldId,
+          fieldValueDigest: digest,
+          sourceOperationId: 'npm-selected-version-metadata',
+          source: structuredSource(
+            candidateId(profileValue),
+            plan.fieldId,
+            'npm',
+            'package-metadata',
+          ),
+        },
+      ];
+    }
     return [
       {
         fieldId: plan.fieldId,
         fieldValueDigest: canonicalizeJson(field.value).digest,
+        sourceOperationId: `fixture-${plan.fieldId}`,
         source: evidenceSource(plan, profileValue.candidateId, packageVersion),
       },
     ];
   });
+}
+
+function structuredSource(
+  candidateIdValue: string,
+  fieldId: CandidateAuthorityFieldPlanEntry['fieldId'],
+  provider: 'github' | 'npm',
+  sourceClass: 'repository-metadata' | 'package-metadata',
+): Extract<
+  CandidateAuthorityEvidenceBinding['source'],
+  { kind: 'structured-provider-snapshot' }
+> {
+  return {
+    kind: 'structured-provider-snapshot',
+    sourceType: 'public-structured-provider',
+    provider,
+    sourceClass,
+    sourceIdentity: `source-${candidateIdValue}-${provider}`,
+    sourceUrl:
+      provider === 'npm'
+        ? 'https://registry.npmjs.org/bunyan/latest'
+        : 'https://api.github.com/repos/example/project',
+    sourceAuthorityDigest: 'a'.repeat(64),
+    sourceRecordDigest: canonicalizeJson({
+      candidateId: candidateIdValue,
+      fieldId,
+      provider,
+    }).digest,
+    collectedAt: '2026-07-31T00:00:00.000Z',
+    effectiveAsOf: '2026-07-31T00:00:00.000Z',
+    sourceMutability: 'mutable',
+    completenessState: 'complete',
+    limitationCode: 'source-is-mutable',
+  };
+}
+
+function candidateId(profile: DeterministicCandidateProfileV1): string {
+  return profile.candidateId;
 }
 
 function evidenceSource(

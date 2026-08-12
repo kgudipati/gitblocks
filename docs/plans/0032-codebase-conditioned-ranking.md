@@ -8,33 +8,18 @@
 - Draft PR:
   [#33 — docs(ranking): establish Phase 10 governance](https://github.com/kgudipati/gitblocks/pull/33)
 - Owner: repository maintainer
-- State: Milestone 1 architecture is independently accepted at exact commit
-  `6d43861ead6889f706c82b25fcd3d301acb6c4f3`. The maintainer accepted the
-  documented hosted-infrastructure exception for natural run `31416900337`:
-  all six repository-verification workers passed, while the compatibility
-  aggregate did not execute because of GitHub's account billing/spending-limit
-  condition. Milestone 2 is independently accepted at exact reviewed content
-  head `700e84b6c50b326d3c6d2913634a221d4643756e` through the additive review
-  and gate authority. The accepted readiness minimum is 13/18 (72.222222%)
-  with four-group breadth qualification. Publication authorizes Milestone 3
-  only within the candidate-authority successor boundary; no M3 work began in
-  the acceptance operation. M3A v1 subsequently returned a correct pre-live
-  NO-GO under historical readiness policy v1. Accepted ADR 0012 now separates
-  planned extraction capability, realized post-collection readiness, and full
-  closure. Its corrected policy-v3 plan has 13 planned-capable paths and six
-  full-closure candidates; realized readiness remains unmeasured. The
-  resulting pre-live architecture and source/rule authority are accepted at
-  `47397ce92ee500c011fe39820053ba22fd6b397b`. Live operator v1 was published at
-  `a1c141e87c96187c8edb5779709fa5ef04089390`; its first invocation stopped as
-  a pre-effect credential-gate failure before a cutoff or provider call. No
-  source authority, all-150 projection, or readiness measurement exists. Replay
-  correction head `4152fb744086bb13ad581b461044a0e2670df1f4` froze the complete
-  pure replay and readiness/root orchestration. This final additive pre-effect
-  provenance correction retains the exact provider-returned GitHub license
-  path/blob identity and removes the inferred `LICENSE` locator before another
-  exact-head review. Exactly one provider-effect collection remains, live
-  collection remains unexecuted, realized readiness remains unmeasured, and
-  Milestones 4 through 6 remain unauthorized.
+- State: Milestones 1 and 2 are independently accepted. The frozen M3 gate is
+  13/18 (72.222222%) with four-group breadth. Authorization v3, v5, and v6 each
+  reached provider effects once, failed without publishing a source authority,
+  and have zero remaining collections. Authorization v4 never activated.
+  Independent review accepted ADR 0014 at `895980891665e373ccf72e63a6b12cf4f09b63c1`
+  and ADR 0015 at `2be3d5950cc69572b5b45fc641848fed112fc112`.
+  Authorization v7 never activated and is superseded before activation because
+  `package-repository-linkage` needed complete two-source evidence grounding.
+  Proposed ADR 0016, provider contract v5, source policy v10, replay v7,
+  operator v8, and inactive authorization v8 freeze that correction for a new
+  exact-head independent review. No live source, all-150 live projection, or
+  readiness report exists; Milestones 4 through 6 remain unauthorized.
 - Required and verified base:
   `a6e03ef20a8cef2a39db8e66b91612245378f9db`
 - Last updated: 2026-08-11
@@ -1809,3 +1794,43 @@ architecture, secret, registry-audit, and diff checks passed; the registry
 audit reported no known vulnerabilities. The accepted Ranking V1 and workflow
 trees remain unchanged, all live v2/v3 source and result paths remain absent,
 and the final correction preflight retained its exact all-zero effect audit.
+
+### Milestone 3 canonical routing and complete linkage evidence correction
+
+Authorization v6 reached provider effects once and failed at canonical
+repository metadata routing without publishing source authority. Accepted ADR
+0015 binds all repository-scoped requests to the 150-record Phase 9 routing
+authority while preserving catalog identity, zero redirects, and the existing
+request ceilings. Independent review accepted that architecture at exact head
+`2be3d5950cc69572b5b45fc641848fed112fc112`; authorization v7 never activated
+and is superseded before activation.
+
+The final pre-effect defect was evidence grounding for
+`package-repository-linkage`. The deterministic value compares selected npm
+repository declaration or omission with live-validated catalog and canonical
+repository aliases, so a known linkage value requires both source records.
+Proposed ADR 0016 freezes a maximum of two complete sources per field. Package
+linkage requires exactly npm package-metadata and GitHub repository-metadata
+observations with the same field-value digest; ordinary known fields retain one
+source. Missing, duplicate, unexpected, extra, or mismatched-digest evidence is
+invalid. The Phase 9 per-candidate source-record digest is retained in live
+repository metadata and revalidated from the committed routing authority.
+
+Provider contract v5, source policy v10, replay v7, source/output v5, root v8,
+operator v8, and inactive authorization v8 form the additive successor.
+Field-plan v7 remains unchanged at 13 planned-capable and four full-closure
+fields. The decision denominator remains 18, its minimum remains 13/18
+(72.222222%), and all four breadth groups remain required. Operation count and
+ceilings remain 13 operations, 1,810 GitHub plus 80 npm logical requests, and
+5,430 plus 240 attempts.
+
+Focused correction validation passed 44 tests across five files, the complete
+ingestion suite passed 466 tests across 52 files, and the full repository suite
+passed 2,111 tests across 155 files with zero dependency violations across 955
+modules and 3,386 dependencies. PostgreSQL verification passed 62 tests with
+no skips. Runtime, formatting, repository, contract, catalog, architecture,
+secret, registry-audit, and diff checks passed. The exact correction preflight
+reported zero network, credential, provider, database, Docker, model,
+filesystem-write, source-generation, all-candidate projection, and coverage
+effects. No live source or readiness authority exists, M3 remains incomplete,
+and M4 has not started.

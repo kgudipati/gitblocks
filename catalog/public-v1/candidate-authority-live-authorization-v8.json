@@ -1,0 +1,105 @@
+{
+  "authorizationVersion": "candidate-authority-live-authorization/8.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "bindings": {
+    "catalogVersion": "public-v1",
+    "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+    "taxonomyVersion": "1.0.0",
+    "taxonomyDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+    "consumedV6ExecutionHead": "895980891665e373ccf72e63a6b12cf4f09b63c1",
+    "acceptedRoutingHead": "2be3d5950cc69572b5b45fc641848fed112fc112",
+    "failureRecordVersion": "candidate-authority-live-failure-record/3.0.0",
+    "failureRecordDigest": "d5e21bfcfc5ecef6b99639bc86947b87c8e31ab31cfe300929a6479c270be526",
+    "fieldPlanVersion": "candidate-authority-field-plan/7.0.0",
+    "fieldPlanDigest": "650f7e1b335c0d5d919e69cc8619573a7b8322779ca8686e768be7a4284d95ec",
+    "sourcePolicyVersion": "candidate-authority-source-policy/10.0.0",
+    "sourcePolicyDigest": "82a10a75be6676464112357794872f293518b261a9c7b58f35fccd209eed84f0",
+    "providerContractVersion": "candidate-authority-provider-contract/5.0.0",
+    "providerContractDigest": "980a34aa6643cf136744b079415cb13ff0fdedd1587bc5345419700017785ea7",
+    "routingAuthorityVersion": "candidate-retrieval-metadata-authority/1.1.0",
+    "routingAuthoritySnapshotId": "retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f",
+    "routingAuthorityDigest": "23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1",
+    "routingProviderPolicyVersion": "candidate-retrieval-metadata-provider-policy/1.1.0",
+    "routingProviderPolicyDigest": "b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e",
+    "routingSourceProviderPolicyVersion": "profile-materialization-provider-policy/1.0.0",
+    "routingSourceProviderPolicyDigest": "0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede",
+    "replayAlgorithmVersion": "candidate-authority-pure-replay/7.0.0",
+    "replayAlgorithmDigest": "4857d465c43384445f1305520334bee4a8ef27355a4a122925f3aaed3eb5c58f",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/3.0.0",
+    "partialSemanticRegistryDigest": "8aa2e5a9ede84f871eb057ad10850b01daae9302b3b20450d97fecc115857b7b",
+    "partialEvidenceVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e",
+    "architectureDecisions": "ADR-0014-accepted;ADR-0015-accepted;ADR-0016-proposed-no-provider-effect"
+  },
+  "historicalExperiments": {
+    "authorizationV3": {
+      "providerEffectCollectionsConsumed": 1,
+      "remainingProviderEffectCollections": 0,
+      "rerunPermitted": false
+    },
+    "authorizationV4": {
+      "state": "proposed-inactive-never-activated"
+    },
+    "authorizationV5": {
+      "providerEffectCollectionsConsumed": 1,
+      "remainingProviderEffectCollections": 0,
+      "rerunPermitted": false
+    },
+    "authorizationV6": {
+      "providerEffectCollectionsConsumed": 1,
+      "remainingProviderEffectCollections": 0,
+      "rerunPermitted": false
+    },
+    "authorizationV7": {
+      "state": "inactive-never-provider-effect-activated-superseded-before-activation",
+      "providerEffectCollectionsConsumed": 0,
+      "remainingProviderEffectCollections": 0,
+      "activationPermitted": false,
+      "operatorVersion": "candidate-authority-live-operator/7.0.0"
+    }
+  },
+  "successorExperiment": {
+    "classification": "new-independently-reviewed-complete-evidence-bridge-successor-not-v6-rerun-or-v7-activation",
+    "conditionallyAuthorizedProviderEffectCollections": 1,
+    "activeProviderEffectCollections": 0,
+    "activationCondition": "Invocation must supply --accepted-head equal to the independently reviewed local and origin correction head, which must be exactly one ordinary additive commit whose direct parent is 2be3d5950cc69572b5b45fc641848fed112fc112.",
+    "automaticRerun": false,
+    "fatalAttemptConsumesAuthorizationAfterProviderEffects": true,
+    "candidateCount": 150,
+    "mappedNpmCount": 80,
+    "githubLogicalRequestCeiling": 1810,
+    "npmLogicalRequestCeiling": 80,
+    "totalLogicalRequestCeiling": 1890,
+    "githubAttemptCeiling": 5430,
+    "npmAttemptCeiling": 240,
+    "totalAttemptCeiling": 5670
+  },
+  "executionLineage": {
+    "branch": "feat/32-codebase-conditioned-ranking",
+    "activationParent": "2be3d5950cc69572b5b45fc641848fed112fc112",
+    "activationCommitCount": 1,
+    "acceptedHeadSource": "required non-secret --accepted-head invocation argument",
+    "acceptedHeadStoredInSource": false,
+    "headMustEqualOrigin": true,
+    "cleanWorktreeRequired": true,
+    "independentReviewRequiredBeforeCredentialInspection": true
+  },
+  "paths": {
+    "sourceAuthority": "catalog/public-v1/candidate-authority-source-authority-v5.json",
+    "ownedSourceStaging": "catalog/public-v1/candidate-authority-source-authority-v5.staging.json",
+    "deterministicProfiles": "catalog/public-v1/candidate-authority-profiles-v5.json",
+    "partialFieldEvidence": "catalog/public-v1/candidate-authority-partial-evidence-v5.json",
+    "fitConsumableEvidence": "catalog/public-v1/candidate-authority-evidence-v5.json",
+    "dossiers": "catalog/public-v1/candidate-authority-dossiers-v5.json",
+    "dossierProjection": "catalog/public-v1/candidate-authority-dossier-projection-v5.json",
+    "readiness": "catalog/public-v1/candidate-authority-readiness-report-v5.json",
+    "root": "catalog/public-v1/candidate-authority-root-v8.json"
+  },
+  "operatorVersion": "candidate-authority-live-operator/8.0.0",
+  "sourceAuthorityVersion": "candidate-authority-source-authority/5.0.0",
+  "credentialEnvironmentName": "GITBLOCKS_CANDIDATE_AUTHORITY_GITHUB_TOKEN",
+  "maximumSerializedSourceAuthorityBytes": 268435456,
+  "authorizationSemanticDigest": "1b220e9703e83d012a42b607f475f8290c95ddcc3765eb247e9c26098d701863"
+}

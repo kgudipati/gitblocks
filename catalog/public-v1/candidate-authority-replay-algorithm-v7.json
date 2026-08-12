@@ -1,0 +1,86 @@
+{
+  "algorithmVersion": "candidate-authority-pure-replay/7.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesBeforeActivation": {
+    "version": "candidate-authority-pure-replay/6.0.0",
+    "digest": "e6b8e88ecf81884b6129a36284d9d13aa257d0f72b42b0277f0172a6a5fd32b1",
+    "path": "catalog/public-v1/candidate-authority-replay-algorithm-v6.json"
+  },
+  "bindings": {
+    "fieldPlanVersion": "candidate-authority-field-plan/7.0.0",
+    "fieldPlanDigest": "650f7e1b335c0d5d919e69cc8619573a7b8322779ca8686e768be7a4284d95ec",
+    "sourcePolicyVersion": "candidate-authority-source-policy/10.0.0",
+    "sourcePolicyDigest": "82a10a75be6676464112357794872f293518b261a9c7b58f35fccd209eed84f0",
+    "providerContractVersion": "candidate-authority-provider-contract/5.0.0",
+    "providerContractDigest": "980a34aa6643cf136744b079415cb13ff0fdedd1587bc5345419700017785ea7",
+    "routingAuthorityVersion": "candidate-retrieval-metadata-authority/1.1.0",
+    "routingAuthoritySnapshotId": "retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f",
+    "routingAuthorityDigest": "23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/3.0.0",
+    "partialSemanticRegistryDigest": "8aa2e5a9ede84f871eb057ad10850b01daae9302b3b20450d97fecc115857b7b",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e"
+  },
+  "pipeline": [
+    "committed candidate-authority-source-authority/5.0.0",
+    "deterministic profile authority/5.0.0",
+    "partial-field evidence authority/5.0.0",
+    "fit-consumable evidence authority/5.0.0",
+    "dossier authority/5.0.0",
+    "dossier projection/5.0.0",
+    "separate realized-readiness report/5.0.0",
+    "candidate-authority-root/8.0.0"
+  ],
+  "routeValidation": {
+    "loadCommittedRoutingAuthority": true,
+    "requireExactCandidateRouteSourceRecordDigest": true,
+    "trustSourceSuppliedDigestAlone": false,
+    "descriptiveMetadataFactUsePermitted": false
+  },
+  "completeEvidence": {
+    "maximumSourcesPerKnownField": 2,
+    "ordinaryKnownFieldSourceCount": 1,
+    "packageRepositoryLinkageRequiredSourceClasses": [
+      "npm/package-metadata",
+      "github/repository-metadata"
+    ],
+    "sameFieldValueDigestRequired": true,
+    "duplicateMissingUnexpectedSourceRejected": true,
+    "canonicalOrdering": true,
+    "allEvidenceIdsSurviveFitDossierProjection": true
+  },
+  "preservedSemantics": [
+    "canonical provider routing and zero redirects",
+    "npm selected-version qualified-unknown and partial evidence behavior",
+    "security-policy positive-only behavior",
+    "advisory normalization and unresolved severity",
+    "deployment optional unsupported behavior",
+    "release bounded partial behavior",
+    "readiness denominator, threshold, and breadth"
+  ],
+  "sourceFreezeGate": {
+    "tracked": true,
+    "isolatedAddCommit": true,
+    "directParentIsIndependentlyAcceptedExecutionHead": true,
+    "bytesEqualFreezeAndCurrentHead": true,
+    "freezeIsAncestor": true,
+    "headEqualsOrigin": true
+  },
+  "effects": {
+    "network": 0,
+    "credentialReads": 0,
+    "database": 0,
+    "docker": 0,
+    "model": 0,
+    "candidateExecution": 0
+  },
+  "determinismProof": [
+    "normal full pipeline",
+    "repeat full pipeline",
+    "reverse candidate input",
+    "legal source-record permutation"
+  ],
+  "canonicalAlgorithmDigest": "4857d465c43384445f1305520334bee4a8ef27355a4a122925f3aaed3eb5c58f"
+}

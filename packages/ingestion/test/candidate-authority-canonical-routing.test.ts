@@ -113,6 +113,8 @@ describe('candidate authority canonical provider routing correction', () => {
       providerCanonicalOwner: 'new-owner',
       providerCanonicalRepository: 'project',
       repositoryIdentityState: 'redirected',
+      sourceRecordDigest:
+        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     });
     expect(candidateAuthorityRepositoryPath(route)).toBe(
       '/repos/new-owner/project',
@@ -209,6 +211,8 @@ describe('candidate authority canonical provider routing correction', () => {
       providerCanonicalOwner: 'new-owner',
       providerCanonicalRepository: 'project',
       repositoryIdentityState: 'redirected' as const,
+      sourceRecordDigest:
+        'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
       description: 'first',
       topics: ['first'],
       primaryLanguage: 'TypeScript',

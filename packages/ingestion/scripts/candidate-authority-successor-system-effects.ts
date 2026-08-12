@@ -15,7 +15,7 @@ import { parseCapabilityTaxonomyV1 } from '@gitblocks/contracts';
 
 import { collectCandidateAuthoritySourceAuthority } from '../src/candidate-authority-live-collector.ts';
 import { CANDIDATE_AUTHORITY_SUCCESSOR_ZERO_EFFECT_AUDIT } from '../src/candidate-authority-live-v6-runner.ts';
-import type { CandidateAuthoritySuccessorEffectsV7 } from '../src/candidate-authority-live-v7-runner.ts';
+import type { CandidateAuthoritySuccessorEffectsV8 } from '../src/candidate-authority-live-v8-runner.ts';
 import {
   CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_PATH,
   CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH,
@@ -28,6 +28,13 @@ import {
   parseCandidateAuthorityProviderRoutes,
   validateCandidateAuthorityCanonicalRoutingAuthorities,
 } from '../src/candidate-authority-canonical-routing-correction.ts';
+import {
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V7_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_PATH,
+  validateCandidateAuthorityLinkageEvidenceAuthorities,
+} from '../src/candidate-authority-linkage-evidence-correction.ts';
 import {
   CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT,
   CANDIDATE_AUTHORITY_SUCCESSOR_MAXIMUM_SOURCE_BYTES,
@@ -129,6 +136,22 @@ const HISTORICAL_OUTPUTS = [
   'catalog/public-v1/candidate-authority-readiness-report-v3.staging.json',
   'catalog/public-v1/candidate-authority-root-v6.json',
   'catalog/public-v1/candidate-authority-root-v6.staging.json',
+  'catalog/public-v1/candidate-authority-source-authority-v4.json',
+  'catalog/public-v1/candidate-authority-source-authority-v4.staging.json',
+  'catalog/public-v1/candidate-authority-profiles-v4.json',
+  'catalog/public-v1/candidate-authority-profiles-v4.staging.json',
+  'catalog/public-v1/candidate-authority-partial-evidence-v4.json',
+  'catalog/public-v1/candidate-authority-partial-evidence-v4.staging.json',
+  'catalog/public-v1/candidate-authority-evidence-v4.json',
+  'catalog/public-v1/candidate-authority-evidence-v4.staging.json',
+  'catalog/public-v1/candidate-authority-dossiers-v4.json',
+  'catalog/public-v1/candidate-authority-dossiers-v4.staging.json',
+  'catalog/public-v1/candidate-authority-dossier-projection-v4.json',
+  'catalog/public-v1/candidate-authority-dossier-projection-v4.staging.json',
+  'catalog/public-v1/candidate-authority-readiness-report-v4.json',
+  'catalog/public-v1/candidate-authority-readiness-report-v4.staging.json',
+  'catalog/public-v1/candidate-authority-root-v7.json',
+  'catalog/public-v1/candidate-authority-root-v7.staging.json',
   'packages/ranking',
 ] as const;
 
@@ -137,7 +160,7 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
   readonly environment: Readonly<Record<string, string | undefined>>;
   readonly fetch: typeof fetch;
   readonly now: () => Date;
-}): CandidateAuthoritySuccessorEffectsV7 {
+}): CandidateAuthoritySuccessorEffectsV8 {
   if (
     typeof config.fetch !== 'function' ||
     typeof config.now !== 'function' ||
@@ -159,14 +182,18 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         providerV2,
         providerV3,
         providerV4,
+        providerV5,
         sourceV6,
         sourceV7,
         sourceV8,
         sourceV9,
+        sourceV10,
         replayV5,
         authorizationV6,
         replayV6,
         authorizationV7,
+        replayV7,
+        authorizationV8,
         failureRecordV1,
         failureRecordV2,
         failureRecordV3,
@@ -222,6 +249,11 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ),
         readFixed(
           config.repositoryRoot,
+          CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
           CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH,
           4 * 1024 * 1024,
         ),
@@ -242,6 +274,11 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ),
         readFixed(
           config.repositoryRoot,
+          CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
           CANDIDATE_AUTHORITY_REPLAY_V5_PATH,
           4 * 1024 * 1024,
         ),
@@ -258,6 +295,16 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         readFixed(
           config.repositoryRoot,
           CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_REPLAY_V7_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
@@ -325,12 +372,14 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         providerContractV2: providerV2,
         providerContractV3: providerV3,
         providerContractV4: providerV4,
+        providerContractV5: providerV5,
         sourcePolicyV6: sourceV6,
         sourcePolicyV7: sourceV7,
         sourcePolicyV8: sourceV8,
         sourcePolicyV9: sourceV9,
-        replayV6,
-        authorizationV7,
+        sourcePolicyV10: sourceV10,
+        replayV7,
+        authorizationV8,
       });
       validateCandidateAuthorityNpmCorrectionAuthorities({
         failureRecordV2: JSON.parse(failureRecordV2) as unknown,
@@ -347,6 +396,12 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         sourcePolicyV9: JSON.parse(sourceV9) as unknown,
         replayV6: JSON.parse(replayV6) as unknown,
         authorizationV7: JSON.parse(authorizationV7) as unknown,
+      });
+      validateCandidateAuthorityLinkageEvidenceAuthorities({
+        providerContractV5: JSON.parse(providerV5) as unknown,
+        sourcePolicyV10: JSON.parse(sourceV10) as unknown,
+        replayV7: JSON.parse(replayV7) as unknown,
+        authorizationV8: JSON.parse(authorizationV8) as unknown,
       });
       const catalog = parsePublicCatalog(catalogText);
       const providerRoutes = parseCandidateAuthorityProviderRoutes({

@@ -5,8 +5,14 @@ import { repositoryArtifactContentSha256 } from '@gitblocks/contracts';
 import { canonicalizeJson } from './canonical-json.ts';
 import type { CandidateAuthorityProviderRoute } from './candidate-authority-canonical-routing-correction.ts';
 import {
+  CANDIDATE_AUTHORITY_ROUTING_DIGEST,
+  CANDIDATE_AUTHORITY_ROUTING_SNAPSHOT_ID,
+  CANDIDATE_AUTHORITY_ROUTING_VERSION,
+} from './candidate-authority-canonical-routing-correction.ts';
+import {
   CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
   CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V8_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
   createCandidateAuthoritySuccessorSourceAuthority,
   createCandidateAuthoritySuccessorSourceCandidate,
@@ -119,7 +125,8 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION
-    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION;
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V8_VERSION;
   readonly providerRoutes?: ReadonlyMap<
     string,
     CandidateAuthorityProviderRoute
@@ -208,9 +215,11 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
     invalid();
   return createCandidateAuthoritySuccessorSourceAuthority({
     authorityVersion:
-      input.operatorVersion === CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION
-        ? 'candidate-authority-source-authority/4.0.0'
-        : 'candidate-authority-source-authority/3.0.0',
+      input.operatorVersion === CANDIDATE_AUTHORITY_LIVE_OPERATOR_V8_VERSION
+        ? 'candidate-authority-source-authority/5.0.0'
+        : input.operatorVersion === CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION
+          ? 'candidate-authority-source-authority/4.0.0'
+          : 'candidate-authority-source-authority/3.0.0',
     operatorVersion:
       input.operatorVersion ?? CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
     bindings: {
@@ -292,6 +301,11 @@ async function collectCandidate(
         repository: route.providerCanonicalRepository,
       },
       repositoryIdentityState: route.repositoryIdentityState,
+      routingAuthorityVersion: CANDIDATE_AUTHORITY_ROUTING_VERSION,
+      routingAuthoritySnapshotId: CANDIDATE_AUTHORITY_ROUTING_SNAPSHOT_ID,
+      routingAuthorityDigest: CANDIDATE_AUTHORITY_ROUTING_DIGEST,
+      routingAuthoritySourceRecordDigest:
+        route.routingAuthoritySourceRecordDigest,
       canonicalOwner: metadata.canonicalOwner,
       canonicalRepository: metadata.canonicalRepository,
       defaultBranch: metadata.defaultBranch,
@@ -1251,6 +1265,11 @@ function providerRoute(
     providerCanonicalOwner: candidate.github.owner,
     providerCanonicalRepository: candidate.github.repository,
     repositoryIdentityState: 'unchanged' as const,
+    routingAuthoritySourceRecordDigest: canonicalizeJson({
+      candidateId: candidate.candidateId,
+      catalogOwner: candidate.github.owner,
+      catalogRepository: candidate.github.repository,
+    }).digest,
   };
   if (
     route.candidateId !== candidate.candidateId ||

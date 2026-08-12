@@ -6,9 +6,7 @@ import {
 import { canonicalizeJson } from './canonical-json.ts';
 import {
   CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_PATH,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH,
-  CANDIDATE_AUTHORITY_REPLAY_V6_PATH,
   CANDIDATE_AUTHORITY_ROUTING_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH,
   materializeCandidateAuthorityFieldPlanV7,
@@ -16,6 +14,12 @@ import {
   type CandidateAuthorityFieldPlanV7Runtime,
   type CandidateAuthorityProviderRoutes,
 } from './candidate-authority-canonical-routing-correction.ts';
+import {
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V7_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_PATH,
+} from './candidate-authority-linkage-evidence-correction.ts';
 import {
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_PATH,
@@ -55,7 +59,7 @@ import {
 } from './candidate-authority-readiness.ts';
 import {
   measureCandidateAuthoritySuccessorReadiness,
-  type CandidateAuthorityRootV7,
+  type CandidateAuthorityRootV8,
   type CandidateAuthoritySuccessorReadinessReport,
 } from './candidate-authority-successor-measurement.ts';
 import {
@@ -302,12 +306,14 @@ async function load(
     providerV2,
     providerV3,
     providerV4,
+    providerV5,
     sourceV6,
     sourceV7,
     sourceV8,
     sourceV9,
-    replayV6,
-    authorizationV7,
+    sourceV10,
+    replayV7,
+    authorizationV8,
     routingText,
     sourceText,
   ] = await Promise.all([
@@ -324,12 +330,14 @@ async function load(
     read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH),
     read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH),
     read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH),
+    read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V5_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH),
-    read(effects, CANDIDATE_AUTHORITY_REPLAY_V6_PATH),
-    read(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_PATH),
+    read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V10_PATH),
+    read(effects, CANDIDATE_AUTHORITY_REPLAY_V7_PATH),
+    read(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V8_PATH),
     read(effects, CANDIDATE_AUTHORITY_ROUTING_PATH),
     effects.readFixedFile(
       CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH,
@@ -341,12 +349,14 @@ async function load(
     providerContractV2: providerV2,
     providerContractV3: providerV3,
     providerContractV4: providerV4,
+    providerContractV5: providerV5,
     sourcePolicyV6: sourceV6,
     sourcePolicyV7: sourceV7,
     sourcePolicyV8: sourceV8,
     sourcePolicyV9: sourceV9,
-    replayV6,
-    authorizationV7,
+    sourcePolicyV10: sourceV10,
+    replayV7,
+    authorizationV8,
   });
   const catalog = parsePublicCatalog(catalogText);
   const taxonomyResult = parseCapabilityTaxonomyV1(
@@ -468,7 +478,7 @@ function replayTexts(replay: CandidateAuthoritySuccessorReplayBundle) {
 
 function readinessTexts(input: {
   readonly report: CandidateAuthoritySuccessorReadinessReport;
-  readonly root: CandidateAuthorityRootV7;
+  readonly root: CandidateAuthorityRootV8;
 }) {
   return [
     output(CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_OUTPUTS[0], input.report),
