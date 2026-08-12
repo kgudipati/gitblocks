@@ -1,0 +1,58 @@
+{
+  "policyVersion": "candidate-authority-source-policy/9.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesConsumedExperimentPolicy": {
+    "version": "candidate-authority-source-policy/8.0.0",
+    "digest": "d043c6b1842791a2348b6f4eeb8644ac0a366f48aa8f585aab45aefdd97563ca",
+    "path": "catalog/public-v1/candidate-authority-source-policy-v8.json"
+  },
+  "bindings": {
+    "fieldPlanVersion": "candidate-authority-field-plan/7.0.0",
+    "fieldPlanDigest": "650f7e1b335c0d5d919e69cc8619573a7b8322779ca8686e768be7a4284d95ec",
+    "providerContractVersion": "candidate-authority-provider-contract/4.0.0",
+    "providerContractDigest": "e2a6103dfb24996e7cb617911175d19b5ad78c56f4bf77bff4ac0bab80319a38",
+    "routingAuthorityVersion": "candidate-retrieval-metadata-authority/1.1.0",
+    "routingAuthoritySnapshotId": "retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f",
+    "routingAuthorityDigest": "23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1",
+    "routingProviderPolicyVersion": "candidate-retrieval-metadata-provider-policy/1.1.0",
+    "routingProviderPolicyDigest": "b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/3.0.0",
+    "partialSemanticRegistryDigest": "8aa2e5a9ede84f871eb057ad10850b01daae9302b3b20450d97fecc115857b7b",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e",
+    "failureRecordVersion": "candidate-authority-live-failure-record/3.0.0",
+    "failureRecordDigest": "d5e21bfcfc5ecef6b99639bc86947b87c8e31ab31cfe300929a6479c270be526",
+    "architectureDecisions": "ADR-0014-accepted;ADR-0015-proposed-no-provider-effect"
+  },
+  "completeOperationMatrix": {
+    "basePolicyVersion": "candidate-authority-source-policy/8.0.0",
+    "operationCount": 13,
+    "addedIdentityProbeRequests": 0,
+    "addedRedirectRequests": 0,
+    "maximumRedirects": 0,
+    "repositoryPathRouting": "accepted Phase 9 provider-canonical identity",
+    "numericRepositoryIdRouting": "validated live repository ID",
+    "npmSelectedVersionSemanticsUnchanged": true
+  },
+  "requestBudget": {
+    "candidateCount": 150,
+    "mappedPackageCount": 80,
+    "githubLogicalRequests": 1810,
+    "npmLogicalRequests": 80,
+    "totalLogicalRequests": 1890,
+    "githubWorstCaseAttempts": 5430,
+    "npmWorstCaseAttempts": 240,
+    "totalWorstCaseAttempts": 5670,
+    "maximumAttemptsPerLogicalRequest": 3
+  },
+  "authorization": {
+    "credentialRead": false,
+    "providerEffect": false,
+    "collectionCutoffCreation": false,
+    "sourceAuthorityPublication": false,
+    "independentExactHeadAcceptanceRequired": true
+  },
+  "policySemanticDigest": "c1ad428afdf3412c072259a4426b57f5e61e6d781d7dd4e7f3535431f8ad4498"
+}

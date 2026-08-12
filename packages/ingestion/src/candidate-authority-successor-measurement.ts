@@ -2,6 +2,25 @@ import type { DeterministicProfileFieldRecord } from '@gitblocks/contracts';
 
 import { canonicalizeJson } from './canonical-json.ts';
 import {
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_DIGEST,
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_VERSION,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V7_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_VERSION,
+  CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST,
+  CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+  CANDIDATE_AUTHORITY_ROUTING_DIGEST,
+  CANDIDATE_AUTHORITY_ROUTING_SNAPSHOT_ID,
+  CANDIDATE_AUTHORITY_ROUTING_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_VERSION,
+  CANDIDATE_AUTHORITY_V6_EXECUTION_HEAD,
+  type CandidateAuthorityFieldPlanV7Runtime,
+} from './candidate-authority-canonical-routing-correction.ts';
+import {
   RANKING_DECISION_FIELD_IDS,
   type CandidateAuthorityDecisionFieldId,
 } from './candidate-authority-contracts.ts';
@@ -15,22 +34,6 @@ import {
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_VERSION,
 } from './candidate-authority-partial-semantics.ts';
 import type { CandidateAuthoritySuccessorSourceAuthority } from './candidate-authority-provider-contract.ts';
-import {
-  CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST,
-  CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_VERSION,
-  CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST,
-  CANDIDATE_AUTHORITY_FIELD_PLAN_V6_VERSION,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
-  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_VERSION,
-  CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST,
-  CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST,
-  CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_VERSION,
-  CANDIDATE_AUTHORITY_V5_EXECUTION_HEAD,
-  type CandidateAuthorityFieldPlanV6Runtime,
-} from './candidate-authority-npm-source-correction.ts';
 import {
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
   CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
@@ -60,7 +63,7 @@ const ORIGINS: readonly CandidateAuthorityCellOrigin[] = [
 
 export interface CandidateAuthoritySuccessorReadinessReport {
   readonly reportVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION;
-  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V5_VERSION;
+  readonly replayAlgorithmVersion: typeof CANDIDATE_AUTHORITY_REPLAY_V6_VERSION;
   readonly bindings: Readonly<Record<string, string>>;
   readonly candidateCount: 150;
   readonly fields: readonly {
@@ -81,7 +84,7 @@ export interface CandidateAuthoritySuccessorReadinessReport {
   readonly canonicalReportDigest: string;
 }
 
-export interface CandidateAuthorityRootV6 {
+export interface CandidateAuthorityRootV7 {
   readonly authorityVersion: typeof CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION;
   readonly architectureDecisionBinding: Readonly<Record<string, string>>;
   readonly failedExperimentBinding: Readonly<Record<string, string>>;
@@ -105,11 +108,11 @@ export interface CandidateAuthorityRootV6 {
 export function measureCandidateAuthoritySuccessorReadiness(input: {
   readonly catalog: PublicCatalog;
   readonly sourceAuthority: CandidateAuthoritySuccessorSourceAuthority;
-  readonly fieldPlan: CandidateAuthorityFieldPlanV6Runtime;
+  readonly fieldPlan: CandidateAuthorityFieldPlanV7Runtime;
   readonly replay: CandidateAuthoritySuccessorReplayBundle;
 }): {
   readonly report: CandidateAuthoritySuccessorReadinessReport;
-  readonly root: CandidateAuthorityRootV6;
+  readonly root: CandidateAuthorityRootV7;
 } {
   const { sourceAuthority, replay } = input;
   if (
@@ -195,7 +198,7 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
   }, emptyOrigins());
   const reportWithoutDigest = {
     reportVersion: CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_VERSION,
-    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
+    replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
     bindings: {
       sourceAuthorityVersion: sourceAuthority.authorityVersion,
       sourceAuthorityDigest: sourceAuthority.canonicalAuthorityDigest,
@@ -214,8 +217,8 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
         replay.dossierProjection.canonicalAuthorityDigest,
       readinessPolicyVersion: CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
       readinessPolicyDigest: CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
-      fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V6_VERSION,
-      fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST,
+      fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V7_VERSION,
+      fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST,
     },
     candidateCount: 150 as const,
     fields,
@@ -238,29 +241,33 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
     authorityVersion: CANDIDATE_AUTHORITY_SUCCESSOR_ROOT_VERSION,
     architectureDecisionBinding: {
       adr: 'ADR-0014',
-      status: 'proposed-npm-source-correction-no-provider-effect',
-      consumedV5ExecutionHead: CANDIDATE_AUTHORITY_V5_EXECUTION_HEAD,
+      status: 'accepted-npm-source-and-proposed-canonical-routing',
+      canonicalRoutingAdr: 'ADR-0015',
+      consumedV6ExecutionHead: CANDIDATE_AUTHORITY_V6_EXECUTION_HEAD,
     },
     failedExperimentBinding: {
-      version: CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_VERSION,
-      digest: CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST,
+      version: CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_VERSION,
+      digest: CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_DIGEST,
       disposition: 'consumed-inconclusive-no-source-authority',
     },
     liveAuthorizationBinding: {
-      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
-      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+      version: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
+      digest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
       collectionExecutionHead:
         sourceAuthority.bindings['collectionExecutionHead'] ?? invalid(),
     },
     authorityBindings: {
-      providerContractVersion: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_VERSION,
-      providerContractDigest: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_DIGEST,
-      fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V6_VERSION,
-      fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V6_DIGEST,
-      sourcePolicyVersion: CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_VERSION,
-      sourcePolicyDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_DIGEST,
-      replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V5_VERSION,
-      replayAlgorithmDigest: CANDIDATE_AUTHORITY_REPLAY_V5_DIGEST,
+      providerContractVersion: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_VERSION,
+      providerContractDigest: CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST,
+      fieldPlanVersion: CANDIDATE_AUTHORITY_FIELD_PLAN_V7_VERSION,
+      fieldPlanDigest: CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST,
+      sourcePolicyVersion: CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_VERSION,
+      sourcePolicyDigest: CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST,
+      replayAlgorithmVersion: CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+      replayAlgorithmDigest: CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST,
+      routingAuthorityVersion: CANDIDATE_AUTHORITY_ROUTING_VERSION,
+      routingAuthoritySnapshotId: CANDIDATE_AUTHORITY_ROUTING_SNAPSHOT_ID,
+      routingAuthorityDigest: CANDIDATE_AUTHORITY_ROUTING_DIGEST,
       readinessPolicyVersion: CANDIDATE_AUTHORITY_READINESS_POLICY_V3_VERSION,
       readinessPolicyDigest: CANDIDATE_AUTHORITY_READINESS_POLICY_V3_DIGEST,
       partialSemanticRegistryVersion:
@@ -304,7 +311,7 @@ export function measureCandidateAuthoritySuccessorReadiness(input: {
     cellOriginCounts: totals,
     readinessDecision: result.decision,
   };
-  const root: CandidateAuthorityRootV6 = Object.freeze({
+  const root: CandidateAuthorityRootV7 = Object.freeze({
     ...rootWithoutDigest,
     canonicalAuthorityDigest: canonicalizeJson(rootWithoutDigest).digest,
   });

@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
-import { parseCandidateAuthoritySuccessorFixedAuthorities } from '../src/candidate-authority-successor-contracts.ts';
+import { materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8 } from '../src/candidate-authority-provider-contract.ts';
 import {
   CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_PATH,
   CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH,
@@ -109,16 +109,15 @@ async function validateCorrection() {
     replayV5: json(replayV5),
     authorizationV6: json(authorizationV6),
   });
-  const fixed = parseCandidateAuthoritySuccessorFixedAuthorities({
-    providerContractV1: providerV1,
-    providerContractV2: providerV2,
-    providerContractV3: providerV3,
-    sourcePolicyV6: sourceV6,
-    sourcePolicyV7: sourceV7,
-    sourcePolicyV8: sourceV8,
-    replayV5,
-    authorizationV6,
-  });
+  const sourcePolicy =
+    materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8({
+      sourcePolicyV6: json(sourceV6),
+      providerContractV1: json(providerV1),
+      sourcePolicyV7: json(sourceV7),
+      providerContractV2: json(providerV2),
+      sourcePolicyV8: json(sourceV8),
+      providerContractV3: json(providerV3),
+    });
   const registryV2 = parseCandidateAuthorityPartialSemanticRegistry(
     json(registryV2Text),
   );
@@ -145,9 +144,9 @@ async function validateCorrection() {
     mappedNpmCount: catalog.candidates.filter(
       ({ npmPackage }) => npmPackage !== null,
     ).length,
-    sourcePolicyVersion: fixed.sourcePolicy.policyVersion,
-    authorizationVersion: fixed.authorization.version,
-    operationCount: fixed.sourcePolicy.operations.length,
+    sourcePolicyVersion: sourcePolicy.policyVersion,
+    authorizationVersion: 'candidate-authority-live-authorization/6.0.0',
+    operationCount: sourcePolicy.operations.length,
     plannedExtractionCapable: planV6.fields.filter(
       ({ plannedExtractionCapable }) => plannedExtractionCapable,
     ).length,

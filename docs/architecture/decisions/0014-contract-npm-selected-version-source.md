@@ -1,6 +1,6 @@
 # ADR 0014: Contract the npm source to selected-version metadata
 
-- Status: Proposed for independent exact-head acceptance; no provider effect authorized
+- Status: Accepted at independently reviewed head `895980891665e373ccf72e63a6b12cf4f09b63c1`
 - Date: 2026-08-11
 - Issue: #32
 - Pull request: #33
@@ -85,6 +85,14 @@ published correction head through the non-secret accepted-head gate. This ADR
 and its publication authorize no credential read, cutoff creation, provider
 request, live source generation, all-candidate projection, readiness
 measurement, or M4 work.
+
+## Acceptance
+
+Independent review accepted this npm selected-version architecture and source
+contract at exact head `895980891665e373ccf72e63a6b12cf4f09b63c1`.
+That acceptance did not reactivate authorization v6. The later v6 experiment
+was consumed by a distinct fatal provider-routing failure before any source
+authority was published.
 
 ## Rejected alternatives
 

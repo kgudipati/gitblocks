@@ -79,6 +79,44 @@ export interface CandidateAuthorityReplayCandidateProjection {
   readonly dossierDigest: string;
 }
 
+export function classifyCandidateAuthorityPackageRepositoryLinkage(input: {
+  readonly repositoryState: 'absent' | 'supported' | 'unsupported';
+  readonly declaredRepository: null | {
+    readonly owner: string;
+    readonly repository: string;
+  };
+  readonly catalogRepository: {
+    readonly owner: string;
+    readonly repository: string;
+  };
+  readonly providerCanonicalRepository: {
+    readonly owner: string;
+    readonly repository: string;
+  };
+}): 'matched' | 'mismatched' | 'undeclared' | 'unknown' {
+  if (input.repositoryState === 'unsupported') return 'unknown';
+  if (input.declaredRepository === null) {
+    if (input.repositoryState !== 'absent') invalid();
+    return 'undeclared';
+  }
+  if (input.repositoryState !== 'supported') invalid();
+  const declaredKey = repositoryIdentityKey(
+    input.declaredRepository.owner,
+    input.declaredRepository.repository,
+  );
+  const aliases = new Set([
+    repositoryIdentityKey(
+      input.catalogRepository.owner,
+      input.catalogRepository.repository,
+    ),
+    repositoryIdentityKey(
+      input.providerCanonicalRepository.owner,
+      input.providerCanonicalRepository.repository,
+    ),
+  ]);
+  return aliases.has(declaredKey) ? 'matched' : 'mismatched';
+}
+
 interface CandidateProjectionCore {
   readonly profile: DeterministicCandidateProfileV1;
   readonly partialEvidence: readonly CandidateAuthorityPartialFieldEvidence[];
@@ -455,19 +493,32 @@ function projectCompleteField(input: {
         return field;
       const value = establishedRecord(npm);
       const optionalStates = optionalPropertyStates(value);
-      if (optionalStates?.['repository'] === 'unsupported') return field;
+      const repositoryState = optionalStates?.['repository'];
+      if (
+        repositoryState !== 'absent' &&
+        repositoryState !== 'supported' &&
+        repositoryState !== 'unsupported'
+      )
+        return field;
       const version = npmVersion(value, npm);
       const declared = value['repositoryIdentity'];
-      let linkage: 'matched' | 'mismatched' | 'undeclared';
-      if (declared === null) linkage = 'undeclared';
-      else {
-        const identity = recordValue(declared);
-        linkage =
-          `${stringValue(identity, 'owner')}/${stringValue(identity, 'repository')}`.toLowerCase() ===
-          `${candidate.github.owner}/${candidate.github.repository}`.toLowerCase()
-            ? 'matched'
-            : 'mismatched';
-      }
+      const identity = declared === null ? null : recordValue(declared);
+      const linkage = classifyCandidateAuthorityPackageRepositoryLinkage({
+        repositoryState,
+        declaredRepository:
+          identity === null
+            ? null
+            : {
+                owner: stringValue(identity, 'owner'),
+                repository: stringValue(identity, 'repository'),
+              },
+        catalogRepository: candidate.github,
+        providerCanonicalRepository: providerCanonicalRepositoryIdentity(
+          candidate,
+          sources,
+        ),
+      });
+      if (linkage === 'unknown') return field;
       return structuredKnown(field, packageScope(version), { linkage }, [
         npm,
         sources.get('github-repository-metadata'),
@@ -780,12 +831,13 @@ function evidenceSource(input: {
             : 'Dockerfile'
         : licenseValue['path'];
     if (!isSafeCandidateAuthorityRepositoryRelativePath(path)) invalid();
+    const canonical = providerCanonicalRepositoryIdentity(
+      input.candidate,
+      input.sources,
+    );
     const repositoryIdentity =
       licenseValue === null
-        ? {
-            owner: input.candidate.github.owner,
-            repository: input.candidate.github.repository,
-          }
+        ? canonical
         : recordValue(licenseValue['repositoryIdentity']);
     const owner = stringValue(repositoryIdentity, 'owner');
     const repository = stringValue(repositoryIdentity, 'repository');
@@ -796,9 +848,8 @@ function evidenceSource(input: {
         !isCandidateAuthorityGitObjectSha(licenseValue['blobSha']) ||
         owner !== stringValue(metadata, 'canonicalOwner') ||
         repository !== stringValue(metadata, 'canonicalRepository') ||
-        owner.toLowerCase() !== input.candidate.github.owner.toLowerCase() ||
-        repository.toLowerCase() !==
-          input.candidate.github.repository.toLowerCase()
+        repositoryIdentityKey(owner, repository) !==
+          repositoryIdentityKey(canonical.owner, canonical.repository)
       )
         invalid();
     }
@@ -823,6 +874,10 @@ function evidenceSource(input: {
   const npmSelected = operationId === 'npm-selected-version-metadata';
   const npm = npmSelected || operationId === 'npm-package-metadata';
   const sourceClass = sourceClassForOperation(operationId);
+  const canonical = providerCanonicalRepositoryIdentity(
+    input.candidate,
+    input.sources,
+  );
   return {
     kind: 'structured-provider-snapshot',
     sourceType: 'public-structured-provider',
@@ -837,7 +892,7 @@ function evidenceSource(input: {
       ? `https://registry.npmjs.org/${encodeURIComponent(input.candidate.npmPackage ?? '')}/latest`
       : npm
         ? `https://registry.npmjs.org/${encodeURIComponent(input.candidate.npmPackage ?? '')}`
-        : `https://api.github.com/repos/${input.candidate.github.owner}/${input.candidate.github.repository}`,
+        : `https://api.github.com/repos/${canonical.owner}/${canonical.repository}`,
     sourceAuthorityDigest: input.sourceAuthorityDigest,
     sourceRecordDigest: canonicalizeJson(input.datum).digest,
     collectedAt: input.collectionCutoff,
@@ -990,6 +1045,48 @@ function sourceValue(
   operationId: string,
 ): Record<string, unknown> {
   return establishedRecord(sources.get(operationId));
+}
+
+function providerCanonicalRepositoryIdentity(
+  candidate: CatalogCandidate,
+  sources: ReadonlyMap<string, CandidateAuthoritySourceDatum>,
+): { readonly owner: string; readonly repository: string } {
+  const metadata = sourceValue(sources, 'github-repository-metadata');
+  const canonicalValue = metadata['providerCanonicalRepositoryIdentity'];
+  if (canonicalValue === undefined) {
+    return {
+      owner: stringValue(metadata, 'canonicalOwner'),
+      repository: stringValue(metadata, 'canonicalRepository'),
+    };
+  }
+  const catalog = recordValue(metadata['catalogRepositoryIdentity']);
+  const canonical = recordValue(canonicalValue);
+  if (
+    repositoryIdentityKey(
+      stringValue(catalog, 'owner'),
+      stringValue(catalog, 'repository'),
+    ) !==
+      repositoryIdentityKey(
+        candidate.github.owner,
+        candidate.github.repository,
+      ) ||
+    !['unchanged', 'redirected'].includes(
+      stringValue(metadata, 'repositoryIdentityState'),
+    )
+  )
+    invalid();
+  const owner = stringValue(canonical, 'owner');
+  const repository = stringValue(canonical, 'repository');
+  if (
+    owner !== stringValue(metadata, 'canonicalOwner') ||
+    repository !== stringValue(metadata, 'canonicalRepository')
+  )
+    invalid();
+  return { owner, repository };
+}
+
+function repositoryIdentityKey(owner: string, repository: string): string {
+  return `${owner}/${repository}`.toLowerCase();
 }
 
 function establishedRecord(

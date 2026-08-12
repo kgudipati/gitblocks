@@ -8,6 +8,7 @@ import { parseCapabilityTaxonomyV1 } from '@gitblocks/contracts';
 import { describe, expect, it } from 'vitest';
 
 import {
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
   materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8,
 } from '../src/candidate-authority-provider-contract.ts';
@@ -30,14 +31,23 @@ import {
 } from '../src/candidate-authority-partial-semantics.ts';
 import {
   CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH,
   materializeCandidateAuthorityFieldPlanV6,
 } from '../src/candidate-authority-npm-source-correction.ts';
+import {
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH,
+  CANDIDATE_AUTHORITY_ROUTING_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH,
+  materializeCandidateAuthorityFieldPlanV7,
+  materializeCandidateAuthoritySourcePolicyV9,
+  parseCandidateAuthorityProviderRoutes,
+} from '../src/candidate-authority-canonical-routing-correction.ts';
 import {
   parseCandidateAuthorityFieldPlanV4,
   parseCandidateAuthorityReadinessPolicyV3,
@@ -71,10 +81,22 @@ const FIXTURE_CATALOG = JSON.parse(
     npmPackage: string | null;
   }[];
 };
+const FIXTURE_ROUTING = JSON.parse(
+  readFileSync(CANDIDATE_AUTHORITY_ROUTING_PATH, 'utf8'),
+) as {
+  candidates: {
+    candidateId: string;
+    catalogOwner: string;
+    catalogRepository: string;
+    providerCanonicalOwner: string;
+    providerCanonicalRepository: string;
+    repositoryIdentityState: 'unchanged' | 'redirected';
+  }[];
+};
 
 describe('candidate-authority one-shot live collector with inert providers', () => {
   it('executes every frozen operation, retains only normalized facts, and stays within exact budgets', async () => {
-    const { catalog, sourcePolicy } = await authorities();
+    const { catalog, sourcePolicy, providerRoutes } = await authorities();
     const attempts = {
       githubAttempts: 0,
       npmAttempts: 0,
@@ -106,14 +128,16 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       catalog,
       sourcePolicy,
       liveAuthorizationVersion:
-        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
-      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
+      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
       liveAuthorizationBindings: liveAuthorizationBindings(
         catalog.manifestDigest,
       ),
+      operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
       executionHead: HEAD,
       githubToken: 'inert-fixture-token',
       collectionCutoff: CUTOFF,
+      providerRoutes: providerRoutes.byCandidateId,
       transport,
       readAttemptMetrics: () => attempts,
     });
@@ -138,13 +162,22 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     expect(text).not.toContain('boundedBase64Content');
     const serialized =
       serializeCandidateAuthoritySuccessorSourceAuthority(authority);
-    expect(
-      parseCandidateAuthoritySuccessorSourceAuthority({
+    let parsedSource: ReturnType<
+      typeof parseCandidateAuthoritySuccessorSourceAuthority
+    >;
+    try {
+      parsedSource = parseCandidateAuthoritySuccessorSourceAuthority({
         text: serialized,
         catalog,
         acceptedExecutionHead: HEAD,
-      }),
-    ).toEqual(authority);
+        providerRoutes,
+      });
+    } catch (error) {
+      throw new Error('full successor source-v4 parser fixture failed', {
+        cause: error,
+      });
+    }
+    expect(parsedSource).toEqual(authority);
     const npmRequests = requests.filter(
       ({ operation }) => operation === 'npm-selected-version-metadata',
     );
@@ -153,6 +186,43 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     expect(requests.some(({ url }) => url.includes('/-/v1/search'))).toBe(
       false,
     );
+    const repositoryPathOperations = new Set([
+      'github-repository-metadata',
+      'github-default-branch-ref',
+      'github-head-commit-object',
+      'github-maintenance-window',
+      'github-license',
+      'github-release-window',
+    ]);
+    for (const route of providerRoutes.routes.filter(
+      ({ repositoryIdentityState }) => repositoryIdentityState === 'redirected',
+    )) {
+      const routeRequests = requests.filter(
+        ({ candidateId, operation }) =>
+          candidateId === route.candidateId &&
+          repositoryPathOperations.has(operation),
+      );
+      expect(routeRequests.length).toBeGreaterThan(0);
+      expect(
+        routeRequests.every(({ url }) =>
+          url.includes(
+            `/repos/${route.providerCanonicalOwner}/${route.providerCanonicalRepository}`,
+          ),
+        ),
+      ).toBe(true);
+      expect(
+        routeRequests.some(({ url }) =>
+          url.includes(
+            `/repos/${route.catalogOwner}/${route.catalogRepository}`,
+          ),
+        ),
+      ).toBe(false);
+      const numericRequests = requests.filter(
+        ({ candidateId, url }) =>
+          candidateId === route.candidateId && url.includes('/repositories/'),
+      );
+      expect(numericRequests.length).toBeGreaterThan(0);
+    }
     for (const candidate of catalog.candidates.filter(
       ({ npmPackage }) => npmPackage === null,
     )) {
@@ -202,6 +272,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       planV4Text,
       planV5Text,
       planV6Text,
+      planV7Text,
     ] = await Promise.all([
       readFile('catalog/capability-taxonomy/1.0.0/manifest.json', 'utf8'),
       readFile(
@@ -222,6 +293,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       ),
       readFile(CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH, 'utf8'),
       readFile(CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH, 'utf8'),
+      readFile(CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH, 'utf8'),
     ]);
     const taxonomy = parseCapabilityTaxonomyV1(JSON.parse(taxonomyText));
     expect(taxonomy.ok).toBe(true);
@@ -244,10 +316,14 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       predecessor: planV4,
       successorAuthority: JSON.parse(planV5Text),
     });
-    const fieldPlan = materializeCandidateAuthorityFieldPlanV6({
+    const fieldPlanV6 = materializeCandidateAuthorityFieldPlanV6({
       predecessor: fieldPlanV5,
       successorAuthority: JSON.parse(planV6Text),
       partialSemanticRegistry: registry,
+    });
+    const fieldPlan = materializeCandidateAuthorityFieldPlanV7({
+      predecessor: fieldPlanV6,
+      successorAuthority: JSON.parse(planV7Text),
     });
     const replayInput = {
       catalog,
@@ -255,6 +331,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       sourceAuthority: authority,
       fieldPlan,
       partialSemanticRegistry: registry,
+      providerRoutes,
     };
     let normal: ReturnType<typeof generateCandidateAuthoritySuccessorReplay>;
     try {
@@ -295,6 +372,26 @@ describe('candidate-authority one-shot live collector with inert providers', () 
     ]).toEqual([normalDigest, normalDigest, normalDigest]);
     expect(normal.dossiers.dossiers).toHaveLength(150);
     expect(normal.profiles.profileAuthority.profiles).toHaveLength(150);
+    const redirectedRoute = providerRoutes.routes.find(
+      ({ repositoryIdentityState }) => repositoryIdentityState === 'redirected',
+    );
+    if (redirectedRoute === undefined)
+      throw new Error('redirected fixture route missing');
+    const redirectedEvidence = normal.evidence.candidates.find(
+      ({ candidateId }) => candidateId === redirectedRoute.candidateId,
+    );
+    const redirectedEvidenceText = JSON.stringify(redirectedEvidence);
+    expect(redirectedEvidenceText).toContain(
+      `github.com/${redirectedRoute.providerCanonicalOwner}/${redirectedRoute.providerCanonicalRepository}`,
+    );
+    expect(redirectedEvidenceText).not.toContain(
+      `github.com/${redirectedRoute.catalogOwner}/${redirectedRoute.catalogRepository}`,
+    );
+    expect(
+      normal.dossiers.dossiers.find(
+        ({ identity }) => identity.candidateId === redirectedRoute.candidateId,
+      )?.identity.candidateId,
+    ).toBe(redirectedRoute.candidateId);
     const syntheticReadiness = measureCandidateAuthoritySuccessorReadiness({
       catalog,
       sourceAuthority: authority,
@@ -408,7 +505,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
   }, 15_000);
 
   it('treats optional transient sources as qualified unknown but fails required identity', async () => {
-    const { catalog, sourcePolicy } = await authorities();
+    const { catalog, sourcePolicy, providerRoutes } = await authorities();
     const attempts = {
       githubAttempts: 0,
       npmAttempts: 0,
@@ -435,14 +532,16 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       catalog,
       sourcePolicy,
       liveAuthorizationVersion:
-        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
-      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
+      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
       liveAuthorizationBindings: liveAuthorizationBindings(
         catalog.manifestDigest,
       ),
+      operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
       executionHead: HEAD,
       githubToken: 'inert-fixture-token',
       collectionCutoff: CUTOFF,
+      providerRoutes: providerRoutes.byCandidateId,
       transport: optionalUnknownTransport,
       readAttemptMetrics: () => attempts,
     });
@@ -463,15 +562,17 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         catalog,
         sourcePolicy,
         liveAuthorizationVersion:
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
         liveAuthorizationDigest:
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
         liveAuthorizationBindings: liveAuthorizationBindings(
           catalog.manifestDigest,
         ),
+        operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
         executionHead: HEAD,
         githubToken: 'inert-fixture-token',
         collectionCutoff: CUTOFF,
+        providerRoutes: providerRoutes.byCandidateId,
         transport: {
           requestJson: async () => {
             throw ingestionError('ingestion.provider-identity');
@@ -488,7 +589,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
   ] as const)(
     'fails closed for mapped selected-version %s without aborting or querying advisories',
     async (code) => {
-      const { catalog, sourcePolicy } = await authorities();
+      const { catalog, sourcePolicy, providerRoutes } = await authorities();
       const target = catalog.candidates.find(
         ({ npmPackage }) => npmPackage !== null,
       );
@@ -504,15 +605,17 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         catalog,
         sourcePolicy,
         liveAuthorizationVersion:
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
         liveAuthorizationDigest:
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
         liveAuthorizationBindings: liveAuthorizationBindings(
           catalog.manifestDigest,
         ),
+        operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
         executionHead: HEAD,
         githubToken: 'inert-fixture-token',
         collectionCutoff: CUTOFF,
+        providerRoutes: providerRoutes.byCandidateId,
         transport: {
           requestJson: async (request) => {
             if (request.provider === 'github') attempts.githubAttempts += 1;
@@ -575,7 +678,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
   ] as const)(
     'keeps mapped selected-version %s fatal',
     async (_label, code) => {
-      const { catalog, sourcePolicy } = await authorities();
+      const { catalog, sourcePolicy, providerRoutes } = await authorities();
       const attempts = {
         githubAttempts: 0,
         npmAttempts: 0,
@@ -587,15 +690,17 @@ describe('candidate-authority one-shot live collector with inert providers', () 
           catalog,
           sourcePolicy,
           liveAuthorizationVersion:
-            CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+            CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
           liveAuthorizationDigest:
-            CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+            CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
           liveAuthorizationBindings: liveAuthorizationBindings(
             catalog.manifestDigest,
           ),
+          operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
           executionHead: HEAD,
           githubToken: 'inert-fixture-token',
           collectionCutoff: CUTOFF,
+          providerRoutes: providerRoutes.byCandidateId,
           transport: {
             requestJson: async (request) => {
               if (request.provider === 'github') attempts.githubAttempts += 1;
@@ -626,7 +731,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
   );
 
   it('fails closed on an unsafe provider-returned license path', async () => {
-    const { catalog, sourcePolicy } = await authorities();
+    const { catalog, sourcePolicy, providerRoutes } = await authorities();
     const attempts = {
       githubAttempts: 0,
       npmAttempts: 0,
@@ -638,15 +743,17 @@ describe('candidate-authority one-shot live collector with inert providers', () 
         catalog,
         sourcePolicy,
         liveAuthorizationVersion:
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
         liveAuthorizationDigest:
-          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
         liveAuthorizationBindings: liveAuthorizationBindings(
           catalog.manifestDigest,
         ),
+        operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
         executionHead: HEAD,
         githubToken: 'inert-fixture-token',
         collectionCutoff: CUTOFF,
+        providerRoutes: providerRoutes.byCandidateId,
         transport: {
           requestJson: async (request) => {
             if (request.provider === 'github') attempts.githubAttempts += 1;
@@ -676,7 +783,7 @@ describe('candidate-authority one-shot live collector with inert providers', () 
   });
 
   it('treats valid non-normal Compose and Dockerfile entries as qualified unknown without blob requests', async () => {
-    const { catalog, sourcePolicy } = await authorities();
+    const { catalog, sourcePolicy, providerRoutes } = await authorities();
     const attempts = {
       githubAttempts: 0,
       npmAttempts: 0,
@@ -689,14 +796,16 @@ describe('candidate-authority one-shot live collector with inert providers', () 
       catalog,
       sourcePolicy,
       liveAuthorizationVersion:
-        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_VERSION,
-      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_DIGEST,
+        CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
+      liveAuthorizationDigest: CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
       liveAuthorizationBindings: liveAuthorizationBindings(
         catalog.manifestDigest,
       ),
+      operatorVersion: CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
       executionHead: HEAD,
       githubToken: 'inert-fixture-token',
       collectionCutoff: CUTOFF,
+      providerRoutes: providerRoutes.byCandidateId,
       transport: {
         requestJson: async (request) => {
           if (request.provider === 'github') attempts.githubAttempts += 1;
@@ -786,6 +895,9 @@ async function authorities() {
     providerV2Text,
     sourceV8Text,
     providerV3Text,
+    sourceV9Text,
+    providerV4Text,
+    routingText,
   ] = await Promise.all([
     readFile('catalog/public-v1/manifest.json', 'utf8'),
     readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH, 'utf8'),
@@ -794,17 +906,30 @@ async function authorities() {
     readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH, 'utf8'),
     readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH, 'utf8'),
     readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH, 'utf8'),
+    readFile(CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH, 'utf8'),
+    readFile(CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH, 'utf8'),
+    readFile(CANDIDATE_AUTHORITY_ROUTING_PATH, 'utf8'),
   ]);
   const catalog = parsePublicCatalog(catalogText);
-  return {
-    catalog,
-    sourcePolicy: materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8({
+  const predecessor =
+    materializeCandidateAuthoritySuccessorRuntimeSourcePolicyV8({
       sourcePolicyV6: JSON.parse(sourceV6Text),
       providerContractV1: JSON.parse(providerV1Text),
       sourcePolicyV7: JSON.parse(sourceV7Text),
       providerContractV2: JSON.parse(providerV2Text),
       sourcePolicyV8: JSON.parse(sourceV8Text),
       providerContractV3: JSON.parse(providerV3Text),
+    });
+  return {
+    catalog,
+    sourcePolicy: materializeCandidateAuthoritySourcePolicyV9({
+      predecessor,
+      sourcePolicyV9: JSON.parse(sourceV9Text),
+      providerContractV4: JSON.parse(providerV4Text),
+    }),
+    providerRoutes: parseCandidateAuthorityProviderRoutes({
+      catalog,
+      authority: JSON.parse(routingText),
     }),
   };
 }
@@ -822,6 +947,10 @@ function fakeResponse(
     (value) => value.candidateId === request.candidateId,
   );
   if (candidate === undefined) throw new Error('fixture candidate missing');
+  const route = FIXTURE_ROUTING.candidates.find(
+    (value) => value.candidateId === request.candidateId,
+  );
+  if (route === undefined) throw new Error('fixture route missing');
   const npmCandidates = FIXTURE_CATALOG.candidates.filter(
     (value) => value.npmPackage !== null,
   );
@@ -838,7 +967,9 @@ function fakeResponse(
     case 'github-repository-metadata':
       return response({
         id: FIXTURE_CATALOG.candidates.indexOf(candidate) + 1,
-        full_name: `${candidate.github.owner}/${candidate.github.repository}`,
+        full_name: `${route.providerCanonicalOwner}/${route.providerCanonicalRepository}`,
+        owner: { login: route.providerCanonicalOwner },
+        name: route.providerCanonicalRepository,
         default_branch: 'main',
         archived: false,
         language: 'TypeScript',
@@ -926,14 +1057,14 @@ function fakeResponse(
                 tag_name: 'v1.2.3',
                 published_at: '2026-07-01T00:00:00Z',
                 prerelease: false,
-                html_url: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/releases/tag/v1.2.3`,
+                html_url: `https://github.com/${route.providerCanonicalOwner}/${route.providerCanonicalRepository}/releases/tag/v1.2.3`,
               },
               {
                 draft: false,
                 tag_name: 'rolling',
                 published_at: '2026-07-02T00:00:00Z',
                 prerelease: false,
-                html_url: `https://github.com/${candidate.github.owner}/${candidate.github.repository}/releases/tag/rolling`,
+                html_url: `https://github.com/${route.providerCanonicalOwner}/${route.providerCanonicalRepository}/releases/tag/rolling`,
               },
             ]
           : [],
@@ -1007,25 +1138,38 @@ function liveAuthorizationBindings(catalogDigest: string) {
     taxonomyVersion: '1.0.0',
     taxonomyDigest:
       '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
-    consumedV5ExecutionHead: '799f88735885c656de0ad25bc42ca3a90adbe082',
-    failureRecordVersion: 'candidate-authority-live-failure-record/2.0.0',
+    consumedV6ExecutionHead: '895980891665e373ccf72e63a6b12cf4f09b63c1',
+    failureRecordVersion: 'candidate-authority-live-failure-record/3.0.0',
     failureRecordDigest:
-      'ebfd078f675c4ce33bba2c9edb7eac1c9cd967bbe6a6a5a35614b77f893dc0a5',
+      'd5e21bfcfc5ecef6b99639bc86947b87c8e31ab31cfe300929a6479c270be526',
     readinessPolicyVersion: 'ranking-v1-deterministic-readiness-policy/3.0.0',
     readinessPolicyDigest:
       'f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752',
-    fieldPlanVersion: 'candidate-authority-field-plan/6.0.0',
+    fieldPlanVersion: 'candidate-authority-field-plan/7.0.0',
     fieldPlanDigest:
-      '104a8c5ee46aa42dc4fd5ef0b558500809636c38d36f78bcd4f24c284f586409',
-    sourcePolicyVersion: 'candidate-authority-source-policy/8.0.0',
+      '650f7e1b335c0d5d919e69cc8619573a7b8322779ca8686e768be7a4284d95ec',
+    sourcePolicyVersion: 'candidate-authority-source-policy/9.0.0',
     sourcePolicyDigest:
-      'd043c6b1842791a2348b6f4eeb8644ac0a366f48aa8f585aab45aefdd97563ca',
-    providerContractVersion: 'candidate-authority-provider-contract/3.0.0',
+      'c1ad428afdf3412c072259a4426b57f5e61e6d781d7dd4e7f3535431f8ad4498',
+    providerContractVersion: 'candidate-authority-provider-contract/4.0.0',
     providerContractDigest:
-      '37ac4bf0fa5aa7045737f262b34a21f910ca67f20cadac2dbf915dbb8b7abe57',
-    replayAlgorithmVersion: 'candidate-authority-pure-replay/5.0.0',
+      'e2a6103dfb24996e7cb617911175d19b5ad78c56f4bf77bff4ac0bab80319a38',
+    routingAuthorityVersion: 'candidate-retrieval-metadata-authority/1.1.0',
+    routingAuthoritySnapshotId:
+      'retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f',
+    routingAuthorityDigest:
+      '23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1',
+    routingProviderPolicyVersion:
+      'candidate-retrieval-metadata-provider-policy/1.1.0',
+    routingProviderPolicyDigest:
+      'b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e',
+    routingSourceProviderPolicyVersion:
+      'profile-materialization-provider-policy/1.0.0',
+    routingSourceProviderPolicyDigest:
+      '0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede',
+    replayAlgorithmVersion: 'candidate-authority-pure-replay/6.0.0',
     replayAlgorithmDigest:
-      '71215716755000ea5d0705df5b41e92dee0b8b9178268745a7c536c89128bfc8',
+      'e6b8e88ecf81884b6129a36284d9d13aa257d0f72b42b0277f0172a6a5fd32b1',
     partialSemanticRegistryVersion:
       'candidate-authority-partial-field-semantics/3.0.0',
     partialSemanticRegistryDigest:
@@ -1033,6 +1177,7 @@ function liveAuthorizationBindings(catalogDigest: string) {
     partialEvidenceVersion: 'candidate-authority-partial-field-evidence/3.0.0',
     partialEvidenceDigest:
       '6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e',
-    architectureDecision: 'ADR-0014-proposed-no-provider-effect',
+    architectureDecisions:
+      'ADR-0014-accepted;ADR-0015-proposed-no-provider-effect',
   };
 }

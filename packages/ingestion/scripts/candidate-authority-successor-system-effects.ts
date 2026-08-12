@@ -14,10 +14,20 @@ import { promisify } from 'node:util';
 import { parseCapabilityTaxonomyV1 } from '@gitblocks/contracts';
 
 import { collectCandidateAuthoritySourceAuthority } from '../src/candidate-authority-live-collector.ts';
+import { CANDIDATE_AUTHORITY_SUCCESSOR_ZERO_EFFECT_AUDIT } from '../src/candidate-authority-live-v6-runner.ts';
+import type { CandidateAuthoritySuccessorEffectsV7 } from '../src/candidate-authority-live-v7-runner.ts';
 import {
-  CANDIDATE_AUTHORITY_SUCCESSOR_ZERO_EFFECT_AUDIT,
-  type CandidateAuthoritySuccessorEffects,
-} from '../src/candidate-authority-live-v6-runner.ts';
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_PATH,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V6_PATH,
+  CANDIDATE_AUTHORITY_ROUTING_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH,
+  materializeCandidateAuthorityFieldPlanV7,
+  parseCandidateAuthorityProviderRoutes,
+  validateCandidateAuthorityCanonicalRoutingAuthorities,
+} from '../src/candidate-authority-canonical-routing-correction.ts';
 import {
   CANDIDATE_AUTHORITY_ACCEPTED_CORRECTION_PARENT,
   CANDIDATE_AUTHORITY_SUCCESSOR_MAXIMUM_SOURCE_BYTES,
@@ -103,6 +113,22 @@ const HISTORICAL_OUTPUTS = [
   'catalog/public-v1/candidate-authority-readiness-report-v2.staging.json',
   'catalog/public-v1/candidate-authority-root-v5.json',
   'catalog/public-v1/candidate-authority-root-v5.staging.json',
+  'catalog/public-v1/candidate-authority-source-authority-v3.json',
+  'catalog/public-v1/candidate-authority-source-authority-v3.staging.json',
+  'catalog/public-v1/candidate-authority-profiles-v3.json',
+  'catalog/public-v1/candidate-authority-profiles-v3.staging.json',
+  'catalog/public-v1/candidate-authority-partial-evidence-v3.json',
+  'catalog/public-v1/candidate-authority-partial-evidence-v3.staging.json',
+  'catalog/public-v1/candidate-authority-evidence-v3.json',
+  'catalog/public-v1/candidate-authority-evidence-v3.staging.json',
+  'catalog/public-v1/candidate-authority-dossiers-v3.json',
+  'catalog/public-v1/candidate-authority-dossiers-v3.staging.json',
+  'catalog/public-v1/candidate-authority-dossier-projection-v3.json',
+  'catalog/public-v1/candidate-authority-dossier-projection-v3.staging.json',
+  'catalog/public-v1/candidate-authority-readiness-report-v3.json',
+  'catalog/public-v1/candidate-authority-readiness-report-v3.staging.json',
+  'catalog/public-v1/candidate-authority-root-v6.json',
+  'catalog/public-v1/candidate-authority-root-v6.staging.json',
   'packages/ranking',
 ] as const;
 
@@ -111,7 +137,7 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
   readonly environment: Readonly<Record<string, string | undefined>>;
   readonly fetch: typeof fetch;
   readonly now: () => Date;
-}): CandidateAuthoritySuccessorEffects {
+}): CandidateAuthoritySuccessorEffectsV7 {
   if (
     typeof config.fetch !== 'function' ||
     typeof config.now !== 'function' ||
@@ -132,15 +158,22 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         providerV1,
         providerV2,
         providerV3,
+        providerV4,
         sourceV6,
         sourceV7,
         sourceV8,
+        sourceV9,
         replayV5,
         authorizationV6,
+        replayV6,
+        authorizationV7,
         failureRecordV1,
         failureRecordV2,
+        failureRecordV3,
         fieldPlanV5,
         fieldPlanV6,
+        fieldPlanV7,
+        routingAuthorityText,
         replayV3,
         authorizationV4,
         git,
@@ -184,6 +217,11 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ),
         readFixed(
           config.repositoryRoot,
+          CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
           CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH,
           4 * 1024 * 1024,
         ),
@@ -199,12 +237,27 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ),
         readFixed(
           config.repositoryRoot,
+          CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
           CANDIDATE_AUTHORITY_REPLAY_V5_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
           config.repositoryRoot,
           CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_REPLAY_V6_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
@@ -219,12 +272,27 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         ),
         readFixed(
           config.repositoryRoot,
+          CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
           CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
           config.repositoryRoot,
           CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH,
+          4 * 1024 * 1024,
+        ),
+        readFixed(
+          config.repositoryRoot,
+          CANDIDATE_AUTHORITY_ROUTING_PATH,
           4 * 1024 * 1024,
         ),
         readFixed(
@@ -256,11 +324,13 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         providerContractV1: providerV1,
         providerContractV2: providerV2,
         providerContractV3: providerV3,
+        providerContractV4: providerV4,
         sourcePolicyV6: sourceV6,
         sourcePolicyV7: sourceV7,
         sourcePolicyV8: sourceV8,
-        replayV5,
-        authorizationV6,
+        sourcePolicyV9: sourceV9,
+        replayV6,
+        authorizationV7,
       });
       validateCandidateAuthorityNpmCorrectionAuthorities({
         failureRecordV2: JSON.parse(failureRecordV2) as unknown,
@@ -270,7 +340,19 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         replayV5: JSON.parse(replayV5) as unknown,
         authorizationV6: JSON.parse(authorizationV6) as unknown,
       });
+      validateCandidateAuthorityCanonicalRoutingAuthorities({
+        failureRecordV3: JSON.parse(failureRecordV3) as unknown,
+        fieldPlanV7: JSON.parse(fieldPlanV7) as unknown,
+        providerContractV4: JSON.parse(providerV4) as unknown,
+        sourcePolicyV9: JSON.parse(sourceV9) as unknown,
+        replayV6: JSON.parse(replayV6) as unknown,
+        authorizationV7: JSON.parse(authorizationV7) as unknown,
+      });
       const catalog = parsePublicCatalog(catalogText);
+      const providerRoutes = parseCandidateAuthorityProviderRoutes({
+        catalog,
+        authority: JSON.parse(routingAuthorityText) as unknown,
+      });
       const taxonomyResult = parseCapabilityTaxonomyV1(
         JSON.parse(taxonomyText) as unknown,
       );
@@ -299,6 +381,10 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         successorAuthority: JSON.parse(fieldPlanV6) as unknown,
         partialSemanticRegistry: registryV3,
       });
+      const fieldPlanV7Runtime = materializeCandidateAuthorityFieldPlanV7({
+        predecessor: fieldPlanV6Runtime,
+        successorAuthority: JSON.parse(fieldPlanV7) as unknown,
+      });
       if (
         acceptedHead !== git.head ||
         git.head !== git.originHead ||
@@ -309,7 +395,8 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         catalog.candidates.length !== 150 ||
         catalog.candidates.filter((candidate) => candidate.npmPackage !== null)
           .length !== 80 ||
-        fieldPlanV6Runtime.fields.length !== 18 ||
+        fieldPlanV7Runtime.fields.length !== 18 ||
+        providerRoutes.routes.length !== 150 ||
         taxonomy.taxonomyVersion !==
           fixed.authorization.bindings['taxonomyVersion'] ||
         taxonomy.semanticDigest !==
@@ -330,6 +417,7 @@ export function createCandidateAuthoritySuccessorSystemEffects(config: {
         clean: true,
         outputAndStagingPathsAbsent: true,
         catalog,
+        providerRoutes,
         sourcePolicy: fixed.sourcePolicy,
         authorization: fixed.authorization,
         effectAudit: CANDIDATE_AUTHORITY_SUCCESSOR_ZERO_EFFECT_AUDIT,
@@ -436,8 +524,13 @@ export async function validateCandidateAuthoritySuccessorPublishedSource(input: 
   readonly repositoryRoot: string;
   readonly acceptedHead: string;
 }) {
-  const [catalogText, sourceText, git] = await Promise.all([
+  const [catalogText, routingText, sourceText, git] = await Promise.all([
     readFixed(input.repositoryRoot, CATALOG_PATH, 32 * 1024 * 1024),
+    readFixed(
+      input.repositoryRoot,
+      CANDIDATE_AUTHORITY_ROUTING_PATH,
+      4 * 1024 * 1024,
+    ),
     readFixed(
       input.repositoryRoot,
       CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH,
@@ -460,9 +553,14 @@ export async function validateCandidateAuthoritySuccessorPublishedSource(input: 
     git.activationCommitCount !== 1
   )
     invalid();
+  const catalog = parsePublicCatalog(catalogText);
   return parseCandidateAuthoritySuccessorSourceAuthority({
     text: sourceText,
-    catalog: parsePublicCatalog(catalogText),
+    catalog,
+    providerRoutes: parseCandidateAuthorityProviderRoutes({
+      catalog,
+      authority: JSON.parse(routingText) as unknown,
+    }),
     acceptedExecutionHead: input.acceptedHead,
   });
 }

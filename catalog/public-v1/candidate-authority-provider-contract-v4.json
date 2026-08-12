@@ -1,0 +1,73 @@
+{
+  "contractVersion": "candidate-authority-provider-contract/4.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesConsumedExperimentContract": {
+    "version": "candidate-authority-provider-contract/3.0.0",
+    "digest": "37ac4bf0fa5aa7045737f262b34a21f910ca67f20cadac2dbf915dbb8b7abe57",
+    "path": "catalog/public-v1/candidate-authority-provider-contract-v3.json"
+  },
+  "routingAuthority": {
+    "path": "catalog/public-v1/candidate-retrieval-metadata-authority.json",
+    "authorityVersion": "candidate-retrieval-metadata-authority/1.1.0",
+    "snapshotId": "retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f",
+    "authoritySemanticDigest": "23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1",
+    "providerPolicyVersion": "candidate-retrieval-metadata-provider-policy/1.1.0",
+    "providerPolicyDigest": "b8cd159d895d4af91f92563b199c0e9beea9bddcb87b869e33429201bd9a5f2e",
+    "sourceProviderPolicyVersion": "profile-materialization-provider-policy/1.0.0",
+    "sourceProviderPolicyDigest": "0945ebd862d0a1b5f622c4f10f60b2c0e713fb127cc5dea5668be5cc40c96ede",
+    "sourceOperation": "github-repository-metadata",
+    "candidateCount": 150
+  },
+  "repositoryRouting": {
+    "catalogIdentity": "candidateId plus immutable catalog owner/repository",
+    "providerRoutingIdentity": "accepted providerCanonicalOwner/providerCanonicalRepository for the exact candidate and catalog identity",
+    "repositoryMetadataEndpoint": "GET /repos/{acceptedProviderCanonicalOwner}/{acceptedProviderCanonicalRepository}",
+    "repositoryScopedOperations": [
+      "github-repository-metadata",
+      "github-default-branch-ref",
+      "github-head-commit-object",
+      "github-maintenance-window",
+      "github-license",
+      "github-release-window"
+    ],
+    "numericRepositoryIdOperations": [
+      "github-root-tree",
+      "github-security-dot-github-tree",
+      "github-security-docs-tree",
+      "github-compose-json-blob",
+      "github-dockerfile-blob"
+    ],
+    "globalOperations": ["github-advisories"],
+    "requiredLiveIdentity": [
+      "full_name equals accepted provider canonical owner/repository case-insensitively",
+      "owner.login equals accepted provider canonical owner case-insensitively",
+      "name equals accepted provider canonical repository case-insensitively",
+      "required positive repository id",
+      "required default branch",
+      "required archived boolean"
+    ],
+    "identityDisagreement": "fatal; live values never update the accepted route",
+    "routingMetadataUse": "candidate ownership and provider routing only; description, topics, and primaryLanguage are prohibited as M3 facts"
+  },
+  "transport": {
+    "maximumRedirects": 0,
+    "maximumAttemptsPerLogicalRequest": 3,
+    "canonicalRouteRedirect": "fatal ingestion.redirect; do not follow or inspect Location"
+  },
+  "operationMatrix": {
+    "baseContractVersion": "candidate-authority-provider-contract/3.0.0",
+    "operationCount": 13,
+    "addedIdentityProbeRequests": 0,
+    "addedRedirectRequests": 0,
+    "npmSelectedVersionSemanticsUnchanged": true
+  },
+  "requestBudget": {
+    "githubLogicalRequests": 1810,
+    "npmLogicalRequests": 80,
+    "totalLogicalRequests": 1890,
+    "githubWorstCaseAttempts": 5430,
+    "npmWorstCaseAttempts": 240,
+    "totalWorstCaseAttempts": 5670
+  },
+  "contractSemanticDigest": "e2a6103dfb24996e7cb617911175d19b5ad78c56f4bf77bff4ac0bab80319a38"
+}

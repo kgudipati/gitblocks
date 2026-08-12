@@ -5,6 +5,18 @@ import {
 
 import { canonicalizeJson } from './canonical-json.ts';
 import {
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V6_PATH,
+  CANDIDATE_AUTHORITY_ROUTING_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH,
+  materializeCandidateAuthorityFieldPlanV7,
+  parseCandidateAuthorityProviderRoutes,
+  type CandidateAuthorityFieldPlanV7Runtime,
+  type CandidateAuthorityProviderRoutes,
+} from './candidate-authority-canonical-routing-correction.ts';
+import {
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_PATH,
   CANDIDATE_AUTHORITY_PARTIAL_SEMANTIC_REGISTRY_V3_PATH,
   parseCandidateAuthorityPartialSemanticRegistry,
@@ -13,14 +25,11 @@ import {
 } from './candidate-authority-partial-semantics.ts';
 import {
   CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH,
-  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_PATH,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH,
   CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH,
-  CANDIDATE_AUTHORITY_REPLAY_V5_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH,
   CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH,
   materializeCandidateAuthorityFieldPlanV6,
-  type CandidateAuthorityFieldPlanV6Runtime,
 } from './candidate-authority-npm-source-correction.ts';
 import {
   CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH,
@@ -46,7 +55,7 @@ import {
 } from './candidate-authority-readiness.ts';
 import {
   measureCandidateAuthoritySuccessorReadiness,
-  type CandidateAuthorityRootV6,
+  type CandidateAuthorityRootV7,
   type CandidateAuthoritySuccessorReadinessReport,
 } from './candidate-authority-successor-measurement.ts';
 import {
@@ -151,8 +160,9 @@ interface Loaded {
   readonly sourceAuthority: ReturnType<
     typeof parseCandidateAuthoritySuccessorSourceAuthority
   >;
-  readonly fieldPlan: CandidateAuthorityFieldPlanV6Runtime;
+  readonly fieldPlan: CandidateAuthorityFieldPlanV7Runtime;
   readonly partialSemanticRegistry: CandidateAuthorityPartialSemanticRegistry;
+  readonly providerRoutes: CandidateAuthorityProviderRoutes;
 }
 
 const ZERO_EFFECT = Object.freeze({
@@ -287,14 +297,18 @@ async function load(
     planV4Text,
     planV5Text,
     planV6Text,
+    planV7Text,
     providerV1,
     providerV2,
     providerV3,
+    providerV4,
     sourceV6,
     sourceV7,
     sourceV8,
-    replayV5,
-    authorizationV6,
+    sourceV9,
+    replayV6,
+    authorizationV7,
+    routingText,
     sourceText,
   ] = await Promise.all([
     read(effects, CANDIDATE_AUTHORITY_SUCCESSOR_REPLAY_CATALOG_PATH),
@@ -305,14 +319,18 @@ async function load(
     read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V4_PATH),
     read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V5_PATH),
     read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V6_PATH),
+    read(effects, CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH),
     read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_PATH),
     read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V2_PATH),
     read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V3_PATH),
+    read(effects, CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V6_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V7_PATH),
     read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V8_PATH),
-    read(effects, CANDIDATE_AUTHORITY_REPLAY_V5_PATH),
-    read(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V6_PATH),
+    read(effects, CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH),
+    read(effects, CANDIDATE_AUTHORITY_REPLAY_V6_PATH),
+    read(effects, CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_PATH),
+    read(effects, CANDIDATE_AUTHORITY_ROUTING_PATH),
     effects.readFixedFile(
       CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH,
       CANDIDATE_AUTHORITY_SUCCESSOR_MAXIMUM_SOURCE_BYTES,
@@ -322,11 +340,13 @@ async function load(
     providerContractV1: providerV1,
     providerContractV2: providerV2,
     providerContractV3: providerV3,
+    providerContractV4: providerV4,
     sourcePolicyV6: sourceV6,
     sourcePolicyV7: sourceV7,
     sourcePolicyV8: sourceV8,
-    replayV5,
-    authorizationV6,
+    sourcePolicyV9: sourceV9,
+    replayV6,
+    authorizationV7,
   });
   const catalog = parsePublicCatalog(catalogText);
   const taxonomyResult = parseCapabilityTaxonomyV1(
@@ -351,14 +371,23 @@ async function load(
     predecessor: planV4,
     successorAuthority: JSON.parse(planV5Text) as unknown,
   });
-  const fieldPlan = materializeCandidateAuthorityFieldPlanV6({
+  const fieldPlanV6 = materializeCandidateAuthorityFieldPlanV6({
     predecessor: fieldPlanV5,
     successorAuthority: JSON.parse(planV6Text) as unknown,
     partialSemanticRegistry: registry,
   });
+  const fieldPlan = materializeCandidateAuthorityFieldPlanV7({
+    predecessor: fieldPlanV6,
+    successorAuthority: JSON.parse(planV7Text) as unknown,
+  });
+  const providerRoutes = parseCandidateAuthorityProviderRoutes({
+    catalog,
+    authority: JSON.parse(routingText) as unknown,
+  });
   const sourceAuthority = parseCandidateAuthoritySuccessorSourceAuthority({
     text: sourceText,
     catalog,
+    providerRoutes,
   });
   if (
     sourceAuthority.bindings['taxonomyVersion'] !==
@@ -373,6 +402,7 @@ async function load(
     sourceAuthority,
     fieldPlan,
     partialSemanticRegistry: registry,
+    providerRoutes,
   });
 }
 
@@ -438,7 +468,7 @@ function replayTexts(replay: CandidateAuthoritySuccessorReplayBundle) {
 
 function readinessTexts(input: {
   readonly report: CandidateAuthoritySuccessorReadinessReport;
-  readonly root: CandidateAuthorityRootV6;
+  readonly root: CandidateAuthorityRootV7;
 }) {
   return [
     output(CANDIDATE_AUTHORITY_SUCCESSOR_READINESS_OUTPUTS[0], input.report),

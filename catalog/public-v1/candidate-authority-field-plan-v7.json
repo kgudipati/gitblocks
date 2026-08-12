@@ -1,0 +1,87 @@
+{
+  "planVersion": "candidate-authority-field-plan/7.0.0",
+  "status": "inactive-pending-independent-exact-head-acceptance",
+  "supersedesConsumedExperimentPlan": {
+    "version": "candidate-authority-field-plan/6.0.0",
+    "digest": "104a8c5ee46aa42dc4fd5ef0b558500809636c38d36f78bcd4f24c284f586409",
+    "path": "catalog/public-v1/candidate-authority-field-plan-v6.json"
+  },
+  "bindings": {
+    "routingAuthorityVersion": "candidate-retrieval-metadata-authority/1.1.0",
+    "routingAuthoritySnapshotId": "retrieval-metadata-snapshot-23c38be5e5b117c74832049ae58f455f",
+    "routingAuthorityDigest": "23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1",
+    "readinessPolicyVersion": "ranking-v1-deterministic-readiness-policy/3.0.0",
+    "readinessPolicyDigest": "f0095da4e9932cf93ce5cde6fecea1a2480aeb7b055d4b5917420303d8575752",
+    "partialSemanticRegistryVersion": "candidate-authority-partial-field-semantics/3.0.0",
+    "partialSemanticRegistryDigest": "8aa2e5a9ede84f871eb057ad10850b01daae9302b3b20450d97fecc115857b7b",
+    "partialEvidenceContractVersion": "candidate-authority-partial-field-evidence/3.0.0",
+    "partialEvidenceContractDigest": "6020d9ec109e73242cf110aad468beca29b3aed79838f419c5e23d0f714b4e8e"
+  },
+  "unchangedGate": {
+    "denominatorSize": 18,
+    "minimumRealizedReadyFields": 13,
+    "exactPercentage": 72.222222,
+    "minimumFieldPerBreadthGroup": 1
+  },
+  "plannedDeterministicExtractionCapableFieldCount": 13,
+  "plannedDeterministicFullClosureFieldCount": 4,
+  "plannedFullClosureFields": [
+    "runtime-package-format",
+    "package-repository-linkage",
+    "archived-state",
+    "maintenance-activity"
+  ],
+  "fieldOverrides": [
+    {
+      "fieldId": "package-repository-linkage",
+      "posture": "deterministic-complete-path",
+      "sourceAuthorityVersion": "candidate-authority-source-policy/9.0.0",
+      "extractionRuleVersion": "profile-materialization-package-linkage/2.0.0",
+      "sourceKind": "catalog-canonical-aliases-and-structured-package-registry",
+      "versionScope": "Registry snapshot plus exact catalog and accepted Phase 9 provider-canonical repository aliases.",
+      "positiveFacts": [
+        "matched when a supported npm declaration equals either accepted alias; mismatched when it equals neither; complete supported omission is undeclared"
+      ],
+      "partialFactCodes": [],
+      "negativeAbsenceSemantics": "Only complete repository-property omission establishes undeclared; incomplete or unsupported source is unknown; catalog-unmapped is legal not-applicable.",
+      "unresolvedRemainder": "None under complete mapped metadata, exact accepted alias closure, or catalog-unmapped proof.",
+      "completenessRequirement": "Complete selected-version repository property state and exact validated catalog/canonical route aliases.",
+      "freshnessRequirement": "Registry cutoff and accepted Phase 9 routing snapshot retained.",
+      "notApplicableRule": "catalog npm-package is null",
+      "evidenceTopic": "candidate-package-repository-linkage",
+      "evidenceDimension": "repository-package",
+      "evidenceProvenanceKind": "structured-provider-snapshot",
+      "generationOrigin": "deterministic",
+      "canEmitMeaningfulNonUnknownFact": true,
+      "incompleteAuthorityOutcome": "explicit-unknown-or-partial",
+      "negativeClaimsRequireCompleteSource": true,
+      "provenanceAndFieldBindingRetained": true,
+      "prohibitedExtractionInputs": [
+        "candidate-id-as-fit-fact",
+        "model-output",
+        "popularity",
+        "ranking-v1-evaluation-classification",
+        "ranking-v1-gold",
+        "scorer-output"
+      ],
+      "evidenceBridgeWithoutProseInterpretation": true,
+      "plannedExtractionCapable": true,
+      "deterministicFullClosureCandidate": true,
+      "breadthGroup": "stack-package",
+      "providerOperations": [
+        "npm-selected-version-metadata",
+        "github-repository-metadata"
+      ],
+      "reusesPhase8Rule": false,
+      "requiresSuccessorRule": true,
+      "rationale": "A repository transfer changes provider routing but not candidate ownership; only the exact catalog and accepted Phase 9 canonical identities are equivalent aliases."
+    }
+  ],
+  "changeControl": {
+    "onlyChangedField": "package-repository-linkage",
+    "catalogIdentityMutationPermitted": false,
+    "arbitraryAliasesPermitted": false,
+    "readinessGateChanged": false
+  },
+  "planSemanticDigest": "650f7e1b335c0d5d919e69cc8619573a7b8322779ca8686e768be7a4284d95ec"
+}

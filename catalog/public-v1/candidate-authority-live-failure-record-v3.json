@@ -1,0 +1,85 @@
+{
+  "recordVersion": "candidate-authority-live-failure-record/3.0.0",
+  "status": "immutable-consumed-failure-history",
+  "supersedes": {
+    "version": "candidate-authority-live-failure-record/2.0.0",
+    "digest": "ebfd078f675c4ce33bba2c9edb7eac1c9cd967bbe6a6a5a35614b77f893dc0a5",
+    "path": "catalog/public-v1/candidate-authority-live-failure-record-v2.json",
+    "preservation": "Failure records v1 and v2 remain immutable independently binding historical authorities."
+  },
+  "executionHead": "895980891665e373ccf72e63a6b12cf4f09b63c1",
+  "authorization": {
+    "version": "candidate-authority-live-authorization/6.0.0",
+    "digest": "ecfc1cd5e1096049f0fb3aef1adc019b9aad920e639fa3e95cebc40b26c77418",
+    "path": "catalog/public-v1/candidate-authority-live-authorization-v6.json",
+    "providerEffectCollectionsConsumed": 1,
+    "remainingProviderEffectCollections": 0,
+    "rerunPermitted": false
+  },
+  "operatorVersion": "candidate-authority-live-operator/6.0.0",
+  "observedExecutionFacts": {
+    "collectionCutoff": "2026-08-11T23:11:04.311Z",
+    "candidateProviderEffectsReached": true,
+    "providerEffectCollectionsConsumed": 1,
+    "failureStage": "candidate-authority-successor-collect",
+    "safeErrorCode": "ingestion.redirect",
+    "firstFatalCandidateId": "auth-casbin-casbin",
+    "firstFatalOperationId": "github-repository-metadata",
+    "metrics": {
+      "githubLogicalRequests": 291,
+      "npmLogicalRequests": 20,
+      "totalLogicalRequests": 311,
+      "githubAttempts": 291,
+      "npmAttempts": 20,
+      "totalAttempts": 311,
+      "retries": 0,
+      "perOperation": {
+        "github-advisories": { "logicalRequests": 20, "attempts": 20 },
+        "github-compose-json-blob": { "logicalRequests": 0, "attempts": 0 },
+        "github-default-branch-ref": { "logicalRequests": 34, "attempts": 34 },
+        "github-dockerfile-blob": { "logicalRequests": 0, "attempts": 0 },
+        "github-head-commit-object": { "logicalRequests": 34, "attempts": 34 },
+        "github-license": { "logicalRequests": 30, "attempts": 30 },
+        "github-maintenance-window": { "logicalRequests": 31, "attempts": 31 },
+        "github-release-window": { "logicalRequests": 30, "attempts": 30 },
+        "github-repository-metadata": { "logicalRequests": 35, "attempts": 35 },
+        "github-root-tree": { "logicalRequests": 34, "attempts": 34 },
+        "github-security-docs-tree": { "logicalRequests": 14, "attempts": 14 },
+        "github-security-dot-github-tree": {
+          "logicalRequests": 29,
+          "attempts": 29
+        },
+        "npm-selected-version-metadata": {
+          "logicalRequests": 20,
+          "attempts": 20
+        }
+      }
+    },
+    "ownedStagingExisted": false,
+    "ownedStagingCleaned": false,
+    "ownedStagingCleanupMeaning": "No owned staging existed, so no staging cleanup action occurred.",
+    "sourceAuthorityPublished": false,
+    "sourceValidation": "not-performed",
+    "replay": "not-performed",
+    "readiness": "not-performed",
+    "milestone4": "not-started"
+  },
+  "prohibitedHistoricalReconstruction": {
+    "redirectLocationHeaderRetained": false,
+    "redirectLocationHeaderInspected": false,
+    "redirectTargetObserved": false,
+    "providerResponseBodyRetained": false,
+    "providerResponseBodyReconstructed": false,
+    "credentialMaterialRetained": false,
+    "candidateFactsReconstructed": false
+  },
+  "diagnosedRoutingContractDefect": {
+    "classification": "independent-authority-static-diagnosis",
+    "observedRedirectTargetUsed": false,
+    "decisionAuthority": "ADR-0015",
+    "routingAuthorityVersion": "candidate-retrieval-metadata-authority/1.1.0",
+    "routingAuthorityDigest": "23c38be5e5b117c74832049ae58f455f4fd1731e167cf170038da516c44e5ef1",
+    "summary": "The consumed operator routed repository-scoped requests through catalog identity instead of the independently frozen provider-canonical identity."
+  },
+  "canonicalFailureDigest": "d5e21bfcfc5ecef6b99639bc86947b87c8e31ab31cfe300929a6479c270be526"
+}

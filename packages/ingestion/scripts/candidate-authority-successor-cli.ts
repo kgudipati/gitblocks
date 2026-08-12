@@ -1,10 +1,10 @@
 import { resolve } from 'node:path';
 
 import {
-  executeCandidateAuthoritySuccessor,
-  preflightCandidateAuthoritySuccessor,
-  renderCandidateAuthoritySuccessorFailure,
-} from '../src/candidate-authority-live-v6-runner.ts';
+  executeCandidateAuthoritySuccessorV7,
+  preflightCandidateAuthoritySuccessorV7,
+  renderCandidateAuthoritySuccessorFailureV7,
+} from '../src/candidate-authority-live-v7-runner.ts';
 import { CANDIDATE_AUTHORITY_SUCCESSOR_SOURCE_PATH } from '../src/candidate-authority-successor-contracts.ts';
 import {
   createCandidateAuthoritySuccessorSystemEffects,
@@ -22,7 +22,7 @@ if (
   unexpected.length > 0
 ) {
   process.stderr.write(
-    renderCandidateAuthoritySuccessorFailure(new Error('invalid arguments')),
+    renderCandidateAuthoritySuccessorFailureV7(new Error('invalid arguments')),
   );
   process.exitCode = 1;
 } else {
@@ -34,7 +34,7 @@ if (
   });
   try {
     if (mode === 'preflight') {
-      const result = await preflightCandidateAuthoritySuccessor(
+      const result = await preflightCandidateAuthoritySuccessorV7(
         effects,
         acceptedHead,
       );
@@ -51,13 +51,15 @@ if (
           mappedNpmCount: result.catalog.candidates.filter(
             (candidate) => candidate.npmPackage !== null,
           ).length,
+          unchangedRouteCount: result.providerRoutes.unchangedCount,
+          redirectedRouteCount: result.providerRoutes.redirectedCount,
           sourcePolicyVersion: result.sourcePolicy.policyVersion,
           authorizationVersion: result.authorization.version,
           effectAudit: result.effectAudit,
         })}\n`,
       );
     } else if (mode === 'collect') {
-      const authority = await executeCandidateAuthoritySuccessor(
+      const authority = await executeCandidateAuthoritySuccessorV7(
         effects,
         acceptedHead,
       );
@@ -103,7 +105,7 @@ if (
       );
     }
   } catch (error) {
-    process.stderr.write(renderCandidateAuthoritySuccessorFailure(error));
+    process.stderr.write(renderCandidateAuthoritySuccessorFailureV7(error));
     process.exitCode = 1;
   }
 }

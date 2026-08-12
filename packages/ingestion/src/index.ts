@@ -277,9 +277,49 @@ export {
 } from './candidate-authority-successor-replay.ts';
 export {
   measureCandidateAuthoritySuccessorReadiness,
-  type CandidateAuthorityRootV6,
+  type CandidateAuthorityRootV7,
   type CandidateAuthoritySuccessorReadinessReport,
 } from './candidate-authority-successor-measurement.ts';
+export {
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_DIGEST,
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_PATH,
+  CANDIDATE_AUTHORITY_FAILURE_RECORD_V3_VERSION,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V7_DIGEST,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V7_PATH,
+  CANDIDATE_AUTHORITY_FIELD_PLAN_V7_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_DIGEST,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_PATH,
+  CANDIDATE_AUTHORITY_LIVE_AUTHORIZATION_V7_VERSION,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_DIGEST,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_PATH,
+  CANDIDATE_AUTHORITY_PROVIDER_CONTRACT_V4_VERSION,
+  CANDIDATE_AUTHORITY_REPLAY_V6_DIGEST,
+  CANDIDATE_AUTHORITY_REPLAY_V6_PATH,
+  CANDIDATE_AUTHORITY_REPLAY_V6_VERSION,
+  CANDIDATE_AUTHORITY_ROUTING_DIGEST,
+  CANDIDATE_AUTHORITY_ROUTING_PATH,
+  CANDIDATE_AUTHORITY_ROUTING_SNAPSHOT_ID,
+  CANDIDATE_AUTHORITY_ROUTING_VERSION,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_DIGEST,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_PATH,
+  CANDIDATE_AUTHORITY_SOURCE_POLICY_V9_VERSION,
+  candidateAuthorityProviderRouteFromRecord,
+  materializeCandidateAuthorityFieldPlanV7,
+  parseCandidateAuthorityProviderRoutes,
+  validateCandidateAuthorityCanonicalRoutingAuthorities,
+  type CandidateAuthorityFieldPlanV7Runtime,
+  type CandidateAuthorityProviderRoute,
+  type CandidateAuthorityProviderRoutes,
+} from './candidate-authority-canonical-routing-correction.ts';
+export {
+  CandidateAuthoritySuccessorExecutionFailureV7,
+  executeCandidateAuthoritySuccessorV7,
+  preflightCandidateAuthoritySuccessorV7,
+  renderCandidateAuthoritySuccessorFailureV7,
+  type CandidateAuthoritySuccessorEffectsV7,
+  type CandidateAuthoritySuccessorFailureDiagnosticV7,
+  type CandidateAuthoritySuccessorPreflightResultV7,
+} from './candidate-authority-live-v7-runner.ts';
 export {
   CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_DIGEST,
   CANDIDATE_AUTHORITY_FAILURE_RECORD_V2_PATH,
@@ -429,6 +469,7 @@ export {
   type CandidateAuthorityReplayWriteEffects,
 } from './candidate-authority-replay-runner.ts';
 export {
+  classifyCandidateAuthorityPackageRepositoryLinkage,
   generateCandidateAuthorityReplay,
   projectCandidateAuthorityReplayCandidate,
   restoreCandidateAuthorityReplayOrder,

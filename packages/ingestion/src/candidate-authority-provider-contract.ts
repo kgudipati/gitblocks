@@ -17,6 +17,8 @@ export const CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION =
   'candidate-authority-live-operator/5.0.0' as const;
 export const CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION =
   'candidate-authority-live-operator/6.0.0' as const;
+export const CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION =
+  'candidate-authority-live-operator/7.0.0' as const;
 export const CANDIDATE_AUTHORITY_REPLAY_V3_VERSION =
   'candidate-authority-pure-replay/3.0.0' as const;
 
@@ -69,7 +71,8 @@ export interface CandidateAuthoritySuccessorRuntimeSourcePolicy {
   readonly policyVersion:
     | 'candidate-authority-source-policy/6.0.0'
     | 'candidate-authority-source-policy/7.0.0'
-    | 'candidate-authority-source-policy/8.0.0';
+    | 'candidate-authority-source-policy/8.0.0'
+    | 'candidate-authority-source-policy/9.0.0';
   readonly policySemanticDigest: string;
   readonly requestBudget: {
     readonly githubLogicalRequests: 1810;
@@ -113,11 +116,13 @@ export interface CandidateAuthoritySuccessorOperationReceipt {
 export interface CandidateAuthoritySuccessorSourceAuthority {
   readonly authorityVersion:
     | 'candidate-authority-source-authority/2.0.0'
-    | 'candidate-authority-source-authority/3.0.0';
+    | 'candidate-authority-source-authority/3.0.0'
+    | 'candidate-authority-source-authority/4.0.0';
   readonly operatorVersion:
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION
-    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION;
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION;
   readonly bindings: Readonly<Record<string, string>>;
   readonly collectionCutoff: string;
   readonly candidateCount: 150;

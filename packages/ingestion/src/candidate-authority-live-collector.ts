@@ -3,8 +3,10 @@
 import { repositoryArtifactContentSha256 } from '@gitblocks/contracts';
 
 import { canonicalizeJson } from './canonical-json.ts';
+import type { CandidateAuthorityProviderRoute } from './candidate-authority-canonical-routing-correction.ts';
 import {
   CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
+  CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION,
   CANDIDATE_AUTHORITY_SUCCESSOR_OPERATION_IDS,
   createCandidateAuthoritySuccessorSourceAuthority,
   createCandidateAuthoritySuccessorSourceCandidate,
@@ -116,7 +118,12 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
   readonly operatorVersion?:
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V4_VERSION
     | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V5_VERSION
-    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION;
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION
+    | typeof CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION;
+  readonly providerRoutes?: ReadonlyMap<
+    string,
+    CandidateAuthorityProviderRoute
+  >;
   readonly transport: CandidateAuthorityLiveTransport;
   readonly readAttemptMetrics: () => CandidateAuthorityAttemptMetrics;
   readonly observeLogicalRequest?: (
@@ -200,7 +207,10 @@ export async function collectCandidateAuthoritySourceAuthority(input: {
   )
     invalid();
   return createCandidateAuthoritySuccessorSourceAuthority({
-    authorityVersion: 'candidate-authority-source-authority/3.0.0',
+    authorityVersion:
+      input.operatorVersion === CANDIDATE_AUTHORITY_LIVE_OPERATOR_V7_VERSION
+        ? 'candidate-authority-source-authority/4.0.0'
+        : 'candidate-authority-source-authority/3.0.0',
     operatorVersion:
       input.operatorVersion ?? CANDIDATE_AUTHORITY_LIVE_OPERATOR_V6_VERSION,
     bindings: {
@@ -251,6 +261,7 @@ async function collectCandidate(
   state: CollectionState,
 ) {
   const sources: CandidateAuthoritySuccessorSourceDatum[] = [];
+  const route = providerRoute(candidate, input.providerRoutes);
   const metadata = await operation(
     candidate,
     'github-repository-metadata',
@@ -260,14 +271,27 @@ async function collectCandidate(
         input,
         state,
         'github-repository-metadata',
-        `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}`,
+        candidateAuthorityRepositoryPath(route),
       );
-      return parseRepositoryMetadata(response.value, candidate);
+      return parseCandidateAuthorityRepositoryMetadata(
+        response.value,
+        route,
+        input.providerRoutes !== undefined,
+      );
     },
   );
   sources.push(
     source('github-repository-metadata', 'established-value', 'complete', {
       repositoryId: metadata.repositoryId,
+      catalogRepositoryIdentity: {
+        owner: route.catalogOwner,
+        repository: route.catalogRepository,
+      },
+      providerCanonicalRepositoryIdentity: {
+        owner: route.providerCanonicalOwner,
+        repository: route.providerCanonicalRepository,
+      },
+      repositoryIdentityState: route.repositoryIdentityState,
       canonicalOwner: metadata.canonicalOwner,
       canonicalRepository: metadata.canonicalRepository,
       defaultBranch: metadata.defaultBranch,
@@ -290,7 +314,7 @@ async function collectCandidate(
         input,
         state,
         'github-default-branch-ref',
-        `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/git/ref/heads/${segment(metadata.defaultBranch)}`,
+        `${candidateAuthorityRepositoryPath(route)}/git/ref/heads/${segment(metadata.defaultBranch)}`,
       );
       return parseGitRef(response.value, metadata.defaultBranch);
     },
@@ -311,7 +335,7 @@ async function collectCandidate(
         input,
         state,
         'github-head-commit-object',
-        `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/git/commits/${headSha}`,
+        `${candidateAuthorityRepositoryPath(route)}/git/commits/${headSha}`,
       );
       return parseGitCommit(response.value, headSha);
     },
@@ -398,7 +422,7 @@ async function collectCandidate(
   );
   await collectSecurityPolicies(candidate, context, input, state, sources);
   await operation(candidate, 'github-release-window', () =>
-    collectReleases(candidate, input, state, sources),
+    collectReleases(candidate, context, input, state, sources),
   );
   const npm = await operation(candidate, 'npm-selected-version-metadata', () =>
     collectNpm(candidate, input, state, sources),
@@ -442,7 +466,7 @@ async function collectMaintenance(
     input,
     state,
     'github-maintenance-window',
-    `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/commits?${params.toString()}`,
+    `/repos/${segment(context.canonicalOwner)}/${segment(context.canonicalRepository)}/commits?${params.toString()}`,
     false,
   );
   if (collected.kind !== 'value') {
@@ -487,7 +511,7 @@ async function collectLicense(
     input,
     state,
     'github-license',
-    `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/license?ref=${context.headSha}`,
+    `/repos/${segment(context.canonicalOwner)}/${segment(context.canonicalRepository)}/license?ref=${context.headSha}`,
     true,
   );
   if (collected.kind === 'absence') {
@@ -622,6 +646,7 @@ async function collectSecurityPolicies(
 
 async function collectReleases(
   candidate: CatalogCandidate,
+  context: RepositoryContext,
   input: Parameters<typeof collectCandidateAuthoritySourceAuthority>[0],
   state: CollectionState,
   sources: CandidateAuthoritySuccessorSourceDatum[],
@@ -631,7 +656,7 @@ async function collectReleases(
     input,
     state,
     'github-release-window',
-    `/repos/${segment(candidate.github.owner)}/${segment(candidate.github.repository)}/releases?per_page=5&page=1`,
+    `/repos/${segment(context.canonicalOwner)}/${segment(context.canonicalRepository)}/releases?per_page=5&page=1`,
     false,
   );
   if (collected.kind !== 'value') {
@@ -1071,13 +1096,13 @@ async function collectDockerfile(
   const rule = extractRepositoryContainerBuildDeclarationFact({
     expectedRepositoryIdentity: {
       repositoryId: context.repositoryId,
-      owner: candidate.github.owner,
-      repository: candidate.github.repository,
+      owner: context.canonicalOwner,
+      repository: context.canonicalRepository,
     },
     observedRepositoryIdentity: {
       repositoryId: context.repositoryId,
-      owner: candidate.github.owner,
-      repository: candidate.github.repository,
+      owner: context.canonicalOwner,
+      repository: context.canonicalRepository,
     },
     expectedCommitObjectId: context.headSha,
     observedCommitObjectId: context.headSha,
@@ -1215,23 +1240,64 @@ async function request(
   });
 }
 
-function parseRepositoryMetadata(value: unknown, candidate: CatalogCandidate) {
+function providerRoute(
+  candidate: CatalogCandidate,
+  routes: ReadonlyMap<string, CandidateAuthorityProviderRoute> | undefined,
+): CandidateAuthorityProviderRoute {
+  const route = routes?.get(candidate.candidateId) ?? {
+    candidateId: candidate.candidateId,
+    catalogOwner: candidate.github.owner,
+    catalogRepository: candidate.github.repository,
+    providerCanonicalOwner: candidate.github.owner,
+    providerCanonicalRepository: candidate.github.repository,
+    repositoryIdentityState: 'unchanged' as const,
+  };
+  if (
+    route.candidateId !== candidate.candidateId ||
+    route.catalogOwner !== candidate.github.owner ||
+    route.catalogRepository !== candidate.github.repository
+  )
+    invalid();
+  return route;
+}
+
+export function candidateAuthorityRepositoryPath(
+  route: CandidateAuthorityProviderRoute,
+): string {
+  return `/repos/${segment(route.providerCanonicalOwner)}/${segment(route.providerCanonicalRepository)}`;
+}
+
+export function parseCandidateAuthorityRepositoryMetadata(
+  value: unknown,
+  route: CandidateAuthorityProviderRoute,
+  requireExpandedIdentity: boolean,
+) {
   const record = requireRecord(value);
   const fullName = safeString(record['full_name'], 201);
   if (
     fullName.toLowerCase() !==
-    `${candidate.github.owner}/${candidate.github.repository}`.toLowerCase()
+    `${route.providerCanonicalOwner}/${route.providerCanonicalRepository}`.toLowerCase()
   )
     identity();
   const parts = fullName.split('/');
   if (parts.length !== 2 || parts[0] === undefined || parts[1] === undefined)
     identity();
+  if (requireExpandedIdentity) {
+    const owner = requireRecord(record['owner']);
+    if (
+      safeString(owner['login'], 100).toLowerCase() !==
+        route.providerCanonicalOwner.toLowerCase() ||
+      safeString(record['name'], 100).toLowerCase() !==
+        route.providerCanonicalRepository.toLowerCase()
+    )
+      identity();
+  }
   const rawId = record['id'];
   if (!Number.isSafeInteger(rawId) || Number(rawId) < 1) invalidProvider();
   return {
     repositoryId: String(rawId),
-    canonicalOwner: parts[0],
-    canonicalRepository: parts[1],
+    canonicalOwner: route.providerCanonicalOwner,
+    canonicalRepository: route.providerCanonicalRepository,
     defaultBranch: safeString(record['default_branch'], 255),
     archived: boolean(record['archived']),
     primaryLanguage: nullableString(record['language'], 100),
