@@ -4,7 +4,11 @@ import { PersistenceError } from '@gitblocks/persistence';
 import type * as PersistenceModule from '@gitblocks/persistence';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { readHostedServingDatabaseConfiguration } from '../src/configuration.ts';
+import {
+  DEFAULT_HOSTED_MCP_PORT,
+  readHostedMcpPortConfiguration,
+  readHostedServingDatabaseConfiguration,
+} from '../src/configuration.ts';
 import { startHostedDiscoveryComposition } from '../src/composition.ts';
 import { runHostedDiscoveryExercise } from '../src/exercise.ts';
 import { HostedDiscoveryError } from '../src/errors.ts';
@@ -132,6 +136,21 @@ describe('hosted discovery composition', () => {
       readHostedServingDatabaseConfiguration({
         ...environment,
         GITBLOCKS_HOSTED_SERVING_DB_PORT: 'credential-sentinel',
+      }),
+    ).toThrow('Hosted discovery configuration is invalid.');
+  });
+
+  it('uses only a bounded MCP port setting and has no configurable listener host', () => {
+    expect(readHostedMcpPortConfiguration({})).toBe(DEFAULT_HOSTED_MCP_PORT);
+    expect(
+      readHostedMcpPortConfiguration({ GITBLOCKS_HOSTED_MCP_PORT: '43117' }),
+    ).toBe(43_117);
+    expect(() =>
+      readHostedMcpPortConfiguration({ GITBLOCKS_HOSTED_MCP_PORT: '0' }),
+    ).toThrow('Hosted discovery configuration is invalid.');
+    expect(() =>
+      readHostedMcpPortConfiguration({
+        GITBLOCKS_HOSTED_MCP_PORT: 'public-interface-sentinel',
       }),
     ).toThrow('Hosted discovery configuration is invalid.');
   });

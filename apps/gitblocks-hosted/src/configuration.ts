@@ -11,6 +11,21 @@ export const HOSTED_SERVING_DATABASE_ENVIRONMENT_NAMES = Object.freeze({
   ssl: 'GITBLOCKS_HOSTED_SERVING_DB_SSL',
 } as const);
 
+export const HOSTED_MCP_PORT_ENVIRONMENT_NAME = 'GITBLOCKS_HOSTED_MCP_PORT';
+export const DEFAULT_HOSTED_MCP_PORT = 3333;
+
+export function readHostedMcpPortConfiguration(
+  environment: Readonly<Record<string, string | undefined>>,
+): number {
+  const text = environment[HOSTED_MCP_PORT_ENVIRONMENT_NAME];
+  if (text === undefined) return DEFAULT_HOSTED_MCP_PORT;
+  const port = Number(text);
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new HostedDiscoveryError('hosted.invalid-configuration');
+  }
+  return port;
+}
+
 export function readHostedServingDatabaseConfiguration(
   environment: Readonly<Record<string, string | undefined>>,
 ): PersistenceClientConfig {

@@ -1,5 +1,11 @@
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
+import {
+  Client,
+  StreamableHTTPClientTransport,
+  type FetchLike,
+} from '@modelcontextprotocol/client';
 import postgres, { type Sql } from 'postgres';
 import type {
   DeterministicCandidateProfile,
@@ -20,6 +26,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { startHostedDiscoveryComposition } from '../src/composition.ts';
 import { runHostedDiscoveryExercise } from '../src/exercise.ts';
+import { GITBLOCKS_MCP_HOST } from '../src/mcp-http.ts';
+import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
+import { GITBLOCKS_DISCOVER_OSS_TOOL_NAME } from '../src/mcp-server.ts';
 import { capabilityInput, loadAcceptedAuthorities } from './fixtures.ts';
 
 const OWNER_CONFIG = readOwnerConfig();
@@ -36,6 +45,16 @@ const SERVING_CONFIG: PersistenceClientConfig = {
   maximumConnections: 2,
 };
 const PUBLISHED_AT = '2026-08-12T18:00:00.000Z';
+const AUTHORIZATION_DIGEST =
+  '4b1b67eda39c618ae67738e7776957c6ea45315d0893199c90e42f7bc39d9b00';
+const nativeFetch = globalThis.fetch.bind(globalThis);
+const loopbackFetch: FetchLike = async (input, init) => {
+  const url = new URL(input instanceof Request ? input.url : String(input));
+  if (url.hostname !== GITBLOCKS_MCP_HOST) {
+    throw new Error('PostgreSQL MCP test permits loopback HTTP only.');
+  }
+  return nativeFetch(input, init);
+};
 
 let ownerSql: Sql;
 
@@ -53,6 +72,96 @@ afterAll(async () => {
 });
 
 describe('hosted discovery PostgreSQL composition', () => {
+  it('serves the exact R4 shortlist through the official modern MCP client without PostgreSQL on tool calls', async () => {
+    const writer = createPersistenceClient(WRITER_CONFIG);
+    const servingSql = directSql(SERVING_CONFIG);
+    const authorities = await loadAcceptedAuthorities();
+    let mcpProcess;
+    let client: Client | undefined;
+    try {
+      await seedAcceptedCandidateIdentities(writer);
+      await publishServingCatalogSnapshot(writer, {
+        candidateProfileAuthority: authorities.profiles,
+        candidateRetrievalMetadataAuthority: authorities.metadata,
+        publishedAt: PUBLISHED_AT,
+      });
+      await closePersistenceClient(writer);
+
+      mcpProcess = await startGitBlocksMcpProcess({
+        database: SERVING_CONFIG,
+        port: 0,
+      });
+      await ownerSql.unsafe(
+        'revoke select on all tables in schema gitblocks from gitblocks_serving',
+      );
+      await expect(
+        servingSql`
+          select snapshot_id
+          from gitblocks.serving_catalog_current_snapshot
+          where selector
+        `,
+      ).rejects.toMatchObject({ code: '42501' });
+
+      client = new Client(
+        { name: 'gitblocks-postgresql-mcp-test', version: '0.0.0' },
+        { versionNegotiation: { mode: { pin: '2026-07-28' } } },
+      );
+      await client.connect(
+        new StreamableHTTPClientTransport(mcpProcess.endpoint, {
+          fetch: loopbackFetch,
+        }),
+      );
+      expect(client.getProtocolEra()).toBe('modern');
+      const listed = await client.listTools();
+      expect(listed.tools.map(({ name }) => name)).toEqual([
+        GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
+      ]);
+
+      const request = JSON.parse(
+        await readFile(
+          new URL(
+            '../examples/authorization-discovery-request.json',
+            import.meta.url,
+          ),
+          'utf8',
+        ),
+      ) as Record<string, unknown>;
+      const first = await client.callTool({
+        name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
+        arguments: request,
+      });
+      const second = await client.callTool({
+        name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
+        arguments: request,
+      });
+      expect(retrievedSemanticDigest(first.structuredContent)).toBe(
+        AUTHORIZATION_DIGEST,
+      );
+      expect(second.structuredContent).toEqual(first.structuredContent);
+      expect(first.isError).not.toBe(true);
+
+      await client.close();
+      client = undefined;
+      await mcpProcess.close();
+      mcpProcess = undefined;
+      const sessions = await ownerSql<readonly { readonly count: number }[]>`
+        select pg_catalog.count(*)::integer as count
+        from pg_catalog.pg_stat_activity
+        where datname = ${SERVING_CONFIG.database}
+          and usename = ${SERVING_CONFIG.username}
+          and application_name = 'gitblocks-persistence'
+      `;
+      expect(sessions).toEqual([{ count: 0 }]);
+    } finally {
+      await Promise.all([
+        client?.close(),
+        mcpProcess?.close(),
+        servingSql.end({ timeout: 5 }),
+        closePersistenceClient(writer),
+      ]);
+    }
+  });
+
   it('executes the one-shot journey and continues deterministic discovery after serving SELECT is revoked', async () => {
     const writer = createPersistenceClient(WRITER_CONFIG);
     const servingSql = directSql(SERVING_CONFIG);
@@ -203,6 +312,22 @@ describe('hosted discovery PostgreSQL composition', () => {
     }
   });
 });
+
+function retrievedSemanticDigest(value: unknown): string | undefined {
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    !('shortlist' in value) ||
+    typeof value.shortlist !== 'object' ||
+    value.shortlist === null ||
+    !('semanticDigest' in value.shortlist)
+  ) {
+    return undefined;
+  }
+  return typeof value.shortlist.semanticDigest === 'string'
+    ? value.shortlist.semanticDigest
+    : undefined;
+}
 
 async function seedAcceptedCandidateIdentities(
   client: PersistenceClient,

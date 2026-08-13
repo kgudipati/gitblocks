@@ -10,18 +10,19 @@ concrete PostgreSQL adapter approved by
 [ADR 0004](../architecture/decisions/0004-postgresql-evidence-persistence.md),
 and the curated public-source ingestion adapter approved by
 [ADR 0005](../architecture/decisions/0005-public-repository-ingestion.md), the
-pure retrieval package approved by ADR 0009, and the R4 hosted discovery
-application composed under the Recovery R2 system context and ADR 0011.
+pure retrieval package approved by ADR 0009, the R4 hosted discovery
+application composed under the Recovery R2 system context and ADR 0011, and
+the R5 loopback-only MCP adapter over that application.
 Repository verification and evaluation tooling are not product
-implementations. The hosted application is an in-process/one-shot boundary,
-not an operational network service.
+implementations. The only operational network surface is the R5 native Node
+loopback MCP endpoint; authenticated remote serving remains deferred.
 
-| Stage           | Meaning                                                                                                             | Enforcement                                                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Now             | Domain, contracts, retrieval, persistence, ingestion, hosted discovery, documentation, plans, metadata, and tooling | Applicable ADRs/system context, `pnpm verify`, `pnpm db:verify`, CI, author self-review, and PR review against this handbook |
-| Before services | Before an application, adapter, framework, or deployed product path lands                                           | An accepted ADR extends the kernel with required application, framework, boundary, and runtime decisions                     |
-| With code       | Whenever production or test code exists                                                                             | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review                     |
-| With deployment | Whenever a path runs in a shared or production environment                                                          | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                                    |
+| Stage           | Meaning                                                                                                                 | Enforcement                                                                                                                  |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Now             | Domain, contracts, retrieval, persistence, ingestion, hosted discovery/MCP, documentation, plans, metadata, and tooling | Applicable ADRs/system context, `pnpm verify`, `pnpm db:verify`, CI, author self-review, and PR review against this handbook |
+| Before services | Before an application, adapter, framework, or deployed product path lands                                               | An accepted ADR extends the kernel with required application, framework, boundary, and runtime decisions                     |
+| With code       | Whenever production or test code exists                                                                                 | Automated formatter, lint, type, test, dependency-boundary, and security checks plus line-by-line review                     |
+| With deployment | Whenever a path runs in a shared or production environment                                                              | Runtime bounds, telemetry, access control, operational tests, SLOs, and incident controls                                    |
 
 Required evidence is the relevant ADR and contract diff, tests, tool output, PR
 validation record, and reviewer confirmation. A future tool may strengthen a
@@ -59,10 +60,10 @@ The allowed dependency direction is:
 ```text
 packages/ingestion -> packages/persistence -> packages/contracts -> packages/domain
 tools/evaluation-harness -> packages/persistence
-apps/gitblocks-hosted -> packages/persistence + packages/retrieval + packages/contracts + packages/domain
+apps/gitblocks-hosted -> official MCP v2 + packages/persistence + packages/retrieval + packages/contracts + packages/domain
 ```
 
-The future operational direction is:
+The operational dependency direction is:
 
 ```text
 HTTP, MCP, queue, GitHub, filesystem, model-provider, and framework adapters
@@ -92,6 +93,10 @@ HTTP, MCP, queue, GitHub, filesystem, model-provider, and framework adapters
   or public contracts.
 - An adapter validates and translates at its boundary. It does not recreate
   business decisions or silently apply different defaults.
+- The hosted MCP server registers only product-approved tools, derives input
+  schemas from the contract catalog, and delegates to hosted application
+  operations. It does not receive a database client or own normalization,
+  retrieval, provider, model, or target-repository behavior.
 - Cross-module dependencies must use the declared public surface. Tests and
   scripts do not bypass ownership through deep imports.
 - Cycles across domain, application, and adapter boundaries are prohibited.
@@ -102,9 +107,9 @@ HTTP, MCP, queue, GitHub, filesystem, model-provider, and framework adapters
 - A single deployable may contain all layers. This direction does not require
   microservices, dependency-injection frameworks, or one interface per class.
 
-The workspace dependency check enforces the current kernel and hosted
-composition boundaries. A future stack ADR must extend that check before
-adding transport, model, or deployment layers.
+The workspace dependency check enforces the current kernel, hosted composition,
+and thin MCP adapter boundaries. Any future model or deployment layer must
+extend that check before landing.
 
 ## Contracts and validation
 

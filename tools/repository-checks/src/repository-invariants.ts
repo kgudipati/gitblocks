@@ -48,6 +48,8 @@ const PRODUCT_PACKAGE_POLICIES: ReadonlyMap<string, ProductPackagePolicy> =
           ['@gitblocks/domain', EXACT_WORKSPACE_VERSION],
           ['@gitblocks/persistence', EXACT_WORKSPACE_VERSION],
           ['@gitblocks/retrieval', EXACT_WORKSPACE_VERSION],
+          ['@modelcontextprotocol/node', '2.0.0'],
+          ['@modelcontextprotocol/server', '2.0.0'],
         ]),
         name: '@gitblocks/gitblocks-hosted',
       },
@@ -212,6 +214,8 @@ const REQUIRED_PATHS = [
   'apps/gitblocks-hosted/examples/authorization-discovery-request.json',
   'apps/gitblocks-hosted/package.json',
   'apps/gitblocks-hosted/scripts/exercise-cli.ts',
+  'apps/gitblocks-hosted/scripts/mcp-cli.ts',
+  'apps/gitblocks-hosted/scripts/mcp-exercise-cli.ts',
   'apps/gitblocks-hosted/scripts/tsconfig.json',
   'apps/gitblocks-hosted/src/index.ts',
   'apps/gitblocks-hosted/test/tsconfig.json',
@@ -610,6 +614,8 @@ function validateRuntimeScripts(
     'eval:score',
     'eval:validate',
     'hosted:exercise',
+    'hosted:mcp',
+    'hosted:mcp:exercise',
     'test',
     'test:coverage',
     'taxonomy:generate',
@@ -681,6 +687,10 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm catalog:validate && pnpm ingestion:test && pnpm --filter @gitblocks/ingestion typecheck',
     'hosted:exercise':
       'pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/exercise-cli.ts',
+    'hosted:mcp':
+      'pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/mcp-cli.ts',
+    'hosted:mcp:exercise':
+      'pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/mcp-exercise-cli.ts',
     'interviews:generate':
       'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts generate',
     'interviews:test':

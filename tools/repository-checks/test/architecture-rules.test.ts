@@ -32,6 +32,10 @@ describe('dependency-cruiser architecture rules', () => {
     ['persistence-disallowed-package', 'no-persistence-outward-dependency'],
     ['persistence-prohibited-layer', 'no-persistence-to-prohibited-layer'],
     ['ingestion-disallowed-package', 'no-ingestion-outward-dependency'],
+    [
+      'hosted-mcp-to-persistence',
+      'hosted-mcp-adapter-no-data-or-retrieval-dependency',
+    ],
     ['product-to-tools', 'no-product-to-tools'],
     ['product-test-to-tools', 'no-product-to-tools'],
     ['product-to-evaluation', 'no-product-to-evaluation'],

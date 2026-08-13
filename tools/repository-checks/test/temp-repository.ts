@@ -24,6 +24,8 @@ const REQUIRED_PATHS = [
   'apps/gitblocks-hosted/examples/authorization-discovery-request.json',
   'apps/gitblocks-hosted/package.json',
   'apps/gitblocks-hosted/scripts/exercise-cli.ts',
+  'apps/gitblocks-hosted/scripts/mcp-cli.ts',
+  'apps/gitblocks-hosted/scripts/mcp-exercise-cli.ts',
   'apps/gitblocks-hosted/scripts/tsconfig.json',
   'apps/gitblocks-hosted/src/index.ts',
   'apps/gitblocks-hosted/test/tsconfig.json',
@@ -251,6 +253,10 @@ const ROOT_MANIFEST = JSON.stringify({
       'pnpm runtime:check && pnpm catalog:validate && pnpm ingestion:test && pnpm --filter @gitblocks/ingestion typecheck',
     'hosted:exercise':
       'pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/exercise-cli.ts',
+    'hosted:mcp':
+      'pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/mcp-cli.ts',
+    'hosted:mcp:exercise':
+      'pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/mcp-exercise-cli.ts',
     'interviews:generate':
       'pnpm runtime:check && pnpm build:product && node packages/interviews/scripts/specification-cli.ts generate',
     'interviews:test':
@@ -465,8 +471,11 @@ const HOSTED_MANIFEST = JSON.stringify({
     '@gitblocks/domain': 'workspace:0.0.0',
     '@gitblocks/persistence': 'workspace:0.0.0',
     '@gitblocks/retrieval': 'workspace:0.0.0',
+    '@modelcontextprotocol/node': '2.0.0',
+    '@modelcontextprotocol/server': '2.0.0',
   },
   devDependencies: {
+    '@modelcontextprotocol/client': '2.0.0',
     postgres: '3.4.9',
   },
 });
