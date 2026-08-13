@@ -19,7 +19,7 @@ import {
   type DeterministicCandidateProfileAuthorityV1,
   type OssRecommendationRequestV1,
   type RepositoryFingerprintV1,
-  type TargetFitAssessmentResponseV1,
+  type RecommendationAssessmentResponseV1,
 } from '@gitblocks/contracts';
 import { createCandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
 import type { CandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
@@ -86,12 +86,15 @@ export async function createAcceptedApplication(
     dossierLoader:
       input.dossierLoader ??
       Object.freeze({
-        loadActiveCandidateDossier: (command: {
-          readonly candidateId: string;
-          readonly evidenceCutoff: string;
-        }) =>
+        loadActiveCandidateDossier: (
+          command: Parameters<
+            CandidateDossierLoaderPort['loadActiveCandidateDossier']
+          >[0],
+        ) =>
           Promise.resolve(
-            candidateDossier(command.candidateId, command.evidenceCutoff),
+            candidateDossier(command.candidateId, command.evidenceCutoff, {
+              capabilityFamily: command.expectedCapabilityFamily,
+            }),
           ),
       }),
     fitModel:
@@ -244,10 +247,80 @@ export function recommendationRequest(input: {
   };
 }
 
+export function frozenBackgroundJobsDogfoodRequest(): OssRecommendationRequestV1 {
+  const fingerprint = repositoryFingerprint();
+  return {
+    contractVersion: CONTRACT_VERSION,
+    recommendationRequestId: 'r8-background-jobs-no-redis',
+    capabilityQuery: {
+      contractVersion: CONTRACT_VERSION,
+      queryInputId: 'r8-background-jobs-no-redis',
+      scope: 'local-pre-approval',
+      summary:
+        'Choose a durable background job library with automatic retries that does not require Redis.',
+      capabilityTerms: [
+        { termId: 'r8-term-background-jobs', originalTerm: 'background-jobs' },
+      ],
+      successConditions: [
+        {
+          conditionId: 'r8-condition-durable-jobs',
+          statement:
+            'Durable jobs must survive application or worker restarts and be processable by a separate worker.',
+        },
+        {
+          conditionId: 'r8-condition-retry-backoff',
+          statement:
+            'Failed jobs must retry automatically with configurable backoff.',
+        },
+      ],
+      draftConstraints: [
+        {
+          constraintId: 'automatic-retries',
+          modality: 'required',
+          statement:
+            'The solution must provide automatic retries for failed jobs.',
+          originalTerm: 'retries',
+          facetHint: 'feature',
+          reasonCode: 'automatic-retry-required',
+        },
+        {
+          constraintId: 'no-redis',
+          modality: 'prohibited',
+          statement: 'The solution must not require Redis.',
+          originalTerm: 'redis',
+          facetHint: 'infrastructure',
+          reasonCode: 'redis-unavailable',
+        },
+      ],
+      candidateReferences: [],
+      repositoryFingerprintReference: {
+        fingerprintId: fingerprint.fingerprintId,
+        fingerprintDigest: repositoryFingerprintDigestV1(fingerprint),
+      },
+    },
+    repositoryFingerprint: fingerprint,
+    transmissionApproval: {
+      approvalId: 'r8-background-jobs-approval',
+      approvedAt: '2026-08-12T10:30:00.000Z',
+      approvedBy: 'request-originator',
+      scope: 'minimized-repository-facts',
+      approvedCategories: [
+        'bounded-evidence',
+        'candidate-dossiers',
+        'capability-request',
+        'repository-fingerprint',
+      ],
+    },
+  };
+}
+
 export function candidateDossier(
   candidateId: string,
   evidenceCutoff = TEST_EVIDENCE_CUTOFF,
-  options: { readonly emptyEvidence?: boolean } = {},
+  options: {
+    readonly emptyEvidence?: boolean;
+    readonly capabilityFamily?: CandidateDossierV1['capabilityFamily'];
+  } = {},
 ): CandidateDossierV1 {
   const evidenceId = `evidence-${candidateId}`;
   const observations: CandidateDossierV1['observations'] =
@@ -288,7 +361,7 @@ export function candidateDossier(
       repository: { host: 'github', owner: 'example', name: candidateId },
       package: null,
     },
-    capabilityFamily: 'authorization',
+    capabilityFamily: options.capabilityFamily ?? 'authorization',
     versionScope: null,
     observations,
     limitations:
@@ -318,7 +391,7 @@ export function candidateDossier(
 
 export function groundedModelResponse(
   input: FitAssessmentModelRequestV1,
-): TargetFitAssessmentResponseV1 {
+): RecommendationAssessmentResponseV1 {
   const candidates = input.fitAssessmentRequest.candidates;
   const positive = candidates[0];
   if (positive?.observations[0] === undefined) {
@@ -326,95 +399,122 @@ export function groundedModelResponse(
   }
   const positiveCandidateId = positive.identity.candidateId;
   const inferenceId = `inference-${positiveCandidateId}`;
+  const evidenceNeededCandidateIds = new Set(
+    input.retrievalFinalists
+      .filter(({ lane }) => lane === 'evidence-needed')
+      .map(({ candidateId }) => candidateId),
+  );
   return {
     contractVersion: CONTRACT_VERSION,
-    fitAssessment: {
+    targetFitAssessment: {
       contractVersion: CONTRACT_VERSION,
-      assessmentId: `assessment-${input.fitAssessmentRequest.assessmentRequestId}`,
-      assessmentRequestId: input.fitAssessmentRequest.assessmentRequestId,
-      correlationId: input.fitAssessmentRequest.correlationId,
-      outcome: 'recommend',
-      suppliedCandidateIds: candidates.map(
-        ({ identity }) => identity.candidateId,
-      ),
-      candidateAssessments: candidates.map((dossier, index) => {
-        const candidateId = dossier.identity.candidateId;
-        const evidenceIds = dossier.observations.map(
-          ({ evidenceId }) => evidenceId,
-        );
-        const isPositive = index === 0;
-        return {
-          candidateId,
-          disposition: isPositive
-            ? ('recommended' as const)
-            : ('rejected' as const),
-          reasons: [
-            {
-              candidateId,
-              reasonCode: isPositive ? 'target-runtime-fit' : 'not-selected',
-              statement: isPositive
-                ? 'Candidate evidence and the supplied target runtime align.'
-                : 'Another supplied candidate has stronger target-grounded support.',
-              evidenceIds,
-              inferenceIds: isPositive ? [inferenceId] : [],
-              unknownIds: [],
-            },
-          ],
-          evidenceIds,
-          inferenceIds: isPositive ? [inferenceId] : [],
-          claimIds: [`claim-${candidateId}`],
-          unknownIds: dossier.unknowns.map(({ unknownId }) => unknownId),
-          hardConstraintConflictIds: [],
-          limitationIds: dossier.limitations.map(
-            ({ limitationId }) => limitationId,
-          ),
-        };
-      }),
-      evidence: candidates.flatMap(({ observations }) => observations),
-      inferences: [
-        {
-          kind: 'inference',
-          inferenceId,
-          candidateId: positiveCandidateId,
+      fitAssessment: {
+        contractVersion: CONTRACT_VERSION,
+        assessmentId: `assessment-${input.fitAssessmentRequest.assessmentRequestId}`,
+        assessmentRequestId: input.fitAssessmentRequest.assessmentRequestId,
+        correlationId: input.fitAssessmentRequest.correlationId,
+        outcome: 'recommend',
+        suppliedCandidateIds: candidates.map(
+          ({ identity }) => identity.candidateId,
+        ),
+        candidateAssessments: candidates.map((dossier, index) => {
+          const candidateId = dossier.identity.candidateId;
+          const evidenceIds = dossier.observations.map(
+            ({ evidenceId }) => evidenceId,
+          );
+          const isPositive = index === 0;
+          return {
+            candidateId,
+            disposition: isPositive
+              ? ('recommended' as const)
+              : evidenceNeededCandidateIds.has(candidateId)
+                ? ('insufficient-evidence' as const)
+                : ('rejected' as const),
+            reasons: [
+              {
+                candidateId,
+                reasonCode: isPositive ? 'target-runtime-fit' : 'not-selected',
+                statement: isPositive
+                  ? 'Candidate evidence and the supplied target runtime align.'
+                  : 'Another supplied candidate has stronger target-grounded support.',
+                evidenceIds,
+                inferenceIds: isPositive ? [inferenceId] : [],
+                unknownIds: [],
+              },
+            ],
+            evidenceIds,
+            inferenceIds: isPositive ? [inferenceId] : [],
+            claimIds: [`claim-${candidateId}`],
+            unknownIds: dossier.unknowns.map(({ unknownId }) => unknownId),
+            hardConstraintConflictIds: [],
+            limitationIds: dossier.limitations.map(
+              ({ limitationId }) => limitationId,
+            ),
+          };
+        }),
+        evidence: candidates.flatMap(({ observations }) => observations),
+        inferences: [
+          {
+            kind: 'inference',
+            inferenceId,
+            candidateId: positiveCandidateId,
+            topic: 'runtime-support',
+            statement:
+              'The candidate runtime support matches the target runtime.',
+            rationale:
+              'Supplied candidate evidence and repository fact fact-runtime align.',
+            evidenceIds: [positive.observations[0].evidenceId],
+          },
+        ],
+        candidateLimitations: candidates.flatMap(
+          ({ limitations }) => limitations,
+        ),
+        materialClaims: candidates.map((dossier, index) => ({
+          claimId: `claim-${dossier.identity.candidateId}`,
+          candidateId: dossier.identity.candidateId,
           topic: 'runtime-support',
+          direction:
+            index === 0 ? ('favorable' as const) : ('unfavorable' as const),
           statement:
-            'The candidate runtime support matches the target runtime.',
-          rationale:
-            'Supplied candidate evidence and repository fact fact-runtime align.',
-          evidenceIds: [positive.observations[0].evidenceId],
+            index === 0
+              ? 'The candidate fits the supplied target runtime.'
+              : 'The candidate was not selected for the target runtime.',
+          evidenceIds: dossier.observations.map(({ evidenceId }) => evidenceId),
+          inferenceIds: index === 0 ? [inferenceId] : [],
+        })),
+        materialUnknowns: candidates.flatMap(({ unknowns }) => unknowns),
+        hardConstraintConflicts: [],
+        rankGroups: [{ candidateIds: [positiveCandidateId] }],
+        rankRelations: [],
+        incomparablePairs: [],
+        evidenceCutoff: input.fitAssessmentRequest.evidenceCutoff,
+        producedAt: input.fitAssessmentRequest.evidenceCutoff,
+        assessmentProcessing: {
+          state: 'complete',
+          incompleteReasonCodes: [],
         },
-      ],
-      candidateLimitations: candidates.flatMap(
-        ({ limitations }) => limitations,
-      ),
-      materialClaims: candidates.map((dossier, index) => ({
-        claimId: `claim-${dossier.identity.candidateId}`,
-        candidateId: dossier.identity.candidateId,
-        topic: 'runtime-support',
-        direction:
-          index === 0 ? ('favorable' as const) : ('unfavorable' as const),
-        statement:
-          index === 0
-            ? 'The candidate fits the supplied target runtime.'
-            : 'The candidate was not selected for the target runtime.',
-        evidenceIds: dossier.observations.map(({ evidenceId }) => evidenceId),
-        inferenceIds: index === 0 ? [inferenceId] : [],
-      })),
-      materialUnknowns: candidates.flatMap(({ unknowns }) => unknowns),
-      hardConstraintConflicts: [],
-      rankGroups: [{ candidateIds: [positiveCandidateId] }],
-      rankRelations: [],
-      incomparablePairs: [],
-      evidenceCutoff: input.fitAssessmentRequest.evidenceCutoff,
-      producedAt: input.fitAssessmentRequest.evidenceCutoff,
-      assessmentProcessing: {
-        state: 'complete',
-        incompleteReasonCodes: [],
       },
+      inferenceRepositoryFactBindings: [
+        { inferenceId, repositoryFactIds: ['fact-runtime'] },
+      ],
     },
-    inferenceRepositoryFactBindings: [
-      { inferenceId, repositoryFactIds: ['fact-runtime'] },
-    ],
+    evidenceNeededHardConstraintResolutions: input.retrievalFinalists.flatMap(
+      (finalist) =>
+        finalist.lane !== 'evidence-needed'
+          ? []
+          : finalist.unresolvedHardEvaluations.map((evaluation) => ({
+              candidateId: finalist.candidateId,
+              evaluationId: evaluation.evaluationId,
+              state:
+                finalist.candidateId === positiveCandidateId
+                  ? ('satisfied' as const)
+                  : ('unresolved' as const),
+              inferenceIds:
+                finalist.candidateId === positiveCandidateId
+                  ? [inferenceId]
+                  : [],
+            })),
+    ),
   };
 }
 

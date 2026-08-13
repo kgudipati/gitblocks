@@ -113,6 +113,17 @@ requires selection plus normal edit approval before local integration. A
 controlled PostgreSQL-backed official-MCP exercise composes this local half
 with R6; the checked-in service remains loopback-only.
 
+Recovery R8 preserves deterministic retrieval and bridges its ordered
+`evidence-needed` lane into the existing hosted fit operation. Eligible
+finalists remain first; any remaining slots up to five are filled from
+evidence-needed candidates, whose active dossiers are loaded before the single
+bounded model call. The additive `RecommendationAssessmentResponseV1` requires
+every unresolved deterministic hard evaluation to resolve exactly once from
+candidate-owned evidence. Only all-satisfied candidates may proceed to the
+unchanged target-fit validation; conflicts are rejected and unresolved
+candidates remain insufficient-evidence. Excluded candidates remain excluded,
+and the MCP surface remains exactly `recommend_oss`.
+
 The repository also contains a curated 150-repository public catalog, plus
 exact immutable public repository artifacts and lossless line-addressable
 chunks for all 150 candidates. Phase 7 now includes repository-interview

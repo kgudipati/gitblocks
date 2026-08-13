@@ -9,8 +9,9 @@ import {
   parseDeterministicCandidateProfileAuthorityV1,
   parseFitAssessmentRequestV1,
   parseOssRecommendationRequestV1,
-  validateTargetFitAssessmentExchangeV1,
+  validateRecommendationAssessmentExchangeV1,
   type CandidateDossierV1,
+  type CandidateRetrievalCandidateV1,
   type CandidateRetrievalAuthorityBindingsV1,
   type CandidateRetrievalMetadataAuthorityV1,
   type CandidateRetrievalResultV1,
@@ -20,6 +21,8 @@ import {
   type ContractIssue,
   type DeterministicCandidateProfileAuthorityV1,
   type FitAssessmentRequestV1,
+  type EvidenceNeededHardConstraintResolutionV1,
+  type RecommendationRetrievalFinalistV1,
   type TargetFitAssessmentResponseV1,
 } from '@gitblocks/contracts';
 import {
@@ -49,6 +52,7 @@ export interface HostedDiscoverySnapshotV1 {
 export interface FitAssessmentModelRequestV1 {
   readonly fitAssessmentRequest: FitAssessmentRequestV1;
   readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
 }
 
 export interface FitAssessmentModelPort {
@@ -109,24 +113,28 @@ export type HostedRecommendationResultV1 =
   | {
       readonly outcome: 'insufficient-evidence';
       readonly reasonCode:
-        | 'deterministic-evidence-needed'
         | 'no-positive-candidate-evidence'
         | 'fit-assessment-insufficient-evidence';
       readonly normalization: CapabilityQueryNormalizationResultV1;
       readonly shortlist: CandidateRetrievalResultV1;
       readonly targetFitAssessment: TargetFitAssessmentResponseV1 | null;
+      readonly evidenceNeededHardConstraintResolutions:
+        readonly EvidenceNeededHardConstraintResolutionV1[] | null;
     }
   | {
       readonly outcome: 'no-viable-candidate';
       readonly normalization: CapabilityQueryNormalizationResultV1;
       readonly shortlist: CandidateRetrievalResultV1;
       readonly targetFitAssessment: TargetFitAssessmentResponseV1 | null;
+      readonly evidenceNeededHardConstraintResolutions:
+        readonly EvidenceNeededHardConstraintResolutionV1[] | null;
     }
   | {
       readonly outcome: 'recommend';
       readonly normalization: CapabilityQueryNormalizationResultV1;
       readonly responsibleOptions: readonly HostedResponsibleOptionV1[];
       readonly targetFitAssessment: TargetFitAssessmentResponseV1;
+      readonly evidenceNeededHardConstraintResolutions: readonly EvidenceNeededHardConstraintResolutionV1[];
     };
 
 export interface HostedResponsibleOptionV1 {
@@ -319,39 +327,20 @@ async function recommendOss(input: {
       requestId,
       'retrieved',
       'in-progress',
-      Math.min(
-        HOSTED_FIT_FINALIST_LIMIT,
-        retrieved.result.eligibleCandidates.length,
-      ),
+      selectHostedRetrievalFinalistsV1(retrieved.result).length,
     ),
   );
-  if (retrieved.result.eligibleCandidates.length === 0) {
-    if (retrieved.result.evidenceNeededCandidates.length > 0) {
-      emit(
-        input.observer,
-        event(requestId, 'completed', 'insufficient-evidence'),
-      );
-      return successful({
-        outcome: 'insufficient-evidence',
-        reasonCode: 'deterministic-evidence-needed',
-        normalization: normalized.value,
-        shortlist: retrieved.result,
-        targetFitAssessment: null,
-      });
-    }
+  const finalists = selectHostedRetrievalFinalistsV1(retrieved.result);
+  if (finalists.length === 0) {
     emit(input.observer, event(requestId, 'completed', 'no-viable-candidate'));
     return successful({
       outcome: 'no-viable-candidate',
       normalization: normalized.value,
       shortlist: retrieved.result,
       targetFitAssessment: null,
+      evidenceNeededHardConstraintResolutions: null,
     });
   }
-
-  const finalists = retrieved.result.eligibleCandidates.slice(
-    0,
-    HOSTED_FIT_FINALIST_LIMIT,
-  );
   const evidenceCutoff = trustedTimestamp(input.clock);
   if (evidenceCutoff === null || normalized.value.primaryFamilyId === null) {
     return failed(
@@ -405,6 +394,7 @@ async function recommendOss(input: {
       normalization: normalized.value,
       shortlist: retrieved.result,
       targetFitAssessment: null,
+      evidenceNeededHardConstraintResolutions: null,
     });
   }
 
@@ -444,6 +434,13 @@ async function recommendOss(input: {
     modelOutput = await input.fitModel.assess({
       fitAssessmentRequest: fitRequest,
       normalization: normalized.value,
+      retrievalFinalists: finalists.map(
+        ({ candidateId, lane, unresolvedHardEvaluations }) => ({
+          candidateId,
+          lane,
+          unresolvedHardEvaluations,
+        }),
+      ),
     });
   } catch {
     return failed(
@@ -457,10 +454,12 @@ async function recommendOss(input: {
     input.observer,
     event(requestId, 'model-completed', 'in-progress', dossiers.length),
   );
-  const validated = validateTargetFitAssessmentExchangeV1(
-    fitRequest,
-    modelOutput,
-  );
+  const validated = validateRecommendationAssessmentExchangeV1({
+    request: fitRequest,
+    normalization: normalized.value,
+    retrievalFinalists: finalists,
+    response: modelOutput,
+  });
   if (!validated.ok) {
     return failed(
       input.observer,
@@ -469,7 +468,9 @@ async function recommendOss(input: {
       dossiers.length,
     );
   }
-  const response = validated.response;
+  const response = validated.response.targetFitAssessment;
+  const resolutions =
+    validated.response.evidenceNeededHardConstraintResolutions;
   if (response.fitAssessment.outcome === 'insufficient-evidence') {
     emit(
       input.observer,
@@ -481,6 +482,7 @@ async function recommendOss(input: {
       normalization: normalized.value,
       shortlist: retrieved.result,
       targetFitAssessment: response,
+      evidenceNeededHardConstraintResolutions: resolutions,
     });
   }
   if (response.fitAssessment.outcome === 'no-viable-candidate') {
@@ -493,6 +495,7 @@ async function recommendOss(input: {
       normalization: normalized.value,
       shortlist: retrieved.result,
       targetFitAssessment: response,
+      evidenceNeededHardConstraintResolutions: resolutions,
     });
   }
   const responsibleCandidateIds = rankedCandidateIds(response);
@@ -540,7 +543,25 @@ async function recommendOss(input: {
     normalization: normalized.value,
     responsibleOptions,
     targetFitAssessment: response,
+    evidenceNeededHardConstraintResolutions: resolutions,
   });
+}
+
+export function selectHostedRetrievalFinalistsV1(
+  retrieval: Pick<
+    CandidateRetrievalResultV1,
+    'eligibleCandidates' | 'evidenceNeededCandidates'
+  >,
+): readonly CandidateRetrievalCandidateV1[] {
+  const eligible = retrieval.eligibleCandidates.slice(
+    0,
+    HOSTED_FIT_FINALIST_LIMIT,
+  );
+  const remaining = HOSTED_FIT_FINALIST_LIMIT - eligible.length;
+  return Object.freeze([
+    ...eligible,
+    ...retrieval.evidenceNeededCandidates.slice(0, remaining),
+  ]);
 }
 
 function createCandidateReferenceAuthority(

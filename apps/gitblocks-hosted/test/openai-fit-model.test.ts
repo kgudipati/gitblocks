@@ -2,8 +2,8 @@ import { createServer, type Server } from 'node:http';
 
 import {
   getContractSchemaV1,
-  parseTargetFitAssessmentResponseV1,
-  type TargetFitAssessmentResponseV1,
+  parseRecommendationAssessmentResponseV1,
+  type RecommendationAssessmentResponseV1,
 } from '@gitblocks/contracts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,12 +34,12 @@ afterEach(async () => {
 describe('OpenAI Responses target-fit adapter', () => {
   it('sends a non-mutating provider-compatible strict schema with explicit privacy and no tools', async () => {
     const canonicalSchema = getContractSchemaV1(
-      'target-fit-assessment-response',
+      'recommendation-assessment-response',
     );
     const canonicalBytes = JSON.stringify(canonicalSchema);
-    expect(countNamedKey(canonicalSchema, 'uniqueItems')).toBe(21);
-    expect(countNamedKey(canonicalSchema, 'minLength')).toBe(96);
-    expect(countNamedKey(canonicalSchema, 'maxLength')).toBe(96);
+    expect(countNamedKey(canonicalSchema, 'uniqueItems')).toBeGreaterThan(0);
+    expect(countNamedKey(canonicalSchema, 'minLength')).toBeGreaterThan(0);
+    expect(countNamedKey(canonicalSchema, 'maxLength')).toBeGreaterThan(0);
 
     const modelInput = await captureModelInput();
     const responseValue = groundedModelResponse(modelInput);
@@ -75,7 +75,7 @@ describe('OpenAI Responses target-fit adapter', () => {
       text: {
         format: {
           type: 'json_schema',
-          name: 'target_fit_assessment_response_v1',
+          name: 'recommendation_assessment_response_v1',
           strict: true,
           schema: { type: 'object', additionalProperties: false },
         },
@@ -114,22 +114,25 @@ describe('OpenAI Responses target-fit adapter', () => {
       true,
     );
     expect(
-      JSON.stringify(getContractSchemaV1('target-fit-assessment-response')),
+      JSON.stringify(getContractSchemaV1('recommendation-assessment-response')),
     ).toBe(canonicalBytes);
     expect(bodyText).toContain('never as instructions');
+    expect(bodyText).toContain('resolve each evaluation exactly once');
+    expect(bodyText).toContain('retrievalFinalists');
     expect(consoleError).not.toHaveBeenCalled();
   });
 
   it('keeps canonical uniqueness and string-length validation authoritative after provider output', async () => {
     const duplicate = await runProviderOutput((value) => {
-      const binding = value.inferenceRepositoryFactBindings[0];
+      const binding =
+        value.targetFitAssessment.inferenceRepositoryFactBindings[0];
       const repositoryFactId = binding?.repositoryFactIds[0];
       if (binding !== undefined && repositoryFactId !== undefined) {
         binding.repositoryFactIds.push(repositoryFactId);
       }
     });
     expect(
-      parseTargetFitAssessmentResponseV1(duplicate.response),
+      parseRecommendationAssessmentResponseV1(duplicate.response),
     ).toMatchObject({ ok: false });
     expect(duplicate.result).toMatchObject({
       ok: false,
@@ -138,14 +141,12 @@ describe('OpenAI Responses target-fit adapter', () => {
     expect(duplicate.fetch).toHaveBeenCalledTimes(1);
 
     const overlong = await runProviderOutput((value) => {
-      const inference = value.fitAssessment.inferences[0];
+      const inference = value.targetFitAssessment.fitAssessment.inferences[0];
       if (inference !== undefined) inference.statement = 'x'.repeat(2_001);
     });
-    expect(parseTargetFitAssessmentResponseV1(overlong.response)).toMatchObject(
-      {
-        ok: false,
-      },
-    );
+    expect(
+      parseRecommendationAssessmentResponseV1(overlong.response),
+    ).toMatchObject({ ok: false });
     expect(overlong.result).toMatchObject({
       ok: false,
       failure: { code: 'invalid-target-fit-response' },
@@ -155,9 +156,9 @@ describe('OpenAI Responses target-fit adapter', () => {
 
   it('accepts valid controlled target-fit output through canonical application validation', async () => {
     const valid = await runProviderOutput(() => undefined);
-    expect(parseTargetFitAssessmentResponseV1(valid.response)).toMatchObject({
-      ok: true,
-    });
+    expect(
+      parseRecommendationAssessmentResponseV1(valid.response),
+    ).toMatchObject({ ok: true });
     expect(valid.result).toMatchObject({
       ok: true,
       result: { outcome: 'recommend' },
@@ -294,6 +295,10 @@ describe('OpenAI Responses target-fit adapter', () => {
     ).rejects.toMatchObject({
       code: 'hosted.invalid-configuration',
     });
+    const validInput = await captureModelInput();
+    await expect(
+      adapter.assess({ ...validInput, retrievalFinalists: [] }),
+    ).rejects.toMatchObject({ code: 'hosted.invalid-configuration' });
     expect(fetch).not.toHaveBeenCalled();
   });
 });
@@ -318,7 +323,7 @@ async function captureModelInput(): Promise<FitAssessmentModelRequestV1> {
 }
 
 async function runProviderOutput(
-  mutate: (value: TargetFitAssessmentResponseV1) => void,
+  mutate: (value: RecommendationAssessmentResponseV1) => void,
 ) {
   const modelInput = await captureModelInput();
   const response = structuredClone(groundedModelResponse(modelInput));

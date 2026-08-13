@@ -39,8 +39,8 @@ request-scoped fingerprint binding, reuses the initialized retrieval engine,
 selects no more than five eligible finalists, loads their active PostgreSQL
 evidence at one trusted cutoff, calls one narrow OpenAI Responses target-fit
 adapter, and validates the untrusted result through the existing fit exchange
-plus repository-fact bindings. Evidence-needed candidates cannot be restored;
-the successful responsible option set is at most three. The listener remains
+plus repository-fact bindings. The successful responsible option set is at
+most three. The listener remains
 loopback-only and unauthenticated, so remote deployment is still deferred.
 
 Recovery R7 implements the user-machine source boundary without changing that
@@ -54,6 +54,16 @@ emits the existing `RepositoryFingerprintV1`; its reference mode has parity
 with the authoritative contracts digest. A controlled development exercise
 composes it with the existing official MCP client and temporary PostgreSQL
 evidence. This adds no remote deployment or authentication.
+
+Recovery R8 keeps the retrieval engine and its lane contracts unchanged. The
+hosted application takes eligible finalists first and fills unused slots up to
+five from the ordered evidence-needed lane. One model response combines the
+unchanged target-fit response with explicit resolutions for every unresolved
+hard evaluation on those evidence-needed finalists. Trusted validation binds
+each resolution back to normalization and the original hard constraint,
+requires candidate-owned evidence for satisfied/conflict states, and prevents
+conflict or unresolved candidates from ranking. Excluded candidates are never
+admitted.
 
 Recovery R2 classifies the current implementation as follows without deleting
 or moving anything:
@@ -281,7 +291,7 @@ flowchart LR
 | Local deterministic scanner                                     | Derive a minimized, versioned, explainable `RepositoryFingerprintV1` from an approved local read scope                                                                                                                               | Target/dependency code execution, secret collection, remote network collection, or recommendation ranking                                                                                |
 | One hosted Node application                                     | Compose MCP-facing operations, deterministic normalization, PostgreSQL snapshot loading, pure retrieval, bounded finalist evidence, LLM target-fit reasoning, deterministic response validation, and up to three responsible options | Request-time ingestion, migration, evaluation, artifact/interview/materialization operators, open-world model discovery, hard-constraint override, or enterprise control-plane machinery |
 | Pure retrieval engine                                           | Deterministically retrieve and hard-filter candidate lanes from validated immutable authorities with exact provenance and identity deduplication                                                                                     | Database/network/provider/model effects, recommendation, target-fit reasoning, or evaluation policy                                                                                      |
-| Bounded LLM target-fit adapter                                  | Reason semantically over only the minimized target fingerprint and small retrieved finalist/evidence set; return untrusted `FitAssessmentResponseV1`-shaped data                                                                     | Candidate discovery, provider collection, hard-constraint authority, evidence invention, local edits, or unvalidated user-facing output                                                  |
+| Bounded LLM target-fit adapter                                  | Resolve disclosed evidence-needed hard evaluations and reason semantically over only the minimized target fingerprint and small finalist/evidence set; return untrusted `RecommendationAssessmentResponseV1` data                    | Candidate discovery, provider collection, deterministic retrieval override, evidence invention, local edits, or unvalidated user-facing output                                           |
 | Offline catalog ingestion and refresh                           | Collect bounded approved public metadata/evidence and publish coherent catalog/profile/metadata state into PostgreSQL through explicit operator actions                                                                              | Request-time execution, untrusted code execution/rendering, arbitrary crawling, or repository-authored instructions                                                                      |
 | Repository interview, artifact, and materialization-proof paths | Retain optional/dormant evidence and historical proof capabilities until dogfooding establishes a current need                                                                                                                       | Default serving dependencies or authority to run because a user made a request                                                                                                           |
 | Evaluation harness and repository checks                        | Provide development evidence, evaluation authority, and repository/process governance                                                                                                                                                | Product serving, recommendation authority, or runtime dependencies                                                                                                                       |
@@ -316,10 +326,10 @@ sequenceDiagram
     H->>H: Deterministically normalize or request clarification
     H->>P: Load one coherent served catalog snapshot
     P-->>H: Profiles, retrieval metadata, evidence, lifecycle and freshness
-    H->>H: Deterministically hard-filter and retrieve finalists
+    H->>H: Hard-filter; take eligible first, then evidence-needed up to five
     H->>M: Small finalist set, bounded evidence, minimized fingerprint
-    M-->>H: Untrusted FitAssessmentResponseV1-shaped output
-    H->>H: Validate contract, constraints, evidence and responsible outcome
+    M-->>H: Untrusted RecommendationAssessmentResponseV1
+    H->>H: Validate exact resolutions, contract, evidence, target fit, and outcome
     H-->>S: Up to three evidence-backed options or responsible no-result
     S-->>A: Explain comparison and prepare adoption plan
     A->>D: Request selection and edit approval
@@ -433,11 +443,14 @@ The active hosted-alpha model boundary is narrower and separate from repository
 interviews. Only after deterministic hard filtering and retrieval may the
 hosted application send a small finalist set, bounded attributable candidate
 evidence, and the minimized target fingerprint to a reviewed LLM provider. The
-model performs target-fit reasoning only. It cannot discover candidates,
-collect evidence, restore excluded candidates, override hard constraints, or
-write user-facing output directly. Its `FitAssessmentResponseV1`-shaped result
-is untrusted until deterministic contract, constraint, evidence-reference, and
-responsible-outcome validation succeeds. The Phase 7 interview model path
+model resolves only the disclosed evidence-needed hard evaluations and
+performs target-fit reasoning. It cannot discover candidates, collect evidence,
+restore excluded candidates, override deterministic retrieval, or write
+user-facing output directly. Its `RecommendationAssessmentResponseV1` keeps
+the existing `TargetFitAssessmentResponseV1` nested unchanged and is untrusted
+until deterministic exact-coverage, normalization/source, constraint,
+candidate-evidence, target-fact, and responsible-outcome validation succeeds.
+The Phase 7 interview model path
 remains optional/dormant and is not a serving dependency.
 
 ## Contract direction
