@@ -1,59 +1,115 @@
 import type {
-  DeterministicCandidateProfile,
-  DeterministicProfileFieldRecord,
-} from '@gitblocks/domain';
-import { describe, expect, it } from 'vitest';
+  CandidateRetrievalResultV1,
+  TargetFitAssessmentResponseV1,
+} from '@gitblocks/contracts';
+import type { CandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
+import { describe, expect, it, vi } from 'vitest';
 
-import { createHostedDiscoveryApplication } from '../src/application.ts';
 import {
-  capabilityInput,
+  HOSTED_FIT_FINALIST_LIMIT,
+  HOSTED_RESPONSIBLE_OPTION_LIMIT,
+  type FitAssessmentModelRequestV1,
+} from '../src/application.ts';
+import {
+  candidateDossier,
+  acceptedRetrievalResult,
   createAcceptedApplication,
-  loadAcceptedAuthorities,
+  groundedModelResponse,
+  recommendationRequest,
+  TEST_EVIDENCE_CUTOFF,
 } from './fixtures.ts';
 
-describe('hosted discovery application', () => {
-  it('normalizes an accepted capability request and returns only bounded eligible candidates after hard exclusion', async () => {
-    const [application, authorities] = await Promise.all([
-      createAcceptedApplication(),
-      loadAcceptedAuthorities(),
-    ]);
-    const discovered = application.discoverCapability(
-      capabilityInput({ id: 'accepted-authorization', term: 'authorization' }),
+describe('hosted OSS recommendation application', () => {
+  it('retrieves before effects, loads only the first five eligible finalists, calls the model once, and returns a bounded validated option', async () => {
+    const order: string[] = [];
+    const loadedCandidateIds: string[] = [];
+    const modelInputs: FitAssessmentModelRequestV1[] = [];
+    const application = await createAcceptedApplication({
+      observer: { emit: ({ stage }) => order.push(stage) },
+      dossierLoader: {
+        loadActiveCandidateDossier: (command) => {
+          order.push('evidence');
+          loadedCandidateIds.push(command.candidateId);
+          expect(command.evidenceCutoff).toBe(TEST_EVIDENCE_CUTOFF);
+          return Promise.resolve(
+            candidateDossier(command.candidateId, command.evidenceCutoff),
+          );
+        },
+      },
+      fitModel: {
+        assess: (input) => {
+          order.push('model');
+          modelInputs.push(input);
+          return Promise.resolve(groundedModelResponse(input));
+        },
+      },
+    });
+
+    const outcome = await application.recommendOss(
+      recommendationRequest({ id: 'recommend-happy', term: 'authorization' }),
     );
 
-    expect(discovered.ok).toBe(true);
-    if (!discovered.ok || discovered.result.outcome !== 'retrieved') return;
-    expect(discovered.result.normalization.outcome).toBe('normalized');
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok || outcome.result.outcome !== 'recommend') return;
+    expect(loadedCandidateIds).toHaveLength(HOSTED_FIT_FINALIST_LIMIT);
+    expect(modelInputs).toHaveLength(1);
     expect(
-      discovered.result.shortlist.eligibleCandidates.length,
-    ).toBeGreaterThan(0);
-    expect(
-      discovered.result.shortlist.eligibleCandidates.length,
-    ).toBeLessThanOrEqual(10);
-    expect(discovered.result.shortlist.evidenceNeededCandidates).toEqual([]);
-    expect(
-      discovered.result.shortlist.preRetrievalLaneCounts.excluded,
-    ).toBeGreaterThan(0);
-
-    const primaryFamilies = new Map(
-      authorities.profiles.profiles.map((profile) => [
-        profile.candidateId,
-        primaryFamily(profile as unknown as DeterministicCandidateProfile),
-      ]),
-    );
-    expect(
-      discovered.result.shortlist.eligibleCandidates.every(
-        ({ candidateId }) =>
-          primaryFamilies.get(candidateId) === 'authorization',
+      modelInputs[0]?.fitAssessmentRequest.candidates.map(
+        ({ identity }) => identity.candidateId,
       ),
-    ).toBe(true);
+    ).toEqual(loadedCandidateIds);
+    expect(modelInputs[0]?.fitAssessmentRequest.requestedMaximumResults).toBe(
+      HOSTED_RESPONSIBLE_OPTION_LIMIT,
+    );
+    expect(modelInputs[0]?.fitAssessmentRequest.evidenceCutoff).toBe(
+      TEST_EVIDENCE_CUTOFF,
+    );
+    expect(order.indexOf('retrieved')).toBeLessThan(order.indexOf('evidence'));
+    expect(order.indexOf('evidence-loaded')).toBeLessThan(
+      order.indexOf('model'),
+    );
+    expect(outcome.result.responsibleOptions).toHaveLength(1);
+    expect(outcome.result.responsibleOptions.length).toBeLessThanOrEqual(
+      HOSTED_RESPONSIBLE_OPTION_LIMIT,
+    );
   });
 
-  it('keeps unresolved hard constraints in the evidence-needed lane instead of eligible', async () => {
-    const application = await createAcceptedApplication();
-    const discovered = application.discoverCapability(
-      capabilityInput({
-        id: 'authorization-architecture',
+  it.each([
+    ['clarification-required', 'lightweight'],
+    ['unsupported', 'authentication'],
+  ] as const)(
+    'returns %s without a PostgreSQL evidence read or model call',
+    async (expected, term) => {
+      const loader = vi.fn();
+      const model = vi.fn();
+      const application = await createAcceptedApplication({
+        dossierLoader: { loadActiveCandidateDossier: loader },
+        fitModel: { assess: model },
+      });
+
+      const result = await application.recommendOss(
+        recommendationRequest({ id: `recommend-${expected}`, term }),
+      );
+
+      expect(result).toMatchObject({
+        ok: true,
+        result: { outcome: expected },
+      });
+      expect(loader).not.toHaveBeenCalled();
+      expect(model).not.toHaveBeenCalled();
+    },
+  );
+
+  it('keeps deterministic evidence-needed candidates out of the model and returns insufficient evidence when none are eligible', async () => {
+    const loader = vi.fn();
+    const model = vi.fn();
+    const application = await createAcceptedApplication({
+      dossierLoader: { loadActiveCandidateDossier: loader },
+      fitModel: { assess: model },
+    });
+    const result = await application.recommendOss(
+      recommendationRequest({
+        id: 'recommend-evidence-needed',
         term: 'authorization',
         constraints: [
           {
@@ -68,117 +124,238 @@ describe('hosted discovery application', () => {
       }),
     );
 
-    expect(discovered.ok).toBe(true);
-    if (!discovered.ok || discovered.result.outcome !== 'retrieved') return;
-    expect(discovered.result.shortlist.eligibleCandidates).toEqual([]);
-    expect(
-      discovered.result.shortlist.evidenceNeededCandidates.length,
-    ).toBeGreaterThan(0);
-    expect(
-      discovered.result.shortlist.evidenceNeededCandidates.every(
-        ({ unresolvedHardEvaluations }) => unresolvedHardEvaluations.length > 0,
-      ),
-    ).toBe(true);
-  });
-
-  it('preserves clarification-required normalization without invoking retrieval', async () => {
-    const application = await createAcceptedApplication();
-    const discovered = application.discoverCapability(
-      capabilityInput({ id: 'subjective-capability', term: 'lightweight' }),
-    );
-
-    expect(discovered).toMatchObject({
+    expect(result).toMatchObject({
       ok: true,
       result: {
-        outcome: 'clarification-required',
-        normalization: { outcome: 'clarification-required' },
+        outcome: 'insufficient-evidence',
+        reasonCode: 'deterministic-evidence-needed',
+        shortlist: { eligibleCandidates: [] },
       },
     });
+    if (result.ok && 'shortlist' in result.result) {
+      expect(
+        result.result.shortlist.evidenceNeededCandidates.length,
+      ).toBeGreaterThan(0);
+    }
+    expect(loader).not.toHaveBeenCalled();
+    expect(model).not.toHaveBeenCalled();
   });
 
-  it('preserves unsupported normalization without inventing a shortlist', async () => {
-    const application = await createAcceptedApplication();
-    const discovered = application.discoverCapability(
-      capabilityInput({ id: 'unsupported-capability', term: 'authentication' }),
+  it('never supplies an evidence-needed lane candidate when eligible finalists exist', async () => {
+    const eligible = await acceptedRetrievalResult(
+      recommendationRequest({ id: 'eligible-base', term: 'authorization' }),
     );
-
-    expect(discovered).toMatchObject({
-      ok: true,
-      result: {
-        outcome: 'unsupported',
-        normalization: { outcome: 'unsupported' },
-      },
-    });
-  });
-
-  it('rejects repository fingerprints at the retrieval use-case boundary', async () => {
-    const application = await createAcceptedApplication();
-    const discovered = application.discoverCapability(
-      capabilityInput({
-        id: 'fingerprinted-capability',
+    const evidenceNeeded = await acceptedRetrievalResult(
+      recommendationRequest({
+        id: 'uncertain-base',
         term: 'authorization',
-        repositoryFingerprintReference: {
-          fingerprintId: 'target-fingerprint',
-          fingerprintDigest: 'a'.repeat(64),
-        },
+        constraints: [
+          {
+            constraintId: 'in-process-required',
+            modality: 'required',
+            statement: 'The candidate must be an in-process library.',
+            originalTerm: 'in-process-authorization-library',
+            facetHint: 'architecture',
+            reasonCode: 'required-architecture',
+          },
+        ],
       }),
     );
-
-    expect(discovered).toEqual({
-      ok: false,
-      failure: {
-        kind: 'application',
-        code: 'repository-fingerprint-not-supported',
-        path: '/repositoryFingerprintReference',
-        message:
-          'Repository fingerprints are not supported by capability discovery.',
+    const eligibleCandidates = eligible.eligibleCandidates.slice(0, 2);
+    const eligibleIds = new Set(
+      eligibleCandidates.map(({ candidateId }) => candidateId),
+    );
+    const evidenceNeededCandidate =
+      evidenceNeeded.evidenceNeededCandidates.find(
+        ({ candidateId }) => !eligibleIds.has(candidateId),
+      );
+    if (evidenceNeededCandidate === undefined) {
+      throw new Error('Distinct evidence-needed fixture was unavailable.');
+    }
+    const combined: CandidateRetrievalResultV1 = {
+      ...eligible,
+      eligibleCandidates,
+      evidenceNeededCandidates: [evidenceNeededCandidate],
+    };
+    const modelInputs: FitAssessmentModelRequestV1[] = [];
+    const application = await createAcceptedApplication({
+      engine: fixedEngine(combined),
+      fitModel: {
+        assess: (input) => {
+          modelInputs.push(input);
+          return Promise.resolve(groundedModelResponse(input));
+        },
       },
     });
+
+    const result = await application.recommendOss(
+      recommendationRequest({ id: 'lane-authority', term: 'authorization' }),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      result: { outcome: 'recommend' },
+    });
+    expect(
+      modelInputs[0]?.fitAssessmentRequest.candidates.map(
+        ({ identity }) => identity.candidateId,
+      ),
+    ).toEqual(
+      combined.eligibleCandidates.map(({ candidateId }) => candidateId),
+    );
+    expect(
+      modelInputs[0]?.fitAssessmentRequest.candidates.some(
+        ({ identity }) =>
+          identity.candidateId ===
+          combined.evidenceNeededCandidates[0]?.candidateId,
+      ),
+    ).toBe(false);
   });
 
-  it('returns contract issues for malformed external input and deterministic output for repeated valid input', async () => {
-    const application = await createAcceptedApplication();
-    expect(application.discoverCapability({})).toMatchObject({
+  it('returns no viable candidate without evidence or model effects when deterministic retrieval has no candidates', async () => {
+    const baseline = await acceptedRetrievalResult(
+      recommendationRequest({ id: 'empty-base', term: 'authorization' }),
+    );
+    const empty: CandidateRetrievalResultV1 = {
+      ...baseline,
+      eligibleCandidates: [],
+      evidenceNeededCandidates: [],
+    };
+    const loader = vi.fn();
+    const model = vi.fn();
+    const application = await createAcceptedApplication({
+      engine: fixedEngine(empty),
+      dossierLoader: { loadActiveCandidateDossier: loader },
+      fitModel: { assess: model },
+    });
+
+    expect(
+      await application.recommendOss(
+        recommendationRequest({ id: 'no-result', term: 'authorization' }),
+      ),
+    ).toMatchObject({
+      ok: true,
+      result: { outcome: 'no-viable-candidate' },
+    });
+    expect(loader).not.toHaveBeenCalled();
+    expect(model).not.toHaveBeenCalled();
+  });
+
+  it('returns insufficient evidence without calling the model when every finalist dossier has no observations', async () => {
+    const model = vi.fn();
+    const application = await createAcceptedApplication({
+      dossierLoader: {
+        loadActiveCandidateDossier: (command) =>
+          Promise.resolve(
+            candidateDossier(command.candidateId, command.evidenceCutoff, {
+              emptyEvidence: true,
+            }),
+          ),
+      },
+      fitModel: { assess: model },
+    });
+
+    expect(
+      await application.recommendOss(
+        recommendationRequest({ id: 'empty-evidence', term: 'authorization' }),
+      ),
+    ).toMatchObject({
+      ok: true,
+      result: {
+        outcome: 'insufficient-evidence',
+        reasonCode: 'no-positive-candidate-evidence',
+      },
+    });
+    expect(model).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['restored candidate', restoreCandidate],
+    ['invented evidence', inventEvidence],
+    ['dropped evidence', dropEvidence],
+    ['invented repository fact', inventRepositoryFact],
+    ['viable hard conflict', addPositiveHardConflict],
+  ] as const)(
+    'fails closed for model output with %s and never retries',
+    async (_name, mutate) => {
+      const model = vi.fn((input: FitAssessmentModelRequestV1) => {
+        const response = structuredClone(groundedModelResponse(input));
+        mutate(response);
+        return Promise.resolve(response);
+      });
+      const application = await createAcceptedApplication({
+        fitModel: { assess: model },
+      });
+
+      const result = await application.recommendOss(
+        recommendationRequest({
+          id: `invalid-${_name.replaceAll(' ', '-')}`,
+          term: 'authorization',
+        }),
+      );
+
+      expect(result).toMatchObject({
+        ok: false,
+        failure: { code: 'invalid-target-fit-response' },
+      });
+      expect(model).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('rejects malformed request input before retrieval effects', async () => {
+    const loader = vi.fn();
+    const model = vi.fn();
+    const application = await createAcceptedApplication({
+      dossierLoader: { loadActiveCandidateDossier: loader },
+      fitModel: { assess: model },
+    });
+    expect(await application.recommendOss({})).toMatchObject({
       ok: false,
       failure: { kind: 'contract' },
     });
-
-    const input = capabilityInput({
-      id: 'deterministic-authorization',
-      term: 'authorization',
-    });
-    const first = application.discoverCapability(input);
-    const second = application.discoverCapability(input);
-    expect(second).toEqual(first);
-  });
-
-  it('fails application construction when its engine and snapshot authority disagree', async () => {
-    const authorities = await loadAcceptedAuthorities();
-    const created = createHostedDiscoveryApplication({
-      snapshot: {
-        snapshotId: 'serving-invalid-count',
-        snapshotRecordDigest: 'b'.repeat(64),
-        candidateCount: 149,
-      },
-      taxonomy: authorities.taxonomy,
-      candidateProfileAuthority: authorities.profiles,
-      retrievalExpansionAuthority: authorities.retrievalExpansion,
-      candidateRetrievalMetadataAuthority: authorities.metadata,
-      engine: {
-        candidateCount: 150,
-        retrieve: () => ({ ok: false, issues: [] }),
-      },
-    });
-    expect(created).toEqual({
-      ok: false,
-      code: 'invalid-application-authority',
-    });
+    expect(loader).not.toHaveBeenCalled();
+    expect(model).not.toHaveBeenCalled();
   });
 });
 
-function primaryFamily(profile: DeterministicCandidateProfile): string | null {
-  const field = profile.fields.find(
-    (candidate) => candidate.fieldId === 'capability-family',
-  ) as DeterministicProfileFieldRecord<'capability-family'> | undefined;
-  return field?.state === 'known' ? field.value.primaryFamily : null;
+function fixedEngine(
+  result: CandidateRetrievalResultV1,
+): CandidateRetrievalEngineV1 {
+  return Object.freeze({
+    candidateCount: 150,
+    retrieve: () => Object.freeze({ ok: true, result, issues: [] as const }),
+  });
+}
+
+function restoreCandidate(value: TargetFitAssessmentResponseV1): void {
+  value.fitAssessment.suppliedCandidateIds[0] = 'candidate-invented';
+}
+
+function inventEvidence(value: TargetFitAssessmentResponseV1): void {
+  const first = value.fitAssessment.evidence[0];
+  if (first !== undefined) first.observation = 'Invented evidence text.';
+}
+
+function dropEvidence(value: TargetFitAssessmentResponseV1): void {
+  value.fitAssessment.evidence = value.fitAssessment.evidence.slice(1);
+}
+
+function inventRepositoryFact(value: TargetFitAssessmentResponseV1): void {
+  const first = value.inferenceRepositoryFactBindings[0];
+  if (first !== undefined) first.repositoryFactIds = ['fact-invented'];
+}
+
+function addPositiveHardConflict(value: TargetFitAssessmentResponseV1): void {
+  const assessment = value.fitAssessment.candidateAssessments[0];
+  const evidence = value.fitAssessment.evidence[0];
+  if (assessment === undefined || evidence === undefined) return;
+  assessment.hardConstraintConflictIds = ['conflict-invented'];
+  value.fitAssessment.hardConstraintConflicts = [
+    {
+      conflictId: 'conflict-invented',
+      candidateId: assessment.candidateId,
+      constraintId: 'constraint-invented',
+      reasonCode: 'constraint-invented',
+      evidenceIds: [evidence.evidenceId],
+    },
+  ];
 }

@@ -79,6 +79,11 @@ const MIGRATIONS = Object.freeze([
     'retrieval-serving',
     '40359c6dbeaf87ee88f8d46b910f851a74c3155243ca9fa67941620eb253e448',
   ],
+  [
+    '6',
+    'finalist-evidence-serving',
+    '05575971fe03bea06bbd6736b15f68f98c137cf903816bbb8689e843481c70db',
+  ],
 ] as const);
 const FORCE_REASONS = new Set([
   'calibration',
@@ -1045,7 +1050,7 @@ function buildReceipt(args: {
 function validateMigrationAuthority(value: MigrationVerification): void {
   if (
     !/^18[.]4(?:[.\s]|$)/u.test(value.postgresqlVersion) ||
-    (value.migrations.length !== 4 && value.migrations.length !== 5)
+    ![4, 5, 6].includes(value.migrations.length)
   ) {
     throw new Error('Migration authority is invalid.');
   }

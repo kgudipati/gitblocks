@@ -81,6 +81,12 @@ import {
   candidateRetrievalMetadataAuthorityV1Schema,
   type CandidateRetrievalMetadataAuthorityV1,
 } from './candidate-retrieval-metadata-schemas.ts';
+import {
+  ossRecommendationRequestV1Schema,
+  targetFitAssessmentResponseV1Schema,
+  type OssRecommendationRequestV1,
+  type TargetFitAssessmentResponseV1,
+} from './oss-recommendation-schemas.ts';
 
 const AJV_OPTIONS = {
   allErrors: false,
@@ -456,6 +462,14 @@ export const capabilityRetrievalExpansionV1Validator =
 export const candidateRetrievalMetadataAuthorityV1Validator =
   createLazyStructuralValidator<CandidateRetrievalMetadataAuthorityV1>(
     candidateRetrievalMetadataAuthorityV1Schema,
+  );
+export const ossRecommendationRequestV1Validator =
+  createLazyStructuralValidator<OssRecommendationRequestV1>(
+    ossRecommendationRequestV1Schema,
+  );
+export const targetFitAssessmentResponseV1Validator =
+  createLazyStructuralValidator<TargetFitAssessmentResponseV1>(
+    targetFitAssessmentResponseV1Schema,
   );
 
 export type StructuralValidationResult<T> =

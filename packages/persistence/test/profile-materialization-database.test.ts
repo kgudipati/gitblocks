@@ -30,6 +30,12 @@ const CURRENT_COMPATIBLE_MIGRATIONS = [
     checksum:
       '40359c6dbeaf87ee88f8d46b910f851a74c3155243ca9fa67941620eb253e448',
   },
+  {
+    version: 6,
+    name: 'finalist-evidence-serving',
+    checksum:
+      '05575971fe03bea06bbd6736b15f68f98c137cf903816bbb8689e843481c70db',
+  },
 ] as const;
 
 describe('profile-materialization zero-state host boundary', () => {

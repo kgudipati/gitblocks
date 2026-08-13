@@ -1,9 +1,14 @@
 import type { PersistenceClientConfig } from '@gitblocks/persistence';
 
 import {
-  startHostedDiscoveryComposition,
-  type HostedDiscoveryCompositionV1,
+  startHostedRecommendationComposition,
+  type HostedRecommendationCompositionV1,
 } from './composition.ts';
+import type {
+  FitAssessmentModelPort,
+  HostedRecommendationClockPort,
+  HostedRecommendationObserverV1,
+} from './application.ts';
 import {
   startGitBlocksMcpHttpServer,
   type GitBlocksMcpHttpServerV1,
@@ -16,19 +21,25 @@ export interface GitBlocksMcpProcessV1 {
 
 export async function startGitBlocksMcpProcess(input: {
   readonly database: PersistenceClientConfig;
+  readonly fitModel: FitAssessmentModelPort;
+  readonly clock?: HostedRecommendationClockPort;
+  readonly observer?: HostedRecommendationObserverV1;
   readonly port: number;
   readonly signal?: AbortSignal;
   readonly onTransportError?: () => void;
 }): Promise<GitBlocksMcpProcessV1> {
-  let composition: HostedDiscoveryCompositionV1 | undefined;
+  let composition: HostedRecommendationCompositionV1 | undefined;
   let listener: GitBlocksMcpHttpServerV1 | undefined;
   try {
-    composition = await startHostedDiscoveryComposition({
+    composition = await startHostedRecommendationComposition({
       database: input.database,
+      fitModel: input.fitModel,
+      ...(input.clock === undefined ? {} : { clock: input.clock }),
+      ...(input.observer === undefined ? {} : { observer: input.observer }),
       ...(input.signal === undefined ? {} : { signal: input.signal }),
     });
     if (!composition.readiness().ready) {
-      throw new Error('Hosted discovery composition is not ready.');
+      throw new Error('Hosted recommendation composition is not ready.');
     }
     listener = await startGitBlocksMcpHttpServer({
       application: composition,
@@ -59,7 +70,7 @@ export async function startGitBlocksMcpProcess(input: {
 
 async function closeListenerAndComposition(
   listener: GitBlocksMcpHttpServerV1,
-  composition: HostedDiscoveryCompositionV1,
+  composition: HostedRecommendationCompositionV1,
 ): Promise<void> {
   let listenerFailure: unknown;
   try {

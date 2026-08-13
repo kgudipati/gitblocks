@@ -1,21 +1,27 @@
 import {
   closePersistenceClient,
   createPersistenceClient,
+  loadActiveCandidateDossier,
   loadServingCatalogSnapshot,
+  type LoadActiveCandidateDossierCommand,
   type PersistenceClientConfig,
 } from '@gitblocks/persistence';
 import { createCandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
 
 import {
-  createHostedDiscoveryApplication,
-  hostedDiscoveryNotReady,
-  type HostedDiscoveryOperationResultV1,
+  createHostedRecommendationApplication,
+  hostedRecommendationNotReady,
+  type FitAssessmentModelPort,
   type HostedDiscoverySnapshotV1,
+  type HostedRecommendationApplicationV1,
+  type HostedRecommendationClockPort,
+  type HostedRecommendationObserverV1,
+  type HostedRecommendationOperationResultV1,
 } from './application.ts';
 import { HostedDiscoveryError } from './errors.ts';
 import { loadAcceptedHostedDiscoveryStaticPolicyV1 } from './static-policy.ts';
 
-export type HostedDiscoveryReadinessV1 =
+export type HostedRecommendationReadinessV1 =
   | {
       readonly ready: true;
       readonly snapshot: HostedDiscoverySnapshotV1;
@@ -24,18 +30,21 @@ export type HostedDiscoveryReadinessV1 =
       readonly ready: false;
     };
 
-export interface HostedDiscoveryCompositionV1 {
-  readonly discoverCapability: (
+export interface HostedRecommendationCompositionV1 {
+  readonly recommendOss: (
     input: unknown,
-  ) => HostedDiscoveryOperationResultV1;
-  readonly readiness: () => HostedDiscoveryReadinessV1;
+  ) => Promise<HostedRecommendationOperationResultV1>;
+  readonly readiness: () => HostedRecommendationReadinessV1;
   readonly close: () => Promise<void>;
 }
 
-export async function startHostedDiscoveryComposition(input: {
+export async function startHostedRecommendationComposition(input: {
   readonly database: PersistenceClientConfig;
+  readonly fitModel: FitAssessmentModelPort;
+  readonly clock?: HostedRecommendationClockPort;
+  readonly observer?: HostedRecommendationObserverV1;
   readonly signal?: AbortSignal;
-}): Promise<HostedDiscoveryCompositionV1> {
+}): Promise<HostedRecommendationCompositionV1> {
   const client = createPersistenceClient(input.database);
   try {
     const loaded = await loadServingCatalogSnapshot(
@@ -63,7 +72,7 @@ export async function startHostedDiscoveryComposition(input: {
       snapshotRecordDigest: loaded.snapshotRecordDigest,
       candidateCount: loaded.candidateCount,
     });
-    const created = createHostedDiscoveryApplication({
+    const created = createHostedRecommendationApplication({
       snapshot,
       taxonomy: policy.taxonomy,
       candidateProfileAuthority: loaded.candidateProfileAuthority,
@@ -71,17 +80,27 @@ export async function startHostedDiscoveryComposition(input: {
       candidateRetrievalMetadataAuthority:
         loaded.candidateRetrievalMetadataAuthority,
       engine: engine.engine,
+      dossierLoader: Object.freeze({
+        loadActiveCandidateDossier: (
+          command: LoadActiveCandidateDossierCommand,
+        ) => loadActiveCandidateDossier(client, command),
+      }),
+      fitModel: input.fitModel,
+      clock:
+        input.clock ?? Object.freeze({ now: () => new Date().toISOString() }),
+      ...(input.observer === undefined ? {} : { observer: input.observer }),
     });
     if (!created.ok) {
       throw new HostedDiscoveryError('hosted.application-construction-failed');
     }
     let state: 'ready' | 'closing' | 'closed' = 'ready';
     let closePromise: Promise<void> | undefined;
+    const application: HostedRecommendationApplicationV1 = created.application;
     return Object.freeze({
-      discoverCapability: (suppliedInput: unknown) =>
+      recommendOss: (suppliedInput: unknown) =>
         state === 'ready'
-          ? created.application.discoverCapability(suppliedInput)
-          : hostedDiscoveryNotReady(),
+          ? application.recommendOss(suppliedInput)
+          : Promise.resolve(hostedRecommendationNotReady()),
       readiness: () =>
         state === 'ready'
           ? Object.freeze({ ready: true, snapshot })

@@ -221,6 +221,21 @@ export {
   type JsonSchemaValue,
 } from './schema-catalog.ts';
 export {
+  createCapabilityRequestFromRecommendationV1,
+  parseOssRecommendationRequestV1,
+  parseTargetFitAssessmentResponseV1,
+  repositoryFingerprintDigestV1,
+  validateTargetFitAssessmentExchangeV1,
+  type TargetFitAssessmentExchangeValidationResult,
+} from './oss-recommendation-contracts.ts';
+export {
+  ossRecommendationRequestV1Schema,
+  targetFitAssessmentResponseV1Schema,
+  type InferenceRepositoryFactBindingV1,
+  type OssRecommendationRequestV1,
+  type TargetFitAssessmentResponseV1,
+} from './oss-recommendation-schemas.ts';
+export {
   CONTRACT_VERSION,
   MAX_DIAGNOSTIC_ISSUES,
   MAX_DIAGNOSTIC_MESSAGE_LENGTH,

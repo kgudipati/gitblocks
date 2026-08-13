@@ -1,27 +1,28 @@
 import { open } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import { readHostedServingDatabaseConfiguration } from './configuration.ts';
-import { startHostedDiscoveryComposition } from './composition.ts';
+import {
+  readHostedFitModelConfiguration,
+  readHostedServingDatabaseConfiguration,
+} from './configuration.ts';
+import { startHostedRecommendationComposition } from './composition.ts';
 import { HostedDiscoveryError, hostedDiscoveryErrorCode } from './errors.ts';
+import { createOpenAiFitAssessmentModel } from './openai-fit-model.ts';
 
-const REQUEST_FILE_MAX_BYTES = 64 * 1024;
+const REQUEST_FILE_MAX_BYTES = 512 * 1024;
 
-export interface HostedDiscoveryExerciseOutput {
-  readonly operation: 'hosted-discovery.exercise';
+export interface HostedRecommendationExerciseOutput {
+  readonly operation: 'hosted-recommendation.exercise';
   readonly status: 'complete';
+  readonly model: string;
   readonly snapshotId: string;
-  readonly snapshotRecordDigest: string;
   readonly candidateCount: number;
-  readonly servingSnapshotLoads: 1;
-  readonly discoveryRequests: 2;
-  readonly deterministicReplay: true;
-  readonly resultSemanticDigest: string;
-  readonly eligibleCandidateIds: readonly string[];
-  readonly evidenceNeededCandidateIds: readonly string[];
+  readonly outcome: string;
+  readonly finalistCount: number;
+  readonly responsibleOptionCount: number;
 }
 
-export async function runHostedDiscoveryExercise(input: {
+export async function runHostedRecommendationExercise(input: {
   readonly arguments: readonly string[];
   readonly environment: Readonly<Record<string, string | undefined>>;
   readonly signal?: AbortSignal;
@@ -29,58 +30,54 @@ export async function runHostedDiscoveryExercise(input: {
   readonly writeError: (text: string) => void;
 }): Promise<number> {
   let composition;
-  let output: HostedDiscoveryExerciseOutput | undefined;
+  let output: HostedRecommendationExerciseOutput | undefined;
   let failure:
     | {
         readonly operation:
-          'hosted-discovery.exercise' | 'hosted-discovery.shutdown';
+          'hosted-recommendation.exercise' | 'hosted-recommendation.shutdown';
         readonly code: ReturnType<typeof hostedDiscoveryErrorCode>;
       }
     | undefined;
   try {
-    const requestPath = parseRequestPath(input.arguments);
-    const request = await readRequest(requestPath);
+    const request = await readRequest(parseRequestPath(input.arguments));
     const database = readHostedServingDatabaseConfiguration(input.environment);
-    composition = await startHostedDiscoveryComposition({
+    const modelConfiguration = readHostedFitModelConfiguration(
+      input.environment,
+    );
+    composition = await startHostedRecommendationComposition({
       database,
+      fitModel: createOpenAiFitAssessmentModel({
+        configuration: modelConfiguration,
+      }),
       ...(input.signal === undefined ? {} : { signal: input.signal }),
     });
     const readiness = composition.readiness();
     if (!readiness.ready) {
       throw new HostedDiscoveryError('hosted.internal');
     }
-    const first = composition.discoverCapability(request);
-    const second = composition.discoverCapability(request);
-    if (
-      !first.ok ||
-      !second.ok ||
-      first.result.outcome !== 'retrieved' ||
-      second.result.outcome !== 'retrieved' ||
-      JSON.stringify(first.result) !== JSON.stringify(second.result)
-    ) {
+    const result = await composition.recommendOss(request);
+    if (!result.ok) {
       throw new HostedDiscoveryError('hosted.discovery-failed');
     }
     output = Object.freeze({
-      operation: 'hosted-discovery.exercise',
+      operation: 'hosted-recommendation.exercise',
       status: 'complete',
+      model: modelConfiguration.model,
       snapshotId: readiness.snapshot.snapshotId,
-      snapshotRecordDigest: readiness.snapshot.snapshotRecordDigest,
       candidateCount: readiness.snapshot.candidateCount,
-      servingSnapshotLoads: 1,
-      discoveryRequests: 2,
-      deterministicReplay: true,
-      resultSemanticDigest: first.result.shortlist.semanticDigest,
-      eligibleCandidateIds: first.result.shortlist.eligibleCandidates.map(
-        ({ candidateId }) => candidateId,
-      ),
-      evidenceNeededCandidateIds:
-        first.result.shortlist.evidenceNeededCandidates.map(
-          ({ candidateId }) => candidateId,
-        ),
+      outcome: result.result.outcome,
+      finalistCount:
+        'shortlist' in result.result
+          ? Math.min(5, result.result.shortlist.eligibleCandidates.length)
+          : 0,
+      responsibleOptionCount:
+        result.result.outcome === 'recommend'
+          ? result.result.responsibleOptions.length
+          : 0,
     });
   } catch (error) {
     failure = Object.freeze({
-      operation: 'hosted-discovery.exercise',
+      operation: 'hosted-recommendation.exercise',
       code: hostedDiscoveryErrorCode(error),
     });
   } finally {
@@ -89,7 +86,7 @@ export async function runHostedDiscoveryExercise(input: {
         await composition.close();
       } catch (error) {
         failure ??= Object.freeze({
-          operation: 'hosted-discovery.shutdown',
+          operation: 'hosted-recommendation.shutdown',
           code: hostedDiscoveryErrorCode(error),
         });
       }
@@ -98,7 +95,7 @@ export async function runHostedDiscoveryExercise(input: {
   if (failure !== undefined || output === undefined) {
     input.writeError(
       `${JSON.stringify({
-        operation: failure?.operation ?? 'hosted-discovery.exercise',
+        operation: failure?.operation ?? 'hosted-recommendation.exercise',
         status: 'failed',
         code: failure?.code ?? 'hosted.internal',
       })}\n`,

@@ -21,7 +21,7 @@ const REQUIRED_PATHS = [
   '.github/workflows/ci.yml',
   'AGENTS.md',
   'apps/gitblocks-hosted/README.md',
-  'apps/gitblocks-hosted/examples/authorization-discovery-request.json',
+  'apps/gitblocks-hosted/examples/authorization-recommendation-request.json',
   'apps/gitblocks-hosted/package.json',
   'apps/gitblocks-hosted/scripts/exercise-cli.ts',
   'apps/gitblocks-hosted/scripts/mcp-cli.ts',

@@ -652,7 +652,7 @@ function validateDatabaseSection(
   return (
     typeof value['postgresqlVersion'] === 'string' &&
     /^18[.]4(?:[.\s]|$)/u.test(value['postgresqlVersion']) &&
-    (latestMigrationVersion === 4 || latestMigrationVersion === 5) &&
+    [4, 5, 6].includes(Number(latestMigrationVersion)) &&
     DIGEST.test(String(value['migrationInventoryDigest'])) &&
     migrationCount === latestMigrationVersion
   );

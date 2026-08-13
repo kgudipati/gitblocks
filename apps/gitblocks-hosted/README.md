@@ -1,33 +1,32 @@
-# GitBlocks hosted discovery application and MCP adapter
+# GitBlocks hosted OSS recommendation
 
-`@gitblocks/gitblocks-hosted` is the first product-owned hosted application
-boundary. Startup creates one injected PostgreSQL client, loads the current R3
-serving snapshot through `loadServingCatalogSnapshot(...)`, parses the accepted
-checked-in capability taxonomy and retrieval expansion, constructs the existing
-immutable retrieval engine, and only then reports ready.
+`@gitblocks/gitblocks-hosted` is the product-owned hosted application boundary.
+One Node composition loads the current immutable retrieval snapshot from
+PostgreSQL once, constructs the existing deterministic retrieval engine, and
+keeps the same database client for bounded finalist-evidence reads.
 
-`createHostedDiscoveryApplication(...)` owns the in-process use case.
-`discoverCapability(...)` accepts the existing `CapabilityQueryInputV1`,
-preserves clarification and unsupported normalization results, and otherwise
-returns the existing bounded eligible/evidence-needed retrieval shortlist. It
-does not accept a repository fingerprint, recommend a candidate, or perform
-target-conditioned fit.
+`recommendOss(...)` accepts `OssRecommendationRequestV1`, verifies the supplied
+`RepositoryFingerprintV1` ID and content digest, normalizes the existing
+capability query, retrieves and hard-filters deterministically, and passes only
+the first five eligible finalists to evidence loading. Evidence-needed
+candidates never enter fit assessment. Clarification, unsupported, no-result,
+and deterministic insufficient-evidence outcomes return before a model call.
 
-The startup composition owns the PostgreSQL client only for lifecycle cleanup.
-The application receives no database capability, so discovery after successful
-startup performs no PostgreSQL read or write. Shutdown is idempotent and closes
-the client.
+For eligible finalists, the operation captures one trusted evidence cutoff,
+loads active `CandidateDossierV1` evidence, limitations, and unknowns from the
+existing PostgreSQL model, and makes at most one target-fit model call. Model
+output is untrusted until the existing fit exchange and the R6 repository-fact
+bindings validate it. Successful results contain at most three responsible
+options and retain the full validated target-fit assessment for traceability.
 
-Recovery R5 exposes that existing operation as exactly one MCP tool,
-`discover_oss`. `createGitBlocksMcpServer(application)` adapts the canonical
-`CapabilityQueryInputV1` JSON Schema and delegates every valid call directly to
-`application.discoverCapability(...)`. The adapter returns the existing R4
-result as authoritative structured content. It does not normalize, retrieve,
-query PostgreSQL, inspect a caller repository, invoke a provider/model, or
-construct another application.
+The MCP adapter exposes exactly one product tool, `recommend_oss`, using the
+authoritative recommendation-request JSON Schema. It only transports the
+application operation. The native listener remains fixed to `127.0.0.1` and
+`/mcp`; R6 adds no public deployment or remote authentication.
 
-The one-shot exercise and continuous MCP process read the same serving database
-environment variables:
+## Configuration
+
+The process requires the serving database settings:
 
 - `GITBLOCKS_HOSTED_SERVING_DB_HOST`
 - `GITBLOCKS_HOSTED_SERVING_DB_PORT`
@@ -36,43 +35,39 @@ environment variables:
 - `GITBLOCKS_HOSTED_SERVING_DB_PASSWORD`
 - `GITBLOCKS_HOSTED_SERVING_DB_SSL` (`disable` or `require`)
 
-The MCP process additionally accepts `GITBLOCKS_HOSTED_MCP_PORT`, which defaults
-to `3333` and must be an integer from 1 through 65535. The host is not
-configurable: R5 always binds `127.0.0.1` and serves MCP only at `/mcp`.
+The OpenAI target-fit adapter additionally requires:
 
-After an R3 database has been migrated and bootstrapped by its separate
-operator path, run:
+- `OPENAI_API_KEY`
+- `GITBLOCKS_HOSTED_FIT_MODEL`, an explicit model supporting Responses API
+  Structured Outputs
 
-```text
-pnpm hosted:exercise -- --request apps/gitblocks-hosted/examples/authorization-discovery-request.json
-```
+`GITBLOCKS_HOSTED_MCP_PORT` is optional and defaults to `3333`. The provider
+request uses strict JSON Schema output, `store: false`, no tools, no background
+mode, one deadline, and bounded request/response bytes. The minimized
+fingerprint and bounded public candidate evidence are still transmitted to a
+third-party processor. Raw target source is never sent or persisted.
 
-The command invokes the same composition and discovery operation twice, emits
-one bounded JSON result summary, and closes the client.
-
-To exercise the real MCP boundary, first start the continuous process after the
-same R3 database has been prepared:
+After migrations, the offline serving bootstrap, and offline public evidence
+population, start the loopback process:
 
 ```text
 pnpm hosted:mcp
 ```
 
-After the readiness record reports `http://127.0.0.1:3333/mcp`, use a second
-terminal with the same optional `GITBLOCKS_HOSTED_MCP_PORT` value:
+Then use the official modern MCP client exercise in another terminal:
 
 ```text
-pnpm hosted:mcp:exercise -- --request apps/gitblocks-hosted/examples/authorization-discovery-request.json
+pnpm hosted:mcp:exercise -- --request apps/gitblocks-hosted/examples/authorization-recommendation-request.json
 ```
 
-The exercise uses the official `@modelcontextprotocol/client` modern
-Streamable HTTP transport pinned to protocol `2026-07-28`, lists the one tool,
-calls `discover_oss`, and reports shortlist semantic digest
-`4b1b67eda39c618ae67738e7776957c6ea45315d0893199c90e42f7bc39d9b00`.
-Stop the server with `SIGINT` or `SIGTERM`; it stops accepting requests, closes
-the MCP handler, and then closes the R4 composition.
+`pnpm hosted:exercise -- --request <path>` runs the same composition directly
+and invokes the configured provider once. Deterministic CI does not call the
+live provider: it uses a controlled model and a loopback mocked Responses
+boundary. Stop the MCP process with `SIGINT` or `SIGTERM`; shutdown closes the
+listener before the PostgreSQL client.
 
-Neither command migrates, bootstraps, writes PostgreSQL, invokes
-ingestion/providers/models/interviews, or invokes evaluation. R5 proves
-loopback interoperability only. It has no temporary authentication mechanism
-and is not an internet-facing or deployed service; standards-compliant remote
-authorization and deployment remain R6 work.
+Request handling never migrates or writes PostgreSQL, reloads the serving
+snapshot, runs ingestion or public-source collection, activates artifacts or
+repository interviews, executes candidate code, or invokes evaluation. The
+future local scanner, GitBlocks Skill, approval/presentation workflow, and
+integration path remain Recovery R7 work.

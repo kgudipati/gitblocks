@@ -59,7 +59,7 @@ verification tooling, a proposed ten-case evaluation pilot for
 repository-conditioned adoption fit over fixed candidate sets, and seven
 implemented product workspaces: pure domain, versioned contracts, a PostgreSQL
 persistence adapter, bounded operator-run ingestion, the repository-interview
-application, `@gitblocks/retrieval`, and the hosted discovery application. The pure
+application, `@gitblocks/retrieval`, and the hosted recommendation application. The pure
 retrieval package is transport-neutral, in-process, deterministic, bounded,
 and evaluation-independent. It consumes an accepted normalized capability
 query and candidate authorities and produces separate bounded eligible and
@@ -85,9 +85,19 @@ Recovery R5 exposes that same operation through one `discover_oss` MCP tool.
 The official MCP v2 server and native Node adapter serve `/mcp` only on
 `127.0.0.1`; the official modern client lists and calls the tool over real
 Streamable HTTP while every call reuses the R4 application and immutable
-snapshot. This is loopback interoperability, not a remotely available service;
-authenticated remote access, target scanning, fit assessment, recommendations,
-and deployment remain unimplemented.
+snapshot. R5 established loopback interoperability, not a remotely available
+service; at that recovery point authenticated remote access, target scanning,
+fit assessment, recommendations, and deployment remained unimplemented.
+
+Recovery R6 replaces that generic product tool with exactly one
+`recommend_oss` operation. A valid structured query and request-scoped
+`RepositoryFingerprintV1` now drive deterministic retrieval, no more than five
+eligible finalists, active PostgreSQL dossier evidence, one bounded OpenAI
+Responses target-fit call, deterministic fit/target-fact validation, and at
+most three responsible options. The normal CI path injects a controlled model;
+the live provider remains an explicit credentialed exercise. This is still a
+loopback hosted sub-journey, not authenticated remote deployment or the full
+local adoption workflow.
 
 The repository also contains a curated 150-repository public catalog, plus
 exact immutable public repository artifacts and lossless line-addressable
@@ -101,10 +111,9 @@ materialization proofs. Live calibration failed, neither profile was selected,
 and repository interviews are deferred as optional future enrichment. The
 repository still has no live provider configuration, materialized live
 selection, real pre-live authorization, approved retention or pricing
-authority, selected model or Gate A result, Agent Skill, scanner, MCP server,
-shared retrieval service, production ranking, target-codebase-conditioned fit,
-adoption recommendation, continuous crawler, deployment, production database,
-or product release. Phase 7 is governed by
+authority or Gate A result, Agent Skill, scanner, authenticated remote MCP,
+local approval/integration workflow, continuous crawler, deployment,
+production database, or product release. Phase 7 is governed by
 [Plan 0017](docs/plans/0017-evidence-grounded-repository-interviews.md) and
 [ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md).
 The strict Phase 7 materialization boundary requires a fresh complete receipt
@@ -184,37 +193,37 @@ authorized by Phase 9 completion.
 
 ## Repository map
 
-| Path                                     | Purpose                                                                            |
-| ---------------------------------------- | ---------------------------------------------------------------------------------- |
-| `README.md`                              | Product orientation and honest project status                                      |
-| `AGENTS.md`                              | Concise durable instructions for coding agents                                     |
-| `PLANS.md`                               | Required structure and lifecycle for substantial execution plans                   |
-| `CONTRIBUTING.md`                        | Issue-to-merge contributor workflow                                                |
-| `SECURITY.md`                            | Private vulnerability-reporting and disclosure policy                              |
-| `docs/product/`                          | Product contract, vocabulary, evaluation scope, and success criteria               |
-| `docs/architecture/`                     | System context and architecture decisions                                          |
-| `docs/engineering/`                      | Repository, development, testing, security, reliability, and completion policies   |
-| `docs/evaluation/`                       | Case authoring, deterministic scoring, and future baseline protocols               |
-| `docs/plans/`                            | Active and historical version-controlled execution plans                           |
-| `packages/domain/`                       | Pure product vocabulary, constructors, canonicalization, and invariants            |
-| `packages/contracts/`                    | Versioned DTO schemas, safe parsers, domain mapping, and schema exports            |
-| `packages/persistence/`                  | Injected PostgreSQL adapter, coherent retrieval-serving snapshots, and DB tests    |
-| `packages/ingestion/`                    | Bounded public providers, deterministic profiles/refresh, operator, and tests      |
-| `packages/interviews/`                   | Interview schema, prompt/mapping, application, and provider core                   |
-| `packages/retrieval/`                    | Pure bounded deterministic candidate retrieval with separate result lanes          |
-| `apps/gitblocks-hosted/`                 | Hosted discovery use case, PostgreSQL startup, loopback MCP process, and exercises |
-| `apps/repository-interview-operator/`    | Explicit offline composition, policy, receipt, and process ports                   |
-| `tools/repository-interview-prelive/`    | Content-free pre-live validation and future receipt/database materialization       |
-| `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority           |
-| `catalog/public-v1/`                     | Curator-owned repository source and deterministically digested public manifest     |
-| `catalog/capability-taxonomy/1.0.0/`     | Reviewed taxonomy source and generated versioned capability authority              |
-| `verification/retrieval-v1/`             | Content-free deterministic profile coverage and baseline reports                   |
-| `evals/pilot-v1/`                        | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest      |
-| `evals/retrieval-v1/`                    | Fifty blind retrieval/query cases with physically separate proposed gold           |
-| `schemas/evaluation/`                    | Versioned JSON Schema 2020-12 evaluation contracts                                 |
-| `tools/evaluation-harness/`              | Private bounded validator, deterministic scorer, CLI, and tests                    |
-| `tools/repository-checks/`               | Bounded repository-policy CLI and tests                                            |
-| `.github/`                               | Intake templates, read-only CI, and dependency update policy                       |
+| Path                                     | Purpose                                                                                                    |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `README.md`                              | Product orientation and honest project status                                                              |
+| `AGENTS.md`                              | Concise durable instructions for coding agents                                                             |
+| `PLANS.md`                               | Required structure and lifecycle for substantial execution plans                                           |
+| `CONTRIBUTING.md`                        | Issue-to-merge contributor workflow                                                                        |
+| `SECURITY.md`                            | Private vulnerability-reporting and disclosure policy                                                      |
+| `docs/product/`                          | Product contract, vocabulary, evaluation scope, and success criteria                                       |
+| `docs/architecture/`                     | System context and architecture decisions                                                                  |
+| `docs/engineering/`                      | Repository, development, testing, security, reliability, and completion policies                           |
+| `docs/evaluation/`                       | Case authoring, deterministic scoring, and future baseline protocols                                       |
+| `docs/plans/`                            | Active and historical version-controlled execution plans                                                   |
+| `packages/domain/`                       | Pure product vocabulary, constructors, canonicalization, and invariants                                    |
+| `packages/contracts/`                    | Versioned DTO schemas, safe parsers, domain mapping, and schema exports                                    |
+| `packages/persistence/`                  | Injected PostgreSQL adapter, coherent retrieval-serving snapshots, and DB tests                            |
+| `packages/ingestion/`                    | Bounded public providers, deterministic profiles/refresh, operator, and tests                              |
+| `packages/interviews/`                   | Interview schema, prompt/mapping, application, and provider core                                           |
+| `packages/retrieval/`                    | Pure bounded deterministic candidate retrieval with separate result lanes                                  |
+| `apps/gitblocks-hosted/`                 | Hosted recommendation use case, PostgreSQL evidence reads, target-fit adapter, loopback MCP, and exercises |
+| `apps/repository-interview-operator/`    | Explicit offline composition, policy, receipt, and process ports                                           |
+| `tools/repository-interview-prelive/`    | Content-free pre-live validation and future receipt/database materialization                               |
+| `verification/repository-interviews-v1/` | Exact offline plans, profiles, readiness, report, and manifest authority                                   |
+| `catalog/public-v1/`                     | Curator-owned repository source and deterministically digested public manifest                             |
+| `catalog/capability-taxonomy/1.0.0/`     | Reviewed taxonomy source and generated versioned capability authority                                      |
+| `verification/retrieval-v1/`             | Content-free deterministic profile coverage and baseline reports                                           |
+| `evals/pilot-v1/`                        | Ten blind inputs, bounded evidence sets, separate proposed gold, and manifest                              |
+| `evals/retrieval-v1/`                    | Fifty blind retrieval/query cases with physically separate proposed gold                                   |
+| `schemas/evaluation/`                    | Versioned JSON Schema 2020-12 evaluation contracts                                                         |
+| `tools/evaluation-harness/`              | Private bounded validator, deterministic scorer, CLI, and tests                                            |
+| `tools/repository-checks/`               | Bounded repository-policy CLI and tests                                                                    |
+| `.github/`                               | Intake templates, read-only CI, and dependency update policy                                               |
 
 ## Local development
 
@@ -276,9 +285,9 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm catalog:validate`                        | Validate catalog bounds, balance, identity, paths, and digest       |
 | `pnpm catalog:seed -- --catalog …`             | Seed exact catalog provenance into an acknowledged ephemeral DB     |
 | `pnpm serving:bootstrap -- …`                  | Publish accepted profile/metadata serving state into PostgreSQL     |
-| `pnpm hosted:exercise -- --request <path>`     | Load current serving state and run one discovery request twice      |
+| `pnpm hosted:exercise -- --request <path>`     | Run one configured hosted recommendation directly                   |
 | `pnpm hosted:mcp`                              | Start the loopback-only `/mcp` process after serving state is ready |
-| `pnpm hosted:mcp:exercise -- --request <path>` | List and call `discover_oss` with the official modern MCP client    |
+| `pnpm hosted:mcp:exercise -- --request <path>` | List and call `recommend_oss` with the official modern MCP client   |
 | `pnpm artifacts:validate`                      | Validate public artifact selections, coverage, and digest           |
 | `pnpm artifacts:test`                          | Run deterministic artifact manifest, collector, and receipt tests   |
 | `pnpm artifacts:verify`                        | Run complete offline artifact verification                          |

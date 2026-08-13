@@ -68,7 +68,7 @@ const preferenceSchema = closedObject({
   statement: statementSchema,
 });
 
-const transmissionApprovalSchema = closedObject({
+export const transmissionApprovalV1Schema = closedObject({
   approvalId: stableIdSchema,
   approvedAt: timestampSchema,
   approvedBy: Type.Literal('request-originator'),
@@ -95,7 +95,7 @@ const capabilityRequestV1Properties = {
   }),
   hardConstraints: Type.Array(hardConstraintSchema, { maxItems: 20 }),
   preferences: Type.Array(preferenceSchema, { maxItems: 20 }),
-  transmissionApproval: transmissionApprovalSchema,
+  transmissionApproval: transmissionApprovalV1Schema,
 } as const;
 
 const capabilityRequestV1ValueSchema = closedObject(
@@ -220,7 +220,7 @@ const repositoryFingerprintV1Properties = {
   }),
 } as const;
 
-const repositoryFingerprintV1ValueSchema = closedObject(
+export const repositoryFingerprintV1ValueSchema = closedObject(
   repositoryFingerprintV1Properties,
 );
 
@@ -547,55 +547,61 @@ const incomparablePairSchema = closedObject({
   rightCandidateId: stableIdSchema,
 });
 
+const fitAssessmentResponseV1Properties = {
+  contractVersion: contractVersionSchema,
+  assessmentId: stableIdSchema,
+  assessmentRequestId: stableIdSchema,
+  correlationId: stableIdSchema,
+  outcome: responsibleOutcomeSchema,
+  suppliedCandidateIds: Type.Array(stableIdSchema, {
+    minItems: 1,
+    maxItems: 20,
+    uniqueItems: true,
+  }),
+  candidateAssessments: Type.Array(candidateAssessmentSchema, {
+    minItems: 1,
+    maxItems: 20,
+  }),
+  evidence: Type.Array(evidenceObservationV1Schema, { maxItems: 2_000 }),
+  inferences: Type.Array(inferenceV1Schema, { maxItems: 400 }),
+  candidateLimitations: Type.Array(candidateLimitationSchema, {
+    maxItems: 800,
+  }),
+  materialClaims: Type.Array(materialClaimV1Schema, { maxItems: 800 }),
+  materialUnknowns: Type.Array(materialUnknownV1Schema, { maxItems: 800 }),
+  hardConstraintConflicts: Type.Array(hardConstraintConflictV1Schema, {
+    maxItems: 400,
+  }),
+  rankGroups: Type.Array(rankGroupSchema, { maxItems: 20 }),
+  rankRelations: Type.Array(rankRelationSchema, { maxItems: 190 }),
+  incomparablePairs: Type.Array(incomparablePairSchema, { maxItems: 190 }),
+  evidenceCutoff: timestampSchema,
+  producedAt: timestampSchema,
+  assessmentProcessing: Type.Union([
+    closedObject({
+      state: Type.Literal('complete'),
+      incompleteReasonCodes: Type.Array(stableIdSchema, {
+        maxItems: 0,
+        uniqueItems: true,
+      }),
+    }),
+    closedObject({
+      state: Type.Literal('partial-evidence'),
+      incompleteReasonCodes: Type.Array(stableIdSchema, {
+        minItems: 1,
+        maxItems: 20,
+        uniqueItems: true,
+      }),
+    }),
+  ]),
+};
+
+export const fitAssessmentResponseV1ValueSchema = closedObject(
+  fitAssessmentResponseV1Properties,
+);
+
 export const fitAssessmentResponseV1Schema = Type.Object(
-  {
-    contractVersion: contractVersionSchema,
-    assessmentId: stableIdSchema,
-    assessmentRequestId: stableIdSchema,
-    correlationId: stableIdSchema,
-    outcome: responsibleOutcomeSchema,
-    suppliedCandidateIds: Type.Array(stableIdSchema, {
-      minItems: 1,
-      maxItems: 20,
-      uniqueItems: true,
-    }),
-    candidateAssessments: Type.Array(candidateAssessmentSchema, {
-      minItems: 1,
-      maxItems: 20,
-    }),
-    evidence: Type.Array(evidenceObservationV1Schema, { maxItems: 2_000 }),
-    inferences: Type.Array(inferenceV1Schema, { maxItems: 400 }),
-    candidateLimitations: Type.Array(candidateLimitationSchema, {
-      maxItems: 800,
-    }),
-    materialClaims: Type.Array(materialClaimV1Schema, { maxItems: 800 }),
-    materialUnknowns: Type.Array(materialUnknownV1Schema, { maxItems: 800 }),
-    hardConstraintConflicts: Type.Array(hardConstraintConflictV1Schema, {
-      maxItems: 400,
-    }),
-    rankGroups: Type.Array(rankGroupSchema, { maxItems: 20 }),
-    rankRelations: Type.Array(rankRelationSchema, { maxItems: 190 }),
-    incomparablePairs: Type.Array(incomparablePairSchema, { maxItems: 190 }),
-    evidenceCutoff: timestampSchema,
-    producedAt: timestampSchema,
-    assessmentProcessing: Type.Union([
-      closedObject({
-        state: Type.Literal('complete'),
-        incompleteReasonCodes: Type.Array(stableIdSchema, {
-          maxItems: 0,
-          uniqueItems: true,
-        }),
-      }),
-      closedObject({
-        state: Type.Literal('partial-evidence'),
-        incompleteReasonCodes: Type.Array(stableIdSchema, {
-          minItems: 1,
-          maxItems: 20,
-          uniqueItems: true,
-        }),
-      }),
-    ]),
-  },
+  fitAssessmentResponseV1Properties,
   {
     ...SCHEMA_ROOT_OPTIONS,
     $id: 'https://gitblocks.dev/schemas/contracts/fit-assessment-response/1.0.0',
