@@ -4,19 +4,21 @@
 
 Every future production execution path must be diagnosable from deployed
 telemetry and durable audit evidence without adding emergency instrumentation
-or reproducing the user's sensitive content. GitBlocks currently has an R5
-loopback-only MCP process but no remotely reachable service, workers,
+or reproducing the user's sensitive content. GitBlocks currently has an R6
+loopback-only recommendation MCP process but no remotely reachable service, workers,
 deployments, SLOs, or telemetry pipeline. Its persistence
 adapter returns stable value-free errors. The Phase 5 operator-run ingester
 accepts an injected observer and emits bounded request/candidate/batch events
 plus a durable secret-free receipt; the Phase 6 artifact operator follows the
 same content-free pattern. Neither is a deployed telemetry system. Phase 7
 plans a separate repository-interview operator with injected telemetry and no
-service or deployment. The R4 hosted discovery one-shot reports only bounded,
-value-free startup/readiness/snapshot-count/result-digest/shutdown facts and is
-not a production traffic path. R5 similarly emits bounded, value-free process
-readiness, transport-failure, and shutdown records while proving loopback MCP
-interoperability. A future remotely transported production composition must
+service or deployment. The R6 application accepts an injected observer and
+emits only bounded recommendation stage, outcome, finalist count,
+responsible-option count, and correlation fields. Provider credentials,
+fingerprints, prompt/evidence bodies, and raw responses/errors are excluded.
+Process readiness, transport failure, and shutdown records remain value-free
+while proving loopback MCP interoperability. This is not a deployed production
+telemetry pipeline. A future remotely transported production composition must
 select and instrument an export path before handling production traffic. This
 document sets the policy for those paths.
 

@@ -10,8 +10,8 @@ import { getContractSchemaV1 } from '@gitblocks/contracts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type {
-  HostedDiscoveryApplicationV1,
-  HostedDiscoveryOperationResultV1,
+  HostedRecommendationApplicationV1,
+  HostedRecommendationOperationResultV1,
 } from '../src/application.ts';
 import {
   GITBLOCKS_MCP_HOST,
@@ -19,11 +19,12 @@ import {
   startGitBlocksMcpHttpServer,
   type GitBlocksMcpHttpServerV1,
 } from '../src/mcp-http.ts';
-import { GITBLOCKS_DISCOVER_OSS_TOOL_NAME } from '../src/mcp-server.ts';
-import { capabilityInput, createAcceptedApplication } from './fixtures.ts';
+import { GITBLOCKS_RECOMMEND_OSS_TOOL_NAME } from '../src/mcp-server.ts';
+import {
+  createAcceptedApplication,
+  recommendationRequest,
+} from './fixtures.ts';
 
-const AUTHORIZATION_DIGEST =
-  '4b1b67eda39c618ae67738e7776957c6ea45315d0893199c90e42f7bc39d9b00';
 const nativeFetch = globalThis.fetch.bind(globalThis);
 const loopbackFetch: FetchLike = async (input, init) => {
   const url = new URL(input instanceof Request ? input.url : String(input));
@@ -41,147 +42,100 @@ afterEach(async () => {
   await Promise.all(servers.splice(0).map((server) => server.close()));
 });
 
-describe('GitBlocks MCP adapter', () => {
-  it('uses the official modern client to list one schema-derived tool and retrieve the exact R4 shortlist', async () => {
+describe('GitBlocks recommendation MCP adapter', () => {
+  it('uses the official modern client to expose exactly recommend_oss with the authoritative request schema', async () => {
     const application = await createAcceptedApplication();
-    const discoverCapability = vi.fn((input: unknown) =>
-      application.discoverCapability(input),
+    const recommendOss = vi.fn((input: unknown) =>
+      application.recommendOss(input),
     );
-    const { client } = await connectClient({ discoverCapability });
+    const { client } = await connectClient({ recommendOss });
 
     expect(client.getProtocolEra()).toBe('modern');
-    expect(client.getNegotiatedProtocolVersion()).toBe('2026-07-28');
     const listed = await client.listTools();
     expect(listed.tools).toHaveLength(1);
     expect(listed.tools[0]).toMatchObject({
-      name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
-      inputSchema: getContractSchemaV1('capability-query-input'),
+      name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+      inputSchema: getContractSchemaV1('oss-recommendation-request'),
     });
+    expect(listed.tools.some(({ name }) => name === 'discover_oss')).toBe(
+      false,
+    );
 
-    const request = JSON.parse(
-      await readFile(
-        new URL(
-          '../examples/authorization-discovery-request.json',
-          import.meta.url,
-        ),
-        'utf8',
-      ),
-    ) as Record<string, unknown>;
-    const first = await client.callTool({
-      name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
-      arguments: request,
+    const called = await client.callTool({
+      name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+      arguments: recommendationRequest({
+        id: 'mcp-recommendation',
+        term: 'authorization',
+      }),
     });
-    expect(discoverCapability).toHaveBeenCalledTimes(1);
-    const second = await client.callTool({
-      name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
-      arguments: request,
+    expect(recommendOss).toHaveBeenCalledTimes(1);
+    expect(called.isError).not.toBe(true);
+    expect(called.structuredContent).toMatchObject({
+      outcome: 'recommend',
     });
-    expect(discoverCapability).toHaveBeenCalledTimes(2);
-    expect(retrievedDigest(first.structuredContent)).toBe(AUTHORIZATION_DIGEST);
-    expect(second.structuredContent).toEqual(first.structuredContent);
-    expect(first.isError).not.toBe(true);
+    const options = responsibleOptions(called.structuredContent);
+    expect(options.length).toBeGreaterThan(0);
+    expect(options.length).toBeLessThanOrEqual(3);
+    expect(candidateId(options[0])).not.toBeNull();
   });
 
   it.each([
     ['clarification-required', 'lightweight'],
     ['unsupported', 'authentication'],
   ] as const)(
-    'returns %s as a valid product outcome',
-    async (expectedOutcome, term) => {
+    'returns %s as a valid responsible outcome',
+    async (expected, term) => {
       const application = await createAcceptedApplication();
       const { client } = await connectClient(application);
       const result = await client.callTool({
-        name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
-        arguments: capabilityInput({
-          id: `mcp-${expectedOutcome}`,
-          term,
-        }),
+        name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+        arguments: recommendationRequest({ id: `mcp-${expected}`, term }),
       });
-
       expect(result.isError).not.toBe(true);
-      expect(result.structuredContent).toMatchObject({
-        outcome: expectedOutcome,
-        normalization: { outcome: expectedOutcome },
-      });
+      expect(result.structuredContent).toMatchObject({ outcome: expected });
     },
   );
 
-  it('maps application and unexpected failures to the same bounded tool error', async () => {
-    const internalDetail = 'sql credential and stack sentinel';
-    const contractFailure: HostedDiscoveryOperationResultV1 = {
+  it('maps application and unexpected failures to one bounded value-free error', async () => {
+    const failure: HostedRecommendationOperationResultV1 = {
       ok: false,
-      failure: { kind: 'contract', issues: [] },
+      failure: { kind: 'application', code: 'fit-model-failed' },
     };
-    const applicationFailure = vi
-      .fn<(input: unknown) => HostedDiscoveryOperationResultV1>()
-      .mockReturnValueOnce(contractFailure)
-      .mockImplementationOnce(() => {
-        throw new Error(internalDetail);
-      });
-    const { client } = await connectClient({
-      discoverCapability: applicationFailure,
-    });
-    const request = capabilityInput({
+    const recommendOss = vi
+      .fn<(input: unknown) => Promise<HostedRecommendationOperationResultV1>>()
+      .mockResolvedValueOnce(failure)
+      .mockRejectedValueOnce(new Error('provider credential sentinel'));
+    const { client } = await connectClient({ recommendOss });
+    const request = recommendationRequest({
       id: 'mcp-bounded-failure',
       term: 'authorization',
     });
 
-    const contractResult = await client.callTool({
-      name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
+    const first = await client.callTool({
+      name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
       arguments: request,
     });
-    const thrownResult = await client.callTool({
-      name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
+    const second = await client.callTool({
+      name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
       arguments: request,
     });
-
-    expect(applicationFailure).toHaveBeenCalledTimes(2);
-    expect(contractResult).toMatchObject({
-      isError: true,
-      content: [{ type: 'text', text: 'GitBlocks discovery failed.' }],
-    });
-    expect(thrownResult).toMatchObject({
-      isError: true,
-      content: [{ type: 'text', text: 'GitBlocks discovery failed.' }],
-    });
-    expect(JSON.stringify([contractResult, thrownResult])).not.toContain(
-      internalDetail,
-    );
-  });
-
-  it('preserves the R4 rejection of repository fingerprint requests', async () => {
-    const application = await createAcceptedApplication();
-    const discoverCapability = vi.fn((input: unknown) =>
-      application.discoverCapability(input),
-    );
-    const { client } = await connectClient({ discoverCapability });
-    const result = await client.callTool({
-      name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
-      arguments: capabilityInput({
-        id: 'mcp-fingerprint-not-supported',
-        term: 'authorization',
-        repositoryFingerprintReference: {
-          fingerprintId: 'target-fingerprint',
-          fingerprintDigest: 'a'.repeat(64),
-        },
+    expect([first, second]).toEqual([
+      expect.objectContaining({
+        isError: true,
+        content: [{ type: 'text', text: 'GitBlocks recommendation failed.' }],
       }),
-    });
-
-    expect(discoverCapability).toHaveBeenCalledTimes(1);
-    expect(result).toMatchObject({
-      isError: true,
-      content: [{ type: 'text', text: 'GitBlocks discovery failed.' }],
-    });
+      expect.objectContaining({
+        isError: true,
+        content: [{ type: 'text', text: 'GitBlocks recommendation failed.' }],
+      }),
+    ]);
+    expect(JSON.stringify([first, second])).not.toContain('sentinel');
   });
 
-  it('keeps the listener loopback-only and rejects non-MCP or non-loopback HTTP authority', async () => {
+  it('keeps the listener loopback-only and rejects non-MCP or non-loopback authority', async () => {
     const application = await createAcceptedApplication();
-    const server = await startGitBlocksMcpHttpServer({
-      application,
-      port: 0,
-    });
+    const server = await startGitBlocksMcpHttpServer({ application, port: 0 });
     servers.push(server);
-
     expect(server.endpoint.hostname).toBe(GITBLOCKS_MCP_HOST);
     expect(server.endpoint.pathname).toBe(GITBLOCKS_MCP_PATH);
     expect(await rawStatus(server.endpoint, '/not-mcp')).toBe(404);
@@ -196,10 +150,20 @@ describe('GitBlocks MCP adapter', () => {
       }),
     ).toBe(403);
   });
+
+  it('keeps the MCP adapter free of persistence, retrieval, and model implementation imports', async () => {
+    const source = await readFile(
+      new URL('../src/mcp-server.ts', import.meta.url),
+      'utf8',
+    );
+    expect(source).not.toMatch(
+      /@gitblocks\/(?:persistence|retrieval)|openai-fit-model|loadActiveCandidateDossier/u,
+    );
+  });
 });
 
 async function connectClient(
-  application: Pick<HostedDiscoveryApplicationV1, 'discoverCapability'>,
+  application: Pick<HostedRecommendationApplicationV1, 'recommendOss'>,
 ): Promise<{
   readonly client: Client;
   readonly server: GitBlocksMcpHttpServerV1;
@@ -219,20 +183,16 @@ async function connectClient(
   return { client, server };
 }
 
-function retrievedDigest(value: unknown): string | undefined {
+function responsibleOptions(value: unknown): readonly unknown[] {
   if (
     typeof value !== 'object' ||
     value === null ||
-    !('shortlist' in value) ||
-    typeof value.shortlist !== 'object' ||
-    value.shortlist === null ||
-    !('semanticDigest' in value.shortlist)
+    !('responsibleOptions' in value) ||
+    !Array.isArray(value.responsibleOptions)
   ) {
-    return undefined;
+    return [];
   }
-  return typeof value.shortlist.semanticDigest === 'string'
-    ? value.shortlist.semanticDigest
-    : undefined;
+  return value.responsibleOptions;
 }
 
 function rawStatus(
@@ -259,4 +219,13 @@ function rawStatus(
     request.once('error', reject);
     request.end();
   });
+}
+
+function candidateId(value: unknown): string | null {
+  return typeof value === 'object' &&
+    value !== null &&
+    'candidateId' in value &&
+    typeof value.candidateId === 'string'
+    ? value.candidateId
+    : null;
 }

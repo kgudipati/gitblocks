@@ -248,6 +248,20 @@ evidence. The Phase 6 collector itself never sends content to a model. Only
 curator-approved public catalog artifacts may be stored centrally;
 target-repository bodies and unapproved material remain local by default.
 
+Recovery R6 introduces a separate hosted target-fit provider boundary under
+[ADR 0012](../architecture/decisions/0012-openai-target-fit-provider.md). It
+sends only the validated capability/query context, normalized query, minimized
+request-scoped `RepositoryFingerprintV1`, and active public dossier evidence
+for at most five deterministically eligible finalists. Fingerprint and evidence
+text remain inert data and the request enables no tools, search, MCP,
+background state, conversation, or candidate discovery. The model cannot
+restore excluded/evidence-needed candidates or supply authoritative evidence
+or repository facts; deterministic fit-exchange and target-fact validation is
+the authority. The adapter uses `store: false`, bounded bytes, and one deadline,
+but this remains real third-party processing and is not represented as Zero
+Data Retention. Credentials, fingerprints, prompts, evidence bodies, raw
+responses, and raw provider errors are excluded from logs and telemetry.
+
 Phase 7 implements a separate, explicitly acknowledged offline
 repository-interview composition root under
 [ADR 0007](../architecture/decisions/0007-evidence-grounded-repository-interviews.md).

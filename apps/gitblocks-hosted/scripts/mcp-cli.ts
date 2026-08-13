@@ -1,9 +1,11 @@
 import {
   readHostedMcpPortConfiguration,
+  readHostedFitModelConfiguration,
   readHostedServingDatabaseConfiguration,
 } from '../src/configuration.ts';
 import { hostedDiscoveryErrorCode } from '../src/errors.ts';
 import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
+import { createOpenAiFitAssessmentModel } from '../src/openai-fit-model.ts';
 
 const controller = new AbortController();
 const abort = (): void => {
@@ -16,8 +18,12 @@ let hostedProcess;
 try {
   const database = readHostedServingDatabaseConfiguration(process.env);
   const port = readHostedMcpPortConfiguration(process.env);
+  const fitModel = createOpenAiFitAssessmentModel({
+    configuration: readHostedFitModelConfiguration(process.env),
+  });
   hostedProcess = await startGitBlocksMcpProcess({
     database,
+    fitModel,
     port,
     signal: controller.signal,
     onTransportError: () => {

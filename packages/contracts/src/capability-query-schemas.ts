@@ -140,31 +140,37 @@ export const capabilityQueryRepositoryFingerprintReferenceV1Schema =
     fingerprintDigest: digestSchema,
   });
 
+const capabilityQueryInputV1Properties = {
+  contractVersion: contractVersionSchema,
+  queryInputId: stableIdSchema,
+  scope: Type.Literal('local-pre-approval'),
+  summary: summarySchema,
+  capabilityTerms: Type.Array(capabilityQueryTermV1Schema, {
+    minItems: 1,
+    maxItems: CAPABILITY_QUERY_LIMITS.capabilityTerms,
+  }),
+  successConditions: Type.Array(capabilityQuerySuccessConditionV1Schema, {
+    minItems: 1,
+    maxItems: CAPABILITY_QUERY_LIMITS.successConditions,
+  }),
+  draftConstraints: Type.Array(capabilityQueryDraftConstraintV1Schema, {
+    maxItems: CAPABILITY_QUERY_LIMITS.draftConstraints,
+  }),
+  candidateReferences: Type.Array(capabilityQueryCandidateReferenceV1Schema, {
+    maxItems: CAPABILITY_QUERY_LIMITS.candidateReferences,
+  }),
+  repositoryFingerprintReference: Type.Union([
+    capabilityQueryRepositoryFingerprintReferenceV1Schema,
+    Type.Null(),
+  ]),
+};
+
+export const capabilityQueryInputV1ValueSchema = closedObject(
+  capabilityQueryInputV1Properties,
+);
+
 export const capabilityQueryInputV1Schema = Type.Object(
-  {
-    contractVersion: contractVersionSchema,
-    queryInputId: stableIdSchema,
-    scope: Type.Literal('local-pre-approval'),
-    summary: summarySchema,
-    capabilityTerms: Type.Array(capabilityQueryTermV1Schema, {
-      minItems: 1,
-      maxItems: CAPABILITY_QUERY_LIMITS.capabilityTerms,
-    }),
-    successConditions: Type.Array(capabilityQuerySuccessConditionV1Schema, {
-      minItems: 1,
-      maxItems: CAPABILITY_QUERY_LIMITS.successConditions,
-    }),
-    draftConstraints: Type.Array(capabilityQueryDraftConstraintV1Schema, {
-      maxItems: CAPABILITY_QUERY_LIMITS.draftConstraints,
-    }),
-    candidateReferences: Type.Array(capabilityQueryCandidateReferenceV1Schema, {
-      maxItems: CAPABILITY_QUERY_LIMITS.candidateReferences,
-    }),
-    repositoryFingerprintReference: Type.Union([
-      capabilityQueryRepositoryFingerprintReferenceV1Schema,
-      Type.Null(),
-    ]),
-  },
+  capabilityQueryInputV1Properties,
   {
     ...SCHEMA_ROOT_OPTIONS,
     $id: 'https://gitblocks.dev/schemas/contracts/capability-query-input/1.0.0',

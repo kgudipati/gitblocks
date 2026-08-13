@@ -1,4 +1,4 @@
-import { runHostedDiscoveryExercise } from '../src/exercise.ts';
+import { runHostedRecommendationExercise } from '../src/exercise.ts';
 
 const controller = new AbortController();
 const abort = (): void => {
@@ -8,7 +8,7 @@ process.once('SIGINT', abort);
 process.once('SIGTERM', abort);
 
 try {
-  process.exitCode = await runHostedDiscoveryExercise({
+  process.exitCode = await runHostedRecommendationExercise({
     arguments: process.argv.slice(2),
     environment: process.env,
     signal: controller.signal,

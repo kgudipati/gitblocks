@@ -9,24 +9,25 @@ public-source ingestion, a persistence-independent repository-interview
 application and offline operator, deterministic query/profile foundations,
 the pure six-channel `@gitblocks/retrieval` engine, Recovery R3's immutable
 PostgreSQL serving snapshots plus offline accepted-catalog bootstrap, and
-Recovery R4's in-process hosted discovery application and one-shot composition.
-Recovery R5 adds a loopback-only MCP Streamable HTTP adapter over that existing
-application operation and a continuous local Node process. The evaluation
+Recovery R4's in-process hosted discovery application, Recovery R5's
+loopback-only MCP Streamable HTTP process, and Recovery R6's hosted
+codebase-conditioned OSS recommendation operation. R6 adds request-scoped
+fingerprint binding, finalist evidence reads, a narrow target-fit model port,
+one bounded OpenAI Responses adapter, deterministic target-fact and fit-exchange
+validation, and the singular `recommend_oss` product tool. The evaluation
 harness and repository checks remain development support. Repository
 interviews, artifact generation for finalist assessment, and Phase 8 live
 materialization proof machinery are not part of the serving path. Phase 10 is
 frozen R&D on a separately preserved branch and is not implemented on main.
 
 No GitBlocks Skill, target-repository scanner, authenticated remote service,
-deployed PostgreSQL database, target-conditioned fit composition, or end-to-end
-adoption workflow is implemented or available yet. Recovery R4 implements and
-exercises the first product-owned hosted application boundary: accepted durable
-PostgreSQL catalog state is loaded once into the immutable retrieval engine and
-structured capability requests produce deterministic bounded shortlists
-without request-time database access. Recovery R5 exposes only that result
-through one `discover_oss` MCP tool at a fixed loopback boundary. It proves
-official-client interoperability but does not make GitBlocks publicly or
-remotely available.
+deployed PostgreSQL database, local approval/integration workflow, or complete
+adoption journey is implemented or available yet. Recovery R6 exercises the
+hosted portion: a supplied valid fingerprint and structured query reach
+deterministic retrieval, active PostgreSQL finalist evidence, one controlled
+target-fit model call, deterministic validation, and at most three responsible
+options through `recommend_oss`. The loopback exercise does not make GitBlocks
+publicly or remotely available and does not claim the R7 local journey.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -58,11 +59,10 @@ The first private alpha has four explicit boundaries:
   system of record for shared candidate identity and catalog state,
   deterministic candidate profiles, retrieval metadata, evidence,
   limitations, unknowns, lifecycle and freshness, and the coherent catalog
-  snapshot currently served. Current persistence now stores and loads one
-  coherent immutable 150-candidate profile/metadata snapshot through existing
-  contracts. R4 composes discovery around that snapshot; R5 attaches the
-  loopback-only MCP transport, while later slices own authenticated remote
-  delivery and target fit.
+  snapshot currently served. Current persistence stores and loads one coherent
+  immutable 150-candidate profile/metadata snapshot and R6 loads active
+  evidence, limitations, and unknowns for no more than five finalists at one
+  cutoff. Authenticated remote delivery remains later work.
 - **Offline boundary:** bounded public-source ingestion and refresh collects
   approved GitHub, npm, and advisory data and publishes profile and retrieval
   metadata into PostgreSQL. R3 provides an explicit offline bootstrap from the
@@ -95,7 +95,8 @@ insufficient evidence remains a responsible product result.
 
 A user request runs only the hosted request path and may read PostgreSQL
 directly where the use case requires it or use a process-local immutable search
-view. R4/R5 discovery uses only the immutable view after startup. A request
+view. R6 loads the retrieval snapshot only at startup and performs only bounded
+active-dossier SELECTs plus one target-fit model call per eligible request. A request
 must not run ingestion, provider collection, migrations, Docker, evaluation,
 artifact generation, repository interviews, materialization proof machinery,
 replay, or authority generation. The initial architecture does not require Redis, queues or worker

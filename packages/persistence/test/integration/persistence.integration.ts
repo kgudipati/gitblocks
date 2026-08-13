@@ -82,14 +82,14 @@ describe(
         expect(concurrent).toHaveLength(2);
         expect(repeated).toEqual(verified);
         expect(verified.postgresqlVersion).toMatch(/^18\.4\b/u);
-        expect(verified.migrations).toHaveLength(5);
+        expect(verified.migrations).toHaveLength(6);
         expect(firstOrThrow(verified.migrations)).toMatchObject({
           version: 1,
           name: 'evidence-persistence',
         });
         expect(verified.migrations.at(-1)).toMatchObject({
-          version: 5,
-          name: 'retrieval-serving',
+          version: 6,
+          name: 'finalist-evidence-serving',
         });
         expect(
           verified.migrations.every((migration) =>
@@ -103,7 +103,7 @@ describe(
         select pg_catalog.count(*)::integer as count
         from gitblocks.schema_migrations
       `;
-        expect(history[0]?.count).toBe(5);
+        expect(history[0]?.count).toBe(6);
 
         const runtime = createPersistenceClient(RUNTIME_CONFIG);
         try {

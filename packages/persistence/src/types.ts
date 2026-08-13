@@ -95,6 +95,12 @@ export interface SelectActiveDossierMaterialCommand {
   readonly evidenceCutoff: string;
 }
 
+export interface LoadActiveCandidateDossierCommand {
+  readonly candidateId: string;
+  readonly expectedCapabilityFamily: CapabilityFamilyV1;
+  readonly evidenceCutoff: string;
+}
+
 export interface ActiveDossierMaterial {
   readonly observations: readonly EvidenceObservationV1[];
   readonly limitations: readonly CandidateLimitationV1[];

@@ -7,8 +7,8 @@ current lifecycle of GitBlocks components. Current main contains seven product
 workspaces: the pure domain, versioned contracts, a concrete PostgreSQL
 persistence adapter, an operator-run curated public-source ingestion adapter,
 the persistence-independent repository-interview application, and the pure
-`@gitblocks/retrieval` package, plus the R4 hosted discovery application and
-R5 loopback MCP transport. Retrieval is transport-neutral, in-process,
+`@gitblocks/retrieval` package, plus the hosted recommendation application and
+loopback MCP transport. Retrieval is transport-neutral, in-process,
 deterministic, bounded, evaluation-independent, and composed without owning
 network, database, model, provider, transport, or deployment effects.
 
@@ -33,13 +33,23 @@ share the same already-initialized application. Tool calls do not receive a
 database client or reload serving state. Authenticated remote deployment
 remains deferred.
 
+Recovery R6 replaces generic discovery as the primary agent product with
+exactly one `recommend_oss` tool. The same Node composition verifies a
+request-scoped fingerprint binding, reuses the initialized retrieval engine,
+selects no more than five eligible finalists, loads their active PostgreSQL
+evidence at one trusted cutoff, calls one narrow OpenAI Responses target-fit
+adapter, and validates the untrusted result through the existing fit exchange
+plus repository-fact bindings. Evidence-needed candidates cannot be restored;
+the successful responsible option set is at most three. The listener remains
+loopback-only and unauthenticated, so remote deployment is still deferred.
+
 Recovery R2 classifies the current implementation as follows without deleting
 or moving anything:
 
 - **Serving / active:** `packages/domain`, `packages/contracts`,
   `packages/retrieval`, PostgreSQL persistence needed by hosted serving,
   taxonomy/query normalization, deterministic candidate profiles, retrieval
-  metadata, the implemented hosted discovery composition, and its loopback MCP
+  metadata, the implemented hosted recommendation composition, and its loopback MCP
   transport.
 - **Offline active:** `packages/ingestion`, catalog/profile/metadata refresh,
   and explicit database migration/bootstrap operations.
@@ -60,9 +70,10 @@ catalog state that the application serves. PostgreSQL is serving-required and
 ingestion is offline-required. The pure retrieval engine is composed around
 durable data; its purity does not make persistence optional. No Skill,
 target-repository scanner, authenticated remote MCP service, deployed database,
-target-conditioned fit path, or end-to-end private-alpha journey is implemented
-on main yet. The durable accepted-catalog-to-application discovery sub-journey
-and loopback MCP interoperability path are now implemented on main.
+local approval/integration path, or end-to-end private-alpha journey is
+implemented on main yet. The durable accepted-catalog-to-validated-hosted-
+recommendation sub-journey and loopback MCP interoperability path are now
+implemented on main.
 
 The evaluation harness owns immutable historical `retrieval-v1`, independently
 reviewed governing `retrieval-v2`, projection validation, scoring fixtures, and
@@ -100,16 +111,18 @@ or turn the pure package into an operational service.
 [ADR 0011](decisions/0011-postgresql-retrieval-serving.md) owns the R3 serving
 snapshot, offline publication, read-only role, loader, and forward-recovery
 decisions; it does not own the R5 transport choice.
+[ADR 0012](decisions/0012-openai-target-fit-provider.md) owns the initial
+private-alpha target-fit provider, narrow model boundary, Structured Outputs,
+privacy controls, and deterministic-validation authority.
 
 ## Context and ownership
 
 The developer interacts with an existing coding-agent host. A future GitBlocks
 Skill will guide that agent through bounded local fingerprinting, remote
-discovery and comparison, evidence review, adoption planning, and optional
-outcome capture. The hosted Node application exposes one loopback MCP discovery
-tool backed by deterministic normalization/retrieval and PostgreSQL catalog
-intelligence. Later slices may extend it only for concrete product outcomes,
-including bounded target-fit assessment. Offline
+recommendation, evidence review, adoption planning, and optional outcome
+capture. The hosted Node application exposes one loopback MCP recommendation
+tool backed by deterministic normalization/retrieval, PostgreSQL finalist
+evidence, and bounded target-fit assessment. Offline
 catalog ingestion is a separate operator action and never runs because a user
 made a request.
 
@@ -443,10 +456,10 @@ apps/repository-interview-operator
 
 The one Node composition root may depend on the hosted application use case,
 `@gitblocks/retrieval`, and the concrete persistence/model/transport adapters.
-R4 keeps the use-case module independent of persistence while its same-workspace
-composition module owns the concrete startup client. R5's MCP server closes
-over only that use-case operation, and its native Node listener reuses the one
-startup composition for every request. Offline ingestion composes
+The use-case module remains independent of persistence while its same-workspace
+composition module owns the concrete startup client and target-fit adapter.
+The MCP server closes over only the recommendation operation, and its native
+Node listener reuses the one startup composition for every request. Offline ingestion composes
 `@gitblocks/ingestion` with persistence separately and never joins a request.
 `@gitblocks/interviews` retains its provider, record/reuse, clock, and nonce
 ports without becoming an active hosted dependency. Versioned request,
@@ -454,7 +467,7 @@ response, event, error, evidence, fingerprint, and outcome contracts each have
 one authoritative definition; transports may encode them but must not recreate
 competing shapes.
 
-For the 12 current `1.0.0` contract families, closed TypeBox definitions are
+For the 14 current `1.0.0` contract families, closed TypeBox definitions are
 the single source for DTO types and deterministic JSON Schema 2020-12 runtime
 exports. Structural parsing handles untrusted shape, version, size, and
 diagnostic bounds; pure domain validation handles cross-field references,
@@ -490,7 +503,8 @@ a configured bound. Partial evidence, stale evidence, source unavailability,
 and ranking uncertainty will be explicit response states rather than silent
 success.
 
-R5 emits bounded structured lifecycle and failure records with stable operation
+R6 emits bounded structured recommendation lifecycle records and value-free
+provider/application failures with stable operation
 and error names. Future remote production telemetry will describe timing,
 counts, outcomes,
 and evidence identifiers without recording prompts, raw source, credentials,
@@ -501,8 +515,9 @@ or sensitive excerpts. Detailed rules are in the
 
 R2 selects the smallest topology—one Node deployable and one PostgreSQL
 database. R5 selects the official MCP TypeScript SDK v2 split server/Node
-packages and native Node HTTP without selecting an application framework,
-model adapter, hosting provider, or telemetry backend. A product implementation slice must select only the
+packages and native Node HTTP. R6 selects the initial OpenAI Responses
+target-fit adapter without selecting an application framework, hosting
+provider, or telemetry backend. A product implementation slice must select only the
 technology it actually introduces and satisfy the accepted TypeScript,
 supply-chain, dependency, contract, and validation policies. Queue, cache,
 vector, microservice, Kubernetes, continuous-crawler, organization/tenant,

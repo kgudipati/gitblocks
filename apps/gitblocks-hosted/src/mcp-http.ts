@@ -15,7 +15,7 @@ import {
   type McpHttpHandler,
 } from '@modelcontextprotocol/server';
 
-import type { HostedDiscoveryApplicationV1 } from './application.ts';
+import type { HostedRecommendationApplicationV1 } from './application.ts';
 import { createGitBlocksMcpServer } from './mcp-server.ts';
 
 export const GITBLOCKS_MCP_HOST = '127.0.0.1';
@@ -27,16 +27,13 @@ export interface GitBlocksMcpHttpServerV1 {
 }
 
 export function createGitBlocksMcpHandler(
-  application: Pick<HostedDiscoveryApplicationV1, 'discoverCapability'>,
+  application: Pick<HostedRecommendationApplicationV1, 'recommendOss'>,
 ): McpHttpHandler {
   return createMcpHandler(() => createGitBlocksMcpServer(application));
 }
 
 export async function startGitBlocksMcpHttpServer(input: {
-  readonly application: Pick<
-    HostedDiscoveryApplicationV1,
-    'discoverCapability'
-  >;
+  readonly application: Pick<HostedRecommendationApplicationV1, 'recommendOss'>;
   readonly port: number;
   readonly onError?: () => void;
 }): Promise<GitBlocksMcpHttpServerV1> {

@@ -106,7 +106,7 @@ describe('offline serving catalog bootstrap CLI', () => {
       candidateCount: 150,
       catalogDigest: CATALOG_DIGEST,
       catalogVersion: 'public-v1',
-      databaseMigrationVersion: 5,
+      databaseMigrationVersion: 6,
       publicationStatus: 'created',
       publishedAt: PUBLISHED_AT,
       schemaVersion: '1.0.0',
@@ -172,7 +172,7 @@ function dependencies(
   const environment = vi.fn((name: string) => environmentValues[name]);
   const createClient = vi.fn(() => CLIENT);
   const closeClient = vi.fn(() => Promise.resolve());
-  const migrationVersion = options.migrationVersion ?? 5;
+  const migrationVersion = options.migrationVersion ?? 6;
   const verify = vi.fn(() =>
     Promise.resolve({
       postgresqlVersion: '18.4',
@@ -181,7 +181,9 @@ function dependencies(
         name:
           index + 1 === 5
             ? 'retrieval-serving'
-            : `synthetic-${String(index + 1)}`,
+            : index + 1 === 6
+              ? 'finalist-evidence-serving'
+              : `synthetic-${String(index + 1)}`,
         checksum: String(index + 1).repeat(64),
       })),
     } satisfies MigrationVerification),

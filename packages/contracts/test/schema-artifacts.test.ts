@@ -60,6 +60,10 @@ const EXPECTED_SCHEMA_DIGESTS = {
     'f362632090107fc97b20708a24d5888f3d0e531f724887cc37dd5aa777a272b7',
   'repository-interview':
     '99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb',
+  'oss-recommendation-request':
+    '20982e93d528f169a7d9ee9a60aeea33a101038ee8da070cdace1fe3afbf15e8',
+  'target-fit-assessment-response':
+    '51c7e8c46d8323e29fe02c674c74efece435acf372529c036e52a861f4f78428',
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
@@ -88,6 +92,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'capability-retrieval-expansion',
       'capability-retrieval-expansion-source',
       'candidate-retrieval-metadata-authority',
+      'oss-recommendation-request',
+      'target-fit-assessment-response',
     ]);
 
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -277,6 +283,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'createCandidateRetrievalMetadataAuthorityV1',
       'createCandidateRetrievalRequestV1',
       'createCandidateRetrievalResultV1',
+      'createCapabilityRequestFromRecommendationV1',
       'createDeterministicCandidateProfileAuthorityV1',
       'createDeterministicCandidateProfileV1',
       'createModelExecutionV1',
@@ -294,6 +301,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'modelExecutionRecordDigest',
       'modelExecutionReuseKeyDigest',
       'normalizeCapabilityQueryV1',
+      'ossRecommendationRequestV1Schema',
       'parseCandidateDossierV1',
       'parseCandidateRetrievalMetadataAuthorityV1',
       'parseCandidateRetrievalRequestV1',
@@ -312,12 +320,14 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseFitAssessmentResponseV1',
       'parseModelExecutionModelProfileV1',
       'parseModelExecutionV1',
+      'parseOssRecommendationRequestV1',
       'parseRepositoryArtifactChunkV1',
       'parseRepositoryArtifactSetV1',
       'parseRepositoryArtifactV1',
       'parseRepositoryFingerprintV1',
       'parseRepositoryInterviewRequestV1',
       'parseRepositoryInterviewV1',
+      'parseTargetFitAssessmentResponseV1',
       'repositoryArtifactChunkIdentityDigest',
       'repositoryArtifactChunkRecordDigest',
       'repositoryArtifactContentSha256',
@@ -328,6 +338,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryArtifactSetIdentityDigest',
       'repositoryArtifactSetRecordDigest',
       'repositoryArtifactUtf8ByteLength',
+      'repositoryFingerprintDigestV1',
       'repositoryInterviewCitationIdentityDigest',
       'repositoryInterviewClaimIdentityDigest',
       'repositoryInterviewContradictionIdentityDigest',
@@ -347,10 +358,12 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'serializeDeterministicCandidateProfileAuthorityV1',
       'serializeDeterministicCandidateProfileV1',
       'splitRepositoryArtifactLogicalLines',
+      'targetFitAssessmentResponseV1Schema',
       'validateCandidateRetrievalExchangeV1',
       'validateCapabilityQueryNormalizationExchangeV1',
       'validateFitAssessmentExchangeV1',
       'validateRepositoryInterviewExecutionV1',
+      'validateTargetFitAssessmentExchangeV1',
     ]);
   });
 });

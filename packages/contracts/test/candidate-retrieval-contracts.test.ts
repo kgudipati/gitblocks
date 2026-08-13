@@ -370,7 +370,7 @@ describe('candidate retrieval product contracts', () => {
     ).toBe(false);
   });
 
-  it('rejects normalized target-codebase fingerprint state', () => {
+  it('preserves normalized target-codebase fingerprint binding without interpreting target facts', () => {
     const normalized = normalizeCapabilityQueryV1(
       {
         contractVersion: CONTRACT_VERSION,
@@ -397,14 +397,17 @@ describe('candidate retrieval product contracts', () => {
     );
     expect(normalized.ok).toBe(true);
     if (!normalized.ok) return;
-    expect(() =>
-      createCandidateRetrievalRequestV1({
-        normalization: normalized.value,
-        authorityBindings: request.authorityBindings,
-        eligibleResultLimit: 10,
-        evidenceNeededResultLimit: 10,
-      }),
-    ).toThrow('Candidate retrieval request is invalid.');
+    const targetRequest = createCandidateRetrievalRequestV1({
+      normalization: normalized.value,
+      authorityBindings: request.authorityBindings,
+      eligibleResultLimit: 10,
+      evidenceNeededResultLimit: 10,
+    });
+    expect(targetRequest.normalization.repositoryFingerprintReference).toEqual({
+      fingerprintId: 'target-fingerprint',
+      fingerprintDigest: 'a'.repeat(64),
+    });
+    expect(parseCandidateRetrievalRequestV1(targetRequest).ok).toBe(true);
   });
 
   it.each([0, 11])('rejects lane limit %s', (limit) => {

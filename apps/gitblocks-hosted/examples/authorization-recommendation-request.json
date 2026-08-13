@@ -1,0 +1,70 @@
+{
+  "contractVersion": "1.0.0",
+  "recommendationRequestId": "hosted-authorization-exercise",
+  "capabilityQuery": {
+    "contractVersion": "1.0.0",
+    "queryInputId": "hosted-authorization-exercise",
+    "scope": "local-pre-approval",
+    "summary": "Select an OSS authorization capability for this repository.",
+    "capabilityTerms": [
+      {
+        "termId": "authorization-capability",
+        "originalTerm": "authorization"
+      }
+    ],
+    "successConditions": [
+      {
+        "conditionId": "authorization-options",
+        "statement": "Return validated codebase-conditioned OSS options."
+      }
+    ],
+    "draftConstraints": [],
+    "candidateReferences": [],
+    "repositoryFingerprintReference": {
+      "fingerprintId": "fingerprint-hosted-example",
+      "fingerprintDigest": "9025cdebc10a5993072bcb84c6e6a0c9688ea74b19f65fb9c8918fc1a03a4c3b"
+    }
+  },
+  "repositoryFingerprint": {
+    "contractVersion": "1.0.0",
+    "factVocabularyVersion": "1.0.0",
+    "fingerprintId": "fingerprint-hosted-example",
+    "facts": [
+      {
+        "kind": "component",
+        "factId": "fact-runtime",
+        "component": "runtime",
+        "name": "node",
+        "version": "24.12.0",
+        "provenance": {
+          "origin": "repository-structure",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-12T10:00:00.000Z"
+        }
+      }
+    ],
+    "withheldCategories": [
+      "raw-source",
+      "configuration-values",
+      "environment",
+      "credentials",
+      "logs",
+      "database-content",
+      "untracked-files",
+      "command-output"
+    ]
+  },
+  "transmissionApproval": {
+    "approvalId": "hosted-authorization-exercise-approval",
+    "approvedAt": "2026-08-12T10:30:00.000Z",
+    "approvedBy": "request-originator",
+    "scope": "minimized-repository-facts",
+    "approvedCategories": [
+      "bounded-evidence",
+      "candidate-dossiers",
+      "capability-request",
+      "repository-fingerprint"
+    ]
+  }
+}

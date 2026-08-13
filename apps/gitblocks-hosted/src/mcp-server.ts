@@ -1,6 +1,6 @@
 import {
   getContractSchemaV1,
-  type CapabilityQueryInputV1,
+  type OssRecommendationRequestV1,
 } from '@gitblocks/contracts';
 import {
   fromJsonSchema,
@@ -10,22 +10,22 @@ import {
 } from '@modelcontextprotocol/server';
 
 import type {
-  HostedDiscoveryApplicationV1,
-  HostedDiscoveryResultV1,
+  HostedRecommendationApplicationV1,
+  HostedRecommendationResultV1,
 } from './application.ts';
 
-export const GITBLOCKS_DISCOVER_OSS_TOOL_NAME = 'discover_oss';
+export const GITBLOCKS_RECOMMEND_OSS_TOOL_NAME = 'recommend_oss';
 
-export const GITBLOCKS_DISCOVER_OSS_TOOL_DESCRIPTION =
-  "Retrieve plausible open-source candidates for a structured capability request using GitBlocks' deterministic catalog intelligence. Returns a shortlist, not a final adoption recommendation. Does not inspect or modify the caller's local repository.";
+export const GITBLOCKS_RECOMMEND_OSS_TOOL_DESCRIPTION =
+  'Given a structured capability request and a minimized repository fingerprint, GitBlocks deterministically retrieves viable OSS candidates, loads attributable candidate evidence, evaluates codebase-specific fit, and returns up to three validated responsible options. It does not modify the target repository.';
 
-type HostedDiscoveryOperation = Pick<
-  HostedDiscoveryApplicationV1,
-  'discoverCapability'
+type HostedRecommendationOperation = Pick<
+  HostedRecommendationApplicationV1,
+  'recommendOss'
 >;
 
 export function createGitBlocksMcpServer(
-  application: HostedDiscoveryOperation,
+  application: HostedRecommendationOperation,
 ): McpServer {
   const server = new McpServer({
     name: 'gitblocks-hosted',
@@ -33,25 +33,25 @@ export function createGitBlocksMcpServer(
   });
 
   server.registerTool(
-    GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
+    GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
     {
-      description: GITBLOCKS_DISCOVER_OSS_TOOL_DESCRIPTION,
-      inputSchema: fromJsonSchema<CapabilityQueryInputV1>(
-        capabilityQueryInputSchema(),
+      description: GITBLOCKS_RECOMMEND_OSS_TOOL_DESCRIPTION,
+      inputSchema: fromJsonSchema<OssRecommendationRequestV1>(
+        recommendationRequestSchema(),
       ),
     },
-    (arguments_) => callHostedDiscovery(application, arguments_),
+    (arguments_) => callHostedRecommendation(application, arguments_),
   );
 
   return server;
 }
 
-function callHostedDiscovery(
-  application: HostedDiscoveryOperation,
-  arguments_: CapabilityQueryInputV1,
-): CallToolResult {
+async function callHostedRecommendation(
+  application: HostedRecommendationOperation,
+  arguments_: OssRecommendationRequestV1,
+): Promise<CallToolResult> {
   try {
-    const outcome = application.discoverCapability(arguments_);
+    const outcome = await application.recommendOss(arguments_);
     if (!outcome.ok) return boundedToolFailure();
     return successfulToolResult(outcome.result);
   } catch {
@@ -59,12 +59,14 @@ function callHostedDiscovery(
   }
 }
 
-function successfulToolResult(result: HostedDiscoveryResultV1): CallToolResult {
+function successfulToolResult(
+  result: HostedRecommendationResultV1,
+): CallToolResult {
   return {
     content: [
       {
         type: 'text',
-        text: `GitBlocks discovery outcome: ${result.outcome}.`,
+        text: `GitBlocks recommendation outcome: ${result.outcome}.`,
       },
     ],
     structuredContent: result,
@@ -76,17 +78,17 @@ function boundedToolFailure(): CallToolResult {
     content: [
       {
         type: 'text',
-        text: 'GitBlocks discovery failed.',
+        text: 'GitBlocks recommendation failed.',
       },
     ],
     isError: true,
   };
 }
 
-function capabilityQueryInputSchema(): JsonSchemaType {
-  const schema = getContractSchemaV1('capability-query-input');
+function recommendationRequestSchema(): JsonSchemaType {
+  const schema = getContractSchemaV1('oss-recommendation-request');
   if (typeof schema !== 'object' || schema === null || Array.isArray(schema)) {
-    throw new TypeError('Capability query input schema must be an object.');
+    throw new TypeError('Recommendation request schema must be an object.');
   }
   return schema as JsonSchemaType;
 }

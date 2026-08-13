@@ -7,7 +7,7 @@ const lifecycle = vi.hoisted(() => ({
   compositionClose: vi.fn<() => Promise<void>>(),
   listenerClose: vi.fn<() => Promise<void>>(),
   startComposition:
-    vi.fn<typeof CompositionModule.startHostedDiscoveryComposition>(),
+    vi.fn<typeof CompositionModule.startHostedRecommendationComposition>(),
   startListener: vi.fn<typeof HttpModule.startGitBlocksMcpHttpServer>(),
 }));
 
@@ -15,7 +15,7 @@ vi.mock('../src/composition.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof CompositionModule>();
   return {
     ...actual,
-    startHostedDiscoveryComposition: lifecycle.startComposition,
+    startHostedRecommendationComposition: lifecycle.startComposition,
   };
 });
 
@@ -28,6 +28,8 @@ vi.mock('../src/mcp-http.ts', async (importOriginal) => {
 });
 
 import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
+
+const fitModel = Object.freeze({ assess: vi.fn() });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -43,15 +45,14 @@ beforeEach(() => {
   lifecycle.startComposition.mockImplementation(() => {
     lifecycle.events.push('composition-ready');
     return Promise.resolve({
-      discoverCapability: () => ({
-        ok: false,
-        failure: {
-          kind: 'application',
-          code: 'hosted-discovery-not-ready',
-          path: '',
-          message: 'Hosted discovery is not ready.',
-        },
-      }),
+      recommendOss: () =>
+        Promise.resolve({
+          ok: false,
+          failure: {
+            kind: 'application',
+            code: 'hosted-recommendation-not-ready',
+          },
+        }),
       readiness: () => ({ ready: true, snapshot: snapshot() }),
       close: lifecycle.compositionClose,
     });
@@ -65,18 +66,19 @@ beforeEach(() => {
   });
 });
 
-describe('GitBlocks MCP process lifecycle', () => {
-  it('waits for R4 readiness before listening and closes listener before composition exactly once', async () => {
+describe('GitBlocks recommendation MCP process lifecycle', () => {
+  it('waits for recommendation readiness and closes listener before composition exactly once', async () => {
     const process = await startGitBlocksMcpProcess({
       database: databaseConfiguration(),
+      fitModel,
       port: 3333,
     });
-
     expect(lifecycle.events).toEqual(['composition-ready', 'listener-ready']);
     const listenerInput = lifecycle.startListener.mock.calls[0]?.[0];
     expect(listenerInput?.port).toBe(3333);
-    expect(typeof listenerInput?.application.discoverCapability).toBe(
-      'function',
+    expect(typeof listenerInput?.application.recommendOss).toBe('function');
+    expect(lifecycle.startComposition.mock.calls[0]?.[0].fitModel).toBe(
+      fitModel,
     );
     await Promise.all([process.close(), process.close()]);
     expect(lifecycle.events).toEqual([
@@ -89,13 +91,14 @@ describe('GitBlocks MCP process lifecycle', () => {
     expect(lifecycle.compositionClose).toHaveBeenCalledTimes(1);
   });
 
-  it('does not listen when R4 startup fails', async () => {
+  it('does not listen when recommendation startup fails', async () => {
     lifecycle.startComposition.mockRejectedValueOnce(
       new Error('bounded startup failure'),
     );
     await expect(
       startGitBlocksMcpProcess({
         database: databaseConfiguration(),
+        fitModel,
         port: 3333,
       }),
     ).rejects.toThrow('bounded startup failure');
@@ -109,6 +112,7 @@ describe('GitBlocks MCP process lifecycle', () => {
     await expect(
       startGitBlocksMcpProcess({
         database: databaseConfiguration(),
+        fitModel,
         port: 3333,
       }),
     ).rejects.toThrow('listener startup failure');

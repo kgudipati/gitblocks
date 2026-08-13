@@ -1,11 +1,16 @@
 import {
   createCandidateRetrievalRequestV1,
+  createCapabilityRequestFromRecommendationV1,
   normalizeCapabilityQueryV1,
+  parseCandidateDossierV1,
   parseCandidateRetrievalMetadataAuthorityV1,
   parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
   parseDeterministicCandidateProfileAuthorityV1,
-  parseCapabilityQueryInputV1,
+  parseFitAssessmentRequestV1,
+  parseOssRecommendationRequestV1,
+  validateTargetFitAssessmentExchangeV1,
+  type CandidateDossierV1,
   type CandidateRetrievalAuthorityBindingsV1,
   type CandidateRetrievalMetadataAuthorityV1,
   type CandidateRetrievalResultV1,
@@ -14,6 +19,8 @@ import {
   type CapabilityTaxonomyV1,
   type ContractIssue,
   type DeterministicCandidateProfileAuthorityV1,
+  type FitAssessmentRequestV1,
+  type TargetFitAssessmentResponseV1,
 } from '@gitblocks/contracts';
 import {
   CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
@@ -30,6 +37,8 @@ import type {
 } from '@gitblocks/retrieval';
 
 const DISCOVERY_RESULT_LIMIT = 10;
+export const HOSTED_FIT_FINALIST_LIMIT = 5;
+export const HOSTED_RESPONSIBLE_OPTION_LIMIT = 3;
 
 export interface HostedDiscoverySnapshotV1 {
   readonly snapshotId: string;
@@ -37,7 +46,58 @@ export interface HostedDiscoverySnapshotV1 {
   readonly candidateCount: number;
 }
 
-export type HostedDiscoveryResultV1 =
+export interface FitAssessmentModelRequestV1 {
+  readonly fitAssessmentRequest: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+}
+
+export interface FitAssessmentModelPort {
+  readonly assess: (input: FitAssessmentModelRequestV1) => Promise<unknown>;
+}
+
+export interface CandidateDossierLoaderPort {
+  readonly loadActiveCandidateDossier: (input: {
+    readonly candidateId: string;
+    readonly expectedCapabilityFamily: CandidateDossierV1['capabilityFamily'];
+    readonly evidenceCutoff: string;
+  }) => Promise<CandidateDossierV1>;
+}
+
+export interface HostedRecommendationClockPort {
+  readonly now: () => string;
+}
+
+export interface HostedRecommendationObserverV1 {
+  readonly emit: (event: HostedRecommendationEventV1) => void;
+}
+
+export interface HostedRecommendationEventV1 {
+  readonly operation: 'hosted.recommendation';
+  readonly recommendationRequestId: string;
+  readonly stage:
+    | 'validated'
+    | 'normalized'
+    | 'retrieved'
+    | 'evidence-loaded'
+    | 'model-completed'
+    | 'completed'
+    | 'failed';
+  readonly outcome:
+    | 'in-progress'
+    | 'clarification-required'
+    | 'unsupported'
+    | 'insufficient-evidence'
+    | 'no-viable-candidate'
+    | 'recommend'
+    | 'failed';
+  readonly finalistCount: number;
+  readonly responsibleOptionCount: number;
+}
+
+export const NOOP_HOSTED_RECOMMENDATION_OBSERVER: HostedRecommendationObserverV1 =
+  Object.freeze({ emit: () => undefined });
+
+export type HostedRecommendationResultV1 =
   | {
       readonly outcome: 'clarification-required';
       readonly normalization: CapabilityQueryNormalizationResultV1;
@@ -47,12 +107,34 @@ export type HostedDiscoveryResultV1 =
       readonly normalization: CapabilityQueryNormalizationResultV1;
     }
   | {
-      readonly outcome: 'retrieved';
+      readonly outcome: 'insufficient-evidence';
+      readonly reasonCode:
+        | 'deterministic-evidence-needed'
+        | 'no-positive-candidate-evidence'
+        | 'fit-assessment-insufficient-evidence';
       readonly normalization: CapabilityQueryNormalizationResultV1;
       readonly shortlist: CandidateRetrievalResultV1;
+      readonly targetFitAssessment: TargetFitAssessmentResponseV1 | null;
+    }
+  | {
+      readonly outcome: 'no-viable-candidate';
+      readonly normalization: CapabilityQueryNormalizationResultV1;
+      readonly shortlist: CandidateRetrievalResultV1;
+      readonly targetFitAssessment: TargetFitAssessmentResponseV1 | null;
+    }
+  | {
+      readonly outcome: 'recommend';
+      readonly normalization: CapabilityQueryNormalizationResultV1;
+      readonly responsibleOptions: readonly HostedResponsibleOptionV1[];
+      readonly targetFitAssessment: TargetFitAssessmentResponseV1;
     };
 
-export type HostedDiscoveryFailureV1 =
+export interface HostedResponsibleOptionV1 {
+  readonly candidateId: string;
+  readonly identity: CandidateDossierV1['identity'];
+}
+
+export type HostedRecommendationFailureV1 =
   | {
       readonly kind: 'contract';
       readonly issues: readonly ContractIssue[];
@@ -60,55 +142,57 @@ export type HostedDiscoveryFailureV1 =
   | {
       readonly kind: 'application';
       readonly code:
-        | 'hosted-discovery-not-ready'
-        | 'repository-fingerprint-not-supported'
-        | 'retrieval-request-construction-failed';
-      readonly path: '/repositoryFingerprintReference' | '';
-      readonly message:
-        | 'Hosted discovery is not ready.'
-        | 'Repository fingerprints are not supported by capability discovery.'
-        | 'Candidate retrieval request construction failed.';
+        | 'hosted-recommendation-not-ready'
+        | 'retrieval-request-construction-failed'
+        | 'finalist-evidence-load-failed'
+        | 'fit-assessment-request-construction-failed'
+        | 'fit-model-failed'
+        | 'invalid-target-fit-response';
     }
   | {
       readonly kind: 'retrieval';
       readonly issues: readonly CandidateRetrievalOperationIssueV1[];
     };
 
-export type HostedDiscoveryOperationResultV1 =
+export type HostedRecommendationOperationResultV1 =
   | {
       readonly ok: true;
-      readonly result: HostedDiscoveryResultV1;
+      readonly result: HostedRecommendationResultV1;
     }
   | {
       readonly ok: false;
-      readonly failure: HostedDiscoveryFailureV1;
+      readonly failure: HostedRecommendationFailureV1;
     };
 
-export interface HostedDiscoveryApplicationV1 {
+export interface HostedRecommendationApplicationV1 {
   readonly snapshot: HostedDiscoverySnapshotV1;
-  readonly discoverCapability: (
+  readonly recommendOss: (
     input: unknown,
-  ) => HostedDiscoveryOperationResultV1;
+  ) => Promise<HostedRecommendationOperationResultV1>;
 }
 
-export type HostedDiscoveryApplicationCreationResultV1 =
+export type HostedRecommendationApplicationCreationResultV1 =
   | {
       readonly ok: true;
-      readonly application: HostedDiscoveryApplicationV1;
+      readonly application: HostedRecommendationApplicationV1;
     }
   | {
       readonly ok: false;
       readonly code: 'invalid-application-authority';
     };
 
-export function createHostedDiscoveryApplication(input: {
+export function createHostedRecommendationApplication(input: {
   readonly snapshot: HostedDiscoverySnapshotV1;
   readonly taxonomy: unknown;
   readonly candidateProfileAuthority: unknown;
   readonly retrievalExpansionAuthority: unknown;
   readonly candidateRetrievalMetadataAuthority: unknown;
   readonly engine: CandidateRetrievalEngineV1;
-}): HostedDiscoveryApplicationCreationResultV1 {
+  readonly dossierLoader: CandidateDossierLoaderPort;
+  readonly fitModel: FitAssessmentModelPort;
+  readonly clock: HostedRecommendationClockPort;
+  readonly observer?: HostedRecommendationObserverV1;
+}): HostedRecommendationApplicationCreationResultV1 {
   const taxonomy = parseCapabilityTaxonomyV1(input.taxonomy);
   const profiles = parseDeterministicCandidateProfileAuthorityV1(
     input.candidateProfileAuthority,
@@ -140,81 +224,323 @@ export function createHostedDiscoveryApplication(input: {
     metadata.value,
   );
   const snapshot = Object.freeze({ ...input.snapshot });
-  const application: HostedDiscoveryApplicationV1 = Object.freeze({
+  const observer = input.observer ?? NOOP_HOSTED_RECOMMENDATION_OBSERVER;
+  const application: HostedRecommendationApplicationV1 = Object.freeze({
     snapshot,
-    discoverCapability: (suppliedInput: unknown) => {
-      const parsedInput = parseCapabilityQueryInputV1(suppliedInput);
-      if (!parsedInput.ok) {
-        return Object.freeze({
-          ok: false,
-          failure: Object.freeze({
-            kind: 'contract',
-            issues: parsedInput.issues,
-          }),
-        });
-      }
-      if (parsedInput.value.repositoryFingerprintReference !== null) {
-        return applicationFailure('repository-fingerprint-not-supported');
-      }
-      const normalized = normalizeCapabilityQueryV1(
-        parsedInput.value,
-        taxonomy.value,
+    recommendOss: (suppliedInput: unknown) =>
+      recommendOss({
+        suppliedInput,
+        taxonomy: taxonomy.value,
         candidateAuthority,
-      );
-      if (!normalized.ok) {
-        return Object.freeze({
-          ok: false,
-          failure: Object.freeze({
-            kind: 'contract',
-            issues: normalized.issues,
-          }),
-        });
-      }
-      if (normalized.value.outcome !== 'normalized') {
-        return Object.freeze({
-          ok: true,
-          result: Object.freeze({
-            outcome: normalized.value.outcome,
-            normalization: normalized.value,
-          }),
-        });
-      }
-      let request;
-      try {
-        request = createCandidateRetrievalRequestV1({
-          normalization: normalized.value,
-          authorityBindings,
-          eligibleResultLimit: DISCOVERY_RESULT_LIMIT,
-          evidenceNeededResultLimit: DISCOVERY_RESULT_LIMIT,
-        });
-      } catch {
-        return applicationFailure('retrieval-request-construction-failed');
-      }
-      const retrieved = input.engine.retrieve(request);
-      if (!retrieved.ok) {
-        return Object.freeze({
-          ok: false,
-          failure: Object.freeze({
-            kind: 'retrieval',
-            issues: retrieved.issues,
-          }),
-        });
-      }
-      return Object.freeze({
-        ok: true,
-        result: Object.freeze({
-          outcome: 'retrieved',
-          normalization: normalized.value,
-          shortlist: retrieved.result,
-        }),
-      });
-    },
+        authorityBindings,
+        engine: input.engine,
+        dossierLoader: input.dossierLoader,
+        fitModel: input.fitModel,
+        clock: input.clock,
+        observer,
+      }),
   });
   return Object.freeze({ ok: true, application });
 }
 
-export function hostedDiscoveryNotReady(): HostedDiscoveryOperationResultV1 {
-  return applicationFailure('hosted-discovery-not-ready');
+export function hostedRecommendationNotReady(): HostedRecommendationOperationResultV1 {
+  return applicationFailure('hosted-recommendation-not-ready');
+}
+
+async function recommendOss(input: {
+  readonly suppliedInput: unknown;
+  readonly taxonomy: CapabilityTaxonomyV1;
+  readonly candidateAuthority: CandidateReferenceAuthority;
+  readonly authorityBindings: CandidateRetrievalAuthorityBindingsV1;
+  readonly engine: CandidateRetrievalEngineV1;
+  readonly dossierLoader: CandidateDossierLoaderPort;
+  readonly fitModel: FitAssessmentModelPort;
+  readonly clock: HostedRecommendationClockPort;
+  readonly observer: HostedRecommendationObserverV1;
+}): Promise<HostedRecommendationOperationResultV1> {
+  const parsed = parseOssRecommendationRequestV1(input.suppliedInput);
+  if (!parsed.ok) {
+    return Object.freeze({
+      ok: false,
+      failure: Object.freeze({ kind: 'contract', issues: parsed.issues }),
+    });
+  }
+  const requestId = parsed.value.recommendationRequestId;
+  emit(input.observer, event(requestId, 'validated', 'in-progress'));
+  const normalized = normalizeCapabilityQueryV1(
+    parsed.value.capabilityQuery,
+    input.taxonomy,
+    input.candidateAuthority,
+  );
+  if (!normalized.ok) {
+    return Object.freeze({
+      ok: false,
+      failure: Object.freeze({ kind: 'contract', issues: normalized.issues }),
+    });
+  }
+  if (normalized.value.outcome !== 'normalized') {
+    emit(
+      input.observer,
+      event(requestId, 'completed', normalized.value.outcome),
+    );
+    return successful({
+      outcome: normalized.value.outcome,
+      normalization: normalized.value,
+    });
+  }
+  emit(input.observer, event(requestId, 'normalized', 'in-progress'));
+
+  let retrievalRequest;
+  try {
+    retrievalRequest = createCandidateRetrievalRequestV1({
+      normalization: normalized.value,
+      authorityBindings: input.authorityBindings,
+      eligibleResultLimit: DISCOVERY_RESULT_LIMIT,
+      evidenceNeededResultLimit: DISCOVERY_RESULT_LIMIT,
+    });
+  } catch {
+    return failed(
+      input.observer,
+      requestId,
+      'retrieval-request-construction-failed',
+    );
+  }
+  const retrieved = input.engine.retrieve(retrievalRequest);
+  if (!retrieved.ok) {
+    emit(input.observer, event(requestId, 'failed', 'failed'));
+    return Object.freeze({
+      ok: false,
+      failure: Object.freeze({ kind: 'retrieval', issues: retrieved.issues }),
+    });
+  }
+  emit(
+    input.observer,
+    event(
+      requestId,
+      'retrieved',
+      'in-progress',
+      Math.min(
+        HOSTED_FIT_FINALIST_LIMIT,
+        retrieved.result.eligibleCandidates.length,
+      ),
+    ),
+  );
+  if (retrieved.result.eligibleCandidates.length === 0) {
+    if (retrieved.result.evidenceNeededCandidates.length > 0) {
+      emit(
+        input.observer,
+        event(requestId, 'completed', 'insufficient-evidence'),
+      );
+      return successful({
+        outcome: 'insufficient-evidence',
+        reasonCode: 'deterministic-evidence-needed',
+        normalization: normalized.value,
+        shortlist: retrieved.result,
+        targetFitAssessment: null,
+      });
+    }
+    emit(input.observer, event(requestId, 'completed', 'no-viable-candidate'));
+    return successful({
+      outcome: 'no-viable-candidate',
+      normalization: normalized.value,
+      shortlist: retrieved.result,
+      targetFitAssessment: null,
+    });
+  }
+
+  const finalists = retrieved.result.eligibleCandidates.slice(
+    0,
+    HOSTED_FIT_FINALIST_LIMIT,
+  );
+  const evidenceCutoff = trustedTimestamp(input.clock);
+  if (evidenceCutoff === null || normalized.value.primaryFamilyId === null) {
+    return failed(
+      input.observer,
+      requestId,
+      'fit-assessment-request-construction-failed',
+      finalists.length,
+    );
+  }
+  const capabilityFamily = normalized.value.primaryFamilyId;
+  let dossiers: readonly CandidateDossierV1[];
+  try {
+    dossiers = await Promise.all(
+      finalists.map(async ({ candidateId }) => {
+        const dossier = await input.dossierLoader.loadActiveCandidateDossier({
+          candidateId,
+          expectedCapabilityFamily: capabilityFamily,
+          evidenceCutoff,
+        });
+        const parsedDossier = parseCandidateDossierV1(dossier);
+        if (
+          !parsedDossier.ok ||
+          parsedDossier.value.identity.candidateId !== candidateId ||
+          parsedDossier.value.capabilityFamily !== capabilityFamily
+        ) {
+          throw new Error('Finalist dossier validation failed.');
+        }
+        return parsedDossier.value;
+      }),
+    );
+  } catch {
+    return failed(
+      input.observer,
+      requestId,
+      'finalist-evidence-load-failed',
+      finalists.length,
+    );
+  }
+  emit(
+    input.observer,
+    event(requestId, 'evidence-loaded', 'in-progress', dossiers.length),
+  );
+  if (dossiers.every(({ observations }) => observations.length === 0)) {
+    emit(
+      input.observer,
+      event(requestId, 'completed', 'insufficient-evidence', dossiers.length),
+    );
+    return successful({
+      outcome: 'insufficient-evidence',
+      reasonCode: 'no-positive-candidate-evidence',
+      normalization: normalized.value,
+      shortlist: retrieved.result,
+      targetFitAssessment: null,
+    });
+  }
+
+  let fitRequest: FitAssessmentRequestV1;
+  try {
+    const candidateMaximum = Math.min(
+      HOSTED_RESPONSIBLE_OPTION_LIMIT,
+      dossiers.length,
+    );
+    const candidate = {
+      contractVersion: '1.0.0',
+      assessmentRequestId: requestId,
+      capabilityRequest: createCapabilityRequestFromRecommendationV1({
+        recommendationRequest: parsed.value,
+        normalization: normalized.value,
+      }),
+      repositoryFingerprint: parsed.value.repositoryFingerprint,
+      candidates: [...dossiers],
+      evidenceCutoff,
+      requestedMaximumResults: candidateMaximum,
+      correlationId: requestId,
+    } satisfies FitAssessmentRequestV1;
+    const validated = parseFitAssessmentRequestV1(candidate);
+    if (!validated.ok) throw new Error('Fit request validation failed.');
+    fitRequest = validated.value;
+  } catch {
+    return failed(
+      input.observer,
+      requestId,
+      'fit-assessment-request-construction-failed',
+      dossiers.length,
+    );
+  }
+
+  let modelOutput: unknown;
+  try {
+    modelOutput = await input.fitModel.assess({
+      fitAssessmentRequest: fitRequest,
+      normalization: normalized.value,
+    });
+  } catch {
+    return failed(
+      input.observer,
+      requestId,
+      'fit-model-failed',
+      dossiers.length,
+    );
+  }
+  emit(
+    input.observer,
+    event(requestId, 'model-completed', 'in-progress', dossiers.length),
+  );
+  const validated = validateTargetFitAssessmentExchangeV1(
+    fitRequest,
+    modelOutput,
+  );
+  if (!validated.ok) {
+    return failed(
+      input.observer,
+      requestId,
+      'invalid-target-fit-response',
+      dossiers.length,
+    );
+  }
+  const response = validated.response;
+  if (response.fitAssessment.outcome === 'insufficient-evidence') {
+    emit(
+      input.observer,
+      event(requestId, 'completed', 'insufficient-evidence', dossiers.length),
+    );
+    return successful({
+      outcome: 'insufficient-evidence',
+      reasonCode: 'fit-assessment-insufficient-evidence',
+      normalization: normalized.value,
+      shortlist: retrieved.result,
+      targetFitAssessment: response,
+    });
+  }
+  if (response.fitAssessment.outcome === 'no-viable-candidate') {
+    emit(
+      input.observer,
+      event(requestId, 'completed', 'no-viable-candidate', dossiers.length),
+    );
+    return successful({
+      outcome: 'no-viable-candidate',
+      normalization: normalized.value,
+      shortlist: retrieved.result,
+      targetFitAssessment: response,
+    });
+  }
+  const responsibleCandidateIds = rankedCandidateIds(response);
+  if (
+    responsibleCandidateIds.length < 1 ||
+    responsibleCandidateIds.length > HOSTED_RESPONSIBLE_OPTION_LIMIT
+  ) {
+    return failed(
+      input.observer,
+      requestId,
+      'invalid-target-fit-response',
+      dossiers.length,
+    );
+  }
+  const dossierById = new Map(
+    dossiers.map((dossier) => [dossier.identity.candidateId, dossier]),
+  );
+  const responsibleOptions: HostedResponsibleOptionV1[] = [];
+  for (const candidateId of responsibleCandidateIds) {
+    const dossier = dossierById.get(candidateId);
+    if (dossier === undefined) {
+      return failed(
+        input.observer,
+        requestId,
+        'invalid-target-fit-response',
+        dossiers.length,
+      );
+    }
+    responsibleOptions.push(
+      Object.freeze({ candidateId, identity: dossier.identity }),
+    );
+  }
+  emit(
+    input.observer,
+    event(
+      requestId,
+      'completed',
+      'recommend',
+      dossiers.length,
+      responsibleOptions.length,
+    ),
+  );
+  return successful({
+    outcome: 'recommend',
+    normalization: normalized.value,
+    responsibleOptions,
+    targetFitAssessment: response,
+  });
 }
 
 function createCandidateReferenceAuthority(
@@ -293,31 +619,98 @@ function knownField<Id extends DeterministicProfileFieldId>(
   return field?.state === 'known' ? field : null;
 }
 
+function rankedCandidateIds(
+  response: TargetFitAssessmentResponseV1,
+): readonly string[] {
+  const ids = new Set<string>();
+  for (const group of response.fitAssessment.rankGroups) {
+    for (const candidateId of group.candidateIds) ids.add(candidateId);
+  }
+  for (const relation of response.fitAssessment.rankRelations) {
+    ids.add(relation.higherCandidateId);
+    ids.add(relation.lowerCandidateId);
+  }
+  for (const pair of response.fitAssessment.incomparablePairs) {
+    ids.add(pair.leftCandidateId);
+    ids.add(pair.rightCandidateId);
+  }
+  return [...ids];
+}
+
+function trustedTimestamp(clock: HostedRecommendationClockPort): string | null {
+  try {
+    const value = clock.now();
+    const parsed = Date.parse(value);
+    if (
+      !/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,3})?Z$/u.test(
+        value,
+      ) ||
+      !Number.isFinite(parsed) ||
+      new Date(parsed).toISOString() !== value
+    ) {
+      return null;
+    }
+    return new Date(parsed).toISOString();
+  } catch {
+    return null;
+  }
+}
+
+function successful(
+  result: HostedRecommendationResultV1,
+): HostedRecommendationOperationResultV1 {
+  return Object.freeze({ ok: true, result: Object.freeze(result) });
+}
+
 function applicationFailure(
   code: Extract<
-    HostedDiscoveryFailureV1,
+    HostedRecommendationFailureV1,
     { readonly kind: 'application' }
   >['code'],
-): HostedDiscoveryOperationResultV1 {
-  const details =
-    code === 'hosted-discovery-not-ready'
-      ? Object.freeze({
-          path: '' as const,
-          message: 'Hosted discovery is not ready.' as const,
-        })
-      : code === 'repository-fingerprint-not-supported'
-        ? Object.freeze({
-            path: '/repositoryFingerprintReference' as const,
-            message:
-              'Repository fingerprints are not supported by capability discovery.' as const,
-          })
-        : Object.freeze({
-            path: '' as const,
-            message:
-              'Candidate retrieval request construction failed.' as const,
-          });
+): HostedRecommendationOperationResultV1 {
   return Object.freeze({
     ok: false,
-    failure: Object.freeze({ kind: 'application', code, ...details }),
+    failure: Object.freeze({ kind: 'application', code }),
   });
+}
+
+function failed(
+  observer: HostedRecommendationObserverV1,
+  requestId: string,
+  code: Extract<
+    HostedRecommendationFailureV1,
+    { readonly kind: 'application' }
+  >['code'],
+  finalistCount = 0,
+): HostedRecommendationOperationResultV1 {
+  emit(observer, event(requestId, 'failed', 'failed', finalistCount));
+  return applicationFailure(code);
+}
+
+function event(
+  recommendationRequestId: string,
+  stage: HostedRecommendationEventV1['stage'],
+  outcome: HostedRecommendationEventV1['outcome'],
+  finalistCount = 0,
+  responsibleOptionCount = 0,
+): HostedRecommendationEventV1 {
+  return Object.freeze({
+    operation: 'hosted.recommendation',
+    recommendationRequestId,
+    stage,
+    outcome,
+    finalistCount,
+    responsibleOptionCount,
+  });
+}
+
+function emit(
+  observer: HostedRecommendationObserverV1,
+  value: HostedRecommendationEventV1,
+): void {
+  try {
+    observer.emit(value);
+  } catch {
+    // Telemetry must not alter recommendation semantics.
+  }
 }

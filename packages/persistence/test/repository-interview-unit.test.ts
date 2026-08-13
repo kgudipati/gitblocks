@@ -27,18 +27,18 @@ const UNREACHABLE_CONFIG: PersistenceClientConfig = {
 };
 
 describe('repository interview persistence boundary', () => {
-  it('preserves the fourth forward migration under additive migration 0005', () => {
+  it('preserves the fourth forward migration under later additive migrations', () => {
     expect(knownMigrationInventory().at(3)).toEqual({
       version: 4,
       name: 'repository-interviews',
       fileName: '0004_repository_interviews.sql',
     });
     expect(knownMigrationInventory().at(-1)).toEqual({
-      version: 5,
-      name: 'retrieval-serving',
-      fileName: '0005_retrieval_serving.sql',
+      version: 6,
+      name: 'finalist-evidence-serving',
+      fileName: '0006_finalist_evidence_serving.sql',
     });
-    expect(knownMigrationInventory()).toHaveLength(5);
+    expect(knownMigrationInventory()).toHaveLength(6);
   });
 
   it('rejects malformed publish roots before database I/O', async () => {

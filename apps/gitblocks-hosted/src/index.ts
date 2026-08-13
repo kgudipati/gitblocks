@@ -1,23 +1,36 @@
 export {
-  createHostedDiscoveryApplication,
-  type HostedDiscoveryApplicationCreationResultV1,
-  type HostedDiscoveryApplicationV1,
-  type HostedDiscoveryFailureV1,
-  type HostedDiscoveryOperationResultV1,
-  type HostedDiscoveryResultV1,
+  createHostedRecommendationApplication,
+  HOSTED_FIT_FINALIST_LIMIT,
+  HOSTED_RESPONSIBLE_OPTION_LIMIT,
+  type CandidateDossierLoaderPort,
+  type FitAssessmentModelPort,
+  type FitAssessmentModelRequestV1,
   type HostedDiscoverySnapshotV1,
+  type HostedRecommendationApplicationCreationResultV1,
+  type HostedRecommendationApplicationV1,
+  type HostedRecommendationClockPort,
+  type HostedRecommendationFailureV1,
+  type HostedRecommendationObserverV1,
+  type HostedRecommendationOperationResultV1,
+  type HostedRecommendationResultV1,
+  type HostedResponsibleOptionV1,
 } from './application.ts';
 export {
   DEFAULT_HOSTED_MCP_PORT,
+  HOSTED_FIT_MODEL,
+  HOSTED_FIT_MODEL_ENVIRONMENT_NAME,
   HOSTED_MCP_PORT_ENVIRONMENT_NAME,
   HOSTED_SERVING_DATABASE_ENVIRONMENT_NAMES,
+  OPENAI_API_KEY_ENVIRONMENT_NAME,
+  readHostedFitModelConfiguration,
   readHostedMcpPortConfiguration,
   readHostedServingDatabaseConfiguration,
+  type HostedFitModelConfigurationV1,
 } from './configuration.ts';
 export {
-  startHostedDiscoveryComposition,
-  type HostedDiscoveryCompositionV1,
-  type HostedDiscoveryReadinessV1,
+  startHostedRecommendationComposition,
+  type HostedRecommendationCompositionV1,
+  type HostedRecommendationReadinessV1,
 } from './composition.ts';
 export {
   HostedDiscoveryError,
@@ -37,9 +50,14 @@ export {
 } from './mcp-process.ts';
 export {
   createGitBlocksMcpServer,
-  GITBLOCKS_DISCOVER_OSS_TOOL_DESCRIPTION,
-  GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
+  GITBLOCKS_RECOMMEND_OSS_TOOL_DESCRIPTION,
+  GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
 } from './mcp-server.ts';
+export {
+  createOpenAiFitAssessmentModel,
+  HOSTED_FIT_MODEL_SYSTEM_INSTRUCTION,
+  type HostedFitModelFetchV1,
+} from './openai-fit-model.ts';
 export {
   loadAcceptedHostedDiscoveryStaticPolicyV1,
   parseHostedDiscoveryStaticPolicyV1,

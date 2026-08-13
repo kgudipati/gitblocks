@@ -54,15 +54,15 @@ describe(
       await ownerSql.end({ timeout: 5 });
     });
 
-    it('preserves the migration 0004 repository-interview tables under migration 0005', async () => {
+    it('preserves the migration 0004 repository-interview tables under later additive migrations', async () => {
       const owner = createPersistenceClient(OWNER_CONFIG);
       try {
         const verification = await verifyMigrations(owner);
         expect(verification.postgresqlVersion).toMatch(/^18\.4\b/u);
-        expect(verification.migrations).toHaveLength(5);
+        expect(verification.migrations).toHaveLength(6);
         expect(verification.migrations.at(-1)).toMatchObject({
-          version: 5,
-          name: 'retrieval-serving',
+          version: 6,
+          name: 'finalist-evidence-serving',
         });
       } finally {
         await closePersistenceClient(owner);

@@ -8,7 +8,7 @@ import {
 
 import { readHostedMcpPortConfiguration } from '../src/configuration.ts';
 import { GITBLOCKS_MCP_HOST, GITBLOCKS_MCP_PATH } from '../src/mcp-http.ts';
-import { GITBLOCKS_DISCOVER_OSS_TOOL_NAME } from '../src/mcp-server.ts';
+import { GITBLOCKS_RECOMMEND_OSS_TOOL_NAME } from '../src/mcp-server.ts';
 
 const EXPECTED_ARGUMENTS = 2;
 const REQUEST_FILE_MAX_BYTES = 64 * 1024;
@@ -29,25 +29,25 @@ try {
   if (
     client.getProtocolEra() !== 'modern' ||
     listed.tools.length !== 1 ||
-    listed.tools[0]?.name !== GITBLOCKS_DISCOVER_OSS_TOOL_NAME
+    listed.tools[0]?.name !== GITBLOCKS_RECOMMEND_OSS_TOOL_NAME
   ) {
     throw new Error('GitBlocks MCP tool discovery failed.');
   }
   const called = await client.callTool({
-    name: GITBLOCKS_DISCOVER_OSS_TOOL_NAME,
+    name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
     arguments: request,
   });
   if (called.isError === true) {
     throw new Error('GitBlocks MCP tool call failed.');
   }
-  const digest = retrievedSemanticDigest(called.structuredContent);
+  const optionCount = responsibleOptionCount(called.structuredContent);
   process.stdout.write(
     `${JSON.stringify({
       operation: 'hosted-mcp.exercise',
       status: 'complete',
       protocolEra: client.getProtocolEra(),
       toolNames: listed.tools.map(({ name }) => name),
-      resultSemanticDigest: digest,
+      responsibleOptionCount: optionCount,
     })}\n`,
   );
 } catch {
@@ -89,19 +89,17 @@ async function readRequest(path: string): Promise<Record<string, unknown>> {
   }
 }
 
-function retrievedSemanticDigest(value: unknown): string {
+function responsibleOptionCount(value: unknown): number {
   if (
     typeof value !== 'object' ||
     value === null ||
     !('outcome' in value) ||
-    value.outcome !== 'retrieved' ||
-    !('shortlist' in value) ||
-    typeof value.shortlist !== 'object' ||
-    value.shortlist === null ||
-    !('semanticDigest' in value.shortlist) ||
-    typeof value.shortlist.semanticDigest !== 'string'
+    value.outcome !== 'recommend' ||
+    !('responsibleOptions' in value) ||
+    !Array.isArray(value.responsibleOptions) ||
+    value.responsibleOptions.length > 3
   ) {
-    throw new Error('GitBlocks MCP result was not a retrieved shortlist.');
+    throw new Error('GitBlocks MCP result was not a bounded recommendation.');
   }
-  return value.shortlist.semanticDigest;
+  return value.responsibleOptions.length;
 }

@@ -21,6 +21,7 @@ import type {
   CandidateLimitationV1,
   CandidateUnknownV1,
   CreateCandidateDossierSnapshotCommand,
+  LoadActiveCandidateDossierCommand,
   LoadCandidateDossierSnapshotCommand,
   OperationControl,
   PutCatalogCandidateCommand,
@@ -784,109 +785,14 @@ export async function selectActiveDossierMaterial(
         command.candidateId,
         signal,
       );
-      const observationRows = await executePending<
-        readonly StoredRecordRow<EvidenceObservationV1>[]
-      >(
-        transaction`
-          select
-            observation.canonical_payload,
-            observation.record_digest,
-            observation.created_at
-          from gitblocks.evidence_observations as observation
-          where observation.candidate_id = ${command.candidateId}
-            and (
-              observation.published_at is null
-              or observation.published_at <= ${evidenceCutoff}::timestamptz
-            )
-            and (
-              observation.collected_at is null
-              or observation.collected_at <= ${evidenceCutoff}::timestamptz
-            )
-            and (
-              observation.validated_at is null
-              or observation.validated_at <= ${evidenceCutoff}::timestamptz
-            )
-            and observation.freshness_as_of <=
-              ${evidenceCutoff}::timestamptz
-            and not exists (
-              select 1
-              from gitblocks.evidence_supersessions as supersession
-              where supersession.candidate_id = observation.candidate_id
-                and supersession.superseded_evidence_id =
-                  observation.evidence_id
-                and supersession.effective_at <=
-                  ${evidenceCutoff}::timestamptz
-            )
-            and not exists (
-              select 1
-              from gitblocks.evidence_invalidations as invalidation
-              where invalidation.candidate_id = observation.candidate_id
-                and invalidation.evidence_id = observation.evidence_id
-                and invalidation.effective_at <=
-                  ${evidenceCutoff}::timestamptz
-            )
-          order by observation.evidence_id
-          limit ${MAX_ACTIVE_OBSERVATIONS + 1}
-        `,
-        signal,
-      );
-      requireResultBound(observationRows, MAX_ACTIVE_OBSERVATIONS);
-      const observations = observationRows.map(validateStoredEvidenceRecord);
-      const activeEvidenceIds = new Set(
-        observations.map((observation) => observation.evidenceId),
-      );
-
-      const limitationRows = await executePending<
-        readonly StoredRecordRow<CandidateLimitationV1>[]
-      >(
-        transaction`
-          select canonical_payload, record_digest, created_at
-          from gitblocks.candidate_limitations
-          where candidate_id = ${command.candidateId}
-          order by limitation_id
-          limit ${MAX_ACTIVE_LIMITATIONS + 1}
-        `,
-        signal,
-      );
-      requireResultBound(limitationRows, MAX_ACTIVE_LIMITATIONS);
-      const limitations = limitationRows
-        .map(validateStoredLimitationRecord)
-        .filter((limitation) =>
-          limitation.evidenceIds.every((evidenceId) =>
-            activeEvidenceIds.has(evidenceId),
-          ),
-        );
-
-      const unknownRows = await executePending<
-        readonly StoredRecordRow<CandidateUnknownV1>[]
-      >(
-        transaction`
-          select canonical_payload, record_digest, created_at
-          from gitblocks.candidate_material_unknowns
-          where candidate_id = ${command.candidateId}
-          order by unknown_id
-          limit ${MAX_ACTIVE_UNKNOWNS + 1}
-        `,
-        signal,
-      );
-      requireResultBound(unknownRows, MAX_ACTIVE_UNKNOWNS);
-      const unknowns = unknownRows
-        .map(validateStoredUnknownRecord)
-        .filter((unknown) =>
-          unknown.evidenceIds.every((evidenceId) =>
-            activeEvidenceIds.has(evidenceId),
-          ),
-        );
-
-      const validated = validateStoredDossier({
-        contractVersion: '1.0.0',
+      const validated = await loadActiveDossierInTransaction(
+        transaction,
+        command.candidateId,
         identity,
-        capabilityFamily: 'authorization',
-        versionScope: null,
-        observations,
-        limitations,
-        unknowns,
-      });
+        'authorization',
+        evidenceCutoff,
+        signal,
+      );
       return {
         observations: validated.observations,
         limitations: validated.limitations,
@@ -894,6 +800,156 @@ export async function selectActiveDossierMaterial(
       };
     },
   );
+}
+
+export async function loadActiveCandidateDossier(
+  client: PersistenceClient,
+  command: LoadActiveCandidateDossierCommand,
+  control?: OperationControl,
+): Promise<CandidateDossierV1> {
+  validateStableId(command.candidateId);
+  const evidenceCutoff = normalizeTimestamp(command.evidenceCutoff);
+  return withTransaction(
+    client,
+    control,
+    'read-only',
+    async (transaction, signal) => {
+      const identity = await loadCandidateIdentity(
+        transaction,
+        command.candidateId,
+        signal,
+      );
+      const expectedCapabilityFamily = validateCapabilityFamilies(identity, [
+        command.expectedCapabilityFamily,
+      ])[0];
+      if (expectedCapabilityFamily === undefined) {
+        throw persistenceError('persistence.invalid-input');
+      }
+      await assertCapabilityMembership(
+        transaction,
+        command.candidateId,
+        expectedCapabilityFamily,
+        signal,
+      );
+      return loadActiveDossierInTransaction(
+        transaction,
+        command.candidateId,
+        identity,
+        expectedCapabilityFamily,
+        evidenceCutoff,
+        signal,
+      );
+    },
+  );
+}
+
+async function loadActiveDossierInTransaction(
+  transaction: PersistenceTransaction,
+  candidateId: string,
+  identity: CandidateIdentityV1,
+  capabilityFamily: CandidateDossierV1['capabilityFamily'],
+  evidenceCutoff: string,
+  signal: AbortSignal | undefined,
+): Promise<CandidateDossierV1> {
+  const observationRows = await executePending<
+    readonly StoredRecordRow<EvidenceObservationV1>[]
+  >(
+    transaction`
+      select
+        observation.canonical_payload,
+        observation.record_digest,
+        observation.created_at
+      from gitblocks.evidence_observations as observation
+      where observation.candidate_id = ${candidateId}
+        and (
+          observation.published_at is null
+          or observation.published_at <= ${evidenceCutoff}::timestamptz
+        )
+        and (
+          observation.collected_at is null
+          or observation.collected_at <= ${evidenceCutoff}::timestamptz
+        )
+        and (
+          observation.validated_at is null
+          or observation.validated_at <= ${evidenceCutoff}::timestamptz
+        )
+        and observation.freshness_as_of <= ${evidenceCutoff}::timestamptz
+        and not exists (
+          select 1
+          from gitblocks.evidence_supersessions as supersession
+          where supersession.candidate_id = observation.candidate_id
+            and supersession.superseded_evidence_id = observation.evidence_id
+            and supersession.effective_at <= ${evidenceCutoff}::timestamptz
+        )
+        and not exists (
+          select 1
+          from gitblocks.evidence_invalidations as invalidation
+          where invalidation.candidate_id = observation.candidate_id
+            and invalidation.evidence_id = observation.evidence_id
+            and invalidation.effective_at <= ${evidenceCutoff}::timestamptz
+        )
+      order by observation.evidence_id
+      limit ${MAX_ACTIVE_OBSERVATIONS + 1}
+    `,
+    signal,
+  );
+  requireResultBound(observationRows, MAX_ACTIVE_OBSERVATIONS);
+  const observations = observationRows.map(validateStoredEvidenceRecord);
+  const activeEvidenceIds = new Set(
+    observations.map((observation) => observation.evidenceId),
+  );
+
+  const limitationRows = await executePending<
+    readonly StoredRecordRow<CandidateLimitationV1>[]
+  >(
+    transaction`
+      select canonical_payload, record_digest, created_at
+      from gitblocks.candidate_limitations
+      where candidate_id = ${candidateId}
+      order by limitation_id
+      limit ${MAX_ACTIVE_LIMITATIONS + 1}
+    `,
+    signal,
+  );
+  requireResultBound(limitationRows, MAX_ACTIVE_LIMITATIONS);
+  const limitations = limitationRows
+    .map(validateStoredLimitationRecord)
+    .filter((limitation) =>
+      limitation.evidenceIds.every((evidenceId) =>
+        activeEvidenceIds.has(evidenceId),
+      ),
+    );
+
+  const unknownRows = await executePending<
+    readonly StoredRecordRow<CandidateUnknownV1>[]
+  >(
+    transaction`
+      select canonical_payload, record_digest, created_at
+      from gitblocks.candidate_material_unknowns
+      where candidate_id = ${candidateId}
+      order by unknown_id
+      limit ${MAX_ACTIVE_UNKNOWNS + 1}
+    `,
+    signal,
+  );
+  requireResultBound(unknownRows, MAX_ACTIVE_UNKNOWNS);
+  const unknowns = unknownRows
+    .map(validateStoredUnknownRecord)
+    .filter((unknown) =>
+      unknown.evidenceIds.every((evidenceId) =>
+        activeEvidenceIds.has(evidenceId),
+      ),
+    );
+
+  return validateStoredDossier({
+    contractVersion: '1.0.0',
+    identity,
+    capabilityFamily,
+    versionScope: null,
+    observations,
+    limitations,
+    unknowns,
+  });
 }
 
 function validateSingleObservation(

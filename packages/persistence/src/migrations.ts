@@ -56,6 +56,11 @@ const KNOWN_MIGRATIONS: readonly KnownMigration[] = Object.freeze([
     name: 'retrieval-serving',
     fileName: '0005_retrieval_serving.sql',
   }),
+  Object.freeze({
+    version: 6,
+    name: 'finalist-evidence-serving',
+    fileName: '0006_finalist_evidence_serving.sql',
+  }),
 ]);
 
 export async function applyMigrations(

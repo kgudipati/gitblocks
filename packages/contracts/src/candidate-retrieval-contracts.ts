@@ -248,15 +248,6 @@ function validateRequestSemantics(
       ),
     );
   }
-  if (request.normalization.repositoryFingerprintReference !== null) {
-    issues.push(
-      contractIssue(
-        'contract.variant',
-        '/normalization/repositoryFingerprintReference',
-        'Contract value does not match an allowed variant.',
-      ),
-    );
-  }
   if (
     request.normalization.taxonomyVersion !==
       request.authorityBindings.taxonomy.taxonomyVersion ||
