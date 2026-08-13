@@ -15,6 +15,7 @@ export const HOSTED_MCP_PORT_ENVIRONMENT_NAME = 'GITBLOCKS_HOSTED_MCP_PORT';
 export const DEFAULT_HOSTED_MCP_PORT = 3333;
 export const OPENAI_API_KEY_ENVIRONMENT_NAME = 'OPENAI_API_KEY';
 export const HOSTED_FIT_MODEL_ENVIRONMENT_NAME = 'GITBLOCKS_HOSTED_FIT_MODEL';
+export const HOSTED_FIT_MODEL = 'gpt-5.4-mini-2026-03-17';
 
 export interface HostedFitModelConfigurationV1 {
   readonly apiKey: string;
@@ -29,8 +30,7 @@ export function readHostedFitModelConfiguration(
   if (
     apiKey === undefined ||
     !/^[A-Za-z0-9._-]{1,512}$/u.test(apiKey) ||
-    model === undefined ||
-    !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(model)
+    model !== HOSTED_FIT_MODEL
   ) {
     throw new HostedDiscoveryError('hosted.invalid-configuration');
   }

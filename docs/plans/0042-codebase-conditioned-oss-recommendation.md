@@ -5,7 +5,7 @@
 - Issue: [#42 — Recovery R6: Add codebase-conditioned OSS recommendation](https://github.com/kgudipati/gitblocks/issues/42)
 - Branch: `feat/42-codebase-conditioned-recommendation`
 - Owner: GitBlocks maintainers
-- State: implementation complete; draft PR publication pending
+- State: R6 maintainer correction complete; draft PR update pending
 - Last updated: 2026-08-12
 
 Issue #42 is the slice authority. The product contract, accepted ADRs, and
@@ -78,6 +78,13 @@ local validation journey.
   incomplete/refusal/no-output as failure. The model is always explicit
   configuration, not a moving default.
 - Runtime preflight passed on the repository's pinned Node and pnpm versions.
+- Maintainer inspection of the complete generated target-fit schema found 21
+  `uniqueItems`, 96 `minLength`, and 96 `maxLength` occurrences. Its complete
+  schema-keyword set is `$id`, `$schema`, `type`, `properties`, `required`,
+  `additionalProperties`, `const`, `pattern`, `items`, `minItems`, `maxItems`,
+  `anyOf`, `uniqueItems`, `minLength`, and `maxLength`. Current official
+  Structured Outputs documentation identifies no other actually-present
+  keyword as unsupported for the selected non-fine-tuned Responses boundary.
 
 ## Scope and non-goals
 
@@ -249,16 +256,21 @@ The hosted workspace owns one narrow `FitAssessmentModelPort` whose
 inject controlled untrusted output. Composition injects one OpenAI Responses
 adapter configured only by `OPENAI_API_KEY` and
 `GITBLOCKS_HOSTED_FIT_MODEL`; both are explicit and value-free failures when
-missing or malformed.
+missing or malformed. The model configuration is valid only when the latter is
+exactly `gpt-5.4-mini-2026-03-17`; it is a deployment assertion, not an
+arbitrary model selector.
 
 The adapter sends only the validated fit request and exact normalized query.
 That request already contains the minimized fingerprint and no more than five
-candidate dossiers. It uses the authoritative target-fit JSON Schema with only
-root `$id`/`$schema` metadata removed, unless a single concrete live provider
-failure proves another minimal projection is necessary. The provider request
-uses one explicit model, `store: false`, `tools: []`, no web/file/MCP tools, no
-background, no streaming, no conversation state, no retries, one bounded
-deadline, and fixed request/response byte bounds.
+candidate dossiers. The authoritative target-fit JSON Schema remains
+unchanged. The adapter creates a fresh recursive provider projection that
+removes exactly `$id`, `$schema`, `uniqueItems`, `minLength`, and `maxLength`.
+Canonical parsing and exchange validation re-enforce uniqueness, string
+length, and all semantic invariants after the untrusted response. The provider
+request uses the exact reviewed mini snapshot, `store: false`, `tools: []`, no
+web/file/MCP tools, no background, no streaming, no conversation state, no
+retries, no fallback or escalation, one bounded deadline, and fixed
+request/response byte bounds.
 
 The system instruction treats fingerprint and evidence as inert untrusted
 data, limits assessment to supplied candidates, forbids invented evidence or
@@ -383,11 +395,12 @@ model, and proves both a valid target-grounded recommendation and fail-closed
 invented evidence/fact/candidate output. No live OpenAI call occurs in CI.
 
 After deterministic/provider-boundary tests pass, run exactly one live
-acceptance only if both an authorized `OPENAI_API_KEY` and explicit
-`GITBLOCKS_HOSTED_FIT_MODEL` are present. Use only synthetic fingerprint facts,
-public evidence, and temporary PostgreSQL. Record only model identifier,
-success/failure, deterministic-validation result, counts, and safe elapsed/token
-facts. Otherwise record explicit credential absence without blocking R6.
+acceptance only if an authorized `OPENAI_API_KEY` is present and
+`GITBLOCKS_HOSTED_FIT_MODEL` equals `gpt-5.4-mini-2026-03-17`. Use only
+synthetic fingerprint facts, public evidence, and temporary PostgreSQL. Record
+only model identifier, success/failure, deterministic-validation result,
+counts, and safe elapsed/token facts. Otherwise record the unavailable
+credential/configuration pair without blocking R6.
 
 ## Migration, compatibility, rollout, and recovery
 
@@ -471,6 +484,12 @@ availability, or deployment claim is made.
   evolved the one Node composition to reuse one retrieval snapshot while
   reading finalist evidence at request time, added the official-client
   controlled-model tests, ADR 0012, and current product/system/privacy docs.
+- 2026-08-12: Maintainer compatibility review found the generated target-fit
+  schema's 21 `uniqueItems`, 96 `minLength`, and 96 `maxLength` constraints.
+  After an intentional stop and explicit authorization, narrowed the OpenAI
+  adapter to one recursive five-key provider projection and pinned the sole R6
+  model to `gpt-5.4-mini-2026-03-17`. The canonical contracts and validators
+  remain unchanged and authoritative.
 
 ## Decision and deviation log
 
@@ -511,6 +530,17 @@ availability, or deployment claim is made.
   bitemporal database-history snapshot. The predicates and their test were
   removed; R6 reuses the existing cutoff semantics rather than silently
   changing evidence history.
+- 2026-08-12: Select `gpt-5.4-mini-2026-03-17` as the sole initial
+  private-alpha target-fit snapshot because this bounded five-finalist
+  comparison does not justify frontier cost by default. Preserve the
+  environment variable as an exact deployment assertion; reject aliases,
+  arbitrary and fine-tuned models, and add no retry, fallback, routing, or
+  escalation.
+- 2026-08-12: The OpenAI strict-schema boundary uses one adapter-local,
+  non-mutating recursive copy that removes only `$id`, `$schema`,
+  `uniqueItems`, `minLength`, and `maxLength`. Provider shape assistance is not
+  product truth; canonical GitBlocks parsing and exchange validation remain
+  the post-response authority.
 
 ## Validation evidence
 
@@ -540,5 +570,27 @@ availability, or deployment claim is made.
   architecture/repository/contract/catalog/evaluation/secret checks, the
   PostgreSQL 12-file/70-test gate, and the registry-backed audit with no known
   vulnerabilities.
-- Final diff/status review, commit, push, and draft PR publication remain
-  pending.
+- maintainer correction red-first provider/configuration run — 3 expected
+  failures and 12 passes before implementation; after the local projection and
+  exact-model pin, the same two-file run passed 15 tests.
+- maintainer correction focused checks — OpenAI adapter 11 tests,
+  recommendation contracts 9 tests, and hosted application 13 tests passed;
+  hosted typecheck passed; architecture passed across 940 modules and 3,202
+  dependencies with no violations.
+- `pnpm format:check` initially identified the changed adapter test; the
+  repository formatter corrected only that file. Final formatting is covered
+  by the pending repository regression.
+- The first maintainer-correction `pnpm verify:ci` attempt stopped at lint with
+  five unsafe-accumulator findings in test-only recursive schema-inspection
+  helpers. Explicit `unknown` accumulator typing resolved the findings;
+  focused ESLint then passed. No production behavior changed in the fix.
+- Live provider acceptance was deferred because the authorized credential plus
+  exact `gpt-5.4-mini-2026-03-17` configuration pair was unavailable. No
+  credential or model-variable value was printed or recorded.
+- corrected maintainer regression `pnpm verify:ci` — passed after the recorded
+  lint fix: 137 test files and 2,002 tests, formatting, build, lint, typecheck,
+  architecture, repository, contract/catalog/evaluation/secret gates,
+  PostgreSQL 12 files and 70 tests without skips, and registry audit with no
+  known vulnerabilities.
+- Maintainer correction diff/status review, commit, push, and PR evidence
+  update remain pending.

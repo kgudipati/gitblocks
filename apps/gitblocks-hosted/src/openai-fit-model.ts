@@ -8,7 +8,10 @@ import type {
   FitAssessmentModelPort,
   FitAssessmentModelRequestV1,
 } from './application.ts';
-import type { HostedFitModelConfigurationV1 } from './configuration.ts';
+import {
+  HOSTED_FIT_MODEL,
+  type HostedFitModelConfigurationV1,
+} from './configuration.ts';
 import { HostedDiscoveryError } from './errors.ts';
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
@@ -145,7 +148,7 @@ function validateConfiguration(
 ): HostedFitModelConfigurationV1 {
   if (
     !/^[A-Za-z0-9._-]{1,512}$/u.test(value.apiKey) ||
-    !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(value.model)
+    value.model !== HOSTED_FIT_MODEL
   ) {
     throw new HostedDiscoveryError('hosted.invalid-configuration');
   }
@@ -157,9 +160,28 @@ function openAiStrictTargetFitSchema(): Readonly<Record<string, unknown>> {
   if (typeof source !== 'object' || source === null || Array.isArray(source)) {
     throw new HostedDiscoveryError('hosted.invalid-configuration');
   }
+  return projectOpenAiStructuredOutputSchema(source) as Readonly<
+    Record<string, unknown>
+  >;
+}
+
+function projectOpenAiStructuredOutputSchema(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return Object.freeze(value.map(projectOpenAiStructuredOutputSchema));
+  }
+  if (value === null || typeof value !== 'object') return value;
+
   const projected: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(source)) {
-    if (key !== '$id' && key !== '$schema') projected[key] = value;
+  for (const [key, member] of Object.entries(value)) {
+    if (
+      key !== '$id' &&
+      key !== '$schema' &&
+      key !== 'uniqueItems' &&
+      key !== 'minLength' &&
+      key !== 'maxLength'
+    ) {
+      projected[key] = projectOpenAiStructuredOutputSchema(member);
+    }
   }
   return Object.freeze(projected);
 }

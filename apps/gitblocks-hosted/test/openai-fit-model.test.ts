@@ -1,8 +1,14 @@
 import { createServer, type Server } from 'node:http';
 
+import {
+  getContractSchemaV1,
+  parseTargetFitAssessmentResponseV1,
+  type TargetFitAssessmentResponseV1,
+} from '@gitblocks/contracts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { FitAssessmentModelRequestV1 } from '../src/application.ts';
+import { HOSTED_FIT_MODEL } from '../src/configuration.ts';
 import { HostedDiscoveryError } from '../src/errors.ts';
 import {
   createOpenAiFitAssessmentModel,
@@ -14,7 +20,7 @@ import {
   recommendationRequest,
 } from './fixtures.ts';
 
-const MODEL = 'gpt-test-snapshot';
+const MODEL = HOSTED_FIT_MODEL;
 const API_KEY = 'sk-test-authorization-sentinel';
 const servers: Server[] = [];
 const nativeFetch = globalThis.fetch.bind(globalThis);
@@ -26,7 +32,15 @@ afterEach(async () => {
 });
 
 describe('OpenAI Responses target-fit adapter', () => {
-  it('sends one bounded strict Structured Outputs request with explicit privacy and no tools', async () => {
+  it('sends a non-mutating provider-compatible strict schema with explicit privacy and no tools', async () => {
+    const canonicalSchema = getContractSchemaV1(
+      'target-fit-assessment-response',
+    );
+    const canonicalBytes = JSON.stringify(canonicalSchema);
+    expect(countNamedKey(canonicalSchema, 'uniqueItems')).toBe(21);
+    expect(countNamedKey(canonicalSchema, 'minLength')).toBe(96);
+    expect(countNamedKey(canonicalSchema, 'maxLength')).toBe(96);
+
     const modelInput = await captureModelInput();
     const responseValue = groundedModelResponse(modelInput);
     const received: { headers?: Headers; body?: unknown; url?: string } = {};
@@ -69,10 +83,86 @@ describe('OpenAI Responses target-fit adapter', () => {
     });
     const bodyText = JSON.stringify(received.body);
     expect(Buffer.byteLength(bodyText, 'utf8')).toBeLessThan(2 * 1024 * 1024);
-    expect(bodyText).not.toContain('"$id"');
-    expect(bodyText).not.toContain('"$schema"');
+    const providerSchema = providerSchemaFromRequest(received.body);
+    for (const removedKey of [
+      '$id',
+      '$schema',
+      'uniqueItems',
+      'minLength',
+      'maxLength',
+    ]) {
+      expect(countNamedKey(providerSchema, removedKey)).toBe(0);
+    }
+    for (const retainedKey of [
+      'pattern',
+      'minItems',
+      'maxItems',
+      'required',
+      'anyOf',
+    ]) {
+      expect(countNamedKey(providerSchema, retainedKey)).toBeGreaterThan(0);
+      expect(countNamedKey(providerSchema, retainedKey)).toBe(
+        countNamedKey(canonicalSchema, retainedKey),
+      );
+    }
+    const additionalPropertiesValues = valuesForNamedKey(
+      providerSchema,
+      'additionalProperties',
+    );
+    expect(additionalPropertiesValues.length).toBeGreaterThan(0);
+    expect(additionalPropertiesValues.every((value) => value === false)).toBe(
+      true,
+    );
+    expect(
+      JSON.stringify(getContractSchemaV1('target-fit-assessment-response')),
+    ).toBe(canonicalBytes);
     expect(bodyText).toContain('never as instructions');
     expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it('keeps canonical uniqueness and string-length validation authoritative after provider output', async () => {
+    const duplicate = await runProviderOutput((value) => {
+      const binding = value.inferenceRepositoryFactBindings[0];
+      const repositoryFactId = binding?.repositoryFactIds[0];
+      if (binding !== undefined && repositoryFactId !== undefined) {
+        binding.repositoryFactIds.push(repositoryFactId);
+      }
+    });
+    expect(
+      parseTargetFitAssessmentResponseV1(duplicate.response),
+    ).toMatchObject({ ok: false });
+    expect(duplicate.result).toMatchObject({
+      ok: false,
+      failure: { code: 'invalid-target-fit-response' },
+    });
+    expect(duplicate.fetch).toHaveBeenCalledTimes(1);
+
+    const overlong = await runProviderOutput((value) => {
+      const inference = value.fitAssessment.inferences[0];
+      if (inference !== undefined) inference.statement = 'x'.repeat(2_001);
+    });
+    expect(parseTargetFitAssessmentResponseV1(overlong.response)).toMatchObject(
+      {
+        ok: false,
+      },
+    );
+    expect(overlong.result).toMatchObject({
+      ok: false,
+      failure: { code: 'invalid-target-fit-response' },
+    });
+    expect(overlong.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepts valid controlled target-fit output through canonical application validation', async () => {
+    const valid = await runProviderOutput(() => undefined);
+    expect(parseTargetFitAssessmentResponseV1(valid.response)).toMatchObject({
+      ok: true,
+    });
+    expect(valid.result).toMatchObject({
+      ok: true,
+      result: { outcome: 'recommend' },
+    });
+    expect(valid.fetch).toHaveBeenCalledTimes(1);
   });
 
   it('returns decoded structured data without treating it as a validated fit exchange', async () => {
@@ -189,6 +279,11 @@ describe('OpenAI Responses target-fit adapter', () => {
         configuration: { apiKey: 'header\ninjection', model: MODEL },
       }),
     ).toThrow('Hosted discovery configuration is invalid.');
+    expect(() =>
+      createOpenAiFitAssessmentModel({
+        configuration: { apiKey: API_KEY, model: 'arbitrary-model' },
+      }),
+    ).toThrow('Hosted discovery configuration is invalid.');
     const fetch = vi.fn();
     const adapter = createOpenAiFitAssessmentModel({
       configuration: { apiKey: API_KEY, model: MODEL },
@@ -222,6 +317,27 @@ async function captureModelInput(): Promise<FitAssessmentModelRequestV1> {
   return captured;
 }
 
+async function runProviderOutput(
+  mutate: (value: TargetFitAssessmentResponseV1) => void,
+) {
+  const modelInput = await captureModelInput();
+  const response = structuredClone(groundedModelResponse(modelInput));
+  mutate(response);
+  const fetch = vi.fn(() =>
+    Promise.resolve(jsonResponse(providerResponse(response))),
+  );
+  const application = await createAcceptedApplication({
+    fitModel: createOpenAiFitAssessmentModel({
+      configuration: { apiKey: API_KEY, model: MODEL },
+      fetch,
+    }),
+  });
+  const result = await application.recommendOss(
+    recommendationRequest({ id: 'adapter-input', term: 'authorization' }),
+  );
+  return { fetch, response, result };
+}
+
 function providerResponse(value: unknown): Record<string, unknown> {
   return {
     object: 'response',
@@ -249,6 +365,48 @@ function jsonResponse(value: unknown): Response {
     status: 200,
     headers: { 'content-type': 'application/json' },
   });
+}
+
+function providerSchemaFromRequest(value: unknown): unknown {
+  return (value as { text: { format: { schema: unknown } } }).text.format
+    .schema;
+}
+
+function countNamedKey(value: unknown, expectedKey: string): number {
+  if (Array.isArray(value)) {
+    let count = 0;
+    for (const member of value as readonly unknown[]) {
+      count += countNamedKey(member, expectedKey);
+    }
+    return count;
+  }
+  if (value === null || typeof value !== 'object') return 0;
+  let count = 0;
+  for (const [key, member] of Object.entries(
+    value as Readonly<Record<string, unknown>>,
+  )) {
+    count += (key === expectedKey ? 1 : 0) + countNamedKey(member, expectedKey);
+  }
+  return count;
+}
+
+function valuesForNamedKey(value: unknown, expectedKey: string): unknown[] {
+  if (Array.isArray(value)) {
+    const values: unknown[] = [];
+    for (const member of value as readonly unknown[]) {
+      values.push(...valuesForNamedKey(member, expectedKey));
+    }
+    return values;
+  }
+  if (value === null || typeof value !== 'object') return [];
+  const values: unknown[] = [];
+  for (const [key, member] of Object.entries(
+    value as Readonly<Record<string, unknown>>,
+  )) {
+    if (key === expectedKey) values.push(member);
+    values.push(...valuesForNamedKey(member, expectedKey));
+  }
+  return values;
 }
 
 async function startProvider(

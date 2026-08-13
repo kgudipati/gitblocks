@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FitAssessmentModelRequestV1 } from '../src/application.ts';
 import {
   DEFAULT_HOSTED_MCP_PORT,
+  HOSTED_FIT_MODEL,
   readHostedFitModelConfiguration,
   readHostedMcpPortConfiguration,
   readHostedServingDatabaseConfiguration,
@@ -145,9 +146,25 @@ describe('hosted recommendation composition', () => {
     expect(
       readHostedFitModelConfiguration({
         OPENAI_API_KEY: 'sk-test-only',
-        GITBLOCKS_HOSTED_FIT_MODEL: 'gpt-test-snapshot',
+        GITBLOCKS_HOSTED_FIT_MODEL: HOSTED_FIT_MODEL,
       }),
-    ).toEqual({ apiKey: 'sk-test-only', model: 'gpt-test-snapshot' });
+    ).toEqual({ apiKey: 'sk-test-only', model: HOSTED_FIT_MODEL });
+    for (const rejectedModel of [
+      'gpt-5.4-mini',
+      'gpt-5.4-2026-03-05',
+      'gpt-5.4',
+      'gpt-5.4-nano-2026-03-17',
+      'gpt-5-mini-2025-08-07',
+      'ft:anything',
+      'arbitrary-model',
+    ]) {
+      expect(() =>
+        readHostedFitModelConfiguration({
+          OPENAI_API_KEY: 'sk-test-only',
+          GITBLOCKS_HOSTED_FIT_MODEL: rejectedModel,
+        }),
+      ).toThrow('Hosted discovery configuration is invalid.');
+    }
     expect(() =>
       readHostedFitModelConfiguration({ OPENAI_API_KEY: 'credential-only' }),
     ).toThrow('Hosted discovery configuration is invalid.');

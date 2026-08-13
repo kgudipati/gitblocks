@@ -38,14 +38,22 @@ The process requires the serving database settings:
 The OpenAI target-fit adapter additionally requires:
 
 - `OPENAI_API_KEY`
-- `GITBLOCKS_HOSTED_FIT_MODEL`, an explicit model supporting Responses API
-  Structured Outputs
+- `GITBLOCKS_HOSTED_FIT_MODEL`, which must equal the reviewed private-alpha
+  snapshot `gpt-5.4-mini-2026-03-17`
 
 `GITBLOCKS_HOSTED_MCP_PORT` is optional and defaults to `3333`. The provider
 request uses strict JSON Schema output, `store: false`, no tools, no background
 mode, one deadline, and bounded request/response bytes. The minimized
 fingerprint and bounded public candidate evidence are still transmitted to a
 third-party processor. Raw target source is never sent or persisted.
+
+The authoritative `TargetFitAssessmentResponseV1` schema remains unchanged.
+The OpenAI adapter sends a fresh provider-compatible projection that removes
+only `$id`, `$schema`, `uniqueItems`, `minLength`, and `maxLength`. Canonical
+GitBlocks parsing and deterministic exchange validation re-enforce uniqueness,
+string bounds, and semantic invariants after every untrusted provider response.
+No model alias, fine-tuned model, retry, routing, fallback, or automatic
+escalation is supported.
 
 After migrations, the offline serving bootstrap, and offline public evidence
 population, start the loopback process:
