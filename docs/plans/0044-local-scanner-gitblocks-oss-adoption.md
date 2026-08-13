@@ -428,6 +428,10 @@ continues unchanged.
   `36cb72086a6fa21726a1d26066dac28eae31b2b7` — all observed jobs completed as
   failures with empty step arrays; this is the known zero-runner/zero-step
   billing/spending-limit condition. No manual rerun was requested.
+- Natural GitHub Actions run `31676703449` for plan-link commit
+  `3d8c5b8f4f2129c96e2f30ba4f105a93d5f5fb5e` — all seven jobs failed with
+  empty step arrays under the same known condition. The run completed; no job
+  executed repository steps and no rerun was requested.
 
-The final plan-link commit, final branch-state inspection, and final-head
-natural Actions observation remain pending.
+Implementation and publication are complete. PR #45 remains draft, open, and
+unmerged; Recovery R8 remains unauthorized.
