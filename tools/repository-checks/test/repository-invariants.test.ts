@@ -1194,6 +1194,45 @@ describe('validateRepositoryInvariants', () => {
     ).toContain('repository.product-capitalization');
   });
 
+  it('treats Agent Skill frontmatter names as slugs but still checks descriptions', () => {
+    const repository = validRepository();
+    const skillPath = '.agents/skills/gitblocks-oss-adoption/SKILL.md';
+    repository.textFiles.set(
+      skillPath,
+      [
+        '---',
+        'name: gitblocks-oss-adoption',
+        'description: Use GitBlocks for a bounded OSS recommendation.',
+        '---',
+        '',
+        '# GitBlocks OSS adoption',
+        '',
+      ].join('\n'),
+    );
+
+    expect(
+      validateRepositoryInvariants(repository).map(
+        (diagnostic) => diagnostic.code,
+      ),
+    ).not.toContain('repository.product-capitalization');
+
+    repository.textFiles.set(
+      skillPath,
+      [
+        '---',
+        'name: gitblocks-oss-adoption',
+        'description: Use gitblocks for a bounded OSS recommendation.',
+        '---',
+        '',
+      ].join('\n'),
+    );
+    expect(
+      validateRepositoryInvariants(repository).map(
+        (diagnostic) => diagnostic.code,
+      ),
+    ).toContain('repository.product-capitalization');
+  });
+
   it('keeps live profile materialization outside ordinary and hosted verification', () => {
     const repository = validRepository();
     const manifest = JSON.parse(

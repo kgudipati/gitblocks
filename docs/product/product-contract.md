@@ -10,24 +10,29 @@ application and offline operator, deterministic query/profile foundations,
 the pure six-channel `@gitblocks/retrieval` engine, Recovery R3's immutable
 PostgreSQL serving snapshots plus offline accepted-catalog bootstrap, and
 Recovery R4's in-process hosted discovery application, Recovery R5's
-loopback-only MCP Streamable HTTP process, and Recovery R6's hosted
-codebase-conditioned OSS recommendation operation. R6 adds request-scoped
+loopback-only MCP Streamable HTTP process, Recovery R6's hosted
+codebase-conditioned OSS recommendation operation, and Recovery R7's portable
+Agent Skill plus bounded local repository scanner. R6 adds request-scoped
 fingerprint binding, finalist evidence reads, a narrow target-fit model port,
 one bounded OpenAI Responses adapter, deterministic target-fact and fit-exchange
-validation, and the singular `recommend_oss` product tool. The evaluation
+validation, and the singular `recommend_oss` product tool. R7 adds deterministic
+manifest-first `RepositoryFingerprintV1` production, exact authoritative
+fingerprint-reference digest parity, transmission preview and approval, honest
+outcome presentation, and post-selection adoption procedure without changing
+the hosted recommendation path. The evaluation
 harness and repository checks remain development support. Repository
 interviews, artifact generation for finalist assessment, and Phase 8 live
 materialization proof machinery are not part of the serving path. Phase 10 is
 frozen R&D on a separately preserved branch and is not implemented on main.
 
-No GitBlocks Skill, target-repository scanner, authenticated remote service,
-deployed PostgreSQL database, local approval/integration workflow, or complete
-adoption journey is implemented or available yet. Recovery R6 exercises the
-hosted portion: a supplied valid fingerprint and structured query reach
-deterministic retrieval, active PostgreSQL finalist evidence, one controlled
-target-fit model call, deterministic validation, and at most three responsible
-options through `recommend_oss`. The loopback exercise does not make GitBlocks
-publicly or remotely available and does not claim the R7 local journey.
+The checked-in R7 Skill and scanner implement the local procedure and compose
+with the R6 hosted portion in a controlled development exercise: a real
+temporary target fingerprint and approved-shaped request reach deterministic
+retrieval, temporary PostgreSQL finalist evidence, one controlled target-fit
+model call, deterministic validation, and at most three responsible options
+through `recommend_oss`. No authenticated remote service, deployed PostgreSQL
+database, or complete externally usable adoption journey exists yet. This
+development exercise does not make GitBlocks publicly or remotely available.
 Changes to this contract require an issue, an execution plan when substantial,
 and architecture review.
 
@@ -204,10 +209,10 @@ The approved workflow is:
 7. **Choose and plan.** The developer approves a candidate. The coding agent
    produces a structured adoption plan covering changes, tests, migration,
    rollout, rollback or forward recovery, and open risks.
-8. **Integrate locally.** In a later product phase, and only with user
+8. **Integrate locally.** Only after candidate selection and normal edit/install
    approval, the existing coding agent may edit the local repository and run
-   its normal validation. GitBlocks will not be an autonomous code-editing
-   runtime.
+   its normal validation. The R7 Skill defines this procedure; GitBlocks is not
+   an autonomous code-editing runtime.
 9. **Capture an outcome.** With the developer's knowledge, a minimized,
    structured record of the selection, integration result, deviations, and
    validation may improve future recommendations.
