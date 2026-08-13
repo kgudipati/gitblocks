@@ -75,7 +75,7 @@ export function inspectMarkdownFiles(
 
     let root: unknown;
     try {
-      root = fromMarkdown(content);
+      root = fromMarkdown(markdownInspectionContent(markdownPath, content));
     } catch {
       diagnostics.push(
         diagnostic(
@@ -102,6 +102,19 @@ export function inspectMarkdownFiles(
   }
 
   return { diagnostics, files };
+}
+
+function markdownInspectionContent(
+  markdownPath: string,
+  content: string,
+): string {
+  if (markdownPath !== 'SKILL.md' && !markdownPath.endsWith('/SKILL.md')) {
+    return content;
+  }
+  return content.replace(
+    /^---\r?\nname:[^\r\n]*\r?\n/u,
+    '---\nname: skill-slug\n',
+  );
 }
 
 function inspectMarkdownTree(

@@ -16,7 +16,7 @@ GitBlocks is intended for developers who already work through a coding agent
 and want repository-conditioned decision support without replacing that agent
 or sending their full codebase to a remote service.
 
-## Planned user journey
+## Private-alpha user journey
 
 1. The developer asks their existing coding agent for an OSS capability and
    states hard constraints.
@@ -30,12 +30,13 @@ or sending their full codebase to a remote service.
    and risk.
 6. The developer selects a candidate or accepts that no responsible candidate
    is known.
-7. The coding agent creates an adoption plan and, in a later phase and only
-   after approval, may edit and validate the repository locally.
+7. After explicit selection and edit approval, the existing coding agent
+   integrates the chosen option and validates the repository locally.
 8. An optional minimized outcome helps improve future recommendations.
 
-This journey is an approved product direction, not currently available
-functionality.
+R7 checks in the local Skill and scanner procedure and proves that boundary
+against the existing R6 loopback stack. Authenticated remote GitBlocks remains
+unavailable, so this is not yet an externally usable end-to-end product.
 
 ## System boundary
 
@@ -48,7 +49,7 @@ functionality.
 | GitBlocks remote MCP and backend    | Own candidate discovery, catalog/evidence access, codebase-conditioned ranking, and minimized outcomes         |
 | GitHub and package/security sources | Provide untrusted external evidence with provenance and freshness                                              |
 
-See the [system context](docs/architecture/system-context.md) for planned
+See the [system context](docs/architecture/system-context.md) for current and planned
 components, data flows, and trust boundaries.
 
 ## Current development status
@@ -99,6 +100,19 @@ the live provider remains an explicit credentialed exercise. This is still a
 loopback hosted sub-journey, not authenticated remote deployment or the full
 local adoption workflow.
 
+Recovery R7 adds the canonical portable
+[`gitblocks-oss-adoption`](.agents/skills/gitblocks-oss-adoption/SKILL.md)
+Agent Skill and its dependency-free deterministic Node scanner. The scanner
+reads only bounded `package.json` content, performs file-type/existence checks
+for the approved TypeScript/Node manifest-first paths, emits a contract-valid
+minimized `RepositoryFingerprintV1`, and reproduces the authoritative
+fingerprint reference digest. The Skill preserves the user request, previews
+the complete minimized payload, requires explicit transmission approval,
+calls only `recommend_oss`, preserves GitBlocks' recommendation authority, and
+requires selection plus normal edit approval before local integration. A
+controlled PostgreSQL-backed official-MCP exercise composes this local half
+with R6; the checked-in service remains loopback-only.
+
 The repository also contains a curated 150-repository public catalog, plus
 exact immutable public repository artifacts and lossless line-addressable
 chunks for all 150 candidates. Phase 7 now includes repository-interview
@@ -111,9 +125,8 @@ materialization proofs. Live calibration failed, neither profile was selected,
 and repository interviews are deferred as optional future enrichment. The
 repository still has no live provider configuration, materialized live
 selection, real pre-live authorization, approved retention or pricing
-authority or Gate A result, Agent Skill, scanner, authenticated remote MCP,
-local approval/integration workflow, continuous crawler, deployment,
-production database, or product release. Phase 7 is governed by
+authority or Gate A result, authenticated remote MCP, continuous crawler,
+deployment, production database, or product release. Phase 7 is governed by
 [Plan 0017](docs/plans/0017-evidence-grounded-repository-interviews.md) and
 [ADR 0007](docs/architecture/decisions/0007-evidence-grounded-repository-interviews.md).
 The strict Phase 7 materialization boundary requires a fresh complete receipt
@@ -205,6 +218,7 @@ authorized by Phase 9 completion.
 | `docs/engineering/`                      | Repository, development, testing, security, reliability, and completion policies                           |
 | `docs/evaluation/`                       | Case authoring, deterministic scoring, and future baseline protocols                                       |
 | `docs/plans/`                            | Active and historical version-controlled execution plans                                                   |
+| `.agents/skills/gitblocks-oss-adoption/` | Portable GitBlocks OSS adoption Skill plus its bounded deterministic local scanner                         |
 | `packages/domain/`                       | Pure product vocabulary, constructors, canonicalization, and invariants                                    |
 | `packages/contracts/`                    | Versioned DTO schemas, safe parsers, domain mapping, and schema exports                                    |
 | `packages/persistence/`                  | Injected PostgreSQL adapter, coherent retrieval-serving snapshots, and DB tests                            |
@@ -224,6 +238,34 @@ authorized by Phase 9 completion.
 | `tools/evaluation-harness/`              | Private bounded validator, deterministic scorer, CLI, and tests                                            |
 | `tools/repository-checks/`               | Bounded repository-policy CLI and tests                                                                    |
 | `.github/`                               | Intake templates, read-only CI, and dependency update policy                                               |
+
+## R7 post-merge manual dogfood
+
+R7 publishes source for local dogfood; it does not install itself or make the
+loopback MCP service remote. After R7 merges:
+
+1. Copy or symlink `.agents/skills/gitblocks-oss-adoption` from this repository
+   to `$HOME/.agents/skills/gitblocks-oss-adoption`.
+2. Configure the coding agent's existing GitBlocks MCP connection to the
+   current loopback-only `recommend_oss` service.
+3. Open a fresh coding-agent session inside a real supported TypeScript/Node
+   project.
+4. Ask for an OSS capability recommendation, including meaningful success
+   conditions and constraints.
+5. Confirm that `gitblocks-oss-adoption` activates.
+6. Inspect the scanner's complete minimized `RepositoryFingerprintV1` and its
+   withheld categories.
+7. Explicitly approve the minimized transmission after confirming raw source
+   is not included.
+8. Observe the validated `recommend_oss` outcome without agent-authored
+   reranking or fallback.
+9. If GitBlocks returns responsible options, choose one explicitly.
+10. Give normal edit/install approval and let the existing coding agent
+    integrate and validate only that selected option.
+
+Use a copy for an isolated snapshot or a symlink to dogfood updates from the
+checked-out source. Restart or open a fresh agent session after changing skill
+installation so discovery is re-evaluated.
 
 ## Local development
 

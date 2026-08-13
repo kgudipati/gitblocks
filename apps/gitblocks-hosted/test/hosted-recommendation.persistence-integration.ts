@@ -1,9 +1,22 @@
+import { spawn } from 'node:child_process';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import {
   Client,
   StreamableHTTPClientTransport,
   type FetchLike,
 } from '@modelcontextprotocol/client';
-import type { TargetFitAssessmentResponseV1 } from '@gitblocks/contracts';
+import {
+  parseOssRecommendationRequestV1,
+  parseRepositoryFingerprintV1,
+  repositoryFingerprintDigestV1,
+  type OssRecommendationRequestV1,
+  type RepositoryFingerprintV1,
+  type TargetFitAssessmentResponseV1,
+} from '@gitblocks/contracts';
 import type {
   DeterministicCandidateProfile,
   DeterministicProfileFieldRecord,
@@ -59,6 +72,13 @@ const SERVING_CONFIG: PersistenceClientConfig = {
 const PUBLISHED_AT = '2026-08-12T18:00:00.000Z';
 const EVIDENCE_CREATED_AT = '2026-08-12T19:00:00.000Z';
 const EVIDENCE_CUTOFF = '2026-08-12T20:00:00.000Z';
+const SCAN_OBSERVED_AT = '2026-08-12T19:30:00.000Z';
+const SCANNER_PATH = fileURLToPath(
+  new URL(
+    '../../../.agents/skills/gitblocks-oss-adoption/scripts/fingerprint-codebase.mjs',
+    import.meta.url,
+  ),
+);
 const AUTHORIZATION_FINALISTS = [
   'auth-casbin-casbin',
   'auth-casbin-casbin-js',
@@ -91,11 +111,37 @@ afterAll(async () => {
 });
 
 describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
-  it('returns a target-grounded recommendation and rejects invented target facts without reloading the serving snapshot', async () => {
+  it('composes the R7 scanner with the existing target-grounded MCP recommendation and rejects invented target facts', async () => {
     const writer = createPersistenceClient(WRITER_CONFIG);
+    const targetRoot = await mkdtemp(join(tmpdir(), 'gitblocks-r7-target-'));
+    await writeFile(
+      join(targetRoot, 'package.json'),
+      JSON.stringify({
+        packageManager: 'pnpm@11.17.0',
+        engines: { node: '>=24.12.0 <25' },
+        devDependencies: { typescript: '6.0.3' },
+      }),
+    );
+    await writeFile(join(targetRoot, 'tsconfig.json'), 'inert and unread');
+    const scannerResult = await scanTargetRepository(targetRoot);
+    const runtimeFact = scannerResult.fingerprint.facts.find(
+      (fact) => fact.kind === 'component' && fact.component === 'runtime',
+    );
+    if (runtimeFact === undefined) {
+      throw new Error('R7 integration fixture did not emit the Node runtime.');
+    }
+    const validRequest = recommendationRequestWithFingerprint(
+      'postgres-valid-recommendation',
+      scannerResult,
+    );
+    const invalidRequest = recommendationRequestWithFingerprint(
+      'postgres-invalid-model-output',
+      scannerResult,
+    );
     const authorities = await loadAcceptedAuthorities();
     const model = vi.fn((input: FitAssessmentModelRequestV1) => {
       const response = structuredClone(groundedModelResponse(input));
+      bindRepositoryFact(response, runtimeFact.factId);
       if (input.fitAssessmentRequest.assessmentRequestId.includes('invalid')) {
         inventRepositoryFact(response);
       }
@@ -144,10 +190,7 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
 
       const valid = await client.callTool({
         name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
-        arguments: recommendationRequest({
-          id: 'postgres-valid-recommendation',
-          term: 'authorization',
-        }),
+        arguments: validRequest,
       });
       expect(valid.isError).not.toBe(true);
       expect(valid.structuredContent).toMatchObject({
@@ -155,7 +198,7 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
         responsibleOptions: [{ candidateId: AUTHORIZATION_FINALISTS[0] }],
         targetFitAssessment: {
           inferenceRepositoryFactBindings: [
-            { repositoryFactIds: ['fact-runtime'] },
+            { repositoryFactIds: [runtimeFact.factId] },
           ],
         },
       });
@@ -165,10 +208,7 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
 
       const invalid = await client.callTool({
         name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
-        arguments: recommendationRequest({
-          id: 'postgres-invalid-model-output',
-          term: 'authorization',
-        }),
+        arguments: invalidRequest,
       });
       expect(invalid).toMatchObject({
         isError: true,
@@ -203,10 +243,131 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
         client?.close(),
         hostedProcess?.close(),
         closePersistenceClient(writer),
+        rm(targetRoot, { recursive: true, force: true }),
       ]);
     }
   });
 });
+
+interface ScannerResult {
+  readonly fingerprint: RepositoryFingerprintV1;
+  readonly reference: {
+    readonly fingerprintId: string;
+    readonly fingerprintDigest: string;
+  };
+}
+
+async function scanTargetRepository(
+  repositoryRoot: string,
+): Promise<ScannerResult> {
+  const scan = await executeScanner([
+    '--observed-at',
+    SCAN_OBSERVED_AT,
+    repositoryRoot,
+  ]);
+  if (scan.status !== 0 || scan.stderr !== '') {
+    throw new Error('R7 scanner integration fixture failed.');
+  }
+  const parsedFingerprint = parseRepositoryFingerprintV1(
+    JSON.parse(scan.stdout) as unknown,
+  );
+  if (!parsedFingerprint.ok) {
+    throw new Error('R7 scanner output failed the authoritative parser.');
+  }
+  const referenceResult = await executeScanner(
+    ['--reference'],
+    scan.stdout,
+    tmpdir(),
+  );
+  if (referenceResult.status !== 0 || referenceResult.stderr !== '') {
+    throw new Error('R7 scanner reference mode failed.');
+  }
+  const reference: unknown = JSON.parse(referenceResult.stdout);
+  if (
+    typeof reference !== 'object' ||
+    reference === null ||
+    !('fingerprintId' in reference) ||
+    typeof reference.fingerprintId !== 'string' ||
+    !('fingerprintDigest' in reference) ||
+    typeof reference.fingerprintDigest !== 'string'
+  ) {
+    throw new Error('R7 scanner reference output is invalid.');
+  }
+  const parsedReference = {
+    fingerprintId: reference.fingerprintId,
+    fingerprintDigest: reference.fingerprintDigest,
+  };
+  if (
+    parsedReference.fingerprintId !== parsedFingerprint.value.fingerprintId ||
+    parsedReference.fingerprintDigest !==
+      repositoryFingerprintDigestV1(parsedFingerprint.value)
+  ) {
+    throw new Error('R7 scanner reference digest lacks contract parity.');
+  }
+  return { fingerprint: parsedFingerprint.value, reference: parsedReference };
+}
+
+function recommendationRequestWithFingerprint(
+  id: string,
+  scannerResult: ScannerResult,
+): OssRecommendationRequestV1 {
+  const fixture = recommendationRequest({ id, term: 'authorization' });
+  const request = {
+    ...fixture,
+    capabilityQuery: {
+      ...fixture.capabilityQuery,
+      repositoryFingerprintReference: scannerResult.reference,
+    },
+    repositoryFingerprint: scannerResult.fingerprint,
+  };
+  const parsed = parseOssRecommendationRequestV1(request);
+  if (!parsed.ok) {
+    throw new Error('R7 scanner request failed the recommendation contract.');
+  }
+  return parsed.value;
+}
+
+interface ScannerProcessResult {
+  readonly status: number | null;
+  readonly stderr: string;
+  readonly stdout: string;
+}
+
+function executeScanner(
+  arguments_: readonly string[],
+  stdin = '',
+  cwd?: string,
+): Promise<ScannerProcessResult> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [SCANNER_PATH, ...arguments_], {
+      ...(cwd === undefined ? {} : { cwd }),
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const stdout: Buffer[] = [];
+    const stderr: Buffer[] = [];
+    child.stdout.on('data', (chunk: Buffer) => stdout.push(chunk));
+    child.stderr.on('data', (chunk: Buffer) => stderr.push(chunk));
+    child.on('error', reject);
+    child.on('close', (status) => {
+      resolve({
+        status,
+        stdout: Buffer.concat(stdout).toString('utf8'),
+        stderr: Buffer.concat(stderr).toString('utf8'),
+      });
+    });
+    child.stdin.end(stdin);
+  });
+}
+
+function bindRepositoryFact(
+  response: TargetFitAssessmentResponseV1,
+  repositoryFactId: string,
+): void {
+  const binding = response.inferenceRepositoryFactBindings[0];
+  if (binding !== undefined) {
+    binding.repositoryFactIds = [repositoryFactId];
+  }
+}
 
 async function seedAcceptedCandidateIdentities(
   client: PersistenceClient,

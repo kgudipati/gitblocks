@@ -43,6 +43,18 @@ plus repository-fact bindings. Evidence-needed candidates cannot be restored;
 the successful responsible option set is at most three. The listener remains
 loopback-only and unauthenticated, so remote deployment is still deferred.
 
+Recovery R7 implements the user-machine source boundary without changing that
+hosted application. One portable checked-in Agent Skill captures the request,
+runs one dependency-free deterministic scanner, previews the minimized
+fingerprint, requires explicit transmission approval, calls only
+`recommend_oss`, preserves GitBlocks' comparative judgment, and gates local
+integration on user selection and normal edit approval. The scanner performs
+bounded read-only inspection of exact allowlisted manifest-first paths and
+emits the existing `RepositoryFingerprintV1`; its reference mode has parity
+with the authoritative contracts digest. A controlled development exercise
+composes it with the existing official MCP client and temporary PostgreSQL
+evidence. This adds no remote deployment or authentication.
+
 Recovery R2 classifies the current implementation as follows without deleting
 or moving anything:
 
@@ -55,6 +67,8 @@ or moving anything:
   and explicit database migration/bootstrap operations.
 - **Development support:** `tools/evaluation-harness` and
   `tools/repository-checks`.
+- **Local source:** `.agents/skills/gitblocks-oss-adoption`, including the
+  portable orchestration procedure and dependency-free scanner.
 - **Optional / dormant:** the Phase 6 artifact path until finalist evidence
   demonstrates a need, `packages/interviews`,
   `apps/repository-interview-operator`,
@@ -68,12 +82,13 @@ The initial hosted product is planned as one Node application plus one
 PostgreSQL database, with offline public-source ingestion publishing the shared
 catalog state that the application serves. PostgreSQL is serving-required and
 ingestion is offline-required. The pure retrieval engine is composed around
-durable data; its purity does not make persistence optional. No Skill,
-target-repository scanner, authenticated remote MCP service, deployed database,
-local approval/integration path, or end-to-end private-alpha journey is
-implemented on main yet. The durable accepted-catalog-to-validated-hosted-
-recommendation sub-journey and loopback MCP interoperability path are now
-implemented on main.
+durable data; its purity does not make persistence optional. The R7 Skill,
+scanner, and approval/integration procedure are implemented as portable local
+source and compose with the hosted path in controlled development. No
+authenticated remote MCP service, deployed database, or externally usable
+end-to-end private-alpha journey is implemented yet. The durable
+accepted-catalog-to-validated-hosted-recommendation sub-journey and loopback MCP
+interoperability path remain the current hosted boundary.
 
 The evaluation harness owns immutable historical `retrieval-v1`, independently
 reviewed governing `retrieval-v2`, projection validation, scoring fixtures, and
@@ -117,10 +132,10 @@ privacy controls, and deterministic-validation authority.
 
 ## Context and ownership
 
-The developer interacts with an existing coding-agent host. A future GitBlocks
-Skill will guide that agent through bounded local fingerprinting, remote
-recommendation, evidence review, adoption planning, and optional outcome
-capture. The hosted Node application exposes one loopback MCP recommendation
+The developer interacts with an existing coding-agent host. The checked-in R7
+GitBlocks Skill guides that agent through bounded local fingerprinting,
+approved recommendation, evidence review, selection, and local adoption. The
+hosted Node application exposes one loopback MCP recommendation
 tool backed by deterministic normalization/retrieval, PostgreSQL finalist
 evidence, and bounded target-fit assessment. Offline
 catalog ingestion is a separate operator action and never runs because a user
@@ -206,11 +221,13 @@ effects remain dormant until Milestone 7B is separately authorized. Production
 retrieval/ranking, API/MCP, durable profile storage, models, and Phase 7 state
 remain outside this context.
 
-## Planned system context
+## Private-alpha system context
 
-All GitBlocks runtime nodes in this diagram are planned, not implemented. The
-diagram shows the smallest private-alpha deployment that another developer can
-use. Internal module boundaries do not imply separate services.
+The Skill, scanner, hosted Node application, loopback MCP transport, and
+PostgreSQL adapter in this diagram are implemented. Authenticated remote
+transport and a deployed database remain planned, so the diagram shows the
+smallest intended private-alpha deployment rather than a currently public
+service. Internal module boundaries do not imply separate services.
 
 ```mermaid
 flowchart LR
@@ -221,14 +238,14 @@ flowchart LR
     Model["Reviewed LLM provider<br/>(bounded finalist reasoning)"]
 
     subgraph Local["User-controlled local trust boundary"]
-        Skill["GitBlocks Agent Skill (planned)"]
-        Scanner["Deterministic codebase scanner (planned)"]
+        Skill["GitBlocks Agent Skill (R7 source)"]
+        Scanner["Deterministic codebase scanner (R7)"]
         Repo["Target repository"]
     end
 
-    subgraph Hosted["Hosted GitBlocks (planned)"]
-        App["One Node application<br/>MCP + normalization + retrieval + fit + validation"]
-        Postgres["One PostgreSQL database<br/>coherent served catalog snapshot"]
+    subgraph Hosted["Hosted GitBlocks (loopback implemented; remote planned)"]
+        App["One Node application (R6)<br/>MCP + normalization + retrieval + fit + validation"]
+        Postgres["One PostgreSQL database<br/>adapter implemented; deployment planned"]
     end
 
     subgraph Offline["Offline operator boundary"]
@@ -321,9 +338,9 @@ capture remains outside the minimum initial serving request.
 
 Repository source, documentation, issues copied into the repository, package
 metadata, and local profiles are untrusted data. They cannot become agent
-instructions. The scanner will use allowlisted, bounded reads; validate paths
-and formats; avoid symlink or traversal escape; redact sensitive values; and
-never execute repository code. The scanner output will declare its schema
+instructions. The R7 scanner uses allowlisted, bounded reads; validates paths
+and formats; rejects or ignores symlink inputs; emits no raw values; and never
+executes repository code. Its output declares its schema
 version, its controlled fact-vocabulary version, and the observations that
 produced each fingerprint fact.
 
@@ -349,8 +366,11 @@ is rejected.
 
 Only data allowed by the
 [product transmission contract](../product/product-contract.md#data-locality-and-transmission-contract)
-may cross this boundary. The Skill will preview optional excerpts, minimize
-payloads, remove secrets, and require explicit approval where source content,
+may cross this boundary. The R7 Skill previews the complete minimized
+fingerprint and query, identifies withheld categories, and requires explicit
+approval before the first remote call. It does not transmit raw source. Future
+optional excerpts, if separately approved, must be minimized and require
+explicit approval where source content,
 external writes, privileged actions, destructive operations, or material cost
 is involved. The initial hosted product needs only the access control required
 by its concrete callers and shared public catalog; it does not pre-build an
