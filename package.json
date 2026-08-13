@@ -23,6 +23,8 @@
     "test:coverage": "pnpm runtime:check && pnpm build:product && vitest run --coverage",
     "architecture:check": "depcruise --config dependency-cruiser.config.mjs packages/domain packages/contracts packages/retrieval/src packages/retrieval/test packages/persistence/src packages/persistence/test packages/ingestion/src packages/ingestion/test packages/interviews/src packages/interviews/scripts packages/interviews/test apps/gitblocks-hosted/src apps/gitblocks-hosted/scripts apps/gitblocks-hosted/test apps/repository-interview-operator/src apps/repository-interview-operator/scripts apps/repository-interview-operator/test tools/repository-checks/src tools/repository-checks/test tools/evaluation-harness/src tools/evaluation-harness/test tools/repository-interview-prelive/src tools/repository-interview-prelive/test",
     "hosted:exercise": "pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/exercise-cli.ts",
+    "hosted:mcp": "pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/mcp-cli.ts",
+    "hosted:mcp:exercise": "pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/mcp-exercise-cli.ts",
     "repo:check": "pnpm runtime:check && node tools/repository-checks/src/cli.ts repository",
     "repo:branch": "pnpm runtime:check && node tools/repository-checks/src/cli.ts branch",
     "repo:pr-branch": "pnpm runtime:check && node tools/repository-checks/src/cli.ts pr-branch",

@@ -21,9 +21,12 @@
     "@gitblocks/contracts": "workspace:0.0.0",
     "@gitblocks/domain": "workspace:0.0.0",
     "@gitblocks/persistence": "workspace:0.0.0",
-    "@gitblocks/retrieval": "workspace:0.0.0"
+    "@gitblocks/retrieval": "workspace:0.0.0",
+    "@modelcontextprotocol/node": "2.0.0",
+    "@modelcontextprotocol/server": "2.0.0"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
     "postgres": "3.4.9"
   }
 }

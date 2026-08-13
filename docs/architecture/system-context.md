@@ -7,8 +7,8 @@ current lifecycle of GitBlocks components. Current main contains seven product
 workspaces: the pure domain, versioned contracts, a concrete PostgreSQL
 persistence adapter, an operator-run curated public-source ingestion adapter,
 the persistence-independent repository-interview application, and the pure
-`@gitblocks/retrieval` package, plus the R4 hosted discovery application.
-Retrieval is transport-neutral, in-process,
+`@gitblocks/retrieval` package, plus the R4 hosted discovery application and
+R5 loopback MCP transport. Retrieval is transport-neutral, in-process,
 deterministic, bounded, evaluation-independent, and composed without owning
 network, database, model, provider, transport, or deployment effects.
 
@@ -25,13 +25,22 @@ and exposes structured capability discovery in-process. A one-shot command
 executes the same request twice without request-time PostgreSQL access and then
 closes the client. No remote caller can use it yet.
 
+Recovery R5 adds the first continuous Node process and a thin official MCP v2
+adapter. The process initializes the R4 composition before listening, binds
+only `127.0.0.1`, serves `/mcp`, and exposes exactly `discover_oss`. Modern MCP
+`2026-07-28` requests and the SDK's default stateless legacy compatibility
+share the same already-initialized application. Tool calls do not receive a
+database client or reload serving state. Authenticated remote deployment
+remains deferred.
+
 Recovery R2 classifies the current implementation as follows without deleting
 or moving anything:
 
 - **Serving / active:** `packages/domain`, `packages/contracts`,
   `packages/retrieval`, PostgreSQL persistence needed by hosted serving,
   taxonomy/query normalization, deterministic candidate profiles, retrieval
-  metadata, and the implemented hosted discovery composition.
+  metadata, the implemented hosted discovery composition, and its loopback MCP
+  transport.
 - **Offline active:** `packages/ingestion`, catalog/profile/metadata refresh,
   and explicit database migration/bootstrap operations.
 - **Development support:** `tools/evaluation-harness` and
@@ -50,10 +59,10 @@ PostgreSQL database, with offline public-source ingestion publishing the shared
 catalog state that the application serves. PostgreSQL is serving-required and
 ingestion is offline-required. The pure retrieval engine is composed around
 durable data; its purity does not make persistence optional. No Skill,
-target-repository scanner, MCP surface, deployed database,
+target-repository scanner, authenticated remote MCP service, deployed database,
 target-conditioned fit path, or end-to-end private-alpha journey is implemented
 on main yet. The durable accepted-catalog-to-application discovery sub-journey
-is now implemented on main.
+and loopback MCP interoperability path are now implemented on main.
 
 The evaluation harness owns immutable historical `retrieval-v1`, independently
 reviewed governing `retrieval-v2`, projection validation, scoring fixtures, and
@@ -90,16 +99,17 @@ evaluation, and acceptance boundaries. It does not authorize Phase 10 ranking
 or turn the pure package into an operational service.
 [ADR 0011](decisions/0011-postgresql-retrieval-serving.md) owns the R3 serving
 snapshot, offline publication, read-only role, loader, and forward-recovery
-decisions. It does not authorize a hosted transport or request server.
+decisions; it does not own the R5 transport choice.
 
 ## Context and ownership
 
 The developer interacts with an existing coding-agent host. A future GitBlocks
 Skill will guide that agent through bounded local fingerprinting, remote
 discovery and comparison, evidence review, adoption planning, and optional
-outcome capture. The hosted Node application will expose a small MCP-facing,
-user-goal-oriented surface backed by deterministic normalization/retrieval,
-PostgreSQL catalog intelligence, and bounded target-fit assessment. Offline
+outcome capture. The hosted Node application exposes one loopback MCP discovery
+tool backed by deterministic normalization/retrieval and PostgreSQL catalog
+intelligence. Later slices may extend it only for concrete product outcomes,
+including bounded target-fit assessment. Offline
 catalog ingestion is a separate operator action and never runs because a user
 made a request.
 
@@ -412,8 +422,9 @@ apps/gitblocks-hosted -> packages/persistence + packages/retrieval + packages/co
 The harness-to-persistence dependency exists only for storage representability
 conformance. The harness-to-retrieval dependency is an outward blind evaluation
 adapter. Product packages do not import evaluation schemas, corpus records,
-gold, scorers, or tool internals. The hosted discovery composition is
-implemented, but it is not a running service and has no transport.
+gold, scorers, or tool internals. The hosted discovery composition and its
+loopback-only MCP process are implemented; no authenticated remote service or
+deployment is implemented.
 
 The hosted dependency direction remains inward:
 
@@ -433,7 +444,9 @@ apps/repository-interview-operator
 The one Node composition root may depend on the hosted application use case,
 `@gitblocks/retrieval`, and the concrete persistence/model/transport adapters.
 R4 keeps the use-case module independent of persistence while its same-workspace
-composition module owns the concrete startup client. Offline ingestion composes
+composition module owns the concrete startup client. R5's MCP server closes
+over only that use-case operation, and its native Node listener reuses the one
+startup composition for every request. Offline ingestion composes
 `@gitblocks/ingestion` with persistence separately and never joins a request.
 `@gitblocks/interviews` retains its provider, record/reuse, clock, and nonce
 ports without becoming an active hosted dependency. Versioned request,
@@ -477,8 +490,9 @@ a configured bound. Partial evidence, stale evidence, source unavailability,
 and ranking uncertainty will be explicit response states rather than silent
 success.
 
-Future production paths will emit correlated, structured telemetry with stable
-operation and error names. Telemetry will describe timing, counts, outcomes,
+R5 emits bounded structured lifecycle and failure records with stable operation
+and error names. Future remote production telemetry will describe timing,
+counts, outcomes,
 and evidence identifiers without recording prompts, raw source, credentials,
 or sensitive excerpts. Detailed rules are in the
 [observability and reliability policy](../engineering/observability-and-reliability.md).
@@ -486,8 +500,9 @@ or sensitive excerpts. Detailed rules are in the
 ## Open technology decisions
 
 R2 selects the smallest topology—one Node deployable and one PostgreSQL
-database—but no framework, MCP library, model adapter, hosting provider, or
-telemetry backend. A product implementation slice must select only the
+database. R5 selects the official MCP TypeScript SDK v2 split server/Node
+packages and native Node HTTP without selecting an application framework,
+model adapter, hosting provider, or telemetry backend. A product implementation slice must select only the
 technology it actually introduces and satisfy the accepted TypeScript,
 supply-chain, dependency, contract, and validation policies. Queue, cache,
 vector, microservice, Kubernetes, continuous-crawler, organization/tenant,

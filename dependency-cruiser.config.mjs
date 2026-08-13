@@ -148,7 +148,19 @@ const configuration = {
       },
       to: {
         pathNot:
-          '^(?:apps/gitblocks-hosted/|packages/(?:contracts|domain|persistence|retrieval)/|node:|crypto$|fs/promises$|path$|url$)|node_modules/@gitblocks/(?:contracts|domain|persistence|retrieval)(?:/|$)',
+          '^(?:apps/gitblocks-hosted/|packages/(?:contracts|domain|persistence|retrieval)/|node:|crypto$|fs/promises$|http$|path$|url$)|node_modules/(?:@gitblocks/(?:contracts|domain|persistence|retrieval)|@modelcontextprotocol/(?:client|node|server))(?:/|$)',
+      },
+    },
+    {
+      name: 'hosted-mcp-adapter-no-data-or-retrieval-dependency',
+      severity: 'error',
+      comment:
+        'The MCP server and HTTP adapter may call only the hosted application boundary and must not access persistence, ingestion, or retrieval adapters.',
+      from: {
+        path: '^apps/gitblocks-hosted/src/mcp-(?:http|server)\\.(?:mjs|ts)$',
+      },
+      to: {
+        path: '^(?:packages/(?:ingestion|persistence|retrieval)/|node_modules/@gitblocks/(?:ingestion|persistence|retrieval)(?:/|$))',
       },
     },
     {
