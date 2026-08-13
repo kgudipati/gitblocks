@@ -13,8 +13,10 @@ import {
   type ContractIssue,
   type ContractParseResult,
 } from './diagnostics.ts';
+import type { CandidateRetrievalCandidateV1 } from './candidate-retrieval-schemas.ts';
 import type {
   OssRecommendationRequestV1,
+  RecommendationAssessmentResponseV1,
   TargetFitAssessmentResponseV1,
 } from './oss-recommendation-schemas.ts';
 import {
@@ -30,6 +32,7 @@ import type {
 } from './schemas.ts';
 import {
   ossRecommendationRequestV1Validator,
+  recommendationAssessmentResponseV1Validator,
   structurallyValidate,
   targetFitAssessmentResponseV1Validator,
 } from './structural-validation.ts';
@@ -50,6 +53,24 @@ export type TargetFitAssessmentExchangeValidationResult =
       readonly ok: true;
       readonly request: FitAssessmentRequestV1;
       readonly response: TargetFitAssessmentResponseV1;
+      readonly domain: FitAssessmentExchange;
+      readonly issues: readonly [];
+    }
+  | {
+      readonly ok: false;
+      readonly issues: readonly ContractIssue[];
+    };
+
+export type RecommendationRetrievalFinalistV1 = Pick<
+  CandidateRetrievalCandidateV1,
+  'candidateId' | 'lane' | 'unresolvedHardEvaluations'
+>;
+
+export type RecommendationAssessmentExchangeValidationResult =
+  | {
+      readonly ok: true;
+      readonly request: FitAssessmentRequestV1;
+      readonly response: RecommendationAssessmentResponseV1;
       readonly domain: FitAssessmentExchange;
       readonly issues: readonly [];
     }
@@ -196,6 +217,35 @@ export function parseTargetFitAssessmentResponseV1(
   };
 }
 
+export function parseRecommendationAssessmentResponseV1(
+  value: unknown,
+): ContractParseResult<
+  RecommendationAssessmentResponseV1,
+  RecommendationAssessmentResponseV1
+> {
+  const structural = structurallyValidate(
+    value,
+    recommendationAssessmentResponseV1Validator,
+  );
+  if (!structural.ok) return structural;
+
+  const targetFit = parseTargetFitAssessmentResponseV1(
+    structural.value.targetFitAssessment,
+  );
+  const issues = finalizeContractIssues(
+    prefixIssues(targetFit.ok ? [] : targetFit.issues, '/targetFitAssessment'),
+  );
+  if (issues.length > 0 || !targetFit.ok) {
+    return { ok: false, issues };
+  }
+  return {
+    ok: true,
+    value: structural.value,
+    domain: structural.value,
+    issues: [],
+  };
+}
+
 export function validateTargetFitAssessmentExchangeV1(
   request: FitAssessmentRequestV1,
   response: unknown,
@@ -221,6 +271,378 @@ export function validateTargetFitAssessmentExchangeV1(
     domain: fitExchange.domain,
     issues: [],
   };
+}
+
+export function validateRecommendationAssessmentExchangeV1(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly response: unknown;
+}): RecommendationAssessmentExchangeValidationResult {
+  const parsedResponse = parseRecommendationAssessmentResponseV1(
+    input.response,
+  );
+  if (!parsedResponse.ok) return parsedResponse;
+
+  const normalization = parseCapabilityQueryNormalizationResultV1(
+    input.normalization,
+  );
+  if (!normalization.ok) return normalization;
+
+  const targetFit = validateTargetFitAssessmentExchangeV1(
+    input.request,
+    parsedResponse.value.targetFitAssessment,
+  );
+  if (!targetFit.ok) return targetFit;
+
+  const issues = finalizeContractIssues([
+    ...recommendationFinalistIssues(
+      input.request,
+      normalization.value,
+      input.retrievalFinalists,
+    ),
+    ...hardResolutionIssues({
+      request: input.request,
+      normalization: normalization.value,
+      retrievalFinalists: input.retrievalFinalists,
+      response: parsedResponse.value,
+    }),
+  ]);
+  if (issues.length > 0) return { ok: false, issues };
+  return {
+    ok: true,
+    request: targetFit.request,
+    response: parsedResponse.value,
+    domain: targetFit.domain,
+    issues: [],
+  };
+}
+
+function recommendationFinalistIssues(
+  request: FitAssessmentRequestV1,
+  normalization: CapabilityQueryNormalizationResultV1,
+  finalists: readonly RecommendationRetrievalFinalistV1[],
+): readonly ContractIssue[] {
+  const issues: ContractIssue[] = [];
+  const requestIds = request.candidates.map(
+    ({ identity }) => identity.candidateId,
+  );
+  const finalistIds = finalists.map(({ candidateId }) => candidateId);
+  if (
+    requestIds.length !== finalistIds.length ||
+    requestIds.some((candidateId, index) => candidateId !== finalistIds[index])
+  ) {
+    issues.push(
+      domainIssue(
+        'recommendation-assessment.finalist-binding',
+        '/retrievalFinalists',
+      ),
+    );
+  }
+  if (new Set(finalistIds).size !== finalistIds.length) {
+    issues.push(
+      domainIssue(
+        'recommendation-assessment.finalist-duplicate',
+        '/retrievalFinalists',
+      ),
+    );
+  }
+  if (
+    finalists.length < 1 ||
+    finalists.length > 5 ||
+    normalization.outcome !== 'normalized' ||
+    normalization.queryInputId !== request.capabilityRequest.requestId ||
+    normalization.primaryFamilyId !== request.capabilityRequest.capabilityFamily
+  ) {
+    issues.push(
+      domainIssue(
+        'recommendation-assessment.context-binding',
+        '/retrievalFinalists',
+      ),
+    );
+  }
+  let enteredEvidenceNeededLane = false;
+  for (const finalist of finalists) {
+    if (finalist.lane === 'evidence-needed') {
+      enteredEvidenceNeededLane = true;
+      if (finalist.unresolvedHardEvaluations.length === 0) {
+        issues.push(
+          domainIssue(
+            'recommendation-assessment.finalist-lane',
+            '/retrievalFinalists',
+          ),
+        );
+      }
+      continue;
+    }
+    if (
+      enteredEvidenceNeededLane ||
+      finalist.unresolvedHardEvaluations.length > 0
+    ) {
+      issues.push(
+        domainIssue(
+          'recommendation-assessment.finalist-lane',
+          '/retrievalFinalists',
+        ),
+      );
+    }
+  }
+  return issues;
+}
+
+function hardResolutionIssues(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly response: RecommendationAssessmentResponseV1;
+}): readonly ContractIssue[] {
+  const issues: ContractIssue[] = [];
+  const finalistById = new Map(
+    input.retrievalFinalists.map((finalist) => [
+      finalist.candidateId,
+      finalist,
+    ]),
+  );
+  const expected = new Map<
+    string,
+    {
+      readonly finalist: RecommendationRetrievalFinalistV1;
+      readonly evaluation: RecommendationRetrievalFinalistV1['unresolvedHardEvaluations'][number];
+    }
+  >();
+  for (const finalist of input.retrievalFinalists) {
+    for (const evaluation of finalist.unresolvedHardEvaluations) {
+      expected.set(`${finalist.candidateId}\0${evaluation.evaluationId}`, {
+        finalist,
+        evaluation,
+      });
+    }
+  }
+
+  const resolutions = new Map<string, number>();
+  const assessmentByCandidate = new Map(
+    input.response.targetFitAssessment.fitAssessment.candidateAssessments.map(
+      (assessment) => [assessment.candidateId, assessment],
+    ),
+  );
+  const inferenceById = new Map(
+    input.response.targetFitAssessment.fitAssessment.inferences.map(
+      (inference) => [inference.inferenceId, inference],
+    ),
+  );
+  const evidenceById = new Map(
+    input.response.targetFitAssessment.fitAssessment.evidence.map(
+      (evidence) => [evidence.evidenceId, evidence],
+    ),
+  );
+  const ranked = rankedCandidateIds(
+    input.response.targetFitAssessment.fitAssessment,
+  );
+
+  for (const [
+    index,
+    resolution,
+  ] of input.response.evidenceNeededHardConstraintResolutions.entries()) {
+    const path = `/evidenceNeededHardConstraintResolutions/${String(index)}`;
+    const key = `${resolution.candidateId}\0${resolution.evaluationId}`;
+    const occurrence = (resolutions.get(key) ?? 0) + 1;
+    resolutions.set(key, occurrence);
+    if (occurrence > 1) {
+      issues.push(domainIssue('hard-resolution.duplicate', path));
+    }
+
+    const expectedResolution = expected.get(key);
+    const finalist = finalistById.get(resolution.candidateId);
+    if (
+      expectedResolution === undefined ||
+      finalist?.lane !== 'evidence-needed'
+    ) {
+      issues.push(domainIssue('hard-resolution.reference', path));
+      continue;
+    }
+
+    const sourceConstraintIds = resolutionSourceConstraintIds(
+      input.request,
+      input.normalization,
+      expectedResolution.evaluation,
+      path,
+      issues,
+    );
+    const assessment = assessmentByCandidate.get(resolution.candidateId);
+    const grounded = resolution.inferenceIds.every((inferenceId) => {
+      const inference = inferenceById.get(inferenceId);
+      return (
+        inference?.candidateId === resolution.candidateId &&
+        inference.evidenceIds.length > 0 &&
+        inference.evidenceIds.every(
+          (evidenceId) =>
+            evidenceById.get(evidenceId)?.candidateId ===
+            resolution.candidateId,
+        ) &&
+        assessment?.inferenceIds.includes(inferenceId) === true
+      );
+    });
+    if (
+      resolution.state === 'unresolved'
+        ? resolution.inferenceIds.length > 0
+        : resolution.inferenceIds.length === 0 || !grounded
+    ) {
+      issues.push(domainIssue('hard-resolution.inference-grounding', path));
+    }
+
+    if (resolution.state === 'unresolved') {
+      if (
+        assessment?.disposition !== 'insufficient-evidence' ||
+        ranked.has(resolution.candidateId)
+      ) {
+        issues.push(
+          domainIssue('hard-resolution.unresolved-disposition', path),
+        );
+      }
+    }
+    if (resolution.state === 'conflict') {
+      if (
+        assessment?.disposition !== 'rejected' ||
+        ranked.has(resolution.candidateId)
+      ) {
+        issues.push(domainIssue('hard-resolution.conflict-disposition', path));
+      }
+      for (const constraintId of sourceConstraintIds) {
+        const hardConstraint =
+          input.request.capabilityRequest.hardConstraints.find(
+            (constraint) => constraint.constraintId === constraintId,
+          );
+        const matchingConflict =
+          input.response.targetFitAssessment.fitAssessment.hardConstraintConflicts.some(
+            (conflict) =>
+              conflict.candidateId === resolution.candidateId &&
+              conflict.constraintId === constraintId &&
+              conflict.reasonCode === hardConstraint?.reasonCode,
+          );
+        if (!matchingConflict) {
+          issues.push(domainIssue('hard-resolution.conflict-binding', path));
+        }
+      }
+    }
+  }
+
+  for (const [key, value] of expected) {
+    if (resolutions.get(key) !== 1) {
+      issues.push(
+        domainIssue(
+          'hard-resolution.coverage',
+          `/retrievalFinalists/${value.finalist.candidateId}/${value.evaluation.evaluationId}`,
+        ),
+      );
+    }
+  }
+
+  for (const finalist of input.retrievalFinalists) {
+    if (finalist.lane !== 'evidence-needed') continue;
+    const assessment = assessmentByCandidate.get(finalist.candidateId);
+    if (
+      assessment?.disposition !== 'recommended' &&
+      assessment?.disposition !== 'viable'
+    ) {
+      continue;
+    }
+    const allSatisfied = finalist.unresolvedHardEvaluations.every(
+      (evaluation) =>
+        input.response.evidenceNeededHardConstraintResolutions.some(
+          (resolution) =>
+            resolution.candidateId === finalist.candidateId &&
+            resolution.evaluationId === evaluation.evaluationId &&
+            resolution.state === 'satisfied',
+        ),
+    );
+    if (!allSatisfied) {
+      issues.push(
+        domainIssue(
+          'hard-resolution.positive-disposition',
+          `/targetFitAssessment/fitAssessment/candidateAssessments/${finalist.candidateId}`,
+        ),
+      );
+    }
+  }
+  return issues;
+}
+
+function resolutionSourceConstraintIds(
+  request: FitAssessmentRequestV1,
+  normalization: CapabilityQueryNormalizationResultV1,
+  evaluation: RecommendationRetrievalFinalistV1['unresolvedHardEvaluations'][number],
+  path: string,
+  issues: ContractIssue[],
+): readonly string[] {
+  const hardConstraintIds = new Set(
+    request.capabilityRequest.hardConstraints.map(
+      ({ constraintId }) => constraintId,
+    ),
+  );
+  if (normalization.outcome !== 'normalized') {
+    issues.push(domainIssue('hard-resolution.normalization-binding', path));
+    return [];
+  }
+  if (evaluation.sourceKind === 'normalized-constraint') {
+    const normalized = normalization.normalizedConstraints.find(
+      ({ normalizedConstraintId }) =>
+        normalizedConstraintId === evaluation.evaluationId,
+    );
+    if (
+      normalized?.modality !== evaluation.modality ||
+      normalized.facet !== evaluation.facet ||
+      normalized.conceptId !== evaluation.conceptId ||
+      normalized.sourceConstraintIds.some(
+        (constraintId) => !hardConstraintIds.has(constraintId),
+      )
+    ) {
+      issues.push(domainIssue('hard-resolution.normalization-binding', path));
+      return [];
+    }
+    return normalized.sourceConstraintIds;
+  }
+  if (evaluation.sourceKind === 'preserved-declaration') {
+    const declaration = normalization.preservedDeclarations.find(
+      ({ constraintId }) => constraintId === evaluation.evaluationId,
+    );
+    if (
+      declaration?.modality !== evaluation.modality ||
+      declaration.facet !== evaluation.facet ||
+      evaluation.conceptId !== null ||
+      !hardConstraintIds.has(declaration.constraintId)
+    ) {
+      issues.push(domainIssue('hard-resolution.normalization-binding', path));
+      return [];
+    }
+    return [declaration.constraintId];
+  }
+  if (
+    evaluation.evaluationId !== 'primary-capability-family' ||
+    evaluation.modality !== 'required' ||
+    evaluation.facet !== 'capability' ||
+    evaluation.conceptId !== normalization.primaryFamilyId
+  ) {
+    issues.push(domainIssue('hard-resolution.normalization-binding', path));
+  }
+  return [];
+}
+
+function rankedCandidateIds(
+  response: TargetFitAssessmentResponseV1['fitAssessment'],
+): ReadonlySet<string> {
+  const ranked = new Set<string>();
+  for (const group of response.rankGroups) {
+    group.candidateIds.forEach((candidateId) => ranked.add(candidateId));
+  }
+  for (const relation of response.rankRelations) {
+    ranked.add(relation.higherCandidateId);
+    ranked.add(relation.lowerCandidateId);
+  }
+  for (const pair of response.incomparablePairs) {
+    ranked.add(pair.leftCandidateId);
+    ranked.add(pair.rightCandidateId);
+  }
+  return ranked;
 }
 
 function recommendationSemanticIssues(

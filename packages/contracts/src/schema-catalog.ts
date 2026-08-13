@@ -37,6 +37,7 @@ import {
 import { candidateRetrievalMetadataAuthorityV1Schema } from './candidate-retrieval-metadata-schemas.ts';
 import {
   ossRecommendationRequestV1Schema,
+  recommendationAssessmentResponseV1Schema,
   targetFitAssessmentResponseV1Schema,
 } from './oss-recommendation-schemas.ts';
 
@@ -66,6 +67,7 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'candidate-retrieval-metadata-authority',
   'oss-recommendation-request',
   'target-fit-assessment-response',
+  'recommendation-assessment-response',
 ] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
@@ -108,6 +110,8 @@ const SCHEMAS = {
     candidateRetrievalMetadataAuthorityV1Schema,
   'oss-recommendation-request': ossRecommendationRequestV1Schema,
   'target-fit-assessment-response': targetFitAssessmentResponseV1Schema,
+  'recommendation-assessment-response':
+    recommendationAssessmentResponseV1Schema,
 } as const;
 
 export function getContractSchemaV1(name: ContractSchemaName): JsonSchemaValue {

@@ -25,6 +25,20 @@ const inferenceRepositoryFactBindingV1Schema = closedObject({
   }),
 });
 
+const evidenceNeededHardConstraintResolutionV1Schema = closedObject({
+  candidateId: stableIdSchema,
+  evaluationId: stableIdSchema,
+  state: Type.Union([
+    Type.Literal('satisfied'),
+    Type.Literal('conflict'),
+    Type.Literal('unresolved'),
+  ]),
+  inferenceIds: Type.Array(stableIdSchema, {
+    maxItems: 20,
+    uniqueItems: true,
+  }),
+});
+
 export const ossRecommendationRequestV1Schema = Type.Object(
   {
     contractVersion: contractVersionSchema,
@@ -40,18 +54,36 @@ export const ossRecommendationRequestV1Schema = Type.Object(
   },
 );
 
+const targetFitAssessmentResponseV1ValueSchema = closedObject({
+  contractVersion: contractVersionSchema,
+  fitAssessment: fitAssessmentResponseV1ValueSchema,
+  inferenceRepositoryFactBindings: Type.Array(
+    inferenceRepositoryFactBindingV1Schema,
+    { maxItems: 400 },
+  ),
+});
+
 export const targetFitAssessmentResponseV1Schema = Type.Object(
+  targetFitAssessmentResponseV1ValueSchema.properties,
+  {
+    ...SCHEMA_ROOT_OPTIONS,
+    $id: 'https://gitblocks.dev/schemas/contracts/target-fit-assessment-response/1.0.0',
+    additionalProperties: false,
+  },
+);
+
+export const recommendationAssessmentResponseV1Schema = Type.Object(
   {
     contractVersion: contractVersionSchema,
-    fitAssessment: fitAssessmentResponseV1ValueSchema,
-    inferenceRepositoryFactBindings: Type.Array(
-      inferenceRepositoryFactBindingV1Schema,
-      { maxItems: 400 },
+    targetFitAssessment: targetFitAssessmentResponseV1ValueSchema,
+    evidenceNeededHardConstraintResolutions: Type.Array(
+      evidenceNeededHardConstraintResolutionV1Schema,
+      { maxItems: 320 },
     ),
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
-    $id: 'https://gitblocks.dev/schemas/contracts/target-fit-assessment-response/1.0.0',
+    $id: 'https://gitblocks.dev/schemas/contracts/recommendation-assessment-response/1.0.0',
     additionalProperties: false,
   },
 );
@@ -62,6 +94,12 @@ export type OssRecommendationRequestV1 = Static<
 export type InferenceRepositoryFactBindingV1 = Static<
   typeof inferenceRepositoryFactBindingV1Schema
 >;
+export type EvidenceNeededHardConstraintResolutionV1 = Static<
+  typeof evidenceNeededHardConstraintResolutionV1Schema
+>;
 export type TargetFitAssessmentResponseV1 = Static<
   typeof targetFitAssessmentResponseV1Schema
+>;
+export type RecommendationAssessmentResponseV1 = Static<
+  typeof recommendationAssessmentResponseV1Schema
 >;

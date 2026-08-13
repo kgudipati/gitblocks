@@ -54,11 +54,35 @@ The public V1 parsers are:
 - `parseRepositoryInterviewV1`
 - `parseDeterministicCandidateProfileV1`
 - `parseDeterministicCandidateProfileAuthorityV1`
+- `parseOssRecommendationRequestV1`
+- `parseTargetFitAssessmentResponseV1`
+- `parseRecommendationAssessmentResponseV1`
 
 `validateFitAssessmentExchangeV1` additionally proves that one independently
 valid request and response agree on candidate set, constraints, evidence,
 unknowns, supplied candidate limitations, cutoff, request ID, and correlation
 ID.
+
+`RecommendationAssessmentResponseV1` is an additive hosted-model response
+root. It contains the immutable `TargetFitAssessmentResponseV1` plus bounded
+`EvidenceNeededHardConstraintResolutionV1` records with exactly
+`candidateId`, `evaluationId`, `state` (`satisfied`, `conflict`, or
+`unresolved`), and `inferenceIds`. The existing target-fit contracts are not
+widened or replaced.
+
+`validateRecommendationAssessmentExchangeV1` first applies the existing
+target-fit exchange and repository-fact validation, then requires exact
+one-for-one coverage of every unresolved hard evaluation on selected
+evidence-needed finalists. It rejects eligible, non-finalist, duplicate,
+invented, or cross-candidate resolutions; binds normalized evaluations through
+their exact `sourceConstraintIds` (and preserved declarations by exact ID);
+requires same-candidate supplied evidence through referenced inferences for
+`satisfied` and `conflict`; enforces the original hard-constraint reason code
+for conflicts; and prevents any conflict or unresolved candidate from being
+ranked or positive. The resolution records are request-scoped output and have
+no persistence contract.
+Its deterministic JSON Schema digest is
+`aa619df4638fc12d1ee8d77b5bf2552b6ba0a03fcb88e41cc0dd1ed051087d46`.
 
 `normalizeCapabilityQueryV1` performs the local pre-approval transition using
 validated input, exact taxonomy authority, and an optional injected bounded

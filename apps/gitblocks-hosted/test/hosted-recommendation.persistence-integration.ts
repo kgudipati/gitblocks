@@ -14,8 +14,8 @@ import {
   parseRepositoryFingerprintV1,
   repositoryFingerprintDigestV1,
   type OssRecommendationRequestV1,
+  type RecommendationAssessmentResponseV1,
   type RepositoryFingerprintV1,
-  type TargetFitAssessmentResponseV1,
 } from '@gitblocks/contracts';
 import type {
   DeterministicCandidateProfile,
@@ -51,6 +51,7 @@ import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
 import { GITBLOCKS_RECOMMEND_OSS_TOOL_NAME } from '../src/mcp-server.ts';
 import {
   candidateDossier,
+  frozenBackgroundJobsDogfoodRequest,
   groundedModelResponse,
   loadAcceptedAuthorities,
   recommendationRequest,
@@ -85,6 +86,13 @@ const AUTHORIZATION_FINALISTS = [
   'auth-casbin-node-casbin',
   'auth-warrant',
   'auth-aserto-topaz',
+] as const;
+const BACKGROUND_JOB_FINALISTS = [
+  'jobs-actionhero-node-resque',
+  'jobs-asynq',
+  'jobs-bree',
+  'jobs-bullmq',
+  'jobs-node-cron',
 ] as const;
 const nativeFetch = globalThis.fetch.bind(globalThis);
 const loopbackFetch: FetchLike = async (input, init) => {
@@ -247,6 +255,134 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
       ]);
     }
   });
+
+  it('resolves zero-eligible finalists from temporary candidate evidence and fails closed for unresolved or conflict promotion through official recommend_oss', async () => {
+    const writer = createPersistenceClient(WRITER_CONFIG);
+    const authorities = await loadAcceptedAuthorities();
+    const validRequest = recommendationRequestId(
+      frozenBackgroundJobsDogfoodRequest(),
+      'postgres-r8-valid',
+    );
+    const invalidUnresolvedRequest = recommendationRequestId(
+      frozenBackgroundJobsDogfoodRequest(),
+      'postgres-r8-invalid-unresolved',
+    );
+    const invalidConflictRequest = recommendationRequestId(
+      frozenBackgroundJobsDogfoodRequest(),
+      'postgres-r8-invalid-conflict',
+    );
+    const model = vi.fn((input: FitAssessmentModelRequestV1) => {
+      const response = controlledEvidenceNeededResponse(input);
+      const assessmentId = input.fitAssessmentRequest.assessmentRequestId;
+      if (assessmentId.includes('invalid-unresolved')) {
+        promoteUnresolvedCandidate(response);
+      }
+      if (assessmentId.includes('invalid-conflict')) {
+        promoteConflictCandidate(response);
+      }
+      return Promise.resolve(response);
+    });
+    let hostedProcess;
+    let client: Client | undefined;
+    try {
+      await seedAcceptedCandidateIdentities(writer);
+      await seedBackgroundJobFinalistEvidence(writer);
+      await publishServingCatalogSnapshot(writer, {
+        candidateProfileAuthority: authorities.profiles,
+        candidateRetrievalMetadataAuthority: authorities.metadata,
+        publishedAt: PUBLISHED_AT,
+      });
+      await closePersistenceClient(writer);
+
+      hostedProcess = await startGitBlocksMcpProcess({
+        database: SERVING_CONFIG,
+        fitModel: { assess: model },
+        clock: { now: () => EVIDENCE_CUTOFF },
+        port: 0,
+      });
+      client = new Client(
+        { name: 'gitblocks-r8-postgresql-mcp-test', version: '0.0.0' },
+        { versionNegotiation: { mode: { pin: '2026-07-28' } } },
+      );
+      await client.connect(
+        new StreamableHTTPClientTransport(hostedProcess.endpoint, {
+          fetch: loopbackFetch,
+        }),
+      );
+      expect((await client.listTools()).tools.map(({ name }) => name)).toEqual([
+        GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+      ]);
+
+      const valid = await client.callTool({
+        name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+        arguments: validRequest,
+      });
+      expect(valid.isError).not.toBe(true);
+      expect(valid.structuredContent).toMatchObject({
+        outcome: 'recommend',
+        responsibleOptions: [{ candidateId: BACKGROUND_JOB_FINALISTS[0] }],
+      });
+      expect(hardResolutionStates(valid.structuredContent)).toMatchObject({
+        [BACKGROUND_JOB_FINALISTS[0]]: [
+          'satisfied',
+          'satisfied',
+          'satisfied',
+          'satisfied',
+        ],
+        [BACKGROUND_JOB_FINALISTS[1]]: [
+          'satisfied',
+          'conflict',
+          'satisfied',
+          'satisfied',
+        ],
+        [BACKGROUND_JOB_FINALISTS[2]]: [
+          'unresolved',
+          'unresolved',
+          'unresolved',
+          'unresolved',
+        ],
+      });
+      expect(
+        responsibleOptionCount(valid.structuredContent),
+      ).toBeLessThanOrEqual(3);
+
+      for (const request of [
+        invalidUnresolvedRequest,
+        invalidConflictRequest,
+      ]) {
+        expect(
+          await client.callTool({
+            name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+            arguments: request,
+          }),
+        ).toMatchObject({
+          isError: true,
+          content: [{ type: 'text', text: 'GitBlocks recommendation failed.' }],
+        });
+      }
+      expect(model).toHaveBeenCalledTimes(3);
+      expect(
+        model.mock.calls.every(
+          ([input]) =>
+            input.retrievalFinalists.length === 5 &&
+            input.retrievalFinalists.every(
+              ({ lane }) => lane === 'evidence-needed',
+            ),
+        ),
+      ).toBe(true);
+      expect(
+        model.mock.calls[0]?.[0].retrievalFinalists.map(
+          ({ candidateId }) => candidateId,
+        ),
+      ).toEqual(BACKGROUND_JOB_FINALISTS);
+    } finally {
+      await Promise.all([
+        client?.close(),
+        hostedProcess?.close(),
+        closePersistenceClient(writer),
+      ]);
+    }
+  });
 });
 
 interface ScannerResult {
@@ -360,10 +496,11 @@ function executeScanner(
 }
 
 function bindRepositoryFact(
-  response: TargetFitAssessmentResponseV1,
+  response: RecommendationAssessmentResponseV1,
   repositoryFactId: string,
 ): void {
-  const binding = response.inferenceRepositoryFactBindings[0];
+  const binding =
+    response.targetFitAssessment.inferenceRepositoryFactBindings[0];
   if (binding !== undefined) {
     binding.repositoryFactIds = [repositoryFactId];
   }
@@ -427,6 +564,169 @@ async function seedFinalistEvidence(client: PersistenceClient): Promise<void> {
   }
 }
 
+async function seedBackgroundJobFinalistEvidence(
+  client: PersistenceClient,
+): Promise<void> {
+  const { profiles } = await loadAcceptedAuthorities();
+  const profileById = new Map(
+    profiles.profiles.map((profile) => [
+      profile.candidateId,
+      profile as unknown as DeterministicCandidateProfile,
+    ]),
+  );
+  for (const [index, candidateId] of BACKGROUND_JOB_FINALISTS.entries()) {
+    const profile = profileById.get(candidateId);
+    if (profile === undefined)
+      throw new Error('R8 finalist profile is missing.');
+    const family = knownField(profile, 'capability-family').value.primaryFamily;
+    const base = candidateDossier(candidateId, EVIDENCE_CUTOFF, {
+      capabilityFamily: family,
+    });
+    const observation = base.observations[0];
+    if (observation === undefined) throw new Error('R8 evidence is missing.');
+    const dossier = {
+      ...base,
+      identity: profileIdentity(profile),
+      observations: [
+        {
+          ...observation,
+          observation:
+            index === 0
+              ? 'Synthetic official-repository evidence states automatic retry with configurable backoff, no Redis requirement, and current Node.js support.'
+              : index === 1
+                ? 'Synthetic official-repository evidence states automatic retry support and a required Redis service.'
+                : 'Synthetic official-repository evidence describes durable worker processing but is silent about retry and Redis requirements.',
+        },
+      ],
+    };
+    for (const candidateObservation of dossier.observations) {
+      await appendEvidenceObservation(client, {
+        observation: candidateObservation,
+        createdAt: EVIDENCE_CREATED_AT,
+      });
+    }
+    for (const limitation of dossier.limitations) {
+      await appendCandidateLimitation(client, {
+        limitation,
+        createdAt: EVIDENCE_CREATED_AT,
+      });
+    }
+    for (const unknown of dossier.unknowns) {
+      await appendCandidateUnknown(client, {
+        unknown,
+        createdAt: EVIDENCE_CREATED_AT,
+      });
+    }
+  }
+}
+
+function controlledEvidenceNeededResponse(
+  input: FitAssessmentModelRequestV1,
+): RecommendationAssessmentResponseV1 {
+  const response = structuredClone(groundedModelResponse(input));
+  const candidateId = input.retrievalFinalists[1]?.candidateId;
+  if (candidateId === undefined)
+    throw new Error('R8 conflict finalist is missing.');
+  const dossier = input.fitAssessmentRequest.candidates.find(
+    ({ identity }) => identity.candidateId === candidateId,
+  );
+  const evidence = dossier?.observations[0];
+  const assessment =
+    response.targetFitAssessment.fitAssessment.candidateAssessments.find(
+      (candidate) => candidate.candidateId === candidateId,
+    );
+  const resolutions = response.evidenceNeededHardConstraintResolutions.filter(
+    (resolution) => resolution.candidateId === candidateId,
+  );
+  const reason = assessment?.reasons[0];
+  if (
+    evidence === undefined ||
+    assessment === undefined ||
+    reason === undefined ||
+    resolutions.length === 0
+  ) {
+    throw new Error('R8 controlled conflict input is incomplete.');
+  }
+  const inferenceId = `inference-hard-resolution-${candidateId}`;
+  response.targetFitAssessment.fitAssessment.inferences.push({
+    kind: 'inference',
+    inferenceId,
+    candidateId,
+    topic: 'hard-constraint-resolution',
+    statement:
+      'The supplied candidate evidence establishes the hard-constraint state.',
+    rationale:
+      'The resolution uses only the supplied candidate-owned observation.',
+    evidenceIds: [evidence.evidenceId],
+  });
+  assessment.disposition = 'rejected';
+  assessment.inferenceIds = [inferenceId];
+  reason.inferenceIds = [inferenceId];
+  for (const resolution of resolutions) {
+    resolution.state = 'satisfied';
+    resolution.inferenceIds = [inferenceId];
+  }
+  const conflictResolution = resolutions.find((resolution) => {
+    const normalized = input.normalization.normalizedConstraints.find(
+      ({ normalizedConstraintId }) =>
+        normalizedConstraintId === resolution.evaluationId,
+    );
+    return normalized?.sourceConstraintIds.includes('no-redis') === true;
+  });
+  if (conflictResolution === undefined) {
+    throw new Error('R8 Redis conflict resolution is missing.');
+  }
+  conflictResolution.state = 'conflict';
+  const conflictId = `conflict-${candidateId}-redis`;
+  assessment.hardConstraintConflictIds = [conflictId];
+  reason.reasonCode = 'redis-unavailable';
+  response.targetFitAssessment.fitAssessment.hardConstraintConflicts.push({
+    conflictId,
+    candidateId,
+    constraintId: 'no-redis',
+    reasonCode: 'redis-unavailable',
+    evidenceIds: [evidence.evidenceId],
+  });
+  return response;
+}
+
+function promoteUnresolvedCandidate(
+  response: RecommendationAssessmentResponseV1,
+): void {
+  const unresolved = response.evidenceNeededHardConstraintResolutions.find(
+    ({ state }) => state === 'unresolved',
+  );
+  const assessment =
+    response.targetFitAssessment.fitAssessment.candidateAssessments.find(
+      ({ candidateId }) => candidateId === unresolved?.candidateId,
+    );
+  if (assessment !== undefined) assessment.disposition = 'viable';
+}
+
+function promoteConflictCandidate(
+  response: RecommendationAssessmentResponseV1,
+): void {
+  const conflict = response.evidenceNeededHardConstraintResolutions.find(
+    ({ state }) => state === 'conflict',
+  );
+  const assessment =
+    response.targetFitAssessment.fitAssessment.candidateAssessments.find(
+      ({ candidateId }) => candidateId === conflict?.candidateId,
+    );
+  if (assessment !== undefined) assessment.disposition = 'viable';
+}
+
+function recommendationRequestId(
+  fixture: OssRecommendationRequestV1,
+  id: string,
+): OssRecommendationRequestV1 {
+  return {
+    ...fixture,
+    recommendationRequestId: id,
+    capabilityQuery: { ...fixture.capabilityQuery, queryInputId: id },
+  };
+}
+
 function profileIdentity(profile: DeterministicCandidateProfile) {
   const repository = knownField(profile, 'repository-identity');
   const packageMapping = knownField(profile, 'package-identity-mapping');
@@ -461,8 +761,8 @@ function knownField<
   return field;
 }
 
-function inventRepositoryFact(value: TargetFitAssessmentResponseV1): void {
-  const binding = value.inferenceRepositoryFactBindings[0];
+function inventRepositoryFact(value: RecommendationAssessmentResponseV1): void {
+  const binding = value.targetFitAssessment.inferenceRepositoryFactBindings[0];
   if (binding !== undefined) binding.repositoryFactIds = ['fact-invented'];
 }
 
@@ -473,6 +773,43 @@ function responsibleOptionCount(value: unknown): number {
     Array.isArray(value.responsibleOptions)
     ? value.responsibleOptions.length
     : 0;
+}
+
+function hardResolutionStates(
+  value: unknown,
+): Readonly<Record<string, readonly string[]>> {
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    !('evidenceNeededHardConstraintResolutions' in value) ||
+    !Array.isArray(value.evidenceNeededHardConstraintResolutions)
+  ) {
+    return {};
+  }
+  const resolutions: readonly unknown[] =
+    value.evidenceNeededHardConstraintResolutions;
+  const states: Record<string, string[]> = {};
+  for (const resolution of resolutions) {
+    const parsed = plainRecord(resolution);
+    const candidateId = parsed?.['candidateId'];
+    const state = parsed?.['state'];
+    if (typeof candidateId !== 'string' || typeof state !== 'string') {
+      continue;
+    }
+    const candidateStates = states[candidateId] ?? [];
+    candidateStates.push(state);
+    states[candidateId] = candidateStates;
+  }
+  return states;
+}
+
+function plainRecord(value: unknown): Readonly<Record<string, unknown>> | null {
+  return typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.getPrototypeOf(value) === Object.prototype
+    ? (value as Readonly<Record<string, unknown>>)
+    : null;
 }
 
 async function resetDatabase(): Promise<void> {

@@ -1,6 +1,6 @@
 import type {
   CandidateRetrievalResultV1,
-  TargetFitAssessmentResponseV1,
+  RecommendationAssessmentResponseV1,
 } from '@gitblocks/contracts';
 import type { CandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
 import { describe, expect, it, vi } from 'vitest';
@@ -8,12 +8,14 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   HOSTED_FIT_FINALIST_LIMIT,
   HOSTED_RESPONSIBLE_OPTION_LIMIT,
+  selectHostedRetrievalFinalistsV1,
   type FitAssessmentModelRequestV1,
 } from '../src/application.ts';
 import {
   candidateDossier,
   acceptedRetrievalResult,
   createAcceptedApplication,
+  frozenBackgroundJobsDogfoodRequest,
   groundedModelResponse,
   recommendationRequest,
   TEST_EVIDENCE_CUTOFF,
@@ -72,6 +74,16 @@ describe('hosted OSS recommendation application', () => {
     expect(outcome.result.responsibleOptions.length).toBeLessThanOrEqual(
       HOSTED_RESPONSIBLE_OPTION_LIMIT,
     );
+    expect(modelInputs[0]?.retrievalFinalists).toHaveLength(
+      HOSTED_FIT_FINALIST_LIMIT,
+    );
+    expect(
+      modelInputs[0]?.retrievalFinalists.every(
+        ({ lane, unresolvedHardEvaluations }) =>
+          lane === 'eligible' && unresolvedHardEvaluations.length === 0,
+      ),
+    ).toBe(true);
+    expect(outcome.result.evidenceNeededHardConstraintResolutions).toEqual([]);
   });
 
   it.each([
@@ -100,82 +112,98 @@ describe('hosted OSS recommendation application', () => {
     },
   );
 
-  it('keeps deterministic evidence-needed candidates out of the model and returns insufficient evidence when none are eligible', async () => {
-    const loader = vi.fn();
+  it('uses the current production authorities for the frozen dogfood regression and loads the first five evidence-needed finalists before the no-evidence stop', async () => {
+    // This freezes current production-authority behavior, not ranking gold or a
+    // claim that these candidates are good recommendations.
+    const request = frozenBackgroundJobsDogfoodRequest();
+    const retrieval = await acceptedRetrievalResult(request);
+    const loadedCandidateIds: string[] = [];
+    const expectedFirstFive = [
+      'jobs-actionhero-node-resque',
+      'jobs-asynq',
+      'jobs-bree',
+      'jobs-bullmq',
+      'jobs-node-cron',
+    ];
     const model = vi.fn();
     const application = await createAcceptedApplication({
-      dossierLoader: { loadActiveCandidateDossier: loader },
+      dossierLoader: {
+        loadActiveCandidateDossier: (command) => {
+          loadedCandidateIds.push(command.candidateId);
+          return Promise.resolve(
+            candidateDossier(command.candidateId, command.evidenceCutoff, {
+              capabilityFamily: command.expectedCapabilityFamily,
+              emptyEvidence: true,
+            }),
+          );
+        },
+      },
       fitModel: { assess: model },
     });
-    const result = await application.recommendOss(
-      recommendationRequest({
-        id: 'recommend-evidence-needed',
-        term: 'authorization',
-        constraints: [
-          {
-            constraintId: 'in-process-required',
-            modality: 'required',
-            statement: 'The candidate must be an in-process library.',
-            originalTerm: 'in-process-authorization-library',
-            facetHint: 'architecture',
-            reasonCode: 'required-architecture',
-          },
-        ],
-      }),
-    );
+    const result = await application.recommendOss(request);
 
+    expect(retrieval.eligibleCandidates).toHaveLength(0);
+    expect(retrieval.preRetrievalLaneCounts).toMatchObject({
+      eligible: 0,
+      'evidence-needed': 29,
+    });
+    expect(retrieval.evidenceNeededCandidates).toHaveLength(10);
+    expect(
+      retrieval.evidenceNeededCandidates
+        .slice(0, HOSTED_FIT_FINALIST_LIMIT)
+        .map(({ candidateId }) => candidateId),
+    ).toEqual(expectedFirstFive);
     expect(result).toMatchObject({
       ok: true,
       result: {
         outcome: 'insufficient-evidence',
-        reasonCode: 'deterministic-evidence-needed',
+        reasonCode: 'no-positive-candidate-evidence',
+        normalization: { primaryFamilyId: 'background-jobs' },
         shortlist: { eligibleCandidates: [] },
       },
     });
-    if (result.ok && 'shortlist' in result.result) {
-      expect(
-        result.result.shortlist.evidenceNeededCandidates.length,
-      ).toBeGreaterThan(0);
-    }
-    expect(loader).not.toHaveBeenCalled();
+    if (!result.ok) return;
+    expect(result.result.normalization.normalizedConstraints).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ modality: 'required', conceptId: 'retries' }),
+        expect.objectContaining({ modality: 'prohibited', conceptId: 'redis' }),
+      ]),
+    );
+    expect(loadedCandidateIds).toEqual(expectedFirstFive);
     expect(model).not.toHaveBeenCalled();
   });
 
-  it('never supplies an evidence-needed lane candidate when eligible finalists exist', async () => {
+  it('fills remaining finalist slots from the evidence-needed lane without displacing eligible finalists', async () => {
     const eligible = await acceptedRetrievalResult(
       recommendationRequest({ id: 'eligible-base', term: 'authorization' }),
     );
-    const evidenceNeeded = await acceptedRetrievalResult(
-      recommendationRequest({
-        id: 'uncertain-base',
-        term: 'authorization',
-        constraints: [
-          {
-            constraintId: 'in-process-required',
-            modality: 'required',
-            statement: 'The candidate must be an in-process library.',
-            originalTerm: 'in-process-authorization-library',
-            facetHint: 'architecture',
-            reasonCode: 'required-architecture',
-          },
-        ],
-      }),
-    );
-    const eligibleCandidates = eligible.eligibleCandidates.slice(0, 2);
+    const laneRequest = recommendationRequest({
+      id: 'lane-authority',
+      term: 'authorization',
+      constraints: [
+        {
+          constraintId: 'in-process-required',
+          modality: 'required',
+          statement: 'The candidate must be an in-process library.',
+          originalTerm: 'in-process-authorization-library',
+          facetHint: 'architecture',
+          reasonCode: 'required-architecture',
+        },
+      ],
+    });
+    const evidenceNeeded = await acceptedRetrievalResult(laneRequest);
+    const eligibleCandidates = eligible.eligibleCandidates.slice(0, 3);
     const eligibleIds = new Set(
       eligibleCandidates.map(({ candidateId }) => candidateId),
     );
-    const evidenceNeededCandidate =
-      evidenceNeeded.evidenceNeededCandidates.find(
-        ({ candidateId }) => !eligibleIds.has(candidateId),
-      );
-    if (evidenceNeededCandidate === undefined) {
-      throw new Error('Distinct evidence-needed fixture was unavailable.');
-    }
+    const evidenceNeededCandidates = evidenceNeeded.evidenceNeededCandidates
+      .filter(({ candidateId }) => !eligibleIds.has(candidateId))
+      .slice(0, 2);
+    expect(evidenceNeededCandidates).toHaveLength(2);
     const combined: CandidateRetrievalResultV1 = {
       ...eligible,
       eligibleCandidates,
-      evidenceNeededCandidates: [evidenceNeededCandidate],
+      evidenceNeededCandidates,
     };
     const modelInputs: FitAssessmentModelRequestV1[] = [];
     const application = await createAcceptedApplication({
@@ -188,9 +216,7 @@ describe('hosted OSS recommendation application', () => {
       },
     });
 
-    const result = await application.recommendOss(
-      recommendationRequest({ id: 'lane-authority', term: 'authorization' }),
-    );
+    const result = await application.recommendOss(laneRequest);
     expect(result).toMatchObject({
       ok: true,
       result: { outcome: 'recommend' },
@@ -200,15 +226,74 @@ describe('hosted OSS recommendation application', () => {
         ({ identity }) => identity.candidateId,
       ),
     ).toEqual(
-      combined.eligibleCandidates.map(({ candidateId }) => candidateId),
+      [
+        ...combined.eligibleCandidates,
+        ...combined.evidenceNeededCandidates,
+      ].map(({ candidateId }) => candidateId),
     );
-    expect(
-      modelInputs[0]?.fitAssessmentRequest.candidates.some(
-        ({ identity }) =>
-          identity.candidateId ===
-          combined.evidenceNeededCandidates[0]?.candidateId,
-      ),
-    ).toBe(false);
+    expect(modelInputs[0]?.retrievalFinalists.map(({ lane }) => lane)).toEqual([
+      'eligible',
+      'eligible',
+      'eligible',
+      'evidence-needed',
+      'evidence-needed',
+    ]);
+  });
+
+  it('selects deterministic eligible-first finalists, never admits a candidate outside either lane, and never exceeds five', async () => {
+    const eligible = await acceptedRetrievalResult(
+      recommendationRequest({
+        id: 'selection-eligible',
+        term: 'authorization',
+      }),
+    );
+    const evidence = await acceptedRetrievalResult(
+      frozenBackgroundJobsDogfoodRequest(),
+    );
+    const cases = [
+      {
+        eligibleCandidates: eligible.eligibleCandidates.slice(0, 6),
+        evidenceNeededCandidates: evidence.evidenceNeededCandidates,
+        expectedLanes: Array(5).fill('eligible'),
+      },
+      {
+        eligibleCandidates: eligible.eligibleCandidates.slice(0, 3),
+        evidenceNeededCandidates: evidence.evidenceNeededCandidates,
+        expectedLanes: [
+          'eligible',
+          'eligible',
+          'eligible',
+          'evidence-needed',
+          'evidence-needed',
+        ],
+      },
+      {
+        eligibleCandidates: [],
+        evidenceNeededCandidates: evidence.evidenceNeededCandidates,
+        expectedLanes: Array(5).fill('evidence-needed'),
+      },
+    ];
+
+    for (const candidateCase of cases) {
+      const selected = selectHostedRetrievalFinalistsV1(candidateCase);
+      expect(selected).toHaveLength(5);
+      expect(selected.map(({ lane }) => lane)).toEqual(
+        candidateCase.expectedLanes,
+      );
+      expect(selected.map(({ candidateId }) => candidateId)).toEqual(
+        [
+          ...candidateCase.eligibleCandidates,
+          ...candidateCase.evidenceNeededCandidates,
+        ]
+          .slice(0, 5)
+          .map(({ candidateId }) => candidateId),
+      );
+      expect(
+        selected.some(
+          ({ candidateId }) => candidateId === 'excluded-candidate',
+        ),
+      ).toBe(false);
+    }
   });
 
   it('returns no viable candidate without evidence or model effects when deterministic retrieval has no candidates', async () => {
@@ -326,30 +411,35 @@ function fixedEngine(
   });
 }
 
-function restoreCandidate(value: TargetFitAssessmentResponseV1): void {
-  value.fitAssessment.suppliedCandidateIds[0] = 'candidate-invented';
+function restoreCandidate(value: RecommendationAssessmentResponseV1): void {
+  value.targetFitAssessment.fitAssessment.suppliedCandidateIds[0] =
+    'candidate-invented';
 }
 
-function inventEvidence(value: TargetFitAssessmentResponseV1): void {
-  const first = value.fitAssessment.evidence[0];
+function inventEvidence(value: RecommendationAssessmentResponseV1): void {
+  const first = value.targetFitAssessment.fitAssessment.evidence[0];
   if (first !== undefined) first.observation = 'Invented evidence text.';
 }
 
-function dropEvidence(value: TargetFitAssessmentResponseV1): void {
-  value.fitAssessment.evidence = value.fitAssessment.evidence.slice(1);
+function dropEvidence(value: RecommendationAssessmentResponseV1): void {
+  value.targetFitAssessment.fitAssessment.evidence =
+    value.targetFitAssessment.fitAssessment.evidence.slice(1);
 }
 
-function inventRepositoryFact(value: TargetFitAssessmentResponseV1): void {
-  const first = value.inferenceRepositoryFactBindings[0];
+function inventRepositoryFact(value: RecommendationAssessmentResponseV1): void {
+  const first = value.targetFitAssessment.inferenceRepositoryFactBindings[0];
   if (first !== undefined) first.repositoryFactIds = ['fact-invented'];
 }
 
-function addPositiveHardConflict(value: TargetFitAssessmentResponseV1): void {
-  const assessment = value.fitAssessment.candidateAssessments[0];
-  const evidence = value.fitAssessment.evidence[0];
+function addPositiveHardConflict(
+  value: RecommendationAssessmentResponseV1,
+): void {
+  const assessment =
+    value.targetFitAssessment.fitAssessment.candidateAssessments[0];
+  const evidence = value.targetFitAssessment.fitAssessment.evidence[0];
   if (assessment === undefined || evidence === undefined) return;
   assessment.hardConstraintConflictIds = ['conflict-invented'];
-  value.fitAssessment.hardConstraintConflicts = [
+  value.targetFitAssessment.fitAssessment.hardConstraintConflicts = [
     {
       conflictId: 'conflict-invented',
       candidateId: assessment.candidateId,

@@ -11,15 +11,20 @@ the pure six-channel `@gitblocks/retrieval` engine, Recovery R3's immutable
 PostgreSQL serving snapshots plus offline accepted-catalog bootstrap, and
 Recovery R4's in-process hosted discovery application, Recovery R5's
 loopback-only MCP Streamable HTTP process, Recovery R6's hosted
-codebase-conditioned OSS recommendation operation, and Recovery R7's portable
-Agent Skill plus bounded local repository scanner. R6 adds request-scoped
+codebase-conditioned OSS recommendation operation, Recovery R7's portable
+Agent Skill plus bounded local repository scanner, and Recovery R8's bounded
+evidence-needed finalist resolution inside the existing recommendation
+operation. R6 adds request-scoped
 fingerprint binding, finalist evidence reads, a narrow target-fit model port,
 one bounded OpenAI Responses adapter, deterministic target-fact and fit-exchange
 validation, and the singular `recommend_oss` product tool. R7 adds deterministic
 manifest-first `RepositoryFingerprintV1` production, exact authoritative
 fingerprint-reference digest parity, transmission preview and approval, honest
 outcome presentation, and post-selection adoption procedure without changing
-the hosted recommendation path. The evaluation
+the hosted recommendation path. R8 preserves deterministic retrieval, selects
+eligible finalists first and then fills remaining slots up to five from the
+ordered evidence-needed lane, and validates explicit candidate-evidence-backed
+hard-evaluation resolutions before accepting target-fit output. The evaluation
 harness and repository checks remain development support. Repository
 interviews, artifact generation for finalist assessment, and Phase 8 live
 materialization proof machinery are not part of the serving path. Phase 10 is
@@ -85,23 +90,28 @@ For target-conditioned fit, the approved reasoning order is:
 capability request
   -> deterministic normalization
   -> deterministic hard filtering and retrieval
-  -> small finalist set
+  -> eligible-first, evidence-needed-fill finalist set (maximum five)
   -> bounded candidate evidence load
-  -> LLM target-fit reasoning
-  -> FitAssessmentResponseV1-shaped output
-  -> deterministic contract, hard-constraint, and evidence validation
+  -> one LLM hard-resolution and target-fit assessment
+  -> RecommendationAssessmentResponseV1
+  -> deterministic exact-coverage, source-binding, hard-constraint, evidence, and target-fit validation
   -> up to three responsible options
 ```
 
-The LLM performs neither open-world candidate discovery nor hard-constraint
-authority. It cannot restore a deterministically excluded candidate,
-manufacture missing evidence, or override a contract failure. Unknown or
-insufficient evidence remains a responsible product result.
+The LLM performs neither open-world candidate discovery nor deterministic
+retrieval. It cannot restore a deterministically excluded candidate,
+manufacture missing evidence, or override a contract failure. For an
+evidence-needed finalist it must resolve every disclosed unresolved hard
+evaluation exactly once. Satisfied and conflict resolutions require
+candidate-owned supplied evidence through referenced inferences; missing or
+silent evidence remains unresolved. A conflict is rejected and unranked, any
+unresolved evaluation makes the candidate insufficient and unranked, and only
+all-satisfied candidates may proceed to the unchanged target-fit authority.
 
 A user request runs only the hosted request path and may read PostgreSQL
 directly where the use case requires it or use a process-local immutable search
 view. R6 loads the retrieval snapshot only at startup and performs only bounded
-active-dossier SELECTs plus one target-fit model call per eligible request. A request
+active-dossier SELECTs plus at most one target-fit model call per assessed request. A request
 must not run ingestion, provider collection, migrations, Docker, evaluation,
 artifact generation, repository interviews, materialization proof machinery,
 replay, or authority generation. The initial architecture does not require Redis, queues or worker
@@ -193,12 +203,15 @@ The approved workflow is:
    normalizes the bounded request or fails closed with exact clarification
    reasons. Once the authoritative request is approved, it loads one coherent
    PostgreSQL catalog snapshot, eliminates known hard conflicts, and retrieves
-   a small finalist set through the deterministic engine.
+   ordered eligible and evidence-needed lanes through the deterministic engine.
 5. **Assess adoption fit.** The application loads bounded candidate evidence
-   for those finalists only. A bounded LLM reasons about target fit and emits a
-   `FitAssessmentResponseV1`-shaped result; deterministic code then validates
-   the response, hard constraints, evidence references, and responsible-outcome
-   rules. Repository interviews are not required in this serving path.
+   for the first five eligible finalists, filling unused slots from the ordered
+   evidence-needed lane. A bounded LLM resolves every disclosed unresolved hard
+   evaluation and reasons about target fit in one response. Deterministic code
+   then validates exact resolution coverage, normalization/source binding,
+   candidate-owned evidence, the unchanged target-fit exchange, and
+   responsible-outcome rules. Repository interviews are not required in this
+   serving path.
 6. **Explain up to three options.** The coding agent receives at most three
    responsible options with evidence references, preserved candidate
    limitations, tradeoffs, material unknowns, and reasons for exclusion or
@@ -275,9 +288,13 @@ identity must agree with the profile's known mapped/unmapped package value.
 
 Candidate constraint evaluation for one profile and one accepted normalized
 query is satisfied, conflict, or unresolved.
-Unresolved is neither satisfied nor conflict: such a candidate is not viable
-and must not be recommended, although it may remain in a separately typed
-evidence-needed lane with the unresolved constraint disclosed. Phase 8
+Unresolved is neither satisfied nor conflict: at deterministic retrieval such
+a candidate is not eligible and remains in a separately typed evidence-needed
+lane with the unresolved constraint disclosed. R8 may select that candidate
+only after eligible finalists and may clear the retrieval uncertainty only
+when bounded candidate-owned evidence resolves every disclosed evaluation as
+satisfied. A conflict stays rejected; any unresolved evaluation keeps the
+candidate insufficient and unranked. Phase 8
 evaluation authority remains independent of fixed-candidate ranking gold and
 repository-interview audit data, and product packages must not import it.
 The current exact mappings are primary family, architecture to adoption unit,

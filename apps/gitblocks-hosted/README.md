@@ -8,16 +8,24 @@ keeps the same database client for bounded finalist-evidence reads.
 `recommendOss(...)` accepts `OssRecommendationRequestV1`, verifies the supplied
 `RepositoryFingerprintV1` ID and content digest, normalizes the existing
 capability query, retrieves and hard-filters deterministically, and passes only
-the first five eligible finalists to evidence loading. Evidence-needed
-candidates never enter fit assessment. Clarification, unsupported, no-result,
-and deterministic insufficient-evidence outcomes return before a model call.
+the first five eligible finalists to evidence loading, filling any remaining
+slots from the ordered evidence-needed lane without comparing scores across
+lanes. Excluded candidates never enter fit assessment. Clarification,
+unsupported, and no-result outcomes return before a model call.
 
-For eligible finalists, the operation captures one trusted evidence cutoff,
+For the resulting at-most-five finalists, the operation captures one trusted evidence cutoff,
 loads active `CandidateDossierV1` evidence, limitations, and unknowns from the
-existing PostgreSQL model, and makes at most one target-fit model call. Model
-output is untrusted until the existing fit exchange and the R6 repository-fact
-bindings validate it. Successful results contain at most three responsible
-options and retain the full validated target-fit assessment for traceability.
+existing PostgreSQL model. If every finalist dossier has zero observations, it
+returns `insufficient-evidence` without a model call. Otherwise it makes at
+most one target-fit model call. The additive
+`RecommendationAssessmentResponseV1` wraps the unchanged
+`TargetFitAssessmentResponseV1` and resolves every selected evidence-needed
+hard evaluation exactly once as `satisfied`, `conflict`, or `unresolved`.
+Canonical validation requires candidate-owned evidence grounding for
+`satisfied` and `conflict`, rejects and un-ranks conflicts, and keeps any
+unresolved candidate insufficient and unranked. Successful results contain at
+most three responsible options and retain both the validated target-fit
+assessment and hard-resolution records for traceability.
 
 The MCP adapter exposes exactly one product tool, `recommend_oss`, using the
 authoritative recommendation-request JSON Schema. It only transports the
@@ -51,7 +59,9 @@ The authoritative `TargetFitAssessmentResponseV1` schema remains unchanged.
 The OpenAI adapter sends a fresh provider-compatible projection that removes
 only `$id`, `$schema`, `uniqueItems`, `minLength`, and `maxLength`. Canonical
 GitBlocks parsing and deterministic exchange validation re-enforce uniqueness,
-string bounds, and semantic invariants after every untrusted provider response.
+string bounds, exact resolution coverage, normalization/source binding,
+candidate/evidence ownership, and semantic invariants after every untrusted
+provider response.
 No model alias, fine-tuned model, retry, routing, fallback, or automatic
 escalation is supported.
 
@@ -77,5 +87,5 @@ listener before the PostgreSQL client.
 Request handling never migrates or writes PostgreSQL, reloads the serving
 snapshot, runs ingestion or public-source collection, activates artifacts or
 repository interviews, executes candidate code, or invokes evaluation. The
-future local scanner, GitBlocks Skill, approval/presentation workflow, and
-integration path remain Recovery R7 work.
+checked-in R7 scanner and Skill remain separate local components; R8 changes
+neither one.

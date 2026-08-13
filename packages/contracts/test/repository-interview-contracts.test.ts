@@ -1172,6 +1172,7 @@ describe('schema compatibility', () => {
       'candidate-retrieval-metadata-authority',
       'oss-recommendation-request',
       'target-fit-assessment-response',
+      'recommendation-assessment-response',
     ]);
     for (const [name, digest] of Object.entries(EXISTING_SCHEMA_DIGESTS)) {
       expect(

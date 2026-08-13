@@ -7,12 +7,16 @@ import {
   getContractSchemaV1,
   normalizeCapabilityQueryV1,
   parseOssRecommendationRequestV1,
+  parseRecommendationAssessmentResponseV1,
   parseTargetFitAssessmentResponseV1,
   repositoryFingerprintDigestV1,
+  validateRecommendationAssessmentExchangeV1,
   validateTargetFitAssessmentExchangeV1,
   type CapabilityQueryInputV1,
   type CapabilityTaxonomyV1,
   type OssRecommendationRequestV1,
+  type RecommendationAssessmentResponseV1,
+  type RecommendationRetrievalFinalistV1,
   type TargetFitAssessmentResponseV1,
 } from '../src/index.ts';
 import {
@@ -21,6 +25,7 @@ import {
   createFitAssessmentRequest,
   createFitAssessmentResponse,
   createRepositoryFingerprint,
+  type MutableValue,
 } from './fixtures.ts';
 
 const taxonomyFixture = readFile(
@@ -280,6 +285,378 @@ describe('TargetFitAssessmentResponseV1 repository grounding', () => {
     ).toMatchObject({ ok: false });
   });
 });
+
+describe('RecommendationAssessmentResponseV1', () => {
+  it('wraps the immutable target-fit response with additive hard resolutions', () => {
+    const { response: targetFitAssessment } = createGroundedExchange();
+    const response: RecommendationAssessmentResponseV1 = {
+      contractVersion: '1.0.0',
+      targetFitAssessment,
+      evidenceNeededHardConstraintResolutions: [],
+    };
+
+    expect(parseRecommendationAssessmentResponseV1(response)).toMatchObject({
+      ok: true,
+    });
+    expect(
+      getContractSchemaV1('recommendation-assessment-response'),
+    ).toMatchObject({
+      $id: 'https://gitblocks.dev/schemas/contracts/recommendation-assessment-response/1.0.0',
+      additionalProperties: false,
+    });
+  });
+
+  it('accepts exact evidence-needed coverage grounded in candidate-owned inferences', async () => {
+    const exchange = await createHardResolutionExchange();
+    expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
+      ok: true,
+    });
+  });
+
+  it('binds preserved-declaration evaluations by exact original constraint ID', async () => {
+    const exchange = await createHardResolutionExchange([
+      {
+        constraintId: 'custom-runtime-required',
+        modality: 'required',
+        statement: 'The candidate must use the declared custom runtime.',
+        originalTerm: 'custom-runtime',
+        facetHint: 'runtime',
+        reasonCode: 'custom-runtime-required',
+      },
+    ]);
+    expect(
+      exchange.retrievalFinalists[1]?.unresolvedHardEvaluations.map(
+        ({ sourceKind }) => sourceKind,
+      ),
+    ).toEqual(['normalized-constraint', 'preserved-declaration']);
+    expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
+      ok: true,
+    });
+  });
+
+  it.each([
+    [
+      'missing resolution',
+      (exchange: HardResolutionExchange) => {
+        exchange.response.evidenceNeededHardConstraintResolutions.pop();
+      },
+    ],
+    [
+      'duplicate resolution',
+      (exchange: HardResolutionExchange) => {
+        exchange.response.evidenceNeededHardConstraintResolutions.push(
+          cloneValue(
+            exchange.response.evidenceNeededHardConstraintResolutions[0]!,
+          ),
+        );
+      },
+    ],
+    [
+      'invented evaluation',
+      (exchange: HardResolutionExchange) => {
+        exchange.response.evidenceNeededHardConstraintResolutions[0]!.evaluationId =
+          'evaluation-invented';
+      },
+    ],
+    [
+      'wrong candidate pairing',
+      (exchange: HardResolutionExchange) => {
+        exchange.response.evidenceNeededHardConstraintResolutions[0]!.candidateId =
+          'candidate-beta';
+      },
+    ],
+    [
+      'eligible candidate resolution',
+      (exchange: HardResolutionExchange) => {
+        exchange.response.evidenceNeededHardConstraintResolutions.push({
+          candidateId: 'candidate-beta',
+          evaluationId: 'evaluation-invented',
+          state: 'unresolved',
+          inferenceIds: [],
+        });
+      },
+    ],
+    [
+      'non-finalist resolution',
+      (exchange: HardResolutionExchange) => {
+        exchange.response.evidenceNeededHardConstraintResolutions.push({
+          candidateId: 'candidate-outside',
+          evaluationId: 'evaluation-invented',
+          state: 'unresolved',
+          inferenceIds: [],
+        });
+      },
+    ],
+    [
+      'satisfied without inference grounding',
+      (exchange: HardResolutionExchange) => {
+        exchange.response.evidenceNeededHardConstraintResolutions[0]!.inferenceIds =
+          [];
+      },
+    ],
+    [
+      'inference owned by another candidate',
+      (exchange: HardResolutionExchange) => {
+        exchange.response.targetFitAssessment.fitAssessment.inferences[0]!.candidateId =
+          'candidate-beta';
+      },
+    ],
+    [
+      'normalization source mismatch',
+      (exchange: HardResolutionExchange) => {
+        exchange.retrievalFinalists[1]!.unresolvedHardEvaluations[0]!.conceptId =
+          'concept-invented';
+      },
+    ],
+  ] as const)('rejects %s', async (_name, mutate) => {
+    const exchange = await createHardResolutionExchange();
+    mutate(exchange);
+    expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
+      ok: false,
+    });
+  });
+
+  it.each(['recommended', 'viable'] as const)(
+    'rejects an unresolved hard evaluation with %s disposition',
+    async (disposition) => {
+      const exchange = await createHardResolutionExchange();
+      exchange.response.evidenceNeededHardConstraintResolutions[0]!.state =
+        'unresolved';
+      exchange.response.evidenceNeededHardConstraintResolutions[0]!.inferenceIds =
+        [];
+      exchange.response.targetFitAssessment.fitAssessment.candidateAssessments[0]!.disposition =
+        disposition;
+      expect(
+        validateRecommendationAssessmentExchangeV1(exchange),
+      ).toMatchObject({ ok: false });
+    },
+  );
+
+  it('rejects partial satisfaction for a positive evidence-needed candidate', async () => {
+    const exchange = await createHardResolutionExchange();
+    exchange.response.evidenceNeededHardConstraintResolutions[1]!.state =
+      'unresolved';
+    exchange.response.evidenceNeededHardConstraintResolutions[1]!.inferenceIds =
+      [];
+    expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
+      ok: false,
+    });
+  });
+
+  it('accepts a grounded conflict only when the candidate is rejected, unranked, and bound to the exact original reason code', async () => {
+    const exchange = await createHardResolutionExchange();
+    const resolution =
+      exchange.response.evidenceNeededHardConstraintResolutions.find(
+        (candidate) =>
+          sourceConstraintIdForResolution(exchange, candidate.evaluationId) ===
+          'runtime-required',
+      );
+    if (resolution === undefined)
+      throw new Error('Runtime resolution is missing.');
+    const sourceConstraintId = 'runtime-required';
+    const assessment =
+      exchange.response.targetFitAssessment.fitAssessment
+        .candidateAssessments[0]!;
+    resolution.state = 'conflict';
+    assessment.disposition = 'rejected';
+    assessment.reasons[0]!.reasonCode = 'runtime-required';
+    assessment.hardConstraintConflictIds = ['conflict-alpha-r8'];
+    exchange.response.targetFitAssessment.fitAssessment.hardConstraintConflicts.push(
+      {
+        conflictId: 'conflict-alpha-r8',
+        candidateId: 'candidate-alpha',
+        constraintId: sourceConstraintId,
+        reasonCode: 'runtime-required',
+        evidenceIds: ['evidence-alpha'],
+      },
+    );
+    exchange.response.targetFitAssessment.fitAssessment.rankGroups = [];
+    exchange.response.targetFitAssessment.fitAssessment.outcome =
+      'no-viable-candidate';
+
+    expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
+      ok: true,
+    });
+
+    const ungrounded = cloneValue(exchange);
+    const ungroundedResolution =
+      ungrounded.response.evidenceNeededHardConstraintResolutions.find(
+        ({ state }) => state === 'conflict',
+      );
+    if (ungroundedResolution === undefined)
+      throw new Error('Conflict resolution is missing.');
+    ungroundedResolution.inferenceIds = [];
+    expect(
+      validateRecommendationAssessmentExchangeV1(ungrounded),
+    ).toMatchObject({ ok: false });
+
+    for (const disposition of ['recommended', 'viable'] as const) {
+      const promoted = cloneValue(exchange);
+      promoted.response.targetFitAssessment.fitAssessment.candidateAssessments[0]!.disposition =
+        disposition;
+      expect(
+        validateRecommendationAssessmentExchangeV1(promoted),
+      ).toMatchObject({ ok: false });
+    }
+
+    const ranked = cloneValue(exchange);
+    ranked.response.targetFitAssessment.fitAssessment.rankGroups = [
+      { candidateIds: ['candidate-alpha'] },
+    ];
+    expect(validateRecommendationAssessmentExchangeV1(ranked)).toMatchObject({
+      ok: false,
+    });
+
+    const wrongSource = cloneValue(exchange);
+    wrongSource.response.targetFitAssessment.fitAssessment.hardConstraintConflicts[1]!.constraintId =
+      'constraint-invented';
+    expect(
+      validateRecommendationAssessmentExchangeV1(wrongSource),
+    ).toMatchObject({ ok: false });
+
+    const wrongReason = cloneValue(exchange);
+    wrongReason.response.targetFitAssessment.fitAssessment.hardConstraintConflicts[1]!.reasonCode =
+      'wrong-reason';
+    expect(
+      validateRecommendationAssessmentExchangeV1(wrongReason),
+    ).toMatchObject({ ok: false });
+  });
+});
+
+interface HardResolutionExchange {
+  request: ReturnType<typeof createFitAssessmentRequest>;
+  normalization: Awaited<ReturnType<typeof normalizeHardResolutionQuery>>;
+  retrievalFinalists: MutableValue<RecommendationRetrievalFinalistV1>[];
+  response: MutableValue<RecommendationAssessmentResponseV1>;
+}
+
+async function createHardResolutionExchange(
+  draftConstraints: CapabilityQueryInputV1['draftConstraints'] = [
+    {
+      constraintId: 'runtime-required',
+      modality: 'required',
+      statement: 'The candidate must be an in-process library.',
+      originalTerm: 'in-process-authorization-library',
+      facetHint: 'architecture',
+      reasonCode: 'runtime-required',
+    },
+    {
+      constraintId: 'redis-prohibited',
+      modality: 'prohibited',
+      statement: 'The candidate must not require Redis.',
+      originalTerm: 'redis',
+      facetHint: 'infrastructure',
+      reasonCode: 'redis-prohibited',
+    },
+  ],
+): Promise<HardResolutionExchange> {
+  const recommendationRequest = createRecommendationRequest({
+    draftConstraints,
+  });
+  const normalization = await normalizeHardResolutionQuery(
+    recommendationRequest,
+  );
+  const request = createFitAssessmentRequest();
+  request.capabilityRequest = createCapabilityRequestFromRecommendationV1({
+    recommendationRequest,
+    normalization,
+  });
+  request.candidates.reverse();
+  const evaluations = [
+    ...normalization.normalizedConstraints.map((constraint) => ({
+      evaluationId: constraint.normalizedConstraintId,
+      sourceKind: 'normalized-constraint' as const,
+      modality: constraint.modality as 'required' | 'prohibited',
+      facet: constraint.facet,
+      conceptId: constraint.conceptId,
+      profileFieldId:
+        constraint.facet === 'architecture'
+          ? ('adoption-unit-type' as const)
+          : constraint.facet === 'infrastructure'
+            ? ('required-infrastructure' as const)
+            : null,
+      match: 'unresolved' as const,
+      state: 'unresolved' as const,
+      ruleId: 'r8-test-unresolved-profile-field',
+    })),
+    ...normalization.preservedDeclarations.map((declaration) => ({
+      evaluationId: declaration.constraintId,
+      sourceKind: 'preserved-declaration' as const,
+      modality: declaration.modality as 'required' | 'prohibited',
+      facet: declaration.facet,
+      conceptId: null,
+      profileFieldId: null,
+      match: 'unresolved' as const,
+      state: 'unresolved' as const,
+      ruleId: 'preserved-declaration-has-no-controlled-profile-mapping',
+    })),
+  ];
+  const retrievalFinalists: MutableValue<RecommendationRetrievalFinalistV1>[] =
+    [
+      {
+        candidateId: 'candidate-beta',
+        lane: 'eligible',
+        unresolvedHardEvaluations: [],
+      },
+      {
+        candidateId: 'candidate-alpha',
+        lane: 'evidence-needed',
+        unresolvedHardEvaluations: evaluations,
+      },
+    ];
+  const targetFitAssessment = cloneValue(createGroundedExchange().response);
+  const firstHardConstraint = request.capabilityRequest.hardConstraints[0];
+  const betaConflict =
+    targetFitAssessment.fitAssessment.hardConstraintConflicts[0];
+  const betaReason =
+    targetFitAssessment.fitAssessment.candidateAssessments[1]?.reasons[0];
+  if (
+    firstHardConstraint === undefined ||
+    betaConflict === undefined ||
+    betaReason === undefined
+  ) {
+    throw new Error('Hard-resolution target-fit fixture is incomplete.');
+  }
+  betaConflict.constraintId = firstHardConstraint.constraintId;
+  betaConflict.reasonCode = firstHardConstraint.reasonCode;
+  betaReason.reasonCode = firstHardConstraint.reasonCode;
+  const response: MutableValue<RecommendationAssessmentResponseV1> = {
+    contractVersion: '1.0.0',
+    targetFitAssessment,
+    evidenceNeededHardConstraintResolutions: evaluations.map((evaluation) => ({
+      candidateId: 'candidate-alpha',
+      evaluationId: evaluation.evaluationId,
+      state: 'satisfied',
+      inferenceIds: ['inference-alpha'],
+    })),
+  };
+  return { request, normalization, retrievalFinalists, response };
+}
+
+async function normalizeHardResolutionQuery(
+  request: OssRecommendationRequestV1,
+) {
+  const normalized = normalizeCapabilityQueryV1(
+    request.capabilityQuery,
+    cloneValue(await taxonomyFixture),
+  );
+  if (!normalized.ok || normalized.value.outcome !== 'normalized') {
+    throw new Error('Hard-resolution test query must normalize.');
+  }
+  return normalized.value;
+}
+
+function sourceConstraintIdForResolution(
+  exchange: HardResolutionExchange,
+  evaluationId: string,
+): string {
+  const source = exchange.normalization.normalizedConstraints.find(
+    ({ normalizedConstraintId }) => normalizedConstraintId === evaluationId,
+  )?.sourceConstraintIds[0];
+  if (source === undefined)
+    throw new Error('Resolution source is unavailable.');
+  return source;
+}
 
 function createRecommendationRequest(
   input: {

@@ -223,16 +223,23 @@ export {
 export {
   createCapabilityRequestFromRecommendationV1,
   parseOssRecommendationRequestV1,
+  parseRecommendationAssessmentResponseV1,
   parseTargetFitAssessmentResponseV1,
   repositoryFingerprintDigestV1,
+  validateRecommendationAssessmentExchangeV1,
   validateTargetFitAssessmentExchangeV1,
+  type RecommendationAssessmentExchangeValidationResult,
+  type RecommendationRetrievalFinalistV1,
   type TargetFitAssessmentExchangeValidationResult,
 } from './oss-recommendation-contracts.ts';
 export {
   ossRecommendationRequestV1Schema,
+  recommendationAssessmentResponseV1Schema,
   targetFitAssessmentResponseV1Schema,
+  type EvidenceNeededHardConstraintResolutionV1,
   type InferenceRepositoryFactBindingV1,
   type OssRecommendationRequestV1,
+  type RecommendationAssessmentResponseV1,
   type TargetFitAssessmentResponseV1,
 } from './oss-recommendation-schemas.ts';
 export {
