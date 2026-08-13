@@ -5,14 +5,14 @@
 - Governing issue: [#44 — Recovery R7: Add local scanner and GitBlocks OSS adoption Skill](https://github.com/kgudipati/gitblocks/issues/44)
 - Branch: `feat/44-gitblocks-oss-adoption`
 - Owner: GitBlocks maintainers
-- State: implementation complete; draft publication pending
+- State: implementation complete; draft PR open and unmerged
 - Last updated: 2026-08-12
 - Authority order: Issue #44 and the product contract govern scope; accepted
   ADRs govern durable boundaries; repository engineering policy governs
   implementation and validation; this plan records execution evidence.
 
-No pull request exists yet. The requested publication state is one draft PR,
-left unmerged. Recovery R8 is not authorized.
+Draft PR [#45 — feat: add local GitBlocks OSS adoption workflow](https://github.com/kgudipati/gitblocks/pull/45)
+is open and intentionally unmerged. Recovery R8 is not authorized.
 
 ## Purpose and user-visible outcome
 
@@ -349,6 +349,10 @@ continues unchanged.
   this plan for implemented R7 reality. README now records the exact ten-step
   post-merge Codex dogfood procedure and keeps remote usability explicitly
   deferred.
+- 2026-08-12: Committed the reviewed implementation, pushed the issue-linked
+  branch, and opened draft PR #45. Natural Actions run `31676622739` again
+  produced failed jobs with zero steps under the known billing/spending-limit
+  condition; it was not manually rerun and CI was not weakened.
 
 ## Decision and deviation log
 
@@ -420,6 +424,10 @@ continues unchanged.
 - Post-hardening final `pnpm verify` — exit 0 after conservatively rejecting a
   non-semver-shaped `engines.node` value; the same complete gate passed with
   138 files and 2,024 tests.
+- Natural GitHub Actions run `31676622739` for implementation commit
+  `36cb72086a6fa21726a1d26066dac28eae31b2b7` — all observed jobs completed as
+  failures with empty step arrays; this is the known zero-runner/zero-step
+  billing/spending-limit condition. No manual rerun was requested.
 
-Diff/security review, commit, push, draft PR, and natural GitHub Actions
-evidence remain pending.
+The final plan-link commit, final branch-state inspection, and final-head
+natural Actions observation remain pending.
