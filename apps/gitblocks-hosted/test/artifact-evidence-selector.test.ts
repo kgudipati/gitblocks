@@ -161,6 +161,190 @@ describe('request-scoped finalist artifact evidence selection', () => {
     ]);
   });
 
+  it('counts reused evidence toward a mirrored evaluation quota without scavenging later lines', async () => {
+    const selection = await selectorInput(
+      [
+        'Retries preserve failed work with configurable backoff.',
+        'Retries run again after a bounded delay.',
+        '## Retries later reference',
+      ].join('\n'),
+    );
+    const normalizedRetries = selection.finalist.unresolvedHardEvaluations.find(
+      ({ facet, sourceKind }) =>
+        facet === 'feature' && sourceKind === 'normalized-constraint',
+    );
+    const preservedRetries = selection.finalist.unresolvedHardEvaluations.find(
+      ({ evaluationId, sourceKind }) =>
+        evaluationId === 'automatic-retries' &&
+        sourceKind === 'preserved-declaration',
+    );
+    if (normalizedRetries === undefined || preservedRetries === undefined) {
+      throw new Error('Expected mirrored retries evaluations.');
+    }
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        unresolvedHardEvaluations: [normalizedRetries, preservedRetries],
+      },
+    });
+
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      'Retries preserve failed work with configurable backoff.',
+      'Retries run again after a bounded delay.',
+    ]);
+  });
+
+  it('reuses exact evidence across different evaluations without lower-quality replacement records', async () => {
+    const selection = await selectorInput(
+      [
+        'Retries can use Redis while preserving failed work.',
+        'Retries and Redis behavior are configured explicitly.',
+        'Retries later replacement.',
+        'Redis later replacement.',
+      ].join('\n'),
+    );
+    const retriesEvaluation = selection.finalist.unresolvedHardEvaluations.find(
+      ({ facet, sourceKind }) =>
+        facet === 'feature' && sourceKind === 'normalized-constraint',
+    );
+    const redisEvaluation = selection.finalist.unresolvedHardEvaluations.find(
+      ({ conceptId, sourceKind }) =>
+        conceptId === 'redis' && sourceKind === 'normalized-constraint',
+    );
+    if (retriesEvaluation === undefined || redisEvaluation === undefined) {
+      throw new Error('Expected retries and Redis evaluations.');
+    }
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        unresolvedHardEvaluations: [retriesEvaluation, redisEvaluation],
+      },
+    });
+
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      'Retries can use Redis while preserving failed work.',
+      'Retries and Redis behavior are configured explicitly.',
+    ]);
+    expect(new Set(evidence.map(({ evidenceId }) => evidenceId)).size).toBe(2);
+  });
+
+  it('rejects Markdown reference definitions before approved-term matching', async () => {
+    const selection = await selectorInput(
+      [
+        'Retries are supported for failed work.',
+        '[redis]: https://redis.example.test/',
+        '[redis-docs]: <https://example.test/redis>',
+        '[redis-label]: /relative-target "optional title"',
+      ].join('\n'),
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1(selection);
+
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      'Retries are supported for failed work.',
+    ]);
+  });
+
+  it('rejects pure Markdown navigation, links, and badges while retaining content-bearing prose', async () => {
+    const selection = await selectorInput(
+      [
+        '* [Retries](#retries)',
+        '[Retries](https://example.test/retries)',
+        '[![Retries](badge-url)](target-url)',
+        'Retries of failed tasks are supported.',
+      ].join('\n'),
+    );
+    const retriesEvaluation = selection.finalist.unresolvedHardEvaluations.find(
+      ({ facet, sourceKind }) =>
+        facet === 'feature' && sourceKind === 'normalized-constraint',
+    );
+    if (retriesEvaluation === undefined) {
+      throw new Error('Expected retries evaluation.');
+    }
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        unresolvedHardEvaluations: [retriesEvaluation],
+      },
+    });
+
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      'Retries of failed tasks are supported.',
+    ]);
+  });
+
+  it('keeps substantive prose containing Markdown links eligible', async () => {
+    const selection = await selectorInput(
+      [
+        '- [Retries](https://example.test/retries) of failed tasks are supported.',
+        'This queue is backed by [Redis](https://example.test/redis).',
+      ].join('\n'),
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1(selection);
+
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      '- [Retries](https://example.test/retries) of failed tasks are supported.',
+      'This queue is backed by [Redis](https://example.test/redis).',
+    ]);
+  });
+
+  it.each([
+    ['## Retries behavior', 'feature'],
+    ['| Backend | Redis |', 'infrastructure'],
+    ['backend: "redis"', 'infrastructure'],
+    ['<a href="https://example.test/redis">Redis</a>', 'infrastructure'],
+    ['- Redis is used for queue coordination.', 'infrastructure'],
+  ] as const)('does not globally filter %s', async (line, facet) => {
+    const selection = await selectorInput(line);
+    const evaluation = selection.finalist.unresolvedHardEvaluations.find(
+      ({ facet: evaluationFacet, sourceKind }) =>
+        evaluationFacet === facet && sourceKind === 'normalized-constraint',
+    );
+    if (evaluation === undefined) {
+      throw new Error(`Expected ${facet} evaluation.`);
+    }
+
+    expect(
+      selectCandidateArtifactEvidenceV1({
+        ...selection,
+        finalist: {
+          ...selection.finalist,
+          unresolvedHardEvaluations: [evaluation],
+        },
+      }).map(({ observation }) => observation),
+    ).toEqual([line]);
+  });
+
+  it('preserves the demonstrated dogfood shape without Markdown plumbing or mirror scavenging', async () => {
+    const selection = await selectorInput(
+      [
+        'Retries of failed tasks are supported.',
+        '* [Retries](#retries)',
+        '## Retries',
+        'This candidate does not require Redis.',
+        '[redis]: https://redis.example.test/',
+      ].join('\n'),
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1(selection);
+
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      'Retries of failed tasks are supported.',
+      '## Retries',
+      'This candidate does not require Redis.',
+    ]);
+    expect(new Set(evidence.map(({ evidenceId }) => evidenceId)).size).toBe(
+      evidence.length,
+    );
+  });
+
   it('enforces caller, candidate, and dossier capacity without partial excerpts', async () => {
     const selection = await selectorInput(
       'automatic retries one\nautomatic retries two\nRedis one\nRedis two',

@@ -24,6 +24,10 @@ const MAX_RENDERED_EXCERPT_CODE_UNITS = 1_800;
 const MAX_APPROVED_TERMS_PER_EVALUATION = 40;
 const ARTIFACT_EXCERPT_LIMITATION =
   'Whitespace is normalized from exact immutable repository lines; the linked commit and line range remain authoritative.';
+const MARKDOWN_REFERENCE_DEFINITION =
+  /^\[[^[\]\r\n]{1,200}\]: (?:<[^<>\s]+>|\S+)(?: (?:"[^"\r\n]*"|'[^'\r\n]*'|\([^()\r\n]*\)))?$/u;
+const PURE_MARKDOWN_LINK_OR_IMAGE_LINE =
+  /^(?:(?:[-*+]|\d{1,3}[.)]) )?(?:(?:\[!\[[^\]\r\n]*\]\([^\r\n)]*\)\]\([^\r\n)]*\)|!?\[[^\]\r\n]+\](?:\([^\r\n)]*\)|\[[^\]\r\n]*\])?)(?: )?)+$/u;
 
 export interface LoadedCandidateRepositoryArtifactV1 {
   readonly artifact: RepositoryArtifactV1;
@@ -125,10 +129,10 @@ export function selectCandidateArtifactEvidenceV1(input: {
         input.material.artifactSet.commitObjectId,
         match,
       );
+      selectedForEvaluation += 1;
       if (suppliedEvidenceIds.has(evidence.evidenceId)) continue;
       suppliedEvidenceIds.add(evidence.evidenceId);
       observations.push(evidence);
-      selectedForEvaluation += 1;
     }
   }
   return Object.freeze(observations);
@@ -303,7 +307,12 @@ function matchingLines(
       const lines = splitRepositoryArtifactLogicalLines(chunk.content);
       for (const [index, exactLine] of lines.entries()) {
         const normalizedExcerpt = normalizeExcerpt(exactLine);
-        if (normalizedExcerpt === null) continue;
+        if (
+          normalizedExcerpt === null ||
+          !isArtifactEvidenceLineEligible(normalizedExcerpt)
+        ) {
+          continue;
+        }
         const normalizedMatchLine = lower(normalizedExcerpt);
         let best:
           | {
@@ -419,6 +428,13 @@ function normalizeExcerpt(exactLine: string): string | null {
     !containsControlCodeUnit(normalized)
     ? normalized
     : null;
+}
+
+function isArtifactEvidenceLineEligible(value: string): boolean {
+  return (
+    !MARKDOWN_REFERENCE_DEFINITION.test(value) &&
+    !PURE_MARKDOWN_LINK_OR_IMAGE_LINE.test(value)
+  );
 }
 
 function containsControlCodeUnit(value: string): boolean {

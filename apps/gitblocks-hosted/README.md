@@ -21,8 +21,12 @@ the latest immutable artifact set matching the serving catalog, exact head
 commit, and cutoff. A deterministic selector uses only each unresolved
 evaluation's concept/canonical/original terms plus the existing retrieval
 expansion authority. It considers present README/documentation entries and
-appends exact, whitespace-normalized, line-addressed excerpts as request-scoped
-observations. No excerpt is persisted and missing text never proves absence.
+rejects pure Markdown reference-definition or link/navigation/badge-only lines
+before appending exact, whitespace-normalized, line-addressed excerpts as
+request-scoped observations. A matching source line counts toward each
+applicable evaluation's two-match quota even when its source-owned evidence ID
+is already present, and no duplicate observation is appended. No excerpt is
+persisted and missing text never proves absence.
 
 Selection is bounded to two excerpts per unresolved evaluation, eight per
 candidate, 32 per recommendation, and the existing 100-observation dossier

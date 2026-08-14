@@ -334,6 +334,68 @@ describe('RecommendationAssessmentResponseV1', () => {
     });
   });
 
+  it('allows one candidate-owned artifact inference to ground both normalized and preserved resolutions', async () => {
+    const exchange = await createHardResolutionExchange([
+      {
+        constraintId: 'custom-runtime-required',
+        modality: 'required',
+        statement: 'The candidate must use the declared custom runtime.',
+        originalTerm: 'custom-runtime',
+        facetHint: 'runtime',
+        reasonCode: 'custom-runtime-required',
+      },
+    ]);
+    const requestEvidence = exchange.request.candidates
+      .find(({ identity }) => identity.candidateId === 'candidate-alpha')
+      ?.observations.find(({ evidenceId }) => evidenceId === 'evidence-alpha');
+    const responseEvidence =
+      exchange.response.targetFitAssessment.fitAssessment.evidence.find(
+        ({ evidenceId }) => evidenceId === 'evidence-alpha',
+      );
+    const inference =
+      exchange.response.targetFitAssessment.fitAssessment.inferences.find(
+        ({ inferenceId }) => inferenceId === 'inference-alpha',
+      );
+    if (
+      requestEvidence === undefined ||
+      responseEvidence === undefined ||
+      inference === undefined
+    ) {
+      throw new Error('Shared artifact-grounding fixture is incomplete.');
+    }
+    for (const evidence of [requestEvidence, responseEvidence]) {
+      evidence.topic = 'artifact-excerpt';
+      evidence.observation =
+        'The exact immutable artifact line supports this candidate constraint.';
+      if (evidence.source.kind === 'git-commit') {
+        evidence.source.sourceUrl =
+          'https://github.com/example/alpha/blob/0123456789abcdef0123456789abcdef01234567/README.md#L7';
+        evidence.source.immutableUrl =
+          'https://github.com/example/alpha/blob/0123456789abcdef0123456789abcdef01234567/README.md#L7';
+      }
+    }
+
+    expect(
+      exchange.retrievalFinalists[1]?.unresolvedHardEvaluations.map(
+        ({ sourceKind }) => sourceKind,
+      ),
+    ).toEqual(['normalized-constraint', 'preserved-declaration']);
+    expect(
+      exchange.response.evidenceNeededHardConstraintResolutions.map(
+        ({ inferenceIds }) => inferenceIds,
+      ),
+    ).toEqual([['inference-alpha'], ['inference-alpha']]);
+    expect(inference.evidenceIds).toEqual(['evidence-alpha']);
+    expect(
+      exchange.response.targetFitAssessment.fitAssessment.evidence.filter(
+        ({ evidenceId }) => evidenceId === 'evidence-alpha',
+      ),
+    ).toHaveLength(1);
+    expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
+      ok: true,
+    });
+  });
+
   it.each([
     [
       'missing resolution',
