@@ -25,12 +25,31 @@ describe('repository artifact operator surface', () => {
   });
 
   it('requires explicit non-production authority and keeps operator output content-free', async () => {
-    const source = await readFile(
-      new URL('../scripts/artifacts-live-cli.ts', import.meta.url),
-      'utf8',
+    const [cliSource, commandSource, policySource] = await Promise.all([
+      readFile(
+        new URL('../scripts/artifacts-live-cli.ts', import.meta.url),
+        'utf8',
+      ),
+      readFile(
+        new URL('../scripts/artifact-live-command.ts', import.meta.url),
+        'utf8',
+      ),
+      readFile(
+        new URL('../scripts/artifact-live-scope-policy.ts', import.meta.url),
+        'utf8',
+      ),
+    ]);
+    expect(cliSource).toBe(
+      "import { runArtifactLiveCliV1 } from './artifact-live-command.ts';\n\n" +
+        'await runArtifactLiveCliV1(process.argv.slice(2));\n',
     );
-    expect(source).toContain(
+    expect(policySource).toContain(
       'approved-non-production-public-artifact-collection',
+    );
+    expect(policySource).toContain('ephemeral-non-production');
+    expect(policySource).toContain('persistent-private-alpha-dogfood');
+    expect(policySource).toContain(
+      'approved-private-alpha-persistent-dogfood-artifact-collection',
     );
     for (const required of [
       '--catalog',
@@ -38,36 +57,74 @@ describe('repository artifact operator surface', () => {
       '--receipt',
       'GITBLOCKS_ARTIFACT_GITHUB_TOKEN',
       'GITBLOCKS_ARTIFACT_DB_SCOPE',
+      'GITBLOCKS_ARTIFACT_PERSISTENT_ACK',
     ]) {
-      expect(source).toContain(required);
+      expect(commandSource).toContain(required);
     }
-    expect(source).not.toContain('artifact.content');
-    expect(source).not.toContain('resolvedPath');
-    expect(source).not.toContain('displayUrl');
+    expect(`${commandSource}${policySource}`).not.toContain('artifact.content');
+    expect(`${commandSource}${policySource}`).not.toContain('resolvedPath');
+    expect(`${commandSource}${policySource}`).not.toContain('displayUrl');
+    expect(policySource).not.toMatch(
+      /['"](?:production|persistent-production|staging|shared-development|remote-database)['"]/u,
+    );
   });
 
   it('guards exact migration 0007 before transport, collection, and receipt writing', async () => {
     const source = await readFile(
-      new URL('../scripts/artifacts-live-cli.ts', import.meta.url),
+      new URL('../scripts/artifact-live-command.ts', import.meta.url),
       'utf8',
+    );
+    const command = source.indexOf(
+      'export async function runArtifactLiveCliV1(',
+    );
+    const globalAuthority = source.indexOf(
+      'requireGlobalAcknowledgement(dependencies)',
+      command,
+    );
+    const scopeAuthority = source.indexOf(
+      'assertArtifactLiveDatabaseScopeAuthorityV1(scopeAuthority)',
+      globalAuthority,
+    );
+    const databaseAuthority = source.indexOf(
+      'validateArtifactLiveDatabaseScopeV1({',
+      scopeAuthority,
+    );
+    const client = source.indexOf(
+      'dependencies.createPersistenceClient({',
+      databaseAuthority,
     );
     const guard = source.indexOf(
       'withVerifiedArtifactLiveDatabaseMigrationV1(',
+      client,
     );
-    const verification = source.indexOf('verifyMigrations(client)', guard);
-    const transport = source.indexOf('createTransport({', verification);
+    const verification = source.indexOf(
+      'dependencies.verifyMigrations(client)',
+      guard,
+    );
+    const transport = source.indexOf(
+      'dependencies.createTransport({',
+      verification,
+    );
     const collector = source.indexOf(
-      'createRepositoryArtifactCollector({',
+      'dependencies.createRepositoryArtifactCollector({',
       transport,
     );
     const collection = source.indexOf(
-      'collectPublicRepositoryArtifacts({',
+      'dependencies.collectPublicRepositoryArtifacts({',
       collector,
     );
-    const receiptWrite = source.indexOf('await writeFile(', collection);
+    const receiptWrite = source.indexOf(
+      'await dependencies.writeTextFileExclusive(',
+      collection,
+    );
 
+    expect(command).toBeGreaterThan(-1);
+    expect(globalAuthority).toBeGreaterThan(command);
+    expect(scopeAuthority).toBeGreaterThan(globalAuthority);
+    expect(databaseAuthority).toBeGreaterThan(scopeAuthority);
+    expect(client).toBeGreaterThan(databaseAuthority);
     expect(guard).toBeGreaterThan(-1);
-    expect(verification).toBeGreaterThan(guard);
+    expect(verification).toBeGreaterThan(client);
     expect(transport).toBeGreaterThan(verification);
     expect(collector).toBeGreaterThan(transport);
     expect(collection).toBeGreaterThan(collector);

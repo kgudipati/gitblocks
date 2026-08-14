@@ -385,9 +385,13 @@ credential-injected operator command requiring explicit manifest, receipt,
 database configuration, and non-production acknowledgement.
 `pnpm artifacts:live` is a distinct credential-injected operator command with
 its own stronger acknowledgement, explicit catalog and artifact-manifest
-paths, ephemeral non-production database scope, and content-free receipt. It
-remains an explicitly authorized non-production operation. The Phase 6
-controlled live proof is recorded in
+paths, content-free receipt, and exactly two non-production database scopes.
+The historical `ephemeral-non-production` scope remains unchanged. The local
+`persistent-private-alpha-dogfood` scope additionally requires the exact
+persistent acknowledgement and binds `127.0.0.1`, `gitblocks_dogfood_test`,
+`gitblocks_persistence_dogfood`, and SSL disabled. Both scopes require exact
+migration `0007`; neither authorizes production or a remote database. The
+Phase 6 controlled live proof is recorded in
 [`artifact-completion.md`](catalog/public-v1/artifact-completion.md); production
 deployment is not authorized.
 New live artifact collection now requires exact current migration `0007`; the
