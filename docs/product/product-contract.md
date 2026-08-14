@@ -12,9 +12,10 @@ PostgreSQL serving snapshots plus offline accepted-catalog bootstrap, and
 Recovery R4's in-process hosted discovery application, Recovery R5's
 loopback-only MCP Streamable HTTP process, Recovery R6's hosted
 codebase-conditioned OSS recommendation operation, Recovery R7's portable
-Agent Skill plus bounded local repository scanner, and Recovery R8's bounded
-evidence-needed finalist resolution inside the existing recommendation
-operation. R6 adds request-scoped
+Agent Skill plus bounded local repository scanner, Recovery R8's bounded
+evidence-needed finalist resolution, and Recovery R9's commit-coherent
+immutable artifact excerpts inside the existing recommendation operation. R6
+adds request-scoped
 fingerprint binding, finalist evidence reads, a narrow target-fit model port,
 one bounded OpenAI Responses adapter, deterministic target-fact and fit-exchange
 validation, and the singular `recommend_oss` product tool. R7 adds deterministic
@@ -24,7 +25,10 @@ outcome presentation, and post-selection adoption procedure without changing
 the hosted recommendation path. R8 preserves deterministic retrieval, selects
 eligible finalists first and then fills remaining slots up to five from the
 ordered evidence-needed lane, and validates explicit candidate-evidence-backed
-hard-evaluation resolutions before accepting target-fit output. The evaluation
+hard-evaluation resolutions before accepting target-fit output. R9 reads only
+exact artifact material matching the active serving catalog, cutoff, and single
+active repository-head commit, then appends bounded direct excerpts only to the
+request-scoped dossier. The evaluation
 harness and repository checks remain development support. Repository
 interviews, artifact generation for finalist assessment, and Phase 8 live
 materialization proof machinery are not part of the serving path. Phase 10 is
@@ -68,7 +72,8 @@ The first private alpha has four explicit boundaries:
 - **Durable data boundary:** one PostgreSQL database is the serving-required
   system of record for shared candidate identity and catalog state,
   deterministic candidate profiles, retrieval metadata, evidence,
-  limitations, unknowns, lifecycle and freshness, and the coherent catalog
+  limitations, unknowns, lifecycle and freshness, immutable repository
+  artifacts/chunks/sets, and the coherent catalog
   snapshot currently served. Current persistence stores and loads one coherent
   immutable 150-candidate profile/metadata snapshot and R6 loads active
   evidence, limitations, and unknowns for no more than five finalists at one
@@ -92,6 +97,7 @@ capability request
   -> deterministic hard filtering and retrieval
   -> eligible-first, evidence-needed-fill finalist set (maximum five)
   -> bounded candidate evidence load
+  -> exact-commit artifact load and deterministic request-scoped excerpts for evidence-needed finalists
   -> one LLM hard-resolution and target-fit assessment
   -> RecommendationAssessmentResponseV1
   -> deterministic exact-coverage, source-binding, hard-constraint, evidence, and target-fit validation
@@ -110,8 +116,10 @@ all-satisfied candidates may proceed to the unchanged target-fit authority.
 
 A user request runs only the hosted request path and may read PostgreSQL
 directly where the use case requires it or use a process-local immutable search
-view. R6 loads the retrieval snapshot only at startup and performs only bounded
-active-dossier SELECTs plus at most one target-fit model call per assessed request. A request
+view. R6 loads the retrieval snapshot only at startup. R9 performs bounded
+active-dossier SELECTs plus at most one immutable artifact-material SELECT per
+selected evidence-needed finalist and at most one target-fit model call per
+assessed request. A request
 must not run ingestion, provider collection, migrations, Docker, evaluation,
 artifact generation, repository interviews, materialization proof machinery,
 replay, or authority generation. The initial architecture does not require Redis, queues or worker
@@ -206,12 +214,15 @@ The approved workflow is:
    ordered eligible and evidence-needed lanes through the deterministic engine.
 5. **Assess adoption fit.** The application loads bounded candidate evidence
    for the first five eligible finalists, filling unused slots from the ordered
-   evidence-needed lane. A bounded LLM resolves every disclosed unresolved hard
+   evidence-needed lane. Matching immutable README/documentation artifacts may
+   contribute only deterministically selected, exact-line, request-scoped
+   evidence after active repository-head commit coherence succeeds. A bounded
+   LLM resolves every disclosed unresolved hard
    evaluation and reasons about target fit in one response. Deterministic code
    then validates exact resolution coverage, normalization/source binding,
    candidate-owned evidence, the unchanged target-fit exchange, and
-   responsible-outcome rules. Repository interviews are not required in this
-   serving path.
+   responsible-outcome rules. Missing text never establishes absence, and
+   repository interviews are not required in this serving path.
 6. **Explain up to three options.** The coding agent receives at most three
    responsible options with evidence references, preserved candidate
    limitations, tradeoffs, material unknowns, and reasons for exclusion or
@@ -447,7 +458,12 @@ immutable repository artifacts. That authority does not extend to a user's
 target repository, private repositories, secrets, or arbitrary source
 discovered outside the reviewed artifact-selection manifest. Public artifact
 bodies remain hostile inert data: they are never executed, rendered, followed
-as links, or treated as instructions. A separately acknowledged Phase 7
+as links, or treated as instructions. The active hosted fit operation may send
+only deterministically selected exact-line excerpts for an evidence-needed
+finalist after its artifact commit matches active repository-head evidence.
+Those direct excerpts use the existing git-commit source variant, are not
+persisted as duplicate evidence, and remain inert untrusted candidate data in
+the one existing model request. A separately acknowledged Phase 7
 repository-interview operation may later transmit one complete approved public
 artifact set to a reviewed model provider under
 [ADR 0007](../architecture/decisions/0007-evidence-grounded-repository-interviews.md).

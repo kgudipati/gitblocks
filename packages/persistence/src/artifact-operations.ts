@@ -17,6 +17,8 @@ import {
 } from './client.ts';
 import { PersistenceError, persistenceError } from './errors.ts';
 import type {
+  CandidateRepositoryArtifactMaterial,
+  LoadCandidateRepositoryArtifactMaterialCommand,
   LoadRepositoryArtifactCommand,
   LoadRepositoryArtifactSetCommand,
   LoadedRepositoryArtifact,
@@ -24,7 +26,11 @@ import type {
   PublishRepositoryArtifactSetCommand,
   PublishRepositoryArtifactSetResult,
 } from './types.ts';
-import { normalizeStoredTimestamp, validateStableId } from './validation.ts';
+import {
+  normalizeStoredTimestamp,
+  normalizeTimestamp,
+  validateStableId,
+} from './validation.ts';
 
 const CANDIDATE_LOCK_SEED = 44392817;
 const MAX_ARTIFACT_BYTES_PER_CANDIDATE = 512 * 1_024;
@@ -120,6 +126,10 @@ interface ArtifactSetEntryRow {
   readonly resolved_path: string | null;
   readonly outcome: string;
   readonly artifact_id: string | null;
+}
+
+interface MatchingArtifactSetRow {
+  readonly artifact_set_id: string;
 }
 
 export async function publishRepositoryArtifactSet(
@@ -231,6 +241,105 @@ export async function loadRepositoryArtifactSet(
     async (transaction, signal) =>
       loadArtifactSetTransaction(transaction, artifactSetId, signal),
   );
+}
+
+export async function loadCandidateRepositoryArtifactMaterial(
+  client: PersistenceClient,
+  command: LoadCandidateRepositoryArtifactMaterialCommand,
+  control?: OperationControl,
+): Promise<CandidateRepositoryArtifactMaterial | null> {
+  const candidateId = validateStableId(command.candidateId);
+  const expectedCatalogVersion = validateCatalogVersion(
+    command.expectedCatalogVersion,
+  );
+  const expectedCatalogDigest = validateSha256(command.expectedCatalogDigest);
+  const commitSha = validateSha1(command.commitSha);
+  const evidenceCutoff = normalizeTimestamp(command.evidenceCutoff);
+  return withTransaction(
+    client,
+    control,
+    'read-only',
+    async (transaction, signal) => {
+      const matches = await executePending<readonly MatchingArtifactSetRow[]>(
+        transaction`
+          select artifact_set_id
+          from gitblocks.repository_artifact_sets
+          where candidate_id = ${candidateId}
+            and catalog_version = ${expectedCatalogVersion}
+            and catalog_digest = ${expectedCatalogDigest}
+            and git_object_algorithm = 'sha1'
+            and commit_object_id = ${commitSha}
+            and published_at <= ${evidenceCutoff}::timestamptz
+          order by published_at desc, artifact_set_id collate "C" asc
+          limit 1
+        `,
+        signal,
+      );
+      const match = matches[0];
+      if (match === undefined) return null;
+      const artifactSet = await loadArtifactSetTransaction(
+        transaction,
+        match.artifact_set_id,
+        signal,
+      );
+      if (
+        artifactSet.candidateId !== candidateId ||
+        artifactSet.catalogDigest !== expectedCatalogDigest ||
+        artifactSet.commitObjectId !== commitSha ||
+        Date.parse(artifactSet.publishedAt) > Date.parse(evidenceCutoff)
+      ) {
+        throw persistenceError('persistence.corrupt-record');
+      }
+      const artifacts: LoadedRepositoryArtifact[] = [];
+      const presentArtifactIds = new Set<string>();
+      for (const entry of artifactSet.entries) {
+        if (entry.outcome !== 'present') continue;
+        if (presentArtifactIds.has(entry.artifactId)) {
+          throw persistenceError('persistence.corrupt-record');
+        }
+        presentArtifactIds.add(entry.artifactId);
+        const loaded = await loadArtifactTransaction(
+          transaction,
+          entry.artifactId,
+          artifactSet.chunkerVersion,
+          signal,
+        );
+        if (
+          loaded.artifact.candidateId !== candidateId ||
+          loaded.artifact.commitObjectId !== commitSha ||
+          loaded.artifact.path !== entry.resolvedPath
+        ) {
+          throw persistenceError('persistence.corrupt-record');
+        }
+        artifacts.push(loaded);
+      }
+      if (artifacts.length !== presentArtifactIds.size) {
+        throw persistenceError('persistence.corrupt-record');
+      }
+      return { artifactSet, artifacts };
+    },
+  );
+}
+
+function validateCatalogVersion(value: unknown): 'public-v1' {
+  if (value !== 'public-v1') {
+    throw persistenceError('persistence.invalid-input');
+  }
+  return value;
+}
+
+function validateSha256(value: unknown): string {
+  if (typeof value !== 'string' || !/^[0-9a-f]{64}$/u.test(value)) {
+    throw persistenceError('persistence.invalid-input');
+  }
+  return value;
+}
+
+function validateSha1(value: unknown): string {
+  if (typeof value !== 'string' || !/^[0-9a-f]{40}$/u.test(value)) {
+    throw persistenceError('persistence.invalid-input');
+  }
+  return value;
 }
 
 function validatePublication(

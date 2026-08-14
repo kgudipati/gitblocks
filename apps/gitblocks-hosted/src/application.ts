@@ -39,6 +39,13 @@ import type {
   CandidateRetrievalOperationIssueV1,
 } from '@gitblocks/retrieval';
 
+import {
+  MAX_ARTIFACT_EVIDENCE_PER_CANDIDATE,
+  MAX_ARTIFACT_EVIDENCE_PER_RECOMMENDATION,
+  selectCandidateArtifactEvidenceV1,
+  type CandidateArtifactMaterialLoaderPort,
+} from './artifact-evidence-selector.ts';
+
 const DISCOVERY_RESULT_LIMIT = 10;
 export const HOSTED_FIT_FINALIST_LIMIT = 5;
 export const HOSTED_RESPONSIBLE_OPTION_LIMIT = 3;
@@ -197,6 +204,7 @@ export function createHostedRecommendationApplication(input: {
   readonly candidateRetrievalMetadataAuthority: unknown;
   readonly engine: CandidateRetrievalEngineV1;
   readonly dossierLoader: CandidateDossierLoaderPort;
+  readonly artifactMaterialLoader: CandidateArtifactMaterialLoaderPort;
   readonly fitModel: FitAssessmentModelPort;
   readonly clock: HostedRecommendationClockPort;
   readonly observer?: HostedRecommendationObserverV1;
@@ -216,6 +224,7 @@ export function createHostedRecommendationApplication(input: {
     !profiles.ok ||
     !expansion.ok ||
     !metadata.ok ||
+    profiles.value.catalogVersion !== 'public-v1' ||
     input.snapshot.candidateCount !== profiles.value.profiles.length ||
     input.engine.candidateCount !== profiles.value.profiles.length
   ) {
@@ -241,8 +250,12 @@ export function createHostedRecommendationApplication(input: {
         taxonomy: taxonomy.value,
         candidateAuthority,
         authorityBindings,
+        retrievalExpansionAuthority: expansion.value,
+        catalogVersion: 'public-v1',
+        catalogDigest: profiles.value.catalogDigest,
         engine: input.engine,
         dossierLoader: input.dossierLoader,
+        artifactMaterialLoader: input.artifactMaterialLoader,
         fitModel: input.fitModel,
         clock: input.clock,
         observer,
@@ -260,8 +273,12 @@ async function recommendOss(input: {
   readonly taxonomy: CapabilityTaxonomyV1;
   readonly candidateAuthority: CandidateReferenceAuthority;
   readonly authorityBindings: CandidateRetrievalAuthorityBindingsV1;
+  readonly retrievalExpansionAuthority: CapabilityRetrievalExpansionV1;
+  readonly catalogVersion: 'public-v1';
+  readonly catalogDigest: string;
   readonly engine: CandidateRetrievalEngineV1;
   readonly dossierLoader: CandidateDossierLoaderPort;
+  readonly artifactMaterialLoader: CandidateArtifactMaterialLoaderPort;
   readonly fitModel: FitAssessmentModelPort;
   readonly clock: HostedRecommendationClockPort;
   readonly observer: HostedRecommendationObserverV1;
@@ -371,6 +388,72 @@ async function recommendOss(input: {
         return parsedDossier.value;
       }),
     );
+  } catch {
+    return failed(
+      input.observer,
+      requestId,
+      'finalist-evidence-load-failed',
+      finalists.length,
+    );
+  }
+  try {
+    const materialByCandidateId = new Map(
+      await Promise.all(
+        finalists
+          .filter(({ lane }) => lane === 'evidence-needed')
+          .map(async (finalist) => {
+            const dossier = dossiers.find(
+              ({ identity }) => identity.candidateId === finalist.candidateId,
+            );
+            const commitSha =
+              dossier === undefined ? null : repositoryHeadCommit(dossier);
+            if (commitSha === null) {
+              return [finalist.candidateId, null] as const;
+            }
+            const material =
+              await input.artifactMaterialLoader.loadCandidateRepositoryArtifactMaterial(
+                {
+                  candidateId: finalist.candidateId,
+                  expectedCatalogVersion: input.catalogVersion,
+                  expectedCatalogDigest: input.catalogDigest,
+                  commitSha,
+                  evidenceCutoff,
+                },
+              );
+            return [finalist.candidateId, material] as const;
+          }),
+      ),
+    );
+    let remainingArtifactObservations =
+      MAX_ARTIFACT_EVIDENCE_PER_RECOMMENDATION;
+    dossiers = dossiers.map((dossier, index) => {
+      const finalist = finalists[index];
+      if (finalist?.lane !== 'evidence-needed') return dossier;
+      const material = materialByCandidateId.get(finalist.candidateId);
+      if (material === null || material === undefined) return dossier;
+      const selected = selectCandidateArtifactEvidenceV1({
+        finalist,
+        dossier,
+        capabilityQuery: parsed.value.capabilityQuery,
+        normalization: normalized.value,
+        retrievalExpansionAuthority: input.retrievalExpansionAuthority,
+        material,
+        maximumObservations: Math.min(
+          MAX_ARTIFACT_EVIDENCE_PER_CANDIDATE,
+          remainingArtifactObservations,
+        ),
+      });
+      remainingArtifactObservations -= selected.length;
+      if (selected.length === 0) return dossier;
+      const augmented = parseCandidateDossierV1({
+        ...dossier,
+        observations: [...dossier.observations, ...selected],
+      });
+      if (!augmented.ok) {
+        throw new Error('Finalist artifact evidence validation failed.');
+      }
+      return augmented.value;
+    });
   } catch {
     return failed(
       input.observer,
@@ -545,6 +628,18 @@ async function recommendOss(input: {
     targetFitAssessment: response,
     evidenceNeededHardConstraintResolutions: resolutions,
   });
+}
+
+function repositoryHeadCommit(dossier: CandidateDossierV1): string | null {
+  const heads = dossier.observations.filter(
+    ({ topic }) => topic === 'repository-head',
+  );
+  if (heads.length !== 1) return null;
+  const source = heads[0]?.source;
+  return source?.kind === 'git-commit' &&
+    source.sourceType === 'official-repository'
+    ? source.commitSha
+    : null;
 }
 
 export function selectHostedRetrievalFinalistsV1(

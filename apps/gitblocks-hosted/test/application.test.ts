@@ -14,9 +14,12 @@ import {
 import {
   candidateDossier,
   acceptedRetrievalResult,
+  candidateArtifactMaterial,
   createAcceptedApplication,
+  candidateRepositoryHeadDossier,
   frozenBackgroundJobsDogfoodRequest,
   groundedModelResponse,
+  loadAcceptedAuthorities,
   recommendationRequest,
   TEST_EVIDENCE_CUTOFF,
 } from './fixtures.ts';
@@ -126,6 +129,7 @@ describe('hosted OSS recommendation application', () => {
       'jobs-node-cron',
     ];
     const model = vi.fn();
+    const artifactLoader = vi.fn();
     const application = await createAcceptedApplication({
       dossierLoader: {
         loadActiveCandidateDossier: (command) => {
@@ -137,6 +141,9 @@ describe('hosted OSS recommendation application', () => {
             }),
           );
         },
+      },
+      artifactMaterialLoader: {
+        loadCandidateRepositoryArtifactMaterial: artifactLoader,
       },
       fitModel: { assess: model },
     });
@@ -170,7 +177,82 @@ describe('hosted OSS recommendation application', () => {
       ]),
     );
     expect(loadedCandidateIds).toEqual(expectedFirstFive);
+    expect(artifactLoader).not.toHaveBeenCalled();
     expect(model).not.toHaveBeenCalled();
+  });
+
+  it('augments only evidence-needed finalists with matching request-scoped artifact excerpts before the one model call', async () => {
+    const request = frozenBackgroundJobsDogfoodRequest();
+    const authorities = await loadAcceptedAuthorities();
+    const artifactLoads: string[] = [];
+    const modelInputs: FitAssessmentModelRequestV1[] = [];
+    const application = await createAcceptedApplication({
+      dossierLoader: {
+        loadActiveCandidateDossier: (command) =>
+          Promise.resolve(
+            candidateRepositoryHeadDossier(
+              command.candidateId,
+              command.expectedCapabilityFamily,
+            ),
+          ),
+      },
+      artifactMaterialLoader: {
+        loadCandidateRepositoryArtifactMaterial: (command) => {
+          artifactLoads.push(command.candidateId);
+          expect(command).toMatchObject({
+            expectedCatalogVersion: 'public-v1',
+            expectedCatalogDigest: authorities.profiles.catalogDigest,
+            evidenceCutoff: TEST_EVIDENCE_CUTOFF,
+          });
+          return Promise.resolve(
+            artifactLoads.length === 1
+              ? candidateArtifactMaterial({
+                  candidateId: command.candidateId,
+                  catalogDigest: command.expectedCatalogDigest,
+                  content:
+                    'Failed jobs have automatic retries with configurable backoff.\nRedis is required for coordination.',
+                })
+              : null,
+          );
+        },
+      },
+      fitModel: {
+        assess: (input) => {
+          modelInputs.push(input);
+          return Promise.resolve(groundedModelResponse(input));
+        },
+      },
+    });
+
+    const result = await application.recommendOss(request);
+
+    expect(result).toMatchObject({
+      ok: true,
+      result: { outcome: 'recommend' },
+    });
+    expect(artifactLoads).toEqual([
+      'jobs-actionhero-node-resque',
+      'jobs-asynq',
+      'jobs-bree',
+      'jobs-bullmq',
+      'jobs-node-cron',
+    ]);
+    expect(modelInputs).toHaveLength(1);
+    expect(
+      modelInputs[0]?.fitAssessmentRequest.candidates[0]?.observations
+        .filter(({ topic }) => topic === 'artifact-excerpt')
+        .map(({ observation }) => observation),
+    ).toEqual([
+      'Failed jobs have automatic retries with configurable backoff.',
+      'Redis is required for coordination.',
+    ]);
+    expect(
+      modelInputs[0]?.fitAssessmentRequest.candidates
+        .slice(1)
+        .every(({ observations }) =>
+          observations.every(({ topic }) => topic !== 'artifact-excerpt'),
+        ),
+    ).toBe(true);
   });
 
   it('fills remaining finalist slots from the evidence-needed lane without displacing eligible finalists', async () => {

@@ -124,6 +124,19 @@ unchanged target-fit validation; conflicts are rejected and unresolved
 candidates remain insufficient-evidence. Excluded candidates remain excluded,
 and the MCP surface remains exactly `recommend_oss`.
 
+Recovery R9 keeps that retrieval and response authority unchanged while adding
+post-retrieval finalist evidence from the existing immutable repository
+artifacts. For evidence-needed finalists only, the hosted application requires
+one active `repository-head` git-commit observation, loads an exact matching
+artifact set at the serving catalog and evidence cutoff, and deterministically
+selects at most two matching README/documentation lines per unresolved hard
+evaluation. At most eight request-scoped excerpt observations enter one
+candidate dossier and at most 32 enter one recommendation; nothing is written
+back to evidence or dossier tables. The excerpts use the existing git-commit
+evidence source, remain inert source text, and enter the existing single fit
+model call. Migration `0007_artifact_evidence_serving.sql` grants the serving
+role SELECT on only the four immutable artifact tables needed by this read.
+
 The repository also contains a curated 150-repository public catalog, plus
 exact immutable public repository artifacts and lossless line-addressable
 chunks for all 150 candidates. Phase 7 now includes repository-interview
@@ -377,6 +390,9 @@ remains an explicitly authorized non-production operation. The Phase 6
 controlled live proof is recorded in
 [`artifact-completion.md`](catalog/public-v1/artifact-completion.md); production
 deployment is not authorized.
+New live artifact collection now requires exact current migration `0007`; the
+generic historical receipt parser and Phase 7 complete-receipt authority retain
+their existing migration-`0003`/`0004` compatibility.
 `pnpm catalog:seed` is the separate no-provider preparation boundary that must
 run after exact migration-0004 verification and before `pnpm artifacts:live`
 against a fresh artifact database. It requires an explicit catalog path,

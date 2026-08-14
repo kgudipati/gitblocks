@@ -13,11 +13,22 @@ slots from the ordered evidence-needed lane without comparing scores across
 lanes. Excluded candidates never enter fit assessment. Clarification,
 unsupported, and no-result outcomes return before a model call.
 
-For the resulting at-most-five finalists, the operation captures one trusted evidence cutoff,
-loads active `CandidateDossierV1` evidence, limitations, and unknowns from the
-existing PostgreSQL model. If every finalist dossier has zero observations, it
-returns `insufficient-evidence` without a model call. Otherwise it makes at
-most one target-fit model call. The additive
+For the resulting at-most-five finalists, the operation captures one trusted
+evidence cutoff and loads active `CandidateDossierV1` evidence, limitations,
+and unknowns from the existing PostgreSQL model. For evidence-needed finalists
+with exactly one usable `repository-head` git-commit observation, it also loads
+the latest immutable artifact set matching the serving catalog, exact head
+commit, and cutoff. A deterministic selector uses only each unresolved
+evaluation's concept/canonical/original terms plus the existing retrieval
+expansion authority. It considers present README/documentation entries and
+appends exact, whitespace-normalized, line-addressed excerpts as request-scoped
+observations. No excerpt is persisted and missing text never proves absence.
+
+Selection is bounded to two excerpts per unresolved evaluation, eight per
+candidate, 32 per recommendation, and the existing 100-observation dossier
+limit. If every augmented finalist dossier still has zero observations, the
+operation returns `insufficient-evidence` without a model call. Otherwise it
+makes at most one target-fit model call. The additive
 `RecommendationAssessmentResponseV1` wraps the unchanged
 `TargetFitAssessmentResponseV1` and resolves every selected evidence-needed
 hard evaluation exactly once as `satisfied`, `conflict`, or `unresolved`.
@@ -85,7 +96,8 @@ boundary. Stop the MCP process with `SIGINT` or `SIGTERM`; shutdown closes the
 listener before the PostgreSQL client.
 
 Request handling never migrates or writes PostgreSQL, reloads the serving
-snapshot, runs ingestion or public-source collection, activates artifacts or
-repository interviews, executes candidate code, or invokes evaluation. The
-checked-in R7 scanner and Skill remain separate local components; R8 changes
-neither one.
+snapshot, runs ingestion or public-source collection, runs the artifact
+collector or repository interviews, executes candidate code, or invokes
+evaluation. Artifact reads use only immutable material at the active dossier
+head. The checked-in R7 scanner and Skill remain separate local components;
+R9 changes neither one.

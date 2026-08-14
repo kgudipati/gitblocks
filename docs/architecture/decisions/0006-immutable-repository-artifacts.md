@@ -432,6 +432,7 @@ Public reads are:
 ```text
 loadRepositoryArtifact({ artifactId, chunkerVersion: "exact-lines-v1" })
 loadRepositoryArtifactSet
+loadCandidateRepositoryArtifactMaterial({ candidateId, expectedCatalogVersion, expectedCatalogDigest, commitSha, evidenceCutoff })
 ```
 
 Artifact loading is explicitly chunker-scoped: the query filters by artifact
@@ -441,9 +442,21 @@ runtime values fail before database I/O. Artifact identity remains independent
 of chunker version, so a future additive chunker can coexist without
 duplicating exact source artifacts.
 
+Recovery R9 adds the candidate-scoped read without changing artifact identity or
+storage. One repeatable-read, read-only transaction selects the latest
+deterministic artifact set matching the candidate, active catalog version and
+digest, SHA-1 commit, and inclusive evidence cutoff, then reconstructs and
+validates its present artifacts and chunks through the existing parsers and
+digests. A missing exact match returns no material; a different or stale commit
+is never substituted.
+
 Low-level append helpers remain internal. Runtime grants are limited to schema
 usage and exact table `SELECT`/`INSERT`; update/delete/truncate/migration/schema
 rights are not granted. Tests use the non-owner, non-superuser role.
+Migration `0007_artifact_evidence_serving.sql` separately grants the existing
+NOLOGIN `gitblocks_serving` role SELECT on exactly the four immutable artifact
+tables. It grants no membership in the persistence role and no insert, update,
+delete, truncate, function, migration, or DDL privilege.
 
 ### Operator and receipt
 
@@ -472,6 +485,10 @@ The live command requires explicit catalog/manifest/receipt paths, injected
 GitHub read credentials, acknowledged ephemeral non-production PostgreSQL
 configuration, candidate concurrency two, request concurrency one,
 per-request/candidate/batch deadlines, and no implicit migration.
+Historical Phase 6/7 receipt validation retains its existing migration-`0003`
+and complete migration-`0004` semantics. New live artifact collection after R9
+requires exact current migration `0007`; migration `0006` and future versions
+fail before transport or collection effects.
 
 The catalog input is the closed public catalog, not the raw candidate source:
 
@@ -577,9 +594,14 @@ Phase 5 API-version header, request sequence, profiles, and receipts.
 ## Security and privacy
 
 Artifact content is hostile inert public data. It is never executed, rendered,
-followed, interpreted as instruction, sent to a model, included in errors or
-receipts, or committed as a fixture/evidence file. Tests use synthetic bodies
-and fail on unexpected network access.
+followed, interpreted as instruction, included in errors or receipts, or
+committed as a fixture/evidence file. Recovery R9 permits only a small,
+deterministically selected set of exact README/documentation lines to enter the
+existing finalist fit-model request after the artifact commit equals the single
+active repository-head observation. Whitespace normalization is disclosed;
+the immutable line URL remains authoritative. These request-scoped excerpts
+use the existing git-commit evidence source and are never persisted as duplicate
+evidence. Tests use synthetic bodies and fail on unexpected network access.
 
 This ADR authorizes only curator-approved public catalog artifacts. It does not
 authorize target-repository bodies, private repositories, secrets, or

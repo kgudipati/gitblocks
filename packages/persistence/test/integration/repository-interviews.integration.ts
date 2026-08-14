@@ -59,10 +59,10 @@ describe(
       try {
         const verification = await verifyMigrations(owner);
         expect(verification.postgresqlVersion).toMatch(/^18\.4\b/u);
-        expect(verification.migrations).toHaveLength(6);
+        expect(verification.migrations).toHaveLength(7);
         expect(verification.migrations.at(-1)).toMatchObject({
-          version: 6,
-          name: 'finalist-evidence-serving',
+          version: 7,
+          name: 'artifact-evidence-serving',
         });
       } finally {
         await closePersistenceClient(owner);

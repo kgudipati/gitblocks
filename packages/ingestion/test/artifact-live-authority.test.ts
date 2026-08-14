@@ -8,14 +8,14 @@ import {
 } from '../scripts/artifact-live-authority.ts';
 
 const MIGRATION_ERROR =
-  'The artifact database must be verified at migration 0004.';
+  'The artifact database must be verified at migration 0007.';
 
 describe('live artifact migration authority', () => {
-  it('accepts and carries only exact migration 0004', async () => {
-    const version = exactVersion(4);
-    expect(version).toBe(4);
+  it('accepts and carries only exact migration 0007', async () => {
+    const version = exactVersion(7);
+    expect(version).toBe(7);
 
-    const runCollection = vi.fn((accepted: 4) => Promise.resolve(accepted));
+    const runCollection = vi.fn((accepted: 7) => Promise.resolve(accepted));
     await expect(
       withVerifiedArtifactLiveDatabaseMigrationV1(
         () =>
@@ -25,20 +25,24 @@ describe('live artifact migration authority', () => {
               { version: 2 },
               { version: 3 },
               { version: 4 },
+              { version: 5 },
+              { version: 6 },
+              { version: 7 },
             ],
           }),
         runCollection,
       ),
-    ).resolves.toBe(4);
-    expect(runCollection).toHaveBeenCalledExactlyOnceWith(4);
+    ).resolves.toBe(7);
+    expect(runCollection).toHaveBeenCalledExactlyOnceWith(7);
   });
 
   it.each([
-    ['migration 0003', 3],
-    ['migration 0005', 5],
+    ['migration 0004', 4],
+    ['migration 0006', 6],
+    ['migration 0008', 8],
     ['missing latest migration', undefined],
-    ['noninteger migration', 4.5],
-    ['string migration', '4'],
+    ['noninteger migration', 7.5],
+    ['string migration', '7'],
     ['null migration', null],
   ] as const)('rejects %s with one fixed value-free error', (_name, value) => {
     expect(() => {
@@ -52,7 +56,7 @@ describe('live artifact migration authority', () => {
     }
   });
 
-  it('rejects migration 0003 before collection and receipt effects', async () => {
+  it('rejects migration 0006 before collection and receipt effects', async () => {
     const collectionEffects = vi.fn(() => Promise.resolve('receipt'));
     const receiptWrite = vi.fn();
 
@@ -60,7 +64,14 @@ describe('live artifact migration authority', () => {
       withVerifiedArtifactLiveDatabaseMigrationV1(
         () =>
           Promise.resolve({
-            migrations: [{ version: 1 }, { version: 2 }, { version: 3 }],
+            migrations: [
+              { version: 1 },
+              { version: 2 },
+              { version: 3 },
+              { version: 4 },
+              { version: 5 },
+              { version: 6 },
+            ],
           }),
         collectionEffects,
       ).then(receiptWrite),
@@ -74,14 +85,14 @@ describe('live artifact migration authority', () => {
     await withVerifiedArtifactLiveDatabaseMigrationV1(
       () => {
         events.push('verify-migrations');
-        return Promise.resolve({ migrations: [{ version: 4 }] });
+        return Promise.resolve({ migrations: [{ version: 7 }] });
       },
       (version) => {
         events.push(`collection-effects-${String(version)}`);
         return Promise.resolve();
       },
     );
-    expect(events).toEqual(['verify-migrations', 'collection-effects-4']);
+    expect(events).toEqual(['verify-migrations', 'collection-effects-7']);
   });
 
   it('has no environment, argument, database, network, or dependency escape hatch', async () => {
@@ -95,7 +106,7 @@ describe('live artifact migration authority', () => {
   });
 });
 
-function exactVersion(value: unknown): 4 {
+function exactVersion(value: unknown): 7 {
   assertArtifactLiveDatabaseMigrationVersionV1(value);
   return value;
 }

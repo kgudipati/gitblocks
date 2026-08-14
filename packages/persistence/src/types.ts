@@ -192,6 +192,19 @@ export interface LoadRepositoryArtifactSetCommand {
   readonly artifactSetId: string;
 }
 
+export interface LoadCandidateRepositoryArtifactMaterialCommand {
+  readonly candidateId: string;
+  readonly expectedCatalogVersion: 'public-v1';
+  readonly expectedCatalogDigest: string;
+  readonly commitSha: string;
+  readonly evidenceCutoff: string;
+}
+
+export interface CandidateRepositoryArtifactMaterial {
+  readonly artifactSet: RepositoryArtifactSetV1;
+  readonly artifacts: readonly LoadedRepositoryArtifact[];
+}
+
 export interface PublishRepositoryInterviewExchangeCommand {
   readonly request: RepositoryInterviewRequestV1;
   readonly execution: ModelExecutionV1;

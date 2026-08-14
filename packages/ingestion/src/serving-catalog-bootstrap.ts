@@ -35,7 +35,7 @@ export interface ServingCatalogBootstrapSummaryV1 {
   readonly schemaVersion: '1.0.0';
   readonly status: 'serving-catalog-bootstrap-complete';
   readonly publicationStatus: 'created' | 'idempotent';
-  readonly databaseMigrationVersion: 6;
+  readonly databaseMigrationVersion: 7;
   readonly catalogVersion: 'public-v1';
   readonly catalogDigest: string;
   readonly snapshotId: string;
@@ -53,7 +53,7 @@ export async function bootstrapServingCatalogV1(input: {
   readonly persistence: ServingCatalogBootstrapPersistencePortV1;
   readonly signal?: AbortSignal;
 }): Promise<ServingCatalogBootstrapSummaryV1> {
-  if (input.databaseMigrationVersion !== 6) {
+  if (input.databaseMigrationVersion !== 7) {
     throw ingestionError('ingestion.invalid-input');
   }
   const plan = createPublicCatalogSeedPlan(input.catalog);
@@ -98,7 +98,7 @@ export async function bootstrapServingCatalogV1(input: {
     schemaVersion: '1.0.0',
     status: 'serving-catalog-bootstrap-complete',
     publicationStatus: publication.status,
-    databaseMigrationVersion: 6,
+    databaseMigrationVersion: 7,
     catalogVersion: plan.catalogVersion,
     catalogDigest: plan.catalogDigest,
     snapshotId: publication.snapshotId,
