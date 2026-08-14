@@ -61,6 +61,11 @@ const KNOWN_MIGRATIONS: readonly KnownMigration[] = Object.freeze([
     name: 'finalist-evidence-serving',
     fileName: '0006_finalist_evidence_serving.sql',
   }),
+  Object.freeze({
+    version: 7,
+    name: 'artifact-evidence-serving',
+    fileName: '0007_artifact_evidence_serving.sql',
+  }),
 ]);
 
 export async function applyMigrations(

@@ -82,7 +82,8 @@ The acknowledgement must equal the database name byte-for-byte before any
 environment, database, clock, nonce, telemetry, provider, or filesystem-write
 effect. A database URL and secret argv/config values are not accepted. The
 operator never applies migrations; it verifies PostgreSQL 18.4 and the exact
-four accepted migration checksums before artifact loading or execution.
+accepted additive migration inventory (historical migration 0004 through
+current migration 0007) before artifact loading or execution.
 
 Plan-only dry-run validates the candidate plan, specification, one profile,
 policy, explicit database syntax, receipt-path syntax, and conservative

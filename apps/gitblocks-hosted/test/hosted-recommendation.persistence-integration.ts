@@ -13,6 +13,7 @@ import {
   parseOssRecommendationRequestV1,
   parseRepositoryFingerprintV1,
   repositoryFingerprintDigestV1,
+  validateRecommendationAssessmentExchangeV1,
   type OssRecommendationRequestV1,
   type RecommendationAssessmentResponseV1,
   type RepositoryFingerprintV1,
@@ -28,6 +29,7 @@ import {
   applyMigrations,
   closePersistenceClient,
   createPersistenceClient,
+  publishRepositoryArtifactSet,
   publishServingCatalogSnapshot,
   putCatalogCandidate,
   setCandidateCapabilityFamilies,
@@ -51,10 +53,13 @@ import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
 import { GITBLOCKS_RECOMMEND_OSS_TOOL_NAME } from '../src/mcp-server.ts';
 import {
   candidateDossier,
+  candidateArtifactMaterial,
+  candidateRepositoryHeadDossier,
   frozenBackgroundJobsDogfoodRequest,
   groundedModelResponse,
   loadAcceptedAuthorities,
   recommendationRequest,
+  TEST_ARTIFACT_COMMIT_SHA,
 } from './fixtures.ts';
 
 const OWNER_CONFIG = readOwnerConfig();
@@ -383,6 +388,119 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
       ]);
     }
   });
+
+  it('supplies commit-coherent immutable excerpts to the frozen zero-eligible finalists through official recommend_oss without external effects', async () => {
+    const writer = createPersistenceClient(WRITER_CONFIG);
+    const authorities = await loadAcceptedAuthorities();
+    let modelValidationIssues: readonly unknown[] = [];
+    const model = vi.fn((input: FitAssessmentModelRequestV1) => {
+      const response = controlledEvidenceNeededResponse(input);
+      groundPositiveResolutionsInArtifact(response, input);
+      const validation = validateRecommendationAssessmentExchangeV1({
+        request: input.fitAssessmentRequest,
+        normalization: input.normalization,
+        retrievalFinalists: input.retrievalFinalists,
+        response,
+      });
+      modelValidationIssues = validation.ok ? [] : validation.issues;
+      return Promise.resolve(response);
+    });
+    let hostedProcess;
+    let client: Client | undefined;
+    try {
+      await seedAcceptedCandidateIdentities(writer);
+      await seedBackgroundJobArtifactEvidence(writer);
+      await publishServingCatalogSnapshot(writer, {
+        candidateProfileAuthority: authorities.profiles,
+        candidateRetrievalMetadataAuthority: authorities.metadata,
+        publishedAt: PUBLISHED_AT,
+      });
+      await closePersistenceClient(writer);
+
+      hostedProcess = await startGitBlocksMcpProcess({
+        database: SERVING_CONFIG,
+        fitModel: { assess: model },
+        clock: { now: () => EVIDENCE_CUTOFF },
+        port: 0,
+      });
+      client = new Client(
+        { name: 'gitblocks-r9-postgresql-mcp-test', version: '0.0.0' },
+        { versionNegotiation: { mode: { pin: '2026-07-28' } } },
+      );
+      await client.connect(
+        new StreamableHTTPClientTransport(hostedProcess.endpoint, {
+          fetch: loopbackFetch,
+        }),
+      );
+
+      const result = await client.callTool({
+        name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+        arguments: recommendationRequestId(
+          frozenBackgroundJobsDogfoodRequest(),
+          'postgres-r9-artifact-evidence',
+        ),
+      });
+
+      expect(model).toHaveBeenCalledTimes(1);
+      expect(modelValidationIssues).toEqual([]);
+      expect(result.isError).not.toBe(true);
+      expect(result.structuredContent).toMatchObject({
+        outcome: 'recommend',
+        responsibleOptions: [{ candidateId: BACKGROUND_JOB_FINALISTS[0] }],
+      });
+      expect(hardResolutionStates(result.structuredContent)).toMatchObject({
+        [BACKGROUND_JOB_FINALISTS[0]]: [
+          'satisfied',
+          'satisfied',
+          'satisfied',
+          'satisfied',
+        ],
+        [BACKGROUND_JOB_FINALISTS[1]]: [
+          'satisfied',
+          'conflict',
+          'satisfied',
+          'satisfied',
+        ],
+        [BACKGROUND_JOB_FINALISTS[2]]: [
+          'unresolved',
+          'unresolved',
+          'unresolved',
+          'unresolved',
+        ],
+      });
+      expect(
+        responsibleOptionCount(result.structuredContent),
+      ).toBeLessThanOrEqual(3);
+      const input = model.mock.calls[0]?.[0];
+      expect(
+        input?.retrievalFinalists.map(({ candidateId }) => candidateId),
+      ).toEqual(BACKGROUND_JOB_FINALISTS);
+      const artifactEvidenceCounts = input?.fitAssessmentRequest.candidates.map(
+        (dossier) =>
+          dossier.observations.filter(
+            ({ topic }) => topic === 'artifact-excerpt',
+          ).length,
+      );
+      expect(artifactEvidenceCounts).toEqual([2, 2, 0, 0, 0]);
+      expect(
+        input?.fitAssessmentRequest.candidates
+          .flatMap(({ observations }) => observations)
+          .filter(({ topic }) => topic === 'artifact-excerpt')
+          .every(
+            ({ source }) =>
+              source.kind === 'git-commit' &&
+              source.commitSha === TEST_ARTIFACT_COMMIT_SHA &&
+              /#L\d+(?:-L\d+)?$/u.test(source.immutableUrl),
+          ),
+      ).toBe(true);
+    } finally {
+      await Promise.all([
+        client?.close(),
+        hostedProcess?.close(),
+        closePersistenceClient(writer),
+      ]);
+    }
+  });
 });
 
 interface ScannerResult {
@@ -620,6 +738,72 @@ async function seedBackgroundJobFinalistEvidence(
   }
 }
 
+async function seedBackgroundJobArtifactEvidence(
+  client: PersistenceClient,
+): Promise<void> {
+  const { profiles } = await loadAcceptedAuthorities();
+  const profileById = new Map(
+    profiles.profiles.map((profile) => [
+      profile.candidateId,
+      profile as unknown as DeterministicCandidateProfile,
+    ]),
+  );
+  const contents = [
+    'Failed jobs have automatic retries with configurable backoff.\nThis in-process queue does not require Redis.',
+    'Failed jobs have automatic retries with configurable backoff.\nRedis is required to coordinate workers.',
+    'Workers process durable jobs from a persistent queue.',
+    'Failed jobs have automatic retries.\nRedis is required.',
+  ] as const;
+  for (const [index, candidateId] of BACKGROUND_JOB_FINALISTS.entries()) {
+    const profile = profileById.get(candidateId);
+    if (profile === undefined)
+      throw new Error('R9 finalist profile is missing.');
+    const identity = profileIdentity(profile);
+    const family = knownField(profile, 'capability-family').value.primaryFamily;
+    const dossier = {
+      ...candidateRepositoryHeadDossier(candidateId, family),
+      identity,
+    };
+    const repositoryHead = dossier.observations[0];
+    if (repositoryHead === undefined) {
+      throw new Error('R9 repository-head evidence is missing.');
+    }
+    try {
+      await appendEvidenceObservation(client, {
+        observation: repositoryHead,
+        createdAt: EVIDENCE_CREATED_AT,
+      });
+      for (const unknown of dossier.unknowns) {
+        await appendCandidateUnknown(client, {
+          unknown,
+          createdAt: EVIDENCE_CREATED_AT,
+        });
+      }
+    } catch (error) {
+      throw new Error(`R9 repository head failed for ${candidateId}.`, {
+        cause: error,
+      });
+    }
+    const content = contents[index];
+    if (content === undefined) continue;
+    const material = candidateArtifactMaterial({
+      candidateId,
+      catalogDigest: profiles.catalogDigest,
+      content,
+      commitSha: index === 3 ? '2'.repeat(40) : TEST_ARTIFACT_COMMIT_SHA,
+      repositoryOwner: identity.repository.owner,
+      repositoryName: identity.repository.name,
+    });
+    try {
+      await publishRepositoryArtifactSet(client, material);
+    } catch (error) {
+      throw new Error(`R9 artifact publication failed for ${candidateId}.`, {
+        cause: error,
+      });
+    }
+  }
+}
+
 function controlledEvidenceNeededResponse(
   input: FitAssessmentModelRequestV1,
 ): RecommendationAssessmentResponseV1 {
@@ -630,7 +814,12 @@ function controlledEvidenceNeededResponse(
   const dossier = input.fitAssessmentRequest.candidates.find(
     ({ identity }) => identity.candidateId === candidateId,
   );
-  const evidence = dossier?.observations[0];
+  const evidence =
+    dossier?.observations.filter(({ topic }) => topic === 'artifact-excerpt') ??
+    [];
+  const groundedEvidence =
+    evidence.length > 0 ? evidence : (dossier?.observations.slice(0, 1) ?? []);
+  const firstGroundedEvidence = groundedEvidence[0];
   const assessment =
     response.targetFitAssessment.fitAssessment.candidateAssessments.find(
       (candidate) => candidate.candidateId === candidateId,
@@ -640,7 +829,7 @@ function controlledEvidenceNeededResponse(
   );
   const reason = assessment?.reasons[0];
   if (
-    evidence === undefined ||
+    firstGroundedEvidence === undefined ||
     assessment === undefined ||
     reason === undefined ||
     resolutions.length === 0
@@ -657,7 +846,7 @@ function controlledEvidenceNeededResponse(
       'The supplied candidate evidence establishes the hard-constraint state.',
     rationale:
       'The resolution uses only the supplied candidate-owned observation.',
-    evidenceIds: [evidence.evidenceId],
+    evidenceIds: groundedEvidence.map(({ evidenceId }) => evidenceId),
   });
   assessment.disposition = 'rejected';
   assessment.inferenceIds = [inferenceId];
@@ -685,9 +874,38 @@ function controlledEvidenceNeededResponse(
     candidateId,
     constraintId: 'no-redis',
     reasonCode: 'redis-unavailable',
-    evidenceIds: [evidence.evidenceId],
+    evidenceIds: [
+      groundedEvidence.find(({ observation }) => /redis/iu.test(observation))
+        ?.evidenceId ?? firstGroundedEvidence.evidenceId,
+    ],
   });
   return response;
+}
+
+function groundPositiveResolutionsInArtifact(
+  response: RecommendationAssessmentResponseV1,
+  input: FitAssessmentModelRequestV1,
+): void {
+  const candidateId = input.retrievalFinalists[0]?.candidateId;
+  const dossier = input.fitAssessmentRequest.candidates.find(
+    ({ identity }) => identity.candidateId === candidateId,
+  );
+  const artifactEvidence =
+    dossier?.observations.filter(({ topic }) => topic === 'artifact-excerpt') ??
+    [];
+  const inference = response.targetFitAssessment.fitAssessment.inferences.find(
+    (candidateInference) => candidateInference.candidateId === candidateId,
+  );
+  if (
+    candidateId === undefined ||
+    artifactEvidence.length === 0 ||
+    inference === undefined
+  ) {
+    throw new Error('R9 positive artifact grounding is incomplete.');
+  }
+  inference.evidenceIds = artifactEvidence.map(({ evidenceId }) => evidenceId);
+  inference.rationale =
+    'The resolution uses only supplied commit-coherent repository excerpts.';
 }
 
 function promoteUnresolvedCandidate(

@@ -164,6 +164,11 @@ describe('persistence package boundary', () => {
         name: 'finalist-evidence-serving',
         fileName: '0006_finalist_evidence_serving.sql',
       },
+      {
+        version: 7,
+        name: 'artifact-evidence-serving',
+        fileName: '0007_artifact_evidence_serving.sql',
+      },
     ]);
   });
 

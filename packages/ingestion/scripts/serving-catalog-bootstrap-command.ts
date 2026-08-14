@@ -95,7 +95,7 @@ export async function runServingCatalogBootstrapCliV1(
       candidateProfileAuthority: profileAuthority,
       candidateRetrievalMetadataAuthority: metadataAuthority,
       publishedAt: configuration.publishedAt,
-      databaseMigrationVersion: 6,
+      databaseMigrationVersion: 7,
       persistence: Object.freeze({
         putCatalogCandidate: (
           command: PutCatalogCandidateCommand,
@@ -175,9 +175,9 @@ export function parseServingCatalogBootstrapArgumentsV1(
 function requireCurrentMigration(value: MigrationVerification): void {
   if (
     !/^18[.]4(?:[.\s]|$)/u.test(value.postgresqlVersion) ||
-    value.migrations.length !== 6 ||
-    value.migrations.at(-1)?.version !== 6 ||
-    value.migrations.at(-1)?.name !== 'finalist-evidence-serving'
+    value.migrations.length !== 7 ||
+    value.migrations.at(-1)?.version !== 7 ||
+    value.migrations.at(-1)?.name !== 'artifact-evidence-serving'
   ) {
     throw new Error('Serving catalog bootstrap migration is invalid.');
   }

@@ -5,6 +5,7 @@ export {
 } from './client.ts';
 export { PersistenceError, type PersistenceErrorCode } from './errors.ts';
 export {
+  loadCandidateRepositoryArtifactMaterial,
   loadRepositoryArtifact,
   loadRepositoryArtifactSet,
   publishRepositoryArtifactSet,
@@ -69,12 +70,14 @@ export type {
   AppendCandidateUnknownCommand,
   AppendEvidenceObservationCommand,
   CandidateIdentityV1,
+  CandidateRepositoryArtifactMaterial,
   CandidateLimitationV1,
   CandidateUnknownV1,
   CapabilityFamilyV1,
   CreateCandidateDossierSnapshotCommand,
   FindReusableRepositoryInterviewCommand,
   LoadCandidateDossierSnapshotCommand,
+  LoadCandidateRepositoryArtifactMaterialCommand,
   LoadActiveCandidateDossierCommand,
   MigrationRecord,
   MigrationVerification,

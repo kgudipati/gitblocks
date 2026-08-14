@@ -34,11 +34,11 @@ describe('repository interview persistence boundary', () => {
       fileName: '0004_repository_interviews.sql',
     });
     expect(knownMigrationInventory().at(-1)).toEqual({
-      version: 6,
-      name: 'finalist-evidence-serving',
-      fileName: '0006_finalist_evidence_serving.sql',
+      version: 7,
+      name: 'artifact-evidence-serving',
+      fileName: '0007_artifact_evidence_serving.sql',
     });
-    expect(knownMigrationInventory()).toHaveLength(6);
+    expect(knownMigrationInventory()).toHaveLength(7);
   });
 
   it('rejects malformed publish roots before database I/O', async () => {

@@ -18,6 +18,7 @@ import {
   createCandidateDossierSnapshot,
   createPersistenceClient,
   loadCandidateDossierSnapshot,
+  loadCandidateRepositoryArtifactMaterial,
   loadRepositoryArtifact,
   loadRepositoryArtifactSet,
   PersistenceError,
@@ -82,14 +83,14 @@ describe(
         expect(concurrent).toHaveLength(2);
         expect(repeated).toEqual(verified);
         expect(verified.postgresqlVersion).toMatch(/^18\.4\b/u);
-        expect(verified.migrations).toHaveLength(6);
+        expect(verified.migrations).toHaveLength(7);
         expect(firstOrThrow(verified.migrations)).toMatchObject({
           version: 1,
           name: 'evidence-persistence',
         });
         expect(verified.migrations.at(-1)).toMatchObject({
-          version: 6,
-          name: 'finalist-evidence-serving',
+          version: 7,
+          name: 'artifact-evidence-serving',
         });
         expect(
           verified.migrations.every((migration) =>
@@ -103,7 +104,7 @@ describe(
         select pg_catalog.count(*)::integer as count
         from gitblocks.schema_migrations
       `;
-        expect(history[0]?.count).toBe(6);
+        expect(history[0]?.count).toBe(7);
 
         const runtime = createPersistenceClient(RUNTIME_CONFIG);
         try {
@@ -476,6 +477,70 @@ describe(
           closePersistenceClient(first),
           closePersistenceClient(second),
         ]);
+      }
+    });
+
+    it('loads only the latest exact candidate, catalog, commit, and cutoff artifact material in one bounded operation', async () => {
+      const runtime = createPersistenceClient(RUNTIME_CONFIG);
+      const dossier = createCandidateDossier('candidate-alpha');
+      const first = createArtifactPublication({
+        publishedAt: '2026-07-29T12:01:00.000Z',
+      });
+      const latest = createArtifactPublication({
+        providerOwner: 'new-owner',
+        providerRepository: 'new-name',
+        publishedAt: '2026-07-29T14:01:00.000Z',
+      });
+      const command = {
+        candidateId: dossier.identity.candidateId,
+        expectedCatalogVersion: 'public-v1' as const,
+        expectedCatalogDigest: first.artifactSet.catalogDigest,
+        commitSha: first.artifactSet.commitObjectId,
+        evidenceCutoff: '2026-07-29T15:00:00.000Z',
+      };
+      try {
+        await putCatalogCandidate(runtime, {
+          identity: dossier.identity,
+          createdAt: CREATED_AT,
+        });
+        await publishRepositoryArtifactSet(runtime, first);
+        await publishRepositoryArtifactSet(runtime, latest);
+
+        await expect(
+          loadCandidateRepositoryArtifactMaterial(runtime, command),
+        ).resolves.toEqual({
+          artifactSet: latest.artifactSet,
+          artifacts: first.artifacts,
+        });
+        await expect(
+          loadCandidateRepositoryArtifactMaterial(runtime, {
+            ...command,
+            evidenceCutoff: '2026-07-29T13:00:00.000Z',
+          }),
+        ).resolves.toEqual({
+          artifactSet: first.artifactSet,
+          artifacts: first.artifacts,
+        });
+        await expect(
+          loadCandidateRepositoryArtifactMaterial(runtime, {
+            ...command,
+            commitSha: '2'.repeat(40),
+          }),
+        ).resolves.toBeNull();
+        await expect(
+          loadCandidateRepositoryArtifactMaterial(runtime, {
+            ...command,
+            expectedCatalogDigest: 'f'.repeat(64),
+          }),
+        ).resolves.toBeNull();
+        await expect(
+          loadCandidateRepositoryArtifactMaterial(runtime, {
+            ...command,
+            evidenceCutoff: '2026-07-29T12:00:00.000Z',
+          }),
+        ).resolves.toBeNull();
+      } finally {
+        await closePersistenceClient(runtime);
       }
     });
 

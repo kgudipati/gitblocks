@@ -233,12 +233,13 @@ migrates implicitly. Its receipt is bounded and content-free, and
 provider.
 
 The original Phase 6 live proof ran against migration `0003`, and its valid
-historical receipts remain accepted by the generic receipt parser. A new live
-artifact collection for Phase 7 preparation requires the exact verified
-0001–0004 migration inventory; the live operator rejects migration `0003`,
-missing migrations, and migrations newer than `0004` before constructing its
-GitHub transport or collector. The verified exact value `4` is recorded in the
-new receipt through the existing collection boundary.
+historical receipts remain accepted by the generic receipt parser. The Phase 7
+complete-receipt authority remains fixed at migration `0004`. After R9, a new
+live artifact collection requires the exact verified 0001–0007 inventory; the
+live operator rejects migration `0006`, missing migrations, and versions newer
+than `0007` before constructing its GitHub transport or collector. The verified
+exact value `7` is recorded in the new receipt through the existing collection
+boundary without reinterpreting historical receipts.
 
 A fresh migration-`0004` database does not contain durable catalog provenance.
 After the second preparation stop exposed that missing composition boundary,
@@ -270,7 +271,7 @@ authority through their existing parsers, verifies their exact shared binding,
 seeds the existing candidate identity/family rows, and publishes/selects one
 complete immutable snapshot only after all 300 candidate records close.
 
-The command requires migration `0005` and the discrete
+The current command requires migration `0007` and the discrete
 `GITBLOCKS_SERVING_BOOTSTRAP_DB_{HOST,PORT,DATABASE,USERNAME,PASSWORD,SSL}`
 settings. It does not apply migrations or expose GitHub, npm, advisory, model,
 artifact, interview, profile-generation, metadata-generation, or network

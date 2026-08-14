@@ -103,6 +103,12 @@ const PROFILE_MATERIALIZATION_COMPATIBLE_ADDITIVE_MIGRATIONS = [
     checksum:
       '05575971fe03bea06bbd6736b15f68f98c137cf903816bbb8689e843481c70db',
   },
+  {
+    version: 7,
+    name: 'artifact-evidence-serving',
+    checksum:
+      'c5cb5fcc522b25335b1c927b62ad80133bdf99ffe0c065d759cd3059880c5903',
+  },
 ] as const;
 export const PROFILE_MATERIALIZATION_MIGRATION_INVENTORY_DIGEST = digestJson(
   PROFILE_MATERIALIZATION_EXPECTED_MIGRATIONS,

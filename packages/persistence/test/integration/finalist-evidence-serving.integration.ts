@@ -9,15 +9,20 @@ import {
   applyMigrations,
   closePersistenceClient,
   createPersistenceClient,
+  loadCandidateRepositoryArtifactMaterial,
   loadActiveCandidateDossier,
   putCatalogCandidate,
+  publishRepositoryArtifactSet,
   recordEvidenceInvalidation,
   recordEvidenceSupersession,
   setCandidateCapabilityFamilies,
   type PersistenceClient,
   type PersistenceClientConfig,
 } from '../../src/index.ts';
-import { createCandidateDossier } from '../fixtures.ts';
+import {
+  createArtifactPublication,
+  createCandidateDossier,
+} from '../fixtures.ts';
 
 const OWNER_CONFIG = readOwnerConfig();
 const WRITER_CONFIG: PersistenceClientConfig = {
@@ -42,6 +47,10 @@ const SERVING_SELECT_TABLES = [
   'evidence_invalidations',
   'evidence_observations',
   'evidence_supersessions',
+  'repository_artifact_chunks',
+  'repository_artifact_set_entries',
+  'repository_artifact_sets',
+  'repository_artifacts',
   'serving_candidate_profile_records',
   'serving_candidate_retrieval_metadata_records',
   'serving_catalog_current_snapshot',
@@ -63,13 +72,15 @@ describe('PostgreSQL finalist evidence serving', { concurrent: false }, () => {
     await ownerSql.end({ timeout: 5 });
   });
 
-  it('grants serving SELECT only on snapshot and concrete finalist evidence tables', async () => {
+  it('grants serving SELECT only on snapshot, finalist evidence, and immutable artifact material tables', async () => {
     const writer = createPersistenceClient(WRITER_CONFIG);
     const serving = createPersistenceClient(SERVING_CONFIG);
     const servingSql = directSql(SERVING_CONFIG);
     const dossier = createDossierWithUnknown();
+    const publication = createArtifactPublication();
     try {
       await seedDossier(writer, dossier);
+      await publishRepositoryArtifactSet(writer, publication);
       await expect(
         loadActiveCandidateDossier(serving, {
           candidateId: dossier.identity.candidateId,
@@ -80,6 +91,15 @@ describe('PostgreSQL finalist evidence serving', { concurrent: false }, () => {
         ...dossier,
         versionScope: null,
       });
+      await expect(
+        loadCandidateRepositoryArtifactMaterial(serving, {
+          candidateId: dossier.identity.candidateId,
+          expectedCatalogVersion: 'public-v1',
+          expectedCatalogDigest: publication.artifactSet.catalogDigest,
+          commitSha: publication.artifactSet.commitObjectId,
+          evidenceCutoff: publication.artifactSet.publishedAt,
+        }),
+      ).resolves.toEqual(publication);
 
       const grants = await ownerSql<
         readonly {
@@ -107,9 +127,45 @@ describe('PostgreSQL finalist evidence serving', { concurrent: false }, () => {
           where candidate_id = ${dossier.identity.candidateId}
         `,
       ).rejects.toMatchObject({ code: '42501' });
-      await expect(
-        servingSql`select artifact_id from gitblocks.repository_artifacts`,
-      ).rejects.toMatchObject({ code: '42501' });
+      const membership = await ownerSql<
+        readonly { readonly is_member: boolean }[]
+      >`
+        select pg_catalog.pg_has_role(
+          'gitblocks_serving',
+          'gitblocks_persistence',
+          'member'
+        ) as is_member
+      `;
+      expect(membership).toEqual([{ is_member: false }]);
+
+      for (const tableName of [
+        'repository_artifacts',
+        'repository_artifact_chunks',
+        'repository_artifact_sets',
+        'repository_artifact_set_entries',
+      ]) {
+        await expect(
+          servingSql.unsafe(
+            `insert into gitblocks.${tableName} default values`,
+          ),
+        ).rejects.toMatchObject({ code: '42501' });
+        await expect(
+          servingSql.unsafe(
+            `update gitblocks.${tableName} set candidate_id = candidate_id where false`,
+          ),
+        ).rejects.toMatchObject({ code: '42501' });
+        await expect(
+          servingSql.unsafe(`delete from gitblocks.${tableName} where false`),
+        ).rejects.toMatchObject({ code: '42501' });
+        await expect(
+          servingSql.unsafe(`truncate table gitblocks.${tableName}`),
+        ).rejects.toMatchObject({ code: '42501' });
+        await expect(
+          servingSql.unsafe(
+            `alter table gitblocks.${tableName} add column r9_forbidden integer`,
+          ),
+        ).rejects.toMatchObject({ code: '42501' });
+      }
       await expect(
         servingSql`select interview_id from gitblocks.repository_interviews`,
       ).rejects.toMatchObject({ code: '42501' });

@@ -20,9 +20,12 @@ contracts, and returns the metadata binding required by
 `createCandidateRetrievalEngineV1(...)`. Persistence does not import retrieval.
 
 The `gitblocks_serving` group is `NOLOGIN`, non-superuser, and receives only
-schema usage plus SELECT on the four serving tables. It has no write, DDL,
-migration-history, broader catalog/evidence, or direct function-execution
-privilege. A deployment owner creates a login and grants only that group.
+schema usage plus SELECT on the coherent snapshot tables, the seven active
+finalist-evidence tables, and—through migration `0007`—the four immutable
+artifact tables. It has no write, DDL, migration-history, dossier-snapshot,
+repository-interview, or direct function-execution privilege and is not a
+member of `gitblocks_persistence`. A deployment owner creates a login and
+grants only that group.
 
 The adapter exposes explicit client creation/closure, explicit checked forward
 migrations, public catalog writes, exact historical snapshot loading, and one
@@ -47,6 +50,14 @@ repository rename.
 `loadRepositoryArtifact` requires the caller to name the set's supported
 `exact-lines-v1` chunker version and filters the chunk query by both artifact ID
 and chunker version. Artifact identity remains independent of chunker version.
+
+`loadCandidateRepositoryArtifactMaterial` is the serving read for R9. It
+validates the candidate/catalog/commit/cutoff command, opens one repeatable-read
+read-only transaction, and selects only the latest deterministic set matching
+the exact candidate, `public-v1` catalog digest, SHA-1 commit, and inclusive
+cutoff. It reconstructs every present artifact and chunk through the existing
+contract/digest checks and returns `null` when no exact set exists; it never
+falls back to a different repository head.
 
 Repository-interview persistence exposes exactly three operations:
 `publishRepositoryInterviewExchange`, `findReusableRepositoryInterview`, and
@@ -91,10 +102,11 @@ owner and runtime connections; the non-owner runtime role receives only
 `SELECT` and `INSERT`, and public receives no schema, table, or function
 privilege. Use `pnpm db:verify` for the exact PostgreSQL 18.4 no-volume
 verification path.
-Migration `0005` is additive: the full schema has 29 public product tables and
-five checked migrations. Published serving roots and candidate rows reject
-update, delete, and truncate; the mutable singleton selector can point only to
-a complete root. See ADR 0011 and Plan 0036 for rollout and forward recovery.
+Migrations `0005`–`0007` are additive: the full schema has 29 public product
+tables and seven checked migrations. Published serving roots and candidate rows
+reject update, delete, and truncate; the mutable singleton selector can point
+only to a complete root. See ADR 0011 and Plan 0036 for rollout and forward
+recovery.
 Milestone 6 and migration 0004 are accepted and byte-frozen. Evaluation audit
 records and gate reports remain outside this adapter and outside production
 tables.

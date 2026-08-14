@@ -46,7 +46,7 @@ describe('repository artifact operator surface', () => {
     expect(source).not.toContain('displayUrl');
   });
 
-  it('guards exact migration 0004 before transport, collection, and receipt writing', async () => {
+  it('guards exact migration 0007 before transport, collection, and receipt writing', async () => {
     const source = await readFile(
       new URL('../scripts/artifacts-live-cli.ts', import.meta.url),
       'utf8',

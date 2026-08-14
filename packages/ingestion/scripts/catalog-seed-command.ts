@@ -21,7 +21,6 @@ import {
   parsePublicCatalog,
   seedPublicCatalogV1,
 } from '../src/index.ts';
-import { withVerifiedArtifactLiveDatabaseMigrationV1 } from './artifact-live-authority.ts';
 
 const ACKNOWLEDGEMENT = 'approved-non-production-public-catalog-seed';
 const DATABASE_SCOPE = 'ephemeral-non-production';
@@ -94,7 +93,7 @@ export async function runCatalogSeedCliV1(
           control,
         ),
     });
-    const summary = await withVerifiedArtifactLiveDatabaseMigrationV1(
+    const summary = await withVerifiedCatalogSeedDatabaseMigrationV1(
       () => dependencies.verifyMigrations(activeClient),
       (databaseMigrationVersion) =>
         seedPublicCatalogV1({
@@ -118,6 +117,18 @@ export async function runCatalogSeedCliV1(
     dependencies.writeStderr(FAILURE_DIAGNOSTIC);
     return 1;
   }
+}
+
+async function withVerifiedCatalogSeedDatabaseMigrationV1<Result>(
+  verifyDatabaseMigrations: () => Promise<MigrationVerification>,
+  runAuthorizedEffects: (databaseMigrationVersion: 4) => Promise<Result>,
+): Promise<Result> {
+  const verification = await verifyDatabaseMigrations();
+  const databaseMigrationVersion = verification.migrations.at(-1)?.version;
+  if (databaseMigrationVersion !== 4) {
+    throw new Error('Catalog seed database migration is invalid.');
+  }
+  return runAuthorizedEffects(databaseMigrationVersion);
 }
 
 export function parseCatalogSeedArgumentsV1(arguments_: readonly string[]): {

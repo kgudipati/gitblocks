@@ -3,6 +3,9 @@ import { fileURLToPath } from 'node:url';
 
 import {
   CONTRACT_VERSION,
+  createRepositoryArtifactChunkV1,
+  createRepositoryArtifactSetV1,
+  createRepositoryArtifactV1,
   createCandidateRetrievalRequestV1,
   normalizeCapabilityQueryV1,
   parseCandidateRetrievalMetadataAuthorityV1,
@@ -10,6 +13,10 @@ import {
   parseCapabilityTaxonomyV1,
   parseDeterministicCandidateProfileAuthorityV1,
   repositoryFingerprintDigestV1,
+  repositoryArtifactContentSha256,
+  repositoryArtifactDisplayUrl,
+  repositoryArtifactGitBlobObjectId,
+  repositoryArtifactUtf8ByteLength,
   type CandidateDossierV1,
   type CandidateRetrievalMetadataAuthorityV1,
   type CandidateRetrievalResultV1,
@@ -33,8 +40,11 @@ import {
   type HostedRecommendationApplicationV1,
   type HostedRecommendationObserverV1,
 } from '../src/application.ts';
+import type { CandidateArtifactMaterialLoaderPort } from '../src/artifact-evidence-selector.ts';
+import type { CandidateRepositoryArtifactMaterialV1 } from '../src/artifact-evidence-selector.ts';
 
 export const TEST_EVIDENCE_CUTOFF = '2026-08-12T12:00:00.000Z';
+export const TEST_ARTIFACT_COMMIT_SHA = '1'.repeat(40);
 
 export interface AcceptedHostedDiscoveryAuthorities {
   readonly profiles: DeterministicCandidateProfileAuthorityV1;
@@ -54,6 +64,7 @@ export function loadAcceptedAuthorities(): Promise<AcceptedHostedDiscoveryAuthor
 export async function createAcceptedApplication(
   input: {
     readonly dossierLoader?: CandidateDossierLoaderPort;
+    readonly artifactMaterialLoader?: CandidateArtifactMaterialLoaderPort;
     readonly fitModel?: FitAssessmentModelPort;
     readonly engine?: CandidateRetrievalEngineV1;
     readonly observer?: HostedRecommendationObserverV1;
@@ -96,6 +107,11 @@ export async function createAcceptedApplication(
               capabilityFamily: command.expectedCapabilityFamily,
             }),
           ),
+      }),
+    artifactMaterialLoader:
+      input.artifactMaterialLoader ??
+      Object.freeze({
+        loadCandidateRepositoryArtifactMaterial: () => Promise.resolve(null),
       }),
     fitModel:
       input.fitModel ??
@@ -387,6 +403,140 @@ export function candidateDossier(
       },
     ],
   };
+}
+
+export function candidateRepositoryHeadDossier(
+  candidateId: string,
+  capabilityFamily: CandidateDossierV1['capabilityFamily'],
+  commitSha = TEST_ARTIFACT_COMMIT_SHA,
+): CandidateDossierV1 {
+  const dossier = candidateDossier(candidateId, TEST_EVIDENCE_CUTOFF, {
+    capabilityFamily,
+    emptyEvidence: true,
+  });
+  return {
+    ...dossier,
+    observations: [
+      {
+        kind: 'evidence',
+        evidenceId: `repository-head-${candidateId}`,
+        candidateId,
+        topic: 'repository-head',
+        dimension: 'maintenance',
+        observation: 'The default branch resolves to the pinned commit.',
+        source: {
+          kind: 'git-commit',
+          sourceType: 'official-repository',
+          sourceUrl: `https://github.com/example/${candidateId}`,
+          commitSha,
+          immutableUrl: `https://github.com/example/${candidateId}/tree/${commitSha}`,
+          publishedAt: '2026-08-11T09:00:00.000Z',
+          collectedAt: '2026-08-12T09:00:00.000Z',
+        },
+        freshness: {
+          status: 'current',
+          asOf: TEST_EVIDENCE_CUTOFF,
+          scope: 'Default-branch repository head at collection time.',
+        },
+        directness: 'direct',
+        limitation:
+          'Repository history beyond the selected head was not interpreted.',
+      },
+    ],
+  };
+}
+
+export function candidateArtifactMaterial(input: {
+  readonly candidateId: string;
+  readonly catalogDigest: string;
+  readonly content: string;
+  readonly commitSha?: string;
+  readonly repositoryOwner?: string;
+  readonly repositoryName?: string;
+}): CandidateRepositoryArtifactMaterialV1 {
+  const commitSha = input.commitSha ?? TEST_ARTIFACT_COMMIT_SHA;
+  const repositoryOwner = input.repositoryOwner ?? 'example';
+  const repositoryName = input.repositoryName ?? input.candidateId;
+  const repositoryId = '123456789';
+  const path = 'README.md';
+  const contentSha256 = repositoryArtifactContentSha256(input.content);
+  const blobObjectId = repositoryArtifactGitBlobObjectId('sha1', input.content);
+  const artifact = createRepositoryArtifactV1({
+    contractVersion: CONTRACT_VERSION,
+    candidateId: input.candidateId,
+    provider: 'github',
+    providerRepositoryId: repositoryId,
+    gitObjectAlgorithm: 'sha1',
+    commitObjectId: commitSha,
+    path,
+    blobObjectId,
+    blobApiUrl: `https://api.github.com/repositories/${repositoryId}/git/blobs/${blobObjectId}`,
+    displayUrl: repositoryArtifactDisplayUrl({
+      providerOwner: repositoryOwner,
+      providerRepository: repositoryName,
+      commitObjectId: commitSha,
+      path,
+    }),
+    mediaType: 'text/plain',
+    encoding: 'utf-8',
+    contentSha256,
+    byteCount: repositoryArtifactUtf8ByteLength(input.content),
+    lineCount: input.content.split(/\r\n|\r|\n/u).length,
+    content: input.content,
+    firstMaterialization: {
+      catalogOwner: repositoryOwner,
+      catalogRepository: repositoryName,
+      providerOwner: repositoryOwner,
+      providerRepository: repositoryName,
+      collectedAt: '2026-08-12T09:30:00.000Z',
+    },
+  });
+  const chunk = createRepositoryArtifactChunkV1({
+    contractVersion: CONTRACT_VERSION,
+    artifactId: artifact.artifactId,
+    candidateId: input.candidateId,
+    chunkerVersion: 'exact-lines-v1',
+    ordinal: 0,
+    startByte: 0,
+    endByteExclusive: artifact.byteCount,
+    byteCount: artifact.byteCount,
+    startLine: 1,
+    endLine: artifact.lineCount,
+    contentSha256,
+    content: input.content,
+  });
+  const artifactSet = createRepositoryArtifactSetV1({
+    contractVersion: CONTRACT_VERSION,
+    candidateId: input.candidateId,
+    catalogVersion: 'public-v1',
+    catalogDigest: input.catalogDigest,
+    artifactManifestVersion: 'public-artifacts-v1',
+    artifactManifestDigest: 'b'.repeat(64),
+    collectorVersion: 'repository-artifacts-v1',
+    chunkerVersion: 'exact-lines-v1',
+    provider: 'github',
+    providerRepositoryId: repositoryId,
+    providerCanonicalOwner: repositoryOwner,
+    providerCanonicalRepository: repositoryName,
+    gitObjectAlgorithm: 'sha1',
+    commitObjectId: commitSha,
+    entries: [
+      {
+        selectionId: `selection-${'2'.repeat(48)}`,
+        ordinal: 0,
+        selector: 'root-readme',
+        artifactKind: 'readme',
+        requirement: 'optional',
+        rationale: null,
+        requestedPath: null,
+        resolvedPath: path,
+        outcome: 'present',
+        artifactId: artifact.artifactId,
+      },
+    ],
+    publishedAt: '2026-08-12T09:31:00.000Z',
+  });
+  return { artifactSet, artifacts: [{ artifact, chunks: [chunk] }] };
 }
 
 export function groundedModelResponse(

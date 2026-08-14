@@ -1,6 +1,7 @@
 import {
   closePersistenceClient,
   createPersistenceClient,
+  loadCandidateRepositoryArtifactMaterial,
   loadActiveCandidateDossier,
   loadServingCatalogSnapshot,
   type LoadActiveCandidateDossierCommand,
@@ -18,6 +19,7 @@ import {
   type HostedRecommendationObserverV1,
   type HostedRecommendationOperationResultV1,
 } from './application.ts';
+import type { CandidateArtifactMaterialLoaderPort } from './artifact-evidence-selector.ts';
 import { HostedDiscoveryError } from './errors.ts';
 import { loadAcceptedHostedDiscoveryStaticPolicyV1 } from './static-policy.ts';
 
@@ -84,6 +86,13 @@ export async function startHostedRecommendationComposition(input: {
         loadActiveCandidateDossier: (
           command: LoadActiveCandidateDossierCommand,
         ) => loadActiveCandidateDossier(client, command),
+      }),
+      artifactMaterialLoader: Object.freeze({
+        loadCandidateRepositoryArtifactMaterial: (
+          command: Parameters<
+            CandidateArtifactMaterialLoaderPort['loadCandidateRepositoryArtifactMaterial']
+          >[0],
+        ) => loadCandidateRepositoryArtifactMaterial(client, command),
       }),
       fitModel: input.fitModel,
       clock:

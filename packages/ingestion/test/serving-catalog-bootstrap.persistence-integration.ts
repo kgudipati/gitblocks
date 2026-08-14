@@ -193,7 +193,7 @@ describe('PostgreSQL serving catalog bootstrap and loading', () => {
       expect(first).toMatchObject({
         status: 'serving-catalog-bootstrap-complete',
         publicationStatus: 'created',
-        databaseMigrationVersion: 6,
+        databaseMigrationVersion: 7,
         candidateCount: 150,
       });
       const replay = await bootstrap(writer, profiles, metadata, PUBLISHED_AT);
@@ -393,7 +393,7 @@ async function bootstrap(
     candidateProfileAuthority: profileAuthority,
     candidateRetrievalMetadataAuthority: metadataAuthority,
     publishedAt,
-    databaseMigrationVersion: 6,
+    databaseMigrationVersion: 7,
     persistence: {
       putCatalogCandidate: (command, control) =>
         putCatalogCandidate(client, command, control),
