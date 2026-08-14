@@ -482,13 +482,19 @@ correction ran only test-harness databases; no real preparation seed or
 artifact collection occurred.
 
 The live command requires explicit catalog/manifest/receipt paths, injected
-GitHub read credentials, acknowledged ephemeral non-production PostgreSQL
-configuration, candidate concurrency two, request concurrency one,
-per-request/candidate/batch deadlines, and no implicit migration.
+GitHub read credentials, one of exactly two acknowledged non-production
+PostgreSQL configurations, candidate concurrency two, request concurrency one,
+per-request/candidate/batch deadlines, and no implicit migration. The
+historical `ephemeral-non-production` scope remains unchanged. The additive
+`persistent-private-alpha-dogfood` scope is limited to local private-alpha
+dogfood and requires its own exact acknowledgement plus exact `127.0.0.1`,
+`gitblocks_dogfood_test`, `gitblocks_persistence_dogfood`, and SSL-disabled
+binding. It creates no production, remote-database, or default persistent
+authority.
 Historical Phase 6/7 receipt validation retains its existing migration-`0003`
 and complete migration-`0004` semantics. New live artifact collection after R9
-requires exact current migration `0007`; migration `0006` and future versions
-fail before transport or collection effects.
+requires exact current migration `0007` for either scope; migration `0006` and
+future versions fail before transport or collection effects.
 
 The catalog input is the closed public catalog, not the raw candidate source:
 

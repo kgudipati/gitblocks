@@ -226,20 +226,36 @@ Artifact collection is a separate operator path. `pnpm artifacts:verify`
 exercises its deterministic offline boundary. `pnpm artifacts:live` requires
 an injected GitHub token and PostgreSQL connection, explicit catalog,
 artifact-manifest, and receipt paths, the
-`approved-non-production-public-artifact-collection` acknowledgement, and an
-`ephemeral-non-production` database-scope declaration. The command never
-migrates implicitly. Its receipt is bounded and content-free, and
-`pnpm artifacts:receipt` validates or compares receipts without contacting a
-provider.
+`approved-non-production-public-artifact-collection` acknowledgement, and one
+of exactly two explicit non-production database scopes:
+
+- `ephemeral-non-production` is the historical Phase 6/7 path. It retains its
+  existing discrete PostgreSQL configuration contract and does not require the
+  persistent-specific acknowledgement.
+- `persistent-private-alpha-dogfood` is only the accepted local private-alpha
+  dogfood path. It additionally requires
+  `GITBLOCKS_ARTIFACT_PERSISTENT_ACK=approved-private-alpha-persistent-dogfood-artifact-collection`
+  and binds `GITBLOCKS_ARTIFACT_DB_HOST=127.0.0.1`,
+  `GITBLOCKS_ARTIFACT_DB_DATABASE=gitblocks_dogfood_test`,
+  `GITBLOCKS_ARTIFACT_DB_USERNAME=gitblocks_persistence_dogfood`, and
+  `GITBLOCKS_ARTIFACT_DB_SSL=false`. Its separately supplied port must retain
+  the existing 1–65535 bound; no current dynamic port is hardcoded.
+
+Both scopes require exact verified migration `0007` before GitHub transport or
+collector construction. Neither scope authorizes production, a remote
+database, implicit migration, or a default persistent mode. The receipt is
+bounded and content-free, and `pnpm artifacts:receipt` validates or compares
+receipts without contacting a provider.
 
 The original Phase 6 live proof ran against migration `0003`, and its valid
 historical receipts remain accepted by the generic receipt parser. The Phase 7
 complete-receipt authority remains fixed at migration `0004`. After R9, a new
 live artifact collection requires the exact verified 0001–0007 inventory; the
 live operator rejects migration `0006`, missing migrations, and versions newer
-than `0007` before constructing its GitHub transport or collector. The verified
-exact value `7` is recorded in the new receipt through the existing collection
-boundary without reinterpreting historical receipts.
+than `0007` for both authorized database scopes before constructing its GitHub
+transport or collector. The verified exact value `7` is recorded in the new
+receipt through the existing collection boundary without reinterpreting
+historical receipts.
 
 A fresh migration-`0004` database does not contain durable catalog provenance.
 After the second preparation stop exposed that missing composition boundary,
