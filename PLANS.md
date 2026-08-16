@@ -3,9 +3,11 @@
 ## Purpose
 
 A GitBlocks execution plan is a version-controlled, reviewable record of how a
-substantial change will reach a verifiable user or engineering outcome. It is a
-living control surface for scope, architecture, risk, progress, decisions, and
-evidence—not disposable pre-work.
+substantial change will reach a genuinely user-visible, exercisable, and
+verifiable outcome. A plan whose outcome is internal-only requires explicit
+recorded authorization from its governing issue. A plan is a living control
+surface for scope, architecture, risk, progress, decisions, and evidence—not
+disposable pre-work.
 
 A plan must be understandable by a contributor with the repository and linked
 issue but without private conversation history.
@@ -35,6 +37,10 @@ design documents are linked, not competing plans. Never select a plan merely
 because it is the newest file in `docs/plans/`, and do not load unrelated
 historical plans unless the task needs them as evidence.
 
+For the current documentation-only branch,
+[Issue #54](https://github.com/kgudipati/gitblocks/issues/54) is the active plan
+authority and authorizes use of the lightweight vertical-slice template below.
+
 ## Product-first proportionality
 
 The first question for a product-slice plan is: “Can the intended user-visible
@@ -42,6 +48,11 @@ outcome actually be exercised?” The plan names the current executable journey,
 the observable user outcome this slice enables, fixes, or materially improves,
 and the nearest realistic way to exercise it. Supporting infrastructure and
 test evidence do not substitute for that outcome.
+
+The outcome must be genuinely visible to and exercisable by the intended user.
+An internal-only outcome is not user-visible merely because it supports later
+product work; it requires explicit authorization recorded in the governing
+issue and plan.
 
 Infrastructure-only work requires a concrete current blocker and observed
 evidence. Before a plan adds a long-lived service, database or table, worker,
@@ -67,7 +78,36 @@ full repository verification as a final regression and review gate where
 appropriate. Proportionality narrows irrelevant ceremony; it never weakens an
 applicable safety boundary or final gate.
 
-## Required sections
+## Lightweight vertical-slice template
+
+Use this template for a bounded vertical slice that does not change a schema,
+trust boundary, or persistence. The governing issue remains the scope and
+authorization record.
+
+```markdown
+## Purpose
+
+## User-visible outcome
+
+## Scope
+
+## Non-goals
+
+## Contracts touched
+
+## Security considerations
+
+## Validation commands
+
+## Exit gate
+```
+
+## Full template
+
+Use the full template below for schema, trust-boundary, and persistence changes,
+and whenever the governing issue or reviewer requires it.
+
+### Required sections
 
 Every substantial plan contains all sections below. Use “not applicable” only
 with a reason tied to the current change.
