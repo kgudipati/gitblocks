@@ -159,6 +159,66 @@ describe('candidate constraint evaluation', () => {
     });
   });
 
+  it('emits one hard evaluation when a declaration normalized to a controlled concept', () => {
+    const normalized = constraint('feature', 'decision-caching');
+    const result = evaluate(profile(), {
+      ...normalization([normalized]),
+      preservedDeclarations: [
+        {
+          constraintId: normalized.sourceConstraintIds[0]!,
+          modality: normalized.modality,
+          statement: 'Require decision caching.',
+          originalTerm: 'decision-caching',
+          facet: normalized.facet,
+          reasonCode: 'decision-caching-required',
+        },
+      ],
+    });
+
+    expect(userConstraintEvaluations(result)).toEqual([
+      expect.objectContaining({
+        evaluationId: normalized.normalizedConstraintId,
+        sourceKind: 'normalized-constraint',
+      }),
+    ]);
+  });
+
+  it('emits one preserved evaluation when a declaration has no controlled normalization', () => {
+    const result = evaluate(profile(), {
+      ...normalization([
+        {
+          normalizedConstraintId: 'normalized-runtime-custom-runtime',
+          sourceConstraintIds: ['constraint-runtime-custom-runtime'],
+          modality: 'required',
+          facet: 'runtime',
+          resolutionBasis: 'preserved-declaration',
+          ruleId: 'preserve-explicit-declaration',
+          conceptId: null,
+          canonicalTerm: null,
+        },
+      ]),
+      preservedDeclarations: [
+        {
+          constraintId: 'constraint-runtime-custom-runtime',
+          modality: 'required',
+          statement: 'Require the declared custom runtime.',
+          originalTerm: 'custom-runtime',
+          facet: 'runtime',
+          reasonCode: 'custom-runtime-required',
+        },
+      ],
+    });
+
+    expect(userConstraintEvaluations(result)).toEqual([
+      expect.objectContaining({
+        evaluationId: 'constraint-runtime-custom-runtime',
+        sourceKind: 'preserved-declaration',
+        state: 'unresolved',
+      }),
+    ]);
+    expect(result.overallHardState).toBe('unresolved');
+  });
+
   it('does not treat optional infrastructure support as a prohibited dependency', () => {
     const result = evaluate(
       profile('authorization', {
@@ -208,6 +268,12 @@ function evaluate(
   expect(result.ok).toBe(true);
   if (!result.ok) throw new Error('Expected valid evaluation.');
   return result.value;
+}
+
+function userConstraintEvaluations(evaluation: ReturnType<typeof evaluate>) {
+  return evaluation.evaluations.filter(
+    ({ sourceKind }) => sourceKind !== 'primary-family',
+  );
 }
 
 function normalization(

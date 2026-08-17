@@ -161,7 +161,7 @@ describe('request-scoped finalist artifact evidence selection', () => {
     ]);
   });
 
-  it('counts reused evidence toward a mirrored evaluation quota without scavenging later lines', async () => {
+  it('does not mirror a controlled constraint through a preserved evaluation', async () => {
     const selection = await selectorInput(
       [
         'Retries preserve failed work with configurable backoff.',
@@ -169,24 +169,20 @@ describe('request-scoped finalist artifact evidence selection', () => {
         '## Retries later reference',
       ].join('\n'),
     );
-    const normalizedRetries = selection.finalist.unresolvedHardEvaluations.find(
-      ({ facet, sourceKind }) =>
-        facet === 'feature' && sourceKind === 'normalized-constraint',
-    );
-    const preservedRetries = selection.finalist.unresolvedHardEvaluations.find(
-      ({ evaluationId, sourceKind }) =>
-        evaluationId === 'automatic-retries' &&
-        sourceKind === 'preserved-declaration',
-    );
-    if (normalizedRetries === undefined || preservedRetries === undefined) {
-      throw new Error('Expected mirrored retries evaluations.');
-    }
+    const retriesEvaluations =
+      selection.finalist.unresolvedHardEvaluations.filter(
+        ({ facet }) => facet === 'feature',
+      );
+
+    expect(retriesEvaluations).toEqual([
+      expect.objectContaining({ sourceKind: 'normalized-constraint' }),
+    ]);
 
     const evidence = selectCandidateArtifactEvidenceV1({
       ...selection,
       finalist: {
         ...selection.finalist,
-        unresolvedHardEvaluations: [normalizedRetries, preservedRetries],
+        unresolvedHardEvaluations: retriesEvaluations,
       },
     });
 
