@@ -556,6 +556,94 @@ describe('RecommendationAssessmentResponseV1', () => {
     expect(hydratedClaim).toMatchObject(declaredContent);
   });
 
+  it('rejects an uncited supplied candidate unknown because it would hide decision-relevant uncertainty after hydration', async () => {
+    const exchange = await createHardResolutionExchange();
+    const candidate = exchange.request.candidates.find(
+      ({ identity }) => identity.candidateId === 'candidate-beta',
+    );
+    if (candidate === undefined) {
+      throw new Error('Compact candidate-unknown fixture is incomplete.');
+    }
+    candidate.unknowns.push({
+      scope: 'candidate',
+      unknownId: 'unknown-beta-maintenance',
+      candidateId: 'candidate-beta',
+      topic: 'maintenance',
+      statement: 'Long-term maintenance capacity remains unknown.',
+      evidenceIds: [],
+    });
+    const compact = compactModelResponse(exchange.request, exchange.response);
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-uncited-candidate-unknown',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation.ok).toBe(false);
+    if (validation.ok) return;
+    expect(validation.issues.map(({ code }) => code)).toContain(
+      'domain.reference.catalog-coverage',
+    );
+  });
+
+  it('rejects an uncited unfavorable claim because it would hide an adverse conclusion', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    const rejected =
+      compact.targetFitAssessment.fitAssessment.candidateAssessments.find(
+        ({ candidateId }) => candidateId === 'candidate-beta',
+      );
+    const unfavorable =
+      compact.targetFitAssessment.fitAssessment.materialClaims.find(
+        ({ candidateId, direction }) =>
+          candidateId === 'candidate-beta' && direction === 'unfavorable',
+      );
+    if (rejected === undefined || unfavorable === undefined) {
+      throw new Error('Compact unfavorable-claim fixture is incomplete.');
+    }
+    rejected.claimIds = rejected.claimIds.filter(
+      (claimId) => claimId !== unfavorable.claimId,
+    );
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-uncited-unfavorable-claim',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation.ok).toBe(false);
+    if (validation.ok) return;
+    expect(validation.issues.map(({ code }) => code)).toContain(
+      'domain.reference.catalog-coverage',
+    );
+  });
+
+  it('rejects an uncited hard-constraint conflict because it would hide a disqualifying conclusion', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    const rejected =
+      compact.targetFitAssessment.fitAssessment.candidateAssessments.find(
+        ({ candidateId }) => candidateId === 'candidate-beta',
+      );
+    if (rejected === undefined) {
+      throw new Error('Compact hard-conflict fixture is incomplete.');
+    }
+    rejected.hardConstraintConflictIds = [];
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-uncited-hard-conflict',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation.ok).toBe(false);
+    if (validation.ok) return;
+    expect(validation.issues.map(({ code }) => code)).toContain(
+      'domain.reference.catalog-coverage',
+    );
+  });
+
   it.each([
     [
       'candidate ownership',

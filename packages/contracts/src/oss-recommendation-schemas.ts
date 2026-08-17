@@ -226,6 +226,8 @@ const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
       unknownIds: Type.Array(modelUnknownReferenceTokenSchema, {
         maxItems: 40,
         uniqueItems: true,
+        description:
+          "Include every supplied candidate-unknown token (u...) belonging to this candidate so each hydrated decision-relevant unknown remains reachable from this assessment. A model-created assessment-unknown token (a...) must exactly match an unknownId declared in this response's assessmentUnknowns catalog.",
       }),
       hardConstraintConflictIds: Type.Array(modelConflictTokenSchema, {
         maxItems: 20,
