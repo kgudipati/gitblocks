@@ -222,7 +222,9 @@ export {
 } from './schema-catalog.ts';
 export {
   createCapabilityRequestFromRecommendationV1,
+  createRecommendationAssessmentModelFitRequestV1,
   parseOssRecommendationRequestV1,
+  parseRecommendationAssessmentModelFitRequestV1,
   parseRecommendationAssessmentModelResponseV1,
   parseRecommendationAssessmentResponseV1,
   parseTargetFitAssessmentResponseV1,
@@ -236,12 +238,14 @@ export {
 } from './oss-recommendation-contracts.ts';
 export {
   ossRecommendationRequestV1Schema,
+  recommendationAssessmentModelFitRequestV1Schema,
   recommendationAssessmentModelResponseV1Schema,
   recommendationAssessmentResponseV1Schema,
   targetFitAssessmentResponseV1Schema,
   type EvidenceNeededHardConstraintResolutionV1,
   type InferenceRepositoryFactBindingV1,
   type OssRecommendationRequestV1,
+  type RecommendationAssessmentModelFitRequestV1,
   type RecommendationAssessmentModelResponseV1,
   type RecommendationAssessmentResponseV1,
   type TargetFitAssessmentResponseV1,

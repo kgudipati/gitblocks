@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import {
   createCandidateRetrievalRequestV1,
   createCapabilityRequestFromRecommendationV1,
+  createRecommendationAssessmentModelFitRequestV1,
   normalizeCapabilityQueryV1,
   parseCandidateDossierV1,
   parseCandidateRetrievalMetadataAuthorityV1,
@@ -25,6 +26,7 @@ import {
   type FitAssessmentRequestV1,
   type EvidenceNeededHardConstraintResolutionV1,
   type RecommendationRetrievalFinalistV1,
+  type RecommendationAssessmentModelFitRequestV1,
   type TargetFitAssessmentResponseV1,
 } from '@gitblocks/contracts';
 import {
@@ -59,7 +61,7 @@ export interface HostedDiscoverySnapshotV1 {
 }
 
 export interface FitAssessmentModelRequestV1 {
-  readonly fitAssessmentRequest: FitAssessmentRequestV1;
+  readonly fitAssessmentRequest: RecommendationAssessmentModelFitRequestV1;
   readonly normalization: CapabilityQueryNormalizationResultV1;
   readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
 }
@@ -517,7 +519,8 @@ async function recommendOss(input: {
   let modelOutput: unknown;
   try {
     modelOutput = await input.fitModel.assess({
-      fitAssessmentRequest: fitRequest,
+      fitAssessmentRequest:
+        createRecommendationAssessmentModelFitRequestV1(fitRequest),
       normalization: normalized.value,
       retrievalFinalists: finalists.map(
         ({ candidateId, lane, unresolvedHardEvaluations }) => ({

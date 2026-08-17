@@ -83,10 +83,12 @@ import {
 } from './candidate-retrieval-metadata-schemas.ts';
 import {
   ossRecommendationRequestV1Schema,
+  recommendationAssessmentModelFitRequestV1Schema,
   recommendationAssessmentModelResponseV1Schema,
   recommendationAssessmentResponseV1Schema,
   targetFitAssessmentResponseV1Schema,
   type OssRecommendationRequestV1,
+  type RecommendationAssessmentModelFitRequestV1,
   type RecommendationAssessmentModelResponseV1,
   type RecommendationAssessmentResponseV1,
   type TargetFitAssessmentResponseV1,
@@ -478,6 +480,10 @@ export const targetFitAssessmentResponseV1Validator =
 export const recommendationAssessmentResponseV1Validator =
   createLazyStructuralValidator<RecommendationAssessmentResponseV1>(
     recommendationAssessmentResponseV1Schema,
+  );
+export const recommendationAssessmentModelFitRequestV1Validator =
+  createLazyStructuralValidator<RecommendationAssessmentModelFitRequestV1>(
+    recommendationAssessmentModelFitRequestV1Schema,
   );
 export const recommendationAssessmentModelResponseV1Validator =
   createLazyStructuralValidator<RecommendationAssessmentModelResponseV1>(
