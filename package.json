@@ -25,6 +25,7 @@
     "hosted:exercise": "pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/exercise-cli.ts",
     "hosted:mcp": "pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/mcp-cli.ts",
     "hosted:mcp:exercise": "pnpm runtime:check && pnpm build:product && node apps/gitblocks-hosted/scripts/mcp-exercise-cli.ts",
+    "outcome:baseline:v1": "pnpm runtime:check && pnpm build:product && node evals/outcome-baseline-v1/run.mjs",
     "repo:check": "pnpm runtime:check && node tools/repository-checks/src/cli.ts repository",
     "repo:branch": "pnpm runtime:check && node tools/repository-checks/src/cli.ts branch",
     "repo:pr-branch": "pnpm runtime:check && node tools/repository-checks/src/cli.ts pr-branch",

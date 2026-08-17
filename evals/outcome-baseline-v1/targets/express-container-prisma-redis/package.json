@@ -1,0 +1,17 @@
+{
+  "name": "outcome-baseline-express-container-prisma-redis",
+  "private": true,
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=24.12.0 <25"
+  },
+  "dependencies": {
+    "@prisma/client": "7.0.0",
+    "express": "5.1.0",
+    "ioredis": "5.7.0",
+    "pg": "8.16.0"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}
