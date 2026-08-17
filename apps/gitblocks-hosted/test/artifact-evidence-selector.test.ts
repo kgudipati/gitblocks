@@ -21,6 +21,7 @@ import {
   candidateDossier,
   frozenBackgroundJobsDogfoodRequest,
   loadAcceptedAuthorities,
+  recommendationRequest,
   TEST_EVIDENCE_CUTOFF,
 } from './fixtures.ts';
 
@@ -159,6 +160,121 @@ describe('request-scoped finalist artifact evidence selection', () => {
       'redis-store setup one',
       'redis-store setup two',
     ]);
+  });
+
+  it('ranks an explicit RBAC definition ahead of incidental license boilerplate', async () => {
+    const selection = await selectorInputForRequest(
+      numberedContent(76, {
+        16: 'specific language governing permissions and limitations',
+        73: '3. **ACL without resources**: use permissions like `write-article`.',
+        74: '4. **[RBAC (Role-Based Access Control)](https://example.test/rbac)**',
+        75: '5. **RBAC with resource roles**: users and resources can have roles.',
+        76: '6. **RBAC with domains/tenants**: users can have different role sets.',
+      }),
+      authorizationRequest(),
+      'auth-casbin-casbin',
+    );
+    const rbacEvaluation = requiredEvaluation(
+      selection,
+      'role-based-access-control',
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        unresolvedHardEvaluations: [rbacEvaluation],
+      },
+    });
+
+    expect(evidence.map(evidenceLine)[0]).toBe(74);
+    expect(evidence.map(evidenceLine)).not.toContain(16);
+  });
+
+  it('selects node-casbin RBAC API and file-policy evidence for their respective evaluations', async () => {
+    const selection = await selectorInputForRequest(
+      numberedContent(96, {
+        50: 'New a `node-casbin` enforcer with a model file and a policy file.',
+        96: '- [RBAC API](https://example.test/rbac): a more friendly API for RBAC.',
+      }),
+      authorizationRequest(),
+      'auth-casbin-node-casbin',
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1(selection);
+
+    expect(evidence.map(evidenceLine)).toEqual([96, 50]);
+  });
+
+  it('selects Insurance Strategy for the rate-limit failure-mode evaluation', async () => {
+    const selection = await selectorInputForRequest(
+      numberedContent(101, {
+        101: '* Insurance Strategy as emergency solution if database/store is down.',
+      }),
+      rateLimitingRequest(),
+      'rate-node-rate-limiter-flexible',
+    );
+    const failureModeEvaluation = requiredEvaluation(
+      selection,
+      'rate-limit-failure-mode',
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        unresolvedHardEvaluations: [failureModeEvaluation],
+      },
+    });
+
+    expect(evidence.map(evidenceLine)).toEqual([101]);
+  });
+
+  it('selects both a complete alternative store and a required prohibited component', async () => {
+    const selection = await selectorInput(
+      [
+        'Redis is required to coordinate limiter state.',
+        'The limiter comes with a built-in memory store.',
+      ].join('\n'),
+    );
+    const redisEvaluation = requiredEvaluation(selection, 'redis');
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        unresolvedHardEvaluations: [redisEvaluation],
+      },
+    });
+
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      'Redis is required to coordinate limiter state.',
+      'The limiter comes with a built-in memory store.',
+    ]);
+  });
+
+  it('is byte-identical across repeated runs and reversed artifact input ordering', async () => {
+    const selection = await selectorInput(
+      'Redis is required.\nThe limiter comes with a built-in memory store.',
+    );
+    const duplicated = duplicateArtifactMaterial(selection.material);
+    const forward = { ...selection, material: duplicated };
+    const reversed = {
+      ...selection,
+      material: {
+        ...duplicated,
+        artifacts: [...duplicated.artifacts].reverse(),
+      },
+    };
+
+    const first = JSON.stringify(selectCandidateArtifactEvidenceV1(forward));
+    const second = JSON.stringify(selectCandidateArtifactEvidenceV1(forward));
+    const reversedResult = JSON.stringify(
+      selectCandidateArtifactEvidenceV1(reversed),
+    );
+
+    expect(second).toBe(first);
+    expect(reversedResult).toBe(first);
   });
 
   it('does not mirror a controlled constraint through a preserved evaluation', async () => {
@@ -367,7 +483,14 @@ describe('request-scoped finalist artifact evidence selection', () => {
 async function selectorInput(
   content: string,
 ): Promise<Parameters<typeof selectCandidateArtifactEvidenceV1>[0]> {
-  const request = frozenBackgroundJobsDogfoodRequest();
+  return selectorInputForRequest(content, frozenBackgroundJobsDogfoodRequest());
+}
+
+async function selectorInputForRequest(
+  content: string,
+  request: ReturnType<typeof recommendationRequest>,
+  candidateId?: string,
+): Promise<Parameters<typeof selectCandidateArtifactEvidenceV1>[0]> {
   const [authorities, retrieval] = await Promise.all([
     loadAcceptedAuthorities(),
     acceptedRetrievalResult(request),
@@ -380,26 +503,107 @@ async function selectorInput(
   if (
     !normalized.ok ||
     normalized.value.outcome !== 'normalized' ||
+    normalized.value.primaryFamilyId === null ||
     finalist === undefined
   ) {
-    throw new Error('Expected accepted background-jobs selector authority.');
+    throw new Error('Expected accepted selector authority.');
   }
+  const selectedCandidateId = candidateId ?? finalist.candidateId;
+  const selectedFinalist = { ...finalist, candidateId: selectedCandidateId };
   const dossier = withRepositoryHead(
-    candidateDossier(finalist.candidateId, TEST_EVIDENCE_CUTOFF, {
-      capabilityFamily: 'background-jobs',
+    candidateDossier(selectedCandidateId, TEST_EVIDENCE_CUTOFF, {
+      capabilityFamily: normalized.value.primaryFamilyId,
       emptyEvidence: true,
     }),
     COMMIT_SHA,
   );
   return {
-    finalist,
+    finalist: selectedFinalist,
     dossier,
     capabilityQuery: request.capabilityQuery,
     normalization: normalized.value,
     retrievalExpansionAuthority: authorities.retrievalExpansion,
-    material: artifactMaterial(finalist.candidateId, content),
+    material: artifactMaterial(selectedCandidateId, content),
     maximumObservations: 8,
   };
+}
+
+function authorizationRequest() {
+  return recommendationRequest({
+    id: 'selector-authorization-no-redis',
+    term: 'authorization',
+    constraints: [
+      {
+        constraintId: 'selector-rbac',
+        modality: 'required',
+        statement: 'The solution must provide role-based access control.',
+        originalTerm: 'role-based-access-control',
+        facetHint: 'feature',
+        reasonCode: 'rbac-required',
+      },
+      {
+        constraintId: 'selector-no-redis',
+        modality: 'prohibited',
+        statement: 'The solution must not require Redis.',
+        originalTerm: 'redis',
+        facetHint: 'infrastructure',
+        reasonCode: 'redis-prohibited',
+      },
+    ],
+  });
+}
+
+function rateLimitingRequest() {
+  return recommendationRequest({
+    id: 'selector-rate-limit-failure-mode',
+    term: 'rate-limiting',
+    constraints: [
+      {
+        constraintId: 'selector-rate-limit-failure-mode-required',
+        modality: 'required',
+        statement: 'The solution must define behavior when its store is down.',
+        originalTerm: 'rate-limit-failure-mode',
+        facetHint: 'feature',
+        reasonCode: 'failure-mode-required',
+      },
+    ],
+  });
+}
+
+function requiredEvaluation(
+  selection: Parameters<typeof selectCandidateArtifactEvidenceV1>[0],
+  conceptId: string,
+) {
+  const evaluation = selection.finalist.unresolvedHardEvaluations.find(
+    (candidateEvaluation) => candidateEvaluation.conceptId === conceptId,
+  );
+  if (evaluation === undefined) {
+    throw new Error(`Expected ${conceptId} unresolved evaluation.`);
+  }
+  return evaluation;
+}
+
+function numberedContent(
+  lineCount: number,
+  replacements: Readonly<Record<number, string>>,
+): string {
+  return Array.from(
+    { length: lineCount },
+    (_, index) =>
+      replacements[index + 1] ?? `unmatched filler ${String(index + 1)}`,
+  ).join('\n');
+}
+
+function evidenceLine(
+  evidence: ReturnType<typeof selectCandidateArtifactEvidenceV1>[number],
+) {
+  return evidence.source.kind === 'git-commit'
+    ? Number(
+        /#L(?<line>[0-9]+)$/u.exec(evidence.source.immutableUrl)?.groups?.[
+          'line'
+        ],
+      )
+    : Number.NaN;
 }
 
 function withRepositoryHead(
@@ -441,9 +645,10 @@ function withRepositoryHead(
 function artifactMaterial(
   candidateId: string,
   content: string,
+  path = 'README.md',
+  artifactKind: 'readme' | 'documentation' = 'readme',
 ): CandidateRepositoryArtifactMaterialV1 {
   const repositoryId = '123456789';
-  const path = 'README.md';
   const contentSha256 = repositoryArtifactContentSha256(content);
   const artifact = createRepositoryArtifactV1({
     contractVersion: CONTRACT_VERSION,
@@ -508,11 +713,11 @@ function artifactMaterial(
       {
         selectionId: `selection-${'2'.repeat(48)}`,
         ordinal: 0,
-        selector: 'root-readme',
-        artifactKind: 'readme',
+        selector: artifactKind === 'readme' ? 'root-readme' : 'path',
+        artifactKind,
         requirement: 'optional',
         rationale: null,
-        requestedPath: null,
+        requestedPath: artifactKind === 'readme' ? null : path,
         resolvedPath: path,
         outcome: 'present',
         artifactId: artifact.artifactId,
@@ -521,4 +726,33 @@ function artifactMaterial(
     publishedAt: '2026-08-12T09:31:00.000Z',
   });
   return { artifactSet, artifacts: [{ artifact, chunks: [chunk] }] };
+}
+
+function duplicateArtifactMaterial(
+  material: CandidateRepositoryArtifactMaterialV1,
+): CandidateRepositoryArtifactMaterialV1 {
+  const second = artifactMaterial(
+    material.artifactSet.candidateId,
+    'Redis appears only in this lower-priority documentation artifact.',
+    'docs/storage.md',
+    'documentation',
+  );
+  const secondEntry = second.artifactSet.entries[0];
+  if (secondEntry?.outcome !== 'present') {
+    throw new Error('Expected present duplicate artifact entry.');
+  }
+  return {
+    artifactSet: {
+      ...material.artifactSet,
+      entries: [
+        ...material.artifactSet.entries,
+        {
+          ...secondEntry,
+          selectionId: `selection-${'3'.repeat(48)}`,
+          ordinal: 1,
+        },
+      ],
+    },
+    artifacts: [...material.artifacts, ...second.artifacts],
+  };
 }

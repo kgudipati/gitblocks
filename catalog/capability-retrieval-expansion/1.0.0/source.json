@@ -109,6 +109,42 @@
       }
     },
     {
+      "sourceConceptId": "external-hosted-service",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["cloud-hosted"],
+      "rationale": "An external hosted-service dependency is explicitly documented as cloud-hosted. The qualified term keeps this distinct from self-hosted services and incidental cloud references.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "external-hosted-service"
+      }
+    },
+    {
+      "sourceConceptId": "framework-authorization-middleware",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["guard", "guards", "middleware", "middlewares"],
+      "rationale": "Framework authorization integration is commonly documented as authorization or authz middleware and request or route guards.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "framework-authorization-middleware"
+      }
+    },
+    {
+      "sourceConceptId": "job-uniqueness-deduplication",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "deduplicate",
+        "deduplicated",
+        "deduplication",
+        "idempotent",
+        "unique"
+      ],
+      "rationale": "Job uniqueness and deduplication are commonly documented through unique-job, unique-key, idempotent-job, duplicate-job, or deduplication terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "job-uniqueness-deduplication"
+      }
+    },
+    {
       "sourceConceptId": "policy-as-code",
       "relationshipKind": "related-identity-term",
       "targetTerms": ["declarative", "policies", "policy", "rules"],
@@ -116,6 +152,22 @@
       "sourceReference": {
         "sourceKind": "taxonomy-concept-definition",
         "sourceId": "policy-as-code"
+      }
+    },
+    {
+      "sourceConceptId": "rate-limit-failure-mode",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": [
+        "failover",
+        "insurance",
+        "passonstoreerror",
+        "skiponerror",
+        "unavailable"
+      ],
+      "rationale": "Rate-limit failure behavior is commonly documented as fail-open or fail-closed handling, store-unavailable behavior, Insurance Strategy, passOnStoreError, or skipOnError.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "rate-limit-failure-mode"
       }
     },
     {
@@ -173,6 +225,16 @@
       }
     },
     {
+      "sourceConceptId": "replay-protection",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["replay", "tolerance"],
+      "rationale": "Webhook replay protection is commonly documented through replay-attack prevention and bounded timestamp-recency or tolerance checks.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "replay-protection"
+      }
+    },
+    {
       "sourceConceptId": "signature-verification",
       "relationshipKind": "related-identity-term",
       "targetTerms": [
@@ -187,6 +249,16 @@
       "sourceReference": {
         "sourceKind": "taxonomy-concept-definition",
         "sourceId": "signature-verification"
+      }
+    },
+    {
+      "sourceConceptId": "sensitive-field-handling",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["masked", "masking", "redact", "redacted", "redaction"],
+      "rationale": "Sensitive-field handling is commonly documented through sensitive-data masking and redaction language.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sensitive-field-handling"
       }
     },
     {
@@ -241,6 +313,16 @@
       "sourceReference": {
         "sourceKind": "taxonomy-concept-definition",
         "sourceId": "webhook-gateway-router"
+      }
+    },
+    {
+      "sourceConceptId": "webhook-idempotency",
+      "relationshipKind": "related-identity-term",
+      "targetTerms": ["duplicate", "duplication", "idempotent", "idempotency"],
+      "rationale": "Webhook idempotency is commonly documented through idempotency keys, stable webhook identifiers, once-only event processing, and duplicate prevention.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-idempotency"
       }
     },
     {

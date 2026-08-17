@@ -610,6 +610,17 @@
       "edgeId": "expansion-edge-6087d5fc66e0efca8f305c68fd1052ab"
     },
     {
+      "sourceConceptId": "external-hosted-service",
+      "targetTerm": "cloud-hosted",
+      "relationshipKind": "related-identity-term",
+      "rationale": "An external hosted-service dependency is explicitly documented as cloud-hosted. The qualified term keeps this distinct from self-hosted services and incidental cloud references.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "external-hosted-service"
+      },
+      "edgeId": "expansion-edge-146d511a12077af38f126e56b3b99293"
+    },
+    {
       "sourceConceptId": "external-policy-decision-point",
       "targetTerm": "pdp",
       "relationshipKind": "taxonomy-alias",
@@ -641,6 +652,50 @@
         "sourceId": "authorization-middleware"
       },
       "edgeId": "expansion-edge-b19bb29f5aa73f00f74c7b9393f1bd1b"
+    },
+    {
+      "sourceConceptId": "framework-authorization-middleware",
+      "targetTerm": "guard",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Framework authorization integration is commonly documented as authorization or authz middleware and request or route guards.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "framework-authorization-middleware"
+      },
+      "edgeId": "expansion-edge-1e84c6f5930ee62904ce6e9b7248f13f"
+    },
+    {
+      "sourceConceptId": "framework-authorization-middleware",
+      "targetTerm": "guards",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Framework authorization integration is commonly documented as authorization or authz middleware and request or route guards.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "framework-authorization-middleware"
+      },
+      "edgeId": "expansion-edge-60485127c5b49af41752cd336dd5e89d"
+    },
+    {
+      "sourceConceptId": "framework-authorization-middleware",
+      "targetTerm": "middleware",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Framework authorization integration is commonly documented as authorization or authz middleware and request or route guards.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "framework-authorization-middleware"
+      },
+      "edgeId": "expansion-edge-f7c9b585778db74b90205ae2fbc582db"
+    },
+    {
+      "sourceConceptId": "framework-authorization-middleware",
+      "targetTerm": "middlewares",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Framework authorization integration is commonly documented as authorization or authz middleware and request or route guards.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "framework-authorization-middleware"
+      },
+      "edgeId": "expansion-edge-0dc077a7de65567d213f2ca97b3f2951"
     },
     {
       "sourceConceptId": "gateway-plugin",
@@ -707,6 +762,61 @@
         "sourceId": "webhook-receiver"
       },
       "edgeId": "expansion-edge-18b217e9a76e826990cedeb5d9c5e172"
+    },
+    {
+      "sourceConceptId": "job-uniqueness-deduplication",
+      "targetTerm": "deduplicate",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Job uniqueness and deduplication are commonly documented through unique-job, unique-key, idempotent-job, duplicate-job, or deduplication terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "job-uniqueness-deduplication"
+      },
+      "edgeId": "expansion-edge-186e96a55b6b71f3ad49cb2577d82a02"
+    },
+    {
+      "sourceConceptId": "job-uniqueness-deduplication",
+      "targetTerm": "deduplicated",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Job uniqueness and deduplication are commonly documented through unique-job, unique-key, idempotent-job, duplicate-job, or deduplication terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "job-uniqueness-deduplication"
+      },
+      "edgeId": "expansion-edge-d28746f18adc39655ec4054df92ff05b"
+    },
+    {
+      "sourceConceptId": "job-uniqueness-deduplication",
+      "targetTerm": "deduplication",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Job uniqueness and deduplication are commonly documented through unique-job, unique-key, idempotent-job, duplicate-job, or deduplication terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "job-uniqueness-deduplication"
+      },
+      "edgeId": "expansion-edge-168ed0e874112c4567aec6304b7e8d5c"
+    },
+    {
+      "sourceConceptId": "job-uniqueness-deduplication",
+      "targetTerm": "idempotent",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Job uniqueness and deduplication are commonly documented through unique-job, unique-key, idempotent-job, duplicate-job, or deduplication terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "job-uniqueness-deduplication"
+      },
+      "edgeId": "expansion-edge-f1baf295d6d5b4a70a4c36305e355131"
+    },
+    {
+      "sourceConceptId": "job-uniqueness-deduplication",
+      "targetTerm": "unique",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Job uniqueness and deduplication are commonly documented through unique-job, unique-key, idempotent-job, duplicate-job, or deduplication terms.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "job-uniqueness-deduplication"
+      },
+      "edgeId": "expansion-edge-33f28e99999d8c3832de9363ca0e1a21"
     },
     {
       "sourceConceptId": "kubernetes",
@@ -839,6 +949,61 @@
         "sourceId": "request-quota"
       },
       "edgeId": "expansion-edge-db0e5cb8b57f33cb650256c247ce11ef"
+    },
+    {
+      "sourceConceptId": "rate-limit-failure-mode",
+      "targetTerm": "failover",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Rate-limit failure behavior is commonly documented as fail-open or fail-closed handling, store-unavailable behavior, Insurance Strategy, passOnStoreError, or skipOnError.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "rate-limit-failure-mode"
+      },
+      "edgeId": "expansion-edge-06ec61a95492ca2331f1e621cafd4c39"
+    },
+    {
+      "sourceConceptId": "rate-limit-failure-mode",
+      "targetTerm": "insurance",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Rate-limit failure behavior is commonly documented as fail-open or fail-closed handling, store-unavailable behavior, Insurance Strategy, passOnStoreError, or skipOnError.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "rate-limit-failure-mode"
+      },
+      "edgeId": "expansion-edge-c8ba5cf45f1ed89c4f1071fa3f2c4870"
+    },
+    {
+      "sourceConceptId": "rate-limit-failure-mode",
+      "targetTerm": "passonstoreerror",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Rate-limit failure behavior is commonly documented as fail-open or fail-closed handling, store-unavailable behavior, Insurance Strategy, passOnStoreError, or skipOnError.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "rate-limit-failure-mode"
+      },
+      "edgeId": "expansion-edge-174cb96ea1cd76b1a12a888593dd0b18"
+    },
+    {
+      "sourceConceptId": "rate-limit-failure-mode",
+      "targetTerm": "skiponerror",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Rate-limit failure behavior is commonly documented as fail-open or fail-closed handling, store-unavailable behavior, Insurance Strategy, passOnStoreError, or skipOnError.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "rate-limit-failure-mode"
+      },
+      "edgeId": "expansion-edge-bbd58074405248d0215188c1c5016671"
+    },
+    {
+      "sourceConceptId": "rate-limit-failure-mode",
+      "targetTerm": "unavailable",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Rate-limit failure behavior is commonly documented as fail-open or fail-closed handling, store-unavailable behavior, Insurance Strategy, passOnStoreError, or skipOnError.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "rate-limit-failure-mode"
+      },
+      "edgeId": "expansion-edge-3db6c86e72d7c53b6b8e80034e0a950e"
     },
     {
       "sourceConceptId": "rate-limiting",
@@ -1083,6 +1248,28 @@
       "edgeId": "expansion-edge-842d5cf280f86956ce40a6bb73219cb7"
     },
     {
+      "sourceConceptId": "replay-protection",
+      "targetTerm": "replay",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook replay protection is commonly documented through replay-attack prevention and bounded timestamp-recency or tolerance checks.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "replay-protection"
+      },
+      "edgeId": "expansion-edge-ce714aff9d6d3650f089de15be5f11b0"
+    },
+    {
+      "sourceConceptId": "replay-protection",
+      "targetTerm": "tolerance",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook replay protection is commonly documented through replay-attack prevention and bounded timestamp-recency or tolerance checks.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "replay-protection"
+      },
+      "edgeId": "expansion-edge-e83fc34e9a0854c0313feb6d4ee4faf0"
+    },
+    {
       "sourceConceptId": "role-based-access-control",
       "targetTerm": "ability",
       "relationshipKind": "related-identity-term",
@@ -1158,6 +1345,61 @@
         "sourceId": "self-hosted"
       },
       "edgeId": "expansion-edge-9ad8fe457622d38dde2af9b00f932bfa"
+    },
+    {
+      "sourceConceptId": "sensitive-field-handling",
+      "targetTerm": "masked",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Sensitive-field handling is commonly documented through sensitive-data masking and redaction language.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sensitive-field-handling"
+      },
+      "edgeId": "expansion-edge-9a0353616ebfcbc580b77d4d9c8b2583"
+    },
+    {
+      "sourceConceptId": "sensitive-field-handling",
+      "targetTerm": "masking",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Sensitive-field handling is commonly documented through sensitive-data masking and redaction language.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sensitive-field-handling"
+      },
+      "edgeId": "expansion-edge-62dc7ae9d2099fb328d33ef8c10c24d9"
+    },
+    {
+      "sourceConceptId": "sensitive-field-handling",
+      "targetTerm": "redact",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Sensitive-field handling is commonly documented through sensitive-data masking and redaction language.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sensitive-field-handling"
+      },
+      "edgeId": "expansion-edge-d69560028dec5b60936ff504dbdd70e3"
+    },
+    {
+      "sourceConceptId": "sensitive-field-handling",
+      "targetTerm": "redacted",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Sensitive-field handling is commonly documented through sensitive-data masking and redaction language.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sensitive-field-handling"
+      },
+      "edgeId": "expansion-edge-d426a860112f85e283bdf52d0909e25e"
+    },
+    {
+      "sourceConceptId": "sensitive-field-handling",
+      "targetTerm": "redaction",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Sensitive-field handling is commonly documented through sensitive-data masking and redaction language.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "sensitive-field-handling"
+      },
+      "edgeId": "expansion-edge-99978f539f70d7813fd428184923fe0f"
     },
     {
       "sourceConceptId": "separate-control-plane",
@@ -1501,6 +1743,50 @@
       "edgeId": "expansion-edge-17e8df23e4bb2bc4ecb4804d2fd90ff6"
     },
     {
+      "sourceConceptId": "webhook-idempotency",
+      "targetTerm": "duplicate",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook idempotency is commonly documented through idempotency keys, stable webhook identifiers, once-only event processing, and duplicate prevention.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-idempotency"
+      },
+      "edgeId": "expansion-edge-0e3d687b5f6222dc8b49eced97fc358b"
+    },
+    {
+      "sourceConceptId": "webhook-idempotency",
+      "targetTerm": "duplication",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook idempotency is commonly documented through idempotency keys, stable webhook identifiers, once-only event processing, and duplicate prevention.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-idempotency"
+      },
+      "edgeId": "expansion-edge-25d79bd2161ef045a75d33a685ebf666"
+    },
+    {
+      "sourceConceptId": "webhook-idempotency",
+      "targetTerm": "idempotency",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook idempotency is commonly documented through idempotency keys, stable webhook identifiers, once-only event processing, and duplicate prevention.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-idempotency"
+      },
+      "edgeId": "expansion-edge-4d34551a7f4c533c7b4caadb140fb844"
+    },
+    {
+      "sourceConceptId": "webhook-idempotency",
+      "targetTerm": "idempotent",
+      "relationshipKind": "related-identity-term",
+      "rationale": "Webhook idempotency is commonly documented through idempotency keys, stable webhook identifiers, once-only event processing, and duplicate prevention.",
+      "sourceReference": {
+        "sourceKind": "taxonomy-concept-definition",
+        "sourceId": "webhook-idempotency"
+      },
+      "edgeId": "expansion-edge-1da3bb7bc5e8d3e4466c5c55518497b9"
+    },
+    {
       "sourceConceptId": "webhooks",
       "targetTerm": "web-hook",
       "relationshipKind": "taxonomy-alias",
@@ -1593,5 +1879,5 @@
     "name": "GitBlocks capability retrieval expansion",
     "notes": "Proposed one-hop soft retrieval terms bound to the accepted taxonomy; no hard constraint or evaluation authority participates."
   },
-  "semanticDigest": "1435521e117e2af18ec55bbf1f30e3f5d2f48fe07d54f0c657917ff027086f4a"
+  "semanticDigest": "0068e4e007ce87abd3bf80fed0918b04d9f225a0c32a1aa924a1284865c54948"
 }

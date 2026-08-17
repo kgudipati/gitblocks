@@ -1,8 +1,11 @@
 /* global Buffer, console, process */
 
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
+import { performance } from 'node:perf_hooks';
+import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import {
@@ -13,8 +16,10 @@ import {
 } from '../../apps/gitblocks-hosted/dist/src/index.js';
 import {
   parseOssRecommendationRequestV1,
+  parseRecommendationAssessmentModelResponseV1,
   parseRepositoryFingerprintV1,
   repositoryFingerprintDigestV1,
+  validateRecommendationModelAssessmentExchangeV1,
 } from '../../packages/contracts/dist/src/index.js';
 
 const BASELINE_DIRECTORY = import.meta.dirname;
@@ -23,6 +28,10 @@ const REQUEST_DIRECTORY = join(BASELINE_DIRECTORY, 'requests');
 const REPORT_PATH = join(
   REPOSITORY_ROOT,
   'verification/outcome-baseline-v1/report.md',
+);
+const LOCAL_DIAGNOSTICS_PATH = join(
+  REPOSITORY_ROOT,
+  'logs/outcome-baseline-v1/diagnostics.json',
 );
 const SCANNER_PATH = join(
   REPOSITORY_ROOT,
@@ -48,6 +57,24 @@ const OUTCOME_ORDER = Object.freeze([
   'no-viable-candidate',
   'recommend',
   'failed',
+]);
+const DISPOSITION_ORDER = Object.freeze([
+  'recommended',
+  'viable',
+  'rejected',
+  'insufficient-evidence',
+]);
+const RESOLUTION_STATE_ORDER = Object.freeze([
+  'satisfied',
+  'conflict',
+  'unresolved',
+]);
+const CATALOG_ORDER = Object.freeze([
+  'inferences',
+  'claims',
+  'unknowns',
+  'limitations',
+  'conflicts',
 ]);
 
 const FAMILY_DEFINITIONS = Object.freeze([
@@ -212,16 +239,33 @@ async function main() {
   const fixtures = await loadFixtures();
   const database = readDatabaseConfiguration(process.env);
   const modelCaptures = new Map();
+  const assessmentDiagnostics = new Map();
+  const modelMeasurements = new Map();
+  const providerMeasurements = new Map();
+  const providerMeasurementPromises = [];
   let modelCalls = 0;
   let delegateModel = null;
   let modelEnvironmentMissing = false;
+  let activeModelRequestId = null;
+  const measuredFetch = async (resource, init) => {
+    const requestId = activeModelRequestId;
+    const response = await globalThis.fetch(resource, init);
+    if (requestId !== null) {
+      providerMeasurementPromises.push(
+        captureProviderMeasurement(
+          requestId,
+          response.clone(),
+          providerMeasurements,
+        ),
+      );
+    }
+    return response;
+  };
   const fitModel = Object.freeze({
     assess: async (input) => {
       modelCalls += 1;
-      modelCaptures.set(
-        input.fitAssessmentRequest.assessmentRequestId,
-        captureModelInput(input),
-      );
+      const requestId = input.fitAssessmentRequest.assessmentRequestId;
+      modelCaptures.set(requestId, captureModelInput(input));
       const apiKey = process.env.OPENAI_API_KEY;
       if (apiKey === undefined || apiKey.length === 0) {
         modelEnvironmentMissing = true;
@@ -229,8 +273,40 @@ async function main() {
       }
       delegateModel ??= createOpenAiFitAssessmentModel({
         configuration: Object.freeze({ apiKey, model: HOSTED_FIT_MODEL }),
+        fetch: measuredFetch,
       });
-      return delegateModel.assess(input);
+      const startedAt = performance.now();
+      activeModelRequestId = requestId;
+      try {
+        const response = await delegateModel.assess(input);
+        assessmentDiagnostics.set(
+          requestId,
+          validateAndCaptureAssessmentDiagnostics(
+            input,
+            response,
+            modelCaptures.get(requestId) ?? null,
+          ),
+        );
+        modelMeasurements.set(
+          requestId,
+          Object.freeze({
+            completed: true,
+            latencyMs: performance.now() - startedAt,
+          }),
+        );
+        return response;
+      } catch (error) {
+        modelMeasurements.set(
+          requestId,
+          Object.freeze({
+            completed: false,
+            latencyMs: performance.now() - startedAt,
+          }),
+        );
+        throw error;
+      } finally {
+        activeModelRequestId = null;
+      }
     },
   });
   const eventsByRequestId = new Map();
@@ -262,10 +338,13 @@ async function main() {
           fixture,
           operation,
           modelCapture: modelCaptures.get(fixture.fixtureId) ?? null,
+          diagnostics: assessmentDiagnostics.get(fixture.fixtureId) ?? null,
           events: eventsByRequestId.get(fixture.fixtureId) ?? [],
+          modelMeasurement: modelMeasurements.get(fixture.fixtureId) ?? null,
         }),
       );
     }
+    await Promise.all(providerMeasurementPromises);
     if (modelEnvironmentMissing) {
       throw new BaselineError('outcome-baseline.environment-missing');
     }
@@ -290,9 +369,10 @@ async function main() {
     throw new BaselineError('outcome-baseline.measurements-missing');
   }
 
-  const report = renderReport(measurements, modelCalls);
+  const report = renderReport(measurements, modelCalls, providerMeasurements);
   await mkdir(resolve(REPORT_PATH, '..'), { recursive: true });
   await writeFile(REPORT_PATH, report, 'utf8');
+  await writeLocalDiagnostics(measurements);
   console.log(
     JSON.stringify({
       status: 'complete',
@@ -301,6 +381,7 @@ async function main() {
       outcomes: countsByOutcome(measurements),
       modelCalls,
       report: relative(REPOSITORY_ROOT, REPORT_PATH),
+      localDiagnostics: relative(REPOSITORY_ROOT, LOCAL_DIAGNOSTICS_PATH),
     }),
   );
 }
@@ -505,6 +586,16 @@ function captureModelInput(input) {
     ]),
   );
   return Object.freeze({
+    catalogCounts: Object.freeze({
+      limitations: input.fitAssessmentRequest.candidates.reduce(
+        (total, candidate) => total + candidate.limitations.length,
+        0,
+      ),
+      unknowns: input.fitAssessmentRequest.candidates.reduce(
+        (total, candidate) => total + candidate.unknowns.length,
+        0,
+      ),
+    }),
     finalists: Object.freeze(
       input.retrievalFinalists.map((finalist) =>
         Object.freeze({
@@ -520,7 +611,239 @@ function captureModelInput(input) {
   });
 }
 
+export function captureAssessmentDiagnostics(input) {
+  const response = input.response;
+  const fit = response?.targetFitAssessment?.fitAssessment;
+  const assessments = array(fit?.candidateAssessments);
+  const resolutions = array(response?.evidenceNeededHardConstraintResolutions);
+  const declaredConflicts = array(fit?.hardConstraintConflicts);
+  const candidateIds = new Set(
+    array(input.request?.candidates)
+      .map((candidate) => candidate?.identity?.candidateId)
+      .filter((candidateId) => typeof candidateId === 'string'),
+  );
+  for (const record of [...assessments, ...resolutions, ...declaredConflicts]) {
+    if (typeof record?.candidateId === 'string') {
+      candidateIds.add(record.candidateId);
+    }
+  }
+
+  const conflictCandidateIds = new Set(
+    declaredConflicts
+      .map((conflict) => conflict?.candidateId)
+      .filter((candidateId) => typeof candidateId === 'string'),
+  );
+  const candidates = [...candidateIds].map((candidateId) => {
+    const dispositions = assessments
+      .filter((assessment) => assessment?.candidateId === candidateId)
+      .map((assessment) => assessment?.disposition)
+      .filter((disposition) => DISPOSITION_ORDER.includes(disposition));
+    const candidateResolutions = resolutions.filter(
+      (resolution) => resolution?.candidateId === candidateId,
+    );
+    const resolutionStates = countValues(
+      candidateResolutions.map((resolution) => resolution?.state),
+      RESOLUTION_STATE_ORDER,
+    );
+    return Object.freeze({
+      candidateId,
+      disposition: dispositions.length === 1 ? dispositions[0] : null,
+      dispositions: Object.freeze(dispositions),
+      resolutionStates: Object.freeze(resolutionStates),
+      rejectedOnDeclaredConflict:
+        dispositions.includes('rejected') &&
+        conflictCandidateIds.has(candidateId),
+    });
+  });
+  const validationIssues = input.validation.ok
+    ? []
+    : input.validation.issues.map(({ code, path }) =>
+        Object.freeze({ code, path }),
+      );
+  const suppliedUnknownCount = array(input.request?.candidates).reduce(
+    (total, candidate) => total + array(candidate?.unknowns).length,
+    0,
+  );
+  const suppliedLimitationCount = array(input.request?.candidates).reduce(
+    (total, candidate) => total + array(candidate?.limitations).length,
+    0,
+  );
+  return Object.freeze({
+    responseCaptured: input.responseCaptured ?? response !== null,
+    diagnosticCaptureFailed: false,
+    validationPassed: input.validation.ok,
+    validationIssues: Object.freeze(validationIssues),
+    domainIssueCounts: Object.freeze(
+      issueCounts(
+        validationIssues.filter(({ code }) => code.startsWith('domain.')),
+      ),
+    ),
+    nonDomainIssueCounts: Object.freeze(
+      issueCounts(
+        validationIssues.filter(({ code }) => !code.startsWith('domain.')),
+      ),
+    ),
+    dispositionCounts: Object.freeze(
+      countValues(
+        assessments.map((assessment) => assessment?.disposition),
+        DISPOSITION_ORDER,
+      ),
+    ),
+    resolutionStateCounts: Object.freeze(
+      countValues(
+        resolutions.map((resolution) => resolution?.state),
+        RESOLUTION_STATE_ORDER,
+      ),
+    ),
+    catalogCounts: Object.freeze({
+      inferences: array(fit?.inferences).length,
+      claims: array(fit?.materialClaims).length,
+      unknowns: suppliedUnknownCount + array(fit?.assessmentUnknowns).length,
+      limitations: suppliedLimitationCount,
+      conflicts: declaredConflicts.length,
+    }),
+    candidates: Object.freeze(candidates),
+    hasSatisfiedResolution: candidates.some(
+      ({ resolutionStates }) => resolutionStates.satisfied > 0,
+    ),
+    hasRejectedDispositionOnDeclaredConflict: candidates.some(
+      ({ rejectedOnDeclaredConflict }) => rejectedOnDeclaredConflict,
+    ),
+  });
+}
+
+function validateAndCaptureAssessmentDiagnostics(
+  input,
+  response,
+  modelCapture,
+) {
+  try {
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      request: input.fitAssessmentRequest,
+      normalization: input.normalization,
+      retrievalFinalists: input.retrievalFinalists,
+      response,
+      assessmentId: mintRequestBoundAssessmentId(input.fitAssessmentRequest),
+      producedAt: input.fitAssessmentRequest.evidenceCutoff,
+    });
+    const parsedResponse =
+      parseRecommendationAssessmentModelResponseV1(response);
+    return captureAssessmentDiagnostics({
+      request: input.fitAssessmentRequest,
+      response: parsedResponse.ok ? parsedResponse.value : null,
+      responseCaptured: true,
+      validation,
+    });
+  } catch {
+    // Evaluation diagnostics must never change the application's model result.
+    return unavailableAssessmentDiagnostics(modelCapture, true, true);
+  }
+}
+
+function unavailableAssessmentDiagnostics(
+  modelCapture,
+  responseCaptured = false,
+  diagnosticCaptureFailed = false,
+) {
+  const finalists = modelCapture?.finalists ?? [];
+  return Object.freeze({
+    responseCaptured,
+    diagnosticCaptureFailed,
+    validationPassed: false,
+    validationIssues: Object.freeze([]),
+    domainIssueCounts: Object.freeze({}),
+    nonDomainIssueCounts: Object.freeze({}),
+    dispositionCounts: Object.freeze(countValues([], DISPOSITION_ORDER)),
+    resolutionStateCounts: Object.freeze(
+      countValues([], RESOLUTION_STATE_ORDER),
+    ),
+    catalogCounts: Object.freeze({
+      inferences: 0,
+      claims: 0,
+      unknowns: modelCapture?.catalogCounts.unknowns ?? 0,
+      limitations: modelCapture?.catalogCounts.limitations ?? 0,
+      conflicts: 0,
+    }),
+    candidates: Object.freeze(
+      finalists.map(({ candidateId }) =>
+        Object.freeze({
+          candidateId,
+          disposition: null,
+          dispositions: Object.freeze([]),
+          resolutionStates: Object.freeze(
+            countValues([], RESOLUTION_STATE_ORDER),
+          ),
+          rejectedOnDeclaredConflict: false,
+        }),
+      ),
+    ),
+    hasSatisfiedResolution: false,
+    hasRejectedDispositionOnDeclaredConflict: false,
+  });
+}
+
+function issueCounts(issues) {
+  const counts = new Map();
+  for (const { code } of issues) {
+    counts.set(code, (counts.get(code) ?? 0) + 1);
+  }
+  return Object.fromEntries(
+    [...counts.entries()].sort(([left], [right]) => compareText(left, right)),
+  );
+}
+
+function countValues(values, order) {
+  const counts = Object.fromEntries(order.map((value) => [value, 0]));
+  for (const value of values) {
+    if (Object.hasOwn(counts, value)) counts[value] += 1;
+  }
+  return counts;
+}
+
+function mintRequestBoundAssessmentId(request) {
+  const digest = createHash('sha256')
+    .update('gitblocks-fit-assessment-v1\0', 'utf8')
+    .update(request.assessmentRequestId, 'utf8')
+    .update('\0', 'utf8')
+    .update(request.correlationId, 'utf8')
+    .update('\0', 'utf8')
+    .update(request.evidenceCutoff, 'utf8')
+    .digest('hex');
+  return `assessment-${digest.slice(0, 53)}`;
+}
+
+async function captureProviderMeasurement(requestId, response, destination) {
+  try {
+    const decoded = await response.json();
+    if (!isRecord(decoded)) return;
+    const usage = decoded.usage;
+    destination.set(
+      requestId,
+      Object.freeze({
+        providerCompleted: decoded.status === 'completed',
+        outputTokens:
+          isRecord(usage) &&
+          Number.isInteger(usage.output_tokens) &&
+          usage.output_tokens >= 0
+            ? usage.output_tokens
+            : null,
+      }),
+    );
+  } catch {
+    // Metrics are best-effort and must not alter the measured operation.
+  }
+}
+
 function measureOperation(input) {
+  const modelCompleted = input.events.some(
+    ({ stage }) => stage === 'model-completed',
+  );
+  const model = Object.freeze({
+    completed: modelCompleted && input.modelMeasurement?.completed === true,
+    latencyMs: input.modelMeasurement?.latencyMs ?? null,
+  });
+  const diagnostics =
+    input.diagnostics ?? unavailableAssessmentDiagnostics(input.modelCapture);
   if (!input.operation.ok) {
     return Object.freeze({
       fixtureId: input.fixture.fixtureId,
@@ -530,6 +853,9 @@ function measureOperation(input) {
       reason: failureReason(input.operation.failure),
       insufficientEvidence: null,
       recommendation: null,
+      model,
+      diagnostics,
+      deterministicallyValidResponse: false,
     });
   }
   const result = input.operation.result;
@@ -548,6 +874,9 @@ function measureOperation(input) {
       result.outcome === 'recommend'
         ? recommendationMeasurement(result, input.modelCapture)
         : null,
+    model,
+    diagnostics,
+    deterministicallyValidResponse: model.completed,
   });
 }
 
@@ -652,18 +981,36 @@ function recommendationMeasurement(result, modelCapture) {
       finalist.lane,
     ]),
   );
-  let eligibleLaneOptions = 0;
-  let evidenceNeededLaneOptions = 0;
-  for (const option of result.responsibleOptions) {
+  const assessmentByCandidateId = new Map(
+    result.targetFitAssessment.fitAssessment.candidateAssessments.map(
+      (assessment) => [assessment.candidateId, assessment],
+    ),
+  );
+  const options = result.responsibleOptions.map((option) => {
     const lane = laneByCandidateId.get(option.candidateId);
-    if (lane === 'eligible') eligibleLaneOptions += 1;
-    else if (lane === 'evidence-needed') evidenceNeededLaneOptions += 1;
-    else throw new BaselineError('outcome-baseline.option-lane-missing');
-  }
+    const assessment = assessmentByCandidateId.get(option.candidateId);
+    if (
+      (lane !== 'eligible' && lane !== 'evidence-needed') ||
+      assessment === undefined
+    ) {
+      throw new BaselineError('outcome-baseline.option-lane-missing');
+    }
+    return Object.freeze({
+      candidateId: option.candidateId,
+      lane,
+      evidenceReferences: Object.freeze([...assessment.evidenceIds]),
+      materialUnknowns: Object.freeze([...assessment.unknownIds]),
+      disposition: assessment.disposition,
+    });
+  });
   return Object.freeze({
     optionCount: result.responsibleOptions.length,
-    eligibleLaneOptions,
-    evidenceNeededLaneOptions,
+    eligibleLaneOptions: options.filter(({ lane }) => lane === 'eligible')
+      .length,
+    evidenceNeededLaneOptions: options.filter(
+      ({ lane }) => lane === 'evidence-needed',
+    ).length,
+    options: Object.freeze(options),
   });
 }
 
@@ -681,14 +1028,14 @@ function projectedFinalists(shortlist) {
   ];
 }
 
-function renderReport(measurements, modelCalls) {
+function renderReport(measurements, modelCalls, providerMeasurements) {
   const aggregate = countsByOutcome(measurements);
   const lines = [
     '# Outcome baseline v1',
     '',
     'Reproduce from the repository root with `pnpm outcome:baseline:v1`.',
     '',
-    'This report contains no request prose, candidate names, or model output text.',
+    'This report contains no request prose, candidate display names, or model output text.',
     '',
     '## Aggregate outcome counts',
     '',
@@ -795,13 +1142,362 @@ function renderReport(measurements, modelCalls) {
       ),
       '',
     );
+    lines.push(
+      '### Recommended option detail',
+      '',
+      ...markdownTable(
+        [
+          'Fixture',
+          'Candidate ID',
+          'Lane',
+          'Evidence references',
+          'Material unknowns',
+          'Disposition',
+        ],
+        recommendations.flatMap((measurement) =>
+          measurement.recommendation.options.map((option) => [
+            measurement.fixtureId,
+            option.candidateId,
+            option.lane,
+            bracketed(option.evidenceReferences),
+            bracketed(option.materialUnknowns),
+            option.disposition,
+          ]),
+        ),
+        ['left', 'left', 'left', 'left', 'left', 'left'],
+      ),
+      '',
+    );
   }
+  const completed = measurements.filter(({ model }) => model.completed);
+  const deterministicallyValid = measurements.filter(
+    ({ deterministicallyValidResponse }) => deterministicallyValidResponse,
+  );
+  const latencies = completed
+    .map(({ model }) => model.latencyMs)
+    .filter((value) => typeof value === 'number');
+  const outputTokens = completed
+    .map(({ fixtureId }) => providerMeasurements.get(fixtureId)?.outputTokens)
+    .filter((value) => Number.isInteger(value));
   lines.push(
     '## Model calls',
     '',
     `Total model calls made: ${String(modelCalls)}.`,
+    '',
+    `Completed model calls: ${String(completed.length)}.`,
+    '',
+    `Deterministically valid responses: ${String(deterministicallyValid.length)}.`,
+    '',
+    `Median completed-call latency: ${formatMetric(median(latencies), ' ms')}.`,
+    '',
+    `Maximum completed-call latency: ${formatMetric(maximum(latencies), ' ms')}.`,
+    '',
+    `Median output tokens: ${formatMetric(median(outputTokens), '')}.`,
+    '',
+    ...renderAssessmentDiagnosticLines(measurements),
+    '',
+    '## Failure categories',
+    '',
   );
-  return `${lines.join('\n')}\n`;
+  const failures = failureCategoryRows(measurements);
+  if (failures.length === 0) {
+    lines.push('No failed calls.', '');
+  } else {
+    lines.push(
+      ...markdownTable(['Category', 'Calls', 'Occurrences'], failures, [
+        'left',
+        'right',
+        'right',
+      ]),
+      '',
+    );
+  }
+  return `${lines.join('\n').trimEnd()}\n`;
+}
+
+export function renderAssessmentDiagnosticLines(measurements) {
+  const captured = measurements.filter(
+    ({ diagnostics }) => diagnostics.responseCaptured,
+  );
+  const validationPassed = measurements.filter(
+    ({ diagnostics }) => diagnostics.validationPassed,
+  );
+  const captureFailures = measurements.filter(
+    ({ diagnostics }) => diagnostics.diagnosticCaptureFailed,
+  );
+  const domainCategories = diagnosticIssueCategoryRows(
+    measurements,
+    'domainIssueCounts',
+  );
+  const nonDomainCategories = diagnosticIssueCategoryRows(
+    measurements,
+    'nonDomainIssueCounts',
+  );
+  const dispositionTotals = totalDiagnosticCounts(
+    measurements,
+    'dispositionCounts',
+    DISPOSITION_ORDER,
+  );
+  const resolutionTotals = totalDiagnosticCounts(
+    measurements,
+    'resolutionStateCounts',
+    RESOLUTION_STATE_ORDER,
+  );
+  const catalogTotals = totalDiagnosticCounts(
+    measurements,
+    'catalogCounts',
+    CATALOG_ORDER,
+  );
+  const candidatesWithSatisfiedResolution = measurements.reduce(
+    (total, { diagnostics }) =>
+      total +
+      diagnostics.candidates.filter(
+        ({ resolutionStates }) => resolutionStates.satisfied > 0,
+      ).length,
+    0,
+  );
+  const candidatesRejectedOnDeclaredConflict = measurements.reduce(
+    (total, { diagnostics }) =>
+      total +
+      diagnostics.candidates.filter(
+        ({ rejectedOnDeclaredConflict }) => rejectedOnDeclaredConflict,
+      ).length,
+    0,
+  );
+  const lines = [
+    '## Assessment diagnostics',
+    '',
+    `Model responses captured for diagnostics: ${String(captured.length)} of ${String(measurements.length)} fixtures.`,
+    '',
+    `Harness canonical validations passed: ${String(validationPassed.length)}.`,
+    '',
+    `Diagnostic capture failures: ${String(captureFailures.length)}.`,
+    '',
+    'Unknown totals include supplied candidate unknowns plus model-declared assessment unknowns; limitation totals are the supplied candidate limitation catalog hydrated by validation.',
+    '',
+    '### Domain issue categories',
+    '',
+  ];
+  if (domainCategories.length === 0) {
+    lines.push('No domain validation issues.', '');
+  } else {
+    lines.push(
+      ...markdownTable(['Category', 'Calls', 'Occurrences'], domainCategories, [
+        'left',
+        'right',
+        'right',
+      ]),
+      '',
+    );
+  }
+  if (nonDomainCategories.length > 0) {
+    lines.push(
+      '### Non-domain validation issue categories',
+      '',
+      ...markdownTable(
+        ['Category', 'Calls', 'Occurrences'],
+        nonDomainCategories,
+        ['left', 'right', 'right'],
+      ),
+      '',
+    );
+  }
+  lines.push(
+    '### Disposition totals',
+    '',
+    ...markdownTable(
+      ['Disposition', 'Count'],
+      DISPOSITION_ORDER.map((disposition) => [
+        disposition,
+        String(dispositionTotals[disposition]),
+      ]),
+      ['left', 'right'],
+    ),
+    '',
+    '### Hard-resolution state totals',
+    '',
+    ...markdownTable(
+      ['State', 'Count'],
+      RESOLUTION_STATE_ORDER.map((state) => [
+        state,
+        String(resolutionTotals[state]),
+      ]),
+      ['left', 'right'],
+    ),
+    '',
+    '### Declared catalog totals',
+    '',
+    ...markdownTable(
+      ['Catalog', 'Count'],
+      CATALOG_ORDER.map((catalog) => [catalog, String(catalogTotals[catalog])]),
+      ['left', 'right'],
+    ),
+    '',
+    `Fixtures with any satisfied hard resolution: ${String(
+      measurements.filter(
+        ({ diagnostics }) => diagnostics.hasSatisfiedResolution,
+      ).length,
+    )}.`,
+    '',
+    `Candidates with any satisfied hard resolution: ${String(
+      candidatesWithSatisfiedResolution,
+    )}.`,
+    '',
+    `Fixtures with a rejected disposition on a declared conflict: ${String(
+      measurements.filter(
+        ({ diagnostics }) =>
+          diagnostics.hasRejectedDispositionOnDeclaredConflict,
+      ).length,
+    )}.`,
+    '',
+    `Candidates with a rejected disposition on a declared conflict: ${String(
+      candidatesRejectedOnDeclaredConflict,
+    )}.`,
+    '',
+    '### Per-fixture diagnostic totals',
+    '',
+    ...markdownTable(
+      [
+        'Fixture',
+        'Response',
+        'Validation',
+        'Domain issues',
+        'Dispositions',
+        'Resolutions',
+        'Catalogs',
+        'Any satisfied',
+        'Rejected conflict',
+      ],
+      measurements.map(({ fixtureId, diagnostics }) => [
+        fixtureId,
+        diagnostics.responseCaptured ? 'captured' : 'not-produced',
+        diagnostics.responseCaptured
+          ? diagnostics.diagnosticCaptureFailed
+            ? 'capture-failed'
+            : diagnostics.validationPassed
+              ? 'passed'
+              : 'failed'
+          : 'not-run',
+        String(sumCounts(diagnostics.domainIssueCounts)),
+        compactCounts(diagnostics.dispositionCounts, DISPOSITION_ORDER),
+        compactCounts(
+          diagnostics.resolutionStateCounts,
+          RESOLUTION_STATE_ORDER,
+        ),
+        compactCounts(diagnostics.catalogCounts, CATALOG_ORDER),
+        diagnostics.hasSatisfiedResolution ? 'yes' : 'no',
+        diagnostics.hasRejectedDispositionOnDeclaredConflict ? 'yes' : 'no',
+      ]),
+      ['left', 'left', 'left', 'right', 'left', 'left', 'left', 'left', 'left'],
+    ),
+  );
+  return lines;
+}
+
+function diagnosticIssueCategoryRows(measurements, field) {
+  const categories = new Map();
+  for (const { fixtureId, diagnostics } of measurements) {
+    for (const [category, occurrences] of Object.entries(diagnostics[field])) {
+      const existing = categories.get(category) ?? {
+        calls: new Set(),
+        occurrences: 0,
+      };
+      existing.calls.add(fixtureId);
+      existing.occurrences += occurrences;
+      categories.set(category, existing);
+    }
+  }
+  return [...categories.entries()]
+    .sort(([left], [right]) => compareText(left, right))
+    .map(([category, detail]) => [
+      category,
+      String(detail.calls.size),
+      String(detail.occurrences),
+    ]);
+}
+
+function totalDiagnosticCounts(measurements, field, order) {
+  const totals = countValues([], order);
+  for (const { diagnostics } of measurements) {
+    for (const value of order) {
+      totals[value] += diagnostics[field][value];
+    }
+  }
+  return totals;
+}
+
+function compactCounts(counts, order) {
+  return order.map((key) => `${key}=${String(counts[key])}`).join(', ');
+}
+
+function sumCounts(counts) {
+  return Object.values(counts).reduce((total, count) => total + count, 0);
+}
+
+function failureCategoryRows(measurements) {
+  const categories = new Map();
+  for (const measurement of measurements) {
+    if (measurement.outcome !== 'failed') continue;
+    const category = measurement.reason ?? 'unknown-failure';
+    const existing = categories.get(category) ?? {
+      calls: new Set(),
+      occurrences: 0,
+    };
+    existing.calls.add(measurement.fixtureId);
+    existing.occurrences += 1;
+    categories.set(category, existing);
+  }
+  return [...categories.entries()]
+    .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+    .map(([category, detail]) => [
+      category,
+      String(detail.calls.size),
+      String(detail.occurrences),
+    ]);
+}
+
+async function writeLocalDiagnostics(measurements) {
+  await mkdir(resolve(LOCAL_DIAGNOSTICS_PATH, '..'), {
+    recursive: true,
+    mode: 0o700,
+  });
+  const detail = {
+    formatVersion: '1.0.0',
+    fixtures: measurements.map(
+      ({ fixtureId, capabilityFamily, outcome, reason, diagnostics }) => ({
+        fixtureId,
+        capabilityFamily,
+        outcome,
+        reason,
+        diagnostics,
+      }),
+    ),
+  };
+  await writeFile(
+    LOCAL_DIAGNOSTICS_PATH,
+    `${JSON.stringify(detail, null, 2)}\n`,
+    {
+      encoding: 'utf8',
+      mode: 0o600,
+    },
+  );
+}
+
+function median(values) {
+  if (values.length === 0) return null;
+  const ordered = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length % 2 === 1
+    ? ordered[middle]
+    : (ordered[middle - 1] + ordered[middle]) / 2;
+}
+
+function maximum(values) {
+  return values.length === 0 ? null : Math.max(...values);
+}
+
+function formatMetric(value, suffix) {
+  return value === null ? 'not recorded' : `${value.toFixed(1)}${suffix}`;
 }
 
 function countsByOutcome(measurements) {
@@ -816,6 +1512,14 @@ function countsByOutcome(measurements) {
 
 function bracketed(values) {
   return `[${values.map((value) => String(value)).join(', ')}]`;
+}
+
+function array(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function compareText(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function markdownTable(headers, rows, alignments) {
@@ -910,13 +1614,18 @@ function isRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-try {
-  await main();
-} catch (error) {
-  console.error(
-    error instanceof BaselineError
-      ? error.code
-      : 'outcome-baseline.internal-error',
-  );
-  process.exitCode = 1;
+if (
+  process.argv[1] !== undefined &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  try {
+    await main();
+  } catch (error) {
+    console.error(
+      error instanceof BaselineError
+        ? error.code
+        : 'outcome-baseline.internal-error',
+    );
+    process.exitCode = 1;
+  }
 }
