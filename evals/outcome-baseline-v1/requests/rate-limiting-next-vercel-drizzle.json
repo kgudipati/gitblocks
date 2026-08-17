@@ -1,0 +1,214 @@
+{
+  "contractVersion": "1.0.0",
+  "recommendationRequestId": "rate-limiting-next-vercel-drizzle",
+  "capabilityQuery": {
+    "contractVersion": "1.0.0",
+    "queryInputId": "rate-limiting-next-vercel-drizzle",
+    "scope": "local-pre-approval",
+    "summary": "Select an OSS rate limiting capability for public application endpoints.",
+    "capabilityTerms": [
+      {
+        "termId": "rate-limiting-next-vercel-drizzle-term",
+        "originalTerm": "rate-limiting"
+      }
+    ],
+    "successConditions": [
+      {
+        "conditionId": "rate-limiting-next-vercel-drizzle-success-1",
+        "statement": "Enforce bounded request rates with an explicit behavior when limiter state is unavailable."
+      },
+      {
+        "conditionId": "rate-limiting-next-vercel-drizzle-success-2",
+        "statement": "Fit a Next.js deployment on Vercel using PostgreSQL through Drizzle without Redis."
+      }
+    ],
+    "draftConstraints": [
+      {
+        "constraintId": "rate-limiting-next-vercel-drizzle-c1",
+        "modality": "required",
+        "statement": "The solution must provide rate-limit-failure-mode.",
+        "originalTerm": "rate-limit-failure-mode",
+        "facetHint": "feature",
+        "reasonCode": "user-required"
+      },
+      {
+        "constraintId": "rate-limiting-next-vercel-drizzle-c2",
+        "modality": "preferred",
+        "statement": "Prefer a solution compatible with sliding-window.",
+        "originalTerm": "sliding-window",
+        "facetHint": "feature",
+        "reasonCode": null
+      },
+      {
+        "constraintId": "rate-limiting-next-vercel-drizzle-c3",
+        "modality": "prohibited",
+        "statement": "The solution must not require redis.",
+        "originalTerm": "redis",
+        "facetHint": "infrastructure",
+        "reasonCode": "user-prohibited"
+      },
+      {
+        "constraintId": "rate-limiting-next-vercel-drizzle-c4",
+        "modality": "preferred",
+        "statement": "Prefer a solution compatible with postgresql.",
+        "originalTerm": "postgresql",
+        "facetHint": "infrastructure",
+        "reasonCode": null
+      }
+    ],
+    "candidateReferences": [],
+    "repositoryFingerprintReference": {
+      "fingerprintId": "fingerprint-a5dc6c2759e9f4405637551624441963226fe79945895897",
+      "fingerprintDigest": "0a2f24c862606ce0c46e11409fb04b12bf73b0327ac0d64677ebcaf2ac44dbc0"
+    }
+  },
+  "repositoryFingerprint": {
+    "contractVersion": "1.0.0",
+    "factVocabularyVersion": "1.0.0",
+    "fingerprintId": "fingerprint-a5dc6c2759e9f4405637551624441963226fe79945895897",
+    "facts": [
+      {
+        "kind": "component",
+        "factId": "fact-0fcab8abbea243e7ac25bd936b2218fb19ccc6fa5e522c29",
+        "component": "framework",
+        "name": "next",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-25e4d16232083097fc9476a228669e726672880bddac704b",
+        "component": "dependency",
+        "name": "drizzle-orm",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-3536a6b29c08a057cef14a66994d08f3fcb0bd2b0e4204a0",
+        "component": "dependency",
+        "name": "next",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-7dc7b53c68520604f02d8d26fb2dea4678491975eb42e317",
+        "component": "dependency",
+        "name": "@vercel/postgres",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-811e4e666d71004c3f34521592b9e87d5cfd02b00d18dd3c",
+        "component": "runtime",
+        "name": "node",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-85e6f7798701f7944ebc83c91cce56852651d679bf52dfeb",
+        "component": "orm",
+        "name": "drizzle",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-8f7eff93a6876157fb235c1c9dd0857579a677f94afb848d",
+        "component": "language",
+        "name": "typescript",
+        "version": null,
+        "provenance": {
+          "origin": "configuration-shape",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-ee21fafda7021098c5ee788598f0ca1f15869ae5e9e2fe01",
+        "component": "database",
+        "name": "postgresql",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-fc7dacf11647b78addc6ecd094317524e2f48af5f6e2e9a5",
+        "component": "package-manager",
+        "name": "pnpm",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      }
+    ],
+    "withheldCategories": [
+      "raw-source",
+      "configuration-values",
+      "environment",
+      "credentials",
+      "logs",
+      "database-content",
+      "untracked-files",
+      "command-output",
+      "identity-facts",
+      "data-facts",
+      "operational-facts"
+    ]
+  },
+  "transmissionApproval": {
+    "approvalId": "rate-limiting-next-vercel-drizzle-approval",
+    "approvedAt": "2026-08-17T00:56:21.000Z",
+    "approvedBy": "request-originator",
+    "scope": "minimized-repository-facts",
+    "approvedCategories": [
+      "bounded-evidence",
+      "candidate-dossiers",
+      "capability-request",
+      "repository-fingerprint"
+    ]
+  }
+}

@@ -1,0 +1,246 @@
+{
+  "contractVersion": "1.0.0",
+  "recommendationRequestId": "webhooks-next-selfhosted-drizzle",
+  "capabilityQuery": {
+    "contractVersion": "1.0.0",
+    "queryInputId": "webhooks-next-selfhosted-drizzle",
+    "scope": "local-pre-approval",
+    "summary": "Select an OSS webhook capability for receiving untrusted external events.",
+    "capabilityTerms": [
+      {
+        "termId": "webhooks-next-selfhosted-drizzle-term",
+        "originalTerm": "webhooks"
+      }
+    ],
+    "successConditions": [
+      {
+        "conditionId": "webhooks-next-selfhosted-drizzle-success-1",
+        "statement": "Verify webhook signatures, reject replays, and support idempotent event handling."
+      },
+      {
+        "conditionId": "webhooks-next-selfhosted-drizzle-success-2",
+        "statement": "Fit a self-hosted Next.js deployment using PostgreSQL through Drizzle without adding external services."
+      }
+    ],
+    "draftConstraints": [
+      {
+        "constraintId": "webhooks-next-selfhosted-drizzle-c1",
+        "modality": "required",
+        "statement": "The solution must provide signature-verification.",
+        "originalTerm": "signature-verification",
+        "facetHint": "feature",
+        "reasonCode": "user-required"
+      },
+      {
+        "constraintId": "webhooks-next-selfhosted-drizzle-c2",
+        "modality": "required",
+        "statement": "The solution must provide replay-protection.",
+        "originalTerm": "replay-protection",
+        "facetHint": "feature",
+        "reasonCode": "user-required"
+      },
+      {
+        "constraintId": "webhooks-next-selfhosted-drizzle-c3",
+        "modality": "preferred",
+        "statement": "Prefer a solution compatible with webhook-idempotency.",
+        "originalTerm": "webhook-idempotency",
+        "facetHint": "feature",
+        "reasonCode": null
+      },
+      {
+        "constraintId": "webhooks-next-selfhosted-drizzle-c4",
+        "modality": "prohibited",
+        "statement": "The solution must not require external-hosted-service.",
+        "originalTerm": "external-hosted-service",
+        "facetHint": "infrastructure",
+        "reasonCode": "user-prohibited"
+      },
+      {
+        "constraintId": "webhooks-next-selfhosted-drizzle-c5",
+        "modality": "prohibited",
+        "statement": "The solution must not require separate-control-plane.",
+        "originalTerm": "separate-control-plane",
+        "facetHint": "infrastructure",
+        "reasonCode": "user-prohibited"
+      },
+      {
+        "constraintId": "webhooks-next-selfhosted-drizzle-c6",
+        "modality": "prohibited",
+        "statement": "The solution must not require redis.",
+        "originalTerm": "redis",
+        "facetHint": "infrastructure",
+        "reasonCode": "user-prohibited"
+      },
+      {
+        "constraintId": "webhooks-next-selfhosted-drizzle-c7",
+        "modality": "preferred",
+        "statement": "Prefer a solution compatible with in-process-embedded.",
+        "originalTerm": "in-process-embedded",
+        "facetHint": "deployment",
+        "reasonCode": null
+      },
+      {
+        "constraintId": "webhooks-next-selfhosted-drizzle-c8",
+        "modality": "preferred",
+        "statement": "Prefer a solution compatible with postgresql.",
+        "originalTerm": "postgresql",
+        "facetHint": "infrastructure",
+        "reasonCode": null
+      }
+    ],
+    "candidateReferences": [],
+    "repositoryFingerprintReference": {
+      "fingerprintId": "fingerprint-fb3abb23e099e823de1d6fd93ce72ba3ac9d8df2f92fe7ae",
+      "fingerprintDigest": "17472a31f572347970a81680807ca61e109ca21a74f5652c18cab20d63df713a"
+    }
+  },
+  "repositoryFingerprint": {
+    "contractVersion": "1.0.0",
+    "factVocabularyVersion": "1.0.0",
+    "fingerprintId": "fingerprint-fb3abb23e099e823de1d6fd93ce72ba3ac9d8df2f92fe7ae",
+    "facts": [
+      {
+        "kind": "component",
+        "factId": "fact-0fcab8abbea243e7ac25bd936b2218fb19ccc6fa5e522c29",
+        "component": "framework",
+        "name": "next",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-25e4d16232083097fc9476a228669e726672880bddac704b",
+        "component": "dependency",
+        "name": "drizzle-orm",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-3536a6b29c08a057cef14a66994d08f3fcb0bd2b0e4204a0",
+        "component": "dependency",
+        "name": "next",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-811e4e666d71004c3f34521592b9e87d5cfd02b00d18dd3c",
+        "component": "runtime",
+        "name": "node",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-85e6f7798701f7944ebc83c91cce56852651d679bf52dfeb",
+        "component": "orm",
+        "name": "drizzle",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-8f7eff93a6876157fb235c1c9dd0857579a677f94afb848d",
+        "component": "language",
+        "name": "typescript",
+        "version": null,
+        "provenance": {
+          "origin": "configuration-shape",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-c4b427b569c15df840c092869f8f16fb73fd3db1fdf5830c",
+        "component": "dependency",
+        "name": "pg",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-ee21fafda7021098c5ee788598f0ca1f15869ae5e9e2fe01",
+        "component": "database",
+        "name": "postgresql",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      },
+      {
+        "kind": "component",
+        "factId": "fact-fc7dacf11647b78addc6ecd094317524e2f48af5f6e2e9a5",
+        "component": "package-manager",
+        "name": "pnpm",
+        "version": null,
+        "provenance": {
+          "origin": "manifest",
+          "epistemicStatus": "direct",
+          "confidence": "high",
+          "observedAt": "2026-08-17T00:56:20.000Z"
+        }
+      }
+    ],
+    "withheldCategories": [
+      "raw-source",
+      "configuration-values",
+      "environment",
+      "credentials",
+      "logs",
+      "database-content",
+      "untracked-files",
+      "command-output",
+      "identity-facts",
+      "data-facts",
+      "operational-facts"
+    ]
+  },
+  "transmissionApproval": {
+    "approvalId": "webhooks-next-selfhosted-drizzle-approval",
+    "approvedAt": "2026-08-17T00:56:21.000Z",
+    "approvedBy": "request-originator",
+    "scope": "minimized-repository-facts",
+    "approvedCategories": [
+      "bounded-evidence",
+      "candidate-dossiers",
+      "capability-request",
+      "repository-fingerprint"
+    ]
+  }
+}
