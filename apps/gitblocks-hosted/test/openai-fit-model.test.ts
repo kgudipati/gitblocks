@@ -113,6 +113,7 @@ describe('OpenAI Responses target-fit adapter', () => {
       expect.arrayContaining([
         "Every token in claimIds must exactly match a claimId declared in this response's materialClaims catalog; use an empty array when no material claim is declared.",
         'Complete catalog of model-created material claims. Declare every claimId before citing that exact token from candidateAssessments.claimIds.',
+        "Include every supplied candidate-unknown token (u...) belonging to this candidate so each hydrated decision-relevant unknown remains reachable from this assessment. A model-created assessment-unknown token (a...) must exactly match an unknownId declared in this response's assessmentUnknowns catalog.",
       ]),
     );
     for (const removedKey of [
