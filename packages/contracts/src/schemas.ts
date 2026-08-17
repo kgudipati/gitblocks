@@ -433,7 +433,7 @@ export const inferenceV1Schema = closedObject({
   }),
 });
 
-const assessmentUnknownSchema = closedObject({
+export const assessmentUnknownV1Schema = closedObject({
   scope: Type.Literal('assessment'),
   unknownId: stableIdSchema,
   topic: stableIdSchema,
@@ -446,7 +446,7 @@ const assessmentUnknownSchema = closedObject({
 
 export const materialUnknownV1Schema = Type.Union([
   candidateUnknownSchema,
-  assessmentUnknownSchema,
+  assessmentUnknownV1Schema,
 ]);
 
 export const materialClaimV1Schema = closedObject({

@@ -26,7 +26,7 @@ import {
   type DeterministicCandidateProfileAuthorityV1,
   type OssRecommendationRequestV1,
   type RepositoryFingerprintV1,
-  type RecommendationAssessmentResponseV1,
+  type RecommendationAssessmentModelResponseV1,
 } from '@gitblocks/contracts';
 import { createCandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
 import type { CandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
@@ -541,7 +541,7 @@ export function candidateArtifactMaterial(input: {
 
 export function groundedModelResponse(
   input: FitAssessmentModelRequestV1,
-): RecommendationAssessmentResponseV1 {
+): RecommendationAssessmentModelResponseV1 {
   const candidates = input.fitAssessmentRequest.candidates;
   const positive = candidates[0];
   if (positive?.observations[0] === undefined) {
@@ -555,18 +555,9 @@ export function groundedModelResponse(
       .map(({ candidateId }) => candidateId),
   );
   return {
-    contractVersion: CONTRACT_VERSION,
     targetFitAssessment: {
-      contractVersion: CONTRACT_VERSION,
       fitAssessment: {
-        contractVersion: CONTRACT_VERSION,
-        assessmentId: `assessment-${input.fitAssessmentRequest.assessmentRequestId}`,
-        assessmentRequestId: input.fitAssessmentRequest.assessmentRequestId,
-        correlationId: input.fitAssessmentRequest.correlationId,
         outcome: 'recommend',
-        suppliedCandidateIds: candidates.map(
-          ({ identity }) => identity.candidateId,
-        ),
         candidateAssessments: candidates.map((dossier, index) => {
           const candidateId = dossier.identity.candidateId;
           const evidenceIds = dossier.observations.map(
@@ -602,7 +593,6 @@ export function groundedModelResponse(
             ),
           };
         }),
-        evidence: candidates.flatMap(({ observations }) => observations),
         inferences: [
           {
             kind: 'inference',
@@ -616,9 +606,6 @@ export function groundedModelResponse(
             evidenceIds: [positive.observations[0].evidenceId],
           },
         ],
-        candidateLimitations: candidates.flatMap(
-          ({ limitations }) => limitations,
-        ),
         materialClaims: candidates.map((dossier, index) => ({
           claimId: `claim-${dossier.identity.candidateId}`,
           candidateId: dossier.identity.candidateId,
@@ -632,13 +619,11 @@ export function groundedModelResponse(
           evidenceIds: dossier.observations.map(({ evidenceId }) => evidenceId),
           inferenceIds: index === 0 ? [inferenceId] : [],
         })),
-        materialUnknowns: candidates.flatMap(({ unknowns }) => unknowns),
+        assessmentUnknowns: [],
         hardConstraintConflicts: [],
         rankGroups: [{ candidateIds: [positiveCandidateId] }],
         rankRelations: [],
         incomparablePairs: [],
-        evidenceCutoff: input.fitAssessmentRequest.evidenceCutoff,
-        producedAt: input.fitAssessmentRequest.evidenceCutoff,
         assessmentProcessing: {
           state: 'complete',
           incompleteReasonCodes: [],

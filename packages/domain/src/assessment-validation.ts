@@ -41,6 +41,12 @@ import {
 import { validateFitAssessmentRequest } from './request-validation.ts';
 import { parseUtcTimestamp } from './temporal.ts';
 
+interface FitAssessmentReferenceCatalogs {
+  readonly evidence: ReadonlyMap<EvidenceId, EvidenceObservation>;
+  readonly limitations: ReadonlyMap<LimitationId, CandidateLimitation>;
+  readonly unknowns: ReadonlyMap<MaterialUnknownId, MaterialUnknown>;
+}
+
 function timestampAt(
   issues: DomainIssue[],
   value: string,
@@ -546,6 +552,17 @@ function validateHardConflictPreservation(
 export function validateFitAssessmentResult(
   input: FitAssessmentResult,
 ): DomainResult<FitAssessmentResult> {
+  return validateFitAssessmentResultWithCatalogs(input, {
+    evidence: new Map(),
+    limitations: new Map(),
+    unknowns: new Map(),
+  });
+}
+
+function validateFitAssessmentResultWithCatalogs(
+  input: FitAssessmentResult,
+  supplied: FitAssessmentReferenceCatalogs,
+): DomainResult<FitAssessmentResult> {
   const result = canonicalizeFitAssessmentResult(input);
   const issues: DomainIssue[] = [];
   addStableIdIssues(issues, result.assessmentId, 'assessmentId');
@@ -585,7 +602,9 @@ export function validateFitAssessmentResult(
     result.evidence.map((observation) => observation.evidenceId),
     'evidence',
   );
-  const evidenceById = new Map<EvidenceId, EvidenceObservation>();
+  const evidenceById = new Map<EvidenceId, EvidenceObservation>(
+    supplied.evidence,
+  );
   for (const [index, observation] of result.evidence.entries()) {
     const path = `evidence[${String(index)}]`;
     addStableIdIssues(issues, observation.evidenceId, `${path}.evidenceId`);
@@ -603,7 +622,9 @@ export function validateFitAssessmentResult(
       result.evidenceCutoff,
       path,
     );
-    evidenceById.set(observation.evidenceId, observation);
+    if (!evidenceById.has(observation.evidenceId)) {
+      evidenceById.set(observation.evidenceId, observation);
+    }
   }
   const evidenceIdentifierValues = new Set<string>(evidenceById.keys());
 
@@ -644,7 +665,9 @@ export function validateFitAssessmentResult(
     result.candidateLimitations.map((limitation) => limitation.limitationId),
     'candidateLimitations',
   );
-  const limitationsById = new Map<LimitationId, CandidateLimitation>();
+  const limitationsById = new Map<LimitationId, CandidateLimitation>(
+    supplied.limitations,
+  );
   const limitationAssertions = new Map<string, string>();
   const limitationContent = new Set<string>();
   for (const [index, limitation] of result.candidateLimitations.entries()) {
@@ -691,7 +714,9 @@ export function validateFitAssessmentResult(
     } else {
       limitationContent.add(contentKey);
     }
-    limitationsById.set(limitation.limitationId, limitation);
+    if (!limitationsById.has(limitation.limitationId)) {
+      limitationsById.set(limitation.limitationId, limitation);
+    }
   }
 
   addDuplicateIdIssues(
@@ -699,7 +724,9 @@ export function validateFitAssessmentResult(
     result.unknowns.map((unknown) => unknown.unknownId),
     'unknowns',
   );
-  const unknownsById = new Map<MaterialUnknownId, MaterialUnknown>();
+  const unknownsById = new Map<MaterialUnknownId, MaterialUnknown>(
+    supplied.unknowns,
+  );
   for (const [index, unknown] of result.unknowns.entries()) {
     const path = `unknowns[${String(index)}]`;
     addStableIdIssues(issues, unknown.unknownId, `${path}.unknownId`);
@@ -719,7 +746,9 @@ export function validateFitAssessmentResult(
       unknown.scope === 'candidate' ? unknown.candidateId : undefined,
       `${path}.evidenceReferences`,
     );
-    unknownsById.set(unknown.unknownId, unknown);
+    if (!unknownsById.has(unknown.unknownId)) {
+      unknownsById.set(unknown.unknownId, unknown);
+    }
   }
 
   addDuplicateIdIssues(
@@ -760,7 +789,7 @@ export function validateFitAssessmentResult(
     );
     if (
       claim.direction === 'favorable' &&
-      result.unknowns.some(
+      [...unknownsById.values()].some(
         (unknown) =>
           unknown.topic === claim.topic &&
           (unknown.scope === 'assessment' ||
@@ -919,9 +948,9 @@ export function validateFitAssessmentResult(
     validateCatalogCoverage(
       issues,
       assessmentByCandidate,
-      result.candidateLimitations,
+      [...limitationsById.values()],
       result.inferences,
-      result.unknowns,
+      [...unknownsById.values()],
       result.claims,
       result.hardConstraintConflicts,
     );
@@ -972,7 +1001,34 @@ export function validateFitAssessmentExchange(
   if (!requestValidation.ok) {
     prefixIssues(issues, 'request', requestValidation.issues);
   }
-  const resultValidation = validateFitAssessmentResult(result);
+  const suppliedEvidence = new Map<EvidenceId, EvidenceObservation>();
+  const suppliedLimitations = new Map<LimitationId, CandidateLimitation>();
+  const suppliedUnknowns = new Map<
+    MaterialUnknownId,
+    Extract<MaterialUnknown, { readonly scope: 'candidate' }>
+  >();
+  for (const dossier of request.candidateDossiers) {
+    for (const observation of dossier.evidence) {
+      if (!suppliedEvidence.has(observation.evidenceId)) {
+        suppliedEvidence.set(observation.evidenceId, observation);
+      }
+    }
+    for (const limitation of dossier.limitations) {
+      if (!suppliedLimitations.has(limitation.limitationId)) {
+        suppliedLimitations.set(limitation.limitationId, limitation);
+      }
+    }
+    for (const unknown of dossier.unknowns) {
+      if (!suppliedUnknowns.has(unknown.unknownId)) {
+        suppliedUnknowns.set(unknown.unknownId, unknown);
+      }
+    }
+  }
+  const resultValidation = validateFitAssessmentResultWithCatalogs(result, {
+    evidence: suppliedEvidence,
+    limitations: suppliedLimitations,
+    unknowns: suppliedUnknowns,
+  });
   if (!resultValidation.ok) {
     prefixIssues(issues, 'result', resultValidation.issues);
   }
@@ -993,23 +1049,6 @@ export function validateFitAssessmentExchange(
     addIssue(issues, 'exchange.evidence-cutoff', 'result.evidenceCutoff');
   }
 
-  const suppliedEvidence = new Map<EvidenceId, EvidenceObservation>();
-  const suppliedLimitations = new Map<LimitationId, CandidateLimitation>();
-  const suppliedUnknowns = new Map<
-    MaterialUnknownId,
-    Extract<MaterialUnknown, { readonly scope: 'candidate' }>
-  >();
-  for (const dossier of request.candidateDossiers) {
-    for (const observation of dossier.evidence) {
-      suppliedEvidence.set(observation.evidenceId, observation);
-    }
-    for (const limitation of dossier.limitations) {
-      suppliedLimitations.set(limitation.limitationId, limitation);
-    }
-    for (const unknown of dossier.unknowns) {
-      suppliedUnknowns.set(unknown.unknownId, unknown);
-    }
-  }
   for (const observation of result.evidence) {
     const supplied = suppliedEvidence.get(observation.evidenceId);
     if (supplied === undefined) {
@@ -1017,15 +1056,6 @@ export function validateFitAssessmentExchange(
     } else if (supplied.candidateId !== observation.candidateId) {
       addIssue(issues, 'exchange.evidence-ownership', 'result.evidence');
     } else if (!sameEvidenceObservation(supplied, observation)) {
-      addIssue(issues, 'exchange.evidence-preservation', 'result.evidence');
-    }
-  }
-  const resultEvidence = new Map(
-    result.evidence.map((observation) => [observation.evidenceId, observation]),
-  );
-  for (const supplied of suppliedEvidence.values()) {
-    const retained = resultEvidence.get(supplied.evidenceId);
-    if (retained === undefined) {
       addIssue(issues, 'exchange.evidence-preservation', 'result.evidence');
     }
   }

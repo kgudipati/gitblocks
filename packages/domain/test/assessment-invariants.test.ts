@@ -506,6 +506,29 @@ describe('request/result consistency', () => {
     ).toBe(true);
   });
 
+  it('accepts references to supplied evidence without a response echo', () => {
+    const result = createFitAssessmentResult();
+    result.evidence = [];
+
+    expect(
+      validateFitAssessmentExchange(createFitAssessmentRequest(), result),
+    ).toMatchObject({ ok: true });
+  });
+
+  it('rejects an invented evidence reference when supplied evidence is not echoed', () => {
+    const result = createFitAssessmentResult();
+    result.evidence = [];
+    result.claims[0]!.evidenceReferences = [
+      evidenceReference('alpha', 'invented-evidence'),
+    ];
+
+    expect(
+      codes(
+        validateFitAssessmentExchange(createFitAssessmentRequest(), result),
+      ),
+    ).toContain('reference.unknown-evidence');
+  });
+
   it('rejects a response for a different supplied candidate set', () => {
     const result = createFitAssessmentResult();
     result.suppliedCandidateIds[1] = candidateId('gamma');

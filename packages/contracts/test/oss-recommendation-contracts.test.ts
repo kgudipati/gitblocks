@@ -7,15 +7,18 @@ import {
   getContractSchemaV1,
   normalizeCapabilityQueryV1,
   parseOssRecommendationRequestV1,
+  parseRecommendationAssessmentModelResponseV1,
   parseRecommendationAssessmentResponseV1,
   parseTargetFitAssessmentResponseV1,
   repositoryFingerprintDigestV1,
   validateRecommendationAssessmentExchangeV1,
+  validateRecommendationModelAssessmentExchangeV1,
   validateTargetFitAssessmentExchangeV1,
   type CapabilityQueryInputV1,
   type CapabilityTaxonomyV1,
   type OssRecommendationRequestV1,
   type RecommendationAssessmentResponseV1,
+  type RecommendationAssessmentModelResponseV1,
   type RecommendationRetrievalFinalistV1,
   type TargetFitAssessmentResponseV1,
 } from '../src/index.ts';
@@ -268,21 +271,27 @@ describe('TargetFitAssessmentResponseV1 repository grounding', () => {
     });
   });
 
-  it('retains the existing fit exchange evidence-preservation authority', () => {
+  it('allows omitted supplied evidence but rejects a differing declared copy', () => {
     const { request, response } = createGroundedExchange();
     const droppedEvidence = cloneValue(response);
     droppedEvidence.fitAssessment.evidence =
       droppedEvidence.fitAssessment.evidence.slice(0, 1);
     expect(
       validateTargetFitAssessmentExchangeV1(request, droppedEvidence),
-    ).toMatchObject({ ok: false });
+    ).toMatchObject({ ok: true });
 
     const inventedEvidence = cloneValue(response);
     inventedEvidence.fitAssessment.evidence[0]!.observation =
       'Invented replacement evidence.';
-    expect(
-      validateTargetFitAssessmentExchangeV1(request, inventedEvidence),
-    ).toMatchObject({ ok: false });
+    const validation = validateTargetFitAssessmentExchangeV1(
+      request,
+      inventedEvidence,
+    );
+    expect(validation.ok).toBe(false);
+    if (validation.ok) return;
+    expect(validation.issues.map(({ code }) => code)).toContain(
+      'domain.exchange.evidence-preservation',
+    );
   });
 });
 
@@ -306,11 +315,194 @@ describe('RecommendationAssessmentResponseV1', () => {
     });
   });
 
+  it('defines a compact model contract and hydrates trusted response-owned fields', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.response);
+
+    expect(parseRecommendationAssessmentModelResponseV1(compact)).toMatchObject(
+      {
+        ok: true,
+      },
+    );
+    expect(compact.targetFitAssessment.fitAssessment).not.toHaveProperty(
+      'assessmentId',
+    );
+    expect(compact.targetFitAssessment.fitAssessment).not.toHaveProperty(
+      'producedAt',
+    );
+    expect(compact.targetFitAssessment.fitAssessment).not.toHaveProperty(
+      'evidence',
+    );
+    expect(compact.targetFitAssessment.fitAssessment).not.toHaveProperty(
+      'candidateLimitations',
+    );
+    for (const applicationOwnedField of [
+      { assessmentId: 'assessment-model-controlled' },
+      { producedAt: exchange.request.evidenceCutoff },
+    ]) {
+      expect(
+        parseRecommendationAssessmentModelResponseV1({
+          ...compact,
+          targetFitAssessment: {
+            ...compact.targetFitAssessment,
+            fitAssessment: {
+              ...compact.targetFitAssessment.fitAssessment,
+              ...applicationOwnedField,
+            },
+          },
+        }),
+      ).toMatchObject({ ok: false });
+    }
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-hydrated',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation).toMatchObject({ ok: true });
+    if (!validation.ok) return;
+    expect(validation.response.targetFitAssessment.fitAssessment).toMatchObject(
+      {
+        assessmentId: 'assessment-hydrated',
+        assessmentRequestId: exchange.request.assessmentRequestId,
+        correlationId: exchange.request.correlationId,
+        evidenceCutoff: exchange.request.evidenceCutoff,
+        producedAt: exchange.request.evidenceCutoff,
+        evidence: exchange.request.candidates.flatMap(
+          ({ observations }) => observations,
+        ),
+        candidateLimitations: exchange.request.candidates.flatMap(
+          ({ limitations }) => limitations,
+        ),
+      },
+    );
+  });
+
+  it('rejects compact declared-record ID collisions before hydration', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.response);
+    const suppliedEvidenceId =
+      exchange.request.candidates[0]?.observations[0]?.evidenceId;
+    if (
+      suppliedEvidenceId === undefined ||
+      compact.targetFitAssessment.fitAssessment.inferences[0] === undefined
+    ) {
+      throw new Error('Compact collision fixture is incomplete.');
+    }
+    compact.targetFitAssessment.fitAssessment.inferences[0].inferenceId =
+      suppliedEvidenceId;
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-collision',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation).toMatchObject({
+      ok: false,
+      issues: [
+        expect.objectContaining({
+          code: 'domain.recommendation-assessment.catalog-id-collision',
+        }),
+      ],
+    });
+  });
+
+  it('rejects invented evidence references in compact model output', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.response);
+    const inference = compact.targetFitAssessment.fitAssessment.inferences[0];
+    if (inference === undefined)
+      throw new Error('Compact inference fixture is incomplete.');
+    inference.evidenceIds = ['evidence-invented'];
+
+    expect(
+      validateRecommendationModelAssessmentExchangeV1({
+        ...exchange,
+        response: compact,
+        assessmentId: 'assessment-invented-evidence',
+        producedAt: exchange.request.evidenceCutoff,
+      }),
+    ).toMatchObject({ ok: false });
+  });
+
+  it.each([
+    [
+      'candidate ownership',
+      'domain.reference.candidate-ownership',
+      (response: RecommendationAssessmentModelResponseV1) => {
+        response.targetFitAssessment.fitAssessment.candidateAssessments[0]!.evidenceIds =
+          ['evidence-beta'];
+      },
+    ],
+    [
+      'inference grounding',
+      'domain.reference.candidate-ownership',
+      (response: RecommendationAssessmentModelResponseV1) => {
+        response.targetFitAssessment.fitAssessment.inferences[0]!.evidenceIds =
+          ['evidence-beta'];
+      },
+    ],
+    [
+      'reason traceability',
+      'domain.reason.traceability',
+      (response: RecommendationAssessmentModelResponseV1) => {
+        const reason =
+          response.targetFitAssessment.fitAssessment.candidateAssessments[0]!
+            .reasons[0]!;
+        reason.evidenceIds = [];
+        reason.inferenceIds = [];
+        reason.unknownIds = [];
+      },
+    ],
+    [
+      'disposition rules',
+      'domain.outcome.disposition',
+      (response: RecommendationAssessmentModelResponseV1) => {
+        for (const assessment of response.targetFitAssessment.fitAssessment
+          .candidateAssessments) {
+          assessment.disposition = 'rejected';
+        }
+      },
+    ],
+  ] as const)(
+    'preserves %s validation',
+    async (_name, expectedCode, mutate) => {
+      const exchange = await createHardResolutionExchange();
+      const compact = compactModelResponse(exchange.response);
+      mutate(compact);
+
+      const validation = validateRecommendationModelAssessmentExchangeV1({
+        ...exchange,
+        response: compact,
+        assessmentId: `assessment-${_name.replaceAll(' ', '-')}`,
+        producedAt: exchange.request.evidenceCutoff,
+      });
+      expect(validation.ok).toBe(false);
+      if (validation.ok) return;
+      expect(validation.issues.map(({ code }) => code)).toContain(expectedCode);
+    },
+  );
+
   it('accepts exact evidence-needed coverage grounded in candidate-owned inferences', async () => {
     const exchange = await createHardResolutionExchange();
-    expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
-      ok: true,
-    });
+    const validation = validateRecommendationAssessmentExchangeV1(exchange);
+    expect(
+      validation.ok,
+      validation.ok ? undefined : JSON.stringify(validation.issues),
+    ).toBe(true);
+  });
+
+  it('accepts hard-resolution inference grounding against supplied evidence without a response echo', async () => {
+    const exchange = await createHardResolutionExchange();
+    exchange.response.targetFitAssessment.fitAssessment.evidence = [];
+
+    const validation = validateRecommendationAssessmentExchangeV1(exchange);
+    expect(
+      validation.ok,
+      validation.ok ? undefined : JSON.stringify(validation.issues),
+    ).toBe(true);
   });
 
   it('binds preserved-declaration evaluations by exact original constraint ID', async () => {
@@ -718,6 +910,34 @@ function sourceConstraintIdForResolution(
   if (source === undefined)
     throw new Error('Resolution source is unavailable.');
   return source;
+}
+
+function compactModelResponse(
+  response: RecommendationAssessmentResponseV1,
+): MutableValue<RecommendationAssessmentModelResponseV1> {
+  const fit = response.targetFitAssessment.fitAssessment;
+  return cloneValue({
+    targetFitAssessment: {
+      fitAssessment: {
+        outcome: fit.outcome,
+        candidateAssessments: fit.candidateAssessments,
+        inferences: fit.inferences,
+        materialClaims: fit.materialClaims,
+        assessmentUnknowns: fit.materialUnknowns.filter(
+          (unknown) => unknown.scope === 'assessment',
+        ),
+        hardConstraintConflicts: fit.hardConstraintConflicts,
+        rankGroups: fit.rankGroups,
+        rankRelations: fit.rankRelations,
+        incomparablePairs: fit.incomparablePairs,
+        assessmentProcessing: fit.assessmentProcessing,
+      },
+      inferenceRepositoryFactBindings:
+        response.targetFitAssessment.inferenceRepositoryFactBindings,
+    },
+    evidenceNeededHardConstraintResolutions:
+      response.evidenceNeededHardConstraintResolutions,
+  });
 }
 
 function createRecommendationRequest(

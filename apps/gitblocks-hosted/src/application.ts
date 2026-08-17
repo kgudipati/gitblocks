@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import {
   createCandidateRetrievalRequestV1,
   createCapabilityRequestFromRecommendationV1,
@@ -9,7 +11,7 @@ import {
   parseDeterministicCandidateProfileAuthorityV1,
   parseFitAssessmentRequestV1,
   parseOssRecommendationRequestV1,
-  validateRecommendationAssessmentExchangeV1,
+  validateRecommendationModelAssessmentExchangeV1,
   type CandidateDossierV1,
   type CandidateRetrievalCandidateV1,
   type CandidateRetrievalAuthorityBindingsV1,
@@ -537,11 +539,22 @@ async function recommendOss(input: {
     input.observer,
     event(requestId, 'model-completed', 'in-progress', dossiers.length),
   );
-  const validated = validateRecommendationAssessmentExchangeV1({
+  const producedAt = trustedTimestamp(input.clock);
+  if (producedAt === null) {
+    return failed(
+      input.observer,
+      requestId,
+      'invalid-target-fit-response',
+      dossiers.length,
+    );
+  }
+  const validated = validateRecommendationModelAssessmentExchangeV1({
     request: fitRequest,
     normalization: normalized.value,
     retrievalFinalists: finalists,
     response: modelOutput,
+    assessmentId: mintRequestBoundAssessmentId(fitRequest),
+    producedAt,
   });
   if (!validated.ok) {
     return failed(
@@ -770,6 +783,18 @@ function trustedTimestamp(clock: HostedRecommendationClockPort): string | null {
   } catch {
     return null;
   }
+}
+
+function mintRequestBoundAssessmentId(request: FitAssessmentRequestV1): string {
+  const digest = createHash('sha256')
+    .update('gitblocks-fit-assessment-v1\0', 'utf8')
+    .update(request.assessmentRequestId, 'utf8')
+    .update('\0', 'utf8')
+    .update(request.correlationId, 'utf8')
+    .update('\0', 'utf8')
+    .update(request.evidenceCutoff, 'utf8')
+    .digest('hex');
+  return `assessment-${digest.slice(0, 53)}`;
 }
 
 function successful(
