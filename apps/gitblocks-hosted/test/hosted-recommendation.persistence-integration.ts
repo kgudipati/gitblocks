@@ -13,9 +13,9 @@ import {
   parseOssRecommendationRequestV1,
   parseRepositoryFingerprintV1,
   repositoryFingerprintDigestV1,
-  validateRecommendationAssessmentExchangeV1,
+  validateRecommendationModelAssessmentExchangeV1,
   type OssRecommendationRequestV1,
-  type RecommendationAssessmentResponseV1,
+  type RecommendationAssessmentModelResponseV1,
   type RepositoryFingerprintV1,
 } from '@gitblocks/contracts';
 import type {
@@ -396,11 +396,13 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
     const model = vi.fn((input: FitAssessmentModelRequestV1) => {
       const response = controlledEvidenceNeededResponse(input);
       groundPositiveResolutionsInArtifact(response, input);
-      const validation = validateRecommendationAssessmentExchangeV1({
+      const validation = validateRecommendationModelAssessmentExchangeV1({
         request: input.fitAssessmentRequest,
         normalization: input.normalization,
         retrievalFinalists: input.retrievalFinalists,
         response,
+        assessmentId: 'assessment-persistence-integration',
+        producedAt: EVIDENCE_CUTOFF,
       });
       modelValidationIssues = validation.ok ? [] : validation.issues;
       return Promise.resolve(response);
@@ -614,7 +616,7 @@ function executeScanner(
 }
 
 function bindRepositoryFact(
-  response: RecommendationAssessmentResponseV1,
+  response: RecommendationAssessmentModelResponseV1,
   repositoryFactId: string,
 ): void {
   const binding =
@@ -806,7 +808,7 @@ async function seedBackgroundJobArtifactEvidence(
 
 function controlledEvidenceNeededResponse(
   input: FitAssessmentModelRequestV1,
-): RecommendationAssessmentResponseV1 {
+): RecommendationAssessmentModelResponseV1 {
   const response = structuredClone(groundedModelResponse(input));
   const candidateId = input.retrievalFinalists[1]?.candidateId;
   if (candidateId === undefined)
@@ -883,7 +885,7 @@ function controlledEvidenceNeededResponse(
 }
 
 function groundPositiveResolutionsInArtifact(
-  response: RecommendationAssessmentResponseV1,
+  response: RecommendationAssessmentModelResponseV1,
   input: FitAssessmentModelRequestV1,
 ): void {
   const candidateId = input.retrievalFinalists[0]?.candidateId;
@@ -909,7 +911,7 @@ function groundPositiveResolutionsInArtifact(
 }
 
 function promoteUnresolvedCandidate(
-  response: RecommendationAssessmentResponseV1,
+  response: RecommendationAssessmentModelResponseV1,
 ): void {
   const unresolved = response.evidenceNeededHardConstraintResolutions.find(
     ({ state }) => state === 'unresolved',
@@ -922,7 +924,7 @@ function promoteUnresolvedCandidate(
 }
 
 function promoteConflictCandidate(
-  response: RecommendationAssessmentResponseV1,
+  response: RecommendationAssessmentModelResponseV1,
 ): void {
   const conflict = response.evidenceNeededHardConstraintResolutions.find(
     ({ state }) => state === 'conflict',
@@ -979,7 +981,9 @@ function knownField<
   return field;
 }
 
-function inventRepositoryFact(value: RecommendationAssessmentResponseV1): void {
+function inventRepositoryFact(
+  value: RecommendationAssessmentModelResponseV1,
+): void {
   const binding = value.targetFitAssessment.inferenceRepositoryFactBindings[0];
   if (binding !== undefined) binding.repositoryFactIds = ['fact-invented'];
 }

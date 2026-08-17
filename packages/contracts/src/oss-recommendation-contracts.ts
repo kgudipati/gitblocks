@@ -16,6 +16,7 @@ import {
 import type { CandidateRetrievalCandidateV1 } from './candidate-retrieval-schemas.ts';
 import type {
   OssRecommendationRequestV1,
+  RecommendationAssessmentModelResponseV1,
   RecommendationAssessmentResponseV1,
   TargetFitAssessmentResponseV1,
 } from './oss-recommendation-schemas.ts';
@@ -32,6 +33,7 @@ import type {
 } from './schemas.ts';
 import {
   ossRecommendationRequestV1Validator,
+  recommendationAssessmentModelResponseV1Validator,
   recommendationAssessmentResponseV1Validator,
   structurallyValidate,
   targetFitAssessmentResponseV1Validator,
@@ -246,28 +248,51 @@ export function parseRecommendationAssessmentResponseV1(
   };
 }
 
+export function parseRecommendationAssessmentModelResponseV1(
+  value: unknown,
+): ContractParseResult<
+  RecommendationAssessmentModelResponseV1,
+  RecommendationAssessmentModelResponseV1
+> {
+  const structural = structurallyValidate(
+    value,
+    recommendationAssessmentModelResponseV1Validator,
+  );
+  if (!structural.ok) return structural;
+  return {
+    ok: true,
+    value: structural.value,
+    domain: structural.value,
+    issues: [],
+  };
+}
+
 export function validateTargetFitAssessmentExchangeV1(
   request: FitAssessmentRequestV1,
   response: unknown,
 ): TargetFitAssessmentExchangeValidationResult {
-  const parsedResponse = parseTargetFitAssessmentResponseV1(response);
-  if (!parsedResponse.ok) return parsedResponse;
+  const structuralResponse = structurallyValidate(
+    response,
+    targetFitAssessmentResponseV1Validator,
+  );
+  if (!structuralResponse.ok) return structuralResponse;
 
   const fitExchange = validateFitAssessmentExchangeV1(
     request,
-    parsedResponse.value.fitAssessment,
+    structuralResponse.value.fitAssessment,
   );
   if (!fitExchange.ok) return fitExchange;
 
   const issues = finalizeContractIssues([
-    ...repositoryFactBindingIssues(request, parsedResponse.value),
-    ...positiveTargetSupportIssues(parsedResponse.value),
+    ...bindingInferenceIssues(structuralResponse.value),
+    ...repositoryFactBindingIssues(request, structuralResponse.value),
+    ...positiveTargetSupportIssues(structuralResponse.value),
   ]);
   if (issues.length > 0) return { ok: false, issues };
   return {
     ok: true,
     request: fitExchange.request,
-    response: parsedResponse.value,
+    response: structuralResponse.value,
     domain: fitExchange.domain,
     issues: [],
   };
@@ -279,10 +304,11 @@ export function validateRecommendationAssessmentExchangeV1(input: {
   readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
   readonly response: unknown;
 }): RecommendationAssessmentExchangeValidationResult {
-  const parsedResponse = parseRecommendationAssessmentResponseV1(
+  const structuralResponse = structurallyValidate(
     input.response,
+    recommendationAssessmentResponseV1Validator,
   );
-  if (!parsedResponse.ok) return parsedResponse;
+  if (!structuralResponse.ok) return structuralResponse;
 
   const normalization = parseCapabilityQueryNormalizationResultV1(
     input.normalization,
@@ -291,7 +317,7 @@ export function validateRecommendationAssessmentExchangeV1(input: {
 
   const targetFit = validateTargetFitAssessmentExchangeV1(
     input.request,
-    parsedResponse.value.targetFitAssessment,
+    structuralResponse.value.targetFitAssessment,
   );
   if (!targetFit.ok) return targetFit;
 
@@ -305,16 +331,152 @@ export function validateRecommendationAssessmentExchangeV1(input: {
       request: input.request,
       normalization: normalization.value,
       retrievalFinalists: input.retrievalFinalists,
-      response: parsedResponse.value,
+      response: structuralResponse.value,
     }),
   ]);
   if (issues.length > 0) return { ok: false, issues };
   return {
     ok: true,
     request: targetFit.request,
-    response: parsedResponse.value,
+    response: structuralResponse.value,
     domain: targetFit.domain,
     issues: [],
+  };
+}
+
+export function validateRecommendationModelAssessmentExchangeV1(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly response: unknown;
+  readonly assessmentId: string;
+  readonly producedAt: string;
+}): RecommendationAssessmentExchangeValidationResult {
+  const parsedResponse = parseRecommendationAssessmentModelResponseV1(
+    input.response,
+  );
+  if (!parsedResponse.ok) return parsedResponse;
+
+  const collisionIssues = compactCatalogCollisionIssues(
+    input.request,
+    parsedResponse.value,
+  );
+  if (collisionIssues.length > 0) {
+    return { ok: false, issues: finalizeContractIssues(collisionIssues) };
+  }
+
+  return validateRecommendationAssessmentExchangeV1({
+    request: input.request,
+    normalization: input.normalization,
+    retrievalFinalists: input.retrievalFinalists,
+    response: hydrateRecommendationAssessmentResponseV1({
+      request: input.request,
+      response: parsedResponse.value,
+      assessmentId: input.assessmentId,
+      producedAt: input.producedAt,
+    }),
+  });
+}
+
+function compactCatalogCollisionIssues(
+  request: FitAssessmentRequestV1,
+  response: RecommendationAssessmentModelResponseV1,
+): readonly ContractIssue[] {
+  const suppliedIds = new Set<string>();
+  for (const candidate of request.candidates) {
+    candidate.observations.forEach(({ evidenceId }) =>
+      suppliedIds.add(evidenceId),
+    );
+    candidate.limitations.forEach(({ limitationId }) =>
+      suppliedIds.add(limitationId),
+    );
+    candidate.unknowns.forEach(({ unknownId }) => suppliedIds.add(unknownId));
+  }
+
+  const fit = response.targetFitAssessment.fitAssessment;
+  const declared: readonly (readonly [string, string])[] = [
+    ...fit.inferences.map(
+      ({ inferenceId }, index) =>
+        [
+          inferenceId,
+          `/targetFitAssessment/fitAssessment/inferences/${String(index)}/inferenceId`,
+        ] as const,
+    ),
+    ...fit.materialClaims.map(
+      ({ claimId }, index) =>
+        [
+          claimId,
+          `/targetFitAssessment/fitAssessment/materialClaims/${String(index)}/claimId`,
+        ] as const,
+    ),
+    ...fit.assessmentUnknowns.map(
+      ({ unknownId }, index) =>
+        [
+          unknownId,
+          `/targetFitAssessment/fitAssessment/assessmentUnknowns/${String(index)}/unknownId`,
+        ] as const,
+    ),
+    ...fit.hardConstraintConflicts.map(
+      ({ conflictId }, index) =>
+        [
+          conflictId,
+          `/targetFitAssessment/fitAssessment/hardConstraintConflicts/${String(index)}/conflictId`,
+        ] as const,
+    ),
+  ];
+  return declared.flatMap(([id, path]) =>
+    suppliedIds.has(id)
+      ? [domainIssue('recommendation-assessment.catalog-id-collision', path)]
+      : [],
+  );
+}
+
+function hydrateRecommendationAssessmentResponseV1(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly response: RecommendationAssessmentModelResponseV1;
+  readonly assessmentId: string;
+  readonly producedAt: string;
+}): RecommendationAssessmentResponseV1 {
+  const fit = input.response.targetFitAssessment.fitAssessment;
+  return {
+    contractVersion: '1.0.0',
+    targetFitAssessment: {
+      contractVersion: '1.0.0',
+      fitAssessment: {
+        contractVersion: '1.0.0',
+        assessmentId: input.assessmentId,
+        assessmentRequestId: input.request.assessmentRequestId,
+        correlationId: input.request.correlationId,
+        outcome: fit.outcome,
+        suppliedCandidateIds: input.request.candidates.map(
+          ({ identity }) => identity.candidateId,
+        ),
+        candidateAssessments: fit.candidateAssessments,
+        evidence: input.request.candidates.flatMap(
+          ({ observations }) => observations,
+        ),
+        inferences: fit.inferences,
+        candidateLimitations: input.request.candidates.flatMap(
+          ({ limitations }) => limitations,
+        ),
+        materialClaims: fit.materialClaims,
+        materialUnknowns: [
+          ...input.request.candidates.flatMap(({ unknowns }) => unknowns),
+          ...fit.assessmentUnknowns,
+        ],
+        hardConstraintConflicts: fit.hardConstraintConflicts,
+        rankGroups: fit.rankGroups,
+        rankRelations: fit.rankRelations,
+        incomparablePairs: fit.incomparablePairs,
+        evidenceCutoff: input.request.evidenceCutoff,
+        producedAt: input.producedAt,
+        assessmentProcessing: fit.assessmentProcessing,
+      },
+      inferenceRepositoryFactBindings:
+        input.response.targetFitAssessment.inferenceRepositoryFactBindings,
+    },
+    evidenceNeededHardConstraintResolutions:
+      input.response.evidenceNeededHardConstraintResolutions,
   };
 }
 
@@ -431,10 +593,16 @@ function hardResolutionIssues(input: {
     ),
   );
   const evidenceById = new Map(
-    input.response.targetFitAssessment.fitAssessment.evidence.map(
-      (evidence) => [evidence.evidenceId, evidence],
+    input.request.candidates.flatMap(({ observations }) =>
+      observations.map((evidence) => [evidence.evidenceId, evidence] as const),
     ),
   );
+  for (const evidence of input.response.targetFitAssessment.fitAssessment
+    .evidence) {
+    if (!evidenceById.has(evidence.evidenceId)) {
+      evidenceById.set(evidence.evidenceId, evidence);
+    }
+  }
   const ranked = rankedCandidateIds(
     input.response.targetFitAssessment.fitAssessment,
   );

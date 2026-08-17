@@ -7,6 +7,7 @@ import {
   stableIdSchema,
 } from './schema-builders.ts';
 import {
+  assessmentUnknownV1Schema,
   fitAssessmentResponseV1ValueSchema,
   repositoryFingerprintV1ValueSchema,
   transmissionApprovalV1Schema,
@@ -63,6 +64,32 @@ const targetFitAssessmentResponseV1ValueSchema = closedObject({
   ),
 });
 
+const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
+  outcome: fitAssessmentResponseV1ValueSchema.properties.outcome,
+  candidateAssessments:
+    fitAssessmentResponseV1ValueSchema.properties.candidateAssessments,
+  inferences: fitAssessmentResponseV1ValueSchema.properties.inferences,
+  materialClaims: fitAssessmentResponseV1ValueSchema.properties.materialClaims,
+  assessmentUnknowns: Type.Array(assessmentUnknownV1Schema, { maxItems: 800 }),
+  hardConstraintConflicts:
+    fitAssessmentResponseV1ValueSchema.properties.hardConstraintConflicts,
+  rankGroups: fitAssessmentResponseV1ValueSchema.properties.rankGroups,
+  rankRelations: fitAssessmentResponseV1ValueSchema.properties.rankRelations,
+  incomparablePairs:
+    fitAssessmentResponseV1ValueSchema.properties.incomparablePairs,
+  assessmentProcessing:
+    fitAssessmentResponseV1ValueSchema.properties.assessmentProcessing,
+});
+
+const recommendationAssessmentModelTargetFitResponseV1ValueSchema =
+  closedObject({
+    fitAssessment: recommendationAssessmentModelFitResponseV1ValueSchema,
+    inferenceRepositoryFactBindings: Type.Array(
+      inferenceRepositoryFactBindingV1Schema,
+      { maxItems: 400 },
+    ),
+  });
+
 export const targetFitAssessmentResponseV1Schema = Type.Object(
   targetFitAssessmentResponseV1ValueSchema.properties,
   {
@@ -88,6 +115,22 @@ export const recommendationAssessmentResponseV1Schema = Type.Object(
   },
 );
 
+export const recommendationAssessmentModelResponseV1Schema = Type.Object(
+  {
+    targetFitAssessment:
+      recommendationAssessmentModelTargetFitResponseV1ValueSchema,
+    evidenceNeededHardConstraintResolutions: Type.Array(
+      evidenceNeededHardConstraintResolutionV1Schema,
+      { maxItems: 320 },
+    ),
+  },
+  {
+    ...SCHEMA_ROOT_OPTIONS,
+    $id: 'https://gitblocks.dev/schemas/contracts/recommendation-assessment-model-response/1.0.0',
+    additionalProperties: false,
+  },
+);
+
 export type OssRecommendationRequestV1 = Static<
   typeof ossRecommendationRequestV1Schema
 >;
@@ -102,4 +145,7 @@ export type TargetFitAssessmentResponseV1 = Static<
 >;
 export type RecommendationAssessmentResponseV1 = Static<
   typeof recommendationAssessmentResponseV1Schema
+>;
+export type RecommendationAssessmentModelResponseV1 = Static<
+  typeof recommendationAssessmentModelResponseV1Schema
 >;

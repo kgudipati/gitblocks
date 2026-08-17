@@ -198,8 +198,11 @@ export function validateFitAssessmentExchangeV1(
   response: FitAssessmentResponseV1,
 ): FitAssessmentExchangeValidationResult {
   const parsedRequest = parseFitAssessmentRequestV1(request);
-  const parsedResponse = parseFitAssessmentResponseV1(response);
-  if (!parsedRequest.ok || !parsedResponse.ok) {
+  const structuralResponse = structurallyValidate(
+    response,
+    fitAssessmentResponseV1Validator,
+  );
+  if (!parsedRequest.ok || !structuralResponse.ok) {
     return {
       ok: false,
       issues: finalizeContractIssues([
@@ -208,15 +211,26 @@ export function validateFitAssessmentExchangeV1(
           '/request',
         ),
         ...prefixIssues(
-          parsedResponse.ok ? [] : parsedResponse.issues,
+          structuralResponse.ok ? [] : structuralResponse.issues,
           '/response',
         ),
       ]),
     };
   }
+  let responseDomain: ReturnType<typeof mapFitAssessmentResponseV1ToDomain>;
+  try {
+    responseDomain = mapFitAssessmentResponseV1ToDomain(
+      structuralResponse.value,
+      parsedRequest.value.candidates.flatMap(
+        ({ observations }) => observations,
+      ),
+    );
+  } catch {
+    return unsafeJavaScriptValueRejection();
+  }
   const exchange = validateFitAssessmentExchange(
     parsedRequest.domain,
-    parsedResponse.domain,
+    responseDomain,
   );
   if (!exchange.ok) {
     return { ok: false, issues: mapDomainIssues(exchange.issues) };
@@ -224,7 +238,7 @@ export function validateFitAssessmentExchangeV1(
   return {
     ok: true,
     request: parsedRequest.value,
-    response: parsedResponse.value,
+    response: structuralResponse.value,
     domain: exchange.value,
     issues: [],
   };

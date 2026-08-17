@@ -161,9 +161,10 @@ export function mapFitAssessmentRequestV1ToDomain(
 
 export function mapFitAssessmentResponseV1ToDomain(
   value: FitAssessmentResponseV1,
+  suppliedEvidence: readonly EvidenceObservationV1[] = [],
 ): FitAssessmentResult {
   const evidenceOwnerById = new Map<string, string>();
-  for (const observation of value.evidence) {
+  for (const observation of [...suppliedEvidence, ...value.evidence]) {
     const previous = evidenceOwnerById.get(observation.evidenceId);
     if (previous === undefined || observation.candidateId < previous) {
       evidenceOwnerById.set(observation.evidenceId, observation.candidateId);

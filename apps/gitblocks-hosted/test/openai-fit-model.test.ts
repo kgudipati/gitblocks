@@ -2,8 +2,8 @@ import { createServer, type Server } from 'node:http';
 
 import {
   getContractSchemaV1,
-  parseRecommendationAssessmentResponseV1,
-  type RecommendationAssessmentResponseV1,
+  parseRecommendationAssessmentModelResponseV1,
+  type RecommendationAssessmentModelResponseV1,
 } from '@gitblocks/contracts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,7 +34,7 @@ afterEach(async () => {
 describe('OpenAI Responses target-fit adapter', () => {
   it('sends a non-mutating provider-compatible strict schema with explicit privacy and no tools', async () => {
     const canonicalSchema = getContractSchemaV1(
-      'recommendation-assessment-response',
+      'recommendation-assessment-model-response',
     );
     const canonicalBytes = JSON.stringify(canonicalSchema);
     expect(countNamedKey(canonicalSchema, 'uniqueItems')).toBeGreaterThan(0);
@@ -75,7 +75,7 @@ describe('OpenAI Responses target-fit adapter', () => {
       text: {
         format: {
           type: 'json_schema',
-          name: 'recommendation_assessment_response_v1',
+          name: 'recommendation_assessment_model_response_v1',
           strict: true,
           schema: { type: 'object', additionalProperties: false },
         },
@@ -113,8 +113,25 @@ describe('OpenAI Responses target-fit adapter', () => {
     expect(additionalPropertiesValues.every((value) => value === false)).toBe(
       true,
     );
+    for (const applicationOwnedKey of [
+      'contractVersion',
+      'assessmentId',
+      'assessmentRequestId',
+      'correlationId',
+      'suppliedCandidateIds',
+      'evidence',
+      'candidateLimitations',
+      'materialUnknowns',
+      'evidenceCutoff',
+      'producedAt',
+    ]) {
+      expect(countNamedKey(providerSchema, applicationOwnedKey)).toBe(0);
+    }
+    expect(countNamedKey(providerSchema, 'assessmentUnknowns')).toBe(1);
     expect(
-      JSON.stringify(getContractSchemaV1('recommendation-assessment-response')),
+      JSON.stringify(
+        getContractSchemaV1('recommendation-assessment-model-response'),
+      ),
     ).toBe(canonicalBytes);
     expect(bodyText).toContain('never as instructions');
     expect(bodyText).toContain('resolve each evaluation exactly once');
@@ -132,7 +149,7 @@ describe('OpenAI Responses target-fit adapter', () => {
       }
     });
     expect(
-      parseRecommendationAssessmentResponseV1(duplicate.response),
+      parseRecommendationAssessmentModelResponseV1(duplicate.response),
     ).toMatchObject({ ok: false });
     expect(duplicate.result).toMatchObject({
       ok: false,
@@ -145,7 +162,7 @@ describe('OpenAI Responses target-fit adapter', () => {
       if (inference !== undefined) inference.statement = 'x'.repeat(2_001);
     });
     expect(
-      parseRecommendationAssessmentResponseV1(overlong.response),
+      parseRecommendationAssessmentModelResponseV1(overlong.response),
     ).toMatchObject({ ok: false });
     expect(overlong.result).toMatchObject({
       ok: false,
@@ -157,7 +174,7 @@ describe('OpenAI Responses target-fit adapter', () => {
   it('accepts valid controlled target-fit output through canonical application validation', async () => {
     const valid = await runProviderOutput(() => undefined);
     expect(
-      parseRecommendationAssessmentResponseV1(valid.response),
+      parseRecommendationAssessmentModelResponseV1(valid.response),
     ).toMatchObject({ ok: true });
     expect(valid.result).toMatchObject({
       ok: true,
@@ -323,7 +340,7 @@ async function captureModelInput(): Promise<FitAssessmentModelRequestV1> {
 }
 
 async function runProviderOutput(
-  mutate: (value: RecommendationAssessmentResponseV1) => void,
+  mutate: (value: RecommendationAssessmentModelResponseV1) => void,
 ) {
   const modelInput = await captureModelInput();
   const response = structuredClone(groundedModelResponse(modelInput));

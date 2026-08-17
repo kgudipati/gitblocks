@@ -1,6 +1,6 @@
 import type {
   CandidateRetrievalResultV1,
-  RecommendationAssessmentResponseV1,
+  RecommendationAssessmentModelResponseV1,
 } from '@gitblocks/contracts';
 import type { CandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
 import { describe, expect, it, vi } from 'vitest';
@@ -87,6 +87,14 @@ describe('hosted OSS recommendation application', () => {
       ),
     ).toBe(true);
     expect(outcome.result.evidenceNeededHardConstraintResolutions).toEqual([]);
+    const fitAssessment = outcome.result.targetFitAssessment.fitAssessment;
+    expect(fitAssessment.assessmentId).toMatch(/^assessment-[0-9a-f]{53}$/u);
+    expect(fitAssessment).toMatchObject({
+      assessmentRequestId: 'recommend-happy',
+      correlationId: 'recommend-happy',
+      evidenceCutoff: TEST_EVIDENCE_CUTOFF,
+      producedAt: TEST_EVIDENCE_CUTOFF,
+    });
   });
 
   it.each([
@@ -438,7 +446,7 @@ describe('hosted OSS recommendation application', () => {
   it.each([
     ['restored candidate', restoreCandidate],
     ['invented evidence', inventEvidence],
-    ['dropped evidence', dropEvidence],
+    ['untraceable reason', removeReasonTraceability],
     ['invented repository fact', inventRepositoryFact],
     ['viable hard conflict', addPositiveHardConflict],
   ] as const)(
@@ -493,33 +501,43 @@ function fixedEngine(
   });
 }
 
-function restoreCandidate(value: RecommendationAssessmentResponseV1): void {
-  value.targetFitAssessment.fitAssessment.suppliedCandidateIds[0] =
-    'candidate-invented';
+function restoreCandidate(
+  value: RecommendationAssessmentModelResponseV1,
+): void {
+  const first = value.targetFitAssessment.fitAssessment.candidateAssessments[0];
+  if (first !== undefined) first.candidateId = 'candidate-invented';
 }
 
-function inventEvidence(value: RecommendationAssessmentResponseV1): void {
-  const first = value.targetFitAssessment.fitAssessment.evidence[0];
-  if (first !== undefined) first.observation = 'Invented evidence text.';
+function inventEvidence(value: RecommendationAssessmentModelResponseV1): void {
+  const first = value.targetFitAssessment.fitAssessment.inferences[0];
+  if (first !== undefined) first.evidenceIds = ['evidence-invented'];
 }
 
-function dropEvidence(value: RecommendationAssessmentResponseV1): void {
-  value.targetFitAssessment.fitAssessment.evidence =
-    value.targetFitAssessment.fitAssessment.evidence.slice(1);
+function removeReasonTraceability(
+  value: RecommendationAssessmentModelResponseV1,
+): void {
+  const first =
+    value.targetFitAssessment.fitAssessment.candidateAssessments[0]?.reasons[0];
+  if (first === undefined) return;
+  first.evidenceIds = [];
+  first.inferenceIds = [];
+  first.unknownIds = [];
 }
 
-function inventRepositoryFact(value: RecommendationAssessmentResponseV1): void {
+function inventRepositoryFact(
+  value: RecommendationAssessmentModelResponseV1,
+): void {
   const first = value.targetFitAssessment.inferenceRepositoryFactBindings[0];
   if (first !== undefined) first.repositoryFactIds = ['fact-invented'];
 }
 
 function addPositiveHardConflict(
-  value: RecommendationAssessmentResponseV1,
+  value: RecommendationAssessmentModelResponseV1,
 ): void {
   const assessment =
     value.targetFitAssessment.fitAssessment.candidateAssessments[0];
-  const evidence = value.targetFitAssessment.fitAssessment.evidence[0];
-  if (assessment === undefined || evidence === undefined) return;
+  const evidenceId = assessment?.evidenceIds[0];
+  if (assessment === undefined || evidenceId === undefined) return;
   assessment.hardConstraintConflictIds = ['conflict-invented'];
   value.targetFitAssessment.fitAssessment.hardConstraintConflicts = [
     {
@@ -527,7 +545,7 @@ function addPositiveHardConflict(
       candidateId: assessment.candidateId,
       constraintId: 'constraint-invented',
       reasonCode: 'constraint-invented',
-      evidenceIds: [evidence.evidenceId],
+      evidenceIds: [evidenceId],
     },
   ];
 }
