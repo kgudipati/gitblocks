@@ -64,19 +64,78 @@ describe('capability retrieval expansion authority', () => {
       taxonomySemanticDigest:
         '838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9',
       semanticDigest:
-        '1435521e117e2af18ec55bbf1f30e3f5d2f48fe07d54f0c657917ff027086f4a',
+        '0068e4e007ce87abd3bf80fed0918b04d9f225a0c32a1aa924a1284865c54948',
     });
-    expect(authority.edges).toHaveLength(144);
+    expect(authority.edges).toHaveLength(170);
     expect(
       new Set(authority.edges.map(({ sourceConceptId }) => sourceConceptId))
         .size,
-    ).toBe(49);
+    ).toBe(55);
     expect(buildCapabilityRetrievalExpansionV1(source, taxonomy)).toEqual(
       authority,
     );
     expect(serializeCapabilityRetrievalExpansionV1(authority)).toBe(
       await readFile(manifestPath, 'utf8'),
     );
+  });
+
+  it('contains reviewed documentation language for every baseline concept that previously had no corpus match', () => {
+    const addedTerms = Object.fromEntries(
+      source.rules
+        .filter(({ sourceConceptId }) =>
+          [
+            'external-hosted-service',
+            'framework-authorization-middleware',
+            'job-uniqueness-deduplication',
+            'rate-limit-failure-mode',
+            'replay-protection',
+            'sensitive-field-handling',
+            'webhook-idempotency',
+          ].includes(sourceConceptId),
+        )
+        .map(({ sourceConceptId, targetTerms }) => [
+          sourceConceptId,
+          targetTerms,
+        ]),
+    );
+
+    expect(addedTerms).toEqual({
+      'external-hosted-service': ['cloud-hosted'],
+      'framework-authorization-middleware': [
+        'guard',
+        'guards',
+        'middleware',
+        'middlewares',
+      ],
+      'job-uniqueness-deduplication': [
+        'deduplicate',
+        'deduplicated',
+        'deduplication',
+        'idempotent',
+        'unique',
+      ],
+      'rate-limit-failure-mode': [
+        'failover',
+        'insurance',
+        'passonstoreerror',
+        'skiponerror',
+        'unavailable',
+      ],
+      'replay-protection': ['replay', 'tolerance'],
+      'sensitive-field-handling': [
+        'masked',
+        'masking',
+        'redact',
+        'redacted',
+        'redaction',
+      ],
+      'webhook-idempotency': [
+        'duplicate',
+        'duplication',
+        'idempotent',
+        'idempotency',
+      ],
+    });
   });
 
   it('keeps source and generated authority closed, bounded, and exact-versioned', () => {

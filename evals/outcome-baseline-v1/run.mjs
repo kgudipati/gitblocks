@@ -3,6 +3,7 @@
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { isDeepStrictEqual } from 'node:util';
 
 import {
@@ -212,16 +213,32 @@ async function main() {
   const fixtures = await loadFixtures();
   const database = readDatabaseConfiguration(process.env);
   const modelCaptures = new Map();
+  const modelMeasurements = new Map();
+  const providerMeasurements = new Map();
+  const providerMeasurementPromises = [];
   let modelCalls = 0;
   let delegateModel = null;
   let modelEnvironmentMissing = false;
+  let activeModelRequestId = null;
+  const measuredFetch = async (resource, init) => {
+    const requestId = activeModelRequestId;
+    const response = await globalThis.fetch(resource, init);
+    if (requestId !== null) {
+      providerMeasurementPromises.push(
+        captureProviderMeasurement(
+          requestId,
+          response.clone(),
+          providerMeasurements,
+        ),
+      );
+    }
+    return response;
+  };
   const fitModel = Object.freeze({
     assess: async (input) => {
       modelCalls += 1;
-      modelCaptures.set(
-        input.fitAssessmentRequest.assessmentRequestId,
-        captureModelInput(input),
-      );
+      const requestId = input.fitAssessmentRequest.assessmentRequestId;
+      modelCaptures.set(requestId, captureModelInput(input));
       const apiKey = process.env.OPENAI_API_KEY;
       if (apiKey === undefined || apiKey.length === 0) {
         modelEnvironmentMissing = true;
@@ -229,8 +246,32 @@ async function main() {
       }
       delegateModel ??= createOpenAiFitAssessmentModel({
         configuration: Object.freeze({ apiKey, model: HOSTED_FIT_MODEL }),
+        fetch: measuredFetch,
       });
-      return delegateModel.assess(input);
+      const startedAt = performance.now();
+      activeModelRequestId = requestId;
+      try {
+        const response = await delegateModel.assess(input);
+        modelMeasurements.set(
+          requestId,
+          Object.freeze({
+            completed: true,
+            latencyMs: performance.now() - startedAt,
+          }),
+        );
+        return response;
+      } catch (error) {
+        modelMeasurements.set(
+          requestId,
+          Object.freeze({
+            completed: false,
+            latencyMs: performance.now() - startedAt,
+          }),
+        );
+        throw error;
+      } finally {
+        activeModelRequestId = null;
+      }
     },
   });
   const eventsByRequestId = new Map();
@@ -263,9 +304,11 @@ async function main() {
           operation,
           modelCapture: modelCaptures.get(fixture.fixtureId) ?? null,
           events: eventsByRequestId.get(fixture.fixtureId) ?? [],
+          modelMeasurement: modelMeasurements.get(fixture.fixtureId) ?? null,
         }),
       );
     }
+    await Promise.all(providerMeasurementPromises);
     if (modelEnvironmentMissing) {
       throw new BaselineError('outcome-baseline.environment-missing');
     }
@@ -290,7 +333,7 @@ async function main() {
     throw new BaselineError('outcome-baseline.measurements-missing');
   }
 
-  const report = renderReport(measurements, modelCalls);
+  const report = renderReport(measurements, modelCalls, providerMeasurements);
   await mkdir(resolve(REPORT_PATH, '..'), { recursive: true });
   await writeFile(REPORT_PATH, report, 'utf8');
   console.log(
@@ -520,7 +563,36 @@ function captureModelInput(input) {
   });
 }
 
+async function captureProviderMeasurement(requestId, response, destination) {
+  try {
+    const decoded = await response.json();
+    if (!isRecord(decoded)) return;
+    const usage = decoded.usage;
+    destination.set(
+      requestId,
+      Object.freeze({
+        providerCompleted: decoded.status === 'completed',
+        outputTokens:
+          isRecord(usage) &&
+          Number.isInteger(usage.output_tokens) &&
+          usage.output_tokens >= 0
+            ? usage.output_tokens
+            : null,
+      }),
+    );
+  } catch {
+    // Metrics are best-effort and must not alter the measured operation.
+  }
+}
+
 function measureOperation(input) {
+  const modelCompleted = input.events.some(
+    ({ stage }) => stage === 'model-completed',
+  );
+  const model = Object.freeze({
+    completed: modelCompleted && input.modelMeasurement?.completed === true,
+    latencyMs: input.modelMeasurement?.latencyMs ?? null,
+  });
   if (!input.operation.ok) {
     return Object.freeze({
       fixtureId: input.fixture.fixtureId,
@@ -530,6 +602,8 @@ function measureOperation(input) {
       reason: failureReason(input.operation.failure),
       insufficientEvidence: null,
       recommendation: null,
+      model,
+      deterministicallyValidResponse: false,
     });
   }
   const result = input.operation.result;
@@ -548,6 +622,8 @@ function measureOperation(input) {
       result.outcome === 'recommend'
         ? recommendationMeasurement(result, input.modelCapture)
         : null,
+    model,
+    deterministicallyValidResponse: model.completed,
   });
 }
 
@@ -652,18 +728,36 @@ function recommendationMeasurement(result, modelCapture) {
       finalist.lane,
     ]),
   );
-  let eligibleLaneOptions = 0;
-  let evidenceNeededLaneOptions = 0;
-  for (const option of result.responsibleOptions) {
+  const assessmentByCandidateId = new Map(
+    result.targetFitAssessment.fitAssessment.candidateAssessments.map(
+      (assessment) => [assessment.candidateId, assessment],
+    ),
+  );
+  const options = result.responsibleOptions.map((option) => {
     const lane = laneByCandidateId.get(option.candidateId);
-    if (lane === 'eligible') eligibleLaneOptions += 1;
-    else if (lane === 'evidence-needed') evidenceNeededLaneOptions += 1;
-    else throw new BaselineError('outcome-baseline.option-lane-missing');
-  }
+    const assessment = assessmentByCandidateId.get(option.candidateId);
+    if (
+      (lane !== 'eligible' && lane !== 'evidence-needed') ||
+      assessment === undefined
+    ) {
+      throw new BaselineError('outcome-baseline.option-lane-missing');
+    }
+    return Object.freeze({
+      candidateId: option.candidateId,
+      lane,
+      evidenceReferences: Object.freeze([...assessment.evidenceIds]),
+      materialUnknowns: Object.freeze([...assessment.unknownIds]),
+      disposition: assessment.disposition,
+    });
+  });
   return Object.freeze({
     optionCount: result.responsibleOptions.length,
-    eligibleLaneOptions,
-    evidenceNeededLaneOptions,
+    eligibleLaneOptions: options.filter(({ lane }) => lane === 'eligible')
+      .length,
+    evidenceNeededLaneOptions: options.filter(
+      ({ lane }) => lane === 'evidence-needed',
+    ).length,
+    options: Object.freeze(options),
   });
 }
 
@@ -681,14 +775,14 @@ function projectedFinalists(shortlist) {
   ];
 }
 
-function renderReport(measurements, modelCalls) {
+function renderReport(measurements, modelCalls, providerMeasurements) {
   const aggregate = countsByOutcome(measurements);
   const lines = [
     '# Outcome baseline v1',
     '',
     'Reproduce from the repository root with `pnpm outcome:baseline:v1`.',
     '',
-    'This report contains no request prose, candidate names, or model output text.',
+    'This report contains no request prose, candidate display names, or model output text.',
     '',
     '## Aggregate outcome counts',
     '',
@@ -795,13 +889,114 @@ function renderReport(measurements, modelCalls) {
       ),
       '',
     );
+    lines.push(
+      '### Recommended option detail',
+      '',
+      ...markdownTable(
+        [
+          'Fixture',
+          'Candidate ID',
+          'Lane',
+          'Evidence references',
+          'Material unknowns',
+          'Disposition',
+        ],
+        recommendations.flatMap((measurement) =>
+          measurement.recommendation.options.map((option) => [
+            measurement.fixtureId,
+            option.candidateId,
+            option.lane,
+            bracketed(option.evidenceReferences),
+            bracketed(option.materialUnknowns),
+            option.disposition,
+          ]),
+        ),
+        ['left', 'left', 'left', 'left', 'left', 'left'],
+      ),
+      '',
+    );
   }
+  const completed = measurements.filter(({ model }) => model.completed);
+  const deterministicallyValid = measurements.filter(
+    ({ deterministicallyValidResponse }) => deterministicallyValidResponse,
+  );
+  const latencies = completed
+    .map(({ model }) => model.latencyMs)
+    .filter((value) => typeof value === 'number');
+  const outputTokens = completed
+    .map(({ fixtureId }) => providerMeasurements.get(fixtureId)?.outputTokens)
+    .filter((value) => Number.isInteger(value));
   lines.push(
     '## Model calls',
     '',
     `Total model calls made: ${String(modelCalls)}.`,
+    '',
+    `Completed model calls: ${String(completed.length)}.`,
+    '',
+    `Deterministically valid responses: ${String(deterministicallyValid.length)}.`,
+    '',
+    `Median completed-call latency: ${formatMetric(median(latencies), ' ms')}.`,
+    '',
+    `Maximum completed-call latency: ${formatMetric(maximum(latencies), ' ms')}.`,
+    '',
+    `Median output tokens: ${formatMetric(median(outputTokens), '')}.`,
+    '',
+    '## Failure categories',
+    '',
   );
-  return `${lines.join('\n')}\n`;
+  const failures = failureCategoryRows(measurements);
+  if (failures.length === 0) {
+    lines.push('No failed calls.', '');
+  } else {
+    lines.push(
+      ...markdownTable(['Category', 'Calls', 'Occurrences'], failures, [
+        'left',
+        'right',
+        'right',
+      ]),
+      '',
+    );
+  }
+  return `${lines.join('\n').trimEnd()}\n`;
+}
+
+function failureCategoryRows(measurements) {
+  const categories = new Map();
+  for (const measurement of measurements) {
+    if (measurement.outcome !== 'failed') continue;
+    const category = measurement.reason ?? 'unknown-failure';
+    const existing = categories.get(category) ?? {
+      calls: new Set(),
+      occurrences: 0,
+    };
+    existing.calls.add(measurement.fixtureId);
+    existing.occurrences += 1;
+    categories.set(category, existing);
+  }
+  return [...categories.entries()]
+    .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+    .map(([category, detail]) => [
+      category,
+      String(detail.calls.size),
+      String(detail.occurrences),
+    ]);
+}
+
+function median(values) {
+  if (values.length === 0) return null;
+  const ordered = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length % 2 === 1
+    ? ordered[middle]
+    : (ordered[middle - 1] + ordered[middle]) / 2;
+}
+
+function maximum(values) {
+  return values.length === 0 ? null : Math.max(...values);
+}
+
+function formatMetric(value, suffix) {
+  return value === null ? 'not recorded' : `${value.toFixed(1)}${suffix}`;
 }
 
 function countsByOutcome(measurements) {

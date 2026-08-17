@@ -28,6 +28,39 @@ const MARKDOWN_REFERENCE_DEFINITION =
   /^\[[^[\]\r\n]{1,200}\]: (?:<[^<>\s]+>|\S+)(?: (?:"[^"\r\n]*"|'[^'\r\n]*'|\([^()\r\n]*\)))?$/u;
 const PURE_MARKDOWN_LINK_OR_IMAGE_LINE =
   /^(?:(?:[-*+]|\d{1,3}[.)]) )?(?:(?:\[!\[[^\]\r\n]*\]\([^\r\n)]*\)\]\([^\r\n)]*\)|!?\[[^\]\r\n]+\](?:\([^\r\n)]*\)|\[[^\]\r\n]*\])?)(?: )?)+$/u;
+const LICENSE_OR_BOILERPLATE =
+  /\b(?:all rights reserved|copyright|governing permissions and limitations|licensed? under|permission is hereby granted|spdx-license-identifier|terms and conditions|without warrant(?:y|ies))\b/iu;
+const DEFINING_STATEMENT_FORM =
+  /\b(?:allows?|blocks?|built-in|comes? with|defaults? to|ensures?|includes?|is|offers?|prevents?|provides?|requires?|strategy|supports?|uses?|works? with)\b|\bapi\b/iu;
+
+const PROHIBITION_ALTERNATIVE_EVIDENCE_TERMS: Readonly<
+  Record<string, readonly string[]>
+> = Object.freeze({
+  redis: Object.freeze([
+    'built-in memory store',
+    'file-based policy',
+    'in-memory store',
+    'memory limiter',
+    'policy file',
+    'postgresql',
+    'prisma',
+    'sqlite',
+  ]),
+  'external-hosted-service': Object.freeze([
+    'on-prem',
+    'on premises',
+    'run locally',
+    'self hosted',
+    'self-hosted',
+  ]),
+  'separate-control-plane': Object.freeze([
+    'application process',
+    'built-in',
+    'embedded',
+    'in-process',
+    'local library',
+  ]),
+});
 
 export interface LoadedCandidateRepositoryArtifactV1 {
   readonly artifact: RepositoryArtifactV1;
@@ -52,6 +85,8 @@ export interface CandidateArtifactMaterialLoaderPort {
 interface ApprovedTerm {
   readonly value: string;
   readonly precedence: 0 | 1;
+  readonly specificity: 0 | 1 | 2 | 3;
+  readonly searchKind: 'evaluation' | 'prohibition-alternative';
 }
 
 interface MatchingLine {
@@ -60,9 +95,15 @@ interface MatchingLine {
   readonly entryOrdinal: number;
   readonly lineNumber: number;
   readonly normalizedExcerpt: string;
+  readonly boilerplatePenalty: 0 | 1;
+  readonly specificityPenalty: 0 | 1 | 2 | 3;
+  readonly definingStatementPenalty: 0 | 1;
+  readonly markdownContextPenalty: 0 | 1 | 2 | 3;
   readonly termPrecedence: 0 | 1;
   readonly matchOffset: number;
   readonly matchedTerm: string;
+  readonly matchesEvaluationTerm: boolean;
+  readonly matchesProhibitionAlternative: boolean;
 }
 
 export function selectCandidateArtifactEvidenceV1(input: {
@@ -115,7 +156,12 @@ export function selectCandidateArtifactEvidenceV1(input: {
     });
     if (terms.length === 0) continue;
     let selectedForEvaluation = 0;
-    for (const match of matchingLines(input.material, terms)) {
+    const matches = matchingLines(input.material, terms);
+    const orderedMatches =
+      evaluation.modality === 'prohibited'
+        ? balanceProhibitionEvidence(matches)
+        : matches;
+    for (const match of orderedMatches) {
       if (
         observations.length >= capacity ||
         selectedForEvaluation >= MAX_ARTIFACT_EVIDENCE_PER_EVALUATION
@@ -265,20 +311,44 @@ function approvedTermsForEvaluation(input: {
   const primaryTerms = uniqueTerms(primary).map((value) => ({
     value,
     precedence: 0 as const,
+    specificity: 0 as const,
+    searchKind: 'evaluation' as const,
   }));
-  const expansions =
+  const expansion =
     evaluation.conceptId === null
-      ? []
+      ? null
       : expandRetrievalTermsV1(
           [evaluation.conceptId],
           input.retrievalExpansionAuthority,
-        ).expandedTerms;
+        );
   const primaryKeys = new Set(primaryTerms.map(({ value }) => lower(value)));
-  const expansionTerms = uniqueTerms(expansions)
-    .filter((value) => !primaryKeys.has(lower(value)))
-    .map((value) => ({ value, precedence: 1 as const }));
+  const expansionTerms = (expansion?.edgesApplied ?? [])
+    .filter(({ targetTerm }) => !primaryKeys.has(lower(targetTerm)))
+    .map(({ relationshipKind, targetTerm }) => ({
+      value: targetTerm,
+      precedence: 1 as const,
+      specificity:
+        relationshipKind === 'taxonomy-alias' ? (1 as const) : (3 as const),
+      searchKind: 'evaluation' as const,
+    }));
+  const usedKeys = new Set(
+    [...primaryTerms, ...expansionTerms].map(({ value }) => lower(value)),
+  );
+  const alternativeTerms =
+    evaluation.modality === 'prohibited' && evaluation.conceptId !== null
+      ? uniqueTerms(
+          PROHIBITION_ALTERNATIVE_EVIDENCE_TERMS[evaluation.conceptId] ?? [],
+        )
+          .filter((value) => !usedKeys.has(lower(value)))
+          .map((value) => ({
+            value,
+            precedence: 1 as const,
+            specificity: 2 as const,
+            searchKind: 'prohibition-alternative' as const,
+          }))
+      : [];
   return Object.freeze(
-    [...primaryTerms, ...expansionTerms].slice(
+    [...primaryTerms, ...expansionTerms, ...alternativeTerms].slice(
       0,
       MAX_APPROVED_TERMS_PER_EVALUATION,
     ),
@@ -303,9 +373,14 @@ function matchingLines(
     }
     const loaded = artifactsById.get(entry.artifactId);
     if (loaded === undefined) continue;
+    let markdownFence: MarkdownFence | null = null;
     for (const chunk of loaded.chunks) {
       const lines = splitRepositoryArtifactLogicalLines(chunk.content);
       for (const [index, exactLine] of lines.entries()) {
+        const fenceDelimiter = markdownFenceDelimiter(exactLine);
+        const insideMarkdownFence =
+          markdownFence !== null || fenceDelimiter !== null;
+        markdownFence = advanceMarkdownFence(markdownFence, fenceDelimiter);
         const normalizedExcerpt = normalizeExcerpt(exactLine);
         if (
           normalizedExcerpt === null ||
@@ -318,48 +393,119 @@ function matchingLines(
           | {
               readonly term: ApprovedTerm;
               readonly matchOffset: number;
+              readonly markdownContextPenalty: 0 | 1 | 2 | 3;
             }
           | undefined;
+        let matchesEvaluationTerm = false;
+        let matchesProhibitionAlternative = false;
         for (const term of terms) {
-          const matchOffset = normalizedMatchLine.indexOf(lower(term.value));
-          if (
-            matchOffset >= 0 &&
-            (best === undefined ||
-              term.precedence < best.term.precedence ||
-              (term.precedence === best.term.precedence &&
-                (matchOffset < best.matchOffset ||
-                  (matchOffset === best.matchOffset &&
-                    compareAscii(term.value, best.term.value) < 0))))
-          ) {
-            best = { term, matchOffset };
+          const normalizedTerm = lower(term.value);
+          let searchOffset = 0;
+          for (;;) {
+            const matchOffset = normalizedMatchLine.indexOf(
+              normalizedTerm,
+              searchOffset,
+            );
+            if (matchOffset < 0) break;
+            if (term.searchKind === 'evaluation') matchesEvaluationTerm = true;
+            else matchesProhibitionAlternative = true;
+            const markdownContextPenalty = insideMarkdownFence
+              ? 1
+              : markdownMatchContextPenalty(
+                  normalizedExcerpt,
+                  matchOffset,
+                  normalizedTerm.length,
+                );
+            if (
+              best === undefined ||
+              term.specificity < best.term.specificity ||
+              (term.specificity === best.term.specificity &&
+                (markdownContextPenalty < best.markdownContextPenalty ||
+                  (markdownContextPenalty === best.markdownContextPenalty &&
+                    (term.precedence < best.term.precedence ||
+                      (term.precedence === best.term.precedence &&
+                        (matchOffset < best.matchOffset ||
+                          (matchOffset === best.matchOffset &&
+                            compareAscii(term.value, best.term.value) < 0)))))))
+            ) {
+              best = { term, matchOffset, markdownContextPenalty };
+            }
+            searchOffset = matchOffset + Math.max(1, normalizedTerm.length);
           }
         }
         if (best === undefined) continue;
+        const canonicalMatchLine = normalizedMatchLine.replace(/[-_]+/gu, ' ');
+        const namesCanonicalConcept = terms.some(
+          ({ precedence, searchKind, value }) =>
+            precedence === 0 &&
+            searchKind === 'evaluation' &&
+            canonicalMatchLine.includes(lower(value).replace(/[-_]+/gu, ' ')),
+        );
         matches.push({
           artifact: loaded.artifact,
           chunk,
           entryOrdinal: entry.ordinal,
           lineNumber: chunk.startLine + index,
           normalizedExcerpt,
+          boilerplatePenalty: LICENSE_OR_BOILERPLATE.test(normalizedExcerpt)
+            ? 1
+            : 0,
+          specificityPenalty: namesCanonicalConcept ? 0 : best.term.specificity,
+          definingStatementPenalty: isDefiningStatement(normalizedExcerpt)
+            ? 0
+            : 1,
+          markdownContextPenalty: best.markdownContextPenalty,
           termPrecedence: best.term.precedence,
           matchOffset: best.matchOffset,
           matchedTerm: best.term.value,
+          matchesEvaluationTerm,
+          matchesProhibitionAlternative,
         });
       }
     }
   }
-  matches.sort(
-    (left, right) =>
-      left.termPrecedence - right.termPrecedence ||
-      left.entryOrdinal - right.entryOrdinal ||
-      left.chunk.ordinal - right.chunk.ordinal ||
-      left.lineNumber - right.lineNumber ||
-      left.matchOffset - right.matchOffset ||
-      compareAscii(left.matchedTerm, right.matchedTerm) ||
-      compareAscii(left.artifact.artifactId, right.artifact.artifactId) ||
-      compareAscii(left.chunk.chunkId, right.chunk.chunkId),
-  );
+  matches.sort(compareMatchingLines);
   return matches;
+}
+
+function compareMatchingLines(left: MatchingLine, right: MatchingLine): number {
+  return (
+    left.boilerplatePenalty - right.boilerplatePenalty ||
+    left.specificityPenalty - right.specificityPenalty ||
+    left.definingStatementPenalty - right.definingStatementPenalty ||
+    left.markdownContextPenalty - right.markdownContextPenalty ||
+    left.termPrecedence - right.termPrecedence ||
+    left.entryOrdinal - right.entryOrdinal ||
+    left.chunk.ordinal - right.chunk.ordinal ||
+    left.lineNumber - right.lineNumber ||
+    left.matchOffset - right.matchOffset ||
+    compareAscii(left.matchedTerm, right.matchedTerm) ||
+    compareAscii(left.artifact.artifactId, right.artifact.artifactId) ||
+    compareAscii(left.chunk.chunkId, right.chunk.chunkId)
+  );
+}
+
+function balanceProhibitionEvidence(
+  matches: readonly MatchingLine[],
+): readonly MatchingLine[] {
+  const firstEvaluation = matches.find(
+    ({ matchesEvaluationTerm }) => matchesEvaluationTerm,
+  );
+  const firstAlternative = matches.find(
+    ({ matchesProhibitionAlternative }) => matchesProhibitionAlternative,
+  );
+  if (
+    firstEvaluation === undefined ||
+    firstAlternative === undefined ||
+    firstEvaluation === firstAlternative
+  ) {
+    return matches;
+  }
+  const priority = [firstEvaluation, firstAlternative].sort(
+    (left, right) => matches.indexOf(left) - matches.indexOf(right),
+  );
+  const prioritySet = new Set(priority);
+  return [...priority, ...matches.filter((match) => !prioritySet.has(match))];
 }
 
 function evidenceFromMatch(
@@ -428,6 +574,71 @@ function normalizeExcerpt(exactLine: string): string | null {
     !containsControlCodeUnit(normalized)
     ? normalized
     : null;
+}
+
+interface MarkdownFence {
+  readonly marker: '`' | '~';
+  readonly length: number;
+}
+
+function markdownFenceDelimiter(exactLine: string): MarkdownFence | null {
+  const match = /^ {0,3}(?<fence>`{3,}|~{3,})/u.exec(exactLine);
+  const fence = match?.groups?.['fence'];
+  if (fence === undefined) return null;
+  const marker = fence[0];
+  return marker === '`' || marker === '~'
+    ? { marker, length: fence.length }
+    : null;
+}
+
+function advanceMarkdownFence(
+  current: MarkdownFence | null,
+  delimiter: MarkdownFence | null,
+): MarkdownFence | null {
+  if (delimiter === null) return current;
+  if (current === null) return delimiter;
+  return delimiter.marker === current.marker &&
+    delimiter.length >= current.length
+    ? null
+    : current;
+}
+
+function markdownMatchContextPenalty(
+  line: string,
+  matchOffset: number,
+  matchLength: number,
+): 0 | 2 | 3 {
+  const matchEnd = matchOffset + matchLength;
+  for (const pattern of [
+    /!?\[(?<label>[^\]\r\n]*)\]\((?<target>[^)\r\n]*)\)/gu,
+    /!?\[(?<label>[^\]\r\n]*)\]\[(?<target>[^\]\r\n]*)\]/gu,
+  ]) {
+    for (const markdownMatch of line.matchAll(pattern)) {
+      const full = markdownMatch[0];
+      const fullOffset = markdownMatch.index;
+      const label = markdownMatch.groups?.['label'];
+      const target = markdownMatch.groups?.['target'];
+      if (label === undefined || target === undefined) {
+        continue;
+      }
+      const labelRelativeOffset = full.indexOf(label);
+      const targetRelativeOffset = full.lastIndexOf(target);
+      const labelStart = fullOffset + labelRelativeOffset;
+      const labelEnd = labelStart + label.length;
+      const targetStart = fullOffset + targetRelativeOffset;
+      const targetEnd = targetStart + target.length;
+      if (matchOffset >= targetStart && matchEnd <= targetEnd) return 3;
+      if (matchOffset >= labelStart && matchEnd <= labelEnd) return 2;
+    }
+  }
+  return 0;
+}
+
+function isDefiningStatement(value: string): boolean {
+  return (
+    DEFINING_STATEMENT_FORM.test(value) ||
+    /(?:^|\s)[^\s]{1,80}(?::|=)(?:\s|$)/u.test(value)
+  );
 }
 
 function isArtifactEvidenceLineEligible(value: string): boolean {
