@@ -107,13 +107,35 @@ export function evaluateCandidateConstraints(
   }
 
   const primary = evaluatePrimaryFamily(parsedProfile.value, primaryFamilyId);
-  const constraints = input.normalization.normalizedConstraints.map(
-    (constraint) =>
-      evaluateNormalizedConstraint(parsedProfile.value, constraint),
+  const declarationIds = new Set(
+    input.normalization.preservedDeclarations.map(
+      ({ constraintId }) => constraintId,
+    ),
   );
-  const declarations = input.normalization.preservedDeclarations.map(
-    evaluatePreservedDeclaration,
+  const controlledConstraintSourceIds = new Set<string>();
+  const constraints = input.normalization.normalizedConstraints.flatMap(
+    (constraint) => {
+      const controlled =
+        constraint.resolutionBasis === 'controlled-taxonomy' &&
+        constraint.conceptId !== null;
+      if (controlled) {
+        constraint.sourceConstraintIds.forEach((sourceId) =>
+          controlledConstraintSourceIds.add(sourceId),
+        );
+      }
+      const preservedCoverage = constraint.sourceConstraintIds.every(
+        (sourceId) => declarationIds.has(sourceId),
+      );
+      return controlled || !preservedCoverage
+        ? [evaluateNormalizedConstraint(parsedProfile.value, constraint)]
+        : [];
+    },
   );
+  const declarations = input.normalization.preservedDeclarations
+    .filter(
+      ({ constraintId }) => !controlledConstraintSourceIds.has(constraintId),
+    )
+    .map(evaluatePreservedDeclaration);
   const evaluations = [primary, ...constraints, ...declarations];
   const hard = evaluations.filter(
     ({ modality }) => modality === 'required' || modality === 'prohibited',
