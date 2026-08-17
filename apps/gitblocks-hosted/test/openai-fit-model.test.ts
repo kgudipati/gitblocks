@@ -111,8 +111,15 @@ describe('OpenAI Responses target-fit adapter', () => {
     const providerSchema = providerSchemaFromRequest(received.body);
     expect(valuesForNamedKey(providerSchema, 'description')).toEqual(
       expect.arrayContaining([
+        'Every candidate-owned entry in the supplied or declared catalogs must be cited by the candidateAssessment with the same candidateId: supplied limitations in limitationIds, supplied candidate unknowns in unknownIds, and declared inferences, material claims, and hard-constraint conflicts in their matching ID arrays.',
+        'Catalog identifiers must be unique response-wide: do not reuse any inferenceId, claimId, unknownId, or conflictId, including within one catalog or across catalogs.',
+        'Every cited evidence, inference, claim, candidate unknown, hard-constraint conflict, and limitation must belong to the same candidateId as the candidateAssessment that cites it; each reason candidateId must equal its enclosing assessment candidateId.',
+        'outcome must agree with candidateAssessments dispositions: recommend requires at least one recommended or viable; no-viable-candidate requires every assessment rejected; insufficient-evidence requires no recommended or viable and at least one insufficient-evidence.',
+        "For every hard conflict, constraintId must exactly identify a supplied source hard constraint and reasonCode must exactly equal that source constraint's reasonCode; cite only candidate-owned evidence and cite the conflict from its owner assessment.",
+        "For state satisfied or conflict, include at least one inference token declared in inferences, owned by this candidate, cited by this candidate's assessment, and grounded only in supplied evidence owned by this candidate. For unresolved, use an empty array.",
+        'List only candidateIds whose candidateAssessment disposition is recommended or viable, strongest repository-conditioned fit first. Do not include rejected or insufficient-evidence candidates. Do not repeat IDs and do not exceed fitAssessmentRequest.requestedMaximumResults; deterministic construction filters and caps this list.',
         "Every token in claimIds must exactly match a claimId declared in this response's materialClaims catalog; use an empty array when no material claim is declared.",
-        'Complete catalog of model-created material claims. Declare every claimId before citing that exact token from candidateAssessments.claimIds.',
+        'Complete catalog of model-created material claims. Declare every claimId before citing that exact token from candidateAssessments.claimIds, and cite every declared claim from the candidateAssessment with the same candidateId.',
         "Include every supplied candidate-unknown token (u...) belonging to this candidate so each hydrated decision-relevant unknown remains reachable from this assessment. A model-created assessment-unknown token (a...) must exactly match an unknownId declared in this response's assessmentUnknowns catalog.",
       ]),
     );

@@ -449,6 +449,63 @@ describe('RecommendationAssessmentResponseV1', () => {
     });
   });
 
+  it('constructs a bounded ranking from positive dispositions and ignores over-asserted candidates', async () => {
+    const exchange = await createHardResolutionExchange();
+    exchange.request.requestedMaximumResults = 1;
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    compact.targetFitAssessment.fitAssessment.orderedViableCandidateIds = [
+      'candidate-beta',
+      'candidate-invented',
+      'candidate-alpha',
+    ];
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-derived-ranking',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(
+      validation.ok,
+      validation.ok ? undefined : JSON.stringify(validation.issues),
+    ).toBe(true);
+    if (!validation.ok) return;
+    expect(
+      validation.response.targetFitAssessment.fitAssessment.rankGroups,
+    ).toEqual([{ candidateIds: ['candidate-alpha'] }]);
+    expect(
+      validation.response.targetFitAssessment.fitAssessment.rankRelations,
+    ).toEqual([]);
+    expect(
+      validation.response.targetFitAssessment.fitAssessment.incomparablePairs,
+    ).toEqual([]);
+  });
+
+  it('still rejects duplicate declared catalog IDs after compact hydration', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    const inference = compact.targetFitAssessment.fitAssessment.inferences[0];
+    if (inference === undefined) {
+      throw new Error('Compact inference fixture is incomplete.');
+    }
+    compact.targetFitAssessment.fitAssessment.inferences.push({
+      ...inference,
+      statement: 'A second declaration reuses the same inference token.',
+    });
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-duplicate-catalog-id',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation.ok).toBe(false);
+    if (validation.ok) return;
+    expect(validation.issues.map(({ code }) => code)).toContain(
+      'domain.reference.duplicate-id',
+    );
+  });
+
   it('rejects invented evidence references in compact model output', async () => {
     const exchange = await createHardResolutionExchange();
     const compact = compactModelResponse(exchange.request, exchange.response);
@@ -1265,9 +1322,23 @@ function compactModelResponse(
             ),
           }),
         ),
-        rankGroups: fit.rankGroups,
-        rankRelations: fit.rankRelations,
-        incomparablePairs: fit.incomparablePairs,
+        orderedViableCandidateIds: [
+          ...new Set([
+            ...fit.rankGroups.flatMap(({ candidateIds }) => candidateIds),
+            ...fit.rankRelations.flatMap(
+              ({ higherCandidateId, lowerCandidateId }) => [
+                higherCandidateId,
+                lowerCandidateId,
+              ],
+            ),
+            ...fit.incomparablePairs.flatMap(
+              ({ leftCandidateId, rightCandidateId }) => [
+                leftCandidateId,
+                rightCandidateId,
+              ],
+            ),
+          ]),
+        ],
         assessmentProcessing: fit.assessmentProcessing,
       },
       inferenceRepositoryFactBindings:
