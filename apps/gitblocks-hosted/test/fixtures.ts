@@ -548,7 +548,7 @@ export function groundedModelResponse(
     throw new Error('Grounded response fixture requires candidate evidence.');
   }
   const positiveCandidateId = positive.identity.candidateId;
-  const inferenceId = `inference-${positiveCandidateId}`;
+  const inferenceId = 'i1';
   const evidenceNeededCandidateIds = new Set(
     input.retrievalFinalists
       .filter(({ lane }) => lane === 'evidence-needed')
@@ -585,7 +585,7 @@ export function groundedModelResponse(
             ],
             evidenceIds,
             inferenceIds: isPositive ? [inferenceId] : [],
-            claimIds: [`claim-${candidateId}`],
+            claimIds: [`c${String(index + 1)}`],
             unknownIds: dossier.unknowns.map(({ unknownId }) => unknownId),
             hardConstraintConflictIds: [],
             limitationIds: dossier.limitations.map(
@@ -607,7 +607,7 @@ export function groundedModelResponse(
           },
         ],
         materialClaims: candidates.map((dossier, index) => ({
-          claimId: `claim-${dossier.identity.candidateId}`,
+          claimId: `c${String(index + 1)}`,
           candidateId: dossier.identity.candidateId,
           topic: 'runtime-support',
           direction:

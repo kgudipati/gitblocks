@@ -16,12 +16,14 @@ import {
 import type { CandidateRetrievalCandidateV1 } from './candidate-retrieval-schemas.ts';
 import type {
   OssRecommendationRequestV1,
+  RecommendationAssessmentModelFitRequestV1,
   RecommendationAssessmentModelResponseV1,
   RecommendationAssessmentResponseV1,
   TargetFitAssessmentResponseV1,
 } from './oss-recommendation-schemas.ts';
 import {
   parseCapabilityRequestV1,
+  parseFitAssessmentRequestV1,
   parseFitAssessmentResponseV1,
   parseRepositoryFingerprintV1,
   validateFitAssessmentExchangeV1,
@@ -33,6 +35,7 @@ import type {
 } from './schemas.ts';
 import {
   ossRecommendationRequestV1Validator,
+  recommendationAssessmentModelFitRequestV1Validator,
   recommendationAssessmentModelResponseV1Validator,
   recommendationAssessmentResponseV1Validator,
   structurallyValidate,
@@ -267,6 +270,37 @@ export function parseRecommendationAssessmentModelResponseV1(
   };
 }
 
+export function parseRecommendationAssessmentModelFitRequestV1(
+  value: unknown,
+): ContractParseResult<
+  RecommendationAssessmentModelFitRequestV1,
+  RecommendationAssessmentModelFitRequestV1
+> {
+  const structural = structurallyValidate(
+    value,
+    recommendationAssessmentModelFitRequestV1Validator,
+  );
+  if (!structural.ok) return structural;
+  const fitRequest = parseFitAssessmentRequestV1(structural.value);
+  if (!fitRequest.ok) return fitRequest;
+  return {
+    ok: true,
+    value: structural.value,
+    domain: structural.value,
+    issues: [],
+  };
+}
+
+export function createRecommendationAssessmentModelFitRequestV1(
+  request: FitAssessmentRequestV1,
+): RecommendationAssessmentModelFitRequestV1 {
+  const parsed = parseFitAssessmentRequestV1(request);
+  if (!parsed.ok) {
+    throw new TypeError('Fit assessment request is invalid.');
+  }
+  return modelFitRequestProjection(parsed.value).request;
+}
+
 export function validateTargetFitAssessmentExchangeV1(
   request: FitAssessmentRequestV1,
   response: unknown,
@@ -357,9 +391,16 @@ export function validateRecommendationModelAssessmentExchangeV1(input: {
   );
   if (!parsedResponse.ok) return parsedResponse;
 
+  const expandedResponse = expandRecommendationAssessmentModelResponseV1({
+    request: input.request,
+    response: parsedResponse.value,
+    assessmentId: input.assessmentId,
+  });
+  if (!expandedResponse.ok) return expandedResponse;
+
   const collisionIssues = compactCatalogCollisionIssues(
     input.request,
-    parsedResponse.value,
+    expandedResponse.value,
   );
   if (collisionIssues.length > 0) {
     return { ok: false, issues: finalizeContractIssues(collisionIssues) };
@@ -371,11 +412,311 @@ export function validateRecommendationModelAssessmentExchangeV1(input: {
     retrievalFinalists: input.retrievalFinalists,
     response: hydrateRecommendationAssessmentResponseV1({
       request: input.request,
-      response: parsedResponse.value,
+      response: expandedResponse.value,
       assessmentId: input.assessmentId,
       producedAt: input.producedAt,
     }),
   });
+}
+
+interface ModelFitRequestProjectionV1 {
+  readonly request: RecommendationAssessmentModelFitRequestV1;
+  readonly evidenceTokenToId: ReadonlyMap<string, string>;
+  readonly limitationTokenToId: ReadonlyMap<string, string>;
+  readonly unknownTokenToId: ReadonlyMap<string, string>;
+}
+
+function modelFitRequestProjection(
+  request: FitAssessmentRequestV1,
+): ModelFitRequestProjectionV1 {
+  const evidenceIdToToken = new Map<string, string>();
+  const limitationIdToToken = new Map<string, string>();
+  const unknownIdToToken = new Map<string, string>();
+  const evidenceTokenToId = new Map<string, string>();
+  const limitationTokenToId = new Map<string, string>();
+  const unknownTokenToId = new Map<string, string>();
+
+  for (const candidate of request.candidates) {
+    for (const evidence of candidate.observations) {
+      registerSurrogate(
+        evidenceIdToToken,
+        evidenceTokenToId,
+        evidence.evidenceId,
+        `e${String(evidenceIdToToken.size + 1)}`,
+      );
+    }
+  }
+  for (const candidate of request.candidates) {
+    for (const limitation of candidate.limitations) {
+      registerSurrogate(
+        limitationIdToToken,
+        limitationTokenToId,
+        limitation.limitationId,
+        `l${String(limitationIdToToken.size + 1)}`,
+      );
+    }
+  }
+  for (const candidate of request.candidates) {
+    for (const unknown of candidate.unknowns) {
+      registerSurrogate(
+        unknownIdToToken,
+        unknownTokenToId,
+        unknown.unknownId,
+        `u${String(unknownIdToToken.size + 1)}`,
+      );
+    }
+  }
+
+  return {
+    request: {
+      ...request,
+      candidates: request.candidates.map((candidate) => ({
+        ...candidate,
+        observations: candidate.observations.map((evidence) => ({
+          ...evidence,
+          evidenceId: requiredSurrogate(evidenceIdToToken, evidence.evidenceId),
+        })),
+        limitations: candidate.limitations.map((limitation) => ({
+          ...limitation,
+          limitationId: requiredSurrogate(
+            limitationIdToToken,
+            limitation.limitationId,
+          ),
+          evidenceIds: limitation.evidenceIds.map((evidenceId) =>
+            requiredSurrogate(evidenceIdToToken, evidenceId),
+          ),
+        })),
+        unknowns: candidate.unknowns.map((unknown) => ({
+          ...unknown,
+          unknownId: requiredSurrogate(unknownIdToToken, unknown.unknownId),
+          evidenceIds: unknown.evidenceIds.map((evidenceId) =>
+            requiredSurrogate(evidenceIdToToken, evidenceId),
+          ),
+        })),
+      })),
+    },
+    evidenceTokenToId,
+    limitationTokenToId,
+    unknownTokenToId,
+  };
+}
+
+function registerSurrogate(
+  idToToken: Map<string, string>,
+  tokenToId: Map<string, string>,
+  id: string,
+  token: string,
+): void {
+  if (idToToken.has(id) || tokenToId.has(token)) {
+    throw new TypeError('Fit assessment request catalog is invalid.');
+  }
+  idToToken.set(id, token);
+  tokenToId.set(token, id);
+}
+
+function requiredSurrogate(
+  idToToken: ReadonlyMap<string, string>,
+  id: string,
+): string {
+  const token = idToToken.get(id);
+  if (token === undefined) {
+    throw new TypeError('Fit assessment request catalog is invalid.');
+  }
+  return token;
+}
+
+type ExpandedModelResponseResult =
+  | {
+      readonly ok: true;
+      readonly value: RecommendationAssessmentModelResponseV1;
+      readonly issues: readonly [];
+    }
+  | {
+      readonly ok: false;
+      readonly issues: readonly ContractIssue[];
+    };
+
+function expandRecommendationAssessmentModelResponseV1(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly response: RecommendationAssessmentModelResponseV1;
+  readonly assessmentId: string;
+}): ExpandedModelResponseResult {
+  const projection = modelFitRequestProjection(input.request);
+  const issues: ContractIssue[] = [];
+  const fit = input.response.targetFitAssessment.fitAssessment;
+  const evidenceId = (token: string, path: string): string =>
+    expandSuppliedSurrogate(projection.evidenceTokenToId, token, path, issues);
+  const limitationId = (token: string, path: string): string =>
+    expandSuppliedSurrogate(
+      projection.limitationTokenToId,
+      token,
+      path,
+      issues,
+    );
+  const unknownId = (token: string, path: string): string =>
+    token.startsWith('u')
+      ? expandSuppliedSurrogate(
+          projection.unknownTokenToId,
+          token,
+          path,
+          issues,
+        )
+      : mintModelRecordId(input.assessmentId, 'assessment-unknown', token);
+  const inferenceId = (token: string): string =>
+    mintModelRecordId(input.assessmentId, 'inference', token);
+  const claimId = (token: string): string =>
+    mintModelRecordId(input.assessmentId, 'claim', token);
+  const conflictId = (token: string): string =>
+    mintModelRecordId(input.assessmentId, 'conflict', token);
+
+  const expanded: RecommendationAssessmentModelResponseV1 = {
+    targetFitAssessment: {
+      fitAssessment: {
+        ...fit,
+        candidateAssessments: fit.candidateAssessments.map(
+          (assessment, assessmentIndex) => ({
+            ...assessment,
+            reasons: assessment.reasons.map((reason, reasonIndex) => ({
+              ...reason,
+              evidenceIds: reason.evidenceIds.map((token, referenceIndex) =>
+                evidenceId(
+                  token,
+                  `/targetFitAssessment/fitAssessment/candidateAssessments/${String(assessmentIndex)}/reasons/${String(reasonIndex)}/evidenceIds/${String(referenceIndex)}`,
+                ),
+              ),
+              inferenceIds: reason.inferenceIds.map(inferenceId),
+              unknownIds: reason.unknownIds.map((token, referenceIndex) =>
+                unknownId(
+                  token,
+                  `/targetFitAssessment/fitAssessment/candidateAssessments/${String(assessmentIndex)}/reasons/${String(reasonIndex)}/unknownIds/${String(referenceIndex)}`,
+                ),
+              ),
+            })),
+            evidenceIds: assessment.evidenceIds.map((token, referenceIndex) =>
+              evidenceId(
+                token,
+                `/targetFitAssessment/fitAssessment/candidateAssessments/${String(assessmentIndex)}/evidenceIds/${String(referenceIndex)}`,
+              ),
+            ),
+            inferenceIds: assessment.inferenceIds.map(inferenceId),
+            claimIds: assessment.claimIds.map(claimId),
+            unknownIds: assessment.unknownIds.map((token, referenceIndex) =>
+              unknownId(
+                token,
+                `/targetFitAssessment/fitAssessment/candidateAssessments/${String(assessmentIndex)}/unknownIds/${String(referenceIndex)}`,
+              ),
+            ),
+            hardConstraintConflictIds:
+              assessment.hardConstraintConflictIds.map(conflictId),
+            limitationIds: assessment.limitationIds.map(
+              (token, referenceIndex) =>
+                limitationId(
+                  token,
+                  `/targetFitAssessment/fitAssessment/candidateAssessments/${String(assessmentIndex)}/limitationIds/${String(referenceIndex)}`,
+                ),
+            ),
+          }),
+        ),
+        inferences: fit.inferences.map((inference, inferenceIndex) => ({
+          ...inference,
+          inferenceId: inferenceId(inference.inferenceId),
+          evidenceIds: inference.evidenceIds.map((token, referenceIndex) =>
+            evidenceId(
+              token,
+              `/targetFitAssessment/fitAssessment/inferences/${String(inferenceIndex)}/evidenceIds/${String(referenceIndex)}`,
+            ),
+          ),
+        })),
+        materialClaims: fit.materialClaims.map((claim, claimIndex) => ({
+          ...claim,
+          claimId: claimId(claim.claimId),
+          evidenceIds: claim.evidenceIds.map((token, referenceIndex) =>
+            evidenceId(
+              token,
+              `/targetFitAssessment/fitAssessment/materialClaims/${String(claimIndex)}/evidenceIds/${String(referenceIndex)}`,
+            ),
+          ),
+          inferenceIds: claim.inferenceIds.map(inferenceId),
+        })),
+        assessmentUnknowns: fit.assessmentUnknowns.map(
+          (unknown, unknownIndex) => ({
+            ...unknown,
+            unknownId: mintModelRecordId(
+              input.assessmentId,
+              'assessment-unknown',
+              unknown.unknownId,
+            ),
+            evidenceIds: unknown.evidenceIds.map((token, referenceIndex) =>
+              evidenceId(
+                token,
+                `/targetFitAssessment/fitAssessment/assessmentUnknowns/${String(unknownIndex)}/evidenceIds/${String(referenceIndex)}`,
+              ),
+            ),
+          }),
+        ),
+        hardConstraintConflicts: fit.hardConstraintConflicts.map(
+          (conflict, conflictIndex) => ({
+            ...conflict,
+            conflictId: conflictId(conflict.conflictId),
+            evidenceIds: conflict.evidenceIds.map((token, referenceIndex) =>
+              evidenceId(
+                token,
+                `/targetFitAssessment/fitAssessment/hardConstraintConflicts/${String(conflictIndex)}/evidenceIds/${String(referenceIndex)}`,
+              ),
+            ),
+          }),
+        ),
+      },
+      inferenceRepositoryFactBindings:
+        input.response.targetFitAssessment.inferenceRepositoryFactBindings.map(
+          (binding) => ({
+            ...binding,
+            inferenceId: inferenceId(binding.inferenceId),
+          }),
+        ),
+    },
+    evidenceNeededHardConstraintResolutions:
+      input.response.evidenceNeededHardConstraintResolutions.map(
+        (resolution) => ({
+          ...resolution,
+          inferenceIds: resolution.inferenceIds.map(inferenceId),
+        }),
+      ),
+  };
+  const finalizedIssues = finalizeContractIssues(issues);
+  return finalizedIssues.length === 0
+    ? { ok: true, value: expanded, issues: [] }
+    : { ok: false, issues: finalizedIssues };
+}
+
+function expandSuppliedSurrogate(
+  tokenToId: ReadonlyMap<string, string>,
+  token: string,
+  path: string,
+  issues: ContractIssue[],
+): string {
+  const id = tokenToId.get(token);
+  if (id !== undefined) return id;
+  issues.push(
+    domainIssue('recommendation-assessment.surrogate-reference', path),
+  );
+  return 'invalid-surrogate-reference';
+}
+
+function mintModelRecordId(
+  assessmentId: string,
+  kind: 'assessment-unknown' | 'claim' | 'conflict' | 'inference',
+  token: string,
+): string {
+  const prefixes = {
+    'assessment-unknown': 'assessment-unknown-',
+    claim: 'claim-',
+    conflict: 'conflict-',
+    inference: 'inference-',
+  } as const;
+  const prefix = prefixes[kind];
+  const digest = contractCanonicalDigest({ assessmentId, kind, token });
+  return `${prefix}${digest.slice(0, 64 - prefix.length)}`;
 }
 
 function compactCatalogCollisionIssues(

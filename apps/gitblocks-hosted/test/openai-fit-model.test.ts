@@ -83,7 +83,38 @@ describe('OpenAI Responses target-fit adapter', () => {
     });
     const bodyText = JSON.stringify(received.body);
     expect(Buffer.byteLength(bodyText, 'utf8')).toBeLessThan(2 * 1024 * 1024);
+    const modelFacingCandidates = modelInput.fitAssessmentRequest.candidates;
+    const modelEvidenceIds = modelFacingCandidates.flatMap(({ observations }) =>
+      observations.map(({ evidenceId }) => evidenceId),
+    );
+    const modelLimitationIds = modelFacingCandidates.flatMap(
+      ({ limitations }) => limitations.map(({ limitationId }) => limitationId),
+    );
+    const modelUnknownIds = modelFacingCandidates.flatMap(({ unknowns }) =>
+      unknowns.map(({ unknownId }) => unknownId),
+    );
+    expect(modelEvidenceIds).toEqual(
+      modelEvidenceIds.map((_id, index) => `e${String(index + 1)}`),
+    );
+    expect(modelLimitationIds).toEqual(
+      modelLimitationIds.map((_id, index) => `l${String(index + 1)}`),
+    );
+    expect(modelUnknownIds).toEqual(
+      modelUnknownIds.map((_id, index) => `u${String(index + 1)}`),
+    );
+    for (const candidate of modelFacingCandidates) {
+      const candidateId = candidate.identity.candidateId;
+      expect(bodyText).not.toContain(`evidence-${candidateId}`);
+      expect(bodyText).not.toContain(`limitation-${candidateId}`);
+      expect(bodyText).not.toContain(`unknown-${candidateId}`);
+    }
     const providerSchema = providerSchemaFromRequest(received.body);
+    expect(valuesForNamedKey(providerSchema, 'description')).toEqual(
+      expect.arrayContaining([
+        "Every token in claimIds must exactly match a claimId declared in this response's materialClaims catalog; use an empty array when no material claim is declared.",
+        'Complete catalog of model-created material claims. Declare every claimId before citing that exact token from candidateAssessments.claimIds.',
+      ]),
+    );
     for (const removedKey of [
       '$id',
       '$schema',

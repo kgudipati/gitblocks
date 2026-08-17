@@ -16,6 +16,7 @@ import {
   validateTargetFitAssessmentExchangeV1,
   type CapabilityQueryInputV1,
   type CapabilityTaxonomyV1,
+  type FitAssessmentRequestV1,
   type OssRecommendationRequestV1,
   type RecommendationAssessmentResponseV1,
   type RecommendationAssessmentModelResponseV1,
@@ -317,7 +318,23 @@ describe('RecommendationAssessmentResponseV1', () => {
 
   it('defines a compact model contract and hydrates trusted response-owned fields', async () => {
     const exchange = await createHardResolutionExchange();
-    const compact = compactModelResponse(exchange.response);
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    const inferenceEvidenceId =
+      exchange.response.targetFitAssessment.fitAssessment.inferences[0]
+        ?.evidenceIds[0];
+    const suppliedEvidenceIds = exchange.request.candidates.flatMap(
+      ({ observations }) => observations.map(({ evidenceId }) => evidenceId),
+    );
+    const inferenceEvidenceIndex =
+      inferenceEvidenceId === undefined
+        ? -1
+        : suppliedEvidenceIds.indexOf(inferenceEvidenceId);
+    if (inferenceEvidenceIndex < 0) {
+      throw new Error('Compact inference fixture is incomplete.');
+    }
+    expect(
+      compact.targetFitAssessment.fitAssessment.inferences[0]?.evidenceIds,
+    ).toEqual([`e${String(inferenceEvidenceIndex + 1)}`]);
 
     expect(parseRecommendationAssessmentModelResponseV1(compact)).toMatchObject(
       {
@@ -362,6 +379,10 @@ describe('RecommendationAssessmentResponseV1', () => {
     });
     expect(validation).toMatchObject({ ok: true });
     if (!validation.ok) return;
+    expect(
+      validation.response.targetFitAssessment.fitAssessment.inferences[0]
+        ?.evidenceIds,
+    ).toEqual([inferenceEvidenceId]);
     expect(validation.response.targetFitAssessment.fitAssessment).toMatchObject(
       {
         assessmentId: 'assessment-hydrated',
@@ -381,17 +402,36 @@ describe('RecommendationAssessmentResponseV1', () => {
 
   it('rejects compact declared-record ID collisions before hydration', async () => {
     const exchange = await createHardResolutionExchange();
-    const compact = compactModelResponse(exchange.response);
-    const suppliedEvidenceId =
-      exchange.request.candidates[0]?.observations[0]?.evidenceId;
-    if (
-      suppliedEvidenceId === undefined ||
-      compact.targetFitAssessment.fitAssessment.inferences[0] === undefined
-    ) {
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    const accepted = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-collision',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    if (!accepted.ok) {
       throw new Error('Compact collision fixture is incomplete.');
     }
-    compact.targetFitAssessment.fitAssessment.inferences[0].inferenceId =
-      suppliedEvidenceId;
+    const mappedInferenceId =
+      accepted.response.targetFitAssessment.fitAssessment.inferences[0]
+        ?.inferenceId;
+    const suppliedEvidence = exchange.request.candidates[0]?.observations[0];
+    if (mappedInferenceId === undefined || suppliedEvidence === undefined) {
+      throw new Error('Compact collision fixture is incomplete.');
+    }
+    const priorEvidenceId = suppliedEvidence.evidenceId;
+    suppliedEvidence.evidenceId = mappedInferenceId;
+    for (const limitation of exchange.request.candidates[0]?.limitations ??
+      []) {
+      limitation.evidenceIds = limitation.evidenceIds.map((evidenceId) =>
+        evidenceId === priorEvidenceId ? mappedInferenceId : evidenceId,
+      );
+    }
+    for (const unknown of exchange.request.candidates[0]?.unknowns ?? []) {
+      unknown.evidenceIds = unknown.evidenceIds.map((evidenceId) =>
+        evidenceId === priorEvidenceId ? mappedInferenceId : evidenceId,
+      );
+    }
 
     const validation = validateRecommendationModelAssessmentExchangeV1({
       ...exchange,
@@ -411,20 +451,109 @@ describe('RecommendationAssessmentResponseV1', () => {
 
   it('rejects invented evidence references in compact model output', async () => {
     const exchange = await createHardResolutionExchange();
-    const compact = compactModelResponse(exchange.response);
+    const compact = compactModelResponse(exchange.request, exchange.response);
     const inference = compact.targetFitAssessment.fitAssessment.inferences[0];
     if (inference === undefined)
       throw new Error('Compact inference fixture is incomplete.');
-    inference.evidenceIds = ['evidence-invented'];
+    inference.evidenceIds = ['e999'];
 
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-invented-evidence',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation).toMatchObject({ ok: false });
+    if (validation.ok) return;
+    expect(validation.issues.map(({ code }) => code)).toContain(
+      'domain.recommendation-assessment.surrogate-reference',
+    );
+  });
+
+  it('rejects a mutated supplied-evidence surrogate without repair', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    const inference = compact.targetFitAssessment.fitAssessment.inferences[0];
+    if (inference === undefined)
+      throw new Error('Compact inference fixture is incomplete.');
+    inference.evidenceIds = ['ev-e1'];
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-mutated-evidence',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation).toMatchObject({ ok: false });
+    if (validation.ok) return;
+    expect(validation.issues.map(({ code }) => code)).toContain(
+      'contract.pattern',
+    );
+  });
+
+  it('rejects a cited but undeclared compact claim token', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    compact.targetFitAssessment.fitAssessment.materialClaims = [];
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-undeclared-claim',
+      producedAt: exchange.request.evidenceCutoff,
+    });
+    expect(validation.ok).toBe(false);
+    if (validation.ok) return;
+    expect(validation.issues.map(({ code }) => code)).toContain(
+      'domain.reference.unknown-claim',
+    );
+  });
+
+  it('accepts a declared compact claim token and preserves its exact content through hydration', async () => {
+    const exchange = await createHardResolutionExchange();
+    const compact = compactModelResponse(exchange.request, exchange.response);
+    const fit = compact.targetFitAssessment.fitAssessment;
+    const assessment = fit.candidateAssessments.find(
+      ({ candidateId }) => candidateId === 'candidate-alpha',
+    );
+    const claim = fit.materialClaims.find(
+      ({ candidateId }) => candidateId === 'candidate-alpha',
+    );
+    if (assessment === undefined || claim === undefined) {
+      throw new Error('Compact claim fixture is incomplete.');
+    }
+    claim.claimId = 'c1';
+    claim.topic = 'target-runtime-fit';
+    claim.statement =
+      'The declared claim content must survive hydration exactly.';
+    assessment.claimIds = ['c1'];
+    const declaredContent = {
+      candidateId: claim.candidateId,
+      topic: claim.topic,
+      direction: claim.direction,
+      statement: claim.statement,
+    };
+
+    const validation = validateRecommendationModelAssessmentExchangeV1({
+      ...exchange,
+      response: compact,
+      assessmentId: 'assessment-declared-claim',
+      producedAt: exchange.request.evidenceCutoff,
+    });
     expect(
-      validateRecommendationModelAssessmentExchangeV1({
-        ...exchange,
-        response: compact,
-        assessmentId: 'assessment-invented-evidence',
-        producedAt: exchange.request.evidenceCutoff,
-      }),
-    ).toMatchObject({ ok: false });
+      validation.ok,
+      validation.ok ? undefined : JSON.stringify(validation.issues),
+    ).toBe(true);
+    if (!validation.ok) return;
+    const hydratedFit = validation.response.targetFitAssessment.fitAssessment;
+    const hydratedClaimId = hydratedFit.candidateAssessments.find(
+      ({ candidateId }) => candidateId === claim.candidateId,
+    )?.claimIds[0];
+    const hydratedClaim = hydratedFit.materialClaims.find(
+      ({ claimId }) => claimId === hydratedClaimId,
+    );
+    expect(hydratedClaimId).not.toBe('c1');
+    expect(hydratedClaim).toMatchObject(declaredContent);
   });
 
   it.each([
@@ -432,16 +561,26 @@ describe('RecommendationAssessmentResponseV1', () => {
       'candidate ownership',
       'domain.reference.candidate-ownership',
       (response: RecommendationAssessmentModelResponseV1) => {
-        response.targetFitAssessment.fitAssessment.candidateAssessments[0]!.evidenceIds =
-          ['evidence-beta'];
+        const crossOwned =
+          response.targetFitAssessment.fitAssessment.candidateAssessments[1]
+            ?.evidenceIds[0];
+        if (crossOwned !== undefined) {
+          response.targetFitAssessment.fitAssessment.candidateAssessments[0]!.evidenceIds =
+            [crossOwned];
+        }
       },
     ],
     [
       'inference grounding',
       'domain.reference.candidate-ownership',
       (response: RecommendationAssessmentModelResponseV1) => {
-        response.targetFitAssessment.fitAssessment.inferences[0]!.evidenceIds =
-          ['evidence-beta'];
+        const crossOwned =
+          response.targetFitAssessment.fitAssessment.candidateAssessments[1]
+            ?.evidenceIds[0];
+        if (crossOwned !== undefined) {
+          response.targetFitAssessment.fitAssessment.inferences[0]!.evidenceIds =
+            [crossOwned];
+        }
       },
     ],
     [
@@ -470,7 +609,7 @@ describe('RecommendationAssessmentResponseV1', () => {
     'preserves %s validation',
     async (_name, expectedCode, mutate) => {
       const exchange = await createHardResolutionExchange();
-      const compact = compactModelResponse(exchange.response);
+      const compact = compactModelResponse(exchange.request, exchange.response);
       mutate(compact);
 
       const validation = validateRecommendationModelAssessmentExchangeV1({
@@ -913,30 +1052,151 @@ function sourceConstraintIdForResolution(
 }
 
 function compactModelResponse(
+  request: FitAssessmentRequestV1,
   response: RecommendationAssessmentResponseV1,
 ): MutableValue<RecommendationAssessmentModelResponseV1> {
   const fit = response.targetFitAssessment.fitAssessment;
+  const evidenceTokens = new Map<string, string>();
+  const limitationTokens = new Map<string, string>();
+  const candidateUnknownTokens = new Map<string, string>();
+  for (const candidate of request.candidates) {
+    for (const evidence of candidate.observations) {
+      evidenceTokens.set(
+        evidence.evidenceId,
+        `e${String(evidenceTokens.size + 1)}`,
+      );
+    }
+  }
+  for (const candidate of request.candidates) {
+    for (const limitation of candidate.limitations) {
+      limitationTokens.set(
+        limitation.limitationId,
+        `l${String(limitationTokens.size + 1)}`,
+      );
+    }
+  }
+  for (const candidate of request.candidates) {
+    for (const unknown of candidate.unknowns) {
+      candidateUnknownTokens.set(
+        unknown.unknownId,
+        `u${String(candidateUnknownTokens.size + 1)}`,
+      );
+    }
+  }
+  const inferenceTokens = new Map(
+    fit.inferences.map(({ inferenceId }, index) => [
+      inferenceId,
+      `i${String(index + 1)}`,
+    ]),
+  );
+  const claimTokens = new Map(
+    fit.materialClaims.map(({ claimId }, index) => [
+      claimId,
+      `c${String(index + 1)}`,
+    ]),
+  );
+  const assessmentUnknownTokens = new Map(
+    fit.materialUnknowns
+      .filter((unknown) => unknown.scope === 'assessment')
+      .map(({ unknownId }, index) => [unknownId, `a${String(index + 1)}`]),
+  );
+  const conflictTokens = new Map(
+    fit.hardConstraintConflicts.map(({ conflictId }, index) => [
+      conflictId,
+      `x${String(index + 1)}`,
+    ]),
+  );
+  const token = (catalog: ReadonlyMap<string, string>, id: string): string => {
+    const mapped = catalog.get(id);
+    if (mapped === undefined) throw new Error('Compact fixture is incomplete.');
+    return mapped;
+  };
+  const unknownToken = (id: string): string =>
+    candidateUnknownTokens.get(id) ?? token(assessmentUnknownTokens, id);
   return cloneValue({
     targetFitAssessment: {
       fitAssessment: {
         outcome: fit.outcome,
-        candidateAssessments: fit.candidateAssessments,
-        inferences: fit.inferences,
-        materialClaims: fit.materialClaims,
-        assessmentUnknowns: fit.materialUnknowns.filter(
-          (unknown) => unknown.scope === 'assessment',
+        candidateAssessments: fit.candidateAssessments.map((assessment) => ({
+          ...assessment,
+          reasons: assessment.reasons.map((reason) => ({
+            ...reason,
+            evidenceIds: reason.evidenceIds.map((id) =>
+              token(evidenceTokens, id),
+            ),
+            inferenceIds: reason.inferenceIds.map((id) =>
+              token(inferenceTokens, id),
+            ),
+            unknownIds: reason.unknownIds.map(unknownToken),
+          })),
+          evidenceIds: assessment.evidenceIds.map((id) =>
+            token(evidenceTokens, id),
+          ),
+          inferenceIds: assessment.inferenceIds.map((id) =>
+            token(inferenceTokens, id),
+          ),
+          claimIds: assessment.claimIds.map((id) => token(claimTokens, id)),
+          unknownIds: assessment.unknownIds.map(unknownToken),
+          hardConstraintConflictIds: assessment.hardConstraintConflictIds.map(
+            (id) => token(conflictTokens, id),
+          ),
+          limitationIds: assessment.limitationIds.map((id) =>
+            token(limitationTokens, id),
+          ),
+        })),
+        inferences: fit.inferences.map((inference) => ({
+          ...inference,
+          inferenceId: token(inferenceTokens, inference.inferenceId),
+          evidenceIds: inference.evidenceIds.map((id) =>
+            token(evidenceTokens, id),
+          ),
+        })),
+        materialClaims: fit.materialClaims.map((claim) => ({
+          ...claim,
+          claimId: token(claimTokens, claim.claimId),
+          evidenceIds: claim.evidenceIds.map((id) => token(evidenceTokens, id)),
+          inferenceIds: claim.inferenceIds.map((id) =>
+            token(inferenceTokens, id),
+          ),
+        })),
+        assessmentUnknowns: fit.materialUnknowns
+          .filter((unknown) => unknown.scope === 'assessment')
+          .map((unknown) => ({
+            ...unknown,
+            unknownId: token(assessmentUnknownTokens, unknown.unknownId),
+            evidenceIds: unknown.evidenceIds.map((id) =>
+              token(evidenceTokens, id),
+            ),
+          })),
+        hardConstraintConflicts: fit.hardConstraintConflicts.map(
+          (conflict) => ({
+            ...conflict,
+            conflictId: token(conflictTokens, conflict.conflictId),
+            evidenceIds: conflict.evidenceIds.map((id) =>
+              token(evidenceTokens, id),
+            ),
+          }),
         ),
-        hardConstraintConflicts: fit.hardConstraintConflicts,
         rankGroups: fit.rankGroups,
         rankRelations: fit.rankRelations,
         incomparablePairs: fit.incomparablePairs,
         assessmentProcessing: fit.assessmentProcessing,
       },
       inferenceRepositoryFactBindings:
-        response.targetFitAssessment.inferenceRepositoryFactBindings,
+        response.targetFitAssessment.inferenceRepositoryFactBindings.map(
+          (binding) => ({
+            ...binding,
+            inferenceId: token(inferenceTokens, binding.inferenceId),
+          }),
+        ),
     },
     evidenceNeededHardConstraintResolutions:
-      response.evidenceNeededHardConstraintResolutions,
+      response.evidenceNeededHardConstraintResolutions.map((resolution) => ({
+        ...resolution,
+        inferenceIds: resolution.inferenceIds.map((id) =>
+          token(inferenceTokens, id),
+        ),
+      })),
   });
 }
 

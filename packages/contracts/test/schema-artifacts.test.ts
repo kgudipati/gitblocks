@@ -67,7 +67,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'recommendation-assessment-response':
     'aa619df4638fc12d1ee8d77b5bf2552b6ba0a03fcb88e41cc0dd1ed051087d46',
   'recommendation-assessment-model-response':
-    '919a09d0b295a3d3bd6f1ef811a844e6b29f39de98aa13672fba1433a4ad54c9',
+    '568ac790345cb36f8959cb0ee7f48d531b539c86da814a870c6a5b1311248d4b',
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
@@ -293,6 +293,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'createDeterministicCandidateProfileAuthorityV1',
       'createDeterministicCandidateProfileV1',
       'createModelExecutionV1',
+      'createRecommendationAssessmentModelFitRequestV1',
       'createRepositoryArtifactChunkV1',
       'createRepositoryArtifactSetV1',
       'createRepositoryArtifactV1',
@@ -327,6 +328,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseModelExecutionModelProfileV1',
       'parseModelExecutionV1',
       'parseOssRecommendationRequestV1',
+      'parseRecommendationAssessmentModelFitRequestV1',
       'parseRecommendationAssessmentModelResponseV1',
       'parseRecommendationAssessmentResponseV1',
       'parseRepositoryArtifactChunkV1',
@@ -336,6 +338,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseRepositoryInterviewRequestV1',
       'parseRepositoryInterviewV1',
       'parseTargetFitAssessmentResponseV1',
+      'recommendationAssessmentModelFitRequestV1Schema',
       'recommendationAssessmentModelResponseV1Schema',
       'recommendationAssessmentResponseV1Schema',
       'repositoryArtifactChunkIdentityDigest',
