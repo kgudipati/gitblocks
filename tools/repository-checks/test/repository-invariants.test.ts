@@ -664,6 +664,44 @@ describe('validateRepositoryInvariants', () => {
     expect(validateRepositoryInvariants(validRepository())).toEqual([]);
   });
 
+  it.each([
+    'evals/outcome-baseline-v1/targets/express-container-prisma-redis/package.json',
+    'evals/outcome-baseline-v1/targets/next-selfhosted-drizzle/package.json',
+    'evals/outcome-baseline-v1/targets/next-vercel-drizzle/package.json',
+  ])(
+    'accepts the exact outcome-baseline target manifest %s',
+    (manifestPath) => {
+      const repository = validRepository();
+      repository.trackedPaths.add(manifestPath);
+      repository.textFiles.set(
+        manifestPath,
+        JSON.stringify({ name: 'outcome-baseline-target', private: true }),
+      );
+
+      expect(validateRepositoryInvariants(repository)).toEqual([]);
+    },
+  );
+
+  it('keeps adjacent outcome-baseline target manifests prohibited', () => {
+    const repository = validRepository();
+    const manifestPath =
+      'evals/outcome-baseline-v1/targets/unapproved/package.json';
+    repository.trackedPaths.add(manifestPath);
+    repository.textFiles.set(
+      manifestPath,
+      JSON.stringify({ name: 'unapproved-target', private: true }),
+    );
+
+    expect(validateRepositoryInvariants(repository)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'repository.prohibited-artifact',
+          path: manifestPath,
+        }),
+      ]),
+    );
+  });
+
   it('accepts the pre-live tool and only its explicit workspace direction', () => {
     const repository = validRepository();
     repository.trackedPaths.add(
