@@ -621,9 +621,7 @@ export function groundedModelResponse(
         })),
         assessmentUnknowns: [],
         hardConstraintConflicts: [],
-        rankGroups: [{ candidateIds: [positiveCandidateId] }],
-        rankRelations: [],
-        incomparablePairs: [],
+        orderedViableCandidateIds: [positiveCandidateId],
         assessmentProcessing: {
           state: 'complete',
           incompleteReasonCodes: [],

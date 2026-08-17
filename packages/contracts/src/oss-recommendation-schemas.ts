@@ -157,6 +157,8 @@ const recommendationAssessmentModelHardConstraintResolutionV1Schema =
     inferenceIds: Type.Array(modelInferenceTokenSchema, {
       maxItems: 20,
       uniqueItems: true,
+      description:
+        "For state satisfied or conflict, include at least one inference token declared in inferences, owned by this candidate, cited by this candidate's assessment, and grounded only in supplied evidence owned by this candidate. For unresolved, use an empty array.",
     }),
   });
 
@@ -185,7 +187,11 @@ const targetFitAssessmentResponseV1ValueSchema = closedObject({
 });
 
 const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
-  outcome: fitAssessmentResponseV1ValueSchema.properties.outcome,
+  outcome: {
+    ...fitAssessmentResponseV1ValueSchema.properties.outcome,
+    description:
+      'outcome must agree with candidateAssessments dispositions: recommend requires at least one recommended or viable; no-viable-candidate requires every assessment rejected; insufficient-evidence requires no recommended or viable and at least one insufficient-evidence.',
+  },
   candidateAssessments: Type.Array(
     closedObject({
       ...fitAssessmentResponseV1ValueSchema.properties.candidateAssessments
@@ -207,7 +213,12 @@ const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
             uniqueItems: true,
           }),
         }),
-        { minItems: 1, maxItems: 20 },
+        {
+          minItems: 1,
+          maxItems: 20,
+          description:
+            'Every cited evidence, inference, claim, candidate unknown, hard-constraint conflict, and limitation must belong to the same candidateId as the candidateAssessment that cites it; each reason candidateId must equal its enclosing assessment candidateId.',
+        },
       ),
       evidenceIds: Type.Array(suppliedEvidenceTokenSchema, {
         maxItems: 100,
@@ -238,7 +249,12 @@ const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
         uniqueItems: true,
       }),
     }),
-    { minItems: 1, maxItems: 20 },
+    {
+      minItems: 1,
+      maxItems: 20,
+      description:
+        'Every candidate-owned entry in the supplied or declared catalogs must be cited by the candidateAssessment with the same candidateId: supplied limitations in limitationIds, supplied candidate unknowns in unknownIds, and declared inferences, material claims, and hard-constraint conflicts in their matching ID arrays.',
+    },
   ),
   inferences: Type.Array(
     closedObject({
@@ -250,7 +266,11 @@ const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
         uniqueItems: true,
       }),
     }),
-    { maxItems: 400 },
+    {
+      maxItems: 400,
+      description:
+        'Catalog identifiers must be unique response-wide: do not reuse any inferenceId, claimId, unknownId, or conflictId, including within one catalog or across catalogs.',
+    },
   ),
   materialClaims: Type.Array(
     closedObject({
@@ -268,7 +288,7 @@ const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
     {
       maxItems: 800,
       description:
-        'Complete catalog of model-created material claims. Declare every claimId before citing that exact token from candidateAssessments.claimIds.',
+        'Complete catalog of model-created material claims. Declare every claimId before citing that exact token from candidateAssessments.claimIds, and cite every declared claim from the candidateAssessment with the same candidateId.',
     },
   ),
   assessmentUnknowns: Type.Array(
@@ -280,7 +300,11 @@ const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
         uniqueItems: true,
       }),
     }),
-    { maxItems: 800 },
+    {
+      maxItems: 800,
+      description:
+        'Complete catalog of model-created assessment unknowns. Declare each unknownId before citing that exact token from candidateAssessments.unknownIds.',
+    },
   ),
   hardConstraintConflicts: Type.Array(
     closedObject({
@@ -292,12 +316,18 @@ const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
         uniqueItems: true,
       }),
     }),
-    { maxItems: 400 },
+    {
+      maxItems: 400,
+      description:
+        "For every hard conflict, constraintId must exactly identify a supplied source hard constraint and reasonCode must exactly equal that source constraint's reasonCode; cite only candidate-owned evidence and cite the conflict from its owner assessment.",
+    },
   ),
-  rankGroups: fitAssessmentResponseV1ValueSchema.properties.rankGroups,
-  rankRelations: fitAssessmentResponseV1ValueSchema.properties.rankRelations,
-  incomparablePairs:
-    fitAssessmentResponseV1ValueSchema.properties.incomparablePairs,
+  orderedViableCandidateIds: Type.Array(stableIdSchema, {
+    maxItems: 20,
+    uniqueItems: true,
+    description:
+      'List only candidateIds whose candidateAssessment disposition is recommended or viable, strongest repository-conditioned fit first. Do not include rejected or insufficient-evidence candidates. Do not repeat IDs and do not exceed fitAssessmentRequest.requestedMaximumResults; deterministic construction filters and caps this list.',
+  }),
   assessmentProcessing:
     fitAssessmentResponseV1ValueSchema.properties.assessmentProcessing,
 });

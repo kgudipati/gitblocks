@@ -779,6 +779,7 @@ function hydrateRecommendationAssessmentResponseV1(input: {
   readonly producedAt: string;
 }): RecommendationAssessmentResponseV1 {
   const fit = input.response.targetFitAssessment.fitAssessment;
+  const ranking = constructModelRanking(input.request, fit);
   return {
     contractVersion: '1.0.0',
     targetFitAssessment: {
@@ -806,9 +807,7 @@ function hydrateRecommendationAssessmentResponseV1(input: {
           ...fit.assessmentUnknowns,
         ],
         hardConstraintConflicts: fit.hardConstraintConflicts,
-        rankGroups: fit.rankGroups,
-        rankRelations: fit.rankRelations,
-        incomparablePairs: fit.incomparablePairs,
+        ...ranking,
         evidenceCutoff: input.request.evidenceCutoff,
         producedAt: input.producedAt,
         assessmentProcessing: fit.assessmentProcessing,
@@ -818,6 +817,50 @@ function hydrateRecommendationAssessmentResponseV1(input: {
     },
     evidenceNeededHardConstraintResolutions:
       input.response.evidenceNeededHardConstraintResolutions,
+  };
+}
+
+function constructModelRanking(
+  request: FitAssessmentRequestV1,
+  fit: RecommendationAssessmentModelResponseV1['targetFitAssessment']['fitAssessment'],
+): Pick<
+  TargetFitAssessmentResponseV1['fitAssessment'],
+  'rankGroups' | 'rankRelations' | 'incomparablePairs'
+> {
+  const suppliedCandidateIds = new Set(
+    request.candidates.map(({ identity }) => identity.candidateId),
+  );
+  const positiveCandidateIds = new Set(
+    fit.candidateAssessments
+      .filter(
+        ({ candidateId, disposition }) =>
+          suppliedCandidateIds.has(candidateId) &&
+          (disposition === 'recommended' || disposition === 'viable'),
+      )
+      .map(({ candidateId }) => candidateId),
+  );
+  const orderedCandidateIds: string[] = [];
+  const included = new Set<string>();
+  const includeIfPositive = (candidateId: string): void => {
+    if (positiveCandidateIds.has(candidateId) && !included.has(candidateId)) {
+      included.add(candidateId);
+      orderedCandidateIds.push(candidateId);
+    }
+  };
+  fit.orderedViableCandidateIds.forEach(includeIfPositive);
+  request.candidates.forEach(({ identity }) => {
+    includeIfPositive(identity.candidateId);
+  });
+  const boundedCandidateIds = orderedCandidateIds.slice(
+    0,
+    request.requestedMaximumResults,
+  );
+  return {
+    rankGroups: boundedCandidateIds.map((candidateId) => ({
+      candidateIds: [candidateId],
+    })),
+    rankRelations: [],
+    incomparablePairs: [],
   };
 }
 

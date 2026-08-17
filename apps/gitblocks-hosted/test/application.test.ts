@@ -97,6 +97,64 @@ describe('hosted OSS recommendation application', () => {
     });
   });
 
+  it('derives responsible options from positive dispositions, model order, and the requested maximum', async () => {
+    let expectedOptionIds: readonly string[] = [];
+    let rejectedCandidateId: string | undefined;
+    const application = await createAcceptedApplication({
+      fitModel: {
+        assess: (input) => {
+          const response = structuredClone(groundedModelResponse(input));
+          for (const index of [1, 2, 3]) {
+            promoteModelCandidate(response, index);
+          }
+          const candidateIds =
+            response.targetFitAssessment.fitAssessment.candidateAssessments.map(
+              ({ candidateId }) => candidateId,
+            );
+          rejectedCandidateId = candidateIds[4];
+          response.targetFitAssessment.fitAssessment.orderedViableCandidateIds =
+            [
+              candidateIds[4]!,
+              candidateIds[3]!,
+              candidateIds[0]!,
+              candidateIds[2]!,
+              candidateIds[1]!,
+            ];
+          expectedOptionIds = [
+            candidateIds[3]!,
+            candidateIds[0]!,
+            candidateIds[2]!,
+          ];
+          return Promise.resolve(response);
+        },
+      },
+    });
+
+    const outcome = await application.recommendOss(
+      recommendationRequest({
+        id: 'recommend-derived-ranking',
+        term: 'authorization',
+      }),
+    );
+
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok || outcome.result.outcome !== 'recommend') return;
+    expect(
+      outcome.result.responsibleOptions.map(({ candidateId }) => candidateId),
+    ).toEqual(expectedOptionIds);
+    expect(outcome.result.responsibleOptions).toHaveLength(
+      HOSTED_RESPONSIBLE_OPTION_LIMIT,
+    );
+    expect(
+      outcome.result.responsibleOptions.some(
+        ({ candidateId }) => candidateId === rejectedCandidateId,
+      ),
+    ).toBe(false);
+    expect(outcome.result.targetFitAssessment.fitAssessment.rankGroups).toEqual(
+      expectedOptionIds.map((candidateId) => ({ candidateIds: [candidateId] })),
+    );
+  });
+
   it.each([
     ['clarification-required', 'lightweight'],
     ['unsupported', 'authentication'],
@@ -548,4 +606,43 @@ function addPositiveHardConflict(
       evidenceIds: [evidenceId],
     },
   ];
+}
+
+function promoteModelCandidate(
+  value: RecommendationAssessmentModelResponseV1,
+  index: number,
+): void {
+  const fit = value.targetFitAssessment.fitAssessment;
+  const assessment = fit.candidateAssessments[index];
+  const claim = fit.materialClaims[index];
+  const evidenceId = assessment?.evidenceIds[0];
+  const reason = assessment?.reasons[0];
+  if (
+    assessment === undefined ||
+    claim === undefined ||
+    evidenceId === undefined ||
+    reason === undefined
+  ) {
+    throw new Error('Ranking promotion fixture is incomplete.');
+  }
+  const inferenceId = `i${String(index + 1)}`;
+  assessment.disposition = 'viable';
+  assessment.inferenceIds = [inferenceId];
+  reason.inferenceIds = [inferenceId];
+  claim.direction = 'favorable';
+  claim.inferenceIds = [inferenceId];
+  fit.inferences.push({
+    kind: 'inference',
+    inferenceId,
+    candidateId: assessment.candidateId,
+    topic: 'runtime-support',
+    statement: 'The candidate runtime support matches the target runtime.',
+    rationale:
+      'Supplied candidate evidence and repository fact fact-runtime align.',
+    evidenceIds: [evidenceId],
+  });
+  value.targetFitAssessment.inferenceRepositoryFactBindings.push({
+    inferenceId,
+    repositoryFactIds: ['fact-runtime'],
+  });
 }
