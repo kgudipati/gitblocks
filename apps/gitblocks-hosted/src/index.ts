@@ -20,10 +20,12 @@ export {
   HOSTED_FIT_MODEL,
   HOSTED_FIT_MODEL_ENVIRONMENT_NAME,
   HOSTED_MCP_PORT_ENVIRONMENT_NAME,
+  MCP_TOKEN_ENVIRONMENT_NAME,
   HOSTED_SERVING_DATABASE_ENVIRONMENT_NAMES,
   OPENAI_API_KEY_ENVIRONMENT_NAME,
   readHostedFitModelConfiguration,
   readHostedMcpPortConfiguration,
+  readHostedMcpTokenConfiguration,
   readHostedServingDatabaseConfiguration,
   type HostedFitModelConfigurationV1,
 } from './configuration.ts';

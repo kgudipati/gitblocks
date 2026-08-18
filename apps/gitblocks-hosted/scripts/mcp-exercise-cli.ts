@@ -6,7 +6,10 @@ import {
   StreamableHTTPClientTransport,
 } from '@modelcontextprotocol/client';
 
-import { readHostedMcpPortConfiguration } from '../src/configuration.ts';
+import {
+  readHostedMcpPortConfiguration,
+  readHostedMcpTokenConfiguration,
+} from '../src/configuration.ts';
 import { GITBLOCKS_MCP_HOST, GITBLOCKS_MCP_PATH } from '../src/mcp-http.ts';
 import { GITBLOCKS_RECOMMEND_OSS_TOOL_NAME } from '../src/mcp-server.ts';
 
@@ -17,6 +20,7 @@ let client: Client | undefined;
 try {
   const request = await readRequest(parseRequestPath(process.argv.slice(2)));
   const port = readHostedMcpPortConfiguration(process.env);
+  const token = readHostedMcpTokenConfiguration(process.env);
   const endpoint = new URL(
     `http://${GITBLOCKS_MCP_HOST}:${String(port)}${GITBLOCKS_MCP_PATH}`,
   );
@@ -24,7 +28,11 @@ try {
     { name: 'gitblocks-hosted-local-exercise', version: '0.0.0' },
     { versionNegotiation: { mode: { pin: '2026-07-28' } } },
   );
-  await client.connect(new StreamableHTTPClientTransport(endpoint));
+  await client.connect(
+    new StreamableHTTPClientTransport(endpoint, {
+      authProvider: { token: () => Promise.resolve(token) },
+    }),
+  );
   const listed = await client.listTools();
   if (
     client.getProtocolEra() !== 'modern' ||

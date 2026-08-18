@@ -25,6 +25,7 @@ export async function startGitBlocksMcpProcess(input: {
   readonly clock?: HostedRecommendationClockPort;
   readonly observer?: HostedRecommendationObserverV1;
   readonly port: number;
+  readonly token: string;
   readonly signal?: AbortSignal;
   readonly onTransportError?: () => void;
 }): Promise<GitBlocksMcpProcessV1> {
@@ -44,6 +45,7 @@ export async function startGitBlocksMcpProcess(input: {
     listener = await startGitBlocksMcpHttpServer({
       application: composition,
       port: input.port,
+      token: input.token,
       ...(input.onTransportError === undefined
         ? {}
         : { onError: input.onTransportError }),

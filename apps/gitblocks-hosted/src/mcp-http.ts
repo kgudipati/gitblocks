@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'node:crypto';
 import {
   createServer,
   type IncomingMessage,
@@ -20,6 +21,7 @@ import { createGitBlocksMcpServer } from './mcp-server.ts';
 
 export const GITBLOCKS_MCP_HOST = '127.0.0.1';
 export const GITBLOCKS_MCP_PATH = '/mcp';
+const UNAUTHORIZED_RESPONSE_BODY = '{"error":"unauthorized"}';
 
 export interface GitBlocksMcpHttpServerV1 {
   readonly endpoint: URL;
@@ -35,8 +37,13 @@ export function createGitBlocksMcpHandler(
 export async function startGitBlocksMcpHttpServer(input: {
   readonly application: Pick<HostedRecommendationApplicationV1, 'recommendOss'>;
   readonly port: number;
+  readonly token: string;
   readonly onError?: () => void;
 }): Promise<GitBlocksMcpHttpServerV1> {
+  if (input.token.length === 0) {
+    throw new Error('MCP bearer token is required.');
+  }
+  const expectedTokenDigest = tokenDigest(input.token);
   const handler = createGitBlocksMcpHandler(input.application);
   const nodeHandler = toNodeHandler(handler, {
     onerror: () => input.onError?.(),
@@ -60,6 +67,15 @@ export async function startGitBlocksMcpHttpServer(input: {
       response.end('Not found.');
       return;
     }
+    if (!hasExpectedBearerToken(request, expectedTokenDigest)) {
+      response.writeHead(401, {
+        'cache-control': 'no-store',
+        'content-length': String(Buffer.byteLength(UNAUTHORIZED_RESPONSE_BODY)),
+        'content-type': 'application/json; charset=utf-8',
+      });
+      response.end(UNAUTHORIZED_RESPONSE_BODY);
+      return;
+    }
     void nodeHandler(request, response).catch(() => input.onError?.());
   });
 
@@ -79,6 +95,21 @@ export async function startGitBlocksMcpHttpServer(input: {
     await handler.close().catch(() => undefined);
     throw error;
   }
+}
+
+function hasExpectedBearerToken(
+  request: IncomingMessage,
+  expectedTokenDigest: Buffer,
+): boolean {
+  const authorizations = request.headersDistinct['authorization'];
+  if (authorizations?.length !== 1) return false;
+  const match = /^Bearer ([^\s]+)$/iu.exec(authorizations[0] ?? '');
+  if (match?.[1] === undefined) return false;
+  return timingSafeEqual(tokenDigest(match[1]), expectedTokenDigest);
+}
+
+function tokenDigest(token: string): Buffer {
+  return createHash('sha256').update(token, 'utf8').digest();
 }
 
 function listenOnLoopback(server: Server, port: number): Promise<number> {

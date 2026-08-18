@@ -6,8 +6,10 @@ import type { FitAssessmentModelRequestV1 } from '../src/application.ts';
 import {
   DEFAULT_HOSTED_MCP_PORT,
   HOSTED_FIT_MODEL,
+  MCP_TOKEN_ENVIRONMENT_NAME,
   readHostedFitModelConfiguration,
   readHostedMcpPortConfiguration,
+  readHostedMcpTokenConfiguration,
   readHostedServingDatabaseConfiguration,
 } from '../src/configuration.ts';
 import { startHostedRecommendationComposition } from '../src/composition.ts';
@@ -144,6 +146,11 @@ describe('hosted recommendation composition', () => {
     );
     expect(readHostedMcpPortConfiguration({})).toBe(DEFAULT_HOSTED_MCP_PORT);
     expect(
+      readHostedMcpTokenConfiguration({
+        [MCP_TOKEN_ENVIRONMENT_NAME]: 'test-only-mcp-token',
+      }),
+    ).toBe('test-only-mcp-token');
+    expect(
       readHostedFitModelConfiguration({
         OPENAI_API_KEY: 'sk-test-only',
         GITBLOCKS_HOSTED_FIT_MODEL: HOSTED_FIT_MODEL,
@@ -177,6 +184,15 @@ describe('hosted recommendation composition', () => {
     expect(() =>
       readHostedMcpPortConfiguration({ GITBLOCKS_HOSTED_MCP_PORT: '0' }),
     ).toThrow('Hosted discovery configuration is invalid.');
+  });
+
+  it('fails startup configuration when GITBLOCKS_MCP_TOKEN is unset or empty', () => {
+    expect(MCP_TOKEN_ENVIRONMENT_NAME).toBe('GITBLOCKS_MCP_TOKEN');
+    for (const environment of [{}, { [MCP_TOKEN_ENVIRONMENT_NAME]: '' }]) {
+      expect(() => readHostedMcpTokenConfiguration(environment)).toThrow(
+        'Hosted discovery configuration is invalid.',
+      );
+    }
   });
 });
 
