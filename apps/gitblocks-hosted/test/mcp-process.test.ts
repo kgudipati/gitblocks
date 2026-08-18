@@ -58,8 +58,13 @@ beforeEach(() => {
       close: lifecycle.compositionClose,
     });
   });
-  lifecycle.startListener.mockImplementation(() => {
+  lifecycle.startListener.mockImplementation((input) => {
     lifecycle.events.push('listener-ready');
+    lifecycle.events.push(
+      input.readiness?.() === false
+        ? 'listener-not-ready'
+        : 'listener-ready-too-early',
+    );
     return Promise.resolve({
       endpoint: new URL('http://127.0.0.1:3333/mcp'),
       close: lifecycle.listenerClose,
@@ -68,25 +73,35 @@ beforeEach(() => {
 });
 
 describe('GitBlocks recommendation MCP process lifecycle', () => {
-  it('waits for recommendation readiness and closes listener before composition exactly once', async () => {
+  it('listens with not-ready health during snapshot load and closes listener before composition exactly once', async () => {
     const process = await startGitBlocksMcpProcess({
       database: databaseConfiguration(),
       fitModel,
+      host: '0.0.0.0',
+      publicHost: 'example-app.fly.dev',
       port: 3333,
       token: MCP_TOKEN,
     });
-    expect(lifecycle.events).toEqual(['composition-ready', 'listener-ready']);
+    expect(lifecycle.events).toEqual([
+      'listener-ready',
+      'listener-not-ready',
+      'composition-ready',
+    ]);
     const listenerInput = lifecycle.startListener.mock.calls[0]?.[0];
     expect(listenerInput?.port).toBe(3333);
+    expect(listenerInput?.host).toBe('0.0.0.0');
+    expect(listenerInput?.publicHost).toBe('example-app.fly.dev');
     expect(listenerInput?.token).toBe(MCP_TOKEN);
     expect(typeof listenerInput?.application.recommendOss).toBe('function');
+    expect(listenerInput?.readiness?.()).toBe(true);
     expect(lifecycle.startComposition.mock.calls[0]?.[0].fitModel).toBe(
       fitModel,
     );
     await Promise.all([process.close(), process.close()]);
     expect(lifecycle.events).toEqual([
-      'composition-ready',
       'listener-ready',
+      'listener-not-ready',
+      'composition-ready',
       'listener-close',
       'composition-close',
     ]);
@@ -94,7 +109,7 @@ describe('GitBlocks recommendation MCP process lifecycle', () => {
     expect(lifecycle.compositionClose).toHaveBeenCalledTimes(1);
   });
 
-  it('does not listen when recommendation startup fails', async () => {
+  it('closes the not-ready listener when recommendation startup fails', async () => {
     lifecycle.startComposition.mockRejectedValueOnce(
       new Error('bounded startup failure'),
     );
@@ -106,10 +121,11 @@ describe('GitBlocks recommendation MCP process lifecycle', () => {
         token: MCP_TOKEN,
       }),
     ).rejects.toThrow('bounded startup failure');
-    expect(lifecycle.startListener).not.toHaveBeenCalled();
+    expect(lifecycle.startListener).toHaveBeenCalledTimes(1);
+    expect(lifecycle.listenerClose).toHaveBeenCalledTimes(1);
   });
 
-  it('closes the ready composition when listener startup fails', async () => {
+  it('does not start the composition when listener startup fails', async () => {
     lifecycle.startListener.mockRejectedValueOnce(
       new Error('listener startup failure'),
     );
@@ -121,7 +137,8 @@ describe('GitBlocks recommendation MCP process lifecycle', () => {
         token: MCP_TOKEN,
       }),
     ).rejects.toThrow('listener startup failure');
-    expect(lifecycle.compositionClose).toHaveBeenCalledTimes(1);
+    expect(lifecycle.startComposition).not.toHaveBeenCalled();
+    expect(lifecycle.compositionClose).not.toHaveBeenCalled();
   });
 });
 

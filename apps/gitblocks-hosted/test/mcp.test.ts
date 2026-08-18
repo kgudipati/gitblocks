@@ -1,5 +1,7 @@
 import { readFile } from 'node:fs/promises';
+import { once } from 'node:events';
 import { request as httpRequest } from 'node:http';
+import { createConnection } from 'node:net';
 
 import {
   Client,
@@ -15,6 +17,7 @@ import type {
 } from '../src/application.ts';
 import {
   GITBLOCKS_MCP_HOST,
+  GITBLOCKS_HEALTH_PATH,
   GITBLOCKS_MCP_PATH,
   startGitBlocksMcpHttpServer,
   type GitBlocksMcpHttpServerV1,
@@ -133,7 +136,7 @@ describe('GitBlocks recommendation MCP adapter', () => {
     expect(JSON.stringify([first, second])).not.toContain('sentinel');
   });
 
-  it('keeps the listener loopback-only and rejects non-MCP or non-loopback authority', async () => {
+  it('keeps loopback authority behavior unchanged when the public host is unset', async () => {
     const application = await createAcceptedApplication();
     const server = await startGitBlocksMcpHttpServer({
       application,
@@ -154,6 +157,117 @@ describe('GitBlocks recommendation MCP adapter', () => {
         origin: 'https://public.example.test',
       }),
     ).toBe(403);
+  });
+
+  it('keeps non-loopback bind authority behavior unchanged when the public host is unset', async () => {
+    const application = await createAcceptedApplication();
+    const server = await startGitBlocksMcpHttpServer({
+      application,
+      host: '0.0.0.0',
+      port: 0,
+      token: MCP_TOKEN,
+    });
+    servers.push(server);
+
+    expect(
+      await rawStatus(server.endpoint, GITBLOCKS_MCP_PATH, {
+        host: 'public.example.test',
+      }),
+    ).toBe(403);
+    expect(
+      await rawStatus(server.endpoint, GITBLOCKS_MCP_PATH, {
+        host: '0.0.0.0',
+        origin: 'https://public.example.test',
+      }),
+    ).toBe(403);
+    expect(
+      await rawStatus(server.endpoint, GITBLOCKS_MCP_PATH, {
+        host: '0.0.0.0',
+      }),
+    ).toBe(401);
+  });
+
+  it('uses a distinct public host for port-agnostic authority validation before the unchanged bearer check', async () => {
+    const application = await createAcceptedApplication();
+    const server = await startGitBlocksMcpHttpServer({
+      application,
+      host: '0.0.0.0',
+      publicHost: 'example-app.fly.dev',
+      port: 0,
+      token: MCP_TOKEN,
+    });
+    servers.push(server);
+
+    expect(
+      await rawStatus(server.endpoint, GITBLOCKS_MCP_PATH, {
+        host: 'different.example.test',
+      }),
+    ).toBe(403);
+    expect(
+      await rawStatus(server.endpoint, GITBLOCKS_MCP_PATH, {
+        host: 'example-app.fly.dev',
+      }),
+    ).toBe(401);
+    expect(
+      await rawStatus(server.endpoint, GITBLOCKS_MCP_PATH, {
+        host: 'example-app.fly.dev:8443',
+        origin: 'https://example-app.fly.dev:443',
+      }),
+    ).toBe(401);
+  });
+
+  it('reports not-ready before snapshot readiness and ready afterwards without a credential', async () => {
+    const application = await createAcceptedApplication();
+    let ready = false;
+    const server = await startGitBlocksMcpHttpServer({
+      application,
+      port: 0,
+      token: MCP_TOKEN,
+      readiness: () => ready,
+    });
+    servers.push(server);
+
+    expect(await rawResponse(server.endpoint, GITBLOCKS_HEALTH_PATH)).toEqual(
+      expect.objectContaining({
+        status: 503,
+        body: '{"status":"not-ready"}',
+      }),
+    );
+    ready = true;
+    expect(await rawResponse(server.endpoint, GITBLOCKS_HEALTH_PATH)).toEqual(
+      expect.objectContaining({
+        status: 200,
+        body: '{"status":"ready"}',
+      }),
+    );
+  });
+
+  it('bounds listener drain time before forcibly closing an unfinished connection', async () => {
+    const application = await createAcceptedApplication();
+    const server = await startGitBlocksMcpHttpServer({
+      application,
+      port: 0,
+      token: MCP_TOKEN,
+      drainMilliseconds: 25,
+    });
+    servers.push(server);
+    const socket = createConnection({
+      host: server.endpoint.hostname,
+      port: Number(server.endpoint.port),
+    });
+    await once(socket, 'connect');
+    socket.write(
+      `POST ${GITBLOCKS_MCP_PATH} HTTP/1.1\r\nHost: ${server.endpoint.host}\r\nAuthorization: Bearer ${MCP_TOKEN}\r\nContent-Length: 100\r\nContent-Type: application/json\r\n\r\n{`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
+    const startedAt = Date.now();
+    await server.close();
+    const elapsed = Date.now() - startedAt;
+
+    expect(elapsed).toBeGreaterThanOrEqual(15);
+    expect(elapsed).toBeLessThan(500);
+    socket.destroy();
   });
 
   it('returns the bounded unauthorized response when Authorization is missing', async () => {

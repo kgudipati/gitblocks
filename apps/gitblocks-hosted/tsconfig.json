@@ -7,7 +7,7 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "scripts/mcp-cli.ts"],
   "references": [
     { "path": "../../packages/domain" },
     { "path": "../../packages/contracts" },

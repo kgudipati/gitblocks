@@ -1,11 +1,15 @@
 # Active `recommend_oss` request path
 
-[Issue #54](https://github.com/kgudipati/gitblocks/issues/54) governs this
-request-time map. Startup-only composition, static-policy loading, offline
+[Issue #54](https://github.com/kgudipati/gitblocks/issues/54) governs the
+product request path, while [issue #94](https://github.com/kgudipati/gitblocks/issues/94)
+governs its container-serving boundary. Startup-only composition,
+static-policy loading, offline
 ingestion, evaluation tooling, and dormant subsystems are intentionally omitted.
 
-- `apps/gitblocks-hosted/src/mcp-http.ts` validates the loopback Host, Origin,
-  and `/mcp` boundary before delegating parsed MCP traffic.
+- `apps/gitblocks-hosted/src/mcp-http.ts` binds the configured listener host,
+  validates Host and Origin against the configured public host, then validates
+  the bearer credential and `/mcp` boundary before delegating parsed MCP
+  traffic; its credential-free `/health` surface reports only readiness.
 - `apps/gitblocks-hosted/src/mcp-server.ts` exposes only `recommend_oss`, applies
   the contract-generated tool input schema, calls the application operation,
   and returns bounded MCP success or failure content.

@@ -4,12 +4,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { FitAssessmentModelRequestV1 } from '../src/application.ts';
 import {
+  DEFAULT_HOSTED_MCP_HOST,
   DEFAULT_HOSTED_MCP_PORT,
   HOSTED_FIT_MODEL,
+  HOSTED_MCP_HOST_ENVIRONMENT_NAME,
+  HOSTED_MCP_PUBLIC_HOST_ENVIRONMENT_NAME,
+  HostedConfigurationError,
   MCP_TOKEN_ENVIRONMENT_NAME,
   readHostedFitModelConfiguration,
+  readHostedMcpHostConfiguration,
+  readHostedMcpPublicHostConfiguration,
   readHostedMcpPortConfiguration,
   readHostedMcpTokenConfiguration,
+  readHostedRuntimeConfiguration,
   readHostedServingDatabaseConfiguration,
 } from '../src/configuration.ts';
 import { startHostedRecommendationComposition } from '../src/composition.ts';
@@ -145,6 +152,21 @@ describe('hosted recommendation composition', () => {
       databaseConfiguration(),
     );
     expect(readHostedMcpPortConfiguration({})).toBe(DEFAULT_HOSTED_MCP_PORT);
+    expect(readHostedMcpHostConfiguration({})).toBe(DEFAULT_HOSTED_MCP_HOST);
+    expect(readHostedMcpPublicHostConfiguration({})).toBe(
+      DEFAULT_HOSTED_MCP_HOST,
+    );
+    expect(
+      readHostedMcpPublicHostConfiguration({
+        [HOSTED_MCP_HOST_ENVIRONMENT_NAME]: '0.0.0.0',
+      }),
+    ).toBe('0.0.0.0');
+    expect(
+      readHostedMcpPublicHostConfiguration({
+        [HOSTED_MCP_HOST_ENVIRONMENT_NAME]: '0.0.0.0',
+        [HOSTED_MCP_PUBLIC_HOST_ENVIRONMENT_NAME]: 'example-app.fly.dev',
+      }),
+    ).toBe('example-app.fly.dev');
     expect(
       readHostedMcpTokenConfiguration({
         [MCP_TOKEN_ENVIRONMENT_NAME]: 'test-only-mcp-token',
@@ -193,6 +215,74 @@ describe('hosted recommendation composition', () => {
         'Hosted discovery configuration is invalid.',
       );
     }
+  });
+
+  it('reports every missing startup variable at once using names and expected forms only', () => {
+    let thrown: unknown;
+    try {
+      readHostedRuntimeConfiguration({});
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toMatchObject({
+      code: 'hosted.invalid-configuration',
+      problems: [
+        { variable: 'GITBLOCKS_HOSTED_SERVING_DB_HOST' },
+        { variable: 'GITBLOCKS_HOSTED_SERVING_DB_PORT' },
+        { variable: 'GITBLOCKS_HOSTED_SERVING_DB_DATABASE' },
+        { variable: 'GITBLOCKS_HOSTED_SERVING_DB_USERNAME' },
+        { variable: 'GITBLOCKS_HOSTED_SERVING_DB_PASSWORD' },
+        { variable: 'GITBLOCKS_HOSTED_SERVING_DB_SSL' },
+        { variable: 'GITBLOCKS_MCP_TOKEN' },
+        { variable: 'OPENAI_API_KEY' },
+        { variable: 'GITBLOCKS_HOSTED_FIT_MODEL' },
+      ],
+    });
+    const report = String(thrown);
+    expect(report).toContain('GITBLOCKS_HOSTED_SERVING_DB_HOST');
+    expect(report).toContain('GITBLOCKS_HOSTED_FIT_MODEL');
+    expect(report).toContain('expected');
+  });
+
+  it('reports accepted enum values without copying invalid supplied values', () => {
+    const invalidSsl = 'invalid-ssl-output-sentinel';
+    const invalidHost = 'https://invalid-host-output-sentinel/path';
+    const invalidPublicHost =
+      'https://invalid-public-host-output-sentinel/path';
+    let thrown: unknown;
+    try {
+      readHostedRuntimeConfiguration({
+        ...databaseEnvironment(),
+        GITBLOCKS_HOSTED_SERVING_DB_SSL: invalidSsl,
+        [HOSTED_MCP_HOST_ENVIRONMENT_NAME]: invalidHost,
+        [HOSTED_MCP_PUBLIC_HOST_ENVIRONMENT_NAME]: invalidPublicHost,
+        GITBLOCKS_MCP_TOKEN: 'test-only-token',
+        OPENAI_API_KEY: 'test-only-api-key',
+        GITBLOCKS_HOSTED_FIT_MODEL: HOSTED_FIT_MODEL,
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(HostedConfigurationError);
+    if (!(thrown instanceof HostedConfigurationError)) return;
+    expect(thrown.problems).toContainEqual({
+      variable: 'GITBLOCKS_HOSTED_SERVING_DB_SSL',
+      expected: 'one of: disable, require',
+    });
+    expect(thrown.problems).toContainEqual({
+      variable: HOSTED_MCP_HOST_ENVIRONMENT_NAME,
+      expected: 'a hostname or IP address without a scheme, path, or port',
+    });
+    expect(thrown.problems).toContainEqual({
+      variable: HOSTED_MCP_PUBLIC_HOST_ENVIRONMENT_NAME,
+      expected: 'a hostname or IP address without a scheme, path, or port',
+    });
+    const report = String(thrown);
+    expect(report).not.toContain(invalidSsl);
+    expect(report).not.toContain(invalidHost);
+    expect(report).not.toContain(invalidPublicHost);
   });
 });
 

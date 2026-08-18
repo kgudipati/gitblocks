@@ -16,18 +16,27 @@ export {
   type HostedResponsibleOptionV1,
 } from './application.ts';
 export {
+  DEFAULT_HOSTED_MCP_HOST,
   DEFAULT_HOSTED_MCP_PORT,
   HOSTED_FIT_MODEL,
   HOSTED_FIT_MODEL_ENVIRONMENT_NAME,
+  HOSTED_MCP_HOST_ENVIRONMENT_NAME,
+  HOSTED_MCP_PUBLIC_HOST_ENVIRONMENT_NAME,
   HOSTED_MCP_PORT_ENVIRONMENT_NAME,
+  HostedConfigurationError,
   MCP_TOKEN_ENVIRONMENT_NAME,
   HOSTED_SERVING_DATABASE_ENVIRONMENT_NAMES,
   OPENAI_API_KEY_ENVIRONMENT_NAME,
   readHostedFitModelConfiguration,
+  readHostedMcpHostConfiguration,
+  readHostedMcpPublicHostConfiguration,
   readHostedMcpPortConfiguration,
   readHostedMcpTokenConfiguration,
+  readHostedRuntimeConfiguration,
   readHostedServingDatabaseConfiguration,
   type HostedFitModelConfigurationV1,
+  type HostedConfigurationProblemV1,
+  type HostedRuntimeConfigurationV1,
 } from './configuration.ts';
 export {
   startHostedRecommendationComposition,
@@ -41,11 +50,17 @@ export {
 } from './errors.ts';
 export {
   createGitBlocksMcpHandler,
+  GITBLOCKS_HEALTH_PATH,
+  GITBLOCKS_HTTP_DRAIN_MILLISECONDS,
   GITBLOCKS_MCP_HOST,
   GITBLOCKS_MCP_PATH,
   startGitBlocksMcpHttpServer,
   type GitBlocksMcpHttpServerV1,
 } from './mcp-http.ts';
+export {
+  runGitBlocksMcpCli,
+  type HostedMcpSignalSourceV1,
+} from './mcp-cli-runtime.ts';
 export {
   startGitBlocksMcpProcess,
   type GitBlocksMcpProcessV1,
