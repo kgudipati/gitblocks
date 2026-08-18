@@ -11,6 +11,7 @@ import {
   selectHostedRetrievalFinalistsV1,
   type FitAssessmentModelRequestV1,
 } from '../src/application.ts';
+import { HostedDiscoveryError } from '../src/errors.ts';
 import {
   candidateDossier,
   acceptedRetrievalResult,
@@ -528,7 +529,11 @@ describe('hosted OSS recommendation application', () => {
 
       expect(result).toMatchObject({
         ok: false,
-        failure: { code: 'invalid-target-fit-response' },
+        failure: {
+          code: 'invalid-target-fit-response',
+          stage: 'response-validation',
+          path: 'target-fit-exchange-validation',
+        },
       });
       expect(model).toHaveBeenCalledTimes(1);
     },
@@ -543,10 +548,42 @@ describe('hosted OSS recommendation application', () => {
     });
     expect(await application.recommendOss({})).toMatchObject({
       ok: false,
-      failure: { kind: 'contract' },
+      failure: {
+        kind: 'contract',
+        code: 'invalid-recommendation-request',
+        stage: 'request-validation',
+        path: 'recommendation-request-parse',
+      },
     });
     expect(loader).not.toHaveBeenCalled();
     expect(model).not.toHaveBeenCalled();
+  });
+
+  it('preserves a bounded model cause code without exposing the thrown error', async () => {
+    const application = await createAcceptedApplication({
+      fitModel: {
+        assess: () =>
+          Promise.reject(new HostedDiscoveryError('hosted.fit-model-timeout')),
+      },
+    });
+
+    expect(
+      await application.recommendOss(
+        recommendationRequest({
+          id: 'bounded-model-cause',
+          term: 'authorization',
+        }),
+      ),
+    ).toMatchObject({
+      ok: false,
+      failure: {
+        kind: 'application',
+        code: 'fit-model-failed',
+        causeCode: 'hosted.fit-model-timeout',
+        stage: 'model-assessment',
+        path: 'fit-model-assessment',
+      },
+    });
   });
 });
 

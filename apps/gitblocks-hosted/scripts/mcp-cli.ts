@@ -22,6 +22,11 @@ process.exitCode = await runGitBlocksMcpCli({
           '{"operation":"hosted-mcp.transport","status":"failed","code":"hosted.internal"}\n',
         );
       },
+      recommendationFailureObserver: {
+        emit: (event) => {
+          process.stderr.write(`${JSON.stringify(event)}\n`);
+        },
+      },
     });
   },
   writeStdout: (text) => process.stdout.write(text),

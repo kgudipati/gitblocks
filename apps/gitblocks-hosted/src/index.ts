@@ -9,6 +9,9 @@ export {
   type HostedRecommendationApplicationCreationResultV1,
   type HostedRecommendationApplicationV1,
   type HostedRecommendationClockPort,
+  type HostedRecommendationFailureCauseCodeV1,
+  type HostedRecommendationFailurePathV1,
+  type HostedRecommendationFailureStageV1,
   type HostedRecommendationFailureV1,
   type HostedRecommendationObserverV1,
   type HostedRecommendationOperationResultV1,
@@ -69,6 +72,8 @@ export {
   createGitBlocksMcpServer,
   GITBLOCKS_RECOMMEND_OSS_TOOL_DESCRIPTION,
   GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+  type HostedRecommendationFailureLogEventV1,
+  type HostedRecommendationFailureObserverV1,
 } from './mcp-server.ts';
 export {
   createOpenAiFitAssessmentModel,

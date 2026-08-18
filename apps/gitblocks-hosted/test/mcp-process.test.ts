@@ -31,6 +31,7 @@ import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
 
 const fitModel = Object.freeze({ assess: vi.fn() });
 const MCP_TOKEN = 'test-only-mcp-token';
+const recommendationFailureObserver = Object.freeze({ emit: vi.fn() });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -52,6 +53,8 @@ beforeEach(() => {
           failure: {
             kind: 'application',
             code: 'hosted-recommendation-not-ready',
+            stage: 'readiness',
+            path: 'hosted-recommendation-readiness',
           },
         }),
       readiness: () => ({ ready: true, snapshot: snapshot() }),
@@ -81,6 +84,7 @@ describe('GitBlocks recommendation MCP process lifecycle', () => {
       publicHost: 'example-app.fly.dev',
       port: 3333,
       token: MCP_TOKEN,
+      recommendationFailureObserver,
     });
     expect(lifecycle.events).toEqual([
       'listener-ready',
@@ -92,6 +96,9 @@ describe('GitBlocks recommendation MCP process lifecycle', () => {
     expect(listenerInput?.host).toBe('0.0.0.0');
     expect(listenerInput?.publicHost).toBe('example-app.fly.dev');
     expect(listenerInput?.token).toBe(MCP_TOKEN);
+    expect(listenerInput?.recommendationFailureObserver).toBe(
+      recommendationFailureObserver,
+    );
     expect(typeof listenerInput?.application.recommendOss).toBe('function');
     expect(listenerInput?.readiness?.()).toBe(true);
     expect(lifecycle.startComposition.mock.calls[0]?.[0].fitModel).toBe(

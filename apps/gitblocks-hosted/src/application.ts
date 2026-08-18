@@ -49,6 +49,7 @@ import {
   selectCandidateArtifactEvidenceV1,
   type CandidateArtifactMaterialLoaderPort,
 } from './artifact-evidence-selector.ts';
+import { hostedDiscoveryErrorCode } from './errors.ts';
 
 const DISCOVERY_RESULT_LIMIT = 10;
 export const HOSTED_FIT_FINALIST_LIMIT = 5;
@@ -153,9 +154,48 @@ export interface HostedResponsibleOptionV1 {
   readonly identity: CandidateDossierV1['identity'];
 }
 
+export type HostedRecommendationFailureStageV1 =
+  | 'request-validation'
+  | 'normalization'
+  | 'retrieval'
+  | 'evidence-loading'
+  | 'fit-request-construction'
+  | 'model-assessment'
+  | 'response-validation'
+  | 'readiness';
+
+export type HostedRecommendationFailurePathV1 =
+  | 'recommendation-request-parse'
+  | 'capability-query-normalization'
+  | 'retrieval-request-construction'
+  | 'candidate-retrieval'
+  | 'evidence-cutoff'
+  | 'finalist-dossier-load'
+  | 'finalist-artifact-load'
+  | 'fit-assessment-request-construction'
+  | 'fit-model-assessment'
+  | 'response-timestamp'
+  | 'target-fit-exchange-validation'
+  | 'responsible-option-projection'
+  | 'hosted-recommendation-readiness';
+
+export type HostedRecommendationFailureCauseCodeV1 =
+  | ReturnType<typeof hostedDiscoveryErrorCode>
+  | CandidateRetrievalOperationIssueV1['code'];
+
 export type HostedRecommendationFailureV1 =
   | {
       readonly kind: 'contract';
+      readonly code:
+        'invalid-recommendation-request' | 'invalid-normalization-result';
+      readonly stage: Extract<
+        HostedRecommendationFailureStageV1,
+        'request-validation' | 'normalization'
+      >;
+      readonly path: Extract<
+        HostedRecommendationFailurePathV1,
+        'recommendation-request-parse' | 'capability-query-normalization'
+      >;
       readonly issues: readonly ContractIssue[];
     }
   | {
@@ -167,9 +207,16 @@ export type HostedRecommendationFailureV1 =
         | 'fit-assessment-request-construction-failed'
         | 'fit-model-failed'
         | 'invalid-target-fit-response';
+      readonly stage: HostedRecommendationFailureStageV1;
+      readonly path: HostedRecommendationFailurePathV1;
+      readonly causeCode?: HostedRecommendationFailureCauseCodeV1;
     }
   | {
       readonly kind: 'retrieval';
+      readonly code: 'candidate-retrieval-failed';
+      readonly stage: 'retrieval';
+      readonly path: 'candidate-retrieval';
+      readonly causeCode?: CandidateRetrievalOperationIssueV1['code'];
       readonly issues: readonly CandidateRetrievalOperationIssueV1[];
     };
 
@@ -269,7 +316,11 @@ export function createHostedRecommendationApplication(input: {
 }
 
 export function hostedRecommendationNotReady(): HostedRecommendationOperationResultV1 {
-  return applicationFailure('hosted-recommendation-not-ready');
+  return applicationFailure(
+    'hosted-recommendation-not-ready',
+    'readiness',
+    'hosted-recommendation-readiness',
+  );
 }
 
 async function recommendOss(input: {
@@ -291,7 +342,13 @@ async function recommendOss(input: {
   if (!parsed.ok) {
     return Object.freeze({
       ok: false,
-      failure: Object.freeze({ kind: 'contract', issues: parsed.issues }),
+      failure: Object.freeze({
+        kind: 'contract',
+        code: 'invalid-recommendation-request',
+        stage: 'request-validation',
+        path: 'recommendation-request-parse',
+        issues: parsed.issues,
+      }),
     });
   }
   const requestId = parsed.value.recommendationRequestId;
@@ -304,7 +361,13 @@ async function recommendOss(input: {
   if (!normalized.ok) {
     return Object.freeze({
       ok: false,
-      failure: Object.freeze({ kind: 'contract', issues: normalized.issues }),
+      failure: Object.freeze({
+        kind: 'contract',
+        code: 'invalid-normalization-result',
+        stage: 'normalization',
+        path: 'capability-query-normalization',
+        issues: normalized.issues,
+      }),
     });
   }
   if (normalized.value.outcome !== 'normalized') {
@@ -327,11 +390,15 @@ async function recommendOss(input: {
       eligibleResultLimit: DISCOVERY_RESULT_LIMIT,
       evidenceNeededResultLimit: DISCOVERY_RESULT_LIMIT,
     });
-  } catch {
+  } catch (error) {
     return failed(
       input.observer,
       requestId,
       'retrieval-request-construction-failed',
+      'retrieval',
+      'retrieval-request-construction',
+      0,
+      hostedDiscoveryErrorCode(error),
     );
   }
   const retrieved = input.engine.retrieve(retrievalRequest);
@@ -339,7 +406,16 @@ async function recommendOss(input: {
     emit(input.observer, event(requestId, 'failed', 'failed'));
     return Object.freeze({
       ok: false,
-      failure: Object.freeze({ kind: 'retrieval', issues: retrieved.issues }),
+      failure: Object.freeze({
+        kind: 'retrieval',
+        code: 'candidate-retrieval-failed',
+        stage: 'retrieval',
+        path: 'candidate-retrieval',
+        ...(retrieved.issues[0] === undefined
+          ? {}
+          : { causeCode: retrieved.issues[0].code }),
+        issues: retrieved.issues,
+      }),
     });
   }
   emit(
@@ -368,6 +444,8 @@ async function recommendOss(input: {
       input.observer,
       requestId,
       'fit-assessment-request-construction-failed',
+      'fit-request-construction',
+      'evidence-cutoff',
       finalists.length,
     );
   }
@@ -392,12 +470,15 @@ async function recommendOss(input: {
         return parsedDossier.value;
       }),
     );
-  } catch {
+  } catch (error) {
     return failed(
       input.observer,
       requestId,
       'finalist-evidence-load-failed',
+      'evidence-loading',
+      'finalist-dossier-load',
       finalists.length,
+      hostedDiscoveryErrorCode(error),
     );
   }
   try {
@@ -458,12 +539,15 @@ async function recommendOss(input: {
       }
       return augmented.value;
     });
-  } catch {
+  } catch (error) {
     return failed(
       input.observer,
       requestId,
       'finalist-evidence-load-failed',
+      'evidence-loading',
+      'finalist-artifact-load',
       finalists.length,
+      hostedDiscoveryErrorCode(error),
     );
   }
   emit(
@@ -507,12 +591,15 @@ async function recommendOss(input: {
     const validated = parseFitAssessmentRequestV1(candidate);
     if (!validated.ok) throw new Error('Fit request validation failed.');
     fitRequest = validated.value;
-  } catch {
+  } catch (error) {
     return failed(
       input.observer,
       requestId,
       'fit-assessment-request-construction-failed',
+      'fit-request-construction',
+      'fit-assessment-request-construction',
       dossiers.length,
+      hostedDiscoveryErrorCode(error),
     );
   }
 
@@ -530,12 +617,15 @@ async function recommendOss(input: {
         }),
       ),
     });
-  } catch {
+  } catch (error) {
     return failed(
       input.observer,
       requestId,
       'fit-model-failed',
+      'model-assessment',
+      'fit-model-assessment',
       dossiers.length,
+      hostedDiscoveryErrorCode(error),
     );
   }
   emit(
@@ -548,6 +638,8 @@ async function recommendOss(input: {
       input.observer,
       requestId,
       'invalid-target-fit-response',
+      'response-validation',
+      'response-timestamp',
       dossiers.length,
     );
   }
@@ -564,6 +656,8 @@ async function recommendOss(input: {
       input.observer,
       requestId,
       'invalid-target-fit-response',
+      'response-validation',
+      'target-fit-exchange-validation',
       dossiers.length,
     );
   }
@@ -606,6 +700,8 @@ async function recommendOss(input: {
       input.observer,
       requestId,
       'invalid-target-fit-response',
+      'response-validation',
+      'responsible-option-projection',
       dossiers.length,
     );
   }
@@ -620,6 +716,8 @@ async function recommendOss(input: {
         input.observer,
         requestId,
         'invalid-target-fit-response',
+        'response-validation',
+        'responsible-option-projection',
         dossiers.length,
       );
     }
@@ -811,10 +909,19 @@ function applicationFailure(
     HostedRecommendationFailureV1,
     { readonly kind: 'application' }
   >['code'],
+  stage: HostedRecommendationFailureStageV1,
+  path: HostedRecommendationFailurePathV1,
+  causeCode?: HostedRecommendationFailureCauseCodeV1,
 ): HostedRecommendationOperationResultV1 {
   return Object.freeze({
     ok: false,
-    failure: Object.freeze({ kind: 'application', code }),
+    failure: Object.freeze({
+      kind: 'application',
+      code,
+      stage,
+      path,
+      ...(causeCode === undefined ? {} : { causeCode }),
+    }),
   });
 }
 
@@ -825,10 +932,13 @@ function failed(
     HostedRecommendationFailureV1,
     { readonly kind: 'application' }
   >['code'],
+  stage: HostedRecommendationFailureStageV1,
+  path: HostedRecommendationFailurePathV1,
   finalistCount = 0,
+  causeCode?: HostedRecommendationFailureCauseCodeV1,
 ): HostedRecommendationOperationResultV1 {
   emit(observer, event(requestId, 'failed', 'failed', finalistCount));
-  return applicationFailure(code);
+  return applicationFailure(code, stage, path, causeCode);
 }
 
 function event(

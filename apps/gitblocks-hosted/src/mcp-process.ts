@@ -14,6 +14,7 @@ import {
   startGitBlocksMcpHttpServer,
   type GitBlocksMcpHttpServerV1,
 } from './mcp-http.ts';
+import type { HostedRecommendationFailureObserverV1 } from './mcp-server.ts';
 
 export interface GitBlocksMcpProcessV1 {
   readonly endpoint: URL;
@@ -32,6 +33,7 @@ export async function startGitBlocksMcpProcess(input: {
   readonly drainMilliseconds?: number;
   readonly signal?: AbortSignal;
   readonly onTransportError?: () => void;
+  readonly recommendationFailureObserver?: HostedRecommendationFailureObserverV1;
 }): Promise<GitBlocksMcpProcessV1> {
   let composition: HostedRecommendationCompositionV1 | undefined;
   let listener: GitBlocksMcpHttpServerV1 | undefined;
@@ -57,6 +59,11 @@ export async function startGitBlocksMcpProcess(input: {
       ...(input.onTransportError === undefined
         ? {}
         : { onError: input.onTransportError }),
+      ...(input.recommendationFailureObserver === undefined
+        ? {}
+        : {
+            recommendationFailureObserver: input.recommendationFailureObserver,
+          }),
     });
     composition = await startHostedRecommendationComposition({
       database: input.database,
