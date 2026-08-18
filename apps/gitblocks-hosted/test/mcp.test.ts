@@ -103,13 +103,22 @@ describe('GitBlocks recommendation MCP adapter', () => {
   it('maps application and unexpected failures to one bounded value-free error', async () => {
     const failure: HostedRecommendationOperationResultV1 = {
       ok: false,
-      failure: { kind: 'application', code: 'fit-model-failed' },
+      failure: {
+        kind: 'application',
+        code: 'fit-model-failed',
+        stage: 'model-assessment',
+        path: 'fit-model-assessment',
+        causeCode: 'hosted.fit-model-timeout',
+      },
     };
+    const failureEvents: unknown[] = [];
     const recommendOss = vi
       .fn<(input: unknown) => Promise<HostedRecommendationOperationResultV1>>()
       .mockResolvedValueOnce(failure)
       .mockRejectedValueOnce(new Error('provider credential sentinel'));
-    const { client } = await connectClient({ recommendOss });
+    const { client } = await connectClient({ recommendOss }, (event) =>
+      failureEvents.push(event),
+    );
     const request = recommendationRequest({
       id: 'mcp-bounded-failure',
       term: 'authorization',
@@ -134,6 +143,60 @@ describe('GitBlocks recommendation MCP adapter', () => {
       }),
     ]);
     expect(JSON.stringify([first, second])).not.toContain('sentinel');
+    expect(failureEvents).toEqual([
+      {
+        operation: 'hosted.recommendation',
+        correlationId: 'mcp-bounded-failure',
+        status: 'failed',
+        stage: 'model-assessment',
+        path: 'fit-model-assessment',
+        code: 'fit-model-failed',
+        causeCode: 'hosted.fit-model-timeout',
+      },
+      {
+        operation: 'hosted.recommendation',
+        correlationId: 'mcp-bounded-failure',
+        status: 'failed',
+        stage: 'mcp',
+        path: 'application-call',
+        code: 'unexpected-application-error',
+        causeCode: 'hosted.internal',
+      },
+    ]);
+    expect(JSON.stringify(failureEvents)).not.toContain('sentinel');
+  });
+
+  it('keeps the bounded client failure unchanged when the log sink throws', async () => {
+    const recommendOss = vi.fn(() =>
+      Promise.resolve<HostedRecommendationOperationResultV1>({
+        ok: false,
+        failure: {
+          kind: 'application',
+          code: 'fit-model-failed',
+          stage: 'model-assessment',
+          path: 'fit-model-assessment',
+          causeCode: 'hosted.fit-model-provider-failed',
+        },
+      }),
+    );
+    const { client } = await connectClient({ recommendOss }, () => {
+      throw new Error('logging output sentinel');
+    });
+
+    expect(
+      await client.callTool({
+        name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+        arguments: recommendationRequest({
+          id: 'mcp-failing-log-sink',
+          term: 'authorization',
+        }),
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        isError: true,
+        content: [{ type: 'text', text: 'GitBlocks recommendation failed.' }],
+      }),
+    );
   });
 
   it('keeps loopback authority behavior unchanged when the public host is unset', async () => {
@@ -336,6 +399,7 @@ describe('GitBlocks recommendation MCP adapter', () => {
 
 async function connectClient(
   application: Pick<HostedRecommendationApplicationV1, 'recommendOss'>,
+  onRecommendationFailure?: (event: unknown) => void,
 ): Promise<{
   readonly client: Client;
   readonly server: GitBlocksMcpHttpServerV1;
@@ -344,6 +408,13 @@ async function connectClient(
     application,
     port: 0,
     token: MCP_TOKEN,
+    ...(onRecommendationFailure === undefined
+      ? {}
+      : {
+          recommendationFailureObserver: {
+            emit: onRecommendationFailure,
+          },
+        }),
   });
   servers.push(server);
   const client = new Client(

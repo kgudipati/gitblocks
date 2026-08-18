@@ -19,7 +19,10 @@ import {
 } from '@modelcontextprotocol/server';
 
 import type { HostedRecommendationApplicationV1 } from './application.ts';
-import { createGitBlocksMcpServer } from './mcp-server.ts';
+import {
+  createGitBlocksMcpServer,
+  type HostedRecommendationFailureObserverV1,
+} from './mcp-server.ts';
 
 export const GITBLOCKS_MCP_HOST = '127.0.0.1';
 export const GITBLOCKS_MCP_PATH = '/mcp';
@@ -36,8 +39,11 @@ export interface GitBlocksMcpHttpServerV1 {
 
 export function createGitBlocksMcpHandler(
   application: Pick<HostedRecommendationApplicationV1, 'recommendOss'>,
+  recommendationFailureObserver?: HostedRecommendationFailureObserverV1,
 ): McpHttpHandler {
-  return createMcpHandler(() => createGitBlocksMcpServer(application));
+  return createMcpHandler(() =>
+    createGitBlocksMcpServer(application, recommendationFailureObserver),
+  );
 }
 
 export async function startGitBlocksMcpHttpServer(input: {
@@ -49,6 +55,7 @@ export async function startGitBlocksMcpHttpServer(input: {
   readonly readiness?: () => boolean;
   readonly drainMilliseconds?: number;
   readonly onError?: () => void;
+  readonly recommendationFailureObserver?: HostedRecommendationFailureObserverV1;
 }): Promise<GitBlocksMcpHttpServerV1> {
   if (input.token.length === 0) {
     throw new Error('MCP bearer token is required.');
@@ -67,7 +74,10 @@ export async function startGitBlocksMcpHttpServer(input: {
     throw new Error('MCP drain period must be a non-negative integer.');
   }
   const expectedTokenDigest = tokenDigest(input.token);
-  const handler = createGitBlocksMcpHandler(input.application);
+  const handler = createGitBlocksMcpHandler(
+    input.application,
+    input.recommendationFailureObserver,
+  );
   const nodeHandler = toNodeHandler(handler, {
     onerror: () => input.onError?.(),
   }) as unknown as (
