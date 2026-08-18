@@ -217,7 +217,7 @@ const recommendationAssessmentModelFitResponseV1ValueSchema = closedObject({
           minItems: 1,
           maxItems: 20,
           description:
-            'Every cited evidence, inference, claim, candidate unknown, hard-constraint conflict, and limitation must belong to the same candidateId as the candidateAssessment that cites it; each reason candidateId must equal its enclosing assessment candidateId.',
+            'Within each candidateAssessment, every reason must use a unique reasonCode; do not repeat a reasonCode in that assessment. Every cited evidence, inference, claim, candidate unknown, hard-constraint conflict, and limitation must belong to the same candidateId as the candidateAssessment that cites it; each reason candidateId must equal its enclosing assessment candidateId.',
         },
       ),
       evidenceIds: Type.Array(suppliedEvidenceTokenSchema, {
