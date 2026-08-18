@@ -1,5 +1,6 @@
 import {
   readHostedMcpPortConfiguration,
+  readHostedMcpTokenConfiguration,
   readHostedFitModelConfiguration,
   readHostedServingDatabaseConfiguration,
 } from '../src/configuration.ts';
@@ -16,6 +17,7 @@ process.once('SIGTERM', abort);
 
 let hostedProcess;
 try {
+  const token = readHostedMcpTokenConfiguration(process.env);
   const database = readHostedServingDatabaseConfiguration(process.env);
   const port = readHostedMcpPortConfiguration(process.env);
   const fitModel = createOpenAiFitAssessmentModel({
@@ -25,6 +27,7 @@ try {
     database,
     fitModel,
     port,
+    token,
     signal: controller.signal,
     onTransportError: () => {
       process.stderr.write(

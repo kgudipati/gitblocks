@@ -12,6 +12,7 @@ export const HOSTED_SERVING_DATABASE_ENVIRONMENT_NAMES = Object.freeze({
 } as const);
 
 export const HOSTED_MCP_PORT_ENVIRONMENT_NAME = 'GITBLOCKS_HOSTED_MCP_PORT';
+export const MCP_TOKEN_ENVIRONMENT_NAME = 'GITBLOCKS_MCP_TOKEN';
 export const DEFAULT_HOSTED_MCP_PORT = 3333;
 export const OPENAI_API_KEY_ENVIRONMENT_NAME = 'OPENAI_API_KEY';
 export const HOSTED_FIT_MODEL_ENVIRONMENT_NAME = 'GITBLOCKS_HOSTED_FIT_MODEL';
@@ -47,6 +48,16 @@ export function readHostedMcpPortConfiguration(
     throw new HostedDiscoveryError('hosted.invalid-configuration');
   }
   return port;
+}
+
+export function readHostedMcpTokenConfiguration(
+  environment: Readonly<Record<string, string | undefined>>,
+): string {
+  const token = environment[MCP_TOKEN_ENVIRONMENT_NAME];
+  if (token === undefined || token.length === 0) {
+    throw new HostedDiscoveryError('hosted.invalid-configuration');
+  }
+  return token;
 }
 
 export function readHostedServingDatabaseConfiguration(

@@ -177,6 +177,7 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
         fitModel: { assess: model },
         clock: { now: () => EVIDENCE_CUTOFF },
         port: 0,
+        token: 'test-only-mcp-token',
       });
 
       await ownerSql.unsafe(`
@@ -194,6 +195,9 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
       );
       await client.connect(
         new StreamableHTTPClientTransport(hostedProcess.endpoint, {
+          authProvider: {
+            token: () => Promise.resolve('test-only-mcp-token'),
+          },
           fetch: loopbackFetch,
         }),
       );
@@ -304,6 +308,7 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
         fitModel: { assess: model },
         clock: { now: () => EVIDENCE_CUTOFF },
         port: 0,
+        token: 'test-only-mcp-token',
       });
       client = new Client(
         { name: 'gitblocks-r8-postgresql-mcp-test', version: '0.0.0' },
@@ -311,6 +316,9 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
       );
       await client.connect(
         new StreamableHTTPClientTransport(hostedProcess.endpoint, {
+          authProvider: {
+            token: () => Promise.resolve('test-only-mcp-token'),
+          },
           fetch: loopbackFetch,
         }),
       );
@@ -424,6 +432,7 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
         fitModel: { assess: model },
         clock: { now: () => EVIDENCE_CUTOFF },
         port: 0,
+        token: 'test-only-mcp-token',
       });
       client = new Client(
         { name: 'gitblocks-r9-postgresql-mcp-test', version: '0.0.0' },
@@ -431,6 +440,9 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
       );
       await client.connect(
         new StreamableHTTPClientTransport(hostedProcess.endpoint, {
+          authProvider: {
+            token: () => Promise.resolve('test-only-mcp-token'),
+          },
           fetch: loopbackFetch,
         }),
       );

@@ -30,6 +30,7 @@ vi.mock('../src/mcp-http.ts', async (importOriginal) => {
 import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
 
 const fitModel = Object.freeze({ assess: vi.fn() });
+const MCP_TOKEN = 'test-only-mcp-token';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -72,10 +73,12 @@ describe('GitBlocks recommendation MCP process lifecycle', () => {
       database: databaseConfiguration(),
       fitModel,
       port: 3333,
+      token: MCP_TOKEN,
     });
     expect(lifecycle.events).toEqual(['composition-ready', 'listener-ready']);
     const listenerInput = lifecycle.startListener.mock.calls[0]?.[0];
     expect(listenerInput?.port).toBe(3333);
+    expect(listenerInput?.token).toBe(MCP_TOKEN);
     expect(typeof listenerInput?.application.recommendOss).toBe('function');
     expect(lifecycle.startComposition.mock.calls[0]?.[0].fitModel).toBe(
       fitModel,
@@ -100,6 +103,7 @@ describe('GitBlocks recommendation MCP process lifecycle', () => {
         database: databaseConfiguration(),
         fitModel,
         port: 3333,
+        token: MCP_TOKEN,
       }),
     ).rejects.toThrow('bounded startup failure');
     expect(lifecycle.startListener).not.toHaveBeenCalled();
@@ -114,6 +118,7 @@ describe('GitBlocks recommendation MCP process lifecycle', () => {
         database: databaseConfiguration(),
         fitModel,
         port: 3333,
+        token: MCP_TOKEN,
       }),
     ).rejects.toThrow('listener startup failure');
     expect(lifecycle.compositionClose).toHaveBeenCalledTimes(1);

@@ -26,6 +26,7 @@ import {
 } from './fixtures.ts';
 
 const nativeFetch = globalThis.fetch.bind(globalThis);
+const MCP_TOKEN = 'test-only-mcp-bearer-token';
 const loopbackFetch: FetchLike = async (input, init) => {
   const url = new URL(input instanceof Request ? input.url : String(input));
   if (url.hostname !== GITBLOCKS_MCP_HOST) {
@@ -134,7 +135,11 @@ describe('GitBlocks recommendation MCP adapter', () => {
 
   it('keeps the listener loopback-only and rejects non-MCP or non-loopback authority', async () => {
     const application = await createAcceptedApplication();
-    const server = await startGitBlocksMcpHttpServer({ application, port: 0 });
+    const server = await startGitBlocksMcpHttpServer({
+      application,
+      port: 0,
+      token: MCP_TOKEN,
+    });
     servers.push(server);
     expect(server.endpoint.hostname).toBe(GITBLOCKS_MCP_HOST);
     expect(server.endpoint.pathname).toBe(GITBLOCKS_MCP_PATH);
@@ -149,6 +154,59 @@ describe('GitBlocks recommendation MCP adapter', () => {
         origin: 'https://public.example.test',
       }),
     ).toBe(403);
+  });
+
+  it('returns the bounded unauthorized response when Authorization is missing', async () => {
+    const server = await startServer();
+
+    expect(
+      await rawResponse(server.endpoint, GITBLOCKS_MCP_PATH),
+    ).toMatchObject({
+      status: 401,
+      headers: { 'content-type': 'application/json; charset=utf-8' },
+      body: '{"error":"unauthorized"}',
+    });
+  });
+
+  it('returns the same bounded unauthorized response for a wrong bearer token', async () => {
+    const server = await startServer();
+
+    expect(
+      await rawResponse(server.endpoint, GITBLOCKS_MCP_PATH, {
+        authorization: 'Bearer wrong-test-token',
+      }),
+    ).toMatchObject({
+      status: 401,
+      body: '{"error":"unauthorized"}',
+    });
+  });
+
+  it('returns the same bounded unauthorized response for malformed Authorization', async () => {
+    const server = await startServer();
+
+    expect(
+      await rawResponse(server.endpoint, GITBLOCKS_MCP_PATH, {
+        authorization: `Basic ${MCP_TOKEN}`,
+      }),
+    ).toMatchObject({
+      status: 401,
+      body: '{"error":"unauthorized"}',
+    });
+  });
+
+  it('never exposes bearer-token values through the response or transport error observer', async () => {
+    const onError = vi.fn();
+    const server = await startServer(onError);
+    const wrongToken = 'wrong-token-output-sentinel';
+
+    const response = await rawResponse(server.endpoint, GITBLOCKS_MCP_PATH, {
+      authorization: `Bearer ${wrongToken}`,
+    });
+
+    expect(onError).not.toHaveBeenCalled();
+    expect(JSON.stringify({ response, calls: onError.mock.calls })).not.toMatch(
+      new RegExp(`${MCP_TOKEN}|${wrongToken}`, 'u'),
+    );
   });
 
   it('keeps the MCP adapter free of persistence, retrieval, and model implementation imports', async () => {
@@ -168,7 +226,11 @@ async function connectClient(
   readonly client: Client;
   readonly server: GitBlocksMcpHttpServerV1;
 }> {
-  const server = await startGitBlocksMcpHttpServer({ application, port: 0 });
+  const server = await startGitBlocksMcpHttpServer({
+    application,
+    port: 0,
+    token: MCP_TOKEN,
+  });
   servers.push(server);
   const client = new Client(
     { name: 'gitblocks-hosted-test', version: '0.0.0' },
@@ -177,6 +239,7 @@ async function connectClient(
   clients.push(client);
   await client.connect(
     new StreamableHTTPClientTransport(server.endpoint, {
+      authProvider: { token: () => Promise.resolve(MCP_TOKEN) },
       fetch: loopbackFetch,
     }),
   );
@@ -200,6 +263,18 @@ function rawStatus(
   path: string,
   headers: Readonly<Record<string, string>> = {},
 ): Promise<number | undefined> {
+  return rawResponse(endpoint, path, headers).then(({ status }) => status);
+}
+
+function rawResponse(
+  endpoint: URL,
+  path: string,
+  headers: Readonly<Record<string, string>> = {},
+): Promise<{
+  readonly status: number | undefined;
+  readonly headers: Readonly<Record<string, string | string[] | undefined>>;
+  readonly body: string;
+}> {
   return new Promise((resolve, reject) => {
     const request = httpRequest(
       {
@@ -210,15 +285,35 @@ function rawStatus(
         headers,
       },
       (response) => {
-        response.resume();
+        response.setEncoding('utf8');
+        let body = '';
+        response.on('data', (chunk: string) => {
+          body += chunk;
+        });
         response.once('end', () => {
-          resolve(response.statusCode);
+          resolve({
+            status: response.statusCode,
+            headers: response.headers,
+            body,
+          });
         });
       },
     );
     request.once('error', reject);
     request.end();
   });
+}
+
+async function startServer(onError?: () => void) {
+  const application = await createAcceptedApplication();
+  const server = await startGitBlocksMcpHttpServer({
+    application,
+    port: 0,
+    token: MCP_TOKEN,
+    ...(onError === undefined ? {} : { onError }),
+  });
+  servers.push(server);
+  return server;
 }
 
 function candidateId(value: unknown): string | null {
