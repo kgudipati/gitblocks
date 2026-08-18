@@ -1,78 +1,29 @@
-import {
-  readHostedMcpPortConfiguration,
-  readHostedMcpTokenConfiguration,
-  readHostedFitModelConfiguration,
-  readHostedServingDatabaseConfiguration,
-} from '../src/configuration.ts';
-import { hostedDiscoveryErrorCode } from '../src/errors.ts';
+import { readHostedRuntimeConfiguration } from '../src/configuration.ts';
+import { runGitBlocksMcpCli } from '../src/mcp-cli-runtime.ts';
 import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
 import { createOpenAiFitAssessmentModel } from '../src/openai-fit-model.ts';
 
-const controller = new AbortController();
-const abort = (): void => {
-  controller.abort();
-};
-process.once('SIGINT', abort);
-process.once('SIGTERM', abort);
-
-let hostedProcess;
-try {
-  const token = readHostedMcpTokenConfiguration(process.env);
-  const database = readHostedServingDatabaseConfiguration(process.env);
-  const port = readHostedMcpPortConfiguration(process.env);
-  const fitModel = createOpenAiFitAssessmentModel({
-    configuration: readHostedFitModelConfiguration(process.env),
-  });
-  hostedProcess = await startGitBlocksMcpProcess({
-    database,
-    fitModel,
-    port,
-    token,
-    signal: controller.signal,
-    onTransportError: () => {
-      process.stderr.write(
-        '{"operation":"hosted-mcp.transport","status":"failed","code":"hosted.internal"}\n',
-      );
-    },
-  });
-  process.stdout.write(
-    `${JSON.stringify({
-      operation: 'hosted-mcp.start',
-      status: 'ready',
-      endpoint: hostedProcess.endpoint.href,
-    })}\n`,
-  );
-  await waitForAbort(controller.signal);
-  await hostedProcess.close();
-  process.stdout.write(
-    '{"operation":"hosted-mcp.shutdown","status":"complete"}\n',
-  );
-} catch (error) {
-  process.stderr.write(
-    `${JSON.stringify({
-      operation:
-        hostedProcess === undefined
-          ? 'hosted-mcp.start'
-          : 'hosted-mcp.shutdown',
-      status: 'failed',
-      code: hostedDiscoveryErrorCode(error),
-    })}\n`,
-  );
-  process.exitCode = 1;
-} finally {
-  process.removeListener('SIGINT', abort);
-  process.removeListener('SIGTERM', abort);
-}
-
-function waitForAbort(signal: AbortSignal): Promise<void> {
-  if (signal.aborted) return Promise.resolve();
-  return new Promise((resolve) => {
-    signal.addEventListener(
-      'abort',
-      () => {
-        resolve();
+process.exitCode = await runGitBlocksMcpCli({
+  signalSource: process,
+  start: (signal) => {
+    const configuration = readHostedRuntimeConfiguration(process.env);
+    return startGitBlocksMcpProcess({
+      database: configuration.database,
+      fitModel: createOpenAiFitAssessmentModel({
+        configuration: configuration.fitModel,
+      }),
+      host: configuration.host,
+      publicHost: configuration.publicHost,
+      port: configuration.port,
+      token: configuration.token,
+      signal,
+      onTransportError: () => {
+        process.stderr.write(
+          '{"operation":"hosted-mcp.transport","status":"failed","code":"hosted.internal"}\n',
+        );
       },
-      { once: true },
-    );
-  });
-}
+    });
+  },
+  writeStdout: (text) => process.stdout.write(text),
+  writeStderr: (text) => process.stderr.write(text),
+});

@@ -44,8 +44,10 @@ assessment and hard-resolution records for traceability.
 
 The MCP adapter exposes exactly one product tool, `recommend_oss`, using the
 authoritative recommendation-request JSON Schema. It only transports the
-application operation. The native listener remains fixed to `127.0.0.1` and
-`/mcp`; R6 adds no public deployment or remote authentication.
+application operation. The native listener defaults to `127.0.0.1`, can use an
+explicit configured bind host and distinct public authority host, and retains
+Host, Origin, and bearer-token validation on `/mcp`. Credential-free
+`GET /health` exposes readiness only.
 
 ## Configuration
 
@@ -64,11 +66,14 @@ The OpenAI target-fit adapter additionally requires:
 - `GITBLOCKS_HOSTED_FIT_MODEL`, which must equal the reviewed private-alpha
   snapshot `gpt-5.4-mini-2026-03-17`
 
-`GITBLOCKS_HOSTED_MCP_PORT` is optional and defaults to `3333`. The provider
-request uses strict JSON Schema output, `store: false`, no tools, no background
-mode, one deadline, and bounded request/response bytes. The minimized
-fingerprint and bounded public candidate evidence are still transmitted to a
-third-party processor. Raw target source is never sent or persisted.
+`GITBLOCKS_HOSTED_MCP_HOST` is optional and defaults to `127.0.0.1`.
+`GITBLOCKS_HOSTED_MCP_PUBLIC_HOST` is optional and defaults to the resolved bind
+host. `GITBLOCKS_HOSTED_MCP_PORT` is optional and defaults to `3333`. The
+provider request uses strict JSON Schema output, `store: false`, no tools, no
+background mode, one deadline, and bounded request/response bytes. The
+minimized fingerprint and bounded public candidate evidence are still
+transmitted to a third-party processor. Raw target source is never sent or
+persisted.
 
 The authoritative `TargetFitAssessmentResponseV1` schema remains unchanged.
 The OpenAI adapter sends a fresh provider-compatible projection that removes
@@ -81,7 +86,7 @@ No model alias, fine-tuned model, retry, routing, fallback, or automatic
 escalation is supported.
 
 After migrations, the offline serving bootstrap, and offline public evidence
-population, start the loopback process:
+population, start the hosted process:
 
 ```text
 pnpm hosted:mcp
@@ -105,3 +110,7 @@ collector or repository interviews, executes candidate code, or invokes
 evaluation. Artifact reads use only immutable material at the active dossier
 head. The checked-in R7 scanner and Skill remain separate local components;
 R9 changes neither one.
+
+The exact container runtime variables, Docker commands, authority checks,
+health response, and graceful-shutdown behavior are documented in
+`docs/engineering/hosted-runtime-environment.md`.
