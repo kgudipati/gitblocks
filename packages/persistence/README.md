@@ -24,8 +24,19 @@ schema usage plus SELECT on the coherent snapshot tables, the seven active
 finalist-evidence tables, and—through migration `0007`—the four immutable
 artifact tables. It has no write, DDL, migration-history, dossier-snapshot,
 repository-interview, or direct function-execution privilege and is not a
-member of `gitblocks_persistence`. A deployment owner creates a login and
-grants only that group.
+member of `gitblocks_persistence`. `pnpm db:serving-login` creates or rotates a
+separate production login, grants only this group, removes direct product
+privileges, and emits a credential-free verification of safe attributes,
+membership, SELECT-only table access, ownership, and DDL denial.
+
+`pnpm db:migrate` and `pnpm db:check` retain the exact injected ephemeral test
+reader and also accept a mutually exclusive production boundary:
+`DATABASE_URL` plus `GITBLOCKS_DB_PRODUCTION_ACK=managed-production`. Production
+database names ending in `_test` are rejected. URL `sslmode` values `disable`,
+`allow`, `prefer`, `require`, and `verify-full` map to the pinned driver; an
+absent mode defaults to `require`. See the
+[durable production bootstrap](../../docs/engineering/production-database-bootstrap.md)
+for the complete managed-provider sequence and role-authority limitations.
 
 The adapter exposes explicit client creation/closure, explicit checked forward
 migrations, public catalog writes, exact historical snapshot loading, and one

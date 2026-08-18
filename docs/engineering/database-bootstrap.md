@@ -240,6 +240,8 @@ Durable counts matched the authority:
 
 ## Production status
 
-Do not reuse this procedure against a durable database. The exact blockers and
-required change categories are recorded in
-`docs/engineering/production-bootstrap-gap.md`.
+Do not point this `_test` procedure at a durable database. Issue #96 adds a
+separate production authorization boundary and operator sequence in
+[`production-database-bootstrap.md`](production-database-bootstrap.md). The
+test reader, acknowledgement, `_test` suffix, and TLS-off behavior described
+above remain unchanged.

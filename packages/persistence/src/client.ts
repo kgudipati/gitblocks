@@ -183,7 +183,11 @@ function validateClientConfig(config: PersistenceClientConfig): void {
     !isSafeConfigText(config.username, 63) ||
     typeof config.password !== 'string' ||
     config.password.length > 4_096 ||
-    (ssl !== false && ssl !== 'require')
+    (ssl !== false &&
+      ssl !== 'allow' &&
+      ssl !== 'prefer' &&
+      ssl !== 'require' &&
+      ssl !== 'verify-full')
   ) {
     throw persistenceError('persistence.invalid-input');
   }

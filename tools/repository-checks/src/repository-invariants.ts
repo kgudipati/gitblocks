@@ -766,6 +766,8 @@ function validateRuntimeScripts(
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check',
     'db:migrate':
       'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts migrate',
+    'db:serving-login':
+      'pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts serving-login',
     'db:test':
       'pnpm runtime:check && pnpm build && vitest run --config vitest.db.config.ts',
     'db:verify':

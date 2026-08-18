@@ -23,9 +23,10 @@ arguments, or print them.
 | `GITBLOCKS_HOSTED_MCP_PORT`            | optional    | integer from 1 through 65535; defaults to `3333`                                                |
 
 The hosted serving SSL variable deliberately uses `disable` or `require`.
-Bootstrap SSL variables use the boolean vocabulary `true` or `false`. This step
-does not normalize or interchange those vocabularies; use the form documented
-for the command being run.
+`GITBLOCKS_SERVING_BOOTSTRAP_DB_SSL` uses `false` or `require`, while the
+production migration/check boundary reads `sslmode` from `DATABASE_URL`. These
+vocabularies are not interchangeable; use the exact form documented for the
+command being run.
 
 Startup validates the complete environment before composition. A failure is one
 bounded JSON record with every problem, for example this shape:

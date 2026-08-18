@@ -380,7 +380,7 @@ type TestPostgresFactory = (config: {
   readonly database: string;
   readonly user: string;
   readonly password: string;
-  readonly ssl: false | 'require';
+  readonly ssl: PersistenceClientConfig['ssl'];
   readonly max: number;
   readonly connect_timeout: number;
   readonly idle_timeout: number;

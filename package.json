@@ -93,6 +93,7 @@
     "ingest:receipt": "pnpm runtime:check && pnpm build:product && node packages/ingestion/scripts/receipt-cli.ts",
     "db:migrate": "pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts migrate",
     "db:check": "pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts check",
+    "db:serving-login": "pnpm runtime:check && pnpm build:product && node packages/persistence/scripts/db-cli.ts serving-login",
     "db:test": "pnpm runtime:check && pnpm build && vitest run --config vitest.db.config.ts",
     "db:verify": "pnpm runtime:check && pnpm build && node packages/persistence/scripts/db-verify.ts",
     "security:secrets": "secretlint \"**/*\"",

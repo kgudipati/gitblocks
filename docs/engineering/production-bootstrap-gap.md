@@ -3,9 +3,11 @@
 ## Status and boundary
 
 Issue #56 exercised only the intentional local/ephemeral database path. The
-repository does not currently expose an authorized command sequence for a
-durable managed PostgreSQL database. This document records the blockers; it is
-analysis, not an implementation design or rollout procedure.
+repository did not then expose an authorized command sequence for a durable
+managed PostgreSQL database. Issue #96 resolves blockers 1 and 7 below without
+changing the other historical constraints. The executable production procedure
+is now [`production-database-bootstrap.md`](production-database-bootstrap.md);
+this file remains the blocker record that motivated it.
 
 The local safety checks are intentional invariants. A production path would
 need a separate, explicitly authorized boundary. It must not weaken, bypass, or
@@ -14,6 +16,12 @@ reinterpret the existing test and non-production guards.
 ## Blockers
 
 ### 1. Migration and check commands accept only explicit test configuration
+
+**Issue #96 status: resolved.** `db:migrate` and `db:check` now select either
+the unchanged test-only reader or a mutually exclusive production reader using
+`DATABASE_URL` plus `GITBLOCKS_DB_PRODUCTION_ACK=managed-production`. Production
+TLS defaults to `require`, URL `sslmode` is validated, and `_test` database
+names are rejected.
 
 - **Files:** `package.json:93-94`,
   `packages/persistence/scripts/db-cli.ts:7-22`, and
@@ -104,6 +112,14 @@ reinterpret the existing test and non-production guards.
 
 ### 7. There is no production serving-login provisioning command
 
+**Issue #96 status: resolved, subject to provider role authority.**
+`pnpm db:serving-login` creates or rotates the configured login, restricts it to
+the `gitblocks_serving` membership, and returns a credential-free structured
+verification of attributes, effective table privileges, ownership, and
+DDL denial. The production runbook states the provider-administrator
+steps required when the operator cannot manage roles, ownership, memberships,
+or inherited `CREATE`/`TEMPORARY` grants.
+
 - **File:** `packages/persistence/README.md:22-28`.
 - **Guard or assumption:** migrations create only the `gitblocks_serving`
   `NOLOGIN` group. The package states that a deployment owner creates a login
@@ -152,7 +168,10 @@ ephemeral `_test` database by applying all seven migrations and then using
 `serving:bootstrap`, which also writes the accepted catalog identity/family
 rows. `db:check` verifies that result.
 
-It cannot truthfully reuse that sequence for a durable managed database, and it
-cannot currently execute the standalone `catalog:seed` CLI at its asserted
-migration-`0004` boundary. Production enablement therefore remains a separate
-planning and implementation step.
+The local sequence must not be reused for production. Issue #96 supplies a
+distinct durable migration/check boundary and serving identity command. The
+standalone `catalog:seed` conflict remains unchanged; the production sequence
+uses the existing post-migration `serving:bootstrap`, which writes accepted
+catalog identity/families before publishing the coherent snapshot. Managed
+database provisioning and provider-specific role authority remain operator
+responsibilities outside repository commands.
