@@ -344,8 +344,9 @@ hand-edit `pnpm-lock.yaml`, or bypass the runtime or supply-chain settings.
 | `pnpm profiles:materialization:preflight -- …` | Read-only validate every future controlled live argument            |
 | `pnpm profiles:materialization:execute -- …`   | Separately authorized atomic live proof; do not run in 7A           |
 | `pnpm profiles:materialization:verify`         | Read-only validate future fixed 7B evidence                         |
-| `pnpm db:migrate`                              | Apply checked forward migrations to an acknowledged test DB         |
+| `pnpm db:migrate`                              | Apply checked migrations to one acknowledged test or production DB  |
 | `pnpm db:check`                                | Verify migration history, public schema, roles, and indexes         |
+| `pnpm db:serving-login`                        | Create/rotate and verify the production SELECT-only serving login   |
 | `pnpm db:test`                                 | Run PostgreSQL integration and conformance tests                    |
 | `pnpm db:verify`                               | Provision pinned PostgreSQL and run all database checks             |
 | `pnpm catalog:validate`                        | Validate catalog bounds, balance, identity, paths, and digest       |

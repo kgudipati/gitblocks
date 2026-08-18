@@ -22,7 +22,7 @@ export interface PersistenceClientConfig {
   readonly database: string;
   readonly username: string;
   readonly password: string;
-  readonly ssl: false | 'require';
+  readonly ssl: false | 'allow' | 'prefer' | 'require' | 'verify-full';
   readonly maximumConnections?: number;
   readonly connectTimeoutMilliseconds?: number;
   readonly idleTimeoutMilliseconds?: number;
