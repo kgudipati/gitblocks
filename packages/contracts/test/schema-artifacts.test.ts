@@ -67,7 +67,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'recommendation-assessment-response':
     'aa619df4638fc12d1ee8d77b5bf2552b6ba0a03fcb88e41cc0dd1ed051087d46',
   'recommendation-assessment-model-response':
-    'e35f14c7892faf423bcbed39e96260592cfd1fa8b80b472d9fb97737350f496f',
+    '7092339b96403bd9bb144126f54769952ad3137af428cad0f4db4dc24915ecdf',
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {

@@ -158,7 +158,7 @@ const recommendationAssessmentModelHardConstraintResolutionV1Schema =
       maxItems: 20,
       uniqueItems: true,
       description:
-        "For state satisfied or conflict, include at least one inference token declared in inferences, owned by this candidate, cited by this candidate's assessment, and grounded only in supplied evidence owned by this candidate. For unresolved, use an empty array.",
+        "For state satisfied or conflict, include at least one inference token declared in inferences, owned by this candidate, cited by this candidate's assessment, and grounded only in supplied evidence owned by this candidate. For unresolved, use an empty array. Choose unresolved only when supplied candidate-owned evidence is inadequate to support satisfied or conflict, not solely to avoid their inference, citation, or grounding requirements.",
     }),
   });
 
