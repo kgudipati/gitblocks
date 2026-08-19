@@ -58,6 +58,8 @@ export async function startHostedRecommendationComposition(input: {
     const engine = createCandidateRetrievalEngineV1({
       taxonomy: policy.taxonomy,
       candidateProfileAuthority: loaded.candidateProfileAuthority,
+      candidateProfileEvaluatorAuthority:
+        loaded.candidateProfileEvaluatorAuthority,
       retrievalExpansionAuthority: policy.retrievalExpansion,
       candidateRetrievalMetadataAuthority:
         loaded.candidateRetrievalMetadataAuthority,
@@ -78,6 +80,8 @@ export async function startHostedRecommendationComposition(input: {
       snapshot,
       taxonomy: policy.taxonomy,
       candidateProfileAuthority: loaded.candidateProfileAuthority,
+      candidateProfileEvaluatorAuthority:
+        loaded.candidateProfileEvaluatorAuthority,
       retrievalExpansionAuthority: policy.retrievalExpansion,
       candidateRetrievalMetadataAuthority:
         loaded.candidateRetrievalMetadataAuthority,

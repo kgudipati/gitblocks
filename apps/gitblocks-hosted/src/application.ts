@@ -9,7 +9,8 @@ import {
   parseCandidateRetrievalMetadataAuthorityV1,
   parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
-  parseDeterministicCandidateProfileAuthorityV1,
+  parseDeterministicCandidateProfileAuthority,
+  projectDeterministicCandidateProfileAuthorityToEvaluatorV2,
   parseFitAssessmentRequestV1,
   parseOssRecommendationRequestV1,
   validateRecommendationModelAssessmentExchangeV1,
@@ -22,7 +23,6 @@ import {
   type CapabilityRetrievalExpansionV1,
   type CapabilityTaxonomyV1,
   type ContractIssue,
-  type DeterministicCandidateProfileAuthorityV1,
   type EvidenceObservationV1,
   type FitAssessmentRequestV1,
   type EvidenceNeededHardConstraintResolutionV1,
@@ -34,8 +34,8 @@ import {
   CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
   validateCandidateReferenceAuthority,
   type CandidateReferenceAuthority,
-  type DeterministicCandidateProfile,
-  type DeterministicCandidateProfileAuthority,
+  type DeterministicCandidateProfileEvaluatorAuthorityV2,
+  type DeterministicCandidateProfileEvaluatorV2,
   type DeterministicProfileFieldId,
   type DeterministicProfileFieldRecord,
 } from '@gitblocks/domain';
@@ -260,6 +260,7 @@ export function createHostedRecommendationApplication(input: {
   readonly snapshot: HostedDiscoverySnapshotV1;
   readonly taxonomy: unknown;
   readonly candidateProfileAuthority: unknown;
+  readonly candidateProfileEvaluatorAuthority?: DeterministicCandidateProfileEvaluatorAuthorityV2;
   readonly retrievalExpansionAuthority: unknown;
   readonly candidateRetrievalMetadataAuthority: unknown;
   readonly engine: CandidateRetrievalEngineV1;
@@ -270,9 +271,12 @@ export function createHostedRecommendationApplication(input: {
   readonly observer?: HostedRecommendationObserverV1;
 }): HostedRecommendationApplicationCreationResultV1 {
   const taxonomy = parseCapabilityTaxonomyV1(input.taxonomy);
-  const profiles = parseDeterministicCandidateProfileAuthorityV1(
-    input.candidateProfileAuthority,
-  );
+  const profiles =
+    input.candidateProfileEvaluatorAuthority === undefined
+      ? parseDeterministicCandidateProfileAuthority(
+          input.candidateProfileAuthority,
+        )
+      : null;
   const expansion = parseCapabilityRetrievalExpansionV1(
     input.retrievalExpansionAuthority,
   );
@@ -281,22 +285,41 @@ export function createHostedRecommendationApplication(input: {
   );
   if (
     !taxonomy.ok ||
-    !profiles.ok ||
+    (profiles !== null && !profiles.ok) ||
     !expansion.ok ||
     !metadata.ok ||
-    profiles.value.catalogVersion !== 'public-v1' ||
-    input.snapshot.candidateCount !== profiles.value.profiles.length ||
-    input.engine.candidateCount !== profiles.value.profiles.length
+    (input.candidateProfileEvaluatorAuthority?.catalogVersion ??
+      (profiles?.ok === true ? profiles.value.catalogVersion : null)) !==
+      'public-v1'
   ) {
     return Object.freeze({ ok: false, code: 'invalid-application-authority' });
   }
-  const candidateAuthority = createCandidateReferenceAuthority(profiles.domain);
+  const publishedProfileAuthority =
+    profiles?.ok === true ? profiles.domain : null;
+  const profileAuthority =
+    input.candidateProfileEvaluatorAuthority ??
+    (publishedProfileAuthority === null
+      ? null
+      : projectDeterministicCandidateProfileAuthorityToEvaluatorV2(
+          publishedProfileAuthority,
+        ));
+  if (profileAuthority === null) {
+    return Object.freeze({ ok: false, code: 'invalid-application-authority' });
+  }
+  if (
+    input.snapshot.candidateCount !== profileAuthority.profiles.length ||
+    input.engine.candidateCount !== profileAuthority.profiles.length
+  ) {
+    return Object.freeze({ ok: false, code: 'invalid-application-authority' });
+  }
+  const candidateAuthority =
+    createCandidateReferenceAuthority(profileAuthority);
   if (candidateAuthority === null) {
     return Object.freeze({ ok: false, code: 'invalid-application-authority' });
   }
   const authorityBindings = createAuthorityBindings(
     taxonomy.value,
-    profiles.value,
+    profileAuthority,
     expansion.value,
     metadata.value,
   );
@@ -312,7 +335,7 @@ export function createHostedRecommendationApplication(input: {
         authorityBindings,
         retrievalExpansionAuthority: expansion.value,
         catalogVersion: 'public-v1',
-        catalogDigest: profiles.value.catalogDigest,
+        catalogDigest: profileAuthority.catalogDigest,
         engine: input.engine,
         dossierLoader: input.dossierLoader,
         artifactMaterialLoader: input.artifactMaterialLoader,
@@ -833,7 +856,7 @@ export function selectHostedRetrievalFinalistsV1(
 }
 
 function createCandidateReferenceAuthority(
-  authority: DeterministicCandidateProfileAuthority,
+  authority: DeterministicCandidateProfileEvaluatorAuthorityV2,
 ): CandidateReferenceAuthority | null {
   const candidates: CandidateReferenceAuthority['candidates'][number][] = [];
   for (const profile of authority.profiles) {
@@ -864,20 +887,28 @@ function createCandidateReferenceAuthority(
 
 function createAuthorityBindings(
   taxonomy: CapabilityTaxonomyV1,
-  profiles: DeterministicCandidateProfileAuthorityV1,
+  profiles: DeterministicCandidateProfileEvaluatorAuthorityV2,
   expansion: CapabilityRetrievalExpansionV1,
   metadata: CandidateRetrievalMetadataAuthorityV1,
 ): CandidateRetrievalAuthorityBindingsV1 {
+  const candidateProfiles =
+    profiles.runtimeAuthorityKind === 'projected-v1'
+      ? Object.freeze({
+          authorityVersion: profiles.authorityVersion,
+          semanticAuthorityDigest: profiles.semanticAuthorityDigest,
+          profileRulesVersion: profiles.profileRulesVersion,
+        })
+      : Object.freeze({
+          authorityVersion: profiles.authorityVersion,
+          semanticAuthorityDigest: profiles.semanticAuthorityDigest,
+          profileRulesVersion: profiles.profileRulesVersion,
+        });
   return Object.freeze({
     taxonomy: Object.freeze({
       taxonomyVersion: taxonomy.taxonomyVersion,
       taxonomySemanticDigest: taxonomy.semanticDigest,
     }),
-    candidateProfiles: Object.freeze({
-      authorityVersion: profiles.authorityVersion,
-      semanticAuthorityDigest: profiles.semanticAuthorityDigest,
-      profileRulesVersion: profiles.profileRulesVersion,
-    }),
+    candidateProfiles,
     catalog: Object.freeze({
       catalogVersion: profiles.catalogVersion,
       catalogDigest: profiles.catalogDigest,
@@ -896,7 +927,7 @@ function createAuthorityBindings(
 }
 
 function knownField<Id extends DeterministicProfileFieldId>(
-  profile: DeterministicCandidateProfile,
+  profile: DeterministicCandidateProfileEvaluatorV2,
   fieldId: Id,
 ): Extract<
   DeterministicProfileFieldRecord<Id>,

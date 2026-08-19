@@ -7,6 +7,7 @@ import {
   CONTRACT_VERSION,
   createCandidateRetrievalMetadataAuthorityV1,
   createCandidateRetrievalRequestV1,
+  createDeterministicCandidateProfileV1,
   normalizeCapabilityQueryV1,
   parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
@@ -595,10 +596,21 @@ describe('deterministic production retrieval vertical slice', () => {
       fields[index] = {
         ...field,
         state: 'known',
-        stateReasonCode: 'approved-catalog-field-value',
-        stateRuleId: 'assign-known-approved-catalog-value',
-        valueExtractionRuleId: 'extract-synthetic-test-value',
-        sourceReferences: [],
+        stateReasonCode: 'approved-structured-field-value',
+        stateRuleId: 'assign-known-approved-structured-value',
+        valueExtractionRuleId: `extract-${fieldId}-from-structured-authority`,
+        versionScope: {
+          kind: 'repository-snapshot',
+          snapshotId: 'synthetic-test-snapshot',
+        },
+        sourceReferences: [
+          {
+            kind: 'structured-collection',
+            sourceSnapshotId: 'synthetic-test-snapshot',
+            evidenceIds: ['synthetic-test-evidence'],
+            sourceTopicCodes: ['synthetic-test-topic'],
+          },
+        ],
         value,
       };
     };
@@ -614,10 +626,17 @@ describe('deterministic production retrieval vertical slice', () => {
       requiresScheduledExecution: false,
       requiresPersistentStorage: false,
     });
-    const enriched = {
-      ...profile,
+    const {
+      deterministicProfileId: ignoredId,
+      semanticProfileDigest: ignoredDigest,
+      ...profileInput
+    } = profile;
+    void ignoredId;
+    void ignoredDigest;
+    const enriched = createDeterministicCandidateProfileV1({
+      ...profileInput,
       fields,
-    } as unknown as DeterministicCandidateProfile;
+    } as never) as unknown as DeterministicCandidateProfile;
     const view = createCandidateSearchView(enriched);
     expect(view?.conceptsByField.get('repository-discovery-metadata')).toEqual(
       new Set(['task-queue', 'typescript']),

@@ -1,9 +1,12 @@
 import {
   DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION,
+  DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
   DETERMINISTIC_CANDIDATE_PROFILE_VERSION,
+  DETERMINISTIC_CANDIDATE_PROFILE_VERSION_V2,
   DETERMINISTIC_PROFILE_DENOMINATOR_VERSION,
   DETERMINISTIC_PROFILE_FIELD_IDS,
   DETERMINISTIC_PROFILE_RULES_VERSION,
+  DETERMINISTIC_PROFILE_RULES_VERSION_V2,
   getDeterministicProfileFieldRegistry,
 } from '@gitblocks/domain';
 import { Type, type Static, type TSchema } from 'typebox';
@@ -430,6 +433,156 @@ export const deterministicCandidateProfileAuthorityV1Schema = Type.Object(
   },
 );
 
+const assertionFieldIds = new Set([
+  'capability-variants-features',
+  'required-infrastructure',
+  'optional-infrastructure',
+]);
+
+function conceptAssertionSchema(
+  fieldId: (typeof DETERMINISTIC_PROFILE_FIELD_IDS)[number],
+): TSchema {
+  const extractionRuleSchema = literals(extractionRulesForField(fieldId));
+  const sourceReferences = Type.Array(
+    deterministicProfileSourceReferenceV1Schema,
+    { minItems: 1, maxItems: 16, uniqueItems: true },
+  );
+  const claim = closedObject({
+    state: literals(['absent', 'present']),
+    valueExtractionRuleId: extractionRuleSchema,
+    sourceReferences,
+  });
+  return Type.Union([
+    closedObject({
+      conceptId: stableIdSchema,
+      state: literals(['absent', 'present']),
+      valueExtractionRuleId: extractionRuleSchema,
+      sourceReferences,
+    }),
+    closedObject({
+      conceptId: stableIdSchema,
+      state: Type.Literal('conflict'),
+      claims: Type.Array(claim, { minItems: 2, maxItems: 8 }),
+    }),
+  ]);
+}
+
+const deterministicProfileConceptFieldRecordV2Schemas = registry
+  .filter((definition) => assertionFieldIds.has(definition.fieldId))
+  .flatMap((definition) => {
+    const common = {
+      fieldId: Type.Literal(definition.fieldId),
+      scope: Type.Literal(definition.scope),
+      stateReasonCode: stateReasonSchema,
+      stateRuleId: stateRuleSchema,
+      versionScope: versionScopeSchema,
+      sourceReferences: Type.Array(
+        deterministicProfileSourceReferenceV1Schema,
+        { maxItems: 16, uniqueItems: true },
+      ),
+    };
+    const assertion = conceptAssertionSchema(definition.fieldId);
+    return [
+      closedObject({
+        ...common,
+        coverage: Type.Literal('unknown'),
+        assertions: Type.Array(assertion, { maxItems: 0 }),
+      }),
+      closedObject({
+        ...common,
+        coverage: Type.Literal('partial'),
+        assertions: Type.Array(assertion, {
+          minItems: 1,
+          maxItems: 85,
+          uniqueItems: true,
+        }),
+      }),
+      closedObject({
+        ...common,
+        coverage: Type.Literal('complete'),
+        assertions: Type.Array(assertion, {
+          maxItems: 85,
+          uniqueItems: true,
+        }),
+      }),
+    ];
+  });
+
+const deterministicProfileLegacyFieldRecordV2Schemas = (
+  deterministicProfileFieldRecordV1Schema as unknown as {
+    readonly anyOf: readonly TSchema[];
+  }
+).anyOf.filter((branch) => {
+  const fieldId = (
+    branch as {
+      readonly properties: { readonly fieldId: { readonly const: string } };
+    }
+  ).properties.fieldId.const;
+  return !assertionFieldIds.has(fieldId);
+});
+
+export const deterministicProfileFieldRecordV2Schema = Type.Union([
+  ...deterministicProfileLegacyFieldRecordV2Schemas,
+  ...deterministicProfileConceptFieldRecordV2Schemas,
+]);
+
+export const deterministicCandidateProfileV2Schema = Type.Object(
+  {
+    contractVersion: Type.Literal('2.0.0'),
+    profileVersion: Type.Literal(DETERMINISTIC_CANDIDATE_PROFILE_VERSION_V2),
+    deterministicProfileId: Type.String({
+      minLength: 56,
+      maxLength: 56,
+      pattern: '^profile-[a-f0-9]{48}$',
+    }),
+    candidateId: stableIdSchema,
+    catalogBinding: closedObject({
+      catalogVersion: stableIdSchema,
+      catalogDigest: digestSchema,
+    }),
+    taxonomyBinding: closedObject({
+      taxonomyVersion: Type.String({ minLength: 5, maxLength: 32 }),
+      taxonomySemanticDigest: digestSchema,
+    }),
+    profileRulesVersion: Type.Literal(DETERMINISTIC_PROFILE_RULES_VERSION_V2),
+    fields: Type.Array(deterministicProfileFieldRecordV2Schema, {
+      minItems: 27,
+      maxItems: 27,
+    }),
+    semanticProfileDigest: digestSchema,
+  },
+  {
+    additionalProperties: false,
+    $id: 'https://gitblocks.dev/schemas/contracts/deterministic-candidate-profile/2.0.0',
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+  },
+);
+
+export const deterministicCandidateProfileAuthorityV2Schema = Type.Object(
+  {
+    contractVersion: Type.Literal('2.0.0'),
+    authorityVersion: Type.Literal(
+      DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
+    ),
+    denominatorVersion: Type.Literal(DETERMINISTIC_PROFILE_DENOMINATOR_VERSION),
+    catalogVersion: stableIdSchema,
+    catalogDigest: digestSchema,
+    taxonomyVersion: Type.String({ minLength: 5, maxLength: 32 }),
+    taxonomySemanticDigest: digestSchema,
+    profileRulesVersion: Type.Literal(DETERMINISTIC_PROFILE_RULES_VERSION_V2),
+    profiles: Type.Array(deterministicCandidateProfileV2Schema, {
+      minItems: 150,
+      maxItems: 150,
+    }),
+    semanticAuthorityDigest: digestSchema,
+  },
+  {
+    additionalProperties: false,
+    $id: 'https://gitblocks.dev/schemas/contracts/deterministic-candidate-profile-authority/2.0.0',
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+  },
+);
+
 export type DeterministicProfileSourceReferenceV1 = Static<
   typeof deterministicProfileSourceReferenceV1Schema
 >;
@@ -441,6 +594,15 @@ export type DeterministicCandidateProfileV1 = Static<
 >;
 export type DeterministicCandidateProfileAuthorityV1 = Static<
   typeof deterministicCandidateProfileAuthorityV1Schema
+>;
+export type DeterministicProfileFieldRecordV2 = Static<
+  typeof deterministicProfileFieldRecordV2Schema
+>;
+export type DeterministicCandidateProfileV2 = Static<
+  typeof deterministicCandidateProfileV2Schema
+>;
+export type DeterministicCandidateProfileAuthorityV2 = Static<
+  typeof deterministicCandidateProfileAuthorityV2Schema
 >;
 
 function literals(values: readonly string[]): TSchema {

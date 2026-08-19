@@ -73,13 +73,44 @@ export {
   validateDeterministicProfileFieldRegistry,
 } from './deterministic-candidate-profile.ts';
 export {
+  DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
+  DETERMINISTIC_CANDIDATE_PROFILE_VERSION_V2,
+  DETERMINISTIC_PROFILE_CONCEPT_ASSERTION_FIELD_IDS,
+  DETERMINISTIC_PROFILE_RULES_VERSION_V2,
+  isConceptAssertionFieldId,
+  projectDeterministicCandidateProfileV1ToEvaluatorV2,
+  projectDeterministicCandidateProfileAuthorityToEvaluatorV2,
+  validateDeterministicCandidateProfileAuthorityV2,
+  validateDeterministicCandidateProfileV2,
+} from './deterministic-candidate-profile-v2.ts';
+export type {
+  DeterministicCandidateProfileAuthorityV2Domain,
+  DeterministicCandidateProfileEvaluatorAuthorityV2,
+  DeterministicCandidateProfileEvaluatorV2,
+  DeterministicCandidateProfileV2Domain,
+  DeterministicProfileConceptAssertionClaimV2,
+  DeterministicProfileConceptAssertionFieldId,
+  DeterministicProfileConceptAssertionState,
+  DeterministicProfileConceptAssertionV2,
+  DeterministicProfileConceptCoverage,
+  DeterministicProfileConceptFieldRecordV2,
+  DeterministicProfileEvaluatorConceptFieldV2,
+  DeterministicProfileEvaluatorFieldV2,
+  DeterministicProfileFieldRecordV2,
+  DeterministicProfileNonAssertionFieldId,
+  PublishedDeterministicCandidateProfileAuthority,
+} from './deterministic-candidate-profile-v2.ts';
+export {
   CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
+  CANDIDATE_CONSTRAINT_EVALUATION_VERSION_V1,
   evaluateCandidateConstraintProfileState,
   evaluateCandidateConstraints,
+  evaluateCandidateConstraintsV2,
 } from './candidate-constraint-evaluation.ts';
 export type {
   CandidateConstraintEvaluation,
   CandidateConstraintEvaluationInput,
+  CandidateConstraintEvaluationInputV2,
   CandidateConstraintEvaluationItem,
   CandidateConstraintMatch,
   CandidateConstraintNormalizationInput,

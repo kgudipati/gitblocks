@@ -1165,6 +1165,8 @@ describe('schema compatibility', () => {
       'capability-query-normalization-result',
       'deterministic-candidate-profile',
       'deterministic-candidate-profile-authority',
+      'deterministic-candidate-profile-v2',
+      'deterministic-candidate-profile-authority-v2',
       'candidate-retrieval-request',
       'candidate-retrieval-result',
       'capability-retrieval-expansion',

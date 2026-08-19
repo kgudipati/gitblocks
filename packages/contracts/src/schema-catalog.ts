@@ -24,7 +24,9 @@ import {
 } from './capability-query-schemas.ts';
 import {
   deterministicCandidateProfileAuthorityV1Schema,
+  deterministicCandidateProfileAuthorityV2Schema,
   deterministicCandidateProfileV1Schema,
+  deterministicCandidateProfileV2Schema,
 } from './deterministic-candidate-profile-schemas.ts';
 import {
   candidateRetrievalRequestV1Schema,
@@ -61,6 +63,8 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'capability-query-normalization-result',
   'deterministic-candidate-profile',
   'deterministic-candidate-profile-authority',
+  'deterministic-candidate-profile-v2',
+  'deterministic-candidate-profile-authority-v2',
   'candidate-retrieval-request',
   'candidate-retrieval-result',
   'capability-retrieval-expansion',
@@ -93,6 +97,9 @@ const SCHEMAS = {
   'deterministic-candidate-profile': deterministicCandidateProfileV1Schema,
   'deterministic-candidate-profile-authority':
     deterministicCandidateProfileAuthorityV1Schema,
+  'deterministic-candidate-profile-v2': deterministicCandidateProfileV2Schema,
+  'deterministic-candidate-profile-authority-v2':
+    deterministicCandidateProfileAuthorityV2Schema,
   'error-envelope': errorEnvelopeV1Schema,
   'fit-assessment-request': fitAssessmentRequestV1Schema,
   'fit-assessment-response': fitAssessmentResponseV1Schema,

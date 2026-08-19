@@ -30,10 +30,14 @@ const EXPECTED_SCHEMA_DIGESTS = {
     '3bbfdf2050c13a3d70e9dc289db7c8768a6fdcba8605cf12191e08560387af61',
   'deterministic-candidate-profile-authority':
     '7a79a1671bf461127099e3ae2f75d29e949387987041bd3402f2614b747ed8cf',
+  'deterministic-candidate-profile-v2':
+    'e6bae49042c81749c5113c207403ae0912b25d857f49ee7f89ae0d4fcbdd811d',
+  'deterministic-candidate-profile-authority-v2':
+    'a675b977c6c37dc8737944216c19aacde87852f566198ca9740eb5afb19d7a3f',
   'candidate-retrieval-request':
-    '5dd7d06b5665baae17b8f25c5c6fcf900e1e9040dcda6f58597845549d488d51',
+    'c4e89ddcfacb0de0c37d91b5c3c02af979496d504ba836b33c135cddf2bdce36',
   'candidate-retrieval-result':
-    'f8fe2397fd1311a00417798e40ac25a073ad3084cc3d9c8ec85dc9e8d8d948ab',
+    '638050a0b06408e30e01014ab85075a904241102d24cec4836d8539b25281676',
   'capability-retrieval-expansion':
     '65a22cfe825e42f729eb9eb07aaf0a1a0fcdb40dc043c24a5726548f2e99f73d',
   'capability-retrieval-expansion-source':
@@ -91,6 +95,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'capability-query-normalization-result',
       'deterministic-candidate-profile',
       'deterministic-candidate-profile-authority',
+      'deterministic-candidate-profile-v2',
+      'deterministic-candidate-profile-authority-v2',
       'candidate-retrieval-request',
       'candidate-retrieval-result',
       'capability-retrieval-expansion',
@@ -107,16 +113,18 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       expect(readProperty(schema, '$schema')).toBe(
         'https://json-schema.org/draft/2020-12/schema',
       );
-      const version =
-        name === 'candidate-retrieval-request'
+      const version = name.endsWith('-v2')
+        ? '2.0.0'
+        : name === 'candidate-retrieval-request'
           ? '1.2.0'
           : name === 'candidate-retrieval-result'
             ? '1.3.0'
             : name === 'candidate-retrieval-metadata-authority'
               ? '1.1.0'
               : '1.0.0';
+      const artifactName = name.endsWith('-v2') ? name.slice(0, -3) : name;
       expect(readProperty(schema, '$id')).toBe(
-        `https://gitblocks.dev/schemas/contracts/${name}/${version}`,
+        `https://gitblocks.dev/schemas/contracts/${artifactName}/${version}`,
       );
     }
   });
@@ -312,7 +320,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       .update(`${JSON.stringify(legacySchema, null, 2)}\n`)
       .digest('hex');
     expect(legacySchemaDigest).toBe(
-      '6f3ecfd01ac0688f31919377e807a44c143752179b6ae34849135fe908e123c1',
+      'e5e8562593212942ec47c9962380030b2b1e79d5275ef2823ebe7b642835dd58',
     );
   });
 
@@ -368,12 +376,15 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'CONTRACT_SCHEMA_NAMES',
       'CONTRACT_VERSION',
       'DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION',
+      'DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2',
       'DETERMINISTIC_CANDIDATE_PROFILE_VERSION',
+      'DETERMINISTIC_CANDIDATE_PROFILE_VERSION_V2',
       'DETERMINISTIC_PROFILE_BROAD_RETRIEVAL_FACETS',
       'DETERMINISTIC_PROFILE_DENOMINATOR_VERSION',
       'DETERMINISTIC_PROFILE_FIELD_IDS',
       'DETERMINISTIC_PROFILE_LAUNCH_HARD_FILTER_FACETS',
       'DETERMINISTIC_PROFILE_RULES_VERSION',
+      'DETERMINISTIC_PROFILE_RULES_VERSION_V2',
       'MAX_DIAGNOSTIC_ISSUES',
       'MAX_DIAGNOSTIC_MESSAGE_LENGTH',
       'MAX_DIAGNOSTIC_PATH_LENGTH',
@@ -402,7 +413,9 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'createCandidateRetrievalResultV1',
       'createCapabilityRequestFromRecommendationV1',
       'createDeterministicCandidateProfileAuthorityV1',
+      'createDeterministicCandidateProfileAuthorityV2',
       'createDeterministicCandidateProfileV1',
+      'createDeterministicCandidateProfileV2',
       'createModelExecutionV1',
       'createRecommendationAssessmentModelFitRequestV1',
       'createRepositoryArtifactChunkV1',
@@ -411,7 +424,9 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'createRepositoryInterviewRequestV1',
       'createRepositoryInterviewV1',
       'deterministicCandidateProfileAuthoritySemanticDigest',
+      'deterministicCandidateProfileAuthoritySemanticDigestV2',
       'deterministicCandidateProfileSemanticDigest',
+      'deterministicCandidateProfileSemanticDigestV2',
       'getContractSchemaV1',
       'getDeterministicProfileFieldRegistry',
       'modelExecutionIdentityDigest',
@@ -431,8 +446,11 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseCapabilityRetrievalExpansionV1',
       'parseCapabilityTaxonomySourceV1',
       'parseCapabilityTaxonomyV1',
+      'parseDeterministicCandidateProfileAuthority',
       'parseDeterministicCandidateProfileAuthorityV1',
+      'parseDeterministicCandidateProfileAuthorityV2',
       'parseDeterministicCandidateProfileV1',
+      'parseDeterministicCandidateProfileV2',
       'parseErrorEnvelopeV1',
       'parseFitAssessmentRequestV1',
       'parseFitAssessmentResponseV1',
@@ -449,6 +467,8 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseRepositoryInterviewRequestV1',
       'parseRepositoryInterviewV1',
       'parseTargetFitAssessmentResponseV1',
+      'projectDeterministicCandidateProfileAuthorityToEvaluatorV2',
+      'projectDeterministicCandidateProfileV1ToEvaluatorV2',
       'recommendationAssessmentModelFitRequestV1Schema',
       'recommendationAssessmentModelResponseV1Schema',
       'recommendationAssessmentResponseV1Schema',
@@ -480,7 +500,9 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'serializeCapabilityTaxonomyV1',
       'serializeContractSchemaV1',
       'serializeDeterministicCandidateProfileAuthorityV1',
+      'serializeDeterministicCandidateProfileAuthorityV2',
       'serializeDeterministicCandidateProfileV1',
+      'serializeDeterministicCandidateProfileV2',
       'splitRepositoryArtifactLogicalLines',
       'targetFitAssessmentResponseV1Schema',
       'validateCandidateRetrievalExchangeV1',

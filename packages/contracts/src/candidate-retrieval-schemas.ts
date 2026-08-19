@@ -4,8 +4,10 @@ import {
   CAPABILITY_QUERY_CONSTRAINT_FACETS,
   CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
   DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION,
+  DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
   DETERMINISTIC_PROFILE_FIELD_IDS,
   DETERMINISTIC_PROFILE_RULES_VERSION,
+  DETERMINISTIC_PROFILE_RULES_VERSION_V2,
 } from '@gitblocks/domain';
 
 import { capabilityQueryNormalizationResultV1Schema } from './capability-query-schemas.ts';
@@ -85,13 +87,22 @@ export const candidateRetrievalAuthorityBindingsV1Schema = closedObject({
     taxonomyVersion: semanticVersionSchema,
     taxonomySemanticDigest: digestSchema,
   }),
-  candidateProfiles: closedObject({
-    authorityVersion: Type.Literal(
-      DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION,
-    ),
-    semanticAuthorityDigest: digestSchema,
-    profileRulesVersion: Type.Literal(DETERMINISTIC_PROFILE_RULES_VERSION),
-  }),
+  candidateProfiles: Type.Union([
+    closedObject({
+      authorityVersion: Type.Literal(
+        DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION,
+      ),
+      semanticAuthorityDigest: digestSchema,
+      profileRulesVersion: Type.Literal(DETERMINISTIC_PROFILE_RULES_VERSION),
+    }),
+    closedObject({
+      authorityVersion: Type.Literal(
+        DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
+      ),
+      semanticAuthorityDigest: digestSchema,
+      profileRulesVersion: Type.Literal(DETERMINISTIC_PROFILE_RULES_VERSION_V2),
+    }),
+  ]),
   catalog: closedObject({
     catalogVersion: catalogVersionSchema,
     catalogDigest: digestSchema,

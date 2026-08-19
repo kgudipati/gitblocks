@@ -6,9 +6,13 @@ import {
   DETERMINISTIC_PROFILE_RULES_VERSION,
   evaluateCandidateConstraintProfileState,
   evaluateCandidateConstraints,
+  evaluateCandidateConstraintsV2,
   getDeterministicProfileFieldRegistry,
+  projectDeterministicCandidateProfileV1ToEvaluatorV2,
   type CandidateConstraintNormalizationInput,
   type DeterministicCandidateProfile,
+  type DeterministicCandidateProfileEvaluatorV2,
+  type DeterministicProfileConceptFieldRecordV2,
   type DeterministicProfileFieldId,
 } from '../src/index.ts';
 
@@ -255,6 +259,120 @@ describe('candidate constraint evaluation', () => {
       }).ok,
     ).toBe(false);
   });
+
+  it.each([
+    ['partial', [], 'unresolved'],
+    ['complete', [], 'mismatch'],
+    ['partial', [assertion('decision-caching', 'present')], 'match'],
+    ['partial', [assertion('decision-caching', 'absent')], 'mismatch'],
+    ['partial', [conflictingAssertion('decision-caching')], 'unresolved'],
+  ] as const)(
+    'applies V2 %s coverage and concept-local assertions',
+    (coverage, assertions, expectedMatch) => {
+      const result = evaluateV2(
+        evaluatorProfile(
+          conceptField('capability-variants-features', coverage, assertions),
+        ),
+        normalization([constraint('feature', 'decision-caching')]),
+      );
+      expect(result.evaluations.at(-1)).toMatchObject({
+        match: expectedMatch,
+      });
+    },
+  );
+
+  it('uses the frozen V2 modality truth table and never consults optional infrastructure', () => {
+    const requiredPresent = evaluatorProfile(
+      conceptField('required-infrastructure', 'partial', [
+        assertion('redis', 'present'),
+      ]),
+      conceptField('optional-infrastructure', 'complete', [
+        assertion('redis', 'absent'),
+      ]),
+    );
+    expect(
+      evaluateV2(
+        requiredPresent,
+        normalization([constraint('infrastructure', 'redis')]),
+      ).overallHardState,
+    ).toBe('satisfied');
+    expect(
+      evaluateV2(
+        requiredPresent,
+        normalization([constraint('infrastructure', 'redis', 'prohibited')]),
+      ).overallHardState,
+    ).toBe('conflict');
+
+    const requiredAbsentOptionalPresent = evaluatorProfile(
+      conceptField('required-infrastructure', 'complete', [
+        assertion('redis', 'absent'),
+      ]),
+      conceptField('optional-infrastructure', 'complete', [
+        assertion('redis', 'present'),
+      ]),
+    );
+    expect(
+      evaluateV2(
+        requiredAbsentOptionalPresent,
+        normalization([constraint('infrastructure', 'redis')]),
+      ).overallHardState,
+    ).toBe('conflict');
+    expect(
+      evaluateV2(
+        requiredAbsentOptionalPresent,
+        normalization([constraint('infrastructure', 'redis', 'prohibited')]),
+      ).overallHardState,
+    ).toBe('satisfied');
+  });
+
+  it('projects V1 unknown to unknown-empty and retains whole-field conflict claims unchanged', () => {
+    const unknownView =
+      projectDeterministicCandidateProfileV1ToEvaluatorV2(profile());
+    const unknownFeature = unknownView.fields.find(
+      ({ fieldId }) => fieldId === 'capability-variants-features',
+    );
+    expect(unknownFeature).toMatchObject({
+      coverage: 'unknown',
+      assertions: [],
+    });
+    expect(unknownFeature).not.toHaveProperty('state');
+
+    const claims = [
+      claim(['decision-caching'], 'snapshot-a'),
+      claim([], 'snapshot-b'),
+    ].map((entry) => ({
+      ...entry,
+      valueExtractionRuleId:
+        'extract-capability-variants-features-from-structured-authority' as const,
+    }));
+    const conflict = {
+      ...knownSet('capability-variants-features', ['decision-caching']),
+      state: 'conflict' as const,
+      stateReasonCode: 'conflicting-approved-structured-values' as const,
+      stateRuleId: 'retain-conflicting-approved-claims' as const,
+      valueExtractionRuleId: null,
+      sourceReferences: [],
+      claims,
+    };
+    delete (conflict as { value?: unknown }).value;
+    const conflictView = projectDeterministicCandidateProfileV1ToEvaluatorV2(
+      profile('authorization', {
+        'capability-variants-features': conflict,
+      }),
+    );
+    const projected = conflictView.fields.find(
+      ({ fieldId }) => fieldId === 'capability-variants-features',
+    );
+    expect(projected).toMatchObject({
+      coverage: 'unknown',
+      assertions: [],
+      legacyWholeFieldConflict: {
+        kind: 'v1-whole-field-conflict',
+        claims,
+      },
+    });
+    expect(projected).not.toBe(conflict);
+  });
 });
 
 function evaluate(
@@ -267,6 +385,19 @@ function evaluate(
   });
   expect(result.ok).toBe(true);
   if (!result.ok) throw new Error('Expected valid evaluation.');
+  return result.value;
+}
+
+function evaluateV2(
+  candidate: DeterministicCandidateProfileEvaluatorV2,
+  query: CandidateConstraintNormalizationInput,
+) {
+  const result = evaluateCandidateConstraintsV2({
+    profile: candidate,
+    normalization: query,
+  });
+  expect(result.ok).toBe(true);
+  if (!result.ok) throw new Error('Expected valid V2 evaluation.');
   return result.value;
 }
 
@@ -410,6 +541,85 @@ function structured(sourceSnapshotId: string) {
     sourceSnapshotId,
     evidenceIds: [],
     sourceTopicCodes: ['adoption-unit'],
+  };
+}
+
+function evaluatorProfile(
+  ...replacements: readonly DeterministicProfileConceptFieldRecordV2[]
+): DeterministicCandidateProfileEvaluatorV2 {
+  const base = projectDeterministicCandidateProfileV1ToEvaluatorV2(profile());
+  const byId = new Map<string, DeterministicProfileConceptFieldRecordV2>(
+    replacements.map((field) => [field.fieldId, field]),
+  );
+  return {
+    ...base,
+    fields: base.fields.map((field) => byId.get(field.fieldId) ?? field),
+  };
+}
+
+function conceptField(
+  fieldId:
+    | 'capability-variants-features'
+    | 'optional-infrastructure'
+    | 'required-infrastructure',
+  coverage: 'complete' | 'partial' | 'unknown',
+  assertions: readonly ReturnType<
+    typeof assertion | typeof conflictingAssertion
+  >[],
+): DeterministicProfileConceptFieldRecordV2 {
+  return {
+    fieldId,
+    scope:
+      fieldId === 'capability-variants-features'
+        ? 'candidate-wide'
+        : 'version-specific',
+    coverage,
+    stateReasonCode:
+      coverage === 'unknown'
+        ? 'structured-provider-value-not-committed'
+        : 'approved-structured-field-value',
+    stateRuleId:
+      coverage === 'unknown'
+        ? 'assign-unknown-structured-provider-value-missing'
+        : 'assign-known-approved-structured-value',
+    versionScope:
+      fieldId === 'capability-variants-features' || coverage === 'unknown'
+        ? null
+        : { kind: 'repository-snapshot', snapshotId: 'snapshot-one' },
+    sourceReferences:
+      coverage === 'unknown' ? [] : [structured('snapshot-one')],
+    assertions,
+  } as DeterministicProfileConceptFieldRecordV2;
+}
+
+function assertion(conceptId: string, state: 'absent' | 'present') {
+  return {
+    conceptId,
+    state,
+    valueExtractionRuleId:
+      'extract-capability-variants-features-from-structured-authority' as const,
+    sourceReferences: [structured('snapshot-one')],
+  };
+}
+
+function conflictingAssertion(conceptId: string) {
+  return {
+    conceptId,
+    state: 'conflict' as const,
+    claims: [
+      {
+        state: 'absent' as const,
+        valueExtractionRuleId:
+          'extract-capability-variants-features-from-structured-authority' as const,
+        sourceReferences: [structured('snapshot-one')],
+      },
+      {
+        state: 'present' as const,
+        valueExtractionRuleId:
+          'extract-capability-variants-features-from-structured-authority' as const,
+        sourceReferences: [structured('snapshot-two')],
+      },
+    ],
   };
 }
 
