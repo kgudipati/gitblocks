@@ -61,7 +61,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'repository-interview':
     '99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb',
   'oss-recommendation-request':
-    '1225225d5815e3d858b16d23e974879456566973582d07e454c9e658a71a2da4',
+    '20982e93d528f169a7d9ee9a60aeea33a101038ee8da070cdace1fe3afbf15e8',
   'target-fit-assessment-response':
     '51c7e8c46d8323e29fe02c674c74efece435acf372529c036e52a861f4f78428',
   'recommendation-assessment-response':

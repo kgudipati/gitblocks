@@ -52,12 +52,8 @@ candidate code, or run arbitrary candidate-repository commands.
 
 4. Run the bundled scanner.
 
-   Resolve `scripts/fingerprint-codebase.mjs` from the active installed Skill
-   directory that contains this `SKILL.md`, whether that directory is
-   project-local or under the user's skills directory. Never locate the scanner
-   through a GitBlocks source checkout. Run it with Node and exactly one
-   explicit current target-repository root; a relative root such as `.` is
-   resolved from the command's working directory:
+   Resolve `scripts/fingerprint-codebase.mjs` relative to this `SKILL.md`.
+   Run it with Node and exactly one explicit current target-repository root:
 
    ```text
    node <skill-directory>/scripts/fingerprint-codebase.mjs <repository-root>

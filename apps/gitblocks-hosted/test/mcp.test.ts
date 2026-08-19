@@ -83,54 +83,6 @@ describe('GitBlocks recommendation MCP adapter', () => {
     expect(candidateId(options[0])).not.toBeNull();
   });
 
-  it('exposes self-contained construction examples for structured recommendation inputs', async () => {
-    const application = await createAcceptedApplication();
-    const { client } = await connectClient(application);
-    const listed = await client.listTools();
-    const inputSchema = listed.tools[0]?.inputSchema;
-
-    expect(
-      schemaDescription(inputSchema, [
-        'properties',
-        'capabilityQuery',
-        'properties',
-        'capabilityTerms',
-      ]),
-    ).toContain(
-      '[{"termId":"term-authorization","originalTerm":"authorization"}]',
-    );
-    expect(
-      schemaDescription(inputSchema, [
-        'properties',
-        'capabilityQuery',
-        'properties',
-        'successConditions',
-      ]),
-    ).toContain(
-      '[{"conditionId":"condition-policy","statement":"Enforce repository policy."}]',
-    );
-    expect(
-      schemaDescription(inputSchema, [
-        'properties',
-        'capabilityQuery',
-        'properties',
-        'draftConstraints',
-      ]),
-    ).toContain(
-      '[{"constraintId":"constraint-runtime","modality":"required","statement":"Support Node.js 24.","originalTerm":"Node.js 24","facetHint":"runtime","reasonCode":"user-required"}]',
-    );
-    expect(
-      schemaDescription(inputSchema, [
-        'properties',
-        'transmissionApproval',
-        'properties',
-        'approvedCategories',
-      ]),
-    ).toContain(
-      '["bounded-evidence","candidate-dossiers","capability-request","repository-fingerprint"]',
-    );
-  });
-
   it.each([
     ['clarification-required', 'lightweight'],
     ['unsupported', 'authentication'],
@@ -556,29 +508,4 @@ function candidateId(value: unknown): string | null {
     typeof value.candidateId === 'string'
     ? value.candidateId
     : null;
-}
-
-function schemaDescription(
-  schema: unknown,
-  path: readonly string[],
-): string | undefined {
-  let current = schema;
-  for (const segment of path) {
-    if (
-      typeof current !== 'object' ||
-      current === null ||
-      Array.isArray(current) ||
-      !(segment in current)
-    ) {
-      return undefined;
-    }
-    current = Reflect.get(current, segment);
-  }
-  return typeof current === 'object' &&
-    current !== null &&
-    !Array.isArray(current) &&
-    'description' in current &&
-    typeof current.description === 'string'
-    ? current.description
-    : undefined;
 }
