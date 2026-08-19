@@ -235,7 +235,7 @@ describe('OpenAI Responses target-fit adapter', () => {
     [
       'non-2xx',
       () => new Response('raw provider credential sentinel', { status: 500 }),
-      'hosted.fit-model-provider-failed',
+      'hosted.fit-model-provider-server-failed',
     ],
     [
       'invalid envelope',
@@ -285,6 +285,88 @@ describe('OpenAI Responses target-fit adapter', () => {
       expect(String(failure)).not.toContain(API_KEY);
     },
   );
+
+  it('classifies provider status failures and retains only bounded structured diagnostics', async () => {
+    const modelInput = await captureModelInput();
+    const providerMessage = 'You have no credits remaining. message sentinel';
+    const cases = [
+      {
+        status: 429,
+        body: {
+          error: {
+            message: providerMessage,
+            type: 'insufficient_quota',
+            code: 'credit_balance_exhausted',
+          },
+        },
+        expectedCode: 'hosted.fit-model-provider-rate-limit-failed',
+        expectedProviderFailure: {
+          httpStatus: 429,
+          errorType: 'insufficient_quota',
+          errorCode: 'credit_balance_exhausted',
+        },
+      },
+      {
+        status: 401,
+        body: { error: { message: providerMessage } },
+        expectedCode: 'hosted.fit-model-provider-authentication-failed',
+        expectedProviderFailure: { httpStatus: 401 },
+      },
+      {
+        status: 403,
+        body: { error: { message: providerMessage } },
+        expectedCode: 'hosted.fit-model-provider-authorization-failed',
+        expectedProviderFailure: { httpStatus: 403 },
+      },
+      {
+        status: 400,
+        body: { error: { message: providerMessage } },
+        expectedCode: 'hosted.fit-model-provider-request-failed',
+        expectedProviderFailure: { httpStatus: 400 },
+      },
+      {
+        status: 500,
+        body: { error: { message: providerMessage } },
+        expectedCode: 'hosted.fit-model-provider-server-failed',
+        expectedProviderFailure: { httpStatus: 500 },
+      },
+    ] as const;
+
+    const failures = await Promise.all(
+      cases.map(async ({ status, body }) => {
+        const adapter = createOpenAiFitAssessmentModel({
+          configuration: { apiKey: API_KEY, model: MODEL },
+          fetch: () =>
+            Promise.resolve(
+              new Response(JSON.stringify(body), {
+                status,
+                headers: { 'content-type': 'application/json' },
+              }),
+            ),
+        });
+        return adapter.assess(modelInput).catch((error: unknown) => error);
+      }),
+    );
+
+    for (const [index, expected] of cases.entries()) {
+      expect(failures[index]).toMatchObject({
+        code: expected.expectedCode,
+        providerFailure: expected.expectedProviderFailure,
+        stack: undefined,
+      });
+    }
+    expect(
+      new Set(
+        failures.map((failure) =>
+          typeof failure === 'object' && failure !== null && 'code' in failure
+            ? String(failure.code)
+            : '',
+        ),
+      ).size,
+    ).toBe(5);
+    expect(JSON.stringify(failures)).not.toContain(providerMessage);
+    expect(JSON.stringify(failures)).not.toContain(API_KEY);
+  });
 
   it('cancels the single provider request at its bounded deadline', async () => {
     vi.useFakeTimers();

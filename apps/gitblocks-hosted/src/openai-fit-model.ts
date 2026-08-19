@@ -13,7 +13,11 @@ import {
   HOSTED_FIT_MODEL,
   type HostedFitModelConfigurationV1,
 } from './configuration.ts';
-import { HostedDiscoveryError } from './errors.ts';
+import {
+  HostedDiscoveryError,
+  type HostedDiscoveryErrorCode,
+  type HostedFitModelProviderFailureV1,
+} from './errors.ts';
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 const MAXIMUM_PROVIDER_REQUEST_BYTES = 2 * 1024 * 1024;
@@ -125,7 +129,7 @@ export function createOpenAiFitAssessmentModel(input: {
           controller.signal,
         );
         if (!response.ok) {
-          throw new HostedDiscoveryError('hosted.fit-model-provider-failed');
+          throw providerResponseFailure(response.status, body);
         }
         const contentType = response.headers.get('content-type');
         if (
@@ -147,6 +151,63 @@ export function createOpenAiFitAssessmentModel(input: {
       }
     },
   });
+}
+
+function providerResponseFailure(
+  httpStatus: number,
+  body: string,
+): HostedDiscoveryError {
+  return new HostedDiscoveryError(providerResponseFailureCode(httpStatus), {
+    httpStatus,
+    ...structuredProviderFailure(body),
+  });
+}
+
+function providerResponseFailureCode(
+  httpStatus: number,
+): HostedDiscoveryErrorCode {
+  if (httpStatus === 401) {
+    return 'hosted.fit-model-provider-authentication-failed';
+  }
+  if (httpStatus === 403) {
+    return 'hosted.fit-model-provider-authorization-failed';
+  }
+  if (httpStatus === 429) {
+    return 'hosted.fit-model-provider-rate-limit-failed';
+  }
+  if (httpStatus >= 400 && httpStatus <= 499) {
+    return 'hosted.fit-model-provider-request-failed';
+  }
+  if (httpStatus >= 500 && httpStatus <= 599) {
+    return 'hosted.fit-model-provider-server-failed';
+  }
+  return 'hosted.fit-model-provider-unexpected-status';
+}
+
+function structuredProviderFailure(
+  body: string,
+): Omit<HostedFitModelProviderFailureV1, 'httpStatus'> {
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(body) as unknown;
+  } catch {
+    return Object.freeze({});
+  }
+  const error = record(record(decoded)?.['error']);
+  if (error === null) return Object.freeze({});
+  const errorType = machineReadableProviderErrorValue(error['type']);
+  const errorCode = machineReadableProviderErrorValue(error['code']);
+  return Object.freeze({
+    ...(errorType === undefined ? {} : { errorType }),
+    ...(errorCode === undefined ? {} : { errorCode }),
+  });
+}
+
+function machineReadableProviderErrorValue(value: unknown): string | undefined {
+  return typeof value === 'string' &&
+    /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u.test(value)
+    ? value
+    : undefined;
 }
 
 function validRetrievalFinalistContext(

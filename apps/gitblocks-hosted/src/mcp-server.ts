@@ -17,6 +17,7 @@ import type {
   HostedRecommendationFailureV1,
   HostedRecommendationResultV1,
 } from './application.ts';
+import type { HostedFitModelProviderFailureV1 } from './errors.ts';
 
 export const GITBLOCKS_RECOMMEND_OSS_TOOL_NAME = 'recommend_oss';
 
@@ -37,6 +38,7 @@ export interface HostedRecommendationFailureLogEventV1 {
   readonly code:
     HostedRecommendationFailureV1['code'] | 'unexpected-application-error';
   readonly causeCode?: HostedRecommendationFailureCauseCodeV1;
+  readonly providerFailure?: HostedFitModelProviderFailureV1;
 }
 
 export interface HostedRecommendationFailureObserverV1 {
@@ -118,6 +120,9 @@ function operationFailureEvent(
     path: failure.path,
     code: failure.code,
     ...('causeCode' in failure ? { causeCode: failure.causeCode } : {}),
+    ...('providerFailure' in failure
+      ? { providerFailure: failure.providerFailure }
+      : {}),
   });
 }
 

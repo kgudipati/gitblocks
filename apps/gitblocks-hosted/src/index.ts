@@ -49,7 +49,9 @@ export {
 export {
   HostedDiscoveryError,
   hostedDiscoveryErrorCode,
+  hostedDiscoveryProviderFailure,
   type HostedDiscoveryErrorCode,
+  type HostedFitModelProviderFailureV1,
 } from './errors.ts';
 export {
   createGitBlocksMcpHandler,
