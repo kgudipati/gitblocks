@@ -162,13 +162,47 @@ const recommendationAssessmentModelHardConstraintResolutionV1Schema =
     }),
   });
 
+const ossCapabilityQueryInputV1Schema = closedObject({
+  ...capabilityQueryInputV1ValueSchema.properties,
+  capabilityTerms: {
+    ...capabilityQueryInputV1ValueSchema.properties.capabilityTerms,
+    description:
+      'Required non-empty array of closed objects with exactly the required fields termId and originalTerm. Example: [{"termId":"term-authorization","originalTerm":"authorization"}].',
+  },
+  successConditions: {
+    ...capabilityQueryInputV1ValueSchema.properties.successConditions,
+    description:
+      'Required non-empty array of closed objects with exactly the required fields conditionId and statement. Example: [{"conditionId":"condition-policy","statement":"Enforce repository policy."}].',
+  },
+  draftConstraints: {
+    ...capabilityQueryInputV1ValueSchema.properties.draftConstraints,
+    description:
+      'Array may be empty; each item is a closed object with exactly the required fields constraintId, modality, statement, originalTerm, facetHint, and reasonCode. Example: [{"constraintId":"constraint-runtime","modality":"required","statement":"Support Node.js 24.","originalTerm":"Node.js 24","facetHint":"runtime","reasonCode":"user-required"}].',
+  },
+  repositoryFingerprintReference: {
+    ...capabilityQueryInputV1ValueSchema.properties
+      .repositoryFingerprintReference,
+    description:
+      'For recommend_oss this must be the non-null reference emitted by scanner --reference: a closed object with fingerprintId equal to repositoryFingerprint.fingerprintId and fingerprintDigest equal to the canonical SHA-256 digest of that complete fingerprint.',
+  },
+});
+
+const ossTransmissionApprovalV1Schema = closedObject({
+  ...transmissionApprovalV1Schema.properties,
+  approvedCategories: {
+    ...transmissionApprovalV1Schema.properties.approvedCategories,
+    description:
+      'For recommend_oss include every required category exactly once. Example: ["bounded-evidence","candidate-dossiers","capability-request","repository-fingerprint"].',
+  },
+});
+
 export const ossRecommendationRequestV1Schema = Type.Object(
   {
     contractVersion: contractVersionSchema,
     recommendationRequestId: stableIdSchema,
-    capabilityQuery: capabilityQueryInputV1ValueSchema,
+    capabilityQuery: ossCapabilityQueryInputV1Schema,
     repositoryFingerprint: repositoryFingerprintV1ValueSchema,
-    transmissionApproval: transmissionApprovalV1Schema,
+    transmissionApproval: ossTransmissionApprovalV1Schema,
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
