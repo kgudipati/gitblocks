@@ -80,7 +80,13 @@ export const transmissionApprovalV1Schema = closedObject({
       Type.Literal('capability-request'),
       Type.Literal('repository-fingerprint'),
     ]),
-    { minItems: 1, maxItems: 4, uniqueItems: true },
+    {
+      minItems: 1,
+      maxItems: 4,
+      uniqueItems: true,
+      description:
+        'After explicit transmission approval, use all four approved categories exactly as shown. Example: ["bounded-evidence","candidate-dossiers","capability-request","repository-fingerprint"].',
+    },
   ),
 });
 

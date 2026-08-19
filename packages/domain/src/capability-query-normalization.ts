@@ -189,6 +189,9 @@ const TERMINAL_PRIMARY_EXCLUSION_REASONS = new Set([
   'incidental-capability',
 ]);
 
+const PRIMARY_CAPABILITY_CLARIFICATION_CONTEXT =
+  'Use one supported primary capability term: authorization, audit-logging, background-jobs, rate-limiting, or webhooks. Put framework, runtime, datastore, and other repository constraints in draftConstraints.';
+
 export function canonicalizeCapabilityQueryLookupTermV1(
   value: string,
 ): CapabilityQueryTermCanonicalizationResult {
@@ -283,6 +286,7 @@ export function normalizeCapabilityQuery(
         term.termId,
         null,
         canonicalizationReason(canonical.reason),
+        suggestedAsciiLookupTerm(term.originalTerm),
         true,
         unresolved,
         clarifications,
@@ -369,6 +373,7 @@ export function normalizeCapabilityQuery(
           term.termId,
           canonical.value,
           'unknown-primary-capability',
+          null,
           true,
           unresolved,
           clarifications,
@@ -508,8 +513,7 @@ export function normalizeCapabilityQuery(
         ...input.candidateReferences.map(({ referenceId }) => referenceId),
       ].sort(compareText),
       possibleConceptIds: [],
-      context:
-        'Specify one capability family within the controlled five-family boundary.',
+      context: PRIMARY_CAPABILITY_CLARIFICATION_CONTEXT,
     });
   }
 
@@ -994,12 +998,17 @@ function addConstraintUnresolved(
     blocking,
   });
   if (blocking) {
+    const suggestedCorrectedValue =
+      canonicalTerm === null && reasonCode === 'unsupported-term-characters'
+        ? suggestedAsciiLookupTerm(constraint.originalTerm)
+        : null;
     clarifications.push({
       reasonCode,
       sourceIds: [constraint.constraintId],
       possibleConceptIds: [],
       context:
-        'Confirm one exact controlled meaning for this hard declaration.',
+        'Confirm one exact controlled meaning for this hard declaration.' +
+        correctedValueContext(suggestedCorrectedValue),
     });
   }
 }
@@ -1321,6 +1330,7 @@ function addUnknownTerm(
   sourceId: string,
   canonicalTerm: string | null,
   reasonCode: string,
+  suggestedCorrectedValue: string | null,
   blocking: boolean,
   unresolved: UnresolvedDraft[],
   clarifications: ClarificationDraft[],
@@ -1338,9 +1348,41 @@ function addUnknownTerm(
       sourceIds: [sourceId],
       possibleConceptIds: [],
       context:
-        'Provide one exact controlled term using supported ASCII syntax.',
+        'Provide one exact controlled term using supported ASCII syntax.' +
+        correctedValueContext(suggestedCorrectedValue) +
+        (sourceKind === 'capability-term'
+          ? ` ${PRIMARY_CAPABILITY_CLARIFICATION_CONTEXT}`
+          : ''),
     });
   }
+}
+
+function suggestedAsciiLookupTerm(value: string): string | null {
+  if (
+    value.length > CAPABILITY_QUERY_LIMITS.termCodeUnits ||
+    /[^\u0020-\u007e]/u.test(value)
+  ) {
+    return null;
+  }
+  let corrected = '';
+  let separatorPending = false;
+  for (const character of value) {
+    if (/[A-Za-z0-9]/u.test(character)) {
+      if (separatorPending && corrected.length > 0) corrected += '-';
+      const code = character.charCodeAt(0);
+      corrected +=
+        code >= 65 && code <= 90 ? String.fromCharCode(code + 32) : character;
+      separatorPending = false;
+    } else {
+      separatorPending = corrected.length > 0;
+    }
+  }
+  const canonical = canonicalizeCapabilityQueryLookupTermV1(corrected);
+  return canonical.ok ? canonical.value : null;
+}
+
+function correctedValueContext(value: string | null): string {
+  return value === null ? '' : ` Suggested corrected value: "${value}".`;
 }
 
 function canonicalizationReason(

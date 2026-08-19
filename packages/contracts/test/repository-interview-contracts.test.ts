@@ -36,11 +36,11 @@ const EXISTING_SCHEMA_DIGESTS = {
   'candidate-dossier':
     'd16d0424ed45edcf61d8084cbd21ebbb396366522d1b1a425b6cf8405e0680af',
   'capability-request':
-    '3d1f213efdacd6ff550a66a74703b94abc56aead59cdcb08b7a2769b5a5a1ab9',
+    '1ea959ae0cb76608b7d0e8a902b9e508dc381c90c2fe2fd4df561b80d4398003',
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
-    'c130a56044cbb043fac97e66db4c372d48990d672784b4abfde9ab9e78c9e504',
+    'fcf09c1f5329cbc1660559326d2755d34fdbf1a504595086eb94dc9af57278bb',
   'fit-assessment-response':
     '330b5b3940858428b1881701774bac785a7c93cf2d50e6dcb4ec37091a696a4d',
   'repository-artifact':

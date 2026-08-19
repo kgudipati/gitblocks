@@ -148,21 +148,30 @@ const capabilityQueryInputV1Properties = {
   capabilityTerms: Type.Array(capabilityQueryTermV1Schema, {
     minItems: 1,
     maxItems: CAPABILITY_QUERY_LIMITS.capabilityTerms,
+    description:
+      'Primary OSS capability terms only, not framework or repository constraints. Use one supported family meaning: authorization, audit logging, background jobs, rate limiting, or webhooks. Example: [{"termId":"capability-001","originalTerm":"background jobs"}].',
   }),
   successConditions: Type.Array(capabilityQuerySuccessConditionV1Schema, {
     minItems: 1,
     maxItems: CAPABILITY_QUERY_LIMITS.successConditions,
+    description:
+      'Observable outcomes that would make the OSS adoption successful. Example: [{"conditionId":"success-001","statement":"Jobs retry after transient failures."}].',
   }),
   draftConstraints: Type.Array(capabilityQueryDraftConstraintV1Schema, {
     maxItems: CAPABILITY_QUERY_LIMITS.draftConstraints,
+    description:
+      'Explicit declarations with required, preferred, or prohibited modality preserved exactly. Required and prohibited declarations need a request-origin reasonCode such as user-required or user-prohibited; use null for a preferred reasonCode unless the user supplied one. Put framework details here rather than in capabilityTerms. Example: [{"constraintId":"constraint-001","modality":"required","statement":"Must run in the existing Next.js application.","originalTerm":"nextjs","facetHint":"framework","reasonCode":"user-required"},{"constraintId":"constraint-002","modality":"prohibited","statement":"Must not require Redis.","originalTerm":"redis","facetHint":"infrastructure","reasonCode":"user-prohibited"},{"constraintId":"constraint-003","modality":"preferred","statement":"Prefer an MIT license.","originalTerm":"mit","facetHint":"license","reasonCode":null}].',
   }),
   candidateReferences: Type.Array(capabilityQueryCandidateReferenceV1Schema, {
     maxItems: CAPABILITY_QUERY_LIMITS.candidateReferences,
   }),
-  repositoryFingerprintReference: Type.Union([
-    capabilityQueryRepositoryFingerprintReferenceV1Schema,
-    Type.Null(),
-  ]),
+  repositoryFingerprintReference: Type.Union(
+    [capabilityQueryRepositoryFingerprintReferenceV1Schema, Type.Null()],
+    {
+      description:
+        'Use the exact fingerprintId and fingerprintDigest returned by the bundled scanner in reference mode; do not invent or recompute either value. Example: {"fingerprintId":"fingerprint-dogfood-001","fingerprintDigest":"0000000000000000000000000000000000000000000000000000000000000000"}.',
+    },
+  ),
 };
 
 export const capabilityQueryInputV1ValueSchema = closedObject(
