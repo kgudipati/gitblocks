@@ -145,6 +145,16 @@ export interface CandidateRetrievalAuthorityInputV1 {
 export interface CandidateSearchView {
   readonly profile: DeterministicCandidateProfile;
   readonly candidateId: string;
+  readonly displayName: string;
+  readonly repository: {
+    readonly host: 'github';
+    readonly owner: string;
+    readonly name: string;
+  };
+  readonly package: {
+    readonly registry: 'npm';
+    readonly name: string;
+  } | null;
   readonly catalogStatus: 'active' | 'archived' | 'moved' | 'negative-control';
   readonly primaryFamily: string;
   readonly additionalFamilies: readonly string[];
@@ -806,6 +816,9 @@ function createCandidateRecord(
   );
   const common = {
     candidateId: candidate.candidateId,
+    displayName: candidate.displayName,
+    repository: candidate.repository,
+    package: candidate.package,
     retrievalScore: channelMatches.reduce(
       (sum, { componentScore }) => sum + componentScore,
       0,
@@ -976,6 +989,16 @@ export function createCandidateSearchView(
   return {
     profile,
     candidateId: profile.candidateId,
+    displayName: repository.value.displayName,
+    repository: {
+      host: 'github',
+      owner: repository.value.githubOwner,
+      name: repository.value.githubRepository,
+    },
+    package:
+      packageMapping.value.mapping === 'mapped'
+        ? { registry: 'npm', name: packageMapping.value.packageName }
+        : null,
     catalogStatus: status.value.catalogStatus,
     primaryFamily: family.value.primaryFamily,
     additionalFamilies: [...family.value.additionalFamilies].sort(compareAscii),

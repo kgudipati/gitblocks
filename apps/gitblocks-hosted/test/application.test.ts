@@ -288,13 +288,37 @@ describe('hosted OSS recommendation application', () => {
     const modelInputs: FitAssessmentModelRequestV1[] = [];
     const application = await createAcceptedApplication({
       dossierLoader: {
-        loadActiveCandidateDossier: (command) =>
-          Promise.resolve(
-            candidateRepositoryHeadDossier(
-              command.candidateId,
-              command.expectedCapabilityFamily,
-            ),
-          ),
+        loadActiveCandidateDossier: (command) => {
+          expect(command).toMatchObject({
+            relevantEvidenceDimensions: ['data-store', 'integration'],
+          });
+          const head = candidateRepositoryHeadDossier(
+            command.candidateId,
+            command.expectedCapabilityFamily,
+          );
+          const cited = candidateDossier(
+            command.candidateId,
+            command.evidenceCutoff,
+            { capabilityFamily: command.expectedCapabilityFamily },
+          );
+          const citedObservation = cited.observations[0];
+          if (citedObservation === undefined) {
+            throw new Error('Cited evidence fixture is missing.');
+          }
+          return Promise.resolve({
+            ...head,
+            observations: [
+              ...head.observations,
+              citedObservation,
+              {
+                ...citedObservation,
+                evidenceId: `uncited-${command.candidateId}`,
+                topic: 'uncited-catalog-metadata',
+              },
+            ],
+            limitations: cited.limitations,
+          });
+        },
       },
       artifactMaterialLoader: {
         loadCandidateRepositoryArtifactMaterial: (command) => {
@@ -352,6 +376,16 @@ describe('hosted OSS recommendation application', () => {
         .every(({ observations }) =>
           observations.every(({ topic }) => topic !== 'artifact-excerpt'),
         ),
+    ).toBe(true);
+    expect(
+      modelInputs[0]?.fitAssessmentRequest.candidates.every(
+        ({ observations }) =>
+          observations.every(
+            ({ topic }) =>
+              topic !== 'repository-head' &&
+              topic !== 'uncited-catalog-metadata',
+          ) && observations.some(({ topic }) => topic === 'runtime-support'),
+      ),
     ).toBe(true);
   });
 

@@ -258,6 +258,48 @@ describe('PostgreSQL finalist evidence serving', { concurrent: false }, () => {
     }
   });
 
+  it('loads only relevant, artifact-binding, and limitation-or-unknown-cited observations when dimensions are bounded', async () => {
+    const writer = createPersistenceClient(WRITER_CONFIG);
+    const serving = createPersistenceClient(SERVING_CONFIG);
+    const dossier = createDossierWithUnknown();
+    const cited = requireObservation(dossier);
+    dossier.observations.push(
+      {
+        ...structuredClone(cited),
+        evidenceId: 'evidence-repository-head',
+        topic: 'repository-head',
+        dimension: 'maintenance',
+      },
+      {
+        ...structuredClone(cited),
+        evidenceId: 'evidence-uncited-release',
+        topic: 'release-current',
+        dimension: 'version-release',
+      },
+    );
+    try {
+      await seedDossier(writer, dossier);
+
+      const selected = await loadActiveCandidateDossier(serving, {
+        candidateId: dossier.identity.candidateId,
+        expectedCapabilityFamily: 'authorization',
+        evidenceCutoff: CREATED_AT,
+        relevantEvidenceDimensions: ['integration'],
+      });
+
+      expect(selected.observations.map(({ evidenceId }) => evidenceId)).toEqual(
+        ['evidence-alpha', 'evidence-repository-head'],
+      );
+      expect(selected.limitations).toEqual(dossier.limitations);
+      expect(selected.unknowns).toEqual(dossier.unknowns);
+    } finally {
+      await Promise.all([
+        closePersistenceClient(writer),
+        closePersistenceClient(serving),
+      ]);
+    }
+  });
+
   it('requires capability membership, represents empty evidence honestly, and fails closed on corrupt records', async () => {
     const writer = createPersistenceClient(WRITER_CONFIG);
     const serving = createPersistenceClient(SERVING_CONFIG);

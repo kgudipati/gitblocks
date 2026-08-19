@@ -23,6 +23,7 @@ import {
   type CapabilityTaxonomyV1,
   type ContractIssue,
   type DeterministicCandidateProfileAuthorityV1,
+  type EvidenceObservationV1,
   type FitAssessmentRequestV1,
   type EvidenceNeededHardConstraintResolutionV1,
   type RecommendationRetrievalFinalistV1,
@@ -46,6 +47,7 @@ import type {
 import {
   MAX_ARTIFACT_EVIDENCE_PER_CANDIDATE,
   MAX_ARTIFACT_EVIDENCE_PER_RECOMMENDATION,
+  evidenceDimensionForFacet,
   selectCandidateArtifactEvidenceV1,
   type CandidateArtifactMaterialLoaderPort,
 } from './artifact-evidence-selector.ts';
@@ -80,6 +82,8 @@ export interface CandidateDossierLoaderPort {
     readonly candidateId: string;
     readonly expectedCapabilityFamily: CandidateDossierV1['capabilityFamily'];
     readonly evidenceCutoff: string;
+    readonly relevantEvidenceDimensions:
+      readonly EvidenceObservationV1['dimension'][] | null;
   }) => Promise<CandidateDossierV1>;
 }
 
@@ -458,11 +462,13 @@ async function recommendOss(input: {
   let dossiers: readonly CandidateDossierV1[];
   try {
     dossiers = await Promise.all(
-      finalists.map(async ({ candidateId }) => {
+      finalists.map(async (finalist) => {
+        const { candidateId } = finalist;
         const dossier = await input.dossierLoader.loadActiveCandidateDossier({
           candidateId,
           expectedCapabilityFamily: capabilityFamily,
           evidenceCutoff,
+          relevantEvidenceDimensions: finalistEvidenceDimensions(finalist),
         });
         const parsedDossier = parseCandidateDossierV1(dossier);
         if (
@@ -543,6 +549,16 @@ async function recommendOss(input: {
         throw new Error('Finalist artifact evidence validation failed.');
       }
       return augmented.value;
+    });
+    dossiers = dossiers.map((dossier, index) => {
+      const finalist = finalists[index];
+      if (finalist === undefined) {
+        throw new Error('Finalist evidence selection binding failed.');
+      }
+      return selectFitAssessmentEvidence(
+        dossier,
+        finalistEvidenceDimensions(finalist),
+      );
     });
   } catch (error) {
     return failed(
@@ -763,6 +779,42 @@ function repositoryHeadCommit(dossier: CandidateDossierV1): string | null {
     : null;
 }
 
+function finalistEvidenceDimensions(
+  finalist: CandidateRetrievalCandidateV1,
+): readonly EvidenceObservationV1['dimension'][] | null {
+  if (finalist.lane === 'eligible') return null;
+  return [
+    ...new Set(
+      finalist.unresolvedHardEvaluations.map(({ facet }) =>
+        evidenceDimensionForFacet(facet),
+      ),
+    ),
+  ].sort(compareAscii);
+}
+
+function selectFitAssessmentEvidence(
+  dossier: CandidateDossierV1,
+  relevantEvidenceDimensions:
+    readonly EvidenceObservationV1['dimension'][] | null,
+): CandidateDossierV1 {
+  if (relevantEvidenceDimensions === null) return dossier;
+  const relevantDimensions = new Set(relevantEvidenceDimensions);
+  const citedEvidenceIds = new Set([
+    ...dossier.limitations.flatMap(({ evidenceIds }) => evidenceIds),
+    ...dossier.unknowns.flatMap(({ evidenceIds }) => evidenceIds),
+  ]);
+  const observations = dossier.observations.filter(
+    ({ dimension, evidenceId }) =>
+      relevantDimensions.has(dimension) || citedEvidenceIds.has(evidenceId),
+  );
+  if (observations.length === dossier.observations.length) return dossier;
+  const selected = parseCandidateDossierV1({ ...dossier, observations });
+  if (!selected.ok) {
+    throw new Error('Finalist evidence relevance selection failed.');
+  }
+  return selected.value;
+}
+
 export function selectHostedRetrievalFinalistsV1(
   retrieval: Pick<
     CandidateRetrievalResultV1,
@@ -854,6 +906,10 @@ function knownField<Id extends DeterministicProfileFieldId>(
     (candidate) => candidate.fieldId === fieldId,
   ) as DeterministicProfileFieldRecord<Id> | undefined;
   return field?.state === 'known' ? field : null;
+}
+
+function compareAscii(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function rankedCandidateIds(

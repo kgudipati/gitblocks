@@ -239,7 +239,7 @@ export const repositoryFingerprintV1Schema = Type.Object(
   },
 );
 
-const candidateIdentitySchema = closedObject({
+export const candidateIdentityV1Schema = closedObject({
   candidateId: stableIdSchema,
   displayName: shortNameSchema,
   repository: closedObject({
@@ -381,7 +381,7 @@ const candidateUnknownSchema = closedObject({
 
 const candidateDossierV1Properties = {
   contractVersion: contractVersionSchema,
-  identity: candidateIdentitySchema,
+  identity: candidateIdentityV1Schema,
   capabilityFamily: capabilityFamilySchema,
   versionScope: Type.Union([versionTextSchema, Type.Null()]),
   observations: Type.Array(evidenceObservationV1Schema, {

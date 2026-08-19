@@ -791,6 +791,7 @@ export async function selectActiveDossierMaterial(
         identity,
         'authorization',
         evidenceCutoff,
+        null,
         signal,
       );
       return {
@@ -809,6 +810,9 @@ export async function loadActiveCandidateDossier(
 ): Promise<CandidateDossierV1> {
   validateStableId(command.candidateId);
   const evidenceCutoff = normalizeTimestamp(command.evidenceCutoff);
+  const relevantEvidenceDimensions = normalizeRelevantEvidenceDimensions(
+    command.relevantEvidenceDimensions,
+  );
   return withTransaction(
     client,
     control,
@@ -837,6 +841,7 @@ export async function loadActiveCandidateDossier(
         identity,
         expectedCapabilityFamily,
         evidenceCutoff,
+        relevantEvidenceDimensions,
         signal,
       );
     },
@@ -849,8 +854,46 @@ async function loadActiveDossierInTransaction(
   identity: CandidateIdentityV1,
   capabilityFamily: CandidateDossierV1['capabilityFamily'],
   evidenceCutoff: string,
+  relevantEvidenceDimensions:
+    readonly EvidenceObservationV1['dimension'][] | null,
   signal: AbortSignal | undefined,
 ): Promise<CandidateDossierV1> {
+  const limitationRows = await executePending<
+    readonly StoredRecordRow<CandidateLimitationV1>[]
+  >(
+    transaction`
+      select canonical_payload, record_digest, created_at
+      from gitblocks.candidate_limitations
+      where candidate_id = ${candidateId}
+      order by limitation_id
+      limit ${MAX_ACTIVE_LIMITATIONS + 1}
+    `,
+    signal,
+  );
+  requireResultBound(limitationRows, MAX_ACTIVE_LIMITATIONS);
+  const limitationRecords = limitationRows.map(validateStoredLimitationRecord);
+
+  const unknownRows = await executePending<
+    readonly StoredRecordRow<CandidateUnknownV1>[]
+  >(
+    transaction`
+      select canonical_payload, record_digest, created_at
+      from gitblocks.candidate_material_unknowns
+      where candidate_id = ${candidateId}
+      order by unknown_id
+      limit ${MAX_ACTIVE_UNKNOWNS + 1}
+    `,
+    signal,
+  );
+  requireResultBound(unknownRows, MAX_ACTIVE_UNKNOWNS);
+  const unknownRecords = unknownRows.map(validateStoredUnknownRecord);
+  const citedEvidenceIds = [
+    ...new Set([
+      ...limitationRecords.flatMap(({ evidenceIds }) => evidenceIds),
+      ...unknownRecords.flatMap(({ evidenceIds }) => evidenceIds),
+    ]),
+  ];
+
   const observationRows = await executePending<
     readonly StoredRecordRow<EvidenceObservationV1>[]
   >(
@@ -874,6 +917,16 @@ async function loadActiveDossierInTransaction(
           or observation.validated_at <= ${evidenceCutoff}::timestamptz
         )
         and observation.freshness_as_of <= ${evidenceCutoff}::timestamptz
+        and (
+          ${relevantEvidenceDimensions === null}
+          or observation.dimension = any(
+            ${transaction.array([...(relevantEvidenceDimensions ?? [])])}::text[]
+          )
+          or observation.topic = 'repository-head'
+          or observation.evidence_id = any(
+            ${transaction.array(citedEvidenceIds)}::text[]
+          )
+        )
         and not exists (
           select 1
           from gitblocks.evidence_supersessions as supersession
@@ -899,47 +952,17 @@ async function loadActiveDossierInTransaction(
     observations.map((observation) => observation.evidenceId),
   );
 
-  const limitationRows = await executePending<
-    readonly StoredRecordRow<CandidateLimitationV1>[]
-  >(
-    transaction`
-      select canonical_payload, record_digest, created_at
-      from gitblocks.candidate_limitations
-      where candidate_id = ${candidateId}
-      order by limitation_id
-      limit ${MAX_ACTIVE_LIMITATIONS + 1}
-    `,
-    signal,
+  const limitations = limitationRecords.filter((limitation) =>
+    limitation.evidenceIds.every((evidenceId) =>
+      activeEvidenceIds.has(evidenceId),
+    ),
   );
-  requireResultBound(limitationRows, MAX_ACTIVE_LIMITATIONS);
-  const limitations = limitationRows
-    .map(validateStoredLimitationRecord)
-    .filter((limitation) =>
-      limitation.evidenceIds.every((evidenceId) =>
-        activeEvidenceIds.has(evidenceId),
-      ),
-    );
 
-  const unknownRows = await executePending<
-    readonly StoredRecordRow<CandidateUnknownV1>[]
-  >(
-    transaction`
-      select canonical_payload, record_digest, created_at
-      from gitblocks.candidate_material_unknowns
-      where candidate_id = ${candidateId}
-      order by unknown_id
-      limit ${MAX_ACTIVE_UNKNOWNS + 1}
-    `,
-    signal,
+  const unknowns = unknownRecords.filter((unknown) =>
+    unknown.evidenceIds.every((evidenceId) =>
+      activeEvidenceIds.has(evidenceId),
+    ),
   );
-  requireResultBound(unknownRows, MAX_ACTIVE_UNKNOWNS);
-  const unknowns = unknownRows
-    .map(validateStoredUnknownRecord)
-    .filter((unknown) =>
-      unknown.evidenceIds.every((evidenceId) =>
-        activeEvidenceIds.has(evidenceId),
-      ),
-    );
 
   return validateStoredDossier({
     contractVersion: '1.0.0',
@@ -1059,6 +1082,16 @@ function validateLifecycleCommand(
     throw persistenceError('persistence.invalid-input');
   }
   return { createdAt, effectiveAt };
+}
+
+function normalizeRelevantEvidenceDimensions(
+  value: readonly EvidenceObservationV1['dimension'][] | null | undefined,
+): readonly EvidenceObservationV1['dimension'][] | null {
+  if (value === null || value === undefined) return null;
+  if (value.length > 10 || new Set(value).size !== value.length) {
+    throw persistenceError('persistence.invalid-input');
+  }
+  return [...value].sort();
 }
 
 function validateDossierEvidenceCutoff(

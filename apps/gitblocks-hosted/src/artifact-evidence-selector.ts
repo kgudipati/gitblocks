@@ -546,7 +546,7 @@ function evidenceFromMatch(
     evidenceId: `artifact-evidence-${evidenceDigest.slice(0, 40)}`,
     candidateId,
     topic: 'artifact-excerpt',
-    dimension: evidenceDimension(facet),
+    dimension: evidenceDimensionForFacet(facet),
     observation: match.normalizedExcerpt,
     source: Object.freeze({
       kind: 'git-commit',
@@ -680,7 +680,7 @@ function compareAscii(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function evidenceDimension(
+export function evidenceDimensionForFacet(
   facet: RecommendationRetrievalFinalistV1['unresolvedHardEvaluations'][number]['facet'],
 ): EvidenceObservationV1['dimension'] {
   switch (facet) {

@@ -17,6 +17,7 @@ import {
 } from './schema-builders.ts';
 import { CAPABILITY_RETRIEVAL_EXPANSION_VERSION } from './capability-retrieval-expansion-schemas.ts';
 import { CANDIDATE_RETRIEVAL_METADATA_AUTHORITY_VERSION } from './candidate-retrieval-metadata-schemas.ts';
+import { candidateIdentityV1Schema } from './schemas.ts';
 
 export const CANDIDATE_RETRIEVAL_REQUEST_VERSION =
   'candidate-retrieval-request/1.2.0' as const;
@@ -206,6 +207,9 @@ const unresolvedHardEvaluationV1Schema = closedObject({
 });
 const candidateCommon = {
   candidateId: stableIdSchema,
+  displayName: Type.Optional(candidateIdentityV1Schema.properties.displayName),
+  repository: Type.Optional(candidateIdentityV1Schema.properties.repository),
+  package: Type.Optional(candidateIdentityV1Schema.properties.package),
   retrievalScore: Type.Integer({ minimum: 1, maximum: 10_000 }),
   matchedCapabilityConceptIds: boundedStableIdsSchema,
   matchedProfileFieldIds: boundedProfileFieldIdsSchema,
