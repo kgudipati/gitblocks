@@ -154,6 +154,17 @@ const evidenceNeededHardConstraintResolutionV1Schema = closedObject({
 const recommendationAssessmentModelHardConstraintResolutionV1Schema =
   closedObject({
     ...evidenceNeededHardConstraintResolutionV1Schema.properties,
+    state: Type.Union(
+      [
+        Type.Literal('satisfied'),
+        Type.Literal('conflict'),
+        Type.Literal('unresolved'),
+      ],
+      {
+        description:
+          'Judge only this disclosed evaluation; do not reconstruct or prove a candidate-wide complete feature or infrastructure inventory. ruleId identifies the deterministic check that was unresolved and does not define the model proof scope. Interpret conceptId as the exact taxonomy concept resolved in normalizedQuery; do not broaden it. For a required feature, candidate-owned evidence explicitly documenting the named concept is sufficient for satisfied; candidate-owned evidence explicitly establishing that the named concept is unsupported is conflict. For prohibited infrastructure, candidate-owned evidence establishing a complete alternative operating configuration that does not require the named component is sufficient for satisfied; candidate-owned evidence that the prohibited component is required is conflict. Use unresolved when supplied evidence genuinely does not speak to the concept or otherwise cannot ground satisfied or conflict. Never use unresolved solely to avoid inference, citation, or grounding requirements.',
+      },
+    ),
     inferenceIds: Type.Array(modelInferenceTokenSchema, {
       maxItems: 20,
       uniqueItems: true,

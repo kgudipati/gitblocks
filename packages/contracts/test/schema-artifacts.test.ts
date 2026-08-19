@@ -67,7 +67,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'recommendation-assessment-response':
     'aa619df4638fc12d1ee8d77b5bf2552b6ba0a03fcb88e41cc0dd1ed051087d46',
   'recommendation-assessment-model-response':
-    '05519e8895a317e5fccf7c04d2c2cca05b7c3a69553c719fce2ae273a151d067',
+    '47ab5d6ee9d7d44dc6f4754121b8cfe03756a5f480c84459f09d4c294efcff52',
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
@@ -261,6 +261,31 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       ]),
     ).toContain(
       '["bounded-evidence","candidate-dossiers","capability-request","repository-fingerprint"]',
+    );
+  });
+
+  it('adds hard-resolution threshold guidance through one description key only', () => {
+    const schema = getContractSchemaV1(
+      'recommendation-assessment-model-response',
+    );
+    const statePath = [
+      'properties',
+      'evidenceNeededHardConstraintResolutions',
+      'items',
+      'properties',
+      'state',
+    ] as const;
+
+    expect(schemaDescriptionAt(schema, statePath)).toBe(
+      'Judge only this disclosed evaluation; do not reconstruct or prove a candidate-wide complete feature or infrastructure inventory. ruleId identifies the deterministic check that was unresolved and does not define the model proof scope. Interpret conceptId as the exact taxonomy concept resolved in normalizedQuery; do not broaden it. For a required feature, candidate-owned evidence explicitly documenting the named concept is sufficient for satisfied; candidate-owned evidence explicitly establishing that the named concept is unsupported is conflict. For prohibited infrastructure, candidate-owned evidence establishing a complete alternative operating configuration that does not require the named component is sufficient for satisfied; candidate-owned evidence that the prohibited component is required is conflict. Use unresolved when supplied evidence genuinely does not speak to the concept or otherwise cannot ground satisfied or conflict. Never use unresolved solely to avoid inference, citation, or grounding requirements.',
+    );
+    const beforeSchemaDigest = createHash('sha256')
+      .update(
+        `${JSON.stringify(withoutKeyAt(schema, statePath, 'description'), null, 2)}\n`,
+      )
+      .digest('hex');
+    expect(beforeSchemaDigest).toBe(
+      '05519e8895a317e5fccf7c04d2c2cca05b7c3a69553c719fce2ae273a151d067',
     );
   });
 
@@ -514,4 +539,25 @@ function schemaDescriptionAt(
     throw new Error(`Schema description is missing: ${path.join('.')}`);
   }
   return description;
+}
+
+function withoutKeyAt(
+  schema: JsonSchemaValue,
+  path: readonly string[],
+  key: string,
+): JsonSchemaValue {
+  const copy = structuredClone(schema);
+  let current = copy;
+  for (const segment of path) {
+    const next = readProperty(current, segment);
+    if (next === undefined) {
+      throw new Error(`Schema path is missing: ${path.join('.')}`);
+    }
+    current = next;
+  }
+  if (!isRecord(current) || !Object.hasOwn(current, key)) {
+    throw new Error(`Schema key is missing: ${[...path, key].join('.')}`);
+  }
+  Reflect.deleteProperty(current, key);
+  return copy;
 }
