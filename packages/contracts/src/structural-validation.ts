@@ -60,10 +60,14 @@ import {
 } from './capability-query-schemas.ts';
 import {
   deterministicCandidateProfileAuthorityV1Schema,
+  deterministicCandidateProfileAuthorityV2Schema,
   deterministicCandidateProfileV1Schema,
+  deterministicCandidateProfileV2Schema,
   deterministicProfileFieldRecordV1Schema,
   type DeterministicCandidateProfileAuthorityV1,
+  type DeterministicCandidateProfileAuthorityV2,
   type DeterministicCandidateProfileV1,
+  type DeterministicCandidateProfileV2,
 } from './deterministic-candidate-profile-schemas.ts';
 import {
   candidateRetrievalRequestV1Schema,
@@ -448,6 +452,15 @@ export const deterministicCandidateProfileV1Validator =
 export const deterministicCandidateProfileAuthorityV1Validator =
   createLazyCandidateProfileAuthorityValidator(
     deterministicCandidateProfileV1Validator,
+  );
+export const deterministicCandidateProfileV2Validator =
+  createLazyStructuralValidator<DeterministicCandidateProfileV2>(
+    deterministicCandidateProfileV2Schema,
+  );
+export const deterministicCandidateProfileAuthorityV2Validator =
+  createLazyStructuralValidator<DeterministicCandidateProfileAuthorityV2>(
+    deterministicCandidateProfileAuthorityV2Schema,
+    [deterministicCandidateProfileV2Validator],
   );
 export const candidateRetrievalRequestV1Validator =
   createLazyStructuralValidator<CandidateRetrievalRequestV1>(

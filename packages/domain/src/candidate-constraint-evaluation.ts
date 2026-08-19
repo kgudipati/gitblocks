@@ -7,11 +7,18 @@ import type {
   PreservedCapabilityQueryDeclaration,
 } from './capability-query-normalization.ts';
 import type {
+  DeterministicCandidateProfileEvaluatorV2,
+  DeterministicProfileEvaluatorFieldV2,
+} from './deterministic-candidate-profile-v2.ts';
+import type {
   DeterministicCandidateProfile,
   DeterministicProfileFieldId,
   DeterministicProfileFieldRecord,
 } from './deterministic-candidate-profile.ts';
-import { validateDeterministicCandidateProfile } from './deterministic-candidate-profile.ts';
+import {
+  DETERMINISTIC_PROFILE_FIELD_IDS,
+  validateDeterministicCandidateProfile,
+} from './deterministic-candidate-profile.ts';
 import {
   addIssue,
   finalizeIssues,
@@ -20,8 +27,10 @@ import {
 } from './issues.ts';
 import type { CapabilityFamily } from './model.ts';
 
-export const CANDIDATE_CONSTRAINT_EVALUATION_VERSION =
+export const CANDIDATE_CONSTRAINT_EVALUATION_VERSION_V1 =
   'candidate-constraint-evaluation/1.0.0' as const;
+export const CANDIDATE_CONSTRAINT_EVALUATION_VERSION =
+  'candidate-constraint-evaluation/2.0.0' as const;
 
 export type CandidateConstraintState = 'conflict' | 'satisfied' | 'unresolved';
 export type CandidateConstraintMatch = 'match' | 'mismatch' | 'unresolved';
@@ -37,6 +46,11 @@ export interface CandidateConstraintNormalizationInput {
 
 export interface CandidateConstraintEvaluationInput {
   readonly profile: DeterministicCandidateProfile;
+  readonly normalization: CandidateConstraintNormalizationInput;
+}
+
+export interface CandidateConstraintEvaluationInputV2 {
+  readonly profile: DeterministicCandidateProfileEvaluatorV2;
   readonly normalization: CandidateConstraintNormalizationInput;
 }
 
@@ -159,11 +173,107 @@ export function evaluateCandidateConstraints(
   };
 }
 
+export function evaluateCandidateConstraintsV2(
+  input: CandidateConstraintEvaluationInputV2,
+): DomainResult<CandidateConstraintEvaluation> {
+  const issues: DomainIssue[] = [];
+  const primaryFamilyId = input.normalization.primaryFamilyId;
+  if (
+    input.normalization.outcome !== 'normalized' ||
+    primaryFamilyId === null ||
+    input.profile.taxonomyBinding.taxonomyVersion !==
+      input.normalization.taxonomyVersion ||
+    input.profile.taxonomyBinding.taxonomySemanticDigest !==
+      input.normalization.taxonomySemanticDigest
+  ) {
+    addIssue(issues, 'profile.evaluation', '$.normalization');
+  }
+  const finalized = finalizeIssues(issues);
+  if (finalized.length > 0 || primaryFamilyId === null) {
+    return { ok: false, issues: finalized };
+  }
+
+  const primary = evaluatePrimaryFamilyV2(input.profile, primaryFamilyId);
+  const declarationIds = new Set(
+    input.normalization.preservedDeclarations.map(
+      ({ constraintId }) => constraintId,
+    ),
+  );
+  const controlledConstraintSourceIds = new Set<string>();
+  const constraints = input.normalization.normalizedConstraints.flatMap(
+    (constraint) => {
+      const controlled =
+        constraint.resolutionBasis === 'controlled-taxonomy' &&
+        constraint.conceptId !== null;
+      if (controlled) {
+        constraint.sourceConstraintIds.forEach((sourceId) =>
+          controlledConstraintSourceIds.add(sourceId),
+        );
+      }
+      const preservedCoverage = constraint.sourceConstraintIds.every(
+        (sourceId) => declarationIds.has(sourceId),
+      );
+      return controlled || !preservedCoverage
+        ? [evaluateNormalizedConstraintV2(input.profile, constraint)]
+        : [];
+    },
+  );
+  const declarations = input.normalization.preservedDeclarations
+    .filter(
+      ({ constraintId }) => !controlledConstraintSourceIds.has(constraintId),
+    )
+    .map(evaluatePreservedDeclaration);
+  const evaluations = [primary, ...constraints, ...declarations];
+  const hard = evaluations.filter(
+    ({ modality }) => modality === 'required' || modality === 'prohibited',
+  );
+  const overallHardState = hard.some(({ state }) => state === 'conflict')
+    ? 'conflict'
+    : hard.some(({ state }) => state === 'unresolved')
+      ? 'unresolved'
+      : 'satisfied';
+
+  return {
+    ok: true,
+    value: {
+      candidateId: input.profile.candidateId,
+      normalizationTaxonomyVersion: input.normalization.taxonomyVersion,
+      normalizationTaxonomySemanticDigest:
+        input.normalization.taxonomySemanticDigest,
+      overallHardState,
+      evaluations,
+    },
+  };
+}
+
 function evaluatePrimaryFamily(
   profile: DeterministicCandidateProfile,
   family: CapabilityFamily,
 ): CandidateConstraintEvaluationItem {
   const field = getField(profile, 'capability-family');
+  const match =
+    field.state === 'known'
+      ? field.value.primaryFamily === family
+        ? 'match'
+        : 'mismatch'
+      : 'unresolved';
+  return makeItem({
+    evaluationId: 'primary-capability-family',
+    sourceKind: 'primary-family',
+    modality: 'required',
+    facet: 'capability',
+    conceptId: family,
+    profileFieldId: 'capability-family',
+    match,
+    ruleId: 'evaluate-primary-capability-family',
+  });
+}
+
+function evaluatePrimaryFamilyV2(
+  profile: DeterministicCandidateProfileEvaluatorV2,
+  family: CapabilityFamily,
+): CandidateConstraintEvaluationItem {
+  const field = getEvaluatorField(profile, 'capability-family');
   const match =
     field.state === 'known'
       ? field.value.primaryFamily === family
@@ -217,6 +327,41 @@ function evaluateNormalizedConstraint(
   });
 }
 
+function evaluateNormalizedConstraintV2(
+  profile: DeterministicCandidateProfileEvaluatorV2,
+  constraint: NormalizedCapabilityConstraint,
+): CandidateConstraintEvaluationItem {
+  const mapping = exactMapping(constraint.facet);
+  if (
+    constraint.resolutionBasis !== 'controlled-taxonomy' ||
+    constraint.conceptId === null ||
+    mapping === null
+  ) {
+    return makeItem({
+      evaluationId: constraint.normalizedConstraintId,
+      sourceKind: 'normalized-constraint',
+      modality: constraint.modality,
+      facet: constraint.facet,
+      conceptId: constraint.conceptId,
+      profileFieldId: mapping?.fieldId ?? null,
+      match: 'unresolved',
+      ruleId: 'unresolved-without-exact-profile-mapping',
+    });
+  }
+  const field = getEvaluatorField(profile, mapping.fieldId);
+  const match = evaluateFieldConceptV2(field, constraint.conceptId);
+  return makeItem({
+    evaluationId: constraint.normalizedConstraintId,
+    sourceKind: 'normalized-constraint',
+    modality: constraint.modality,
+    facet: constraint.facet,
+    conceptId: constraint.conceptId,
+    profileFieldId: mapping.fieldId,
+    match,
+    ruleId: mapping.ruleId,
+  });
+}
+
 function evaluatePreservedDeclaration(
   declaration: PreservedCapabilityQueryDeclaration,
 ): CandidateConstraintEvaluationItem {
@@ -254,6 +399,46 @@ function evaluateFieldConcept(
     readonly conceptIds: readonly string[];
   };
   return value.conceptIds.includes(conceptId) ? 'match' : 'mismatch';
+}
+
+function evaluateFieldConceptV2(
+  field: DeterministicProfileEvaluatorFieldV2,
+  conceptId: string,
+): CandidateConstraintMatch {
+  if (
+    field.fieldId !== 'capability-variants-features' &&
+    field.fieldId !== 'required-infrastructure'
+  ) {
+    if (
+      field.fieldId === 'adoption-unit-type' &&
+      'state' in field &&
+      field.state === 'known'
+    ) {
+      return binarySearchString(field.value.conceptIds, conceptId)
+        ? 'match'
+        : 'mismatch';
+    }
+    if (
+      field.fieldId === 'adoption-unit-type' &&
+      'state' in field &&
+      (field.state === 'unknown' || field.state === 'conflict')
+    ) {
+      return 'unresolved';
+    }
+    return field.fieldId === 'adoption-unit-type' && 'state' in field
+      ? 'mismatch'
+      : 'unresolved';
+  }
+  if (field.legacyWholeFieldConflict !== undefined) return 'unresolved';
+  const assertion = binarySearchAssertion(field.assertions, conceptId);
+  if (assertion !== null) {
+    return assertion.state === 'present'
+      ? 'match'
+      : assertion.state === 'absent'
+        ? 'mismatch'
+        : 'unresolved';
+  }
+  return field.coverage === 'complete' ? 'mismatch' : 'unresolved';
 }
 
 function makeItem(
@@ -325,4 +510,52 @@ function getField<FieldId extends DeterministicProfileFieldId>(
     throw new Error('Validated candidate profile field is missing.');
   }
   return field as DeterministicProfileFieldRecord<FieldId>;
+}
+
+function getEvaluatorField<FieldId extends DeterministicProfileFieldId>(
+  profile: DeterministicCandidateProfileEvaluatorV2,
+  fieldId: FieldId,
+): DeterministicProfileEvaluatorFieldV2<FieldId> {
+  const ordinal = DETERMINISTIC_PROFILE_FIELD_IDS.indexOf(fieldId);
+  const field = profile.fields[ordinal];
+  if (field?.fieldId !== fieldId) {
+    throw new Error('Validated candidate evaluator field is missing.');
+  }
+  return field as DeterministicProfileEvaluatorFieldV2<FieldId>;
+}
+
+function binarySearchAssertion(
+  assertions: readonly {
+    readonly conceptId: string;
+    readonly state: 'absent' | 'conflict' | 'present';
+  }[],
+  conceptId: string,
+): (typeof assertions)[number] | null {
+  let low = 0;
+  let high = assertions.length - 1;
+  while (low <= high) {
+    const middle = (low + high) >>> 1;
+    const assertion = assertions[middle];
+    if (assertion === undefined) return null;
+    if (assertion.conceptId === conceptId) return assertion;
+    if (assertion.conceptId < conceptId) low = middle + 1;
+    else high = middle - 1;
+  }
+  return null;
+}
+
+function binarySearchString(
+  values: readonly string[],
+  expected: string,
+): boolean {
+  let low = 0;
+  let high = values.length - 1;
+  while (low <= high) {
+    const middle = (low + high) >>> 1;
+    const value = values[middle];
+    if (value === expected) return true;
+    if (value !== undefined && value < expected) low = middle + 1;
+    else high = middle - 1;
+  }
+  return false;
 }

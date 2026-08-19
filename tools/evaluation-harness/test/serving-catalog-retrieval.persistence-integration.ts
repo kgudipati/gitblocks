@@ -243,7 +243,7 @@ function representativeAuthorizationRequest() {
         catalogDigest: profiles.catalogDigest,
       },
       candidateConstraintEvaluationVersion:
-        'candidate-constraint-evaluation/1.0.0',
+        'candidate-constraint-evaluation/2.0.0',
       retrievalExpansion: {
         authorityVersion: retrievalExpansion.expansionVersion,
         semanticDigest: retrievalExpansion.semanticDigest,

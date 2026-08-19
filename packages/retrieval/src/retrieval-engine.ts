@@ -4,7 +4,7 @@ import {
   parseCandidateRetrievalRequestV1,
   parseCapabilityRetrievalExpansionV1,
   parseCapabilityTaxonomyV1,
-  parseDeterministicCandidateProfileAuthorityV1,
+  parseDeterministicCandidateProfileAuthority,
   type CandidateRetrievalCandidateV1,
   type CandidateRetrievalChannelIdV1,
   type CandidateRetrievalChannelMatchV1,
@@ -15,11 +15,16 @@ import {
   type CapabilityTaxonomyV1,
 } from '@gitblocks/contracts';
 import {
-  evaluateCandidateConstraints,
+  evaluateCandidateConstraintsV2,
+  type evaluateCandidateConstraints,
   type CandidateConstraintEvaluation,
   type CandidateConstraintEvaluationItem,
+  projectDeterministicCandidateProfileAuthorityToEvaluatorV2,
+  projectDeterministicCandidateProfileV1ToEvaluatorV2,
   type DeterministicCandidateProfile,
-  type DeterministicCandidateProfileAuthority,
+  type DeterministicCandidateProfileEvaluatorAuthorityV2,
+  type DeterministicCandidateProfileEvaluatorV2,
+  type PublishedDeterministicCandidateProfileAuthority,
   type DeterministicProfileFieldId,
   type DeterministicProfileFieldRecord,
 } from '@gitblocks/domain';
@@ -53,16 +58,16 @@ const EMPTY_RETRIEVAL_EXPANSION: RetrievalTermExpansionV1 = Object.freeze({
   edgesTruncated: 0,
 });
 
-const CONCEPT_SET_PROFILE_FIELDS = Object.freeze([
+const LEGACY_CONCEPT_SET_PROFILE_FIELDS = Object.freeze([
   'adoption-unit-type',
-  'capability-variants-features',
-  'required-infrastructure',
-  'optional-infrastructure',
   'deployment-self-hosting',
 ] as const);
 
 const STRUCTURED_PROFILE_FIELDS = Object.freeze([
-  ...CONCEPT_SET_PROFILE_FIELDS,
+  ...LEGACY_CONCEPT_SET_PROFILE_FIELDS,
+  'capability-variants-features',
+  'required-infrastructure',
+  'optional-infrastructure',
   'repository-discovery-metadata',
   'language-ecosystem',
   'operational-complexity-primitives',
@@ -136,14 +141,15 @@ export type CandidateRetrievalEngineCreationResultV1 =
 
 export interface CandidateRetrievalAuthorityInputV1 {
   readonly taxonomy: unknown;
-  readonly candidateProfileAuthority: unknown;
+  readonly candidateProfileAuthority?: unknown;
+  readonly candidateProfileEvaluatorAuthority?: DeterministicCandidateProfileEvaluatorAuthorityV2;
   readonly retrievalExpansionAuthority: unknown;
   readonly candidateRetrievalMetadataAuthority: unknown;
   readonly expectedCandidateRetrievalMetadataAuthorityBinding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1;
 }
 
 export interface CandidateSearchView {
-  readonly profile: DeterministicCandidateProfile;
+  readonly profile: DeterministicCandidateProfileEvaluatorV2;
   readonly candidateId: string;
   readonly displayName: string;
   readonly repository: {
@@ -204,12 +210,23 @@ export function createCandidateRetrievalEngineV1(
   if (!taxonomy.ok) {
     return failure('invalid-taxonomy-authority', 'taxonomy');
   }
-  const profiles = parseDeterministicCandidateProfileAuthorityV1(
-    input.candidateProfileAuthority,
-  );
-  if (!profiles.ok) {
+  const profiles =
+    input.candidateProfileEvaluatorAuthority === undefined
+      ? parseDeterministicCandidateProfileAuthority(
+          input.candidateProfileAuthority,
+        )
+      : null;
+  if (profiles !== null && !profiles.ok) {
     return failure('invalid-profile-authority', 'candidate-profiles');
   }
+  const parsedProfileAuthority = profiles?.ok === true ? profiles.domain : null;
+  const suppliedEvaluatorAuthority = input.candidateProfileEvaluatorAuthority;
+  const profileTaxonomyVersion =
+    suppliedEvaluatorAuthority?.taxonomyVersion ??
+    profiles?.domain.taxonomyVersion;
+  const profileTaxonomyDigest =
+    suppliedEvaluatorAuthority?.taxonomySemanticDigest ??
+    profiles?.domain.taxonomySemanticDigest;
   const expansion = parseCapabilityRetrievalExpansionV1(
     input.retrievalExpansionAuthority,
   );
@@ -217,8 +234,8 @@ export function createCandidateRetrievalEngineV1(
     return failure('invalid-expansion-authority', 'expansion');
   }
   if (
-    taxonomy.value.taxonomyVersion !== profiles.domain.taxonomyVersion ||
-    taxonomy.value.semanticDigest !== profiles.domain.taxonomySemanticDigest ||
+    taxonomy.value.taxonomyVersion !== profileTaxonomyVersion ||
+    taxonomy.value.semanticDigest !== profileTaxonomyDigest ||
     taxonomy.value.taxonomyVersion !== expansion.value.taxonomyVersion ||
     taxonomy.value.semanticDigest !== expansion.value.taxonomySemanticDigest ||
     !expansionMatchesTaxonomy(expansion.value, taxonomy.value)
@@ -227,12 +244,22 @@ export function createCandidateRetrievalEngineV1(
   }
 
   let ownedTaxonomy: CapabilityTaxonomyV1;
-  let ownedProfiles: DeterministicCandidateProfileAuthority;
+  let ownedProfiles: DeterministicCandidateProfileEvaluatorAuthorityV2;
   let ownedExpansion: CapabilityRetrievalExpansionV1;
   let ownedExpectedMetadataBinding: ExpectedCandidateRetrievalMetadataAuthorityBindingV1;
   try {
     ownedTaxonomy = deepFreezeOwned(cloneOwned(taxonomy.value));
-    ownedProfiles = deepFreezeOwned(cloneOwned(profiles.domain));
+    if (suppliedEvaluatorAuthority === undefined) {
+      if (parsedProfileAuthority === null) {
+        return failure('invalid-profile-authority', 'candidate-profiles');
+      }
+      ownedProfiles =
+        projectDeterministicCandidateProfileAuthorityToEvaluatorV2(
+          parsedProfileAuthority,
+        );
+    } else {
+      ownedProfiles = suppliedEvaluatorAuthority;
+    }
     ownedExpansion = deepFreezeOwned(cloneOwned(expansion.value));
     ownedExpectedMetadataBinding = deepFreezeOwned(
       cloneOwned(input.expectedCandidateRetrievalMetadataAuthorityBinding),
@@ -293,7 +320,7 @@ export function createCandidateRetrievalEngineV1(
         candidateIds,
         ownedExpansion,
         metadataChannel.channel,
-        evaluateCandidateConstraints,
+        evaluateCandidateConstraintsV2,
       ),
   } satisfies CandidateRetrievalEngineV1);
   return deepFreezeOwned({ ok: true, engine, issues: [] });
@@ -322,7 +349,9 @@ function expansionMatchesTaxonomy(
 export function retrieveCandidateSet(
   suppliedRequest: unknown,
   taxonomy: CapabilityTaxonomyV1,
-  authority: DeterministicCandidateProfileAuthority,
+  authority:
+    | DeterministicCandidateProfileEvaluatorAuthorityV2
+    | PublishedDeterministicCandidateProfileAuthority,
   candidates: readonly CandidateSearchView[],
   taxonomyConcepts: ReadonlyMap<
     string,
@@ -331,8 +360,14 @@ export function retrieveCandidateSet(
   candidateIds: ReadonlySet<string>,
   retrievalExpansionAuthority: CapabilityRetrievalExpansionV1,
   metadataChannel: ApprovedMetadataLexicalChannelV1,
-  constraintEvaluator: typeof evaluateCandidateConstraints = evaluateCandidateConstraints,
+  constraintEvaluator:
+    | typeof evaluateCandidateConstraintsV2
+    | typeof evaluateCandidateConstraints = evaluateCandidateConstraintsV2,
 ): CandidateRetrievalOperationResultV1 {
+  const evaluatorAuthority =
+    'runtimeAuthorityKind' in authority
+      ? authority
+      : projectDeterministicCandidateProfileAuthorityToEvaluatorV2(authority);
   const parsedRequest = parseCandidateRetrievalRequestV1(suppliedRequest);
   if (!parsedRequest.ok) return failure('invalid-request', 'request');
   const request = parsedRequest.value;
@@ -346,7 +381,7 @@ export function retrieveCandidateSet(
     !requestBindingsMatch(
       request,
       taxonomy,
-      authority,
+      evaluatorAuthority,
       retrievalExpansionAuthority,
     )
   ) {
@@ -383,7 +418,9 @@ export function retrieveCandidateSet(
       return failure('candidate-evaluation-failed', 'candidate-profiles');
     }
     constraintEvaluatedCandidateIds.add(candidate.candidateId);
-    const evaluated = constraintEvaluator({
+    const evaluated = (
+      constraintEvaluator as typeof evaluateCandidateConstraintsV2
+    )({
       profile: candidate.profile,
       normalization: {
         outcome: request.normalization.outcome,
@@ -523,7 +560,7 @@ export function retrieveCandidateSet(
 function requestBindingsMatch(
   request: CandidateRetrievalRequestV1,
   taxonomy: CapabilityTaxonomyV1,
-  authority: DeterministicCandidateProfileAuthority,
+  authority: DeterministicCandidateProfileEvaluatorAuthorityV2,
   retrievalExpansionAuthority: CapabilityRetrievalExpansionV1,
 ): boolean {
   return (
@@ -936,8 +973,12 @@ function deduplicateLaneExactIdentities(
 }
 
 export function createCandidateSearchView(
-  profile: DeterministicCandidateProfile,
+  suppliedProfile:
+    DeterministicCandidateProfileEvaluatorV2 | DeterministicCandidateProfile,
 ): CandidateSearchView | null {
+  const profile = isEvaluatorProfile(suppliedProfile)
+    ? suppliedProfile
+    : projectDeterministicCandidateProfileV1ToEvaluatorV2(suppliedProfile);
   const status = knownField(profile, 'catalog-role-status');
   const family = knownField(profile, 'capability-family');
   const repository = knownField(profile, 'repository-identity');
@@ -955,10 +996,28 @@ export function createCandidateSearchView(
     DeterministicProfileFieldId,
     ReadonlySet<string>
   >();
-  for (const fieldId of CONCEPT_SET_PROFILE_FIELDS) {
+  for (const fieldId of LEGACY_CONCEPT_SET_PROFILE_FIELDS) {
     const field = knownField(profile, fieldId);
     if (field === null) continue;
     conceptsByField.set(fieldId, new Set(field.value.conceptIds));
+  }
+  for (const fieldId of [
+    'capability-variants-features',
+    'required-infrastructure',
+    'optional-infrastructure',
+  ] as const) {
+    const field = evaluatorField(profile, fieldId);
+    if (field === null || field.legacyWholeFieldConflict !== undefined) {
+      continue;
+    }
+    conceptsByField.set(
+      fieldId,
+      new Set(
+        field.assertions
+          .filter(({ state }) => state === 'present')
+          .map(({ conceptId }) => conceptId),
+      ),
+    );
   }
   const discovery = knownField(profile, 'repository-discovery-metadata');
   if (discovery !== null) {
@@ -1087,7 +1146,7 @@ function identityTerms(identities: readonly string[]): ReadonlySet<string> {
 }
 
 function knownField<Id extends DeterministicProfileFieldId>(
-  profile: DeterministicCandidateProfile,
+  profile: DeterministicCandidateProfileEvaluatorV2,
   fieldId: Id,
 ): Extract<
   DeterministicProfileFieldRecord<Id>,
@@ -1097,6 +1156,39 @@ function knownField<Id extends DeterministicProfileFieldId>(
     (candidate) => candidate.fieldId === fieldId,
   ) as DeterministicProfileFieldRecord<Id> | undefined;
   return field?.state === 'known' ? field : null;
+}
+
+function evaluatorField<
+  Id extends
+    | 'capability-variants-features'
+    | 'optional-infrastructure'
+    | 'required-infrastructure',
+>(
+  profile: DeterministicCandidateProfileEvaluatorV2,
+  fieldId: Id,
+): Extract<
+  DeterministicCandidateProfileEvaluatorV2['fields'][number],
+  { readonly fieldId: Id }
+> | null {
+  const field = profile.fields.find(
+    (candidate) => candidate.fieldId === fieldId,
+  );
+  return field?.fieldId === fieldId
+    ? (field as Extract<
+        DeterministicCandidateProfileEvaluatorV2['fields'][number],
+        { readonly fieldId: Id }
+      >)
+    : null;
+}
+
+function isEvaluatorProfile(
+  profile:
+    DeterministicCandidateProfileEvaluatorV2 | DeterministicCandidateProfile,
+): profile is DeterministicCandidateProfileEvaluatorV2 {
+  const field = profile.fields.find(
+    ({ fieldId }) => fieldId === 'capability-variants-features',
+  );
+  return field !== undefined && 'coverage' in field;
 }
 
 function groupBy<T>(

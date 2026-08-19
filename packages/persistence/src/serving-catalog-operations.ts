@@ -2,10 +2,12 @@ import type { JSONValue } from 'postgres';
 
 import {
   parseCandidateRetrievalMetadataAuthorityV1,
-  parseDeterministicCandidateProfileAuthorityV1,
+  parseDeterministicCandidateProfileAuthority,
+  projectDeterministicCandidateProfileAuthorityToEvaluatorV2,
   type CandidateRetrievalMetadataAuthorityV1,
-  type DeterministicCandidateProfileAuthorityV1,
+  type DeterministicCandidateProfileAuthorityPublished,
   type DeterministicCandidateProfileV1,
+  type DeterministicCandidateProfileV2,
 } from '@gitblocks/contracts';
 
 import {
@@ -35,10 +37,12 @@ const SERVING_CATALOG_SNAPSHOT_FORMAT_VERSION =
 const SERVING_CATALOG_CANDIDATE_COUNT = 150;
 const SERVING_CATALOG_LOCK_SEED = 97361241;
 
-type ProfileAuthorityHeader = Omit<
-  DeterministicCandidateProfileAuthorityV1,
-  'profiles'
->;
+type ProfileAuthorityHeader =
+  DeterministicCandidateProfileAuthorityPublished extends infer Authority
+    ? Authority extends DeterministicCandidateProfileAuthorityPublished
+      ? Omit<Authority, 'profiles'>
+      : never
+    : never;
 type MetadataAuthorityHeader = Omit<
   CandidateRetrievalMetadataAuthorityV1,
   'candidates'
@@ -49,7 +53,7 @@ interface ValidatedPublication {
   readonly catalogVersion: string;
   readonly catalogDigest: string;
   readonly candidateCount: number;
-  readonly profileAuthority: DeterministicCandidateProfileAuthorityV1;
+  readonly profileAuthority: DeterministicCandidateProfileAuthorityPublished;
   readonly profileAuthorityHeader: ProfileAuthorityHeader;
   readonly metadataAuthority: CandidateRetrievalMetadataAuthorityV1;
   readonly metadataAuthorityHeader: MetadataAuthorityHeader;
@@ -190,7 +194,7 @@ export async function loadServingCatalogSnapshot(
 function validatePublication(
   command: PublishServingCatalogSnapshotCommand,
 ): ValidatedPublication {
-  const profiles = parseDeterministicCandidateProfileAuthorityV1(
+  const profiles = parseDeterministicCandidateProfileAuthority(
     command.candidateProfileAuthority,
   );
   const metadata = parseCandidateRetrievalMetadataAuthorityV1(
@@ -390,7 +394,7 @@ async function insertSnapshotRoot(
 async function insertProfileRecord(
   transaction: PersistenceTransaction,
   snapshotId: string,
-  profile: DeterministicCandidateProfileV1,
+  profile: DeterministicCandidateProfileV1 | DeterministicCandidateProfileV2,
   signal: AbortSignal | undefined,
 ): Promise<number> {
   const payload = canonicalizeJson(profile);
@@ -606,7 +610,7 @@ function validateStoredSnapshot(
     ...metadataHeader,
     candidates: metadataRows.map(({ metadata_payload }) => metadata_payload),
   };
-  const profiles = parseDeterministicCandidateProfileAuthorityV1(
+  const profiles = parseDeterministicCandidateProfileAuthority(
     profileAuthorityInput,
   );
   const metadata = parseCandidateRetrievalMetadataAuthorityV1(
@@ -675,6 +679,10 @@ function validateStoredSnapshot(
     publishedAt,
     candidateCount: SERVING_CATALOG_CANDIDATE_COUNT,
     candidateProfileAuthority: profiles.value,
+    candidateProfileEvaluatorAuthority:
+      projectDeterministicCandidateProfileAuthorityToEvaluatorV2(
+        profiles.domain,
+      ),
     candidateRetrievalMetadataAuthority: metadata.value,
     expectedCandidateRetrievalMetadataAuthorityBinding: metadataBinding(
       metadata.value,
@@ -694,7 +702,9 @@ function storedHeader(value: unknown): Readonly<Record<string, unknown>> {
   return value as Readonly<Record<string, unknown>>;
 }
 
-function profileRepositoryIdentity(profile: DeterministicCandidateProfileV1): {
+function profileRepositoryIdentity(
+  profile: DeterministicCandidateProfileV1 | DeterministicCandidateProfileV2,
+): {
   readonly candidateId: string;
   readonly githubOwner: string;
   readonly githubRepository: string;
@@ -722,7 +732,7 @@ function profileRepositoryIdentity(profile: DeterministicCandidateProfileV1): {
 }
 
 function servingCatalogSnapshotId(
-  profiles: DeterministicCandidateProfileAuthorityV1,
+  profiles: DeterministicCandidateProfileAuthorityPublished,
   metadata: CandidateRetrievalMetadataAuthorityV1,
 ): string {
   const identityDigest = canonicalizeJson({

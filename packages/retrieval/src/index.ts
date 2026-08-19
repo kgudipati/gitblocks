@@ -1,5 +1,8 @@
 export {
+  createCandidateSearchView,
   createCandidateRetrievalEngineV1,
+  retrieveCandidateSet,
+  type CandidateSearchView,
   type CandidateRetrievalEngineCreationResultV1,
   type CandidateRetrievalEngineV1,
   type CandidateRetrievalOperationIssueCodeV1,

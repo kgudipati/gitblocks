@@ -1,7 +1,8 @@
 import type {
   CandidateDossierV1,
   CandidateRetrievalMetadataAuthorityV1,
-  DeterministicCandidateProfileAuthorityV1,
+  DeterministicCandidateProfileAuthorityPublished,
+  DeterministicCandidateProfileEvaluatorAuthorityV2,
   EvidenceObservationV1,
   ModelExecutionV1,
   RepositoryArtifactChunkV1,
@@ -121,7 +122,7 @@ export interface MigrationVerification {
 }
 
 export interface PublishServingCatalogSnapshotCommand {
-  readonly candidateProfileAuthority: DeterministicCandidateProfileAuthorityV1;
+  readonly candidateProfileAuthority: DeterministicCandidateProfileAuthorityPublished;
   readonly candidateRetrievalMetadataAuthority: CandidateRetrievalMetadataAuthorityV1;
   readonly publishedAt: string;
 }
@@ -155,7 +156,8 @@ export interface LoadedServingCatalogSnapshot {
   readonly snapshotRecordDigest: string;
   readonly publishedAt: string;
   readonly candidateCount: 150;
-  readonly candidateProfileAuthority: DeterministicCandidateProfileAuthorityV1;
+  readonly candidateProfileAuthority: DeterministicCandidateProfileAuthorityPublished;
+  readonly candidateProfileEvaluatorAuthority: DeterministicCandidateProfileEvaluatorAuthorityV2;
   readonly candidateRetrievalMetadataAuthority: CandidateRetrievalMetadataAuthorityV1;
   readonly expectedCandidateRetrievalMetadataAuthorityBinding: ServingCandidateRetrievalMetadataBinding;
 }
