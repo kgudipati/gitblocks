@@ -636,6 +636,21 @@ describe('GitBlocks OSS adoption Skill structure', () => {
     ]) {
       expect(skill).toContain(`\`${outcome}\``);
     }
+    expect(skill).toContain(
+      'For `insufficient-evidence`, present the outcome and supplied material\n' +
+        '      unknowns honestly. Do not promote a candidate, treat retrieval score as\n' +
+        '      fit, or say a candidate is probably best anyway. Do not substitute GitHub\n' +
+        '      search, npm search, web search, or your own OSS ranking, and do not present\n' +
+        '      any such result as a GitBlocks recommendation. Treat this as a terminal\n' +
+        '      outcome for the GitBlocks workflow.',
+    );
+    expect(skill).toContain(
+      'For `no-viable-candidate`, report it honestly. Do not restore or promote\n' +
+        '      rejected or excluded candidates. Do not substitute GitHub search, npm\n' +
+        '      search, web search, or your own OSS ranking, and do not present any such\n' +
+        '      result as a GitBlocks recommendation. Treat this as a terminal outcome for\n' +
+        '      the GitBlocks workflow.',
+    );
     expect(skill).toMatch(/must not independently rerank/iu);
     expect(skill).toMatch(/Require user selection/iu);
     expect(skill).toMatch(/do not edit the repository before selection/iu);

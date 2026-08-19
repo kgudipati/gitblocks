@@ -157,9 +157,15 @@ candidate code, or run arbitrary candidate-repository commands.
       back to your own OSS ranking.
     - For `insufficient-evidence`, present the outcome and supplied material
       unknowns honestly. Do not promote a candidate, treat retrieval score as
-      fit, or say a candidate is probably best anyway.
-    - For `no-viable-candidate`, report it honestly. Do not restore rejected or
-      excluded candidates.
+      fit, or say a candidate is probably best anyway. Do not substitute GitHub
+      search, npm search, web search, or your own OSS ranking, and do not present
+      any such result as a GitBlocks recommendation. Treat this as a terminal
+      outcome for the GitBlocks workflow.
+    - For `no-viable-candidate`, report it honestly. Do not restore or promote
+      rejected or excluded candidates. Do not substitute GitHub search, npm
+      search, web search, or your own OSS ranking, and do not present any such
+      result as a GitBlocks recommendation. Treat this as a terminal outcome for
+      the GitBlocks workflow.
     - For `recommend`, present only the responsible options GitBlocks supplied,
       in the supplied order. There must be no more than three. Do not create a
       new ranking.

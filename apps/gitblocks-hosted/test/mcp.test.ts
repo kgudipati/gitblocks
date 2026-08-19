@@ -26,6 +26,7 @@ import {
 import { GITBLOCKS_RECOMMEND_OSS_TOOL_NAME } from '../src/mcp-server.ts';
 import { createOpenAiFitAssessmentModel } from '../src/openai-fit-model.ts';
 import {
+  candidateDossier,
   createAcceptedApplication,
   recommendationRequest,
 } from './fixtures.ts';
@@ -76,6 +77,12 @@ describe('GitBlocks recommendation MCP adapter', () => {
     });
     expect(recommendOss).toHaveBeenCalledTimes(1);
     expect(called.isError).not.toBe(true);
+    expect(called.content).toEqual([
+      {
+        type: 'text',
+        text: 'GitBlocks recommendation outcome: recommend.',
+      },
+    ]);
     expect(called.structuredContent).toMatchObject({
       outcome: 'recommend',
     });
@@ -101,6 +108,123 @@ describe('GitBlocks recommendation MCP adapter', () => {
       expect(result.structuredContent).toMatchObject({ outcome: expected });
     },
   );
+
+  it('makes every affected no-result attribution boundary explicit in primary text', async () => {
+    const application = await createAcceptedApplication({
+      dossierLoader: {
+        loadActiveCandidateDossier: (command) =>
+          Promise.resolve(
+            candidateDossier(command.candidateId, command.evidenceCutoff, {
+              capabilityFamily: command.expectedCapabilityFamily,
+              emptyEvidence: true,
+            }),
+          ),
+      },
+    });
+    const unsupported = await application.recommendOss(
+      recommendationRequest({
+        id: 'mcp-attribution-unsupported-source',
+        term: 'authentication',
+      }),
+    );
+    const insufficientEvidence = await application.recommendOss(
+      recommendationRequest({
+        id: 'mcp-attribution-insufficient-source',
+        term: 'authorization',
+      }),
+    );
+    if (
+      !unsupported.ok ||
+      unsupported.result.outcome !== 'unsupported' ||
+      !insufficientEvidence.ok ||
+      insufficientEvidence.result.outcome !== 'insufficient-evidence'
+    ) {
+      throw new Error('Expected no-result fixture outcomes.');
+    }
+    const noViableCandidate: HostedRecommendationOperationResultV1 = {
+      ok: true,
+      result: {
+        outcome: 'no-viable-candidate',
+        normalization: insufficientEvidence.result.normalization,
+        shortlist: insufficientEvidence.result.shortlist,
+        targetFitAssessment: null,
+        evidenceNeededHardConstraintResolutions: null,
+      },
+    };
+    const recommendOss = vi
+      .fn<(input: unknown) => Promise<HostedRecommendationOperationResultV1>>()
+      .mockResolvedValueOnce(unsupported)
+      .mockResolvedValueOnce(insufficientEvidence)
+      .mockResolvedValueOnce(noViableCandidate);
+    const { client } = await connectClient({ recommendOss });
+    const cases = [
+      ['unsupported', 'mcp-attribution-unsupported'],
+      ['insufficient-evidence', 'mcp-attribution-insufficient'],
+      ['no-viable-candidate', 'mcp-attribution-no-viable'],
+    ] as const;
+
+    for (const [outcome, id] of cases) {
+      const result = await client.callTool({
+        name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+        arguments: recommendationRequest({ id, term: 'authorization' }),
+      });
+      expect(result.content).toEqual([
+        {
+          type: 'text',
+          text:
+            `GitBlocks recommendation outcome: ${outcome}. ` +
+            'GitBlocks validated no candidate; claims obtained from any other source are not GitBlocks results.',
+        },
+      ]);
+    }
+  });
+
+  it('keeps retrieval scores in the application result but removes them from the default agent-facing payload', async () => {
+    const application = await createAcceptedApplication({
+      dossierLoader: {
+        loadActiveCandidateDossier: (command) =>
+          Promise.resolve(
+            candidateDossier(command.candidateId, command.evidenceCutoff, {
+              capabilityFamily: command.expectedCapabilityFamily,
+              emptyEvidence: true,
+            }),
+          ),
+      },
+    });
+    const applicationResult = await application.recommendOss(
+      recommendationRequest({
+        id: 'mcp-score-application-result',
+        term: 'authorization',
+      }),
+    );
+    if (
+      !applicationResult.ok ||
+      applicationResult.result.outcome !== 'insufficient-evidence'
+    ) {
+      throw new Error('Expected insufficient-evidence fixture outcome.');
+    }
+    const applicationCandidate =
+      applicationResult.result.shortlist.eligibleCandidates[0] ??
+      applicationResult.result.shortlist.evidenceNeededCandidates[0];
+    expect(applicationCandidate?.retrievalScore).toEqual(expect.any(Number));
+
+    const recommendOss = vi.fn(() => Promise.resolve(applicationResult));
+    const { client } = await connectClient({ recommendOss });
+    const result = await client.callTool({
+      name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+      arguments: recommendationRequest({
+        id: 'mcp-score-agent-facing-result',
+        term: 'authorization',
+      }),
+    });
+
+    expect(JSON.stringify(result.structuredContent)).not.toContain(
+      'retrievalScore',
+    );
+    expect(JSON.stringify(result.structuredContent)).toContain(
+      applicationCandidate?.candidateId,
+    );
+  });
 
   it('maps application and unexpected failures to one bounded value-free error', async () => {
     const failure: HostedRecommendationOperationResultV1 = {

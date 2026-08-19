@@ -144,10 +144,62 @@ function successfulToolResult(
     content: [
       {
         type: 'text',
-        text: `GitBlocks recommendation outcome: ${result.outcome}.`,
+        text: primaryRecommendationText(result.outcome),
       },
     ],
-    structuredContent: result,
+    structuredContent: agentFacingRecommendationResult(result),
+  };
+}
+
+function primaryRecommendationText(
+  outcome: HostedRecommendationResultV1['outcome'],
+): string {
+  const outcomeText = `GitBlocks recommendation outcome: ${outcome}.`;
+  return outcome === 'insufficient-evidence' ||
+    outcome === 'unsupported' ||
+    outcome === 'no-viable-candidate'
+    ? `${outcomeText} GitBlocks validated no candidate; claims obtained from any other source are not GitBlocks results.`
+    : outcomeText;
+}
+
+function agentFacingRecommendationResult(
+  result: HostedRecommendationResultV1,
+): Record<string, unknown> {
+  if (
+    result.outcome !== 'insufficient-evidence' &&
+    result.outcome !== 'no-viable-candidate'
+  ) {
+    return { ...result };
+  }
+  return {
+    ...result,
+    shortlist: {
+      ...result.shortlist,
+      eligibleCandidates: result.shortlist.eligibleCandidates.map(
+        agentFacingRetrievalCandidate,
+      ),
+      evidenceNeededCandidates: result.shortlist.evidenceNeededCandidates.map(
+        agentFacingRetrievalCandidate,
+      ),
+    },
+  };
+}
+
+function agentFacingRetrievalCandidate(candidate: {
+  readonly candidateId: string;
+  readonly matchedCapabilityConceptIds: readonly string[];
+  readonly matchedProfileFieldIds: readonly string[];
+  readonly channelMatches: readonly unknown[];
+  readonly lane: 'eligible' | 'evidence-needed';
+  readonly unresolvedHardEvaluations: readonly unknown[];
+}): Record<string, unknown> {
+  return {
+    candidateId: candidate.candidateId,
+    matchedCapabilityConceptIds: candidate.matchedCapabilityConceptIds,
+    matchedProfileFieldIds: candidate.matchedProfileFieldIds,
+    channelMatches: candidate.channelMatches,
+    lane: candidate.lane,
+    unresolvedHardEvaluations: candidate.unresolvedHardEvaluations,
   };
 }
 
