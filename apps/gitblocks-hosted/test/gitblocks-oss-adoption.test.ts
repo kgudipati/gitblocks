@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import {
   chmod,
+  cp,
   lstat,
   mkdir,
   mkdtemp,
@@ -73,6 +74,55 @@ describe('GitBlocks local repository fingerprint scanner', () => {
           component: 'runtime',
           name: 'node',
           version: null,
+        }),
+      ]),
+    );
+  });
+
+  it('fingerprints the current target from a standalone copied Skill outside the GitBlocks checkout', async () => {
+    const isolatedRoot = await emptyRoot();
+    const installedSkill = join(
+      isolatedRoot,
+      'home',
+      '.agents',
+      'skills',
+      'gitblocks-oss-adoption',
+    );
+    const targetRoot = join(isolatedRoot, 'target-project');
+    await mkdir(targetRoot, { recursive: true });
+    await writeFile(
+      join(targetRoot, 'package.json'),
+      `${JSON.stringify({
+        packageManager: 'pnpm@11.17.0',
+        engines: { node: '>=24.12.0 <25' },
+        dependencies: { fastify: '5.0.0' },
+        devDependencies: { typescript: '6.0.3' },
+      })}\n`,
+    );
+    await cp(SKILL_DIRECTORY, installedSkill, { recursive: true });
+
+    const result = await runScannerAt(
+      join(installedSkill, 'scripts', 'fingerprint-codebase.mjs'),
+      ['--observed-at', OBSERVED_AT, '.'],
+      '',
+      targetRoot,
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout).not.toContain(SCANNER_PATH);
+    expect(result.stdout).not.toContain(targetRoot);
+    expect(parsedFingerprint(result.stdout).value.facts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'component',
+          component: 'framework',
+          name: 'fastify',
+        }),
+        expect.objectContaining({
+          kind: 'component',
+          component: 'runtime',
+          name: 'node',
         }),
       ]),
     );
@@ -626,6 +676,9 @@ describe('GitBlocks OSS adoption Skill structure', () => {
     );
     expect(skill).toMatch(/Require explicit transmission approval/iu);
     expect(skill).toMatch(/raw repository source is not transmitted/iu);
+    expect(skill).toMatch(
+      /active installed Skill\s+directory.*Never locate the scanner\s+through a GitBlocks source checkout/isu,
+    );
     expect(skill).toMatch(/required, preferred, and prohibited/iu);
     for (const outcome of [
       'clarification-required',
@@ -701,8 +754,17 @@ function runScanner(
   stdin = '',
   cwd?: string,
 ): Promise<ProcessResult> {
+  return runScannerAt(SCANNER_PATH, arguments_, stdin, cwd);
+}
+
+function runScannerAt(
+  scannerPath: string,
+  arguments_: readonly string[],
+  stdin = '',
+  cwd?: string,
+): Promise<ProcessResult> {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [SCANNER_PATH, ...arguments_], {
+    const child = spawn(process.execPath, [scannerPath, ...arguments_], {
       ...(cwd === undefined ? {} : { cwd }),
       stdio: ['pipe', 'pipe', 'pipe'],
     });
