@@ -49,7 +49,11 @@ import {
   selectCandidateArtifactEvidenceV1,
   type CandidateArtifactMaterialLoaderPort,
 } from './artifact-evidence-selector.ts';
-import { hostedDiscoveryErrorCode } from './errors.ts';
+import {
+  hostedDiscoveryErrorCode,
+  hostedDiscoveryProviderFailure,
+  type HostedFitModelProviderFailureV1,
+} from './errors.ts';
 
 const DISCOVERY_RESULT_LIMIT = 10;
 export const HOSTED_FIT_FINALIST_LIMIT = 5;
@@ -210,6 +214,7 @@ export type HostedRecommendationFailureV1 =
       readonly stage: HostedRecommendationFailureStageV1;
       readonly path: HostedRecommendationFailurePathV1;
       readonly causeCode?: HostedRecommendationFailureCauseCodeV1;
+      readonly providerFailure?: HostedFitModelProviderFailureV1;
     }
   | {
       readonly kind: 'retrieval';
@@ -618,6 +623,7 @@ async function recommendOss(input: {
       ),
     });
   } catch (error) {
+    const providerFailure = hostedDiscoveryProviderFailure(error);
     return failed(
       input.observer,
       requestId,
@@ -626,6 +632,7 @@ async function recommendOss(input: {
       'fit-model-assessment',
       dossiers.length,
       hostedDiscoveryErrorCode(error),
+      providerFailure,
     );
   }
   emit(
@@ -912,6 +919,7 @@ function applicationFailure(
   stage: HostedRecommendationFailureStageV1,
   path: HostedRecommendationFailurePathV1,
   causeCode?: HostedRecommendationFailureCauseCodeV1,
+  providerFailure?: HostedFitModelProviderFailureV1,
 ): HostedRecommendationOperationResultV1 {
   return Object.freeze({
     ok: false,
@@ -921,6 +929,7 @@ function applicationFailure(
       stage,
       path,
       ...(causeCode === undefined ? {} : { causeCode }),
+      ...(providerFailure === undefined ? {} : { providerFailure }),
     }),
   });
 }
@@ -936,9 +945,10 @@ function failed(
   path: HostedRecommendationFailurePathV1,
   finalistCount = 0,
   causeCode?: HostedRecommendationFailureCauseCodeV1,
+  providerFailure?: HostedFitModelProviderFailureV1,
 ): HostedRecommendationOperationResultV1 {
   emit(observer, event(requestId, 'failed', 'failed', finalistCount));
-  return applicationFailure(code, stage, path, causeCode);
+  return applicationFailure(code, stage, path, causeCode, providerFailure);
 }
 
 function event(

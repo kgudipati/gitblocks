@@ -15,6 +15,7 @@ import type {
   HostedRecommendationApplicationV1,
   HostedRecommendationOperationResultV1,
 } from '../src/application.ts';
+import { HOSTED_FIT_MODEL } from '../src/configuration.ts';
 import {
   GITBLOCKS_MCP_HOST,
   GITBLOCKS_HEALTH_PATH,
@@ -23,6 +24,7 @@ import {
   type GitBlocksMcpHttpServerV1,
 } from '../src/mcp-http.ts';
 import { GITBLOCKS_RECOMMEND_OSS_TOOL_NAME } from '../src/mcp-server.ts';
+import { createOpenAiFitAssessmentModel } from '../src/openai-fit-model.ts';
 import {
   createAcceptedApplication,
   recommendationRequest,
@@ -164,6 +166,109 @@ describe('GitBlocks recommendation MCP adapter', () => {
       },
     ]);
     expect(JSON.stringify(failureEvents)).not.toContain('sentinel');
+  });
+
+  it('logs bounded provider diagnostics while keeping every client failure byte-for-byte unchanged', async () => {
+    const apiKey = 'sk-provider-log-credential-sentinel';
+    const providerMessage =
+      'You have no credits remaining. provider-message-sentinel';
+    const cases = [
+      {
+        status: 401,
+        causeCode: 'hosted.fit-model-provider-authentication-failed',
+        providerFailure: { httpStatus: 401 },
+      },
+      {
+        status: 429,
+        causeCode: 'hosted.fit-model-provider-rate-limit-failed',
+        providerFailure: {
+          httpStatus: 429,
+          errorType: 'insufficient_quota',
+          errorCode: 'credit_balance_exhausted',
+        },
+      },
+      {
+        status: 500,
+        causeCode: 'hosted.fit-model-provider-server-failed',
+        providerFailure: { httpStatus: 500 },
+      },
+    ] as const;
+    const failureEvents: unknown[] = [];
+    const responses: unknown[] = [];
+    for (const providerCase of cases) {
+      const application = await createAcceptedApplication({
+        fitModel: createOpenAiFitAssessmentModel({
+          configuration: { apiKey, model: HOSTED_FIT_MODEL },
+          fetch: () =>
+            Promise.resolve(
+              new Response(
+                JSON.stringify({
+                  error: {
+                    message: providerMessage,
+                    ...(providerCase.status === 429
+                      ? {
+                          type: 'insufficient_quota',
+                          code: 'credit_balance_exhausted',
+                        }
+                      : {}),
+                  },
+                }),
+                {
+                  status: providerCase.status,
+                  headers: { 'content-type': 'application/json' },
+                },
+              ),
+            ),
+        }),
+      });
+      const { client } = await connectClient(application, (event) =>
+        failureEvents.push(event),
+      );
+      responses.push(
+        await client.callTool({
+          name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+          arguments: recommendationRequest({
+            id: `mcp-provider-${String(providerCase.status)}-failure`,
+            term: 'authorization',
+          }),
+        }),
+      );
+    }
+
+    expect(responses).toEqual(
+      cases.map(() => ({
+        _meta: {
+          'io.modelcontextprotocol/serverInfo': {
+            name: 'gitblocks-hosted',
+            version: '0.0.0',
+          },
+        },
+        content: [{ type: 'text', text: 'GitBlocks recommendation failed.' }],
+        isError: true,
+      })),
+    );
+    expect(failureEvents).toEqual(
+      cases.map(({ status, causeCode, providerFailure }) => ({
+        operation: 'hosted.recommendation',
+        correlationId: `mcp-provider-${String(status)}-failure`,
+        status: 'failed',
+        stage: 'model-assessment',
+        path: 'fit-model-assessment',
+        code: 'fit-model-failed',
+        causeCode,
+        providerFailure,
+      })),
+    );
+    expect(JSON.stringify(failureEvents[1])).toBe(
+      '{"operation":"hosted.recommendation","correlationId":"mcp-provider-429-failure","status":"failed","stage":"model-assessment","path":"fit-model-assessment","code":"fit-model-failed","causeCode":"hosted.fit-model-provider-rate-limit-failed","providerFailure":{"httpStatus":429,"errorType":"insufficient_quota","errorCode":"credit_balance_exhausted"}}',
+    );
+    const serialized = JSON.stringify({ responses, failureEvents });
+    expect(serialized).not.toContain(providerMessage);
+    expect(serialized).not.toContain(apiKey);
+    expect(serialized).not.toContain('fingerprint-hosted-test');
+    expect(serialized).not.toContain(
+      'Select an OSS authorization capability for this repository.',
+    );
   });
 
   it('keeps the bounded client failure unchanged when the log sink throws', async () => {
