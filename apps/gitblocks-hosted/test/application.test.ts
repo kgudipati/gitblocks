@@ -182,6 +182,39 @@ describe('hosted OSS recommendation application', () => {
     },
   );
 
+  it('returns actionable corrected capability guidance without an evidence read or model call', async () => {
+    const loader = vi.fn();
+    const model = vi.fn();
+    const application = await createAcceptedApplication({
+      dossierLoader: { loadActiveCandidateDossier: loader },
+      fitModel: { assess: model },
+    });
+
+    const result = await application.recommendOss(
+      recommendationRequest({
+        id: 'recommend-actionable-clarification',
+        term: 'Next.js app',
+      }),
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      result: {
+        outcome: 'clarification-required',
+      },
+    });
+    if (!result.ok || result.result.outcome !== 'clarification-required') {
+      return;
+    }
+    expect(
+      result.result.normalization.clarifications.some(({ context }) =>
+        context.includes('Suggested corrected value: "next-js-app".'),
+      ),
+    ).toBe(true);
+    expect(loader).not.toHaveBeenCalled();
+    expect(model).not.toHaveBeenCalled();
+  });
+
   it('uses the current production authorities for the frozen dogfood regression and loads the first five evidence-needed finalists before the no-evidence stop', async () => {
     // This freezes current production-authority behavior, not ranking gold or a
     // claim that these candidates are good recommendations.

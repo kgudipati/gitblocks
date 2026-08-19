@@ -17,13 +17,13 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'candidate-dossier':
     'd16d0424ed45edcf61d8084cbd21ebbb396366522d1b1a425b6cf8405e0680af',
   'capability-request':
-    '3d1f213efdacd6ff550a66a74703b94abc56aead59cdcb08b7a2769b5a5a1ab9',
+    '1ea959ae0cb76608b7d0e8a902b9e508dc381c90c2fe2fd4df561b80d4398003',
   'capability-taxonomy':
     'd8d4c875fc38696e6ead9dcc2821e04754135aa4af71f0fb85198a98187d3f70',
   'capability-taxonomy-source':
     '357f34187ff26ea70c663f6009b07841b8045493ad54d2393713f7329a9e7933',
   'capability-query-input':
-    'd48e018b71f8e6947f60f4d3559c48047daba8a335168b51f37bfb5199c81b9b',
+    '9e9a1bc54726100de71d6d1cbd2428ba5a87c3ad4341f7e39a96bed08b639dd6',
   'capability-query-normalization-result':
     'bdd7db9510937c0728f87b0d83f75dbd374555fa17c2b1e4a56399d9f9f2d06b',
   'deterministic-candidate-profile':
@@ -43,7 +43,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'error-envelope':
     '7a708cc440a7992cb164715dce6029befbe78970c3283d8a1bff9298c87603d0',
   'fit-assessment-request':
-    'c130a56044cbb043fac97e66db4c372d48990d672784b4abfde9ab9e78c9e504',
+    'fcf09c1f5329cbc1660559326d2755d34fdbf1a504595086eb94dc9af57278bb',
   'fit-assessment-response':
     '330b5b3940858428b1881701774bac785a7c93cf2d50e6dcb4ec37091a696a4d',
   'repository-artifact':
@@ -61,7 +61,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'repository-interview':
     '99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb',
   'oss-recommendation-request':
-    '20982e93d528f169a7d9ee9a60aeea33a101038ee8da070cdace1fe3afbf15e8',
+    '8c55db1c3431de041b44cb1129c8b9e703dcd76b53b71252b6bbc04ebd79111a',
   'target-fit-assessment-response':
     '51c7e8c46d8323e29fe02c674c74efece435acf372529c036e52a861f4f78428',
   'recommendation-assessment-response':
@@ -203,6 +203,65 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
     );
 
     expect(actual).toEqual(EXPECTED_SCHEMA_DIGESTS);
+  });
+
+  it('adds recommend_oss caller guidance without changing the legacy schema structure', () => {
+    const schema = getContractSchemaV1('oss-recommendation-request');
+    const legacyStructureDigest = createHash('sha256')
+      .update(`${JSON.stringify(withoutDescriptions(schema), null, 2)}\n`)
+      .digest('hex');
+
+    expect(legacyStructureDigest).toBe(
+      '20982e93d528f169a7d9ee9a60aeea33a101038ee8da070cdace1fe3afbf15e8',
+    );
+    expect(
+      schemaDescriptionAt(schema, [
+        'properties',
+        'capabilityQuery',
+        'properties',
+        'capabilityTerms',
+      ]),
+    ).toContain(
+      '[{"termId":"capability-001","originalTerm":"background jobs"}]',
+    );
+    expect(
+      schemaDescriptionAt(schema, [
+        'properties',
+        'capabilityQuery',
+        'properties',
+        'successConditions',
+      ]),
+    ).toContain(
+      '[{"conditionId":"success-001","statement":"Jobs retry after transient failures."}]',
+    );
+    expect(
+      schemaDescriptionAt(schema, [
+        'properties',
+        'capabilityQuery',
+        'properties',
+        'draftConstraints',
+      ]),
+    ).toContain('{"constraintId":"constraint-001","modality":"required"');
+    expect(
+      schemaDescriptionAt(schema, [
+        'properties',
+        'capabilityQuery',
+        'properties',
+        'repositoryFingerprintReference',
+      ]),
+    ).toContain(
+      '{"fingerprintId":"fingerprint-dogfood-001","fingerprintDigest":"0000000000000000000000000000000000000000000000000000000000000000"}',
+    );
+    expect(
+      schemaDescriptionAt(schema, [
+        'properties',
+        'transmissionApproval',
+        'properties',
+        'approvedCategories',
+      ]),
+    ).toContain(
+      '["bounded-evidence","candidate-dossiers","capability-request","repository-fingerprint"]',
+    );
   });
 
   it('serializes canonically and newline-terminates each artifact', () => {
@@ -422,4 +481,37 @@ function isRecord(
   value: JsonSchemaValue,
 ): value is Record<string, JsonSchemaValue> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function withoutDescriptions(value: JsonSchemaValue): JsonSchemaValue {
+  if (isSchemaArray(value)) {
+    return value.map((child) => withoutDescriptions(child));
+  }
+  if (isRecord(value)) {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => key !== 'description')
+        .map(([key, child]) => [key, withoutDescriptions(child)]),
+    );
+  }
+  return value;
+}
+
+function schemaDescriptionAt(
+  schema: JsonSchemaValue,
+  path: readonly string[],
+): string {
+  let current = schema;
+  for (const segment of path) {
+    const next = readProperty(current, segment);
+    if (next === undefined) {
+      throw new Error(`Schema path is missing: ${path.join('.')}`);
+    }
+    current = next;
+  }
+  const description = readProperty(current, 'description');
+  if (typeof description !== 'string') {
+    throw new Error(`Schema description is missing: ${path.join('.')}`);
+  }
+  return description;
 }

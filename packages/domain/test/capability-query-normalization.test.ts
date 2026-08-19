@@ -384,6 +384,110 @@ describe('capability-query input invariants', () => {
 });
 
 describe('deterministic capability-query normalization', () => {
+  it('keeps invalid capability syntax rejected while suggesting an actionable correction', () => {
+    const invalid = normalizeCapabilityQuery(
+      input({
+        capabilityTerms: [
+          { termId: 'term-family', originalTerm: 'Next.js app' },
+        ],
+      }),
+      taxonomy(),
+    );
+    const misplaced = normalizeCapabilityQuery(
+      input({
+        capabilityTerms: [{ termId: 'term-family', originalTerm: 'nextjs' }],
+      }),
+      taxonomy(),
+    );
+    const nonAscii = normalizeCapabilityQuery(
+      input({
+        capabilityTerms: [
+          { termId: 'term-family', originalTerm: 'rаte-limiting' },
+        ],
+      }),
+      taxonomy(),
+    );
+
+    expect(invalid.ok).toBe(true);
+    expect(misplaced.ok).toBe(true);
+    expect(nonAscii.ok).toBe(true);
+    if (!invalid.ok || !misplaced.ok || !nonAscii.ok) return;
+    expect(invalid.value.outcome).toBe('clarification-required');
+    expect(invalid.value.unresolvedTerms).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourceIds: ['term-family'],
+          canonicalTerm: null,
+          reasonCode: 'unsupported-term-characters',
+          blocking: true,
+        }),
+      ]),
+    );
+    expect(invalid.value.clarifications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourceIds: ['term-family'],
+        }),
+      ]),
+    );
+    expect(
+      invalid.value.clarifications.find(
+        ({ reasonCode }) => reasonCode === 'unsupported-term-characters',
+      )?.context,
+    ).toContain('Suggested corrected value: "next-js-app".');
+    expect(invalid.value.clarifications[0]?.context).toContain(
+      'Use one supported primary capability term: authorization, audit-logging, background-jobs, rate-limiting, or webhooks.',
+    );
+    expect(misplaced.value.clarifications[0]?.context).toContain(
+      'Use one supported primary capability term: authorization, audit-logging, background-jobs, rate-limiting, or webhooks.',
+    );
+    expect(
+      nonAscii.value.clarifications.find(
+        ({ reasonCode }) => reasonCode === 'unsupported-term-characters',
+      )?.context,
+    ).not.toContain('Suggested corrected value:');
+    expect(canonicalizeCapabilityQueryLookupTermV1('next-js-app')).toEqual({
+      ok: true,
+      value: 'next-js-app',
+    });
+  });
+
+  it('preserves hard-constraint modality while suggesting corrected ASCII syntax', () => {
+    const result = normalizeCapabilityQuery(
+      input({
+        draftConstraints: [
+          {
+            constraintId: 'constraint-retries',
+            modality: 'required',
+            statement: 'Retries are required.',
+            originalTerm: 'retries.',
+            facetHint: 'feature',
+            reasonCode: 'user-required',
+          },
+        ],
+      }),
+      taxonomy(),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.outcome).toBe('clarification-required');
+    expect(result.value.preservedDeclarations[0]?.modality).toBe('required');
+    expect(result.value.normalizedConstraints[0]?.modality).toBe('required');
+    expect(result.value.unresolvedTerms).toEqual([
+      expect.objectContaining({
+        sourceKind: 'constraint',
+        sourceIds: ['constraint-retries'],
+        canonicalTerm: null,
+        reasonCode: 'unsupported-term-characters',
+        blocking: true,
+      }),
+    ]);
+    expect(result.value.clarifications[0]?.context).toContain(
+      'Suggested corrected value: "retries".',
+    );
+  });
+
   it.each([
     ['Rate Limiting', 'rate-limiting'],
     ['web hook', 'webhooks'],
