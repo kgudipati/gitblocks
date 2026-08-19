@@ -336,24 +336,9 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
         responsibleOptions: [{ candidateId: BACKGROUND_JOB_FINALISTS[0] }],
       });
       expect(hardResolutionStates(valid.structuredContent)).toMatchObject({
-        [BACKGROUND_JOB_FINALISTS[0]]: [
-          'satisfied',
-          'satisfied',
-          'satisfied',
-          'satisfied',
-        ],
-        [BACKGROUND_JOB_FINALISTS[1]]: [
-          'satisfied',
-          'conflict',
-          'satisfied',
-          'satisfied',
-        ],
-        [BACKGROUND_JOB_FINALISTS[2]]: [
-          'unresolved',
-          'unresolved',
-          'unresolved',
-          'unresolved',
-        ],
+        [BACKGROUND_JOB_FINALISTS[0]]: ['satisfied', 'satisfied'],
+        [BACKGROUND_JOB_FINALISTS[1]]: ['satisfied', 'conflict'],
+        [BACKGROUND_JOB_FINALISTS[2]]: ['unresolved', 'unresolved'],
       });
       expect(
         responsibleOptionCount(valid.structuredContent),
@@ -463,24 +448,9 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
         responsibleOptions: [{ candidateId: BACKGROUND_JOB_FINALISTS[0] }],
       });
       expect(hardResolutionStates(result.structuredContent)).toMatchObject({
-        [BACKGROUND_JOB_FINALISTS[0]]: [
-          'satisfied',
-          'satisfied',
-          'satisfied',
-          'satisfied',
-        ],
-        [BACKGROUND_JOB_FINALISTS[1]]: [
-          'satisfied',
-          'conflict',
-          'satisfied',
-          'satisfied',
-        ],
-        [BACKGROUND_JOB_FINALISTS[2]]: [
-          'unresolved',
-          'unresolved',
-          'unresolved',
-          'unresolved',
-        ],
+        [BACKGROUND_JOB_FINALISTS[0]]: ['satisfied', 'satisfied'],
+        [BACKGROUND_JOB_FINALISTS[1]]: ['satisfied', 'conflict'],
+        [BACKGROUND_JOB_FINALISTS[2]]: ['unresolved', 'unresolved'],
       });
       expect(
         responsibleOptionCount(result.structuredContent),
@@ -850,7 +820,9 @@ function controlledEvidenceNeededResponse(
   ) {
     throw new Error('R8 controlled conflict input is incomplete.');
   }
-  const inferenceId = `inference-hard-resolution-${candidateId}`;
+  const inferenceId = `i${String(
+    response.targetFitAssessment.fitAssessment.inferences.length + 1,
+  )}`;
   response.targetFitAssessment.fitAssessment.inferences.push({
     kind: 'inference',
     inferenceId,
@@ -880,7 +852,10 @@ function controlledEvidenceNeededResponse(
     throw new Error('R8 Redis conflict resolution is missing.');
   }
   conflictResolution.state = 'conflict';
-  const conflictId = `conflict-${candidateId}-redis`;
+  const conflictId = `x${String(
+    response.targetFitAssessment.fitAssessment.hardConstraintConflicts.length +
+      1,
+  )}`;
   assessment.hardConstraintConflictIds = [conflictId];
   reason.reasonCode = 'redis-unavailable';
   response.targetFitAssessment.fitAssessment.hardConstraintConflicts.push({

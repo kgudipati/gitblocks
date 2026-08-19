@@ -99,6 +99,8 @@ export interface LoadActiveCandidateDossierCommand {
   readonly candidateId: string;
   readonly expectedCapabilityFamily: CapabilityFamilyV1;
   readonly evidenceCutoff: string;
+  readonly relevantEvidenceDimensions?:
+    readonly EvidenceObservationV1['dimension'][] | null;
 }
 
 export interface ActiveDossierMaterial {

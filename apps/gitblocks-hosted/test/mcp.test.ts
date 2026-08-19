@@ -224,6 +224,14 @@ describe('GitBlocks recommendation MCP adapter', () => {
     expect(JSON.stringify(result.structuredContent)).toContain(
       applicationCandidate?.candidateId,
     );
+    const agentCandidate = shortlistCandidates(result.structuredContent).find(
+      (candidate) =>
+        candidateId(candidate) === applicationCandidate?.candidateId,
+    );
+    expect(hasCandidateDisplayIdentity(agentCandidate)).toBe(true);
+    expect(
+      shortlistCandidates(result.structuredContent).some(hasNpmPackageIdentity),
+    ).toBe(true);
   });
 
   it('maps application and unexpected failures to one bounded value-free error', async () => {
@@ -672,6 +680,37 @@ function responsibleOptions(value: unknown): readonly unknown[] {
   return value.responsibleOptions;
 }
 
+function shortlistCandidates(value: unknown): readonly unknown[] {
+  if (!isUnknownRecord(value) || !isUnknownRecord(value['shortlist'])) {
+    return [];
+  }
+  const shortlist = value['shortlist'];
+  const eligible = Array.isArray(shortlist['eligibleCandidates'])
+    ? (shortlist['eligibleCandidates'] as readonly unknown[])
+    : [];
+  const evidenceNeeded = Array.isArray(shortlist['evidenceNeededCandidates'])
+    ? (shortlist['evidenceNeededCandidates'] as readonly unknown[])
+    : [];
+  return [...eligible, ...evidenceNeeded];
+}
+
+function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function hasCandidateDisplayIdentity(value: unknown): boolean {
+  if (!isUnknownRecord(value) || !isUnknownRecord(value['repository'])) {
+    return false;
+  }
+  const repository = value['repository'];
+  return (
+    typeof value['displayName'] === 'string' &&
+    repository['host'] === 'github' &&
+    typeof repository['owner'] === 'string' &&
+    typeof repository['name'] === 'string'
+  );
+}
+
 function rawStatus(
   endpoint: URL,
   path: string,
@@ -737,4 +776,22 @@ function candidateId(value: unknown): string | null {
     typeof value.candidateId === 'string'
     ? value.candidateId
     : null;
+}
+
+function hasNpmPackageIdentity(value: unknown): boolean {
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    !('package' in value) ||
+    typeof value.package !== 'object' ||
+    value.package === null
+  ) {
+    return false;
+  }
+  return (
+    'registry' in value.package &&
+    value.package.registry === 'npm' &&
+    'name' in value.package &&
+    typeof value.package.name === 'string'
+  );
 }

@@ -33,7 +33,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'candidate-retrieval-request':
     '5dd7d06b5665baae17b8f25c5c6fcf900e1e9040dcda6f58597845549d488d51',
   'candidate-retrieval-result':
-    '6f3ecfd01ac0688f31919377e807a44c143752179b6ae34849135fe908e123c1',
+    'f8fe2397fd1311a00417798e40ac25a073ad3084cc3d9c8ec85dc9e8d8d948ab',
   'capability-retrieval-expansion':
     '65a22cfe825e42f729eb9eb07aaf0a1a0fcdb40dc043c24a5726548f2e99f73d',
   'capability-retrieval-expansion-source':
@@ -289,6 +289,33 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
     );
   });
 
+  it('adds candidate display identity to retrieval results through property keys only', () => {
+    const schema = getContractSchemaV1('candidate-retrieval-result');
+    const candidatePaths = [
+      ['properties', 'eligibleCandidates', 'items', 'properties'],
+      ['properties', 'evidenceNeededCandidates', 'items', 'properties'],
+    ] as const;
+
+    for (const path of candidatePaths) {
+      expect(readPropertyAt(schema, [...path, 'displayName'])).toBeDefined();
+      expect(readPropertyAt(schema, [...path, 'repository'])).toBeDefined();
+      expect(readPropertyAt(schema, [...path, 'package'])).toBeDefined();
+    }
+
+    let legacySchema = schema;
+    for (const path of candidatePaths) {
+      for (const key of ['displayName', 'repository', 'package']) {
+        legacySchema = withoutKeyAt(legacySchema, path, key);
+      }
+    }
+    const legacySchemaDigest = createHash('sha256')
+      .update(`${JSON.stringify(legacySchema, null, 2)}\n`)
+      .digest('hex');
+    expect(legacySchemaDigest).toBe(
+      '6f3ecfd01ac0688f31919377e807a44c143752179b6ae34849135fe908e123c1',
+    );
+  });
+
   it('serializes canonically and newline-terminates each artifact', () => {
     for (const name of CONTRACT_SCHEMA_NAMES) {
       const first = serializeContractSchemaV1(name);
@@ -539,6 +566,19 @@ function schemaDescriptionAt(
     throw new Error(`Schema description is missing: ${path.join('.')}`);
   }
   return description;
+}
+
+function readPropertyAt(
+  schema: JsonSchemaValue,
+  path: readonly string[],
+): JsonSchemaValue | undefined {
+  let current = schema;
+  for (const segment of path) {
+    const next = readProperty(current, segment);
+    if (next === undefined) return undefined;
+    current = next;
+  }
+  return current;
 }
 
 function withoutKeyAt(

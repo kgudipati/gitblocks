@@ -1,5 +1,6 @@
 import {
   getContractSchemaV1,
+  type CandidateRetrievalCandidateV1,
   type OssRecommendationRequestV1,
 } from '@gitblocks/contracts';
 import {
@@ -185,16 +186,18 @@ function agentFacingRecommendationResult(
   };
 }
 
-function agentFacingRetrievalCandidate(candidate: {
-  readonly candidateId: string;
-  readonly matchedCapabilityConceptIds: readonly string[];
-  readonly matchedProfileFieldIds: readonly string[];
-  readonly channelMatches: readonly unknown[];
-  readonly lane: 'eligible' | 'evidence-needed';
-  readonly unresolvedHardEvaluations: readonly unknown[];
-}): Record<string, unknown> {
+function agentFacingRetrievalCandidate(
+  candidate: CandidateRetrievalCandidateV1,
+): Record<string, unknown> {
   return {
     candidateId: candidate.candidateId,
+    ...(candidate.displayName === undefined
+      ? {}
+      : { displayName: candidate.displayName }),
+    ...(candidate.repository === undefined
+      ? {}
+      : { repository: candidate.repository }),
+    ...(candidate.package === undefined ? {} : { package: candidate.package }),
     matchedCapabilityConceptIds: candidate.matchedCapabilityConceptIds,
     matchedProfileFieldIds: candidate.matchedProfileFieldIds,
     channelMatches: candidate.channelMatches,

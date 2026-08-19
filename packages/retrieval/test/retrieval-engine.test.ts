@@ -509,6 +509,13 @@ describe('deterministic production retrieval vertical slice', () => {
     const view: CandidateSearchView = {
       profile,
       candidateId: 'synthetic-candidate',
+      displayName: 'Synthetic candidate',
+      repository: {
+        host: 'github',
+        owner: 'owner',
+        name: 'repository',
+      },
+      package: { registry: 'npm', name: 'package-name' },
       catalogStatus: 'active',
       primaryFamily: 'authorization',
       additionalFamilies: ['audit-logging'],

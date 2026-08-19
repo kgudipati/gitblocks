@@ -554,6 +554,14 @@ export function groundedModelResponse(
       .filter(({ lane }) => lane === 'evidence-needed')
       .map(({ candidateId }) => candidateId),
   );
+  const claimIdByCandidateId = new Map(
+    candidates
+      .filter(({ observations }) => observations.length > 0)
+      .map((dossier, index) => [
+        dossier.identity.candidateId,
+        `c${String(index + 1)}`,
+      ]),
+  );
   return {
     targetFitAssessment: {
       fitAssessment: {
@@ -563,6 +571,7 @@ export function groundedModelResponse(
           const evidenceIds = dossier.observations.map(
             ({ evidenceId }) => evidenceId,
           );
+          const claimId = claimIdByCandidateId.get(candidateId);
           const isPositive = index === 0;
           return {
             candidateId,
@@ -580,12 +589,17 @@ export function groundedModelResponse(
                   : 'Another supplied candidate has stronger target-grounded support.',
                 evidenceIds,
                 inferenceIds: isPositive ? [inferenceId] : [],
-                unknownIds: [],
+                unknownIds:
+                  evidenceIds.length === 0
+                    ? dossier.unknowns
+                        .slice(0, 1)
+                        .map(({ unknownId }) => unknownId)
+                    : [],
               },
             ],
             evidenceIds,
             inferenceIds: isPositive ? [inferenceId] : [],
-            claimIds: [`c${String(index + 1)}`],
+            claimIds: claimId === undefined ? [] : [claimId],
             unknownIds: dossier.unknowns.map(({ unknownId }) => unknownId),
             hardConstraintConflictIds: [],
             limitationIds: dossier.limitations.map(
@@ -606,19 +620,32 @@ export function groundedModelResponse(
             evidenceIds: [positive.observations[0].evidenceId],
           },
         ],
-        materialClaims: candidates.map((dossier, index) => ({
-          claimId: `c${String(index + 1)}`,
-          candidateId: dossier.identity.candidateId,
-          topic: 'runtime-support',
-          direction:
-            index === 0 ? ('favorable' as const) : ('unfavorable' as const),
-          statement:
-            index === 0
-              ? 'The candidate fits the supplied target runtime.'
-              : 'The candidate was not selected for the target runtime.',
-          evidenceIds: dossier.observations.map(({ evidenceId }) => evidenceId),
-          inferenceIds: index === 0 ? [inferenceId] : [],
-        })),
+        materialClaims: candidates.flatMap((dossier, index) => {
+          const claimId = claimIdByCandidateId.get(
+            dossier.identity.candidateId,
+          );
+          return claimId === undefined
+            ? []
+            : [
+                {
+                  claimId,
+                  candidateId: dossier.identity.candidateId,
+                  topic: 'runtime-support',
+                  direction:
+                    index === 0
+                      ? ('favorable' as const)
+                      : ('unfavorable' as const),
+                  statement:
+                    index === 0
+                      ? 'The candidate fits the supplied target runtime.'
+                      : 'The candidate was not selected for the target runtime.',
+                  evidenceIds: dossier.observations.map(
+                    ({ evidenceId }) => evidenceId,
+                  ),
+                  inferenceIds: index === 0 ? [inferenceId] : [],
+                },
+              ];
+        }),
         assessmentUnknowns: [],
         hardConstraintConflicts: [],
         orderedViableCandidateIds: [positiveCandidateId],
