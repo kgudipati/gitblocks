@@ -71,9 +71,11 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'target-fit-assessment-response':
     '51c7e8c46d8323e29fe02c674c74efece435acf372529c036e52a861f4f78428',
   'recommendation-assessment-response':
-    'aa619df4638fc12d1ee8d77b5bf2552b6ba0a03fcb88e41cc0dd1ed051087d46',
+    'd7a5888d5e70697022976d1b7a0ac63efa75c7313a5ebc0f6c5a39de08ee115f',
   'recommendation-assessment-model-response':
     '47ab5d6ee9d7d44dc6f4754121b8cfe03756a5f480c84459f09d4c294efcff52',
+  'responsible-option':
+    '6de709f7f356b99190d5e8cd4ebe0bd5c08902934aeba89f5420f7f7cdddb7fe',
 } as const;
 
 describe('deterministic JSON Schema 2020-12 exports', () => {
@@ -109,6 +111,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'target-fit-assessment-response',
       'recommendation-assessment-response',
       'recommendation-assessment-model-response',
+      'responsible-option',
     ]);
 
     for (const name of CONTRACT_SCHEMA_NAMES) {
@@ -478,10 +481,12 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseRepositoryFingerprintV1',
       'parseRepositoryInterviewRequestV1',
       'parseRepositoryInterviewV1',
+      'parseResponsibleOptionV1',
       'parseReviewedConceptCurationAuthorityV2',
       'parseTargetFitAssessmentResponseV1',
       'projectDeterministicCandidateProfileAuthorityToEvaluatorV2',
       'projectDeterministicCandidateProfileV1ToEvaluatorV2',
+      'projectResponsibleOptionsV1',
       'recommendationAssessmentModelFitRequestV1Schema',
       'recommendationAssessmentModelResponseV1Schema',
       'recommendationAssessmentResponseV1Schema',
@@ -506,6 +511,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'repositoryInterviewRequestIdentityDigest',
       'repositoryInterviewRequestRecordDigest',
       'repositoryInterviewUnknownIdentityDigest',
+      'responsibleOptionV1Schema',
       'reviewedConceptClaimDigestV2',
       'reviewedConceptCurationAuthoritySemanticDigestV2',
       'reviewedConceptScopeAdmissionDigestV2',

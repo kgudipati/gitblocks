@@ -19,6 +19,7 @@ import type {
   RecommendationAssessmentModelFitRequestV1,
   RecommendationAssessmentModelResponseV1,
   RecommendationAssessmentResponseV1,
+  ResponsibleOptionV1,
   TargetFitAssessmentResponseV1,
 } from './oss-recommendation-schemas.ts';
 import {
@@ -38,6 +39,7 @@ import {
   recommendationAssessmentModelFitRequestV1Validator,
   recommendationAssessmentModelResponseV1Validator,
   recommendationAssessmentResponseV1Validator,
+  responsibleOptionV1Validator,
   structurallyValidate,
   targetFitAssessmentResponseV1Validator,
 } from './structural-validation.ts';
@@ -251,6 +253,19 @@ export function parseRecommendationAssessmentResponseV1(
   };
 }
 
+export function parseResponsibleOptionV1(
+  value: unknown,
+): ContractParseResult<ResponsibleOptionV1, ResponsibleOptionV1> {
+  const structural = structurallyValidate(value, responsibleOptionV1Validator);
+  if (!structural.ok) return structural;
+  return {
+    ok: true,
+    value: structural.value,
+    domain: structural.value,
+    issues: [],
+  };
+}
+
 export function parseRecommendationAssessmentModelResponseV1(
   value: unknown,
 ): ContractParseResult<
@@ -367,6 +382,12 @@ export function validateRecommendationAssessmentExchangeV1(input: {
       retrievalFinalists: input.retrievalFinalists,
       response: structuralResponse.value,
     }),
+    ...responsibleOptionIssues({
+      request: input.request,
+      normalization: normalization.value,
+      retrievalFinalists: input.retrievalFinalists,
+      response: structuralResponse.value,
+    }),
   ]);
   if (issues.length > 0) return { ok: false, issues };
   return {
@@ -412,6 +433,8 @@ export function validateRecommendationModelAssessmentExchangeV1(input: {
     retrievalFinalists: input.retrievalFinalists,
     response: hydrateRecommendationAssessmentResponseV1({
       request: input.request,
+      normalization: input.normalization,
+      retrievalFinalists: input.retrievalFinalists,
       response: expandedResponse.value,
       assessmentId: input.assessmentId,
       producedAt: input.producedAt,
@@ -774,13 +797,15 @@ function compactCatalogCollisionIssues(
 
 function hydrateRecommendationAssessmentResponseV1(input: {
   readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
   readonly response: RecommendationAssessmentModelResponseV1;
   readonly assessmentId: string;
   readonly producedAt: string;
 }): RecommendationAssessmentResponseV1 {
   const fit = input.response.targetFitAssessment.fitAssessment;
   const ranking = constructModelRanking(input.request, fit);
-  return {
+  const response = {
     contractVersion: '1.0.0',
     targetFitAssessment: {
       contractVersion: '1.0.0',
@@ -817,6 +842,15 @@ function hydrateRecommendationAssessmentResponseV1(input: {
     },
     evidenceNeededHardConstraintResolutions:
       input.response.evidenceNeededHardConstraintResolutions,
+  } satisfies Omit<RecommendationAssessmentResponseV1, 'responsibleOptions'>;
+  return {
+    ...response,
+    responsibleOptions: responsibleOptionProjection({
+      request: input.request,
+      normalization: input.normalization,
+      retrievalFinalists: input.retrievalFinalists,
+      response,
+    }).options,
   };
 }
 
@@ -862,6 +896,194 @@ function constructModelRanking(
     rankRelations: [],
     incomparablePairs: [],
   };
+}
+
+type ResponsibleOptionProjectionResponseV1 = Pick<
+  RecommendationAssessmentResponseV1,
+  'evidenceNeededHardConstraintResolutions' | 'targetFitAssessment'
+>;
+
+interface ResponsibleOptionProjectionResultV1 {
+  readonly options: ResponsibleOptionV1[];
+  readonly issues: readonly ContractIssue[];
+}
+
+export function projectResponsibleOptionsV1(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly response: ResponsibleOptionProjectionResponseV1;
+}): ResponsibleOptionV1[] {
+  const projected = responsibleOptionProjection(input);
+  if (projected.issues.length > 0) {
+    throw new TypeError('Responsible option projection failed.');
+  }
+  return projected.options;
+}
+
+function responsibleOptionProjection(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly response: ResponsibleOptionProjectionResponseV1;
+}): ResponsibleOptionProjectionResultV1 {
+  const issues: ContractIssue[] = [];
+  const finalistById = new Map(
+    input.retrievalFinalists.map((finalist) => [
+      finalist.candidateId,
+      finalist,
+    ]),
+  );
+  const dossierById = new Map(
+    input.request.candidates.map((dossier) => [
+      dossier.identity.candidateId,
+      dossier,
+    ]),
+  );
+  const declarationById = new Map(
+    input.normalization.preservedDeclarations.map((declaration) => [
+      declaration.constraintId,
+      declaration,
+    ]),
+  );
+  const resolutionByKey = new Map(
+    input.response.evidenceNeededHardConstraintResolutions.map((resolution) => [
+      `${resolution.candidateId}\0${resolution.evaluationId}`,
+      resolution,
+    ]),
+  );
+  const options: ResponsibleOptionV1[] = [];
+
+  for (const candidateId of rankedCandidateIds(
+    input.response.targetFitAssessment.fitAssessment,
+  )) {
+    const finalist = finalistById.get(candidateId);
+    const dossier = dossierById.get(candidateId);
+    if (finalist === undefined || dossier === undefined) {
+      issues.push(
+        domainIssue(
+          'responsible-option.candidate-binding',
+          `/responsibleOptions/${candidateId}`,
+        ),
+      );
+      continue;
+    }
+
+    const constraintStatuses: ResponsibleOptionV1['constraintStatuses'][number][] =
+      [];
+    for (const constraint of input.request.capabilityRequest.hardConstraints) {
+      const declaration = declarationById.get(constraint.constraintId);
+      if (
+        declaration === undefined ||
+        declaration.modality === 'preferred' ||
+        declaration.statement !== constraint.statement
+      ) {
+        issues.push(
+          domainIssue(
+            'responsible-option.constraint-binding',
+            `/responsibleOptions/${candidateId}/constraintStatuses/${constraint.constraintId}`,
+          ),
+        );
+      }
+      const modality =
+        declaration?.modality === 'prohibited' ? 'prohibited' : 'required';
+      const normalizedEvaluationIds = input.normalization.normalizedConstraints
+        .filter(
+          (normalized) =>
+            normalized.resolutionBasis === 'controlled-taxonomy' &&
+            normalized.conceptId !== null &&
+            normalized.sourceConstraintIds.includes(constraint.constraintId),
+        )
+        .map(({ normalizedConstraintId }) => normalizedConstraintId);
+      const evaluationIds =
+        normalizedEvaluationIds.length > 0
+          ? normalizedEvaluationIds
+          : [constraint.constraintId];
+      const evaluationResults = evaluationIds.map((evaluationId) => {
+        const resolution = resolutionByKey.get(
+          `${candidateId}\0${evaluationId}`,
+        );
+        return {
+          evaluationId,
+          state: resolution?.state ?? ('satisfied' as const),
+          basis:
+            resolution === undefined
+              ? ('deterministic' as const)
+              : ('model' as const),
+          inferenceIds: resolution?.inferenceIds ?? [],
+        };
+      });
+      const status = evaluationResults.some(({ state }) => state === 'conflict')
+        ? ('conflicting' as const)
+        : evaluationResults.some(({ state }) => state === 'unresolved')
+          ? ('unverified' as const)
+          : ('verified' as const);
+      constraintStatuses.push({
+        constraintId: constraint.constraintId,
+        statement: constraint.statement,
+        modality,
+        status,
+        grounding:
+          status === 'verified'
+            ? evaluationResults.map(
+                ({ evaluationId, basis, inferenceIds }) => ({
+                  evaluationId,
+                  basis,
+                  inferenceIds,
+                }),
+              )
+            : [],
+      });
+    }
+
+    const hasUnverifiedProhibited = constraintStatuses.some(
+      ({ modality, status }) =>
+        modality === 'prohibited' && status === 'unverified',
+    );
+    const hasNonVerified = constraintStatuses.some(
+      ({ status }) => status !== 'verified',
+    );
+    options.push({
+      candidateId,
+      identity: dossier.identity,
+      verificationStatus: hasUnverifiedProhibited
+        ? 'unverified-prohibited-constraint'
+        : hasNonVerified
+          ? 'partially-verified'
+          : 'fully-verified',
+      constraintStatuses,
+    });
+  }
+
+  return { options, issues };
+}
+
+function responsibleOptionIssues(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly response: RecommendationAssessmentResponseV1;
+}): readonly ContractIssue[] {
+  const projected = responsibleOptionProjection(input);
+  const issues = [...projected.issues];
+  if (
+    contractCanonicalDigest(input.response.responsibleOptions) !==
+    contractCanonicalDigest(projected.options)
+  ) {
+    issues.push(
+      domainIssue('responsible-option.projection', '/responsibleOptions'),
+    );
+  }
+  if (
+    input.response.responsibleOptions.some(({ constraintStatuses }) =>
+      constraintStatuses.some(({ status }) => status === 'conflicting'),
+    )
+  ) {
+    issues.push(
+      domainIssue('responsible-option.conflict', '/responsibleOptions'),
+    );
+  }
+  return issues;
 }
 
 function recommendationFinalistIssues(
@@ -1042,16 +1264,6 @@ function hardResolutionIssues(input: {
       issues.push(domainIssue('hard-resolution.inference-grounding', path));
     }
 
-    if (resolution.state === 'unresolved') {
-      if (
-        assessment?.disposition !== 'insufficient-evidence' ||
-        ranked.has(resolution.candidateId)
-      ) {
-        issues.push(
-          domainIssue('hard-resolution.unresolved-disposition', path),
-        );
-      }
-    }
     if (resolution.state === 'conflict') {
       if (
         assessment?.disposition !== 'rejected' ||
@@ -1098,16 +1310,15 @@ function hardResolutionIssues(input: {
     ) {
       continue;
     }
-    const allSatisfied = finalist.unresolvedHardEvaluations.every(
-      (evaluation) =>
-        input.response.evidenceNeededHardConstraintResolutions.some(
-          (resolution) =>
-            resolution.candidateId === finalist.candidateId &&
-            resolution.evaluationId === evaluation.evaluationId &&
-            resolution.state === 'satisfied',
-        ),
+    const hasConflict = finalist.unresolvedHardEvaluations.some((evaluation) =>
+      input.response.evidenceNeededHardConstraintResolutions.some(
+        (resolution) =>
+          resolution.candidateId === finalist.candidateId &&
+          resolution.evaluationId === evaluation.evaluationId &&
+          resolution.state === 'conflict',
+      ),
     );
-    if (!allSatisfied) {
+    if (hasConflict) {
       issues.push(
         domainIssue(
           'hard-resolution.positive-disposition',

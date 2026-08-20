@@ -75,6 +75,10 @@ describe('hosted OSS recommendation application', () => {
       order.indexOf('model'),
     );
     expect(outcome.result.responsibleOptions).toHaveLength(1);
+    expect(outcome.result.responsibleOptions[0]).toMatchObject({
+      verificationStatus: 'fully-verified',
+      constraintStatuses: [],
+    });
     expect(outcome.result.responsibleOptions.length).toBeLessThanOrEqual(
       HOSTED_RESPONSIBLE_OPTION_LIMIT,
     );
@@ -279,6 +283,65 @@ describe('hosted OSS recommendation application', () => {
     expect(loadedCandidateIds).toEqual(expectedFirstFive);
     expect(artifactLoader).not.toHaveBeenCalled();
     expect(model).not.toHaveBeenCalled();
+  });
+
+  it('presents a target-supported candidate with an unresolved prohibited constraint as a structurally distinguished option', async () => {
+    const request = frozenBackgroundJobsDogfoodRequest();
+    const application = await createAcceptedApplication({
+      fitModel: {
+        assess: (input) => {
+          const response = structuredClone(groundedModelResponse(input));
+          const positive = input.retrievalFinalists[0];
+          const prohibited = positive?.unresolvedHardEvaluations.find(
+            ({ modality }) => modality === 'prohibited',
+          );
+          const resolution =
+            response.evidenceNeededHardConstraintResolutions.find(
+              (candidate) =>
+                candidate.candidateId === positive?.candidateId &&
+                candidate.evaluationId === prohibited?.evaluationId,
+            );
+          if (resolution === undefined) {
+            throw new Error('Prohibited hard-resolution fixture is missing.');
+          }
+          resolution.state = 'unresolved';
+          resolution.inferenceIds = [];
+          return Promise.resolve(response);
+        },
+      },
+    });
+
+    const outcome = await application.recommendOss(request);
+
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok || outcome.result.outcome !== 'recommend') return;
+    expect(outcome.result.responsibleOptions).toHaveLength(1);
+    expect(outcome.result.responsibleOptions[0]).toMatchObject({
+      verificationStatus: 'unverified-prohibited-constraint',
+      constraintStatuses: [
+        {
+          statement:
+            'The solution must provide automatic retries for failed jobs.',
+          modality: 'required',
+          status: 'verified',
+          grounding: [
+            {
+              basis: 'model',
+            },
+          ],
+        },
+        {
+          statement: 'The solution must not require Redis.',
+          modality: 'prohibited',
+          status: 'unverified',
+          grounding: [],
+        },
+      ],
+    });
+    expect(
+      outcome.result.responsibleOptions[0]?.constraintStatuses[0]?.grounding[0]
+        ?.inferenceIds.length,
+    ).toBeGreaterThan(0);
   });
 
   it('augments only evidence-needed finalists with matching request-scoped artifact excerpts before the one model call', async () => {

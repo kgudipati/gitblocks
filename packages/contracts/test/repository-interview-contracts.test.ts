@@ -1177,6 +1177,7 @@ describe('schema compatibility', () => {
       'target-fit-assessment-response',
       'recommendation-assessment-response',
       'recommendation-assessment-model-response',
+      'responsible-option',
     ]);
     for (const [name, digest] of Object.entries(EXISTING_SCHEMA_DIGESTS)) {
       expect(

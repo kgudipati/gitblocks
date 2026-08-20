@@ -42,6 +42,7 @@ import {
   ossRecommendationRequestV1Schema,
   recommendationAssessmentModelResponseV1Schema,
   recommendationAssessmentResponseV1Schema,
+  responsibleOptionV1Schema,
   targetFitAssessmentResponseV1Schema,
 } from './oss-recommendation-schemas.ts';
 
@@ -76,6 +77,7 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'target-fit-assessment-response',
   'recommendation-assessment-response',
   'recommendation-assessment-model-response',
+  'responsible-option',
 ] as const);
 
 export type ContractSchemaName = (typeof CONTRACT_SCHEMA_NAMES)[number];
@@ -127,6 +129,7 @@ const SCHEMAS = {
     recommendationAssessmentResponseV1Schema,
   'recommendation-assessment-model-response':
     recommendationAssessmentModelResponseV1Schema,
+  'responsible-option': responsibleOptionV1Schema,
 } as const;
 
 export function getContractSchemaV1(name: ContractSchemaName): JsonSchemaValue {

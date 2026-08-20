@@ -28,6 +28,7 @@ import {
   type EvidenceNeededHardConstraintResolutionV1,
   type RecommendationRetrievalFinalistV1,
   type RecommendationAssessmentModelFitRequestV1,
+  type ResponsibleOptionV1,
   type TargetFitAssessmentResponseV1,
 } from '@gitblocks/contracts';
 import {
@@ -157,10 +158,7 @@ export type HostedRecommendationResultV1 =
       readonly evidenceNeededHardConstraintResolutions: readonly EvidenceNeededHardConstraintResolutionV1[];
     };
 
-export interface HostedResponsibleOptionV1 {
-  readonly candidateId: string;
-  readonly identity: CandidateDossierV1['identity'];
-}
+export type HostedResponsibleOptionV1 = ResponsibleOptionV1;
 
 export type HostedRecommendationFailureStageV1 =
   | 'request-validation'
@@ -754,10 +752,25 @@ async function recommendOss(input: {
   const dossierById = new Map(
     dossiers.map((dossier) => [dossier.identity.candidateId, dossier]),
   );
-  const responsibleOptions: HostedResponsibleOptionV1[] = [];
-  for (const candidateId of responsibleCandidateIds) {
+  const responsibleOptions = validated.response.responsibleOptions;
+  if (responsibleOptions.length !== responsibleCandidateIds.length) {
+    return failed(
+      input.observer,
+      requestId,
+      'invalid-target-fit-response',
+      'response-validation',
+      'responsible-option-projection',
+      dossiers.length,
+    );
+  }
+  for (const [index, candidateId] of responsibleCandidateIds.entries()) {
     const dossier = dossierById.get(candidateId);
-    if (dossier === undefined) {
+    const option = responsibleOptions[index];
+    if (
+      dossier === undefined ||
+      option?.candidateId !== candidateId ||
+      option.identity.candidateId !== dossier.identity.candidateId
+    ) {
       return failed(
         input.observer,
         requestId,
@@ -767,9 +780,6 @@ async function recommendOss(input: {
         dossiers.length,
       );
     }
-    responsibleOptions.push(
-      Object.freeze({ candidateId, identity: dossier.identity }),
-    );
   }
   emit(
     input.observer,
