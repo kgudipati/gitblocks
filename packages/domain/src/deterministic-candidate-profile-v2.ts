@@ -1,7 +1,7 @@
 import {
   type DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION,
   DETERMINISTIC_CANDIDATE_PROFILE_VERSION,
-  DETERMINISTIC_PROFILE_DENOMINATOR_VERSION,
+  type DETERMINISTIC_PROFILE_DENOMINATOR_VERSION,
   DETERMINISTIC_PROFILE_FIELD_IDS,
   DETERMINISTIC_PROFILE_RULES_VERSION,
   canonicalizeDeterministicCandidateProfile,
@@ -31,6 +31,8 @@ export const DETERMINISTIC_CANDIDATE_PROFILE_VERSION_V2 =
   'deterministic-candidate-profile/2.0.0' as const;
 export const DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2 =
   'deterministic-candidate-profile-authority/2.0.0' as const;
+export const DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2 =
+  'deterministic-profile-coverage/2.0.0' as const;
 export const DETERMINISTIC_PROFILE_RULES_VERSION_V2 =
   'deterministic-candidate-profile-rules/2.0.0' as const;
 
@@ -50,6 +52,19 @@ export type DeterministicProfileConceptCoverage =
   'complete' | 'partial' | 'unknown';
 export type DeterministicProfileConceptAssertionState =
   'absent' | 'conflict' | 'present';
+export type DeterministicProfileConceptExtractionRuleIdV2 =
+  | DeterministicProfileExtractionRuleId
+  | `extract-${DeterministicProfileConceptAssertionFieldId}-from-reviewed-curation-authority`;
+export type DeterministicProfileSourceReferenceV2 =
+  | DeterministicProfileSourceReference
+  | {
+      readonly kind: 'reviewed-curation-claim';
+      readonly curationAuthorityDigest: string;
+      readonly claimId: string;
+      readonly claimDigest: string;
+      readonly admissionId: string | null;
+      readonly admissionDigest: string | null;
+    };
 
 interface DeterministicProfileConceptFieldCommon<
   FieldId extends DeterministicProfileConceptAssertionFieldId,
@@ -60,21 +75,21 @@ interface DeterministicProfileConceptFieldCommon<
   readonly stateReasonCode: DeterministicProfileStateReasonCode;
   readonly stateRuleId: DeterministicProfileStateRuleId;
   readonly versionScope: DeterministicProfileVersionScope | null;
-  readonly sourceReferences: readonly DeterministicProfileSourceReference[];
+  readonly sourceReferences: readonly DeterministicProfileSourceReferenceV2[];
 }
 
 export interface DeterministicProfileConceptAssertionClaimV2 {
   readonly state: 'absent' | 'present';
-  readonly valueExtractionRuleId: DeterministicProfileExtractionRuleId;
-  readonly sourceReferences: readonly DeterministicProfileSourceReference[];
+  readonly valueExtractionRuleId: DeterministicProfileConceptExtractionRuleIdV2;
+  readonly sourceReferences: readonly DeterministicProfileSourceReferenceV2[];
 }
 
 export type DeterministicProfileConceptAssertionV2 =
   | {
       readonly conceptId: string;
       readonly state: 'absent' | 'present';
-      readonly valueExtractionRuleId: DeterministicProfileExtractionRuleId;
-      readonly sourceReferences: readonly DeterministicProfileSourceReference[];
+      readonly valueExtractionRuleId: DeterministicProfileConceptExtractionRuleIdV2;
+      readonly sourceReferences: readonly DeterministicProfileSourceReferenceV2[];
     }
   | {
       readonly conceptId: string;
@@ -118,7 +133,7 @@ export interface DeterministicCandidateProfileV2Domain {
 export interface DeterministicCandidateProfileAuthorityV2Domain {
   readonly contractVersion: '2.0.0';
   readonly authorityVersion: typeof DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2;
-  readonly denominatorVersion: typeof DETERMINISTIC_PROFILE_DENOMINATOR_VERSION;
+  readonly denominatorVersion: typeof DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2;
   readonly catalogVersion: string;
   readonly catalogDigest: string;
   readonly taxonomyVersion: string;
@@ -173,7 +188,9 @@ export interface DeterministicCandidateProfileEvaluatorV2 {
 }
 
 interface DeterministicCandidateProfileEvaluatorAuthorityCommonV2 {
-  readonly denominatorVersion: typeof DETERMINISTIC_PROFILE_DENOMINATOR_VERSION;
+  readonly denominatorVersion:
+    | typeof DETERMINISTIC_PROFILE_DENOMINATOR_VERSION
+    | typeof DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2;
   readonly catalogVersion: string;
   readonly catalogDigest: string;
   readonly taxonomyVersion: string;
@@ -309,7 +326,7 @@ export function validateDeterministicCandidateProfileAuthorityV2(
     ) ||
     textsDiffer(
       authority.denominatorVersion,
-      DETERMINISTIC_PROFILE_DENOMINATOR_VERSION,
+      DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2,
     ) ||
     textsDiffer(
       authority.profileRulesVersion,
@@ -480,9 +497,7 @@ function validateConceptFieldV2(
   }
   const knownCoverage = field.coverage !== 'unknown';
   if (
-    knownCoverage
-      ? !isApprovedKnownMetadata(field) || field.sourceReferences.length === 0
-      : !isUnknownMetadata(field)
+    knownCoverage ? !isApprovedKnownMetadata(field) : !isUnknownMetadata(field)
   ) {
     addIssue(issues, 'profile.invariant', path);
   }
@@ -695,29 +710,32 @@ function isUnknownMetadata(field: {
 
 function isExtractionRuleForField(
   fieldId: DeterministicProfileConceptAssertionFieldId,
-  ruleId: DeterministicProfileExtractionRuleId,
+  ruleId: DeterministicProfileConceptExtractionRuleIdV2,
 ): boolean {
   return (
     ruleId === `extract-${fieldId}-from-structured-authority` ||
     ruleId === `extract-${fieldId}-from-artifact-set-authority` ||
+    ruleId === `extract-${fieldId}-from-reviewed-curation-authority` ||
     ruleId === `derive-${fieldId}-from-profile-fields`
   );
 }
 
 function isExtractionSourceCoherent(
-  ruleId: DeterministicProfileExtractionRuleId,
-  sources: readonly DeterministicProfileSourceReference[],
+  ruleId: DeterministicProfileConceptExtractionRuleIdV2,
+  sources: readonly DeterministicProfileSourceReferenceV2[],
 ): boolean {
   const expected = ruleId.endsWith('-from-structured-authority')
     ? 'structured-collection'
     : ruleId.endsWith('-from-artifact-set-authority')
       ? 'artifact-set-entry'
-      : 'derived-profile-fields';
+      : ruleId.endsWith('-from-reviewed-curation-authority')
+        ? 'reviewed-curation-claim'
+        : 'derived-profile-fields';
   return sources.length > 0 && sources.every(({ kind }) => kind === expected);
 }
 
 function validateSources(
-  sources: readonly DeterministicProfileSourceReference[],
+  sources: readonly DeterministicProfileSourceReferenceV2[],
   candidateId: string,
   ownerFieldId: DeterministicProfileFieldId,
   issues: DomainIssue[],
@@ -743,6 +761,15 @@ function validateSources(
       (source.inputFieldIds.length === 0 ||
         source.inputFieldIds.includes(ownerFieldId) ||
         new Set(source.inputFieldIds).size !== source.inputFieldIds.length)
+    ) {
+      addIssue(issues, 'profile.source', sourcePath);
+    }
+    if (
+      source.kind === 'reviewed-curation-claim' &&
+      ((source.admissionId === null) !== (source.admissionDigest === null) ||
+        !isDigest(source.curationAuthorityDigest) ||
+        !isDigest(source.claimDigest) ||
+        (source.admissionDigest !== null && !isDigest(source.admissionDigest)))
     ) {
       addIssue(issues, 'profile.source', sourcePath);
     }
@@ -772,8 +799,8 @@ function hasDependencyCycle(
 }
 
 function canonicalizeSource(
-  source: DeterministicProfileSourceReference,
-): DeterministicProfileSourceReference {
+  source: DeterministicProfileSourceReferenceV2,
+): DeterministicProfileSourceReferenceV2 {
   if (source.kind === 'structured-collection') {
     return {
       ...source,
@@ -795,8 +822,8 @@ function canonicalizeSource(
 }
 
 function compareSource(
-  left: DeterministicProfileSourceReference,
-  right: DeterministicProfileSourceReference,
+  left: DeterministicProfileSourceReferenceV2,
+  right: DeterministicProfileSourceReferenceV2,
 ): number {
   return compareText(canonicalText(left), canonicalText(right));
 }
@@ -806,6 +833,10 @@ function isStableId(value: unknown): value is string {
     typeof value === 'string' &&
     /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u.test(value)
   );
+}
+
+function isDigest(value: unknown): value is string {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value);
 }
 
 function canonicalText(value: unknown): string {

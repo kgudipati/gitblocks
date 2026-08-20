@@ -26,14 +26,18 @@ const CLIENT = Object.freeze({
 
 let catalogText: string;
 let profilesText: string;
+let profilesV2Text: string;
 let metadataText: string;
 
 beforeAll(async () => {
-  [catalogText, profilesText, metadataText] = await Promise.all([
-    acceptedText('manifest.json'),
-    acceptedText('candidate-profile-authority.json'),
-    acceptedText('candidate-retrieval-metadata-authority.json'),
-  ]);
+  [catalogText, profilesText, profilesV2Text, metadataText] = await Promise.all(
+    [
+      acceptedText('manifest.json'),
+      acceptedText('candidate-profile-authority.json'),
+      acceptedText('candidate-profile-authority-v2.json'),
+      acceptedText('candidate-retrieval-metadata-authority.json'),
+    ],
+  );
 });
 
 describe('offline serving catalog bootstrap CLI', () => {
@@ -108,6 +112,8 @@ describe('offline serving catalog bootstrap CLI', () => {
       catalogVersion: 'public-v1',
       databaseMigrationVersion: 7,
       publicationStatus: 'created',
+      profileAuthorityVersion:
+        'deterministic-candidate-profile-authority/1.0.0',
       publishedAt: PUBLISHED_AT,
       schemaVersion: '1.0.0',
       snapshotId: SNAPSHOT_ID,
@@ -118,6 +124,26 @@ describe('offline serving catalog bootstrap CLI', () => {
     expect(summaryText).not.toContain('database-secret-sentinel');
     expect(summaryText).not.toContain('githubOwner');
   });
+
+  it('publishes a native V2 authority through the same immutable snapshot boundary', async () => {
+    const fixture = dependencies({}, { profilesText: profilesV2Text });
+    expect(
+      await runServingCatalogBootstrapCliV1(
+        argumentsV1(),
+        fixture.dependencies,
+      ),
+    ).toBe(0);
+    expect(fixture.publish).toHaveBeenCalledTimes(1);
+    expect(fixture.publish.mock.calls[0]?.[1]).toMatchObject({
+      candidateProfileAuthority: {
+        authorityVersion: 'deterministic-candidate-profile-authority/2.0.0',
+      },
+    });
+    expect(JSON.parse(fixture.output[0] ?? '{}')).toMatchObject({
+      profileAuthorityVersion:
+        'deterministic-candidate-profile-authority/2.0.0',
+    });
+  }, 120_000);
 
   it('has no provider, model, or network collection capability', async () => {
     const fixture = dependencies();
@@ -199,7 +225,9 @@ function dependencies(
     publishedAt: PUBLISHED_AT,
     candidateCount: 150,
   });
-  const publish = vi.fn(() => Promise.resolve(publication));
+  const publish = vi.fn<
+    ServingCatalogBootstrapCliDependenciesV1['publishServingCatalogSnapshot']
+  >(() => Promise.resolve(publication));
   const dependencies: ServingCatalogBootstrapCliDependenciesV1 = {
     readTextFile: (path) => Promise.resolve(texts[path] ?? ''),
     readEnvironment: environment,

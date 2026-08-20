@@ -76,6 +76,7 @@ export {
   DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
   DETERMINISTIC_CANDIDATE_PROFILE_VERSION_V2,
   DETERMINISTIC_PROFILE_CONCEPT_ASSERTION_FIELD_IDS,
+  DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2,
   DETERMINISTIC_PROFILE_RULES_VERSION_V2,
   isConceptAssertionFieldId,
   projectDeterministicCandidateProfileV1ToEvaluatorV2,
@@ -90,6 +91,7 @@ export type {
   DeterministicCandidateProfileV2Domain,
   DeterministicProfileConceptAssertionClaimV2,
   DeterministicProfileConceptAssertionFieldId,
+  DeterministicProfileConceptExtractionRuleIdV2,
   DeterministicProfileConceptAssertionState,
   DeterministicProfileConceptAssertionV2,
   DeterministicProfileConceptCoverage,
@@ -98,6 +100,7 @@ export type {
   DeterministicProfileEvaluatorFieldV2,
   DeterministicProfileFieldRecordV2,
   DeterministicProfileNonAssertionFieldId,
+  DeterministicProfileSourceReferenceV2,
   PublishedDeterministicCandidateProfileAuthority,
 } from './deterministic-candidate-profile-v2.ts';
 export {

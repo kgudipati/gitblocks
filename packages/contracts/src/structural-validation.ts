@@ -70,6 +70,10 @@ import {
   type DeterministicCandidateProfileV2,
 } from './deterministic-candidate-profile-schemas.ts';
 import {
+  reviewedConceptCurationAuthorityV2Schema,
+  type ReviewedConceptCurationAuthorityV2,
+} from './reviewed-concept-curation-schemas.ts';
+import {
   candidateRetrievalRequestV1Schema,
   candidateRetrievalResultV1Schema,
   type CandidateRetrievalRequestV1,
@@ -461,6 +465,10 @@ export const deterministicCandidateProfileAuthorityV2Validator =
   createLazyStructuralValidator<DeterministicCandidateProfileAuthorityV2>(
     deterministicCandidateProfileAuthorityV2Schema,
     [deterministicCandidateProfileV2Validator],
+  );
+export const reviewedConceptCurationAuthorityV2Validator =
+  createLazyStructuralValidator<ReviewedConceptCurationAuthorityV2>(
+    reviewedConceptCurationAuthorityV2Schema,
   );
 export const candidateRetrievalRequestV1Validator =
   createLazyStructuralValidator<CandidateRetrievalRequestV1>(

@@ -4,10 +4,12 @@ import { fileURLToPath } from 'node:url';
 import postgres, { type Sql } from 'postgres';
 import {
   createCandidateRetrievalMetadataAuthorityV1,
+  parseDeterministicCandidateProfileAuthority,
   parseCandidateRetrievalMetadataAuthorityV1,
   parseDeterministicCandidateProfileAuthorityV1,
   type CandidateRetrievalMetadataAuthorityV1,
   type DeterministicCandidateProfileAuthorityV1,
+  type DeterministicCandidateProfileAuthorityPublished,
 } from '@gitblocks/contracts';
 import {
   applyMigrations,
@@ -47,15 +49,18 @@ const PUBLISHED_AT = '2026-08-11T18:00:00.000Z';
 let ownerSql: Sql;
 let catalog: PublicCatalog;
 let profiles: DeterministicCandidateProfileAuthorityV1;
+let profilesV2: DeterministicCandidateProfileAuthorityPublished;
 let metadata: CandidateRetrievalMetadataAuthorityV1;
 
 beforeAll(async () => {
   ownerSql = directSql(OWNER_CONFIG);
-  const [catalogText, profileText, metadataText] = await Promise.all([
-    acceptedText('manifest.json'),
-    acceptedText('candidate-profile-authority.json'),
-    acceptedText('candidate-retrieval-metadata-authority.json'),
-  ]);
+  const [catalogText, profileText, profileV2Text, metadataText] =
+    await Promise.all([
+      acceptedText('manifest.json'),
+      acceptedText('candidate-profile-authority.json'),
+      acceptedText('candidate-profile-authority-v2.json'),
+      acceptedText('candidate-retrieval-metadata-authority.json'),
+    ]);
   catalog = parsePublicCatalog(catalogText);
   const parsedProfiles = parseDeterministicCandidateProfileAuthorityV1(
     JSON.parse(profileText) as unknown,
@@ -63,10 +68,14 @@ beforeAll(async () => {
   const parsedMetadata = parseCandidateRetrievalMetadataAuthorityV1(
     JSON.parse(metadataText) as unknown,
   );
-  if (!parsedProfiles.ok || !parsedMetadata.ok) {
+  const parsedProfilesV2 = parseDeterministicCandidateProfileAuthority(
+    JSON.parse(profileV2Text) as unknown,
+  );
+  if (!parsedProfiles.ok || !parsedProfilesV2.ok || !parsedMetadata.ok) {
     throw new Error('Accepted serving fixtures are invalid.');
   }
   profiles = parsedProfiles.value;
+  profilesV2 = parsedProfilesV2.value;
   metadata = parsedMetadata.value;
 });
 
@@ -280,6 +289,66 @@ describe('PostgreSQL serving catalog bootstrap and loading', () => {
     }
   });
 
+  it('publishes V2 as a new current snapshot and rolls back by reselecting immutable V1 history', async () => {
+    const writer = createPersistenceClient(WRITER_CONFIG);
+    const serving = createPersistenceClient(SERVING_CONFIG);
+    try {
+      const v1 = await bootstrap(writer, profiles, metadata, PUBLISHED_AT);
+      const v2 = await bootstrap(
+        writer,
+        profilesV2,
+        metadata,
+        '2026-08-11T18:00:02.000Z',
+      );
+      expect(v2.snapshotId).not.toBe(v1.snapshotId);
+      await expect(
+        loadServingCatalogSnapshot(serving, { selection: 'current' }),
+      ).resolves.toMatchObject({
+        snapshotId: v2.snapshotId,
+        candidateProfileAuthority: {
+          authorityVersion: 'deterministic-candidate-profile-authority/2.0.0',
+        },
+        candidateProfileEvaluatorAuthority: {
+          runtimeAuthorityKind: 'published-v2',
+        },
+      });
+      await expect(
+        loadServingCatalogSnapshot(serving, {
+          selection: 'snapshot-id',
+          snapshotId: v1.snapshotId,
+        }),
+      ).resolves.toMatchObject({
+        candidateProfileAuthority: {
+          authorityVersion: 'deterministic-candidate-profile-authority/1.0.0',
+        },
+      });
+
+      const rollback = await bootstrap(
+        writer,
+        profiles,
+        metadata,
+        PUBLISHED_AT,
+      );
+      expect(rollback).toMatchObject({
+        snapshotId: v1.snapshotId,
+        publicationStatus: 'idempotent',
+      });
+      await expect(
+        loadServingCatalogSnapshot(serving, { selection: 'current' }),
+      ).resolves.toMatchObject({
+        snapshotId: v1.snapshotId,
+        candidateProfileAuthority: {
+          authorityVersion: 'deterministic-candidate-profile-authority/1.0.0',
+        },
+      });
+    } finally {
+      await Promise.all([
+        closePersistenceClient(serving),
+        closePersistenceClient(writer),
+      ]);
+    }
+  });
+
   it('fails closed when profile or metadata state is inconsistent or missing', async () => {
     const writer = createPersistenceClient(WRITER_CONFIG);
     const serving = createPersistenceClient(SERVING_CONFIG);
@@ -384,7 +453,7 @@ describe('PostgreSQL serving catalog bootstrap and loading', () => {
 
 async function bootstrap(
   client: PersistenceClient,
-  profileAuthority: DeterministicCandidateProfileAuthorityV1,
+  profileAuthority: DeterministicCandidateProfileAuthorityPublished,
   metadataAuthority: CandidateRetrievalMetadataAuthorityV1,
   publishedAt: string,
 ) {

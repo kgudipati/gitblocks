@@ -59,8 +59,10 @@ describe('candidate profile authority command', () => {
     const root = await fixture();
     const authorityPath = profileAuthorityPath(root);
     const coveragePath = profileCoveragePath(root);
+    const curationPath = curationAuthorityPath(root);
     const beforeAuthority = await readFile(authorityPath, 'utf8');
     const beforeCoverage = await readFile(coveragePath, 'utf8');
+    const beforeCuration = await readFile(curationPath, 'utf8');
     await expect(
       runCandidateProfileCommand(root, 'validate'),
     ).resolves.toMatchObject({
@@ -70,9 +72,12 @@ describe('candidate profile authority command', () => {
       unknown: 3_240,
       notApplicable: 210,
       conflict: 0,
+      partial: 0,
+      complete: 0,
     });
     expect(await readFile(authorityPath, 'utf8')).toBe(beforeAuthority);
     expect(await readFile(coveragePath, 'utf8')).toBe(beforeCoverage);
+    expect(await readFile(curationPath, 'utf8')).toBe(beforeCuration);
     await expect(
       runCandidateProfileCommand(root, 'generate'),
     ).resolves.toMatchObject({
@@ -80,6 +85,7 @@ describe('candidate profile authority command', () => {
     });
     expect(await readFile(authorityPath, 'utf8')).toBe(beforeAuthority);
     expect(await readFile(coveragePath, 'utf8')).toBe(beforeCoverage);
+    expect(await readFile(curationPath, 'utf8')).toBe(beforeCuration);
   }, 60_000);
 
   it('rejects committed authority and source/coverage drift', async () => {
@@ -103,7 +109,7 @@ describe('candidate profile authority command', () => {
         repositoryRoot,
         'catalog',
         'public-v1',
-        'candidate-profile-authority.json',
+        'candidate-profile-authority-v2.json',
       ),
       profileAuthorityPath(root),
     );
@@ -180,12 +186,16 @@ async function fixture(): Promise<string> {
   await mkdir(join(root, 'catalog', 'capability-taxonomy', '1.0.0'), {
     recursive: true,
   });
-  await mkdir(join(root, 'verification', 'retrieval-v1'), { recursive: true });
+  await mkdir(join(root, 'verification', 'retrieval-v2'), { recursive: true });
   await copyFile(catalogPath(repositoryRoot), catalogPath(root));
   await copyFile(taxonomyPath(repositoryRoot), taxonomyPath(root));
   await copyFile(
     profileAuthorityPath(repositoryRoot),
     profileAuthorityPath(root),
+  );
+  await copyFile(
+    curationAuthorityPath(repositoryRoot),
+    curationAuthorityPath(root),
   );
   await copyFile(
     profileCoveragePath(repositoryRoot),
@@ -201,8 +211,21 @@ function taxonomyPath(root: string): string {
   return join(root, 'catalog', 'capability-taxonomy', '1.0.0', 'manifest.json');
 }
 function profileAuthorityPath(root: string): string {
-  return join(root, 'catalog', 'public-v1', 'candidate-profile-authority.json');
+  return join(
+    root,
+    'catalog',
+    'public-v1',
+    'candidate-profile-authority-v2.json',
+  );
+}
+function curationAuthorityPath(root: string): string {
+  return join(
+    root,
+    'catalog',
+    'public-v1',
+    'candidate-profile-reviewed-curation-v2.json',
+  );
 }
 function profileCoveragePath(root: string): string {
-  return join(root, 'verification', 'retrieval-v1', 'profile-coverage.json');
+  return join(root, 'verification', 'retrieval-v2', 'profile-coverage.json');
 }

@@ -21,6 +21,7 @@ import {
   DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
   DETERMINISTIC_CANDIDATE_PROFILE_VERSION_V2,
   DETERMINISTIC_PROFILE_RULES_VERSION_V2,
+  DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2,
   type DeterministicCandidateProfileAuthority,
   type DeterministicCandidateProfileEvaluatorAuthorityV2,
   type DeterministicProfileConceptAssertionFieldId,
@@ -360,7 +361,7 @@ function createSaturatedAuthority(
   return createDeterministicCandidateProfileAuthorityV2({
     contractVersion: '2.0.0',
     authorityVersion: DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
-    denominatorVersion: v1.denominatorVersion,
+    denominatorVersion: DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2,
     catalogVersion: v1.catalogVersion,
     catalogDigest: v1.catalogDigest,
     taxonomyVersion: v1.taxonomyVersion,

@@ -4,6 +4,7 @@ import {
   DETERMINISTIC_CANDIDATE_PROFILE_VERSION,
   DETERMINISTIC_CANDIDATE_PROFILE_VERSION_V2,
   DETERMINISTIC_PROFILE_DENOMINATOR_VERSION,
+  DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2,
   DETERMINISTIC_PROFILE_FIELD_IDS,
   DETERMINISTIC_PROFILE_RULES_VERSION,
   DETERMINISTIC_PROFILE_RULES_VERSION_V2,
@@ -439,12 +440,37 @@ const assertionFieldIds = new Set([
   'optional-infrastructure',
 ]);
 
+const reviewedCurationClaimSourceReferenceV2Schema = closedObject({
+  kind: Type.Literal('reviewed-curation-claim'),
+  curationAuthorityDigest: digestSchema,
+  claimId: stableIdSchema,
+  claimDigest: digestSchema,
+  admissionId: Type.Union([stableIdSchema, Type.Null()]),
+  admissionDigest: Type.Union([digestSchema, Type.Null()]),
+});
+
+export const deterministicProfileSourceReferenceV2Schema = Type.Union([
+  deterministicProfileSourceReferenceV1Schema,
+  reviewedCurationClaimSourceReferenceV2Schema,
+]);
+
+function conceptExtractionRulesForFieldV2(
+  fieldId: (typeof DETERMINISTIC_PROFILE_FIELD_IDS)[number],
+): string[] {
+  return [
+    ...extractionRulesForField(fieldId),
+    `extract-${fieldId}-from-reviewed-curation-authority`,
+  ];
+}
+
 function conceptAssertionSchema(
   fieldId: (typeof DETERMINISTIC_PROFILE_FIELD_IDS)[number],
 ): TSchema {
-  const extractionRuleSchema = literals(extractionRulesForField(fieldId));
+  const extractionRuleSchema = literals(
+    conceptExtractionRulesForFieldV2(fieldId),
+  );
   const sourceReferences = Type.Array(
-    deterministicProfileSourceReferenceV1Schema,
+    deterministicProfileSourceReferenceV2Schema,
     { minItems: 1, maxItems: 16, uniqueItems: true },
   );
   const claim = closedObject({
@@ -477,7 +503,7 @@ const deterministicProfileConceptFieldRecordV2Schemas = registry
       stateRuleId: stateRuleSchema,
       versionScope: versionScopeSchema,
       sourceReferences: Type.Array(
-        deterministicProfileSourceReferenceV1Schema,
+        deterministicProfileSourceReferenceV2Schema,
         { maxItems: 16, uniqueItems: true },
       ),
     };
@@ -564,7 +590,9 @@ export const deterministicCandidateProfileAuthorityV2Schema = Type.Object(
     authorityVersion: Type.Literal(
       DETERMINISTIC_CANDIDATE_PROFILE_AUTHORITY_VERSION_V2,
     ),
-    denominatorVersion: Type.Literal(DETERMINISTIC_PROFILE_DENOMINATOR_VERSION),
+    denominatorVersion: Type.Literal(
+      DETERMINISTIC_PROFILE_DENOMINATOR_VERSION_V2,
+    ),
     catalogVersion: stableIdSchema,
     catalogDigest: digestSchema,
     taxonomyVersion: Type.String({ minLength: 5, maxLength: 32 }),
@@ -585,6 +613,9 @@ export const deterministicCandidateProfileAuthorityV2Schema = Type.Object(
 
 export type DeterministicProfileSourceReferenceV1 = Static<
   typeof deterministicProfileSourceReferenceV1Schema
+>;
+export type DeterministicProfileSourceReferenceV2 = Static<
+  typeof deterministicProfileSourceReferenceV2Schema
 >;
 export type DeterministicProfileFieldRecordV1 = Static<
   typeof deterministicProfileFieldRecordV1Schema

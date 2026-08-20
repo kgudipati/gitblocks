@@ -1,8 +1,8 @@
 import {
   parseCandidateRetrievalMetadataAuthorityV1,
-  parseDeterministicCandidateProfileAuthorityV1,
+  parseDeterministicCandidateProfileAuthority,
   type CandidateRetrievalMetadataAuthorityV1,
-  type DeterministicCandidateProfileAuthorityV1,
+  type DeterministicCandidateProfileAuthorityPublished,
 } from '@gitblocks/contracts';
 import type {
   OperationControl,
@@ -42,6 +42,9 @@ export interface ServingCatalogBootstrapSummaryV1 {
   readonly snapshotRecordDigest: string;
   readonly publishedAt: string;
   readonly candidateCount: 150;
+  readonly profileAuthorityVersion:
+    | 'deterministic-candidate-profile-authority/1.0.0'
+    | 'deterministic-candidate-profile-authority/2.0.0';
 }
 
 export async function bootstrapServingCatalogV1(input: {
@@ -105,13 +108,14 @@ export async function bootstrapServingCatalogV1(input: {
     snapshotRecordDigest: publication.snapshotRecordDigest,
     publishedAt: publication.publishedAt,
     candidateCount: 150,
+    profileAuthorityVersion: profileAuthority.authorityVersion,
   });
 }
 
 function requireProfileAuthority(
   input: unknown,
-): DeterministicCandidateProfileAuthorityV1 {
-  const parsed = parseDeterministicCandidateProfileAuthorityV1(input);
+): DeterministicCandidateProfileAuthorityPublished {
+  const parsed = parseDeterministicCandidateProfileAuthority(input);
   if (!parsed.ok) throw ingestionError('ingestion.invalid-input');
   return parsed.value;
 }
@@ -126,7 +130,7 @@ function requireMetadataAuthority(
 
 function requireAcceptedBindings(
   plan: ReturnType<typeof createPublicCatalogSeedPlan>,
-  profiles: DeterministicCandidateProfileAuthorityV1,
+  profiles: DeterministicCandidateProfileAuthorityPublished,
   metadata: CandidateRetrievalMetadataAuthorityV1,
 ): void {
   const expectedCandidateIds = plan.entries.map(

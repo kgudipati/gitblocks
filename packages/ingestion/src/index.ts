@@ -83,6 +83,22 @@ export {
   type CandidateProfileGeneratedArtifacts,
 } from './candidate-profile-projection.ts';
 export {
+  CANDIDATE_PROFILE_COVERAGE_VERSION_V2,
+  buildCandidateProfileArtifactsV2,
+  buildCandidateProfileCoverageReportV2,
+  type CandidateProfileCoverageReportV2,
+  type CandidateProfileGeneratedArtifactsV2,
+  type CandidateProfileGenerationScopeV2,
+} from './candidate-profile-projection-v2.ts';
+export {
+  acceptReviewedConceptCurationAuthorityV2,
+  type AcceptedReviewedConceptClaimV2,
+  type ReviewedConceptArtifactMaterialV2,
+  type ReviewedConceptCurationMaterialV2,
+  type StructuredInfrastructureStatusAuthorityV1,
+  type StructuredInfrastructureStatusRecordV1,
+} from './reviewed-concept-curation.ts';
+export {
   collectCandidateSources,
   providerRequestBudget,
   type ProviderTransport,
