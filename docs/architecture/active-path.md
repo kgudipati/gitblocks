@@ -15,10 +15,12 @@ ingestion, evaluation tooling, and dormant subsystems are intentionally omitted.
   and returns bounded MCP success or failure content.
 - `apps/gitblocks-hosted/src/application.ts` owns request validation,
   normalization, retrieval, finalist selection, evidence loading, model
-  invocation, deterministic response validation, and the final bounded outcome.
+  invocation, deterministic response validation, and the final bounded outcome,
+  including structurally distinguished fully and partially verified options.
 - `packages/contracts/src/oss-recommendation-contracts.ts` validates the
   recommendation request and fingerprint binding, constructs the capability
-  request, and validates the complete recommendation assessment exchange.
+  request, validates the complete recommendation assessment exchange, and
+  projects exact original hard constraints into per-option verification status.
 - `packages/contracts/src/capability-query-contracts.ts` validates the structured
   capability query and maps the domain normalizer's result back to the versioned
   contract.

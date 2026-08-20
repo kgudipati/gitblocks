@@ -10,6 +10,7 @@ import {
   parseRecommendationAssessmentModelResponseV1,
   parseRecommendationAssessmentResponseV1,
   parseTargetFitAssessmentResponseV1,
+  projectResponsibleOptionsV1,
   repositoryFingerprintDigestV1,
   validateRecommendationAssessmentExchangeV1,
   validateRecommendationModelAssessmentExchangeV1,
@@ -303,6 +304,7 @@ describe('RecommendationAssessmentResponseV1', () => {
       contractVersion: '1.0.0',
       targetFitAssessment,
       evidenceNeededHardConstraintResolutions: [],
+      responsibleOptions: [],
     };
 
     expect(parseRecommendationAssessmentResponseV1(response)).toMatchObject({
@@ -955,7 +957,7 @@ describe('RecommendationAssessmentResponseV1', () => {
   });
 
   it.each(['recommended', 'viable'] as const)(
-    'rejects an unresolved hard evaluation with %s disposition',
+    'accepts an unresolved hard evaluation with %s disposition',
     async (disposition) => {
       const exchange = await createHardResolutionExchange();
       exchange.response.evidenceNeededHardConstraintResolutions[0]!.state =
@@ -964,19 +966,75 @@ describe('RecommendationAssessmentResponseV1', () => {
         [];
       exchange.response.targetFitAssessment.fitAssessment.candidateAssessments[0]!.disposition =
         disposition;
+      refreshResponsibleOptions(exchange);
       expect(
         validateRecommendationAssessmentExchangeV1(exchange),
-      ).toMatchObject({ ok: false });
+      ).toMatchObject({ ok: true });
+      const option = exchange.response.responsibleOptions[0];
+      expect(option?.verificationStatus).toBe('partially-verified');
+      expect(
+        option?.constraintStatuses.find(
+          ({ constraintId }) => constraintId === 'runtime-required',
+        ),
+      ).toMatchObject({
+        modality: 'required',
+        status: 'unverified',
+        grounding: [],
+      });
     },
   );
 
-  it('rejects partial satisfaction for a positive evidence-needed candidate', async () => {
+  it('accepts partial verification for a positive evidence-needed candidate', async () => {
     const exchange = await createHardResolutionExchange();
-    exchange.response.evidenceNeededHardConstraintResolutions[1]!.state =
-      'unresolved';
-    exchange.response.evidenceNeededHardConstraintResolutions[1]!.inferenceIds =
-      [];
+    const resolution =
+      exchange.response.evidenceNeededHardConstraintResolutions.find(
+        (candidate) =>
+          sourceConstraintIdForResolution(exchange, candidate.evaluationId) ===
+          'redis-prohibited',
+      );
+    if (resolution === undefined) {
+      throw new Error('Prohibited resolution is missing.');
+    }
+    resolution.state = 'unresolved';
+    resolution.inferenceIds = [];
+    refreshResponsibleOptions(exchange);
     expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
+      ok: true,
+    });
+    expect(exchange.response.responsibleOptions[0]).toMatchObject({
+      candidateId: 'candidate-alpha',
+      verificationStatus: 'unverified-prohibited-constraint',
+      constraintStatuses: [
+        {
+          constraintId: 'runtime-required',
+          modality: 'required',
+          status: 'verified',
+          grounding: [
+            {
+              basis: 'model',
+              inferenceIds: ['inference-alpha'],
+            },
+          ],
+        },
+        {
+          constraintId: 'redis-prohibited',
+          modality: 'prohibited',
+          status: 'unverified',
+          grounding: [],
+        },
+      ],
+    });
+
+    const relabeled = cloneValue(exchange);
+    relabeled.response.responsibleOptions[0]!.verificationStatus =
+      'fully-verified';
+    expect(validateRecommendationAssessmentExchangeV1(relabeled)).toMatchObject(
+      { ok: false },
+    );
+
+    const hidden = cloneValue(exchange);
+    hidden.response.responsibleOptions[0]!.constraintStatuses.pop();
+    expect(validateRecommendationAssessmentExchangeV1(hidden)).toMatchObject({
       ok: false,
     });
   });
@@ -1011,6 +1069,7 @@ describe('RecommendationAssessmentResponseV1', () => {
     exchange.response.targetFitAssessment.fitAssessment.rankGroups = [];
     exchange.response.targetFitAssessment.fitAssessment.outcome =
       'no-viable-candidate';
+    refreshResponsibleOptions(exchange);
 
     expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
       ok: true,
@@ -1167,8 +1226,17 @@ async function createHardResolutionExchange(
       state: 'satisfied',
       inferenceIds: ['inference-alpha'],
     })),
+    responsibleOptions: [],
   };
-  return { request, normalization, retrievalFinalists, response };
+  const exchange = { request, normalization, retrievalFinalists, response };
+  refreshResponsibleOptions(exchange);
+  return exchange;
+}
+
+function refreshResponsibleOptions(exchange: HardResolutionExchange): void {
+  exchange.response.responsibleOptions = cloneValue(
+    projectResponsibleOptionsV1(exchange),
+  );
 }
 
 async function normalizeHardResolutionQuery(

@@ -178,6 +178,15 @@ describe('OpenAI Responses target-fit adapter', () => {
     expect(bodyText).toContain(
       'Each unresolved record asks you to judge one disclosed evaluation, not to reconstruct or prove a candidate-wide complete feature or infrastructure inventory. Its ruleId only identifies the deterministic check that was unresolved; words such as complete in ruleId do not expand what you must prove. Interpret conceptId as the exact taxonomy concept resolved in normalizedQuery; do not broaden it. For a required feature evaluation, candidate-owned evidence that explicitly documents the named concept is sufficient for satisfied; candidate-owned evidence explicitly establishing that the named concept is unsupported is conflict. For a prohibited infrastructure evaluation, candidate-owned evidence establishing a complete alternative operating configuration that does not require the prohibited component is sufficient for satisfied; candidate-owned evidence that the prohibited component is required is conflict. Use unresolved when supplied evidence genuinely does not speak to the concept or otherwise cannot ground satisfied or conflict, but never solely to avoid inference, citation, or grounding obligations.',
     );
+    expect(bodyText).toContain(
+      'An unresolved hard evaluation remains unverified and must never be treated as satisfied.',
+    );
+    expect(bodyText).toContain(
+      'A conflict candidate must be rejected and unranked with the exact original hard-constraint conflict.',
+    );
+    expect(bodyText).toContain(
+      'will distinguish any unverified prohibited constraint',
+    );
     expect(bodyText).toContain('retrievalFinalists');
     expect(consoleError).not.toHaveBeenCalled();
   });

@@ -90,6 +90,10 @@ describe('GitBlocks recommendation MCP adapter', () => {
     expect(options.length).toBeGreaterThan(0);
     expect(options.length).toBeLessThanOrEqual(3);
     expect(candidateId(options[0])).not.toBeNull();
+    expect(options[0]).toMatchObject({
+      verificationStatus: 'fully-verified',
+      constraintStatuses: [],
+    });
   });
 
   it.each([

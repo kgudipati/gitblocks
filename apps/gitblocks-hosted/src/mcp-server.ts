@@ -23,7 +23,7 @@ import type { HostedFitModelProviderFailureV1 } from './errors.ts';
 export const GITBLOCKS_RECOMMEND_OSS_TOOL_NAME = 'recommend_oss';
 
 export const GITBLOCKS_RECOMMEND_OSS_TOOL_DESCRIPTION =
-  'Given a structured capability request and a minimized repository fingerprint, GitBlocks deterministically retrieves viable OSS candidates, loads attributable candidate evidence, evaluates codebase-specific fit, and returns up to three validated responsible options. It does not modify the target repository.';
+  'Given a structured capability request and a minimized repository fingerprint, GitBlocks deterministically retrieves OSS candidates without known hard conflicts, loads attributable candidate evidence, evaluates codebase-specific fit, and returns up to three validated responsible options with explicit per-constraint verification status. It does not modify the target repository.';
 
 type HostedRecommendationOperation = Pick<
   HostedRecommendationApplicationV1,

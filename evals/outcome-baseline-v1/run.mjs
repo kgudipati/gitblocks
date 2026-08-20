@@ -998,6 +998,10 @@ function recommendationMeasurement(result, modelCapture) {
     return Object.freeze({
       candidateId: option.candidateId,
       lane,
+      verificationStatus: option.verificationStatus,
+      unverifiedConstraintCount: option.constraintStatuses.filter(
+        ({ status }) => status === 'unverified',
+      ).length,
       evidenceReferences: Object.freeze([...assessment.evidenceIds]),
       materialUnknowns: Object.freeze([...assessment.unknownIds]),
       disposition: assessment.disposition,
@@ -1009,6 +1013,9 @@ function recommendationMeasurement(result, modelCapture) {
       .length,
     evidenceNeededLaneOptions: options.filter(
       ({ lane }) => lane === 'evidence-needed',
+    ).length,
+    unverifiedOptions: options.filter(
+      ({ unverifiedConstraintCount }) => unverifiedConstraintCount > 0,
     ).length,
     options: Object.freeze(options),
   });
@@ -1128,6 +1135,7 @@ function renderReport(measurements, modelCalls, providerMeasurements) {
           'Options returned',
           'Eligible-lane options',
           'Evidence-needed-lane options',
+          'Options with unverified constraints',
         ],
         recommendations.map((measurement) => {
           const detail = measurement.recommendation;
@@ -1136,9 +1144,10 @@ function renderReport(measurements, modelCalls, providerMeasurements) {
             String(detail.optionCount),
             String(detail.eligibleLaneOptions),
             String(detail.evidenceNeededLaneOptions),
+            String(detail.unverifiedOptions),
           ];
         }),
-        ['left', 'right', 'right', 'right'],
+        ['left', 'right', 'right', 'right', 'right'],
       ),
       '',
     );
@@ -1150,6 +1159,8 @@ function renderReport(measurements, modelCalls, providerMeasurements) {
           'Fixture',
           'Candidate ID',
           'Lane',
+          'Verification',
+          'Unverified constraints',
           'Evidence references',
           'Material unknowns',
           'Disposition',
@@ -1159,12 +1170,14 @@ function renderReport(measurements, modelCalls, providerMeasurements) {
             measurement.fixtureId,
             option.candidateId,
             option.lane,
+            option.verificationStatus,
+            String(option.unverifiedConstraintCount),
             bracketed(option.evidenceReferences),
             bracketed(option.materialUnknowns),
             option.disposition,
           ]),
         ),
-        ['left', 'left', 'left', 'left', 'left', 'left'],
+        ['left', 'left', 'left', 'left', 'right', 'left', 'left', 'left'],
       ),
       '',
     );

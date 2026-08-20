@@ -168,13 +168,23 @@ candidate code, or run arbitrary candidate-repository commands.
       the GitBlocks workflow.
     - For `recommend`, present only the responsible options GitBlocks supplied,
       in the supplied order. There must be no more than three. Do not create a
-      new ranking.
+      new ranking. Preserve each option's `verificationStatus` and complete
+      `constraintStatuses` array; do not collapse them into a reason summary.
 
 13. Present responsible options.
 
     For each supplied option, summarize only the validated GitBlocks
     assessment:
 
+    - show `verificationStatus` before fit rationale or evidence;
+    - list every supplied constraint statement with its required or prohibited
+      modality and verified, unverified, or conflicting status;
+    - for a verified constraint, preserve its deterministic evaluation or
+      model-inference grounding; never invent grounding for an unverified
+      constraint;
+    - if `verificationStatus` is `unverified-prohibited-constraint`, lead with
+      an explicit warning before any favorable fit material and do not describe
+      the option as fully verified;
     - candidate identity and why GitBlocks considers it a fit;
     - candidate evidence;
     - target repository facts used;

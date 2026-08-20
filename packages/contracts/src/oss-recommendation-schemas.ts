@@ -8,6 +8,7 @@ import {
 } from './schema-builders.ts';
 import {
   assessmentUnknownV1Schema,
+  candidateIdentityV1Schema,
   fitAssessmentRequestV1Schema,
   fitAssessmentResponseV1ValueSchema,
   hardConstraintConflictV1Schema,
@@ -126,6 +127,53 @@ const inferenceRepositoryFactBindingV1Schema = closedObject({
     uniqueItems: true,
   }),
 });
+
+const responsibleOptionConstraintGroundingV1Schema = closedObject({
+  evaluationId: stableIdSchema,
+  basis: Type.Union([Type.Literal('deterministic'), Type.Literal('model')]),
+  inferenceIds: Type.Array(stableIdSchema, {
+    maxItems: 20,
+    uniqueItems: true,
+  }),
+});
+
+const responsibleOptionConstraintStatusV1Schema = closedObject({
+  constraintId: stableIdSchema,
+  statement:
+    fitAssessmentRequestV1Schema.properties.capabilityRequest.properties
+      .hardConstraints.items.properties.statement,
+  modality: Type.Union([Type.Literal('required'), Type.Literal('prohibited')]),
+  status: Type.Union([
+    Type.Literal('verified'),
+    Type.Literal('unverified'),
+    Type.Literal('conflicting'),
+  ]),
+  grounding: Type.Array(responsibleOptionConstraintGroundingV1Schema, {
+    maxItems: 64,
+  }),
+});
+
+const responsibleOptionV1ValueSchema = closedObject({
+  candidateId: stableIdSchema,
+  identity: candidateIdentityV1Schema,
+  verificationStatus: Type.Union([
+    Type.Literal('fully-verified'),
+    Type.Literal('partially-verified'),
+    Type.Literal('unverified-prohibited-constraint'),
+  ]),
+  constraintStatuses: Type.Array(responsibleOptionConstraintStatusV1Schema, {
+    maxItems: 20,
+  }),
+});
+
+export const responsibleOptionV1Schema = Type.Object(
+  responsibleOptionV1ValueSchema.properties,
+  {
+    ...SCHEMA_ROOT_OPTIONS,
+    $id: 'https://gitblocks.dev/schemas/contracts/responsible-option/1.0.0',
+    additionalProperties: false,
+  },
+);
 
 const recommendationAssessmentModelInferenceRepositoryFactBindingV1Schema =
   closedObject({
@@ -369,6 +417,9 @@ export const recommendationAssessmentResponseV1Schema = Type.Object(
       evidenceNeededHardConstraintResolutionV1Schema,
       { maxItems: 320 },
     ),
+    responsibleOptions: Type.Array(responsibleOptionV1ValueSchema, {
+      maxItems: 3,
+    }),
   },
   {
     ...SCHEMA_ROOT_OPTIONS,
@@ -405,6 +456,7 @@ export type InferenceRepositoryFactBindingV1 = Static<
 export type EvidenceNeededHardConstraintResolutionV1 = Static<
   typeof evidenceNeededHardConstraintResolutionV1Schema
 >;
+export type ResponsibleOptionV1 = Static<typeof responsibleOptionV1Schema>;
 export type TargetFitAssessmentResponseV1 = Static<
   typeof targetFitAssessmentResponseV1Schema
 >;

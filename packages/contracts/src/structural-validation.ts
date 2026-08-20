@@ -94,11 +94,13 @@ import {
   recommendationAssessmentModelFitRequestV1Schema,
   recommendationAssessmentModelResponseV1Schema,
   recommendationAssessmentResponseV1Schema,
+  responsibleOptionV1Schema,
   targetFitAssessmentResponseV1Schema,
   type OssRecommendationRequestV1,
   type RecommendationAssessmentModelFitRequestV1,
   type RecommendationAssessmentModelResponseV1,
   type RecommendationAssessmentResponseV1,
+  type ResponsibleOptionV1,
   type TargetFitAssessmentResponseV1,
 } from './oss-recommendation-schemas.ts';
 
@@ -502,6 +504,8 @@ export const recommendationAssessmentResponseV1Validator =
   createLazyStructuralValidator<RecommendationAssessmentResponseV1>(
     recommendationAssessmentResponseV1Schema,
   );
+export const responsibleOptionV1Validator =
+  createLazyStructuralValidator<ResponsibleOptionV1>(responsibleOptionV1Schema);
 export const recommendationAssessmentModelFitRequestV1Validator =
   createLazyStructuralValidator<RecommendationAssessmentModelFitRequestV1>(
     recommendationAssessmentModelFitRequestV1Schema,

@@ -110,9 +110,15 @@ manufacture missing evidence, or override a contract failure. For an
 evidence-needed finalist it must resolve every disclosed unresolved hard
 evaluation exactly once. Satisfied and conflict resolutions require
 candidate-owned supplied evidence through referenced inferences; missing or
-silent evidence remains unresolved. A conflict is rejected and unranked, any
-unresolved evaluation makes the candidate insufficient and unranked, and only
-all-satisfied candidates may proceed to the unchanged target-fit authority.
+silent evidence remains unresolved. A conflict is rejected and unranked.
+Unresolved remains explicitly unverified and is never scored as satisfied, but
+a candidate with no conflict may proceed to the unchanged target-fit authority
+and may be presented when its ordinary candidate-evidence and
+repository-target-fit support is otherwise sufficient. Every presented option
+structurally reports each original hard constraint as verified, unverified, or
+conflicting; a partially verified option is distinguished from a fully verified
+option, and an unverified prohibited constraint carries its own option-level
+discriminator.
 
 A user request runs only the hosted request path and may read PostgreSQL
 directly where the use case requires it or use a process-local immutable search
@@ -136,10 +142,10 @@ who already uses a coding agent and must add a common infrastructure capability
 without making an expensive or unsafe dependency choice.
 
 When that developer needs an OSS capability, they want their existing coding
-agent to identify options that satisfy hard constraints, explain
-repository-specific tradeoffs and uncertainty, and prepare an actionable
-adoption plan so they can choose and integrate a dependency with less research
-time and better evidence.
+agent to identify options with explicit per-constraint verification status,
+reject known hard conflicts, explain repository-specific tradeoffs and
+uncertainty, and prepare an actionable adoption plan so they can choose and
+integrate a dependency with less research time and better evidence.
 
 ## Supported first ecosystem
 
@@ -222,11 +228,18 @@ The approved workflow is:
    then validates exact resolution coverage, normalization/source binding,
    candidate-owned evidence, the unchanged target-fit exchange, and
    responsible-outcome rules. Missing text never establishes absence, and
-   repository interviews are not required in this serving path.
+   repository interviews are not required in this serving path. An unresolved
+   evaluation remains unverified; it may not establish satisfaction, but it no
+   longer forces abstention when the candidate has no conflict and otherwise
+   has sufficient candidate and target-fit support.
 6. **Explain up to three options.** The coding agent receives at most three
    responsible options with evidence references, preserved candidate
    limitations, tradeoffs, material unknowns, and reasons for exclusion or
-   relative fit. Every reason is traceable to
+   relative fit. Each option includes the developer's original hard-constraint
+   statements, their required or prohibited modality, verified, unverified, or
+   conflicting status, and grounding for verified constraints. A structural
+   option-level discriminator distinguishes fully verified, partially verified,
+   and unverified-prohibited-constraint options. Every reason is traceable to
    candidate-owned evidence or inference, a disclosed material unknown, or a
    matching hard-constraint conflict. Direct observations, supplied
    declarations, and derived conclusions remain visibly distinct.
@@ -304,8 +317,11 @@ a candidate is not eligible and remains in a separately typed evidence-needed
 lane with the unresolved constraint disclosed. R8 may select that candidate
 only after eligible finalists and may clear the retrieval uncertainty only
 when bounded candidate-owned evidence resolves every disclosed evaluation as
-satisfied. A conflict stays rejected; any unresolved evaluation keeps the
-candidate insufficient and unranked. Phase 8
+satisfied. A conflict stays rejected and unranked. An unresolved evaluation
+remains unverified and outside deterministic eligibility, but after finalist
+selection it may be carried into a structurally partial responsible option when
+the candidate has no conflict and unchanged target-fit rules otherwise support
+it. Phase 8
 evaluation authority remains independent of fixed-candidate ranking gold and
 repository-interview audit data, and product packages must not import it.
 The current exact mappings are primary family, architecture to adoption unit,
@@ -384,7 +400,8 @@ must not substitute popularity for compatibility.
 - **Viable candidate:** an OSS project that addresses the requested capability,
   has no known conflict with a stated hard constraint, and has enough current
   evidence to evaluate material adoption risks. Viable does not mean
-  recommended or risk-free.
+  recommended, risk-free, or fully verified; any unresolved hard constraint is
+  disclosed per constraint and never scored as satisfied.
 - **Hard constraint:** a non-negotiable, testable condition that disqualifies a
   candidate when violated, such as license, runtime, database, deployment,
   residency, or maintenance constraints.

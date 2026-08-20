@@ -284,7 +284,9 @@ export {
   parseRecommendationAssessmentModelFitRequestV1,
   parseRecommendationAssessmentModelResponseV1,
   parseRecommendationAssessmentResponseV1,
+  parseResponsibleOptionV1,
   parseTargetFitAssessmentResponseV1,
+  projectResponsibleOptionsV1,
   repositoryFingerprintDigestV1,
   validateRecommendationAssessmentExchangeV1,
   validateRecommendationModelAssessmentExchangeV1,
@@ -298,6 +300,7 @@ export {
   recommendationAssessmentModelFitRequestV1Schema,
   recommendationAssessmentModelResponseV1Schema,
   recommendationAssessmentResponseV1Schema,
+  responsibleOptionV1Schema,
   targetFitAssessmentResponseV1Schema,
   type EvidenceNeededHardConstraintResolutionV1,
   type InferenceRepositoryFactBindingV1,
@@ -305,6 +308,7 @@ export {
   type RecommendationAssessmentModelFitRequestV1,
   type RecommendationAssessmentModelResponseV1,
   type RecommendationAssessmentResponseV1,
+  type ResponsibleOptionV1,
   type TargetFitAssessmentResponseV1,
 } from './oss-recommendation-schemas.ts';
 export {
