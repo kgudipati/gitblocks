@@ -1167,6 +1167,7 @@ describe('schema compatibility', () => {
       'deterministic-candidate-profile-authority',
       'deterministic-candidate-profile-v2',
       'deterministic-candidate-profile-authority-v2',
+      'reviewed-concept-curation-authority-v2',
       'candidate-retrieval-request',
       'candidate-retrieval-result',
       'capability-retrieval-expansion',

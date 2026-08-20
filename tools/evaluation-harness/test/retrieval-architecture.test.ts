@@ -216,7 +216,7 @@ describe('retrieval evaluation architecture', () => {
       'packages/contracts/src/deterministic-candidate-profile-contracts.ts':
         '3cc00765bb3296d7b0bf6b1f26fb83bc78c5152290e06b2d289f62fef09d7094',
       'packages/contracts/src/deterministic-candidate-profile-schemas.ts':
-        'baa3d463232d0fb7fd281165205ce88d755a8fa063c213de5f017fbdd21536c0',
+        '3ca58c72537e5cc8354c56cf165fc3c89e0f5c8f85ee4a96047be26275216985',
     } as const;
     for (const [path, digest] of Object.entries(expected)) {
       expect(fileDigest(join(root, path)), path).toBe(digest);

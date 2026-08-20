@@ -1,0 +1,123 @@
+{
+  "coverageVersion": "deterministic-profile-coverage/2.0.0",
+  "profileRulesVersion": "deterministic-candidate-profile-rules/2.0.0",
+  "catalogVersion": "public-v1",
+  "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
+  "taxonomyVersion": "1.0.0",
+  "taxonomySemanticDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
+  "profileAuthorityDigest": "4e202e874d6f56a8319b619e55ec0e02144de5f00234e7cee9bde67097f232bb",
+  "curationAuthorityDigest": "7788412fa432bd73b8927cb2e2ec8df7c3fade8f52be9df04472ad311d460959",
+  "totals": {
+    "profiles": 150,
+    "fieldsPerProfile": 27,
+    "candidateFieldCells": 4050,
+    "nonConceptFieldCells": 3600,
+    "nonConceptStates": {
+      "known": 600,
+      "unknown": 2790,
+      "notApplicable": 210,
+      "conflict": 0
+    },
+    "conceptFieldCells": 450,
+    "conceptFieldCoverage": {
+      "unknown": 450,
+      "partial": 0,
+      "complete": 0
+    },
+    "fullyPopulatedConceptFields": 0,
+    "conceptPairs": {
+      "total": 3060,
+      "present": 0,
+      "absent": 0,
+      "conflicting": 0,
+      "unaddressed": 3060
+    },
+    "taxonomyConcepts": {
+      "total": 45,
+      "withAnyAssertion": 0,
+      "unaddressed": 45
+    }
+  },
+  "perConceptField": [
+    {
+      "fieldId": "capability-variants-features",
+      "taxonomyKind": "feature",
+      "coverage": {
+        "unknown": 150,
+        "partial": 0,
+        "complete": 0
+      },
+      "fullyPopulated": 0,
+      "conceptPairs": {
+        "total": 1200,
+        "present": 0,
+        "absent": 0,
+        "conflicting": 0,
+        "unaddressed": 1200
+      },
+      "taxonomyConcepts": {
+        "total": 38,
+        "withAnyAssertion": 0,
+        "unaddressed": 38
+      }
+    },
+    {
+      "fieldId": "required-infrastructure",
+      "taxonomyKind": "infrastructure",
+      "coverage": {
+        "unknown": 150,
+        "partial": 0,
+        "complete": 0
+      },
+      "fullyPopulated": 0,
+      "conceptPairs": {
+        "total": 930,
+        "present": 0,
+        "absent": 0,
+        "conflicting": 0,
+        "unaddressed": 930
+      },
+      "taxonomyConcepts": {
+        "total": 7,
+        "withAnyAssertion": 0,
+        "unaddressed": 7
+      }
+    },
+    {
+      "fieldId": "optional-infrastructure",
+      "taxonomyKind": "infrastructure",
+      "coverage": {
+        "unknown": 150,
+        "partial": 0,
+        "complete": 0
+      },
+      "fullyPopulated": 0,
+      "conceptPairs": {
+        "total": 930,
+        "present": 0,
+        "absent": 0,
+        "conflicting": 0,
+        "unaddressed": 930
+      },
+      "taxonomyConcepts": {
+        "total": 7,
+        "withAnyAssertion": 0,
+        "unaddressed": 7
+      }
+    }
+  ],
+  "sourceAuthority": {
+    "reviewedClaims": 0,
+    "exactScopeAdmissions": 0,
+    "artifactLineBasisReferences": 0,
+    "structuredSemanticBasisReferences": 0,
+    "generatedClaimProvenanceReferences": 0
+  },
+  "hardConstraintDemand": {
+    "state": "unbound",
+    "authorityVersion": null,
+    "authorityDigest": null,
+    "reasonCode": "product-demand-authority-not-bound"
+  },
+  "reportDigest": "cfd9eb25c51c973893503d156ae5539b9f1cf71e916e9aa55fa8e5c403c355a5"
+}

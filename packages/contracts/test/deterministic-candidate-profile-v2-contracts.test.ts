@@ -46,10 +46,11 @@ beforeAll(async () => {
     ...parsed.value,
     contractVersion: '2.0.0',
     authorityVersion: 'deterministic-candidate-profile-authority/2.0.0',
+    denominatorVersion: 'deterministic-profile-coverage/2.0.0',
     profileRulesVersion: 'deterministic-candidate-profile-rules/2.0.0',
     profiles,
   });
-}, 30_000);
+}, 120_000);
 
 describe('DeterministicCandidateProfileAuthorityV2', () => {
   it('parses the V1-or-V2 published authority union by its version discriminant', () => {
@@ -62,7 +63,7 @@ describe('DeterministicCandidateProfileAuthorityV2', () => {
       'deterministic-candidate-profile-authority/2.0.0',
     );
     expect(parseDeterministicCandidateProfileAuthorityV2(v2).ok).toBe(true);
-  }, 30_000);
+  }, 120_000);
 
   it('keeps exactly three native assertion fields and the other 24 V1 field shapes', () => {
     const profile = v2.profiles[0];

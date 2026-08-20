@@ -28,6 +28,7 @@ import {
   deterministicCandidateProfileV1Schema,
   deterministicCandidateProfileV2Schema,
 } from './deterministic-candidate-profile-schemas.ts';
+import { reviewedConceptCurationAuthorityV2Schema } from './reviewed-concept-curation-schemas.ts';
 import {
   candidateRetrievalRequestV1Schema,
   candidateRetrievalResultV1Schema,
@@ -65,6 +66,7 @@ export const CONTRACT_SCHEMA_NAMES = Object.freeze([
   'deterministic-candidate-profile-authority',
   'deterministic-candidate-profile-v2',
   'deterministic-candidate-profile-authority-v2',
+  'reviewed-concept-curation-authority-v2',
   'candidate-retrieval-request',
   'candidate-retrieval-result',
   'capability-retrieval-expansion',
@@ -100,6 +102,8 @@ const SCHEMAS = {
   'deterministic-candidate-profile-v2': deterministicCandidateProfileV2Schema,
   'deterministic-candidate-profile-authority-v2':
     deterministicCandidateProfileAuthorityV2Schema,
+  'reviewed-concept-curation-authority-v2':
+    reviewedConceptCurationAuthorityV2Schema,
   'error-envelope': errorEnvelopeV1Schema,
   'fit-assessment-request': fitAssessmentRequestV1Schema,
   'fit-assessment-response': fitAssessmentResponseV1Schema,

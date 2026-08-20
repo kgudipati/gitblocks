@@ -1,9 +1,12 @@
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   createCandidateRetrievalRequestV1,
+  parseDeterministicCandidateProfileAuthorityV2,
   projectDeterministicCandidateProfileAuthorityToEvaluatorV2,
 } from '@gitblocks/contracts';
 import {
@@ -12,6 +15,7 @@ import {
   evaluateCandidateConstraintsV2,
   type CandidateConstraintEvaluation,
   type DeterministicProfileFieldRecord,
+  type PublishedDeterministicCandidateProfileAuthority,
 } from '@gitblocks/domain';
 import {
   createApprovedMetadataLexicalChannelV1,
@@ -40,10 +44,28 @@ let evidence: EquivalenceEvidence;
 beforeAll(() => {
   const root = findGitBlocksRoot(process.cwd());
   const safe = loadRetrievalSafeAuthorityV1(root);
+  const parsedNativeV2 = parseDeterministicCandidateProfileAuthorityV2(
+    JSON.parse(
+      readFileSync(
+        join(
+          root,
+          'catalog',
+          'public-v1',
+          'candidate-profile-authority-v2.json',
+        ),
+        'utf8',
+      ),
+    ) as unknown,
+  );
+  if (!parsedNativeV2.ok) {
+    throw new Error('Expected generated native V2 profile authority.');
+  }
   const loadedCorpus = loadRetrievalCorpusV1(root);
   if (!loadedCorpus.ok) throw new Error('Expected accepted retrieval corpus.');
+  const projectedV1Evaluator =
+    projectDeterministicCandidateProfileAuthorityToEvaluatorV2(safe.profiles);
   const evaluator = projectDeterministicCandidateProfileAuthorityToEvaluatorV2(
-    safe.profiles,
+    parsedNativeV2.value,
   );
   const v2EngineResult = createCandidateRetrievalEngineV1({
     taxonomy: safe.taxonomy,
@@ -161,40 +183,55 @@ beforeAll(() => {
     } else {
       mismatches += 1;
     }
-    const request = createCandidateRetrievalRequestV1({
-      normalization: bundle.normalizationResult,
-      authorityBindings: {
-        taxonomy: {
-          taxonomyVersion: safe.taxonomy.taxonomyVersion,
-          taxonomySemanticDigest: safe.taxonomy.semanticDigest,
+    const request = createRequest(safe.profiles);
+    const nativeV2Request = createRequest(parsedNativeV2.value);
+    function createRequest(
+      profileAuthority: PublishedDeterministicCandidateProfileAuthority,
+    ) {
+      const candidateProfiles =
+        profileAuthority.authorityVersion ===
+        'deterministic-candidate-profile-authority/1.0.0'
+          ? {
+              authorityVersion: profileAuthority.authorityVersion,
+              semanticAuthorityDigest: profileAuthority.semanticAuthorityDigest,
+              profileRulesVersion: profileAuthority.profileRulesVersion,
+            }
+          : {
+              authorityVersion: profileAuthority.authorityVersion,
+              semanticAuthorityDigest: profileAuthority.semanticAuthorityDigest,
+              profileRulesVersion: profileAuthority.profileRulesVersion,
+            };
+      return createCandidateRetrievalRequestV1({
+        normalization: bundle.normalizationResult,
+        authorityBindings: {
+          taxonomy: {
+            taxonomyVersion: safe.taxonomy.taxonomyVersion,
+            taxonomySemanticDigest: safe.taxonomy.semanticDigest,
+          },
+          candidateProfiles,
+          catalog: {
+            catalogVersion: safe.profiles.catalogVersion,
+            catalogDigest: safe.profiles.catalogDigest,
+          },
+          candidateConstraintEvaluationVersion:
+            CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
+          retrievalExpansion: {
+            authorityVersion: safe.expansion.expansionVersion,
+            semanticDigest: safe.expansion.semanticDigest,
+          },
+          retrievalMetadata: {
+            authorityVersion: safe.metadata.authorityVersion,
+            authoritySemanticDigest: safe.metadata.authoritySemanticDigest,
+          },
         },
-        candidateProfiles: {
-          authorityVersion: safe.profiles.authorityVersion,
-          semanticAuthorityDigest: safe.profiles.semanticAuthorityDigest,
-          profileRulesVersion: safe.profiles.profileRulesVersion,
-        },
-        catalog: {
-          catalogVersion: safe.profiles.catalogVersion,
-          catalogDigest: safe.profiles.catalogDigest,
-        },
-        candidateConstraintEvaluationVersion:
-          CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
-        retrievalExpansion: {
-          authorityVersion: safe.expansion.expansionVersion,
-          semanticDigest: safe.expansion.semanticDigest,
-        },
-        retrievalMetadata: {
-          authorityVersion: safe.metadata.authorityVersion,
-          authoritySemanticDigest: safe.metadata.authoritySemanticDigest,
-        },
-      },
-      eligibleResultLimit: 10,
-      evidenceNeededResultLimit: 10,
-    });
+        eligibleResultLimit: 10,
+        evidenceNeededResultLimit: 10,
+      });
+    }
     const currentV1 = retrieveCandidateSet(
       request,
       safe.taxonomy,
-      evaluator,
+      projectedV1Evaluator,
       searchViews,
       taxonomyConcepts,
       candidateIds,
@@ -202,7 +239,7 @@ beforeAll(() => {
       metadataChannelResult.channel,
       v1CompatibilityEvaluator,
     );
-    const projectedV2 = v2EngineResult.engine.retrieve(request);
+    const projectedV2 = v2EngineResult.engine.retrieve(nativeV2Request);
     if (!currentV1.ok || !projectedV2.ok) {
       throw new Error('Equivalence retrieval failed.');
     }
@@ -242,7 +279,7 @@ beforeAll(() => {
   };
 }, 120_000);
 
-describe('V1 projection through the V2 evaluator', () => {
+describe('zero-curation native V2 equivalence to the current V1 authority', () => {
   it('matches every decision, evaluation item, lane, finalist, and outcome class', () => {
     expect(evidence).toMatchObject({
       decisionsCompared: 4_500,

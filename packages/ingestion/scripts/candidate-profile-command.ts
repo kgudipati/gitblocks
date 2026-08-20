@@ -3,12 +3,13 @@ import { join, relative, resolve } from 'node:path';
 
 import {
   parseCapabilityTaxonomyV1,
-  parseDeterministicCandidateProfileAuthorityV1,
-  serializeDeterministicCandidateProfileAuthorityV1,
+  parseDeterministicCandidateProfileAuthorityV2,
+  parseReviewedConceptCurationAuthorityV2,
+  serializeDeterministicCandidateProfileAuthorityV2,
 } from '@gitblocks/contracts';
 
 import {
-  buildCandidateProfileArtifacts,
+  buildCandidateProfileArtifactsV2,
   parsePublicCatalog,
 } from '../src/index.ts';
 
@@ -22,17 +23,23 @@ const TAXONOMY_RELATIVE_PATH = join(
 const PROFILE_AUTHORITY_RELATIVE_PATH = join(
   'catalog',
   'public-v1',
-  'candidate-profile-authority.json',
+  'candidate-profile-authority-v2.json',
+);
+const CURATION_AUTHORITY_RELATIVE_PATH = join(
+  'catalog',
+  'public-v1',
+  'candidate-profile-reviewed-curation-v2.json',
 );
 const COVERAGE_RELATIVE_PATH = join(
   'verification',
-  'retrieval-v1',
+  'retrieval-v2',
   'profile-coverage.json',
 );
 
 const MAXIMUM_CATALOG_BYTES = 2 * 1_024 * 1_024;
 const MAXIMUM_TAXONOMY_BYTES = 1 * 1_024 * 1_024;
 const MAXIMUM_PROFILE_AUTHORITY_BYTES = 4 * 1_024 * 1_024;
+const MAXIMUM_CURATION_AUTHORITY_BYTES = 4 * 1_024 * 1_024;
 const MAXIMUM_COVERAGE_REPORT_BYTES = 256 * 1_024;
 
 export type CandidateProfileCommandMode = 'generate' | 'validate';
@@ -43,6 +50,8 @@ export interface CandidateProfileCommandResult {
   readonly unknown: number;
   readonly notApplicable: number;
   readonly conflict: number;
+  readonly partial: number;
+  readonly complete: number;
   readonly authorityDigest: string;
   readonly coverageDigest: string;
 }
@@ -50,6 +59,7 @@ export interface CandidateProfileCommandResult {
 export type CandidateProfileCommandErrorCode =
   | 'profile-command.invalid-authority'
   | 'profile-command.invalid-catalog'
+  | 'profile-command.invalid-curation'
   | 'profile-command.invalid-taxonomy'
   | 'profile-command.path-boundary'
   | 'profile-command.read-failed'
@@ -60,6 +70,8 @@ const MESSAGES: Readonly<Record<CandidateProfileCommandErrorCode, string>> = {
   'profile-command.invalid-authority':
     'Committed candidate-profile authority is invalid.',
   'profile-command.invalid-catalog': 'Committed public catalog is invalid.',
+  'profile-command.invalid-curation':
+    'Committed reviewed concept curation authority is invalid.',
   'profile-command.invalid-taxonomy':
     'Committed capability taxonomy is invalid.',
   'profile-command.path-boundary':
@@ -90,6 +102,7 @@ export async function runCandidateProfileCommand(
   const catalogPath = join(trustedRoot, CATALOG_RELATIVE_PATH);
   const taxonomyPath = join(trustedRoot, TAXONOMY_RELATIVE_PATH);
   const authorityPath = join(trustedRoot, PROFILE_AUTHORITY_RELATIVE_PATH);
+  const curationPath = join(trustedRoot, CURATION_AUTHORITY_RELATIVE_PATH);
   const coveragePath = join(trustedRoot, COVERAGE_RELATIVE_PATH);
 
   let catalog;
@@ -117,8 +130,25 @@ export async function runCandidateProfileCommand(
     throw new CandidateProfileCommandError('profile-command.invalid-taxonomy');
   }
 
-  const generated = buildCandidateProfileArtifacts(catalog, taxonomy.value);
-  const authorityText = serializeDeterministicCandidateProfileAuthorityV1(
+  const curation = parseReviewedConceptCurationAuthorityV2(
+    parseJson(
+      await readBoundedRegularFile(
+        curationPath,
+        trustedRoot,
+        MAXIMUM_CURATION_AUTHORITY_BYTES,
+      ),
+      'profile-command.invalid-curation',
+    ),
+  );
+  if (!curation.ok) {
+    throw new CandidateProfileCommandError('profile-command.invalid-curation');
+  }
+  const generated = buildCandidateProfileArtifactsV2(
+    catalog,
+    taxonomy.value,
+    curation.value,
+  );
+  const authorityText = serializeDeterministicCandidateProfileAuthorityV2(
     generated.authority,
   );
   const coverageText = `${JSON.stringify(generated.coverage, null, 2)}\n`;
@@ -142,7 +172,7 @@ export async function runCandidateProfileCommand(
       trustedRoot,
       MAXIMUM_PROFILE_AUTHORITY_BYTES,
     );
-    const parsedAuthority = parseDeterministicCandidateProfileAuthorityV1(
+    const parsedAuthority = parseDeterministicCandidateProfileAuthorityV2(
       parseJson(committedAuthorityText, 'profile-command.invalid-authority'),
     );
     if (!parsedAuthority.ok) {
@@ -166,10 +196,16 @@ export async function runCandidateProfileCommand(
   return {
     mode,
     profiles: generated.coverage.totals.profiles,
-    known: generated.coverage.totals.known,
-    unknown: generated.coverage.totals.unknown,
-    notApplicable: generated.coverage.totals.notApplicable,
-    conflict: generated.coverage.totals.conflict,
+    known: generated.coverage.totals.nonConceptStates.known,
+    unknown:
+      generated.coverage.totals.nonConceptStates.unknown +
+      generated.coverage.totals.conceptFieldCoverage.unknown,
+    notApplicable: generated.coverage.totals.nonConceptStates.notApplicable,
+    conflict:
+      generated.coverage.totals.nonConceptStates.conflict +
+      generated.coverage.totals.conceptPairs.conflicting,
+    partial: generated.coverage.totals.conceptFieldCoverage.partial,
+    complete: generated.coverage.totals.conceptFieldCoverage.complete,
     authorityDigest: generated.authority.semanticAuthorityDigest,
     coverageDigest: generated.coverage.reportDigest,
   };

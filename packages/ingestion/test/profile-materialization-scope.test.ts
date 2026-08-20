@@ -15,7 +15,7 @@ const ACCEPTED_BYTES = {
   'catalog/public-v1/manifest.json':
     '1209e94d17041691d9766eeedb699bc5303ec075d166eb7ef4dff9e35d112f94',
   'packages/contracts/src/deterministic-candidate-profile-schemas.ts':
-    'baa3d463232d0fb7fd281165205ce88d755a8fa063c213de5f017fbdd21536c0',
+    '3ca58c72537e5cc8354c56cf165fc3c89e0f5c8f85ee4a96047be26275216985',
   'packages/domain/src/deterministic-candidate-profile.ts':
     'c019b67b3a436f64fc440b0152bfc98f575ae1d6fa62ae5479b5257e3462dbce',
   'packages/persistence/migrations/0001_evidence_persistence.sql':
