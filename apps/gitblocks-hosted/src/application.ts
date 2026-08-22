@@ -4,6 +4,7 @@ import {
   createCandidateRetrievalRequestV1,
   createCapabilityRequestFromRecommendationV1,
   createRecommendationAssessmentModelFitRequestV1,
+  expandOssRecommendationRequest,
   normalizeCapabilityQueryV1,
   parseCandidateDossierV1,
   parseCandidateRetrievalMetadataAuthorityV1,
@@ -12,7 +13,6 @@ import {
   parseDeterministicCandidateProfileAuthority,
   projectDeterministicCandidateProfileAuthorityToEvaluatorV2,
   parseFitAssessmentRequestV1,
-  parseOssRecommendationRequestV1,
   validateRecommendationModelAssessmentExchangeV1,
   type CandidateDossierV1,
   type CandidateRetrievalCandidateV1,
@@ -368,7 +368,10 @@ async function recommendOss(input: {
   readonly clock: HostedRecommendationClockPort;
   readonly observer: HostedRecommendationObserverV1;
 }): Promise<HostedRecommendationOperationResultV1> {
-  const parsed = parseOssRecommendationRequestV1(input.suppliedInput);
+  const parsed = expandOssRecommendationRequest({
+    recommendationRequest: input.suppliedInput,
+    taxonomy: input.taxonomy,
+  });
   if (!parsed.ok) {
     return Object.freeze({
       ok: false,

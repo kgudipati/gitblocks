@@ -90,13 +90,17 @@ import {
   type CandidateRetrievalMetadataAuthorityV1,
 } from './candidate-retrieval-metadata-schemas.ts';
 import {
+  ossRecommendationRequestSchema,
   ossRecommendationRequestV1Schema,
+  ossRecommendationRequestV2Schema,
   recommendationAssessmentModelFitRequestV1Schema,
   recommendationAssessmentModelResponseV1Schema,
   recommendationAssessmentResponseV1Schema,
   responsibleOptionV1Schema,
   targetFitAssessmentResponseV1Schema,
+  type OssRecommendationRequest,
   type OssRecommendationRequestV1,
+  type OssRecommendationRequestV2,
   type RecommendationAssessmentModelFitRequestV1,
   type RecommendationAssessmentModelResponseV1,
   type RecommendationAssessmentResponseV1,
@@ -495,6 +499,14 @@ export const candidateRetrievalMetadataAuthorityV1Validator =
 export const ossRecommendationRequestV1Validator =
   createLazyStructuralValidator<OssRecommendationRequestV1>(
     ossRecommendationRequestV1Schema,
+  );
+export const ossRecommendationRequestV2Validator =
+  createLazyStructuralValidator<OssRecommendationRequestV2>(
+    ossRecommendationRequestV2Schema,
+  );
+export const ossRecommendationRequestValidator =
+  createLazyStructuralValidator<OssRecommendationRequest>(
+    ossRecommendationRequestSchema,
   );
 export const targetFitAssessmentResponseV1Validator =
   createLazyStructuralValidator<TargetFitAssessmentResponseV1>(

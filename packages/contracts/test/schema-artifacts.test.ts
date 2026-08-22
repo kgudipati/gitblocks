@@ -67,7 +67,7 @@ const EXPECTED_SCHEMA_DIGESTS = {
   'repository-interview':
     '99c749af8dd7d907d0b84b8342297b59b1222f32011a598a753364d168f5a7eb',
   'oss-recommendation-request':
-    '8c55db1c3431de041b44cb1129c8b9e703dcd76b53b71252b6bbc04ebd79111a',
+    'deaa0fc47a08ab376cc79f1e04441334b2b5a8a9caa9dff445d0f3a7a7a2af12',
   'target-fit-assessment-response':
     '51c7e8c46d8323e29fe02c674c74efece435acf372529c036e52a861f4f78428',
   'recommendation-assessment-response':
@@ -121,13 +121,15 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       );
       const version = name.endsWith('-v2')
         ? '2.0.0'
-        : name === 'candidate-retrieval-request'
-          ? '1.2.0'
-          : name === 'candidate-retrieval-result'
-            ? '1.3.0'
-            : name === 'candidate-retrieval-metadata-authority'
-              ? '1.1.0'
-              : '1.0.0';
+        : name === 'oss-recommendation-request'
+          ? '2.0.0'
+          : name === 'candidate-retrieval-request'
+            ? '1.2.0'
+            : name === 'candidate-retrieval-result'
+              ? '1.3.0'
+              : name === 'candidate-retrieval-metadata-authority'
+                ? '1.1.0'
+                : '1.0.0';
       const artifactName = name.endsWith('-v2') ? name.slice(0, -3) : name;
       expect(readProperty(schema, '$id')).toBe(
         `https://gitblocks.dev/schemas/contracts/${artifactName}/${version}`,
@@ -219,8 +221,27 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
     expect(actual).toEqual(EXPECTED_SCHEMA_DIGESTS);
   });
 
-  it('adds recommend_oss caller guidance without changing the legacy schema structure', () => {
-    const schema = getContractSchemaV1('oss-recommendation-request');
+  it('preserves the legacy V1 schema while exposing the simpler V2 request', () => {
+    const root = getContractSchemaV1('oss-recommendation-request');
+    const variants = readProperty(root, 'anyOf');
+    if (variants === undefined || !isSchemaArray(variants)) {
+      throw new Error('Recommendation request root must expose V1 and V2.');
+    }
+    const v1 = variants[0];
+    const v2 = variants[1];
+    if (
+      v1 === undefined ||
+      v2 === undefined ||
+      !isRecord(v1) ||
+      !isRecord(v2)
+    ) {
+      throw new Error('Recommendation request variants must be objects.');
+    }
+    const schema: JsonSchemaValue = {
+      $id: 'https://gitblocks.dev/schemas/contracts/oss-recommendation-request/1.0.0',
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      ...v1,
+    };
     const legacyStructureDigest = createHash('sha256')
       .update(`${JSON.stringify(withoutDescriptions(schema), null, 2)}\n`)
       .digest('hex');
@@ -276,6 +297,25 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
     ).toContain(
       '["bounded-evidence","candidate-dossiers","capability-request","repository-fingerprint"]',
     );
+
+    expect(variants).toHaveLength(2);
+    expect(readPropertyAt(v1, ['properties', 'contractVersion'])).toEqual({
+      const: '1.0.0',
+      type: 'string',
+    });
+    expect(readPropertyAt(v2, ['properties', 'contractVersion'])).toEqual({
+      const: '2.0.0',
+      type: 'string',
+    });
+    expect(
+      readPropertyAt(v2, ['properties', 'capabilityTerms', 'items']),
+    ).toMatchObject({ type: 'string' });
+    expect(
+      readPropertyAt(v2, ['properties', 'successConditions', 'items']),
+    ).toMatchObject({ type: 'string' });
+    expect(
+      readPropertyAt(v2, ['properties', 'constraints', 'items', 'required']),
+    ).toEqual(['modality', 'statement', 'term']);
   });
 
   it('adds hard-resolution threshold guidance through one description key only', () => {
@@ -442,6 +482,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'deterministicCandidateProfileAuthoritySemanticDigestV2',
       'deterministicCandidateProfileSemanticDigest',
       'deterministicCandidateProfileSemanticDigestV2',
+      'expandOssRecommendationRequest',
       'getContractSchemaV1',
       'getDeterministicProfileFieldRegistry',
       'modelExecutionIdentityDigest',
@@ -449,7 +490,10 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'modelExecutionRecordDigest',
       'modelExecutionReuseKeyDigest',
       'normalizeCapabilityQueryV1',
+      'ossRecommendationRequestId',
+      'ossRecommendationRequestSchema',
       'ossRecommendationRequestV1Schema',
+      'ossRecommendationRequestV2Schema',
       'parseCandidateDossierV1',
       'parseCandidateRetrievalMetadataAuthorityV1',
       'parseCandidateRetrievalRequestV1',
@@ -471,7 +515,9 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'parseFitAssessmentResponseV1',
       'parseModelExecutionModelProfileV1',
       'parseModelExecutionV1',
+      'parseOssRecommendationRequest',
       'parseOssRecommendationRequestV1',
+      'parseOssRecommendationRequestV2',
       'parseRecommendationAssessmentModelFitRequestV1',
       'parseRecommendationAssessmentModelResponseV1',
       'parseRecommendationAssessmentResponseV1',

@@ -232,6 +232,24 @@ export function canonicalizeCapabilityQueryLookupTermV1(
   return { ok: true, value: canonical };
 }
 
+export function deriveCapabilityQueryConstraintFacet(
+  originalTerm: string,
+  taxonomy: CapabilityTaxonomy,
+): CapabilityQueryConstraintFacet {
+  const canonical = canonicalizeCapabilityQueryLookupTermV1(originalTerm);
+  if (!canonical.ok) return 'other';
+
+  const lookup = lookupCapabilityTaxonomyTerm(taxonomy, canonical.value);
+  if (lookup.kind !== 'resolved') return 'other';
+
+  const concept = taxonomy.concepts.find(
+    ({ conceptId }) => conceptId === lookup.conceptId,
+  );
+  if (concept === undefined) return 'other';
+
+  return concept.kind === 'family' ? 'capability' : concept.kind;
+}
+
 export function normalizeCapabilityQuery(
   suppliedInput: CapabilityQueryInput,
   suppliedTaxonomy: CapabilityTaxonomy,

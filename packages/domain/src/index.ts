@@ -54,6 +54,7 @@ export type {
 } from './capability-query.ts';
 export {
   canonicalizeCapabilityQueryLookupTermV1,
+  deriveCapabilityQueryConstraintFacet,
   normalizeCapabilityQuery,
   validateCapabilityQueryNormalizationResult,
 } from './capability-query-normalization.ts';

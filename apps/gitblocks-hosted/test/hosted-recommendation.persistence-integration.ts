@@ -506,34 +506,25 @@ async function scanTargetRepository(
   if (scan.status !== 0 || scan.stderr !== '') {
     throw new Error('R7 scanner integration fixture failed.');
   }
+  const bundle: unknown = JSON.parse(scan.stdout);
+  if (
+    typeof bundle !== 'object' ||
+    bundle === null ||
+    !('repositoryFingerprint' in bundle) ||
+    !('fingerprintDigest' in bundle) ||
+    typeof bundle.fingerprintDigest !== 'string'
+  ) {
+    throw new Error('R7 scanner bundle is invalid.');
+  }
   const parsedFingerprint = parseRepositoryFingerprintV1(
-    JSON.parse(scan.stdout) as unknown,
+    bundle.repositoryFingerprint,
   );
   if (!parsedFingerprint.ok) {
     throw new Error('R7 scanner output failed the authoritative parser.');
   }
-  const referenceResult = await executeScanner(
-    ['--reference'],
-    scan.stdout,
-    tmpdir(),
-  );
-  if (referenceResult.status !== 0 || referenceResult.stderr !== '') {
-    throw new Error('R7 scanner reference mode failed.');
-  }
-  const reference: unknown = JSON.parse(referenceResult.stdout);
-  if (
-    typeof reference !== 'object' ||
-    reference === null ||
-    !('fingerprintId' in reference) ||
-    typeof reference.fingerprintId !== 'string' ||
-    !('fingerprintDigest' in reference) ||
-    typeof reference.fingerprintDigest !== 'string'
-  ) {
-    throw new Error('R7 scanner reference output is invalid.');
-  }
   const parsedReference = {
-    fingerprintId: reference.fingerprintId,
-    fingerprintDigest: reference.fingerprintDigest,
+    fingerprintId: parsedFingerprint.value.fingerprintId,
+    fingerprintDigest: bundle.fingerprintDigest,
   };
   if (
     parsedReference.fingerprintId !== parsedFingerprint.value.fingerprintId ||

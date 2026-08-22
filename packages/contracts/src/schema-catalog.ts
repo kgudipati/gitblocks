@@ -39,7 +39,7 @@ import {
 } from './capability-retrieval-expansion-schemas.ts';
 import { candidateRetrievalMetadataAuthorityV1Schema } from './candidate-retrieval-metadata-schemas.ts';
 import {
-  ossRecommendationRequestV1Schema,
+  ossRecommendationRequestSchema,
   recommendationAssessmentModelResponseV1Schema,
   recommendationAssessmentResponseV1Schema,
   responsibleOptionV1Schema,
@@ -123,7 +123,7 @@ const SCHEMAS = {
     capabilityRetrievalExpansionSourceV1Schema,
   'candidate-retrieval-metadata-authority':
     candidateRetrievalMetadataAuthorityV1Schema,
-  'oss-recommendation-request': ossRecommendationRequestV1Schema,
+  'oss-recommendation-request': ossRecommendationRequestSchema,
   'target-fit-assessment-response': targetFitAssessmentResponseV1Schema,
   'recommendation-assessment-response':
     recommendationAssessmentResponseV1Schema,

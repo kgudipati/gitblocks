@@ -4,9 +4,12 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createCapabilityRequestFromRecommendationV1,
+  expandOssRecommendationRequest,
   getContractSchemaV1,
   normalizeCapabilityQueryV1,
+  parseOssRecommendationRequest,
   parseOssRecommendationRequestV1,
+  parseOssRecommendationRequestV2,
   parseRecommendationAssessmentModelResponseV1,
   parseRecommendationAssessmentResponseV1,
   parseTargetFitAssessmentResponseV1,
@@ -19,6 +22,7 @@ import {
   type CapabilityTaxonomyV1,
   type FitAssessmentRequestV1,
   type OssRecommendationRequestV1,
+  type OssRecommendationRequestV2,
   type RecommendationAssessmentResponseV1,
   type RecommendationAssessmentModelResponseV1,
   type RecommendationRetrievalFinalistV1,
@@ -48,8 +52,11 @@ describe('OssRecommendationRequestV1', () => {
       ok: true,
     });
     expect(getContractSchemaV1('oss-recommendation-request')).toMatchObject({
-      $id: 'https://gitblocks.dev/schemas/contracts/oss-recommendation-request/1.0.0',
-      additionalProperties: false,
+      $id: 'https://gitblocks.dev/schemas/contracts/oss-recommendation-request/2.0.0',
+      anyOf: [
+        expect.objectContaining({ additionalProperties: false }),
+        expect.objectContaining({ additionalProperties: false }),
+      ],
     });
   });
 
@@ -199,6 +206,187 @@ describe('OssRecommendationRequestV1', () => {
         }),
       ],
     });
+  });
+});
+
+describe('OssRecommendationRequestV2', () => {
+  it('parses the caller-facing shape and expands it into the unchanged canonical V1 request', async () => {
+    const request = createRecommendationRequestV2();
+
+    expect(parseOssRecommendationRequestV2(request)).toMatchObject({
+      ok: true,
+    });
+    expect(parseOssRecommendationRequest(request)).toMatchObject({ ok: true });
+
+    const expanded = expandOssRecommendationRequest({
+      recommendationRequest: request,
+      taxonomy: cloneValue(await taxonomyFixture),
+    });
+    expect(expanded).toMatchObject({ ok: true });
+    if (!expanded.ok) return;
+
+    expect(expanded.value.recommendationRequestId).toMatch(
+      /^recommendation-[0-9a-f]{48}$/u,
+    );
+    expect(expanded.value.capabilityQuery.queryInputId).toMatch(
+      /^query-[0-9a-f]{48}$/u,
+    );
+    expect(expanded.value.transmissionApproval.approvalId).toMatch(
+      /^approval-[0-9a-f]{48}$/u,
+    );
+
+    expect(expanded.value).toEqual({
+      contractVersion: '1.0.0',
+      recommendationRequestId: expanded.value.recommendationRequestId,
+      capabilityQuery: {
+        contractVersion: '1.0.0',
+        queryInputId: expanded.value.capabilityQuery.queryInputId,
+        scope: 'local-pre-approval',
+        summary:
+          'Find an OSS solution for rate limiting in a Next.js app on PostgreSQL, no Redis.',
+        capabilityTerms: [
+          { termId: 'term-001', originalTerm: 'rate limiting' },
+        ],
+        successConditions: [
+          {
+            conditionId: 'condition-001',
+            statement:
+              'Requests over the configured limit are rejected consistently.',
+          },
+        ],
+        draftConstraints: [
+          {
+            constraintId: 'constraint-001',
+            modality: 'required',
+            statement: 'Must integrate with the existing Next.js app.',
+            originalTerm: 'Next.js',
+            facetHint: 'other',
+            reasonCode: 'user-required',
+          },
+          {
+            constraintId: 'constraint-002',
+            modality: 'required',
+            statement: 'Must use the existing PostgreSQL database.',
+            originalTerm: 'PostgreSQL',
+            facetHint: 'infrastructure',
+            reasonCode: 'user-required',
+          },
+          {
+            constraintId: 'constraint-003',
+            modality: 'prohibited',
+            statement: 'Must not require Redis.',
+            originalTerm: 'Redis',
+            facetHint: 'infrastructure',
+            reasonCode: 'user-prohibited',
+          },
+          {
+            constraintId: 'constraint-004',
+            modality: 'preferred',
+            statement: 'Prefer a small integration surface.',
+            originalTerm: 'small integration surface',
+            facetHint: 'other',
+            reasonCode: null,
+          },
+        ],
+        candidateReferences: [
+          {
+            referenceId: 'reference-001',
+            kind: 'npm-package',
+            value: 'rate-limiter-flexible',
+            intent: 'compare',
+          },
+        ],
+        repositoryFingerprintReference: {
+          fingerprintId: request.repositoryFingerprint.fingerprintId,
+          fingerprintDigest: request.transmissionApproval.fingerprintDigest,
+        },
+      },
+      repositoryFingerprint: request.repositoryFingerprint,
+      transmissionApproval: {
+        approvalId: expanded.value.transmissionApproval.approvalId,
+        approvedAt: request.transmissionApproval.approvedAt,
+        approvedBy: request.transmissionApproval.approvedBy,
+        scope: 'minimized-repository-facts',
+        approvedCategories: request.transmissionApproval.approvedCategories,
+      },
+    });
+    expect(parseOssRecommendationRequestV1(expanded.value)).toMatchObject({
+      ok: true,
+    });
+
+    const repeated = expandOssRecommendationRequest({
+      recommendationRequest: cloneValue(request),
+      taxonomy: cloneValue(await taxonomyFixture),
+    });
+    expect(repeated).toEqual(expanded);
+  });
+
+  it('rejects a caller-supplied fingerprint digest mismatch before expansion', async () => {
+    const request = createRecommendationRequestV2();
+    const mismatched = {
+      ...request,
+      transmissionApproval: {
+        ...request.transmissionApproval,
+        fingerprintDigest: '0'.repeat(64),
+      },
+    };
+
+    expect(parseOssRecommendationRequestV2(mismatched)).toMatchObject({
+      ok: false,
+      issues: [
+        expect.objectContaining({
+          code: 'domain.recommendation.fingerprint-binding',
+          path: '/transmissionApproval/fingerprintDigest',
+        }),
+      ],
+    });
+    expect(
+      expandOssRecommendationRequest({
+        recommendationRequest: mismatched,
+        taxonomy: cloneValue(await taxonomyFixture),
+      }),
+    ).toMatchObject({ ok: false });
+  });
+
+  it('keeps an unclassified hard constraint unresolved instead of treating it as satisfied', async () => {
+    const expanded = expandOssRecommendationRequest({
+      recommendationRequest: createRecommendationRequestV2(),
+      taxonomy: cloneValue(await taxonomyFixture),
+    });
+    expect(expanded).toMatchObject({ ok: true });
+    if (!expanded.ok) return;
+
+    const normalized = normalizeCapabilityQueryV1(
+      expanded.value.capabilityQuery,
+      cloneValue(await taxonomyFixture),
+    );
+    expect(normalized).toMatchObject({ ok: true });
+    if (!normalized.ok) return;
+
+    expect(normalized.value.preservedDeclarations).toContainEqual(
+      expect.objectContaining({
+        constraintId: 'constraint-001',
+        modality: 'required',
+        originalTerm: 'Next.js',
+        facet: 'other',
+      }),
+    );
+    expect(normalized.value.normalizedConstraints).toContainEqual(
+      expect.objectContaining({
+        sourceConstraintIds: ['constraint-001'],
+        modality: 'required',
+        facet: 'other',
+        resolutionBasis: 'preserved-declaration',
+        conceptId: null,
+      }),
+    );
+  });
+
+  it('keeps V1 parsing and meaning unchanged through the discriminated root parser', () => {
+    const request = createRecommendationRequest();
+    expect(parseOssRecommendationRequest(request)).toEqual(
+      parseOssRecommendationRequestV1(request),
+    );
   });
 });
 
@@ -1460,6 +1648,60 @@ function createRecommendationRequest(
     },
     repositoryFingerprint: fingerprint,
     transmissionApproval: approval,
+  };
+}
+
+function createRecommendationRequestV2(): OssRecommendationRequestV2 {
+  const repositoryFingerprint = createRepositoryFingerprint();
+  return {
+    contractVersion: '2.0.0',
+    summary:
+      'Find an OSS solution for rate limiting in a Next.js app on PostgreSQL, no Redis.',
+    capabilityTerms: ['rate limiting'],
+    successConditions: [
+      'Requests over the configured limit are rejected consistently.',
+    ],
+    constraints: [
+      {
+        modality: 'required',
+        statement: 'Must integrate with the existing Next.js app.',
+        term: 'Next.js',
+      },
+      {
+        modality: 'required',
+        statement: 'Must use the existing PostgreSQL database.',
+        term: 'PostgreSQL',
+      },
+      {
+        modality: 'prohibited',
+        statement: 'Must not require Redis.',
+        term: 'Redis',
+      },
+      {
+        modality: 'preferred',
+        statement: 'Prefer a small integration surface.',
+        term: 'small integration surface',
+      },
+    ],
+    candidateReferences: [
+      {
+        kind: 'npm-package',
+        value: 'rate-limiter-flexible',
+        intent: 'compare',
+      },
+    ],
+    repositoryFingerprint,
+    transmissionApproval: {
+      approvedBy: 'request-originator',
+      approvedAt: '2026-08-21T22:00:00.000Z',
+      approvedCategories: [
+        'bounded-evidence',
+        'candidate-dossiers',
+        'capability-request',
+        'repository-fingerprint',
+      ],
+      fingerprintDigest: repositoryFingerprintDigestV1(repositoryFingerprint),
+    },
   };
 }
 

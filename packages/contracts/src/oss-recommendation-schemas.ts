@@ -1,6 +1,18 @@
 import { Type, type Static } from 'typebox';
 
-import { capabilityQueryInputV1ValueSchema } from './capability-query-schemas.ts';
+import { CAPABILITY_QUERY_LIMITS } from '@gitblocks/domain';
+
+import {
+  capabilityQueryCandidateReferenceIntentSchema,
+  capabilityQueryConstraintModalitySchema,
+  capabilityQueryInputV1ValueSchema,
+  capabilityQueryNpmPackageReferenceValueSchema,
+  capabilityQueryRepositoryFingerprintReferenceV1Schema,
+  capabilityQueryRepositoryReferenceValueSchema,
+  capabilityQueryStatementTextSchema,
+  capabilityQuerySummarySchema,
+  capabilityQueryTermTextSchema,
+} from './capability-query-schemas.ts';
 import {
   closedObject,
   contractVersionSchema,
@@ -221,18 +233,122 @@ const recommendationAssessmentModelHardConstraintResolutionV1Schema =
     }),
   });
 
+const ossRecommendationRequestV1Properties = {
+  contractVersion: contractVersionSchema,
+  recommendationRequestId: stableIdSchema,
+  capabilityQuery: capabilityQueryInputV1ValueSchema,
+  repositoryFingerprint: repositoryFingerprintV1ValueSchema,
+  transmissionApproval: transmissionApprovalV1Schema,
+} as const;
+
+const ossRecommendationRequestV1ValueSchema = closedObject(
+  ossRecommendationRequestV1Properties,
+);
+
 export const ossRecommendationRequestV1Schema = Type.Object(
-  {
-    contractVersion: contractVersionSchema,
-    recommendationRequestId: stableIdSchema,
-    capabilityQuery: capabilityQueryInputV1ValueSchema,
-    repositoryFingerprint: repositoryFingerprintV1ValueSchema,
-    transmissionApproval: transmissionApprovalV1Schema,
-  },
+  ossRecommendationRequestV1Properties,
   {
     ...SCHEMA_ROOT_OPTIONS,
     $id: 'https://gitblocks.dev/schemas/contracts/oss-recommendation-request/1.0.0',
     additionalProperties: false,
+  },
+);
+
+const ossRecommendationCandidateReferenceV2Schema = Type.Union([
+  closedObject({
+    kind: Type.Literal('candidate-id'),
+    value: stableIdSchema,
+    intent: capabilityQueryCandidateReferenceIntentSchema,
+  }),
+  closedObject({
+    kind: Type.Literal('repository'),
+    value: capabilityQueryRepositoryReferenceValueSchema,
+    intent: capabilityQueryCandidateReferenceIntentSchema,
+  }),
+  closedObject({
+    kind: Type.Literal('npm-package'),
+    value: capabilityQueryNpmPackageReferenceValueSchema,
+    intent: capabilityQueryCandidateReferenceIntentSchema,
+  }),
+]);
+
+const ossRecommendationConstraintV2Schema = closedObject({
+  modality: capabilityQueryConstraintModalitySchema,
+  statement: capabilityQueryStatementTextSchema,
+  term: capabilityQueryTermTextSchema,
+});
+
+const ossRecommendationTransmissionApprovalV2Schema = closedObject({
+  approvedBy: transmissionApprovalV1Schema.properties.approvedBy,
+  approvedAt: transmissionApprovalV1Schema.properties.approvedAt,
+  approvedCategories: Type.Array(
+    transmissionApprovalV1Schema.properties.approvedCategories.items,
+    {
+      minItems: 4,
+      maxItems: 4,
+      uniqueItems: true,
+      description:
+        'Caller-assert all four categories after explicit transmission approval: bounded-evidence, candidate-dossiers, capability-request, and repository-fingerprint.',
+    },
+  ),
+  fingerprintDigest:
+    capabilityQueryRepositoryFingerprintReferenceV1Schema.properties
+      .fingerprintDigest,
+});
+
+const ossRecommendationRequestV2Properties = {
+  contractVersion: Type.Literal('2.0.0'),
+  summary: capabilityQuerySummarySchema,
+  capabilityTerms: Type.Array(capabilityQueryTermTextSchema, {
+    minItems: 1,
+    maxItems: CAPABILITY_QUERY_LIMITS.capabilityTerms,
+    description:
+      'Original caller capability terms as bare strings. Use one supported primary family meaning such as "rate limiting".',
+  }),
+  successConditions: Type.Array(capabilityQueryStatementTextSchema, {
+    minItems: 1,
+    maxItems: CAPABILITY_QUERY_LIMITS.successConditions,
+    description: 'Original observable success conditions as bare strings.',
+  }),
+  constraints: Type.Array(ossRecommendationConstraintV2Schema, {
+    maxItems: CAPABILITY_QUERY_LIMITS.draftConstraints,
+    description:
+      'Original caller declarations. Preserve required, preferred, or prohibited modality exactly; facet and generic request-origin reason codes are derived server-side.',
+  }),
+  candidateReferences: Type.Optional(
+    Type.Array(ossRecommendationCandidateReferenceV2Schema, {
+      maxItems: CAPABILITY_QUERY_LIMITS.candidateReferences,
+      description:
+        'Optional exact candidate, owner/repository, or npm-package references; reference IDs are derived server-side.',
+    }),
+  ),
+  repositoryFingerprint: repositoryFingerprintV1ValueSchema,
+  transmissionApproval: ossRecommendationTransmissionApprovalV2Schema,
+} as const;
+
+const ossRecommendationRequestV2ValueSchema = closedObject(
+  ossRecommendationRequestV2Properties,
+);
+
+export const ossRecommendationRequestV2Schema = Type.Object(
+  ossRecommendationRequestV2Properties,
+  {
+    ...SCHEMA_ROOT_OPTIONS,
+    $id: 'https://gitblocks.dev/schemas/contracts/oss-recommendation-request-v2/2.0.0',
+    additionalProperties: false,
+  },
+);
+
+export const ossRecommendationRequestSchema = Type.Union(
+  [
+    ossRecommendationRequestV1ValueSchema,
+    ossRecommendationRequestV2ValueSchema,
+  ],
+  {
+    ...SCHEMA_ROOT_OPTIONS,
+    $id: 'https://gitblocks.dev/schemas/contracts/oss-recommendation-request/2.0.0',
+    description:
+      'Root-version-discriminated recommend_oss input. contractVersion 1.0.0 preserves the existing canonical request; contractVersion 2.0.0 accepts the simpler caller-facing request.',
   },
 );
 
@@ -446,6 +562,12 @@ export const recommendationAssessmentModelResponseV1Schema = Type.Object(
 
 export type OssRecommendationRequestV1 = Static<
   typeof ossRecommendationRequestV1Schema
+>;
+export type OssRecommendationRequestV2 = Static<
+  typeof ossRecommendationRequestV2Schema
+>;
+export type OssRecommendationRequest = Static<
+  typeof ossRecommendationRequestSchema
 >;
 export type RecommendationAssessmentModelFitRequestV1 = Static<
   typeof recommendationAssessmentModelFitRequestV1Schema

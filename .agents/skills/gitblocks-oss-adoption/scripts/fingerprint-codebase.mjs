@@ -103,7 +103,16 @@ async function main() {
     command.repositoryRoot,
     command.observedAt,
   );
-  process.stdout.write(`${JSON.stringify(fingerprint, null, 2)}\n`);
+  process.stdout.write(
+    `${JSON.stringify(
+      {
+        repositoryFingerprint: fingerprint,
+        fingerprintDigest: fingerprintDigest(fingerprint),
+      },
+      null,
+      2,
+    )}\n`,
+  );
 }
 
 function parseArguments(arguments_) {
@@ -581,17 +590,20 @@ async function writeFingerprintReference() {
     throw new ScannerFailure('reference-input-invalid');
   }
   assertFingerprintReferenceInput(value);
-  const canonical = canonicalizeFingerprintForDigest(value);
   process.stdout.write(
     `${JSON.stringify(
       {
         fingerprintId: value.fingerprintId,
-        fingerprintDigest: sha256Hex(canonicalJson(canonical)),
+        fingerprintDigest: fingerprintDigest(value),
       },
       null,
       2,
     )}\n`,
   );
+}
+
+function fingerprintDigest(value) {
+  return sha256Hex(canonicalJson(canonicalizeFingerprintForDigest(value)));
 }
 
 async function readBoundedStdin(maximumBytes) {

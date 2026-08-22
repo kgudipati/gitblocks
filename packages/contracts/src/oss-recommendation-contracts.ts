@@ -1,4 +1,7 @@
-import type { FitAssessmentExchange } from '@gitblocks/domain';
+import {
+  deriveCapabilityQueryConstraintFacet,
+  type FitAssessmentExchange,
+} from '@gitblocks/domain';
 
 import { contractCanonicalDigest } from './artifact-identity.ts';
 import {
@@ -7,6 +10,8 @@ import {
   parseCapabilityQueryNormalizationResultV1,
 } from './capability-query-contracts.ts';
 import type { CapabilityQueryNormalizationResultV1 } from './capability-query-schemas.ts';
+import { parseCapabilityTaxonomyV1 } from './capability-taxonomy-contracts.ts';
+import type { CapabilityTaxonomyV1 } from './capability-taxonomy-schemas.ts';
 import {
   contractIssue,
   finalizeContractIssues,
@@ -15,7 +20,9 @@ import {
 } from './diagnostics.ts';
 import type { CandidateRetrievalCandidateV1 } from './candidate-retrieval-schemas.ts';
 import type {
+  OssRecommendationRequest,
   OssRecommendationRequestV1,
+  OssRecommendationRequestV2,
   RecommendationAssessmentModelFitRequestV1,
   RecommendationAssessmentModelResponseV1,
   RecommendationAssessmentResponseV1,
@@ -35,7 +42,9 @@ import type {
   RepositoryFingerprintV1,
 } from './schemas.ts';
 import {
+  ossRecommendationRequestValidator,
   ossRecommendationRequestV1Validator,
+  ossRecommendationRequestV2Validator,
   recommendationAssessmentModelFitRequestV1Validator,
   recommendationAssessmentModelResponseV1Validator,
   recommendationAssessmentResponseV1Validator,
@@ -130,6 +139,150 @@ export function parseOssRecommendationRequestV1(
     domain: structural.value,
     issues: [],
   };
+}
+
+export function parseOssRecommendationRequestV2(
+  value: unknown,
+): ContractParseResult<OssRecommendationRequestV2, OssRecommendationRequestV2> {
+  const structural = structurallyValidate(
+    value,
+    ossRecommendationRequestV2Validator,
+  );
+  if (!structural.ok) return structural;
+
+  const fingerprint = parseRepositoryFingerprintV1(
+    structural.value.repositoryFingerprint,
+  );
+  const issues = finalizeContractIssues([
+    ...prefixIssues(
+      fingerprint.ok ? [] : fingerprint.issues,
+      '/repositoryFingerprint',
+    ),
+    ...(fingerprint.ok ? recommendationV2SemanticIssues(structural.value) : []),
+  ]);
+  if (issues.length > 0 || !fingerprint.ok) {
+    return { ok: false, issues };
+  }
+  return {
+    ok: true,
+    value: structural.value,
+    domain: structural.value,
+    issues: [],
+  };
+}
+
+export function parseOssRecommendationRequest(
+  value: unknown,
+): ContractParseResult<OssRecommendationRequest, OssRecommendationRequest> {
+  if (isRecordWithContractVersion(value, '1.0.0')) {
+    return parseOssRecommendationRequestV1(value);
+  }
+  if (isRecordWithContractVersion(value, '2.0.0')) {
+    return parseOssRecommendationRequestV2(value);
+  }
+  const structural = structurallyValidate(
+    value,
+    ossRecommendationRequestValidator,
+  );
+  return structural.ok
+    ? {
+        ok: true,
+        value: structural.value,
+        domain: structural.value,
+        issues: [],
+      }
+    : structural;
+}
+
+export function expandOssRecommendationRequest(input: {
+  readonly recommendationRequest: unknown;
+  readonly taxonomy: unknown;
+}): ContractParseResult<
+  OssRecommendationRequestV1,
+  OssRecommendationRequestV1
+> {
+  const request = parseOssRecommendationRequest(input.recommendationRequest);
+  if (!request.ok) return request;
+  if (request.value.contractVersion === '1.0.0') {
+    return {
+      ok: true,
+      value: request.value,
+      domain: request.value,
+      issues: [],
+    };
+  }
+
+  const taxonomy = parseCapabilityTaxonomyV1(input.taxonomy);
+  if (!taxonomy.ok) return taxonomy;
+  return expandParsedOssRecommendationRequestV2(request.value, taxonomy.value);
+}
+
+export function ossRecommendationRequestId(
+  request: OssRecommendationRequest,
+): string {
+  return request.contractVersion === '1.0.0'
+    ? request.recommendationRequestId
+    : generatedRootId('recommendation', contractCanonicalDigest(request));
+}
+
+function expandParsedOssRecommendationRequestV2(
+  request: OssRecommendationRequestV2,
+  taxonomy: CapabilityTaxonomyV1,
+): ContractParseResult<OssRecommendationRequestV1, OssRecommendationRequestV1> {
+  const requestDigest = contractCanonicalDigest(request);
+  const expanded = {
+    contractVersion: '1.0.0',
+    recommendationRequestId: generatedRootId('recommendation', requestDigest),
+    capabilityQuery: {
+      contractVersion: '1.0.0',
+      queryInputId: generatedRootId('query', requestDigest),
+      scope: 'local-pre-approval',
+      summary: request.summary,
+      capabilityTerms: request.capabilityTerms.map((originalTerm, index) => ({
+        termId: generatedSequenceId('term', index),
+        originalTerm,
+      })),
+      successConditions: request.successConditions.map((statement, index) => ({
+        conditionId: generatedSequenceId('condition', index),
+        statement,
+      })),
+      draftConstraints: request.constraints.map((constraint, index) => ({
+        constraintId: generatedSequenceId('constraint', index),
+        modality: constraint.modality,
+        statement: constraint.statement,
+        originalTerm: constraint.term,
+        facetHint: deriveCapabilityQueryConstraintFacet(
+          constraint.term,
+          taxonomy,
+        ),
+        reasonCode:
+          constraint.modality === 'required'
+            ? 'user-required'
+            : constraint.modality === 'prohibited'
+              ? 'user-prohibited'
+              : null,
+      })),
+      candidateReferences: (request.candidateReferences ?? []).map(
+        (reference, index) => ({
+          referenceId: generatedSequenceId('reference', index),
+          ...reference,
+        }),
+      ),
+      repositoryFingerprintReference: {
+        fingerprintId: request.repositoryFingerprint.fingerprintId,
+        fingerprintDigest: request.transmissionApproval.fingerprintDigest,
+      },
+    },
+    repositoryFingerprint: request.repositoryFingerprint,
+    transmissionApproval: {
+      approvalId: generatedRootId('approval', requestDigest),
+      approvedAt: request.transmissionApproval.approvedAt,
+      approvedBy: request.transmissionApproval.approvedBy,
+      scope: 'minimized-repository-facts',
+      approvedCategories: [...request.transmissionApproval.approvedCategories],
+    },
+  } satisfies OssRecommendationRequestV1;
+  return parseOssRecommendationRequestV1(expanded);
 }
 
 export function createCapabilityRequestFromRecommendationV1(input: {
@@ -1484,6 +1637,57 @@ function recommendationSemanticIssues(
   return issues;
 }
 
+function recommendationV2SemanticIssues(
+  value: OssRecommendationRequestV2,
+): readonly ContractIssue[] {
+  const issues: ContractIssue[] = [];
+  if (
+    value.transmissionApproval.fingerprintDigest !==
+    repositoryFingerprintDigestV1(value.repositoryFingerprint)
+  ) {
+    issues.push(
+      domainIssue(
+        'recommendation.fingerprint-binding',
+        '/transmissionApproval/fingerprintDigest',
+      ),
+    );
+  }
+
+  const hardCount = value.constraints.filter(
+    ({ modality }) => modality !== 'preferred',
+  ).length;
+  const preferenceCount = value.constraints.length - hardCount;
+  if (hardCount > MAXIMUM_FIT_HARD_CONSTRAINTS) {
+    issues.push(
+      domainIssue('recommendation.fit-request-bounds', '/constraints'),
+    );
+  }
+  if (preferenceCount > MAXIMUM_FIT_PREFERENCES) {
+    issues.push(
+      domainIssue('recommendation.fit-request-bounds', '/constraints'),
+    );
+  }
+  if (!isValidUtcTimestamp(value.transmissionApproval.approvedAt)) {
+    issues.push(
+      domainIssue('timestamp.invalid', '/transmissionApproval/approvedAt'),
+    );
+  }
+  const approved = new Set(value.transmissionApproval.approvedCategories);
+  if (
+    REQUIRED_RECOMMENDATION_APPROVAL_CATEGORIES.some(
+      (category) => !approved.has(category),
+    )
+  ) {
+    issues.push(
+      domainIssue(
+        'recommendation.transmission-approval',
+        '/transmissionApproval/approvedCategories',
+      ),
+    );
+  }
+  return issues;
+}
+
 function bindingInferenceIssues(
   response: TargetFitAssessmentResponseV1,
 ): readonly ContractIssue[] {
@@ -1678,4 +1882,30 @@ function prefixIssues(
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function generatedRootId(
+  prefix: 'approval' | 'query' | 'recommendation',
+  digest: string,
+): string {
+  return `${prefix}-${digest.slice(0, 48)}`;
+}
+
+function generatedSequenceId(
+  prefix: 'condition' | 'constraint' | 'reference' | 'term',
+  index: number,
+): string {
+  return `${prefix}-${String(index + 1).padStart(3, '0')}`;
+}
+
+function isRecordWithContractVersion(
+  value: unknown,
+  contractVersion: '1.0.0' | '2.0.0',
+): boolean {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Reflect.get(value, 'contractVersion') === contractVersion
+  );
 }
