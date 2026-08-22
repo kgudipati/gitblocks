@@ -33223,7 +33223,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-36759783567e5cc761f815a4255d2faf0541ef69f3778ef9",
                   "claimDigest": "36759783567e5cc761f815a4255d2faf0541ef69f3778ef91f8ead4e06e0a627",
                   "admissionId": null,
@@ -33238,7 +33238,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-bd83bee5f3a4606120ebf34973538dcaf641756dabfa0886",
                   "claimDigest": "bd83bee5f3a4606120ebf34973538dcaf641756dabfa0886bf260beed96434be",
                   "admissionId": null,
@@ -33395,8 +33395,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-8d0d899e92a09355058b81addcfe590afd5f0f38a071107d",
-      "semanticProfileDigest": "8d0d899e92a09355058b81addcfe590afd5f0f38a071107d7a6e31fa9e5ff7ed"
+      "deterministicProfileId": "profile-6ee6a11eba0a6fddd0435c1b656d05a3f589d35d67c20107",
+      "semanticProfileDigest": "6ee6a11eba0a6fddd0435c1b656d05a3f589d35d67c201079695e59e233abe70"
     },
     {
       "contractVersion": "2.0.0",
@@ -33624,7 +33624,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-d753669922ee4b2391718e9f978faf8216434d87ea19e46e",
                   "claimDigest": "d753669922ee4b2391718e9f978faf8216434d87ea19e46ecb30630e30a9fa70",
                   "admissionId": null,
@@ -33639,7 +33639,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-efa5f279dd1db85e7ef6b290e2cfe581b918f836cb76ec19",
                   "claimDigest": "efa5f279dd1db85e7ef6b290e2cfe581b918f836cb76ec199dc10fd204b9842f",
                   "admissionId": null,
@@ -33796,8 +33796,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-c6ffaf6b3311dd0f6437cec33eb0bcb2431e3678f5e6b4cc",
-      "semanticProfileDigest": "c6ffaf6b3311dd0f6437cec33eb0bcb2431e3678f5e6b4cc00e7f75c255d072d"
+      "deterministicProfileId": "profile-f0a2165f282b7a8ac704a156b242638f2271ca18c4a197cf",
+      "semanticProfileDigest": "f0a2165f282b7a8ac704a156b242638f2271ca18c4a197cf1a30a32f8269e533"
     },
     {
       "contractVersion": "2.0.0",
@@ -34024,7 +34024,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-f81ec12065dfa2479a46878fa42f0d519c29ec39e2b6db60",
                   "claimDigest": "f81ec12065dfa2479a46878fa42f0d519c29ec39e2b6db60af9ca75731af6661",
                   "admissionId": null,
@@ -34039,7 +34039,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-b206e11d484069d4e5a23368c8f62125bcb291e12983f21f",
                   "claimDigest": "b206e11d484069d4e5a23368c8f62125bcb291e12983f21fc359a308aeabf4bc",
                   "admissionId": null,
@@ -34196,8 +34196,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-fa985cf838be2ed1c1b37bc5b55921c6448e3b7f165d7aab",
-      "semanticProfileDigest": "fa985cf838be2ed1c1b37bc5b55921c6448e3b7f165d7aab70ad89ade63606c4"
+      "deterministicProfileId": "profile-a78c24dff68fddcf78bfe7a4e98a121d050bafede70da9ff",
+      "semanticProfileDigest": "a78c24dff68fddcf78bfe7a4e98a121d050bafede70da9ff4bec3f3b61b5d008"
     },
     {
       "contractVersion": "2.0.0",
@@ -34790,7 +34790,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-3fc89beb0ab98d9f62564bf8c15fc0ab1a0bb6770bc6faa7",
                   "claimDigest": "3fc89beb0ab98d9f62564bf8c15fc0ab1a0bb6770bc6faa701959eba4e245166",
                   "admissionId": null,
@@ -34805,7 +34805,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-7a39cf660702ad20e9cb84cc140f4f20864af953b0405712",
                   "claimDigest": "7a39cf660702ad20e9cb84cc140f4f20864af953b0405712069fe1aa06c3e66b",
                   "admissionId": null,
@@ -34962,8 +34962,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-6cd3ffd82131d28407d71bcd384b8acb5680192a9ea5d070",
-      "semanticProfileDigest": "6cd3ffd82131d28407d71bcd384b8acb5680192a9ea5d0705cd08ddea4c9ad58"
+      "deterministicProfileId": "profile-3f9d633b7e97a592ea8f21fadc75db36aaee3f559bed7f47",
+      "semanticProfileDigest": "3f9d633b7e97a592ea8f21fadc75db36aaee3f559bed7f4758c6692c0a4af8a6"
     },
     {
       "contractVersion": "2.0.0",
@@ -35191,7 +35191,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-ab45c0f905bccc0b5512148fc2565e1360a6ac04b378ac9c",
                   "claimDigest": "ab45c0f905bccc0b5512148fc2565e1360a6ac04b378ac9c997716a792d99c13",
                   "admissionId": null,
@@ -35206,7 +35206,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-94737a690766db0e4c01021ea87afde662cf2ef207ce5b8e",
                   "claimDigest": "94737a690766db0e4c01021ea87afde662cf2ef207ce5b8ee69261dbb63bb233",
                   "admissionId": null,
@@ -35363,8 +35363,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-7b4dc02ec978cdf940f3b92503733c017d3b6b57937eecf8",
-      "semanticProfileDigest": "7b4dc02ec978cdf940f3b92503733c017d3b6b57937eecf8bbf369addfdd9e9c"
+      "deterministicProfileId": "profile-2a96dc10541fffcef239521e8049995e6d4122bff3d95ee9",
+      "semanticProfileDigest": "2a96dc10541fffcef239521e8049995e6d4122bff3d95ee9823fb9a2b71a790f"
     },
     {
       "contractVersion": "2.0.0",
@@ -35592,7 +35592,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-58bfcf68a8d904bb4fbbf5ab98af8d27d7c19726aa84b53b",
                   "claimDigest": "58bfcf68a8d904bb4fbbf5ab98af8d27d7c19726aa84b53be66384c8354129bf",
                   "admissionId": null,
@@ -35607,7 +35607,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-18ac615ca59ad35702841d147cdb25b815f8d0cd50138603",
                   "claimDigest": "18ac615ca59ad35702841d147cdb25b815f8d0cd50138603e615f2cb34ff9110",
                   "admissionId": null,
@@ -35620,12 +35620,31 @@
         {
           "fieldId": "optional-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-78a7d41143f5418fef3cfe3ac6b46c944e637dc2"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-optional-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "claimId": "reviewed-claim-8cbac6d9a7623e0d905ee669a88d696698bb4e4e09fe06d0",
+                  "claimDigest": "8cbac6d9a7623e0d905ee669a88d696698bb4e4e09fe06d05de47291ed6b5985",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "deployment-self-hosting",
@@ -35764,8 +35783,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-d40ad50a814a9ef73f7515ed7c11e2a0c4da7b0bd881823e",
-      "semanticProfileDigest": "d40ad50a814a9ef73f7515ed7c11e2a0c4da7b0bd881823eb2718800b8da5769"
+      "deterministicProfileId": "profile-49be399e349232cffc5da2f49c974bf2937461edc8a80884",
+      "semanticProfileDigest": "49be399e349232cffc5da2f49c974bf2937461edc8a80884c00b3880913fea89"
     },
     {
       "contractVersion": "2.0.0",
@@ -35992,7 +36011,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-64e41dd3c527d7e3057cdeaea0cd6e1fc90732286383d6c1",
                   "claimDigest": "64e41dd3c527d7e3057cdeaea0cd6e1fc90732286383d6c1b31e9833009d8a8f",
                   "admissionId": null,
@@ -36007,7 +36026,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-2dc5fc0be89385873f897ba7ac8e6c2919e9cc27b2e9f009",
                   "claimDigest": "2dc5fc0be89385873f897ba7ac8e6c2919e9cc27b2e9f00929514ba1330670eb",
                   "admissionId": null,
@@ -36164,8 +36183,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-26e99d5ecc6ba9524dcdeb211e3ab200d377b0aa211bba4a",
-      "semanticProfileDigest": "26e99d5ecc6ba9524dcdeb211e3ab200d377b0aa211bba4aba29f525b19dc8b7"
+      "deterministicProfileId": "profile-7be00ccebc796c73d8fad5df8d3e80216eaceb4a70c29a7d",
+      "semanticProfileDigest": "7be00ccebc796c73d8fad5df8d3e80216eaceb4a70c29a7dff3e5b8e13a93a62"
     },
     {
       "contractVersion": "2.0.0",
@@ -36758,7 +36777,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-c2b04bc1872b95c5a9b6236e5790d263a21d44f3e9358e8c",
                   "claimDigest": "c2b04bc1872b95c5a9b6236e5790d263a21d44f3e9358e8c6456c5e529d80d18",
                   "admissionId": null,
@@ -36773,7 +36792,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-0dfb44214f3cc785b8168d4b7ded952c7ac40a8534a8d0b1",
                   "claimDigest": "0dfb44214f3cc785b8168d4b7ded952c7ac40a8534a8d0b1ce124f27d5818142",
                   "admissionId": null,
@@ -36930,8 +36949,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-b3a6e1dd2ee5e549093592cbdaef32676b88ef6fc0388826",
-      "semanticProfileDigest": "b3a6e1dd2ee5e549093592cbdaef32676b88ef6fc038882650cef71627bca0c7"
+      "deterministicProfileId": "profile-2f04c7737a09d809a80763dfa13cf9f750842939b6c88960",
+      "semanticProfileDigest": "2f04c7737a09d809a80763dfa13cf9f750842939b6c88960abca0f7bab64106d"
     },
     {
       "contractVersion": "2.0.0",
@@ -37158,7 +37177,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-9e49560707870d2f9fc8879a4ea1db64d8f759548307de14",
                   "claimDigest": "9e49560707870d2f9fc8879a4ea1db64d8f759548307de1472a86f835da9638e",
                   "admissionId": null,
@@ -37315,8 +37334,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-98be6683db3d8c5dea369135e523e3315eaf0e5efd90f062",
-      "semanticProfileDigest": "98be6683db3d8c5dea369135e523e3315eaf0e5efd90f062998d7eeb16d1974a"
+      "deterministicProfileId": "profile-545bdb59cec077e75d03b260df54607164624707295b47b4",
+      "semanticProfileDigest": "545bdb59cec077e75d03b260df54607164624707295b47b416dd0cbe4e24f4ca"
     },
     {
       "contractVersion": "2.0.0",
@@ -37909,7 +37928,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-16afa16f912f08ac6ad0ad79e03981e57dce9c4133031d75",
                   "claimDigest": "16afa16f912f08ac6ad0ad79e03981e57dce9c4133031d751e359060ea359db1",
                   "admissionId": null,
@@ -37924,7 +37943,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-8eb18d43f18120784b83f909c0c12f14acbf1c29b72e6b73",
                   "claimDigest": "8eb18d43f18120784b83f909c0c12f14acbf1c29b72e6b73b47a414862e4b62e",
                   "admissionId": null,
@@ -38081,8 +38100,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-9e30369e557416e135198e83a2ea45f05f99c06c2006a90f",
-      "semanticProfileDigest": "9e30369e557416e135198e83a2ea45f05f99c06c2006a90fa0d8278e82d1261f"
+      "deterministicProfileId": "profile-0e93df1683b6c3540c16128dfa1a3a140a4dacd0764119f7",
+      "semanticProfileDigest": "0e93df1683b6c3540c16128dfa1a3a140a4dacd0764119f7c430dc9e27a34dcc"
     },
     {
       "contractVersion": "2.0.0",
@@ -38310,7 +38329,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-656ff8a8f33b0c16fa9e8b13925228e168c94689448663ef",
                   "claimDigest": "656ff8a8f33b0c16fa9e8b13925228e168c94689448663efdb7b8a0f25c032a5",
                   "admissionId": null,
@@ -38325,7 +38344,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-ff0efc065a69155880469ade54d5748be0148bde0140d467",
                   "claimDigest": "ff0efc065a69155880469ade54d5748be0148bde0140d467485bf36c6c6b1053",
                   "admissionId": null,
@@ -38482,8 +38501,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-45147debfdfbe0942b43732e0507202309a12679fd267f47",
-      "semanticProfileDigest": "45147debfdfbe0942b43732e0507202309a12679fd267f474306a25f4c17d269"
+      "deterministicProfileId": "profile-4cf4d5ba8df95a363191ca05dda289ba1ee8cdbe0097029f",
+      "semanticProfileDigest": "4cf4d5ba8df95a363191ca05dda289ba1ee8cdbe0097029f310480f749d95060"
     },
     {
       "contractVersion": "2.0.0",
@@ -38710,7 +38729,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-f6ec90c941e14a4925cd248ed3e1f9009795f65577304ae9",
                   "claimDigest": "f6ec90c941e14a4925cd248ed3e1f9009795f65577304ae974eeb252de91d075",
                   "admissionId": null,
@@ -38723,12 +38742,31 @@
         {
           "fieldId": "optional-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-fa9c3b695af72668f135cb17bbb84a8b4dc511d2"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-optional-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "claimId": "reviewed-claim-5f3d56b84d338562ca8b812781f7259740b853af7bb39e6b",
+                  "claimDigest": "5f3d56b84d338562ca8b812781f7259740b853af7bb39e6b38f5e2470c36b23a",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "deployment-self-hosting",
@@ -38867,8 +38905,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-5970a9208378edc6ffddc3206509886b653ac9ecec5a5cd7",
-      "semanticProfileDigest": "5970a9208378edc6ffddc3206509886b653ac9ecec5a5cd789894bbc42f8df95"
+      "deterministicProfileId": "profile-10aade2db64861591eda4e69ff76fcf55b2c42962413b134",
+      "semanticProfileDigest": "10aade2db64861591eda4e69ff76fcf55b2c42962413b13428957a0376ac52d0"
     },
     {
       "contractVersion": "2.0.0",
@@ -39095,7 +39133,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-f53c46c6beb07c80b5fc55e36d5cbdee4c069177a2944eae",
                   "claimDigest": "f53c46c6beb07c80b5fc55e36d5cbdee4c069177a2944eaeecababd8021539bc",
                   "admissionId": null,
@@ -39110,7 +39148,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-21d836d0ff239d64dd238ed89e6616d7b333618d7be9f7f8",
                   "claimDigest": "21d836d0ff239d64dd238ed89e6616d7b333618d7be9f7f82e4a05bbc03bd5f7",
                   "admissionId": null,
@@ -39267,8 +39305,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-ada0f4b76fb4b6f697a3d4cc4631e3f8c1ddabdc95511496",
-      "semanticProfileDigest": "ada0f4b76fb4b6f697a3d4cc4631e3f8c1ddabdc95511496707214ebd29bad7c"
+      "deterministicProfileId": "profile-9afc0996b3abb25089162ec6628c580195eec21f2529ac6a",
+      "semanticProfileDigest": "9afc0996b3abb25089162ec6628c580195eec21f2529ac6aca90ff81ce6caa37"
     },
     {
       "contractVersion": "2.0.0",
@@ -39495,7 +39533,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-7c226b9100ddcfa195ea2e57c0589fb6845b42046bfab360",
                   "claimDigest": "7c226b9100ddcfa195ea2e57c0589fb6845b42046bfab360bc5b25e066cf6229",
                   "admissionId": null,
@@ -39510,7 +39548,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-1db2e8ff76fadbf6b10a22c56ced1979d59fa43184a31a56",
                   "claimDigest": "1db2e8ff76fadbf6b10a22c56ced1979d59fa43184a31a568656e62eec551aab",
                   "admissionId": null,
@@ -39523,12 +39561,31 @@
         {
           "fieldId": "optional-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-c48939de62e985de10615b4d23b383eb7021d9b9"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-optional-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "claimId": "reviewed-claim-c29dfb4d0075ed004346caaca974326977d855b89f1821ec",
+                  "claimDigest": "c29dfb4d0075ed004346caaca974326977d855b89f1821ec8f69406f106cf307",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "deployment-self-hosting",
@@ -39667,8 +39724,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-eb974cd8e3ed04c42e9070467c464b9eb8521604fa9d52c4",
-      "semanticProfileDigest": "eb974cd8e3ed04c42e9070467c464b9eb8521604fa9d52c45fdeed315a6d1ec3"
+      "deterministicProfileId": "profile-86e1f3bf4371de4fb6582fba64ec72d9ead95d886e59aafa",
+      "semanticProfileDigest": "86e1f3bf4371de4fb6582fba64ec72d9ead95d886e59aafaf6289f230360dd4e"
     },
     {
       "contractVersion": "2.0.0",
@@ -39896,7 +39953,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-c45d0092bddfb2d7851f63e9b79c7527e5df592b28934e80",
                   "claimDigest": "c45d0092bddfb2d7851f63e9b79c7527e5df592b28934e8050c8fd192fccb045",
                   "admissionId": null,
@@ -39911,7 +39968,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-3333425c6300bde099407a88bd7cbd3e1fe6f1707a26e044",
                   "claimDigest": "3333425c6300bde099407a88bd7cbd3e1fe6f1707a26e0441fb1c4ebfefab855",
                   "admissionId": null,
@@ -40068,8 +40125,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-9b629669923c549e0739b21a4b9982db41a7ce18c472b7be",
-      "semanticProfileDigest": "9b629669923c549e0739b21a4b9982db41a7ce18c472b7be2c415f8608cd9f18"
+      "deterministicProfileId": "profile-258809b58149f2e0f0ac094fe687fa8e8a38c79ad208403a",
+      "semanticProfileDigest": "258809b58149f2e0f0ac094fe687fa8e8a38c79ad208403a5e3f6bb22c65a3fb"
     },
     {
       "contractVersion": "2.0.0",
@@ -40296,7 +40353,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-391ef1e56676ca7505d4242a608e45b82db35982fa318fb0",
                   "claimDigest": "391ef1e56676ca7505d4242a608e45b82db35982fa318fb0aad94f24db3bb94d",
                   "admissionId": null,
@@ -40311,7 +40368,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-94d2f7b432eeb76c8f7f7ccaf6edeac8ec45f93c386f9105",
                   "claimDigest": "94d2f7b432eeb76c8f7f7ccaf6edeac8ec45f93c386f910500382e0458f7196b",
                   "admissionId": null,
@@ -40468,8 +40525,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-7ff6eec828c0fdac0449fbfb8ff95c3d29a1b6c824998439",
-      "semanticProfileDigest": "7ff6eec828c0fdac0449fbfb8ff95c3d29a1b6c824998439002dd4c6715d07a9"
+      "deterministicProfileId": "profile-2ab1991a6695068a25fd1fb3197d48cb1537541e6f10a86d",
+      "semanticProfileDigest": "2ab1991a6695068a25fd1fb3197d48cb1537541e6f10a86d8cc96b7fc7832f5a"
     },
     {
       "contractVersion": "2.0.0",
@@ -40697,7 +40754,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-39f6e78eb7da5812c249b55eca839c67cf467f7a9ddb5041",
                   "claimDigest": "39f6e78eb7da5812c249b55eca839c67cf467f7a9ddb5041e5aa70092d3a68e8",
                   "admissionId": null,
@@ -40712,7 +40769,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-96dd5debc56d0b8ed60e4c7cacf26e118c7e681dc8c79af5",
                   "claimDigest": "96dd5debc56d0b8ed60e4c7cacf26e118c7e681dc8c79af59bf939a30c457aaa",
                   "admissionId": null,
@@ -40725,12 +40782,31 @@
         {
           "fieldId": "optional-infrastructure",
           "scope": "version-specific",
-          "coverage": "unknown",
-          "stateReasonCode": "requires-reviewed-curator-classification",
-          "stateRuleId": "assign-unknown-reviewed-classification-missing",
-          "versionScope": null,
+          "coverage": "partial",
+          "stateReasonCode": "approved-structured-field-value",
+          "stateRuleId": "assign-known-approved-structured-value",
+          "versionScope": {
+            "kind": "repository-snapshot",
+            "snapshotId": "repo-97fd58a2f463b6ebfa79d31344f054806bb88805"
+          },
           "sourceReferences": [],
-          "assertions": []
+          "assertions": [
+            {
+              "conceptId": "postgresql",
+              "state": "present",
+              "valueExtractionRuleId": "extract-optional-infrastructure-from-reviewed-curation-authority",
+              "sourceReferences": [
+                {
+                  "kind": "reviewed-curation-claim",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
+                  "claimId": "reviewed-claim-3540d283fb9d9ad2e1bdfb59da25913add825cb59db44aae",
+                  "claimDigest": "3540d283fb9d9ad2e1bdfb59da25913add825cb59db44aaeba75d2cbc24191b1",
+                  "admissionId": null,
+                  "admissionDigest": null
+                }
+              ]
+            }
+          ]
         },
         {
           "fieldId": "deployment-self-hosting",
@@ -40869,8 +40945,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-a66ca0ecb0a4454aec1fb7f4b716e0c0a6a7590f0bc0da1f",
-      "semanticProfileDigest": "a66ca0ecb0a4454aec1fb7f4b716e0c0a6a7590f0bc0da1ffb22502d8fd47ac8"
+      "deterministicProfileId": "profile-271e817576bc9ba5e5ba0cafd5740ec267152b85aae65dba",
+      "semanticProfileDigest": "271e817576bc9ba5e5ba0cafd5740ec267152b85aae65dba977f8f2ff6973068"
     },
     {
       "contractVersion": "2.0.0",
@@ -41098,7 +41174,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-0a9fcb70b31d07343844e7d3a432a83f9ae8b33f6642fd90",
                   "claimDigest": "0a9fcb70b31d07343844e7d3a432a83f9ae8b33f6642fd90352dbc7669cea3c4",
                   "admissionId": null,
@@ -41113,7 +41189,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-58cb00a501d2d41d7cc22a1d851b5053bc0e7d31be94905a",
                   "claimDigest": "58cb00a501d2d41d7cc22a1d851b5053bc0e7d31be94905a0d59b4125c712cca",
                   "admissionId": null,
@@ -41270,8 +41346,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-06caa238bb840bbdf3ea55cad845764ccab802a931391d82",
-      "semanticProfileDigest": "06caa238bb840bbdf3ea55cad845764ccab802a931391d82b4d3cc3b6afd0024"
+      "deterministicProfileId": "profile-5f421d57e7a586a6dde4933ed00c1f1731802fedcda7b0b8",
+      "semanticProfileDigest": "5f421d57e7a586a6dde4933ed00c1f1731802fedcda7b0b83fcd8ae38bbfe39d"
     },
     {
       "contractVersion": "2.0.0",
@@ -41864,7 +41940,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-7f085c04e10fd8b20149b36d3d63a087aa0aa6c1449e23d1",
                   "claimDigest": "7f085c04e10fd8b20149b36d3d63a087aa0aa6c1449e23d13def3460acc6f936",
                   "admissionId": null,
@@ -41879,7 +41955,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-3b534cbb2ce4124755ac7c2828e41c74d6eb701d56156d9f",
                   "claimDigest": "3b534cbb2ce4124755ac7c2828e41c74d6eb701d56156d9f76d6b59930d309c8",
                   "admissionId": null,
@@ -42036,8 +42112,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-d8da62372c71d1a8f087774c39b4bd6c421c542370d90d4c",
-      "semanticProfileDigest": "d8da62372c71d1a8f087774c39b4bd6c421c542370d90d4ca08e49bc52a8b72e"
+      "deterministicProfileId": "profile-1c27a9fef8ceb104fb980e23a23379d706df09cdc7f253e0",
+      "semanticProfileDigest": "1c27a9fef8ceb104fb980e23a23379d706df09cdc7f253e0a868c95ea6525c28"
     },
     {
       "contractVersion": "2.0.0",
@@ -42264,7 +42340,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-1a58e566424703606ab3da150c987ca89b692d8e02af7022",
                   "claimDigest": "1a58e566424703606ab3da150c987ca89b692d8e02af7022cb031de1884313b6",
                   "admissionId": null,
@@ -42279,7 +42355,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-786f5cd968fb96c34f6a08969cc992aec22cec0e77264295",
                   "claimDigest": "786f5cd968fb96c34f6a08969cc992aec22cec0e772642955cb8ffeebcbb36e1",
                   "admissionId": null,
@@ -42436,8 +42512,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-eb211c8ef993992ace93c3c00e0847baa45dc9857016750b",
-      "semanticProfileDigest": "eb211c8ef993992ace93c3c00e0847baa45dc9857016750b636f28795eb1778b"
+      "deterministicProfileId": "profile-f5d6480d7923ebfa8f0b34873b993fdabd2606a2961630a0",
+      "semanticProfileDigest": "f5d6480d7923ebfa8f0b34873b993fdabd2606a2961630a0f2f216401d679df4"
     },
     {
       "contractVersion": "2.0.0",
@@ -42664,7 +42740,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-a2356a1456d8cc9399422eaf15d8d1faa33fe46b6f0c5126",
                   "claimDigest": "a2356a1456d8cc9399422eaf15d8d1faa33fe46b6f0c512649a2b22f5347e664",
                   "admissionId": null,
@@ -42679,7 +42755,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-67cb6c10f45fb4b06350a9046d6814a01c72cdaec914d5b3",
                   "claimDigest": "67cb6c10f45fb4b06350a9046d6814a01c72cdaec914d5b33b7e029ca7740add",
                   "admissionId": null,
@@ -42836,8 +42912,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-011332b5996c6bdcd2055e2ba7ce2fc58edcec82effda883",
-      "semanticProfileDigest": "011332b5996c6bdcd2055e2ba7ce2fc58edcec82effda88334b176de49749f8a"
+      "deterministicProfileId": "profile-27eb0e892fd77ea359c7f47675129b9b9857a53ad31b5dd9",
+      "semanticProfileDigest": "27eb0e892fd77ea359c7f47675129b9b9857a53ad31b5dd924ca189713d581e7"
     },
     {
       "contractVersion": "2.0.0",
@@ -43430,7 +43506,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-0524a53bd665bb445ecbe8a49d4e8d6e90c34a35ebe5bb18",
                   "claimDigest": "0524a53bd665bb445ecbe8a49d4e8d6e90c34a35ebe5bb189c095a470cbf3e1d",
                   "admissionId": null,
@@ -43587,8 +43663,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-cf93723840443f280d16078fd91cdfac94f7dd0f892b3c80",
-      "semanticProfileDigest": "cf93723840443f280d16078fd91cdfac94f7dd0f892b3c80e37d415153bbf45e"
+      "deterministicProfileId": "profile-2343d205f99010c06b15f0c954e4142308199b8e6ceab4a7",
+      "semanticProfileDigest": "2343d205f99010c06b15f0c954e4142308199b8e6ceab4a76f28b6d9d6ea3d24"
     },
     {
       "contractVersion": "2.0.0",
@@ -43815,7 +43891,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-3da68b93ed53a1db9fe2f0911642c8e66279e84e933d8620",
                   "claimDigest": "3da68b93ed53a1db9fe2f0911642c8e66279e84e933d8620055811895a679154",
                   "admissionId": null,
@@ -43830,7 +43906,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-4a1afce5c2ad6a767577c77fdbee3b9acf7983c65045dfc2",
                   "claimDigest": "4a1afce5c2ad6a767577c77fdbee3b9acf7983c65045dfc2a528a707b10bc2ee",
                   "admissionId": null,
@@ -43987,8 +44063,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-d7d63aa0e504597ee203c79cc8fdfa885562df48abde2762",
-      "semanticProfileDigest": "d7d63aa0e504597ee203c79cc8fdfa885562df48abde2762fd52c42e23db9de8"
+      "deterministicProfileId": "profile-7fe82e3268252b21a0a2b6633f557c4b242a79f9f6d17ada",
+      "semanticProfileDigest": "7fe82e3268252b21a0a2b6633f557c4b242a79f9f6d17adaaf3f8f0a581d3576"
     },
     {
       "contractVersion": "2.0.0",
@@ -44215,7 +44291,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-e266e75b625043ab339ea2fd030ea8404364b559c98d1313",
                   "claimDigest": "e266e75b625043ab339ea2fd030ea8404364b559c98d1313cd49c8fb3a7481a6",
                   "admissionId": null,
@@ -44230,7 +44306,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-14212e916a64121ce630de7d68c23f0fa4b2e29ad3b5385b",
                   "claimDigest": "14212e916a64121ce630de7d68c23f0fa4b2e29ad3b5385b5b3acc20f6f4f2a0",
                   "admissionId": null,
@@ -44387,8 +44463,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-b4a6dace7eb7a01429d6329595a1cad5ff5cf2881092c24f",
-      "semanticProfileDigest": "b4a6dace7eb7a01429d6329595a1cad5ff5cf2881092c24fea7907411b67a7db"
+      "deterministicProfileId": "profile-0922551a42892969917ab97351d8bc4e66e22edb12b3ee2e",
+      "semanticProfileDigest": "0922551a42892969917ab97351d8bc4e66e22edb12b3ee2e53ceec4215f39fe2"
     },
     {
       "contractVersion": "2.0.0",
@@ -44616,7 +44692,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-438db9eacbb26b2c5d0ec256bd155bc6bb2266251701033e",
                   "claimDigest": "438db9eacbb26b2c5d0ec256bd155bc6bb2266251701033ea51df02469c157e9",
                   "admissionId": null,
@@ -44631,7 +44707,7 @@
               "sourceReferences": [
                 {
                   "kind": "reviewed-curation-claim",
-                  "curationAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76",
+                  "curationAuthorityDigest": "cb990457e49a1098d7a13f7948074655fdf36631f7c784acd0772a3bbc8d7ac9",
                   "claimId": "reviewed-claim-466fd4abf1c4673ab2f1e3cbf1aad46e5e496f8a36a91876",
                   "claimDigest": "466fd4abf1c4673ab2f1e3cbf1aad46e5e496f8a36a91876e6c8fdae226f090d",
                   "admissionId": null,
@@ -44788,8 +44864,8 @@
           "sourceReferences": []
         }
       ],
-      "deterministicProfileId": "profile-9e0a04a5352a81a562ce20567d252d0184f05c4da39e2979",
-      "semanticProfileDigest": "9e0a04a5352a81a562ce20567d252d0184f05c4da39e2979e4fb50df3823b35e"
+      "deterministicProfileId": "profile-61b3f9635a8533af65037c7425d125701d123288d1a25263",
+      "semanticProfileDigest": "61b3f9635a8533af65037c7425d125701d123288d1a25263138b22de7b718ec6"
     },
     {
       "contractVersion": "2.0.0",
@@ -55794,5 +55870,5 @@
       "semanticProfileDigest": "51ad8ff1e96acdf501ef403d927412edf7d36a2cc14d7e4baebcba31a7f29983"
     }
   ],
-  "semanticAuthorityDigest": "dd150aeddcc04ed46b9c5b86cb13a66b60bf626c7fd8581f1d91ab9042078120"
+  "semanticAuthorityDigest": "b76a50383bcbecd581cc2919cc8f62aabee55a8a3150d681b89748853fdad912"
 }

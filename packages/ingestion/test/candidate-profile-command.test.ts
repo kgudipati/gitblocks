@@ -63,16 +63,39 @@ describe('candidate profile authority command', () => {
     const beforeAuthority = await readFile(authorityPath, 'utf8');
     const beforeCoverage = await readFile(coveragePath, 'utf8');
     const beforeCuration = await readFile(curationPath, 'utf8');
+    const optionalPostgresqlClaims = (
+      JSON.parse(beforeCuration) as {
+        claims: {
+          candidateId: string;
+          conceptId: string;
+          fieldId: string;
+          state: string;
+        }[];
+      }
+    ).claims.filter(
+      (claim) =>
+        claim.fieldId === 'optional-infrastructure' &&
+        claim.conceptId === 'postgresql' &&
+        claim.state === 'present',
+    );
+    expect(
+      optionalPostgresqlClaims.map(({ candidateId }) => candidateId),
+    ).toEqual([
+      'rate-fastify-rate-limit',
+      'rate-kong',
+      'rate-limiters',
+      'rate-node-rate-limiter-flexible',
+    ]);
     await expect(
       runCandidateProfileCommand(root, 'validate'),
     ).resolves.toMatchObject({
       mode: 'validate',
       profiles: 150,
       known: 600,
-      unknown: 3_215,
+      unknown: 3_211,
       notApplicable: 210,
       conflict: 0,
-      partial: 25,
+      partial: 29,
       complete: 0,
     });
     expect(await readFile(authorityPath, 'utf8')).toBe(beforeAuthority);
