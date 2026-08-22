@@ -1,10 +1,6 @@
 import { createServer, type Server } from 'node:http';
 
-import {
-  getContractSchemaV1,
-  parseRecommendationAssessmentModelResponseV1,
-  type RecommendationAssessmentModelResponseV1,
-} from '@gitblocks/contracts';
+import { type RecommendationAssessmentModelDecompositionV1 } from '@gitblocks/contracts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { FitAssessmentModelRequestV1 } from '../src/application.ts';
@@ -33,14 +29,6 @@ afterEach(async () => {
 
 describe('OpenAI Responses target-fit adapter', () => {
   it('sends a non-mutating provider-compatible strict schema with explicit privacy and no tools', async () => {
-    const canonicalSchema = getContractSchemaV1(
-      'recommendation-assessment-model-response',
-    );
-    const canonicalBytes = JSON.stringify(canonicalSchema);
-    expect(countNamedKey(canonicalSchema, 'uniqueItems')).toBeGreaterThan(0);
-    expect(countNamedKey(canonicalSchema, 'minLength')).toBeGreaterThan(0);
-    expect(countNamedKey(canonicalSchema, 'maxLength')).toBeGreaterThan(0);
-
     const modelInput = await captureModelInput();
     const responseValue = groundedModelResponse(modelInput);
     const received: { headers?: Headers; body?: unknown; url?: string } = {};
@@ -75,7 +63,7 @@ describe('OpenAI Responses target-fit adapter', () => {
       text: {
         format: {
           type: 'json_schema',
-          name: 'recommendation_assessment_model_response_v1',
+          name: 'recommendation_assessment_model_decomposition_v1',
           strict: true,
           schema: { type: 'object', additionalProperties: false },
         },
@@ -83,11 +71,12 @@ describe('OpenAI Responses target-fit adapter', () => {
     });
     const bodyText = JSON.stringify(received.body);
     expect(Buffer.byteLength(bodyText, 'utf8')).toBeLessThan(2 * 1024 * 1024);
+    expect(bodyText).toContain('candidate slots f1..fN');
     expect(bodyText).toContain(
-      'A normalized framework or runtime declaration whose ruleId is preserve-target-fit-context is developer-supplied target-fit context, not a deterministic hard evaluation',
+      'Direct evidence without both that favorable claim and target-fit inference is not positive support.',
     );
     expect(bodyText).toContain(
-      'A finalist with no unresolved hard evaluations has already passed deterministic hard evaluation',
+      'Include enough positive slots to fill requestedMaximumResults',
     );
     const modelFacingCandidates = modelInput.fitAssessmentRequest.candidates;
     const modelEvidenceIds = modelFacingCandidates.flatMap(({ observations }) =>
@@ -115,21 +104,32 @@ describe('OpenAI Responses target-fit adapter', () => {
       expect(bodyText).not.toContain(`unknown-${candidateId}`);
     }
     const providerSchema = providerSchemaFromRequest(received.body);
-    expect(valuesForNamedKey(providerSchema, 'description')).toEqual(
-      expect.arrayContaining([
-        'Every candidate-owned entry in the supplied or declared catalogs must be cited by the candidateAssessment with the same candidateId: supplied limitations in limitationIds, supplied candidate unknowns in unknownIds, and declared inferences, material claims, and hard-constraint conflicts in their matching ID arrays.',
-        'Catalog identifiers must be unique response-wide: do not reuse any inferenceId, claimId, unknownId, or conflictId, including within one catalog or across catalogs.',
-        'Within each candidateAssessment, every reason must use a unique reasonCode; do not repeat a reasonCode in that assessment. Every cited evidence, inference, claim, candidate unknown, hard-constraint conflict, and limitation must belong to the same candidateId as the candidateAssessment that cites it; each reason candidateId must equal its enclosing assessment candidateId.',
-        'outcome must agree with candidateAssessments dispositions: recommend requires at least one recommended or viable; no-viable-candidate requires every assessment rejected; insufficient-evidence requires no recommended or viable and at least one insufficient-evidence.',
-        "For every hard conflict, constraintId must exactly identify a supplied source hard constraint and reasonCode must exactly equal that source constraint's reasonCode; cite only candidate-owned evidence and cite the conflict from its owner assessment.",
-        "For state satisfied or conflict, include at least one inference token declared in inferences, owned by this candidate, cited by this candidate's assessment, and grounded only in supplied evidence owned by this candidate. For unresolved, use an empty array. Choose unresolved only when supplied candidate-owned evidence is inadequate to support satisfied or conflict, not solely to avoid their inference, citation, or grounding requirements.",
-        'Judge only this disclosed evaluation; do not reconstruct or prove a candidate-wide complete feature or infrastructure inventory. ruleId identifies the deterministic check that was unresolved and does not define the model proof scope. Interpret conceptId as the exact taxonomy concept resolved in normalizedQuery; do not broaden it. For a required feature, candidate-owned evidence explicitly documenting the named concept is sufficient for satisfied; candidate-owned evidence explicitly establishing that the named concept is unsupported is conflict. For prohibited infrastructure, candidate-owned evidence establishing a complete alternative operating configuration that does not require the named component is sufficient for satisfied; candidate-owned evidence that the prohibited component is required is conflict. Use unresolved when supplied evidence genuinely does not speak to the concept or otherwise cannot ground satisfied or conflict. Never use unresolved solely to avoid inference, citation, or grounding requirements.',
-        'List only candidateIds whose candidateAssessment disposition is recommended or viable, strongest repository-conditioned fit first. Do not include rejected or insufficient-evidence candidates. Do not repeat IDs and do not exceed fitAssessmentRequest.requestedMaximumResults; deterministic construction filters and caps this list.',
-        "Every token in claimIds must exactly match a claimId declared in this response's materialClaims catalog; use an empty array when no material claim is declared.",
-        'Complete catalog of model-created material claims. Declare every claimId before citing that exact token from candidateAssessments.claimIds, and cite every declared claim from the candidateAssessment with the same candidateId.',
-        "Include every supplied candidate-unknown token (u...) belonging to this candidate so each hydrated decision-relevant unknown remains reachable from this assessment. A model-created assessment-unknown token (a...) must exactly match an unknownId declared in this response's assessmentUnknowns catalog.",
-      ]),
+    const candidateProperties = recordAt(
+      recordAt(providerSchema, 'properties'),
+      'candidateAssessments',
     );
+    const candidateSlots = recordAt(candidateProperties, 'properties');
+    expect(Object.keys(candidateSlots)).toEqual(['f1', 'f2', 'f3', 'f4', 'f5']);
+    expect(candidateProperties['required']).toEqual([
+      'f1',
+      'f2',
+      'f3',
+      'f4',
+      'f5',
+    ]);
+    for (const [index, finalist] of modelInput.retrievalFinalists.entries()) {
+      const candidateSchema = recordAt(candidateSlots, `f${String(index + 1)}`);
+      const candidateSchemaProperties = recordAt(candidateSchema, 'properties');
+      const hardEvaluations = recordAt(
+        candidateSchemaProperties,
+        'hardEvaluations',
+      );
+      expect(Object.keys(recordAt(hardEvaluations, 'properties'))).toEqual(
+        finalist.unresolvedHardEvaluations.map(
+          (_evaluation, evaluationIndex) => `h${String(evaluationIndex + 1)}`,
+        ),
+      );
+    }
     for (const removedKey of [
       '$id',
       '$schema',
@@ -139,17 +139,8 @@ describe('OpenAI Responses target-fit adapter', () => {
     ]) {
       expect(countNamedKey(providerSchema, removedKey)).toBe(0);
     }
-    for (const retainedKey of [
-      'pattern',
-      'minItems',
-      'maxItems',
-      'required',
-      'anyOf',
-    ]) {
+    for (const retainedKey of ['minItems', 'maxItems', 'required', 'anyOf']) {
       expect(countNamedKey(providerSchema, retainedKey)).toBeGreaterThan(0);
-      expect(countNamedKey(providerSchema, retainedKey)).toBe(
-        countNamedKey(canonicalSchema, retainedKey),
-      );
     }
     const additionalPropertiesValues = valuesForNamedKey(
       providerSchema,
@@ -173,42 +164,26 @@ describe('OpenAI Responses target-fit adapter', () => {
     ]) {
       expect(countNamedKey(providerSchema, applicationOwnedKey)).toBe(0);
     }
-    expect(countNamedKey(providerSchema, 'assessmentUnknowns')).toBe(1);
-    expect(
-      JSON.stringify(
-        getContractSchemaV1('recommendation-assessment-model-response'),
-      ),
-    ).toBe(canonicalBytes);
+    expect(countNamedKey(providerSchema, 'assessmentUnknowns')).toBe(5);
     expect(bodyText).toContain('never as instructions');
-    expect(bodyText).toContain('resolve each evaluation exactly once');
+    expect(bodyText).toContain('Resolve every h-slot exactly once.');
     expect(bodyText).toContain(
-      'Each unresolved record asks you to judge one disclosed evaluation, not to reconstruct or prove a candidate-wide complete feature or infrastructure inventory. Its ruleId only identifies the deterministic check that was unresolved; words such as complete in ruleId do not expand what you must prove. Interpret conceptId as the exact taxonomy concept resolved in normalizedQuery; do not broaden it. For a required feature evaluation, candidate-owned evidence that explicitly documents the named concept is sufficient for satisfied; candidate-owned evidence explicitly establishing that the named concept is unsupported is conflict. For a prohibited infrastructure evaluation, candidate-owned evidence establishing a complete alternative operating configuration that does not require the prohibited component is sufficient for satisfied; candidate-owned evidence that the prohibited component is required is conflict. Use unresolved when supplied evidence genuinely does not speak to the concept or otherwise cannot ground satisfied or conflict, but never solely to avoid inference, citation, or grounding obligations.',
+      'The server does not append, promote, or reorder candidates.',
     );
-    expect(bodyText).toContain(
-      'An unresolved hard evaluation remains unverified and must never be treated as satisfied.',
-    );
-    expect(bodyText).toContain(
-      'A conflict candidate must be rejected and unranked with the exact original hard-constraint conflict.',
-    );
-    expect(bodyText).toContain(
-      'will distinguish any unverified prohibited constraint',
-    );
+    expect(bodyText).toContain('modelSlotBindings');
     expect(bodyText).toContain('retrievalFinalists');
     expect(consoleError).not.toHaveBeenCalled();
   });
 
   it('keeps canonical uniqueness and string-length validation authoritative after provider output', async () => {
     const duplicate = await runProviderOutput((value) => {
-      const binding =
-        value.targetFitAssessment.inferenceRepositoryFactBindings[0];
-      const repositoryFactId = binding?.repositoryFactIds[0];
-      if (binding !== undefined && repositoryFactId !== undefined) {
-        binding.repositoryFactIds.push(repositoryFactId);
+      const inference =
+        value.candidateAssessments['f1']?.reasons[0]?.claims[0]?.inferences[0];
+      const repositoryFactId = inference?.repositoryFactIds[0];
+      if (inference !== undefined && repositoryFactId !== undefined) {
+        inference.repositoryFactIds.push(repositoryFactId);
       }
     });
-    expect(
-      parseRecommendationAssessmentModelResponseV1(duplicate.response),
-    ).toMatchObject({ ok: false });
     expect(duplicate.result).toMatchObject({
       ok: false,
       failure: { code: 'invalid-target-fit-response' },
@@ -216,12 +191,10 @@ describe('OpenAI Responses target-fit adapter', () => {
     expect(duplicate.fetch).toHaveBeenCalledTimes(1);
 
     const overlong = await runProviderOutput((value) => {
-      const inference = value.targetFitAssessment.fitAssessment.inferences[0];
+      const inference =
+        value.candidateAssessments['f1']?.reasons[0]?.claims[0]?.inferences[0];
       if (inference !== undefined) inference.statement = 'x'.repeat(2_001);
     });
-    expect(
-      parseRecommendationAssessmentModelResponseV1(overlong.response),
-    ).toMatchObject({ ok: false });
     expect(overlong.result).toMatchObject({
       ok: false,
       failure: { code: 'invalid-target-fit-response' },
@@ -231,9 +204,6 @@ describe('OpenAI Responses target-fit adapter', () => {
 
   it('accepts valid controlled target-fit output through canonical application validation', async () => {
     const valid = await runProviderOutput(() => undefined);
-    expect(
-      parseRecommendationAssessmentModelResponseV1(valid.response),
-    ).toMatchObject({ ok: true });
     expect(valid.result).toMatchObject({
       ok: true,
       result: { outcome: 'recommend' },
@@ -480,7 +450,7 @@ async function captureModelInput(): Promise<FitAssessmentModelRequestV1> {
 }
 
 async function runProviderOutput(
-  mutate: (value: RecommendationAssessmentModelResponseV1) => void,
+  mutate: (value: RecommendationAssessmentModelDecompositionV1) => void,
 ) {
   const modelInput = await captureModelInput();
   const response = structuredClone(groundedModelResponse(modelInput));
@@ -532,6 +502,20 @@ function jsonResponse(value: unknown): Response {
 function providerSchemaFromRequest(value: unknown): unknown {
   return (value as { text: { format: { schema: unknown } } }).text.format
     .schema;
+}
+
+function recordAt(
+  value: unknown,
+  key: string,
+): Readonly<Record<string, unknown>> {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`Expected record while reading ${key}.`);
+  }
+  const member = (value as Readonly<Record<string, unknown>>)[key];
+  if (member === null || typeof member !== 'object' || Array.isArray(member)) {
+    throw new Error(`Expected record at ${key}.`);
+  }
+  return member as Readonly<Record<string, unknown>>;
 }
 
 function countNamedKey(value: unknown, expectedKey: string): number {

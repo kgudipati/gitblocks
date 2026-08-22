@@ -16,10 +16,9 @@ import {
 } from '../../apps/gitblocks-hosted/dist/src/index.js';
 import {
   parseOssRecommendationRequestV1,
-  parseRecommendationAssessmentModelResponseV1,
   parseRepositoryFingerprintV1,
   repositoryFingerprintDigestV1,
-  validateRecommendationModelAssessmentExchangeV1,
+  validateRecommendationModelDecompositionExchangeV1,
 } from '../../packages/contracts/dist/src/index.js';
 
 const BASELINE_DIRECTORY = import.meta.dirname;
@@ -33,6 +32,12 @@ const LOCAL_DIAGNOSTICS_PATH = join(
   REPOSITORY_ROOT,
   'logs/outcome-baseline-v1/diagnostics.json',
 );
+const LOCAL_REJECTED_MODEL_SUBSTANCE_DIRECTORY = join(
+  REPOSITORY_ROOT,
+  'logs/outcome-baseline-v1/rejected-model-substance',
+);
+const REJECTED_MODEL_SUBSTANCE_CAPTURE_ENVIRONMENT =
+  'GITBLOCKS_OUTCOME_BASELINE_CAPTURE_REJECTED_MODEL_SUBSTANCE';
 const SCANNER_PATH = join(
   REPOSITORY_ROOT,
   '.agents/skills/gitblocks-oss-adoption/scripts/fingerprint-codebase.mjs',
@@ -240,6 +245,7 @@ async function main() {
   const database = readDatabaseConfiguration(process.env);
   const modelCaptures = new Map();
   const assessmentDiagnostics = new Map();
+  const rejectedModelSubstanceCaptures = new Map();
   const modelMeasurements = new Map();
   const providerMeasurements = new Map();
   const providerMeasurementPromises = [];
@@ -247,6 +253,8 @@ async function main() {
   let delegateModel = null;
   let modelEnvironmentMissing = false;
   let activeModelRequestId = null;
+  const rejectedModelSubstanceCaptureEnabled =
+    process.env[REJECTED_MODEL_SUBSTANCE_CAPTURE_ENVIRONMENT] === '1';
   const measuredFetch = async (resource, init) => {
     const requestId = activeModelRequestId;
     const response = await globalThis.fetch(resource, init);
@@ -279,14 +287,21 @@ async function main() {
       activeModelRequestId = requestId;
       try {
         const response = await delegateModel.assess(input);
-        assessmentDiagnostics.set(
-          requestId,
-          validateAndCaptureAssessmentDiagnostics(
-            input,
-            response,
-            modelCaptures.get(requestId) ?? null,
-          ),
+        const captured = validateAndCaptureAssessmentDiagnostics(
+          input,
+          response,
+          modelCaptures.get(requestId) ?? null,
         );
+        assessmentDiagnostics.set(requestId, captured.diagnostics);
+        if (
+          rejectedModelSubstanceCaptureEnabled &&
+          captured.rejectedModelSubstance !== null
+        ) {
+          rejectedModelSubstanceCaptures.set(
+            requestId,
+            captured.rejectedModelSubstance,
+          );
+        }
         modelMeasurements.set(
           requestId,
           Object.freeze({
@@ -339,6 +354,8 @@ async function main() {
           operation,
           modelCapture: modelCaptures.get(fixture.fixtureId) ?? null,
           diagnostics: assessmentDiagnostics.get(fixture.fixtureId) ?? null,
+          rejectedModelSubstance:
+            rejectedModelSubstanceCaptures.get(fixture.fixtureId) ?? null,
           events: eventsByRequestId.get(fixture.fixtureId) ?? [],
           modelMeasurement: modelMeasurements.get(fixture.fixtureId) ?? null,
         }),
@@ -373,6 +390,11 @@ async function main() {
   await mkdir(resolve(REPORT_PATH, '..'), { recursive: true });
   await writeFile(REPORT_PATH, report, 'utf8');
   await writeLocalDiagnostics(measurements);
+  const localRejectedModelSubstance =
+    await writeLocalRejectedModelSubstanceCapture(
+      measurements,
+      rejectedModelSubstanceCaptureEnabled,
+    );
   console.log(
     JSON.stringify({
       status: 'complete',
@@ -382,6 +404,14 @@ async function main() {
       modelCalls,
       report: relative(REPOSITORY_ROOT, REPORT_PATH),
       localDiagnostics: relative(REPOSITORY_ROOT, LOCAL_DIAGNOSTICS_PATH),
+      ...(localRejectedModelSubstance === null
+        ? {}
+        : {
+            localRejectedModelSubstance: relative(
+              REPOSITORY_ROOT,
+              localRejectedModelSubstance,
+            ),
+          }),
     }),
   );
 }
@@ -609,9 +639,42 @@ function captureModelInput(input) {
 export function captureAssessmentDiagnostics(input) {
   const response = input.response;
   const fit = response?.targetFitAssessment?.fitAssessment;
-  const assessments = array(fit?.candidateAssessments);
-  const resolutions = array(response?.evidenceNeededHardConstraintResolutions);
-  const declaredConflicts = array(fit?.hardConstraintConflicts);
+  const legacyAssessments = array(fit?.candidateAssessments);
+  const decompositionAssessments = isRecord(response?.candidateAssessments)
+    ? Object.entries(response.candidateAssessments).map(([slot, assessment]) =>
+        Object.freeze({
+          candidateId: candidateIdForSlot(input.request, slot),
+          disposition: isRecord(assessment)
+            ? stringOrNull(assessment.fitJudgment)
+            : null,
+          hardEvaluations: isRecord(assessment?.hardEvaluations)
+            ? assessment.hardEvaluations
+            : {},
+        }),
+      )
+    : [];
+  const assessments =
+    decompositionAssessments.length > 0
+      ? decompositionAssessments
+      : legacyAssessments;
+  const legacyResolutions = array(
+    response?.evidenceNeededHardConstraintResolutions,
+  );
+  const decompositionResolutions = decompositionAssessments.flatMap(
+    (assessment) =>
+      Object.values(assessment.hardEvaluations).map((evaluation) => ({
+        candidateId: assessment.candidateId,
+        state: isRecord(evaluation) ? evaluation.state : null,
+      })),
+  );
+  const resolutions =
+    decompositionResolutions.length > 0
+      ? decompositionResolutions
+      : legacyResolutions;
+  const declaredConflicts =
+    decompositionAssessments.length > 0
+      ? decompositionResolutions.filter(({ state }) => state === 'conflict')
+      : array(fit?.hardConstraintConflicts);
   const candidateIds = new Set(
     array(input.request?.candidates)
       .map((candidate) => candidate?.identity?.candidateId)
@@ -663,6 +726,7 @@ export function captureAssessmentDiagnostics(input) {
     (total, candidate) => total + array(candidate?.limitations).length,
     0,
   );
+  const decompositionCatalogs = decompositionModelCatalogCounts(response);
   return Object.freeze({
     responseCaptured: input.responseCaptured ?? response !== null,
     diagnosticCaptureFailed: false,
@@ -691,11 +755,16 @@ export function captureAssessmentDiagnostics(input) {
       ),
     ),
     catalogCounts: Object.freeze({
-      inferences: array(fit?.inferences).length,
-      claims: array(fit?.materialClaims).length,
-      unknowns: suppliedUnknownCount + array(fit?.assessmentUnknowns).length,
+      inferences:
+        decompositionCatalogs?.inferences ?? array(fit?.inferences).length,
+      claims:
+        decompositionCatalogs?.claims ?? array(fit?.materialClaims).length,
+      unknowns:
+        suppliedUnknownCount +
+        (decompositionCatalogs?.assessmentUnknowns ??
+          array(fit?.assessmentUnknowns).length),
       limitations: suppliedLimitationCount,
-      conflicts: declaredConflicts.length,
+      conflicts: decompositionCatalogs?.conflicts ?? declaredConflicts.length,
     }),
     candidates: Object.freeze(candidates),
     hasSatisfiedResolution: candidates.some(
@@ -707,13 +776,158 @@ export function captureAssessmentDiagnostics(input) {
   });
 }
 
+export function captureRejectedModelSubstance(input) {
+  if (input.validation.ok || !isRecord(input.response)) return null;
+  const responseAssessments = isRecord(input.response.candidateAssessments)
+    ? input.response.candidateAssessments
+    : {};
+  const requestCandidates = array(input.request?.candidates);
+  const expectedSlots = requestCandidates.map(
+    (_candidate, index) => `f${String(index + 1)}`,
+  );
+  const candidateSlots = [
+    ...new Set([...expectedSlots, ...Object.keys(responseAssessments)]),
+  ];
+  const candidateAssessments = candidateSlots.map((candidateSlot) => {
+    const assessment = isRecord(responseAssessments[candidateSlot])
+      ? responseAssessments[candidateSlot]
+      : {};
+    const reasons = array(assessment.reasons);
+    return Object.freeze({
+      candidateSlot,
+      fitJudgment: stringOrNull(assessment.fitJudgment),
+      claims: Object.freeze(
+        reasons.flatMap((reason, reasonIndex) =>
+          array(reason?.claims).map((claim, claimIndex) =>
+            Object.freeze({
+              reasonIndex,
+              claimIndex,
+              topic: stringOrNull(claim?.topic),
+              direction: stringOrNull(claim?.direction),
+              statement: stringOrNull(claim?.statement),
+              evidenceIds: Object.freeze(stringArray(claim?.evidenceIds)),
+              inferences: Object.freeze(
+                array(claim?.inferences).map((inference) =>
+                  captureModelInference(inference),
+                ),
+              ),
+            }),
+          ),
+        ),
+      ),
+      assessmentUnknowns: Object.freeze(
+        reasons.flatMap((reason, reasonIndex) =>
+          array(reason?.assessmentUnknowns).map((unknown, unknownIndex) =>
+            Object.freeze({
+              reasonIndex,
+              unknownIndex,
+              topic: stringOrNull(unknown?.topic),
+              statement: stringOrNull(unknown?.statement),
+            }),
+          ),
+        ),
+      ),
+      consideredLimitations: Object.freeze(
+        reasons.flatMap((reason, reasonIndex) =>
+          stringArray(reason?.limitationIds).map((limitationId) =>
+            Object.freeze({ reasonIndex, limitationId }),
+          ),
+        ),
+      ),
+      consideredCandidateUnknowns: Object.freeze(
+        reasons.flatMap((reason, reasonIndex) =>
+          stringArray(reason?.candidateUnknownIds).map((unknownId) =>
+            Object.freeze({ reasonIndex, unknownId }),
+          ),
+        ),
+      ),
+    });
+  });
+  const processing = isRecord(input.response.assessmentProcessing)
+    ? input.response.assessmentProcessing
+    : {};
+  return Object.freeze({
+    candidateAssessments: Object.freeze(candidateAssessments),
+    orderedPositiveCandidateIds: Object.freeze(
+      stringArray(input.response.orderedPositiveCandidateIds),
+    ),
+    assessmentProcessing: Object.freeze({
+      state: stringOrNull(processing.state),
+      incompleteReasonCodes: Object.freeze(
+        stringArray(processing.incompleteReasonCodes),
+      ),
+    }),
+    validationIssues: Object.freeze(
+      input.validation.issues.map(({ code, path }) =>
+        Object.freeze({ code, path }),
+      ),
+    ),
+  });
+}
+
+function captureModelInference(inference) {
+  return Object.freeze({
+    topic: stringOrNull(inference?.topic),
+    statement: stringOrNull(inference?.statement),
+    rationale: stringOrNull(inference?.rationale),
+    evidenceIds: Object.freeze(stringArray(inference?.evidenceIds)),
+    repositoryFactIds: Object.freeze(stringArray(inference?.repositoryFactIds)),
+  });
+}
+
+function decompositionModelCatalogCounts(response) {
+  if (!isRecord(response?.candidateAssessments)) return null;
+  let claims = 0;
+  let inferences = 0;
+  let assessmentUnknowns = 0;
+  let conflicts = 0;
+  for (const assessment of Object.values(response.candidateAssessments)) {
+    for (const reason of array(assessment?.reasons)) {
+      const reasonClaims = array(reason?.claims);
+      claims += reasonClaims.length;
+      inferences += reasonClaims.reduce(
+        (total, claim) => total + array(claim?.inferences).length,
+        0,
+      );
+      assessmentUnknowns += array(reason?.assessmentUnknowns).length;
+    }
+    for (const evaluation of Object.values(
+      isRecord(assessment?.hardEvaluations) ? assessment.hardEvaluations : {},
+    )) {
+      if (evaluation?.state === 'conflict') conflicts += 1;
+      if (isRecord(evaluation?.grounding?.inference)) inferences += 1;
+    }
+  }
+  return Object.freeze({ claims, inferences, assessmentUnknowns, conflicts });
+}
+
+function requestCandidateForSlot(request, slot) {
+  const match = /^f([1-9]\d*)$/u.exec(slot);
+  if (match === null) return null;
+  return array(request?.candidates)[Number(match[1]) - 1] ?? null;
+}
+
+function candidateIdForSlot(request, slot) {
+  return stringOrNull(
+    requestCandidateForSlot(request, slot)?.identity?.candidateId,
+  );
+}
+
+function stringOrNull(value) {
+  return typeof value === 'string' ? value : null;
+}
+
+function stringArray(value) {
+  return array(value).filter((entry) => typeof entry === 'string');
+}
+
 function validateAndCaptureAssessmentDiagnostics(
   input,
   response,
   modelCapture,
 ) {
   try {
-    const validation = validateRecommendationModelAssessmentExchangeV1({
+    const validation = validateRecommendationModelDecompositionExchangeV1({
       request: input.fitAssessmentRequest,
       normalization: input.normalization,
       retrievalFinalists: input.retrievalFinalists,
@@ -721,17 +935,25 @@ function validateAndCaptureAssessmentDiagnostics(
       assessmentId: mintRequestBoundAssessmentId(input.fitAssessmentRequest),
       producedAt: input.fitAssessmentRequest.evidenceCutoff,
     });
-    const parsedResponse =
-      parseRecommendationAssessmentModelResponseV1(response);
-    return captureAssessmentDiagnostics({
-      request: input.fitAssessmentRequest,
-      response: parsedResponse.ok ? parsedResponse.value : null,
-      responseCaptured: true,
-      validation,
+    return Object.freeze({
+      diagnostics: captureAssessmentDiagnostics({
+        request: input.fitAssessmentRequest,
+        response,
+        responseCaptured: true,
+        validation,
+      }),
+      rejectedModelSubstance: captureRejectedModelSubstance({
+        request: input.fitAssessmentRequest,
+        response,
+        validation,
+      }),
     });
   } catch {
     // Evaluation diagnostics must never change the application's model result.
-    return unavailableAssessmentDiagnostics(modelCapture, true, true);
+    return Object.freeze({
+      diagnostics: unavailableAssessmentDiagnostics(modelCapture, true, true),
+      rejectedModelSubstance: null,
+    });
   }
 }
 
@@ -850,6 +1072,7 @@ function measureOperation(input) {
       recommendation: null,
       model,
       diagnostics,
+      rejectedModelSubstance: input.rejectedModelSubstance,
       deterministicallyValidResponse: false,
     });
   }
@@ -871,6 +1094,7 @@ function measureOperation(input) {
         : null,
     model,
     diagnostics,
+    rejectedModelSubstance: input.rejectedModelSubstance,
     deterministicallyValidResponse: model.completed,
   });
 }
@@ -1489,6 +1713,46 @@ async function writeLocalDiagnostics(measurements) {
       mode: 0o600,
     },
   );
+}
+
+async function writeLocalRejectedModelSubstanceCapture(measurements, enabled) {
+  if (!enabled) return null;
+  await mkdir(LOCAL_REJECTED_MODEL_SUBSTANCE_DIRECTORY, {
+    recursive: true,
+    mode: 0o700,
+  });
+  const capturedAt = new Date().toISOString();
+  const capturePath = join(
+    LOCAL_REJECTED_MODEL_SUBSTANCE_DIRECTORY,
+    `${capturedAt.replaceAll(':', '-').replaceAll('.', '-')}-${String(process.pid)}.json`,
+  );
+  const detail = {
+    formatVersion: '1.0.0',
+    capturedAt,
+    fixtures: measurements
+      .filter(({ rejectedModelSubstance }) => rejectedModelSubstance !== null)
+      .map(
+        ({
+          fixtureId,
+          capabilityFamily,
+          outcome,
+          reason,
+          rejectedModelSubstance,
+        }) => ({
+          fixtureId,
+          capabilityFamily,
+          outcome,
+          reason,
+          rejectedModelSubstance,
+        }),
+      ),
+  };
+  await writeFile(capturePath, `${JSON.stringify(detail, null, 2)}\n`, {
+    encoding: 'utf8',
+    mode: 0o600,
+    flag: 'wx',
+  });
+  return capturePath;
 }
 
 function median(values) {

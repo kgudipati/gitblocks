@@ -2,7 +2,7 @@ import {
   repositoryFingerprintDigestV1,
   type OssRecommendationRequestV2,
   type CandidateRetrievalResultV1,
-  type RecommendationAssessmentModelResponseV1,
+  type RecommendationAssessmentModelDecompositionV1,
 } from '@gitblocks/contracts';
 import type { CandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
 import { describe, expect, it, vi } from 'vitest';
@@ -102,6 +102,18 @@ describe('hosted OSS recommendation application', () => {
       evidenceCutoff: TEST_EVIDENCE_CUTOFF,
       producedAt: TEST_EVIDENCE_CUTOFF,
     });
+    expect(fitAssessment.candidateLimitations.length).toBeGreaterThan(0);
+    expect(
+      fitAssessment.materialUnknowns.filter(
+        ({ scope }) => scope === 'candidate',
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      fitAssessment.candidateAssessments.every(
+        ({ limitationIds, unknownIds }) =>
+          limitationIds.length === 0 && unknownIds.length === 0,
+      ),
+    ).toBe(true);
   });
 
   it('accepts V2, expands it before normalization, and preserves the V1 serving path', async () => {
@@ -179,19 +191,11 @@ describe('hosted OSS recommendation application', () => {
           for (const index of [1, 2, 3]) {
             promoteModelCandidate(response, index);
           }
-          const candidateIds =
-            response.targetFitAssessment.fitAssessment.candidateAssessments.map(
-              ({ candidateId }) => candidateId,
-            );
+          const candidateIds = input.fitAssessmentRequest.candidates.map(
+            ({ identity }) => identity.candidateId,
+          );
           rejectedCandidateId = candidateIds[4];
-          response.targetFitAssessment.fitAssessment.orderedViableCandidateIds =
-            [
-              candidateIds[4]!,
-              candidateIds[3]!,
-              candidateIds[0]!,
-              candidateIds[2]!,
-              candidateIds[1]!,
-            ];
+          response.orderedPositiveCandidateIds = ['f4', 'f1', 'f3'];
           expectedOptionIds = [
             candidateIds[3]!,
             candidateIds[0]!,
@@ -225,6 +229,84 @@ describe('hosted OSS recommendation application', () => {
     expect(outcome.result.targetFitAssessment.fitAssessment.rankGroups).toEqual(
       expectedOptionIds.map((candidateId) => ({ candidateIds: [candidateId] })),
     );
+  });
+
+  it('keeps a model-authored unknown scoped to the candidate whose reason owns it', async () => {
+    let unknownOwnerId: string | undefined;
+    const application = await createAcceptedApplication({
+      fitModel: {
+        assess: (input) => {
+          const response = structuredClone(groundedModelResponse(input));
+          unknownOwnerId =
+            input.fitAssessmentRequest.candidates[1]?.identity.candidateId;
+          response.candidateAssessments[
+            'f2'
+          ]?.reasons[0]?.assessmentUnknowns.push({
+            topic: 'runtime-support',
+            statement:
+              'This candidate has not established support for the target runtime.',
+            evidenceIds: [],
+          });
+          return Promise.resolve(response);
+        },
+      },
+    });
+
+    const outcome = await application.recommendOss(
+      recommendationRequest({
+        id: 'recommend-candidate-scoped-model-unknown',
+        term: 'authorization',
+      }),
+    );
+
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok || outcome.result.outcome !== 'recommend') return;
+    const modelUnknown =
+      outcome.result.targetFitAssessment.fitAssessment.materialUnknowns.find(
+        ({ statement }) =>
+          statement ===
+          'This candidate has not established support for the target runtime.',
+      );
+    expect(modelUnknown).toMatchObject({
+      scope: 'candidate',
+      candidateId: unknownOwnerId,
+      topic: 'runtime-support',
+    });
+  });
+
+  it('still rejects a favorable claim that collides with an unknown owned by the same candidate', async () => {
+    const application = await createAcceptedApplication({
+      fitModel: {
+        assess: (input) => {
+          const response = structuredClone(groundedModelResponse(input));
+          response.candidateAssessments[
+            'f1'
+          ]?.reasons[0]?.assessmentUnknowns.push({
+            topic: 'runtime-support',
+            statement:
+              'Support for the target runtime remains unknown for this candidate.',
+            evidenceIds: [],
+          });
+          return Promise.resolve(response);
+        },
+      },
+    });
+
+    const outcome = await application.recommendOss(
+      recommendationRequest({
+        id: 'recommend-same-candidate-model-unknown',
+        term: 'authorization',
+      }),
+    );
+
+    expect(outcome).toMatchObject({
+      ok: false,
+      failure: {
+        code: 'invalid-target-fit-response',
+        stage: 'response-validation',
+        path: 'target-fit-exchange-validation',
+      },
+    });
   });
 
   it.each([
@@ -362,17 +444,19 @@ describe('hosted OSS recommendation application', () => {
           const prohibited = positive?.unresolvedHardEvaluations.find(
             ({ modality }) => modality === 'prohibited',
           );
+          const evaluationIndex =
+            positive?.unresolvedHardEvaluations.findIndex(
+              ({ evaluationId }) => evaluationId === prohibited?.evaluationId,
+            ) ?? -1;
           const resolution =
-            response.evidenceNeededHardConstraintResolutions.find(
-              (candidate) =>
-                candidate.candidateId === positive?.candidateId &&
-                candidate.evaluationId === prohibited?.evaluationId,
-            );
+            response.candidateAssessments['f1']?.hardEvaluations[
+              `h${String(evaluationIndex + 1)}`
+            ];
           if (resolution === undefined) {
             throw new Error('Prohibited hard-resolution fixture is missing.');
           }
           resolution.state = 'unresolved';
-          resolution.inferenceIds = [];
+          resolution.grounding = null;
           return Promise.resolve(response);
         },
       },
@@ -409,6 +493,55 @@ describe('hosted OSS recommendation application', () => {
       outcome.result.responsibleOptions[0]?.constraintStatuses[0]?.grounding[0]
         ?.inferenceIds.length,
     ).toBeGreaterThan(0);
+  });
+
+  it('projects grounded conflict from model substance, rejects and unranks the candidate, and binds the exact source constraint', async () => {
+    const request = frozenBackgroundJobsDogfoodRequest();
+    const application = await createAcceptedApplication({
+      fitModel: {
+        assess: (input) => {
+          const response = structuredClone(groundedModelResponse(input));
+          const evaluation =
+            response.candidateAssessments['f1']?.hardEvaluations['h1'];
+          if (evaluation?.grounding === null || evaluation === undefined) {
+            throw new Error('Grounded conflict fixture is incomplete.');
+          }
+          evaluation.state = 'conflict';
+          evaluation.grounding.reasonStatement =
+            'Candidate-owned evidence establishes the exact disclosed conflict.';
+          return Promise.resolve(response);
+        },
+      },
+    });
+
+    const outcome = await application.recommendOss(request);
+
+    expect(outcome).toMatchObject({
+      ok: true,
+      result: { outcome: 'no-viable-candidate' },
+    });
+    if (
+      !outcome.ok ||
+      outcome.result.outcome !== 'no-viable-candidate' ||
+      outcome.result.targetFitAssessment === null
+    ) {
+      return;
+    }
+    const fit = outcome.result.targetFitAssessment.fitAssessment;
+    const firstCandidateId = fit.suppliedCandidateIds[0];
+    const firstAssessment = fit.candidateAssessments.find(
+      ({ candidateId }) => candidateId === firstCandidateId,
+    );
+    const conflict = fit.hardConstraintConflicts[0];
+    expect(firstAssessment).toMatchObject({ disposition: 'rejected' });
+    expect(
+      fit.rankGroups.flatMap(({ candidateIds }) => candidateIds),
+    ).not.toContain(firstCandidateId);
+    expect(conflict).toMatchObject({
+      candidateId: firstCandidateId,
+      constraintId: request.capabilityQuery.draftConstraints[0]?.constraintId,
+      reasonCode: request.capabilityQuery.draftConstraints[0]?.reasonCode,
+    });
   });
 
   it('augments only evidence-needed finalists with matching request-scoped artifact excerpts before the one model call', async () => {
@@ -703,8 +836,11 @@ describe('hosted OSS recommendation application', () => {
     ['restored candidate', restoreCandidate],
     ['invented evidence', inventEvidence],
     ['untraceable reason', removeReasonTraceability],
+    ['direct evidence without positive authorship', removePositiveAuthorship],
     ['invented repository fact', inventRepositoryFact],
-    ['viable hard conflict', addPositiveHardConflict],
+    ['omitted positive candidate', omitPositiveCandidate],
+    ['included non-positive candidate', includeNonPositiveCandidate],
+    ['duplicated positive candidate', duplicatePositiveCandidate],
   ] as const)(
     'fails closed for model output with %s and never retries',
     async (_name, mutate) => {
@@ -794,89 +930,95 @@ function fixedEngine(
 }
 
 function restoreCandidate(
-  value: RecommendationAssessmentModelResponseV1,
+  value: RecommendationAssessmentModelDecompositionV1,
 ): void {
-  const first = value.targetFitAssessment.fitAssessment.candidateAssessments[0];
-  if (first !== undefined) first.candidateId = 'candidate-invented';
+  const first = value.candidateAssessments['f1'];
+  if (first === undefined) return;
+  delete (value.candidateAssessments as Record<string, unknown>)['f1'];
+  (value.candidateAssessments as Record<string, unknown>)['f6'] = first;
 }
 
-function inventEvidence(value: RecommendationAssessmentModelResponseV1): void {
-  const first = value.targetFitAssessment.fitAssessment.inferences[0];
-  if (first !== undefined) first.evidenceIds = ['evidence-invented'];
+function inventEvidence(
+  value: RecommendationAssessmentModelDecompositionV1,
+): void {
+  const first =
+    value.candidateAssessments['f1']?.reasons[0]?.claims[0]?.inferences[0];
+  if (first !== undefined) first.evidenceIds = ['e999'];
 }
 
 function removeReasonTraceability(
-  value: RecommendationAssessmentModelResponseV1,
+  value: RecommendationAssessmentModelDecompositionV1,
 ): void {
-  const first =
-    value.targetFitAssessment.fitAssessment.candidateAssessments[0]?.reasons[0];
+  const first = value.candidateAssessments['f1']?.reasons[0];
   if (first === undefined) return;
   first.evidenceIds = [];
-  first.inferenceIds = [];
-  first.unknownIds = [];
+  first.claims = [];
+  first.candidateUnknownIds = [];
+  first.assessmentUnknowns = [];
 }
 
 function inventRepositoryFact(
-  value: RecommendationAssessmentModelResponseV1,
+  value: RecommendationAssessmentModelDecompositionV1,
 ): void {
-  const first = value.targetFitAssessment.inferenceRepositoryFactBindings[0];
+  const first =
+    value.candidateAssessments['f1']?.reasons[0]?.claims[0]?.inferences[0];
   if (first !== undefined) first.repositoryFactIds = ['fact-invented'];
 }
 
-function addPositiveHardConflict(
-  value: RecommendationAssessmentModelResponseV1,
+function removePositiveAuthorship(
+  value: RecommendationAssessmentModelDecompositionV1,
 ): void {
-  const assessment =
-    value.targetFitAssessment.fitAssessment.candidateAssessments[0];
-  const evidenceId = assessment?.evidenceIds[0];
-  if (assessment === undefined || evidenceId === undefined) return;
-  assessment.hardConstraintConflictIds = ['conflict-invented'];
-  value.targetFitAssessment.fitAssessment.hardConstraintConflicts = [
-    {
-      conflictId: 'conflict-invented',
-      candidateId: assessment.candidateId,
-      constraintId: 'constraint-invented',
-      reasonCode: 'constraint-invented',
-      evidenceIds: [evidenceId],
-    },
-  ];
+  const reason = value.candidateAssessments['f1']?.reasons[0];
+  const evidenceId = reason?.claims[0]?.inferences[0]?.evidenceIds[0];
+  if (reason === undefined || evidenceId === undefined) return;
+  reason.evidenceIds = [evidenceId];
+  reason.claims = [];
+}
+
+function omitPositiveCandidate(
+  value: RecommendationAssessmentModelDecompositionV1,
+): void {
+  value.orderedPositiveCandidateIds = [];
+}
+
+function includeNonPositiveCandidate(
+  value: RecommendationAssessmentModelDecompositionV1,
+): void {
+  value.orderedPositiveCandidateIds = ['f1', 'f2'];
+}
+
+function duplicatePositiveCandidate(
+  value: RecommendationAssessmentModelDecompositionV1,
+): void {
+  value.orderedPositiveCandidateIds = ['f1', 'f1'];
 }
 
 function promoteModelCandidate(
-  value: RecommendationAssessmentModelResponseV1,
+  value: RecommendationAssessmentModelDecompositionV1,
   index: number,
 ): void {
-  const fit = value.targetFitAssessment.fitAssessment;
-  const assessment = fit.candidateAssessments[index];
-  const claim = fit.materialClaims[index];
-  const evidenceId = assessment?.evidenceIds[0];
+  const assessment = value.candidateAssessments[`f${String(index + 1)}`];
   const reason = assessment?.reasons[0];
-  if (
-    assessment === undefined ||
-    claim === undefined ||
-    evidenceId === undefined ||
-    reason === undefined
-  ) {
+  const claim = reason?.claims[0];
+  const evidenceId = claim?.evidenceIds[0];
+  if (assessment === undefined || reason === undefined || claim === undefined) {
     throw new Error('Ranking promotion fixture is incomplete.');
   }
-  const inferenceId = `i${String(index + 1)}`;
-  assessment.disposition = 'viable';
-  assessment.inferenceIds = [inferenceId];
-  reason.inferenceIds = [inferenceId];
+  const selectedEvidenceId = evidenceId ?? claim.inferences[0]?.evidenceIds[0];
+  if (selectedEvidenceId === undefined) {
+    throw new Error('Ranking promotion evidence fixture is incomplete.');
+  }
+  assessment.fitJudgment = 'viable';
   claim.direction = 'favorable';
-  claim.inferenceIds = [inferenceId];
-  fit.inferences.push({
-    kind: 'inference',
-    inferenceId,
-    candidateId: assessment.candidateId,
-    topic: 'runtime-support',
-    statement: 'The candidate runtime support matches the target runtime.',
-    rationale:
-      'Supplied candidate evidence and repository fact fact-runtime align.',
-    evidenceIds: [evidenceId],
-  });
-  value.targetFitAssessment.inferenceRepositoryFactBindings.push({
-    inferenceId,
-    repositoryFactIds: ['fact-runtime'],
-  });
+  claim.evidenceIds = [];
+  claim.inferences = [
+    {
+      topic: 'runtime-support',
+      statement: 'The candidate runtime support matches the target runtime.',
+      rationale:
+        'Supplied candidate evidence and the selected repository fact align.',
+      evidenceIds: [selectedEvidenceId],
+      repositoryFactIds: ['fact-runtime'],
+    },
+  ];
 }

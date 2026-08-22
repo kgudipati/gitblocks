@@ -849,7 +849,7 @@ describe('RecommendationAssessmentResponseV1', () => {
     expect(hydratedClaim).toMatchObject(declaredContent);
   });
 
-  it('rejects an uncited supplied candidate unknown because it would hide decision-relevant uncertainty after hydration', async () => {
+  it('hydrates an uncited supplied candidate unknown without attaching it to the assessment', async () => {
     const exchange = await createHardResolutionExchange();
     const candidate = exchange.request.candidates.find(
       ({ identity }) => identity.candidateId === 'candidate-beta',
@@ -873,11 +873,19 @@ describe('RecommendationAssessmentResponseV1', () => {
       assessmentId: 'assessment-uncited-candidate-unknown',
       producedAt: exchange.request.evidenceCutoff,
     });
-    expect(validation.ok).toBe(false);
-    if (validation.ok) return;
-    expect(validation.issues.map(({ code }) => code)).toContain(
-      'domain.reference.catalog-coverage',
-    );
+    expect(validation.ok).toBe(true);
+    if (!validation.ok) return;
+    const fit = validation.response.targetFitAssessment.fitAssessment;
+    expect(
+      fit.materialUnknowns.some(
+        ({ unknownId }) => unknownId === 'unknown-beta-maintenance',
+      ),
+    ).toBe(true);
+    expect(
+      fit.candidateAssessments.find(
+        ({ candidateId }) => candidateId === 'candidate-beta',
+      )?.unknownIds,
+    ).not.toContain('unknown-beta-maintenance');
   });
 
   it('rejects an uncited unfavorable claim because it would hide an adverse conclusion', async () => {
