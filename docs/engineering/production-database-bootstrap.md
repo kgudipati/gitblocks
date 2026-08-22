@@ -5,8 +5,17 @@
 Issue #96 authorizes this operator sequence for an already provisioned durable
 PostgreSQL database. It does not provision a database, deploy the hosted
 application, generate authority files, collect evidence, or run ingestion at
-request time. The database must be PostgreSQL 18.4 because the serving
-bootstrap requires that exact release, and its name must not end in `_test`.
+request time. The database must be PostgreSQL major 18 at or above the minimum
+validated minor 18.4, and its name must not end in `_test`. The serving
+bootstrap accepts 18.4 and newer 18.x minors and rejects older 18.x minors and
+every other major.
+
+The 18.4 floor records the oldest minor validated for this production path; no
+serving behavior depends on a feature introduced by a particular 18.x minor.
+Managed providers apply minor releases without customer consent, so an exact
+minor precondition would turn routine provider maintenance into a publication
+outage. The exact digest-pinned PostgreSQL 18.4 image remains the reproducible
+local verification target; changing that image is a separate reviewed concern.
 
 Run every command from the repository root with the pinned Node and pnpm
 runtimes. Inject secrets through the shell or deployment secret store; do not

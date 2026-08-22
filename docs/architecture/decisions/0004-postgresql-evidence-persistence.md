@@ -68,7 +68,11 @@ not import this adapter; a composition root will wire both sides.
 ### PostgreSQL version policy
 
 Support PostgreSQL major 18 only. Migration apply/verify rejects servers whose
-`server_version_num` is outside major 18.
+`server_version_num` is outside major 18. Production serving publication has a
+minimum validated minor of 18.4: it accepts 18.4 and newer 18.x releases while
+rejecting older 18.x releases and every other major. The minor floor records
+validation coverage, not a dependency on a feature introduced by a specific
+18.x minor.
 
 Local and hosted verification use the official image at the exact reviewed
 minor and multi-architecture digest:
@@ -82,9 +86,11 @@ PostgreSQL's
 [versioning policy](https://www.postgresql.org/support/versioning/) supports a
 major for five years and recommends the current minor. PostgreSQL
 [18.4](https://www.postgresql.org/about/news/postgresql-184-177-1611-1515-1422-and-1325-released-3292/)
-was released 2026-05-14. A reviewed ordinary change may advance the minor and
-digest together. Another major requires compatibility evidence and an ADR
-update.
+was released 2026-05-14. Managed providers may apply minor releases without
+customer consent, so production preconditions must not require one exact minor
+and turn provider maintenance into an outage. A reviewed ordinary change may
+advance the local verification image's minor and digest together. Another
+major requires compatibility evidence and an ADR update.
 
 The local path uses no persistent volume, selects a random host port, waits for
 `pg_isready`, requires an explicitly named test database, and removes the

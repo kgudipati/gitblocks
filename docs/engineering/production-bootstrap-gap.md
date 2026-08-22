@@ -84,10 +84,11 @@ names are rejected.
 
 - **Files:**
   `packages/ingestion/scripts/serving-catalog-bootstrap-command.ts:72-127,175-228`.
-- **Guard or assumption:** `serving:bootstrap` requires PostgreSQL 18.4, exactly
-  seven verified migrations ending in `artifact-evidence-serving`, and six
-  discrete `GITBLOCKS_SERVING_BOOTSTRAP_DB_*` values. It publishes accepted
-  catalog candidates/families and the coherent snapshot, but it does not apply
+- **Guard or assumption:** `serving:bootstrap` requires PostgreSQL major 18 at
+  or above the minimum validated minor 18.4, exactly seven verified migrations
+  ending in `artifact-evidence-serving`, and six discrete
+  `GITBLOCKS_SERVING_BOOTSTRAP_DB_*` values. It publishes accepted catalog
+  candidates/families and the coherent snapshot, but it does not apply
   migrations.
 - **Why it blocks a complete production procedure:** it can populate an
   already prepared migration-`0007` database, but the repository has no

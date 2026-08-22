@@ -171,7 +171,7 @@ describe('offline serving catalog bootstrap CLI', () => {
       ),
     ]);
 
-    const unsupportedVersion = dependencies({}, { postgresqlVersion: '18.5' });
+    const unsupportedVersion = dependencies({}, { postgresqlVersion: '19.0' });
     expect(
       await runServingCatalogBootstrapCliV1(
         argumentsV1(),
@@ -210,6 +210,37 @@ describe('offline serving catalog bootstrap CLI', () => {
         ...persistence.errors,
       ].join(''),
     ).not.toMatch(/host-secret-sentinel|database-secret-sentinel/u);
+  }, 120_000);
+
+  it('accepts PostgreSQL 18.4 and newer 18.x minors but rejects older minors and other majors', async () => {
+    for (const postgresqlVersion of ['18.4', '18.6']) {
+      const supported = dependencies({}, { postgresqlVersion });
+      expect(
+        await runServingCatalogBootstrapCliV1(
+          argumentsV1(),
+          supported.dependencies,
+        ),
+      ).toBe(0);
+      expect(supported.errors).toEqual([]);
+    }
+
+    for (const postgresqlVersion of ['18.3', '19.0']) {
+      const unsupported = dependencies({}, { postgresqlVersion });
+      expect(
+        await runServingCatalogBootstrapCliV1(
+          argumentsV1(),
+          unsupported.dependencies,
+        ),
+      ).toBe(1);
+      expect(unsupported.putCandidate).not.toHaveBeenCalled();
+      expect(unsupported.publish).not.toHaveBeenCalled();
+      expect(unsupported.errors).toEqual([
+        failureDiagnostic(
+          'database-precondition',
+          'serving-bootstrap.postgresql-version-precondition',
+        ),
+      ]);
+    }
   }, 120_000);
 
   it('validates all accepted authorities before the first persistence write', async () => {
