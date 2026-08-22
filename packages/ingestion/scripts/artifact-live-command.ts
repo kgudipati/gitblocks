@@ -31,10 +31,8 @@ import {
 } from '../src/index.ts';
 import { withVerifiedArtifactLiveDatabaseMigrationV1 } from './artifact-live-authority.ts';
 import {
-  ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1,
   ARTIFACT_LIVE_PERSISTENT_DATABASE_SCOPE_V1,
-  assertArtifactLiveDatabaseScopeAuthorityV1,
-  validateArtifactLiveDatabaseScopeV1,
+  selectArtifactLiveDatabaseBoundaryV1,
 } from './artifact-live-scope-policy.ts';
 
 interface ArtifactLiveTransportV1 extends ProviderTransport {
@@ -93,24 +91,31 @@ export async function runArtifactLiveCliV1(
   arguments_: readonly string[],
   dependencies: ArtifactLiveCliDependenciesV1 = PROCESS_DEPENDENCIES,
 ): Promise<void> {
-  requireGlobalAcknowledgement(dependencies);
+  const nonProductionAcknowledgement = dependencies.readEnvironment(
+    'GITBLOCKS_ARTIFACT_ACKNOWLEDGEMENT',
+  );
   const scope = dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_SCOPE');
   const persistentAcknowledgement =
     scope === ARTIFACT_LIVE_PERSISTENT_DATABASE_SCOPE_V1
       ? dependencies.readEnvironment('GITBLOCKS_ARTIFACT_PERSISTENT_ACK')
       : undefined;
-  const scopeAuthority = { scope, persistentAcknowledgement };
-  assertArtifactLiveDatabaseScopeAuthorityV1(scopeAuthority);
-  const { databaseConfig } = validateArtifactLiveDatabaseScopeV1({
-    ...scopeAuthority,
-    databaseConfig: {
-      host: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_HOST'),
-      port: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_PORT'),
-      database: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_DATABASE'),
-      username: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_USERNAME'),
-      password: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_PASSWORD'),
-      ssl: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_SSL'),
-    },
+  const nonProductionDatabaseConfig = {
+    host: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_HOST'),
+    port: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_PORT'),
+    database: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_DATABASE'),
+    username: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_USERNAME'),
+    password: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_PASSWORD'),
+    ssl: dependencies.readEnvironment('GITBLOCKS_ARTIFACT_DB_SSL'),
+  };
+  const { databaseConfig } = selectArtifactLiveDatabaseBoundaryV1({
+    nonProductionAcknowledgement,
+    nonProductionScope: scope,
+    nonProductionPersistentAcknowledgement: persistentAcknowledgement,
+    nonProductionDatabaseConfig,
+    productionAcknowledgement: dependencies.readEnvironment(
+      'GITBLOCKS_ARTIFACT_PRODUCTION_ACK',
+    ),
+    productionDatabaseUrl: dependencies.readEnvironment('DATABASE_URL'),
   });
   const githubToken = requiredEnvironment(
     dependencies,
@@ -232,19 +237,6 @@ function parseArtifactLiveArgumentsV1(
     concurrency,
     deadlineMilliseconds,
   });
-}
-
-function requireGlobalAcknowledgement(
-  dependencies: ArtifactLiveCliDependenciesV1,
-): void {
-  if (
-    dependencies.readEnvironment('GITBLOCKS_ARTIFACT_ACKNOWLEDGEMENT') !==
-    ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1
-  ) {
-    throw new Error(
-      'The exact non-production artifact acknowledgement is required.',
-    );
-  }
 }
 
 function requiredEnvironment(

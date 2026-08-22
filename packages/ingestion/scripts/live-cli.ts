@@ -17,14 +17,25 @@ import {
   parsePublicCatalog,
   type SafeTelemetryEvent,
 } from '../src/index.ts';
+import {
+  selectIngestionLiveDatabaseAuthorityV1,
+  selectIngestionLiveDatabaseBoundaryV1,
+} from './ingestion-live-scope-policy.ts';
 
-const acknowledgement =
-  'approved-non-production-public-ingestion-with-public-sources-only';
-if (process.env['GITBLOCKS_INGEST_ACKNOWLEDGEMENT'] !== acknowledgement) {
-  throw new Error(
-    'The exact non-production ingestion acknowledgement is required.',
-  );
-}
+const databaseBoundaryInput = {
+  nonProductionAcknowledgement: process.env['GITBLOCKS_INGEST_ACKNOWLEDGEMENT'],
+  nonProductionDatabaseConfig: {
+    host: process.env['GITBLOCKS_INGEST_DB_HOST'],
+    port: process.env['GITBLOCKS_INGEST_DB_PORT'],
+    database: process.env['GITBLOCKS_INGEST_DB_DATABASE'],
+    username: process.env['GITBLOCKS_INGEST_DB_USERNAME'],
+    password: process.env['GITBLOCKS_INGEST_DB_PASSWORD'],
+    ssl: process.env['GITBLOCKS_INGEST_DB_SSL'],
+  },
+  productionAcknowledgement: process.env['GITBLOCKS_INGEST_PRODUCTION_ACK'],
+  productionDatabaseUrl: process.env['DATABASE_URL'],
+};
+selectIngestionLiveDatabaseAuthorityV1(databaseBoundaryInput);
 const githubToken = requiredEnvironment('GITBLOCKS_INGEST_GITHUB_TOKEN');
 const receiptArgument = argumentValue('--receipt');
 const manifestArgument = argumentValue('--manifest');
@@ -43,7 +54,17 @@ const deadlineMilliseconds = boundedIntegerArgument(
 );
 const candidateIds = argumentValues('--candidate');
 const comparisonPath = argumentValue('--compare-receipt');
-const databaseConfig = readDatabaseConfig();
+const databaseBoundary = selectIngestionLiveDatabaseBoundaryV1(
+  databaseBoundaryInput,
+);
+const databaseConfig: PersistenceClientConfig = {
+  ...databaseBoundary.databaseConfig,
+  maximumConnections: 3,
+  connectTimeoutMilliseconds: 5_000,
+  idleTimeoutMilliseconds: 5_000,
+  statementTimeoutMilliseconds: 10_000,
+  lockTimeoutMilliseconds: 5_000,
+};
 const catalog = parsePublicCatalog(
   await readFile(resolve(manifestArgument), 'utf8'),
 );
@@ -96,30 +117,6 @@ function requiredEnvironment(name: string): string {
     throw new Error(`Required environment configuration is missing: ${name}.`);
   }
   return value;
-}
-
-function readDatabaseConfig(): PersistenceClientConfig {
-  const port = Number(requiredEnvironment('GITBLOCKS_INGEST_DB_PORT'));
-  const ssl = requiredEnvironment('GITBLOCKS_INGEST_DB_SSL');
-  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
-    throw new Error('Ingestion database port is invalid.');
-  }
-  if (ssl !== 'false' && ssl !== 'require') {
-    throw new Error('Ingestion database SSL mode is invalid.');
-  }
-  return {
-    host: requiredEnvironment('GITBLOCKS_INGEST_DB_HOST'),
-    port,
-    database: requiredEnvironment('GITBLOCKS_INGEST_DB_DATABASE'),
-    username: requiredEnvironment('GITBLOCKS_INGEST_DB_USERNAME'),
-    password: requiredEnvironment('GITBLOCKS_INGEST_DB_PASSWORD'),
-    ssl: ssl === 'require' ? 'require' : false,
-    maximumConnections: 3,
-    connectTimeoutMilliseconds: 5_000,
-    idleTimeoutMilliseconds: 5_000,
-    statementTimeoutMilliseconds: 10_000,
-    lockTimeoutMilliseconds: 5_000,
-  };
 }
 
 function argumentValue(name: string): string | undefined {
