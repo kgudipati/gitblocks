@@ -31,6 +31,7 @@ export {
 } from './catalog-seed.ts';
 export {
   bootstrapServingCatalogV1,
+  type ServingCatalogBootstrapOperationStageV1,
   type ServingCatalogBootstrapPersistencePortV1,
   type ServingCatalogBootstrapSummaryV1,
 } from './serving-catalog-bootstrap.ts';

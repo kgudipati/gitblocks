@@ -1,11 +1,16 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
+import {
+  createCandidateRetrievalMetadataAuthorityV1,
+  type CandidateRetrievalMetadataAuthorityV1,
+} from '@gitblocks/contracts';
 import type {
   MigrationVerification,
   PersistenceClient,
   PublishServingCatalogSnapshotResult,
 } from '@gitblocks/persistence';
+import { PersistenceError } from '@gitblocks/persistence';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -48,7 +53,12 @@ describe('offline serving catalog bootstrap CLI', () => {
     ).toBe(1);
     expect(fixture.createClient).not.toHaveBeenCalled();
     expect(fixture.publish).not.toHaveBeenCalled();
-    expect(fixture.errors).toEqual(['Serving catalog bootstrap failed.\n']);
+    expect(fixture.errors).toEqual([
+      failureDiagnostic(
+        'argument-parsing',
+        'serving-bootstrap.invalid-arguments',
+      ),
+    ]);
   });
 
   it('requires complete database credentials and the current migration', async () => {
@@ -62,6 +72,12 @@ describe('offline serving catalog bootstrap CLI', () => {
       ),
     ).toBe(1);
     expect(missingCredential.createClient).not.toHaveBeenCalled();
+    expect(missingCredential.errors).toEqual([
+      failureDiagnostic(
+        'database-configuration',
+        'serving-bootstrap.invalid-database-configuration',
+      ),
+    ]);
 
     const oldMigration = dependencies({}, { migrationVersion: 4 });
     expect(
@@ -73,7 +89,128 @@ describe('offline serving catalog bootstrap CLI', () => {
     expect(oldMigration.verify).toHaveBeenCalledTimes(1);
     expect(oldMigration.putCandidate).not.toHaveBeenCalled();
     expect(oldMigration.publish).not.toHaveBeenCalled();
+    expect(oldMigration.errors).toEqual([
+      failureDiagnostic(
+        'database-precondition',
+        'serving-bootstrap.migration-precondition',
+      ),
+    ]);
   });
+
+  it('emits bounded stage and cause diagnostics for every bootstrap boundary', async () => {
+    const catalog = dependencies({}, { catalogText: '{}' });
+    expect(
+      await runServingCatalogBootstrapCliV1(
+        argumentsV1(),
+        catalog.dependencies,
+      ),
+    ).toBe(1);
+    expect(catalog.errors).toEqual([
+      failureDiagnostic('catalog-parse', 'serving-bootstrap.invalid-catalog'),
+    ]);
+
+    const profile = dependencies({}, { profilesText: '{}' });
+    expect(
+      await runServingCatalogBootstrapCliV1(
+        argumentsV1(),
+        profile.dependencies,
+      ),
+    ).toBe(1);
+    expect(profile.errors).toEqual([
+      failureDiagnostic(
+        'profile-authority-parse',
+        'serving-bootstrap.invalid-profile-authority',
+      ),
+    ]);
+
+    const metadata = dependencies({}, { metadataText: '{}' });
+    expect(
+      await runServingCatalogBootstrapCliV1(
+        argumentsV1(),
+        metadata.dependencies,
+      ),
+    ).toBe(1);
+    expect(metadata.errors).toEqual([
+      failureDiagnostic(
+        'metadata-parse',
+        'serving-bootstrap.invalid-metadata-authority',
+      ),
+    ]);
+
+    const incoherent = dependencies(
+      {},
+      { metadataText: incoherentMetadataText() },
+    );
+    expect(
+      await runServingCatalogBootstrapCliV1(
+        argumentsV1(),
+        incoherent.dependencies,
+      ),
+    ).toBe(1);
+    expect(incoherent.errors).toEqual([
+      failureDiagnostic(
+        'coherence-validation',
+        'serving-bootstrap.incoherent-authorities',
+      ),
+    ]);
+
+    const connection = dependencies(
+      {},
+      { verifyError: new Error('host-secret-sentinel') },
+    );
+    expect(
+      await runServingCatalogBootstrapCliV1(
+        argumentsV1(),
+        connection.dependencies,
+      ),
+    ).toBe(1);
+    expect(connection.errors).toEqual([
+      failureDiagnostic(
+        'database-connection',
+        'serving-bootstrap.connection-failed',
+      ),
+    ]);
+
+    const unsupportedVersion = dependencies({}, { postgresqlVersion: '18.5' });
+    expect(
+      await runServingCatalogBootstrapCliV1(
+        argumentsV1(),
+        unsupportedVersion.dependencies,
+      ),
+    ).toBe(1);
+    expect(unsupportedVersion.errors).toEqual([
+      failureDiagnostic(
+        'database-precondition',
+        'serving-bootstrap.postgresql-version-precondition',
+      ),
+    ]);
+
+    const persistence = dependencies(
+      {},
+      { publishError: new PersistenceError('persistence.conflict') },
+    );
+    expect(
+      await runServingCatalogBootstrapCliV1(
+        argumentsV1(),
+        persistence.dependencies,
+      ),
+    ).toBe(1);
+    expect(persistence.errors).toEqual([
+      failureDiagnostic('persistence-write', 'persistence.conflict'),
+    ]);
+
+    expect(
+      [
+        ...catalog.errors,
+        ...profile.errors,
+        ...metadata.errors,
+        ...incoherent.errors,
+        ...connection.errors,
+        ...unsupportedVersion.errors,
+        ...persistence.errors,
+      ].join(''),
+    ).not.toMatch(/host-secret-sentinel|database-secret-sentinel/u);
+  }, 120_000);
 
   it('validates all accepted authorities before the first persistence write', async () => {
     const fixture = dependencies({}, { profilesText: '{}' });
@@ -175,8 +312,13 @@ describe('offline serving catalog bootstrap CLI', () => {
 function dependencies(
   environmentOverrides: Readonly<Record<string, string | undefined>> = {},
   options: {
+    readonly catalogText?: string;
     readonly migrationVersion?: number;
+    readonly metadataText?: string;
+    readonly postgresqlVersion?: string;
     readonly profilesText?: string;
+    readonly publishError?: Error;
+    readonly verifyError?: Error;
   } = {},
 ) {
   const environmentValues: Record<string, string | undefined> = {
@@ -189,9 +331,9 @@ function dependencies(
     ...environmentOverrides,
   };
   const texts: Readonly<Record<string, string>> = {
-    [CATALOG_PATH]: catalogText,
+    [CATALOG_PATH]: options.catalogText ?? catalogText,
     [PROFILES_PATH]: options.profilesText ?? profilesText,
-    [METADATA_PATH]: metadataText,
+    [METADATA_PATH]: options.metadataText ?? metadataText,
   };
   const output: string[] = [];
   const errors: string[] = [];
@@ -200,21 +342,23 @@ function dependencies(
   const closeClient = vi.fn(() => Promise.resolve());
   const migrationVersion = options.migrationVersion ?? 7;
   const verify = vi.fn(() =>
-    Promise.resolve({
-      postgresqlVersion: '18.4',
-      migrations: Array.from({ length: migrationVersion }, (_, index) => ({
-        version: index + 1,
-        name:
-          index + 1 === 5
-            ? 'retrieval-serving'
-            : index + 1 === 6
-              ? 'finalist-evidence-serving'
-              : index + 1 === 7
-                ? 'artifact-evidence-serving'
-                : `synthetic-${String(index + 1)}`,
-        checksum: String(index + 1).repeat(64),
-      })),
-    } satisfies MigrationVerification),
+    options.verifyError === undefined
+      ? Promise.resolve({
+          postgresqlVersion: options.postgresqlVersion ?? '18.4',
+          migrations: Array.from({ length: migrationVersion }, (_, index) => ({
+            version: index + 1,
+            name:
+              index + 1 === 5
+                ? 'retrieval-serving'
+                : index + 1 === 6
+                  ? 'finalist-evidence-serving'
+                  : index + 1 === 7
+                    ? 'artifact-evidence-serving'
+                    : `synthetic-${String(index + 1)}`,
+            checksum: String(index + 1).repeat(64),
+          })),
+        } satisfies MigrationVerification)
+      : Promise.reject(options.verifyError),
   );
   const putCandidate = vi.fn(() => Promise.resolve());
   const setFamilies = vi.fn(() => Promise.resolve());
@@ -227,7 +371,11 @@ function dependencies(
   });
   const publish = vi.fn<
     ServingCatalogBootstrapCliDependenciesV1['publishServingCatalogSnapshot']
-  >(() => Promise.resolve(publication));
+  >(() =>
+    options.publishError === undefined
+      ? Promise.resolve(publication)
+      : Promise.reject(options.publishError),
+  );
   const dependencies: ServingCatalogBootstrapCliDependenciesV1 = {
     readTextFile: (path) => Promise.resolve(texts[path] ?? ''),
     readEnvironment: environment,
@@ -275,4 +423,33 @@ function acceptedText(fileName: string): Promise<string> {
     ),
     'utf8',
   );
+}
+
+function incoherentMetadataText(): string {
+  const metadata = JSON.parse(
+    metadataText,
+  ) as CandidateRetrievalMetadataAuthorityV1;
+  return JSON.stringify(
+    createCandidateRetrievalMetadataAuthorityV1({
+      catalogVersion: metadata.catalogVersion,
+      catalogDigest: 'f'.repeat(64),
+      providerPolicyVersion: metadata.providerPolicyVersion,
+      providerPolicyDigest: metadata.providerPolicyDigest,
+      sourceProviderPolicyVersion: metadata.sourceProviderPolicyVersion,
+      sourceProviderPolicyDigest: metadata.sourceProviderPolicyDigest,
+      sourceOperation: metadata.sourceOperation,
+      collectedAt: metadata.collectedAt,
+      candidates: metadata.candidates.map(
+        ({ sourceRecordDigest, repositoryIdentityState, ...candidate }) => {
+          void sourceRecordDigest;
+          void repositoryIdentityState;
+          return candidate;
+        },
+      ),
+    }),
+  );
+}
+
+function failureDiagnostic(stage: string, causeCode: string): string {
+  return `${JSON.stringify({ causeCode, stage })}\n`;
 }

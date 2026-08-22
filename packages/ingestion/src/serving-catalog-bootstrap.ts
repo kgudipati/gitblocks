@@ -31,6 +31,13 @@ export interface ServingCatalogBootstrapPersistencePortV1 {
   ) => Promise<PublishServingCatalogSnapshotResult>;
 }
 
+export type ServingCatalogBootstrapOperationStageV1 =
+  | 'catalog-parse'
+  | 'profile-authority-parse'
+  | 'metadata-parse'
+  | 'coherence-validation'
+  | 'persistence-write';
+
 export interface ServingCatalogBootstrapSummaryV1 {
   readonly schemaVersion: '1.0.0';
   readonly status: 'serving-catalog-bootstrap-complete';
@@ -55,23 +62,29 @@ export async function bootstrapServingCatalogV1(input: {
   readonly databaseMigrationVersion: unknown;
   readonly persistence: ServingCatalogBootstrapPersistencePortV1;
   readonly signal?: AbortSignal;
+  readonly onStage?: (stage: ServingCatalogBootstrapOperationStageV1) => void;
 }): Promise<ServingCatalogBootstrapSummaryV1> {
   if (input.databaseMigrationVersion !== 7) {
     throw ingestionError('ingestion.invalid-input');
   }
+  enterStage(input.onStage, 'catalog-parse');
   const plan = createPublicCatalogSeedPlan(input.catalog);
+  enterStage(input.onStage, 'profile-authority-parse');
   const profileAuthority = requireProfileAuthority(
     input.candidateProfileAuthority,
   );
+  enterStage(input.onStage, 'metadata-parse');
   const metadataAuthority = requireMetadataAuthority(
     input.candidateRetrievalMetadataAuthority,
   );
+  enterStage(input.onStage, 'coherence-validation');
   requireAcceptedBindings(plan, profileAuthority, metadataAuthority);
   const control =
     input.signal === undefined
       ? undefined
       : Object.freeze({ signal: input.signal });
 
+  enterStage(input.onStage, 'persistence-write');
   for (const entry of plan.entries) {
     input.signal?.throwIfAborted();
     await input.persistence.putCatalogCandidate(
@@ -110,6 +123,18 @@ export async function bootstrapServingCatalogV1(input: {
     candidateCount: 150,
     profileAuthorityVersion: profileAuthority.authorityVersion,
   });
+}
+
+function enterStage(
+  observer:
+    ((stage: ServingCatalogBootstrapOperationStageV1) => void) | undefined,
+  stage: ServingCatalogBootstrapOperationStageV1,
+): void {
+  try {
+    observer?.(stage);
+  } catch {
+    // Diagnostics must not alter the bounded bootstrap operation.
+  }
 }
 
 function requireProfileAuthority(
