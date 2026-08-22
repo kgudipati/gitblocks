@@ -1,5 +1,6 @@
 import {
   deriveCapabilityQueryConstraintFacet,
+  isCapabilityQueryTargetFitContext,
   type FitAssessmentExchange,
 } from '@gitblocks/domain';
 
@@ -251,9 +252,10 @@ function expandParsedOssRecommendationRequestV2(
         modality: constraint.modality,
         statement: constraint.statement,
         originalTerm: constraint.term,
-        facetHint: deriveCapabilityQueryConstraintFacet(
+        facetHint: deriveRecommendationConstraintFacet(
           constraint.term,
           taxonomy,
+          request.repositoryFingerprint,
         ),
         reasonCode:
           constraint.modality === 'required'
@@ -1152,13 +1154,22 @@ function responsibleOptionProjection(input: {
         normalizedEvaluationIds.length > 0
           ? normalizedEvaluationIds
           : [constraint.constraintId];
+      const targetFitContext = input.normalization.normalizedConstraints.some(
+        (normalized) =>
+          normalized.sourceConstraintIds.includes(constraint.constraintId) &&
+          isCapabilityQueryTargetFitContext(normalized),
+      );
       const evaluationResults = evaluationIds.map((evaluationId) => {
         const resolution = resolutionByKey.get(
           `${candidateId}\0${evaluationId}`,
         );
         return {
           evaluationId,
-          state: resolution?.state ?? ('satisfied' as const),
+          state:
+            resolution?.state ??
+            (targetFitContext
+              ? ('unresolved' as const)
+              : ('satisfied' as const)),
           basis:
             resolution === undefined
               ? ('deterministic' as const)
@@ -1209,6 +1220,49 @@ function responsibleOptionProjection(input: {
   }
 
   return { options, issues };
+}
+
+function deriveRecommendationConstraintFacet(
+  originalTerm: string,
+  taxonomy: CapabilityTaxonomyV1,
+  fingerprint: RepositoryFingerprintV1,
+): ReturnType<typeof deriveCapabilityQueryConstraintFacet> {
+  const taxonomyFacet = deriveCapabilityQueryConstraintFacet(
+    originalTerm,
+    taxonomy,
+  );
+  if (taxonomyFacet !== 'other') return taxonomyFacet;
+
+  const termKeys = contextComponentTermKeys(originalTerm);
+  if (termKeys.length === 0) return 'other';
+  const matchingFacets = new Set<'framework' | 'runtime'>();
+  for (const fact of fingerprint.facts) {
+    if (
+      fact.kind !== 'component' ||
+      (fact.component !== 'framework' && fact.component !== 'runtime')
+    ) {
+      continue;
+    }
+    const factKeys = contextComponentTermKeys(fact.name);
+    if (termKeys.some((key) => factKeys.includes(key))) {
+      matchingFacets.add(fact.component);
+    }
+  }
+  return matchingFacets.size === 1
+    ? (matchingFacets.values().next().value ?? 'other')
+    : 'other';
+}
+
+function contextComponentTermKeys(value: string): readonly string[] {
+  const trimmed = value.trim().toLowerCase();
+  if (!/^[a-z0-9 ._-]+$/u.test(trimmed)) return [];
+  const compact = trimmed.replace(/[^a-z0-9]/gu, '');
+  if (compact.length === 0) return [];
+  const keys = [compact];
+  if (trimmed.endsWith('.js') && compact.length > 2) {
+    keys.push(compact.slice(0, -2));
+  }
+  return [...new Set(keys)];
 }
 
 function responsibleOptionIssues(input: {

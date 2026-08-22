@@ -20,7 +20,8 @@ ingestion, evaluation tooling, and dormant subsystems are intentionally omitted.
 - `packages/contracts/src/oss-recommendation-contracts.ts` validates the
   recommendation request and fingerprint binding, constructs the capability
   request, validates the complete recommendation assessment exchange, and
-  projects exact original hard constraints into per-option verification status.
+  projects exact original required/prohibited declarations into per-option
+  verification status, including unverified framework/runtime context.
 - `packages/contracts/src/capability-query-contracts.ts` validates the structured
   capability query and maps the domain normalizer's result back to the versioned
   contract.

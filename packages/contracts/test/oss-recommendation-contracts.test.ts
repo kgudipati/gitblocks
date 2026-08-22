@@ -260,7 +260,7 @@ describe('OssRecommendationRequestV2', () => {
             modality: 'required',
             statement: 'Must integrate with the existing Next.js app.',
             originalTerm: 'Next.js',
-            facetHint: 'other',
+            facetHint: 'framework',
             reasonCode: 'user-required',
           },
           {
@@ -348,7 +348,7 @@ describe('OssRecommendationRequestV2', () => {
     ).toMatchObject({ ok: false });
   });
 
-  it('keeps an unclassified hard constraint unresolved instead of treating it as satisfied', async () => {
+  it('classifies fingerprint-bound framework context without treating unknown terms as context', async () => {
     const expanded = expandOssRecommendationRequest({
       recommendationRequest: createRecommendationRequestV2(),
       taxonomy: cloneValue(await taxonomyFixture),
@@ -368,18 +368,64 @@ describe('OssRecommendationRequestV2', () => {
         constraintId: 'constraint-001',
         modality: 'required',
         originalTerm: 'Next.js',
-        facet: 'other',
+        facet: 'framework',
       }),
     );
     expect(normalized.value.normalizedConstraints).toContainEqual(
       expect.objectContaining({
         sourceConstraintIds: ['constraint-001'],
         modality: 'required',
-        facet: 'other',
+        facet: 'framework',
         resolutionBasis: 'preserved-declaration',
+        ruleId: 'preserve-target-fit-context',
         conceptId: null,
       }),
     );
+    expect(normalized.value.normalizedConstraints).toContainEqual(
+      expect.objectContaining({
+        sourceConstraintIds: ['constraint-004'],
+        modality: 'preferred',
+        facet: 'other',
+        resolutionBasis: 'preserved-declaration',
+        ruleId: 'preserve-explicit-declaration',
+        conceptId: null,
+      }),
+    );
+  });
+
+  it('classifies only fingerprint-bound runtime terms in the V2 bridge', async () => {
+    const request = {
+      ...createRecommendationRequestV2(),
+      constraints: [
+        {
+          modality: 'required' as const,
+          statement: 'Must run in the existing Node.js runtime.',
+          term: 'Node.js',
+        },
+        {
+          modality: 'required' as const,
+          statement: 'Must use an unrecognized execution environment.',
+          term: 'UnlistedVM',
+        },
+      ],
+    };
+    const expanded = expandOssRecommendationRequest({
+      recommendationRequest: request,
+      taxonomy: cloneValue(await taxonomyFixture),
+    });
+
+    expect(expanded).toMatchObject({ ok: true });
+    if (!expanded.ok) return;
+    expect(expanded.value.capabilityQuery.draftConstraints).toEqual([
+      expect.objectContaining({
+        originalTerm: 'Node.js',
+        facetHint: 'runtime',
+      }),
+      expect.objectContaining({
+        originalTerm: 'UnlistedVM',
+        facetHint: 'other',
+      }),
+    ]);
   });
 
   it('keeps V1 parsing and meaning unchanged through the discriminated root parser', () => {
@@ -1227,6 +1273,47 @@ describe('RecommendationAssessmentResponseV1', () => {
     });
   });
 
+  it('projects target-fit context as visible but unverified', async () => {
+    const exchange = await createHardResolutionExchange();
+    exchange.request.capabilityRequest.hardConstraints.push({
+      constraintId: 'framework-next-context',
+      reasonCode: 'user-required',
+      statement: 'Must integrate with the existing Next.js app.',
+    });
+    exchange.normalization.preservedDeclarations.push({
+      constraintId: 'framework-next-context',
+      modality: 'required',
+      statement: 'Must integrate with the existing Next.js app.',
+      originalTerm: 'Next.js',
+      facet: 'framework',
+      reasonCode: 'user-required',
+    });
+    exchange.normalization.normalizedConstraints.push({
+      normalizedConstraintId: 'normalized-framework-next-context',
+      sourceConstraintIds: ['framework-next-context'],
+      modality: 'required',
+      facet: 'framework',
+      resolutionBasis: 'preserved-declaration',
+      ruleId: 'preserve-target-fit-context',
+      conceptId: null,
+      canonicalTerm: null,
+    });
+
+    const options = projectResponsibleOptionsV1(exchange);
+    expect(options[0]?.verificationStatus).toBe('partially-verified');
+    expect(
+      options[0]?.constraintStatuses.find(
+        ({ constraintId }) => constraintId === 'framework-next-context',
+      ),
+    ).toEqual({
+      constraintId: 'framework-next-context',
+      statement: 'Must integrate with the existing Next.js app.',
+      modality: 'required',
+      status: 'unverified',
+      grounding: [],
+    });
+  });
+
   it('accepts a grounded conflict only when the candidate is rejected, unranked, and bound to the exact original reason code', async () => {
     const exchange = await createHardResolutionExchange();
     const resolution =
@@ -1653,6 +1740,20 @@ function createRecommendationRequest(
 
 function createRecommendationRequestV2(): OssRecommendationRequestV2 {
   const repositoryFingerprint = createRepositoryFingerprint();
+  const runtimeFact = repositoryFingerprint.facts.find(
+    (fact) => fact.kind === 'component' && fact.component === 'runtime',
+  );
+  if (runtimeFact?.kind !== 'component') {
+    throw new Error('V2 fixture runtime fact is missing.');
+  }
+  repositoryFingerprint.facts.splice(1, 0, {
+    kind: 'component',
+    factId: 'fact-framework-next',
+    component: 'framework',
+    name: 'next',
+    version: null,
+    provenance: runtimeFact.provenance,
+  });
   return {
     contractVersion: '2.0.0',
     summary:
