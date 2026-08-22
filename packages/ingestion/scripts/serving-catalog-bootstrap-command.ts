@@ -66,6 +66,8 @@ const OPERATION_STAGE_CAUSE_CODES: Readonly<
   'coherence-validation': 'serving-bootstrap.incoherent-authorities',
   'persistence-write': 'serving-bootstrap.persistence-write-failed',
 });
+const SUPPORTED_POSTGRESQL_MAJOR = 18;
+const MINIMUM_SUPPORTED_POSTGRESQL_MINOR = 4;
 
 export interface ServingCatalogBootstrapCliDependenciesV1 {
   readonly readTextFile: (path: string) => Promise<string>;
@@ -277,7 +279,7 @@ function currentDatabasePreconditionCause(
   | 'serving-bootstrap.migration-precondition'
   | 'serving-bootstrap.postgresql-version-precondition'
   | undefined {
-  if (!/^18[.]4(?:[.\s]|$)/u.test(value.postgresqlVersion)) {
+  if (!isSupportedPostgresqlVersion(value.postgresqlVersion)) {
     return 'serving-bootstrap.postgresql-version-precondition';
   }
   if (
@@ -288,6 +290,21 @@ function currentDatabasePreconditionCause(
     return 'serving-bootstrap.migration-precondition';
   }
   return undefined;
+}
+
+function isSupportedPostgresqlVersion(value: string): boolean {
+  const match = /^(\d+)[.](\d+)(?:[.\s]|$)/u.exec(value);
+  if (match?.[1] === undefined || match[2] === undefined) {
+    return false;
+  }
+  const major = Number(match[1]);
+  const minor = Number(match[2]);
+  return (
+    Number.isSafeInteger(major) &&
+    major === SUPPORTED_POSTGRESQL_MAJOR &&
+    Number.isSafeInteger(minor) &&
+    minor >= MINIMUM_SUPPORTED_POSTGRESQL_MINOR
+  );
 }
 
 function readDatabaseConfig(
