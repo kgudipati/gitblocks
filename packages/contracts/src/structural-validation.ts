@@ -143,6 +143,28 @@ const deterministicCandidateProfileDigestSchema: AnySchema = {
   },
 };
 
+const deterministicCandidateProfileEnvelopeV2Schema: AnySchema = {
+  ...deterministicCandidateProfileV2Schema,
+  $id: 'https://gitblocks.dev/schemas/contracts/deterministic-candidate-profile-envelope/2.0.0',
+  properties: {
+    ...deterministicCandidateProfileV2Schema.properties,
+    fields: {
+      ...deterministicCandidateProfileV2Schema.properties.fields,
+      items: true,
+    },
+    semanticProfileDigest: true,
+  },
+};
+
+const deterministicCandidateProfileDigestV2Schema: AnySchema = {
+  type: 'object',
+  required: ['semanticProfileDigest'],
+  properties: {
+    semanticProfileDigest:
+      deterministicCandidateProfileV2Schema.properties.semanticProfileDigest,
+  },
+};
+
 const deterministicProfileFieldBranches = (
   deterministicProfileFieldRecordV1Schema as unknown as {
     readonly anyOf: readonly AnySchema[];
@@ -164,6 +186,15 @@ for (const branch of deterministicProfileFieldBranches) {
   deterministicProfileFieldBranchesById.set(fieldId, [...existing, branch]);
 }
 
+const deterministicProfileFieldBranchesV2 = (
+  deterministicCandidateProfileV2Schema.properties.fields.items as unknown as {
+    readonly anyOf: readonly AnySchema[];
+  }
+).anyOf;
+const deterministicProfileFieldBranchesByIdV2 = groupFieldBranchesById(
+  deterministicProfileFieldBranchesV2,
+);
+
 const deterministicProfileFieldCommonProperties = [
   'fieldId',
   'scope',
@@ -179,6 +210,9 @@ const deterministicProfileFieldBranchShapes = [
   deterministicProfileFieldCommonProperties,
   [...deterministicProfileFieldCommonProperties, 'claims'],
 ].map((properties) => new Set<string>(properties));
+const deterministicProfileFieldBranchShapesV2 = fieldBranchShapes(
+  deterministicProfileFieldBranchesV2,
+);
 
 // The public schema remains the authority. Its private envelope validator
 // delegates profile items to the separately memoized profile validator so Ajv
@@ -206,6 +240,29 @@ const deterministicCandidateProfileAuthorityDigestSchema: AnySchema = {
   },
 };
 
+const deterministicCandidateProfileAuthorityEnvelopeV2Schema: AnySchema = {
+  ...deterministicCandidateProfileAuthorityV2Schema,
+  $id: 'https://gitblocks.dev/schemas/contracts/deterministic-candidate-profile-authority-envelope/2.0.0',
+  properties: {
+    ...deterministicCandidateProfileAuthorityV2Schema.properties,
+    profiles: {
+      ...deterministicCandidateProfileAuthorityV2Schema.properties.profiles,
+      items: true,
+    },
+    semanticAuthorityDigest: true,
+  },
+};
+
+const deterministicCandidateProfileAuthorityDigestV2Schema: AnySchema = {
+  type: 'object',
+  required: ['semanticAuthorityDigest'],
+  properties: {
+    semanticAuthorityDigest:
+      deterministicCandidateProfileAuthorityV2Schema.properties
+        .semanticAuthorityDigest,
+  },
+};
+
 type LazyStructuralValidator<T> = () => ValidateFunction<T>;
 
 function createLazyStructuralValidator<T>(
@@ -222,32 +279,29 @@ function createLazyStructuralValidator<T>(
   };
 }
 
-function createLazyCandidateProfileAuthorityValidator(
-  getProfileValidator: LazyStructuralValidator<DeterministicCandidateProfileV1>,
-): LazyStructuralValidator<DeterministicCandidateProfileAuthorityV1> {
-  let validator:
-    ValidateFunction<DeterministicCandidateProfileAuthorityV1> | undefined;
+function createLazyCandidateProfileAuthorityValidator<
+  Profile,
+  Authority extends { readonly profiles: readonly Profile[] },
+>(
+  getProfileValidator: LazyStructuralValidator<Profile>,
+  envelopeSchema: AnySchema,
+  digestSchema: AnySchema,
+): LazyStructuralValidator<Authority> {
+  let validator: ValidateFunction<Authority> | undefined;
   return () => {
     if (validator !== undefined) {
       return validator;
     }
     const profileValidator = getProfileValidator();
-    const envelopeValidator =
-      ajv.compile<DeterministicCandidateProfileAuthorityV1>(
-        deterministicCandidateProfileAuthorityEnvelopeSchema,
-      );
-    const digestValidator =
-      ajv.compile<DeterministicCandidateProfileAuthorityV1>(
-        deterministicCandidateProfileAuthorityDigestSchema,
-      );
+    const envelopeValidator = ajv.compile<Authority>(envelopeSchema);
+    const digestValidator = ajv.compile<Authority>(digestSchema);
     const composite = ((value: unknown) => {
       composite.errors = null;
       if (!envelopeValidator(value)) {
         composite.errors = envelopeValidator.errors ?? null;
         return false;
       }
-      const profiles = (value as DeterministicCandidateProfileAuthorityV1)
-        .profiles;
+      const profiles = (value as Authority).profiles;
       for (const [index, profile] of profiles.entries()) {
         if (!profileValidator(profile)) {
           composite.errors = (profileValidator.errors ?? []).map((error) => ({
@@ -262,28 +316,31 @@ function createLazyCandidateProfileAuthorityValidator(
         return false;
       }
       return true;
-    }) as unknown as ValidateFunction<DeterministicCandidateProfileAuthorityV1>;
+    }) as unknown as ValidateFunction<Authority>;
     composite.errors = null;
     validator = composite;
     return validator;
   };
 }
 
-function createLazyCandidateProfileValidator(): LazyStructuralValidator<DeterministicCandidateProfileV1> {
-  let validator: ValidateFunction<DeterministicCandidateProfileV1> | undefined;
+function createLazyCandidateProfileValidator<
+  Profile extends { readonly fields: readonly unknown[] },
+>(
+  envelopeSchema: AnySchema,
+  digestSchema: AnySchema,
+  branchesById: ReadonlyMap<string, readonly AnySchema[]>,
+  branchShapes: readonly ReadonlySet<string>[],
+): LazyStructuralValidator<Profile> {
+  let validator: ValidateFunction<Profile> | undefined;
   return () => {
     if (validator !== undefined) {
       return validator;
     }
-    const envelopeValidator = ajv.compile<DeterministicCandidateProfileV1>(
-      deterministicCandidateProfileEnvelopeSchema,
-    );
-    const digestValidator = ajv.compile<DeterministicCandidateProfileV1>(
-      deterministicCandidateProfileDigestSchema,
-    );
+    const envelopeValidator = ajv.compile<Profile>(envelopeSchema);
+    const digestValidator = ajv.compile<Profile>(digestSchema);
     const fieldValidators = new Map<string, ValidateFunction>();
     const getFieldValidator = (fieldId: string): ValidateFunction => {
-      const branches = deterministicProfileFieldBranchesById.get(fieldId);
+      const branches = branchesById.get(fieldId);
       if (branches === undefined) {
         throw new Error('Deterministic profile field ID is not registered.');
       }
@@ -301,25 +358,22 @@ function createLazyCandidateProfileValidator(): LazyStructuralValidator<Determin
         composite.errors = envelopeValidator.errors ?? null;
         return false;
       }
-      const fields = (value as { readonly fields: readonly unknown[] }).fields;
+      const fields = (value as Profile).fields;
       for (const [index, field] of fields.entries()) {
         const fieldId =
           typeof field === 'object' && field !== null && !Array.isArray(field)
             ? (field as Record<string, unknown>)['fieldId']
             : undefined;
         let fieldErrors: readonly ErrorObject[];
-        if (
-          typeof fieldId !== 'string' ||
-          !deterministicProfileFieldBranchesById.has(fieldId)
-        ) {
-          fieldErrors = malformedFieldDiscriminatorErrors(field);
+        if (typeof fieldId !== 'string' || !branchesById.has(fieldId)) {
+          fieldErrors = malformedFieldDiscriminatorErrors(field, branchShapes);
         } else {
           const fieldValidator = getFieldValidator(fieldId);
           if (fieldValidator(field)) {
             continue;
           }
           fieldErrors = fieldValidator.errors ?? [];
-          if (nonmatchingFieldBranchReachesDiscriminator(field)) {
+          if (nonmatchingFieldBranchReachesDiscriminator(field, branchShapes)) {
             fieldErrors = [
               ...fieldErrors,
               compatibilityAjvError('const', '/fieldId'),
@@ -337,7 +391,7 @@ function createLazyCandidateProfileValidator(): LazyStructuralValidator<Determin
         return false;
       }
       return true;
-    }) as unknown as ValidateFunction<DeterministicCandidateProfileV1>;
+    }) as unknown as ValidateFunction<Profile>;
     composite.errors = null;
     validator = composite;
     return validator;
@@ -346,12 +400,13 @@ function createLazyCandidateProfileValidator(): LazyStructuralValidator<Determin
 
 function malformedFieldDiscriminatorErrors(
   field: unknown,
+  branchShapes: readonly ReadonlySet<string>[],
 ): readonly ErrorObject[] {
   if (typeof field !== 'object' || field === null || Array.isArray(field)) {
     return [compatibilityAjvError('type', '')];
   }
   const errors: ErrorObject[] = [];
-  for (const properties of deterministicProfileFieldBranchShapes) {
+  for (const properties of branchShapes) {
     if (
       [...properties].some(
         (property) => !Object.prototype.hasOwnProperty.call(field, property),
@@ -372,17 +427,52 @@ function malformedFieldDiscriminatorErrors(
   return errors;
 }
 
-function nonmatchingFieldBranchReachesDiscriminator(field: unknown): boolean {
+function nonmatchingFieldBranchReachesDiscriminator(
+  field: unknown,
+  branchShapes: readonly ReadonlySet<string>[],
+): boolean {
   if (typeof field !== 'object' || field === null || Array.isArray(field)) {
     return false;
   }
   const keys = Object.keys(field);
-  return deterministicProfileFieldBranchShapes.some(
+  return branchShapes.some(
     (properties) =>
       [...properties].every((property) =>
         Object.prototype.hasOwnProperty.call(field, property),
       ) && keys.every((property) => properties.has(property)),
   );
+}
+
+function groupFieldBranchesById(
+  branches: readonly AnySchema[],
+): ReadonlyMap<string, readonly AnySchema[]> {
+  const grouped = new Map<string, readonly AnySchema[]>();
+  for (const branch of branches) {
+    const fieldId = (
+      branch as {
+        readonly properties: {
+          readonly fieldId: { readonly const: string };
+        };
+      }
+    ).properties.fieldId.const;
+    grouped.set(fieldId, [...(grouped.get(fieldId) ?? []), branch]);
+  }
+  return grouped;
+}
+
+function fieldBranchShapes(
+  branches: readonly AnySchema[],
+): readonly ReadonlySet<string>[] {
+  const shapes = new Map<string, ReadonlySet<string>>();
+  for (const branch of branches) {
+    const properties = Object.keys(
+      (branch as { readonly properties: Readonly<Record<string, unknown>> })
+        .properties,
+    );
+    const key = [...properties].sort().join('\0');
+    if (!shapes.has(key)) shapes.set(key, new Set(properties));
+  }
+  return [...shapes.values()];
 }
 
 function compatibilityAjvError(
@@ -458,19 +548,36 @@ export const capabilityQueryNormalizationResultV1Validator =
     capabilityQueryNormalizationResultV1Schema,
   );
 export const deterministicCandidateProfileV1Validator =
-  createLazyCandidateProfileValidator();
+  createLazyCandidateProfileValidator<DeterministicCandidateProfileV1>(
+    deterministicCandidateProfileEnvelopeSchema,
+    deterministicCandidateProfileDigestSchema,
+    deterministicProfileFieldBranchesById,
+    deterministicProfileFieldBranchShapes,
+  );
 export const deterministicCandidateProfileAuthorityV1Validator =
-  createLazyCandidateProfileAuthorityValidator(
+  createLazyCandidateProfileAuthorityValidator<
+    DeterministicCandidateProfileV1,
+    DeterministicCandidateProfileAuthorityV1
+  >(
     deterministicCandidateProfileV1Validator,
+    deterministicCandidateProfileAuthorityEnvelopeSchema,
+    deterministicCandidateProfileAuthorityDigestSchema,
   );
 export const deterministicCandidateProfileV2Validator =
-  createLazyStructuralValidator<DeterministicCandidateProfileV2>(
-    deterministicCandidateProfileV2Schema,
+  createLazyCandidateProfileValidator<DeterministicCandidateProfileV2>(
+    deterministicCandidateProfileEnvelopeV2Schema,
+    deterministicCandidateProfileDigestV2Schema,
+    deterministicProfileFieldBranchesByIdV2,
+    deterministicProfileFieldBranchShapesV2,
   );
 export const deterministicCandidateProfileAuthorityV2Validator =
-  createLazyStructuralValidator<DeterministicCandidateProfileAuthorityV2>(
-    deterministicCandidateProfileAuthorityV2Schema,
-    [deterministicCandidateProfileV2Validator],
+  createLazyCandidateProfileAuthorityValidator<
+    DeterministicCandidateProfileV2,
+    DeterministicCandidateProfileAuthorityV2
+  >(
+    deterministicCandidateProfileV2Validator,
+    deterministicCandidateProfileAuthorityEnvelopeV2Schema,
+    deterministicCandidateProfileAuthorityDigestV2Schema,
   );
 export const reviewedConceptCurationAuthorityV2Validator =
   createLazyStructuralValidator<ReviewedConceptCurationAuthorityV2>(

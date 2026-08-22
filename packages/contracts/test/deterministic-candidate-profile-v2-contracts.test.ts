@@ -16,6 +16,10 @@ import {
   type DeterministicProfileFieldRecordV1,
   type DeterministicProfileFieldRecordV2,
 } from '../src/index.ts';
+import {
+  deterministicCandidateProfileAuthorityV2Validator,
+  deterministicCandidateProfileV2Validator,
+} from '../src/structural-validation.ts';
 
 let v1: DeterministicCandidateProfileAuthorityV1;
 let v2: DeterministicCandidateProfileAuthorityV2;
@@ -53,6 +57,15 @@ beforeAll(async () => {
 }, 120_000);
 
 describe('DeterministicCandidateProfileAuthorityV2', () => {
+  it('keeps the V2 structural validator programs decomposed', () => {
+    expect(
+      deterministicCandidateProfileV2Validator().toString().length,
+    ).toBeLessThan(100_000);
+    expect(
+      deterministicCandidateProfileAuthorityV2Validator().toString().length,
+    ).toBeLessThan(100_000);
+  });
+
   it('parses the V1-or-V2 published authority union by its version discriminant', () => {
     const parsedV1 = parseDeterministicCandidateProfileAuthority(v1);
     const parsedV2 = parseDeterministicCandidateProfileAuthority(v2);
@@ -131,6 +144,32 @@ describe('DeterministicCandidateProfileAuthorityV2', () => {
     expect(parseDeterministicCandidateProfileAuthorityV2(poisoned).ok).toBe(
       false,
     );
+  });
+
+  it('rejects an additional property for every V2 field kind', () => {
+    const profile = firstV2Profile();
+    for (const [fieldIndex, field] of profile.fields.entries()) {
+      const fieldId = (field as unknown as { readonly fieldId: string })
+        .fieldId;
+      const poisoned = structuredClone(v2) as unknown as {
+        profiles: { fields: Record<string, unknown>[] }[];
+      };
+      const poisonedProfile = poisoned.profiles[0];
+      const poisonedField = poisonedProfile?.fields[fieldIndex];
+      if (poisonedField === undefined) {
+        throw new Error('Expected every V2 field kind in the fixture.');
+      }
+      poisonedField['unexpected'] = true;
+      const parsed = parseDeterministicCandidateProfileAuthorityV2(poisoned);
+      expect(parsed.ok, fieldId).toBe(false);
+      if (parsed.ok) throw new Error('Poisoned V2 authority was accepted.');
+      expect(parsed.issues, fieldId).toContainEqual(
+        expect.objectContaining({
+          code: 'contract.additional-property',
+          path: `/profiles/0/fields/${String(fieldIndex)}`,
+        }),
+      );
+    }
   });
 
   it('allows an unknown infrastructure field to retain an attempted scope', () => {
