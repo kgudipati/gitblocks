@@ -5,6 +5,1960 @@
   "catalogDigest": "4819dd94cb1bbe5e27c31ca5ca55976da1442987a792bf438d96681021cb8634",
   "taxonomyVersion": "1.0.0",
   "taxonomySemanticDigest": "838fa85b2e6937866854b6f733fe7045cf49d5f811cb5e4a8d503bfbd76a61c9",
-  "claims": [],
-  "semanticAuthorityDigest": "7788412fa432bd73b8927cb2e2ec8df7c3fade8f52be9df04472ad311d460959"
+  "claims": [
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-36759783567e5cc761f815a4255d2faf0541ef69f3778ef9",
+      "claimDigest": "36759783567e5cc761f815a4255d2faf0541ef69f3778ef91f8ead4e06e0a627",
+      "candidateId": "rate-apisix",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-211f8f6adc4fac1ecd9831e7e4ca83010450b60c"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-apisix",
+          "artifactSetId": "artifact-set-f997c36bdd630f84c840a17183170f356736c6fc82904b31",
+          "artifactSetIdentityDigest": "f997c36bdd630f84c840a17183170f356736c6fc82904b318faf4934fef87a68",
+          "artifactSetRecordDigest": "b43b451cbe003bcf1afd23ebacd74ad9bc35d20febd34572ee5bbedf71fe65f9",
+          "artifactId": "artifact-52ec6d703453e9e5f5555142163f22b21d41f0a154021b91",
+          "artifactIdentityDigest": "52ec6d703453e9e5f5555142163f22b21d41f0a154021b91796429fec95a5337",
+          "artifactRecordDigest": "32bfe38227f4ac3f8392a09efc64b7cfc5a2b3944db770df9e953b15d0a24c3b",
+          "contentSha256": "d0853e33d6d6d4bf3a514326584e2e8deb40a5e62c24f3cb6102e41c25dc7e43",
+          "startLine": 72,
+          "endLine": 78,
+          "excerptSha256": "38340ed2cd6eea6db111e591113cc0a36ef09df1852be12582ff9c668c5eec30"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-bd83bee5f3a4606120ebf34973538dcaf641756dabfa0886",
+      "claimDigest": "bd83bee5f3a4606120ebf34973538dcaf641756dabfa0886bf260beed96434be",
+      "candidateId": "rate-apisix",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-211f8f6adc4fac1ecd9831e7e4ca83010450b60c"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-apisix",
+          "artifactSetId": "artifact-set-f997c36bdd630f84c840a17183170f356736c6fc82904b31",
+          "artifactSetIdentityDigest": "f997c36bdd630f84c840a17183170f356736c6fc82904b318faf4934fef87a68",
+          "artifactSetRecordDigest": "b43b451cbe003bcf1afd23ebacd74ad9bc35d20febd34572ee5bbedf71fe65f9",
+          "artifactId": "artifact-417674c5551bdca4f20335201be1e4c4c2469ba53f5345f5",
+          "artifactIdentityDigest": "417674c5551bdca4f20335201be1e4c4c2469ba53f5345f51b4b908eb45df54b",
+          "artifactRecordDigest": "3e091aa40c062f1aa0576d41c9093e341e6a447b10918636bfeea47cfc421c62",
+          "contentSha256": "fbf0f69e47f7184f5e089a3472f425a456355810466a1d81248ed6eb3d5cde4c",
+          "startLine": 14,
+          "endLine": 14,
+          "excerptSha256": "813e87c106650d7808bff7d9f2199c8610cb2f2a7e3267a4a52fa2dcb60f3658"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-apisix",
+          "artifactSetId": "artifact-set-f997c36bdd630f84c840a17183170f356736c6fc82904b31",
+          "artifactSetIdentityDigest": "f997c36bdd630f84c840a17183170f356736c6fc82904b318faf4934fef87a68",
+          "artifactSetRecordDigest": "b43b451cbe003bcf1afd23ebacd74ad9bc35d20febd34572ee5bbedf71fe65f9",
+          "artifactId": "artifact-417674c5551bdca4f20335201be1e4c4c2469ba53f5345f5",
+          "artifactIdentityDigest": "417674c5551bdca4f20335201be1e4c4c2469ba53f5345f51b4b908eb45df54b",
+          "artifactRecordDigest": "3e091aa40c062f1aa0576d41c9093e341e6a447b10918636bfeea47cfc421c62",
+          "contentSha256": "fbf0f69e47f7184f5e089a3472f425a456355810466a1d81248ed6eb3d5cde4c",
+          "startLine": 98,
+          "endLine": 98,
+          "excerptSha256": "27b33b49a0643e3869c3b81541d2af77a86756f9d7f98cd1916c4b5af3bbc88b"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-d753669922ee4b2391718e9f978faf8216434d87ea19e46e",
+      "claimDigest": "d753669922ee4b2391718e9f978faf8216434d87ea19e46ecb30630e30a9fa70",
+      "candidateId": "rate-bottleneck",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-b83528333ba4d27cf70b81cc2be12e09d7ff692f"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-bottleneck",
+          "artifactSetId": "artifact-set-f5f2b74d3525f3fb05976fd244eee32b35aaf5e687bab457",
+          "artifactSetIdentityDigest": "f5f2b74d3525f3fb05976fd244eee32b35aaf5e687bab45712c03bd9d960e437",
+          "artifactSetRecordDigest": "5cc6207bf907a54d0565564797588470de0a03d368d1a0f234273faa223cec71",
+          "artifactId": "artifact-0da4d91a92ad013afdba7c41746adc5686b0787f4913b7cb",
+          "artifactIdentityDigest": "0da4d91a92ad013afdba7c41746adc5686b0787f4913b7cb644c2f94f7ab8da6",
+          "artifactRecordDigest": "0670e001a6c777b5819da7bedb981d7bf20bb09692ad1433ab5ce0dcc666f6d2",
+          "contentSha256": "8fdf75b63e6e4120e6a9de5245b7c6e919b31db0cba721370517f15d2c240c64",
+          "startLine": 803,
+          "endLine": 805,
+          "excerptSha256": "4b28a8653b129ee9bfb7e8705a56cf03534a4f77b690ed7961cf63d7dedc04d8"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-efa5f279dd1db85e7ef6b290e2cfe581b918f836cb76ec19",
+      "claimDigest": "efa5f279dd1db85e7ef6b290e2cfe581b918f836cb76ec199dc10fd204b9842f",
+      "candidateId": "rate-bottleneck",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-b83528333ba4d27cf70b81cc2be12e09d7ff692f"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-bottleneck",
+          "artifactSetId": "artifact-set-f5f2b74d3525f3fb05976fd244eee32b35aaf5e687bab457",
+          "artifactSetIdentityDigest": "f5f2b74d3525f3fb05976fd244eee32b35aaf5e687bab45712c03bd9d960e437",
+          "artifactSetRecordDigest": "5cc6207bf907a54d0565564797588470de0a03d368d1a0f234273faa223cec71",
+          "artifactId": "artifact-0da4d91a92ad013afdba7c41746adc5686b0787f4913b7cb",
+          "artifactIdentityDigest": "0da4d91a92ad013afdba7c41746adc5686b0787f4913b7cb644c2f94f7ab8da6",
+          "artifactRecordDigest": "0670e001a6c777b5819da7bedb981d7bf20bb09692ad1433ab5ce0dcc666f6d2",
+          "contentSha256": "8fdf75b63e6e4120e6a9de5245b7c6e919b31db0cba721370517f15d2c240c64",
+          "startLine": 803,
+          "endLine": 805,
+          "excerptSha256": "4b28a8653b129ee9bfb7e8705a56cf03534a4f77b690ed7961cf63d7dedc04d8"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-f81ec12065dfa2479a46878fa42f0d519c29ec39e2b6db60",
+      "claimDigest": "f81ec12065dfa2479a46878fa42f0d519c29ec39e2b6db60af9ca75731af6661",
+      "candidateId": "rate-caddy",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-0bbda5c728e7694ba929aa4fa0c549f1387d3a3f"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-caddy",
+          "artifactSetId": "artifact-set-94b1f7a02b27d8ac31ff7ad8c932944b49aa7007fe107979",
+          "artifactSetIdentityDigest": "94b1f7a02b27d8ac31ff7ad8c932944b49aa7007fe1079791c79a776e53e68bf",
+          "artifactSetRecordDigest": "697e3aeaeb57d664e5efab29ce56a6804eca0277b754278de957b977367cbf9d",
+          "artifactId": "artifact-af00166934c46c36e536251e3ca10db6786dfc264a5f2ec1",
+          "artifactIdentityDigest": "af00166934c46c36e536251e3ca10db6786dfc264a5f2ec16cc6bce369c38de9",
+          "artifactRecordDigest": "91aa2e0ea7c9b1268f4616f6cfd2c09ba0adfc9af1eb42374f2f5655ff8d6a3f",
+          "contentSha256": "19a03ce87b6b83b284b085bb675139008f9f2b88367ed466ee0916d7a196396c",
+          "startLine": 93,
+          "endLine": 93,
+          "excerptSha256": "f40071ac3e184a0c2f8c03a72b65d19dd43e23da11f6b49bd7a6f87e18eb6949"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-b206e11d484069d4e5a23368c8f62125bcb291e12983f21f",
+      "claimDigest": "b206e11d484069d4e5a23368c8f62125bcb291e12983f21fc359a308aeabf4bc",
+      "candidateId": "rate-caddy",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-0bbda5c728e7694ba929aa4fa0c549f1387d3a3f"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-caddy",
+          "artifactSetId": "artifact-set-94b1f7a02b27d8ac31ff7ad8c932944b49aa7007fe107979",
+          "artifactSetIdentityDigest": "94b1f7a02b27d8ac31ff7ad8c932944b49aa7007fe1079791c79a776e53e68bf",
+          "artifactSetRecordDigest": "697e3aeaeb57d664e5efab29ce56a6804eca0277b754278de957b977367cbf9d",
+          "artifactId": "artifact-af00166934c46c36e536251e3ca10db6786dfc264a5f2ec1",
+          "artifactIdentityDigest": "af00166934c46c36e536251e3ca10db6786dfc264a5f2ec16cc6bce369c38de9",
+          "artifactRecordDigest": "91aa2e0ea7c9b1268f4616f6cfd2c09ba0adfc9af1eb42374f2f5655ff8d6a3f",
+          "contentSha256": "19a03ce87b6b83b284b085bb675139008f9f2b88367ed466ee0916d7a196396c",
+          "startLine": 93,
+          "endLine": 93,
+          "excerptSha256": "f40071ac3e184a0c2f8c03a72b65d19dd43e23da11f6b49bd7a6f87e18eb6949"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-3fc89beb0ab98d9f62564bf8c15fc0ab1a0bb6770bc6faa7",
+      "claimDigest": "3fc89beb0ab98d9f62564bf8c15fc0ab1a0bb6770bc6faa701959eba4e245166",
+      "candidateId": "rate-envoy-ratelimit",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-17b1956cd7f4fba0dbf888a07644ca96cc65f045"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-envoy-ratelimit",
+          "artifactSetId": "artifact-set-6d70024b965571e99db124b87ec88d46a18faf0340ce06d7",
+          "artifactSetIdentityDigest": "6d70024b965571e99db124b87ec88d46a18faf0340ce06d76bad82955e5166a2",
+          "artifactSetRecordDigest": "d137db79596cbbeac916370a3ca02640dbc71baf1a265737311ac49d0afa5cfb",
+          "artifactId": "artifact-4df11a041de46fc3e0ae039b01160d829d8a1a2d560a9512",
+          "artifactIdentityDigest": "4df11a041de46fc3e0ae039b01160d829d8a1a2d560a9512e0d99c59cadd6d53",
+          "artifactRecordDigest": "fb8b1d1ca3436c94bd7f6c9263a8906e3d6b18088408a4795cb69de8c51241c6",
+          "contentSha256": "85e670bb614563cad7d1246805db168439a4ef5ef8bce098e0bc23b409400770",
+          "startLine": 83,
+          "endLine": 88,
+          "excerptSha256": "53182d52736acbff424ad9481afce26ca2e6e105ae4117f4f2fc283c63280c25"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-envoy-ratelimit",
+          "artifactSetId": "artifact-set-6d70024b965571e99db124b87ec88d46a18faf0340ce06d7",
+          "artifactSetIdentityDigest": "6d70024b965571e99db124b87ec88d46a18faf0340ce06d76bad82955e5166a2",
+          "artifactSetRecordDigest": "d137db79596cbbeac916370a3ca02640dbc71baf1a265737311ac49d0afa5cfb",
+          "artifactId": "artifact-4df11a041de46fc3e0ae039b01160d829d8a1a2d560a9512",
+          "artifactIdentityDigest": "4df11a041de46fc3e0ae039b01160d829d8a1a2d560a9512e0d99c59cadd6d53",
+          "artifactRecordDigest": "fb8b1d1ca3436c94bd7f6c9263a8906e3d6b18088408a4795cb69de8c51241c6",
+          "contentSha256": "85e670bb614563cad7d1246805db168439a4ef5ef8bce098e0bc23b409400770",
+          "startLine": 1416,
+          "endLine": 1425,
+          "excerptSha256": "2786466f7105f70bc295f65ffd9c7ee595015920043de766f112c727486cd7a3"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-7a39cf660702ad20e9cb84cc140f4f20864af953b0405712",
+      "claimDigest": "7a39cf660702ad20e9cb84cc140f4f20864af953b0405712069fe1aa06c3e66b",
+      "candidateId": "rate-envoy-ratelimit",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-17b1956cd7f4fba0dbf888a07644ca96cc65f045"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-envoy-ratelimit",
+          "artifactSetId": "artifact-set-6d70024b965571e99db124b87ec88d46a18faf0340ce06d7",
+          "artifactSetIdentityDigest": "6d70024b965571e99db124b87ec88d46a18faf0340ce06d76bad82955e5166a2",
+          "artifactSetRecordDigest": "d137db79596cbbeac916370a3ca02640dbc71baf1a265737311ac49d0afa5cfb",
+          "artifactId": "artifact-4df11a041de46fc3e0ae039b01160d829d8a1a2d560a9512",
+          "artifactIdentityDigest": "4df11a041de46fc3e0ae039b01160d829d8a1a2d560a9512e0d99c59cadd6d53",
+          "artifactRecordDigest": "fb8b1d1ca3436c94bd7f6c9263a8906e3d6b18088408a4795cb69de8c51241c6",
+          "contentSha256": "85e670bb614563cad7d1246805db168439a4ef5ef8bce098e0bc23b409400770",
+          "startLine": 1416,
+          "endLine": 1425,
+          "excerptSha256": "2786466f7105f70bc295f65ffd9c7ee595015920043de766f112c727486cd7a3"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-ab45c0f905bccc0b5512148fc2565e1360a6ac04b378ac9c",
+      "claimDigest": "ab45c0f905bccc0b5512148fc2565e1360a6ac04b378ac9c997716a792d99c13",
+      "candidateId": "rate-express-rate-limit",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-6d28dfbb9ba1d36059dc55346ad3194535440f6c"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-express-rate-limit",
+          "artifactSetId": "artifact-set-a2be29d58889f585ea9663df31554dd217d6f973e7bca1cf",
+          "artifactSetIdentityDigest": "a2be29d58889f585ea9663df31554dd217d6f973e7bca1cf2b877e8799d29c7a",
+          "artifactSetRecordDigest": "e421a37da59ebaf53f34e0e58da0e0e4d8b975cd134d08569f0516390fc3bff7",
+          "artifactId": "artifact-2f4965f8ff4e705101b103a35025f8ce02870f9073f3967a",
+          "artifactIdentityDigest": "2f4965f8ff4e705101b103a35025f8ce02870f9073f3967a4b0685d4c10d8025",
+          "artifactRecordDigest": "ab661c75b3a9fee0d817e8b60a937d073676e0bdc0f60f5e81cbf1ce1910b961",
+          "contentSha256": "18f8734ab40db83db53574318c87d896fe9fe7c7bf66dc75e4dc436dfb0b6a12",
+          "startLine": 284,
+          "endLine": 295,
+          "excerptSha256": "58856f10fa13381c9710caae177a59bf19921a79e3d49e5fcfd06d9a318438f9"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-94737a690766db0e4c01021ea87afde662cf2ef207ce5b8e",
+      "claimDigest": "94737a690766db0e4c01021ea87afde662cf2ef207ce5b8ee69261dbb63bb233",
+      "candidateId": "rate-express-rate-limit",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-6d28dfbb9ba1d36059dc55346ad3194535440f6c"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-express-rate-limit",
+          "artifactSetId": "artifact-set-a2be29d58889f585ea9663df31554dd217d6f973e7bca1cf",
+          "artifactSetIdentityDigest": "a2be29d58889f585ea9663df31554dd217d6f973e7bca1cf2b877e8799d29c7a",
+          "artifactSetRecordDigest": "e421a37da59ebaf53f34e0e58da0e0e4d8b975cd134d08569f0516390fc3bff7",
+          "artifactId": "artifact-2f4965f8ff4e705101b103a35025f8ce02870f9073f3967a",
+          "artifactIdentityDigest": "2f4965f8ff4e705101b103a35025f8ce02870f9073f3967a4b0685d4c10d8025",
+          "artifactRecordDigest": "ab661c75b3a9fee0d817e8b60a937d073676e0bdc0f60f5e81cbf1ce1910b961",
+          "contentSha256": "18f8734ab40db83db53574318c87d896fe9fe7c7bf66dc75e4dc436dfb0b6a12",
+          "startLine": 284,
+          "endLine": 295,
+          "excerptSha256": "58856f10fa13381c9710caae177a59bf19921a79e3d49e5fcfd06d9a318438f9"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-58bfcf68a8d904bb4fbbf5ab98af8d27d7c19726aa84b53b",
+      "claimDigest": "58bfcf68a8d904bb4fbbf5ab98af8d27d7c19726aa84b53be66384c8354129bf",
+      "candidateId": "rate-fastify-rate-limit",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-78a7d41143f5418fef3cfe3ac6b46c944e637dc2"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-fastify-rate-limit",
+          "artifactSetId": "artifact-set-93a1310a6966c49c71ea91c3bed53ca17cc69cb3ef7c3fa1",
+          "artifactSetIdentityDigest": "93a1310a6966c49c71ea91c3bed53ca17cc69cb3ef7c3fa17ff4425d615b796f",
+          "artifactSetRecordDigest": "22fc98ba4829515804360f1f528f0b1307536cd591a10ad0d6930d2279c4267f",
+          "artifactId": "artifact-d663daa7d18c87f9be2c01e0e87b409a57642ad0ae8d24f7",
+          "artifactIdentityDigest": "d663daa7d18c87f9be2c01e0e87b409a57642ad0ae8d24f7c77373faa3c42416",
+          "artifactRecordDigest": "89bbd230d4eef1925a4c4d044fb7731b289cb9168d90ad742d69f6a0cea9943b",
+          "contentSha256": "04efb513cd4d36baa79f8216b9b839c7765a57800aa647111efcc53e065f8130",
+          "startLine": 151,
+          "endLine": 156,
+          "excerptSha256": "8fdcad06163a5ae234d2b29651d2435abde81c9e2778f33744720d69430505ad"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-18ac615ca59ad35702841d147cdb25b815f8d0cd50138603",
+      "claimDigest": "18ac615ca59ad35702841d147cdb25b815f8d0cd50138603e615f2cb34ff9110",
+      "candidateId": "rate-fastify-rate-limit",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-78a7d41143f5418fef3cfe3ac6b46c944e637dc2"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-fastify-rate-limit",
+          "artifactSetId": "artifact-set-93a1310a6966c49c71ea91c3bed53ca17cc69cb3ef7c3fa1",
+          "artifactSetIdentityDigest": "93a1310a6966c49c71ea91c3bed53ca17cc69cb3ef7c3fa17ff4425d615b796f",
+          "artifactSetRecordDigest": "22fc98ba4829515804360f1f528f0b1307536cd591a10ad0d6930d2279c4267f",
+          "artifactId": "artifact-d663daa7d18c87f9be2c01e0e87b409a57642ad0ae8d24f7",
+          "artifactIdentityDigest": "d663daa7d18c87f9be2c01e0e87b409a57642ad0ae8d24f7c77373faa3c42416",
+          "artifactRecordDigest": "89bbd230d4eef1925a4c4d044fb7731b289cb9168d90ad742d69f6a0cea9943b",
+          "contentSha256": "04efb513cd4d36baa79f8216b9b839c7765a57800aa647111efcc53e065f8130",
+          "startLine": 151,
+          "endLine": 156,
+          "excerptSha256": "8fdcad06163a5ae234d2b29651d2435abde81c9e2778f33744720d69430505ad"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-64e41dd3c527d7e3057cdeaea0cd6e1fc90732286383d6c1",
+      "claimDigest": "64e41dd3c527d7e3057cdeaea0cd6e1fc90732286383d6c1b31e9833009d8a8f",
+      "candidateId": "rate-go-limiter",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-294f8d8824cf706e99a99de9dbe2cdf71856792f"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-go-limiter",
+          "artifactSetId": "artifact-set-e2fe69b63159654ae10216c599be55ff77f101d81bd0420d",
+          "artifactSetIdentityDigest": "e2fe69b63159654ae10216c599be55ff77f101d81bd0420d57e13ddd9633c790",
+          "artifactSetRecordDigest": "168268444375ba0344df65b4145e0389a87efbda9c29132db4598a31f364304f",
+          "artifactId": "artifact-83abfddcbd6608c8259800585a24aa4b0a139f0b3948320e",
+          "artifactIdentityDigest": "83abfddcbd6608c8259800585a24aa4b0a139f0b3948320e61d311db48736a21",
+          "artifactRecordDigest": "b221e116f56229e969ea96bdcf58475f075a1136830353698cf3adeec37c374b",
+          "contentSha256": "bf7969e4a3b1bf7d4f56d310f27eaf1699bfb5073bfe5b98c938bfcd16492eac",
+          "startLine": 12,
+          "endLine": 29,
+          "excerptSha256": "7d6b63887594c0fc6a69faaf03a80e9c73c77d02390cd16aeb54a551b9237e65"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-go-limiter",
+          "artifactSetId": "artifact-set-e2fe69b63159654ae10216c599be55ff77f101d81bd0420d",
+          "artifactSetIdentityDigest": "e2fe69b63159654ae10216c599be55ff77f101d81bd0420d57e13ddd9633c790",
+          "artifactSetRecordDigest": "168268444375ba0344df65b4145e0389a87efbda9c29132db4598a31f364304f",
+          "artifactId": "artifact-83abfddcbd6608c8259800585a24aa4b0a139f0b3948320e",
+          "artifactIdentityDigest": "83abfddcbd6608c8259800585a24aa4b0a139f0b3948320e61d311db48736a21",
+          "artifactRecordDigest": "b221e116f56229e969ea96bdcf58475f075a1136830353698cf3adeec37c374b",
+          "contentSha256": "bf7969e4a3b1bf7d4f56d310f27eaf1699bfb5073bfe5b98c938bfcd16492eac",
+          "startLine": 135,
+          "endLine": 146,
+          "excerptSha256": "754c62a1ff546c0c2b4206c381c58919e41ea3c6a18f41354194ecec276e2b3b"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-2dc5fc0be89385873f897ba7ac8e6c2919e9cc27b2e9f009",
+      "claimDigest": "2dc5fc0be89385873f897ba7ac8e6c2919e9cc27b2e9f00929514ba1330670eb",
+      "candidateId": "rate-go-limiter",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-294f8d8824cf706e99a99de9dbe2cdf71856792f"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-go-limiter",
+          "artifactSetId": "artifact-set-e2fe69b63159654ae10216c599be55ff77f101d81bd0420d",
+          "artifactSetIdentityDigest": "e2fe69b63159654ae10216c599be55ff77f101d81bd0420d57e13ddd9633c790",
+          "artifactSetRecordDigest": "168268444375ba0344df65b4145e0389a87efbda9c29132db4598a31f364304f",
+          "artifactId": "artifact-83abfddcbd6608c8259800585a24aa4b0a139f0b3948320e",
+          "artifactIdentityDigest": "83abfddcbd6608c8259800585a24aa4b0a139f0b3948320e61d311db48736a21",
+          "artifactRecordDigest": "b221e116f56229e969ea96bdcf58475f075a1136830353698cf3adeec37c374b",
+          "contentSha256": "bf7969e4a3b1bf7d4f56d310f27eaf1699bfb5073bfe5b98c938bfcd16492eac",
+          "startLine": 12,
+          "endLine": 29,
+          "excerptSha256": "7d6b63887594c0fc6a69faaf03a80e9c73c77d02390cd16aeb54a551b9237e65"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-go-limiter",
+          "artifactSetId": "artifact-set-e2fe69b63159654ae10216c599be55ff77f101d81bd0420d",
+          "artifactSetIdentityDigest": "e2fe69b63159654ae10216c599be55ff77f101d81bd0420d57e13ddd9633c790",
+          "artifactSetRecordDigest": "168268444375ba0344df65b4145e0389a87efbda9c29132db4598a31f364304f",
+          "artifactId": "artifact-83abfddcbd6608c8259800585a24aa4b0a139f0b3948320e",
+          "artifactIdentityDigest": "83abfddcbd6608c8259800585a24aa4b0a139f0b3948320e61d311db48736a21",
+          "artifactRecordDigest": "b221e116f56229e969ea96bdcf58475f075a1136830353698cf3adeec37c374b",
+          "contentSha256": "bf7969e4a3b1bf7d4f56d310f27eaf1699bfb5073bfe5b98c938bfcd16492eac",
+          "startLine": 135,
+          "endLine": 146,
+          "excerptSha256": "754c62a1ff546c0c2b4206c381c58919e41ea3c6a18f41354194ecec276e2b3b"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-c2b04bc1872b95c5a9b6236e5790d263a21d44f3e9358e8c",
+      "claimDigest": "c2b04bc1872b95c5a9b6236e5790d263a21d44f3e9358e8c6456c5e529d80d18",
+      "candidateId": "rate-gravitee",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-47b8d09d476769dc7960b3982bb6dfcbdca4c531"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-gravitee",
+          "artifactSetId": "artifact-set-73d7550f4ea3f01303faa259606335e757db335900a7dc77",
+          "artifactSetIdentityDigest": "73d7550f4ea3f01303faa259606335e757db335900a7dc77832f65d2cdd019e1",
+          "artifactSetRecordDigest": "27b39461846985254c41a2dbac173b1cc91dafda176cf1bbcae810789022045a",
+          "artifactId": "artifact-bc5f2b7dbfba4749ecdc23273c228f38f4f0d3e1f92d45ec",
+          "artifactIdentityDigest": "bc5f2b7dbfba4749ecdc23273c228f38f4f0d3e1f92d45ec4fd4eea227174ac0",
+          "artifactRecordDigest": "bce83ab4a89c5e8ab83557a55a72d0433a865ab699af35868f193b2a25be1dcc",
+          "contentSha256": "58fcb66eb19a67d60dfe16a1f4dc57d127a2965a3c45deaf128d368c98566986",
+          "startLine": 61,
+          "endLine": 74,
+          "excerptSha256": "ff02f7c27d1e3a744ef0b4e86b808f66481e08941addd415c5e4a5d67afb1321"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-0dfb44214f3cc785b8168d4b7ded952c7ac40a8534a8d0b1",
+      "claimDigest": "0dfb44214f3cc785b8168d4b7ded952c7ac40a8534a8d0b1ce124f27d5818142",
+      "candidateId": "rate-gravitee",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-47b8d09d476769dc7960b3982bb6dfcbdca4c531"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-gravitee",
+          "artifactSetId": "artifact-set-73d7550f4ea3f01303faa259606335e757db335900a7dc77",
+          "artifactSetIdentityDigest": "73d7550f4ea3f01303faa259606335e757db335900a7dc77832f65d2cdd019e1",
+          "artifactSetRecordDigest": "27b39461846985254c41a2dbac173b1cc91dafda176cf1bbcae810789022045a",
+          "artifactId": "artifact-bc5f2b7dbfba4749ecdc23273c228f38f4f0d3e1f92d45ec",
+          "artifactIdentityDigest": "bc5f2b7dbfba4749ecdc23273c228f38f4f0d3e1f92d45ec4fd4eea227174ac0",
+          "artifactRecordDigest": "bce83ab4a89c5e8ab83557a55a72d0433a865ab699af35868f193b2a25be1dcc",
+          "contentSha256": "58fcb66eb19a67d60dfe16a1f4dc57d127a2965a3c45deaf128d368c98566986",
+          "startLine": 61,
+          "endLine": 74,
+          "excerptSha256": "ff02f7c27d1e3a744ef0b4e86b808f66481e08941addd415c5e4a5d67afb1321"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-9e49560707870d2f9fc8879a4ea1db64d8f759548307de14",
+      "claimDigest": "9e49560707870d2f9fc8879a4ea1db64d8f759548307de1472a86f835da9638e",
+      "candidateId": "rate-gubernator",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-d3b62bb48d2d8fbd30c77dd654b84fcadc69a222"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-gubernator",
+          "artifactSetId": "artifact-set-7cce9ac79ab1bc2cc4873167e937dd122f8809f10f35fc82",
+          "artifactSetIdentityDigest": "7cce9ac79ab1bc2cc4873167e937dd122f8809f10f35fc82bffdd87b943eb323",
+          "artifactSetRecordDigest": "577b6a6724477d8b16feb4fc8028bfaa7309adfb899d7f437a4c175f2ad4be93",
+          "artifactId": "artifact-d51f89f3fdf6e7272f68efc6db1eda0aa81c50ff1570e3d8",
+          "artifactIdentityDigest": "d51f89f3fdf6e7272f68efc6db1eda0aa81c50ff1570e3d8fc50f7f77bb40767",
+          "artifactRecordDigest": "6f9df3ff05125135f85b3ad876a807243c6ac7c8e331ab38971a3d9c1c60602c",
+          "contentSha256": "af6ec342e805e51c90c27dd96b97f5ddab40ef3c93a33b03fcbe1d6b5b61263a",
+          "startLine": 10,
+          "endLine": 20,
+          "excerptSha256": "dacc313b0d4e4c2b520ec7b8cbbe07ce5ffe0d2127b635844897cd23d01f67f2"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-16afa16f912f08ac6ad0ad79e03981e57dce9c4133031d75",
+      "claimDigest": "16afa16f912f08ac6ad0ad79e03981e57dce9c4133031d751e359060ea359db1",
+      "candidateId": "rate-juju",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f60b32039441cd828005f82f3a54aafd00bc9882"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-juju",
+          "artifactSetId": "artifact-set-3e9db80237e2c0228f9fa67bb985418ab30b41ed77211da7",
+          "artifactSetIdentityDigest": "3e9db80237e2c0228f9fa67bb985418ab30b41ed77211da7d38c8406eeb081f2",
+          "artifactSetRecordDigest": "edcb7f5f79a8c2060a50dda027feaa4e30e572437fb87ef8cb17dec3450826c0",
+          "artifactId": "artifact-d6b7c64bbaee4ffe0ba5ca247e008a6d91a649cc0edc319e",
+          "artifactIdentityDigest": "d6b7c64bbaee4ffe0ba5ca247e008a6d91a649cc0edc319e5b270cfcfb4769e4",
+          "artifactRecordDigest": "eb4ed0a704354673a45f123f0b4c4729feecbd94fe62cce45708a51ac9699b43",
+          "contentSha256": "7535533a44d4b343d15fd56845a2de88b365caeadf2bda74a6bd670076c87514",
+          "startLine": 26,
+          "endLine": 43,
+          "excerptSha256": "dd9022125c5dd16d878ce50f2e350f51efbf4833b0153b74a77727353a79b2c7"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-8eb18d43f18120784b83f909c0c12f14acbf1c29b72e6b73",
+      "claimDigest": "8eb18d43f18120784b83f909c0c12f14acbf1c29b72e6b73b47a414862e4b62e",
+      "candidateId": "rate-juju",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f60b32039441cd828005f82f3a54aafd00bc9882"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-juju",
+          "artifactSetId": "artifact-set-3e9db80237e2c0228f9fa67bb985418ab30b41ed77211da7",
+          "artifactSetIdentityDigest": "3e9db80237e2c0228f9fa67bb985418ab30b41ed77211da7d38c8406eeb081f2",
+          "artifactSetRecordDigest": "edcb7f5f79a8c2060a50dda027feaa4e30e572437fb87ef8cb17dec3450826c0",
+          "artifactId": "artifact-d6b7c64bbaee4ffe0ba5ca247e008a6d91a649cc0edc319e",
+          "artifactIdentityDigest": "d6b7c64bbaee4ffe0ba5ca247e008a6d91a649cc0edc319e5b270cfcfb4769e4",
+          "artifactRecordDigest": "eb4ed0a704354673a45f123f0b4c4729feecbd94fe62cce45708a51ac9699b43",
+          "contentSha256": "7535533a44d4b343d15fd56845a2de88b365caeadf2bda74a6bd670076c87514",
+          "startLine": 26,
+          "endLine": 43,
+          "excerptSha256": "dd9022125c5dd16d878ce50f2e350f51efbf4833b0153b74a77727353a79b2c7"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-656ff8a8f33b0c16fa9e8b13925228e168c94689448663ef",
+      "claimDigest": "656ff8a8f33b0c16fa9e8b13925228e168c94689448663efdb7b8a0f25c032a5",
+      "candidateId": "rate-koa-ratelimit",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-212a4ff57f5aaff9c51a7633a321bfd2c051ea17"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-koa-ratelimit",
+          "artifactSetId": "artifact-set-4c6c5e2bb246360ec88f37af3540c1e40183808af989f489",
+          "artifactSetIdentityDigest": "4c6c5e2bb246360ec88f37af3540c1e40183808af989f489c1b4237c565c900c",
+          "artifactSetRecordDigest": "93082cad0af5881fb30f47502a89ae75483080b56b6a9eaf97debd846b07abc0",
+          "artifactId": "artifact-fa7caf6b78206aef484fc99463b042433b3186f0dbd718d9",
+          "artifactIdentityDigest": "fa7caf6b78206aef484fc99463b042433b3186f0dbd718d948a73dccaec0ef8f",
+          "artifactRecordDigest": "81358c2c3632ac6a032a4756b7c8d210274df5106c1b429f432506ba5f9fdd37",
+          "contentSha256": "883d2696282e50dff4d7d7e456fcfe8427c3149f8fd59d6ae3cc4e540af77159",
+          "startLine": 77,
+          "endLine": 118,
+          "excerptSha256": "cc77eb7e0c983ab069092a60b55e19ca3dd92aa9e7b26b4ec5570a863a644053"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-ff0efc065a69155880469ade54d5748be0148bde0140d467",
+      "claimDigest": "ff0efc065a69155880469ade54d5748be0148bde0140d467485bf36c6c6b1053",
+      "candidateId": "rate-koa-ratelimit",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-212a4ff57f5aaff9c51a7633a321bfd2c051ea17"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-koa-ratelimit",
+          "artifactSetId": "artifact-set-4c6c5e2bb246360ec88f37af3540c1e40183808af989f489",
+          "artifactSetIdentityDigest": "4c6c5e2bb246360ec88f37af3540c1e40183808af989f489c1b4237c565c900c",
+          "artifactSetRecordDigest": "93082cad0af5881fb30f47502a89ae75483080b56b6a9eaf97debd846b07abc0",
+          "artifactId": "artifact-fa7caf6b78206aef484fc99463b042433b3186f0dbd718d9",
+          "artifactIdentityDigest": "fa7caf6b78206aef484fc99463b042433b3186f0dbd718d948a73dccaec0ef8f",
+          "artifactRecordDigest": "81358c2c3632ac6a032a4756b7c8d210274df5106c1b429f432506ba5f9fdd37",
+          "contentSha256": "883d2696282e50dff4d7d7e456fcfe8427c3149f8fd59d6ae3cc4e540af77159",
+          "startLine": 77,
+          "endLine": 118,
+          "excerptSha256": "cc77eb7e0c983ab069092a60b55e19ca3dd92aa9e7b26b4ec5570a863a644053"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-f6ec90c941e14a4925cd248ed3e1f9009795f65577304ae9",
+      "claimDigest": "f6ec90c941e14a4925cd248ed3e1f9009795f65577304ae974eeb252de91d075",
+      "candidateId": "rate-kong",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-fa9c3b695af72668f135cb17bbb84a8b4dc511d2"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-kong",
+          "artifactSetId": "artifact-set-fd79bc0a64bd37ed869fe09188aecab91a7cb1c5066f8a12",
+          "artifactSetIdentityDigest": "fd79bc0a64bd37ed869fe09188aecab91a7cb1c5066f8a12bf4953a69f29335e",
+          "artifactSetRecordDigest": "37236038b2a63859e854816ee335397414d6ec1021a83dde99d84a55b27a4f1e",
+          "artifactId": "artifact-a2f884c717a039155fe78277018796151daf8001223792b5",
+          "artifactIdentityDigest": "a2f884c717a039155fe78277018796151daf8001223792b5a9b17eeabe3902fa",
+          "artifactRecordDigest": "7b82675523ddd03a51a11d40545b5e28564d9a77a0b28a45a070810cb2d769d3",
+          "contentSha256": "376442dbbec623bc2edaf4473baa768c5bd4e56c391e480719692ea3e84d2d0b",
+          "startLine": 26,
+          "endLine": 30,
+          "excerptSha256": "9ecd675d800b89131e2876d6982127ef55476405626aec952eaa128be144350d"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-f53c46c6beb07c80b5fc55e36d5cbdee4c069177a2944eae",
+      "claimDigest": "f53c46c6beb07c80b5fc55e36d5cbdee4c069177a2944eaeecababd8021539bc",
+      "candidateId": "rate-krakend",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-62e10c1cd5aac22f55180691c1b58e44a6b92716"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-krakend",
+          "artifactSetId": "artifact-set-584851af14a5bdcf8316659be4016c93d73b0765dbc4c703",
+          "artifactSetIdentityDigest": "584851af14a5bdcf8316659be4016c93d73b0765dbc4c703a348e177aded3ab7",
+          "artifactSetRecordDigest": "7f0729cabb2019cbce85ac1350424ac77a7cbe66aad9d1eab4eb643686114ca3",
+          "artifactId": "artifact-137cc18ca3c5dca7cce26730774f5bee0371ced712fdcfbe",
+          "artifactIdentityDigest": "137cc18ca3c5dca7cce26730774f5bee0371ced712fdcfbe606e062bf4a0a333",
+          "artifactRecordDigest": "b1c4a1f31055c1afa66906c34aff95ef34fda033bf3724608fb56c871da87fb8",
+          "contentSha256": "17dabcaef3117315df1ee988e58b3350ee7735019df800087218f6124f608abb",
+          "startLine": 14,
+          "endLine": 20,
+          "excerptSha256": "7e14a186a3eaf2cc284e57135b3ad05b2721617a5bcd1eaea200eeb751bd95da"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-krakend",
+          "artifactSetId": "artifact-set-584851af14a5bdcf8316659be4016c93d73b0765dbc4c703",
+          "artifactSetIdentityDigest": "584851af14a5bdcf8316659be4016c93d73b0765dbc4c703a348e177aded3ab7",
+          "artifactSetRecordDigest": "7f0729cabb2019cbce85ac1350424ac77a7cbe66aad9d1eab4eb643686114ca3",
+          "artifactId": "artifact-137cc18ca3c5dca7cce26730774f5bee0371ced712fdcfbe",
+          "artifactIdentityDigest": "137cc18ca3c5dca7cce26730774f5bee0371ced712fdcfbe606e062bf4a0a333",
+          "artifactRecordDigest": "b1c4a1f31055c1afa66906c34aff95ef34fda033bf3724608fb56c871da87fb8",
+          "contentSha256": "17dabcaef3117315df1ee988e58b3350ee7735019df800087218f6124f608abb",
+          "startLine": 40,
+          "endLine": 45,
+          "excerptSha256": "bdcb25d811007b89c80e3e49c2aede70ae4cbd434eeffb3cfa3887955072f71f"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-21d836d0ff239d64dd238ed89e6616d7b333618d7be9f7f8",
+      "claimDigest": "21d836d0ff239d64dd238ed89e6616d7b333618d7be9f7f82e4a05bbc03bd5f7",
+      "candidateId": "rate-krakend",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-62e10c1cd5aac22f55180691c1b58e44a6b92716"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-krakend",
+          "artifactSetId": "artifact-set-584851af14a5bdcf8316659be4016c93d73b0765dbc4c703",
+          "artifactSetIdentityDigest": "584851af14a5bdcf8316659be4016c93d73b0765dbc4c703a348e177aded3ab7",
+          "artifactSetRecordDigest": "7f0729cabb2019cbce85ac1350424ac77a7cbe66aad9d1eab4eb643686114ca3",
+          "artifactId": "artifact-137cc18ca3c5dca7cce26730774f5bee0371ced712fdcfbe",
+          "artifactIdentityDigest": "137cc18ca3c5dca7cce26730774f5bee0371ced712fdcfbe606e062bf4a0a333",
+          "artifactRecordDigest": "b1c4a1f31055c1afa66906c34aff95ef34fda033bf3724608fb56c871da87fb8",
+          "contentSha256": "17dabcaef3117315df1ee988e58b3350ee7735019df800087218f6124f608abb",
+          "startLine": 14,
+          "endLine": 20,
+          "excerptSha256": "7e14a186a3eaf2cc284e57135b3ad05b2721617a5bcd1eaea200eeb751bd95da"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-krakend",
+          "artifactSetId": "artifact-set-584851af14a5bdcf8316659be4016c93d73b0765dbc4c703",
+          "artifactSetIdentityDigest": "584851af14a5bdcf8316659be4016c93d73b0765dbc4c703a348e177aded3ab7",
+          "artifactSetRecordDigest": "7f0729cabb2019cbce85ac1350424ac77a7cbe66aad9d1eab4eb643686114ca3",
+          "artifactId": "artifact-137cc18ca3c5dca7cce26730774f5bee0371ced712fdcfbe",
+          "artifactIdentityDigest": "137cc18ca3c5dca7cce26730774f5bee0371ced712fdcfbe606e062bf4a0a333",
+          "artifactRecordDigest": "b1c4a1f31055c1afa66906c34aff95ef34fda033bf3724608fb56c871da87fb8",
+          "contentSha256": "17dabcaef3117315df1ee988e58b3350ee7735019df800087218f6124f608abb",
+          "startLine": 40,
+          "endLine": 45,
+          "excerptSha256": "bdcb25d811007b89c80e3e49c2aede70ae4cbd434eeffb3cfa3887955072f71f"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-7c226b9100ddcfa195ea2e57c0589fb6845b42046bfab360",
+      "claimDigest": "7c226b9100ddcfa195ea2e57c0589fb6845b42046bfab360bc5b25e066cf6229",
+      "candidateId": "rate-limiters",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-c48939de62e985de10615b4d23b383eb7021d9b9"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-limiters",
+          "artifactSetId": "artifact-set-f18d5a2f4c8b47f0f733443f4cee8d03d7ffd7af5cbfdb5e",
+          "artifactSetIdentityDigest": "f18d5a2f4c8b47f0f733443f4cee8d03d7ffd7af5cbfdb5e9256b50e23dc8a1f",
+          "artifactSetRecordDigest": "94675dd460c001281900f391f7a662a39d857088c737edb6f9bdec1e907ef5a3",
+          "artifactId": "artifact-440909bab56948d813177e5b8ec1c0860f97385e5b14bfed",
+          "artifactIdentityDigest": "440909bab56948d813177e5b8ec1c0860f97385e5b14bfedd4957ecef4842913",
+          "artifactRecordDigest": "6c8d1fcec7c39dab2ab6fffe0f26d7a7432958289e37979f27d23367d7a0b72b",
+          "contentSha256": "4f55b9752cde40ff976c377c98bebb6b5985314a43483646c1912938e20acc1b",
+          "startLine": 11,
+          "endLine": 64,
+          "excerptSha256": "c12221a19b67def42c719a968f6b24ebae124b607e15856097d8117de576837a"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-limiters",
+          "artifactSetId": "artifact-set-f18d5a2f4c8b47f0f733443f4cee8d03d7ffd7af5cbfdb5e",
+          "artifactSetIdentityDigest": "f18d5a2f4c8b47f0f733443f4cee8d03d7ffd7af5cbfdb5e9256b50e23dc8a1f",
+          "artifactSetRecordDigest": "94675dd460c001281900f391f7a662a39d857088c737edb6f9bdec1e907ef5a3",
+          "artifactId": "artifact-440909bab56948d813177e5b8ec1c0860f97385e5b14bfed",
+          "artifactIdentityDigest": "440909bab56948d813177e5b8ec1c0860f97385e5b14bfedd4957ecef4842913",
+          "artifactRecordDigest": "6c8d1fcec7c39dab2ab6fffe0f26d7a7432958289e37979f27d23367d7a0b72b",
+          "contentSha256": "4f55b9752cde40ff976c377c98bebb6b5985314a43483646c1912938e20acc1b",
+          "startLine": 131,
+          "endLine": 143,
+          "excerptSha256": "1440327f23da840568c623d780f7b5e6a8c2850e3c2bd46d2f9ed4f327156199"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-1db2e8ff76fadbf6b10a22c56ced1979d59fa43184a31a56",
+      "claimDigest": "1db2e8ff76fadbf6b10a22c56ced1979d59fa43184a31a568656e62eec551aab",
+      "candidateId": "rate-limiters",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-c48939de62e985de10615b4d23b383eb7021d9b9"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-limiters",
+          "artifactSetId": "artifact-set-f18d5a2f4c8b47f0f733443f4cee8d03d7ffd7af5cbfdb5e",
+          "artifactSetIdentityDigest": "f18d5a2f4c8b47f0f733443f4cee8d03d7ffd7af5cbfdb5e9256b50e23dc8a1f",
+          "artifactSetRecordDigest": "94675dd460c001281900f391f7a662a39d857088c737edb6f9bdec1e907ef5a3",
+          "artifactId": "artifact-440909bab56948d813177e5b8ec1c0860f97385e5b14bfed",
+          "artifactIdentityDigest": "440909bab56948d813177e5b8ec1c0860f97385e5b14bfedd4957ecef4842913",
+          "artifactRecordDigest": "6c8d1fcec7c39dab2ab6fffe0f26d7a7432958289e37979f27d23367d7a0b72b",
+          "contentSha256": "4f55b9752cde40ff976c377c98bebb6b5985314a43483646c1912938e20acc1b",
+          "startLine": 11,
+          "endLine": 64,
+          "excerptSha256": "c12221a19b67def42c719a968f6b24ebae124b607e15856097d8117de576837a"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-c45d0092bddfb2d7851f63e9b79c7527e5df592b28934e80",
+      "claimDigest": "c45d0092bddfb2d7851f63e9b79c7527e5df592b28934e8050c8fd192fccb045",
+      "candidateId": "rate-nestjs-throttler",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-dd2f4984ae81aa7ff9225d7a89d2878914aff870"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-nestjs-throttler",
+          "artifactSetId": "artifact-set-b394a998d9a62b684282896827abdf6cbd78ed9e4d9f7bbc",
+          "artifactSetIdentityDigest": "b394a998d9a62b684282896827abdf6cbd78ed9e4d9f7bbc922d76e270243071",
+          "artifactSetRecordDigest": "84d338b841d2342a3e79efbd8b85430f8bff86e2ac23067cd719e996c7a2769b",
+          "artifactId": "artifact-be700e742ddb3fa07f41b7c4e0401fba9a7ca18ce8d03c79",
+          "artifactIdentityDigest": "be700e742ddb3fa07f41b7c4e0401fba9a7ca18ce8d03c79d050a381f728a579",
+          "artifactRecordDigest": "7422d0598ece0561234b3de580f2bc175214e30b73875827c797d2d7a3fdd0bc",
+          "contentSha256": "c32b0d6d67b7d15d7c4925951d6796a52cb6ad72a9c9990f7212d9cba771ebb3",
+          "startLine": 21,
+          "endLine": 23,
+          "excerptSha256": "d2c5c41e91a1952cee79edf971d409d2424ff9e1315e271eecedb9d3703601b2"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-nestjs-throttler",
+          "artifactSetId": "artifact-set-b394a998d9a62b684282896827abdf6cbd78ed9e4d9f7bbc",
+          "artifactSetIdentityDigest": "b394a998d9a62b684282896827abdf6cbd78ed9e4d9f7bbc922d76e270243071",
+          "artifactSetRecordDigest": "84d338b841d2342a3e79efbd8b85430f8bff86e2ac23067cd719e996c7a2769b",
+          "artifactId": "artifact-be700e742ddb3fa07f41b7c4e0401fba9a7ca18ce8d03c79",
+          "artifactIdentityDigest": "be700e742ddb3fa07f41b7c4e0401fba9a7ca18ce8d03c79d050a381f728a579",
+          "artifactRecordDigest": "7422d0598ece0561234b3de580f2bc175214e30b73875827c797d2d7a3fdd0bc",
+          "contentSha256": "c32b0d6d67b7d15d7c4925951d6796a52cb6ad72a9c9990f7212d9cba771ebb3",
+          "startLine": 407,
+          "endLine": 410,
+          "excerptSha256": "7906058ff92aab4e64db6d2a3bfa2e465c47fe55ef99ab348b6894eb97c9acd6"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-3333425c6300bde099407a88bd7cbd3e1fe6f1707a26e044",
+      "claimDigest": "3333425c6300bde099407a88bd7cbd3e1fe6f1707a26e0441fb1c4ebfefab855",
+      "candidateId": "rate-nestjs-throttler",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-dd2f4984ae81aa7ff9225d7a89d2878914aff870"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-nestjs-throttler",
+          "artifactSetId": "artifact-set-b394a998d9a62b684282896827abdf6cbd78ed9e4d9f7bbc",
+          "artifactSetIdentityDigest": "b394a998d9a62b684282896827abdf6cbd78ed9e4d9f7bbc922d76e270243071",
+          "artifactSetRecordDigest": "84d338b841d2342a3e79efbd8b85430f8bff86e2ac23067cd719e996c7a2769b",
+          "artifactId": "artifact-be700e742ddb3fa07f41b7c4e0401fba9a7ca18ce8d03c79",
+          "artifactIdentityDigest": "be700e742ddb3fa07f41b7c4e0401fba9a7ca18ce8d03c79d050a381f728a579",
+          "artifactRecordDigest": "7422d0598ece0561234b3de580f2bc175214e30b73875827c797d2d7a3fdd0bc",
+          "contentSha256": "c32b0d6d67b7d15d7c4925951d6796a52cb6ad72a9c9990f7212d9cba771ebb3",
+          "startLine": 21,
+          "endLine": 23,
+          "excerptSha256": "d2c5c41e91a1952cee79edf971d409d2424ff9e1315e271eecedb9d3703601b2"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-nestjs-throttler",
+          "artifactSetId": "artifact-set-b394a998d9a62b684282896827abdf6cbd78ed9e4d9f7bbc",
+          "artifactSetIdentityDigest": "b394a998d9a62b684282896827abdf6cbd78ed9e4d9f7bbc922d76e270243071",
+          "artifactSetRecordDigest": "84d338b841d2342a3e79efbd8b85430f8bff86e2ac23067cd719e996c7a2769b",
+          "artifactId": "artifact-be700e742ddb3fa07f41b7c4e0401fba9a7ca18ce8d03c79",
+          "artifactIdentityDigest": "be700e742ddb3fa07f41b7c4e0401fba9a7ca18ce8d03c79d050a381f728a579",
+          "artifactRecordDigest": "7422d0598ece0561234b3de580f2bc175214e30b73875827c797d2d7a3fdd0bc",
+          "contentSha256": "c32b0d6d67b7d15d7c4925951d6796a52cb6ad72a9c9990f7212d9cba771ebb3",
+          "startLine": 407,
+          "endLine": 410,
+          "excerptSha256": "7906058ff92aab4e64db6d2a3bfa2e465c47fe55ef99ab348b6894eb97c9acd6"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-391ef1e56676ca7505d4242a608e45b82db35982fa318fb0",
+      "claimDigest": "391ef1e56676ca7505d4242a608e45b82db35982fa318fb0aad94f24db3bb94d",
+      "candidateId": "rate-nginx",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-8d9666701d61105d46baed32eba2939599132d7e"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-nginx",
+          "artifactSetId": "artifact-set-808d93d1de712c060358717b1ca3e2628d2dbd9f232b8aa7",
+          "artifactSetIdentityDigest": "808d93d1de712c060358717b1ca3e2628d2dbd9f232b8aa7a0123aaf41ffcf47",
+          "artifactSetRecordDigest": "f36886b0fe0318afc0d868240a1de75a0ed57b2ef992a1f59cb4b927f8684159",
+          "artifactId": "artifact-240ac9f19e0dd245a9913e441d5dc6dae0befca91f5bec55",
+          "artifactIdentityDigest": "240ac9f19e0dd245a9913e441d5dc6dae0befca91f5bec55607a1b447e7e227d",
+          "artifactRecordDigest": "d33f670e97639baaa04f98c0d99bfb87cbe913389bf301be33225271dd7ec1c7",
+          "contentSha256": "c20b11d05d64038c63fe78ed177b692ac48d686344be464f326bb48e7d2c224b",
+          "startLine": 75,
+          "endLine": 82,
+          "excerptSha256": "ca281999cb05f2336e722216cf55ee31a4f2b9f67b3f4a3e509c7f5345f51f35"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-94d2f7b432eeb76c8f7f7ccaf6edeac8ec45f93c386f9105",
+      "claimDigest": "94d2f7b432eeb76c8f7f7ccaf6edeac8ec45f93c386f910500382e0458f7196b",
+      "candidateId": "rate-nginx",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-8d9666701d61105d46baed32eba2939599132d7e"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-nginx",
+          "artifactSetId": "artifact-set-808d93d1de712c060358717b1ca3e2628d2dbd9f232b8aa7",
+          "artifactSetIdentityDigest": "808d93d1de712c060358717b1ca3e2628d2dbd9f232b8aa7a0123aaf41ffcf47",
+          "artifactSetRecordDigest": "f36886b0fe0318afc0d868240a1de75a0ed57b2ef992a1f59cb4b927f8684159",
+          "artifactId": "artifact-240ac9f19e0dd245a9913e441d5dc6dae0befca91f5bec55",
+          "artifactIdentityDigest": "240ac9f19e0dd245a9913e441d5dc6dae0befca91f5bec55607a1b447e7e227d",
+          "artifactRecordDigest": "d33f670e97639baaa04f98c0d99bfb87cbe913389bf301be33225271dd7ec1c7",
+          "contentSha256": "c20b11d05d64038c63fe78ed177b692ac48d686344be464f326bb48e7d2c224b",
+          "startLine": 75,
+          "endLine": 82,
+          "excerptSha256": "ca281999cb05f2336e722216cf55ee31a4f2b9f67b3f4a3e509c7f5345f51f35"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-39f6e78eb7da5812c249b55eca839c67cf467f7a9ddb5041",
+      "claimDigest": "39f6e78eb7da5812c249b55eca839c67cf467f7a9ddb5041e5aa70092d3a68e8",
+      "candidateId": "rate-node-rate-limiter-flexible",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-97fd58a2f463b6ebfa79d31344f054806bb88805"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-rate-limiter-flexible",
+          "artifactSetId": "artifact-set-f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a588",
+          "artifactSetIdentityDigest": "f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a5881bd652094ddb72fb",
+          "artifactSetRecordDigest": "8c5582020a7d294f6518376fc7c9a186ec07ba9481c5b0c841965b56c81fea2d",
+          "artifactId": "artifact-795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88",
+          "artifactIdentityDigest": "795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88d4bbb96f8f2c66fc",
+          "artifactRecordDigest": "93da0bdee84ad2579f0cbdbfb8999479f9e8c9302fa77efb26c0cacdcd9a02c0",
+          "contentSha256": "a3394f53aa9bb7a716a770d5c7f07045f3b49ce219c1e1c44915d7fe6e690ae4",
+          "startLine": 13,
+          "endLine": 17,
+          "excerptSha256": "9dc8f4e38639436ba29853107fa6ae5ff29ca9d04c430c0525105ba25e0abe0e"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-rate-limiter-flexible",
+          "artifactSetId": "artifact-set-f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a588",
+          "artifactSetIdentityDigest": "f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a5881bd652094ddb72fb",
+          "artifactSetRecordDigest": "8c5582020a7d294f6518376fc7c9a186ec07ba9481c5b0c841965b56c81fea2d",
+          "artifactId": "artifact-795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88",
+          "artifactIdentityDigest": "795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88d4bbb96f8f2c66fc",
+          "artifactRecordDigest": "93da0bdee84ad2579f0cbdbfb8999479f9e8c9302fa77efb26c0cacdcd9a02c0",
+          "contentSha256": "a3394f53aa9bb7a716a770d5c7f07045f3b49ce219c1e1c44915d7fe6e690ae4",
+          "startLine": 43,
+          "endLine": 62,
+          "excerptSha256": "98a346a4d744f3e7819a80463c8549b02aad184b5eccf2329f0855604c7f0df8"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-rate-limiter-flexible",
+          "artifactSetId": "artifact-set-f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a588",
+          "artifactSetIdentityDigest": "f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a5881bd652094ddb72fb",
+          "artifactSetRecordDigest": "8c5582020a7d294f6518376fc7c9a186ec07ba9481c5b0c841965b56c81fea2d",
+          "artifactId": "artifact-795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88",
+          "artifactIdentityDigest": "795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88d4bbb96f8f2c66fc",
+          "artifactRecordDigest": "93da0bdee84ad2579f0cbdbfb8999479f9e8c9302fa77efb26c0cacdcd9a02c0",
+          "contentSha256": "a3394f53aa9bb7a716a770d5c7f07045f3b49ce219c1e1c44915d7fe6e690ae4",
+          "startLine": 134,
+          "endLine": 145,
+          "excerptSha256": "6977a8ef64e9f129534da6397130e959a99cd1236341ae50ec8b6d0edbdcb371"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-96dd5debc56d0b8ed60e4c7cacf26e118c7e681dc8c79af5",
+      "claimDigest": "96dd5debc56d0b8ed60e4c7cacf26e118c7e681dc8c79af59bf939a30c457aaa",
+      "candidateId": "rate-node-rate-limiter-flexible",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-97fd58a2f463b6ebfa79d31344f054806bb88805"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-rate-limiter-flexible",
+          "artifactSetId": "artifact-set-f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a588",
+          "artifactSetIdentityDigest": "f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a5881bd652094ddb72fb",
+          "artifactSetRecordDigest": "8c5582020a7d294f6518376fc7c9a186ec07ba9481c5b0c841965b56c81fea2d",
+          "artifactId": "artifact-795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88",
+          "artifactIdentityDigest": "795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88d4bbb96f8f2c66fc",
+          "artifactRecordDigest": "93da0bdee84ad2579f0cbdbfb8999479f9e8c9302fa77efb26c0cacdcd9a02c0",
+          "contentSha256": "a3394f53aa9bb7a716a770d5c7f07045f3b49ce219c1e1c44915d7fe6e690ae4",
+          "startLine": 13,
+          "endLine": 17,
+          "excerptSha256": "9dc8f4e38639436ba29853107fa6ae5ff29ca9d04c430c0525105ba25e0abe0e"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-rate-limiter-flexible",
+          "artifactSetId": "artifact-set-f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a588",
+          "artifactSetIdentityDigest": "f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a5881bd652094ddb72fb",
+          "artifactSetRecordDigest": "8c5582020a7d294f6518376fc7c9a186ec07ba9481c5b0c841965b56c81fea2d",
+          "artifactId": "artifact-795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88",
+          "artifactIdentityDigest": "795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88d4bbb96f8f2c66fc",
+          "artifactRecordDigest": "93da0bdee84ad2579f0cbdbfb8999479f9e8c9302fa77efb26c0cacdcd9a02c0",
+          "contentSha256": "a3394f53aa9bb7a716a770d5c7f07045f3b49ce219c1e1c44915d7fe6e690ae4",
+          "startLine": 43,
+          "endLine": 62,
+          "excerptSha256": "98a346a4d744f3e7819a80463c8549b02aad184b5eccf2329f0855604c7f0df8"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-rate-limiter-flexible",
+          "artifactSetId": "artifact-set-f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a588",
+          "artifactSetIdentityDigest": "f8bb3b1a9aa0ed3297822d28d5da9dd990bb11db84e1a5881bd652094ddb72fb",
+          "artifactSetRecordDigest": "8c5582020a7d294f6518376fc7c9a186ec07ba9481c5b0c841965b56c81fea2d",
+          "artifactId": "artifact-795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88",
+          "artifactIdentityDigest": "795ccca45a91255938feb9a862d86521a24fa2ad20ae6f88d4bbb96f8f2c66fc",
+          "artifactRecordDigest": "93da0bdee84ad2579f0cbdbfb8999479f9e8c9302fa77efb26c0cacdcd9a02c0",
+          "contentSha256": "a3394f53aa9bb7a716a770d5c7f07045f3b49ce219c1e1c44915d7fe6e690ae4",
+          "startLine": 134,
+          "endLine": 145,
+          "excerptSha256": "6977a8ef64e9f129534da6397130e959a99cd1236341ae50ec8b6d0edbdcb371"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-0a9fcb70b31d07343844e7d3a432a83f9ae8b33f6642fd90",
+      "claimDigest": "0a9fcb70b31d07343844e7d3a432a83f9ae8b33f6642fd90352dbc7669cea3c4",
+      "candidateId": "rate-node-ratelimiter",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f929a523d43f5a393e626d7a685f15b77fab658d"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-ratelimiter",
+          "artifactSetId": "artifact-set-d44a506010f72a6071137775bcdd62fd21a7ab604383ed42",
+          "artifactSetIdentityDigest": "d44a506010f72a6071137775bcdd62fd21a7ab604383ed425eafd6dd49ef75e3",
+          "artifactSetRecordDigest": "4e95d777db936632b2c8187868509a6226732b3669132814697848bb1898d0fd",
+          "artifactId": "artifact-d4ff26c0502348d931df0a7188581e011ab1a5ab8b0c9608",
+          "artifactIdentityDigest": "d4ff26c0502348d931df0a7188581e011ab1a5ab8b0c9608ef2c7ec498025112",
+          "artifactRecordDigest": "280ed5e7b4d3415f8432216d16e224d69c87d78efb253ceb4a7244800b1e5ae9",
+          "contentSha256": "d5c327a50a667019ed492439ee80f98a35219a32eb3d71dad88c456b44b609fd",
+          "startLine": 36,
+          "endLine": 39,
+          "excerptSha256": "ac7ec1da27882839cb70d182a2f89a655babba73f440b5aceebbff008862cf73"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-58cb00a501d2d41d7cc22a1d851b5053bc0e7d31be94905a",
+      "claimDigest": "58cb00a501d2d41d7cc22a1d851b5053bc0e7d31be94905a0d59b4125c712cca",
+      "candidateId": "rate-node-ratelimiter",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f929a523d43f5a393e626d7a685f15b77fab658d"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-ratelimiter",
+          "artifactSetId": "artifact-set-d44a506010f72a6071137775bcdd62fd21a7ab604383ed42",
+          "artifactSetIdentityDigest": "d44a506010f72a6071137775bcdd62fd21a7ab604383ed425eafd6dd49ef75e3",
+          "artifactSetRecordDigest": "4e95d777db936632b2c8187868509a6226732b3669132814697848bb1898d0fd",
+          "artifactId": "artifact-d4ff26c0502348d931df0a7188581e011ab1a5ab8b0c9608",
+          "artifactIdentityDigest": "d4ff26c0502348d931df0a7188581e011ab1a5ab8b0c9608ef2c7ec498025112",
+          "artifactRecordDigest": "280ed5e7b4d3415f8432216d16e224d69c87d78efb253ceb4a7244800b1e5ae9",
+          "contentSha256": "d5c327a50a667019ed492439ee80f98a35219a32eb3d71dad88c456b44b609fd",
+          "startLine": 1,
+          "endLine": 3,
+          "excerptSha256": "eb60fac4b1d3d2a74f75fc0a225143ce4f7bc9da1de275b1a598932187537ec4"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-node-ratelimiter",
+          "artifactSetId": "artifact-set-d44a506010f72a6071137775bcdd62fd21a7ab604383ed42",
+          "artifactSetIdentityDigest": "d44a506010f72a6071137775bcdd62fd21a7ab604383ed425eafd6dd49ef75e3",
+          "artifactSetRecordDigest": "4e95d777db936632b2c8187868509a6226732b3669132814697848bb1898d0fd",
+          "artifactId": "artifact-d4ff26c0502348d931df0a7188581e011ab1a5ab8b0c9608",
+          "artifactIdentityDigest": "d4ff26c0502348d931df0a7188581e011ab1a5ab8b0c9608ef2c7ec498025112",
+          "artifactRecordDigest": "280ed5e7b4d3415f8432216d16e224d69c87d78efb253ceb4a7244800b1e5ae9",
+          "contentSha256": "d5c327a50a667019ed492439ee80f98a35219a32eb3d71dad88c456b44b609fd",
+          "startLine": 36,
+          "endLine": 39,
+          "excerptSha256": "ac7ec1da27882839cb70d182a2f89a655babba73f440b5aceebbff008862cf73"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-7f085c04e10fd8b20149b36d3d63a087aa0aa6c1449e23d1",
+      "claimDigest": "7f085c04e10fd8b20149b36d3d63a087aa0aa6c1449e23d13def3460acc6f936",
+      "candidateId": "rate-redis-cell",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-4d4233870d3caa7cf51ee90b0ee778d12969e99a"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-redis-cell",
+          "artifactSetId": "artifact-set-464055a4d73ea0a4b955a0850bca727caa2ed7c811c1f1a2",
+          "artifactSetIdentityDigest": "464055a4d73ea0a4b955a0850bca727caa2ed7c811c1f1a2ae22bd692a08d097",
+          "artifactSetRecordDigest": "2c859f86159ec34c431f6eaf9d6e1b6883d256b91f1d9af82c42308cd2d0f356",
+          "artifactId": "artifact-b711bc6b055d2b0afe2031a4429b767290c09d6fa2993013",
+          "artifactIdentityDigest": "b711bc6b055d2b0afe2031a4429b767290c09d6fa29930136882b7db31e1d0fb",
+          "artifactRecordDigest": "958be91ae6b68787b2765748c5086adf010a80774d6a038463c839526079dd76",
+          "contentSha256": "57218f50a6a235e98378dabb8727617ac65c4574f46f585d9fee6a12ba505d6b",
+          "startLine": 25,
+          "endLine": 67,
+          "excerptSha256": "a026bac627949d2c8a640e709bf0722276747d11e8708039a018b134946e9f3a"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-3b534cbb2ce4124755ac7c2828e41c74d6eb701d56156d9f",
+      "claimDigest": "3b534cbb2ce4124755ac7c2828e41c74d6eb701d56156d9f76d6b59930d309c8",
+      "candidateId": "rate-redis-cell",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-4d4233870d3caa7cf51ee90b0ee778d12969e99a"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-redis-cell",
+          "artifactSetId": "artifact-set-464055a4d73ea0a4b955a0850bca727caa2ed7c811c1f1a2",
+          "artifactSetIdentityDigest": "464055a4d73ea0a4b955a0850bca727caa2ed7c811c1f1a2ae22bd692a08d097",
+          "artifactSetRecordDigest": "2c859f86159ec34c431f6eaf9d6e1b6883d256b91f1d9af82c42308cd2d0f356",
+          "artifactId": "artifact-b711bc6b055d2b0afe2031a4429b767290c09d6fa2993013",
+          "artifactIdentityDigest": "b711bc6b055d2b0afe2031a4429b767290c09d6fa29930136882b7db31e1d0fb",
+          "artifactRecordDigest": "958be91ae6b68787b2765748c5086adf010a80774d6a038463c839526079dd76",
+          "contentSha256": "57218f50a6a235e98378dabb8727617ac65c4574f46f585d9fee6a12ba505d6b",
+          "startLine": 7,
+          "endLine": 18,
+          "excerptSha256": "7baed7af92313504700c46411f2c57a6e9708cd8210412753faf28b1210549af"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-redis-cell",
+          "artifactSetId": "artifact-set-464055a4d73ea0a4b955a0850bca727caa2ed7c811c1f1a2",
+          "artifactSetIdentityDigest": "464055a4d73ea0a4b955a0850bca727caa2ed7c811c1f1a2ae22bd692a08d097",
+          "artifactSetRecordDigest": "2c859f86159ec34c431f6eaf9d6e1b6883d256b91f1d9af82c42308cd2d0f356",
+          "artifactId": "artifact-b711bc6b055d2b0afe2031a4429b767290c09d6fa2993013",
+          "artifactIdentityDigest": "b711bc6b055d2b0afe2031a4429b767290c09d6fa29930136882b7db31e1d0fb",
+          "artifactRecordDigest": "958be91ae6b68787b2765748c5086adf010a80774d6a038463c839526079dd76",
+          "contentSha256": "57218f50a6a235e98378dabb8727617ac65c4574f46f585d9fee6a12ba505d6b",
+          "startLine": 31,
+          "endLine": 32,
+          "excerptSha256": "879b7e8180101ebe9a7590e7d8581bce30960fc75694be3b4531ec6b37ab4082"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-redis-cell",
+          "artifactSetId": "artifact-set-464055a4d73ea0a4b955a0850bca727caa2ed7c811c1f1a2",
+          "artifactSetIdentityDigest": "464055a4d73ea0a4b955a0850bca727caa2ed7c811c1f1a2ae22bd692a08d097",
+          "artifactSetRecordDigest": "2c859f86159ec34c431f6eaf9d6e1b6883d256b91f1d9af82c42308cd2d0f356",
+          "artifactId": "artifact-b711bc6b055d2b0afe2031a4429b767290c09d6fa2993013",
+          "artifactIdentityDigest": "b711bc6b055d2b0afe2031a4429b767290c09d6fa29930136882b7db31e1d0fb",
+          "artifactRecordDigest": "958be91ae6b68787b2765748c5086adf010a80774d6a038463c839526079dd76",
+          "contentSha256": "57218f50a6a235e98378dabb8727617ac65c4574f46f585d9fee6a12ba505d6b",
+          "startLine": 53,
+          "endLine": 67,
+          "excerptSha256": "9b17d7c2f88037bd48138e75bc526c2690f07ac05e41f45e1c56b331fba8f8c1"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-1a58e566424703606ab3da150c987ca89b692d8e02af7022",
+      "claimDigest": "1a58e566424703606ab3da150c987ca89b692d8e02af7022cb031de1884313b6",
+      "candidateId": "rate-throttled",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-24e4d771536474c74ee7e26d0e2b3b4e69f27354"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-throttled",
+          "artifactSetId": "artifact-set-c958ff61119f93d8ab78b0014969bcf927905de43b4ca0db",
+          "artifactSetIdentityDigest": "c958ff61119f93d8ab78b0014969bcf927905de43b4ca0db37546c6cd2c9ef06",
+          "artifactSetRecordDigest": "ddf3edb6c69d9982ff909dba707dc98e1e1fd01584eeaba18345449a59d74ec6",
+          "artifactId": "artifact-e5b7ca520977505c5594592c6d486aed1c8cee951a1a9bde",
+          "artifactIdentityDigest": "e5b7ca520977505c5594592c6d486aed1c8cee951a1a9bde4469f9daa71abf93",
+          "artifactRecordDigest": "5f89a857b2e5bcb76d2838d39e5101938c7ec83bf223d8e0d257f38cacd3dcd1",
+          "contentSha256": "890269a70992f8118ad3c08ceba569fb7d4924883752e642c187ca2fa2fc090f",
+          "startLine": 45,
+          "endLine": 90,
+          "excerptSha256": "8ea2f26503f11cfeefef36225d386ff4bba2ff583f690b693fee80b73f19e5e0"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-786f5cd968fb96c34f6a08969cc992aec22cec0e77264295",
+      "claimDigest": "786f5cd968fb96c34f6a08969cc992aec22cec0e772642955cb8ffeebcbb36e1",
+      "candidateId": "rate-throttled",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-24e4d771536474c74ee7e26d0e2b3b4e69f27354"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-throttled",
+          "artifactSetId": "artifact-set-c958ff61119f93d8ab78b0014969bcf927905de43b4ca0db",
+          "artifactSetIdentityDigest": "c958ff61119f93d8ab78b0014969bcf927905de43b4ca0db37546c6cd2c9ef06",
+          "artifactSetRecordDigest": "ddf3edb6c69d9982ff909dba707dc98e1e1fd01584eeaba18345449a59d74ec6",
+          "artifactId": "artifact-e5b7ca520977505c5594592c6d486aed1c8cee951a1a9bde",
+          "artifactIdentityDigest": "e5b7ca520977505c5594592c6d486aed1c8cee951a1a9bde4469f9daa71abf93",
+          "artifactRecordDigest": "5f89a857b2e5bcb76d2838d39e5101938c7ec83bf223d8e0d257f38cacd3dcd1",
+          "contentSha256": "890269a70992f8118ad3c08ceba569fb7d4924883752e642c187ca2fa2fc090f",
+          "startLine": 45,
+          "endLine": 90,
+          "excerptSha256": "8ea2f26503f11cfeefef36225d386ff4bba2ff583f690b693fee80b73f19e5e0"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-a2356a1456d8cc9399422eaf15d8d1faa33fe46b6f0c5126",
+      "claimDigest": "a2356a1456d8cc9399422eaf15d8d1faa33fe46b6f0c512649a2b22f5347e664",
+      "candidateId": "rate-tollbooth",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-458a30971b92eab692e2c5c002235426fabc94b8"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-tollbooth",
+          "artifactSetId": "artifact-set-930035e9da565f2b9272fa03f571bbf58198d7fc58f27f94",
+          "artifactSetIdentityDigest": "930035e9da565f2b9272fa03f571bbf58198d7fc58f27f94b244d85fb75ac69e",
+          "artifactSetRecordDigest": "e5703e25a0012a5a29add5668a3bc92d8dc1ed1bcdf923cc1b2da00227e4fdf3",
+          "artifactId": "artifact-e5712b2fc5c751f3f01c8b289a8b9059394278540ad3e11d",
+          "artifactIdentityDigest": "e5712b2fc5c751f3f01c8b289a8b9059394278540ad3e11dc499c07e785daf08",
+          "artifactRecordDigest": "26a9a0264165aece9273fe849b978b862b00f3b8b5c4b85cc2176ba48d009ba1",
+          "contentSha256": "12f59f601eb7c19bc27a26f0eb8d639fae523d17304e3eeb512e72df4e9864de",
+          "startLine": 185,
+          "endLine": 185,
+          "excerptSha256": "6c752a4a9d4c867bb3df9a604d17ef21033f03beffb5cc9080c365b8746cef83"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-67cb6c10f45fb4b06350a9046d6814a01c72cdaec914d5b3",
+      "claimDigest": "67cb6c10f45fb4b06350a9046d6814a01c72cdaec914d5b33b7e029ca7740add",
+      "candidateId": "rate-tollbooth",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-458a30971b92eab692e2c5c002235426fabc94b8"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-tollbooth",
+          "artifactSetId": "artifact-set-930035e9da565f2b9272fa03f571bbf58198d7fc58f27f94",
+          "artifactSetIdentityDigest": "930035e9da565f2b9272fa03f571bbf58198d7fc58f27f94b244d85fb75ac69e",
+          "artifactSetRecordDigest": "e5703e25a0012a5a29add5668a3bc92d8dc1ed1bcdf923cc1b2da00227e4fdf3",
+          "artifactId": "artifact-e5712b2fc5c751f3f01c8b289a8b9059394278540ad3e11d",
+          "artifactIdentityDigest": "e5712b2fc5c751f3f01c8b289a8b9059394278540ad3e11dc499c07e785daf08",
+          "artifactRecordDigest": "26a9a0264165aece9273fe849b978b862b00f3b8b5c4b85cc2176ba48d009ba1",
+          "contentSha256": "12f59f601eb7c19bc27a26f0eb8d639fae523d17304e3eeb512e72df4e9864de",
+          "startLine": 185,
+          "endLine": 185,
+          "excerptSha256": "6c752a4a9d4c867bb3df9a604d17ef21033f03beffb5cc9080c365b8746cef83"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-0524a53bd665bb445ecbe8a49d4e8d6e90c34a35ebe5bb18",
+      "claimDigest": "0524a53bd665bb445ecbe8a49d4e8d6e90c34a35ebe5bb189c095a470cbf3e1d",
+      "candidateId": "rate-tyk",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-cf83ddb7e7493f1dfdf9a611d04e080f7a7a3b4e"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-tyk",
+          "artifactSetId": "artifact-set-7add40c6c29e15c86f5c68e431a1efd4d4ca504b836bceff",
+          "artifactSetIdentityDigest": "7add40c6c29e15c86f5c68e431a1efd4d4ca504b836bceff2098cc8a73ade591",
+          "artifactSetRecordDigest": "72b03080089cfcdf1739ebc31b6e4d9e814259b8292f835e49167b0d62d68346",
+          "artifactId": "artifact-61f02782638cdd838f1c2682728a07a95ecf3e67e8081aaa",
+          "artifactIdentityDigest": "61f02782638cdd838f1c2682728a07a95ecf3e67e8081aaa8235b23ceb5e0ac3",
+          "artifactRecordDigest": "ba5289ed2d5705d22a53628f28418fe49b927cf5b223632098d889448fd6e947",
+          "contentSha256": "98e08b4b7a34ea51f67000b8924a64aa85b47d84f44afecd5af6ee2c2afca07a",
+          "startLine": 56,
+          "endLine": 84,
+          "excerptSha256": "1e93300a592a880b18a30edfe7b169af6313bd58f4e4bef6015bbad1f6338e00"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-3da68b93ed53a1db9fe2f0911642c8e66279e84e933d8620",
+      "claimDigest": "3da68b93ed53a1db9fe2f0911642c8e66279e84e933d8620055811895a679154",
+      "candidateId": "rate-uber-go",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-3e5300c8868057cbf05a2818400bc45e75eaab6e"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-uber-go",
+          "artifactSetId": "artifact-set-67317f705bde78635055260a7c165afdde379daa5f52c7d1",
+          "artifactSetIdentityDigest": "67317f705bde78635055260a7c165afdde379daa5f52c7d11859fc9eba9988ef",
+          "artifactSetRecordDigest": "aebc02f83ed1ae9fb44080c7c84011ff266f621fba39194cea49bab8f5a5c11e",
+          "artifactId": "artifact-aa527c1f2decda914bdcda7ee146fda5dca00608121afda8",
+          "artifactIdentityDigest": "aa527c1f2decda914bdcda7ee146fda5dca00608121afda888bb369af2a9ff3d",
+          "artifactRecordDigest": "715cbdda2437aade62cd593f8d771fe7ea6aeafb6854f135979b731e5022c7a0",
+          "contentSha256": "b6f2f9b938b5faee8aaf5d1cb378610c5e620d9efa1888cdd7aaa5b6cbf1b09e",
+          "startLine": 3,
+          "endLine": 40,
+          "excerptSha256": "cd43f33f78a531fbf4c25e76810a992e96244b25d3756192a8bb6ba410a8689f"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-4a1afce5c2ad6a767577c77fdbee3b9acf7983c65045dfc2",
+      "claimDigest": "4a1afce5c2ad6a767577c77fdbee3b9acf7983c65045dfc2a528a707b10bc2ee",
+      "candidateId": "rate-uber-go",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-3e5300c8868057cbf05a2818400bc45e75eaab6e"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-uber-go",
+          "artifactSetId": "artifact-set-67317f705bde78635055260a7c165afdde379daa5f52c7d1",
+          "artifactSetIdentityDigest": "67317f705bde78635055260a7c165afdde379daa5f52c7d11859fc9eba9988ef",
+          "artifactSetRecordDigest": "aebc02f83ed1ae9fb44080c7c84011ff266f621fba39194cea49bab8f5a5c11e",
+          "artifactId": "artifact-aa527c1f2decda914bdcda7ee146fda5dca00608121afda8",
+          "artifactIdentityDigest": "aa527c1f2decda914bdcda7ee146fda5dca00608121afda888bb369af2a9ff3d",
+          "artifactRecordDigest": "715cbdda2437aade62cd593f8d771fe7ea6aeafb6854f135979b731e5022c7a0",
+          "contentSha256": "b6f2f9b938b5faee8aaf5d1cb378610c5e620d9efa1888cdd7aaa5b6cbf1b09e",
+          "startLine": 3,
+          "endLine": 40,
+          "excerptSha256": "cd43f33f78a531fbf4c25e76810a992e96244b25d3756192a8bb6ba410a8689f"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-e266e75b625043ab339ea2fd030ea8404364b559c98d1313",
+      "claimDigest": "e266e75b625043ab339ea2fd030ea8404364b559c98d1313cd49c8fb3a7481a6",
+      "candidateId": "rate-ulule-limiter",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f0ada6cb8fa4dc55a734de737c7b4a3f35c86ae1"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-ulule-limiter",
+          "artifactSetId": "artifact-set-f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963a",
+          "artifactSetIdentityDigest": "f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963aa226846328e3cab7",
+          "artifactSetRecordDigest": "451caec8492fc6bb95f149665b44b06ace34e3a47e077ee5b0b3c6b544431c0e",
+          "artifactId": "artifact-ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c1",
+          "artifactIdentityDigest": "ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c11ee5607da471da15",
+          "artifactRecordDigest": "7a0b311dce0e4788e61f3b5380c17706501e4da6eb93c5ad77fccdac3264ad76",
+          "contentSha256": "20c9f6cd0f936472b4b4674ebd701026cffb3667cda1ac6ebb6e955a63d18e67",
+          "startLine": 23,
+          "endLine": 31,
+          "excerptSha256": "604c2e41f283b9e7b379df555210a98102e5bd9f5280a2514ffb1269e537ee00"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-ulule-limiter",
+          "artifactSetId": "artifact-set-f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963a",
+          "artifactSetIdentityDigest": "f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963aa226846328e3cab7",
+          "artifactSetRecordDigest": "451caec8492fc6bb95f149665b44b06ace34e3a47e077ee5b0b3c6b544431c0e",
+          "artifactId": "artifact-ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c1",
+          "artifactIdentityDigest": "ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c11ee5607da471da15",
+          "artifactRecordDigest": "7a0b311dce0e4788e61f3b5380c17706501e4da6eb93c5ad77fccdac3264ad76",
+          "contentSha256": "20c9f6cd0f936472b4b4674ebd701026cffb3667cda1ac6ebb6e955a63d18e67",
+          "startLine": 87,
+          "endLine": 94,
+          "excerptSha256": "db0a656feb8e7462ed2294aa258ea6a2401a3bbb639c8ca720f9d4cd5d89e8e0"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-ulule-limiter",
+          "artifactSetId": "artifact-set-f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963a",
+          "artifactSetIdentityDigest": "f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963aa226846328e3cab7",
+          "artifactSetRecordDigest": "451caec8492fc6bb95f149665b44b06ace34e3a47e077ee5b0b3c6b544431c0e",
+          "artifactId": "artifact-ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c1",
+          "artifactIdentityDigest": "ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c11ee5607da471da15",
+          "artifactRecordDigest": "7a0b311dce0e4788e61f3b5380c17706501e4da6eb93c5ad77fccdac3264ad76",
+          "contentSha256": "20c9f6cd0f936472b4b4674ebd701026cffb3667cda1ac6ebb6e955a63d18e67",
+          "startLine": 121,
+          "endLine": 124,
+          "excerptSha256": "0a70581ff2d058be8db5cd531d88e8bf85b42b1a7f267c55b50fb3b3e639d6f4"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-14212e916a64121ce630de7d68c23f0fa4b2e29ad3b5385b",
+      "claimDigest": "14212e916a64121ce630de7d68c23f0fa4b2e29ad3b5385b5b3acc20f6f4f2a0",
+      "candidateId": "rate-ulule-limiter",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-f0ada6cb8fa4dc55a734de737c7b4a3f35c86ae1"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-ulule-limiter",
+          "artifactSetId": "artifact-set-f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963a",
+          "artifactSetIdentityDigest": "f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963aa226846328e3cab7",
+          "artifactSetRecordDigest": "451caec8492fc6bb95f149665b44b06ace34e3a47e077ee5b0b3c6b544431c0e",
+          "artifactId": "artifact-ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c1",
+          "artifactIdentityDigest": "ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c11ee5607da471da15",
+          "artifactRecordDigest": "7a0b311dce0e4788e61f3b5380c17706501e4da6eb93c5ad77fccdac3264ad76",
+          "contentSha256": "20c9f6cd0f936472b4b4674ebd701026cffb3667cda1ac6ebb6e955a63d18e67",
+          "startLine": 23,
+          "endLine": 31,
+          "excerptSha256": "604c2e41f283b9e7b379df555210a98102e5bd9f5280a2514ffb1269e537ee00"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-ulule-limiter",
+          "artifactSetId": "artifact-set-f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963a",
+          "artifactSetIdentityDigest": "f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963aa226846328e3cab7",
+          "artifactSetRecordDigest": "451caec8492fc6bb95f149665b44b06ace34e3a47e077ee5b0b3c6b544431c0e",
+          "artifactId": "artifact-ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c1",
+          "artifactIdentityDigest": "ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c11ee5607da471da15",
+          "artifactRecordDigest": "7a0b311dce0e4788e61f3b5380c17706501e4da6eb93c5ad77fccdac3264ad76",
+          "contentSha256": "20c9f6cd0f936472b4b4674ebd701026cffb3667cda1ac6ebb6e955a63d18e67",
+          "startLine": 87,
+          "endLine": 94,
+          "excerptSha256": "db0a656feb8e7462ed2294aa258ea6a2401a3bbb639c8ca720f9d4cd5d89e8e0"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-ulule-limiter",
+          "artifactSetId": "artifact-set-f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963a",
+          "artifactSetIdentityDigest": "f2a2bfb49177cbc619861cbadba45a8ed52f4a34d3be963aa226846328e3cab7",
+          "artifactSetRecordDigest": "451caec8492fc6bb95f149665b44b06ace34e3a47e077ee5b0b3c6b544431c0e",
+          "artifactId": "artifact-ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c1",
+          "artifactIdentityDigest": "ef049cf0aa737af0715b782a4c4d29c5012a8c5d7fd156c11ee5607da471da15",
+          "artifactRecordDigest": "7a0b311dce0e4788e61f3b5380c17706501e4da6eb93c5ad77fccdac3264ad76",
+          "contentSha256": "20c9f6cd0f936472b4b4674ebd701026cffb3667cda1ac6ebb6e955a63d18e67",
+          "startLine": 121,
+          "endLine": 124,
+          "excerptSha256": "0a70581ff2d058be8db5cd531d88e8bf85b42b1a7f267c55b50fb3b3e639d6f4"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-438db9eacbb26b2c5d0ec256bd155bc6bb2266251701033e",
+      "claimDigest": "438db9eacbb26b2c5d0ec256bd155bc6bb2266251701033ea51df02469c157e9",
+      "candidateId": "rate-upstash",
+      "fieldId": "required-infrastructure",
+      "conceptId": "postgresql",
+      "state": "absent",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-91c0bad0afe4c41a35af5217bd331bf2b2611693"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-upstash",
+          "artifactSetId": "artifact-set-a3e8326b465c8545a8cca21fa27c72106534c94d2482b7ee",
+          "artifactSetIdentityDigest": "a3e8326b465c8545a8cca21fa27c72106534c94d2482b7ee3331588811881a39",
+          "artifactSetRecordDigest": "e1fa9a92832cb2c29b17e8c59b9ae070ad0f4d1e7df05a4549ae3d4c81c031c8",
+          "artifactId": "artifact-cc261b6868b9376a3e1e66d85329a63de3084e490e395117",
+          "artifactIdentityDigest": "cc261b6868b9376a3e1e66d85329a63de3084e490e3951170c7d14e116dcb9cc",
+          "artifactRecordDigest": "553169d2beace93f711660c42988dd86519324c4e07b2436f4ac7c82bf415bbb",
+          "contentSha256": "58e28ad80bf1144392a616fd7344cb2484534c1c4a805c4f1c348352aae03bd2",
+          "startLine": 7,
+          "endLine": 18,
+          "excerptSha256": "73d7f3d3e1275564d37000af732f93db7fed81a443ff21733a7fc42002c38b35"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-upstash",
+          "artifactSetId": "artifact-set-a3e8326b465c8545a8cca21fa27c72106534c94d2482b7ee",
+          "artifactSetIdentityDigest": "a3e8326b465c8545a8cca21fa27c72106534c94d2482b7ee3331588811881a39",
+          "artifactSetRecordDigest": "e1fa9a92832cb2c29b17e8c59b9ae070ad0f4d1e7df05a4549ae3d4c81c031c8",
+          "artifactId": "artifact-cc261b6868b9376a3e1e66d85329a63de3084e490e395117",
+          "artifactIdentityDigest": "cc261b6868b9376a3e1e66d85329a63de3084e490e3951170c7d14e116dcb9cc",
+          "artifactRecordDigest": "553169d2beace93f711660c42988dd86519324c4e07b2436f4ac7c82bf415bbb",
+          "contentSha256": "58e28ad80bf1144392a616fd7344cb2484534c1c4a805c4f1c348352aae03bd2",
+          "startLine": 47,
+          "endLine": 53,
+          "excerptSha256": "170c6a154551c44a3357af94f8aee6d5fa1452403cc8d86d8d59c8f1bebfe995"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    },
+    {
+      "claimVersion": "reviewed-concept-claim/2.0.0",
+      "claimId": "reviewed-claim-466fd4abf1c4673ab2f1e3cbf1aad46e5e496f8a36a91876",
+      "claimDigest": "466fd4abf1c4673ab2f1e3cbf1aad46e5e496f8a36a91876e6c8fdae226f090d",
+      "candidateId": "rate-upstash",
+      "fieldId": "required-infrastructure",
+      "conceptId": "redis",
+      "state": "present",
+      "claimScope": {
+        "kind": "exact-version",
+        "versionScope": {
+          "kind": "repository-snapshot",
+          "snapshotId": "repo-91c0bad0afe4c41a35af5217bd331bf2b2611693"
+        }
+      },
+      "basisReferences": [
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-upstash",
+          "artifactSetId": "artifact-set-a3e8326b465c8545a8cca21fa27c72106534c94d2482b7ee",
+          "artifactSetIdentityDigest": "a3e8326b465c8545a8cca21fa27c72106534c94d2482b7ee3331588811881a39",
+          "artifactSetRecordDigest": "e1fa9a92832cb2c29b17e8c59b9ae070ad0f4d1e7df05a4549ae3d4c81c031c8",
+          "artifactId": "artifact-cc261b6868b9376a3e1e66d85329a63de3084e490e395117",
+          "artifactIdentityDigest": "cc261b6868b9376a3e1e66d85329a63de3084e490e3951170c7d14e116dcb9cc",
+          "artifactRecordDigest": "553169d2beace93f711660c42988dd86519324c4e07b2436f4ac7c82bf415bbb",
+          "contentSha256": "58e28ad80bf1144392a616fd7344cb2484534c1c4a805c4f1c348352aae03bd2",
+          "startLine": 7,
+          "endLine": 18,
+          "excerptSha256": "73d7f3d3e1275564d37000af732f93db7fed81a443ff21733a7fc42002c38b35"
+        },
+        {
+          "kind": "artifact-lines",
+          "candidateId": "rate-upstash",
+          "artifactSetId": "artifact-set-a3e8326b465c8545a8cca21fa27c72106534c94d2482b7ee",
+          "artifactSetIdentityDigest": "a3e8326b465c8545a8cca21fa27c72106534c94d2482b7ee3331588811881a39",
+          "artifactSetRecordDigest": "e1fa9a92832cb2c29b17e8c59b9ae070ad0f4d1e7df05a4549ae3d4c81c031c8",
+          "artifactId": "artifact-cc261b6868b9376a3e1e66d85329a63de3084e490e395117",
+          "artifactIdentityDigest": "cc261b6868b9376a3e1e66d85329a63de3084e490e3951170c7d14e116dcb9cc",
+          "artifactRecordDigest": "553169d2beace93f711660c42988dd86519324c4e07b2436f4ac7c82bf415bbb",
+          "contentSha256": "58e28ad80bf1144392a616fd7344cb2484534c1c4a805c4f1c348352aae03bd2",
+          "startLine": 47,
+          "endLine": 53,
+          "excerptSha256": "170c6a154551c44a3357af94f8aee6d5fa1452403cc8d86d8d59c8f1bebfe995"
+        }
+      ],
+      "reviewedAt": "2026-08-21T19:00:00.000Z",
+      "reviewerId": "reviewer-gitblocks-maintainer",
+      "admissions": []
+    }
+  ],
+  "semanticAuthorityDigest": "8ac6e3ac46d3132bd81d57840d43f43ec2554977d3cd1f01e7c04752aef50a76"
 }

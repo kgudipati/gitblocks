@@ -92,6 +92,7 @@ export {
 } from './candidate-profile-projection-v2.ts';
 export {
   acceptReviewedConceptCurationAuthorityV2,
+  parseReviewedConceptArtifactMaterialV2,
   type AcceptedReviewedConceptClaimV2,
   type ReviewedConceptArtifactMaterialV2,
   type ReviewedConceptCurationMaterialV2,
