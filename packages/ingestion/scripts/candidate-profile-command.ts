@@ -11,6 +11,7 @@ import {
 import {
   buildCandidateProfileArtifactsV2,
   parsePublicCatalog,
+  parseReviewedConceptArtifactMaterialV2,
 } from '../src/index.ts';
 
 const CATALOG_RELATIVE_PATH = join('catalog', 'public-v1', 'manifest.json');
@@ -30,6 +31,11 @@ const CURATION_AUTHORITY_RELATIVE_PATH = join(
   'public-v1',
   'candidate-profile-reviewed-curation-v2.json',
 );
+const CURATION_ARTIFACT_MATERIAL_RELATIVE_PATH = join(
+  'catalog',
+  'public-v1',
+  'candidate-profile-reviewed-curation-material-v2.json',
+);
 const COVERAGE_RELATIVE_PATH = join(
   'verification',
   'retrieval-v2',
@@ -40,6 +46,7 @@ const MAXIMUM_CATALOG_BYTES = 2 * 1_024 * 1_024;
 const MAXIMUM_TAXONOMY_BYTES = 1 * 1_024 * 1_024;
 const MAXIMUM_PROFILE_AUTHORITY_BYTES = 4 * 1_024 * 1_024;
 const MAXIMUM_CURATION_AUTHORITY_BYTES = 4 * 1_024 * 1_024;
+const MAXIMUM_CURATION_ARTIFACT_MATERIAL_BYTES = 4 * 1_024 * 1_024;
 const MAXIMUM_COVERAGE_REPORT_BYTES = 256 * 1_024;
 
 export type CandidateProfileCommandMode = 'generate' | 'validate';
@@ -103,6 +110,10 @@ export async function runCandidateProfileCommand(
   const taxonomyPath = join(trustedRoot, TAXONOMY_RELATIVE_PATH);
   const authorityPath = join(trustedRoot, PROFILE_AUTHORITY_RELATIVE_PATH);
   const curationPath = join(trustedRoot, CURATION_AUTHORITY_RELATIVE_PATH);
+  const curationMaterialPath = join(
+    trustedRoot,
+    CURATION_ARTIFACT_MATERIAL_RELATIVE_PATH,
+  );
   const coveragePath = join(trustedRoot, COVERAGE_RELATIVE_PATH);
 
   let catalog;
@@ -143,11 +154,28 @@ export async function runCandidateProfileCommand(
   if (!curation.ok) {
     throw new CandidateProfileCommandError('profile-command.invalid-curation');
   }
-  const generated = buildCandidateProfileArtifactsV2(
-    catalog,
-    taxonomy.value,
-    curation.value,
-  );
+  let generated;
+  try {
+    const artifactMaterial = parseReviewedConceptArtifactMaterialV2(
+      parseJson(
+        await readBoundedRegularFile(
+          curationMaterialPath,
+          trustedRoot,
+          MAXIMUM_CURATION_ARTIFACT_MATERIAL_BYTES,
+        ),
+        'profile-command.invalid-curation',
+      ),
+    );
+    generated = buildCandidateProfileArtifactsV2(
+      catalog,
+      taxonomy.value,
+      curation.value,
+      { curationMaterial: { artifactMaterial } },
+    );
+  } catch (error) {
+    if (error instanceof CandidateProfileCommandError) throw error;
+    throw new CandidateProfileCommandError('profile-command.invalid-curation');
+  }
   const authorityText = serializeDeterministicCandidateProfileAuthorityV2(
     generated.authority,
   );

@@ -45,6 +45,33 @@ export interface ReviewedConceptCurationMaterialV2 {
   readonly structuredInfrastructureAuthorities?: readonly StructuredInfrastructureStatusAuthorityV1[];
 }
 
+export function parseReviewedConceptArtifactMaterialV2(
+  value: unknown,
+): readonly ReviewedConceptArtifactMaterialV2[] {
+  if (!Array.isArray(value) || value.length > 150) {
+    throw ingestionError('ingestion.invalid-input');
+  }
+  const material = value.map((entry) => {
+    if (
+      !isExactObject(entry, ['artifactSet', 'artifacts']) ||
+      !Array.isArray(entry['artifacts']) ||
+      entry['artifacts'].length > 4
+    ) {
+      throw ingestionError('ingestion.invalid-input');
+    }
+    const artifactSet = parseRepositoryArtifactSetV1(entry['artifactSet']);
+    const artifacts = entry['artifacts'].map((artifact) => {
+      const parsed = parseRepositoryArtifactV1(artifact);
+      if (!parsed.ok) throw ingestionError('ingestion.invalid-input');
+      return parsed.value;
+    });
+    if (!artifactSet.ok) throw ingestionError('ingestion.invalid-input');
+    return Object.freeze({ artifactSet: artifactSet.value, artifacts });
+  });
+  validateArtifactMaterial(material);
+  return Object.freeze(material);
+}
+
 export interface AcceptedReviewedConceptClaimV2 {
   readonly claim: ReviewedConceptClaimV2;
   readonly admission: ReviewedConceptScopeAdmissionV2 | null;
@@ -321,5 +348,18 @@ function structuredKey(
 ): string {
   return [authorityVersion, authorityDigest, recordId, recordDigest].join(
     '\u0000',
+  );
+}
+
+function isExactObject(
+  value: unknown,
+  keys: readonly string[],
+): value is Record<string, unknown> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === keys.length &&
+    keys.every((key) => Object.hasOwn(value, key))
   );
 }

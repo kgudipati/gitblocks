@@ -69,10 +69,10 @@ describe('candidate profile authority command', () => {
       mode: 'validate',
       profiles: 150,
       known: 600,
-      unknown: 3_240,
+      unknown: 3_215,
       notApplicable: 210,
       conflict: 0,
-      partial: 0,
+      partial: 25,
       complete: 0,
     });
     expect(await readFile(authorityPath, 'utf8')).toBe(beforeAuthority);
@@ -124,6 +124,28 @@ describe('candidate profile authority command', () => {
       code: 'profile-command.source-drift',
     });
   }, 30_000);
+
+  it('rejects reviewed curation material whose exact artifact bytes drift', async () => {
+    const root = await fixture();
+    const path = curationMaterialPath(root);
+    const material = JSON.parse(await readFile(path, 'utf8')) as {
+      artifacts: { content: string }[];
+    }[];
+    const firstArtifact = material[0]?.artifacts[0];
+    if (firstArtifact === undefined) {
+      throw new Error(
+        'Expected committed reviewed curation artifact material.',
+      );
+    }
+    firstArtifact.content = `${firstArtifact.content}\ncuration-byte-drift`;
+    await writeFile(path, `${JSON.stringify(material, null, 2)}\n`);
+
+    await expect(
+      runCandidateProfileCommand(root, 'validate'),
+    ).rejects.toMatchObject({
+      code: 'profile-command.invalid-curation',
+    });
+  });
 
   it('rejects symlinked authorities, outputs, and repository-root path escape', async () => {
     const root = await fixture();
@@ -198,6 +220,10 @@ async function fixture(): Promise<string> {
     curationAuthorityPath(root),
   );
   await copyFile(
+    curationMaterialPath(repositoryRoot),
+    curationMaterialPath(root),
+  );
+  await copyFile(
     profileCoveragePath(repositoryRoot),
     profileCoveragePath(root),
   );
@@ -224,6 +250,14 @@ function curationAuthorityPath(root: string): string {
     'catalog',
     'public-v1',
     'candidate-profile-reviewed-curation-v2.json',
+  );
+}
+function curationMaterialPath(root: string): string {
+  return join(
+    root,
+    'catalog',
+    'public-v1',
+    'candidate-profile-reviewed-curation-material-v2.json',
   );
 }
 function profileCoveragePath(root: string): string {
