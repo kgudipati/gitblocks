@@ -183,6 +183,27 @@ const TAXONOMY_FACETS = new Set<CapabilityQueryConstraintFacet>([
   'deployment',
 ]);
 
+export const CAPABILITY_QUERY_TARGET_FIT_CONTEXT_RULE_ID =
+  'preserve-target-fit-context' as const;
+
+const TARGET_FIT_CONTEXT_FACETS = new Set<CapabilityQueryConstraintFacet>([
+  'framework',
+  'runtime',
+]);
+
+export function isCapabilityQueryTargetFitContext(
+  constraint: Pick<
+    NormalizedCapabilityConstraint,
+    'facet' | 'resolutionBasis' | 'ruleId'
+  >,
+): boolean {
+  return (
+    constraint.resolutionBasis === 'preserved-declaration' &&
+    constraint.ruleId === CAPABILITY_QUERY_TARGET_FIT_CONTEXT_RULE_ID &&
+    TARGET_FIT_CONTEXT_FACETS.has(constraint.facet)
+  );
+}
+
 const TERMINAL_PRIMARY_EXCLUSION_REASONS = new Set([
   'adjacent-capability',
   'generic-utility',
@@ -853,7 +874,9 @@ function normalizeConstraints(
         modality: constraint.modality,
         facet: constraint.facetHint,
         resolutionBasis: 'preserved-declaration',
-        ruleId: 'preserve-explicit-declaration',
+        ruleId: TARGET_FIT_CONTEXT_FACETS.has(constraint.facetHint)
+          ? CAPABILITY_QUERY_TARGET_FIT_CONTEXT_RULE_ID
+          : 'preserve-explicit-declaration',
         conceptId: null,
         canonicalTerm: null,
       });

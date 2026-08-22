@@ -53,8 +53,10 @@ export type {
   CapabilityQueryTerm,
 } from './capability-query.ts';
 export {
+  CAPABILITY_QUERY_TARGET_FIT_CONTEXT_RULE_ID,
   canonicalizeCapabilityQueryLookupTermV1,
   deriveCapabilityQueryConstraintFacet,
+  isCapabilityQueryTargetFitContext,
   normalizeCapabilityQuery,
   validateCapabilityQueryNormalizationResult,
 } from './capability-query-normalization.ts';

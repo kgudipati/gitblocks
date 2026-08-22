@@ -83,6 +83,12 @@ describe('OpenAI Responses target-fit adapter', () => {
     });
     const bodyText = JSON.stringify(received.body);
     expect(Buffer.byteLength(bodyText, 'utf8')).toBeLessThan(2 * 1024 * 1024);
+    expect(bodyText).toContain(
+      'A normalized framework or runtime declaration whose ruleId is preserve-target-fit-context is developer-supplied target-fit context, not a deterministic hard evaluation',
+    );
+    expect(bodyText).toContain(
+      'A finalist with no unresolved hard evaluations has already passed deterministic hard evaluation',
+    );
     const modelFacingCandidates = modelInput.fitAssessmentRequest.candidates;
     const modelEvidenceIds = modelFacingCandidates.flatMap(({ observations }) =>
       observations.map(({ evidenceId }) => evidenceId),

@@ -115,10 +115,12 @@ Unresolved remains explicitly unverified and is never scored as satisfied, but
 a candidate with no conflict may proceed to the unchanged target-fit authority
 and may be presented when its ordinary candidate-evidence and
 repository-target-fit support is otherwise sufficient. Every presented option
-structurally reports each original hard constraint as verified, unverified, or
-conflicting; a partially verified option is distinguished from a fully verified
-option, and an unverified prohibited constraint carries its own option-level
-discriminator.
+structurally reports each original hard constraint and each required or
+prohibited framework/runtime context declaration as verified, unverified, or
+conflicting. Framework/runtime context remains unverified rather than being
+relabeled as deterministically satisfied. A partially verified option is
+distinguished from a fully verified option, and an unverified prohibited
+constraint carries its own option-level discriminator.
 
 A user request runs only the hosted request path and may read PostgreSQL
 directly where the use case requires it or use a process-local immutable search
@@ -202,10 +204,10 @@ candidate tagged with more than one family does not increase the count.
 The approved workflow is:
 
 1. **Frame the request locally.** The coding agent and developer state the
-   desired capability, success conditions, explicit hard constraints, and which
-   local facts may be shared. The Skill preserves these in a bounded
-   pre-contract input without silently weakening required, preferred, or
-   prohibited intent.
+   desired capability, success conditions, explicit hard constraints,
+   framework/runtime target-fit context, and which local facts may be shared.
+   The Skill preserves these in a bounded pre-contract input without silently
+   weakening required, preferred, or prohibited intent.
 2. **Fingerprint locally.** A deterministic local scanner observes approved
    manifests, configuration shapes, structure, and dependency facts. It emits
    closed, bounded facts from a controlled, versioned vocabulary and does not
@@ -223,21 +225,25 @@ The approved workflow is:
    evidence-needed lane. Matching immutable README/documentation artifacts may
    contribute only deterministically selected, exact-line, request-scoped
    evidence after active repository-head commit coherence succeeds. A bounded
-   LLM resolves every disclosed unresolved hard
-   evaluation and reasons about target fit in one response. Deterministic code
-   then validates exact resolution coverage, normalization/source binding,
-   candidate-owned evidence, the unchanged target-fit exchange, and
-   responsible-outcome rules. Missing text never establishes absence, and
-   repository interviews are not required in this serving path. An unresolved
-   evaluation remains unverified; it may not establish satisfaction, but it no
-   longer forces abstention when the candidate has no conflict and otherwise
-   has sufficient candidate and target-fit support.
+   LLM resolves every disclosed unresolved hard evaluation and reasons about
+   target fit in one response. Preserved framework/runtime declarations reach
+   that target-fit reasoning alongside the fingerprint's separately
+   attributable framework/runtime facts; they do not become deterministic hard
+   evaluations. Deterministic code then validates exact resolution coverage,
+   normalization/source binding, candidate-owned evidence, the unchanged
+   target-fit exchange, and responsible-outcome rules. Missing text never
+   establishes absence, and repository interviews are not required in this
+   serving path. An unresolved evaluation remains unverified; it may not
+   establish satisfaction, but it no longer forces abstention when the
+   candidate has no conflict and otherwise has sufficient candidate and
+   target-fit support.
 6. **Explain up to three options.** The coding agent receives at most three
    responsible options with evidence references, preserved candidate
    limitations, tradeoffs, material unknowns, and reasons for exclusion or
-   relative fit. Each option includes the developer's original hard-constraint
-   statements, their required or prohibited modality, verified, unverified, or
-   conflicting status, and grounding for verified constraints. A structural
+   relative fit. Each option includes the developer's original required or
+   prohibited statements, including framework/runtime target-fit context, with
+   verified, unverified, or conflicting status and grounding for verified
+   constraints. A structural
    option-level discriminator distinguishes fully verified, partially verified,
    and unverified-prohibited-constraint options. Every reason is traceable to
    candidate-owned evidence or inference, a disclosed material unknown, or a
@@ -327,10 +333,12 @@ repository-interview audit data, and product packages must not import it.
 The current exact mappings are primary family, architecture to adoption unit,
 feature to capability variants, and required infrastructure only. Optional
 infrastructure support does not become a prohibited dependency. Preserved
-runtime, framework, datastore, license, maintenance, release, or security
-declarations remain unresolved until an exact reviewed controlled mapping
-exists. The evaluator does not generate, filter, retrieve, rank, or recommend
-candidates.
+framework and runtime declarations are classified as target-fit context,
+excluded from deterministic hard evaluation, retained verbatim for the model,
+and projected as unverified per-constraint status. Preserved datastore,
+license, maintenance, release, or security declarations remain unresolved
+until an exact reviewed controlled mapping exists. The evaluator does not
+generate, filter, retrieve, rank, or recommend candidates.
 
 `retrieval-v1` is evaluation-only authority, not a product contract root. Its
 30 retrieval and 20 normalization/adversarial blind cases are exactly balanced
@@ -403,8 +411,13 @@ must not substitute popularity for compatibility.
   recommended, risk-free, or fully verified; any unresolved hard constraint is
   disclosed per constraint and never scored as satisfied.
 - **Hard constraint:** a non-negotiable, testable condition that disqualifies a
-  candidate when violated, such as license, runtime, database, deployment,
-  residency, or maintenance constraints.
+  candidate when violated, such as license, required infrastructure, database,
+  deployment, residency, or maintenance constraints.
+- **Target-fit context:** a preserved developer declaration used to judge
+  integration with the target repository rather than to hard-filter candidates.
+  Framework and runtime declarations are target-fit context. They complement
+  separately attributable fingerprint facts, remain visible in per-constraint
+  status, and are never presented as deterministically verified.
 - **Evidence:** a dated, attributable observation from a repository, release,
   package registry, advisory source, documentation page, local deterministic
   scan, or approved validation result. Public immutable evidence names an

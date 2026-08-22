@@ -142,16 +142,16 @@ describe('candidate constraint evaluation', () => {
     expect(result.overallHardState).toBe('satisfied');
   });
 
-  it('keeps hard non-taxonomy declarations unresolved without parsing text', () => {
+  it('keeps hard non-context declarations unresolved without parsing text', () => {
     const result = evaluate(profile(), {
       ...normalization(),
       preservedDeclarations: [
         {
-          constraintId: 'constraint-runtime',
+          constraintId: 'constraint-license',
           modality: 'required',
-          statement: 'do not parse Node 24 from this statement',
-          originalTerm: 'node-24',
-          facet: 'runtime',
+          statement: 'do not parse MIT from this statement',
+          originalTerm: 'mit',
+          facet: 'license',
           reasonCode: null,
         },
       ],
@@ -162,6 +162,50 @@ describe('candidate constraint evaluation', () => {
       profileFieldId: null,
     });
   });
+
+  it.each(['framework', 'runtime'] as const)(
+    'keeps preserved %s context out of deterministic hard evaluation',
+    (facet) => {
+      const normalizedConstraint = {
+        normalizedConstraintId: `normalized-${facet}-context`,
+        sourceConstraintIds: [`constraint-${facet}-context`],
+        modality: 'required' as const,
+        facet,
+        resolutionBasis: 'preserved-declaration' as const,
+        ruleId: 'preserve-target-fit-context',
+        conceptId: null,
+        canonicalTerm: null,
+      };
+      const query = {
+        ...normalization([normalizedConstraint]),
+        preservedDeclarations: [
+          {
+            constraintId: `constraint-${facet}-context`,
+            modality: 'required' as const,
+            statement: `Use the target ${facet}.`,
+            originalTerm: `target-${facet}`,
+            facet,
+            reasonCode: 'user-required',
+          },
+        ],
+      };
+
+      for (const result of [
+        evaluate(profile(), query),
+        evaluateV2(
+          projectDeterministicCandidateProfileV1ToEvaluatorV2(profile()),
+          query,
+        ),
+      ]) {
+        expect(result.overallHardState).toBe('satisfied');
+        expect(
+          result.evaluations.filter(
+            ({ sourceKind }) => sourceKind !== 'primary-family',
+          ),
+        ).toEqual([]);
+      }
+    },
+  );
 
   it('emits one hard evaluation when a declaration normalized to a controlled concept', () => {
     const normalized = constraint('feature', 'decision-caching');

@@ -714,6 +714,50 @@ describe('deterministic capability-query normalization', () => {
     expect(result.value.preservedDeclarations).toHaveLength(3);
   });
 
+  it.each(['framework', 'runtime'] as const)(
+    'classifies an explicit %s declaration as preserved target-fit context',
+    (facetHint) => {
+      const result = normalizeCapabilityQuery(
+        input({
+          draftConstraints: [
+            {
+              constraintId: `constraint-${facetHint}`,
+              modality: 'required',
+              statement: `Use the target ${facetHint}.`,
+              originalTerm: `target-${facetHint}`,
+              facetHint,
+              reasonCode: 'user-required',
+            },
+          ],
+        }),
+        taxonomy(),
+      );
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.value.outcome).toBe('normalized');
+      expect(result.value.normalizedConstraints).toContainEqual(
+        expect.objectContaining({
+          sourceConstraintIds: [`constraint-${facetHint}`],
+          facet: facetHint,
+          resolutionBasis: 'preserved-declaration',
+          ruleId: 'preserve-target-fit-context',
+          conceptId: null,
+          canonicalTerm: null,
+        }),
+      );
+      expect(result.value.preservedDeclarations).toContainEqual(
+        expect.objectContaining({
+          constraintId: `constraint-${facetHint}`,
+          facet: facetHint,
+          modality: 'required',
+        }),
+      );
+      expect(result.value.unresolvedTerms).toEqual([]);
+      expect(result.value.clarifications).toEqual([]);
+    },
+  );
+
   it('blocks hard unknowns and contradictions but discloses unknown preferences', () => {
     const hardUnknown = normalizeCapabilityQuery(
       input({

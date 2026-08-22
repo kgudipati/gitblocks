@@ -6,6 +6,7 @@ import type {
   NormalizedCapabilityConstraint,
   PreservedCapabilityQueryDeclaration,
 } from './capability-query-normalization.ts';
+import { isCapabilityQueryTargetFitContext } from './capability-query-normalization.ts';
 import type {
   DeterministicCandidateProfileEvaluatorV2,
   DeterministicProfileEvaluatorFieldV2,
@@ -127,6 +128,9 @@ export function evaluateCandidateConstraints(
     ),
   );
   const controlledConstraintSourceIds = new Set<string>();
+  const targetFitContextSourceIds = targetFitContextConstraintSourceIds(
+    input.normalization.normalizedConstraints,
+  );
   const constraints = input.normalization.normalizedConstraints.flatMap(
     (constraint) => {
       const controlled =
@@ -147,7 +151,9 @@ export function evaluateCandidateConstraints(
   );
   const declarations = input.normalization.preservedDeclarations
     .filter(
-      ({ constraintId }) => !controlledConstraintSourceIds.has(constraintId),
+      ({ constraintId }) =>
+        !controlledConstraintSourceIds.has(constraintId) &&
+        !targetFitContextSourceIds.has(constraintId),
     )
     .map(evaluatePreservedDeclaration);
   const evaluations = [primary, ...constraints, ...declarations];
@@ -200,6 +206,9 @@ export function evaluateCandidateConstraintsV2(
     ),
   );
   const controlledConstraintSourceIds = new Set<string>();
+  const targetFitContextSourceIds = targetFitContextConstraintSourceIds(
+    input.normalization.normalizedConstraints,
+  );
   const constraints = input.normalization.normalizedConstraints.flatMap(
     (constraint) => {
       const controlled =
@@ -220,7 +229,9 @@ export function evaluateCandidateConstraintsV2(
   );
   const declarations = input.normalization.preservedDeclarations
     .filter(
-      ({ constraintId }) => !controlledConstraintSourceIds.has(constraintId),
+      ({ constraintId }) =>
+        !controlledConstraintSourceIds.has(constraintId) &&
+        !targetFitContextSourceIds.has(constraintId),
     )
     .map(evaluatePreservedDeclaration);
   const evaluations = [primary, ...constraints, ...declarations];
@@ -401,6 +412,16 @@ function evaluatePreservedDeclaration(
     match: 'unresolved',
     ruleId: 'preserved-declaration-has-no-controlled-profile-mapping',
   });
+}
+
+function targetFitContextConstraintSourceIds(
+  constraints: readonly NormalizedCapabilityConstraint[],
+): ReadonlySet<string> {
+  return new Set(
+    constraints
+      .filter(isCapabilityQueryTargetFitContext)
+      .flatMap(({ sourceConstraintIds }) => sourceConstraintIds),
+  );
 }
 
 function evaluateFieldConcept(
