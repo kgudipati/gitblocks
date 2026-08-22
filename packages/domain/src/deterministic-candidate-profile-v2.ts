@@ -41,6 +41,8 @@ export const DETERMINISTIC_PROFILE_CONCEPT_ASSERTION_FIELD_IDS = Object.freeze([
   'required-infrastructure',
   'optional-infrastructure',
 ] as const);
+const DETERMINISTIC_PROFILE_FIELD_REGISTRY =
+  getDeterministicProfileFieldRegistry();
 
 export type DeterministicProfileConceptAssertionFieldId =
   (typeof DETERMINISTIC_PROFILE_CONCEPT_ASSERTION_FIELD_IDS)[number];
@@ -242,7 +244,7 @@ export function validateDeterministicCandidateProfileV2(
     readonly DeterministicProfileFieldId[]
   >();
   for (const [index, field] of profile.fields.entries()) {
-    const expected = getDeterministicProfileFieldRegistry()[index];
+    const expected = DETERMINISTIC_PROFILE_FIELD_REGISTRY[index];
     if (field.fieldId !== expected?.fieldId) {
       addIssue(issues, 'profile.invariant', `$.fields[${String(index)}]`);
       continue;

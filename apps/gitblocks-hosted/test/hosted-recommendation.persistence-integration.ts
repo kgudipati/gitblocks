@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,7 @@ import {
 import {
   parseOssRecommendationRequestV1,
   parseRepositoryFingerprintV1,
+  parseDeterministicCandidateProfileAuthorityV2,
   repositoryFingerprintDigestV1,
   validateRecommendationModelDecompositionExchangeV1,
   type OssRecommendationRequestV1,
@@ -48,7 +49,7 @@ import {
 } from 'vitest';
 
 import type { FitAssessmentModelRequestV1 } from '../src/application.ts';
-import { GITBLOCKS_MCP_HOST } from '../src/mcp-http.ts';
+import { GITBLOCKS_HEALTH_PATH, GITBLOCKS_MCP_HOST } from '../src/mcp-http.ts';
 import { startGitBlocksMcpProcess } from '../src/mcp-process.ts';
 import { GITBLOCKS_RECOMMEND_OSS_TOOL_NAME } from '../src/mcp-server.ts';
 import {
@@ -124,6 +125,52 @@ afterAll(async () => {
 });
 
 describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
+  it('publishes V2 to PostgreSQL and reaches hosted readiness', async () => {
+    const writer = createPersistenceClient(WRITER_CONFIG);
+    const authorities = await loadAcceptedAuthorities();
+    const authorityText = await readFile(
+      fileURLToPath(
+        new URL(
+          '../../../catalog/public-v1/candidate-profile-authority-v2.json',
+          import.meta.url,
+        ),
+      ),
+      'utf8',
+    );
+    const parsedAuthority = parseDeterministicCandidateProfileAuthorityV2(
+      JSON.parse(authorityText) as unknown,
+    );
+    if (!parsedAuthority.ok) {
+      throw new Error('Accepted V2 authority fixture is invalid.');
+    }
+    let hostedProcess;
+    try {
+      await seedAcceptedCandidateIdentities(writer);
+      await publishServingCatalogSnapshot(writer, {
+        candidateProfileAuthority: parsedAuthority.value,
+        candidateRetrievalMetadataAuthority: authorities.metadata,
+        publishedAt: PUBLISHED_AT,
+      });
+      await closePersistenceClient(writer);
+
+      hostedProcess = await startGitBlocksMcpProcess({
+        database: SERVING_CONFIG,
+        fitModel: { assess: vi.fn() },
+        port: 0,
+        token: 'test-only-mcp-token',
+      });
+      const healthUrl = new URL(GITBLOCKS_HEALTH_PATH, hostedProcess.endpoint);
+      const response = await loopbackFetch(healthUrl);
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toEqual({ status: 'ready' });
+    } finally {
+      await Promise.all([
+        hostedProcess?.close(),
+        closePersistenceClient(writer),
+      ]);
+    }
+  });
+
   it('composes the R7 scanner with the existing target-grounded MCP recommendation and rejects invented target facts', async () => {
     const writer = createPersistenceClient(WRITER_CONFIG);
     const targetRoot = await mkdtemp(join(tmpdir(), 'gitblocks-r7-target-'));
