@@ -24,7 +24,7 @@ describe('repository artifact operator surface', () => {
     );
   });
 
-  it('requires explicit non-production authority and keeps operator output content-free', async () => {
+  it('requires an explicit bounded authority and keeps operator output content-free', async () => {
     const [cliSource, commandSource, policySource] = await Promise.all([
       readFile(
         new URL('../scripts/artifacts-live-cli.ts', import.meta.url),
@@ -51,6 +51,9 @@ describe('repository artifact operator surface', () => {
     expect(policySource).toContain(
       'approved-private-alpha-persistent-dogfood-artifact-collection',
     );
+    expect(policySource).toContain(
+      'approved-managed-production-public-artifact-collection',
+    );
     for (const required of [
       '--catalog',
       '--manifest',
@@ -58,6 +61,8 @@ describe('repository artifact operator surface', () => {
       'GITBLOCKS_ARTIFACT_GITHUB_TOKEN',
       'GITBLOCKS_ARTIFACT_DB_SCOPE',
       'GITBLOCKS_ARTIFACT_PERSISTENT_ACK',
+      'GITBLOCKS_ARTIFACT_PRODUCTION_ACK',
+      'DATABASE_URL',
     ]) {
       expect(commandSource).toContain(required);
     }
@@ -65,7 +70,7 @@ describe('repository artifact operator surface', () => {
     expect(`${commandSource}${policySource}`).not.toContain('resolvedPath');
     expect(`${commandSource}${policySource}`).not.toContain('displayUrl');
     expect(policySource).not.toMatch(
-      /['"](?:production|persistent-production|staging|shared-development|remote-database)['"]/u,
+      /['"](?:persistent-production|staging|shared-development|remote-database)['"]/u,
     );
   });
 
@@ -77,17 +82,9 @@ describe('repository artifact operator surface', () => {
     const command = source.indexOf(
       'export async function runArtifactLiveCliV1(',
     );
-    const globalAuthority = source.indexOf(
-      'requireGlobalAcknowledgement(dependencies)',
-      command,
-    );
-    const scopeAuthority = source.indexOf(
-      'assertArtifactLiveDatabaseScopeAuthorityV1(scopeAuthority)',
-      globalAuthority,
-    );
     const databaseAuthority = source.indexOf(
-      'validateArtifactLiveDatabaseScopeV1({',
-      scopeAuthority,
+      'selectArtifactLiveDatabaseBoundaryV1({',
+      command,
     );
     const client = source.indexOf(
       'dependencies.createPersistenceClient({',
@@ -119,9 +116,7 @@ describe('repository artifact operator surface', () => {
     );
 
     expect(command).toBeGreaterThan(-1);
-    expect(globalAuthority).toBeGreaterThan(command);
-    expect(scopeAuthority).toBeGreaterThan(globalAuthority);
-    expect(databaseAuthority).toBeGreaterThan(scopeAuthority);
+    expect(databaseAuthority).toBeGreaterThan(command);
     expect(client).toBeGreaterThan(databaseAuthority);
     expect(guard).toBeGreaterThan(-1);
     expect(verification).toBeGreaterThan(client);

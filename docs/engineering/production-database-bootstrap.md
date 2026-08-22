@@ -4,9 +4,10 @@
 
 Issue #96 authorizes the database and serving-login sequence for an already
 provisioned durable PostgreSQL database. Issue #150 records the additional
-evidence-readiness requirement and the current production-operator blocker. It
-does not provision a database, deploy the hosted application, generate
-authority files, or run ingestion at request time. The database must be
+evidence-readiness requirement, and issue #152 authorizes the explicit
+production boundaries for the two offline evidence writers. This sequence does
+not provision a database, deploy the hosted application, generate authority
+files, or run ingestion at request time. The database must be
 PostgreSQL major 18 at or above the minimum validated minor 18.4, and its name
 must not end in `_test`. The serving bootstrap accepts 18.4 and newer 18.x
 minors and rejects older 18.x minors and every other major.
@@ -56,8 +57,9 @@ The production default therefore uses TLS. With the pinned driver, `require`,
 `verify-full` uses Node's trusted certificate authorities and hostname
 verification. An unsupported or repeated `sslmode` is rejected as an invalid
 `DATABASE_URL` setting. In particular, do not translate provider vocabulary
-to `true`; preserve a supported `sslmode` in the URL. Errors name the missing
-or invalid variable but never include the URL, password, or host.
+to `true`; preserve a supported `sslmode` in the URL. The two live writer
+production boundaries use the same URL validation and TLS mapping. Errors name
+the missing or invalid variable but never include the URL, password, or host.
 
 ## End-to-end sequence
 
@@ -184,26 +186,35 @@ two required live writer stages below have run through a production-authorized
 operator and their receipts and durable row counts have been reviewed. The
 SELECT-only serving login cannot run either writer.
 
-#### Current blocker: no production-authorized writer command
+#### Production-authorized writer boundaries
 
-The repository does not currently expose a command that is authorized to run
-either writer against a managed production database:
+Issue #152 adds a separate production boundary to each offline writer without
+weakening either existing path:
 
-- `pnpm ingest:live` requires
-  `GITBLOCKS_INGEST_ACKNOWLEDGEMENT=approved-non-production-public-ingestion-with-public-sources-only`.
-  That acknowledgement must not be asserted for a production target.
-- `pnpm artifacts:live` accepts only `ephemeral-non-production` or
-  `persistent-private-alpha-dogfood`. The latter additionally fixes the target
-  to host `127.0.0.1`, database `gitblocks_dogfood_test`, username
-  `gitblocks_persistence_dogfood`, and TLS disabled. A managed Neon target is
-  rejected before a database client, provider transport, or receipt is
-  created.
+| Command          | Production variables                                | Exact production acknowledgement                                        |
+| ---------------- | --------------------------------------------------- | ----------------------------------------------------------------------- |
+| `ingest:live`    | `DATABASE_URL`, `GITBLOCKS_INGEST_PRODUCTION_ACK`   | `approved-managed-production-public-ingestion-with-public-sources-only` |
+| `artifacts:live` | `DATABASE_URL`, `GITBLOCKS_ARTIFACT_PRODUCTION_ACK` | `approved-managed-production-public-artifact-collection`                |
 
-Consequently there is no safe command sequence that can populate production at
-this revision. Issue #150 remains blocked on a reviewed production authority
-boundary for both CLIs. Do not bypass the acknowledgements or weaken the scope
-guards operationally. Once that boundary exists, preserve the following order
-and semantics.
+The production database name must not end in `_test`. TLS defaults to
+`require`, with the same explicit `sslmode` mapping as `db:migrate` and
+`db:check`. Each command fails before database, provider, or receipt effects if
+any variable from its production boundary is present with any variable from
+its existing non-production boundary. The provider token is common to both
+boundaries and does not select one.
+
+The unchanged `ingest:live` non-production boundary remains
+`GITBLOCKS_INGEST_ACKNOWLEDGEMENT` plus the six
+`GITBLOCKS_INGEST_DB_*` fields. The unchanged `artifacts:live` boundary remains
+`GITBLOCKS_ARTIFACT_ACKNOWLEDGEMENT`, `GITBLOCKS_ARTIFACT_DB_SCOPE`, the six
+`GITBLOCKS_ARTIFACT_DB_*` fields, and the conditional dogfood
+`GITBLOCKS_ARTIFACT_PERSISTENT_ACK`. The dogfood scope still fixes host
+`127.0.0.1`, database `gitblocks_dogfood_test`, username
+`gitblocks_persistence_dogfood`, and TLS disabled.
+
+This change did not run either command against the production managed
+database. Keep the following order and runtime semantics for the separately
+reviewed production operator run.
 
 #### Authority generation is already satisfied or out of scope
 
@@ -253,19 +264,14 @@ pnpm ingest:receipt <new-untracked-ingestion-receipt-path>
 npm, or database access and performs no write. It is repeatable against a
 retained receipt.
 
-The writer requires these injected fields. They must name a persistence-capable
-operator login, not the SELECT-only serving login:
+The writer requires these injected fields. The URL must name a
+persistence-capable operator login, not the SELECT-only serving login:
 
-| Variable                           | Requirement                                                                           |
-| ---------------------------------- | ------------------------------------------------------------------------------------- |
-| `GITBLOCKS_INGEST_ACKNOWLEDGEMENT` | A new reviewed production value is required; the current value is non-production only |
-| `GITBLOCKS_INGEST_GITHUB_TOKEN`    | Injected least-privilege token for authenticated public GitHub reads                  |
-| `GITBLOCKS_INGEST_DB_HOST`         | Managed database host                                                                 |
-| `GITBLOCKS_INGEST_DB_PORT`         | Integer port from 1 through 65535                                                     |
-| `GITBLOCKS_INGEST_DB_DATABASE`     | Managed database name                                                                 |
-| `GITBLOCKS_INGEST_DB_USERNAME`     | Persistence-capable operator role                                                     |
-| `GITBLOCKS_INGEST_DB_PASSWORD`     | Injected operator secret                                                              |
-| `GITBLOCKS_INGEST_DB_SSL`          | Exact `require` for the managed TLS connection                                        |
+| Variable                          | Requirement                                                              |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| `DATABASE_URL`                    | Reviewed production database URL; TLS defaults to `require`              |
+| `GITBLOCKS_INGEST_PRODUCTION_ACK` | Exact production ingestion acknowledgement from the boundary table above |
+| `GITBLOCKS_INGEST_GITHUB_TOKEN`   | Injected least-privilege token for authenticated public GitHub reads     |
 
 The current catalog permits at most 913 logical requests for a full run: 833
 GitHub and 80 unauthenticated npm-registry reads. Each safe GET has one initial
@@ -322,20 +328,14 @@ pnpm artifacts:receipt <new-untracked-artifact-receipt-path>
 network, npm, or database access and performs no write. It is repeatable
 against a retained receipt.
 
-The writer requires these injected fields:
+The writer requires these injected fields. The URL must name a
+persistence-capable operator login, not the SELECT-only serving login:
 
-| Variable                             | Requirement                                                                                       |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| `GITBLOCKS_ARTIFACT_ACKNOWLEDGEMENT` | A new reviewed production value is required; the current value is non-production only             |
-| `GITBLOCKS_ARTIFACT_DB_SCOPE`        | A new reviewed production scope is required; neither current scope authorizes a managed database  |
-| `GITBLOCKS_ARTIFACT_PERSISTENT_ACK`  | Required only by the current fixed loopback dogfood scope; it is not a production acknowledgement |
-| `GITBLOCKS_ARTIFACT_GITHUB_TOKEN`    | Injected least-privilege token for authenticated public GitHub reads                              |
-| `GITBLOCKS_ARTIFACT_DB_HOST`         | Managed database host                                                                             |
-| `GITBLOCKS_ARTIFACT_DB_PORT`         | Integer port from 1 through 65535                                                                 |
-| `GITBLOCKS_ARTIFACT_DB_DATABASE`     | Managed database name                                                                             |
-| `GITBLOCKS_ARTIFACT_DB_USERNAME`     | Persistence-capable operator role                                                                 |
-| `GITBLOCKS_ARTIFACT_DB_PASSWORD`     | Injected operator secret                                                                          |
-| `GITBLOCKS_ARTIFACT_DB_SSL`          | Exact `require` for the managed TLS connection                                                    |
+| Variable                            | Requirement                                                             |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| `DATABASE_URL`                      | Reviewed production database URL; TLS defaults to `require`             |
+| `GITBLOCKS_ARTIFACT_PRODUCTION_ACK` | Exact production artifact acknowledgement from the boundary table above |
+| `GITBLOCKS_ARTIFACT_GITHUB_TOKEN`   | Injected least-privilege token for authenticated public GitHub reads    |
 
 Artifact collection uses GitHub only and never accesses npm. It serializes all
 requests through one transport even though at most two candidates are active,

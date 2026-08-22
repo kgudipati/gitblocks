@@ -15,6 +15,7 @@ import {
 import {
   ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1,
   ARTIFACT_LIVE_PERSISTENT_ACKNOWLEDGEMENT_V1,
+  ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
 } from '../scripts/artifact-live-scope-policy.ts';
 import type {
   ArtifactReceipt,
@@ -98,6 +99,8 @@ describe('live artifact command authority', () => {
       'environment:GITBLOCKS_ARTIFACT_DB_USERNAME',
       'environment:GITBLOCKS_ARTIFACT_DB_PASSWORD',
       'environment:GITBLOCKS_ARTIFACT_DB_SSL',
+      'environment:GITBLOCKS_ARTIFACT_PRODUCTION_ACK',
+      'environment:DATABASE_URL',
       'environment:GITBLOCKS_ARTIFACT_GITHUB_TOKEN',
       'read:/explicit/catalog.json',
       'read:/explicit/artifact-manifest.json',
@@ -135,6 +138,81 @@ describe('live artifact command authority', () => {
       'GITBLOCKS_ARTIFACT_PERSISTENT_ACK',
     );
     expect(fixture.collectArtifacts).toHaveBeenCalledTimes(1);
+  });
+
+  it('admits the separate production boundary with TLS required by default', async () => {
+    const fixture = dependencies({
+      GITBLOCKS_ARTIFACT_ACKNOWLEDGEMENT: undefined,
+      GITBLOCKS_ARTIFACT_DB_SCOPE: undefined,
+      GITBLOCKS_ARTIFACT_PERSISTENT_ACK: undefined,
+      GITBLOCKS_ARTIFACT_DB_HOST: undefined,
+      GITBLOCKS_ARTIFACT_DB_PORT: undefined,
+      GITBLOCKS_ARTIFACT_DB_DATABASE: undefined,
+      GITBLOCKS_ARTIFACT_DB_USERNAME: undefined,
+      GITBLOCKS_ARTIFACT_DB_PASSWORD: undefined,
+      GITBLOCKS_ARTIFACT_DB_SSL: undefined,
+      GITBLOCKS_ARTIFACT_PRODUCTION_ACK:
+        ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
+      DATABASE_URL: productionDatabaseUrl('gitblocks_artifacts'),
+    });
+
+    await expect(
+      runArtifactLiveCliV1(ARGUMENTS, fixture.dependencies),
+    ).resolves.toBeUndefined();
+    expect(fixture.createClient).toHaveBeenCalledWith(
+      expect.objectContaining({
+        database: 'gitblocks_artifacts',
+        ssl: 'require',
+      }),
+    );
+    expect(fixture.collectArtifacts).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a production acknowledgement on the dogfood path before effects', async () => {
+    const fixture = dependencies({
+      GITBLOCKS_ARTIFACT_PRODUCTION_ACK:
+        ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
+    });
+
+    await expect(
+      runArtifactLiveCliV1(ARGUMENTS, fixture.dependencies),
+    ).rejects.toThrow('GITBLOCKS_ARTIFACT_PRODUCTION_ACK');
+    expectRejectedBeforeArtifactEffects(fixture);
+  });
+
+  it('rejects simultaneous dogfood and production configuration before effects', async () => {
+    const fixture = dependencies({
+      GITBLOCKS_ARTIFACT_PRODUCTION_ACK:
+        ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
+      DATABASE_URL: productionDatabaseUrl('gitblocks_artifacts'),
+    });
+
+    await expect(
+      runArtifactLiveCliV1(ARGUMENTS, fixture.dependencies),
+    ).rejects.toThrow('mutually exclusive');
+    expectRejectedBeforeArtifactEffects(fixture);
+  });
+
+  it('rejects a production _test database before effects', async () => {
+    const fixture = dependencies({
+      GITBLOCKS_ARTIFACT_ACKNOWLEDGEMENT: undefined,
+      GITBLOCKS_ARTIFACT_DB_SCOPE: undefined,
+      GITBLOCKS_ARTIFACT_PERSISTENT_ACK: undefined,
+      GITBLOCKS_ARTIFACT_DB_HOST: undefined,
+      GITBLOCKS_ARTIFACT_DB_PORT: undefined,
+      GITBLOCKS_ARTIFACT_DB_DATABASE: undefined,
+      GITBLOCKS_ARTIFACT_DB_USERNAME: undefined,
+      GITBLOCKS_ARTIFACT_DB_PASSWORD: undefined,
+      GITBLOCKS_ARTIFACT_DB_SSL: undefined,
+      GITBLOCKS_ARTIFACT_PRODUCTION_ACK:
+        ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
+      DATABASE_URL: productionDatabaseUrl('gitblocks_artifacts_test'),
+    });
+
+    await expect(
+      runArtifactLiveCliV1(ARGUMENTS, fixture.dependencies),
+    ).rejects.toThrow('DATABASE_URL database name must not end in _test.');
+    expectRejectedBeforeArtifactEffects(fixture);
   });
 
   it.each([
@@ -260,6 +338,8 @@ function dependencies(
     GITBLOCKS_ARTIFACT_DB_PASSWORD: 'database-password-sentinel',
     GITBLOCKS_ARTIFACT_DB_SSL: 'false',
     GITBLOCKS_ARTIFACT_GITHUB_TOKEN: 'github-token-sentinel',
+    GITBLOCKS_ARTIFACT_PRODUCTION_ACK: undefined,
+    DATABASE_URL: undefined,
     ...environmentOverrides,
   };
   const events: string[] = [];
@@ -348,6 +428,16 @@ function dependencies(
     persistencePublication,
     receiptWrite,
   };
+}
+
+function productionDatabaseUrl(database: string): string {
+  return [
+    'postgresql:',
+    '//operator:',
+    'production-password-sentinel',
+    '@managed.invalid/',
+    database,
+  ].join('');
 }
 
 function migrationVerification(version: number): MigrationVerification {

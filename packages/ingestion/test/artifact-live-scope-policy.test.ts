@@ -4,9 +4,12 @@ import { describe, expect, it } from 'vitest';
 
 import {
   ARTIFACT_LIVE_EPHEMERAL_DATABASE_SCOPE_V1,
+  ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1,
   ARTIFACT_LIVE_PERSISTENT_ACKNOWLEDGEMENT_V1,
   ARTIFACT_LIVE_PERSISTENT_DATABASE_SCOPE_V1,
+  ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
   assertArtifactLiveDatabaseScopeAuthorityV1,
+  selectArtifactLiveDatabaseBoundaryV1,
   validateArtifactLiveDatabaseScopeV1,
 } from '../scripts/artifact-live-scope-policy.ts';
 
@@ -18,6 +21,16 @@ const PERSISTENT_DATABASE_CONFIG = Object.freeze({
   password: 'database-password-sentinel',
   ssl: 'false',
 });
+
+function productionDatabaseUrl(database: string): string {
+  return [
+    'postgresql:',
+    '//operator:',
+    'production-password-sentinel',
+    '@managed.invalid/',
+    database,
+  ].join('');
+}
 
 describe('live artifact database scope policy', () => {
   it('preserves the existing ephemeral non-production contract without the persistent acknowledgement', () => {
@@ -62,6 +75,90 @@ describe('live artifact database scope policy', () => {
         ssl: false,
       },
     });
+  });
+
+  it('keeps the dogfood loopback path byte-for-byte equivalent through boundary selection', () => {
+    expect(
+      selectArtifactLiveDatabaseBoundaryV1({
+        nonProductionAcknowledgement: ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1,
+        nonProductionScope: ARTIFACT_LIVE_PERSISTENT_DATABASE_SCOPE_V1,
+        nonProductionPersistentAcknowledgement:
+          ARTIFACT_LIVE_PERSISTENT_ACKNOWLEDGEMENT_V1,
+        nonProductionDatabaseConfig: PERSISTENT_DATABASE_CONFIG,
+        productionAcknowledgement: undefined,
+        productionDatabaseUrl: undefined,
+      }),
+    ).toEqual({
+      mode: 'non-production',
+      scope: 'persistent-private-alpha-dogfood',
+      databaseConfig: {
+        ...PERSISTENT_DATABASE_CONFIG,
+        port: 49152,
+        ssl: false,
+      },
+    });
+  });
+
+  it('uses TLS by default for an explicitly acknowledged production database', () => {
+    expect(
+      selectArtifactLiveDatabaseBoundaryV1({
+        nonProductionAcknowledgement: undefined,
+        nonProductionScope: undefined,
+        nonProductionPersistentAcknowledgement: undefined,
+        nonProductionDatabaseConfig: {},
+        productionAcknowledgement: ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
+        productionDatabaseUrl: productionDatabaseUrl('gitblocks_artifacts'),
+      }),
+    ).toMatchObject({
+      mode: 'production',
+      databaseConfig: {
+        database: 'gitblocks_artifacts',
+        ssl: 'require',
+      },
+    });
+  });
+
+  it('rejects a production database name ending in _test', () => {
+    expect(() =>
+      selectArtifactLiveDatabaseBoundaryV1({
+        nonProductionAcknowledgement: undefined,
+        nonProductionScope: undefined,
+        nonProductionPersistentAcknowledgement: undefined,
+        nonProductionDatabaseConfig: {},
+        productionAcknowledgement: ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
+        productionDatabaseUrl: productionDatabaseUrl(
+          'gitblocks_artifacts_test',
+        ),
+      }),
+    ).toThrow('DATABASE_URL database name must not end in _test.');
+  });
+
+  it('rejects a production acknowledgement on the dogfood path', () => {
+    expect(() =>
+      selectArtifactLiveDatabaseBoundaryV1({
+        nonProductionAcknowledgement: ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1,
+        nonProductionScope: ARTIFACT_LIVE_PERSISTENT_DATABASE_SCOPE_V1,
+        nonProductionPersistentAcknowledgement:
+          ARTIFACT_LIVE_PERSISTENT_ACKNOWLEDGEMENT_V1,
+        nonProductionDatabaseConfig: PERSISTENT_DATABASE_CONFIG,
+        productionAcknowledgement: ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
+        productionDatabaseUrl: undefined,
+      }),
+    ).toThrow('GITBLOCKS_ARTIFACT_PRODUCTION_ACK');
+  });
+
+  it('rejects simultaneous dogfood and production configuration', () => {
+    expect(() =>
+      selectArtifactLiveDatabaseBoundaryV1({
+        nonProductionAcknowledgement: ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1,
+        nonProductionScope: ARTIFACT_LIVE_PERSISTENT_DATABASE_SCOPE_V1,
+        nonProductionPersistentAcknowledgement:
+          ARTIFACT_LIVE_PERSISTENT_ACKNOWLEDGEMENT_V1,
+        nonProductionDatabaseConfig: PERSISTENT_DATABASE_CONFIG,
+        productionAcknowledgement: ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1,
+        productionDatabaseUrl: productionDatabaseUrl('gitblocks_artifacts'),
+      }),
+    ).toThrow('mutually exclusive');
   });
 
   it.each([

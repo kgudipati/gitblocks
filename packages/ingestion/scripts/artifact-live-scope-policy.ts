@@ -1,3 +1,8 @@
+import {
+  parseLiveProductionDatabaseUrlV1,
+  type LiveDatabaseConfigV1,
+} from './live-production-database.ts';
+
 export const ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1 =
   'approved-non-production-public-artifact-collection';
 export const ARTIFACT_LIVE_EPHEMERAL_DATABASE_SCOPE_V1 =
@@ -6,6 +11,8 @@ export const ARTIFACT_LIVE_PERSISTENT_DATABASE_SCOPE_V1 =
   'persistent-private-alpha-dogfood';
 export const ARTIFACT_LIVE_PERSISTENT_ACKNOWLEDGEMENT_V1 =
   'approved-private-alpha-persistent-dogfood-artifact-collection';
+export const ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1 =
+  'approved-managed-production-public-artifact-collection';
 
 export type ArtifactLiveDatabaseScopeV1 =
   | typeof ARTIFACT_LIVE_EPHEMERAL_DATABASE_SCOPE_V1
@@ -16,17 +23,83 @@ export interface ArtifactLiveDatabaseScopeAuthorityInputV1 {
   readonly persistentAcknowledgement: unknown;
 }
 
-export interface ArtifactLiveDatabaseConfigV1 {
-  readonly host: string;
-  readonly port: number;
-  readonly database: string;
-  readonly username: string;
-  readonly password: string;
-  readonly ssl: false | 'require';
-}
+export type ArtifactLiveDatabaseConfigV1 = LiveDatabaseConfigV1;
 
 export interface ArtifactLiveDatabaseScopeInputV1 extends ArtifactLiveDatabaseScopeAuthorityInputV1 {
   readonly databaseConfig: unknown;
+}
+
+export interface ArtifactLiveDatabaseBoundaryInputV1 {
+  readonly nonProductionAcknowledgement: unknown;
+  readonly nonProductionScope: unknown;
+  readonly nonProductionPersistentAcknowledgement: unknown;
+  readonly nonProductionDatabaseConfig: unknown;
+  readonly productionAcknowledgement: unknown;
+  readonly productionDatabaseUrl: unknown;
+}
+
+export type ArtifactLiveDatabaseBoundaryV1 =
+  | {
+      readonly mode: 'non-production';
+      readonly scope: ArtifactLiveDatabaseScopeV1;
+      readonly databaseConfig: ArtifactLiveDatabaseConfigV1;
+    }
+  | {
+      readonly mode: 'production';
+      readonly databaseConfig: ArtifactLiveDatabaseConfigV1;
+    };
+
+export function selectArtifactLiveDatabaseBoundaryV1(
+  input: ArtifactLiveDatabaseBoundaryInputV1,
+): ArtifactLiveDatabaseBoundaryV1 {
+  const nonProductionConfigured =
+    input.nonProductionAcknowledgement !== undefined ||
+    input.nonProductionScope !== undefined ||
+    input.nonProductionPersistentAcknowledgement !== undefined ||
+    hasConfiguredDatabaseField(input.nonProductionDatabaseConfig);
+  const productionConfigured =
+    input.productionAcknowledgement !== undefined ||
+    input.productionDatabaseUrl !== undefined;
+  if (nonProductionConfigured && productionConfigured) {
+    throw new Error(
+      'GITBLOCKS_ARTIFACT_ACKNOWLEDGEMENT, GITBLOCKS_ARTIFACT_DB_SCOPE, GITBLOCKS_ARTIFACT_PERSISTENT_ACK, and GITBLOCKS_ARTIFACT_DB_* are mutually exclusive with DATABASE_URL and GITBLOCKS_ARTIFACT_PRODUCTION_ACK.',
+    );
+  }
+  if (productionConfigured) {
+    if (
+      input.productionAcknowledgement !==
+      ARTIFACT_LIVE_PRODUCTION_ACKNOWLEDGEMENT_V1
+    ) {
+      throw new Error(
+        'GITBLOCKS_ARTIFACT_PRODUCTION_ACK must equal approved-managed-production-public-artifact-collection.',
+      );
+    }
+    return Object.freeze({
+      mode: 'production',
+      databaseConfig: parseLiveProductionDatabaseUrlV1(
+        input.productionDatabaseUrl,
+      ),
+    });
+  }
+
+  if (
+    input.nonProductionAcknowledgement !==
+    ARTIFACT_LIVE_GLOBAL_ACKNOWLEDGEMENT_V1
+  ) {
+    throw new Error(
+      'The exact non-production artifact acknowledgement is required.',
+    );
+  }
+  const selected = validateArtifactLiveDatabaseScopeV1({
+    scope: input.nonProductionScope,
+    persistentAcknowledgement: input.nonProductionPersistentAcknowledgement,
+    databaseConfig: input.nonProductionDatabaseConfig,
+  });
+  return Object.freeze({
+    mode: 'non-production',
+    scope: selected.scope,
+    databaseConfig: selected.databaseConfig,
+  });
 }
 
 export function assertArtifactLiveDatabaseScopeAuthorityV1(
@@ -128,4 +201,10 @@ function requiredDatabaseText(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function hasConfiguredDatabaseField(value: unknown): boolean {
+  return (
+    isRecord(value) && Object.values(value).some((field) => field !== undefined)
+  );
 }
