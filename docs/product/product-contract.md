@@ -98,9 +98,9 @@ capability request
   -> eligible-first, evidence-needed-fill finalist set (maximum five)
   -> bounded candidate evidence load
   -> exact-commit artifact load and deterministic request-scoped excerpts for evidence-needed finalists
-  -> one LLM hard-resolution and target-fit assessment
-  -> RecommendationAssessmentResponseV1
-  -> deterministic exact-coverage, source-binding, hard-constraint, evidence, and target-fit validation
+  -> one LLM keyed hard-resolution and target-fit judgment
+  -> deterministic RecommendationAssessmentResponseV1 assembly
+  -> deterministic exact-coverage, endorsement, source-binding, hard-constraint, evidence, and target-fit validation
   -> up to three responsible options
 ```
 
@@ -121,6 +121,21 @@ conflicting. Framework/runtime context remains unverified rather than being
 relabeled as deterministically satisfied. A partially verified option is
 distinguished from a fully verified option, and an unverified prohibited
 constraint carries its own option-level discriminator.
+
+The model authors judgment, reason statements, explicit supplied-catalog
+selections, nested claims and inferences, hard-evaluation states and grounding,
+positive ordering, and processing coverage in a request-scoped keyed shape.
+Candidate and evaluation slots are closed required properties. The server
+authors no assessment substance: it mints identifiers and flattens only nested
+model-authored content, projects exact source constraints for grounded
+conflicts, derives effective dispositions and outcome, filters grounded
+conflicts from the model's order, and caps the remaining authored prefix. It
+never appends an omitted positive candidate. Hydrating the complete supplied
+evidence, limitation, and candidate-unknown catalogs does not attach an entry
+to an assessment; assessment references are unions only of explicit selections
+and nested authored content. Direct evidence without a favorable authored
+claim and a candidate-evidence-grounded target-fit inference is never positive
+support.
 
 A user request runs only the hosted request path and may read PostgreSQL
 directly where the use case requires it or use a process-local immutable search

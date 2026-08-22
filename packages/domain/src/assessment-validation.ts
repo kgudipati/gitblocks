@@ -408,21 +408,10 @@ function validateCandidateReason(
 function validateCatalogCoverage(
   issues: DomainIssue[],
   assessmentByCandidate: ReadonlyMap<CandidateId, CandidateAssessment>,
-  limitations: readonly CandidateLimitation[],
   inferences: readonly Inference[],
-  unknowns: readonly MaterialUnknown[],
   claims: readonly MaterialClaim[],
   conflicts: readonly HardConstraintConflict[],
 ): void {
-  for (const limitation of limitations) {
-    if (
-      !assessmentByCandidate
-        .get(limitation.candidateId)
-        ?.limitationIds.includes(limitation.limitationId)
-    ) {
-      addIssue(issues, 'reference.catalog-coverage', 'candidateLimitations');
-    }
-  }
   for (const inference of inferences) {
     if (
       !assessmentByCandidate
@@ -430,16 +419,6 @@ function validateCatalogCoverage(
         ?.inferenceIds.includes(inference.inferenceId)
     ) {
       addIssue(issues, 'reference.catalog-coverage', 'inferences');
-    }
-  }
-  for (const unknown of unknowns) {
-    if (
-      unknown.scope === 'candidate' &&
-      !assessmentByCandidate
-        .get(unknown.candidateId)
-        ?.unknownIds.includes(unknown.unknownId)
-    ) {
-      addIssue(issues, 'reference.catalog-coverage', 'unknowns');
     }
   }
   for (const claim of claims) {
@@ -756,6 +735,9 @@ function validateFitAssessmentResultWithCatalogs(
     result.claims.map((claim) => claim.claimId),
     'claims',
   );
+  const consideredUnknownIds = new Set(
+    result.assessments.flatMap((assessment) => assessment.unknownIds),
+  );
   const claimsById = new Map<MaterialClaimId, MaterialClaim>();
   for (const [index, claim] of result.claims.entries()) {
     const path = `claims[${String(index)}]`;
@@ -791,6 +773,7 @@ function validateFitAssessmentResultWithCatalogs(
       claim.direction === 'favorable' &&
       [...unknownsById.values()].some(
         (unknown) =>
+          consideredUnknownIds.has(unknown.unknownId) &&
           unknown.topic === claim.topic &&
           (unknown.scope === 'assessment' ||
             unknown.candidateId === claim.candidateId),
@@ -948,9 +931,7 @@ function validateFitAssessmentResultWithCatalogs(
     validateCatalogCoverage(
       issues,
       assessmentByCandidate,
-      [...limitationsById.values()],
       result.inferences,
-      [...unknownsById.values()],
       result.claims,
       result.hardConstraintConflicts,
     );

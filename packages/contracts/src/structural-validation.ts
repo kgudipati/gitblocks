@@ -569,6 +569,37 @@ export function structurallyValidate<T>(
   }
 }
 
+export function structurallyValidateDynamic<T>(
+  value: unknown,
+  schema: AnySchema,
+): StructuralValidationResult<T> {
+  const preflightIssues = preflightContractValue(value);
+  if (preflightIssues.length > 0) {
+    return { ok: false, issues: preflightIssues };
+  }
+  try {
+    const validator = ajv.compile<T>(schema);
+    if (validator(value)) {
+      return { ok: true, value: value as T, issues: [] };
+    }
+    return {
+      ok: false,
+      issues: formatAjvErrors(validator.errors),
+    };
+  } catch {
+    return {
+      ok: false,
+      issues: [
+        contractIssue(
+          'contract.input-shape',
+          '',
+          'Contract input has an unsupported object shape.',
+        ),
+      ],
+    };
+  }
+}
+
 export function structurallyValidateRepositoryArtifact<T>(
   value: unknown,
   getValidator: LazyStructuralValidator<T>,

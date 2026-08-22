@@ -227,8 +227,20 @@ describe('evidence, inference, claims, and unknowns', () => {
     );
   });
 
+  it('does not treat an unreferenced hydrated unknown as considered support or opposition', () => {
+    const result = createFitAssessmentResult();
+    result.unknowns.push(
+      createUnknown('alpha', 'alpha-unselected-license-unknown', 'license'),
+    );
+
+    expect(validateFitAssessmentResult(result).ok).toBe(true);
+  });
+
   it('does not turn an assessment-scoped unknown into a favorable claim', () => {
     const result = createFitAssessmentResult();
+    result.assessments[0]!.unknownIds = [
+      stableId<'unknown'>('assessment-license-unknown'),
+    ];
     result.unknowns.push({
       kind: 'material-unknown',
       scope: 'assessment',
@@ -243,13 +255,11 @@ describe('evidence, inference, claims, and unknowns', () => {
     );
   });
 
-  it('requires every owned inference, claim, unknown, and conflict to be exposed by its assessment', () => {
+  it('does not treat an unreferenced hydrated candidate unknown as considered by its assessment', () => {
     const result = createFitAssessmentResult();
     result.assessments[1]!.unknownIds = [];
 
-    expect(codes(validateFitAssessmentResult(result))).toContain(
-      'reference.catalog-coverage',
-    );
+    expect(validateFitAssessmentResult(result).ok).toBe(true);
   });
 
   it('preserves an assessment-scoped unknown without assigning it to a candidate', () => {

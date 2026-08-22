@@ -24,6 +24,7 @@ import type {
   OssRecommendationRequest,
   OssRecommendationRequestV1,
   OssRecommendationRequestV2,
+  RecommendationAssessmentModelDecompositionV1,
   RecommendationAssessmentModelFitRequestV1,
   RecommendationAssessmentModelResponseV1,
   RecommendationAssessmentResponseV1,
@@ -51,6 +52,7 @@ import {
   recommendationAssessmentResponseV1Validator,
   responsibleOptionV1Validator,
   structurallyValidate,
+  structurallyValidateDynamic,
   targetFitAssessmentResponseV1Validator,
 } from './structural-validation.ts';
 
@@ -471,6 +473,209 @@ export function createRecommendationAssessmentModelFitRequestV1(
   return modelFitRequestProjection(parsed.value).request;
 }
 
+export function createRecommendationAssessmentModelDecompositionSchemaV1(input: {
+  readonly request: RecommendationAssessmentModelFitRequestV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+}): Readonly<Record<string, unknown>> {
+  const request = parseRecommendationAssessmentModelFitRequestV1(input.request);
+  if (
+    !request.ok ||
+    !validModelDecompositionContext(request.value, input.retrievalFinalists)
+  ) {
+    throw new TypeError('Model decomposition context is invalid.');
+  }
+
+  const repositoryFactIds = request.value.repositoryFingerprint.facts.map(
+    ({ factId }) => factId,
+  );
+  const candidateProperties: Record<string, unknown> = {};
+  const candidateSlots: string[] = [];
+  for (const [
+    candidateIndex,
+    candidate,
+  ] of request.value.candidates.entries()) {
+    const finalist = input.retrievalFinalists[candidateIndex];
+    if (finalist === undefined) {
+      throw new TypeError('Model decomposition context is invalid.');
+    }
+    const candidateSlot = `f${String(candidateIndex + 1)}`;
+    candidateSlots.push(candidateSlot);
+    const evidenceIds = candidate.observations.map(
+      ({ evidenceId }) => evidenceId,
+    );
+    const limitationIds = candidate.limitations.map(
+      ({ limitationId }) => limitationId,
+    );
+    const unknownIds = candidate.unknowns.map(({ unknownId }) => unknownId);
+    const inferenceSchema = modelInferenceSelectionSchema(
+      evidenceIds,
+      repositoryFactIds,
+    );
+    const hardEvaluationProperties: Record<string, unknown> = {};
+    for (const [
+      evaluationIndex,
+      evaluation,
+    ] of finalist.unresolvedHardEvaluations.entries()) {
+      const evaluationSlot = `h${String(evaluationIndex + 1)}`;
+      hardEvaluationProperties[evaluationSlot] = {
+        description: `Hard-evaluation slot for ${evaluation.evaluationId}.`,
+        anyOf: [
+          strictSchemaObject({
+            state: { type: 'string', enum: ['unresolved'] },
+            grounding: { type: 'null' },
+          }),
+          ...(['satisfied', 'conflict'] as const).map((state) =>
+            strictSchemaObject({
+              state: { type: 'string', enum: [state] },
+              grounding: strictSchemaObject({
+                reasonStatement: { type: 'string' },
+                inference: inferenceSchema,
+              }),
+            }),
+          ),
+        ],
+      };
+    }
+    const claimSchema = strictSchemaObject({
+      topic: { type: 'string' },
+      direction: {
+        type: 'string',
+        enum: ['favorable', 'neutral', 'unfavorable'],
+      },
+      statement: { type: 'string' },
+      evidenceIds: modelSelectionArraySchema(evidenceIds),
+      inferences: {
+        type: 'array',
+        items: inferenceSchema,
+        maxItems: 1,
+      },
+    });
+    const assessmentUnknownSchema = strictSchemaObject({
+      topic: { type: 'string' },
+      statement: { type: 'string' },
+      evidenceIds: modelSelectionArraySchema(evidenceIds),
+    });
+    const reasonSchema = strictSchemaObject({
+      statement: { type: 'string' },
+      evidenceIds: modelSelectionArraySchema(evidenceIds),
+      limitationIds: modelSelectionArraySchema(limitationIds),
+      candidateUnknownIds: modelSelectionArraySchema(unknownIds),
+      claims: { type: 'array', items: claimSchema, maxItems: 4 },
+      assessmentUnknowns: {
+        type: 'array',
+        items: assessmentUnknownSchema,
+        maxItems: 4,
+      },
+    });
+    candidateProperties[candidateSlot] = {
+      ...strictSchemaObject({
+        fitJudgment: {
+          type: 'string',
+          enum: ['insufficient-evidence', 'recommended', 'rejected', 'viable'],
+        },
+        reasons: {
+          type: 'array',
+          items: reasonSchema,
+          minItems: 1,
+          maxItems: 10,
+        },
+        hardEvaluations: strictSchemaObject(hardEvaluationProperties),
+      }),
+      description: `Candidate slot for supplied finalist ${candidate.identity.candidateId}.`,
+    };
+  }
+
+  return Object.freeze(
+    strictSchemaObject({
+      candidateAssessments: strictSchemaObject(candidateProperties),
+      orderedPositiveCandidateIds: {
+        type: 'array',
+        items: { type: 'string', enum: candidateSlots },
+        maxItems: candidateSlots.length,
+        description:
+          'List only candidate slots whose fitJudgment is recommended or viable, strongest target fit first, without duplicates. Include enough positive slots to fill requestedMaximumResults, or every positive slot when fewer exist. Positive slots beyond that cap may be omitted. The server does not append, promote, or reorder candidates.',
+      },
+      assessmentProcessing: {
+        anyOf: [
+          strictSchemaObject({
+            state: { type: 'string', enum: ['complete'] },
+            incompleteReasonCodes: {
+              type: 'array',
+              items: { type: 'string' },
+              maxItems: 0,
+            },
+          }),
+          strictSchemaObject({
+            state: { type: 'string', enum: ['partial-evidence'] },
+            incompleteReasonCodes: {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 1,
+              maxItems: 20,
+            },
+          }),
+        ],
+      },
+    }),
+  );
+}
+
+function validModelDecompositionContext(
+  request: RecommendationAssessmentModelFitRequestV1,
+  finalists: readonly RecommendationRetrievalFinalistV1[],
+): boolean {
+  return (
+    finalists.length === request.candidates.length &&
+    finalists.length >= 1 &&
+    finalists.length <= 5 &&
+    finalists.every(
+      (finalist, index) =>
+        finalist.candidateId ===
+        request.candidates[index]?.identity.candidateId,
+    )
+  );
+}
+
+function strictSchemaObject(
+  properties: Readonly<Record<string, unknown>>,
+): Record<string, unknown> {
+  return {
+    type: 'object',
+    properties,
+    required: Object.keys(properties),
+    additionalProperties: false,
+  };
+}
+
+function modelSelectionArraySchema(
+  values: readonly string[],
+): Record<string, unknown> {
+  return {
+    type: 'array',
+    items:
+      values.length === 0
+        ? { type: 'string' }
+        : { type: 'string', enum: [...values] },
+    maxItems: values.length,
+  };
+}
+
+function modelInferenceSelectionSchema(
+  evidenceIds: readonly string[],
+  repositoryFactIds: readonly string[],
+): Record<string, unknown> {
+  return strictSchemaObject({
+    topic: { type: 'string' },
+    statement: { type: 'string' },
+    rationale: { type: 'string' },
+    evidenceIds: {
+      ...modelSelectionArraySchema(evidenceIds),
+      minItems: 1,
+    },
+    repositoryFactIds: modelSelectionArraySchema(repositoryFactIds),
+  });
+}
+
 export function validateTargetFitAssessmentExchangeV1(
   request: FitAssessmentRequestV1,
   response: unknown,
@@ -595,6 +800,740 @@ export function validateRecommendationModelAssessmentExchangeV1(input: {
       producedAt: input.producedAt,
     }),
   });
+}
+
+export function validateRecommendationModelDecompositionExchangeV1(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly response: unknown;
+  readonly assessmentId: string;
+  readonly producedAt: string;
+}): RecommendationAssessmentExchangeValidationResult {
+  const parsedRequest = parseFitAssessmentRequestV1(input.request);
+  const normalization = parseCapabilityQueryNormalizationResultV1(
+    input.normalization,
+  );
+  if (!parsedRequest.ok) return parsedRequest;
+  if (!normalization.ok) return normalization;
+
+  const projected = modelFitRequestProjection(parsedRequest.value);
+  let schema: Readonly<Record<string, unknown>>;
+  try {
+    schema = createRecommendationAssessmentModelDecompositionSchemaV1({
+      request: projected.request,
+      retrievalFinalists: input.retrievalFinalists,
+    });
+  } catch {
+    return {
+      ok: false,
+      issues: finalizeContractIssues([
+        domainIssue(
+          'model-decomposition.context-binding',
+          '/retrievalFinalists',
+        ),
+      ]),
+    };
+  }
+  const parsedResponse =
+    structurallyValidateDynamic<RecommendationAssessmentModelDecompositionV1>(
+      input.response,
+      schema,
+    );
+  if (!parsedResponse.ok) return parsedResponse;
+
+  const contextIssues = recommendationFinalistIssues(
+    parsedRequest.value,
+    normalization.value,
+    input.retrievalFinalists,
+  );
+  if (contextIssues.length > 0) {
+    return { ok: false, issues: finalizeContractIssues(contextIssues) };
+  }
+  const assembled = assembleRecommendationModelDecompositionV1({
+    request: parsedRequest.value,
+    normalization: normalization.value,
+    retrievalFinalists: input.retrievalFinalists,
+    response: parsedResponse.value,
+    projection: projected,
+    assessmentId: input.assessmentId,
+    producedAt: input.producedAt,
+  });
+  if (!assembled.ok) return assembled;
+
+  const endorsementIssues = modelDecompositionEndorsementIssues(
+    parsedResponse.value,
+    assembled.value,
+    assembled.endorsements,
+  );
+  if (endorsementIssues.length > 0) {
+    return { ok: false, issues: finalizeContractIssues(endorsementIssues) };
+  }
+  const validated = validateRecommendationAssessmentExchangeV1({
+    request: parsedRequest.value,
+    normalization: normalization.value,
+    retrievalFinalists: input.retrievalFinalists,
+    response: assembled.value,
+  });
+  if (!validated.ok) return validated;
+  return validated;
+}
+
+interface ModelCandidateEndorsementsV1 {
+  readonly candidateId: string;
+  readonly rawPositive: boolean;
+  readonly explicitlyOrdered: boolean;
+  readonly favorableTargetSupport: boolean;
+  readonly evidenceIds: ReadonlySet<string>;
+  readonly inferenceIds: ReadonlySet<string>;
+  readonly claimIds: ReadonlySet<string>;
+  readonly unknownIds: ReadonlySet<string>;
+  readonly limitationIds: ReadonlySet<string>;
+  readonly conflictIds: ReadonlySet<string>;
+  readonly repositoryFactsByInference: ReadonlyMap<string, ReadonlySet<string>>;
+}
+
+type ModelDecompositionAssemblyResultV1 =
+  | {
+      readonly ok: true;
+      readonly value: RecommendationAssessmentResponseV1;
+      readonly endorsements: ReadonlyMap<string, ModelCandidateEndorsementsV1>;
+      readonly issues: readonly [];
+    }
+  | {
+      readonly ok: false;
+      readonly issues: readonly ContractIssue[];
+    };
+
+function assembleRecommendationModelDecompositionV1(input: {
+  readonly request: FitAssessmentRequestV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly response: RecommendationAssessmentModelDecompositionV1;
+  readonly projection: ModelFitRequestProjectionV1;
+  readonly assessmentId: string;
+  readonly producedAt: string;
+}): ModelDecompositionAssemblyResultV1 {
+  const issues: ContractIssue[] = [];
+  const orderedSlots = input.response.orderedPositiveCandidateIds;
+  const orderedSlotSet = new Set(orderedSlots);
+  const candidateSlots = input.request.candidates.map(
+    (_candidate, index) => `f${String(index + 1)}`,
+  );
+  const positiveSlots = candidateSlots.filter((slot) => {
+    const judgment = input.response.candidateAssessments[slot]?.fitJudgment;
+    return judgment === 'recommended' || judgment === 'viable';
+  });
+  const positiveSlotSet = new Set(positiveSlots);
+  const requiredOrderedSlotCount = Math.min(
+    positiveSlots.length,
+    input.request.requestedMaximumResults,
+  );
+  const positiveOrderCoverageComplete =
+    orderedSlots.length >= requiredOrderedSlotCount;
+  if (
+    orderedSlotSet.size !== orderedSlots.length ||
+    orderedSlots.some((slot) => !positiveSlotSet.has(slot)) ||
+    !positiveOrderCoverageComplete
+  ) {
+    issues.push(
+      domainIssue(
+        'model-decomposition.positive-order',
+        '/orderedPositiveCandidateIds',
+      ),
+    );
+  }
+
+  const flatInferences: RecommendationAssessmentResponseV1['targetFitAssessment']['fitAssessment']['inferences'][number][] =
+    [];
+  const flatClaims: RecommendationAssessmentResponseV1['targetFitAssessment']['fitAssessment']['materialClaims'][number][] =
+    [];
+  const flatAssessmentUnknowns: RecommendationAssessmentResponseV1['targetFitAssessment']['fitAssessment']['materialUnknowns'][number][] =
+    [];
+  const flatConflicts: RecommendationAssessmentResponseV1['targetFitAssessment']['fitAssessment']['hardConstraintConflicts'][number][] =
+    [];
+  const bindings: RecommendationAssessmentResponseV1['targetFitAssessment']['inferenceRepositoryFactBindings'][number][] =
+    [];
+  const resolutions: RecommendationAssessmentResponseV1['evidenceNeededHardConstraintResolutions'][number][] =
+    [];
+  const assessments: RecommendationAssessmentResponseV1['targetFitAssessment']['fitAssessment']['candidateAssessments'][number][] =
+    [];
+  const endorsements = new Map<string, ModelCandidateEndorsementsV1>();
+  const effectiveDispositionBySlot = new Map<
+    string,
+    RecommendationAssessmentResponseV1['targetFitAssessment']['fitAssessment']['candidateAssessments'][number]['disposition']
+  >();
+
+  for (const [candidateIndex, dossier] of input.request.candidates.entries()) {
+    const finalist = input.retrievalFinalists[candidateIndex];
+    const candidateSlot = candidateSlots[candidateIndex];
+    const authored =
+      candidateSlot === undefined
+        ? undefined
+        : input.response.candidateAssessments[candidateSlot];
+    if (
+      finalist === undefined ||
+      candidateSlot === undefined ||
+      authored === undefined
+    ) {
+      issues.push(
+        domainIssue(
+          'model-decomposition.context-binding',
+          '/candidateAssessments',
+        ),
+      );
+      continue;
+    }
+    const candidateId = dossier.identity.candidateId;
+    const selectedEvidence = new Set<string>();
+    const selectedInferences = new Set<string>();
+    const selectedClaims = new Set<string>();
+    const selectedUnknowns = new Set<string>();
+    const selectedLimitations = new Set<string>();
+    const selectedConflicts = new Set<string>();
+    const repositoryFactsByInference = new Map<string, ReadonlySet<string>>();
+    const reasons: RecommendationAssessmentResponseV1['targetFitAssessment']['fitAssessment']['candidateAssessments'][number]['reasons'][number][] =
+      [];
+    let favorableTargetSupport = false;
+
+    const expandEvidence = (token: string, path: string): string => {
+      const id = expandSuppliedSurrogate(
+        input.projection.evidenceTokenToId,
+        token,
+        path,
+        issues,
+      );
+      selectedEvidence.add(id);
+      return id;
+    };
+    const expandLimitation = (token: string, path: string): string => {
+      const id = expandSuppliedSurrogate(
+        input.projection.limitationTokenToId,
+        token,
+        path,
+        issues,
+      );
+      selectedLimitations.add(id);
+      const limitation = dossier.limitations.find(
+        ({ limitationId }) => limitationId === id,
+      );
+      limitation?.evidenceIds.forEach((evidenceId) =>
+        selectedEvidence.add(evidenceId),
+      );
+      return id;
+    };
+    const expandCandidateUnknown = (token: string, path: string): string => {
+      const id = expandSuppliedSurrogate(
+        input.projection.unknownTokenToId,
+        token,
+        path,
+        issues,
+      );
+      selectedUnknowns.add(id);
+      const unknown = dossier.unknowns.find(
+        ({ unknownId }) => unknownId === id,
+      );
+      unknown?.evidenceIds.forEach((evidenceId) =>
+        selectedEvidence.add(evidenceId),
+      );
+      return id;
+    };
+    const flattenInference = (
+      inference: RecommendationAssessmentModelDecompositionV1['candidateAssessments'][string]['reasons'][number]['claims'][number]['inferences'][number],
+      token: string,
+      path: string,
+    ): string => {
+      const inferenceId = mintModelRecordId(
+        input.assessmentId,
+        'inference',
+        token,
+      );
+      const evidenceIds = inference.evidenceIds.map((evidenceToken, index) =>
+        expandEvidence(evidenceToken, `${path}/evidenceIds/${String(index)}`),
+      );
+      flatInferences.push({
+        kind: 'inference',
+        inferenceId,
+        candidateId,
+        topic: inference.topic,
+        statement: inference.statement,
+        rationale: inference.rationale,
+        evidenceIds,
+      });
+      selectedInferences.add(inferenceId);
+      repositoryFactsByInference.set(
+        inferenceId,
+        new Set(inference.repositoryFactIds),
+      );
+      if (inference.repositoryFactIds.length > 0) {
+        bindings.push({
+          inferenceId,
+          repositoryFactIds: [...inference.repositoryFactIds],
+        });
+      }
+      return inferenceId;
+    };
+
+    for (const [reasonIndex, reason] of authored.reasons.entries()) {
+      const reasonPath = `/candidateAssessments/${candidateSlot}/reasons/${String(reasonIndex)}`;
+      const reasonEvidence = new Set(
+        reason.evidenceIds.map((token, index) =>
+          expandEvidence(token, `${reasonPath}/evidenceIds/${String(index)}`),
+        ),
+      );
+      const reasonInferences = new Set<string>();
+      const reasonUnknowns = new Set(
+        reason.candidateUnknownIds.map((token, index) =>
+          expandCandidateUnknown(
+            token,
+            `${reasonPath}/candidateUnknownIds/${String(index)}`,
+          ),
+        ),
+      );
+      const reasonLimitations = reason.limitationIds.map((token, index) =>
+        expandLimitation(token, `${reasonPath}/limitationIds/${String(index)}`),
+      );
+      for (const limitationId of reasonLimitations) {
+        dossier.limitations
+          .find((limitation) => limitation.limitationId === limitationId)
+          ?.evidenceIds.forEach((evidenceId) => reasonEvidence.add(evidenceId));
+      }
+      for (const unknownId of reasonUnknowns) {
+        dossier.unknowns
+          .find((unknown) => unknown.unknownId === unknownId)
+          ?.evidenceIds.forEach((evidenceId) => reasonEvidence.add(evidenceId));
+      }
+
+      for (const [
+        unknownIndex,
+        unknown,
+      ] of reason.assessmentUnknowns.entries()) {
+        const unknownPath = `${reasonPath}/assessmentUnknowns/${String(unknownIndex)}`;
+        const unknownId = mintModelRecordId(
+          input.assessmentId,
+          'assessment-unknown',
+          `${candidateSlot}-r${String(reasonIndex + 1)}-u${String(unknownIndex + 1)}`,
+        );
+        const evidenceIds = unknown.evidenceIds.map((token, index) =>
+          expandEvidence(token, `${unknownPath}/evidenceIds/${String(index)}`),
+        );
+        flatAssessmentUnknowns.push({
+          scope: 'candidate',
+          unknownId,
+          candidateId,
+          topic: unknown.topic,
+          statement: unknown.statement,
+          evidenceIds,
+        });
+        selectedUnknowns.add(unknownId);
+        reasonUnknowns.add(unknownId);
+        evidenceIds.forEach((evidenceId) => reasonEvidence.add(evidenceId));
+      }
+
+      for (const [claimIndex, claim] of reason.claims.entries()) {
+        const claimPath = `${reasonPath}/claims/${String(claimIndex)}`;
+        const inferenceIds = claim.inferences.map((inference, inferenceIndex) =>
+          flattenInference(
+            inference,
+            `${candidateSlot}-r${String(reasonIndex + 1)}-c${String(claimIndex + 1)}-i${String(inferenceIndex + 1)}`,
+            `${claimPath}/inferences/${String(inferenceIndex)}`,
+          ),
+        );
+        const evidenceIds = claim.evidenceIds.map((token, index) =>
+          expandEvidence(token, `${claimPath}/evidenceIds/${String(index)}`),
+        );
+        const claimId = mintModelRecordId(
+          input.assessmentId,
+          'claim',
+          `${candidateSlot}-r${String(reasonIndex + 1)}-c${String(claimIndex + 1)}`,
+        );
+        flatClaims.push({
+          claimId,
+          candidateId,
+          topic: claim.topic,
+          direction: claim.direction,
+          statement: claim.statement,
+          evidenceIds,
+          inferenceIds,
+        });
+        selectedClaims.add(claimId);
+        evidenceIds.forEach((evidenceId) => reasonEvidence.add(evidenceId));
+        inferenceIds.forEach((inferenceId) => {
+          reasonInferences.add(inferenceId);
+          const inference = flatInferences.find(
+            (value) => value.inferenceId === inferenceId,
+          );
+          inference?.evidenceIds.forEach((evidenceId) =>
+            reasonEvidence.add(evidenceId),
+          );
+        });
+        if (
+          claim.direction === 'favorable' &&
+          inferenceIds.some(
+            (inferenceId) =>
+              (repositoryFactsByInference.get(inferenceId)?.size ?? 0) > 0,
+          )
+        ) {
+          favorableTargetSupport = true;
+        }
+      }
+
+      reasons.push({
+        candidateId,
+        reasonCode: mintModelReasonCode(
+          input.assessmentId,
+          candidateSlot,
+          reasonIndex,
+        ),
+        statement: reason.statement,
+        evidenceIds: [...reasonEvidence],
+        inferenceIds: [...reasonInferences],
+        unknownIds: [...reasonUnknowns],
+      });
+    }
+
+    const conflictReasonByCode = new Map<
+      string,
+      {
+        statements: string[];
+        evidenceIds: Set<string>;
+        inferenceIds: Set<string>;
+      }
+    >();
+    let groundedConflict = false;
+    for (const [
+      evaluationIndex,
+      evaluation,
+    ] of finalist.unresolvedHardEvaluations.entries()) {
+      const evaluationSlot = `h${String(evaluationIndex + 1)}`;
+      const evaluationPath = `/candidateAssessments/${candidateSlot}/hardEvaluations/${evaluationSlot}`;
+      const selected = authored.hardEvaluations[evaluationSlot];
+      if (selected === undefined) {
+        issues.push(
+          domainIssue('model-decomposition.hard-evaluation', evaluationPath),
+        );
+        continue;
+      }
+      if (selected.grounding === null) {
+        resolutions.push({
+          candidateId,
+          evaluationId: evaluation.evaluationId,
+          state: selected.state,
+          inferenceIds: [],
+        });
+        continue;
+      }
+      const inferenceId = flattenInference(
+        selected.grounding.inference,
+        `${candidateSlot}-${evaluationSlot}-grounding`,
+        `${evaluationPath}/grounding/inference`,
+      );
+      resolutions.push({
+        candidateId,
+        evaluationId: evaluation.evaluationId,
+        state: selected.state,
+        inferenceIds: [inferenceId],
+      });
+      const inference = flatInferences.find(
+        (value) => value.inferenceId === inferenceId,
+      );
+      const groundingEvidence = inference?.evidenceIds ?? [];
+      groundingEvidence.forEach((evidenceId) =>
+        selectedEvidence.add(evidenceId),
+      );
+      if (selected.state !== 'conflict') continue;
+      groundedConflict = true;
+      const sourceConstraintIds = resolutionSourceConstraintIds(
+        input.request,
+        input.normalization,
+        evaluation,
+        evaluationPath,
+        issues,
+      );
+      for (const constraintId of sourceConstraintIds) {
+        const sourceConstraint =
+          input.request.capabilityRequest.hardConstraints.find(
+            (constraint) => constraint.constraintId === constraintId,
+          );
+        if (sourceConstraint === undefined) {
+          issues.push(
+            domainIssue('model-decomposition.conflict-source', evaluationPath),
+          );
+          continue;
+        }
+        const conflictId = mintModelRecordId(
+          input.assessmentId,
+          'conflict',
+          `${candidateSlot}-${evaluationSlot}-${constraintId}`,
+        );
+        flatConflicts.push({
+          conflictId,
+          candidateId,
+          constraintId,
+          reasonCode: sourceConstraint.reasonCode,
+          evidenceIds: [...groundingEvidence],
+        });
+        selectedConflicts.add(conflictId);
+        const conflictReason = conflictReasonByCode.get(
+          sourceConstraint.reasonCode,
+        ) ?? {
+          statements: [],
+          evidenceIds: new Set<string>(),
+          inferenceIds: new Set<string>(),
+        };
+        conflictReason.statements.push(selected.grounding.reasonStatement);
+        groundingEvidence.forEach((evidenceId) =>
+          conflictReason.evidenceIds.add(evidenceId),
+        );
+        conflictReason.inferenceIds.add(inferenceId);
+        conflictReasonByCode.set(sourceConstraint.reasonCode, conflictReason);
+      }
+    }
+    for (const [reasonCode, conflictReason] of conflictReasonByCode) {
+      reasons.push({
+        candidateId,
+        reasonCode,
+        statement: [...new Set(conflictReason.statements)].join('\n'),
+        evidenceIds: [...conflictReason.evidenceIds],
+        inferenceIds: [...conflictReason.inferenceIds],
+        unknownIds: [],
+      });
+    }
+
+    const effectiveDisposition = groundedConflict
+      ? ('rejected' as const)
+      : authored.fitJudgment;
+    effectiveDispositionBySlot.set(candidateSlot, effectiveDisposition);
+    assessments.push({
+      candidateId,
+      disposition: effectiveDisposition,
+      reasons,
+      evidenceIds: [...selectedEvidence],
+      inferenceIds: [...selectedInferences],
+      claimIds: [...selectedClaims],
+      unknownIds: [...selectedUnknowns],
+      hardConstraintConflictIds: [...selectedConflicts],
+      limitationIds: [...selectedLimitations],
+    });
+    endorsements.set(candidateId, {
+      candidateId,
+      rawPositive:
+        authored.fitJudgment === 'recommended' ||
+        authored.fitJudgment === 'viable',
+      explicitlyOrdered:
+        orderedSlotSet.has(candidateSlot) || positiveOrderCoverageComplete,
+      favorableTargetSupport,
+      evidenceIds: selectedEvidence,
+      inferenceIds: selectedInferences,
+      claimIds: selectedClaims,
+      unknownIds: selectedUnknowns,
+      limitationIds: selectedLimitations,
+      conflictIds: selectedConflicts,
+      repositoryFactsByInference,
+    });
+  }
+
+  const finalizedIssues = finalizeContractIssues(issues);
+  if (finalizedIssues.length > 0) {
+    return { ok: false, issues: finalizedIssues };
+  }
+  const rankedCandidateIds = orderedSlots
+    .filter((slot) => {
+      const disposition = effectiveDispositionBySlot.get(slot);
+      return disposition === 'recommended' || disposition === 'viable';
+    })
+    .slice(0, input.request.requestedMaximumResults)
+    .map((slot) => {
+      const slotIndex = Number(slot.slice(1)) - 1;
+      const candidateId =
+        input.request.candidates[slotIndex]?.identity.candidateId;
+      if (candidateId === undefined) {
+        throw new TypeError('Model decomposition ranking is invalid.');
+      }
+      return candidateId;
+    });
+  const positiveCount = assessments.filter(
+    ({ disposition }) =>
+      disposition === 'recommended' || disposition === 'viable',
+  ).length;
+  const rejectedCount = assessments.filter(
+    ({ disposition }) => disposition === 'rejected',
+  ).length;
+  const outcome =
+    positiveCount > 0
+      ? ('recommend' as const)
+      : rejectedCount === assessments.length
+        ? ('no-viable-candidate' as const)
+        : ('insufficient-evidence' as const);
+  const responseWithoutOptions = {
+    contractVersion: '1.0.0',
+    targetFitAssessment: {
+      contractVersion: '1.0.0',
+      fitAssessment: {
+        contractVersion: '1.0.0',
+        assessmentId: input.assessmentId,
+        assessmentRequestId: input.request.assessmentRequestId,
+        correlationId: input.request.correlationId,
+        outcome,
+        suppliedCandidateIds: input.request.candidates.map(
+          ({ identity }) => identity.candidateId,
+        ),
+        candidateAssessments: assessments,
+        evidence: input.request.candidates.flatMap(({ observations }) =>
+          observations.map((observation) =>
+            cloneJsonContractValue(observation),
+          ),
+        ),
+        inferences: flatInferences,
+        candidateLimitations: input.request.candidates.flatMap(
+          ({ limitations }) =>
+            limitations.map((limitation) => cloneJsonContractValue(limitation)),
+        ),
+        materialClaims: flatClaims,
+        materialUnknowns: [
+          ...input.request.candidates.flatMap(({ unknowns }) =>
+            unknowns.map((unknown) => cloneJsonContractValue(unknown)),
+          ),
+          ...flatAssessmentUnknowns,
+        ],
+        hardConstraintConflicts: flatConflicts,
+        rankGroups: rankedCandidateIds.map((candidateId) => ({
+          candidateIds: [candidateId],
+        })),
+        rankRelations: [],
+        incomparablePairs: [],
+        evidenceCutoff: input.request.evidenceCutoff,
+        producedAt: input.producedAt,
+        assessmentProcessing:
+          input.response.assessmentProcessing.state === 'complete'
+            ? {
+                state: 'complete' as const,
+                incompleteReasonCodes: [
+                  ...input.response.assessmentProcessing.incompleteReasonCodes,
+                ],
+              }
+            : {
+                state: 'partial-evidence' as const,
+                incompleteReasonCodes: [
+                  ...input.response.assessmentProcessing.incompleteReasonCodes,
+                ],
+              },
+      },
+      inferenceRepositoryFactBindings: bindings,
+    },
+    evidenceNeededHardConstraintResolutions: resolutions,
+  } satisfies Omit<RecommendationAssessmentResponseV1, 'responsibleOptions'>;
+  const response: RecommendationAssessmentResponseV1 = {
+    ...responseWithoutOptions,
+    responsibleOptions: responsibleOptionProjection({
+      request: input.request,
+      normalization: input.normalization,
+      retrievalFinalists: input.retrievalFinalists,
+      response: responseWithoutOptions,
+    }).options,
+  };
+  return { ok: true, value: response, endorsements, issues: [] };
+}
+
+function modelDecompositionEndorsementIssues(
+  authored: RecommendationAssessmentModelDecompositionV1,
+  assembled: RecommendationAssessmentResponseV1,
+  endorsements: ReadonlyMap<string, ModelCandidateEndorsementsV1>,
+): readonly ContractIssue[] {
+  const issues: ContractIssue[] = [];
+  const bindingByInference = new Map(
+    assembled.targetFitAssessment.inferenceRepositoryFactBindings.map(
+      ({ inferenceId, repositoryFactIds }) => [
+        inferenceId,
+        new Set(repositoryFactIds),
+      ],
+    ),
+  );
+  for (const [
+    index,
+    assessment,
+  ] of assembled.targetFitAssessment.fitAssessment.candidateAssessments.entries()) {
+    const path = `/targetFitAssessment/fitAssessment/candidateAssessments/${String(index)}`;
+    const endorsement = endorsements.get(assessment.candidateId);
+    if (
+      endorsement === undefined ||
+      !sameStringSet(assessment.evidenceIds, endorsement.evidenceIds) ||
+      !sameStringSet(assessment.inferenceIds, endorsement.inferenceIds) ||
+      !sameStringSet(assessment.claimIds, endorsement.claimIds) ||
+      !sameStringSet(assessment.unknownIds, endorsement.unknownIds) ||
+      !sameStringSet(assessment.limitationIds, endorsement.limitationIds) ||
+      !sameStringSet(
+        assessment.hardConstraintConflictIds,
+        endorsement.conflictIds,
+      )
+    ) {
+      issues.push(
+        domainIssue('model-decomposition.reference-projection', path),
+      );
+      continue;
+    }
+    for (const [
+      inferenceId,
+      repositoryFacts,
+    ] of endorsement.repositoryFactsByInference) {
+      const assembledFacts = bindingByInference.get(inferenceId) ?? new Set();
+      if (!sameStringSet(repositoryFacts, assembledFacts)) {
+        issues.push(
+          domainIssue('model-decomposition.repository-fact-projection', path),
+        );
+      }
+    }
+    const positive =
+      assessment.disposition === 'recommended' ||
+      assessment.disposition === 'viable';
+    if (
+      positive &&
+      (!endorsement.rawPositive ||
+        !endorsement.explicitlyOrdered ||
+        !endorsement.favorableTargetSupport)
+    ) {
+      issues.push(domainIssue('model-decomposition.positive-support', path));
+    }
+  }
+  if (Object.keys(authored.candidateAssessments).length !== endorsements.size) {
+    issues.push(
+      domainIssue(
+        'model-decomposition.candidate-coverage',
+        '/candidateAssessments',
+      ),
+    );
+  }
+  return issues;
+}
+
+function sameStringSet(
+  left: Iterable<string>,
+  right: Iterable<string>,
+): boolean {
+  const leftSet = left instanceof Set ? left : new Set(left);
+  const rightSet = right instanceof Set ? right : new Set(right);
+  return (
+    leftSet.size === rightSet.size &&
+    [...leftSet].every((value) => rightSet.has(value))
+  );
+}
+
+function mintModelReasonCode(
+  assessmentId: string,
+  candidateSlot: string,
+  reasonIndex: number,
+): string {
+  const digest = contractCanonicalDigest({
+    assessmentId,
+    candidateSlot,
+    reasonIndex,
+    kind: 'reason',
+  });
+  return `model-reason-${digest.slice(0, 51)}`;
+}
+
+function cloneJsonContractValue<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 interface ModelFitRequestProjectionV1 {
@@ -1037,9 +1976,6 @@ function constructModelRanking(
     }
   };
   fit.orderedViableCandidateIds.forEach(includeIfPositive);
-  request.candidates.forEach(({ identity }) => {
-    includeIfPositive(identity.candidateId);
-  });
   const boundedCandidateIds = orderedCandidateIds.slice(
     0,
     request.requestedMaximumResults,

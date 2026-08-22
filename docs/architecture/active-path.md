@@ -48,9 +48,16 @@ ingestion, evaluation tooling, and dormant subsystems are intentionally omitted.
   dossier.
 - `packages/contracts/src/parsers.ts` validates candidate dossiers, the assembled
   fit request, the nested fit response, and the fit assessment exchange.
-- `apps/gitblocks-hosted/src/openai-fit-model.ts` sends one bounded, tool-free,
-  non-stored Responses request and returns parsed but still untrusted structured
-  model output.
+- `apps/gitblocks-hosted/src/openai-fit-model.ts` generates one request-scoped
+  strict schema with required `f1..fN` finalist slots and candidate-specific
+  `h1..hM` hard-evaluation slots, sends one bounded, tool-free, non-stored
+  Responses request, and returns parsed but still untrusted model-authored
+  judgment and selections.
+- `packages/contracts/src/oss-recommendation-contracts.ts` deterministically
+  assembles identifiers, flat catalogs, exact source-bound conflicts,
+  dispositions, outcome, and bounded ranking only from those authored
+  selections; supplied catalogs are hydrated exactly without treating an
+  unselected entry as considered.
 - `packages/domain/src/assessment-validation.ts` enforces candidate-owned
   evidence, inference, limitation, unknown, hard-conflict, ranking, and
   responsible-outcome invariants used by final exchange validation.

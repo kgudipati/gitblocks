@@ -13,9 +13,9 @@ import {
   parseOssRecommendationRequestV1,
   parseRepositoryFingerprintV1,
   repositoryFingerprintDigestV1,
-  validateRecommendationModelAssessmentExchangeV1,
+  validateRecommendationModelDecompositionExchangeV1,
   type OssRecommendationRequestV1,
-  type RecommendationAssessmentModelResponseV1,
+  type RecommendationAssessmentModelDecompositionV1,
   type RepositoryFingerprintV1,
 } from '@gitblocks/contracts';
 import type {
@@ -389,7 +389,7 @@ describe('hosted recommendation PostgreSQL and official MCP exercise', () => {
     const model = vi.fn((input: FitAssessmentModelRequestV1) => {
       const response = controlledEvidenceNeededResponse(input);
       groundPositiveResolutionsInArtifact(response, input);
-      const validation = validateRecommendationModelAssessmentExchangeV1({
+      const validation = validateRecommendationModelDecompositionExchangeV1({
         request: input.fitAssessmentRequest,
         normalization: input.normalization,
         retrievalFinalists: input.retrievalFinalists,
@@ -589,13 +589,13 @@ function executeScanner(
 }
 
 function bindRepositoryFact(
-  response: RecommendationAssessmentModelResponseV1,
+  response: RecommendationAssessmentModelDecompositionV1,
   repositoryFactId: string,
 ): void {
-  const binding =
-    response.targetFitAssessment.inferenceRepositoryFactBindings[0];
-  if (binding !== undefined) {
-    binding.repositoryFactIds = [repositoryFactId];
+  const inference =
+    response.candidateAssessments['f1']?.reasons[0]?.claims[0]?.inferences[0];
+  if (inference !== undefined) {
+    inference.repositoryFactIds = [repositoryFactId];
   }
 }
 
@@ -781,11 +781,13 @@ async function seedBackgroundJobArtifactEvidence(
 
 function controlledEvidenceNeededResponse(
   input: FitAssessmentModelRequestV1,
-): RecommendationAssessmentModelResponseV1 {
+): RecommendationAssessmentModelDecompositionV1 {
   const response = structuredClone(groundedModelResponse(input));
-  const candidateId = input.retrievalFinalists[1]?.candidateId;
-  if (candidateId === undefined)
+  const candidateIndex = 1;
+  const candidateId = input.retrievalFinalists[candidateIndex]?.candidateId;
+  if (candidateId === undefined) {
     throw new Error('R8 conflict finalist is missing.');
+  }
   const dossier = input.fitAssessmentRequest.candidates.find(
     ({ identity }) => identity.candidateId === candidateId,
   );
@@ -795,75 +797,65 @@ function controlledEvidenceNeededResponse(
   const groundedEvidence =
     evidence.length > 0 ? evidence : (dossier?.observations.slice(0, 1) ?? []);
   const firstGroundedEvidence = groundedEvidence[0];
-  const assessment =
-    response.targetFitAssessment.fitAssessment.candidateAssessments.find(
-      (candidate) => candidate.candidateId === candidateId,
-    );
-  const resolutions = response.evidenceNeededHardConstraintResolutions.filter(
-    (resolution) => resolution.candidateId === candidateId,
-  );
+  const finalist = input.retrievalFinalists[candidateIndex];
+  const assessment = response.candidateAssessments['f2'];
   const reason = assessment?.reasons[0];
   if (
     firstGroundedEvidence === undefined ||
     assessment === undefined ||
     reason === undefined ||
-    resolutions.length === 0
+    finalist === undefined ||
+    finalist.unresolvedHardEvaluations.length === 0
   ) {
     throw new Error('R8 controlled conflict input is incomplete.');
   }
-  const inferenceId = `i${String(
-    response.targetFitAssessment.fitAssessment.inferences.length + 1,
-  )}`;
-  response.targetFitAssessment.fitAssessment.inferences.push({
-    kind: 'inference',
-    inferenceId,
-    candidateId,
-    topic: 'hard-constraint-resolution',
-    statement:
-      'The supplied candidate evidence establishes the hard-constraint state.',
-    rationale:
-      'The resolution uses only the supplied candidate-owned observation.',
-    evidenceIds: groundedEvidence.map(({ evidenceId }) => evidenceId),
-  });
-  assessment.disposition = 'rejected';
-  assessment.inferenceIds = [inferenceId];
-  reason.inferenceIds = [inferenceId];
-  for (const resolution of resolutions) {
-    resolution.state = 'satisfied';
-    resolution.inferenceIds = [inferenceId];
-  }
-  const conflictResolution = resolutions.find((resolution) => {
-    const normalized = input.normalization.normalizedConstraints.find(
-      ({ normalizedConstraintId }) =>
-        normalizedConstraintId === resolution.evaluationId,
-    );
-    return normalized?.sourceConstraintIds.includes('no-redis') === true;
-  });
-  if (conflictResolution === undefined) {
+  const conflictEvaluationIndex = finalist.unresolvedHardEvaluations.findIndex(
+    (evaluation) => {
+      const normalized = input.normalization.normalizedConstraints.find(
+        ({ normalizedConstraintId }) =>
+          normalizedConstraintId === evaluation.evaluationId,
+      );
+      return normalized?.sourceConstraintIds.includes('no-redis') === true;
+    },
+  );
+  if (conflictEvaluationIndex < 0) {
     throw new Error('R8 Redis conflict resolution is missing.');
   }
-  conflictResolution.state = 'conflict';
-  const conflictId = `x${String(
-    response.targetFitAssessment.fitAssessment.hardConstraintConflicts.length +
-      1,
-  )}`;
-  assessment.hardConstraintConflictIds = [conflictId];
-  reason.reasonCode = 'redis-unavailable';
-  response.targetFitAssessment.fitAssessment.hardConstraintConflicts.push({
-    conflictId,
-    candidateId,
-    constraintId: 'no-redis',
-    reasonCode: 'redis-unavailable',
-    evidenceIds: [
-      groundedEvidence.find(({ observation }) => /redis/iu.test(observation))
-        ?.evidenceId ?? firstGroundedEvidence.evidenceId,
-    ],
-  });
+  for (const [
+    evaluationIndex,
+    evaluation,
+  ] of finalist.unresolvedHardEvaluations.entries()) {
+    const evidenceId =
+      evaluationIndex === conflictEvaluationIndex
+        ? (groundedEvidence.find(({ observation }) =>
+            /redis/iu.test(observation),
+          )?.evidenceId ?? firstGroundedEvidence.evidenceId)
+        : firstGroundedEvidence.evidenceId;
+    assessment.hardEvaluations[`h${String(evaluationIndex + 1)}`] = {
+      state:
+        evaluationIndex === conflictEvaluationIndex ? 'conflict' : 'satisfied',
+      grounding: {
+        reasonStatement:
+          evaluationIndex === conflictEvaluationIndex
+            ? 'The supplied evidence establishes a conflict with the Redis prohibition.'
+            : 'The supplied evidence satisfies the disclosed evaluation.',
+        inference: {
+          topic: evaluation.evaluationId,
+          statement:
+            'The supplied candidate evidence establishes the hard-constraint state.',
+          rationale:
+            'The resolution uses only the supplied candidate-owned observation.',
+          evidenceIds: [evidenceId],
+          repositoryFactIds: [],
+        },
+      },
+    };
+  }
   return response;
 }
 
 function groundPositiveResolutionsInArtifact(
-  response: RecommendationAssessmentModelResponseV1,
+  response: RecommendationAssessmentModelDecompositionV1,
   input: FitAssessmentModelRequestV1,
 ): void {
   const candidateId = input.retrievalFinalists[0]?.candidateId;
@@ -873,9 +865,8 @@ function groundPositiveResolutionsInArtifact(
   const artifactEvidence =
     dossier?.observations.filter(({ topic }) => topic === 'artifact-excerpt') ??
     [];
-  const inference = response.targetFitAssessment.fitAssessment.inferences.find(
-    (candidateInference) => candidateInference.candidateId === candidateId,
-  );
+  const inference =
+    response.candidateAssessments['f1']?.reasons[0]?.claims[0]?.inferences[0];
   if (
     candidateId === undefined ||
     artifactEvidence.length === 0 ||
@@ -886,32 +877,42 @@ function groundPositiveResolutionsInArtifact(
   inference.evidenceIds = artifactEvidence.map(({ evidenceId }) => evidenceId);
   inference.rationale =
     'The resolution uses only supplied commit-coherent repository excerpts.';
+  const hardEvaluations = response.candidateAssessments['f1']?.hardEvaluations;
+  for (const evaluation of Object.values(hardEvaluations ?? {})) {
+    if (evaluation.grounding !== null) {
+      evaluation.grounding.inference.evidenceIds = artifactEvidence.map(
+        ({ evidenceId }) => evidenceId,
+      );
+    }
+  }
 }
 
 function promoteUnresolvedCandidate(
-  response: RecommendationAssessmentModelResponseV1,
+  response: RecommendationAssessmentModelDecompositionV1,
 ): void {
-  const unresolved = response.evidenceNeededHardConstraintResolutions.find(
-    ({ state }) => state === 'unresolved',
+  const entry = Object.entries(response.candidateAssessments).find(
+    ([, assessment]) =>
+      Object.values(assessment.hardEvaluations).some(
+        ({ state }) => state === 'unresolved',
+      ),
   );
-  const assessment =
-    response.targetFitAssessment.fitAssessment.candidateAssessments.find(
-      ({ candidateId }) => candidateId === unresolved?.candidateId,
-    );
-  if (assessment !== undefined) assessment.disposition = 'viable';
+  if (entry === undefined) return;
+  entry[1].fitJudgment = 'viable';
+  response.orderedPositiveCandidateIds.push(entry[0]);
 }
 
 function promoteConflictCandidate(
-  response: RecommendationAssessmentModelResponseV1,
+  response: RecommendationAssessmentModelDecompositionV1,
 ): void {
-  const conflict = response.evidenceNeededHardConstraintResolutions.find(
-    ({ state }) => state === 'conflict',
+  const entry = Object.entries(response.candidateAssessments).find(
+    ([, assessment]) =>
+      Object.values(assessment.hardEvaluations).some(
+        ({ state }) => state === 'conflict',
+      ),
   );
-  const assessment =
-    response.targetFitAssessment.fitAssessment.candidateAssessments.find(
-      ({ candidateId }) => candidateId === conflict?.candidateId,
-    );
-  if (assessment !== undefined) assessment.disposition = 'viable';
+  if (entry === undefined) return;
+  entry[1].fitJudgment = 'viable';
+  response.orderedPositiveCandidateIds.push(entry[0]);
 }
 
 function recommendationRequestId(
@@ -960,10 +961,13 @@ function knownField<
 }
 
 function inventRepositoryFact(
-  value: RecommendationAssessmentModelResponseV1,
+  value: RecommendationAssessmentModelDecompositionV1,
 ): void {
-  const binding = value.targetFitAssessment.inferenceRepositoryFactBindings[0];
-  if (binding !== undefined) binding.repositoryFactIds = ['fact-invented'];
+  const inference =
+    value.candidateAssessments['f1']?.reasons[0]?.claims[0]?.inferences[0];
+  if (inference !== undefined) {
+    inference.repositoryFactIds = ['fact-invented'];
+  }
 }
 
 function responsibleOptionCount(value: unknown): number {

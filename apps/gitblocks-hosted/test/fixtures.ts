@@ -26,7 +26,7 @@ import {
   type DeterministicCandidateProfileAuthorityV1,
   type OssRecommendationRequestV1,
   type RepositoryFingerprintV1,
-  type RecommendationAssessmentModelResponseV1,
+  type RecommendationAssessmentModelDecompositionV1,
 } from '@gitblocks/contracts';
 import { createCandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
 import type { CandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
@@ -541,140 +541,119 @@ export function candidateArtifactMaterial(input: {
 
 export function groundedModelResponse(
   input: FitAssessmentModelRequestV1,
-): RecommendationAssessmentModelResponseV1 {
+): RecommendationAssessmentModelDecompositionV1 {
   const candidates = input.fitAssessmentRequest.candidates;
   const positive = candidates[0];
   if (positive?.observations[0] === undefined) {
     throw new Error('Grounded response fixture requires candidate evidence.');
   }
-  const positiveCandidateId = positive.identity.candidateId;
-  const inferenceId = 'i1';
-  const evidenceNeededCandidateIds = new Set(
-    input.retrievalFinalists
-      .filter(({ lane }) => lane === 'evidence-needed')
-      .map(({ candidateId }) => candidateId),
-  );
-  const claimIdByCandidateId = new Map(
-    candidates
-      .filter(({ observations }) => observations.length > 0)
-      .map((dossier, index) => [
-        dossier.identity.candidateId,
-        `c${String(index + 1)}`,
-      ]),
-  );
-  return {
-    targetFitAssessment: {
-      fitAssessment: {
-        outcome: 'recommend',
-        candidateAssessments: candidates.map((dossier, index) => {
-          const candidateId = dossier.identity.candidateId;
-          const evidenceIds = dossier.observations.map(
-            ({ evidenceId }) => evidenceId,
-          );
-          const claimId = claimIdByCandidateId.get(candidateId);
-          const isPositive = index === 0;
-          return {
-            candidateId,
-            disposition: isPositive
-              ? ('recommended' as const)
-              : evidenceNeededCandidateIds.has(candidateId)
-                ? ('insufficient-evidence' as const)
-                : ('rejected' as const),
-            reasons: [
-              {
-                candidateId,
-                reasonCode: isPositive ? 'target-runtime-fit' : 'not-selected',
-                statement: isPositive
-                  ? 'Candidate evidence and the supplied target runtime align.'
-                  : 'Another supplied candidate has stronger target-grounded support.',
-                evidenceIds,
-                inferenceIds: isPositive ? [inferenceId] : [],
-                unknownIds:
-                  evidenceIds.length === 0
-                    ? dossier.unknowns
-                        .slice(0, 1)
-                        .map(({ unknownId }) => unknownId)
-                    : [],
-              },
-            ],
-            evidenceIds,
-            inferenceIds: isPositive ? [inferenceId] : [],
-            claimIds: claimId === undefined ? [] : [claimId],
-            unknownIds: dossier.unknowns.map(({ unknownId }) => unknownId),
-            hardConstraintConflictIds: [],
-            limitationIds: dossier.limitations.map(
-              ({ limitationId }) => limitationId,
-            ),
-          };
-        }),
-        inferences: [
-          {
-            kind: 'inference',
-            inferenceId,
-            candidateId: positiveCandidateId,
-            topic: 'runtime-support',
-            statement:
-              'The candidate runtime support matches the target runtime.',
-            rationale:
-              'Supplied candidate evidence and repository fact fact-runtime align.',
-            evidenceIds: [positive.observations[0].evidenceId],
-          },
-        ],
-        materialClaims: candidates.flatMap((dossier, index) => {
-          const claimId = claimIdByCandidateId.get(
-            dossier.identity.candidateId,
-          );
-          return claimId === undefined
+  const positiveEvidenceId = positive.observations[0].evidenceId;
+  const repositoryFactId =
+    input.fitAssessmentRequest.repositoryFingerprint.facts[0]?.factId;
+  if (repositoryFactId === undefined) {
+    throw new Error('Grounded response fixture requires a repository fact.');
+  }
+  const candidateAssessments: Record<
+    string,
+    RecommendationAssessmentModelDecompositionV1['candidateAssessments'][string]
+  > = {};
+  for (const [candidateIndex, dossier] of candidates.entries()) {
+    const slot = `f${String(candidateIndex + 1)}`;
+    const finalist = input.retrievalFinalists[candidateIndex];
+    if (finalist === undefined) {
+      throw new Error('Grounded response fixture finalist is missing.');
+    }
+    const firstEvidenceId = dossier.observations[0]?.evidenceId;
+    const isPositive = candidateIndex === 0;
+    const hasEvidence = firstEvidenceId !== undefined;
+    candidateAssessments[slot] = {
+      fitJudgment: isPositive
+        ? 'recommended'
+        : hasEvidence
+          ? 'rejected'
+          : 'insufficient-evidence',
+      reasons: [
+        {
+          statement: isPositive
+            ? 'Candidate evidence and the supplied target runtime align.'
+            : hasEvidence
+              ? 'Another supplied candidate has stronger target-grounded support.'
+              : 'The supplied dossier lacks evidence for a target-fit judgment.',
+          evidenceIds: [],
+          limitationIds: [],
+          candidateUnknownIds: [],
+          claims:
+            firstEvidenceId === undefined
+              ? []
+              : [
+                  {
+                    topic: 'runtime-support',
+                    direction: isPositive ? 'favorable' : 'unfavorable',
+                    statement: isPositive
+                      ? 'The candidate fits the supplied target runtime.'
+                      : 'The candidate was not selected for the target runtime.',
+                    evidenceIds: isPositive ? [] : [firstEvidenceId],
+                    inferences: isPositive
+                      ? [
+                          {
+                            topic: 'runtime-support',
+                            statement:
+                              'The candidate runtime support matches the target runtime.',
+                            rationale:
+                              'Supplied candidate evidence and the selected repository fact align.',
+                            evidenceIds: [firstEvidenceId],
+                            repositoryFactIds: [repositoryFactId],
+                          },
+                        ]
+                      : [],
+                  },
+                ],
+          assessmentUnknowns: hasEvidence
             ? []
             : [
                 {
-                  claimId,
-                  candidateId: dossier.identity.candidateId,
-                  topic: 'runtime-support',
-                  direction:
-                    index === 0
-                      ? ('favorable' as const)
-                      : ('unfavorable' as const),
+                  topic: 'candidate-evidence',
                   statement:
-                    index === 0
-                      ? 'The candidate fits the supplied target runtime.'
-                      : 'The candidate was not selected for the target runtime.',
-                  evidenceIds: dossier.observations.map(
-                    ({ evidenceId }) => evidenceId,
-                  ),
-                  inferenceIds: index === 0 ? [inferenceId] : [],
+                    'The supplied dossier does not establish target fit.',
+                  evidenceIds: [],
                 },
-              ];
-        }),
-        assessmentUnknowns: [],
-        hardConstraintConflicts: [],
-        orderedViableCandidateIds: [positiveCandidateId],
-        assessmentProcessing: {
-          state: 'complete',
-          incompleteReasonCodes: [],
+              ],
         },
-      },
-      inferenceRepositoryFactBindings: [
-        { inferenceId, repositoryFactIds: ['fact-runtime'] },
       ],
+      hardEvaluations: Object.fromEntries(
+        finalist.unresolvedHardEvaluations.map(
+          (evaluation, evaluationIndex) => [
+            `h${String(evaluationIndex + 1)}`,
+            isPositive
+              ? {
+                  state: 'satisfied' as const,
+                  grounding: {
+                    reasonStatement:
+                      'Candidate-owned evidence resolves the disclosed evaluation.',
+                    inference: {
+                      topic: evaluation.evaluationId,
+                      statement:
+                        'The supplied evidence satisfies the disclosed evaluation.',
+                      rationale:
+                        'The conclusion is limited to the disclosed evaluation and selected candidate evidence.',
+                      evidenceIds: [positiveEvidenceId],
+                      repositoryFactIds: [],
+                    },
+                  },
+                }
+              : { state: 'unresolved' as const, grounding: null },
+          ],
+        ),
+      ),
+    };
+  }
+  return {
+    candidateAssessments,
+    orderedPositiveCandidateIds: ['f1'],
+    assessmentProcessing: {
+      state: 'complete',
+      incompleteReasonCodes: [],
     },
-    evidenceNeededHardConstraintResolutions: input.retrievalFinalists.flatMap(
-      (finalist) =>
-        finalist.lane !== 'evidence-needed'
-          ? []
-          : finalist.unresolvedHardEvaluations.map((evaluation) => ({
-              candidateId: finalist.candidateId,
-              evaluationId: evaluation.evaluationId,
-              state:
-                finalist.candidateId === positiveCandidateId
-                  ? ('satisfied' as const)
-                  : ('unresolved' as const),
-              inferenceIds:
-                finalist.candidateId === positiveCandidateId
-                  ? [inferenceId]
-                  : [],
-            })),
-    ),
   };
 }
 

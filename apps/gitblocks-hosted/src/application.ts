@@ -13,7 +13,7 @@ import {
   parseDeterministicCandidateProfileAuthority,
   projectDeterministicCandidateProfileAuthorityToEvaluatorV2,
   parseFitAssessmentRequestV1,
-  validateRecommendationModelAssessmentExchangeV1,
+  validateRecommendationModelDecompositionExchangeV1,
   type CandidateDossierV1,
   type CandidateRetrievalCandidateV1,
   type CandidateRetrievalAuthorityBindingsV1,
@@ -690,7 +690,7 @@ async function recommendOss(input: {
       dossiers.length,
     );
   }
-  const validated = validateRecommendationModelAssessmentExchangeV1({
+  const validated = validateRecommendationModelDecompositionExchangeV1({
     request: fitRequest,
     normalization: normalized.value,
     retrievalFinalists: finalists,

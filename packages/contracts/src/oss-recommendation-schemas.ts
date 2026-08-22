@@ -588,3 +588,81 @@ export type RecommendationAssessmentResponseV1 = Static<
 export type RecommendationAssessmentModelResponseV1 = Static<
   typeof recommendationAssessmentModelResponseV1Schema
 >;
+
+/**
+ * Request-scoped model output. Candidate and hard-evaluation object keys are
+ * generated for one request (f1..fN and h1..hM respectively), so this DTO has
+ * no single static TypeBox schema. The authoritative schema is produced by
+ * createRecommendationAssessmentModelDecompositionSchemaV1.
+ */
+export interface RecommendationAssessmentModelInferenceSelectionV1 {
+  topic: string;
+  statement: string;
+  rationale: string;
+  evidenceIds: string[];
+  repositoryFactIds: string[];
+}
+
+export interface RecommendationAssessmentModelClaimSelectionV1 {
+  topic: string;
+  direction: 'favorable' | 'neutral' | 'unfavorable';
+  statement: string;
+  evidenceIds: string[];
+  inferences: RecommendationAssessmentModelInferenceSelectionV1[];
+}
+
+export interface RecommendationAssessmentModelUnknownSelectionV1 {
+  topic: string;
+  statement: string;
+  evidenceIds: string[];
+}
+
+export interface RecommendationAssessmentModelReasonSelectionV1 {
+  statement: string;
+  evidenceIds: string[];
+  limitationIds: string[];
+  candidateUnknownIds: string[];
+  claims: RecommendationAssessmentModelClaimSelectionV1[];
+  assessmentUnknowns: RecommendationAssessmentModelUnknownSelectionV1[];
+}
+
+export type RecommendationAssessmentModelHardEvaluationSelectionV1 =
+  | {
+      state: 'unresolved';
+      grounding: null;
+    }
+  | {
+      state: 'satisfied' | 'conflict';
+      grounding: {
+        reasonStatement: string;
+        inference: RecommendationAssessmentModelInferenceSelectionV1;
+      };
+    };
+
+export interface RecommendationAssessmentModelCandidateSelectionV1 {
+  fitJudgment: 'insufficient-evidence' | 'recommended' | 'rejected' | 'viable';
+  reasons: RecommendationAssessmentModelReasonSelectionV1[];
+  hardEvaluations: Record<
+    string,
+    RecommendationAssessmentModelHardEvaluationSelectionV1
+  >;
+}
+
+export interface RecommendationAssessmentModelDecompositionV1 {
+  candidateAssessments: Record<
+    string,
+    RecommendationAssessmentModelCandidateSelectionV1
+  >;
+  /** Values are request-scoped candidate slots even though the retained field
+   * name reflects the semantic candidate identifiers they stand for. */
+  orderedPositiveCandidateIds: string[];
+  assessmentProcessing:
+    | {
+        state: 'complete';
+        incompleteReasonCodes: string[];
+      }
+    | {
+        state: 'partial-evidence';
+        incompleteReasonCodes: string[];
+      };
+}

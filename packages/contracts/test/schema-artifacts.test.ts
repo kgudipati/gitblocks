@@ -471,6 +471,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'createDeterministicCandidateProfileV1',
       'createDeterministicCandidateProfileV2',
       'createModelExecutionV1',
+      'createRecommendationAssessmentModelDecompositionSchemaV1',
       'createRecommendationAssessmentModelFitRequestV1',
       'createRepositoryArtifactChunkV1',
       'createRepositoryArtifactSetV1',
@@ -579,6 +580,7 @@ describe('deterministic JSON Schema 2020-12 exports', () => {
       'validateFitAssessmentExchangeV1',
       'validateRecommendationAssessmentExchangeV1',
       'validateRecommendationModelAssessmentExchangeV1',
+      'validateRecommendationModelDecompositionExchangeV1',
       'validateRepositoryInterviewExecutionV1',
       'validateTargetFitAssessmentExchangeV1',
     ]);

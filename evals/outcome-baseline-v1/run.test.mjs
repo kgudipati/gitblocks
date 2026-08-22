@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   captureAssessmentDiagnostics,
+  captureRejectedModelSubstance,
   renderAssessmentDiagnosticLines,
 } from './run.mjs';
 
@@ -132,4 +133,188 @@ test('renders aggregate diagnostics without candidate identities or model text',
   assert.match(rendered, /rejected\s+\|\s+1/);
   assert.doesNotMatch(rendered, /candidate-alpha|candidate-beta/);
   assert.doesNotMatch(rendered, /model assertion text/);
+});
+
+test('captures only requested rejected decomposition substance with exact issues', () => {
+  const response = {
+    candidateAssessments: {
+      f1: {
+        fitJudgment: 'viable',
+        reasons: [
+          {
+            statement: 'Reason prose is intentionally not retained.',
+            evidenceIds: ['e1'],
+            limitationIds: ['l1'],
+            candidateUnknownIds: ['u1'],
+            claims: [
+              {
+                topic: 'deployment-fit',
+                direction: 'favorable',
+                statement: 'The candidate fits the target deployment.',
+                evidenceIds: ['e1'],
+                inferences: [
+                  {
+                    topic: 'deployment-fit',
+                    statement: 'Candidate evidence aligns with the target.',
+                    rationale: 'The deployment forms match.',
+                    evidenceIds: ['e1'],
+                    repositoryFactIds: ['fact-runtime'],
+                  },
+                ],
+              },
+            ],
+            assessmentUnknowns: [
+              {
+                topic: 'deployment-fit',
+                statement: 'The edge-runtime behavior is not established.',
+                evidenceIds: [],
+              },
+            ],
+          },
+        ],
+        hardEvaluations: {},
+      },
+      f2: {
+        fitJudgment: 'rejected',
+        reasons: [
+          {
+            statement: 'Another omitted reason.',
+            evidenceIds: [],
+            limitationIds: [],
+            candidateUnknownIds: [],
+            claims: [],
+            assessmentUnknowns: [],
+          },
+        ],
+        hardEvaluations: {},
+      },
+    },
+    orderedPositiveCandidateIds: ['f1', 'f1'],
+    assessmentProcessing: {
+      state: 'complete',
+      incompleteReasonCodes: [],
+    },
+  };
+  const captured = captureRejectedModelSubstance({
+    request: {
+      candidates: [
+        {
+          identity: { candidateId: 'candidate-alpha' },
+          limitations: [
+            {
+              limitationId: 'l1',
+              category: 'deployment',
+              statement: 'Edge deployment support is limited.',
+            },
+          ],
+          unknowns: [
+            {
+              unknownId: 'u1',
+              topic: 'deployment-fit',
+              statement: 'Edge-runtime compatibility is unknown.',
+            },
+          ],
+        },
+        {
+          identity: { candidateId: 'candidate-beta' },
+          limitations: [],
+          unknowns: [],
+        },
+      ],
+    },
+    response,
+    validation: {
+      ok: false,
+      issues: [
+        {
+          code: 'domain.model-decomposition.positive-order',
+          path: '/orderedPositiveCandidateIds',
+        },
+        {
+          code: 'domain.claim.unresolved-unknown',
+          path: '/targetFitAssessment/fitAssessment/materialClaims/0',
+        },
+      ],
+    },
+  });
+
+  assert.deepEqual(captured, {
+    candidateAssessments: [
+      {
+        candidateSlot: 'f1',
+        fitJudgment: 'viable',
+        claims: [
+          {
+            reasonIndex: 0,
+            claimIndex: 0,
+            topic: 'deployment-fit',
+            direction: 'favorable',
+            statement: 'The candidate fits the target deployment.',
+            evidenceIds: ['e1'],
+            inferences: [
+              {
+                topic: 'deployment-fit',
+                statement: 'Candidate evidence aligns with the target.',
+                rationale: 'The deployment forms match.',
+                evidenceIds: ['e1'],
+                repositoryFactIds: ['fact-runtime'],
+              },
+            ],
+          },
+        ],
+        assessmentUnknowns: [
+          {
+            reasonIndex: 0,
+            unknownIndex: 0,
+            topic: 'deployment-fit',
+            statement: 'The edge-runtime behavior is not established.',
+          },
+        ],
+        consideredLimitations: [
+          {
+            reasonIndex: 0,
+            limitationId: 'l1',
+          },
+        ],
+        consideredCandidateUnknowns: [
+          {
+            reasonIndex: 0,
+            unknownId: 'u1',
+          },
+        ],
+      },
+      {
+        candidateSlot: 'f2',
+        fitJudgment: 'rejected',
+        claims: [],
+        assessmentUnknowns: [],
+        consideredLimitations: [],
+        consideredCandidateUnknowns: [],
+      },
+    ],
+    orderedPositiveCandidateIds: ['f1', 'f1'],
+    assessmentProcessing: {
+      state: 'complete',
+      incompleteReasonCodes: [],
+    },
+    validationIssues: [
+      {
+        code: 'domain.model-decomposition.positive-order',
+        path: '/orderedPositiveCandidateIds',
+      },
+      {
+        code: 'domain.claim.unresolved-unknown',
+        path: '/targetFitAssessment/fitAssessment/materialClaims/0',
+      },
+    ],
+  });
+  assert.doesNotMatch(JSON.stringify(captured), /Reason prose|omitted reason/);
+  assert.equal(
+    captureRejectedModelSubstance({
+      request: { candidates: [] },
+      response,
+      validation: { ok: true, issues: [] },
+    }),
+    null,
+  );
 });
