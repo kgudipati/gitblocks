@@ -15,6 +15,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  parseOssRecommendationRequestV2,
   parseRepositoryFingerprintV1,
   repositoryFingerprintDigestV1,
   type RepositoryFingerprintV1,
@@ -354,8 +355,12 @@ describe('GitBlocks local repository fingerprint scanner', () => {
     expect(first.status).toBe(0);
     expect(first.stderr).toBe('');
     expect(JSON.stringify(JSON.parse(first.stdout))).toBe(
-      JSON.stringify(parsedFingerprint(first.stdout).value),
+      JSON.stringify(parsedScannerBundle(first.stdout)),
     );
+    expect(Object.keys(parsedScannerBundle(first.stdout))).toEqual([
+      'repositoryFingerprint',
+      'fingerprintDigest',
+    ]);
     expect(first.stdout).not.toContain(root);
     expect(
       parsedFingerprint(first.stdout).value.facts.every(
@@ -655,14 +660,39 @@ describe('GitBlocks OSS adoption Skill structure', () => {
     expect(skill).toMatch(/Require user selection/iu);
     expect(skill).toMatch(/do not edit the repository before selection/iu);
     expect(skill).toMatch(/Before the user selects.*do not install/isu);
-    expect(skill.indexOf('14. Require user selection.')).toBeLessThan(
-      skill.indexOf('16. Integrate only the selected responsible option.'),
+    expect(skill.indexOf('13. Require user selection.')).toBeLessThan(
+      skill.indexOf('15. Integrate only the selected responsible option.'),
     );
     expect(skill.split('\n').length).toBeLessThan(250);
     await expect(
       lstat(join(SKILL_DIRECTORY, 'agents', 'openai.yaml')),
     ).rejects.toMatchObject({ code: 'ENOENT' });
     expect(skill).not.toContain('http://127.0.0.1:3333/mcp');
+  });
+
+  it('contains a complete contract-valid V2 rate-limiting request with a bound scanner digest', async () => {
+    const skill = await readFile(SKILL_PATH, 'utf8');
+    const fence = String.fromCodePoint(96).repeat(3);
+    const exampleStart = skill.indexOf(fence + 'json\n');
+    const contentStart = skill.indexOf('\n', exampleStart) + 1;
+    const exampleEnd = skill.indexOf(fence, contentStart);
+    const exampleText = skill.slice(contentStart, exampleEnd);
+    const example: unknown = JSON.parse(exampleText);
+
+    expect(parseOssRecommendationRequestV2(example)).toMatchObject({
+      ok: true,
+    });
+    expect(example).toMatchObject({
+      contractVersion: '2.0.0',
+      summary:
+        'find an OSS solution for rate limiting in a Next.js app on PostgreSQL, no Redis',
+      capabilityTerms: ['rate limiting'],
+      constraints: [
+        expect.objectContaining({ modality: 'required', term: 'Next.js' }),
+        expect.objectContaining({ modality: 'required', term: 'PostgreSQL' }),
+        expect.objectContaining({ modality: 'prohibited', term: 'Redis' }),
+      ],
+    });
   });
 });
 
@@ -696,13 +726,34 @@ async function scannedFingerprint(
 }
 
 function parsedFingerprint(stdout: string) {
-  const parsed = parseRepositoryFingerprintV1(JSON.parse(stdout) as unknown);
+  const bundle = parsedScannerBundle(stdout);
+  const parsed = parseRepositoryFingerprintV1(bundle.repositoryFingerprint);
   if (!parsed.ok) {
     throw new Error(
       'Scanner fingerprint did not pass the authoritative parser.',
     );
   }
+  expect(bundle.fingerprintDigest).toBe(
+    repositoryFingerprintDigestV1(parsed.value),
+  );
   return parsed;
+}
+
+function parsedScannerBundle(stdout: string): {
+  readonly repositoryFingerprint: unknown;
+  readonly fingerprintDigest: unknown;
+} {
+  const value: unknown = JSON.parse(stdout);
+  if (
+    !isRecord(value) ||
+    Object.keys(value).join(',') !== 'repositoryFingerprint,fingerprintDigest'
+  ) {
+    throw new Error('Scanner output was not one fingerprint bundle.');
+  }
+  return {
+    repositoryFingerprint: value['repositoryFingerprint'],
+    fingerprintDigest: value['fingerprintDigest'],
+  };
 }
 
 interface ProcessResult {

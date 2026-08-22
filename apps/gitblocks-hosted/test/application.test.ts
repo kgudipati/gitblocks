@@ -1,6 +1,8 @@
-import type {
-  CandidateRetrievalResultV1,
-  RecommendationAssessmentModelResponseV1,
+import {
+  repositoryFingerprintDigestV1,
+  type OssRecommendationRequestV2,
+  type CandidateRetrievalResultV1,
+  type RecommendationAssessmentModelResponseV1,
 } from '@gitblocks/contracts';
 import type { CandidateRetrievalEngineV1 } from '@gitblocks/retrieval';
 import { describe, expect, it, vi } from 'vitest';
@@ -99,6 +101,71 @@ describe('hosted OSS recommendation application', () => {
       correlationId: 'recommend-happy',
       evidenceCutoff: TEST_EVIDENCE_CUTOFF,
       producedAt: TEST_EVIDENCE_CUTOFF,
+    });
+  });
+
+  it('accepts V2, expands it before normalization, and preserves the V1 serving path', async () => {
+    const modelInputs: FitAssessmentModelRequestV1[] = [];
+    const application = await createAcceptedApplication({
+      fitModel: {
+        assess: (input) => {
+          modelInputs.push(input);
+          return Promise.resolve(groundedModelResponse(input));
+        },
+      },
+    });
+    const v1 = recommendationRequest({
+      id: 'v2-source-fixture',
+      term: 'authorization',
+    });
+    const request: OssRecommendationRequestV2 = {
+      contractVersion: '2.0.0',
+      summary: v1.capabilityQuery.summary,
+      capabilityTerms: ['authorization'],
+      successConditions: v1.capabilityQuery.successConditions.map(
+        ({ statement }) => statement,
+      ),
+      constraints: [],
+      repositoryFingerprint: v1.repositoryFingerprint,
+      transmissionApproval: {
+        approvedBy: v1.transmissionApproval.approvedBy,
+        approvedAt: v1.transmissionApproval.approvedAt,
+        approvedCategories: v1.transmissionApproval.approvedCategories,
+        fingerprintDigest: repositoryFingerprintDigestV1(
+          v1.repositoryFingerprint,
+        ),
+      },
+    };
+
+    const outcome = await application.recommendOss(request);
+
+    expect(outcome).toMatchObject({
+      ok: true,
+      result: { outcome: 'recommend' },
+    });
+    expect(modelInputs).toHaveLength(1);
+    const capabilityRequest =
+      modelInputs[0]?.fitAssessmentRequest.capabilityRequest;
+    expect(capabilityRequest?.requestId).toMatch(/^query-[0-9a-f]{48}$/u);
+    expect(capabilityRequest?.transmissionApproval.approvalId).toMatch(
+      /^approval-[0-9a-f]{48}$/u,
+    );
+    expect(capabilityRequest).toMatchObject({
+      summary: request.summary,
+      successConditions: [
+        {
+          conditionId: 'condition-001',
+          statement: request.successConditions[0],
+        },
+      ],
+      hardConstraints: [],
+      preferences: [],
+      transmissionApproval: {
+        approvedBy: request.transmissionApproval.approvedBy,
+        approvedAt: request.transmissionApproval.approvedAt,
+        approvedCategories: request.transmissionApproval.approvedCategories,
+        scope: 'minimized-repository-facts',
+      },
     });
   });
 

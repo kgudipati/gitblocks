@@ -28,17 +28,17 @@ const digestSchema = Type.String({
   maxLength: 64,
   pattern: DIGEST_PATTERN,
 });
-const summarySchema = Type.String({
+export const capabilityQuerySummarySchema = Type.String({
   minLength: 1,
   maxLength: CAPABILITY_QUERY_LIMITS.summaryCodeUnits,
   pattern: SAFE_LOCAL_TEXT_PATTERN,
 });
-const queryTermSchema = Type.String({
+export const capabilityQueryTermTextSchema = Type.String({
   minLength: 1,
   maxLength: CAPABILITY_QUERY_LIMITS.termCodeUnits,
   pattern: SAFE_LOCAL_TEXT_PATTERN,
 });
-const queryStatementSchema = Type.String({
+export const capabilityQueryStatementTextSchema = Type.String({
   minLength: 1,
   maxLength: CAPABILITY_QUERY_LIMITS.statementCodeUnits,
   pattern: SAFE_LOCAL_TEXT_PATTERN,
@@ -48,7 +48,7 @@ const boundedContextSchema = Type.String({
   maxLength: 500,
   pattern: SAFE_LOCAL_TEXT_PATTERN,
 });
-const modalitySchema = Type.Union([
+export const capabilityQueryConstraintModalitySchema = Type.Union([
   Type.Literal('required'),
   Type.Literal('preferred'),
   Type.Literal('prohibited'),
@@ -83,54 +83,58 @@ const sourceIdsSchema = Type.Array(stableIdSchema, {
 
 export const capabilityQueryTermV1Schema = closedObject({
   termId: stableIdSchema,
-  originalTerm: queryTermSchema,
+  originalTerm: capabilityQueryTermTextSchema,
 });
 
 export const capabilityQuerySuccessConditionV1Schema = closedObject({
   conditionId: stableIdSchema,
-  statement: queryStatementSchema,
+  statement: capabilityQueryStatementTextSchema,
 });
 
 export const capabilityQueryDraftConstraintV1Schema = closedObject({
   constraintId: stableIdSchema,
-  modality: modalitySchema,
-  statement: queryStatementSchema,
-  originalTerm: queryTermSchema,
+  modality: capabilityQueryConstraintModalitySchema,
+  statement: capabilityQueryStatementTextSchema,
+  originalTerm: capabilityQueryTermTextSchema,
   facetHint: facetSchema,
   reasonCode: nullableReasonCodeSchema,
 });
 
-const candidateReferenceIntentSchema = Type.Union([
+export const capabilityQueryCandidateReferenceIntentSchema = Type.Union([
   Type.Literal('compare'),
   Type.Literal('named-candidate'),
 ]);
+
+export const capabilityQueryRepositoryReferenceValueSchema = Type.String({
+  minLength: 3,
+  maxLength: 201,
+  pattern: REPOSITORY_KEY_PATTERN,
+});
+
+export const capabilityQueryNpmPackageReferenceValueSchema = Type.String({
+  minLength: 1,
+  maxLength: 201,
+  pattern: PACKAGE_KEY_PATTERN,
+});
 
 export const capabilityQueryCandidateReferenceV1Schema = Type.Union([
   closedObject({
     referenceId: stableIdSchema,
     kind: Type.Literal('candidate-id'),
     value: stableIdSchema,
-    intent: candidateReferenceIntentSchema,
+    intent: capabilityQueryCandidateReferenceIntentSchema,
   }),
   closedObject({
     referenceId: stableIdSchema,
     kind: Type.Literal('repository'),
-    value: Type.String({
-      minLength: 3,
-      maxLength: 201,
-      pattern: REPOSITORY_KEY_PATTERN,
-    }),
-    intent: candidateReferenceIntentSchema,
+    value: capabilityQueryRepositoryReferenceValueSchema,
+    intent: capabilityQueryCandidateReferenceIntentSchema,
   }),
   closedObject({
     referenceId: stableIdSchema,
     kind: Type.Literal('npm-package'),
-    value: Type.String({
-      minLength: 1,
-      maxLength: 201,
-      pattern: PACKAGE_KEY_PATTERN,
-    }),
-    intent: candidateReferenceIntentSchema,
+    value: capabilityQueryNpmPackageReferenceValueSchema,
+    intent: capabilityQueryCandidateReferenceIntentSchema,
   }),
 ]);
 
@@ -144,7 +148,7 @@ const capabilityQueryInputV1Properties = {
   contractVersion: contractVersionSchema,
   queryInputId: stableIdSchema,
   scope: Type.Literal('local-pre-approval'),
-  summary: summarySchema,
+  summary: capabilityQuerySummarySchema,
   capabilityTerms: Type.Array(capabilityQueryTermV1Schema, {
     minItems: 1,
     maxItems: CAPABILITY_QUERY_LIMITS.capabilityTerms,
@@ -204,7 +208,7 @@ const normalizedConstraintV1Schema = closedObject({
     maxItems: CAPABILITY_QUERY_LIMITS.draftConstraints,
     uniqueItems: true,
   }),
-  modality: modalitySchema,
+  modality: capabilityQueryConstraintModalitySchema,
   facet: facetSchema,
   resolutionBasis: Type.Union([
     Type.Literal('controlled-taxonomy'),
@@ -221,9 +225,9 @@ const normalizedConstraintV1Schema = closedObject({
 
 const preservedDeclarationV1Schema = closedObject({
   constraintId: stableIdSchema,
-  modality: modalitySchema,
-  statement: queryStatementSchema,
-  originalTerm: queryTermSchema,
+  modality: capabilityQueryConstraintModalitySchema,
+  statement: capabilityQueryStatementTextSchema,
+  originalTerm: capabilityQueryTermTextSchema,
   facet: facetSchema,
   reasonCode: nullableReasonCodeSchema,
 });
@@ -235,7 +239,7 @@ const resolvedCandidateReferenceV1Schema = closedObject({
     Type.Literal('repository'),
     Type.Literal('npm-package'),
   ]),
-  intent: candidateReferenceIntentSchema,
+  intent: capabilityQueryCandidateReferenceIntentSchema,
   candidateId: stableIdSchema,
   capabilityFamily: capabilityFamilySchema,
   ruleId: stableIdSchema,

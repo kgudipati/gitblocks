@@ -280,7 +280,11 @@ export {
 export {
   createCapabilityRequestFromRecommendationV1,
   createRecommendationAssessmentModelFitRequestV1,
+  expandOssRecommendationRequest,
+  ossRecommendationRequestId,
+  parseOssRecommendationRequest,
   parseOssRecommendationRequestV1,
+  parseOssRecommendationRequestV2,
   parseRecommendationAssessmentModelFitRequestV1,
   parseRecommendationAssessmentModelResponseV1,
   parseRecommendationAssessmentResponseV1,
@@ -296,7 +300,9 @@ export {
   type TargetFitAssessmentExchangeValidationResult,
 } from './oss-recommendation-contracts.ts';
 export {
+  ossRecommendationRequestSchema,
   ossRecommendationRequestV1Schema,
+  ossRecommendationRequestV2Schema,
   recommendationAssessmentModelFitRequestV1Schema,
   recommendationAssessmentModelResponseV1Schema,
   recommendationAssessmentResponseV1Schema,
@@ -304,7 +310,9 @@ export {
   targetFitAssessmentResponseV1Schema,
   type EvidenceNeededHardConstraintResolutionV1,
   type InferenceRepositoryFactBindingV1,
+  type OssRecommendationRequest,
   type OssRecommendationRequestV1,
+  type OssRecommendationRequestV2,
   type RecommendationAssessmentModelFitRequestV1,
   type RecommendationAssessmentModelResponseV1,
   type RecommendationAssessmentResponseV1,

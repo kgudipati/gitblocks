@@ -468,41 +468,36 @@ async function scanTargets() {
     ) {
       throw new BaselineError('outcome-baseline.scanner-failed');
     }
-    let rawFingerprint;
+    let scannerBundle;
     try {
-      rawFingerprint = JSON.parse(scanned.stdout);
+      scannerBundle = JSON.parse(scanned.stdout);
     } catch {
       throw new BaselineError('outcome-baseline.scanner-output-invalid');
-    }
-    const parsed = parseRepositoryFingerprintV1(rawFingerprint);
-    if (!parsed.ok) {
-      throw new BaselineError('outcome-baseline.scanner-output-invalid');
-    }
-    const referenced = await executeScanner(['--reference'], scanned.stdout);
-    if (referenced.status !== 0 || referenced.stderr !== '') {
-      throw new BaselineError('outcome-baseline.scanner-reference-failed');
-    }
-    let reference;
-    try {
-      reference = JSON.parse(referenced.stdout);
-    } catch {
-      throw new BaselineError('outcome-baseline.scanner-reference-invalid');
     }
     if (
-      !isRecord(reference) ||
-      reference.fingerprintId !== parsed.value.fingerprintId ||
-      reference.fingerprintDigest !==
+      !isRecord(scannerBundle) ||
+      !Object.hasOwn(scannerBundle, 'repositoryFingerprint') ||
+      typeof scannerBundle.fingerprintDigest !== 'string'
+    ) {
+      throw new BaselineError('outcome-baseline.scanner-output-invalid');
+    }
+    const parsed = parseRepositoryFingerprintV1(
+      scannerBundle.repositoryFingerprint,
+    );
+    if (
+      !parsed.ok ||
+      scannerBundle.fingerprintDigest !==
         repositoryFingerprintDigestV1(parsed.value)
     ) {
-      throw new BaselineError('outcome-baseline.scanner-reference-invalid');
+      throw new BaselineError('outcome-baseline.scanner-output-invalid');
     }
     scans.set(
       target.targetId,
       Object.freeze({
         fingerprint: parsed.value,
         reference: Object.freeze({
-          fingerprintId: reference.fingerprintId,
-          fingerprintDigest: reference.fingerprintDigest,
+          fingerprintId: parsed.value.fingerprintId,
+          fingerprintDigest: scannerBundle.fingerprintDigest,
         }),
       }),
     );

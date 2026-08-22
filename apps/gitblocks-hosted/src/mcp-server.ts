@@ -1,7 +1,8 @@
 import {
   getContractSchemaV1,
+  ossRecommendationRequestId,
   type CandidateRetrievalCandidateV1,
-  type OssRecommendationRequestV1,
+  type OssRecommendationRequest,
 } from '@gitblocks/contracts';
 import {
   fromJsonSchema,
@@ -59,7 +60,7 @@ export function createGitBlocksMcpServer(
     GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
     {
       description: GITBLOCKS_RECOMMEND_OSS_TOOL_DESCRIPTION,
-      inputSchema: fromJsonSchema<OssRecommendationRequestV1>(
+      inputSchema: fromJsonSchema<OssRecommendationRequest>(
         recommendationRequestSchema(),
       ),
     },
@@ -76,7 +77,7 @@ export function createGitBlocksMcpServer(
 
 async function callHostedRecommendation(
   application: HostedRecommendationOperation,
-  arguments_: OssRecommendationRequestV1,
+  arguments_: OssRecommendationRequest,
   recommendationFailureObserver?: HostedRecommendationFailureObserverV1,
 ): Promise<CallToolResult> {
   try {
@@ -85,7 +86,7 @@ async function callHostedRecommendation(
       emitRecommendationFailure(
         recommendationFailureObserver,
         operationFailureEvent(
-          arguments_.recommendationRequestId,
+          ossRecommendationRequestId(arguments_),
           outcome.failure,
         ),
       );
@@ -97,7 +98,7 @@ async function callHostedRecommendation(
       recommendationFailureObserver,
       Object.freeze({
         operation: 'hosted.recommendation',
-        correlationId: arguments_.recommendationRequestId,
+        correlationId: ossRecommendationRequestId(arguments_),
         status: 'failed',
         stage: 'mcp',
         path: 'application-call',
