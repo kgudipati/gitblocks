@@ -314,7 +314,18 @@ function evaluateNormalizedConstraint(
     });
   }
   const field = getField(profile, mapping.fieldId);
-  const match = evaluateFieldConcept(field, constraint.conceptId);
+  const positiveInfrastructure =
+    constraint.facet === 'infrastructure' &&
+    constraint.modality !== 'prohibited';
+  const match = positiveInfrastructure
+    ? combinePositiveInfrastructureMatches(
+        evaluateFieldConcept(field, constraint.conceptId),
+        evaluateFieldConcept(
+          getField(profile, 'optional-infrastructure'),
+          constraint.conceptId,
+        ),
+      )
+    : evaluateFieldConcept(field, constraint.conceptId);
   return makeItem({
     evaluationId: constraint.normalizedConstraintId,
     sourceKind: 'normalized-constraint',
@@ -323,7 +334,9 @@ function evaluateNormalizedConstraint(
     conceptId: constraint.conceptId,
     profileFieldId: mapping.fieldId,
     match,
-    ruleId: mapping.ruleId,
+    ruleId: positiveInfrastructure
+      ? 'evaluate-required-or-optional-infrastructure'
+      : mapping.ruleId,
   });
 }
 
@@ -349,7 +362,18 @@ function evaluateNormalizedConstraintV2(
     });
   }
   const field = getEvaluatorField(profile, mapping.fieldId);
-  const match = evaluateFieldConceptV2(field, constraint.conceptId);
+  const positiveInfrastructure =
+    constraint.facet === 'infrastructure' &&
+    constraint.modality !== 'prohibited';
+  const match = positiveInfrastructure
+    ? combinePositiveInfrastructureMatches(
+        evaluateFieldConceptV2(field, constraint.conceptId),
+        evaluateFieldConceptV2(
+          getEvaluatorField(profile, 'optional-infrastructure'),
+          constraint.conceptId,
+        ),
+      )
+    : evaluateFieldConceptV2(field, constraint.conceptId);
   return makeItem({
     evaluationId: constraint.normalizedConstraintId,
     sourceKind: 'normalized-constraint',
@@ -358,7 +382,9 @@ function evaluateNormalizedConstraintV2(
     conceptId: constraint.conceptId,
     profileFieldId: mapping.fieldId,
     match,
-    ruleId: mapping.ruleId,
+    ruleId: positiveInfrastructure
+      ? 'evaluate-required-or-optional-infrastructure'
+      : mapping.ruleId,
   });
 }
 
@@ -390,7 +416,8 @@ function evaluateFieldConcept(
   if (
     field.fieldId !== 'adoption-unit-type' &&
     field.fieldId !== 'capability-variants-features' &&
-    field.fieldId !== 'required-infrastructure'
+    field.fieldId !== 'required-infrastructure' &&
+    field.fieldId !== 'optional-infrastructure'
   ) {
     return 'unresolved';
   }
@@ -407,7 +434,8 @@ function evaluateFieldConceptV2(
 ): CandidateConstraintMatch {
   if (
     field.fieldId !== 'capability-variants-features' &&
-    field.fieldId !== 'required-infrastructure'
+    field.fieldId !== 'required-infrastructure' &&
+    field.fieldId !== 'optional-infrastructure'
   ) {
     if (
       field.fieldId === 'adoption-unit-type' &&
@@ -439,6 +467,16 @@ function evaluateFieldConceptV2(
         : 'unresolved';
   }
   return field.coverage === 'complete' ? 'mismatch' : 'unresolved';
+}
+
+function combinePositiveInfrastructureMatches(
+  requiredMatch: CandidateConstraintMatch,
+  optionalMatch: CandidateConstraintMatch,
+): CandidateConstraintMatch {
+  if (requiredMatch === 'match' || optionalMatch === 'match') return 'match';
+  return requiredMatch === 'mismatch' && optionalMatch === 'mismatch'
+    ? 'mismatch'
+    : 'unresolved';
 }
 
 function makeItem(

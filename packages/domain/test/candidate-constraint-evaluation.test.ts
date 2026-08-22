@@ -239,6 +239,24 @@ describe('candidate constraint evaluation', () => {
     );
   });
 
+  it('satisfies required infrastructure when a V1 profile establishes optional support', () => {
+    const result = evaluate(
+      profile('authorization', {
+        'required-infrastructure': knownSet('required-infrastructure', []),
+        'optional-infrastructure': knownSet('optional-infrastructure', [
+          'postgresql',
+        ]),
+      }),
+      normalization([constraint('infrastructure', 'postgresql')]),
+    );
+    expect(result.evaluations.at(-1)).toMatchObject({
+      match: 'match',
+      state: 'satisfied',
+      ruleId: 'evaluate-required-or-optional-infrastructure',
+    });
+    expect(result.overallHardState).toBe('satisfied');
+  });
+
   it('rejects non-normalized input and taxonomy mismatches', () => {
     expect(
       evaluateCandidateConstraints({
@@ -281,48 +299,68 @@ describe('candidate constraint evaluation', () => {
     },
   );
 
-  it('uses the frozen V2 modality truth table and never consults optional infrastructure', () => {
-    const requiredPresent = evaluatorProfile(
-      conceptField('required-infrastructure', 'partial', [
-        assertion('redis', 'present'),
-      ]),
-      conceptField('optional-infrastructure', 'complete', [
-        assertion('redis', 'absent'),
-      ]),
-    );
-    expect(
-      evaluateV2(
-        requiredPresent,
-        normalization([constraint('infrastructure', 'redis')]),
-      ).overallHardState,
-    ).toBe('satisfied');
-    expect(
-      evaluateV2(
-        requiredPresent,
-        normalization([constraint('infrastructure', 'redis', 'prohibited')]),
-      ).overallHardState,
-    ).toBe('conflict');
+  it.each([
+    ['present', 'present', 'satisfied', 'satisfied', 'conflict'],
+    ['present', 'absent', 'satisfied', 'satisfied', 'conflict'],
+    ['present', 'unknown', 'satisfied', 'satisfied', 'conflict'],
+    ['present', 'conflict', 'satisfied', 'satisfied', 'conflict'],
+    ['absent', 'present', 'satisfied', 'satisfied', 'satisfied'],
+    ['absent', 'absent', 'conflict', 'conflict', 'satisfied'],
+    ['absent', 'unknown', 'unresolved', 'unresolved', 'satisfied'],
+    ['absent', 'conflict', 'unresolved', 'unresolved', 'satisfied'],
+    ['unknown', 'present', 'satisfied', 'satisfied', 'unresolved'],
+    ['unknown', 'absent', 'unresolved', 'unresolved', 'unresolved'],
+    ['unknown', 'unknown', 'unresolved', 'unresolved', 'unresolved'],
+    ['unknown', 'conflict', 'unresolved', 'unresolved', 'unresolved'],
+    ['conflict', 'present', 'satisfied', 'satisfied', 'unresolved'],
+    ['conflict', 'absent', 'unresolved', 'unresolved', 'unresolved'],
+    ['conflict', 'unknown', 'unresolved', 'unresolved', 'unresolved'],
+    ['conflict', 'conflict', 'unresolved', 'unresolved', 'unresolved'],
+  ] as const)(
+    'evaluates V2 infrastructure required=%s optional=%s across every modality',
+    (
+      requiredState,
+      optionalState,
+      requiredExpected,
+      preferredExpected,
+      prohibitedExpected,
+    ) => {
+      const candidate = evaluatorProfile(
+        infrastructureField('required-infrastructure', requiredState),
+        infrastructureField('optional-infrastructure', optionalState),
+      );
+      for (const [modality, expectedState] of [
+        ['required', requiredExpected],
+        ['preferred', preferredExpected],
+        ['prohibited', prohibitedExpected],
+      ] as const) {
+        const result = evaluateV2(
+          candidate,
+          normalization([constraint('infrastructure', 'postgresql', modality)]),
+        );
+        expect(result.evaluations.at(-1)).toMatchObject({
+          state: expectedState,
+          ruleId:
+            modality === 'prohibited'
+              ? 'evaluate-required-infrastructure-only'
+              : 'evaluate-required-or-optional-infrastructure',
+        });
+      }
+    },
+  );
 
-    const requiredAbsentOptionalPresent = evaluatorProfile(
-      conceptField('required-infrastructure', 'complete', [
-        assertion('redis', 'absent'),
-      ]),
-      conceptField('optional-infrastructure', 'complete', [
-        assertion('redis', 'present'),
-      ]),
+  it('treats complete coverage without an infrastructure assertion as established absence', () => {
+    const result = evaluateV2(
+      evaluatorProfile(
+        conceptField('required-infrastructure', 'complete', []),
+        conceptField('optional-infrastructure', 'complete', []),
+      ),
+      normalization([constraint('infrastructure', 'postgresql')]),
     );
-    expect(
-      evaluateV2(
-        requiredAbsentOptionalPresent,
-        normalization([constraint('infrastructure', 'redis')]),
-      ).overallHardState,
-    ).toBe('conflict');
-    expect(
-      evaluateV2(
-        requiredAbsentOptionalPresent,
-        normalization([constraint('infrastructure', 'redis', 'prohibited')]),
-      ).overallHardState,
-    ).toBe('satisfied');
+    expect(result.evaluations.at(-1)).toMatchObject({
+      match: 'mismatch',
+      state: 'conflict',
+    });
   });
 
   it('projects V1 unknown to unknown-empty and retains whole-field conflict claims unchanged', () => {
@@ -621,6 +659,18 @@ function conflictingAssertion(conceptId: string) {
       },
     ],
   };
+}
+
+function infrastructureField(
+  fieldId: 'optional-infrastructure' | 'required-infrastructure',
+  state: 'absent' | 'conflict' | 'present' | 'unknown',
+): DeterministicProfileConceptFieldRecordV2 {
+  if (state === 'unknown') return conceptField(fieldId, 'unknown', []);
+  return conceptField(fieldId, 'partial', [
+    state === 'conflict'
+      ? conflictingAssertion('postgresql')
+      : assertion('postgresql', state),
+  ]);
 }
 
 expect(DETERMINISTIC_PROFILE_FIELD_IDS).toHaveLength(27);
