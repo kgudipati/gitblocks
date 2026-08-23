@@ -193,9 +193,12 @@ candidate code, or run arbitrary candidate-repository commands.
     - show `verificationStatus` before fit rationale or evidence;
     - list every supplied constraint statement with its required or prohibited
       modality and verified, unverified, or conflicting status;
-    - for a verified constraint, preserve its deterministic evaluation or
-      model-inference grounding; never invent grounding for an unverified
-      constraint;
+    - show every verified basis beside its label: `deterministic` is **VERIFIED
+      (CURATED PROFILE)** and `model` is **VERIFIED (EVIDENCE-GROUNDED
+      INFERENCE)**. Preserve supplied references and never invent grounding;
+    - scope verification to the exact constraint. Optional-infrastructure
+      support does not prove the target's exact operating configuration;
+    - preserve a narrower related question as **UNKNOWN (IMPLEMENTATION EVIDENCE GAP)**; say neither signal cancels the other, and never suppress or reinterpret either signal or assert overlap GitBlocks did not supply;
     - if `verificationStatus` is `unverified-prohibited-constraint`, lead with
       an explicit warning before any favorable fit material and do not describe
       the option as fully verified;

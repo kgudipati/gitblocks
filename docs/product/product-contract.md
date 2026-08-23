@@ -263,7 +263,15 @@ The approved workflow is:
    and unverified-prohibited-constraint options. Every reason is traceable to
    candidate-owned evidence or inference, a disclosed material unknown, or a
    matching hard-constraint conflict. Direct observations, supplied
-   declarations, and derived conclusions remain visibly distinct.
+   declarations, and derived conclusions remain visibly distinct. The MCP
+   response retains the complete structured result and repeats the responsible
+   option presentation in primary text so clients that expose only text do not
+   need to retransmit an identical request or incur another model call. A
+   verified constraint displays whether its grounding is a curated
+   deterministic profile evaluation or a candidate-evidence-grounded model
+   inference. A related implementation evidence gap remains an explicit
+   unknown: it does not reverse the exact verified constraint, and the verified
+   constraint does not establish the narrower unresolved implementation detail.
 7. **Choose and plan.** The developer approves a candidate. The coding agent
    produces a structured adoption plan covering changes, tests, migration,
    rollout, rollback or forward recovery, and open risks.

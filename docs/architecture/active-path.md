@@ -12,7 +12,10 @@ ingestion, evaluation tooling, and dormant subsystems are intentionally omitted.
   traffic; its credential-free `/health` surface reports only readiness.
 - `apps/gitblocks-hosted/src/mcp-server.ts` exposes only `recommend_oss`, applies
   the contract-generated tool input schema, calls the application operation,
-  and returns bounded MCP success or failure content.
+  and returns bounded MCP success or failure content. A `recommend` success
+  keeps the complete structured result and also renders each responsible
+  option into primary text so a content-only MCP host does not require a
+  duplicate model call.
 - `apps/gitblocks-hosted/src/application.ts` owns request validation,
   normalization, retrieval, finalist selection, evidence loading, model
   invocation, deterministic response validation, and the final bounded outcome,
