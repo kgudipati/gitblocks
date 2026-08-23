@@ -20,6 +20,7 @@ import type {
   HostedRecommendationResultV1,
 } from './application.ts';
 import type { HostedFitModelProviderFailureV1 } from './errors.ts';
+import { primaryRecommendationText } from './mcp-recommendation-text.ts';
 
 export const GITBLOCKS_RECOMMEND_OSS_TOOL_NAME = 'recommend_oss';
 
@@ -92,7 +93,10 @@ async function callHostedRecommendation(
       );
       return boundedToolFailure();
     }
-    return successfulToolResult(outcome.result);
+    return successfulToolResult(
+      outcome.result,
+      arguments_.repositoryFingerprint,
+    );
   } catch {
     emitRecommendationFailure(
       recommendationFailureObserver,
@@ -141,27 +145,17 @@ function emitRecommendationFailure(
 
 function successfulToolResult(
   result: HostedRecommendationResultV1,
+  repositoryFingerprint: OssRecommendationRequest['repositoryFingerprint'],
 ): CallToolResult {
   return {
     content: [
       {
         type: 'text',
-        text: primaryRecommendationText(result.outcome),
+        text: primaryRecommendationText(result, repositoryFingerprint),
       },
     ],
     structuredContent: agentFacingRecommendationResult(result),
   };
-}
-
-function primaryRecommendationText(
-  outcome: HostedRecommendationResultV1['outcome'],
-): string {
-  const outcomeText = `GitBlocks recommendation outcome: ${outcome}.`;
-  return outcome === 'insufficient-evidence' ||
-    outcome === 'unsupported' ||
-    outcome === 'no-viable-candidate'
-    ? `${outcomeText} GitBlocks validated no candidate; claims obtained from any other source are not GitBlocks results.`
-    : outcomeText;
 }
 
 function agentFacingRecommendationResult(
