@@ -64,7 +64,7 @@ The OpenAI target-fit adapter additionally requires:
 
 - `OPENAI_API_KEY`
 - `GITBLOCKS_HOSTED_FIT_MODEL`, which must equal the reviewed private-alpha
-  snapshot `gpt-5.4-mini-2026-03-17`
+  identifier `gpt-5.6-luna`
 
 `GITBLOCKS_HOSTED_MCP_HOST` is optional and defaults to `127.0.0.1`.
 `GITBLOCKS_HOSTED_MCP_PUBLIC_HOST` is optional and defaults to the resolved bind

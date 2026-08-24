@@ -17,7 +17,7 @@ arguments, or print them.
 | `GITBLOCKS_HOSTED_SERVING_DB_SSL`      | required    | exact enum: `disable` or `require`                                                              |
 | `GITBLOCKS_MCP_TOKEN`                  | required    | non-empty bearer-token text                                                                     |
 | `OPENAI_API_KEY`                       | required    | 1–512 ASCII letters, digits, periods, underscores, or hyphens                                   |
-| `GITBLOCKS_HOSTED_FIT_MODEL`           | required    | exact reviewed model identifier `gpt-5.4-mini-2026-03-17`                                       |
+| `GITBLOCKS_HOSTED_FIT_MODEL`           | required    | exact reviewed model identifier `gpt-5.6-luna`                                                  |
 | `GITBLOCKS_HOSTED_MCP_HOST`            | optional    | bind hostname or IP address without scheme, path, or port; defaults to `127.0.0.1`              |
 | `GITBLOCKS_HOSTED_MCP_PUBLIC_HOST`     | optional    | public hostname or IP address without scheme, path, or port; defaults to the resolved bind host |
 | `GITBLOCKS_HOSTED_MCP_PORT`            | optional    | integer from 1 through 65535; defaults to `3333`                                                |
@@ -47,6 +47,23 @@ bounded JSON record with every problem, for example this shape:
 
 Only variable names and expected forms enter the error. Supplied values are not
 copied into the error object, message, or process diagnostic.
+
+## Frozen target-fit deployment assertion
+
+Production must carry exactly:
+
+```text
+GITBLOCKS_HOSTED_FIT_MODEL=gpt-5.6-luna
+```
+
+This variable is a deployment assertion, not a model selector. Startup rejects
+the retired `gpt-5.4-mini-2026-03-17` identifier, a bare alias, and every other
+value with `hosted.invalid-configuration`, naming
+`GITBLOCKS_HOSTED_FIT_MODEL` and the expected exact identifier. Deploy the
+runtime configuration and the application version carrying this pin together;
+the startup guard prevents the environment and reviewed identity from drifting
+silently. The evidence and small-sample limitation for this pin are recorded in
+[ADR 0012](../architecture/decisions/0012-openai-target-fit-provider.md).
 
 ## Bind and authority validation
 
