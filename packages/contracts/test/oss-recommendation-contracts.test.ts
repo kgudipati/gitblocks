@@ -1148,11 +1148,11 @@ describe('RecommendationAssessmentResponseV1', () => {
       },
     ],
     [
-      'eligible candidate resolution',
+      'deterministically satisfied eligible evaluation resolution',
       (exchange: HardResolutionExchange) => {
         exchange.response.evidenceNeededHardConstraintResolutions.push({
           candidateId: 'candidate-beta',
-          evaluationId: 'evaluation-invented',
+          evaluationId: 'primary-capability-family',
           state: 'unresolved',
           inferenceIds: [],
         });
@@ -1196,6 +1196,23 @@ describe('RecommendationAssessmentResponseV1', () => {
     expect(validateRecommendationAssessmentExchangeV1(exchange)).toMatchObject({
       ok: false,
     });
+  });
+
+  it('keeps deterministically satisfied evaluations outside the accepted resolution set', async () => {
+    const exchange = await createHardResolutionExchange();
+    exchange.response.evidenceNeededHardConstraintResolutions.push({
+      candidateId: 'candidate-beta',
+      evaluationId: 'primary-capability-family',
+      state: 'unresolved',
+      inferenceIds: [],
+    });
+
+    const validation = validateRecommendationAssessmentExchangeV1(exchange);
+    expect(validation.ok).toBe(false);
+    if (validation.ok) return;
+    expect(validation.issues).toContainEqual(
+      expect.objectContaining({ code: 'domain.hard-resolution.reference' }),
+    );
   });
 
   it.each(['recommended', 'viable'] as const)(

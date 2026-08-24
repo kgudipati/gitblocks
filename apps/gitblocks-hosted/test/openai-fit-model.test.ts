@@ -73,6 +73,22 @@ describe('OpenAI Responses target-fit adapter', () => {
     const bodyText = JSON.stringify(received.body);
     expect(Buffer.byteLength(bodyText, 'utf8')).toBeLessThan(2 * 1024 * 1024);
     expect(bodyText).toContain('candidate slots f1..fN');
+    expect(bodyText).toContain('deterministicallySatisfiedHardEvaluations');
+    expect(bodyText).toContain(
+      'already-established, read-only deterministic context',
+    );
+    expect(bodyText).toContain(
+      'must not be marked insufficient-evidence because candidate evidence does not re-establish those same constraints',
+    );
+    expect(bodyText).toContain(
+      'renaming or restating a settled constraint as integration, support, use, behavior, or compatibility does not make it distinct',
+    );
+    expect(
+      modelInput.retrievalFinalists.every(
+        (finalist) =>
+          finalist.deterministicallySatisfiedHardEvaluations.length > 0,
+      ),
+    ).toBe(true);
     expect(bodyText).toContain(
       'Direct evidence, a hard-evaluation grounding, or an inference that is not nested inside that favorable claim is not positive support.',
     );
@@ -285,6 +301,41 @@ describe('OpenAI Responses target-fit adapter', () => {
       result: { outcome: 'recommend' },
     });
     expect(valid.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives deterministically satisfied evaluations no resolution slot and rejects an attempted resolution', async () => {
+    const attempted = await runProviderOutput((value) => {
+      const hardEvaluations = value.candidateAssessments['f1']?.hardEvaluations;
+      if (hardEvaluations === undefined) {
+        throw new Error('Satisfied-evaluation fixture is incomplete.');
+      }
+      Object.assign(hardEvaluations, {
+        h1: { state: 'unresolved', grounding: null },
+      });
+    });
+    const finalist = attempted.modelInput.retrievalFinalists[0];
+    expect(finalist?.deterministicallySatisfiedHardEvaluations).toContainEqual(
+      expect.objectContaining({
+        evaluationId: 'primary-capability-family',
+        sourceKind: 'primary-family',
+        modality: 'required',
+        facet: 'capability',
+        conceptId: 'authorization',
+        profileFieldId: 'capability-family',
+        match: 'match',
+        state: 'satisfied',
+        ruleId: 'evaluate-primary-capability-family',
+      }),
+    );
+    expect(finalist?.unresolvedHardEvaluations).toEqual([]);
+    expect(
+      attempted.response.candidateAssessments['f1']?.hardEvaluations,
+    ).toHaveProperty('h1');
+    expect(attempted.result).toMatchObject({
+      ok: false,
+      failure: { code: 'invalid-target-fit-response' },
+    });
+    expect(attempted.fetch).toHaveBeenCalledTimes(1);
   });
 
   it('returns decoded structured data without treating it as a validated fit exchange', async () => {
@@ -543,7 +594,7 @@ async function runProviderOutput(
   const result = await application.recommendOss(
     recommendationRequest({ id: 'adapter-input', term: 'authorization' }),
   );
-  return { fetch, response, result };
+  return { fetch, modelInput, response, result };
 }
 
 function providerResponse(value: unknown): Record<string, unknown> {
