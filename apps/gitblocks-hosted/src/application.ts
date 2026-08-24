@@ -33,7 +33,9 @@ import {
 } from '@gitblocks/contracts';
 import {
   CANDIDATE_CONSTRAINT_EVALUATION_VERSION,
+  evaluateCandidateConstraintsV2,
   validateCandidateReferenceAuthority,
+  type CandidateConstraintEvaluationItem,
   type CandidateReferenceAuthority,
   type DeterministicCandidateProfileEvaluatorAuthorityV2,
   type DeterministicCandidateProfileEvaluatorV2,
@@ -71,7 +73,19 @@ export interface HostedDiscoverySnapshotV1 {
 export interface FitAssessmentModelRequestV1 {
   readonly fitAssessmentRequest: RecommendationAssessmentModelFitRequestV1;
   readonly normalization: CapabilityQueryNormalizationResultV1;
-  readonly retrievalFinalists: readonly RecommendationRetrievalFinalistV1[];
+  readonly retrievalFinalists: readonly FitAssessmentModelFinalistContextV1[];
+}
+
+export type DeterministicallySatisfiedHardEvaluationV1 = Readonly<
+  Omit<CandidateConstraintEvaluationItem, 'match' | 'modality' | 'state'> & {
+    readonly modality: 'prohibited' | 'required';
+    readonly match: 'match' | 'mismatch';
+    readonly state: 'satisfied';
+  }
+>;
+
+export interface FitAssessmentModelFinalistContextV1 extends RecommendationRetrievalFinalistV1 {
+  readonly deterministicallySatisfiedHardEvaluations: readonly DeterministicallySatisfiedHardEvaluationV1[];
 }
 
 export interface FitAssessmentModelPort {
@@ -321,6 +335,9 @@ export function createHostedRecommendationApplication(input: {
     expansion.value,
     metadata.value,
   );
+  const candidateProfilesById = new Map(
+    profileAuthority.profiles.map((profile) => [profile.candidateId, profile]),
+  );
   const snapshot = Object.freeze({ ...input.snapshot });
   const observer = input.observer ?? NOOP_HOSTED_RECOMMENDATION_OBSERVER;
   const application: HostedRecommendationApplicationV1 = Object.freeze({
@@ -330,6 +347,7 @@ export function createHostedRecommendationApplication(input: {
         suppliedInput,
         taxonomy: taxonomy.value,
         candidateAuthority,
+        candidateProfilesById,
         authorityBindings,
         retrievalExpansionAuthority: expansion.value,
         catalogVersion: 'public-v1',
@@ -357,6 +375,10 @@ async function recommendOss(input: {
   readonly suppliedInput: unknown;
   readonly taxonomy: CapabilityTaxonomyV1;
   readonly candidateAuthority: CandidateReferenceAuthority;
+  readonly candidateProfilesById: ReadonlyMap<
+    string,
+    DeterministicCandidateProfileEvaluatorV2
+  >;
   readonly authorityBindings: CandidateRetrievalAuthorityBindingsV1;
   readonly retrievalExpansionAuthority: CapabilityRetrievalExpansionV1;
   readonly catalogVersion: 'public-v1';
@@ -615,6 +637,7 @@ async function recommendOss(input: {
   }
 
   let fitRequest: FitAssessmentRequestV1;
+  let modelRetrievalFinalists: readonly FitAssessmentModelFinalistContextV1[];
   try {
     const candidateMaximum = Math.min(
       HOSTED_RESPONSIBLE_OPTION_LIMIT,
@@ -636,6 +659,11 @@ async function recommendOss(input: {
     const validated = parseFitAssessmentRequestV1(candidate);
     if (!validated.ok) throw new Error('Fit request validation failed.');
     fitRequest = validated.value;
+    modelRetrievalFinalists = createFitAssessmentModelFinalistContextsV1({
+      finalists,
+      candidateProfilesById: input.candidateProfilesById,
+      normalization: normalized.value,
+    });
   } catch (error) {
     return failed(
       input.observer,
@@ -654,13 +682,7 @@ async function recommendOss(input: {
       fitAssessmentRequest:
         createRecommendationAssessmentModelFitRequestV1(fitRequest),
       normalization: normalized.value,
-      retrievalFinalists: finalists.map(
-        ({ candidateId, lane, unresolvedHardEvaluations }) => ({
-          candidateId,
-          lane,
-          unresolvedHardEvaluations,
-        }),
-      ),
+      retrievalFinalists: modelRetrievalFinalists,
     });
   } catch (error) {
     const providerFailure = hostedDiscoveryProviderFailure(error);
@@ -801,6 +823,70 @@ async function recommendOss(input: {
     targetFitAssessment: response,
     evidenceNeededHardConstraintResolutions: resolutions,
   });
+}
+
+function createFitAssessmentModelFinalistContextsV1(input: {
+  readonly finalists: readonly CandidateRetrievalCandidateV1[];
+  readonly candidateProfilesById: ReadonlyMap<
+    string,
+    DeterministicCandidateProfileEvaluatorV2
+  >;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+}): readonly FitAssessmentModelFinalistContextV1[] {
+  return Object.freeze(
+    input.finalists.map((finalist) => {
+      const profile = input.candidateProfilesById.get(finalist.candidateId);
+      if (profile === undefined) {
+        throw new Error('Finalist profile binding failed.');
+      }
+      const evaluated = evaluateCandidateConstraintsV2({
+        profile,
+        normalization: input.normalization,
+      });
+      if (
+        !evaluated.ok ||
+        evaluated.value.candidateId !== finalist.candidateId
+      ) {
+        throw new Error('Finalist constraint evaluation failed.');
+      }
+      const hardEvaluations = evaluated.value.evaluations.filter(
+        ({ modality }) => modality === 'required' || modality === 'prohibited',
+      );
+      const unresolvedEvaluationIds = new Set(
+        finalist.unresolvedHardEvaluations.map(
+          ({ evaluationId }) => evaluationId,
+        ),
+      );
+      const deterministicallySatisfiedHardEvaluations = hardEvaluations.filter(
+        (
+          evaluation,
+        ): evaluation is DeterministicallySatisfiedHardEvaluationV1 =>
+          isDeterministicallySatisfiedHardEvaluation(evaluation) &&
+          !unresolvedEvaluationIds.has(evaluation.evaluationId),
+      );
+      return Object.freeze({
+        candidateId: finalist.candidateId,
+        lane: finalist.lane,
+        unresolvedHardEvaluations: finalist.unresolvedHardEvaluations,
+        deterministicallySatisfiedHardEvaluations: Object.freeze(
+          deterministicallySatisfiedHardEvaluations.map((evaluation) =>
+            Object.freeze({ ...evaluation }),
+          ),
+        ),
+      });
+    }),
+  );
+}
+
+function isDeterministicallySatisfiedHardEvaluation(
+  evaluation: CandidateConstraintEvaluationItem,
+): evaluation is DeterministicallySatisfiedHardEvaluationV1 {
+  return (
+    (evaluation.modality === 'required' ||
+      evaluation.modality === 'prohibited') &&
+    evaluation.state === 'satisfied' &&
+    (evaluation.match === 'match' || evaluation.match === 'mismatch')
+  );
 }
 
 function repositoryHeadCommit(dossier: CandidateDossierV1): string | null {
