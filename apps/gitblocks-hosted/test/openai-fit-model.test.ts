@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 
 import { type RecommendationAssessmentModelDecompositionV1 } from '@gitblocks/contracts';
@@ -73,7 +74,7 @@ describe('OpenAI Responses target-fit adapter', () => {
     expect(Buffer.byteLength(bodyText, 'utf8')).toBeLessThan(2 * 1024 * 1024);
     expect(bodyText).toContain('candidate slots f1..fN');
     expect(bodyText).toContain(
-      'Direct evidence without both that favorable claim and target-fit inference is not positive support.',
+      'Direct evidence, a hard-evaluation grounding, or an inference that is not nested inside that favorable claim is not positive support.',
     );
     expect(bodyText).toContain(
       'Include enough positive slots to fill requestedMaximumResults',
@@ -104,6 +105,13 @@ describe('OpenAI Responses target-fit adapter', () => {
       expect(bodyText).not.toContain(`unknown-${candidateId}`);
     }
     const providerSchema = providerSchemaFromRequest(received.body);
+    expect(
+      createHash('sha256')
+        .update(
+          `${JSON.stringify(withoutDescriptions(providerSchema), null, 2)}\n`,
+        )
+        .digest('hex'),
+    ).toBe('20057bbf6092465abff3a49bf0030bb95ee15698f413deed945b6d26ab331f86');
     const candidateProperties = recordAt(
       recordAt(providerSchema, 'properties'),
       'candidateAssessments',
@@ -170,6 +178,74 @@ describe('OpenAI Responses target-fit adapter', () => {
     expect(bodyText).toContain(
       'The server does not append, promote, or reorder candidates.',
     );
+    expect(bodyText).toContain(
+      'A claim asserts something the selected evidence supports; an assessment unknown records what the evidence does not establish.',
+    );
+    expect(bodyText).toContain(
+      'Decide fitJudgment from support actually authored in this response, not support you could have authored.',
+    );
+    expect(bodyText).toContain('required-rbac');
+    expect(bodyText).toContain('required-RBAC');
+    expect(bodyText).toContain(
+      'Before returning, inspect every authored topic and incompleteReasonCodes value',
+    );
+    const firstCandidateProperties = recordAt(
+      recordAt(candidateSlots, 'f1'),
+      'properties',
+    );
+    expect(
+      recordAt(firstCandidateProperties, 'fitJudgment')['description'],
+    ).toContain(
+      'Never choose recommended or viable from direct evidence, hard-evaluation grounding, or an inference that is not actually nested inside a favorable claim',
+    );
+    const reasonProperties = recordAt(
+      recordAt(recordAt(firstCandidateProperties, 'reasons'), 'items'),
+      'properties',
+    );
+    const claimProperties = recordAt(
+      recordAt(recordAt(reasonProperties, 'claims'), 'items'),
+      'properties',
+    );
+    expect(recordAt(claimProperties, 'topic')['description']).toContain(
+      'must match ^[a-z0-9]+(?:-[a-z0-9]+)*$',
+    );
+    expect(recordAt(claimProperties, 'statement')['description']).toContain(
+      'an assessment unknown, never a claim',
+    );
+    const inferenceProperties = recordAt(
+      recordAt(recordAt(claimProperties, 'inferences'), 'items'),
+      'properties',
+    );
+    expect(recordAt(inferenceProperties, 'topic')['description']).toContain(
+      'at most 64 characters',
+    );
+    const assessmentUnknownProperties = recordAt(
+      recordAt(recordAt(reasonProperties, 'assessmentUnknowns'), 'items'),
+      'properties',
+    );
+    expect(
+      recordAt(assessmentUnknownProperties, 'topic')['description'],
+    ).toContain('no spaces, periods, or uppercase letters');
+    expect(
+      recordAt(assessmentUnknownProperties, 'statement')['description'],
+    ).toContain('belongs here, never in claims');
+    const assessmentProcessing = recordAt(
+      recordAt(providerSchema, 'properties'),
+      'assessmentProcessing',
+    );
+    const processingVariants = assessmentProcessing['anyOf'];
+    if (!Array.isArray(processingVariants)) {
+      throw new Error('Expected assessment processing variants.');
+    }
+    for (const variant of processingVariants) {
+      const incompleteReasonCodeItems = recordAt(
+        recordAt(recordAt(variant, 'properties'), 'incompleteReasonCodes'),
+        'items',
+      );
+      expect(incompleteReasonCodeItems['description']).toContain(
+        'Convert "self-hosted-Next.js-Drizzle-fit" to "self-hosted-next-js-drizzle-fit".',
+      );
+    }
     expect(bodyText).toContain('modelSlotBindings');
     expect(bodyText).toContain('retrievalFinalists');
     expect(consoleError).not.toHaveBeenCalled();
@@ -553,6 +629,18 @@ function valuesForNamedKey(value: unknown, expectedKey: string): unknown[] {
     values.push(...valuesForNamedKey(member, expectedKey));
   }
   return values;
+}
+
+function withoutDescriptions(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((member) => withoutDescriptions(member));
+  }
+  if (value === null || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value as Readonly<Record<string, unknown>>)
+      .filter(([key]) => key !== 'description')
+      .map(([key, member]) => [key, withoutDescriptions(member)]),
+  );
 }
 
 async function startProvider(

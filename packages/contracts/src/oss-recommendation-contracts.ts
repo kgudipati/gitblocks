@@ -66,6 +66,14 @@ const MAXIMUM_FIT_HARD_CONSTRAINTS = 20;
 const MAXIMUM_FIT_PREFERENCES = 20;
 const UTC_TIMESTAMP_PATTERN =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/u;
+const MODEL_AUTHORED_STABLE_ID_DESCRIPTION =
+  'Stable identifier, not prose: must match ^[a-z0-9]+(?:-[a-z0-9]+)*$, use at most 64 characters, and contain lowercase alphanumeric characters and hyphens only—no spaces, periods, or uppercase letters. Correct: "required-rbac". Incorrect: "required-RBAC" or "application authorization checks". Convert "self-hosted-Next.js-Drizzle-fit" to "self-hosted-next-js-drizzle-fit". Before returning, rewrite any value that does not match this exact form.';
+const MODEL_AUTHORED_CLAIM_DESCRIPTION =
+  'A claim asserts something the selected candidate-owned evidence supports. A statement that the evidence does not establish something is an assessment unknown, never a claim; put it in assessmentUnknowns instead.';
+const MODEL_AUTHORED_UNKNOWN_DESCRIPTION =
+  'An assessment unknown records what the selected evidence does not establish. For example, "The supplied Casbin evidence does not document PostgreSQL compatibility" belongs here, never in claims.';
+const MODEL_FIT_JUDGMENT_DESCRIPTION =
+  "Decide from support actually authored inside this candidate's reasons. Choose recommended or viable only when a favorable claim actually contains a nested candidate-evidence-grounded inference selecting at least one repositoryFactIds value and the authored favorable claims ground the required features. Never choose recommended or viable from direct evidence, hard-evaluation grounding, or an inference that is not actually nested inside a favorable claim. When that exact positive support is present, do not choose insufficient-evidence merely because evidence has limitations or does not prove unrelated facts. Otherwise use insufficient-evidence only when evidence is genuinely inadequate, and include a considered candidateUnknownIds entry or authored assessmentUnknowns entry explaining the gap.";
 
 export type TargetFitAssessmentExchangeValidationResult =
   | {
@@ -537,12 +545,18 @@ export function createRecommendationAssessmentModelDecompositionSchemaV1(input: 
       };
     }
     const claimSchema = strictSchemaObject({
-      topic: { type: 'string' },
+      topic: {
+        type: 'string',
+        description: MODEL_AUTHORED_STABLE_ID_DESCRIPTION,
+      },
       direction: {
         type: 'string',
         enum: ['favorable', 'neutral', 'unfavorable'],
       },
-      statement: { type: 'string' },
+      statement: {
+        type: 'string',
+        description: MODEL_AUTHORED_CLAIM_DESCRIPTION,
+      },
       evidenceIds: modelSelectionArraySchema(evidenceIds),
       inferences: {
         type: 'array',
@@ -551,8 +565,14 @@ export function createRecommendationAssessmentModelDecompositionSchemaV1(input: 
       },
     });
     const assessmentUnknownSchema = strictSchemaObject({
-      topic: { type: 'string' },
-      statement: { type: 'string' },
+      topic: {
+        type: 'string',
+        description: MODEL_AUTHORED_STABLE_ID_DESCRIPTION,
+      },
+      statement: {
+        type: 'string',
+        description: MODEL_AUTHORED_UNKNOWN_DESCRIPTION,
+      },
       evidenceIds: modelSelectionArraySchema(evidenceIds),
     });
     const reasonSchema = strictSchemaObject({
@@ -572,6 +592,7 @@ export function createRecommendationAssessmentModelDecompositionSchemaV1(input: 
         fitJudgment: {
           type: 'string',
           enum: ['insufficient-evidence', 'recommended', 'rejected', 'viable'],
+          description: MODEL_FIT_JUDGMENT_DESCRIPTION,
         },
         reasons: {
           type: 'array',
@@ -601,7 +622,10 @@ export function createRecommendationAssessmentModelDecompositionSchemaV1(input: 
             state: { type: 'string', enum: ['complete'] },
             incompleteReasonCodes: {
               type: 'array',
-              items: { type: 'string' },
+              items: {
+                type: 'string',
+                description: MODEL_AUTHORED_STABLE_ID_DESCRIPTION,
+              },
               maxItems: 0,
             },
           }),
@@ -609,7 +633,10 @@ export function createRecommendationAssessmentModelDecompositionSchemaV1(input: 
             state: { type: 'string', enum: ['partial-evidence'] },
             incompleteReasonCodes: {
               type: 'array',
-              items: { type: 'string' },
+              items: {
+                type: 'string',
+                description: MODEL_AUTHORED_STABLE_ID_DESCRIPTION,
+              },
               minItems: 1,
               maxItems: 20,
             },
@@ -665,7 +692,10 @@ function modelInferenceSelectionSchema(
   repositoryFactIds: readonly string[],
 ): Record<string, unknown> {
   return strictSchemaObject({
-    topic: { type: 'string' },
+    topic: {
+      type: 'string',
+      description: MODEL_AUTHORED_STABLE_ID_DESCRIPTION,
+    },
     statement: { type: 'string' },
     rationale: { type: 'string' },
     evidenceIds: {
