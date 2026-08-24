@@ -20,7 +20,7 @@ export const DEFAULT_HOSTED_MCP_HOST = '127.0.0.1';
 export const DEFAULT_HOSTED_MCP_PORT = 3333;
 export const OPENAI_API_KEY_ENVIRONMENT_NAME = 'OPENAI_API_KEY';
 export const HOSTED_FIT_MODEL_ENVIRONMENT_NAME = 'GITBLOCKS_HOSTED_FIT_MODEL';
-export const HOSTED_FIT_MODEL = 'gpt-5.4-mini-2026-03-17';
+export const HOSTED_FIT_MODEL = 'gpt-5.6-luna';
 
 const EXPECTED_NON_EMPTY_TEXT = 'non-empty text';
 const EXPECTED_PORT = 'an integer from 1 through 65535';

@@ -137,6 +137,19 @@ and nested authored content. Direct evidence without a favorable authored
 claim and a candidate-evidence-grounded target-fit inference is never positive
 support.
 
+The hosted target-fit boundary is frozen to the exact `gpt-5.6-luna` model
+identifier. `GITBLOCKS_HOSTED_FIT_MODEL` must carry that exact value as a
+deployment assertion; it is not an arbitrary selector, and no alias, routing,
+fallback, retry, escalation, or background mode is supported. Issue #161
+replaced the prior `gpt-5.4-mini-2026-03-17` pin after an interleaved three-run
+comparison on the fixed 15-fixture baseline produced 45/45 valid Luna responses
+with zero validation issues, versus 30/45 valid mini responses. Luna produced
+39 `recommend` and 6 `insufficient-evidence` outcomes; mini produced 18 and 12.
+Luna's median/p95 wall time was 29.4/36.8 seconds versus 14.3/20.7 seconds for
+mini, with both inside the bounded 60-second deadline. Forty-five calls against
+fixed fixtures is a small sample, and production requests will exercise cases
+the harness does not.
+
 A user request runs only the hosted request path and may read PostgreSQL
 directly where the use case requires it or use a process-local immutable search
 view. R6 loads the retrieval snapshot only at startup. R9 performs bounded

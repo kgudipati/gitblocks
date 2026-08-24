@@ -208,6 +208,50 @@ describe('hosted recommendation composition', () => {
     ).toThrow('Hosted discovery configuration is invalid.');
   });
 
+  it('pins startup to exactly gpt-5.6-luna with one diagnostic shape for every other model', () => {
+    expect(HOSTED_FIT_MODEL).toBe('gpt-5.6-luna');
+    const environment = {
+      ...databaseEnvironment(),
+      GITBLOCKS_MCP_TOKEN: 'test-only-token',
+      OPENAI_API_KEY: 'sk-test-only',
+      GITBLOCKS_HOSTED_FIT_MODEL: 'gpt-5.6-luna',
+    };
+
+    expect(readHostedRuntimeConfiguration(environment).fitModel).toEqual({
+      apiKey: 'sk-test-only',
+      model: 'gpt-5.6-luna',
+    });
+
+    for (const rejectedModel of [
+      'gpt-5.4-mini-2026-03-17',
+      'gpt-5.6',
+      'arbitrary-model',
+    ]) {
+      let thrown: unknown;
+      try {
+        readHostedRuntimeConfiguration({
+          ...environment,
+          GITBLOCKS_HOSTED_FIT_MODEL: rejectedModel,
+        });
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toMatchObject({
+        code: 'hosted.invalid-configuration',
+        problems: [
+          {
+            variable: 'GITBLOCKS_HOSTED_FIT_MODEL',
+            expected: 'the exact identifier gpt-5.6-luna',
+          },
+        ],
+      });
+      expect(String(thrown)).toBe(
+        'HostedConfigurationError: Hosted discovery configuration is invalid. GITBLOCKS_HOSTED_FIT_MODEL: expected the exact identifier gpt-5.6-luna.',
+      );
+    }
+  });
+
   it('fails startup configuration when GITBLOCKS_MCP_TOKEN is unset or empty', () => {
     expect(MCP_TOKEN_ENVIRONMENT_NAME).toBe('GITBLOCKS_MCP_TOKEN');
     for (const environment of [{}, { [MCP_TOKEN_ENVIRONMENT_NAME]: '' }]) {
