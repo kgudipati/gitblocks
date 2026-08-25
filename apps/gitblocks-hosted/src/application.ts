@@ -541,36 +541,36 @@ async function recommendOss(input: {
   try {
     const materialByCandidateId = new Map(
       await Promise.all(
-        finalists
-          .filter(({ lane }) => lane === 'evidence-needed')
-          .map(async (finalist) => {
-            const dossier = dossiers.find(
-              ({ identity }) => identity.candidateId === finalist.candidateId,
+        finalists.map(async (finalist) => {
+          const dossier = dossiers.find(
+            ({ identity }) => identity.candidateId === finalist.candidateId,
+          );
+          const commitSha =
+            dossier === undefined ? null : repositoryHeadCommit(dossier);
+          if (commitSha === null) {
+            return [finalist.candidateId, null] as const;
+          }
+          const material =
+            await input.artifactMaterialLoader.loadCandidateRepositoryArtifactMaterial(
+              {
+                candidateId: finalist.candidateId,
+                expectedCatalogVersion: input.catalogVersion,
+                expectedCatalogDigest: input.catalogDigest,
+                commitSha,
+                evidenceCutoff,
+              },
             );
-            const commitSha =
-              dossier === undefined ? null : repositoryHeadCommit(dossier);
-            if (commitSha === null) {
-              return [finalist.candidateId, null] as const;
-            }
-            const material =
-              await input.artifactMaterialLoader.loadCandidateRepositoryArtifactMaterial(
-                {
-                  candidateId: finalist.candidateId,
-                  expectedCatalogVersion: input.catalogVersion,
-                  expectedCatalogDigest: input.catalogDigest,
-                  commitSha,
-                  evidenceCutoff,
-                },
-              );
-            return [finalist.candidateId, material] as const;
-          }),
+          return [finalist.candidateId, material] as const;
+        }),
       ),
     );
     let remainingArtifactObservations =
       MAX_ARTIFACT_EVIDENCE_PER_RECOMMENDATION;
     dossiers = dossiers.map((dossier, index) => {
       const finalist = finalists[index];
-      if (finalist?.lane !== 'evidence-needed') return dossier;
+      if (finalist === undefined) {
+        throw new Error('Finalist artifact evidence binding failed.');
+      }
       const material = materialByCandidateId.get(finalist.candidateId);
       if (material === null || material === undefined) return dossier;
       const selected = selectCandidateArtifactEvidenceV1({
@@ -578,6 +578,7 @@ async function recommendOss(input: {
         dossier,
         capabilityQuery: parsed.value.capabilityQuery,
         normalization: normalized.value,
+        repositoryFingerprint: parsed.value.repositoryFingerprint,
         retrievalExpansionAuthority: input.retrievalExpansionAuthority,
         material,
         maximumObservations: Math.min(

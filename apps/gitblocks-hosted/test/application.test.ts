@@ -544,7 +544,70 @@ describe('hosted OSS recommendation application', () => {
     });
   });
 
-  it('augments only evidence-needed finalists with matching request-scoped artifact excerpts before the one model call', async () => {
+  it('augments eligible finalists with fit-scoped request evidence before the one model call', async () => {
+    const request = recommendationRequest({
+      id: 'eligible-rate-limiting-artifacts',
+      term: 'rate-limiting',
+    });
+    const authorities = await loadAcceptedAuthorities();
+    const artifactLoads: string[] = [];
+    const modelInputs: FitAssessmentModelRequestV1[] = [];
+    const application = await createAcceptedApplication({
+      dossierLoader: {
+        loadActiveCandidateDossier: (command) =>
+          Promise.resolve(
+            candidateRepositoryHeadDossier(
+              command.candidateId,
+              command.expectedCapabilityFamily,
+            ),
+          ),
+      },
+      artifactMaterialLoader: {
+        loadCandidateRepositoryArtifactMaterial: (command) => {
+          artifactLoads.push(command.candidateId);
+          return Promise.resolve(
+            artifactLoads.length === 1
+              ? candidateArtifactMaterial({
+                  candidateId: command.candidateId,
+                  catalogDigest: authorities.profiles.catalogDigest,
+                  content: [
+                    'The rate limiter counts requests and blocks clients after the configured limit.',
+                    'Add the limiter to Next.js middleware for application routes.',
+                    'The in-process memory store avoids an external service.',
+                  ].join('\n'),
+                })
+              : null,
+          );
+        },
+      },
+      fitModel: {
+        assess: (input) => {
+          modelInputs.push(input);
+          return Promise.resolve(groundedModelResponse(input));
+        },
+      },
+    });
+
+    const result = await application.recommendOss(request);
+
+    expect(result).toMatchObject({
+      ok: true,
+      result: { outcome: 'recommend' },
+    });
+    expect(artifactLoads).toHaveLength(HOSTED_FIT_FINALIST_LIMIT);
+    expect(modelInputs).toHaveLength(1);
+    expect(
+      modelInputs[0]?.fitAssessmentRequest.candidates[0]?.observations
+        .filter(({ topic }) => topic === 'artifact-excerpt')
+        .map(({ observation }) => observation),
+    ).toEqual([
+      'The rate limiter counts requests and blocks clients after the configured limit.',
+      'Add the limiter to Next.js middleware for application routes.',
+      'The in-process memory store avoids an external service.',
+    ]);
+  });
+
+  it('augments evidence-needed finalists with matching request-scoped artifact excerpts before the one model call', async () => {
     const request = frozenBackgroundJobsDogfoodRequest();
     const authorities = await loadAcceptedAuthorities();
     const artifactLoads: string[] = [];
