@@ -508,6 +508,53 @@ describe('deterministic capability-query normalization', () => {
     ]);
   });
 
+  it.each(['durable background jobs', 'PostgreSQL-backed job queue'])(
+    'expands the compound primary capability phrase %s without deriving a constraint',
+    (term) => {
+      const result = normalizeCapabilityQuery(
+        input({
+          capabilityTerms: [{ termId: 'term-family', originalTerm: term }],
+        }),
+        taxonomy(),
+      );
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.value).toMatchObject({
+        outcome: 'normalized',
+        primaryFamilyId: 'background-jobs',
+        normalizedCapabilityConcepts: [
+          {
+            conceptId: 'background-jobs',
+            sourceTermIds: ['term-family'],
+            ruleId: 'taxonomy-compound-family-expansion',
+          },
+        ],
+        normalizedConstraints: [],
+        preservedDeclarations: [],
+        unresolvedTerms: [],
+        clarifications: [],
+      });
+    },
+  );
+
+  it.each(['lightweight background jobs', 'background jobs without redis'])(
+    'does not use compound capability expansion to weaken %s into a family-only request',
+    (term) => {
+      const result = normalizeCapabilityQuery(
+        input({
+          capabilityTerms: [{ termId: 'term-family', originalTerm: term }],
+        }),
+        taxonomy(),
+      );
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.value.outcome).toBe('clarification-required');
+      expect(result.value.normalizedCapabilityConcepts).toEqual([]);
+    },
+  );
+
   it.each(['job queue', 'worker queue', 'task queue'])(
     'retains every queue possibility for %s without order selection',
     (term) => {

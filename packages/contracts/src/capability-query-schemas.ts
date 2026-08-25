@@ -43,6 +43,13 @@ export const capabilityQueryStatementTextSchema = Type.String({
   maxLength: CAPABILITY_QUERY_LIMITS.statementCodeUnits,
   pattern: SAFE_LOCAL_TEXT_PATTERN,
 });
+export const capabilityQueryCandidateReferenceTextSchema = Type.String({
+  minLength: 1,
+  maxLength: 201,
+  pattern: SAFE_LOCAL_TEXT_PATTERN,
+  description:
+    'An exact candidate display name, npm package name, candidate ID, or owner/repository slug.',
+});
 const boundedContextSchema = Type.String({
   minLength: 1,
   maxLength: 500,

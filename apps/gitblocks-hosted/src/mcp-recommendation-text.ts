@@ -1,4 +1,5 @@
 import type { RepositoryFingerprintV1 } from '@gitblocks/contracts';
+import { getCapabilityFamilies } from '@gitblocks/domain';
 
 import type {
   HostedRecommendationResultV1,
@@ -18,6 +19,9 @@ export function primaryRecommendationText(
   repositoryFingerprint: RepositoryFingerprintV1,
 ): string {
   const outcomeText = `GitBlocks recommendation outcome: ${result.outcome}.`;
+  if (result.outcome === 'clarification-required') {
+    return `${outcomeText} Accepted capability families: ${getCapabilityFamilies().join(', ')}.`;
+  }
   if (
     result.outcome === 'insufficient-evidence' ||
     result.outcome === 'unsupported' ||
@@ -25,7 +29,6 @@ export function primaryRecommendationText(
   ) {
     return `${outcomeText} GitBlocks validated no candidate; claims obtained from any other source are not GitBlocks results.`;
   }
-  if (result.outcome !== 'recommend') return outcomeText;
   return renderResponsibleOptions(outcomeText, result, repositoryFingerprint);
 }
 

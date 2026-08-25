@@ -28,6 +28,7 @@ import {
   type DomainResult,
 } from './issues.ts';
 import type { CapabilityFamily } from './model.ts';
+import { getCapabilityFamilies } from './model.ts';
 
 export type CapabilityQueryTermCanonicalizationResult =
   | { readonly ok: true; readonly value: string }
@@ -210,8 +211,18 @@ const TERMINAL_PRIMARY_EXCLUSION_REASONS = new Set([
   'incidental-capability',
 ]);
 
-const PRIMARY_CAPABILITY_CLARIFICATION_CONTEXT =
-  'Use one supported primary capability term: authorization, audit-logging, background-jobs, rate-limiting, or webhooks. Put framework, runtime, datastore, and other repository constraints in draftConstraints.';
+const PRIMARY_CAPABILITY_CLARIFICATION_CONTEXT = `Use one supported primary capability term: ${formatCapabilityFamilies()}. Put framework, runtime, datastore, and other repository constraints in draftConstraints.`;
+const COMPOUND_PRIMARY_NEGATION_TOKENS = new Set([
+  'except',
+  'exclude',
+  'excluding',
+  'must',
+  'no',
+  'not',
+  'prohibit',
+  'prohibited',
+  'without',
+]);
 
 export function canonicalizeCapabilityQueryLookupTermV1(
   value: string,
@@ -406,17 +417,35 @@ export function normalizeCapabilityQuery(
         break;
       }
       case 'unknown':
-        primaryTermClassifications.push('unknown');
-        addUnknownTerm(
-          'capability-term',
-          term.termId,
-          canonical.value,
-          'unknown-primary-capability',
-          null,
-          true,
-          unresolved,
-          clarifications,
-        );
+        {
+          const expandedFamily = compoundPrimaryCapabilityFamily(
+            canonical.value,
+            taxonomy,
+            concepts,
+          );
+          const familyConcept =
+            expandedFamily === null ? undefined : concepts.get(expandedFamily);
+          if (familyConcept?.kind === 'family') {
+            primaryTermClassifications.push('resolved');
+            capabilityResolutions.push({
+              concept: familyConcept,
+              sourceTermId: term.termId,
+              ruleId: 'taxonomy-compound-family-expansion',
+            });
+            break;
+          }
+          primaryTermClassifications.push('unknown');
+          addUnknownTerm(
+            'capability-term',
+            term.termId,
+            canonical.value,
+            'unknown-primary-capability',
+            null,
+            true,
+            unresolved,
+            clarifications,
+          );
+        }
         break;
     }
   }
@@ -608,6 +637,66 @@ export function normalizeCapabilityQuery(
     addIssue(issues, 'query.normalization', 'normalizationSteps');
   }
   return resultFromIssues({ ...coreWithoutSteps, normalizationSteps }, issues);
+}
+
+function compoundPrimaryCapabilityFamily(
+  canonicalTerm: string,
+  taxonomy: CapabilityTaxonomy,
+  concepts: ReadonlyMap<string, CapabilityTaxonomyConcept>,
+): CapabilityFamily | null {
+  const tokens = canonicalTerm.split('-');
+  if (
+    tokens.length < 2 ||
+    tokens.some((token) => COMPOUND_PRIMARY_NEGATION_TOKENS.has(token))
+  ) {
+    return null;
+  }
+
+  const supportedFamilies = getCapabilityFamilies();
+  let intersection = new Set<CapabilityFamily>(supportedFamilies);
+  let hasFamilySpecificSignal = false;
+  let hasTrailingFamilySpecificSignal = false;
+  for (let start = 0; start < tokens.length; start += 1) {
+    for (let end = start + 1; end <= tokens.length; end += 1) {
+      const segment = tokens.slice(start, end).join('-');
+      if (segment === canonicalTerm) continue;
+      const lookup = lookupCapabilityTaxonomyTerm(taxonomy, segment);
+      if (lookup.kind === 'excluded') return null;
+
+      let families: ReadonlySet<CapabilityFamily> | null = null;
+      if (lookup.kind === 'resolved' && lookup.aliasStatus === 'active') {
+        const concept = concepts.get(lookup.conceptId);
+        if (concept !== undefined) {
+          families = new Set(concept.applicableFamilyIds);
+        }
+      } else if (lookup.kind === 'ambiguous') {
+        const possibleFamilies = lookup.possibleConceptIds.flatMap(
+          (conceptId) => concepts.get(conceptId)?.applicableFamilyIds ?? [],
+        );
+        if (possibleFamilies.length > 0) {
+          families = new Set(possibleFamilies);
+        }
+      }
+      if (families === null) continue;
+      if (families.size < supportedFamilies.length) {
+        hasFamilySpecificSignal = true;
+        if (end === tokens.length) hasTrailingFamilySpecificSignal = true;
+      }
+      intersection = new Set(
+        [...intersection].filter((family) => families.has(family)),
+      );
+    }
+  }
+  return hasFamilySpecificSignal &&
+    hasTrailingFamilySpecificSignal &&
+    intersection.size === 1
+    ? (intersection.values().next().value ?? null)
+    : null;
+}
+
+function formatCapabilityFamilies(): string {
+  const families = getCapabilityFamilies();
+  return `${families.slice(0, -1).join(', ')}, or ${families.at(-1) ?? ''}`;
 }
 
 export function validateCapabilityQueryNormalizationResult<
@@ -1196,7 +1285,10 @@ function groupCapabilityConcepts(
         previous?.ruleId === 'taxonomy-deprecated-alias' ||
         resolution.ruleId === 'taxonomy-deprecated-alias'
           ? 'taxonomy-deprecated-alias'
-          : 'taxonomy-active-alias',
+          : previous?.ruleId === 'taxonomy-compound-family-expansion' ||
+              resolution.ruleId === 'taxonomy-compound-family-expansion'
+            ? 'taxonomy-compound-family-expansion'
+            : 'taxonomy-active-alias',
     });
   }
   return [...grouped.values()].sort((left, right) =>

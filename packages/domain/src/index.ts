@@ -35,12 +35,14 @@ export {
   CAPABILITY_QUERY_MAX_UNRESOLVED_TERMS,
   CAPABILITY_QUERY_NORMALIZER_VERSION,
   canonicalizeCapabilityQueryInput,
+  deriveCapabilityQueryCandidateReference,
   validateCandidateReferenceAuthority,
   validateCapabilityQueryInput,
 } from './capability-query.ts';
 export type {
   CandidateReferenceAuthority,
   CandidateReferenceAuthorityEntry,
+  DerivedCapabilityQueryCandidateReference,
   CapabilityQueryCandidateReference,
   CapabilityQueryCandidateReferenceKind,
   CapabilityQueryConstraintFacet,

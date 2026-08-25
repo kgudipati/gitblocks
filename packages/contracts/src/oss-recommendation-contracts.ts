@@ -1,6 +1,8 @@
 import {
   deriveCapabilityQueryConstraintFacet,
+  deriveCapabilityQueryCandidateReference,
   isCapabilityQueryTargetFitContext,
+  type CandidateReferenceAuthority,
   type FitAssessmentExchange,
 } from '@gitblocks/domain';
 
@@ -208,6 +210,7 @@ export function parseOssRecommendationRequest(
 export function expandOssRecommendationRequest(input: {
   readonly recommendationRequest: unknown;
   readonly taxonomy: unknown;
+  readonly candidateReferenceAuthority?: CandidateReferenceAuthority;
 }): ContractParseResult<
   OssRecommendationRequestV1,
   OssRecommendationRequestV1
@@ -225,7 +228,11 @@ export function expandOssRecommendationRequest(input: {
 
   const taxonomy = parseCapabilityTaxonomyV1(input.taxonomy);
   if (!taxonomy.ok) return taxonomy;
-  return expandParsedOssRecommendationRequestV2(request.value, taxonomy.value);
+  return expandParsedOssRecommendationRequestV2(
+    request.value,
+    taxonomy.value,
+    input.candidateReferenceAuthority,
+  );
 }
 
 export function ossRecommendationRequestId(
@@ -239,6 +246,7 @@ export function ossRecommendationRequestId(
 function expandParsedOssRecommendationRequestV2(
   request: OssRecommendationRequestV2,
   taxonomy: CapabilityTaxonomyV1,
+  candidateReferenceAuthority?: CandidateReferenceAuthority,
 ): ContractParseResult<OssRecommendationRequestV1, OssRecommendationRequestV1> {
   const requestDigest = contractCanonicalDigest(request);
   const expanded = {
@@ -275,10 +283,19 @@ function expandParsedOssRecommendationRequestV2(
               : null,
       })),
       candidateReferences: (request.candidateReferences ?? []).map(
-        (reference, index) => ({
-          referenceId: generatedSequenceId('reference', index),
-          ...reference,
-        }),
+        (reference, index) =>
+          typeof reference === 'string'
+            ? {
+                referenceId: generatedSequenceId('reference', index),
+                ...deriveCapabilityQueryCandidateReference(
+                  reference,
+                  candidateReferenceAuthority,
+                ),
+              }
+            : {
+                referenceId: generatedSequenceId('reference', index),
+                ...reference,
+              },
       ),
       repositoryFingerprintReference: {
         fingerprintId: request.repositoryFingerprint.fingerprintId,

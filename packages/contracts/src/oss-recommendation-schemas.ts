@@ -4,6 +4,7 @@ import { CAPABILITY_QUERY_LIMITS } from '@gitblocks/domain';
 
 import {
   capabilityQueryCandidateReferenceIntentSchema,
+  capabilityQueryCandidateReferenceTextSchema,
   capabilityQueryConstraintModalitySchema,
   capabilityQueryInputV1ValueSchema,
   capabilityQueryNpmPackageReferenceValueSchema,
@@ -255,6 +256,7 @@ export const ossRecommendationRequestV1Schema = Type.Object(
 );
 
 const ossRecommendationCandidateReferenceV2Schema = Type.Union([
+  capabilityQueryCandidateReferenceTextSchema,
   closedObject({
     kind: Type.Literal('candidate-id'),
     value: stableIdSchema,
@@ -319,7 +321,7 @@ const ossRecommendationRequestV2Properties = {
     Type.Array(ossRecommendationCandidateReferenceV2Schema, {
       maxItems: CAPABILITY_QUERY_LIMITS.candidateReferences,
       description:
-        'Optional exact candidate, owner/repository, or npm-package references; reference IDs are derived server-side.',
+        'Optional exact references. The simplest form is a bare string containing a candidate display name, candidate ID, npm package, or owner/repository slug; the server derives kind, value, reference ID, and named-candidate intent. Examples: ["pg-boss"], ["@scope/package"], or ["timgit/pg-boss"]. Existing structured entries remain accepted: {"kind":"npm-package","value":"pg-boss","intent":"compare"}.',
     }),
   ),
   repositoryFingerprint: repositoryFingerprintV1ValueSchema,

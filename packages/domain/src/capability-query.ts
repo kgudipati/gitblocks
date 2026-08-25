@@ -109,6 +109,7 @@ export interface CapabilityQueryInput {
 
 export interface CandidateReferenceAuthorityEntry {
   readonly candidateId: string;
+  readonly displayName?: string;
   readonly capabilityFamily: CapabilityFamily;
   readonly repositoryKey: string;
   readonly npmPackageKey: string | null;
@@ -119,6 +120,11 @@ export interface CandidateReferenceAuthority {
   readonly catalogDigest: string;
   readonly candidates: readonly CandidateReferenceAuthorityEntry[];
 }
+
+export type DerivedCapabilityQueryCandidateReference = Pick<
+  CapabilityQueryCandidateReference,
+  'intent' | 'kind' | 'value'
+>;
 
 const DIGEST_PATTERN = /^[0-9a-f]{64}$/u;
 const CATALOG_VERSION_PATTERN = /^[a-z0-9](?:[a-z0-9.-]{0,62}[a-z0-9])?$/u;
@@ -313,6 +319,18 @@ export function validateCandidateReferenceAuthority(
       issues,
       'query.authority',
     );
+    if (candidate.displayName !== undefined) {
+      const displayNameKey = candidate.displayName.trim().toLowerCase();
+      if (
+        candidate.displayName.length < 1 ||
+        candidate.displayName.length > 160 ||
+        displayNameKey.length === 0 ||
+        containsUnsafeControls(candidate.displayName) ||
+        containsUrl(candidate.displayName)
+      ) {
+        addIssue(issues, 'query.authority', `${path}.displayName`);
+      }
+    }
     if (!REPOSITORY_KEY_PATTERN.test(candidate.repositoryKey)) {
       addIssue(issues, 'query.authority', `${path}.repositoryKey`);
     }
@@ -347,6 +365,57 @@ export function validateCandidateReferenceAuthority(
       .sort((left, right) => compareText(left.candidateId, right.candidateId)),
   };
   return resultFromIssues(canonical, issues);
+}
+
+/**
+ * Derives the canonical reference structure for the V2 caller's bare exact
+ * value. A bounded authority match wins; otherwise syntax is preserved in the
+ * closest V1 reference kind so normalization can return an actionable unknown
+ * reference instead of requiring the caller to guess the object shape.
+ */
+export function deriveCapabilityQueryCandidateReference(
+  value: string,
+  authority?: CandidateReferenceAuthority,
+): DerivedCapabilityQueryCandidateReference {
+  const lookupKey = value.trim().toLowerCase();
+  if (authority !== undefined) {
+    const matches = authority.candidates.filter(
+      (candidate) =>
+        candidate.candidateId.toLowerCase() === lookupKey ||
+        candidate.repositoryKey === lookupKey ||
+        candidate.npmPackageKey === lookupKey ||
+        candidate.displayName?.trim().toLowerCase() === lookupKey,
+    );
+    const candidateIds = [
+      ...new Set(matches.map(({ candidateId }) => candidateId)),
+    ];
+    if (candidateIds.length === 1 && candidateIds[0] !== undefined) {
+      return {
+        kind: 'candidate-id',
+        value: candidateIds[0],
+        intent: 'named-candidate',
+      };
+    }
+  }
+
+  if (REPOSITORY_KEY_PATTERN.test(lookupKey) && !lookupKey.startsWith('@')) {
+    return { kind: 'repository', value: lookupKey, intent: 'named-candidate' };
+  }
+  if (PACKAGE_KEY_PATTERN.test(lookupKey)) {
+    return { kind: 'npm-package', value: lookupKey, intent: 'named-candidate' };
+  }
+  const candidateId = lookupKey
+    .replace(/[^a-z0-9]+/gu, '-')
+    .replace(/^-+|-+$/gu, '')
+    .slice(0, 64)
+    .replace(/-+$/gu, '');
+  return {
+    kind: 'candidate-id',
+    value: /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/u.test(candidateId)
+      ? candidateId
+      : 'unknown-candidate-reference',
+    intent: 'named-candidate',
+  };
 }
 
 function validateCandidateReferenceValue(
