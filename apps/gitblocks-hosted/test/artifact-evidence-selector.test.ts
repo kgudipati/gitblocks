@@ -106,6 +106,59 @@ describe('request-scoped finalist artifact evidence selection', () => {
     );
   });
 
+  it('selects authenticated-user guidance for an actor-attribution success condition', async () => {
+    const selection = await selectorInputForRequest(
+      [
+        'Bunyan is a simple and fast JSON logging library for node.js services.',
+        '- `req.username`: Authenticated user (or for a 401, the user attempting to auth).',
+      ].join('\n'),
+      auditLoggingRequest(),
+      'audit-bunyan',
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        lane: 'eligible',
+        unresolvedHardEvaluations: [],
+      },
+    });
+
+    expect(evidence.map(({ observation }) => observation)).toContain(
+      '- `req.username`: Authenticated user (or for a 401, the user attempting to auth).',
+    );
+  });
+
+  it('selects remote-user documentation through a deterministic actor vocabulary bridge', async () => {
+    const selection = await selectorInputForRequest(
+      [
+        'This prevents unrelated routing behavior.',
+        ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status',
+        '##### :remote-user',
+        'The user authenticated as part of Basic auth for the request.',
+      ].join('\n'),
+      auditLoggingRequest(),
+      'audit-express-morgan',
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        lane: 'eligible',
+        unresolvedHardEvaluations: [],
+      },
+    });
+
+    expect(evidence.map(({ observation }) => observation)).toContain(
+      'The user authenticated as part of Basic auth for the request.',
+    );
+    expect(evidence.map(({ observation }) => observation)).not.toContain(
+      'This prevents unrelated routing behavior.',
+    );
+  });
+
   it('does not relax exact repository-head commit binding for an eligible finalist', async () => {
     const selection = await selectorInputForRequest(
       'The rate limiter counts requests at the application boundary.',
@@ -643,6 +696,29 @@ function authorizationRequest() {
       },
     ],
   });
+}
+
+function auditLoggingRequest() {
+  const request = recommendationRequest({
+    id: 'selector-audit-logging-success-conditions',
+    term: 'audit-logging',
+  });
+  return {
+    ...request,
+    capabilityQuery: {
+      ...request.capabilityQuery,
+      successConditions: [
+        {
+          conditionId: 'selector-audit-structured-events',
+          statement: 'Audit records are emitted as structured events',
+        },
+        {
+          conditionId: 'selector-audit-responsible-actor',
+          statement: 'Every audit record attributes the responsible actor',
+        },
+      ],
+    },
+  };
 }
 
 function rateLimitingRequest() {
