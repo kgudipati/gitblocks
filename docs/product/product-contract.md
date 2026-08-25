@@ -97,7 +97,7 @@ capability request
   -> deterministic hard filtering and retrieval
   -> eligible-first, evidence-needed-fill finalist set (maximum five)
   -> bounded candidate evidence load
-  -> exact-commit artifact load and deterministic request-scoped excerpts for evidence-needed finalists
+  -> exact-commit artifact load and deterministic request-scoped excerpts for selected finalists
   -> one LLM keyed hard-resolution and target-fit judgment
   -> deterministic RecommendationAssessmentResponseV1 assembly
   -> deterministic exact-coverage, endorsement, source-binding, hard-constraint, evidence, and target-fit validation
@@ -154,7 +154,7 @@ A user request runs only the hosted request path and may read PostgreSQL
 directly where the use case requires it or use a process-local immutable search
 view. R6 loads the retrieval snapshot only at startup. R9 performs bounded
 active-dossier SELECTs plus at most one immutable artifact-material SELECT per
-selected evidence-needed finalist and at most one target-fit model call per
+selected finalist and at most one target-fit model call per
 assessed request. A request
 must not run ingestion, provider collection, migrations, Docker, evaluation,
 artifact generation, repository interviews, materialization proof machinery,
@@ -525,8 +525,8 @@ target repository, private repositories, secrets, or arbitrary source
 discovered outside the reviewed artifact-selection manifest. Public artifact
 bodies remain hostile inert data: they are never executed, rendered, followed
 as links, or treated as instructions. The active hosted fit operation may send
-only deterministically selected exact-line excerpts for an evidence-needed
-finalist after its artifact commit matches active repository-head evidence.
+only deterministically selected exact-line excerpts for a selected finalist
+after its artifact commit matches active repository-head evidence.
 Those direct excerpts use the existing git-commit source variant, are not
 persisted as duplicate evidence, and remain inert untrusted candidate data in
 the one existing model request. A separately acknowledged Phase 7

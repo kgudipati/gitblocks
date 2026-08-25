@@ -45,10 +45,11 @@ ingestion, evaluation tooling, and dormant subsystems are intentionally omitted.
 - `packages/persistence/src/operations.ts` loads each selected finalist's active
   evidence dossier at the request's trusted cutoff.
 - `packages/persistence/src/artifact-operations.ts` loads exact catalog-, commit-,
-  and cutoff-matched immutable artifact material for evidence-needed finalists.
+  and cutoff-matched immutable artifact material for selected finalists.
 - `apps/gitblocks-hosted/src/artifact-evidence-selector.ts` deterministically
-  selects bounded exact artifact lines and appends them only to the request-scoped
-  dossier.
+  selects bounded exact artifact lines for unresolved hard evaluations or an
+  eligible finalist's capability behavior, target integration, and operational
+  requirements, then appends them only to the request-scoped dossier.
 - `packages/contracts/src/parsers.ts` validates candidate dossiers, the assembled
   fit request, the nested fit response, and the fit assessment exchange.
 - `apps/gitblocks-hosted/src/openai-fit-model.ts` generates one request-scoped

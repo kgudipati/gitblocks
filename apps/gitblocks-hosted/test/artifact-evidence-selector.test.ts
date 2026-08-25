@@ -73,6 +73,96 @@ describe('request-scoped finalist artifact evidence selection', () => {
     expect(selectCandidateArtifactEvidenceV1(selection)).toEqual([]);
   });
 
+  it('selects capability behavior, target integration, and operational requirements for an eligible finalist', async () => {
+    const selection = await selectorInputForRequest(
+      [
+        'The rate limiter counts requests and blocks clients after the configured limit.',
+        'Add the limiter to Next.js middleware for application routes.',
+        'The in-process memory store avoids an external service, while distributed deployments can use PostgreSQL.',
+        'Redis can provide a distributed store.',
+        'Insurance Strategy provides failover when the database/store is down.',
+        'Unrelated contributor acknowledgements.',
+      ].join('\n'),
+      eligibleRateLimitingRequest(),
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        lane: 'eligible',
+        unresolvedHardEvaluations: [],
+      },
+    });
+
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      'The rate limiter counts requests and blocks clients after the configured limit.',
+      'Add the limiter to Next.js middleware for application routes.',
+      'Insurance Strategy provides failover when the database/store is down.',
+      'The in-process memory store avoids an external service, while distributed deployments can use PostgreSQL.',
+    ]);
+    expect(evidence.every(({ topic }) => topic === 'artifact-excerpt')).toBe(
+      true,
+    );
+  });
+
+  it('does not relax exact repository-head commit binding for an eligible finalist', async () => {
+    const selection = await selectorInputForRequest(
+      'The rate limiter counts requests at the application boundary.',
+      rateLimitingRequest(),
+    );
+    const eligible = {
+      ...selection.finalist,
+      lane: 'eligible' as const,
+      unresolvedHardEvaluations: [],
+    };
+
+    expect(
+      selectCandidateArtifactEvidenceV1({
+        ...selection,
+        finalist: eligible,
+        dossier: withRepositoryHead(selection.dossier, '2'.repeat(40)),
+      }),
+    ).toEqual([]);
+  });
+
+  it('keeps two excerpts per eligible fit need and the unchanged candidate bound', async () => {
+    const selection = await selectorInputForRequest(
+      [
+        'Rate limiting provides bounded request enforcement one.',
+        'The rate limiter provides bounded request enforcement two.',
+        'Rate-limit enforcement provides bounded request enforcement three.',
+        'Middleware integration provides route setup one.',
+        'The middleware plugin provides route setup two.',
+        'Middleware configuration provides route setup three.',
+        'Redis provides distributed operational storage one.',
+        'PostgreSQL provides distributed operational storage two.',
+        'A serverless database provides operational storage three.',
+      ].join('\n'),
+      rateLimitingRequest(),
+    );
+
+    const evidence = selectCandidateArtifactEvidenceV1({
+      ...selection,
+      finalist: {
+        ...selection.finalist,
+        lane: 'eligible',
+        unresolvedHardEvaluations: [],
+      },
+    });
+
+    expect(evidence).toHaveLength(6);
+    expect(evidence.map(({ observation }) => observation)).toEqual([
+      'Rate limiting provides bounded request enforcement one.',
+      'The rate limiter provides bounded request enforcement two.',
+      'Middleware integration provides route setup one.',
+      'The middleware plugin provides route setup two.',
+      'Redis provides distributed operational storage one.',
+      'PostgreSQL provides distributed operational storage two.',
+    ]);
+    expect(evidence.length).toBeLessThanOrEqual(8);
+  });
+
   it('rejects artifact material whose commit differs from the one active repository head', async () => {
     const selection = await selectorInput(
       'Redis is required. Failed jobs retry with backoff.',
@@ -499,7 +589,8 @@ async function selectorInputForRequest(
     request.capabilityQuery,
     authorities.taxonomy,
   );
-  const finalist = retrieval.evidenceNeededCandidates[0];
+  const finalist =
+    retrieval.evidenceNeededCandidates[0] ?? retrieval.eligibleCandidates[0];
   if (
     !normalized.ok ||
     normalized.value.outcome !== 'normalized' ||
@@ -522,6 +613,7 @@ async function selectorInputForRequest(
     dossier,
     capabilityQuery: request.capabilityQuery,
     normalization: normalized.value,
+    repositoryFingerprint: request.repositoryFingerprint,
     retrievalExpansionAuthority: authorities.retrievalExpansion,
     material: artifactMaterial(selectedCandidateId, content),
     maximumObservations: 8,
@@ -554,7 +646,7 @@ function authorizationRequest() {
 }
 
 function rateLimitingRequest() {
-  return recommendationRequest({
+  const request = recommendationRequest({
     id: 'selector-rate-limit-failure-mode',
     term: 'rate-limiting',
     constraints: [
@@ -568,6 +660,30 @@ function rateLimitingRequest() {
       },
     ],
   });
+  return {
+    ...request,
+    capabilityQuery: {
+      ...request.capabilityQuery,
+      successConditions: [
+        {
+          conditionId: 'selector-rate-limit-unavailable-state',
+          statement:
+            'Enforce bounded request rates with explicit behavior when limiter state is unavailable.',
+        },
+      ],
+    },
+  };
+}
+
+function eligibleRateLimitingRequest() {
+  const request = rateLimitingRequest();
+  return {
+    ...request,
+    capabilityQuery: {
+      ...request.capabilityQuery,
+      draftConstraints: [],
+    },
+  };
 }
 
 function requiredEvaluation(

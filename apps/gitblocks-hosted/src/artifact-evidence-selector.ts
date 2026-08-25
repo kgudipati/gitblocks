@@ -9,6 +9,7 @@ import {
   type CapabilityRetrievalExpansionV1,
   type EvidenceObservationV1,
   type RecommendationRetrievalFinalistV1,
+  type RepositoryFingerprintV1,
   type RepositoryArtifactChunkV1,
   type RepositoryArtifactSetV1,
   type RepositoryArtifactV1,
@@ -21,7 +22,7 @@ export const MAX_ARTIFACT_EVIDENCE_PER_RECOMMENDATION = 32;
 
 const MAX_DOSSIER_OBSERVATIONS = 100;
 const MAX_RENDERED_EXCERPT_CODE_UNITS = 1_800;
-const MAX_APPROVED_TERMS_PER_EVALUATION = 40;
+const MAX_APPROVED_TERMS_PER_NEED = 40;
 const ARTIFACT_EXCERPT_LIMITATION =
   'Whitespace is normalized from exact immutable repository lines; the linked commit and line range remain authoritative.';
 const MARKDOWN_REFERENCE_DEFINITION =
@@ -32,6 +33,58 @@ const LICENSE_OR_BOILERPLATE =
   /\b(?:all rights reserved|copyright|governing permissions and limitations|licensed? under|permission is hereby granted|spdx-license-identifier|terms and conditions|without warrant(?:y|ies))\b/iu;
 const DEFINING_STATEMENT_FORM =
   /\b(?:allows?|blocks?|built-in|comes? with|defaults? to|ensures?|includes?|is|offers?|prevents?|provides?|requires?|strategy|supports?|uses?|works? with)\b|\bapi\b/iu;
+const ELIGIBLE_INTEGRATION_TERMS = Object.freeze([
+  'application route',
+  'configure',
+  'configuration',
+  'installation',
+  'integrate',
+  'integration',
+  'middleware',
+  'plugin',
+  'request handler',
+  'route handler',
+]);
+const ELIGIBLE_OPERATIONAL_TERMS = Object.freeze([
+  'cluster',
+  'connection',
+  'control plane',
+  'credential',
+  'database/store',
+  'database',
+  'data store',
+  'datastore',
+  'dependency',
+  'distributed',
+  'environment variable',
+  'external service',
+  'failover',
+  'fallback',
+  'in-memory',
+  'latency',
+  'memory store',
+  'postgres',
+  'postgresql',
+  'redis',
+  'self-hosted',
+  'serverless',
+  'timeout',
+  'worker process',
+]);
+const ELIGIBLE_UNAVAILABLE_STATE_EVIDENCE_TERMS = Object.freeze([
+  'database/store is down',
+  'failover',
+  'fallback',
+  'insurance',
+  'insurance strategy',
+  'pass on store error',
+  'passonstoreerror',
+  'skip on error',
+  'skiponerror',
+  'store error',
+  'store is down',
+  'store unavailable',
+]);
 
 const PROHIBITION_ALTERNATIVE_EVIDENCE_TERMS: Readonly<
   Record<string, readonly string[]>
@@ -106,17 +159,24 @@ interface MatchingLine {
   readonly matchesProhibitionAlternative: boolean;
 }
 
+interface ArtifactEvidenceNeed {
+  readonly dimension: EvidenceObservationV1['dimension'];
+  readonly terms: readonly ApprovedTerm[];
+  readonly balanceProhibitionEvidence: boolean;
+  readonly priorityTerms?: readonly string[];
+}
+
 export function selectCandidateArtifactEvidenceV1(input: {
   readonly finalist: RecommendationRetrievalFinalistV1;
   readonly dossier: CandidateDossierV1;
   readonly capabilityQuery: CapabilityQueryInputV1;
   readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly repositoryFingerprint: RepositoryFingerprintV1;
   readonly retrievalExpansionAuthority: CapabilityRetrievalExpansionV1;
   readonly material: CandidateRepositoryArtifactMaterialV1;
   readonly maximumObservations: number;
 }): readonly EvidenceObservationV1[] {
   if (
-    input.finalist.lane !== 'evidence-needed' ||
     input.finalist.candidateId !== input.dossier.identity.candidateId ||
     input.normalization.outcome !== 'normalized'
   ) {
@@ -146,42 +206,313 @@ export function selectCandidateArtifactEvidenceV1(input: {
   const suppliedEvidenceIds = new Set(
     input.dossier.observations.map(({ evidenceId }) => evidenceId),
   );
-  for (const evaluation of input.finalist.unresolvedHardEvaluations) {
+  const needs: readonly ArtifactEvidenceNeed[] =
+    input.finalist.lane === 'evidence-needed'
+      ? input.finalist.unresolvedHardEvaluations.map((evaluation) => ({
+          dimension: evidenceDimensionForFacet(evaluation.facet),
+          terms: approvedTermsForEvaluation({
+            evaluation,
+            capabilityQuery: input.capabilityQuery,
+            normalization: input.normalization,
+            retrievalExpansionAuthority: input.retrievalExpansionAuthority,
+          }),
+          balanceProhibitionEvidence: evaluation.modality === 'prohibited',
+        }))
+      : approvedEligibleFitNeeds({
+          capabilityQuery: input.capabilityQuery,
+          normalization: input.normalization,
+          repositoryFingerprint: input.repositoryFingerprint,
+          retrievalExpansionAuthority: input.retrievalExpansionAuthority,
+        });
+  for (const need of needs) {
     if (observations.length >= capacity) break;
-    const terms = approvedTermsForEvaluation({
-      evaluation,
-      capabilityQuery: input.capabilityQuery,
-      normalization: input.normalization,
-      retrievalExpansionAuthority: input.retrievalExpansionAuthority,
-    });
-    if (terms.length === 0) continue;
-    let selectedForEvaluation = 0;
-    const matches = matchingLines(input.material, terms);
-    const orderedMatches =
-      evaluation.modality === 'prohibited'
-        ? balanceProhibitionEvidence(matches)
-        : matches;
+    if (need.terms.length === 0) continue;
+    let selectedForNeed = 0;
+    const matches = matchingLines(input.material, need.terms);
+    const orderedMatches = need.balanceProhibitionEvidence
+      ? balanceProhibitionEvidence(matches)
+      : need.priorityTerms === undefined || need.priorityTerms.length === 0
+        ? matches
+        : balancePriorityEvidence(matches, need.priorityTerms);
     for (const match of orderedMatches) {
       if (
         observations.length >= capacity ||
-        selectedForEvaluation >= MAX_ARTIFACT_EVIDENCE_PER_EVALUATION
+        selectedForNeed >= MAX_ARTIFACT_EVIDENCE_PER_EVALUATION
       ) {
         break;
       }
       const evidence = evidenceFromMatch(
         input.finalist.candidateId,
-        evaluation.facet,
+        need.dimension,
         head,
         input.material.artifactSet.commitObjectId,
         match,
       );
-      selectedForEvaluation += 1;
+      selectedForNeed += 1;
       if (suppliedEvidenceIds.has(evidence.evidenceId)) continue;
       suppliedEvidenceIds.add(evidence.evidenceId);
       observations.push(evidence);
     }
   }
   return Object.freeze(observations);
+}
+
+function approvedEligibleFitNeeds(input: {
+  readonly capabilityQuery: CapabilityQueryInputV1;
+  readonly normalization: CapabilityQueryNormalizationResultV1;
+  readonly repositoryFingerprint: RepositoryFingerprintV1;
+  readonly retrievalExpansionAuthority: CapabilityRetrievalExpansionV1;
+}): readonly ArtifactEvidenceNeed[] {
+  const { primaryFamilyId } = input.normalization;
+  if (
+    input.normalization.outcome !== 'normalized' ||
+    primaryFamilyId === null
+  ) {
+    return Object.freeze([]);
+  }
+  const capabilityConcepts = uniqueTerms([
+    primaryFamilyId,
+    ...input.normalization.normalizedCapabilityConcepts.map(
+      ({ conceptId }) => conceptId,
+    ),
+  ]);
+  const capabilityPrimary = eligibleTermVariants([
+    ...capabilityConcepts,
+    ...input.capabilityQuery.capabilityTerms.map(
+      ({ originalTerm }) => originalTerm,
+    ),
+    ...input.capabilityQuery.draftConstraints
+      .filter(
+        ({ facetHint }) =>
+          facetHint === 'capability' || facetHint === 'feature',
+      )
+      .map(({ originalTerm }) => originalTerm),
+  ]);
+  const capabilityExpansion = capabilityConcepts.flatMap((conceptId) =>
+    expandRetrievalTermsV1(
+      [conceptId],
+      input.retrievalExpansionAuthority,
+    ).edgesApplied.flatMap(({ relationshipKind, targetTerm }) =>
+      eligibleTermVariants([targetTerm]).map((value) => ({
+        value,
+        specificity:
+          relationshipKind === 'taxonomy-alias' ? (1 as const) : (3 as const),
+      })),
+    ),
+  );
+
+  const targetTerms = eligibleTermVariants([
+    ...input.normalization.preservedDeclarations
+      .filter(({ facet }) =>
+        [
+          'architecture',
+          'deployment',
+          'ecosystem',
+          'framework',
+          'runtime',
+        ].includes(facet),
+      )
+      .map(({ originalTerm }) => originalTerm),
+    ...repositoryFingerprintComponentTerms(input.repositoryFingerprint),
+    ...approvedTermsPresentInSuccessConditions(
+      input.capabilityQuery,
+      ELIGIBLE_INTEGRATION_TERMS,
+    ),
+  ]);
+  const operationalTerms = eligibleTermVariants([
+    ...input.normalization.preservedDeclarations
+      .filter(({ facet }) =>
+        ['architecture', 'datastore', 'deployment', 'infrastructure'].includes(
+          facet,
+        ),
+      )
+      .map(({ originalTerm }) => originalTerm),
+    ...repositoryFingerprintOperationalTerms(input.repositoryFingerprint),
+    ...approvedTermsPresentInSuccessConditions(
+      input.capabilityQuery,
+      ELIGIBLE_OPERATIONAL_TERMS,
+    ),
+    ...unavailableStateEvidenceTerms(input.capabilityQuery),
+  ]);
+  const unavailableStateTerms = unavailableStateEvidenceTerms(
+    input.capabilityQuery,
+  );
+
+  return Object.freeze([
+    Object.freeze({
+      dimension: 'integration' as const,
+      terms: approvedFitTerms(capabilityPrimary, capabilityExpansion),
+      balanceProhibitionEvidence: false,
+    }),
+    Object.freeze({
+      dimension: 'runtime-framework' as const,
+      terms: approvedFitTerms(
+        targetTerms,
+        ELIGIBLE_INTEGRATION_TERMS.map((value) => ({
+          value,
+          specificity: 3 as const,
+        })),
+      ),
+      balanceProhibitionEvidence: false,
+    }),
+    Object.freeze({
+      dimension: 'deployment' as const,
+      terms: approvedFitTerms(
+        operationalTerms,
+        ELIGIBLE_OPERATIONAL_TERMS.map((value) => ({
+          value,
+          specificity: 3 as const,
+        })),
+      ),
+      balanceProhibitionEvidence: false,
+      priorityTerms: unavailableStateTerms,
+    }),
+  ]);
+}
+
+function unavailableStateEvidenceTerms(
+  capabilityQuery: CapabilityQueryInputV1,
+): readonly string[] {
+  const successText = capabilityQuery.successConditions
+    .map(({ statement }) => canonicalSearchText(statement))
+    .join(' ');
+  return /\b(?:database|limiter|state|storage|store)\b/u.test(successText) &&
+    /\b(?:down|fails?|failure|unavailable)\b/u.test(successText)
+    ? ELIGIBLE_UNAVAILABLE_STATE_EVIDENCE_TERMS
+    : Object.freeze([]);
+}
+
+function approvedFitTerms(
+  primary: readonly string[],
+  secondary: readonly {
+    readonly value: string;
+    readonly specificity: 1 | 2 | 3;
+  }[],
+): readonly ApprovedTerm[] {
+  const primaryTerms = uniqueTerms(primary).map((value) => ({
+    value,
+    precedence: 0 as const,
+    specificity: 0 as const,
+    searchKind: 'evaluation' as const,
+  }));
+  const primaryKeys = new Set(primaryTerms.map(({ value }) => lower(value)));
+  const secondaryByNormalized = new Map<
+    string,
+    { readonly value: string; readonly specificity: 1 | 2 | 3 }
+  >();
+  for (const term of secondary) {
+    const key = lower(term.value);
+    if (primaryKeys.has(key)) continue;
+    const existing = secondaryByNormalized.get(key);
+    if (
+      existing === undefined ||
+      term.specificity < existing.specificity ||
+      (term.specificity === existing.specificity &&
+        compareAscii(term.value, existing.value) < 0)
+    ) {
+      secondaryByNormalized.set(key, term);
+    }
+  }
+  const secondaryTerms = [...secondaryByNormalized.values()].map(
+    ({ specificity, value }) => ({
+      value,
+      precedence: 1 as const,
+      specificity,
+      searchKind: 'evaluation' as const,
+    }),
+  );
+  return Object.freeze(
+    [...primaryTerms, ...secondaryTerms]
+      .sort(compareApprovedTerms)
+      .slice(0, MAX_APPROVED_TERMS_PER_NEED),
+  );
+}
+
+function compareApprovedTerms(left: ApprovedTerm, right: ApprovedTerm): number {
+  return (
+    left.precedence - right.precedence ||
+    left.specificity - right.specificity ||
+    compareAscii(left.value, right.value)
+  );
+}
+
+function repositoryFingerprintComponentTerms(
+  fingerprint: RepositoryFingerprintV1,
+): readonly string[] {
+  return fingerprint.facts.flatMap((fact) =>
+    fact.kind === 'component' &&
+    fact.component !== 'dependency' &&
+    fact.component !== 'package-manager'
+      ? componentTermVariants(fact.name)
+      : [],
+  );
+}
+
+function repositoryFingerprintOperationalTerms(
+  fingerprint: RepositoryFingerprintV1,
+): readonly string[] {
+  return fingerprint.facts.flatMap((fact) => {
+    if (
+      fact.kind === 'component' &&
+      (fact.component === 'database' || fact.component === 'orm')
+    ) {
+      return componentTermVariants(fact.name);
+    }
+    if (fact.kind === 'deployment') {
+      return fact.topology === 'long-running-container'
+        ? ['container', 'long-running container']
+        : fact.topology === 'long-running-server'
+          ? ['long-running server', 'server']
+          : ['serverless'];
+    }
+    return [];
+  });
+}
+
+function componentTermVariants(value: string): readonly string[] {
+  switch (lower(value)) {
+    case 'next':
+    case 'next.js':
+    case 'nextjs':
+      return ['next.js', 'nextjs'];
+    case 'node':
+    case 'node.js':
+    case 'nodejs':
+      return ['node.js', 'nodejs'];
+    case 'postgres':
+    case 'postgresql':
+      return ['postgres', 'postgresql'];
+    default:
+      return value.length >= 3 ? [value] : [];
+  }
+}
+
+function approvedTermsPresentInSuccessConditions(
+  capabilityQuery: CapabilityQueryInputV1,
+  approvedTerms: readonly string[],
+): readonly string[] {
+  const successText = capabilityQuery.successConditions
+    .map(({ statement }) => canonicalSearchText(statement))
+    .join(' ');
+  return approvedTerms.filter((term) =>
+    successText.includes(canonicalSearchText(term)),
+  );
+}
+
+function eligibleTermVariants(values: readonly string[]): readonly string[] {
+  return uniqueTerms(
+    values.flatMap((value) => {
+      const spaced = value.replace(/[-_]+/gu, ' ');
+      return spaced === value ? [value] : [value, spaced];
+    }),
+  );
+}
+
+function canonicalSearchText(value: string): string {
+  return lower(value)
+    .replace(/[-_.]+/gu, ' ')
+    .replace(/\s+/gu, ' ')
+    .trim();
 }
 
 function usableRepositoryHead(
@@ -350,7 +681,7 @@ function approvedTermsForEvaluation(input: {
   return Object.freeze(
     [...primaryTerms, ...expansionTerms, ...alternativeTerms].slice(
       0,
-      MAX_APPROVED_TERMS_PER_EVALUATION,
+      MAX_APPROVED_TERMS_PER_NEED,
     ),
   );
 }
@@ -508,9 +839,34 @@ function balanceProhibitionEvidence(
   return [...priority, ...matches.filter((match) => !prioritySet.has(match))];
 }
 
+function balancePriorityEvidence(
+  matches: readonly MatchingLine[],
+  priorityTerms: readonly string[],
+): readonly MatchingLine[] {
+  const normalizedPriorityTerms = uniqueTerms(priorityTerms).map(lower);
+  const isPriority = ({ normalizedExcerpt }: MatchingLine) => {
+    const normalized = lower(normalizedExcerpt);
+    return normalizedPriorityTerms.some((term) => normalized.includes(term));
+  };
+  const firstPriority = matches.find(isPriority);
+  const firstGeneral = matches.find((match) => !isPriority(match));
+  if (
+    firstPriority === undefined ||
+    firstGeneral === undefined ||
+    firstPriority === firstGeneral
+  ) {
+    return matches;
+  }
+  const priority = [firstPriority, firstGeneral].sort(
+    (left, right) => matches.indexOf(left) - matches.indexOf(right),
+  );
+  const prioritySet = new Set(priority);
+  return [...priority, ...matches.filter((match) => !prioritySet.has(match))];
+}
+
 function evidenceFromMatch(
   candidateId: string,
-  facet: RecommendationRetrievalFinalistV1['unresolvedHardEvaluations'][number]['facet'],
+  dimension: EvidenceObservationV1['dimension'],
   head: Extract<
     CandidateDossierV1['observations'][number]['source'],
     { kind: 'git-commit' }
@@ -546,7 +902,7 @@ function evidenceFromMatch(
     evidenceId: `artifact-evidence-${evidenceDigest.slice(0, 40)}`,
     candidateId,
     topic: 'artifact-excerpt',
-    dimension: evidenceDimensionForFacet(facet),
+    dimension,
     observation: match.normalizedExcerpt,
     source: Object.freeze({
       kind: 'git-commit',

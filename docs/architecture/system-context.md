@@ -66,13 +66,14 @@ conflict or unresolved candidates from ranking. Excluded candidates are never
 admitted.
 
 Recovery R9 activates a narrow read-only use of the existing immutable artifact
-foundation after retrieval. For a selected evidence-needed finalist, the
-hosted application requires exactly one active repository-head git-commit
-observation, reads only an artifact set matching that commit, serving catalog,
-and cutoff, and deterministically selects bounded exact README/documentation
-lines using the unresolved evaluation terms and existing retrieval expansion.
-The resulting git-commit evidence observations exist only in the model request;
-the single model call and R8 validation remain authoritative.
+foundation after retrieval. For a selected finalist, the hosted application
+requires exactly one active repository-head git-commit observation and reads
+only an artifact set matching that commit, serving catalog, and cutoff. It
+selects bounded exact README/documentation lines using unresolved evaluation
+terms for the evidence-needed lane or capability behavior, target integration,
+and operational-requirement terms for the eligible lane. The resulting
+git-commit evidence observations exist only in the model request; the single
+model call and R8 validation remain authoritative.
 
 Recovery R2 classifies the current implementation as follows without deleting
 or moving anything:

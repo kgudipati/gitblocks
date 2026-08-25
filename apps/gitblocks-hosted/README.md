@@ -15,24 +15,28 @@ unsupported, and no-result outcomes return before a model call.
 
 For the resulting at-most-five finalists, the operation captures one trusted
 evidence cutoff and loads active `CandidateDossierV1` evidence, limitations,
-and unknowns from the existing PostgreSQL model. For evidence-needed finalists
-with exactly one usable `repository-head` git-commit observation, it also loads
-the latest immutable artifact set matching the serving catalog, exact head
-commit, and cutoff. A deterministic selector uses only each unresolved
-evaluation's concept/canonical/original terms plus the existing retrieval
-expansion authority. It considers present README/documentation entries and
+and unknowns from the existing PostgreSQL model. For any finalist with exactly
+one usable `repository-head` git-commit observation, it also loads the latest
+immutable artifact set matching the serving catalog, exact head commit, and
+cutoff. For evidence-needed finalists, a deterministic selector uses only each
+unresolved evaluation's concept/canonical/original terms plus the existing
+retrieval expansion authority. For eligible finalists, three bounded fit needs
+select what the candidate does, how it integrates with the supplied target, and
+what it requires operationally from capability terms, preserved declarations,
+success conditions, and minimized fingerprint facts. It considers present
+README/documentation entries and
 rejects pure Markdown reference-definition or link/navigation/badge-only lines
 before appending exact, whitespace-normalized, line-addressed excerpts as
-request-scoped observations. A matching source line counts toward each
-applicable evaluation's two-match quota even when its source-owned evidence ID
-is already present, and no duplicate observation is appended. No excerpt is
-persisted and missing text never proves absence.
+request-scoped observations. A matching source line counts toward the two-match
+quota for each applicable evaluation or fit need even when its source-owned
+evidence ID is already present, and no duplicate observation is appended. No
+excerpt is persisted and missing text never proves absence.
 
-Selection is bounded to two excerpts per unresolved evaluation, eight per
-candidate, 32 per recommendation, and the existing 100-observation dossier
-limit. If every augmented finalist dossier still has zero observations, the
-operation returns `insufficient-evidence` without a model call. Otherwise it
-makes at most one target-fit model call. The additive
+Selection is bounded to two excerpts per unresolved evaluation or eligible fit
+need, eight per candidate, 32 per recommendation, and the existing
+100-observation dossier limit. If every augmented finalist dossier still has
+zero observations, the operation returns `insufficient-evidence` without a
+model call. Otherwise it makes at most one target-fit model call. The additive
 `RecommendationAssessmentResponseV1` wraps the unchanged
 `TargetFitAssessmentResponseV1` and resolves every selected evidence-needed
 hard evaluation exactly once as `satisfied`, `conflict`, or `unresolved`.
