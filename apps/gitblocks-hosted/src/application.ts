@@ -393,6 +393,7 @@ async function recommendOss(input: {
   const parsed = expandOssRecommendationRequest({
     recommendationRequest: input.suppliedInput,
     taxonomy: input.taxonomy,
+    candidateReferenceAuthority: input.candidateAuthority,
   });
   if (!parsed.ok) {
     return Object.freeze({
@@ -968,6 +969,7 @@ function createCandidateReferenceAuthority(
     }
     candidates.push({
       candidateId: profile.candidateId,
+      displayName: repository.value.displayName,
       capabilityFamily: family.value.primaryFamily,
       repositoryKey:
         `${repository.value.githubOwner}/${repository.value.githubRepository}`.toLowerCase(),

@@ -210,6 +210,65 @@ describe('OssRecommendationRequestV1', () => {
 });
 
 describe('OssRecommendationRequestV2', () => {
+  it('accepts a bare candidate name, package, or repository and derives the canonical exact reference from bounded authority', async () => {
+    const request = {
+      ...createRecommendationRequestV2(),
+      capabilityTerms: ['durable background jobs'],
+      candidateReferences: ['Postgres Boss'],
+    };
+
+    expect(parseOssRecommendationRequestV2(request)).toMatchObject({
+      ok: true,
+    });
+    const schemaText = JSON.stringify(
+      getContractSchemaV1('oss-recommendation-request'),
+    );
+    expect(schemaText).toContain('candidateReferences');
+    expect(schemaText).toContain('bare string');
+    expect(schemaText).toContain('pg-boss');
+    expect(schemaText).toContain('owner/repository');
+
+    const candidateReferenceAuthority = {
+      catalogVersion: 'public-v1',
+      catalogDigest: 'a'.repeat(64),
+      candidates: [
+        {
+          candidateId: 'jobs-pg-boss',
+          displayName: 'Postgres Boss',
+          capabilityFamily: 'background-jobs',
+          repositoryKey: 'timgit/pg-boss',
+          npmPackageKey: 'pg-boss',
+        },
+      ],
+    } as const;
+    for (const reference of ['Postgres Boss', 'pg-boss', 'timgit/pg-boss']) {
+      const expanded = expandOssRecommendationRequest({
+        recommendationRequest: {
+          ...request,
+          candidateReferences: [reference],
+        },
+        taxonomy: cloneValue(await taxonomyFixture),
+        candidateReferenceAuthority,
+      });
+
+      expect(expanded).toMatchObject({
+        ok: true,
+        value: {
+          capabilityQuery: {
+            candidateReferences: [
+              {
+                referenceId: 'reference-001',
+                kind: 'candidate-id',
+                value: 'jobs-pg-boss',
+                intent: 'named-candidate',
+              },
+            ],
+          },
+        },
+      });
+    }
+  });
+
   it('parses the caller-facing shape and expands it into the unchanged canonical V1 request', async () => {
     const request = createRecommendationRequestV2();
 

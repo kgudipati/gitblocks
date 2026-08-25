@@ -8,7 +8,10 @@ import {
   StreamableHTTPClientTransport,
   type FetchLike,
 } from '@modelcontextprotocol/client';
-import { getContractSchemaV1 } from '@gitblocks/contracts';
+import {
+  getContractSchemaV1,
+  repositoryFingerprintDigestV1,
+} from '@gitblocks/contracts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type {
@@ -50,6 +53,86 @@ afterEach(async () => {
 });
 
 describe('GitBlocks recommendation MCP adapter', () => {
+  it('accepts a natural capability phrase and a bare named candidate through an actual MCP client exchange', async () => {
+    const application = await createAcceptedApplication();
+    const recommendOss = vi.fn((input: unknown) =>
+      application.recommendOss(input),
+    );
+    const { client } = await connectClient({ recommendOss });
+    const listed = await client.listTools();
+    const tool = listed.tools.find(
+      ({ name }) => name === GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+    );
+    expect(tool?.description).toContain('candidateReferences');
+    expect(JSON.stringify(tool?.inputSchema)).toContain('bare string');
+    expect(JSON.stringify(tool?.inputSchema)).toContain('pg-boss');
+
+    const canonical = recommendationRequest({
+      id: 'mcp-simple-background-jobs-pg-boss',
+      term: 'background-jobs',
+    });
+    const called = await client.callTool({
+      name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+      arguments: {
+        contractVersion: '2.0.0',
+        summary:
+          'Find a durable background job library for this repository and assess pg-boss.',
+        capabilityTerms: ['durable background jobs'],
+        successConditions: [
+          'Jobs persist across process restarts and retry transient failures.',
+        ],
+        constraints: [],
+        candidateReferences: ['pg-boss'],
+        repositoryFingerprint: canonical.repositoryFingerprint,
+        transmissionApproval: {
+          approvedBy: 'request-originator',
+          approvedAt: canonical.transmissionApproval.approvedAt,
+          approvedCategories: canonical.transmissionApproval.approvedCategories,
+          fingerprintDigest: repositoryFingerprintDigestV1(
+            canonical.repositoryFingerprint,
+          ),
+        },
+      },
+    });
+
+    expect(recommendOss).toHaveBeenCalledTimes(1);
+    expect(called.isError).not.toBe(true);
+    expect(called.structuredContent).toMatchObject({
+      outcome: 'recommend',
+      normalization: {
+        outcome: 'normalized',
+        primaryFamilyId: 'background-jobs',
+        resolvedCandidateReferences: [
+          {
+            referenceKind: 'candidate-id',
+            intent: 'named-candidate',
+            candidateId: 'jobs-pg-boss',
+          },
+        ],
+      },
+    });
+  });
+
+  it('names every accepted capability family in primary text when an unrecognized term needs clarification', async () => {
+    const application = await createAcceptedApplication();
+    const { client } = await connectClient(application);
+    const called = await client.callTool({
+      name: GITBLOCKS_RECOMMEND_OSS_TOOL_NAME,
+      arguments: recommendationRequest({
+        id: 'mcp-unknown-capability-guidance',
+        term: 'uncategorized automation facility',
+      }),
+    });
+
+    expect(called.isError).not.toBe(true);
+    expect(called.structuredContent).toMatchObject({
+      outcome: 'clarification-required',
+    });
+    expect(primaryText(called.content)).toContain(
+      'Accepted capability families: authorization, audit-logging, background-jobs, rate-limiting, webhooks.',
+    );
+  });
+
   it('uses the official modern client to expose exactly recommend_oss and carries a complete option in primary text after one call', async () => {
     const application = await createAcceptedApplication();
     const recommendOss = vi.fn((input: unknown) =>
