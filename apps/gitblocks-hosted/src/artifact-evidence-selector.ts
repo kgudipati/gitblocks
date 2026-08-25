@@ -23,6 +23,7 @@ export const MAX_ARTIFACT_EVIDENCE_PER_RECOMMENDATION = 32;
 const MAX_DOSSIER_OBSERVATIONS = 100;
 const MAX_RENDERED_EXCERPT_CODE_UNITS = 1_800;
 const MAX_APPROVED_TERMS_PER_NEED = 40;
+const MAX_SUCCESS_CONDITION_TERMS_PER_CONDITION = 12;
 const ARTIFACT_EXCERPT_LIMITATION =
   'Whitespace is normalized from exact immutable repository lines; the linked commit and line range remain authoritative.';
 const MARKDOWN_REFERENCE_DEFINITION =
@@ -85,6 +86,76 @@ const ELIGIBLE_UNAVAILABLE_STATE_EVIDENCE_TERMS = Object.freeze([
   'store is down',
   'store unavailable',
 ]);
+const SUCCESS_CONDITION_STOP_WORDS = new Set([
+  'all',
+  'an',
+  'and',
+  'are',
+  'as',
+  'at',
+  'be',
+  'been',
+  'being',
+  'by',
+  'can',
+  'each',
+  'every',
+  'for',
+  'from',
+  'has',
+  'have',
+  'in',
+  'into',
+  'is',
+  'it',
+  'its',
+  'must',
+  'of',
+  'on',
+  'or',
+  'record',
+  'records',
+  'should',
+  'that',
+  'the',
+  'their',
+  'this',
+  'to',
+  'with',
+]);
+const SUCCESS_CONDITION_LEXICAL_ALIASES: Readonly<
+  Record<
+    string,
+    readonly {
+      readonly value: string;
+      readonly specificity: 1 | 2;
+    }[]
+  >
+> = Object.freeze({
+  actor: Object.freeze([
+    Object.freeze({ value: 'authenticated user', specificity: 1 }),
+    Object.freeze({ value: 'req.username', specificity: 1 }),
+    Object.freeze({ value: 'user authenticated', specificity: 1 }),
+    Object.freeze({ value: 'remote user', specificity: 2 }),
+    Object.freeze({ value: 'remote-user', specificity: 2 }),
+    Object.freeze({ value: 'username', specificity: 2 }),
+  ]),
+  actors: Object.freeze([
+    Object.freeze({ value: 'authenticated user', specificity: 1 }),
+    Object.freeze({ value: 'req.username', specificity: 1 }),
+    Object.freeze({ value: 'user authenticated', specificity: 1 }),
+    Object.freeze({ value: 'remote user', specificity: 2 }),
+    Object.freeze({ value: 'remote-user', specificity: 2 }),
+    Object.freeze({ value: 'username', specificity: 2 }),
+  ]),
+  structured: Object.freeze([
+    Object.freeze({ value: 'json log', specificity: 1 }),
+    Object.freeze({ value: 'json logging', specificity: 1 }),
+    Object.freeze({ value: 'key value', specificity: 1 }),
+    Object.freeze({ value: 'key-value', specificity: 1 }),
+    Object.freeze({ value: 'json', specificity: 2 }),
+  ]),
+});
 
 const PROHIBITION_ALTERNATIVE_EVIDENCE_TERMS: Readonly<
   Record<string, readonly string[]>
@@ -140,6 +211,8 @@ interface ApprovedTerm {
   readonly precedence: 0 | 1;
   readonly specificity: 0 | 1 | 2 | 3;
   readonly searchKind: 'evaluation' | 'prohibition-alternative';
+  readonly coverageKeys?: readonly string[];
+  readonly requiresLexicalBoundaries?: boolean;
 }
 
 interface MatchingLine {
@@ -157,6 +230,7 @@ interface MatchingLine {
   readonly matchedTerm: string;
   readonly matchesEvaluationTerm: boolean;
   readonly matchesProhibitionAlternative: boolean;
+  readonly coverageKeys: readonly string[];
 }
 
 interface ArtifactEvidenceNeed {
@@ -164,6 +238,7 @@ interface ArtifactEvidenceNeed {
   readonly terms: readonly ApprovedTerm[];
   readonly balanceProhibitionEvidence: boolean;
   readonly priorityTerms?: readonly string[];
+  readonly balanceCoverage?: boolean;
 }
 
 export function selectCandidateArtifactEvidenceV1(input: {
@@ -231,9 +306,11 @@ export function selectCandidateArtifactEvidenceV1(input: {
     const matches = matchingLines(input.material, need.terms);
     const orderedMatches = need.balanceProhibitionEvidence
       ? balanceProhibitionEvidence(matches)
-      : need.priorityTerms === undefined || need.priorityTerms.length === 0
-        ? matches
-        : balancePriorityEvidence(matches, need.priorityTerms);
+      : need.balanceCoverage === true
+        ? balanceCoverageEvidence(matches)
+        : need.priorityTerms === undefined || need.priorityTerms.length === 0
+          ? matches
+          : balancePriorityEvidence(matches, need.priorityTerms);
     for (const match of orderedMatches) {
       if (
         observations.length >= capacity ||
@@ -337,6 +414,10 @@ function approvedEligibleFitNeeds(input: {
   const unavailableStateTerms = unavailableStateEvidenceTerms(
     input.capabilityQuery,
   );
+  const successConditionNeed = approvedSuccessConditionNeed(
+    input.capabilityQuery,
+    capabilityConcepts,
+  );
 
   return Object.freeze([
     Object.freeze({
@@ -367,7 +448,169 @@ function approvedEligibleFitNeeds(input: {
       balanceProhibitionEvidence: false,
       priorityTerms: unavailableStateTerms,
     }),
+    successConditionNeed,
   ]);
+}
+
+function approvedSuccessConditionNeed(
+  capabilityQuery: CapabilityQueryInputV1,
+  capabilityConcepts: readonly string[],
+): ArtifactEvidenceNeed {
+  const ignoredTerms = new Set(
+    uniqueTerms([
+      ...capabilityConcepts,
+      ...capabilityQuery.capabilityTerms.map(
+        ({ originalTerm }) => originalTerm,
+      ),
+    ]).flatMap((value) => successConditionWords(value)),
+  );
+  const conditions = [...capabilityQuery.successConditions].sort(
+    (left, right) => compareAscii(left.conditionId, right.conditionId),
+  );
+  const termsByCondition = conditions.map(({ conditionId, statement }) => ({
+    conditionId,
+    terms: approvedTermsForSuccessCondition(
+      conditionId,
+      statement,
+      ignoredTerms,
+    ),
+  }));
+  const selectedTerms: ApprovedTerm[] = [];
+  for (
+    let ordinal = 0;
+    selectedTerms.length < MAX_APPROVED_TERMS_PER_NEED;
+    ordinal += 1
+  ) {
+    let added = false;
+    for (const { terms } of termsByCondition) {
+      const term = terms[ordinal];
+      if (term === undefined) continue;
+      selectedTerms.push(term);
+      added = true;
+      if (selectedTerms.length >= MAX_APPROVED_TERMS_PER_NEED) break;
+    }
+    if (!added) break;
+  }
+  return Object.freeze({
+    dimension: 'integration',
+    terms: mergeSuccessConditionTerms(selectedTerms),
+    balanceProhibitionEvidence: false,
+    balanceCoverage: true,
+  });
+}
+
+function approvedTermsForSuccessCondition(
+  conditionId: string,
+  statement: string,
+  ignoredTerms: ReadonlySet<string>,
+): readonly ApprovedTerm[] {
+  const words = successConditionWords(statement).filter(
+    (word) =>
+      !SUCCESS_CONDITION_STOP_WORDS.has(word) && !ignoredTerms.has(word),
+  );
+  const directValues = uniqueTerms([
+    ...words.flatMap((_, index) => {
+      const values: string[] = [];
+      const pair = words.slice(index, index + 2);
+      const triple = words.slice(index, index + 3);
+      if (pair.length === 2) values.push(pair.join(' '));
+      if (triple.length === 3) values.push(triple.join(' '));
+      return values;
+    }),
+    ...words,
+  ]);
+  const directTerms = directValues.map((value) => ({
+    value,
+    precedence: 0 as const,
+    specificity: value.includes(' ') ? (0 as const) : (2 as const),
+    searchKind: 'evaluation' as const,
+    coverageKeys: Object.freeze([conditionId]),
+    requiresLexicalBoundaries: true,
+  }));
+  const aliases = uniqueSuccessConditionAliases(words).map(
+    ({ specificity, value }) => ({
+      value,
+      precedence: 1 as const,
+      specificity,
+      searchKind: 'evaluation' as const,
+      coverageKeys: Object.freeze([conditionId]),
+      requiresLexicalBoundaries: true,
+    }),
+  );
+  return Object.freeze(
+    [...directTerms, ...aliases]
+      .sort(compareSuccessConditionTerms)
+      .slice(0, MAX_SUCCESS_CONDITION_TERMS_PER_CONDITION),
+  );
+}
+
+function successConditionWords(value: string): readonly string[] {
+  return canonicalSearchText(value).match(/[a-z0-9]+/gu) ?? Object.freeze([]);
+}
+
+function uniqueSuccessConditionAliases(
+  words: readonly string[],
+): readonly { readonly value: string; readonly specificity: 1 | 2 }[] {
+  const aliases = new Map<
+    string,
+    { readonly value: string; readonly specificity: 1 | 2 }
+  >();
+  for (const word of new Set(words)) {
+    for (const alias of SUCCESS_CONDITION_LEXICAL_ALIASES[word] ?? []) {
+      const key = lower(alias.value);
+      const existing = aliases.get(key);
+      if (
+        existing === undefined ||
+        alias.specificity < existing.specificity ||
+        (alias.specificity === existing.specificity &&
+          compareAscii(alias.value, existing.value) < 0)
+      ) {
+        aliases.set(key, alias);
+      }
+    }
+  }
+  return [...aliases.values()].sort(
+    (left, right) =>
+      left.specificity - right.specificity ||
+      compareAscii(left.value, right.value),
+  );
+}
+
+function compareSuccessConditionTerms(
+  left: ApprovedTerm,
+  right: ApprovedTerm,
+): number {
+  return (
+    left.specificity - right.specificity ||
+    left.precedence - right.precedence ||
+    compareAscii(left.value, right.value)
+  );
+}
+
+function mergeSuccessConditionTerms(
+  terms: readonly ApprovedTerm[],
+): readonly ApprovedTerm[] {
+  const merged = new Map<string, ApprovedTerm>();
+  for (const term of terms) {
+    const key = lower(term.value);
+    const existing = merged.get(key);
+    if (existing === undefined) {
+      merged.set(key, term);
+      continue;
+    }
+    const preferred =
+      compareSuccessConditionTerms(term, existing) < 0 ? term : existing;
+    merged.set(key, {
+      ...preferred,
+      coverageKeys: Object.freeze(
+        uniqueTerms([
+          ...(existing.coverageKeys ?? []),
+          ...(term.coverageKeys ?? []),
+        ]),
+      ),
+    });
+  }
+  return Object.freeze([...merged.values()].sort(compareSuccessConditionTerms));
 }
 
 function unavailableStateEvidenceTerms(
@@ -729,6 +972,7 @@ function matchingLines(
           | undefined;
         let matchesEvaluationTerm = false;
         let matchesProhibitionAlternative = false;
+        const coverageKeys = new Set<string>();
         for (const term of terms) {
           const normalizedTerm = lower(term.value);
           let searchOffset = 0;
@@ -738,8 +982,22 @@ function matchingLines(
               searchOffset,
             );
             if (matchOffset < 0) break;
+            if (
+              term.requiresLexicalBoundaries === true &&
+              !hasLexicalBoundaries(
+                normalizedMatchLine,
+                matchOffset,
+                normalizedTerm.length,
+              )
+            ) {
+              searchOffset = matchOffset + Math.max(1, normalizedTerm.length);
+              continue;
+            }
             if (term.searchKind === 'evaluation') matchesEvaluationTerm = true;
             else matchesProhibitionAlternative = true;
+            for (const coverageKey of term.coverageKeys ?? []) {
+              coverageKeys.add(coverageKey);
+            }
             const markdownContextPenalty = insideMarkdownFence
               ? 1
               : markdownMatchContextPenalty(
@@ -767,9 +1025,10 @@ function matchingLines(
         if (best === undefined) continue;
         const canonicalMatchLine = normalizedMatchLine.replace(/[-_]+/gu, ' ');
         const namesCanonicalConcept = terms.some(
-          ({ precedence, searchKind, value }) =>
+          ({ coverageKeys, precedence, searchKind, value }) =>
             precedence === 0 &&
             searchKind === 'evaluation' &&
+            coverageKeys === undefined &&
             canonicalMatchLine.includes(lower(value).replace(/[-_]+/gu, ' ')),
         );
         matches.push({
@@ -791,6 +1050,7 @@ function matchingLines(
           matchedTerm: best.term.value,
           matchesEvaluationTerm,
           matchesProhibitionAlternative,
+          coverageKeys: Object.freeze([...coverageKeys].sort(compareAscii)),
         });
       }
     }
@@ -862,6 +1122,25 @@ function balancePriorityEvidence(
   );
   const prioritySet = new Set(priority);
   return [...priority, ...matches.filter((match) => !prioritySet.has(match))];
+}
+
+function balanceCoverageEvidence(
+  matches: readonly MatchingLine[],
+): readonly MatchingLine[] {
+  const remaining = [...matches];
+  const prioritized: MatchingLine[] = [];
+  const covered = new Set<string>();
+  for (;;) {
+    const index = remaining.findIndex(({ coverageKeys }) =>
+      coverageKeys.some((key) => !covered.has(key)),
+    );
+    if (index < 0) break;
+    const [match] = remaining.splice(index, 1);
+    if (match === undefined) break;
+    prioritized.push(match);
+    for (const key of match.coverageKeys) covered.add(key);
+  }
+  return [...prioritized, ...remaining];
 }
 
 function evidenceFromMatch(
@@ -994,6 +1273,19 @@ function isDefiningStatement(value: string): boolean {
   return (
     DEFINING_STATEMENT_FORM.test(value) ||
     /(?:^|\s)[^\s]{1,80}(?::|=)(?:\s|$)/u.test(value)
+  );
+}
+
+function hasLexicalBoundaries(
+  value: string,
+  matchOffset: number,
+  matchLength: number,
+): boolean {
+  const before = value[matchOffset - 1];
+  const after = value[matchOffset + matchLength];
+  return (
+    (before === undefined || !/[a-z0-9]/u.test(before)) &&
+    (after === undefined || !/[a-z0-9]/u.test(after))
   );
 }
 
