@@ -81,6 +81,9 @@ describe('candidate profile authority command', () => {
     expect(
       optionalPostgresqlClaims.map(({ candidateId }) => candidateId),
     ).toEqual([
+      'jobs-agenda',
+      'jobs-airflow',
+      'jobs-dagster',
       'rate-fastify-rate-limit',
       'rate-kong',
       'rate-limiters',
@@ -92,10 +95,10 @@ describe('candidate profile authority command', () => {
       mode: 'validate',
       profiles: 150,
       known: 600,
-      unknown: 3_211,
+      unknown: 3_183,
       notApplicable: 210,
       conflict: 0,
-      partial: 29,
+      partial: 57,
       complete: 0,
     });
     expect(await readFile(authorityPath, 'utf8')).toBe(beforeAuthority);
